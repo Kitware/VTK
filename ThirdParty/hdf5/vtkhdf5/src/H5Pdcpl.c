@@ -13,11 +13,9 @@
 
 /*-------------------------------------------------------------------------
  *
- * Created:		H5Pdcpl.c
- *			February 26 1998
- *			Robb Matzke <matzke@llnl.gov>
+ * Created:     H5Pdcpl.c
  *
- * Purpose:		Dataset creation property list class routines
+ * Purpose:     Dataset creation property list class routines
  *
  *-------------------------------------------------------------------------
  */
@@ -33,19 +31,19 @@
 /***********/
 /* Headers */
 /***********/
-#include "H5private.h"		/* Generic Functions			*/
-#include "H5CXprivate.h"        /* API Contexts                         */
-#include "H5Dpkg.h"		/* Datasets 				*/
-#include "H5Eprivate.h"		/* Error handling		  	*/
-#include "H5FLprivate.h"	/* Free Lists                           */
-#include "H5Iprivate.h"		/* IDs			  		*/
-#include "H5MMprivate.h"	/* Memory management			*/
-#include "H5Oprivate.h"		/* Object headers		  	*/
-#include "H5Ppkg.h"		/* Property lists		  	*/
-#include "H5Sprivate.h"         /* Dataspaces                           */
-#include "H5Tprivate.h"		/* Datatypes 				*/
-#include "H5VMprivate.h"	/* Vectors and arrays 			*/
-#include "H5Zprivate.h"		/* Data filters				*/
+#include "H5private.h"          /* Generic Functions                        */
+#include "H5CXprivate.h"        /* API Contexts                             */
+#include "H5Dpkg.h"             /* Datasets                                 */
+#include "H5Eprivate.h"         /* Error handling                           */
+#include "H5FLprivate.h"        /* Free Lists                               */
+#include "H5Iprivate.h"         /* IDs                                      */
+#include "H5MMprivate.h"        /* Memory management                        */
+#include "H5Oprivate.h"         /* Object headers                           */
+#include "H5Ppkg.h"             /* Property lists                           */
+#include "H5Sprivate.h"         /* Dataspaces                               */
+#include "H5Tprivate.h"         /* Datatypes                                */
+#include "H5VMprivate.h"        /* Vectors and arrays                       */
+#include "H5Zprivate.h"         /* Data filters                             */
 
 
 /****************/
@@ -152,7 +150,7 @@ static herr_t H5P__dcrt_reg_prop(H5P_genclass_t *pclass);
 /* Property callbacks */
 static herr_t H5P__dcrt_layout_set(hid_t prop_id, const char *name, size_t size, void *value);
 static herr_t H5P__dcrt_layout_get(hid_t prop_id, const char *name, size_t size, void *value);
-static herr_t H5P__dcrt_layout_enc(const void *value, void **pp, size_t *size, void *udata);
+static herr_t H5P__dcrt_layout_enc(const void *value, void **pp, size_t *size);
 static herr_t H5P__dcrt_layout_dec(const void **pp, void *value);
 static herr_t H5P__dcrt_layout_del(hid_t prop_id, const char *name, size_t size, void *value);
 static herr_t H5P__dcrt_layout_copy(const char *name, size_t size, void *value);
@@ -160,14 +158,14 @@ static int H5P__dcrt_layout_cmp(const void *value1, const void *value2, size_t s
 static herr_t H5P__dcrt_layout_close(const char *name, size_t size, void *value);
 static herr_t H5P__dcrt_fill_value_set(hid_t prop_id, const char *name, size_t size, void *value);
 static herr_t H5P__dcrt_fill_value_get(hid_t prop_id, const char *name, size_t size, void *value);
-static herr_t H5P__dcrt_fill_value_enc(const void *value, void **pp, size_t *size, void *udata);
+static herr_t H5P__dcrt_fill_value_enc(const void *value, void **pp, size_t *size);
 static herr_t H5P__dcrt_fill_value_dec(const void **pp, void *value);
 static herr_t H5P__dcrt_fill_value_del(hid_t prop_id, const char *name, size_t size, void *value);
 static herr_t H5P__dcrt_fill_value_copy(const char *name, size_t size, void *value);
 static herr_t H5P__dcrt_fill_value_close(const char *name, size_t size, void *value);
 static herr_t H5P__dcrt_ext_file_list_set(hid_t prop_id, const char *name, size_t size, void *value);
 static herr_t H5P__dcrt_ext_file_list_get(hid_t prop_id, const char *name, size_t size, void *value);
-static herr_t H5P__dcrt_ext_file_list_enc(const void *value, void **pp, size_t *size, void *udata);
+static herr_t H5P__dcrt_ext_file_list_enc(const void *value, void **pp, size_t *size);
 static herr_t H5P__dcrt_ext_file_list_dec(const void **pp, void *value);
 static herr_t H5P__dcrt_ext_file_list_del(hid_t prop_id, const char *name, size_t size, void *value);
 static herr_t H5P__dcrt_ext_file_list_copy(const char *name, size_t size, void *value);
@@ -379,40 +377,20 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5P__dcrt_layout_enc(const void *value, void **_pp, size_t *size, void *_udata)
+H5P__dcrt_layout_enc(const void *value, void **_pp, size_t *size)
 {
     const H5O_layout_t *layout = (const H5O_layout_t *)value; /* Create local aliases for values */
-    H5P_enc_cb_info_t *udata = (H5P_enc_cb_info_t *)_udata;       /* User data for encode callback */
     uint8_t **pp = (uint8_t **)_pp;
     uint8_t *tmp_p;
     size_t tmp_size;
     size_t u;                           /* Local index variable */
-    H5P_genplist_t *fapl_plist;         /* The file access property list */
-    hid_t new_fapl_id;                  /* The file access property list ID */
-    H5F_libver_t low_bound = H5F_LIBVER_V110;   /* Set the low bound in fapl to latest */
-    H5F_libver_t high_bound = H5F_LIBVER_V110;  /* Set the high bound in fapl to latest */
     herr_t ret_value = SUCCEED;         /* Return value */
-
 
     FUNC_ENTER_STATIC
 
     /* Sanity check */
     HDassert(layout);
     HDassert(size);
-
-    /* Make a copy of the default file access property list */
-    if(NULL == (fapl_plist = (H5P_genplist_t *)H5I_object(H5P_LST_FILE_ACCESS_ID_g)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a property list")
-
-    /* Set latest format in fapl_plist */
-    /* This will eventually be used by VDS to encode datasets via H5S_encode() */
-    if(H5P_set(fapl_plist, H5F_ACS_LIBVER_LOW_BOUND_NAME, &low_bound) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't set 'low' bound for library format versions")
-    if(H5P_set(fapl_plist, H5F_ACS_LIBVER_HIGH_BOUND_NAME, &high_bound) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't set 'high' bound for library format versions")
-
-    if((new_fapl_id = H5P_copy_plist(fapl_plist, FALSE)) < 0)
-        HGOTO_ERROR(H5E_INTERNAL, H5E_CANTINIT, FAIL, "can't copy file access property list")
 
     if(NULL != *pp) {
         /* Encode layout type */
@@ -459,15 +437,14 @@ H5P__dcrt_layout_enc(const void *value, void **_pp, size_t *size, void *_udata)
                  * list before we get here. */
                 tmp_size = (size_t)-1;
                 tmp_p = *pp;
-
-                if(H5S_encode(layout->storage.u.virt.list[u].source_select, pp, &tmp_size, new_fapl_id) < 0)
+                if(H5S_encode(layout->storage.u.virt.list[u].source_select, pp, &tmp_size) < 0)
                     HGOTO_ERROR(H5E_PLIST, H5E_CANTENCODE, FAIL, "unable to serialize source selection")
                 *size += (size_t)(*pp - tmp_p);
 
                 /* Virtual dataset selection.  Same notes as above apply. */
                 tmp_size = (size_t)-1;
                 tmp_p = *pp;
-                if(H5S_encode(layout->storage.u.virt.list[u].source_dset.virtual_select, pp, &tmp_size, new_fapl_id) < 0)
+                if(H5S_encode(layout->storage.u.virt.list[u].source_dset.virtual_select, pp, &tmp_size) < 0)
                     HGOTO_ERROR(H5E_PLIST, H5E_CANTENCODE, FAIL, "unable to serialize virtual selection")
                 *size += (size_t)(*pp - tmp_p);
             } /* end for */
@@ -500,14 +477,14 @@ H5P__dcrt_layout_enc(const void *value, void **_pp, size_t *size, void *_udata)
                 /* Source selection */
                 tmp_size = (size_t)0;
                 tmp_p = NULL;
-                if(H5S_encode(layout->storage.u.virt.list[u].source_select, &tmp_p, &tmp_size, new_fapl_id) < 0)
+                if(H5S_encode(layout->storage.u.virt.list[u].source_select, &tmp_p, &tmp_size) < 0)
                     HGOTO_ERROR(H5E_PLIST, H5E_CANTENCODE, FAIL, "unable to serialize source selection")
                 *size += tmp_size;
 
                 /* Virtual dataset selection */
                 tmp_size = (size_t)0;
                 tmp_p = NULL;
-                if(H5S_encode(layout->storage.u.virt.list[u].source_dset.virtual_select, &tmp_p, &tmp_size, new_fapl_id) < 0)
+                if(H5S_encode(layout->storage.u.virt.list[u].source_dset.virtual_select, &tmp_p, &tmp_size) < 0)
                     HGOTO_ERROR(H5E_PLIST, H5E_CANTENCODE, FAIL, "unable to serialize virtual selection")
                 *size += tmp_size;
             } /* end for */
@@ -1013,7 +990,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5P__dcrt_fill_value_enc(const void *value, void **_pp, size_t *size, void H5_ATTR_UNUSED *udata)
+H5P__dcrt_fill_value_enc(const void *value, void **_pp, size_t *size)
 {
     const H5O_fill_t *fill = (const H5O_fill_t *)value; /* Create local aliases for values */
     size_t   dt_size = 0;                 /* Size of encoded datatype */
@@ -1416,7 +1393,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5P__dcrt_ext_file_list_enc(const void *value, void **_pp, size_t *size, void H5_ATTR_UNUSED *udata)
+H5P__dcrt_ext_file_list_enc(const void *value, void **_pp, size_t *size)
 {
     const H5O_efl_t *efl = (const H5O_efl_t *)value; /* Create local aliases for values */
     size_t len = 0;                     /* String length of slot name */
@@ -3239,10 +3216,10 @@ H5Pset_fill_value(hid_t plist_id, hid_t type_id, const void *value)
         H5T_path_t *tpath;      /* Conversion information */
 
         /* Retrieve pointer to datatype */
-	if(NULL == (type = (H5T_t *)H5I_object_verify(type_id, H5I_DATATYPE)))
+        if(NULL == (type = (H5T_t *)H5I_object_verify(type_id, H5I_DATATYPE)))
             HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a datatype")
 
-	/* Set the fill value */
+        /* Set the fill value */
         if(NULL == (fill.type = H5T_copy(type, H5T_COPY_TRANSIENT)))
             HGOTO_ERROR(H5E_PLIST, H5E_CANTCOPY, FAIL, "can't copy datatype")
         fill.size = (ssize_t)H5T_get_size(type);

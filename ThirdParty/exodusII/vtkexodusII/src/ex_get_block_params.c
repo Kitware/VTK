@@ -44,7 +44,7 @@
  *
  * the id and type fields of the block(s) must be defined to specify which
  * blocks to access;
- *  all other fileds will be filled in based on data from the file
+ * all other fields will be filled in based on data from the file
  */
 
 int ex_get_block_params(int exoid, size_t block_count, struct ex_block **blocks)

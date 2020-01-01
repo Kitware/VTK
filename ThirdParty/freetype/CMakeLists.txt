@@ -2,7 +2,7 @@ vtk_module_third_party(
   INTERNAL
     LICENSE_FILES "vtkfreetype/docs/FTL.TXT"
                   "vtkfreetype/docs/LICENSE.TXT"
-    VERSION       "2.10.0"
+    VERSION       "2.10.1"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE Freetype

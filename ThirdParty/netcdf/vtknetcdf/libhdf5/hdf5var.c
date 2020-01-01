@@ -1,3 +1,4 @@
+
 /* Copyright 2003-2019, University Corporation for Atmospheric
  * Research. See COPYRIGHT file for copying and redistribution
  * conditions.*/
@@ -9,7 +10,9 @@
  */
 
 #include "config.h"
+#ifdef USE_HDF5
 #include <hdf5internal.h>
+#endif
 #include <math.h> /* For pow() used below. */
 
 /** @internal Default size for unlimited dim chunksize. */
@@ -18,6 +21,36 @@
 /** @internal Temp name used when renaming vars to preserve varid
  * order. */
 #define NC_TEMP_NAME "_netcdf4_temporary_variable_name_for_rename"
+
+#ifdef LOGGING
+/**
+ * Report the chunksizes selected for a variable.
+ *
+ * @param title A text title for the report.
+ * @param var Pointer to the var of interest.
+ *
+ * @author Dennis Heimbigner
+ */
+static void
+reportchunking(const char *title, NC_VAR_INFO_T *var)
+{
+    int i;
+    char buf[8192];
+
+    buf[0] = '\0'; /* for strlcat */
+    strlcat(buf,title,sizeof(buf));
+    strlcat(buf,"chunksizes for var ",sizeof(buf));
+    strlcat(buf,var->hdr.name,sizeof(buf));
+    strlcat(buf,"sizes=",sizeof(buf));
+    for(i=0;i<var->ndims;i++) {
+        char digits[64];
+        if(i > 0) strlcat(buf,",",sizeof(buf));
+        snprintf(digits,sizeof(digits),"%ld",(unsigned long)var->chunksizes[i]);
+	strlcat(buf,digits,sizeof(buf));
+    }
+    LOG((3,"%s",buf));
+}
+#endif
 
 /**
  * @internal If the HDF5 dataset for this variable is open, then close
@@ -221,6 +254,9 @@ nc4_find_default_chunksizes2(NC_GRP_INFO_T *grp, NC_VAR_INFO_T *var)
         }
     }
 
+#ifdef LOGGING
+    reportchunking("find_default: ",var);
+#endif
     return NC_NOERR;
 }
 
@@ -261,7 +297,7 @@ give_var_secret_name(NC_VAR_INFO_T *var, const char *name)
  * @param ncid File ID.
  * @param name Name.
  * @param xtype Type.
- * @param ndims Number of dims. HDF5 has maximim of 32.
+ * @param ndims Number of dims. HDF5 has maximum of 32.
  * @param dimidsp Array of dim IDs.
  * @param varidp Gets the var ID.
  *
@@ -622,7 +658,7 @@ nc_def_var_extra(int ncid, int varid, int *shuffle, int *deflate,
         return NC_ENOTVAR;
     assert(var && var->hdr.id == varid);
 
-    /* Can't turn on parallel and deflate/fletcher32/szip/shuffle. */
+    /* Can't turn on parallel and deflate/fletcher32/szip/shuffle (for now). */
     if (h5->parallel == NC_TRUE)
         if (deflate || fletcher32 || shuffle)
             return NC_EINVAL;
@@ -724,6 +760,13 @@ nc_def_var_extra(int ncid, int varid, int *shuffle, int *deflate,
             return retval;
     }
 
+#ifdef LOGGING
+    {
+        int dfalt = (chunksizes == NULL);
+        reportchunking(dfalt ? "extra: default: " : "extra: user: ", var);
+    }
+#endif
+
     /* Are we setting a fill modes? */
     if (no_fill)
     {
@@ -762,7 +805,27 @@ nc_def_var_extra(int ncid, int varid, int *shuffle, int *deflate,
 
     /* Is the user setting the endianness? */
     if (endianness)
+    {
+        /* Setting endianness is only premitted on atomic integer and
+         * atomic float types. */
+        switch (var->type_info->hdr.id)
+        {
+        case NC_BYTE:
+        case NC_SHORT:
+        case NC_INT:
+        case NC_FLOAT:
+        case NC_DOUBLE:
+        case NC_UBYTE:
+        case NC_USHORT:
+        case NC_UINT:
+        case NC_INT64:
+        case NC_UINT64:
+            break;
+        default:
+            return NC_EINVAL;
+        }
         var->type_info->endianness = *endianness;
+    }
 
     return NC_NOERR;
 }
@@ -1006,6 +1069,10 @@ NC4_def_var_filter(int ncid, int varid, unsigned int id, size_t nparams,
     if (var->created)
         return NC_ELATEDEF;
 
+    /* Can't turn on parallel and filter (for now). */
+    if (h5->parallel == NC_TRUE)
+        return NC_EINVAL;
+
 #ifdef HAVE_H5Z_SZIP
     if(id == H5Z_FILTER_SZIP) {
         if(nparams != 2)
@@ -1036,6 +1103,17 @@ NC4_def_var_filter(int ncid, int varid, unsigned int id, size_t nparams,
         if(var->params == NULL) return NC_ENOMEM;
         memcpy(var->params,parms,sizeof(unsigned int)*var->nparams);
     }
+    /* Filter => chunking */
+    var->contiguous = NC_FALSE;
+    /* Determine default chunksizes for this variable unless already specified */
+    if(var->chunksizes && !var->chunksizes[0]) {
+        if((retval = nc4_find_default_chunksizes2(grp, var)))
+	    return retval;
+        /* Adjust the cache. */
+        if ((retval = nc4_adjust_var_cache(grp, var)))
+            return retval;
+    }
+
     return NC_NOERR;
 }
 
@@ -1604,7 +1682,7 @@ NC4_put_vars(int ncid, int varid, const size_t *startp, const size_t *countp,
 #endif
                 if (!zero_count && endindex >= fdims[d2])
                 {
-                    xtend_size[d2] = (long long unsigned)(endindex+1);
+                    xtend_size[d2] = (long long unsigned)(endindex + 1);
                     need_to_extend++;
                 }
                 else
@@ -1612,7 +1690,7 @@ NC4_put_vars(int ncid, int varid, const size_t *startp, const size_t *countp,
 
                 if (!zero_count && endindex >= dim->len)
                 {
-                    dim->len = endindex+1;
+                    dim->len = endindex + 1;
                     dim->extended = NC_TRUE;
                 }
             }
@@ -2043,7 +2121,7 @@ NC4_get_vars(int ncid, int varid, const size_t *startp, const size_t *countp,
         /* Skip past the real data we've already read. */
         if (!no_read)
             for (real_data_size = file_type_size, d2 = 0; d2 < var->ndims; d2++)
-                real_data_size *= (count[d2] - start[d2]);
+                real_data_size *= count[d2];
 
         /* Get the fill value from the HDF5 variable. Memory will be
          * allocated. */

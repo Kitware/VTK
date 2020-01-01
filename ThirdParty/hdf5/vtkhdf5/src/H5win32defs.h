@@ -34,6 +34,7 @@ typedef __int64             h5_stat_size_t;
 #define HDaccess(F,M)       _access(F,M)
 #define HDchdir(S)          _chdir(S)
 #define HDclose(F)          _close(F)
+#define HDcreat(S,M)        Wopen_utf8(S,O_CREAT|O_TRUNC|O_RDWR,M)
 #define HDdup(F)            _dup(F)
 #define HDfdopen(N,S)       _fdopen(N,S)
 #define HDfileno(F)         _fileno(F)
@@ -47,21 +48,24 @@ typedef __int64             h5_stat_size_t;
 #define HDmkdir(S,M)        _mkdir(S)
 #define HDnanosleep(N, O)   Wnanosleep(N, O)
 #define HDoff_t             __int64
-/* _O_BINARY must be set in Windows to avoid CR-LF <-> LF EOL
- * transformations when performing I/O. Note that this will
- * produce Unix-style text files, though.
- *
- * Also note that the variadic macro is using a VC++ extension
+
+/* Note that the variadic HDopen macro is using a VC++ extension
  * where the comma is dropped if nothing is passed to the ellipsis.
  */
-#define HDopen(S,F,...)       _open(S, F | _O_BINARY, __VA_ARGS__)
+#ifndef H5_HAVE_MINGW
+#define HDopen(S,F,...)     Wopen_utf8(S,F,__VA_ARGS__)
+#else
+#define HDopen(S,F,...)     Wopen_utf8(S,F,##__VA_ARGS__)
+#endif
 #define HDread(F,M,Z)       _read(F,M,Z)
+#define HDremove(S)         Wremove_utf8(S)
 #define HDrmdir(S)          _rmdir(S)
 #define HDsetvbuf(F,S,M,Z)  setvbuf(F,S,M,(Z>1?Z:2))
 #define HDsleep(S)          Sleep(S*1000)
 #define HDstat(S,B)         _stati64(S,B)
 #define HDstrcasecmp(A,B)   _stricmp(A,B)
 #define HDstrdup(S)         _strdup(S)
+#define HDstrtok_r(X,Y,Z)   strtok_s(X,Y,Z)
 #define HDtzset()           _tzset()
 #define HDunlink(S)         _unlink(S)
 #define HDwrite(F,M,Z)      _write(F,M,Z)
@@ -75,6 +79,11 @@ typedef __int64             h5_stat_size_t;
   #ifndef H5_HAVE_STRTOULL
     #define HDstrtoull(S,R,N)   _strtoui64(S,R,N)
   #endif /* H5_HAVE_STRTOULL */
+  /* va_copy() does not exist on pre-2013 Visual Studio. Since va_lists are
+   * just pointers into the stack in those CRTs, the usual work-around
+   * is to just define the operation as a pointer copy.
+   */
+  #define HDva_copy(D,S)      ((D) = (S))
 #endif /* MSC_VER < 1800 */
 
 /*
@@ -120,6 +129,9 @@ extern "C" {
     H5_DLL int c99_vsnprintf(char* str, size_t size, const char* format, va_list ap);
     H5_DLL int Wnanosleep(const struct timespec *req, struct timespec *rem);
     H5_DLL herr_t H5_expand_windows_env_vars(char **env_var);
+    H5_DLL const wchar_t *H5_get_utf16_str(const char *s);
+    H5_DLL int Wopen_utf8(const char *path, int oflag, ...);
+    H5_DLL int Wremove_utf8(const char *path);
 
     /* Round functions only needed for VS2012 and earlier.
      * They are always built to ensure they don't go stale and

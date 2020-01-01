@@ -8,8 +8,7 @@
  * This file is part of netcdf-4, a netCDF-like interface for HDF5, or a
  * HDF5 backend for netCDF, depending on your point of view.
  *
- * This file handles the (useless) *_base_pe() functions, and the
- * inq_format functions.
+ * This file handles the inq_format functions.
  *
  * @author Ed Hartnett, Dennis Heimbigner
  */
@@ -59,7 +58,7 @@ NC4_inq_format(int ncid, int *formatp)
  * @param ncid File ID (ignored).
  * @param formatp a pointer that gets the extended format. Note that
  * this is not the same as the format provided by nc_inq_format(). The
- * extended foramt indicates the dispatch layer model. NetCDF-4 files
+ * extended format indicates the dispatch layer model. NetCDF-4 files
  * will always get NC_FORMATX_NC4.
  * @param modep a pointer that gets the open/create mode associated with
  * this file. Ignored if NULL.

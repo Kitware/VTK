@@ -35,12 +35,15 @@ static const char *FileHeader = "\n\
 #include <stdio.h>
 #include <time.h>
 #include "H5private.h"
+/* Do NOT use HDfprintf in this file as it is not linked with the library,
+ * which contains the H5system.c file in which the function is defined.
+ */
 
 #define LIBSETTINGSFNAME "libhdf5.settings"
 
 FILE       *rawoutstream = NULL;
 
-
+
 /*-------------------------------------------------------------------------
  * Function:  insert_libhdf5_settings
  *
@@ -105,7 +108,7 @@ insert_libhdf5_settings(FILE *flibinfo)
 #endif
 } /* insert_libhdf5_settings() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:  make_libinfo
  *
@@ -123,7 +126,7 @@ make_libinfo(void)
     insert_libhdf5_settings(rawoutstream);
 }
 
-
+
 /*-------------------------------------------------------------------------
  * Function:  print_header
  *
@@ -230,7 +233,7 @@ information about the library build configuration\n";
     fprintf(rawoutstream, "#include \"vtk_hdf5_mangle.h\"\n\n");
 }
 
-
+
 /*-------------------------------------------------------------------------
  * Function:  print_footer
  *
@@ -245,7 +248,7 @@ print_footer(void)
     /* nothing */
 }
 
-
+
 /*-------------------------------------------------------------------------
  * Function:  main
  *

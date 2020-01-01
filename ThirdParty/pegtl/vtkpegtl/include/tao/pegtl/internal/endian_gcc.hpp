@@ -13,7 +13,7 @@ namespace tao
    {
       namespace internal
       {
-#if not defined( __BYTE_ORDER__ )
+#if !defined( __BYTE_ORDER__ )
 #error No byte order defined!
 #elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 
@@ -49,7 +49,7 @@ namespace tao
          {
             static std::int16_t convert( const std::int16_t n ) noexcept
             {
-               return __builtin_bswap16( n );
+               return static_cast< std::int16_t >( __builtin_bswap16( static_cast< std::uint16_t >( n ) ) );
             }
 
             static std::uint16_t convert( const std::uint16_t n ) noexcept
@@ -72,7 +72,7 @@ namespace tao
 
             static std::int32_t convert( const std::int32_t n ) noexcept
             {
-               return __builtin_bswap32( n );
+               return static_cast< std::int32_t >( __builtin_bswap32( static_cast< std::uint32_t >( n ) ) );
             }
 
             static std::uint32_t convert( const std::uint32_t n ) noexcept
@@ -95,7 +95,7 @@ namespace tao
 
             static std::int64_t convert( const std::int64_t n ) noexcept
             {
-               return __builtin_bswap64( n );
+               return static_cast< std::int64_t >( __builtin_bswap64( static_cast< std::uint64_t >( n ) ) );
             }
 
             static std::uint64_t convert( const std::uint64_t n ) noexcept
@@ -142,7 +142,7 @@ namespace tao
          {
             static std::int16_t convert( const std::int16_t n ) noexcept
             {
-               return __builtin_bswap16( n );
+               return static_cast< std::int16_t >( __builtin_bswap16( static_cast< std::uint16_t >( n ) ) );
             }
 
             static std::uint16_t convert( const std::uint16_t n ) noexcept
@@ -165,7 +165,7 @@ namespace tao
 
             static std::int32_t convert( const std::int32_t n ) noexcept
             {
-               return __builtin_bswap32( n );
+               return static_cast< std::int32_t >( __builtin_bswap32( static_cast< std::uint32_t >( n ) ) );
             }
 
             static std::uint32_t convert( const std::uint32_t n ) noexcept
@@ -186,12 +186,12 @@ namespace tao
                return n;
             }
 
-            static std::uint64_t convert( const std::uint64_t n ) noexcept
+            static std::int64_t convert( const std::int64_t n ) noexcept
             {
-               return __builtin_bswap64( n );
+               return static_cast< std::int64_t >( __builtin_bswap64( static_cast< std::uint64_t >( n ) ) );
             }
 
-            static std::int64_t convert( const std::int64_t n ) noexcept
+            static std::uint64_t convert( const std::uint64_t n ) noexcept
             {
                return __builtin_bswap64( n );
             }

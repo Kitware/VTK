@@ -1,7 +1,7 @@
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES "vtktiff/COPYRIGHT"
-    VERSION       "4.0.10"
+    VERSION       "4.1.0"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE TIFF

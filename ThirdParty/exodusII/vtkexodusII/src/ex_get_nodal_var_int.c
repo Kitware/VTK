@@ -37,7 +37,12 @@
 #include "exodusII_int.h" // for EX_NOERR, EX_WARN, etc
 
 /*!
-The function ex_get_nodal_var() reads the values of a single nodal
+\internal
+\ingroup ResultsData
+\note This function is called internally by ex_get_var() to handle
+the reading of nodal variable values.
+
+The function ex__get_nodal_var() reads the values of a single nodal
 variable for a single time step. Memory must be allocated for the
 nodal variable values array before this function is invoked.
 
@@ -46,34 +51,34 @@ code must declare the array passed to be the appropriate type
 (float or double) to match the compute word size passed in
 ex_create() or ex_open().
 
-\return In case of an error, ex_get_nodal_var() returns a negative
+\return In case of an error, ex__get_nodal_var() returns a negative
 number; a warning will return a positive number. Possible causes of
 errors include:
-  -  data file not properly opened with call to ex_create() or ex_open()
-  -  specified nodal variable does not exist.
-  -  a warning value is returned if no nodal variables are stored in the file.
+-  data file not properly opened with call to ex_create() or ex_open()
+-  specified nodal variable does not exist.
+-  a warning value is returned if no nodal variables are stored in the file.
 
 \param[in] exoid                exodus file ID returned from a previous call to
 ex_create()
-                                or ex_open().
+or ex_open().
 
 \param[in] time_step            The time step, as described under ex_put_time(),
 at which the
-                                nodal variable values are desired. This is
+nodal variable values are desired. This is
 essentially an index (in
-                                the time dimension) into the nodal variable
+the time dimension) into the nodal variable
 values array stored in
-                                the database. The first time step is 1.
+the database. The first time step is 1.
 
 \param[in] nodal_var_index      The index of the desired nodal variable. The
 first variable
-                                has an index of 1.
+has an index of 1.
 
 \param[in] num_nodes            The number of nodal points.
 
 \param[out]  nodal_var_vals     Returned array of num_nodes values of the
 nodal_var_index-th
-                                nodal variable for the time_step-th time
+nodal variable for the time_step-th time
 step.
 
 
@@ -90,20 +95,20 @@ var_index = 2;
 
 var_values = (float *) calloc (num_nodes, sizeof(float));
 error = ex_get_nodal_var(exoid, time_step, var_index, num_nodes,
-                         var_values);
+var_values);
 ~~~
 
 */
 
-int ex_get_nodal_var_int(int exoid, int time_step, int nodal_var_index, int64_t num_nodes,
-                         void *nodal_var_vals)
+int ex__get_nodal_var(int exoid, int time_step, int nodal_var_index, int64_t num_nodes,
+                      void *nodal_var_vals)
 {
   int    varid;
   int    status;
   size_t start[3], count[3];
   char   errmsg[MAX_ERR_LENGTH];
 
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
   /* inquire previously defined variable */
 
@@ -146,7 +151,7 @@ int ex_get_nodal_var_int(int exoid, int time_step, int nodal_var_index, int64_t 
     count[1] = num_nodes;
   }
 
-  if (ex_comp_ws(exoid) == 4) {
+  if (ex__comp_ws(exoid) == 4) {
     status = nc_get_vara_float(exoid, varid, start, count, nodal_var_vals);
   }
   else {

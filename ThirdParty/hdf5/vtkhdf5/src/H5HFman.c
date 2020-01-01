@@ -140,6 +140,7 @@ H5HF__man_insert(H5HF_hdr_t *hdr, size_t obj_size, const void *obj, void *_id)
     /* Check for row section */
     if(sec_node->sect_info.type == H5HF_FSPACE_SECT_FIRST_ROW ||
             sec_node->sect_info.type == H5HF_FSPACE_SECT_NORMAL_ROW) {
+
         /* Allocate 'single' selection out of 'row' selection */
         if(H5HF__man_iblock_alloc_row(hdr, &sec_node) < 0)
             HGOTO_ERROR(H5E_HEAP, H5E_CANTALLOC, FAIL, "can't break up row section")

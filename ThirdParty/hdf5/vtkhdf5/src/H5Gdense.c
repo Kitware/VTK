@@ -416,7 +416,7 @@ HDfprintf(stderr, "%s: HDstrlen(lnk->name) = %Zu, link_size = %Zu\n", FUNC, HDst
 
     /* Create serialized form of link */
     if(H5O_msg_encode(f, H5O_LINK_ID, FALSE, (unsigned char *)link_ptr, lnk) < 0)
-	HGOTO_ERROR(H5E_SYM, H5E_CANTENCODE, FAIL, "can't encode link")
+        HGOTO_ERROR(H5E_SYM, H5E_CANTENCODE, FAIL, "can't encode link")
 
     /* Open the fractal heap */
     if(NULL == (fheap = H5HF_open(f, linfo->fheap_addr)))
@@ -966,8 +966,7 @@ done:
  */
 herr_t
 H5G__dense_iterate(H5F_t *f, const H5O_linfo_t *linfo, H5_index_t idx_type,
-    H5_iter_order_t order, hsize_t skip, hsize_t *last_lnk, H5G_lib_iterate_t op,
-    void *op_data)
+    H5_iter_order_t order, hsize_t skip, hsize_t *last_lnk, H5G_lib_iterate_t op, void *op_data)
 {
     H5HF_t *fheap = NULL;               /* Fractal heap handle */
     H5G_link_table_t ltable = {0, NULL};      /* Table of links */

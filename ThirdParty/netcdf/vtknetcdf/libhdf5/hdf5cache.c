@@ -24,7 +24,7 @@ extern float nc4_chunk_cache_preemption;
  *
  * @param size Size in bytes to set cache.
  * @param nelems Number of elements to hold in cache.
- * @param preemption Premption stragety (between 0 and 1).
+ * @param preemption Preemption stragety (between 0 and 1).
  *
  * @return ::NC_NOERR No error.
  * @return ::NC_EINVAL Bad preemption.
@@ -47,7 +47,7 @@ nc_set_chunk_cache(size_t size, size_t nelems, float preemption)
  *
  * @param sizep Pointer that gets size in bytes to set cache.
  * @param nelemsp Pointer that gets number of elements to hold in cache.
- * @param preemptionp Pointer that gets premption stragety (between 0 and 1).
+ * @param preemptionp Pointer that gets preemption stragety (between 0 and 1).
  *
  * @return ::NC_NOERR No error.
  * @author Ed Hartnett

@@ -37,6 +37,7 @@
 #include "exodusII_int.h" // for EX_FATAL, EX_NOERR
 
 /**
+ * \ingroup Utilities
  * Given a file or group 'parent' id, return the number of child groups and the
  * ids
  * of the child groups below the parent.  If num_groups is NULL, do not return
@@ -50,7 +51,7 @@ int ex_get_group_ids(int parent_id, int *num_groups, int *group_ids)
   int status;
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(parent_id, __func__);
+  ex__check_valid_file_id(parent_id, __func__);
 
   status = nc_inq_grps(parent_id, num_groups, group_ids);
   if (status != NC_NOERR) {

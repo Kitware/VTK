@@ -63,11 +63,11 @@ H5FL_DEFINE(H5O_unknown_t);
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5O__unknown_free
+ * Function:    H5O__unknown_free
  *
- * Purpose:	Frees the message
+ * Purpose:     Frees the message
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:      SUCCEED/FAIL
  *
  * Programmer:	Quincey Koziol
  *              Tuesday, May 1, 2007

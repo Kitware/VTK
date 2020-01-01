@@ -134,16 +134,16 @@ static const H5AC_class_t *const H5AC_class_s[] = {
 };
 
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5AC_init
+ * Function:    H5AC_init
  *
- * Purpose:	Initialize the interface from some other layer.
+ * Purpose:    Initialize the interface from some other layer.
  *
- * Return:	Success:	non-negative
- *		Failure:	negative
+ * Return:    Success:    non-negative
+ *        Failure:    negative
  *
- * Programmer:	Quincey Koziol
+ * Programmer:    Quincey Koziol
  *              Saturday, January 18, 2003
  *
  *-------------------------------------------------------------------------
@@ -160,15 +160,15 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5AC_init() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5AC__init_package
+ * Function:    H5AC__init_package
  *
- * Purpose:	Initialize interface-specific information
+ * Purpose:    Initialize interface-specific information
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Quincey Koziol
+ * Programmer:    Quincey Koziol
  *              Thursday, July 18, 2002
  *
  *-------------------------------------------------------------------------
@@ -196,17 +196,17 @@ H5AC__init_package(void)
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5AC__init_package() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5AC_term_package
+ * Function:    H5AC_term_package
  *
- * Purpose:	Terminate this interface.
+ * Purpose:    Terminate this interface.
  *
- * Return:	Success:	Positive if anything was done that might
- *				affect other interfaces; zero otherwise.
- * 		Failure:	Negative.
+ * Return:    Success:    Positive if anything was done that might
+ *                affect other interfaces; zero otherwise.
+ *         Failure:    Negative.
  *
- * Programmer:	Quincey Koziol
+ * Programmer:    Quincey Koziol
  *              Thursday, July 18, 2002
  *
  *-------------------------------------------------------------------------
@@ -223,15 +223,15 @@ H5AC_term_package(void)
     FUNC_LEAVE_NOAPI(0)
 } /* end H5AC_term_package() */
 
-
+
 /*-------------------------------------------------------------------------
  *
  * Function:    H5AC_cache_image_pending()
  *
- * Purpose:     Debugging function that tests to see if the load of a 
+ * Purpose:     Debugging function that tests to see if the load of a
  *              metadata cache image load is pending (i.e. will be executed
  *              on the next protect or insert)
- *              
+ *
  *              Returns TRUE if a cache image load is pending, and FALSE
  *              if not.  Throws an assertion failure on error.
  *
@@ -261,7 +261,7 @@ H5AC_cache_image_pending(const H5F_t *f)
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_cache_image_pending() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5AC_create
  *
@@ -284,7 +284,7 @@ herr_t
 H5AC_create(const H5F_t *f, H5AC_cache_config_t *config_ptr, H5AC_cache_image_config_t * image_config_ptr)
 {
 #ifdef H5_HAVE_PARALLEL
-    char 	 prefix[H5C__PREFIX_LEN] = "";
+    char      prefix[H5C__PREFIX_LEN] = "";
     H5AC_aux_t * aux_ptr = NULL;
 #endif /* H5_HAVE_PARALLEL */
     struct H5C_cache_image_ctl_t int_ci_config = H5C__DEFAULT_CACHE_IMAGE_CTL;
@@ -309,9 +309,9 @@ H5AC_create(const H5F_t *f, H5AC_cache_config_t *config_ptr, H5AC_cache_image_co
 
 #ifdef H5_HAVE_PARALLEL
     if(H5F_HAS_FEATURE(f, H5FD_FEAT_HAS_MPI)) {
-        MPI_Comm	 mpi_comm;
-        int		 mpi_rank;
-        int	 	 mpi_size;
+        MPI_Comm     mpi_comm;
+        int         mpi_rank;
+        int          mpi_size;
 
         if(MPI_COMM_NULL == (mpi_comm = H5F_mpi_get_comm(f)))
             HGOTO_ERROR(H5E_VFL, H5E_CANTGET, FAIL, "can't get MPI communicator")
@@ -349,7 +349,7 @@ H5AC_create(const H5F_t *f, H5AC_cache_config_t *config_ptr, H5AC_cache_image_co
         aux_ptr->sync_point_done = NULL;
         aux_ptr->p0_image_len = 0;
 
-        sprintf(prefix, "%d:", mpi_rank);
+        HDsprintf(prefix, "%d:", mpi_rank);
 
         if(mpi_rank == 0) {
             if(NULL == (aux_ptr->d_slist_ptr = H5SL_create(H5SL_TYPE_HADDR, NULL)))
@@ -400,7 +400,7 @@ H5AC_create(const H5F_t *f, H5AC_cache_config_t *config_ptr, H5AC_cache_image_co
 #endif /* H5_HAVE_PARALLEL */
 
     if(NULL == f->shared->cache)
-	HGOTO_ERROR(H5E_CACHE, H5E_CANTALLOC, FAIL, "memory allocation failed")
+    HGOTO_ERROR(H5E_CACHE, H5E_CANTALLOC, FAIL, "memory allocation failed")
 
 #ifdef H5_HAVE_PARALLEL
     if(aux_ptr != NULL)
@@ -421,8 +421,8 @@ H5AC_create(const H5F_t *f, H5AC_cache_config_t *config_ptr, H5AC_cache_image_co
         HGOTO_ERROR(H5E_CACHE, H5E_CANTSET, FAIL, "auto resize configuration failed")
 
     /* Don't need to get the current H5C image config here since the
-     * cache has just been created, and thus f->shared->cache->image_ctl 
-     * must still set to its initial value (H5C__DEFAULT_CACHE_IMAGE_CTL).  
+     * cache has just been created, and thus f->shared->cache->image_ctl
+     * must still set to its initial value (H5C__DEFAULT_CACHE_IMAGE_CTL).
      * Note that this not true as soon as control returns to the application
      * program, as some test code modifies f->shared->cache->image_ctl.
      */
@@ -458,7 +458,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_create() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5AC_dest
  *
@@ -517,10 +517,10 @@ H5AC_dest(H5F_t *f)
         /* Sanity check */
         HDassert(aux_ptr->magic == H5AC__H5AC_AUX_T_MAGIC);
 
-    /* If the file was opened R/W, attempt to flush all entries 
+    /* If the file was opened R/W, attempt to flush all entries
      * from rank 0 & Bcast clean list to other ranks.
      *
-     * Must not flush in the R/O case, as this will trigger the 
+     * Must not flush in the R/O case, as this will trigger the
      * free space manager settle routines.
      */
     if(H5F_ACC_RDWR & H5F_INTENT(f))
@@ -556,17 +556,17 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_dest() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5AC_evict
  *
  * Purpose:     Evict all entries except the pinned entries
- *		in the cache.
+ *        in the cache.
  *
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Vailin Choi
- *		Dec 2013
+ *        Dec 2013
  *
  *-------------------------------------------------------------------------
  */
@@ -596,13 +596,13 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_evict() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5AC_expunge_entry
  *
- * Purpose:	Expunge the target entry from the cache without writing it
- * 		to disk even if it is dirty.  The entry must not be either
- * 		pinned or protected.
+ * Purpose:    Expunge the target entry from the cache without writing it
+ *         to disk even if it is dirty.  The entry must not be either
+ *         pinned or protected.
  *
  * Return:      Non-negative on success/Negative on failure
  *
@@ -639,17 +639,17 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_expunge_entry() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5AC_flush
  *
- * Purpose:	Flush (and possibly destroy) the metadata cache associated
- *		with the specified file.
+ * Purpose:    Flush (and possibly destroy) the metadata cache associated
+ *        with the specified file.
  *
- *		If the cache contains protected entries, the function will
- *		fail, as protected entries cannot be flushed.  However
- *		all unprotected entries should be flushed before the
- *		function returns failure.
+ *        If the cache contains protected entries, the function will
+ *        fail, as protected entries cannot be flushed.  However
+ *        all unprotected entries should be flushed before the
+ *        function returns failure.
  *
  * Return:      Non-negative on success/Negative on failure if there was a
  *              request to flush all items and something was protected.
@@ -696,18 +696,18 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_flush() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5AC_force_cache_image_load()
  *
- * Purpose:     On rare occasions, it is necessary to run 
+ * Purpose:     On rare occasions, it is necessary to run
  *              H5MF_tidy_self_referential_fsm_hack() prior to the first
- *              metadata cache access.  This is a problem as if there is a 
- *              cache image at the end of the file, that routine will 
+ *              metadata cache access.  This is a problem as if there is a
+ *              cache image at the end of the file, that routine will
  *              discard it.
  *
  *              We solve this issue by calling this function, which will
- *              load the cache image and then call 
+ *              load the cache image and then call
  *              H5MF_tidy_self_referential_fsm_hack() to discard it.
  *
  * Return:      SUCCEED on success, and FAIL on failure.
@@ -736,20 +736,20 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_force_cache_image_load() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5AC_get_entry_status
  *
  * Purpose:     Given a file address, determine whether the metadata
- * 		cache contains an entry at that location.  If it does,
- * 		also determine whether the entry is dirty, protected,
- * 		pinned, etc. and return that information to the caller
- * 		in *status.
+ *         cache contains an entry at that location.  If it does,
+ *         also determine whether the entry is dirty, protected,
+ *         pinned, etc. and return that information to the caller
+ *         in *status.
  *
- * 		If the specified entry doesn't exist, set *status_ptr
- * 		to zero.
+ *         If the specified entry doesn't exist, set *status_ptr
+ *         to zero.
  *
- * 		On error, the value of *status is undefined.
+ *         On error, the value of *status is undefined.
  *
  * Return:      Non-negative on success/Negative on failure
  *
@@ -761,14 +761,14 @@ done:
 herr_t
 H5AC_get_entry_status(const H5F_t *f, haddr_t addr, unsigned *status)
 {
-    hbool_t	in_cache;               /* Entry @ addr is in the cache */
-    hbool_t	is_dirty;               /* Entry @ addr is in the cache and dirty */
-    hbool_t	is_protected;           /* Entry @ addr is in the cache and protected */
-    hbool_t	is_pinned;              /* Entry @ addr is in the cache and pinned */
-    hbool_t	is_corked;
-    hbool_t	is_flush_dep_child;     /* Entry @ addr is in the cache and is a flush dependency child */
-    hbool_t	is_flush_dep_parent;    /* Entry @ addr is in the cache and is a flush dependency parent */
-    hbool_t	image_is_up_to_date;    /* Entry @ addr is in the cache and has an up to date image */
+    hbool_t    in_cache;               /* Entry @ addr is in the cache */
+    hbool_t    is_dirty;               /* Entry @ addr is in the cache and dirty */
+    hbool_t    is_protected;           /* Entry @ addr is in the cache and protected */
+    hbool_t    is_pinned;              /* Entry @ addr is in the cache and pinned */
+    hbool_t    is_corked;
+    hbool_t    is_flush_dep_child;     /* Entry @ addr is in the cache and is a flush dependency child */
+    hbool_t    is_flush_dep_parent;    /* Entry @ addr is in the cache and is a flush dependency parent */
+    hbool_t    image_is_up_to_date;    /* Entry @ addr is in the cache and has an up to date image */
     herr_t      ret_value = SUCCEED;      /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
@@ -781,21 +781,21 @@ H5AC_get_entry_status(const H5F_t *f, haddr_t addr, unsigned *status)
         HGOTO_ERROR(H5E_CACHE, H5E_SYSTEM, FAIL, "H5C_get_entry_status() failed")
 
     if(in_cache) {
-	*status |= H5AC_ES__IN_CACHE;
-	if(is_dirty)
-	    *status |= H5AC_ES__IS_DIRTY;
-	if(is_protected)
-	    *status |= H5AC_ES__IS_PROTECTED;
-	if(is_pinned)
-	    *status |= H5AC_ES__IS_PINNED;
-	if(is_corked)
-	    *status |= H5AC_ES__IS_CORKED;
-	if(is_flush_dep_parent)
-	    *status |= H5AC_ES__IS_FLUSH_DEP_PARENT;
-	if(is_flush_dep_child)
-	    *status |= H5AC_ES__IS_FLUSH_DEP_CHILD;
-	if(image_is_up_to_date)
-	    *status |= H5AC_ES__IMAGE_IS_UP_TO_DATE;
+    *status |= H5AC_ES__IN_CACHE;
+    if(is_dirty)
+        *status |= H5AC_ES__IS_DIRTY;
+    if(is_protected)
+        *status |= H5AC_ES__IS_PROTECTED;
+    if(is_pinned)
+        *status |= H5AC_ES__IS_PINNED;
+    if(is_corked)
+        *status |= H5AC_ES__IS_CORKED;
+    if(is_flush_dep_parent)
+        *status |= H5AC_ES__IS_FLUSH_DEP_PARENT;
+    if(is_flush_dep_child)
+        *status |= H5AC_ES__IS_FLUSH_DEP_CHILD;
+    if(image_is_up_to_date)
+        *status |= H5AC_ES__IMAGE_IS_UP_TO_DATE;
     } /* end if */
     else
         *status = 0;
@@ -804,7 +804,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_get_entry_status() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5AC_insert_entry
  *
@@ -876,7 +876,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_insert_entry() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5AC_load_cache_image_on_next_protect
  *
@@ -911,12 +911,12 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_load_cache_image_on_next_protect() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5AC_mark_entry_dirty
  *
- * Purpose:	Mark a pinned or protected entry as dirty.  The target
- * 		entry MUST be either pinned, protected, or both.
+ * Purpose:    Mark a pinned or protected entry as dirty.  The target
+ *         entry MUST be either pinned, protected, or both.
  *
  * Return:      Non-negative on success/Negative on failure
  *
@@ -965,12 +965,12 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_mark_entry_dirty() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5AC_mark_entry_clean
  *
- * Purpose:	Mark a pinned entry as clean.  The target
- * 		entry MUST be pinned.
+ * Purpose:    Mark a pinned entry as clean.  The target
+ *         entry MUST be pinned.
  *
  * Return:      Non-negative on success/Negative on failure
  *
@@ -1018,12 +1018,12 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_mark_entry_clean() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5AC_mark_entry_unserialized
  *
- * Purpose:	Mark a pinned or protected entry as unserialized.  The target
- * 		entry MUST be either pinned, protected, or both.
+ * Purpose:    Mark a pinned or protected entry as unserialized.  The target
+ *         entry MUST be either pinned, protected, or both.
  *
  * Return:      Non-negative on success/Negative on failure
  *
@@ -1060,12 +1060,12 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_mark_entry_unserialized() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5AC_mark_entry_serialized
  *
- * Purpose:	Mark a pinned entry as serialized.  The target
- * 		entry MUST be pinned.
+ * Purpose:    Mark a pinned entry as serialized.  The target
+ *         entry MUST be pinned.
  *
  * Return:      Non-negative on success/Negative on failure
  *
@@ -1101,7 +1101,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_mark_entry_serialized() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5AC_move_entry
  *
@@ -1160,11 +1160,11 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_move_entry() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5AC_pin_protected_entry()
  *
- * Purpose:	Pin a protected cache entry.  The entry must be protected
+ * Purpose:    Pin a protected cache entry.  The entry must be protected
  *              at the time of call, and must be unpinned.
  *
  * Return:      Non-negative on success/Negative on failure
@@ -1203,7 +1203,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_pin_protected_entry() */
 
-
+
 /*-------------------------------------------------------------------------
  *
  * Function:    H5AC_prep_for_file_close
@@ -1241,11 +1241,11 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_prep_for_file_close() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5AC_create_flush_dependency()
  *
- * Purpose:	Create a flush dependency between two entries in the metadata
+ * Purpose:    Create a flush dependency between two entries in the metadata
  *              cache.
  *
  * Return:      Non-negative on success/Negative on failure
@@ -1285,21 +1285,21 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_create_flush_dependency() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5AC_protect
  *
  * Purpose:     If the target entry is not in the cache, load it.  If
- *		necessary, attempt to evict one or more entries to keep
- *		the cache within its maximum size.
+ *        necessary, attempt to evict one or more entries to keep
+ *        the cache within its maximum size.
  *
- *		Mark the target entry as protected, and return its address
- *		to the caller.  The caller must call H5AC_unprotect() when
- *		finished with the entry.
+ *        Mark the target entry as protected, and return its address
+ *        to the caller.  The caller must call H5AC_unprotect() when
+ *        finished with the entry.
  *
- *		While it is protected, the entry may not be either evicted
- *		or flushed -- nor may it be accessed by another call to
- *		H5AC_protect.  Any attempt to do so will result in a failure.
+ *        While it is protected, the entry may not be either evicted
+ *        or flushed -- nor may it be accessed by another call to
+ *        H5AC_protect.  Any attempt to do so will result in a failure.
  *
  * Return:      Success:        Ptr to the object.
  *              Failure:        NULL
@@ -1341,7 +1341,7 @@ H5AC_protect(H5F_t *f, const H5AC_class_t *type, haddr_t addr, void *udata,
 
     /* Check for invalid access request */
     if((0 == (H5F_INTENT(f) & H5F_ACC_RDWR)) && (0 == (flags & H5C__READ_ONLY_FLAG)))
-	HGOTO_ERROR(H5E_CACHE, H5E_BADVALUE, NULL, "no write intent on file")
+    HGOTO_ERROR(H5E_CACHE, H5E_BADVALUE, NULL, "no write intent on file")
 
 #if H5AC_DO_TAGGING_SANITY_CHECKS
     if(!H5C_get_ignore_tags(f->shared->cache) && H5AC__verify_tag(type) < 0)
@@ -1367,11 +1367,11 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_protect() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5AC_resize_entry
  *
- * Purpose:	Resize a pinned or protected entry.
+ * Purpose:    Resize a pinned or protected entry.
  *
  * Return:      Non-negative on success/Negative on failure
  *
@@ -1420,12 +1420,12 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_resize_entry() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5AC_unpin_entry()
  *
- * Purpose:	Unpin a cache entry.  The entry must be unprotected at
- * 		the time of call, and must be pinned.
+ * Purpose:    Unpin a cache entry.  The entry must be unprotected at
+ *         the time of call, and must be pinned.
  *
  * Return:      Non-negative on success/Negative on failure
  *
@@ -1463,11 +1463,11 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_unpin_entry() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5AC_destroy_flush_dependency()
  *
- * Purpose:	Destroy a flush dependency between two entries.
+ * Purpose:    Destroy a flush dependency between two entries.
  *
  * Return:      Non-negative on success/Negative on failure
  *
@@ -1506,31 +1506,31 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_destroy_flush_dependency() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5AC_unprotect
  *
- * Purpose:	Undo an H5AC_protect() call -- specifically, mark the
- *		entry as unprotected, remove it from the protected list,
- *		and give it back to the replacement policy.
+ * Purpose:    Undo an H5AC_protect() call -- specifically, mark the
+ *        entry as unprotected, remove it from the protected list,
+ *        and give it back to the replacement policy.
  *
- *		The TYPE and ADDR arguments must be the same as those in
- *		the corresponding call to H5AC_protect() and the THING
- *		argument must be the value returned by that call to
- *		H5AC_protect().
+ *        The TYPE and ADDR arguments must be the same as those in
+ *        the corresponding call to H5AC_protect() and the THING
+ *        argument must be the value returned by that call to
+ *        H5AC_protect().
  *
- *		If the deleted flag is TRUE, simply remove the target entry
- *		from the cache, clear it, and free it without writing it to
- *		disk.
+ *        If the deleted flag is TRUE, simply remove the target entry
+ *        from the cache, clear it, and free it without writing it to
+ *        disk.
  *
- *		This version of the function is a complete re-write to
- *		use the new metadata cache.  While there isn't all that
- *		much difference between the old and new Purpose sections,
- *		the original version is given below.
+ *        This version of the function is a complete re-write to
+ *        use the new metadata cache.  While there isn't all that
+ *        much difference between the old and new Purpose sections,
+ *        the original version is given below.
  *
- *		Original purpose section:
+ *        Original purpose section:
  *
- *		This function should be called to undo the effect of
+ *        This function should be called to undo the effect of
  *              H5AC_protect().  The TYPE and ADDR arguments should be the
  *              same as the corresponding call to H5AC_protect() and the
  *              THING argument should be the value returned by H5AC_protect().
@@ -1549,8 +1549,8 @@ herr_t
 H5AC_unprotect(H5F_t *f, const H5AC_class_t *type, haddr_t addr, void *thing,
     unsigned flags)
 {
-    hbool_t		dirtied;
-    hbool_t		deleted;
+    hbool_t        dirtied;
+    hbool_t        deleted;
 #ifdef H5_HAVE_PARALLEL
     H5AC_aux_t        * aux_ptr = NULL;
 #endif /* H5_HAVE_PARALLEL */
@@ -1571,14 +1571,14 @@ H5AC_unprotect(H5F_t *f, const H5AC_class_t *type, haddr_t addr, void *thing,
     HDassert( ((H5AC_info_t *)thing)->type == type );
 
     dirtied = (hbool_t)(((flags & H5AC__DIRTIED_FLAG) == H5AC__DIRTIED_FLAG) ||
-		(((H5AC_info_t *)thing)->dirtied));
+        (((H5AC_info_t *)thing)->dirtied));
     deleted = (hbool_t)((flags & H5C__DELETED_FLAG) == H5C__DELETED_FLAG);
 
     /* Check if the size changed out from underneath us, if we're not deleting
      *  the entry.
      */
     if(dirtied && !deleted) {
-        size_t		curr_size = 0;
+        size_t        curr_size = 0;
 
         if((type->image_len)(thing, &curr_size) < 0)
             HGOTO_ERROR(H5E_CACHE, H5E_CANTGETSIZE, FAIL, "Can't get size of thing")
@@ -1618,7 +1618,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_unprotect() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5AC_get_cache_auto_resize_config
  *
@@ -1665,7 +1665,7 @@ H5AC_get_cache_auto_resize_config(const H5AC_t *cache_ptr,
     if(internal_config.rpt_fcn == NULL)
         config_ptr->rpt_fcn_enabled = FALSE;
     else
-	config_ptr->rpt_fcn_enabled = TRUE;
+    config_ptr->rpt_fcn_enabled = TRUE;
     config_ptr->open_trace_file        = FALSE;
     config_ptr->close_trace_file       = FALSE;
     config_ptr->trace_file_name[0]     = '\0';
@@ -1698,12 +1698,12 @@ H5AC_get_cache_auto_resize_config(const H5AC_t *cache_ptr,
 
     if(NULL != (aux_ptr = (H5AC_aux_t *)H5C_get_aux_ptr(cache_ptr))) {
         config_ptr->dirty_bytes_threshold = aux_ptr->dirty_bytes_threshold;
-	config_ptr->metadata_write_strategy = aux_ptr->metadata_write_strategy;
+    config_ptr->metadata_write_strategy = aux_ptr->metadata_write_strategy;
     } /* end if */
     else {
 #endif /* H5_HAVE_PARALLEL */
         config_ptr->dirty_bytes_threshold = H5AC__DEFAULT_DIRTY_BYTES_THRESHOLD;
-	config_ptr->metadata_write_strategy = H5AC__DEFAULT_METADATA_WRITE_STRATEGY;
+    config_ptr->metadata_write_strategy = H5AC__DEFAULT_METADATA_WRITE_STRATEGY;
 #ifdef H5_HAVE_PARALLEL
     } /* end else */
 }
@@ -1713,7 +1713,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_get_cache_auto_resize_config() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5AC_get_cache_size
  *
@@ -1742,7 +1742,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_get_cache_size() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5AC_get_cache_hit_rate
  *
@@ -1769,7 +1769,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_get_cache_hit_rate() */
 
-
+
 /*-------------------------------------------------------------------------
  *
  * Function:    H5AC_reset_cache_hit_rate_stats()
@@ -1796,7 +1796,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_reset_cache_hit_rate_stats() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5AC_set_cache_auto_resize_config
  *
@@ -1813,7 +1813,7 @@ herr_t
 H5AC_set_cache_auto_resize_config(H5AC_t *cache_ptr, H5AC_cache_config_t *config_ptr)
 {
     H5C_auto_size_ctl_t internal_config;
-    herr_t  ret_value = SUCCEED;      	/* Return value */
+    herr_t  ret_value = SUCCEED;          /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
@@ -1888,21 +1888,21 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_set_cache_auto_resize_config() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5AC_validate_config()
  *
  * Purpose:     Run a sanity check on the contents of the supplied
- *		instance of H5AC_cache_config_t.
+ *        instance of H5AC_cache_config_t.
  *
  *              Do nothing and return SUCCEED if no errors are detected,
  *              and flag an error and return FAIL otherwise.
  *
- *		At present, this function operates by packing the data
- *		from the instance of H5AC_cache_config_t into an instance
- *		of H5C_auto_size_ctl_t, and then calling
- *		H5C_validate_resize_config().  As H5AC_cache_config_t and
- *		H5C_auto_size_ctl_t diverge, we may have to change this.
+ *        At present, this function operates by packing the data
+ *        from the instance of H5AC_cache_config_t into an instance
+ *        of H5C_auto_size_ctl_t, and then calling
+ *        H5C_validate_resize_config().  As H5AC_cache_config_t and
+ *        H5C_auto_size_ctl_t diverge, we may have to change this.
  *
  * Return:      Non-negative on success/Negative on failure
  *
@@ -1927,7 +1927,7 @@ H5AC_validate_config(H5AC_cache_config_t *config_ptr)
 
     /* don't bother to test trace_file_name unless open_trace_file is TRUE */
     if(config_ptr->open_trace_file) {
-        size_t	        name_len;
+        size_t            name_len;
 
         /* Can't really test the trace_file_name field without trying to
          * open the file, so we will content ourselves with a couple of
@@ -1965,22 +1965,22 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_validate_config() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5AC_validate_cache_image_config()
  *
  * Purpose:     Run a sanity check on the contents of the supplied
- *		instance of H5AC_cache_image_config_t.
+ *        instance of H5AC_cache_image_config_t.
  *
  *              Do nothing and return SUCCEED if no errors are detected,
  *              and flag an error and return FAIL otherwise.
  *
- *		At present, this function operates by packing the data
- *		from the instance of H5AC_cache_image_config_t into an 
- *		instance of H5C_cache_image_ctl_t, and then calling
- *		H5C_validate_cache_image_config().  If and when 
- *              H5AC_cache_image_config_t and H5C_cache_image_ctl_t 
- *		diverge, we may have to change this.
+ *        At present, this function operates by packing the data
+ *        from the instance of H5AC_cache_image_config_t into an
+ *        instance of H5C_cache_image_ctl_t, and then calling
+ *        H5C_validate_cache_image_config().  If and when
+ *              H5AC_cache_image_config_t and H5C_cache_image_ctl_t
+ *        diverge, we may have to change this.
  *
  * Return:      Non-negative on success/Negative on failure
  *
@@ -2005,7 +2005,7 @@ H5AC_validate_cache_image_config(H5AC_cache_image_config_t *config_ptr)
         HGOTO_ERROR(H5E_CACHE, H5E_BADVALUE, FAIL, "Unknown image config version")
 
     /* don't need to get the current H5C image config here since the
-     * default values of fields not in the H5AC config will always be 
+     * default values of fields not in the H5AC config will always be
      * valid.
      */
     internal_config.version            = config_ptr->version;
@@ -2020,19 +2020,19 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_validate_cache_image_config() */
 
-
+
 /*-------------------------------------------------------------------------
  *
  * Function:    H5AC__check_if_write_permitted
  *
  * Purpose:     Determine if a write is permitted under the current
- *		circumstances, and set *write_permitted_ptr accordingly.
- *		As a general rule it is, but when we are running in parallel
- *		mode with collective I/O, we must ensure that a read cannot
- *		cause a write.
+ *        circumstances, and set *write_permitted_ptr accordingly.
+ *        As a general rule it is, but when we are running in parallel
+ *        mode with collective I/O, we must ensure that a read cannot
+ *        cause a write.
  *
- *		In the event of failure, the value of *write_permitted_ptr
- *		is undefined.
+ *        In the event of failure, the value of *write_permitted_ptr
+ *        is undefined.
  *
  * Return:      Non-negative on success/Negative on failure.
  *
@@ -2048,9 +2048,9 @@ H5_ATTR_UNUSED
     *f, hbool_t *write_permitted_ptr)
 {
 #ifdef H5_HAVE_PARALLEL
-    H5AC_aux_t *	aux_ptr = NULL;
+    H5AC_aux_t *    aux_ptr = NULL;
 #endif /* H5_HAVE_PARALLEL */
-    hbool_t		write_permitted = TRUE;
+    hbool_t        write_permitted = TRUE;
 
     FUNC_ENTER_STATIC_NOERR
 
@@ -2064,9 +2064,9 @@ H5_ATTR_UNUSED
         HDassert(aux_ptr->magic == H5AC__H5AC_AUX_T_MAGIC);
 
         if((aux_ptr->mpi_rank == 0) || (aux_ptr->metadata_write_strategy == H5AC_METADATA_WRITE_STRATEGY__DISTRIBUTED))
-	    write_permitted = aux_ptr->write_permitted;
+        write_permitted = aux_ptr->write_permitted;
         else
-	    write_permitted = FALSE;
+        write_permitted = FALSE;
     } /* end if */
 #endif /* H5_HAVE_PARALLEL */
 
@@ -2075,17 +2075,17 @@ H5_ATTR_UNUSED
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* H5AC__check_if_write_permitted() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5AC__ext_config_2_int_config()
  *
  * Purpose:     Utility function to translate an instance of
- *		H5AC_cache_config_t to an instance of H5C_auto_size_ctl_t.
+ *        H5AC_cache_config_t to an instance of H5C_auto_size_ctl_t.
  *
- *		Places translation in *int_conf_ptr and returns SUCCEED
- *		if successful.  Returns FAIL on failure.
+ *        Places translation in *int_conf_ptr and returns SUCCEED
+ *        if successful.  Returns FAIL on failure.
  *
- *		Does only minimal sanity checking.
+ *        Does only minimal sanity checking.
  *
  * Return:      Non-negative on success/Negative on failure
  *
@@ -2141,15 +2141,15 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC__ext_config_2_int_config() */
 
-
+
 /*------------------------------------------------------------------------------
  * Function:    H5AC_ignore_tags()
  *
- * Purpose:     Override all assertion frameworks and force application of 
+ * Purpose:     Override all assertion frameworks and force application of
  *              global tag everywhere. This should really only be used in the
- *              tests that need to access functions without going through 
+ *              tests that need to access functions without going through
  *              API paths.
- * 
+ *
  * Return:      SUCCEED on success, FAIL otherwise.
  *
  * Programmer:  Mike McGreevy
@@ -2172,17 +2172,17 @@ H5AC_ignore_tags(const H5F_t *f)
     /* Set up a new metadata tag */
     if(H5C_ignore_tags(f->shared->cache) < 0)
         HGOTO_ERROR(H5E_CACHE, H5E_CANTSET, FAIL, "H5C_ignore_tags() failed")
-            
+
 done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_ignore_tags() */
 
-
+
 /*------------------------------------------------------------------------------
  * Function:    H5AC_tag()
  *
  * Purpose:     Sets the metadata tag property in the provided property list.
- * 
+ *
  * Return:      SUCCEED on success, FAIL otherwise.
  *
  * Programmer:  Mike McGreevy
@@ -2205,14 +2205,14 @@ H5AC_tag(haddr_t metadata_tag, haddr_t *prev_tag)
     FUNC_LEAVE_NOAPI_VOID
 } /* H5AC_tag */
 
-
+
 /*------------------------------------------------------------------------------
  * Function:    H5AC_retag_copied_metadata()
  *
  * Purpose:     Searches through cache index for all entries with the
- *              H5AC__COPIED_TAG, indicating that it was created as a 
+ *              H5AC__COPIED_TAG, indicating that it was created as a
  *              result of an object copy, and applies the provided tag.
- * 
+ *
  * Return:      SUCCEED on success, FAIL otherwise.
  *
  * Programmer:  Mike McGreevy
@@ -2221,7 +2221,7 @@ H5AC_tag(haddr_t metadata_tag, haddr_t *prev_tag)
  *------------------------------------------------------------------------------
  */
 herr_t
-H5AC_retag_copied_metadata(const H5F_t *f, haddr_t metadata_tag) 
+H5AC_retag_copied_metadata(const H5F_t *f, haddr_t metadata_tag)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
@@ -2230,7 +2230,7 @@ H5AC_retag_copied_metadata(const H5F_t *f, haddr_t metadata_tag)
     /* Sanity checks */
     HDassert(f);
     HDassert(f->shared);
-     
+
     /* Call cache-level function to re-tag entries with the COPIED tag */
     if(H5C_retag_entries(f->shared->cache, H5AC__COPIED_TAG, metadata_tag) < 0)
         HGOTO_ERROR(H5E_CACHE, H5E_CANTSET, FAIL, "Can't retag metadata")
@@ -2239,13 +2239,13 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_retag_copied_metadata() */
 
-
+
 /*------------------------------------------------------------------------------
  * Function:    H5AC_flush_tagged_metadata()
  *
  * Purpose:     Wrapper for cache level function which flushes all metadata
- *              that contains the specific tag. 
- * 
+ *              that contains the specific tag.
+ *
  * Return:      SUCCEED on success, FAIL otherwise.
  *
  * Programmer:  Mike McGreevy
@@ -2258,8 +2258,8 @@ H5AC_flush_tagged_metadata(H5F_t *f, haddr_t metadata_tag)
 {
     /* Variable Declarations */
     herr_t ret_value = SUCCEED;
- 
-    /* Function Enter Macro */   
+
+    /* Function Enter Macro */
     FUNC_ENTER_NOAPI(FAIL)
 
     /* Assertions */
@@ -2274,13 +2274,13 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_flush_tagged_metadata */
 
-
+
 /*------------------------------------------------------------------------------
  * Function:    H5AC_evict_tagged_metadata()
  *
  * Purpose:     Wrapper for cache level function which flushes all metadata
- *              that contains the specific tag. 
- * 
+ *              that contains the specific tag.
+ *
  * Return:      SUCCEED on success, FAIL otherwise.
  *
  * Programmer:  Mike McGreevy
@@ -2293,8 +2293,8 @@ H5AC_evict_tagged_metadata(H5F_t *f, haddr_t metadata_tag, hbool_t match_global)
 {
     /* Variable Declarations */
     herr_t ret_value = SUCCEED;
- 
-    /* Function Enter Macro */   
+
+    /* Function Enter Macro */
     FUNC_ENTER_NOAPI(FAIL)
 
     /* Assertions */
@@ -2309,13 +2309,13 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_evict_tagged_metadata() */
 
-
+
 /*------------------------------------------------------------------------------
  * Function:    H5AC_expunge_tag_type_metadata()
  *
  * Purpose:     Wrapper for cache level function which expunge entries with
  *              a specific tag and type id.
- * 
+ *
  * Return:      SUCCEED on success, FAIL otherwise.
  *
  * Programmer:  Vailin Choi; May 2016
@@ -2327,8 +2327,8 @@ H5AC_expunge_tag_type_metadata(H5F_t *f, haddr_t tag, int type_id, unsigned flag
 {
     /* Variable Declarations */
     herr_t ret_value = SUCCEED;
- 
-    /* Function Enter Macro */   
+
+    /* Function Enter Macro */
     FUNC_ENTER_NOAPI(FAIL)
 
     /* Assertions */
@@ -2343,12 +2343,12 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_expunge_tag_type_metadata*/
 
-
+
 /*------------------------------------------------------------------------------
  * Function:    H5AC_get_tag()
  *
  * Purpose:     Get the tag for a metadata cache entry.
- * 
+ *
  * Return:      SUCCEED/FAIL
  *
  * Programmer:  Dana Robinson
@@ -2361,8 +2361,8 @@ H5AC_get_tag(const void *thing, haddr_t *tag)
 {
     /* Variable Declarations */
     herr_t ret_value = SUCCEED;
- 
-    /* Function Enter Macro */   
+
+    /* Function Enter Macro */
     FUNC_ENTER_NOAPI(FAIL)
 
     /* Assertions */
@@ -2377,7 +2377,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5AC_get_tag() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5AC_cork
  *
@@ -2424,7 +2424,7 @@ done:
 } /* H5AC_cork() */
 
 #if H5AC_DO_TAGGING_SANITY_CHECKS
-
+
 /*-------------------------------------------------------------------------
  *
  * Function:    H5AC__verify_tag
@@ -2459,14 +2459,14 @@ done:
 } /* H5AC__verify_tag */
 #endif /* H5AC_DO_TAGGING_SANITY_CHECKS */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5AC_get_entry_ring
  *
  * Purpose:     Given a file address, retrieve the ring for an entry at that
  *              address.
  *
- * 		On error, the value of *ring is not modified.
+ *         On error, the value of *ring is not modified.
  *
  * Return:      Non-negative on success/Negative on failure
  *
@@ -2495,15 +2495,15 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_get_entry_ring() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:       H5AC_set_ring
  *
  * Purpose:        Routine to set the ring on a DXPL (for passing through
  *                 to the metadata cache).
  *
- * Return:	   Success:	Non-negative
- *		   Failure:	Negative
+ * Return:       Success:    Non-negative
+ *           Failure:    Negative
  *
  * Programmer:     Quincey Koziol
  *                 Tuesday, September 8, 2015
@@ -2525,7 +2525,7 @@ H5AC_set_ring(H5AC_ring_t ring, H5AC_ring_t *orig_ring)
     FUNC_LEAVE_NOAPI_VOID
 } /* end H5AC_set_ring() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5AC_unsettle_entry_ring()
  *
@@ -2543,11 +2543,11 @@ H5AC_set_ring(H5AC_ring_t ring, H5AC_ring_t *orig_ring)
  *              are in the process of a file shutdown, post an error
  *              message, and return FAIL.
  *
- *		Note that this function simply passes the call on to
- *		the metadata cache proper, and returns the result.
+ *        Note that this function simply passes the call on to
+ *        the metadata cache proper, and returns the result.
  *
- * Return:	Success:	Non-negative
- *		Failure:	Negative
+ * Return:    Success:    Non-negative
+ *        Failure:    Negative
  *
  * Programmer:  Quincey Koziol
  *              September 17, 2016
@@ -2573,7 +2573,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_unsettle_entry_ring() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5AC_unsettle_ring()
  *
@@ -2615,12 +2615,12 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_unsettle_ring() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5AC_remove_entry()
  *
  * Purpose:     Remove an entry from the cache.  Must be not protected, pinned,
- *		dirty, involved in flush dependencies, etc.
+ *        dirty, involved in flush dependencies, etc.
  *
  * Return:      Non-negative on success/Negative on failure
  *
@@ -2656,7 +2656,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_remove_entry() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5AC_get_mdc_image_info
  *

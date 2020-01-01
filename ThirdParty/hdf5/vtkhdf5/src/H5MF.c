@@ -1835,6 +1835,7 @@ HDfprintf(stderr, "%s: Entering\n", FUNC);
         fsinfo.page_size = f->shared->fs_page_size;
         fsinfo.pgend_meta_thres = f->shared->pgend_meta_thres;
         fsinfo.eoa_pre_fsm_fsalloc = f->shared->eoa_pre_fsm_fsalloc;
+        fsinfo.version = f->shared->fs_version;
 
         /* Write the free space manager message -- message must already exist */
         if(H5F__super_ext_write_msg(f, H5O_FSINFO_ID, &fsinfo, FALSE, H5O_MSG_FLAG_MARK_IF_UNKNOWN) < 0)
@@ -1973,6 +1974,8 @@ HDfprintf(stderr, "%s: Entering\n", FUNC);
     fsinfo.page_size = f->shared->fs_page_size;
     fsinfo.pgend_meta_thres = f->shared->pgend_meta_thres;
     fsinfo.eoa_pre_fsm_fsalloc = HADDR_UNDEF;
+    fsinfo.version = f->shared->fs_version;
+
     for(ptype = H5F_MEM_PAGE_META; ptype < H5F_MEM_PAGE_NTYPES; H5_INC_ENUM(H5F_mem_page_t, ptype))
         fsinfo.fs_addr[ptype - 1] = HADDR_UNDEF;
 

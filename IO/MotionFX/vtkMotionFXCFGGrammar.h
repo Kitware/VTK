@@ -22,7 +22,9 @@
 #include <vtk_pegtl.h>
 
 // for debugging
-#include <vtkpegtl/include/tao/pegtl/contrib/tracer.hpp>
+// clang-format off
+#include VTK_PEGTL(pegtl/contrib/tracer.hpp)
+// clang-format on
 
 namespace MotionFX
 {

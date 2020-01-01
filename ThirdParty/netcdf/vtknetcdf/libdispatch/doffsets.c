@@ -105,7 +105,7 @@ char* ctypenames[NCTYPES] = {
 
 static NCtypealignvec vec[NC_NCTYPES];
 static NCtypealignset set;
-int NC_alignments_computed = 0;
+static int NC_alignments_computed = 0;
 
 /* Argument is a netcdf type class, except compound|ENUM  */
 size_t
@@ -113,10 +113,8 @@ NC_class_alignment(int ncclass)
 {
     NCalignment* align = NULL;
     int index = 0;
-    if(!NC_alignments_computed) {
+    if(!NC_alignments_computed)
 	NC_compute_alignments();
-	NC_alignments_computed = 1;
-    }
     switch (ncclass) {
       case NC_BYTE: index = NC_UCHARINDEX; break;
       case NC_CHAR: index = NC_CHARINDEX; break;
@@ -142,7 +140,6 @@ NC_class_alignment(int ncclass)
     align = &vec[index];
     return align->alignment;
 }
-
 
 void
 NC_compute_alignments(void)

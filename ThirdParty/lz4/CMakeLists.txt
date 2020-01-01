@@ -1,7 +1,7 @@
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES "vtklz4/lib/LICENSE"
-    VERSION       "1.9.1"
+    VERSION       "1.9.2"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE LZ4

@@ -90,7 +90,7 @@ int ex_put_map(int exoid, const void_int *elem_map)
   char errmsg[MAX_ERR_LENGTH];
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
   /* inquire id's of previously defined dimensions  */
 
@@ -126,10 +126,10 @@ int ex_put_map(int exoid, const void_int *elem_map)
     }
     goto error_ret; /* exit define mode and return */
   }
-  ex_compress_variable(exoid, mapid, 1);
+  ex__compress_variable(exoid, mapid, 1);
 
   /* leave define mode  */
-  if ((status = ex_leavedef(exoid, __func__)) != NC_NOERR) {
+  if ((status = ex__leavedef(exoid, __func__)) != NC_NOERR) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -151,6 +151,6 @@ int ex_put_map(int exoid, const void_int *elem_map)
 
 /* Fatal error: exit definition mode and return */
 error_ret:
-  ex_leavedef(exoid, __func__);
+  ex__leavedef(exoid, __func__);
   EX_FUNC_LEAVE(EX_FATAL);
 }

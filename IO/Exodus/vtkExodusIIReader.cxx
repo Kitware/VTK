@@ -88,9 +88,9 @@ static int obj_types[] = { EX_EDGE_BLOCK, EX_FACE_BLOCK, EX_ELEM_BLOCK, EX_NODE_
 
 static int num_obj_types = (int)(sizeof(obj_types) / sizeof(obj_types[0]));
 
-static int obj_sizes[] = { EX_INQ_EDGE_BLK, EX_INQ_FACE_BLK, EX_INQ_ELEM_BLK, EX_INQ_NODE_SETS,
-  EX_INQ_EDGE_SETS, EX_INQ_FACE_SETS, EX_INQ_SIDE_SETS, EX_INQ_ELEM_SETS, EX_INQ_NODE_MAP,
-  EX_INQ_EDGE_MAP, EX_INQ_FACE_MAP, EX_INQ_ELEM_MAP, EX_INQ_NODES };
+static ex_inquiry obj_sizes[] = { EX_INQ_EDGE_BLK, EX_INQ_FACE_BLK, EX_INQ_ELEM_BLK,
+  EX_INQ_NODE_SETS, EX_INQ_EDGE_SETS, EX_INQ_FACE_SETS, EX_INQ_SIDE_SETS, EX_INQ_ELEM_SETS,
+  EX_INQ_NODE_MAP, EX_INQ_EDGE_MAP, EX_INQ_FACE_MAP, EX_INQ_ELEM_MAP, EX_INQ_NODES };
 
 static const char* objtype_names[] = { "Edge block", "Face block", "Element block", "Node set",
   "Edge set", "Face set", "Side set", "Element set", "Node map", "Edge map", "Face map",

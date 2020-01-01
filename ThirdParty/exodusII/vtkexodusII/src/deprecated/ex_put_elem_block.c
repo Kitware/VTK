@@ -101,7 +101,7 @@ error = ex_put_elem_block(exoid, id, "SHELL", num_elem_in_blk,
 \comment{write element connectivity}
 connect = (int *)calloc(num_elem_in_blk*num_nodes_per_elem, sizeof(int));
 
-\comment{fill connect with node numbers; nodes for first elemen}
+\comment{fill connect with node numbers; nodes for first element}
 connect[0] = 1; connect[1] = 2; connect[2] = 3; connect[3] = 4;
 
 \comment{nodes for second element}

@@ -48,9 +48,10 @@
  *****************************************************************************/
 
 #include "exodusII.h"     // for ex_err, etc
-#include "exodusII_int.h" // for ex_get_counter_list, etc
+#include "exodusII_int.h" // for ex__get_counter_list, etc
 
 /*!
+\ingroup Utilities
 
 The function ex_close() updates and then closes an open exodus file.
 
@@ -82,12 +83,12 @@ int ex_close(int exoid)
 
   EX_FUNC_ENTER();
 
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
   /*
    * NOTE: If using netcdf-4, exoid must refer to the root group.
    * Need to determine whether there are any groups and if so,
-   * call ex_rm_file_item and ex_rm_stat_ptr on each group.
+   * call ex__rm_file_item and ex__rm_stat_ptr on each group.
    */
 
 #if NC_HAS_HDF5
@@ -115,33 +116,33 @@ int ex_close(int exoid)
    * internal datastructures.
    */
 
-  ex_rm_file_item(exoid, ex_get_counter_list(EX_ELEM_BLOCK));
-  ex_rm_file_item(exoid, ex_get_counter_list(EX_FACE_BLOCK));
-  ex_rm_file_item(exoid, ex_get_counter_list(EX_EDGE_BLOCK));
-  ex_rm_file_item(exoid, ex_get_counter_list(EX_NODE_SET));
-  ex_rm_file_item(exoid, ex_get_counter_list(EX_EDGE_SET));
-  ex_rm_file_item(exoid, ex_get_counter_list(EX_FACE_SET));
-  ex_rm_file_item(exoid, ex_get_counter_list(EX_SIDE_SET));
-  ex_rm_file_item(exoid, ex_get_counter_list(EX_ELEM_SET));
-  ex_rm_file_item(exoid, ex_get_counter_list(EX_NODE_MAP));
-  ex_rm_file_item(exoid, ex_get_counter_list(EX_EDGE_MAP));
-  ex_rm_file_item(exoid, ex_get_counter_list(EX_FACE_MAP));
-  ex_rm_file_item(exoid, ex_get_counter_list(EX_ELEM_MAP));
+  ex__rm_file_item(exoid, ex__get_counter_list(EX_ELEM_BLOCK));
+  ex__rm_file_item(exoid, ex__get_counter_list(EX_FACE_BLOCK));
+  ex__rm_file_item(exoid, ex__get_counter_list(EX_EDGE_BLOCK));
+  ex__rm_file_item(exoid, ex__get_counter_list(EX_NODE_SET));
+  ex__rm_file_item(exoid, ex__get_counter_list(EX_EDGE_SET));
+  ex__rm_file_item(exoid, ex__get_counter_list(EX_FACE_SET));
+  ex__rm_file_item(exoid, ex__get_counter_list(EX_SIDE_SET));
+  ex__rm_file_item(exoid, ex__get_counter_list(EX_ELEM_SET));
+  ex__rm_file_item(exoid, ex__get_counter_list(EX_NODE_MAP));
+  ex__rm_file_item(exoid, ex__get_counter_list(EX_EDGE_MAP));
+  ex__rm_file_item(exoid, ex__get_counter_list(EX_FACE_MAP));
+  ex__rm_file_item(exoid, ex__get_counter_list(EX_ELEM_MAP));
 
-  ex_rm_stat_ptr(exoid, &exoII_ed);
-  ex_rm_stat_ptr(exoid, &exoII_fa);
-  ex_rm_stat_ptr(exoid, &exoII_eb);
-  ex_rm_stat_ptr(exoid, &exoII_ns);
-  ex_rm_stat_ptr(exoid, &exoII_es);
-  ex_rm_stat_ptr(exoid, &exoII_fs);
-  ex_rm_stat_ptr(exoid, &exoII_ss);
-  ex_rm_stat_ptr(exoid, &exoII_els);
-  ex_rm_stat_ptr(exoid, &exoII_nm);
-  ex_rm_stat_ptr(exoid, &exoII_edm);
-  ex_rm_stat_ptr(exoid, &exoII_fam);
-  ex_rm_stat_ptr(exoid, &exoII_em);
+  ex__rm_stat_ptr(exoid, &exoII_ed);
+  ex__rm_stat_ptr(exoid, &exoII_fa);
+  ex__rm_stat_ptr(exoid, &exoII_eb);
+  ex__rm_stat_ptr(exoid, &exoII_ns);
+  ex__rm_stat_ptr(exoid, &exoII_es);
+  ex__rm_stat_ptr(exoid, &exoII_fs);
+  ex__rm_stat_ptr(exoid, &exoII_ss);
+  ex__rm_stat_ptr(exoid, &exoII_els);
+  ex__rm_stat_ptr(exoid, &exoII_nm);
+  ex__rm_stat_ptr(exoid, &exoII_edm);
+  ex__rm_stat_ptr(exoid, &exoII_fam);
+  ex__rm_stat_ptr(exoid, &exoII_em);
 
-  ex_conv_exit(exoid);
+  ex__conv_exit(exoid);
 
   status = EX_NOERR;
   if (status1 != NC_NOERR || status2 != NC_NOERR) {

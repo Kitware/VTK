@@ -1045,7 +1045,8 @@ H5O__layout_copy_file(H5F_t *file_src, void *mesg_src, H5F_t *file_dst,
                 layout_dst->storage.u.contig.size = H5S_extent_nelem(udata->src_space_extent) *
                                         H5T_get_size(udata->src_dtype);
 
-            if(H5D__contig_is_space_alloc(&layout_src->storage)) {
+            if(H5D__contig_is_space_alloc(&layout_src->storage)
+                    || (cpy_info->shared_fo && H5D__contig_is_data_cached((const H5D_shared_t *)cpy_info->shared_fo))) {
                 /* copy contiguous raw data */
                 if(H5D__contig_copy(file_src, &layout_src->storage.u.contig, file_dst, &layout_dst->storage.u.contig, udata->src_dtype, cpy_info) < 0)
                     HGOTO_ERROR(H5E_OHDR, H5E_CANTCOPY, NULL, "unable to copy contiguous storage")
@@ -1054,7 +1055,8 @@ H5O__layout_copy_file(H5F_t *file_src, void *mesg_src, H5F_t *file_dst,
             break;
 
         case H5D_CHUNKED:
-            if(H5D__chunk_is_space_alloc(&layout_src->storage)) {
+            if(H5D__chunk_is_space_alloc(&layout_src->storage)
+                    || (cpy_info->shared_fo && H5D__chunk_is_data_cached((const H5D_shared_t *)cpy_info->shared_fo))) {
                 /* Create chunked layout */
                 if(H5D__chunk_copy(file_src, &layout_src->storage.u.chunk, &layout_src->u.chunk, file_dst, &layout_dst->storage.u.chunk, udata->src_space_extent, udata->src_dtype, udata->common.src_pline, cpy_info) < 0)
                     HGOTO_ERROR(H5E_OHDR, H5E_CANTCOPY, NULL, "unable to copy chunked storage")

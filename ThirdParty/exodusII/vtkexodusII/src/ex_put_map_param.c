@@ -74,7 +74,7 @@ int ex_put_map_param(int exoid, int num_node_maps, int num_elem_maps)
 #endif
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
   if (ex_int64_status(exoid) & EX_IDS_INT64_DB) {
     id_type = NC_INT64;
@@ -174,7 +174,7 @@ int ex_put_map_param(int exoid, int num_node_maps, int num_elem_maps)
           }
           goto error_ret; /* exit define mode and return */
         }
-        ex_compress_variable(exoid, varid, 1);
+        ex__compress_variable(exoid, varid, 1);
       }
     }
 
@@ -243,12 +243,12 @@ int ex_put_map_param(int exoid, int num_node_maps, int num_elem_maps)
           }
           goto error_ret; /* exit define mode and return */
         }
-        ex_compress_variable(exoid, varid, 1);
+        ex__compress_variable(exoid, varid, 1);
       }
     }
 
     /* leave define mode */
-    if ((status = ex_leavedef(exoid, __func__)) != NC_NOERR) {
+    if ((status = ex__leavedef(exoid, __func__)) != NC_NOERR) {
       EX_FUNC_LEAVE(EX_FATAL);
     }
 
@@ -293,6 +293,6 @@ int ex_put_map_param(int exoid, int num_node_maps, int num_elem_maps)
 
 /* Fatal error: exit definition mode and return */
 error_ret:
-  ex_leavedef(exoid, __func__);
+  ex__leavedef(exoid, __func__);
   EX_FUNC_LEAVE(EX_FATAL);
 }

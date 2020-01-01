@@ -52,7 +52,7 @@
 *****************************************************************************/
 
 #include "exodusII.h"     // for ex_err, ex_name_of_object, etc
-#include "exodusII_int.h" // for ex_check_valid_file_id, etc
+#include "exodusII_int.h" // for ex__check_valid_file_id, etc
 
 /*!
  * writes the set entry list and set extra list for a single set
@@ -76,10 +76,10 @@ int ex_put_set(int exoid, ex_entity_type set_type, ex_entity_id set_id,
 
   EX_FUNC_ENTER();
 
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
   /* first check if any sets are specified */
-  if ((status = nc_inq_dimid(exoid, ex_dim_num_objects(set_type), &dimid)) != NC_NOERR) {
+  if ((status = nc_inq_dimid(exoid, ex__dim_num_objects(set_type), &dimid)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: no %ss defined in file id %d",
              ex_name_of_object(set_type), exoid);
     ex_err_fn(exoid, __func__, errmsg, status);
@@ -87,7 +87,7 @@ int ex_put_set(int exoid, ex_entity_type set_type, ex_entity_id set_id,
   }
 
   /* Lookup index of set id in VAR_*S_IDS array */
-  set_id_ndx = ex_id_lkup(exoid, set_type, set_id);
+  set_id_ndx = ex__id_lkup(exoid, set_type, set_id);
   if (set_id_ndx <= 0) {
     ex_get_err(NULL, NULL, &status);
 

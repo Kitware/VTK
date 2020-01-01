@@ -68,10 +68,10 @@ static herr_t H5G__compact_build_table(const H5O_loc_t *oloc,
 /*-------------------------------------------------------------------------
  * Function:	H5G_compact_build_table_cb
  *
- * Purpose:	Callback routine for searching 'link' messages for a particular
+ * Purpose:     Callback routine for searching 'link' messages for a particular
  *              name.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:      SUCCEED/FAIL
  *
  * Programmer:	Quincey Koziol
  *		koziol@ncsa.uiuc.edu
@@ -433,10 +433,10 @@ done:
 /*-------------------------------------------------------------------------
  * Function:	H5G_compact_lookup_cb
  *
- * Purpose:	Callback routine for searching 'link' messages for a particular
+ * Purpose:     Callback routine for searching 'link' messages for a particular
  *              name & gettting object location for it
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:      SUCCEED/FAIL
  *
  * Programmer:	Quincey Koziol
  *		koziol@ncsa.uiuc.edu

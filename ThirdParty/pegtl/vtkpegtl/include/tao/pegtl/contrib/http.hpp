@@ -6,10 +6,12 @@
 
 #include "../ascii.hpp"
 #include "../config.hpp"
+#include "../nothing.hpp"
 #include "../rules.hpp"
 #include "../utf8.hpp"
 
 #include "abnf.hpp"
+#include "remove_first_state.hpp"
 #include "uri.hpp"
 
 namespace tao
@@ -28,7 +30,6 @@ namespace tao
          using RWS = plus< abnf::WSP >;  // required whitespace
          using BWS = OWS;                // "bad" whitespace
 
-         // cppcheck-suppress constStatement
          using obs_text = not_range< 0x00, 0x7F >;
          using obs_fold = seq< abnf::CRLF, plus< abnf::WSP > >;
 
@@ -125,17 +126,130 @@ namespace tao
 
          struct partial_URI : seq< uri::relative_part, uri::opt_query > {};
 
-         struct chunk_size : plus< abnf::HEXDIG > {};
+         // clang-format on
+         struct chunk_size
+         {
+            using analyze_t = plus< abnf::HEXDIG >::analyze_t;
+
+            template< apply_mode A,
+                      rewind_mode M,
+                      template< typename... >
+                      class Action,
+                      template< typename... >
+                      class Control,
+                      typename Input,
+                      typename... States >
+            static bool match( Input& in, std::size_t& size, States&&... /*unused*/ )
+            {
+               size = 0;
+               std::size_t i = 0;
+               while( in.size( i + 1 ) >= i + 1 ) {
+                  const auto c = in.peek_char( i );
+                  if( ( '0' <= c ) && ( c <= '9' ) ) {
+                     size <<= 4;
+                     size |= std::size_t( c - '0' );
+                     ++i;
+                     continue;
+                  }
+                  if( ( 'a' <= c ) && ( c <= 'f' ) ) {
+                     size <<= 4;
+                     size |= std::size_t( c - 'a' + 10 );
+                     ++i;
+                     continue;
+                  }
+                  if( ( 'A' <= c ) && ( c <= 'F' ) ) {
+                     size <<= 4;
+                     size |= std::size_t( c - 'A' + 10 );
+                     ++i;
+                     continue;
+                  }
+                  break;
+               }
+               in.bump_in_this_line( i );
+               return i > 0;
+            }
+         };
+         // clang-format off
 
          struct chunk_ext_name : token {};
          struct chunk_ext_val : sor< quoted_string, token > {};
          struct chunk_ext : star_must< one< ';' >, chunk_ext_name, if_must< one< '=' >, chunk_ext_val > > {};
 
-         struct chunk_data : until< at< abnf::CRLF >, abnf::OCTET > {};
+         // clang-format on
+         struct chunk_data
+         {
+            using analyze_t = star< abnf::OCTET >::analyze_t;
 
-         struct chunk : seq< chunk_size, opt< chunk_ext >, abnf::CRLF, chunk_data, abnf::CRLF > {};
+            template< apply_mode A,
+                      rewind_mode M,
+                      template< typename... >
+                      class Action,
+                      template< typename... >
+                      class Control,
+                      typename Input,
+                      typename... States >
+            static bool match( Input& in, const std::size_t size, States&&... /*unused*/ )
+            {
+               if( in.size( size ) >= size ) {
+                  in.bump( size );
+                  return true;
+               }
+               return false;
+            }
+         };
 
-         struct last_chunk : seq< plus< one< '0' > >, opt< chunk_ext >, abnf::CRLF > {};
+         namespace internal
+         {
+            namespace chunk_helper
+            {
+               template< typename Rule, template< typename... > class Control >
+               struct control
+                  : remove_self_and_first_state< Rule, Control >
+               {};
+
+               template< template< typename... > class Control >
+               struct control< chunk_size, Control >
+                  : remove_first_state_after_match< Control< chunk_size > >
+               {};
+
+               template< template< typename... > class Control >
+               struct control< chunk_data, Control >
+                  : remove_first_state_after_match< Control< chunk_data > >
+               {};
+
+               template< template< typename... > class Control >
+               struct bind
+               {
+                  template< typename Rule >
+                  using type = control< Rule, Control >;
+               };
+
+            }  // namespace chunk_helper
+
+         }  // namespace internal
+
+         struct chunk
+         {
+            using impl = seq< chunk_size, chunk_ext, abnf::CRLF, chunk_data, abnf::CRLF >;
+            using analyze_t = impl::analyze_t;
+
+            template< apply_mode A,
+                      rewind_mode M,
+                      template< typename... >
+                      class Action,
+                      template< typename... >
+                      class Control,
+                      typename Input,
+                      typename... States >
+            static bool match( Input& in, States&&... st )
+            {
+               std::size_t size{};
+               return impl::template match< A, M, Action, internal::chunk_helper::bind< Control >::template type >( in, size, st... );
+            }
+         };
+
+         // clang-format off
+         struct last_chunk : seq< plus< one< '0' > >, not_at< digit >, chunk_ext, abnf::CRLF > {};
 
          struct trailer_part : star< header_field, abnf::CRLF > {};
 

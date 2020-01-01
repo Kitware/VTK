@@ -19,9 +19,12 @@
 #cmakedefine01 VTK_MODULE_USE_EXTERNAL_vtkpegtl
 
 #if VTK_MODULE_USE_EXTERNAL_vtkpegtl
-# include <tao/pegtl.hpp>
+# define VTK_PEGTL(x) <tao/x>
 #else
 # include <vtkpegtl/include/tao/pegtl.hpp>
+# define VTK_PEGTL(x) <vtkpegtl/include/tao/x>
 #endif
+
+#include VTK_PEGTL(pegtl.hpp)
 
 #endif

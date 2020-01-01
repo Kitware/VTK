@@ -225,14 +225,14 @@ H5G__stab_create(H5O_loc_t *grp_oloc, const H5O_ginfo_t *ginfo, H5O_stab_t *stab
 
     /* Go create the B-tree & local heap */
     if(H5G__stab_create_components(grp_oloc->file, stab, size_hint) < 0)
-	HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "can't create symbol table components")
+        HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "can't create symbol table components")
 
     /*
      * Insert the symbol table message into the object header and the symbol
      * table entry.
      */
     if(H5O_msg_create(grp_oloc, H5O_STAB_ID, 0, H5O_UPDATE_TIME, stab) < 0)
-	HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "can't create message")
+        HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "can't create message")
 
 done:
     FUNC_LEAVE_NOAPI_TAG(ret_value)
@@ -534,7 +534,7 @@ H5G__stab_iterate(const H5O_loc_t *oloc, H5_iter_order_t order,
 
     /* Get the B-tree info */
     if(NULL == H5O_msg_read(oloc, H5O_STAB_ID, &stab))
-	HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, FAIL, "unable to determine local heap address")
+        HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, FAIL, "unable to determine local heap address")
 
     /* Pin the heap down in memory */
     if(NULL == (heap = H5HL_protect(oloc->file, stab.heap_addr, H5AC__READ_ONLY_FLAG)))
@@ -626,7 +626,7 @@ H5G__stab_count(const H5O_loc_t *oloc, hsize_t *num_objs)
 
     /* Get the B-tree info */
     if(NULL == H5O_msg_read(oloc, H5O_STAB_ID, &stab))
-	HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, FAIL, "unable to determine local heap address")
+        HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, FAIL, "unable to determine local heap address")
 
     /* Iterate over the group members */
     if(H5B_iterate(oloc->file, H5B_SNODE, stab.btree_addr, H5G__node_sumup, num_objs) < 0)
@@ -757,7 +757,7 @@ H5G__stab_get_name_by_idx(const H5O_loc_t *oloc, H5_iter_order_t order, hsize_t 
 
     /* Get the B-tree & local heap info */
     if(NULL == H5O_msg_read(oloc, H5O_STAB_ID, &stab))
-	HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, FAIL, "unable to determine local heap address")
+        HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, FAIL, "unable to determine local heap address")
 
     /* Pin the heap down in memory */
     if(NULL == (heap = H5HL_protect(oloc->file, stab.heap_addr, H5AC__READ_ONLY_FLAG)))
@@ -785,11 +785,11 @@ H5G__stab_get_name_by_idx(const H5O_loc_t *oloc, H5_iter_order_t order, hsize_t 
 
     /* Iterate over the group members */
     if(H5B_iterate(oloc->file, H5B_SNODE, stab.btree_addr, H5G__node_by_idx, &udata) < 0)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "iteration operator failed")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "iteration operator failed")
 
     /* If we don't know the name now, we almost certainly went out of bounds */
     if(udata.name == NULL)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "index out of bound")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "index out of bound")
 
     /* Get the length of the name */
     ret_value = (ssize_t)HDstrlen(udata.name);
@@ -978,7 +978,7 @@ H5G__stab_lookup_by_idx(const H5O_loc_t *grp_oloc, H5_iter_order_t order, hsize_
 
     /* Get the B-tree & local heap info */
     if(NULL == H5O_msg_read(grp_oloc, H5O_STAB_ID, &stab))
-	HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, FAIL, "unable to determine local heap address")
+        HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, FAIL, "unable to determine local heap address")
 
     /* Pin the heap down in memory */
     if(NULL == (heap = H5HL_protect(grp_oloc->file, stab.heap_addr, H5AC__READ_ONLY_FLAG)))
@@ -1006,11 +1006,11 @@ H5G__stab_lookup_by_idx(const H5O_loc_t *grp_oloc, H5_iter_order_t order, hsize_
 
     /* Iterate over the group members */
     if(H5B_iterate(grp_oloc->file, H5B_SNODE, stab.btree_addr, H5G__node_by_idx, &udata) < 0)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "iteration operator failed")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "iteration operator failed")
 
     /* If we didn't find the link, we almost certainly went out of bounds */
     if(!udata.found)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "index out of bound")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "index out of bound")
 
 done:
     /* Release resources */

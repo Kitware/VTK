@@ -167,7 +167,7 @@ struct H5T_path_t {
     char	name[H5T_NAMELEN];	/*name for debugging only	     */
     H5T_t	*src;			/*source datatype 		     */
     H5T_t	*dst;			/*destination datatype		     */
-    H5T_conv_func_t conv;               /* Conversion funcion                */
+    H5T_conv_func_t conv;               /* Conversion function  */
     hbool_t	is_hard;		/*is it a hard function?	     */
     hbool_t	is_noop;		/*is it the noop conversion?	     */
     hbool_t	are_compounds;		/*are source and dest both compounds?*/

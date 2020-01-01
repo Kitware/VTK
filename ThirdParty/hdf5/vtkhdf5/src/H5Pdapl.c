@@ -121,7 +121,7 @@ static herr_t H5P__encode_chunk_cache_nbytes(const void *value, void **_pp,
 static herr_t H5P__decode_chunk_cache_nbytes(const void **_pp, void *_value);
 
 /* Property list callbacks */
-static herr_t H5P__dacc_vds_view_enc(const void *value, void **pp, size_t *size, void *udata);
+static herr_t H5P__dacc_vds_view_enc(const void *value, void **pp, size_t *size);
 static herr_t H5P__dacc_vds_view_dec(const void **pp, void *value);
 static herr_t H5P__dapl_vds_file_pref_set(hid_t prop_id, const char* name, size_t size, void* value);
 static herr_t H5P__dapl_vds_file_pref_get(hid_t prop_id, const char* name, size_t size, void* value);
@@ -135,7 +135,7 @@ static herr_t H5P__dapl_vds_file_pref_close(const char* name, size_t size, void*
 /* Property list callbacks */
 static herr_t H5P__dapl_efile_pref_set(hid_t prop_id, const char* name, size_t size, void* value);
 static herr_t H5P__dapl_efile_pref_get(hid_t prop_id, const char* name, size_t size, void* value);
-static herr_t H5P__dapl_efile_pref_enc(const void *value, void **_pp, size_t *size, void *udata);
+static herr_t H5P__dapl_efile_pref_enc(const void *value, void **_pp, size_t *size);
 static herr_t H5P__dapl_efile_pref_dec(const void **_pp, void *value);
 static herr_t H5P__dapl_efile_pref_del(hid_t prop_id, const char* name, size_t size, void* value);
 static herr_t H5P__dapl_efile_pref_copy(const char* name, size_t size, void* value);
@@ -563,7 +563,7 @@ H5P__dapl_efile_pref_get(hid_t H5_ATTR_UNUSED prop_id, const char H5_ATTR_UNUSED
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5P__dapl_efile_pref_enc(const void *value, void **_pp, size_t *size, void H5_ATTR_UNUSED *udata)
+H5P__dapl_efile_pref_enc(const void *value, void **_pp, size_t *size)
 {
     const char *efile_pref = *(const char * const *)value;
     uint8_t **pp = (uint8_t **)_pp;
@@ -1160,7 +1160,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5P__dacc_vds_view_enc(const void *value, void **_pp, size_t *size, void H5_ATTR_UNUSED *udata)
+H5P__dacc_vds_view_enc(const void *value, void **_pp, size_t *size)
 {
     const H5D_vds_view_t *view = (const H5D_vds_view_t *)value; /* Create local alias for values */
     uint8_t **pp = (uint8_t **)_pp;

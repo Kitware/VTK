@@ -411,6 +411,8 @@ vtktiff_EXPORT int TIFFWriteDirectory(TIFF *);
 vtktiff_EXPORT int TIFFWriteCustomDirectory(TIFF *, uint64 *);
 vtktiff_EXPORT int TIFFCheckpointDirectory(TIFF *);
 vtktiff_EXPORT int TIFFRewriteDirectory(TIFF *);
+vtktiff_EXPORT int TIFFDeferStrileArrayWriting(TIFF *);
+vtktiff_EXPORT int TIFFForceStrileArrayWriting(TIFF* );
 
 #if defined(c_plusplus) || defined(__cplusplus)
 vtktiff_EXPORT void TIFFPrintDirectory(TIFF*, FILE*, long = 0);
@@ -468,6 +470,9 @@ vtktiff_EXPORT tmsize_t TIFFReadEncodedStrip(TIFF* tif, uint32 strip, void* buf,
 vtktiff_EXPORT tmsize_t TIFFReadRawStrip(TIFF* tif, uint32 strip, void* buf, tmsize_t size);  
 vtktiff_EXPORT tmsize_t TIFFReadEncodedTile(TIFF* tif, uint32 tile, void* buf, tmsize_t size);  
 vtktiff_EXPORT tmsize_t TIFFReadRawTile(TIFF* tif, uint32 tile, void* buf, tmsize_t size);  
+vtktiff_EXPORT int      TIFFReadFromUserBuffer(TIFF* tif, uint32 strile,
+                                       void* inbuf, tmsize_t insize,
+                                       void* outbuf, tmsize_t outsize);
 vtktiff_EXPORT tmsize_t TIFFWriteEncodedStrip(TIFF* tif, uint32 strip, void* data, tmsize_t cc);
 vtktiff_EXPORT tmsize_t TIFFWriteRawStrip(TIFF* tif, uint32 strip, void* data, tmsize_t cc);  
 vtktiff_EXPORT tmsize_t TIFFWriteEncodedTile(TIFF* tif, uint32 tile, void* data, tmsize_t cc);  
@@ -487,6 +492,11 @@ vtktiff_EXPORT void TIFFSwabArrayOfFloat(float* fp, tmsize_t n);
 vtktiff_EXPORT void TIFFSwabArrayOfDouble(double* dp, tmsize_t n);
 vtktiff_EXPORT void TIFFReverseBits(uint8* cp, tmsize_t n);
 vtktiff_EXPORT const unsigned char* TIFFGetBitRevTable(int);
+
+vtktiff_EXPORT uint64 TIFFGetStrileOffset(TIFF *tif, uint32 strile);
+vtktiff_EXPORT uint64 TIFFGetStrileByteCount(TIFF *tif, uint32 strile);
+vtktiff_EXPORT uint64 TIFFGetStrileOffsetWithErr(TIFF *tif, uint32 strile, int *pbErr);
+vtktiff_EXPORT uint64 TIFFGetStrileByteCountWithErr(TIFF *tif, uint32 strile, int *pbErr);
 
 #ifdef LOGLUV_PUBLIC
 #define U_NEU		0.210526316

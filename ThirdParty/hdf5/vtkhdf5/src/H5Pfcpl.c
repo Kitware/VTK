@@ -132,13 +132,13 @@
 static herr_t H5P_fcrt_reg_prop(H5P_genclass_t *pclass);
 
 /* property callbacks */
-static herr_t H5P__fcrt_btree_rank_enc(const void *value, void **_pp, size_t *size, void *udata);
+static herr_t H5P__fcrt_btree_rank_enc(const void *value, void **_pp, size_t *size);
 static herr_t H5P__fcrt_btree_rank_dec(const void **_pp, void *value);
-static herr_t H5P__fcrt_shmsg_index_types_enc(const void *value, void **_pp, size_t *size, void *udata);
+static herr_t H5P__fcrt_shmsg_index_types_enc(const void *value, void **_pp, size_t *size);
 static herr_t H5P__fcrt_shmsg_index_types_dec(const void **_pp, void *value);
-static herr_t H5P__fcrt_shmsg_index_minsize_enc(const void *value, void **_pp, size_t *size, void *udata);
+static herr_t H5P__fcrt_shmsg_index_minsize_enc(const void *value, void **_pp, size_t *size);
 static herr_t H5P__fcrt_shmsg_index_minsize_dec(const void **_pp, void *value);
-static herr_t H5P__fcrt_fspace_strategy_enc(const void *value, void **_pp, size_t *size, void *udata);
+static herr_t H5P__fcrt_fspace_strategy_enc(const void *value, void **_pp, size_t *size);
 static herr_t H5P__fcrt_fspace_strategy_dec(const void **_pp, void *_value);
 
 
@@ -722,7 +722,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5P__fcrt_btree_rank_enc(const void *value, void **_pp, size_t *size, void H5_ATTR_UNUSED *udata)
+H5P__fcrt_btree_rank_enc(const void *value, void **_pp, size_t *size)
 {
     const unsigned *btree_k = (const unsigned *)value; /* Create local alias for values */
     uint8_t **pp = (uint8_t **)_pp;
@@ -1013,7 +1013,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5P__fcrt_shmsg_index_types_enc(const void *value, void **_pp, size_t *size, void H5_ATTR_UNUSED *udata)
+H5P__fcrt_shmsg_index_types_enc(const void *value, void **_pp, size_t *size)
 {
     const unsigned *type_flags = (const unsigned *)value; /* Create local alias for values */
     uint8_t **pp = (uint8_t **)_pp;
@@ -1106,7 +1106,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5P__fcrt_shmsg_index_minsize_enc(const void *value, void **_pp, size_t *size, void H5_ATTR_UNUSED *udata)
+H5P__fcrt_shmsg_index_minsize_enc(const void *value, void **_pp, size_t *size)
 {
     const unsigned *minsizes = (const unsigned *)value; /* Create local alias for values */
     uint8_t **pp = (uint8_t **)_pp;
@@ -1388,7 +1388,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5P__fcrt_fspace_strategy_enc(const void *value, void **_pp, size_t *size, void H5_ATTR_UNUSED *udata)
+H5P__fcrt_fspace_strategy_enc(const void *value, void **_pp, size_t *size)
 {
     const H5F_fspace_strategy_t *strategy = (const H5F_fspace_strategy_t *)value; /* Create local alias for values */
     uint8_t **pp = (uint8_t **)_pp;

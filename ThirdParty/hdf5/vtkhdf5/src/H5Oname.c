@@ -25,10 +25,10 @@
 #include "H5Omodule.h"          /* This source code file is part of the H5O module */
 
 
-#include "H5private.h"		/* Generic Functions			*/
-#include "H5Eprivate.h"		/* Error handling		  	*/
-#include "H5MMprivate.h"	/* Memory management			*/
-#include "H5Opkg.h"             /* Object headers			*/
+#include "H5private.h"        /* Generic Functions            */
+#include "H5Eprivate.h"        /* Error handling              */
+#include "H5MMprivate.h"    /* Memory management            */
+#include "H5Opkg.h"             /* Object headers            */
 
 
 /* PRIVATE PROTOTYPES */
@@ -43,29 +43,29 @@ static herr_t H5O__name_debug(H5F_t *f, const void *_mesg, FILE * stream,
 
 /* This message derives from H5O message class */
 const H5O_msg_class_t H5O_MSG_NAME[1] = {{
-    H5O_NAME_ID,            	/*message id number             */
-    "name",                 	/*message name for debugging    */
-    sizeof(H5O_name_t),     	/*native message size           */
-    0,				/* messages are sharable?       */
-    H5O__name_decode,        	/*decode message                */
-    H5O_name_encode,        	/*encode message                */
-    H5O_name_copy,          	/*copy the native value         */
-    H5O_name_size,          	/*raw message size              */
-    H5O__name_reset,         	/*free internal memory          */
-    NULL,			/* free method			*/
-    NULL,		        /* file delete method		*/
-    NULL,			/* link method			*/
-    NULL,			/*set share method		*/
-    NULL,		    	/*can share method		*/
-    NULL,			/* pre copy native value to file */
-    NULL,			/* copy native value to file    */
-    NULL,			/* post copy native value to file    */
-    NULL,			/* get creation index		*/
-    NULL,			/* set creation index		*/
-    H5O__name_debug         	/*debug the message             */
+    H5O_NAME_ID,                /*message id number             */
+    "name",                     /*message name for debugging    */
+    sizeof(H5O_name_t),         /*native message size           */
+    0,                /* messages are sharable?       */
+    H5O__name_decode,            /*decode message                */
+    H5O_name_encode,            /*encode message                */
+    H5O_name_copy,              /*copy the native value         */
+    H5O_name_size,              /*raw message size              */
+    H5O__name_reset,             /*free internal memory          */
+    NULL,            /* free method            */
+    NULL,                /* file delete method        */
+    NULL,            /* link method            */
+    NULL,            /*set share method        */
+    NULL,                /*can share method        */
+    NULL,            /* pre copy native value to file */
+    NULL,            /* copy native value to file    */
+    NULL,            /* post copy native value to file    */
+    NULL,            /* get creation index        */
+    NULL,            /* set creation index        */
+    H5O__name_debug             /*debug the message             */
 }};
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5O__name_decode
  *
@@ -98,9 +98,9 @@ H5O__name_decode(H5F_t H5_ATTR_UNUSED *f, H5O_t H5_ATTR_UNUSED *open_oh,
 
     /* decode */
     if(NULL == (mesg = (H5O_name_t *)H5MM_calloc(sizeof(H5O_name_t))))
-	HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
+    HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
     if(NULL == (mesg->s = (char *)H5MM_strdup((const char *)p)))
-	HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
+    HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
 
     /* Set return value */
     ret_value = mesg;
@@ -113,7 +113,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5O__name_decode() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5O_name_encode
  *
@@ -147,7 +147,7 @@ H5O_name_encode(H5F_t H5_ATTR_UNUSED *f, hbool_t H5_ATTR_UNUSED disable_shared, 
     FUNC_LEAVE_NOAPI(SUCCEED)
 }
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5O_name_copy
  *
@@ -179,7 +179,7 @@ H5O_name_copy(const void *_mesg, void *_dest)
     HDassert(mesg);
 
     if(!dest && NULL == (dest = (H5O_name_t *)H5MM_calloc(sizeof(H5O_name_t))))
-	HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
+    HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
 
     /* copy */
     *dest = *mesg;
@@ -197,7 +197,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5O_name_copy() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5O_name_size
  *
@@ -235,7 +235,7 @@ H5O_name_size(const H5F_t H5_ATTR_UNUSED *f, hbool_t H5_ATTR_UNUSED disable_shar
     FUNC_LEAVE_NOAPI(ret_value)
 }
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5O__name_reset
  *
@@ -266,7 +266,7 @@ H5O__name_reset(void *_mesg)
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5O__name_reset() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5O__name_debug
  *
@@ -286,7 +286,7 @@ static herr_t
 H5O__name_debug(H5F_t H5_ATTR_UNUSED *f, const void *_mesg, FILE *stream,
     int indent, int fwidth)
 {
-    const H5O_name_t	*mesg = (const H5O_name_t *)_mesg;
+    const H5O_name_t    *mesg = (const H5O_name_t *)_mesg;
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
@@ -297,7 +297,7 @@ H5O__name_debug(H5F_t H5_ATTR_UNUSED *f, const void *_mesg, FILE *stream,
     HDassert(indent >= 0);
     HDassert(fwidth >= 0);
 
-    fprintf(stream, "%*s%-*s `%s'\n", indent, "", fwidth,
+    HDfprintf(stream, "%*s%-*s `%s'\n", indent, "", fwidth,
             "Name:",
             mesg->s);
 

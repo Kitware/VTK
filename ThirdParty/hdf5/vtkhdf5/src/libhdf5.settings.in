@@ -71,12 +71,16 @@ Features:
 Parallel Filtered Dataset Writes: @PARALLEL_FILTERED_WRITES@
               Large Parallel I/O: @LARGE_PARALLEL_IO@
               High-level library: @HDF5_HL@
+                Build HDF5 Tests: @HDF5_TESTS@
+                Build HDF5 Tools: @HDF5_TOOLS@
                     Threadsafety: @THREADSAFE@
              Default API mapping: @DEFAULT_API_VERSION@
   With deprecated public symbols: @DEPRECATED_SYMBOLS@
           I/O filters (external): @EXTERNAL_FILTERS@
                              MPE: @MPE@
                       Direct VFD: @DIRECT_VFD@
+              (Read-Only) S3 VFD: @ROS3_VFD@
+            (Read-Only) HDFS VFD: @HAVE_LIBHDFS@
                          dmalloc: @HAVE_DMALLOC@
   Packages w/ extra debug output: @INTERNAL_DEBUG_OUTPUT@
                      API tracing: @TRACE_API@

@@ -55,6 +55,7 @@
 #include "exodusII.h"     // for ex_err, etc
 #include "exodusII_int.h" // for EX_FATAL, etc
 /*!
+\ingroup Utilities
 
 \note The ex_open_int() is an internal function called by
 ex_open(). The user should call ex_open() and not ex_open_int().
@@ -69,7 +70,7 @@ compute or I/O word size). Multiple files may be ``open'' simultaneously.
 number. Possible causes of errors include:
   -  The specified file does not exist.
   -  The mode specified is something other than the predefined constant
-\fparam{EX_READ} or \fparam{EX_WRITE}.
+\fparam{#EX_READ} or \fparam{#EX_WRITE}.
   -  Database version is earlier than 2.0.
 
 \param path The file name of the exodus file. This can be given as either an
@@ -83,27 +84,23 @@ number. Possible causes of errors include:
 \param[in,out] comp_ws The word size in bytes (0, 4 or 8) of the floating point
 variables
                used in the application program. If 0 (zero) is passed, the
-default
-               size of floating point values for the machine will be used and
-               returned in this variable. WARNING: all exodus functions
-requiring
-               reals must be passed reals declared with this passed in or
-returned
-               compute word size (4 or 8).
+               default size of floating point values for the machine will be
+               used and returned in this variable. WARNING: all exodus functions
+               requiring reals must be passed reals declared with this passed
+               in or returned compute word size (4 or 8).
 
 
 \param[in,out] io_ws The word size in bytes (0, 4 or 8) of the floating
                     point data as they are stored in the exodus file. If the
-word
-                    size does not match the word size of data stored in the
-file,
-                    a fatal error is returned. If this argument is 0, the word
-size
-                    of the floating point data already stored in the file is
-returned.
+                    word size does not match the word size of data stored in
+                    the file, a fatal error is returned. If this argument is
+                    0, the word size of the floating point data already
+                    stored in the file is returned.
 
 \param[out] version  Returned exodus database version number. Note that this is always a float,
-never a double.
+                     never a double.
+
+\param[in] run_version Internally generated to verify library compatibility.
 
 The following opens an exodus file named \file{test.exo} for read
 only, using default settings for compute and I/O word sizes:
@@ -124,8 +121,6 @@ exoid = ex_open ("test.exo",     \co{filename path}
 ~~~
  */
 
-static int warning_output = 0;
-
 /* NOTE: Do *not* call `ex_open_int()` directly.  The public API
  *       function name is `ex_open()` which is a wrapper that calls
  *       `ex_open_int` with an additional argument to make sure
@@ -134,36 +129,25 @@ static int warning_output = 0;
 int ex_open_int(const char *path, int mode, int *comp_ws, int *io_ws, float *version,
                 int run_version)
 {
-  int     exoid = -1;
-  int     status, stat_att, stat_dim;
-  nc_type att_type = NC_NAT;
-  size_t  att_len  = 0;
-  int     old_fill;
-  int     file_wordsize;
-  int     dim_str_name;
-  int     int64_status = 0;
-  int     nc_mode      = 0;
+  int     exoid  = -1;
+  int     status = 0, stat_att = 0, stat_dim = 0;
+  nc_type att_type      = NC_NAT;
+  size_t  att_len       = 0;
+  int     old_fill      = 0;
+  int     file_wordsize = 0;
+  int     dim_str_name  = 0;
+  int     int64_status  = 0;
+  int     nc_mode       = 0;
 
   char errmsg[MAX_ERR_LENGTH];
 
   EX_FUNC_ENTER();
+  *version = 0.0f;
 
   /* set error handling mode to no messages, non-fatal errors */
   ex_opts(exoptval); /* call required to set ncopts first time through */
 
-  if (run_version != EX_API_VERS_NODOT && warning_output == 0) {
-    int run_version_major = run_version / 100;
-    int run_version_minor = run_version % 100;
-    int lib_version_major = EX_API_VERS_NODOT / 100;
-    int lib_version_minor = EX_API_VERS_NODOT % 100;
-    fprintf(stderr,
-            "EXODUS: Warning: This code was compiled with exodus "
-            "version %d.%02d,\n          but was linked with exodus "
-            "library version %d.%02d\n          This is probably an "
-            "error in the build process of this code.\n",
-            run_version_major, run_version_minor, lib_version_major, lib_version_minor);
-    warning_output = 1;
-  }
+  ex__check_version(run_version);
 
   if ((mode & EX_READ) && (mode & EX_WRITE)) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: Cannot specify both EX_READ and EX_WRITE");
@@ -201,7 +185,7 @@ int ex_open_int(const char *path, int mode, int *comp_ws, int *io_ws, float *ver
          we have the define that shows it is enabled, then assume other error...
       */
       int type = 0;
-      ex_check_file_type(path, &type);
+      ex__check_file_type(path, &type);
 
       if (type == 5) {
 #if NC_HAS_HDF5
@@ -316,7 +300,7 @@ int ex_open_int(const char *path, int mode, int *comp_ws, int *io_ws, float *ver
        * add it now. */
       if (stat_dim != NC_NOERR) {
         /* Not found; set to default value of 32+1. */
-        int max_name = ex_default_max_name_length < 32 ? 32 : ex_default_max_name_length;
+        int max_name = ex__default_max_name_length < 32 ? 32 : ex__default_max_name_length;
         if ((status = nc_def_dim(exoid, DIM_STR_NAME, max_name + 1, &dim_str_name)) != NC_NOERR) {
           snprintf(errmsg, MAX_ERR_LENGTH,
                    "ERROR: failed to define string name dimension in file id %d named %s", exoid,
@@ -325,7 +309,7 @@ int ex_open_int(const char *path, int mode, int *comp_ws, int *io_ws, float *ver
           EX_FUNC_LEAVE(EX_FATAL);
         }
       }
-      if ((status = ex_leavedef(exoid, __func__)) != NC_NOERR) {
+      if ((status = ex__leavedef(exoid, __func__)) != NC_NOERR) {
         EX_FUNC_LEAVE(EX_FATAL);
       }
     }
@@ -381,7 +365,7 @@ int ex_open_int(const char *path, int mode, int *comp_ws, int *io_ws, float *ver
      not know that file was closed and possibly new file opened for
      this exoid
   */
-  if (ex_find_file_item(exoid) != NULL) {
+  if (ex__find_file_item(exoid) != NULL) {
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: There is an existing file already using the file "
              "id %d which was also assigned to file %s.\n\tWas "
@@ -394,7 +378,7 @@ int ex_open_int(const char *path, int mode, int *comp_ws, int *io_ws, float *ver
   }
 
   /* initialize floating point and integer size conversion. */
-  if (ex_conv_ini(exoid, comp_ws, io_ws, file_wordsize, int64_status, 0, 0, 0) != EX_NOERR) {
+  if (ex__conv_init(exoid, comp_ws, io_ws, file_wordsize, int64_status, 0, 0, 0) != EX_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: failed to initialize conversion routines in file id %d named %s", exoid, path);
     ex_err_fn(exoid, __func__, errmsg, EX_LASTERR);

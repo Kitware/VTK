@@ -49,6 +49,7 @@
 #include "exodusII_int.h" // for EX_FATAL, EX_NOERR
 
 /*!
+ * \ingroup Utilities
  * updates an opened EXODUS file (or EXODUS history file)
  * \param  exoid                   exodus file id
  */
@@ -60,7 +61,7 @@ int ex_update(int exoid)
 
   EX_FUNC_ENTER();
 
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
   if ((status = nc_sync(exoid)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to update file id %d", exoid);

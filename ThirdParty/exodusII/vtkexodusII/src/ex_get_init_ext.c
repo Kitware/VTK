@@ -76,6 +76,7 @@ static int64_t ex_get_dim_value(int exoid, const char *name, const char *dimensi
 }
 
 /*!
+ * \ingroup ModelDescription
  * reads the initialization parameters from an opened EXODUS file
  * \param exoid exodus file id
  * \param[out] info #ex_init_params structure containing metadata for mesh.
@@ -93,7 +94,7 @@ int ex_get_init_ext(int exoid, ex_init_params *info)
   int rootid = exoid & EX_FILE_ID_MASK;
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
   info->num_dim       = 0;
   info->num_nodes     = 0;
@@ -210,9 +211,9 @@ int ex_get_init_ext(int exoid, ex_init_params *info)
     info->title[0] = '\0';
   }
 
-  /* Update settings in ex_file_item struct */
+  /* Update settings in ex__file_item struct */
   {
-    struct ex_file_item *file = ex_find_file_item(exoid);
+    struct ex__file_item *file = ex__find_file_item(exoid);
     if (file) {
       file->has_nodes = info->num_nodes > 0;
       file->has_edges = info->num_edge > 0;

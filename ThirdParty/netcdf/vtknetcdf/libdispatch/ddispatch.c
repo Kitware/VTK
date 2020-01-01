@@ -9,6 +9,7 @@ See LICENSE.txt for license information.
 #include "nclog.h"
 #include "ncbytes.h"
 #include "ncrc.h"
+#include "ncoffsets.h"
 
 /* Required for getcwd, other functions. */
 #ifdef HAVE_UNISTD_H
@@ -21,13 +22,14 @@ See LICENSE.txt for license information.
 #define getcwd _getcwd
 #endif
 
+#if defined(ENABLE_BYTERANGE) || defined(ENABLE_DAP) || defined(ENABLE_DAP4)
+#include <curl/curl.h>
+#endif
 
-/* Define vectors of zeros and ones for use with various nc_get_varX function*/
-size_t nc_sizevector0[NC_MAX_VAR_DIMS];
-size_t nc_sizevector1[NC_MAX_VAR_DIMS];
-ptrdiff_t nc_ptrdiffvector1[NC_MAX_VAR_DIMS];
-size_t NC_coord_zero[NC_MAX_VAR_DIMS];
-size_t NC_coord_one[NC_MAX_VAR_DIMS];
+/* Define vectors of zeros and ones for use with various nc_get_varX functions */
+size_t NC_coord_zero[NC_MAX_VAR_DIMS] = {0};
+size_t NC_coord_one[NC_MAX_VAR_DIMS] = {1};
+ptrdiff_t NC_stride_one[NC_MAX_VAR_DIMS] = {1};
 
 NCRCglobalstate ncrc_globalstate;
 
@@ -42,18 +44,15 @@ NCDISPATCH_initialize(void)
 {
     int status = NC_NOERR;
     int i;
-
-    memset(&ncrc_globalstate,0,sizeof(NCRCglobalstate));
+    NCRCglobalstate* globalstate = NULL;
 
     for(i=0;i<NC_MAX_VAR_DIMS;i++) {
-	nc_sizevector0[i] = 0;
-        nc_sizevector1[i] = 1;
-        nc_ptrdiffvector1[i] = 1;
+        NC_coord_zero[i] = 0;
+        NC_coord_one[i]  = 1;
+        NC_stride_one[i] = 1;
     }
-    for(i=0;i<NC_MAX_VAR_DIMS;i++) {
-	NC_coord_one[i] = 1;
-	NC_coord_zero[i] = 0;
-    }
+
+    globalstate = ncrc_getglobalstate(); /* will allocate and clear */
 
     /* Capture temp dir*/
     {
@@ -71,8 +70,8 @@ NCDISPATCH_initialize(void)
 	    tempdir = getcwd(cwd,sizeof(cwd));
 	    if(tempdir == NULL || *tempdir == '\0') tempdir = ".";
 	}
-        ncrc_globalstate.tempdir= (char*)malloc(strlen(tempdir) + 1);
-	for(p=tempdir,q=ncrc_globalstate.tempdir;*p;p++,q++) {
+        globalstate->tempdir= (char*)malloc(strlen(tempdir) + 1);
+	for(p=tempdir,q=globalstate->tempdir;*p;p++,q++) {
 	    if((*p == '/' && *(p+1) == '/')
 	       || (*p == '\\' && *(p+1) == '\\')) {p++;}
 	    *q = *p;
@@ -81,7 +80,7 @@ NCDISPATCH_initialize(void)
 #ifdef _MSC_VER
 #else
         /* Canonicalize */
-	for(p=ncrc_globalstate.tempdir;*p;p++) {
+	for(p=globalstate->tempdir;*p;p++) {
 	    if(*p == '\\') {*p = '/'; };
 	}
 	*q = '\0';
@@ -96,10 +95,10 @@ NCDISPATCH_initialize(void)
 
         if(home == NULL) {
 	    /* use tempdir */
-	    home = ncrc_globalstate.tempdir;
+	    home = globalstate->tempdir;
 	}
-        ncrc_globalstate.home = (char*)malloc(strlen(home) + 1);
-	for(p=home,q=ncrc_globalstate.home;*p;p++,q++) {
+        globalstate->home = (char*)malloc(strlen(home) + 1);
+	for(p=home,q=globalstate->home;*p;p++,q++) {
 	    if((*p == '/' && *(p+1) == '/')
 	       || (*p == '\\' && *(p+1) == '\\')) {p++;}
 	    *q = *p;
@@ -118,6 +117,17 @@ NCDISPATCH_initialize(void)
     status = NC_rcload();
     ncloginit();
 
+    /* Compute type alignments */
+    NC_compute_alignments();
+
+    /* Initialize curl if it is being used */
+#if defined(ENABLE_BYTERANGE) || defined(ENABLE_DAP) || defined(ENABLE_DAP4)
+    {
+        CURLcode cstat = curl_global_init(CURL_GLOBAL_ALL);
+	if(cstat != CURLE_OK)
+	    status = NC_ECURL;
+    }
+#endif
     return status;
 }
 
@@ -125,10 +135,9 @@ int
 NCDISPATCH_finalize(void)
 {
     int status = NC_NOERR;
-    nullfree(ncrc_globalstate.tempdir);
-    nullfree(ncrc_globalstate.home);
-    NC_rcclear(&ncrc_globalstate.rcinfo);
-    memset(&ncrc_globalstate,0,sizeof(NCRCglobalstate));
+    ncrc_freeglobalstate();
+#if defined(ENABLE_BYTERANGE) || defined(ENABLE_DAP) || defined(ENABLE_DAP4)
+    curl_global_cleanup();
+#endif
     return status;
 }
-

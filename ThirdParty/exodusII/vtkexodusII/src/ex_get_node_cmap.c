@@ -65,7 +65,7 @@ int ex_get_node_cmap(int exoid, ex_entity_id map_id, void_int *node_ids, void_in
   char errmsg[MAX_ERR_LENGTH];
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
   /* get the cmap information variables index */
   if (ex_get_idx(exoid, VAR_N_COMM_INFO_IDX, varidx, processor) == -1) {
@@ -78,11 +78,11 @@ int ex_get_node_cmap(int exoid, ex_entity_id map_id, void_int *node_ids, void_in
 
   /*
    * no need to check if the second index is -1 that is handled
-   * in ne_id_lkup, where the dimension must be looked up anyways
+   * in ne__id_lkup, where the dimension must be looked up anyways
    */
 
   /* Get the index of the nodal comm map with the given ID */
-  if ((map_idx = ne_id_lkup(exoid, VAR_N_COMM_IDS, varidx, map_id)) < 0) {
+  if ((map_idx = ne__id_lkup(exoid, VAR_N_COMM_IDS, varidx, map_id)) < 0) {
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: failed to find nodal comm map with ID %" PRId64 " in file ID %d", map_id,
              exoid);

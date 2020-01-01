@@ -34,7 +34,7 @@
  */
 
 #include "exodusII.h"     // for ex_err, etc
-#include "exodusII_int.h" // for ex_comp_ws, EX_FATAL, etc
+#include "exodusII_int.h" // for ex__comp_ws, EX_FATAL, etc
 
 /*!
  The function ex_get_glob_var_time() reads the values of a
@@ -98,8 +98,8 @@ error = ex_get_glob_var_time(exoid, var_index, beg_time,
 
 */
 
-int ex_get_glob_var_time_int(int exoid, int glob_var_index, int beg_time_step, int end_time_step,
-                             void *glob_var_vals)
+int ex__get_glob_var_time(int exoid, int glob_var_index, int beg_time_step, int end_time_step,
+                          void *glob_var_vals)
 {
   int    status;
   int    varid;
@@ -107,7 +107,7 @@ int ex_get_glob_var_time_int(int exoid, int glob_var_index, int beg_time_step, i
   char   errmsg[MAX_ERR_LENGTH];
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
   /* Check that times are in range */
   {
@@ -161,7 +161,7 @@ int ex_get_glob_var_time_int(int exoid, int glob_var_index, int beg_time_step, i
     EX_FUNC_LEAVE(EX_WARN);
   }
 
-  if (ex_comp_ws(exoid) == 4) {
+  if (ex__comp_ws(exoid) == 4) {
     status = nc_get_vara_float(exoid, varid, start, count, glob_var_vals);
   }
   else {

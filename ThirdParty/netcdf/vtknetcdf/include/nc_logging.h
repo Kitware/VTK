@@ -5,7 +5,7 @@
  * interface for HDF5, or a HDF5 backend for netCDF, depending on your
  * point of view.
  *
- * This file contains macros and prototyes relating to logging.
+ * This file contains macros and prototypes relating to logging.
  *
  * @author Ed Hartnett
 */

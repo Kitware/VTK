@@ -395,7 +395,7 @@ H5HF_hdr_debug(H5F_t *f, haddr_t addr, FILE *stream, int indent, int fwidth)
 
     /* Load the fractal heap header */
     if(NULL == (hdr = H5HF__hdr_protect(f, addr, H5AC__READ_ONLY_FLAG)))
-	HGOTO_ERROR(H5E_HEAP, H5E_CANTPROTECT, FAIL, "unable to protect fractal heap header")
+        HGOTO_ERROR(H5E_HEAP, H5E_CANTPROTECT, FAIL, "unable to protect fractal heap header")
 
     /* Print the information about the heap's header */
     H5HF_hdr_print(hdr, FALSE, stream, indent, fwidth);
@@ -483,7 +483,7 @@ H5HF_dblock_debug_cb(H5FS_section_info_t *_sect, void *_udata)
 
         /* Flag overlaps */
         if (overlap)
-            fprintf(udata->stream, "***THAT FREE BLOCK OVERLAPPED A PREVIOUS ONE!\n");
+            HDfprintf(udata->stream, "***THAT FREE BLOCK OVERLAPPED A PREVIOUS ONE!\n");
         else
             udata->amount_free += len;
     } /* end if */
@@ -531,13 +531,13 @@ H5HF_dblock_debug(H5F_t *f, haddr_t addr, FILE *stream, int indent, int fwidth,
 
     /* Load the fractal heap header */
     if(NULL == (hdr = H5HF__hdr_protect(f, hdr_addr, H5AC__READ_ONLY_FLAG)))
-	HGOTO_ERROR(H5E_HEAP, H5E_CANTPROTECT, FAIL, "unable to protect fractal heap header")
+        HGOTO_ERROR(H5E_HEAP, H5E_CANTPROTECT, FAIL, "unable to protect fractal heap header")
 
     /*
      * Load the heap direct block
      */
     if(NULL == (dblock = H5HF__man_dblock_protect(hdr, addr, block_size, NULL, 0, H5AC__READ_ONLY_FLAG)))
-	HGOTO_ERROR(H5E_HEAP, H5E_CANTLOAD, FAIL, "unable to load fractal heap direct block")
+        HGOTO_ERROR(H5E_HEAP, H5E_CANTLOAD, FAIL, "unable to load fractal heap direct block")
 
     /* Print opening message */
     HDfprintf(stream, "%*sFractal Heap Direct Block...\n", indent, "");
@@ -788,13 +788,13 @@ H5HF_iblock_debug(H5F_t *f, haddr_t addr, FILE *stream, int indent, int fwidth,
 
     /* Load the fractal heap header */
     if(NULL == (hdr = H5HF__hdr_protect(f, hdr_addr, H5AC__READ_ONLY_FLAG)))
-	HGOTO_ERROR(H5E_HEAP, H5E_CANTPROTECT, FAIL, "unable to protect fractal heap header")
+        HGOTO_ERROR(H5E_HEAP, H5E_CANTPROTECT, FAIL, "unable to protect fractal heap header")
 
     /*
      * Load the heap indirect block
      */
     if(NULL == (iblock = H5HF__man_iblock_protect(hdr, addr, nrows, NULL, 0, FALSE, H5AC__READ_ONLY_FLAG, &did_protect)))
-	HGOTO_ERROR(H5E_HEAP, H5E_CANTLOAD, FAIL, "unable to load fractal heap indirect block")
+        HGOTO_ERROR(H5E_HEAP, H5E_CANTLOAD, FAIL, "unable to load fractal heap indirect block")
 
     /* Print the information about the heap's indirect block */
     H5HF_iblock_print(iblock, FALSE, stream, indent, fwidth);
@@ -878,8 +878,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5HF_sects_debug(H5F_t *f, haddr_t fh_addr, FILE *stream, int indent,
-    int fwidth)
+H5HF_sects_debug(H5F_t *f, haddr_t fh_addr, FILE *stream, int indent, int fwidth)
 {
     H5HF_hdr_t	*hdr = NULL;            /* Fractal heap header info */
     herr_t      ret_value = SUCCEED;    /* Return value */
@@ -897,7 +896,7 @@ H5HF_sects_debug(H5F_t *f, haddr_t fh_addr, FILE *stream, int indent,
 
     /* Load the fractal heap header */
     if(NULL == (hdr = H5HF__hdr_protect(f, fh_addr, H5AC__READ_ONLY_FLAG)))
-	HGOTO_ERROR(H5E_HEAP, H5E_CANTPROTECT, FAIL, "unable to protect fractal heap header")
+        HGOTO_ERROR(H5E_HEAP, H5E_CANTPROTECT, FAIL, "unable to protect fractal heap header")
 
     /* Initialize the free space information for the heap */
     if(H5HF__space_start(hdr, FALSE) < 0)

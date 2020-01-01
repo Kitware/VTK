@@ -27,9 +27,10 @@ extern int NC4_create_image_file(NC_FILE_INFO_T* h5, size_t);
  *
  * @param path The file name of the new file.
  * @param cmode The creation mode flag.
- * @param initialsz The proposed initial file size (advisory)
- * @param parameters extra parameter info (like  MPI communicator)
- * @param nc Pointer to an instance of NC.
+ * @param initialsz The proposed initial file size (advisory, for
+ * in-memory netCDF-4/HDF5 files only).
+ * @param parameters extra parameter info (like MPI communicator).
+ * @param ncid The already-assigned ncid for this file (aka ext_ncid).
  *
  * @return ::NC_NOERR No error.
  * @return ::NC_EINVAL Invalid input (check cmode).
@@ -40,13 +41,13 @@ extern int NC4_create_image_file(NC_FILE_INFO_T* h5, size_t);
  */
 static int
 nc4_create_file(const char *path, int cmode, size_t initialsz,
-                void* parameters, NC *nc)
+                void* parameters, int ncid)
 {
     hid_t fcpl_id, fapl_id = -1;
     unsigned flags;
     FILE *fp;
     int retval = NC_NOERR;
-    NC_FILE_INFO_T* nc4_info = NULL;
+    NC_FILE_INFO_T *nc4_info;
     NC_HDF5_FILE_INFO_T *hdf5_info;
     NC_HDF5_GRP_INFO_T *hdf5_grp;
 
@@ -58,13 +59,13 @@ nc4_create_file(const char *path, int cmode, size_t initialsz,
     int info_duped = 0; /* Whether the MPI Info object was duplicated */
 #endif /* !USE_PARALLEL4 */
 
-    assert(nc && path);
+    assert(path);
     LOG((3, "%s: path %s mode 0x%x", __func__, path, cmode));
 
     /* Add necessary structs to hold netcdf-4 file data. */
-    if ((retval = nc4_nc4f_list_add(nc, path, (NC_WRITE | cmode))))
+    if ((retval = nc4_file_list_add(ncid, path, NC_WRITE | cmode,
+                                    (void **)&nc4_info)))
         BAIL(retval);
-    nc4_info = NC4_DATA(nc);
     assert(nc4_info && nc4_info->root_grp);
     nc4_info->root_grp->atts_read = 1;
 
@@ -155,7 +156,7 @@ nc4_create_file(const char *path, int cmode, size_t initialsz,
          nc4_chunk_cache_preemption));
 #endif /* USE_PARALLEL4 */
 
-#ifdef HDF5_HAS_LIBVER_BOUNDS
+#ifdef HAVE_H5PSET_LIBVER_BOUNDS
 #if H5_VERSION_GE(1,10,2)
     if (H5Pset_libver_bounds(fapl_id, H5F_LIBVER_EARLIEST, H5F_LIBVER_V18) < 0)
 #else
@@ -261,7 +262,8 @@ exit: /*failure exit*/
  * @param parameters pointer to struct holding extra data (e.g. for
  * parallel I/O) layer. Ignored if NULL.
  * @param dispatch Pointer to the dispatch table for this file.
- * @param nc_file Pointer to an instance of NC.
+ * @param ncid The ncid that has been assigned by the dispatch layer
+ * (aka ext_ncid).
  *
  * @return ::NC_NOERR No error.
  * @return ::NC_EINVAL Invalid input (check cmode).
@@ -271,11 +273,11 @@ exit: /*failure exit*/
 int
 NC4_create(const char* path, int cmode, size_t initialsz, int basepe,
            size_t *chunksizehintp, void *parameters,
-           NC_Dispatch *dispatch, NC *nc_file)
+           const NC_Dispatch *dispatch, int ncid)
 {
     int res;
 
-    assert(nc_file && path);
+    assert(path);
 
     LOG((1, "%s: path %s cmode 0x%x parameters %p",
          __func__, path, cmode, parameters));
@@ -290,16 +292,13 @@ NC4_create(const char* path, int cmode, size_t initialsz, int basepe,
     hdf5_set_log_level();
 #endif /* LOGGING */
 
-    /* Check the cmode for validity. */
-    if((cmode & ILLEGAL_CREATE_FLAGS) != 0)
-    {res = NC_EINVAL; goto done;}
+    /* Check the cmode for validity. Checking parallel against
+     * NC_DISKLESS already done in NC_create(). */
+    if (cmode & ILLEGAL_CREATE_FLAGS)
+        return NC_EINVAL;
 
-    /* check parallel against NC_DISKLESS already done in NC_create() */
+    /* Create the netCDF-4/HDF5 file. */
+    res = nc4_create_file(path, cmode, initialsz, parameters, ncid);
 
-    nc_file->int_ncid = nc_file->ext_ncid;
-
-    res = nc4_create_file(path, cmode, initialsz, parameters, nc_file);
-
-done:
     return res;
 }

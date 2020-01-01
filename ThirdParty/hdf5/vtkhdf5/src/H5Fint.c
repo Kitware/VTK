@@ -2956,8 +2956,10 @@ H5F_set_retries(H5F_t *f)
     /* Initialize the # of bins for retries */
     f->shared->retries_nbins = 0;
     if(f->shared->read_attempts > 1) {
-        tmp = HDlog10((double)(f->shared->read_attempts - 1));
-        f->shared->retries_nbins = (unsigned)tmp + 1;
+        /* Use HDceil to ensure that the log10 value is rounded up to the 
+           nearest integer before casting to unsigned */
+        tmp = HDceil(HDlog10((double)f->shared->read_attempts));
+        f->shared->retries_nbins = (unsigned)tmp;
     }
 
     FUNC_LEAVE_NOAPI(SUCCEED)

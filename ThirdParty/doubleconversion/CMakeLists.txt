@@ -2,7 +2,7 @@ vtk_module_third_party(
   INTERNAL
     LICENSE_FILES "vtkdoubleconversion/COPYING"
                   "vtkdoubleconversion/LICENSE"
-    VERSION       "3.1.1"
+    VERSION       "3.1.5"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE double-conversion

@@ -25,6 +25,11 @@
 
 #define NC_HDF5_MAX_NAME 1024 /**< @internal Max size of HDF5 name. */
 
+/* WARNING: GLOBAL VARIABLE */
+
+/* Define list of registered filters */
+static NClist* filters = NULL;
+
 /**
  * @internal Flag attributes in a linked list as dirty.
  *
@@ -507,7 +512,6 @@ put_att_grpa(NC_GRP_INFO_T *grp, int varid, NC_ATT_INFO_T *att)
     hid_t existing_att_typeid = 0, existing_attid = 0, existing_spaceid = 0;
     hsize_t dims[1]; /* netcdf attributes always 1-D. */
     htri_t attr_exists;
-    int reuse_att = 0; /* Will be true if we can re-use an existing att. */
     void *data;
     int phoney_data = 99;
     int retval = NC_NOERR;
@@ -612,26 +616,49 @@ put_att_grpa(NC_GRP_INFO_T *grp, int varid, NC_ATT_INFO_T *att)
         if ((npoints = H5Sget_simple_extent_npoints(existing_spaceid)) < 0)
             BAIL(NC_EATTMETA);
 
-        /* Delete the attribute. */
-        if (file_typeid != existing_att_typeid || npoints != att->len)
+        /* For text attributes the size is specified in the datatype
+           and it is enough to compare types using H5Tequal(). */
+        if (!H5Tequal(file_typeid, existing_att_typeid) ||
+            (att->nc_typeid != NC_CHAR && npoints != att->len))
         {
+            /* The attribute exists but we cannot re-use it. */
+
+            /* Delete the attribute. */
             if (H5Adelete(locid, att->hdr.name) < 0)
                 BAIL(NC_EHDFERR);
+
+            /* Re-create the attribute with the type and length
+               reflecting the new value (or values). */
+            if ((attid = H5Acreate(locid, att->hdr.name, file_typeid, spaceid,
+                                   H5P_DEFAULT)) < 0)
+                BAIL(NC_EATTMETA);
+
+            /* Write the values, (even if length is zero). */
+            if (H5Awrite(attid, file_typeid, data) < 0)
+                BAIL(NC_EATTMETA);
         }
         else
         {
-            reuse_att++;
+            /* The attribute exists and we can re-use it. */
+
+            /* Write the values, re-using the existing attribute. */
+            if (H5Awrite(existing_attid, file_typeid, data) < 0)
+                BAIL(NC_EATTMETA);
         }
     }
+    else
+    {
+        /* The attribute does not exist yet. */
 
-    /* Create the attribute. */
-    if ((attid = H5Acreate(locid, att->hdr.name, file_typeid, spaceid,
-                           H5P_DEFAULT)) < 0)
-        BAIL(NC_EATTMETA);
+        /* Create the attribute. */
+        if ((attid = H5Acreate(locid, att->hdr.name, file_typeid, spaceid,
+                               H5P_DEFAULT)) < 0)
+            BAIL(NC_EATTMETA);
 
-    /* Write the values, (even if length is zero). */
-    if (H5Awrite(attid, file_typeid, data) < 0)
-        BAIL(NC_EATTMETA);
+        /* Write the values, (even if length is zero). */
+        if (H5Awrite(attid, file_typeid, data) < 0)
+            BAIL(NC_EATTMETA);
+    }
 
 exit:
     if (file_typeid && H5Tclose(file_typeid))
@@ -903,7 +930,7 @@ var_create_dataset(NC_GRP_INFO_T *grp, NC_VAR_INFO_T *var, nc_bool_t write_dimid
         }
     }
 
-    /* If the user wants to fletcher error correcton, set that up now. */
+    /* If the user wants to fletcher error correction, set that up now. */
     if (var->fletcher32)
         if (H5Pset_fletcher32(plistid) < 0)
             BAIL(NC_EHDFERR);
@@ -1836,10 +1863,10 @@ write_dim(NC_DIM_INFO_T *dim, NC_GRP_INFO_T *grp, nc_bool_t write_dimid)
         NC_VAR_INFO_T *v1 = NULL;
 
         assert(dim->unlimited);
-        /* If this is a dimension without a variable, then update
-         * the secret length information at the end of the NAME
-         * attribute. */
-        v1 = (NC_VAR_INFO_T *)ncindexlookup(grp->vars, dim->hdr.name);
+
+        /* If this is a dimension with an associated coordinate var,
+         * then update the length of that coord var. */
+        v1 = dim->coord_var;
         if (v1)
         {
             NC_HDF5_VAR_INFO_T *hdf5_v1;
@@ -2638,3 +2665,122 @@ NC4_walk(hid_t gid, int* countp)
     }
     return ncstat;
 }
+
+
+/**************************************************/
+/* Filter registration support */
+
+static int
+filterlookup(int id)
+{
+    int i;
+    if(filters == NULL)
+	filters = nclistnew();
+    for(i=0;i<nclistlength(filters);i++) {
+	NC_FILTER_INFO* x = nclistget(filters,i);
+	if(x != NULL && x->id == id) return i; /* return position */
+    }
+    return -1;
+}
+
+static void
+reclaiminfo(NC_FILTER_INFO* info)
+{
+    if(info != NULL)
+        nullfree(info->info);
+    nullfree(info);
+}
+
+static int
+filterremove(int pos)
+{
+    NC_FILTER_INFO* info = NULL;
+    if(filters == NULL)
+	filters = nclistnew();
+    if(pos < 0 || pos >= nclistlength(filters))
+	return NC_EINVAL;
+    info = nclistget(filters,pos);
+    reclaiminfo(info);
+    nclistremove(filters,pos);
+    return NC_NOERR;
+}
+
+static NC_FILTER_INFO*
+dupfilterinfo(NC_FILTER_INFO* info)
+{
+    NC_FILTER_INFO* dup = NULL;
+    if(info == NULL) goto fail;
+    if(info->info == NULL) goto fail;
+    if((dup = calloc(1,sizeof(NC_FILTER_INFO))) == NULL) goto fail;
+    *dup = *info;
+    if((dup->info = calloc(1,sizeof(H5Z_class2_t))) == NULL) goto fail;
+    {
+        H5Z_class2_t* h5dup = (H5Z_class2_t*)dup->info;
+        H5Z_class2_t* h5info = (H5Z_class2_t*)info->info;
+        *h5dup = *h5info;
+    }
+    return dup;
+fail:
+    reclaiminfo(dup);
+    return NULL;
+}
+
+int
+nc4_filter_action(int op, int format, int id, NC_FILTER_INFO* info)
+{
+    int stat = NC_NOERR;
+    H5Z_class2_t* h5filterinfo = NULL;
+    herr_t herr;
+    int pos = -1;
+    NC_FILTER_INFO* dup = NULL;
+
+    if(format != NC_FILTER_FORMAT_HDF5)
+	{stat = NC_ENOTNC4; goto done;}
+
+    switch (op) {
+    case FILTER_REG: /* Ignore id argument */
+	if(info == NULL || info->info == NULL)
+	    {stat = NC_EINVAL; goto done;}
+	if(info->version != NC_FILTER_INFO_VERSION
+	   || info->format != NC_FILTER_FORMAT_HDF5)
+	    {stat = NC_ENOTNC4; goto done;}
+        h5filterinfo = info->info;
+        /* Another sanity check */
+        if(info->id != h5filterinfo->id)
+	    {stat = NC_EINVAL; goto done;}
+	/* See if this filter is already defined */
+	if((pos = filterlookup(id)) >= 0)
+	    {stat = NC_ENAMEINUSE; goto done;} /* Already defined */
+	if((herr = H5Zregister(h5filterinfo)) < 0)
+	    {stat = NC_EFILTER; goto done;}
+	/* Save a copy of the passed in info */
+	if((dup = dupfilterinfo(info)) == NULL)
+	    {stat = NC_ENOMEM; goto done;}		
+	nclistpush(filters,dup);	
+	break;
+    case FILTER_UNREG:
+	if(id <= 0)
+	    {stat = NC_ENOTNC4; goto done;}
+	/* See if this filter is already defined */
+	if((pos = filterlookup(id)) < 0)
+	    {stat = NC_EFILTER; goto done;} /* Not defined */
+	if((herr = H5Zunregister(id)) < 0)
+	    {stat = NC_EFILTER; goto done;}
+	if((stat=filterremove(pos))) goto done;
+	break;
+    case FILTER_INQ:
+	if(id <= 0)
+	    {stat = NC_ENOTNC4; goto done;}
+	/* Look up the id in our local table */
+	if((pos = filterlookup(id)) < 0)
+	    {stat = NC_EFILTER; goto done;} /* Not defined */
+	if(info != NULL) {
+	    *info = *((NC_FILTER_INFO*)nclistget(filters,pos));
+	}
+	break;
+    default:
+	{stat = NC_EINTERNAL; goto done;}	
+    }
+done:
+    return stat;
+} 

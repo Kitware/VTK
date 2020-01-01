@@ -2728,7 +2728,6 @@ H5D__chunk_redistribute_shared_chunks(const H5D_io_info_t *io_info, const H5D_ty
     int                                *send_displacements = NULL;
     int                                 scatter_recvcount_int;
     int                                 mpi_rank, mpi_size, mpi_code;
-    hid_t                               fapl_id = -1;       /* File access property list for H5S_encode() */
     herr_t                              ret_value = SUCCEED;
 
     FUNC_ENTER_STATIC
@@ -2742,9 +2741,9 @@ H5D__chunk_redistribute_shared_chunks(const H5D_io_info_t *io_info, const H5D_ty
         HGOTO_ERROR(H5E_IO, H5E_MPI, FAIL, "unable to obtain mpi rank")
     if ((mpi_size = H5F_mpi_get_size(io_info->dset->oloc.file)) < 0)
         HGOTO_ERROR(H5E_IO, H5E_MPI, FAIL, "unable to obtain mpi size")
-
-    if((fapl_id = H5F_get_access_plist(io_info->dset->oloc.file, FALSE)) < 0)
-         HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, FAIL, "can't get fapl")
+    
+    /* Set to latest format for encoding dataspace */
+    H5CX_set_libver_bounds(NULL);
 
     if (*local_chunk_array_num_entries)
         if (NULL == (send_requests = (MPI_Request *) H5MM_malloc(*local_chunk_array_num_entries * sizeof(MPI_Request))))
@@ -2851,7 +2850,7 @@ H5D__chunk_redistribute_shared_chunks(const H5D_io_info_t *io_info, const H5D_ty
             /* Determine size of serialized chunk file dataspace, plus the size of
              * the data being written
              */
-            if (H5S_encode(chunk_info->fspace, &mod_data_p, &mod_data_size, fapl_id) < 0)
+            if (H5S_encode(chunk_info->fspace, &mod_data_p, &mod_data_size) < 0)
                 HGOTO_ERROR(H5E_DATASET, H5E_CANTENCODE, FAIL, "unable to get encoded dataspace size")
 
             if ((iter_nelmts = H5S_GET_SELECT_NPOINTS(chunk_info->mspace)) < 0)
@@ -2864,7 +2863,7 @@ H5D__chunk_redistribute_shared_chunks(const H5D_io_info_t *io_info, const H5D_ty
 
             /* Serialize the chunk's file dataspace into the buffer */
             mod_data_p = mod_data[num_send_requests];
-            if (H5S_encode(chunk_info->fspace, &mod_data_p, &mod_data_size, fapl_id) < 0)
+            if (H5S_encode(chunk_info->fspace, &mod_data_p, &mod_data_size) < 0)
                 HGOTO_ERROR(H5E_DATASET, H5E_CANTENCODE, FAIL, "unable to encode dataspace")
 
             /* Initialize iterator for memory selection */
@@ -2969,8 +2968,6 @@ done:
         H5MM_free(num_assigned_chunks_array);
     if (shared_chunks_info_array)
         H5MM_free(shared_chunks_info_array);
-    if (H5Pclose(fapl_id) < 0)
-        HDONE_ERROR(H5E_DATASET, H5E_CANTCLOSEOBJ, FAIL, "couldn't close FAPL")
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5D__chunk_redistribute_shared_chunks() */

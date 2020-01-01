@@ -359,7 +359,6 @@ H5TS_win32_process_enter(PINIT_ONCE InitOnce, PVOID Parameter, PVOID *lpContex)
         ret_value = FALSE;
 #endif /* H5_HAVE_CODESTACK */
 
-    /* Set up thread local storage */
     if(TLS_OUT_OF_INDEXES == (H5TS_apictx_key_g = TlsAlloc()))
         ret_value = FALSE;
 
@@ -428,12 +427,9 @@ H5TS_win32_process_exit(void)
 
     /* Clean up per-process thread local storage */
     TlsFree(H5TS_errstk_key_g);
-
 #ifdef H5_HAVE_CODESTACK
     TlsFree(H5TS_funcstk_key_g);
 #endif /* H5_HAVE_CODESTACK */
-
-    /* Clean up per-process thread local storage */
     TlsFree(H5TS_apictx_key_g);
 
     return;
@@ -479,7 +475,6 @@ H5TS_win32_thread_exit(void)
         LocalFree((HLOCAL)lpvData);
 #endif /* H5_HAVE_CODESTACK */
 
-    /* Clean up per-thread thread local storage */
     lpvData = TlsGetValue(H5TS_apictx_key_g);
     if(lpvData)
         LocalFree((HLOCAL)lpvData);
@@ -534,3 +529,4 @@ H5TS_create_thread(void *(*func)(void *), H5TS_attr_t *attr, void *udata)
 } /* H5TS_create_thread */
 
 #endif  /* H5_HAVE_THREADSAFE */
+

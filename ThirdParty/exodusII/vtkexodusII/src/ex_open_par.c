@@ -59,6 +59,7 @@
 #include "exodusII_int.h"
 #include <mpi.h>
 /*!
+\ingroup Utilities
 
 \note The ex_open_par_int() is an internal function called by
 ex_open_par(). The user should call ex_open_par() and not ex_open_par_int().
@@ -129,8 +130,6 @@ exoid = ex_open_par ("test.exo",     \co{filename path}
 ~~~
  */
 
-static int warning_output = 0;
-
 struct ncvar /* variable */
 {
   char    name[MAX_VAR_NAME_LENGTH];
@@ -148,18 +147,18 @@ struct ncvar /* variable */
 int ex_open_par_int(const char *path, int mode, int *comp_ws, int *io_ws, float *version,
                     MPI_Comm comm, MPI_Info info, int run_version)
 {
-  int     exoid;
-  int     status, stat_att, stat_dim;
-  nc_type att_type = NC_NAT;
-  size_t  att_len  = 0;
-  int     nc_mode  = 0;
-  int     old_fill;
-  int     file_wordsize;
-  int     dim_str_name;
-  int     int64_status = 0;
-  int     is_hdf5      = 0;
-  int     is_pnetcdf   = 0;
-  int     in_redef     = 0;
+  int     exoid  = -1;
+  int     status = 0, stat_att = 0, stat_dim = 0;
+  nc_type att_type      = NC_NAT;
+  size_t  att_len       = 0;
+  int     nc_mode       = 0;
+  int     old_fill      = 0;
+  int     file_wordsize = 0;
+  int     dim_str_name  = 0;
+  int     int64_status  = 0;
+  int     is_hdf5       = 0;
+  int     is_pnetcdf    = 0;
+  int     in_redef      = 0;
 
   char errmsg[MAX_ERR_LENGTH];
 
@@ -168,19 +167,7 @@ int ex_open_par_int(const char *path, int mode, int *comp_ws, int *io_ws, float 
   /* set error handling mode to no messages, non-fatal errors */
   ex_opts(exoptval); /* call required to set ncopts first time through */
 
-  if (run_version != EX_API_VERS_NODOT && warning_output == 0) {
-    int run_version_major = run_version / 100;
-    int run_version_minor = run_version % 100;
-    int lib_version_major = EX_API_VERS_NODOT / 100;
-    int lib_version_minor = EX_API_VERS_NODOT % 100;
-    fprintf(stderr,
-            "EXODUS: Warning: This code was compiled with exodus "
-            "version %d.%02d,\n          but was linked with exodus "
-            "library version %d.%02d\n          This is probably an "
-            "error in the build process of this code.\n",
-            run_version_major, run_version_minor, lib_version_major, lib_version_minor);
-    warning_output = 1;
-  }
+  ex__check_version(run_version);
 
   if ((mode & EX_READ) && (mode & EX_WRITE)) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: Cannot specify both EX_READ and EX_WRITE");
@@ -213,7 +200,7 @@ int ex_open_par_int(const char *path, int mode, int *comp_ws, int *io_ws, float 
        we have the define that shows it is enabled, then assume other error...
     */
     int type = 0;
-    ex_check_file_type(path, &type);
+    ex__check_file_type(path, &type);
 
     if (type == 5) {
 #if NC_HAS_HDF5
@@ -303,7 +290,7 @@ int ex_open_par_int(const char *path, int mode, int *comp_ws, int *io_ws, float 
 
   /* File opened correctly */
   int type = 0;
-  ex_check_file_type(path, &type);
+  ex__check_file_type(path, &type);
   if (type == 5) {
     is_hdf5 = 1;
   }
@@ -349,13 +336,13 @@ int ex_open_par_int(const char *path, int mode, int *comp_ws, int *io_ws, float 
        * add it now. */
       if (stat_dim != NC_NOERR) {
         /* Not found; set to default value of 32+1. */
-        int max_name = ex_default_max_name_length < 32 ? 32 : ex_default_max_name_length;
+        int max_name = ex__default_max_name_length < 32 ? 32 : ex__default_max_name_length;
         nc_def_dim(exoid, DIM_STR_NAME, max_name + 1, &dim_str_name);
       }
     }
 
     if (in_redef) {
-      if ((status = ex_leavedef(exoid, __func__)) != NC_NOERR) {
+      if ((status = ex__leavedef(exoid, __func__)) != NC_NOERR) {
         EX_FUNC_LEAVE(EX_FATAL);
       }
       in_redef = 0;
@@ -444,7 +431,7 @@ int ex_open_par_int(const char *path, int mode, int *comp_ws, int *io_ws, float 
      not know that file was closed and possibly new file opened for
      this exoid
   */
-  if (ex_find_file_item(exoid) != NULL) {
+  if (ex__find_file_item(exoid) != NULL) {
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: There is an existing file already using the file "
              "id %d which was also assigned to file %s.\n\tWas "
@@ -457,7 +444,7 @@ int ex_open_par_int(const char *path, int mode, int *comp_ws, int *io_ws, float 
   }
 
   /* initialize floating point and integer size conversion. */
-  if (ex_conv_ini(exoid, comp_ws, io_ws, file_wordsize, int64_status, 1, is_hdf5, is_pnetcdf) !=
+  if (ex__conv_init(exoid, comp_ws, io_ws, file_wordsize, int64_status, 1, is_hdf5, is_pnetcdf) !=
       EX_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: failed to initialize conversion routines in file id %d", exoid);

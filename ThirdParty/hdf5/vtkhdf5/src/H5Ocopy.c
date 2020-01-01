@@ -309,6 +309,9 @@ H5O__copy(const H5G_loc_t *loc, const char *src_name, H5G_loc_t *dst_loc,
         if(TRUE != H5P_isa_class(ocpypl_id, H5P_OBJECT_COPY))
             HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not object copy property list")
 
+    /* Set the LCPL for the API context */
+    H5CX_set_lcpl(lcpl_id);
+
     /* Do the actual copying of the object */
     if(H5O__copy_obj(&src_loc, dst_loc, dst_name, ocpypl_id, lcpl_id) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTCOPY, FAIL, "unable to copy object")

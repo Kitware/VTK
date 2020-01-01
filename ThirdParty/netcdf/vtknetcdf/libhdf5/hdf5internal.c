@@ -915,7 +915,7 @@ int
 hdf5_set_log_level()
 {
     /* If the user wants to completely turn off logging, turn off HDF5
-       logging too. Now I truely can't think of what to do if this
+       logging too. Now I truly can't think of what to do if this
        fails, so just ignore the return code. */
     if (nc_log_level == NC_TURN_OFF_LOGGING)
     {

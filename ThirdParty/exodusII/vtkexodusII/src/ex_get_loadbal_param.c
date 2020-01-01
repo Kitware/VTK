@@ -57,6 +57,10 @@
 #include "exodusII.h"     // for ex_err, etc
 #include "exodusII_int.h" // for EX_FATAL, DIM_NUM_BOR_ELEMS, etc
 
+/*!
+ * \ingroup ModelDescription
+ * \undoc
+ */
 int ex_get_loadbal_param(int exoid, void_int *num_int_nodes, void_int *num_bor_nodes,
                          void_int *num_ext_nodes, void_int *num_int_elems, void_int *num_bor_elems,
                          void_int *num_node_cmaps, void_int *num_elem_cmaps, int processor)
@@ -71,7 +75,7 @@ int ex_get_loadbal_param(int exoid, void_int *num_int_nodes, void_int *num_bor_n
   char errmsg[MAX_ERR_LENGTH];
   /*-----------------------------Execution begins-----------------------------*/
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
   if (ex_int64_status(exoid) & EX_BULK_INT64_API) {
     *(int64_t *)num_int_nodes  = 0;
@@ -93,12 +97,12 @@ int ex_get_loadbal_param(int exoid, void_int *num_int_nodes, void_int *num_bor_n
   }
 
   /* Check the file version information */
-  if ((dimid = ne_check_file_version(exoid)) != EX_NOERR) {
+  if ((dimid = ne__check_file_version(exoid)) != EX_NOERR) {
     EX_FUNC_LEAVE(dimid);
   }
 
   /* Get the file type */
-  if (ex_get_file_type(exoid, ftype) != EX_NOERR) {
+  if (ex__get_file_type(exoid, ftype) != EX_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: unable to find file type for file ID %d", exoid);
     ex_err_fn(exoid, __func__, errmsg, EX_LASTERR);
 

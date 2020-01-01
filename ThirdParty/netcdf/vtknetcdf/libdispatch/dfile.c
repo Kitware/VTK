@@ -87,7 +87,6 @@ interfaces, the rest of this chapter presents a detailed description
 of the interfaces for these operations.
 */
 
-#ifdef USE_NETCDF4
 /**
  * Add handling of user-defined format.
  *
@@ -172,7 +171,6 @@ nc_inq_user_format(int mode_flag, NC_Dispatch **dispatch_table, char *magic_numb
 
    return NC_NOERR;
 }
-#endif /* USE_NETCDF4 */
 
 /**  \ingroup datasets
 Create a new netCDF file.
@@ -1223,12 +1221,6 @@ nc_abort(int ncid)
    int stat = NC_check_id(ncid, &ncp);
    if(stat != NC_NOERR) return stat;
 
-#ifdef USE_REFCOUNT
-   /* What to do if refcount > 0? */
-   /* currently, forcibly abort */
-   ncp->refcount = 0;
-#endif
-
    stat = ncp->dispatch->abort(ncid);
    del_from_NCList(ncp);
    free_NC(ncp);
@@ -1282,18 +1274,12 @@ nc_close(int ncid)
    int stat = NC_check_id(ncid, &ncp);
    if(stat != NC_NOERR) return stat;
 
-#ifdef USE_REFCOUNT
-   ncp->refcount--;
-   if(ncp->refcount <= 0)
-#endif
+   stat = ncp->dispatch->close(ncid,NULL);
+   /* Remove from the nc list */
+   if (!stat)
    {
-       stat = ncp->dispatch->close(ncid,NULL);
-       /* Remove from the nc list */
-       if (!stat)
-       {
-	   del_from_NCList(ncp);
-	   free_NC(ncp);
-       }
+       del_from_NCList(ncp);
+       free_NC(ncp);
    }
    return stat;
 }
@@ -1347,18 +1333,12 @@ nc_close_memio(int ncid, NC_memio* memio)
    int stat = NC_check_id(ncid, &ncp);
    if(stat != NC_NOERR) return stat;
 
-#ifdef USE_REFCOUNT
-   ncp->refcount--;
-   if(ncp->refcount <= 0)
-#endif
+   stat = ncp->dispatch->close(ncid,memio);
+   /* Remove from the nc list */
+   if (!stat)
    {
-       stat = ncp->dispatch->close(ncid,memio);
-       /* Remove from the nc list */
-       if (!stat)
-       {
-	   del_from_NCList(ncp);
-	   free_NC(ncp);
-       }
+       del_from_NCList(ncp);
+       free_NC(ncp);
    }
    return stat;
 }
@@ -1474,8 +1454,8 @@ nc_set_fill(int ncid, int fillmode, int *old_modep)
  * @internal Learn base PE.
  *
  * @deprecated This function was used in the old days with the Cray at
- * NCAR. The Cray is long gone, and this call is supported only for
- * backward compatibility.
+ * NCAR. The Cray is long gone, and this call is now meaningless. The
+ * value returned for pe is always 0.
  *
  * @param ncid File and group ID.
  * @param pe Pointer for base PE.
@@ -1490,7 +1470,8 @@ nc_inq_base_pe(int ncid, int *pe)
    NC* ncp;
    int stat = NC_check_id(ncid, &ncp);
    if(stat != NC_NOERR) return stat;
-   return ncp->dispatch->inq_base_pe(ncid,pe);
+   if (pe) *pe = 0;
+   return NC_NOERR;
 }
 
 /**
@@ -1513,26 +1494,25 @@ nc_set_base_pe(int ncid, int pe)
    NC* ncp;
    int stat = NC_check_id(ncid, &ncp);
    if(stat != NC_NOERR) return stat;
-   return ncp->dispatch->set_base_pe(ncid,pe);
+   return NC_NOERR;
 }
 
-/** \ingroup datasets
-Inquire about the binary format of a netCDF file
-as presented by the API.
-
-This function returns the (rarely needed) format version.
-
-\param ncid NetCDF ID, from a previous call to nc_open() or
-nc_create().
-
-\param formatp Pointer to location for returned format version, one of
-NC_FORMAT_CLASSIC, NC_FORMAT_64BIT_OFFSET, NC_FORMAT_CDF5, NC_FORMAT_NETCDF4,
-NC_FORMAT_NETCDF4_CLASSIC.
-
-\returns ::NC_NOERR No error.
-
-\returns ::NC_EBADID Invalid ncid passed.
-
+/**
+ * @ingroup datasets
+ * Inquire about the binary format of a netCDF file
+ * as presented by the API.
+ *
+ * This function returns the (rarely needed) format version.
+ *
+ * @param ncid NetCDF ID, from a previous call to nc_open() or
+ * nc_create().
+ * @param formatp Pointer to location for returned format version, one
+ * of NC_FORMAT_CLASSIC, NC_FORMAT_64BIT_OFFSET, NC_FORMAT_CDF5,
+ * NC_FORMAT_NETCDF4, NC_FORMAT_NETCDF4_CLASSIC.
+ *
+ * @returns ::NC_NOERR No error.
+ * @returns ::NC_EBADID Invalid ncid passed.
+ * @author Dennis Heimbigner
  */
 int
 nc_inq_format(int ncid, int *formatp)
@@ -1827,7 +1807,7 @@ NC_create(const char *path0, int cmode, size_t initialsz,
 {
    int stat = NC_NOERR;
    NC* ncp = NULL;
-   NC_Dispatch* dispatcher = NULL;
+   const NC_Dispatch* dispatcher = NULL;
    char* path = NULL;
    NCmodel model;
    char* newpath = NULL;
@@ -1860,15 +1840,6 @@ NC_create(const char *path0, int cmode, size_t initialsz,
 	path = nulldup(p);
 #endif
    }
-
-#ifdef USE_REFCOUNT
-   /* If this path is already open, then fail */
-   ncp = find_in_NCList_by_name(path);
-   if(ncp != NULL) {
-	nullfree(path);
-	return NC_ENFILE;
-   }
-#endif
 
     memset(&model,0,sizeof(model));
     if((stat = NC_infermodel(path,&cmode,1,useparallel,NULL,&model,&newpath)))
@@ -1907,6 +1878,14 @@ NC_create(const char *path0, int cmode, size_t initialsz,
         dispatcher = NCP_dispatch_table;
 	break;
 #endif
+#ifdef USE_NETCDF4
+    case NC_FORMATX_UDF0:
+        dispatcher = UDF0_dispatch_table;
+        break;
+    case NC_FORMATX_UDF1:
+        dispatcher = UDF1_dispatch_table;
+        break;
+#endif /* USE_NETCDF4 */
     case NC_FORMATX_NC3:
         dispatcher = NC3_dispatch_table;
 	break;
@@ -1915,19 +1894,14 @@ NC_create(const char *path0, int cmode, size_t initialsz,
     }
 
     /* Create the NC* instance and insert its dispatcher and model */
-    if((stat = new_NC(dispatcher,path,cmode,&model,&ncp))) goto done;
+    if((stat = new_NC(dispatcher,path,cmode,&ncp))) goto done;
 
     /* Add to list of known open files and define ext_ncid */
     add_to_NCList(ncp);
 
-#ifdef USE_REFCOUNT
-    /* bump the refcount */
-    ncp->refcount++;
-#endif
-
     /* Assume create will fill in remaining ncp fields */
     if ((stat = dispatcher->create(ncp->path, cmode, initialsz, basepe, chunksizehintp,
-				  parameters, dispatcher, ncp))) {
+				  parameters, dispatcher, ncp->ext_ncid))) {
 	del_from_NCList(ncp); /* oh well */
 	free_NC(ncp);
     } else {
@@ -1967,7 +1941,7 @@ NC_open(const char *path0, int omode, int basepe, size_t *chunksizehintp,
 {
     int stat = NC_NOERR;
     NC* ncp = NULL;
-    NC_Dispatch* dispatcher = NULL;
+    const NC_Dispatch* dispatcher = NULL;
     int inmemory = 0;
     int diskless = 0;
     int mmap = 0;
@@ -1980,6 +1954,10 @@ NC_open(const char *path0, int omode, int basepe, size_t *chunksizehintp,
 	stat = nc_initialize();
 	if(stat) return stat;
     }
+
+    /* Check inputs. */
+    if (!path0)
+        return NC_EINVAL;
 
     /* Capture the inmemory related flags */
     mmap = ((omode & NC_MMAP) == NC_MMAP);
@@ -2010,17 +1988,6 @@ NC_open(const char *path0, int omode, int basepe, size_t *chunksizehintp,
 	path = nulldup(p);
 #endif
    }
-
-#ifdef USE_REFCOUNT
-    /* If this path is already open, then bump the refcount and return it */
-    ncp = find_in_NCList_by_name(path);
-    if(ncp != NULL) {
-	nullfree(path);
-	ncp->refcount++;
-	if(ncidp) *ncidp = ncp->ext_ncid;
-	return NC_NOERR;
-    }
-#endif
 
     memset(&model,0,sizeof(model));
     /* Infer model implementation and format, possibly by reading the file */
@@ -2121,19 +2088,14 @@ NC_open(const char *path0, int omode, int basepe, size_t *chunksizehintp,
     if (!dispatcher) {stat = NC_ENOTNC; goto done;}
 
     /* Create the NC* instance and insert its dispatcher */
-    if((stat = new_NC(dispatcher,path,omode,&model,&ncp))) goto done;
+    if((stat = new_NC(dispatcher,path,omode,&ncp))) goto done;
 
-    /* Add to list of known open files */
+    /* Add to list of known open files. This assigns an ext_ncid. */
     add_to_NCList(ncp);
-
-#ifdef USE_REFCOUNT
-    /* bump the refcount */
-    ncp->refcount++;
-#endif
 
     /* Assume open will fill in remaining ncp fields */
     stat = dispatcher->open(ncp->path, omode, basepe, chunksizehintp,
-			    parameters, dispatcher, ncp);
+			    parameters, dispatcher, ncp->ext_ncid);
     if(stat == NC_NOERR) {
 	if(ncidp) *ncidp = ncp->ext_ncid;
     } else {

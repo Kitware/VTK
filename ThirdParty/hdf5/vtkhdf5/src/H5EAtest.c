@@ -14,7 +14,7 @@
 /* Programmer:  Quincey Koziol <koziol@hdfgroup.org>
  *              Thursday, August 28, 2008
  *
- * Purpose:	Extensible array testing functions.
+ * Purpose:    Extensible array testing functions.
  *
  */
 
@@ -34,11 +34,11 @@
 /***********/
 /* Headers */
 /***********/
-#include "H5private.h"		/* Generic Functions			*/
-#include "H5Eprivate.h"		/* Error handling		  	*/
-#include "H5EApkg.h"		/* Extensible Arrays			*/
-#include "H5FLprivate.h"	/* Free Lists                           */
-#include "H5VMprivate.h"         /* Vector functions			*/
+#include "H5private.h"        /* Generic Functions            */
+#include "H5Eprivate.h"        /* Error handling              */
+#include "H5EApkg.h"        /* Extensible Arrays            */
+#include "H5FLprivate.h"    /* Free Lists                           */
+#include "H5VMprivate.h"         /* Vector functions            */
 
 
 /****************/
@@ -115,16 +115,16 @@ H5FL_DEFINE_STATIC(H5EA__test_ctx_t);
 H5FL_DEFINE_STATIC(H5EA__ctx_cb_t);
 
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5EA__test_crt_context
+ * Function:    H5EA__test_crt_context
  *
- * Purpose:	Create context for callbacks
+ * Purpose:    Create context for callbacks
  *
- * Return:	Success:	non-NULL
- *		Failure:	NULL
+ * Return:    Success:    non-NULL
+ *        Failure:    NULL
  *
- * Programmer:	Quincey Koziol
+ * Programmer:    Quincey Koziol
  *              Tuesday, January 27, 2009
  *
  *-------------------------------------------------------------------------
@@ -141,7 +141,7 @@ H5EA__test_crt_context(void *_udata))
 
     /* Allocate new context structure */
     if(NULL == (ctx = H5FL_MALLOC(H5EA__test_ctx_t)))
-	H5E_THROW(H5E_CANTALLOC, "can't allocate extensible array client callback context")
+    H5E_THROW(H5E_CANTALLOC, "can't allocate extensible array client callback context")
 
     /* Initialize the context */
     ctx->bogus = H5EA__TEST_BOGUS_VAL;
@@ -154,16 +154,16 @@ CATCH
 
 END_FUNC(STATIC)  /* end H5EA__test_crt_context() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5EA__test_dst_context
+ * Function:    H5EA__test_dst_context
  *
- * Purpose:	Destroy context for callbacks
+ * Purpose:    Destroy context for callbacks
  *
- * Return:	Success:	non-negative
- *		Failure:	negative
+ * Return:    Success:    non-negative
+ *        Failure:    negative
  *
- * Programmer:	Quincey Koziol
+ * Programmer:    Quincey Koziol
  *              Tuesday, January 27, 2009
  *
  *-------------------------------------------------------------------------
@@ -183,16 +183,16 @@ H5EA__test_dst_context(void *_ctx))
 
 END_FUNC(STATIC)  /* end H5EA__test_dst_context() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5EA__test_fill
+ * Function:    H5EA__test_fill
  *
- * Purpose:	Fill "missing elements" in block of elements
+ * Purpose:    Fill "missing elements" in block of elements
  *
- * Return:	Success:	non-negative
- *		Failure:	negative
+ * Return:    Success:    non-negative
+ *        Failure:    negative
  *
- * Programmer:	Quincey Koziol
+ * Programmer:    Quincey Koziol
  *              Thursday, August 28, 2008
  *
  *-------------------------------------------------------------------------
@@ -212,16 +212,16 @@ H5EA__test_fill(void *nat_blk, size_t nelmts))
 
 END_FUNC(STATIC)  /* end H5EA__test_fill() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5EA__test_encode
+ * Function:    H5EA__test_encode
  *
- * Purpose:	Encode an element from "native" to "raw" form
+ * Purpose:    Encode an element from "native" to "raw" form
  *
- * Return:	Success:	non-negative
- *		Failure:	negative
+ * Return:    Success:    non-negative
+ *        Failure:    negative
  *
- * Programmer:	Quincey Koziol
+ * Programmer:    Quincey Koziol
  *              Thursday, August 28, 2008
  *
  *-------------------------------------------------------------------------
@@ -263,16 +263,16 @@ CATCH
 
 END_FUNC(STATIC)  /* end H5EA__test_encode() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5EA__test_decode
+ * Function:    H5EA__test_decode
  *
- * Purpose:	Decode an element from "raw" to "native" form
+ * Purpose:    Decode an element from "raw" to "native" form
  *
- * Return:	Success:	non-negative
- *		Failure:	negative
+ * Return:    Success:    non-negative
+ *        Failure:    negative
  *
- * Programmer:	Quincey Koziol
+ * Programmer:    Quincey Koziol
  *              Thursday, August 28, 2008
  *
  *-------------------------------------------------------------------------
@@ -311,16 +311,16 @@ H5EA__test_decode(const void *_raw, void *_elmt, size_t nelmts, void *_ctx))
 
 END_FUNC(STATIC)  /* end H5EA__test_decode() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5EA__test_debug
+ * Function:    H5EA__test_debug
  *
- * Purpose:	Display an element for debugging
+ * Purpose:    Display an element for debugging
  *
- * Return:	Success:	non-negative
- *		Failure:	negative
+ * Return:    Success:    non-negative
+ *        Failure:    negative
  *
- * Programmer:	Quincey Koziol
+ * Programmer:    Quincey Koziol
  *              Thursday, August 28, 2008
  *
  *-------------------------------------------------------------------------
@@ -338,7 +338,7 @@ H5EA__test_debug(FILE *stream, int indent, int fwidth, hsize_t idx,
     HDassert(elmt);
 
     /* Print element */
-    sprintf(temp_str, "Element #%llu:", (unsigned long long)idx);
+    HDsprintf(temp_str, "Element #%llu:", (unsigned long long)idx);
     HDfprintf(stream, "%*s%-*s %llu\n", indent, "", fwidth, temp_str,
         (unsigned long long)*(const uint64_t *)elmt);
 
@@ -348,21 +348,21 @@ END_FUNC(STATIC)  /* end H5EA__test_debug() */
  * Function:    H5EA__test_crt_dbg_context
  *
  * Purpose:     Create context for debugging callback
- *              
+ *
  * Return:      Success:        non-NULL
  *              Failure:        NULL
- *              
- * Programmer:	Vailin Choi; August 2010
+ *
+ * Programmer:    Vailin Choi; August 2010
  *
  *-------------------------------------------------------------------------
  */
 BEGIN_FUNC(STATIC, ERR,
 void *, NULL, NULL,
 H5EA__test_crt_dbg_context(H5F_t H5_ATTR_UNUSED *f, haddr_t H5_ATTR_UNUSED obj_addr))
-    
+
     /* Local variables */
     H5EA__ctx_cb_t *ctx;              /* Context for callbacks */
-    
+
     /* Allocate new context structure */
     if(NULL == (ctx = H5FL_MALLOC(H5EA__ctx_cb_t)))
         H5E_THROW(H5E_CANTALLOC, "can't allocate extensible array client callback context")
@@ -374,16 +374,16 @@ CATCH
 
 END_FUNC(STATIC)  /* end H5EA__test_crt_dbg_context() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5EA__test_dst_dbg_context
+ * Function:    H5EA__test_dst_dbg_context
  *
- * Purpose:	Destroy context for callbacks
+ * Purpose:    Destroy context for callbacks
  *
- * Return:	Success:	non-negative
- *		Failure:	negative
+ * Return:    Success:    non-negative
+ *        Failure:    negative
  *
- * Programmer:	Vailin Choi; August 2010
+ * Programmer:    Vailin Choi; August 2010
  *
  *-------------------------------------------------------------------------
  */
@@ -401,16 +401,16 @@ H5EA__test_dst_dbg_context(void *_ctx))
 
 END_FUNC(STATIC)  /* end H5EA__test_dst_dbg_context() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5EA_get_cparam_test
+ * Function:    H5EA_get_cparam_test
  *
- * Purpose:	Retrieve the parameters used to create the extensible array
+ * Purpose:    Retrieve the parameters used to create the extensible array
  *
- * Return:	Success:	non-negative
- *		Failure:	negative
+ * Return:    Success:    non-negative
+ *        Failure:    negative
  *
- * Programmer:	Quincey Koziol
+ * Programmer:    Quincey Koziol
  *              Thursday, August 28, 2008
  *
  *-------------------------------------------------------------------------
@@ -433,16 +433,16 @@ H5EA_get_cparam_test(const H5EA_t *ea, H5EA_create_t *cparam))
 
 END_FUNC(PRIV)  /* end H5EA_get_cparam_test() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5EA_cmp_cparam_test
+ * Function:    H5EA_cmp_cparam_test
  *
- * Purpose:	Compare the parameters used to create the extensible array
+ * Purpose:    Compare the parameters used to create the extensible array
  *
- * Return:	Success:	non-negative
- *		Failure:	negative
+ * Return:    Success:    non-negative
+ *        Failure:    negative
  *
- * Programmer:	Quincey Koziol
+ * Programmer:    Quincey Koziol
  *              Thursday, August 28, 2008
  *
  *-------------------------------------------------------------------------

@@ -52,7 +52,6 @@ typedef struct {
     hbool_t encode;         /* Whether the property list should be encoded */
     size_t *enc_size_ptr;   /* Pointer to size of encoded buffer */
     void **pp;              /* Pointer to encoding buffer pointer */
-    hid_t fapl_id;          /* File access property list */
 } H5P_enc_iter_ud_t;
 
 
@@ -91,7 +90,7 @@ typedef struct {
  *-------------------------------------------------------------------------
  */
 herr_t
-H5P__encode_size_t(const void *value, void **_pp, size_t *size, void H5_ATTR_UNUSED *udata)
+H5P__encode_size_t(const void *value, void **_pp, size_t *size)
 {
     uint64_t enc_value = (uint64_t)*(const size_t *)value;    /* Property value to encode */
     uint8_t **pp = (uint8_t **)_pp;
@@ -133,7 +132,7 @@ H5P__encode_size_t(const void *value, void **_pp, size_t *size, void H5_ATTR_UNU
  *-------------------------------------------------------------------------
  */
 herr_t
-H5P__encode_hsize_t(const void *value, void **_pp, size_t *size, void H5_ATTR_UNUSED *udata)
+H5P__encode_hsize_t(const void *value, void **_pp, size_t *size)
 {
     uint64_t enc_value = (uint64_t)*(const hsize_t *)value;    /* Property value to encode */
     unsigned enc_size = H5VM_limit_enc_size(enc_value);  /* Size of encoded property */
@@ -174,7 +173,7 @@ H5P__encode_hsize_t(const void *value, void **_pp, size_t *size, void H5_ATTR_UN
  *-------------------------------------------------------------------------
  */
 herr_t
-H5P__encode_unsigned(const void *value, void **_pp, size_t *size, void H5_ATTR_UNUSED *udata)
+H5P__encode_unsigned(const void *value, void **_pp, size_t *size)
 {
     uint8_t **pp = (uint8_t **)_pp;
 
@@ -213,7 +212,7 @@ H5P__encode_unsigned(const void *value, void **_pp, size_t *size, void H5_ATTR_U
  *-------------------------------------------------------------------------
  */
 herr_t
-H5P__encode_uint8_t(const void *value, void **_pp, size_t *size, void H5_ATTR_UNUSED *udata)
+H5P__encode_uint8_t(const void *value, void **_pp, size_t *size)
 {
     uint8_t **pp = (uint8_t **)_pp;
 
@@ -249,7 +248,7 @@ H5P__encode_uint8_t(const void *value, void **_pp, size_t *size, void H5_ATTR_UN
  *-------------------------------------------------------------------------
  */
 herr_t
-H5P__encode_hbool_t(const void *value, void **_pp, size_t *size, void H5_ATTR_UNUSED *udata)
+H5P__encode_hbool_t(const void *value, void **_pp, size_t *size)
 {
     uint8_t **pp = (uint8_t **)_pp;
 
@@ -284,7 +283,7 @@ H5P__encode_hbool_t(const void *value, void **_pp, size_t *size, void H5_ATTR_UN
  *-------------------------------------------------------------------------
  */
 herr_t
-H5P__encode_double(const void *value, void **_pp, size_t *size, void H5_ATTR_UNUSED *udata)
+H5P__encode_double(const void *value, void **_pp, size_t *size)
 {
     uint8_t **pp = (uint8_t **)_pp;
 
@@ -333,7 +332,6 @@ static int
 H5P__encode_cb(H5P_genprop_t *prop, void *_udata)
 {
     H5P_enc_iter_ud_t *udata = (H5P_enc_iter_ud_t *)_udata;     /* Pointer to user data */
-    H5P_enc_cb_info_t cb_udata;        /* User data for property iteration callback */
     int ret_value = H5_ITER_CONT;    /* Return value */
 
     FUNC_ENTER_STATIC
@@ -357,8 +355,7 @@ H5P__encode_cb(H5P_genprop_t *prop, void *_udata)
 
         /* Encode (or not, if *(udata->pp) is NULL) the property value */
         prop_value_len = 0;
-        cb_udata.fapl_id = udata->fapl_id;
-        if((prop->encode)(prop->value, udata->pp, &prop_value_len, &cb_udata) < 0)
+        if((prop->encode)(prop->value, udata->pp, &prop_value_len) < 0)
             HGOTO_ERROR(H5E_PLIST, H5E_CANTENCODE, H5_ITER_ERROR, "property encoding routine failed")
         *(udata->enc_size_ptr) += prop_value_len;
     } /* end if */
@@ -393,7 +390,7 @@ done:
 --------------------------------------------------------------------------*/
 herr_t
 H5P__encode(const H5P_genplist_t *plist, hbool_t enc_all_prop, void *buf,
-    size_t *nalloc, hid_t fapl_id)
+    size_t *nalloc)
 {
     H5P_enc_iter_ud_t udata;        /* User data for property iteration callback */
     uint8_t *p = (uint8_t *)buf;    /* Temporary pointer to encoding buffer */
@@ -428,7 +425,6 @@ H5P__encode(const H5P_genplist_t *plist, hbool_t enc_all_prop, void *buf,
     udata.encode = encode;
     udata.enc_size_ptr = &encode_size;
     udata.pp = (void **)&p;
-    udata.fapl_id = fapl_id;
 
     /* Iterate over all properties in property list, encoding them */
     idx = 0;

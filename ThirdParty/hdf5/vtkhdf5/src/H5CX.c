@@ -182,9 +182,25 @@ typedef struct H5CX_t {
     hid_t dxpl_id;              /* DXPL ID for API operation */
     H5P_genplist_t *dxpl;       /* Dataset Transfer Property List */
 
+    /* LCPL */
+    hid_t lcpl_id;              /* LCPL ID for API operation */
+    H5P_genplist_t *lcpl;       /* Link Creation Property List */
+
     /* LAPL */
     hid_t lapl_id;              /* LAPL ID for API operation */
     H5P_genplist_t *lapl;       /* Link Access Property List */
+
+    /* DCPL */
+    hid_t dcpl_id;              /* DCPL ID for API operation */
+    H5P_genplist_t *dcpl;       /* Dataset Creation Property List */
+
+    /* DAPL */
+    hid_t dapl_id;              /* DAPL ID for API operation */
+    H5P_genplist_t *dapl;       /* Dataset Access Property List */
+
+    /* FAPL */
+    hid_t fapl_id;              /* FAPL ID for API operation */
+    H5P_genplist_t *fapl;       /* File Access Property List */
 
     /* Internal: Object tagging info */
     haddr_t tag;                /* Current object's tag (ohdr chunk #0 address) */
@@ -267,9 +283,33 @@ typedef struct H5CX_t {
 #endif /* H5_HAVE_INSTRUMENTED_LIBRARY */
 #endif /* H5_HAVE_PARALLEL */
 
+    /* Cached LCPL properties */
+    H5T_cset_t encoding;     /* Link name character encoding */
+    hbool_t encoding_valid;  /* Whether link name character encoding is valid */
+    unsigned intermediate_group;       /* Whether to create intermediate groups */
+    hbool_t intermediate_group_valid;  /* Whether create intermediate group flag is valid */
+
     /* Cached LAPL properties */
     size_t nlinks;              /* Number of soft / UD links to traverse (H5L_ACS_NLINKS_NAME) */
     hbool_t nlinks_valid;       /* Whether number of soft / UD links to traverse is valid */
+
+    /* Cached DCPL properties */
+    hbool_t do_min_dset_ohdr;   /* Whether to minimize dataset object header */
+    hbool_t do_min_dset_ohdr_valid;   /* Whether minimize dataset object header flag is valid */
+    uint8_t ohdr_flags;  /* Object header flags */
+    hbool_t ohdr_flags_valid;  /* Whether the object headers flags are valid */
+
+    /* Cached DAPL properties */
+    char *extfile_prefix;               /* Prefix for external file                      */
+    hbool_t extfile_prefix_valid;       /* Whether the prefix for external file is valid */
+    char *vds_prefix;                   /* Prefix for VDS                                */
+    hbool_t vds_prefix_valid;           /* Whether the prefix for VDS is valid           */
+
+    /* Cached FAPL properties */
+    H5F_libver_t low_bound;     /* low_bound property for H5Pset_libver_bounds() */
+    hbool_t low_bound_valid;    /* Whether low_bound property is valid */
+    H5F_libver_t high_bound;    /* high_bound property for H5Pset_libver_bounds */
+    hbool_t high_bound_valid;   /* Whether high_bound property is valid */
 } H5CX_t;
 
 /* Typedef for nodes on the API context stack */
@@ -313,11 +353,39 @@ typedef struct H5CX_dxpl_cache_t {
     H5T_conv_cb_t dt_conv_cb;       /* Datatype conversion struct (H5D_XFER_CONV_CB_NAME) */
 } H5CX_dxpl_cache_t;
 
+/* Typedef for cached default link creation property list information */
+/* (Same as the cached DXPL struct, above, except for the default LCPL) */
+typedef struct H5CX_lcpl_cache_t {
+    H5T_cset_t encoding;         /* Link name character encoding */
+    unsigned intermediate_group; /* Whether to create intermediate groups  */
+} H5CX_lcpl_cache_t;
+
 /* Typedef for cached default link access property list information */
 /* (Same as the cached DXPL struct, above, except for the default LAPL) */
 typedef struct H5CX_lapl_cache_t {
     size_t nlinks;                  /* Number of soft / UD links to traverse (H5L_ACS_NLINKS_NAME) */
 } H5CX_lapl_cache_t;
+
+/* Typedef for cached default dataset creation property list information */
+/* (Same as the cached DXPL struct, above, except for the default DCPL) */
+typedef struct H5CX_dcpl_cache_t {
+    hbool_t do_min_dset_ohdr;   /* Whether to minimize dataset object header */
+    uint8_t ohdr_flags;  /* Object header flags */
+} H5CX_dcpl_cache_t;
+
+/* Typedef for cached default dataset access property list information */
+/* (Same as the cached DXPL struct, above, except for the default DXPL) */
+typedef struct H5CX_dapl_cache_t {
+    char *extfile_prefix;       /* Prefix for external file */
+    char *vds_prefix;           /* Prefix for VDS           */
+} H5CX_dapl_cache_t;
+
+/* Typedef for cached default file access property list information */
+/* (Same as the cached DXPL struct, above, except for the default DCPL) */
+typedef struct H5CX_fapl_cache_t {
+    H5F_libver_t low_bound;     /* low_bound property for H5Pset_libver_bounds() */
+    H5F_libver_t high_bound;    /* high_bound property for H5Pset_libver_bounds */
+} H5CX_fapl_cache_t;
 
 
 /********************/
@@ -347,8 +415,20 @@ static H5CX_node_t *H5CX_head_g = NULL;         /* Pointer to head of context st
 /* Define a "default" dataset transfer property list cache structure to use for default DXPLs */
 static H5CX_dxpl_cache_t H5CX_def_dxpl_cache;
 
+/* Define a "default" link creation property list cache structure to use for default LCPLs */
+static H5CX_lcpl_cache_t H5CX_def_lcpl_cache;
+
 /* Define a "default" link access property list cache structure to use for default LAPLs */
 static H5CX_lapl_cache_t H5CX_def_lapl_cache;
+
+/* Define a "default" dataset creation property list cache structure to use for default DCPLs */
+static H5CX_dcpl_cache_t H5CX_def_dcpl_cache;
+
+/* Define a "default" dataset access property list cache structure to use for default DAPLs */
+static H5CX_dapl_cache_t H5CX_def_dapl_cache;
+
+/* Define a "default" file access property list cache structure to use for default FAPLs */
+static H5CX_fapl_cache_t H5CX_def_fapl_cache;
 
 /* Declare a static free list to manage H5CX_node_t structs */
 H5FL_DEFINE_STATIC(H5CX_node_t);
@@ -369,7 +449,11 @@ herr_t
 H5CX__init_package(void)
 {
     H5P_genplist_t *dx_plist;           /* Data transfer property list */
+    H5P_genplist_t *lc_plist;           /* Link creation property list */
     H5P_genplist_t *la_plist;           /* Link access property list */
+    H5P_genplist_t *dc_plist;           /* Dataset creation property list */
+    H5P_genplist_t *da_plist;           /* Dataset access property list */
+    H5P_genplist_t *fa_plist;           /* File access property list */
     herr_t ret_value = SUCCEED;         /* Return value */
 
     FUNC_ENTER_STATIC
@@ -456,6 +540,23 @@ H5CX__init_package(void)
     if(H5P_get(dx_plist, H5D_XFER_CONV_CB_NAME, &H5CX_def_dxpl_cache.dt_conv_cb) < 0)
         HGOTO_ERROR(H5E_CONTEXT, H5E_CANTGET, FAIL, "Can't retrieve datatype conversion exception callback")
 
+    /* Reset the "default LCPL cache" information */
+    HDmemset(&H5CX_def_lcpl_cache, 0, sizeof(H5CX_lcpl_cache_t));
+
+    /* Get the default LCPL cache information */
+
+    /* Get the default link creation property list */
+    if(NULL == (lc_plist = (H5P_genplist_t *)H5I_object(H5P_LINK_CREATE_DEFAULT)))
+        HGOTO_ERROR(H5E_CONTEXT, H5E_BADTYPE, FAIL, "not a link creation property list")
+
+    /* Get link name character encoding */
+    if(H5P_get(lc_plist, H5P_STRCRT_CHAR_ENCODING_NAME, &H5CX_def_lcpl_cache.encoding) < 0)
+        HGOTO_ERROR(H5E_CONTEXT, H5E_CANTGET, FAIL, "Can't retrieve link name encoding")
+
+    /* Get flag whether to create intermediate groups */
+    if(H5P_get(lc_plist, H5L_CRT_INTERMEDIATE_GROUP_NAME, &H5CX_def_lcpl_cache.intermediate_group) < 0)
+        HGOTO_ERROR(H5E_CONTEXT, H5E_CANTGET, FAIL, "Can't retrieve intermediate group creation flag")
+
     /* Reset the "default LAPL cache" information */
     HDmemset(&H5CX_def_lapl_cache, 0, sizeof(H5CX_lapl_cache_t));
 
@@ -468,6 +569,56 @@ H5CX__init_package(void)
     /* Get number of soft / UD links to traverse */
     if(H5P_get(la_plist, H5L_ACS_NLINKS_NAME, &H5CX_def_lapl_cache.nlinks) < 0)
         HGOTO_ERROR(H5E_CONTEXT, H5E_CANTGET, FAIL, "Can't retrieve number of soft / UD links to traverse")
+
+    /* Reset the "default DCPL cache" information */
+    HDmemset(&H5CX_def_dcpl_cache, 0, sizeof(H5CX_dcpl_cache_t));
+
+    /* Get the default DCPL cache information */
+
+    /* Get the default link access property list */
+    if(NULL == (dc_plist = (H5P_genplist_t *)H5I_object(H5P_DATASET_CREATE_DEFAULT)))
+        HGOTO_ERROR(H5E_CONTEXT, H5E_BADTYPE, FAIL, "not a dataset create property list")
+
+    /* Get flag to indicate whether to minimize dataset object header */
+    if(H5P_get(dc_plist, H5D_CRT_MIN_DSET_HDR_SIZE_NAME, &H5CX_def_dcpl_cache.do_min_dset_ohdr) < 0)
+        HGOTO_ERROR(H5E_CONTEXT, H5E_CANTGET, FAIL, "Can't retrieve dataset minimize flag")
+
+    /* Get object header flags */
+    if(H5P_get(dc_plist, H5O_CRT_OHDR_FLAGS_NAME, &H5CX_def_dcpl_cache.ohdr_flags) < 0)
+        HGOTO_ERROR(H5E_CONTEXT, H5E_CANTGET, FAIL, "Can't retrieve object header flags")
+
+    /* Reset the "default DAPL cache" information */
+    HDmemset(&H5CX_def_dapl_cache, 0, sizeof(H5CX_dapl_cache_t));
+
+    /* Get the default DAPL cache information */
+
+    /* Get the default dataset access property list */
+    if(NULL == (da_plist = (H5P_genplist_t *)H5I_object(H5P_DATASET_ACCESS_DEFAULT)))
+        HGOTO_ERROR(H5E_CONTEXT, H5E_BADTYPE, FAIL, "not a dataset create property list")
+
+    /* Get the prefix for the external file */
+    if(H5P_peek(da_plist, H5D_ACS_EFILE_PREFIX_NAME, &H5CX_def_dapl_cache.extfile_prefix) < 0)
+        HGOTO_ERROR(H5E_CONTEXT, H5E_CANTGET, FAIL, "Can't retrieve prefix for external file")
+
+    /* Get the prefix for the VDS file */
+    if(H5P_peek(da_plist, H5D_ACS_VDS_PREFIX_NAME, &H5CX_def_dapl_cache.vds_prefix) < 0)
+        HGOTO_ERROR(H5E_CONTEXT, H5E_CANTGET, FAIL, "Can't retrieve prefix for VDS")
+
+    /* Reset the "default FAPL cache" information */
+    HDmemset(&H5CX_def_fapl_cache, 0, sizeof(H5CX_fapl_cache_t));
+
+    /* Get the default FAPL cache information */
+
+    /* Get the default file access property list */
+    if(NULL == (fa_plist = (H5P_genplist_t *)H5I_object(H5P_FILE_ACCESS_DEFAULT)))
+        HGOTO_ERROR(H5E_CONTEXT, H5E_BADTYPE, FAIL, "not a dataset create property list")
+
+    /* Get low_bound */
+    if(H5P_get(fa_plist, H5F_ACS_LIBVER_LOW_BOUND_NAME, &H5CX_def_fapl_cache.low_bound) < 0)
+        HGOTO_ERROR(H5E_CONTEXT, H5E_CANTGET, FAIL, "Can't retrieve dataset minimize flag")
+
+    if(H5P_get(fa_plist, H5F_ACS_LIBVER_HIGH_BOUND_NAME, &H5CX_def_fapl_cache.high_bound) < 0)
+        HGOTO_ERROR(H5E_CONTEXT, H5E_CANTGET, FAIL, "Can't retrieve dataset minimize flag")
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -592,7 +743,10 @@ H5CX__push_common(H5CX_node_t *cnode)
 
     /* Set non-zero context info */
     cnode->ctx.dxpl_id = H5P_DATASET_XFER_DEFAULT;
+    cnode->ctx.lcpl_id = H5P_LINK_CREATE_DEFAULT;
     cnode->ctx.lapl_id = H5P_LINK_ACCESS_DEFAULT;
+    cnode->ctx.dapl_id = H5P_DATASET_ACCESS_DEFAULT;
+    cnode->ctx.fapl_id = H5P_FILE_ACCESS_DEFAULT;
     cnode->ctx.tag = H5AC__INVALID_TAG;
     cnode->ctx.ring = H5AC_RING_USER;
 
@@ -724,6 +878,101 @@ H5CX_set_dxpl(hid_t dxpl_id)
 
 
 /*-------------------------------------------------------------------------
+ * Function:    H5CX_set_dcpl
+ *
+ * Purpose:     Sets the DCPL for the current API call context.
+ *
+ * Return:      <none>
+ *
+ * Programmer:  Quincey Koziol
+ *              March 6, 2019
+ *
+ *-------------------------------------------------------------------------
+ */
+void
+H5CX_set_dcpl(hid_t dcpl_id)
+{
+    H5CX_node_t **head = H5CX_get_my_context();  /* Get the pointer to the head of the API context, for this thread */
+
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
+
+    /* Sanity check */
+    HDassert(*head);
+
+    /* Set the API context's DCPL to a new value */
+    (*head)->ctx.dcpl_id = dcpl_id;
+
+    FUNC_LEAVE_NOAPI_VOID
+} /* end H5CX_set_dcpl() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5CX_set_libver_bounds
+ *
+ * Purpose:     Sets the low/high bounds according to "f" for the current API call context.
+ *              When "f" is NULL, the low/high bounds are set to latest format.
+ *
+ * Return:      Non-negative on success / Negative on failure
+ *
+ * Programmer:  Vailin Choi
+ *              March 27, 2019
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5CX_set_libver_bounds(H5F_t *f)
+{
+    H5CX_node_t **head = H5CX_get_my_context();  /* Get the pointer to the head of the API context, for this thread */
+    herr_t ret_value = SUCCEED;         /* Return value */
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    /* Sanity check */
+    HDassert(head && *head);
+
+    /* Set the API context value */
+    (*head)->ctx.low_bound = (f == NULL) ? H5F_LIBVER_LATEST : H5F_LOW_BOUND(f);
+    (*head)->ctx.high_bound = (f == NULL) ? H5F_LIBVER_LATEST : H5F_HIGH_BOUND(f);
+
+    /* Mark the values as valid */
+    (*head)->ctx.low_bound_valid = TRUE;
+    (*head)->ctx.high_bound_valid = TRUE;
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5CX_set_libver_bounds() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5CX_set_lcpl
+ *
+ * Purpose:     Sets the LCPL for the current API call context.
+ *
+ * Return:      <none>
+ *
+ * Programmer:  Chris Hogan
+ *              November 27, 2019
+ *
+ *-------------------------------------------------------------------------
+ */
+void
+H5CX_set_lcpl(hid_t lcpl_id)
+{
+    H5CX_node_t **head = H5CX_get_my_context();  /* Get the pointer to the head of the API context, for this thread */
+
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
+
+    /* Sanity check */
+    HDassert(*head);
+
+    /* Set the API context's LCPL to a new value */
+    (*head)->ctx.lcpl_id = lcpl_id;
+
+    FUNC_LEAVE_NOAPI_VOID
+} /* end H5CX_set_lcpl() */
+
+
+/*-------------------------------------------------------------------------
  * Function:    H5CX_set_lapl
  *
  * Purpose:     Sets the LAPL for the current API call context.
@@ -792,6 +1041,8 @@ H5CX_set_apl(hid_t *acspl_id, const H5P_libclass_t *libclass,
         *acspl_id = *libclass->def_plist_id;
     else {
         htri_t is_lapl;         /* Whether the access property list is (or is derived from) a link access property list */
+        htri_t is_dapl;         /* Whether the access property list is (or is derived from) a dataset access property list */
+        htri_t is_fapl;         /* Whether the access property list is (or is derived from) a file access property list */
 
 #ifdef H5CX_DEBUG
         /* Sanity check the access property list class */
@@ -804,6 +1055,18 @@ H5CX_set_apl(hid_t *acspl_id, const H5P_libclass_t *libclass,
             HGOTO_ERROR(H5E_CONTEXT, H5E_CANTGET, FAIL, "can't check for link access class")
         else if(is_lapl)
             (*head)->ctx.lapl_id = *acspl_id;
+
+        /* Check for dataset access property and set API context if so */
+        if((is_dapl = H5P_class_isa(*libclass->pclass, *H5P_CLS_DACC->pclass)) < 0)
+            HGOTO_ERROR(H5E_CONTEXT, H5E_CANTGET, FAIL, "can't check for dataset access class")
+        else if(is_dapl)
+            (*head)->ctx.dapl_id = *acspl_id;
+
+        /* Check for file access property and set API context if so */
+        if((is_fapl = H5P_class_isa(*libclass->pclass, *H5P_CLS_FACC->pclass)) < 0)
+            HGOTO_ERROR(H5E_CONTEXT, H5E_CANTGET, FAIL, "can't check for file access class")
+        else if(is_fapl)
+            (*head)->ctx.fapl_id = *acspl_id;
 
 #ifdef H5_HAVE_PARALLEL
         /* If this routine is not guaranteed to be collective (i.e. it doesn't
@@ -1818,6 +2081,76 @@ done:
 
 
 /*-------------------------------------------------------------------------
+ * Function:    H5CX_get_encoding
+ *
+ * Purpose:     Retrieves the character encoding for the current API call context.
+ *
+ * Return:      Non-negative on success / Negative on failure
+ *
+ * Programmer:  Gerd Heber
+ *              October 21, 2019
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5CX_get_encoding(H5T_cset_t* encoding)
+{
+    H5CX_node_t **head = H5CX_get_my_context();  /* Get the pointer to the head of the API context, for this thread */
+    herr_t ret_value = SUCCEED;         /* Return value */
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    /* Sanity check */
+    HDassert(encoding);
+    HDassert(head && *head);
+    HDassert(H5P_DEFAULT != (*head)->ctx.lcpl_id);
+
+    H5CX_RETRIEVE_PROP_VALID(lcpl, H5P_LINK_CREATE_DEFAULT, H5P_STRCRT_CHAR_ENCODING_NAME, encoding)
+
+    /* Get the value */
+    *encoding = (*head)->ctx.encoding;
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5CX_get_encoding() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5CX_get_intermediate_group
+ *
+ * Purpose:     Retrieves the create intermediate group flag for the current API call context.
+ *
+ * Return:      Non-negative on success / Negative on failure
+ *
+ * Programmer:  Gerd Heber
+ *              October 21, 2019
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5CX_get_intermediate_group(unsigned* crt_intermed_group)
+{
+    H5CX_node_t **head = H5CX_get_my_context();  /* Get the pointer to the head of the API context, for this thread */
+    herr_t ret_value = SUCCEED;         /* Return value */
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    /* Sanity check */
+    HDassert(crt_intermed_group);
+    HDassert(head && *head);
+    HDassert(H5P_DEFAULT != (*head)->ctx.lcpl_id);
+
+    H5CX_RETRIEVE_PROP_VALID(lcpl, H5P_LINK_CREATE_DEFAULT, H5L_CRT_INTERMEDIATE_GROUP_NAME, intermediate_group)
+
+    /* Get the value */
+    *crt_intermed_group = (*head)->ctx.intermediate_group;
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5CX_get_create_intermediate_group() */
+
+
+/*-------------------------------------------------------------------------
  * Function:    H5CX_get_nlinks
  *
  * Purpose:     Retrieves the # of soft / UD links to traverse for the current API call context.
@@ -1850,6 +2183,193 @@ H5CX_get_nlinks(size_t *nlinks)
 done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5CX_get_nlinks() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5CX_get_dset_min_ohdr_flag
+ *
+ * Purpose:     Retrieves the flag that indicates whether the dataset object
+ *		header should be minimized
+ *
+ * Return:      Non-negative on success / Negative on failure
+ *
+ * Programmer:  Quincey Koziol
+ *              March 6, 2019
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5CX_get_dset_min_ohdr_flag(hbool_t *dset_min_ohdr_flag)
+{
+    H5CX_node_t **head = H5CX_get_my_context();  /* Get the pointer to the head of the API context, for this thread */
+    herr_t ret_value = SUCCEED;         /* Return value */
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    /* Sanity check */
+    HDassert(dset_min_ohdr_flag);
+    HDassert(head && *head);
+    HDassert(H5P_DEFAULT != (*head)->ctx.dcpl_id);
+
+    H5CX_RETRIEVE_PROP_VALID(dcpl, H5P_DATASET_CREATE_DEFAULT, H5D_CRT_MIN_DSET_HDR_SIZE_NAME, do_min_dset_ohdr)
+
+    /* Get the value */
+    *dset_min_ohdr_flag = (*head)->ctx.do_min_dset_ohdr;
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5CX_get_dset_min_ohdr_flag() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5CX_get_libver_bounds
+ *
+ * Purpose:     Retrieves the low/high bounds for the current API call context.
+ *
+ * Return:      Non-negative on success / Negative on failure
+ *
+ * Programmer:  Vailin Choi
+ *              March 27, 2019
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5CX_get_libver_bounds(H5F_libver_t *low_bound, H5F_libver_t *high_bound)
+{
+    H5CX_node_t **head = H5CX_get_my_context();  /* Get the pointer to the head of the API context, for this thread */
+    herr_t ret_value = SUCCEED;         /* Return value */
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    /* Sanity check */
+    HDassert(low_bound);
+    HDassert(high_bound);
+    HDassert(head && *head);
+    HDassert(H5P_DEFAULT != (*head)->ctx.fapl_id);
+
+    H5CX_RETRIEVE_PROP_VALID(fapl, H5P_FILE_ACCESS_DEFAULT, H5F_ACS_LIBVER_LOW_BOUND_NAME, low_bound)
+    H5CX_RETRIEVE_PROP_VALID(fapl, H5P_FILE_ACCESS_DEFAULT, H5F_ACS_LIBVER_HIGH_BOUND_NAME, high_bound)
+
+    /* Get the values */
+    *low_bound = (*head)->ctx.low_bound;
+    *high_bound = (*head)->ctx.high_bound;
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5CX_get_libver_bounds() */
+
+/*-------------------------------------------------------------------------
+ * Function:    H5CX_get_ext_file_prefix
+ *
+ * Purpose:     Retrieves the prefix for external file
+ *
+ * Return:      Non-negative on success / Negative on failure
+ *
+ * Programmer:  Raymond Lu
+ *              March 6, 2019
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5CX_get_ext_file_prefix(char **extfile_prefix)
+{
+    H5CX_node_t **head = H5CX_get_my_context();  /* Get the pointer to the head of the API context, for this thread */
+    herr_t ret_value = SUCCEED;         /* Return value */
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    /* Sanity check */
+    HDassert(extfile_prefix);
+    HDassert(head && *head);
+    HDassert(H5P_DEFAULT != (*head)->ctx.dapl_id);
+
+    /* Check if the value has been retrieved already */
+    if(!(*head)->ctx.extfile_prefix_valid) {
+        /* Check for default DAPL */
+        if((*head)->ctx.dapl_id == H5P_DATASET_ACCESS_DEFAULT)
+            (*head)->ctx.extfile_prefix = H5CX_def_dapl_cache.extfile_prefix;
+        else {
+            /* Check if the property list is already available */
+            if(NULL == (*head)->ctx.dapl)
+                /* Get the dataset access property list pointer */
+                if(NULL == ((*head)->ctx.dapl = (H5P_genplist_t *)H5I_object((*head)->ctx.dapl_id)))
+                    HGOTO_ERROR(H5E_CONTEXT, H5E_BADTYPE, FAIL, "can't get default dataset access property list")
+
+            /* Get the prefix for the external file */
+            /* (Note: 'peek', not 'get' - if this turns out to be a problem, we may need
+             *          to copy it and free this in the H5CX pop routine. -QAK)
+             */
+            if(H5P_peek((*head)->ctx.dapl, H5D_ACS_EFILE_PREFIX_NAME, &(*head)->ctx.extfile_prefix) < 0)
+                HGOTO_ERROR(H5E_CONTEXT, H5E_CANTGET, FAIL, "Can't retrieve external file prefix")
+        } /* end else */
+
+        /* Mark the value as valid */
+        (*head)->ctx.extfile_prefix_valid = TRUE;
+    } /* end if */
+
+    /* Get the value */
+    *extfile_prefix = (*head)->ctx.extfile_prefix;
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5CX_get_ext_file_prefix() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5CX_get_vds_prefix
+ *
+ * Purpose:     Retrieves the prefix for VDS
+ *
+ * Return:      Non-negative on success / Negative on failure
+ *
+ * Programmer:  Raymond Lu
+ *              March 6, 2019
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5CX_get_vds_prefix(char **vds_prefix)
+{
+    H5CX_node_t **head = H5CX_get_my_context();  /* Get the pointer to the head of the API context, for this thread */
+    herr_t ret_value = SUCCEED;         /* Return value */
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    /* Sanity check */
+    HDassert(vds_prefix);
+    HDassert(head && *head);
+    HDassert(H5P_DEFAULT != (*head)->ctx.dapl_id);
+
+    /* Check if the value has been retrieved already */
+    if(!(*head)->ctx.vds_prefix_valid) {
+        /* Check for default DAPL */
+        if((*head)->ctx.dapl_id == H5P_DATASET_ACCESS_DEFAULT)
+            (*head)->ctx.vds_prefix = H5CX_def_dapl_cache.vds_prefix;
+        else {
+            /* Check if the property list is already available */
+            if(NULL == (*head)->ctx.dapl)
+                /* Get the dataset access property list pointer */
+                if(NULL == ((*head)->ctx.dapl = (H5P_genplist_t *)H5I_object((*head)->ctx.dapl_id)))
+                    HGOTO_ERROR(H5E_CONTEXT, H5E_BADTYPE, FAIL, "can't get default dataset access property list")
+
+            /* Get the prefix for the VDS */
+            /* (Note: 'peek', not 'get' - if this turns out to be a problem, we may need
+             *          to copy it and free this in the H5CX pop routine. -QAK)
+             */
+            if(H5P_peek((*head)->ctx.dapl, H5D_ACS_VDS_PREFIX_NAME, &(*head)->ctx.vds_prefix) < 0)
+                HGOTO_ERROR(H5E_CONTEXT, H5E_CANTGET, FAIL, "Can't retrieve VDS prefix")
+        } /* end else */
+
+        /* Mark the value as valid */
+        (*head)->ctx.vds_prefix_valid = TRUE;
+    } /* end if */
+
+    /* Get the value */
+    *vds_prefix = (*head)->ctx.vds_prefix;
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5CX_get_vds_prefix() */
 
 
 /*-------------------------------------------------------------------------
@@ -2541,6 +3061,41 @@ done:
 } /* end H5CX_test_set_mpio_coll_rank0_bcast() */
 #endif /* H5_HAVE_INSTRUMENTED_LIBRARY */
 #endif /* H5_HAVE_PARALLEL */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5CX_get_ohdr_flags
+ *
+ * Purpose:     Retrieves the object header flags for the current API call context.
+ *
+ * Return:      Non-negative on success / Negative on failure
+ *
+ * Programmer:  Chris Hogan
+ *              November 15, 2019
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5CX_get_ohdr_flags(uint8_t *ohdr_flags)
+{
+    H5CX_node_t **head = H5CX_get_my_context();  /* Get the pointer to the head of the API context, for this thread */
+    herr_t ret_value = SUCCEED;         /* Return value */
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    /* Sanity check */
+    HDassert(ohdr_flags);
+    HDassert(head && *head);
+    HDassert(H5P_DEFAULT != (*head)->ctx.dcpl_id);
+
+    H5CX_RETRIEVE_PROP_VALID(dcpl, H5P_DATASET_CREATE_DEFAULT, H5O_CRT_OHDR_FLAGS_NAME, ohdr_flags)
+
+    /* Get the value */
+    *ohdr_flags = (*head)->ctx.ohdr_flags;
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* End H5CX_get_ohdr_flags() */
 
 
 /*-------------------------------------------------------------------------

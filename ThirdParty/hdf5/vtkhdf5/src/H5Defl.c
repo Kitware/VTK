@@ -91,6 +91,7 @@ const H5D_layout_ops_t H5D_LOPS_EFL[1] = {{
     H5D__efl_construct,
     NULL,
     H5D__efl_is_space_alloc,
+    NULL,
     H5D__efl_io_init,
     H5D__contig_read,
     H5D__contig_write,
@@ -476,7 +477,6 @@ H5D__efl_readvv(const H5D_io_info_t *io_info,
     HDassert(io_info->u.rbuf);
     HDassert(io_info->dset);
     HDassert(io_info->dset->shared);
-    HDassert(io_info->dset->shared->extfile_prefix);
     HDassert(dset_curr_seq);
     HDassert(dset_len_arr);
     HDassert(dset_off_arr);
@@ -560,7 +560,6 @@ H5D__efl_writevv(const H5D_io_info_t *io_info,
     HDassert(io_info->u.wbuf);
     HDassert(io_info->dset);
     HDassert(io_info->dset->shared);
-    HDassert(io_info->dset->shared->extfile_prefix);
     HDassert(dset_curr_seq);
     HDassert(dset_len_arr);
     HDassert(dset_off_arr);

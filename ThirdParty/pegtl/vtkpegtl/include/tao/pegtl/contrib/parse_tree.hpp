@@ -231,10 +231,14 @@ namespace tao
             struct bool_sequence;
 
             template< bool... Bs >
-            using is_all = std::is_same< bool_sequence< Bs..., true >, bool_sequence< true, Bs... > >;
+            struct is_all
+               : std::is_same< bool_sequence< Bs..., true >, bool_sequence< true, Bs... > >
+            {};
 
             template< bool... Bs >
-            using is_none = std::integral_constant< bool, !is_all< !Bs... >::value >;
+            struct is_none
+               : std::integral_constant< bool, !is_all< !Bs... >::value >
+            {};
 
             template< unsigned Level, typename Rule, template< typename... > class Selector >
             using is_unselected_leaf = std::integral_constant< bool, !Selector< Rule >::value && is_leaf< Level, typename Rule::analyze_t, Selector >::value >;
@@ -454,6 +458,12 @@ namespace tao
             template< typename >
             struct selector;
 
+            template<>
+            struct selector< std::tuple<> >
+            {
+               using type = std::false_type;
+            };
+
             template< typename T >
             struct selector< std::tuple< T > >
             {
@@ -464,7 +474,6 @@ namespace tao
             struct selector< std::tuple< Ts... > >
             {
                static_assert( sizeof...( Ts ) == 0, "multiple matches found" );
-               using type = std::false_type;
             };
 
             template< typename Rule, typename Collection >

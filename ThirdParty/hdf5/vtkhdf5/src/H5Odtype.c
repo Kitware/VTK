@@ -15,13 +15,13 @@
 #define H5T_FRIEND		/*prevent warning from including H5Tpkg   */
 
 
-#include "H5private.h"		/* Generic Functions    */
-#include "H5Dprivate.h"		/* Datasets	            */
-#include "H5Eprivate.h"		/* Error handling       */
-#include "H5Fprivate.h"		/* Files                */
-#include "H5FLprivate.h"	/* Free Lists           */
-#include "H5Gprivate.h"		/* Groups               */
-#include "H5MMprivate.h"	/* Memory management    */
+#include "H5private.h"      /* Generic Functions    */
+#include "H5Dprivate.h"     /* Datasets	            */
+#include "H5Eprivate.h"     /* Error handling       */
+#include "H5Fprivate.h"     /* Files                */
+#include "H5FLprivate.h"    /* Free Lists           */
+#include "H5Gprivate.h"     /* Groups               */
+#include "H5MMprivate.h"    /* Memory management    */
 #include "H5Opkg.h"         /* Object headers       */
 #include "H5Tpkg.h"         /* Datatypes            */
 #include "H5VMprivate.h"    /* Vectors and arrays   */
