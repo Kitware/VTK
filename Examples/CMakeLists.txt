@@ -26,6 +26,9 @@ if (VTK_BINARY_DIR)
         PROPERTY
           ENVIRONMENT "PATH=${example_path}")
     endif ()
+    set_property(TEST "VTKExample-${dir}" APPEND
+      PROPERTY
+        SKIP_REGULAR_EXPRESSION "Skipping example")
   endfunction ()
 else ()
   macro (add_example dir)
