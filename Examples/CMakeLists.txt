@@ -71,6 +71,8 @@ else ()
   #add_example(VolumeRendering/Cxx)
   #add_example(Widgets/Cxx)
 
+  add_example(Modules/Wrapping)
+
   if (WIN32)
     #add_example(GUI/Win32/SimpleCxx)
     #add_example(GUI/Win32/SampleMFC)

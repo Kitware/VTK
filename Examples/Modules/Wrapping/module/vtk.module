@@ -1,0 +1,6 @@
+NAME
+  Wrapping::Wrappable
+LIBRARY_NAME
+  vtkWrappable
+DEPENDS
+  VTK::CommonCore
