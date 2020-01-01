@@ -71,6 +71,7 @@ else ()
   #add_example(VolumeRendering/Cxx)
   #add_example(Widgets/Cxx)
 
+  add_example(Modules/UsingVTK)
   add_example(Modules/Wrapping)
 
   if (WIN32)
