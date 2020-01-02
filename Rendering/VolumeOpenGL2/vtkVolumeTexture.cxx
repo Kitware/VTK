@@ -478,6 +478,7 @@ void vtkVolumeTexture::GetScaleAndBias(
   {
     glRange[i] = scalarRange[i] * glScale + glBias;
   }
+  glRange[1] = (glRange[1] == glRange[0] ? glRange[0] + 1e-6 : glRange[1]);
   scale = static_cast<float>(1.0 / (glRange[1] - glRange[0]));
   bias = static_cast<float>(0.0 - glRange[0] * scale);
 }

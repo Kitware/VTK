@@ -35,6 +35,7 @@ set (VolumeCxxTests
   TestGPURayCastIndependentComponentsLightParameters.cxx
   TestGPURayCastIndependentVectorMode.cxx
   TestGPURayCastLabelMap.cxx
+  TestGPURayCastLabelMap1Label.cxx
   TestGPURayCastLargeColorTransferFunction.cxx
   TestGPURayCastMIPBinaryMask.cxx
   TestGPURayCastMIPToComposite.cxx
