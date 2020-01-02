@@ -35,7 +35,7 @@ set_tests_properties(
   PROPERTIES FAIL_REGULAR_EXPRESSION "ERROR:"
 )
 
-if(${Module_vtkRenderingMatplotlib})
+if(TARGET VTK::RenderingMatplotlib)
   set(TestMathTextFreeTypeTextRenderer_ARGS DATA{../Data/Fonts/DejaVuSans.ttf})
   set(TestFreeTypeTextMapper_ARGS DATA{../Data/Fonts/DejaVuSans.ttf})
   set(TestFontDPIScaling_ARGS DATA{../Data/Fonts/DejaVuSans.ttf})

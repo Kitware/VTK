@@ -19,7 +19,8 @@ PRIVATE_DEPENDS
   VTK::FiltersGeneral
 TEST_DEPENDS
   VTK::RenderingContextOpenGL2
-  VTK::RenderingMatplotlib
   VTK::RenderingOpenGL2
   VTK::TestingRendering
   VTK::ViewsContext2D
+TEST_OPTIONAL_DEPENDS
+  VTK::RenderingMatplotlib
