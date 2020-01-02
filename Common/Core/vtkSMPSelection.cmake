@@ -25,7 +25,6 @@ if (VTK_SMP_IMPLEMENTATION_TYPE STREQUAL "TBB")
   list(APPEND vtk_smp_sources
     "${vtk_smp_implementation_dir}/vtkSMPTools.cxx")
   list(APPEND vtk_smp_headers_to_configure
-    vtkAtomic.h
     vtkSMPToolsInternal.h
     vtkSMPThreadLocal.h)
 
@@ -46,14 +45,6 @@ elseif (VTK_SMP_IMPLEMENTATION_TYPE STREQUAL "OpenMP")
 
   if (OpenMP_CXX_SPEC_DATE AND NOT "${OpenMP_CXX_SPEC_DATE}" LESS "201107")
     set(vtk_smp_use_default_atomics OFF)
-    list(APPEND vtk_smp_sources
-      "${vtk_smp_implementation_dir}/vtkAtomic.cxx")
-    list(APPEND vtk_smp_headers_to_configure
-      vtkAtomic.h)
-
-    set_source_files_properties(vtkAtomic.cxx
-      PROPERITES
-        COMPILE_FLAGS "${OpenMP_CXX_FLAGS}")
   else()
     message(WARNING
       "Required OpenMP version (3.1) for atomics not detected. Using default "
@@ -74,29 +65,7 @@ if (vtk_smp_use_default_atomics)
 
   include("${CMAKE_CURRENT_SOURCE_DIR}/vtkTestBuiltins.cmake")
 
-  set(vtkAtomic_defines)
-
-  # Check for atomic functions
-  if (WIN32)
-    check_symbol_exists(InterlockedAdd "windows.h" VTK_HAS_INTERLOCKEDADD)
-
-    if (VTK_HAS_INTERLOCKEDADD)
-      list(APPEND vtkAtomic_defines "VTK_HAS_INTERLOCKEDADD")
-    endif ()
-  endif()
-
-  set_source_files_properties(vtkAtomic.cxx
-    PROPERITES
-      COMPILE_DEFINITIONS "${vtkAtomic_defines}")
-
   set(vtk_atomics_default_impl_dir "${CMAKE_CURRENT_SOURCE_DIR}/SMP/Sequential")
-  list(APPEND vtk_smp_sources
-    "${vtk_atomics_default_impl_dir}/vtkAtomic.cxx")
-  configure_file(
-    "${vtk_atomics_default_impl_dir}/vtkAtomic.h.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/vtkAtomic.h")
-  list(APPEND vtk_smp_headers
-    "${CMAKE_CURRENT_BINARY_DIR}/vtkAtomic.h")
 endif()
 
 foreach (vtk_smp_header IN LISTS vtk_smp_headers_to_configure)

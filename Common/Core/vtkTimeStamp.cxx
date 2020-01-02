@@ -47,10 +47,8 @@ void vtkTimeStamp::Modified()
   //
   // The last solution has been decided to have the smallest downside of these.
   //
-  //  static const vtkAtomicUIntXX* GlobalTimeStamp = new vtkAtomicUIntXX(0);
-  //
   // Good luck!
-#if defined(VTK_USE_64BIT_TIMESTAMPS) || VTK_SIZEOF_VOID_P == 8
+#if defined(VTK_USE_64BIT_TIMESTAMPS) || (VTK_SIZEOF_VOID_P == 8)
   static std::atomic<uint64_t> GlobalTimeStamp(0U);
 #else
   static std::atomic<uint32_t> GlobalTimeStamp(0U);

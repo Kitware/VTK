@@ -33,7 +33,7 @@
 #define vtkSMPThreadLocalImpl_h
 
 #include "vtkCommonCoreModule.h" // For export macro
-#include "vtkAtomic.h"
+#include "vtkConfigure.h"
 #include "vtkSystemIncludes.h"
 
 #include <omp.h>
@@ -49,7 +49,7 @@ typedef void* StoragePointerType;
 
 struct Slot
 {
-  vtkAtomic<ThreadIdType> ThreadId;
+  std::atomic<ThreadIdType> ThreadId;
   omp_lock_t ModifyLock;
   StoragePointerType Storage;
 
@@ -66,7 +66,7 @@ private:
 struct HashTableArray
 {
   size_t Size, SizeLg;
-  vtkAtomic<size_t> NumberOfEntries;
+  std::atomic<size_t> NumberOfEntries;
   Slot *Slots;
   HashTableArray *Prev;
 
@@ -90,8 +90,8 @@ public:
   size_t Size() const;
 
 private:
-  vtkAtomic<HashTableArray*> Root;
-  vtkAtomic<size_t> Count;
+  std::atomic<HashTableArray*> Root;
+  std::atomic<size_t> Count;
 
   friend class ThreadSpecificStorageIterator;
 };
