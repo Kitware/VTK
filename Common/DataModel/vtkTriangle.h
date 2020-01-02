@@ -80,13 +80,7 @@ public:
     vtkCellArray* polys, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd,
     vtkIdType cellId, vtkCellData* outCd, int insideOut) override;
 
-  /**
-   * @deprecated Replaced by vtkTriangle::InterpolateFunctions as of VTK 5.2
-   */
   static void InterpolationFunctions(const double pcoords[3], double sf[3]);
-  /**
-   * @deprecated Replaced by vtkTriangle::InterpolateDerivs as of VTK 5.2
-   */
   static void InterpolationDerivs(const double pcoords[3], double derivs[6]);
   //@{
   /**

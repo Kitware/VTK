@@ -103,13 +103,7 @@ public:
    */
   int GetParametricCenter(double pcoords[3]) override;
 
-  /**
-   * @deprecated Replaced by vtkBiQuadraticQuadraticWedge::InterpolateFunctions as of VTK 5.2
-   */
   static void InterpolationFunctions(const double pcoords[3], double weights[15]);
-  /**
-   * @deprecated Replaced by vtkBiQuadraticQuadraticWedge::InterpolateDerivs as of VTK 5.2
-   */
   static void InterpolationDerivs(const double pcoords[3], double derivs[45]);
   //@{
   /**

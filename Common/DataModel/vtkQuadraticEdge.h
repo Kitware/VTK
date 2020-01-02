@@ -87,13 +87,7 @@ public:
    */
   int GetParametricCenter(double pcoords[3]) override;
 
-  /**
-   * @deprecated Replaced by vtkQuadraticEdge::InterpolateFunctions as of VTK 5.2
-   */
   static void InterpolationFunctions(const double pcoords[3], double weights[3]);
-  /**
-   * @deprecated Replaced by vtkQuadraticEdge::InterpolateDerivs as of VTK 5.2
-   */
   static void InterpolationDerivs(const double pcoords[3], double derivs[3]);
   //@{
   /**

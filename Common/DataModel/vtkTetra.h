@@ -158,13 +158,7 @@ public:
    */
   int JacobianInverse(double** inverse, double derivs[12]);
 
-  /**
-   * @deprecated Replaced by vtkTetra::InterpolateFunctions as of VTK 5.2
-   */
   static void InterpolationFunctions(const double pcoords[3], double weights[4]);
-  /**
-   * @deprecated Replaced by vtkTetra::InterpolateDerivs as of VTK 5.2
-   */
   static void InterpolationDerivs(const double pcoords[3], double derivs[12]);
   //@{
   /**

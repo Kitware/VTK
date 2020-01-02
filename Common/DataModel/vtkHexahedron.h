@@ -91,13 +91,7 @@ public:
    */
   static int* GetTriangleCases(int caseId);
 
-  /**
-   * @deprecated Replaced by vtkHexahedron::InterpolateFunctions as of VTK 5.2
-   */
   static void InterpolationFunctions(const double pcoords[3], double weights[8]);
-  /**
-   * @deprecated Replaced by vtkHexahedron::InterpolateDerivs as of VTK 5.2
-   */
   static void InterpolationDerivs(const double pcoords[3], double derivs[24]);
   //@{
   /**

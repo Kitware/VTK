@@ -102,13 +102,7 @@ public:
   void Derivatives(
     int subId, const double pcoords[3], const double* values, int dim, double* derivs) override;
 
-  /**
-   * @deprecated Replaced by vtkVertex::InterpolateFunctions as of VTK 5.2
-   */
   static void InterpolationFunctions(const double pcoords[3], double weights[1]);
-  /**
-   * @deprecated Replaced by vtkVertex::InterpolateDerivs as of VTK 5.2
-   */
   static void InterpolationDerivs(const double pcoords[3], double derivs[3]);
   //@{
   /**
