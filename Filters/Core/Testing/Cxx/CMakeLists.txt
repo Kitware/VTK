@@ -10,6 +10,7 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestBinCellDataFilter.cxx,NO_VALID
   TestCategoricalPointDataToCellData.cxx,NO_VALID
   TestCategoricalResampleWithDataSet.cxx,NO_VALID
+  TestCellCenters.cxx,NO_VALID
   TestCellDataToPointData.cxx,NO_VALID
   TestCenterOfMass.cxx,NO_VALID
   TestCleanPolyData.cxx,NO_VALID

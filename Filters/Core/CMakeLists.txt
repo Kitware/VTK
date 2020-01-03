@@ -11,6 +11,7 @@ set(classes
   vtkAttributeDataToFieldDataFilter
   vtkBinCellDataFilter
   vtkCellDataToPointData
+  vtkCellCenters
   vtkCenterOfMass
   vtkCleanPolyData
   vtkClipPolyData

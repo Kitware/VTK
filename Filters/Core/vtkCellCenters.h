@@ -39,12 +39,12 @@
 #ifndef vtkCellCenters_h
 #define vtkCellCenters_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
+#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkDoubleArray;
 
-class VTKFILTERSGENERAL_EXPORT vtkCellCenters : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT vtkCellCenters : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkCellCenters, vtkPolyDataAlgorithm);
