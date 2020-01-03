@@ -91,8 +91,6 @@ vtk_module_build(
 #
 
 if(VTK_WRAP_PYTHON)
-  find_package(PythonInterp ${VTK_PYTHON_VERSION} QUIET)
-
   vtk_module_wrap_python(
     MODULES             ${my_modules}
     INSTALL_EXPORT      VTKMY
