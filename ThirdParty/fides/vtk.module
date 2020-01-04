@@ -1,0 +1,9 @@
+NAME
+  VTK::fides
+LIBRARY_NAME
+  vtkfides
+DEPENDS
+  VTK::vtkm
+OPTIONAL_DEPENDS
+  VTK::mpi
+THIRD_PARTY
