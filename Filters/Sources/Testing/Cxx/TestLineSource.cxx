@@ -14,8 +14,11 @@
 =========================================================================*/
 
 #include <vtkLineSource.h>
+#include <vtkLogger.h>
 #include <vtkMinimalStandardRandomSequence.h>
 #include <vtkSmartPointer.h>
+#include <vtkVector.h>
+#include <vtkVectorOperators.h>
 
 int TestLineSource(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
@@ -135,9 +138,42 @@ int TestLineSource(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   polyData = lineSource->GetOutput();
   outputPoints = polyData->GetPoints();
-
   if (outputPoints->GetDataType() != VTK_DOUBLE)
   {
+    return EXIT_FAILURE;
+  }
+
+  lineSource->SetPoints(nullptr);
+  lineSource->SetPoint1(0, 0, 0);
+  lineSource->SetPoint2(1, 1, 2);
+  lineSource->SetNumberOfRefinementRatios(3);
+  lineSource->SetRefinementRatio(0, 0.1);
+  lineSource->SetRefinementRatio(1, 0.7);
+  lineSource->SetRefinementRatio(2, 1.0);
+  lineSource->SetUseRegularRefinement(false);
+  lineSource->SetResolution(10);
+  lineSource->Update();
+  polyData = lineSource->GetOutput();
+  outputPoints = polyData->GetPoints();
+  if (outputPoints->GetDataType() != VTK_DOUBLE)
+  {
+    return EXIT_FAILURE;
+  }
+
+  if (outputPoints->GetNumberOfPoints() != 3)
+  {
+    vtkLogF(ERROR, "incorrect number of points (expected 3: got: %d)",
+      static_cast<int>(outputPoints->GetNumberOfPoints()));
+    return EXIT_FAILURE;
+  }
+
+  const vtkVector3d expected(0.7, 0.7, 1.4);
+  vtkVector3d pt;
+  outputPoints->GetPoint(1, pt.GetData());
+  if (pt != expected)
+  {
+    vtkLogF(ERROR, "incorrect point (expected (%g, %g, %g): got: (%g, %g, %g))", expected[0],
+      expected[1], expected[2], pt[0], pt[1], pt[2]);
     return EXIT_FAILURE;
   }
 
