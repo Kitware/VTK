@@ -534,9 +534,10 @@ function (vtk_module_wrap_python)
   _vtk_module_split_module_name("${_vtk_python_TARGET}" _vtk_python)
 
   set(_vtk_python_depends)
-  foreach (_dep IN LISTS _vtk_python_DEPENDS)
-    _vtk_module_split_module_name("${_dep}" _vtk_python_depends)
-    list(APPEND _vtk_python_depends ${_vtk_python_depends_TARGET_NAME})
+  foreach (_vtk_python_depend IN LISTS _vtk_python_DEPENDS)
+    _vtk_module_split_module_name("${_vtk_python_depend}" _vtk_python_depends)
+    list(APPEND _vtk_python_depends
+      "${_vtk_python_depends_TARGET_NAME}")
   endforeach ()
 
   if (NOT DEFINED _vtk_python_MODULE_DESTINATION)
@@ -707,9 +708,9 @@ function (vtk_module_wrap_python)
       endforeach ()
     endif ()
 
-    foreach (_dep IN LISTS _vtk_python_depends)
+    foreach (_vtk_python_depend IN LISTS _vtk_python_depends)
       string(APPEND _vtk_python_all_modules_include_content
-        "#include \"${_dep}.h\"\n")
+        "#include \"${_vtk_python_depend}.h\"\n")
     endforeach ()
 
     string(APPEND _vtk_python_all_modules_include_content
@@ -729,9 +730,9 @@ function (vtk_module_wrap_python)
 
 static void ${_vtk_python_TARGET_NAME}_load() {\n")
 
-    foreach (_dep IN LISTS _vtk_python_depends)
+    foreach (_vtk_python_depend IN LISTS _vtk_python_depends)
       string(APPEND _vtk_python_all_modules_include_content
-        "  ${_dep}_load();\n")
+        "  ${_vtk_python_depend}_load();\n")
     endforeach ()
 
     if (_vtk_python_BUILD_STATIC)
