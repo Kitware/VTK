@@ -61,19 +61,6 @@ public:
     this->RecvBuffer = vtkCharArray::New();
   }
 
-  CommDataInfo(const CommDataInfo& c)
-  {
-    *this = c;
-    if (this->SendBuffer)
-    {
-      this->SendBuffer->Register(nullptr);
-    }
-    if (this->RecvBuffer)
-    {
-      this->RecvBuffer->Register(nullptr);
-    }
-  }
-
   ~CommDataInfo()
   {
     if (this->SendBuffer)
@@ -94,6 +81,10 @@ public:
   vtkIdType RecvLen;
   int CommStep;
   int RecvSize;
+
+private:
+  CommDataInfo(const CommDataInfo&) = delete;
+  void operator=(const CommDataInfo&) = delete;
 };
 } // end anonymous namespace
 
