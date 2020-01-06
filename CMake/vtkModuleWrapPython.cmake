@@ -684,6 +684,9 @@ function (vtk_module_wrap_python)
     target_include_directories("${_vtk_python_TARGET_NAME}"
       INTERFACE
         "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_python_TARGET_NAME}/static_python>")
+    target_link_libraries("${_vtk_python_TARGET_NAME}"
+      INTERFACE
+        ${_vtk_python_DEPENDS})
     if (NOT _vtk_python_TARGET STREQUAL _vtk_python_TARGET_NAME)
       add_library("${_vtk_python_TARGET}" ALIAS
         "${_vtk_python_TARGET_NAME}")
