@@ -52,6 +52,47 @@ vtkTriangle::~vtkTriangle()
 }
 
 //----------------------------------------------------------------------------
+bool vtkTriangle::ComputeCentroid(vtkPoints* points, const vtkIdType* pointIds, double centroid[3])
+{
+  centroid[0] = centroid[1] = centroid[2] = 0.0;
+  double p[3];
+  if (pointIds)
+  {
+    points->GetPoint(pointIds[0], p);
+    centroid[0] += p[0];
+    centroid[1] += p[1];
+    centroid[2] += p[2];
+    points->GetPoint(pointIds[1], p);
+    centroid[0] += p[0];
+    centroid[1] += p[1];
+    centroid[2] += p[2];
+    points->GetPoint(pointIds[2], p);
+    centroid[0] += p[0];
+    centroid[1] += p[1];
+    centroid[2] += p[2];
+  }
+  else
+  {
+    points->GetPoint(0, p);
+    centroid[0] += p[0];
+    centroid[1] += p[1];
+    centroid[2] += p[2];
+    points->GetPoint(1, p);
+    centroid[0] += p[0];
+    centroid[1] += p[1];
+    centroid[2] += p[2];
+    points->GetPoint(2, p);
+    centroid[0] += p[0];
+    centroid[1] += p[1];
+    centroid[2] += p[2];
+  }
+  centroid[0] /= 3.0;
+  centroid[1] /= 3.0;
+  centroid[2] /= 3.0;
+  return true;
+}
+
+//----------------------------------------------------------------------------
 // This function simply calls the static function:
 // vtkTriangle::TriangleArea(double p1[3], double p2[3], double p3[3])
 // with the appropriate parameters from the instantiated vtkTriangle.

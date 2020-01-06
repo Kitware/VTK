@@ -21,6 +21,7 @@
 #include "vtkIncrementalPointLocator.h"
 #include "vtkLine.h"
 #include "vtkMath.h"
+#include "vtkMathUtilities.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
@@ -2033,29 +2034,68 @@ void vtkPolygon::PrintSelf(ostream& os, vtkIndent indent)
 // Compute the polygon centroid from a points list, the number of points, and an
 // array of point ids that index into the points list. Returns false if the
 // computation is invalid.
-bool vtkPolygon::ComputeCentroid(vtkPoints* p, int numPts, vtkIdType* ids, double c[3])
+bool vtkPolygon::ComputeCentroid(vtkPoints* p, int numPts, const vtkIdType* ids, double c[3])
 {
+  // Strategy:
+  // - Compute centroid of projected polygon on (x,y) if polygon is projectible, (x,z) otherwise
+  // - Accumulate signed projected area as well, which is needed in the centroid's formula
+  // - Infer 3rd dimension using polygon's normal.
   vtkIdType i;
-  double p0[3];
-  c[0] = c[1] = c[2] = 0.0;
-  if (numPts == 0)
+  double p0[6];
+  double normal[3] = { 0.0 };
+  if (numPts < 2)
   {
     return false;
   }
-  double a = 1.0 / static_cast<double>(numPts);
-  for (i = 0; i < numPts; i++)
-  {
-    p->GetPoint(ids[i], p0);
+  // Handle to the doubled area of the projected polygon on (x,y) or (x,z) if the polygon
+  // projected on (x,y) is degenerate.
+  double a = 0.0;
+  p->GetPoint(ids[0], p0);
 
-    c[0] += p0[0];
-    c[1] += p0[1];
-    c[2] += p0[2];
+  vtkPolygon::ComputeNormal(p, numPts, ids, normal);
+  vtkIdType xOffset = 0, yOffset = 0;
+  // Checking if the polygon is colinear with z axis.
+  // If it is, the centroid computation axis shall be shifted
+  // because the projected polygon on (x,y) is degenerate.
+
+  {
+    constexpr double z[3] = { 0.0, 0.0, 1.0 };
+    vtkMath::Cross(normal, z, c);
+    // If the normal is orthogonal with z axis, the projected polygon is then a line...
+    if (std::fabs(c[0] * c[0] + c[1] * c[1] + c[2] * c[2] - 1.0) <= VTK_DBL_EPSILON)
+    {
+      yOffset = 1;
+      constexpr double y[3] = { 0.0, 1.0, 0.0 };
+      vtkMath::Cross(normal, y, c);
+      // If the normal is orthogonal with y axis, the projected polygon is then a line...
+      if (std::fabs(c[0] * c[0] + c[1] * c[1] + c[2] * c[2] - 1.0) <= VTK_DBL_EPSILON)
+      {
+        xOffset = 1;
+      }
+    }
   }
 
-  c[0] *= a;
-  c[1] *= a;
-  c[2] *= a;
+  c[0] = c[1] = c[2] = 0.0;
 
+  for (i = 0; i < numPts; i++)
+  {
+    p->GetPoint(ids[(i + 1) % numPts], p0 + 3 * !(i % 2));
+    double det = (p0[3 * (i % 2) + xOffset] * p0[3 * !(i % 2) + 1 + yOffset] -
+      p0[3 * !(i % 2) + xOffset] * p0[3 * (i % 2) + 1 + yOffset]);
+    c[xOffset] += (p0[xOffset] + p0[3 + xOffset]) * det;
+    c[1 + yOffset] += (p0[1 + yOffset] + p0[4 + yOffset]) * det;
+    a += det;
+  }
+  if (std::abs(a) < VTK_DBL_MIN)
+  {
+    // Polygon is degenerate
+    return false;
+  }
+  c[xOffset] /= 3.0 * a;
+  c[1 + yOffset] /= 3.0 * a;
+  c[2 - xOffset - yOffset] = 1.0 / normal[2 - xOffset - yOffset] *
+    (-normal[xOffset] * c[xOffset] - normal[1 + yOffset] * c[1 + yOffset] +
+      vtkMath::Dot(normal, p0));
   return true;
 }
 
