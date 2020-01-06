@@ -86,10 +86,7 @@ QVTKOpenGLWidget::QVTKOpenGLWidget(
 }
 
 //-----------------------------------------------------------------------------
-QVTKOpenGLWidget::~QVTKOpenGLWidget()
-{
-  this->VTKOpenGLWindow->cleanupContext();
-}
+QVTKOpenGLWidget::~QVTKOpenGLWidget() {}
 
 //-----------------------------------------------------------------------------
 QImage QVTKOpenGLWidget::grabFramebuffer()
