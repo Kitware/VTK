@@ -9,6 +9,7 @@ GROUPS
   StandAlone
 DEPENDS
   VTK::CommonCore
+  VTK::CommonComputationalGeometry
   VTK::CommonDataModel
   VTK::CommonExecutionModel
   VTK::CommonMath
