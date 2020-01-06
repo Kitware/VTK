@@ -69,7 +69,7 @@ public:
    * Get the ids of the two adjacent faces to edge of id edgeId.
    * The output face ids are sorted from id of lowest rank to highest.
    * Note that the faces are 0-offset; that is, they refer to the ids of the cells,
-   * not hte face ids of the mesh that the cell belongs to. The edgeId must range
+   * not the face ids of the mesh that the cell belongs to. The edgeId must range
    * between 0<=edgeId<this->GetNumberOfEdges().
    */
   virtual void GetEdgeToAdjacentFaces(vtkIdType edgeId, const vtkIdType*& faceIds) = 0;
@@ -108,7 +108,7 @@ public:
   virtual vtkIdType GetPointToIncidentEdges(vtkIdType pointId, const vtkIdType*& edgeIds) = 0;
 
   /**
-   * Get the ids of the incidnet faces point of id pointId. Faces are
+   * Get the ids of the incident faces point of id pointId. Faces are
    * sorted in counter clockwise order w.r.t. bisectrix pointing outside the cell
    * at point of id pointId.
    * The first face corresponds to the face containing edge of id edges[0],
@@ -131,7 +131,7 @@ public:
    * at point of id pointId.
    * The first point corresponds to the point contained in edges[0], where
    * edges is obtained from this->GetPointToIncidentEdges(pointId, edges).
-   * Note that the points are 0-pffset; that is, they refer to the ids of the cell,
+   * Note that the points are 0-offset; that is, they refer to the ids of the cell,
    * not the point ids of the mesh that the cell belongs to.
    * The pointId must be between 0<pointId<this->GetNumberOfPoints().
    * @return The valence of point pointId.

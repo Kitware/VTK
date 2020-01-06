@@ -144,7 +144,7 @@ bool vtkTetra::ComputeCentroid(vtkPoints* points, const vtkIdType* pointIds, dou
 {
   double p[3];
   centroid[0] = centroid[1] = centroid[2] = 0.0;
-  if (pointIds)
+  if (!pointIds)
   {
     for (vtkIdType i = 0; i < vtkTetra::MaximumFaceSize; ++i)
     {

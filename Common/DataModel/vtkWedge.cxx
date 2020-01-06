@@ -133,7 +133,7 @@ bool vtkWedge::ComputeCentroid(vtkPoints* points, const vtkIdType* pointIds, dou
 {
   double p[3];
   centroid[0] = centroid[1] = centroid[2] = 0.0;
-  if (pointIds)
+  if (!pointIds)
   {
     vtkTriangle::ComputeCentroid(points, faces[0], centroid);
     vtkTriangle::ComputeCentroid(points, faces[1], p);

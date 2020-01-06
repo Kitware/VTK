@@ -548,7 +548,7 @@ bool vtkPentagonalPrism::ComputeCentroid(
   vtkPoints* points, const vtkIdType* pointIds, double centroid[3])
 {
   double p[3];
-  if (pointIds)
+  if (!pointIds)
   {
     vtkPolygon::ComputeCentroid(points, numberOfPointsInFace[0], faces[0], centroid);
     vtkPolygon::ComputeCentroid(points, numberOfPointsInFace[1], faces[1], p);
