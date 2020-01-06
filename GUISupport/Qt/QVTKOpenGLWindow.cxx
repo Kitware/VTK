@@ -68,6 +68,7 @@ QVTKOpenGLWindow::QVTKOpenGLWindow(vtkGenericOpenGLRenderWindow* renderWin,
 //-----------------------------------------------------------------------------
 QVTKOpenGLWindow::~QVTKOpenGLWindow()
 {
+  this->makeCurrent();
   this->cleanupContext();
 }
 
@@ -93,7 +94,11 @@ void QVTKOpenGLWindow::setRenderWindow(vtkGenericOpenGLRenderWindow* win)
 
   // this will release all OpenGL resources associated with the old render
   // window, if any.
-  this->RenderWindowAdapter.reset(nullptr);
+  if (this->RenderWindowAdapter)
+  {
+    this->makeCurrent();
+    this->RenderWindowAdapter.reset(nullptr);
+  }
   this->RenderWindow = win;
   if (this->RenderWindow)
   {
@@ -188,8 +193,8 @@ void QVTKOpenGLWindow::initializeGL()
     this->RenderWindowAdapter->setEnableHiDPI(this->EnableHiDPI);
     this->RenderWindowAdapter->setUnscaledDPI(this->UnscaledDPI);
   }
-  this->connect(
-    this->context(), SIGNAL(aboutToBeDestroyed()), SLOT(cleanupContext()), Qt::UniqueConnection);
+  this->connect(this->context(), SIGNAL(aboutToBeDestroyed()), SLOT(cleanupContext()),
+    static_cast<Qt::ConnectionType>(Qt::UniqueConnection | Qt::DirectConnection));
 }
 
 //-----------------------------------------------------------------------------

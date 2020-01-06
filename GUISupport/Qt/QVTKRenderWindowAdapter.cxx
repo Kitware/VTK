@@ -168,7 +168,6 @@ public:
     QVTKInternalsDebugMacro("destructor");
     Q_ASSERT(this->RenderWindow);
     Q_ASSERT(this->Context);
-    this->makeCurrent();
     this->Logger.reset(nullptr);
     for (const auto& id : this->RenderWindowObserverIds)
     {
