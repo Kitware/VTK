@@ -27,12 +27,6 @@
 #define VTK_SIZEOF_DOUBLE KWIML_ABI_SIZEOF_DOUBLE
 #define VTK_SIZEOF_VOID_P KWIML_ABI_SIZEOF_DATA_PTR
 
-/* Whether type "long long" is enabled as a unique fundamental type.  */
-#define VTK_TYPE_USE_LONG_LONG
-#if VTK_SIZEOF_LONG_LONG == 0
-#error "No 'long long' type available."
-#endif
-
 /* Whether type "char" is signed (it may be signed or unsigned).  */
 #if defined(KWIML_ABI_CHAR_IS_SIGNED)
 #define VTK_TYPE_CHAR_IS_SIGNED 1
