@@ -26,7 +26,6 @@
 #include "vtkPSphereSource.h"
 #include "vtkPlaneSource.h"
 #include "vtkPolyData.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtksys/FStream.hxx"
 
@@ -300,17 +299,15 @@ void vtkPipelineSize::GenericComputeOutputMemorySize(
 }
 
 unsigned long vtkPipelineSize::GetNumberOfSubPieces(
-  unsigned long memoryLimit, vtkPolyDataMapper* mapper)
+  unsigned long memoryLimit, vtkAlgorithm* mapper, int piece, int numPieces)
 {
   // find the right number of pieces
-  if (!mapper->GetInput())
+  if (!mapper->GetInputDataObject(0, 0))
   {
     return 1;
   }
 
   unsigned long subDivisions = 1;
-  unsigned long numPieces = mapper->GetNumberOfPieces();
-  unsigned long piece = mapper->GetPiece();
   unsigned long oldSize, size = 0;
   float ratio;
 

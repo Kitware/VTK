@@ -49,9 +49,9 @@ psize = vtk.vtkPipelineSize()
 if (psize.GetEstimatedSize(extract2, 0, 0) > 100):
     print ("ERROR: Pipeline Size increased")
     pass
-if (psize.GetNumberOfSubPieces(10, mapper2) != 1):
+if (psize.GetNumberOfSubPieces(10, mapper2, mapper2.GetPiece(), mapper2.GetNumberOfPieces()) != 1):
     print ("ERROR: Number of sub pieces changed",
-           psize.GetNumberOfSubPieces(10, mapper2))
+           psize.GetNumberOfSubPieces(10, mapper2, mapper2.GetPiece(), mapper2.GetNumberOfPieces()))
     pass
 
 actor2 = vtk.vtkActor()

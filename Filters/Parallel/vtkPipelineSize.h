@@ -23,7 +23,6 @@
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkObject.h"
 class vtkAlgorithm;
-class vtkPolyDataMapper;
 
 class VTKFILTERSPARALLEL_EXPORT vtkPipelineSize : public vtkObject
 {
@@ -41,10 +40,13 @@ public:
   unsigned long GetEstimatedSize(vtkAlgorithm* input, int inputPort, int connection);
 
   /**
-   * Determine how many subpieces a mapper should use to fit a target memory
-   * limit. This takes into account the mapper's Piece and NumberOfPieces.
+   * Determine how many subpieces an should use to fit a target memory
+   * limit. The piece and numPieces can be queried from the mapper using
+   * `vtkPolyDataMapper::GetPiece` and
+   * `vtkPolyDataMapper::GetNumberOfSubPieces`.
    */
-  unsigned long GetNumberOfSubPieces(unsigned long memoryLimit, vtkPolyDataMapper* mapper);
+  unsigned long GetNumberOfSubPieces(
+    unsigned long memoryLimit, vtkAlgorithm* mapper, int piece, int numPieces);
 
 protected:
   vtkPipelineSize() {}
