@@ -23,6 +23,8 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkVector.h"
+#include "vtkVectorOperators.h"
 
 #include <cmath>
 
@@ -44,7 +46,7 @@ vtkLineSource::vtkLineSource(int res)
 
   this->Resolution = (res < 1 ? 1 : res);
   this->OutputPointsPrecision = SINGLE_PRECISION;
-
+  this->UseRegularRefinement = true;
   this->SetNumberOfInputPorts(0);
 }
 
@@ -52,6 +54,54 @@ vtkLineSource::vtkLineSource(int res)
 vtkLineSource::~vtkLineSource()
 {
   this->SetPoints(nullptr);
+}
+
+// ----------------------------------------------------------------------
+void vtkLineSource::SetNumberOfRefinementRatios(int val)
+{
+  if (val < 0)
+  {
+    vtkErrorMacro("Value cannot be negative: " << val);
+  }
+  else if (static_cast<int>(this->RefinementRatios.size()) != val)
+  {
+    this->RefinementRatios.resize(val);
+    this->Modified();
+  }
+}
+
+// ----------------------------------------------------------------------
+void vtkLineSource::SetRefinementRatio(int index, double value)
+{
+  if (index >= 0 && index < static_cast<int>(this->RefinementRatios.size()))
+  {
+    if (this->RefinementRatios[index] != value)
+    {
+      this->RefinementRatios[index] = value;
+      this->Modified();
+    }
+  }
+  else
+  {
+    vtkErrorMacro("Invalid index: " << index);
+  }
+}
+
+// ----------------------------------------------------------------------
+int vtkLineSource::GetNumberOfRefinementRatios()
+{
+  return static_cast<int>(this->RefinementRatios.size());
+}
+
+// ----------------------------------------------------------------------
+double vtkLineSource::GetRefinementRatio(int index)
+{
+  if (index >= 0 && index < static_cast<int>(this->RefinementRatios.size()))
+  {
+    return this->RefinementRatios[index];
+  }
+  vtkErrorMacro("Invalid index: " << index);
+  return 0.0;
 }
 
 // ----------------------------------------------------------------------
@@ -69,7 +119,7 @@ int vtkLineSource::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   // Reject meaningless parameterizations
-  vtkIdType nSegments = this->Points ? this->Points->GetNumberOfPoints() - 1 : 1;
+  const vtkIdType nSegments = this->Points ? this->Points->GetNumberOfPoints() - 1 : 1;
   if (nSegments < 1)
   {
     vtkWarningMacro(<< "Cannot define a broken line with given input.");
@@ -78,23 +128,51 @@ int vtkLineSource::RequestData(vtkInformation* vtkNotUsed(request),
 
   // get the info object
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-
-  // get the output
-  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
-
   if (outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) > 0)
   {
+    // we'll only produce data for piece 0, and produce empty datasets on
+    // others since splitting a line source into pieces is generally not what's
+    // expected.
     return 1;
   }
 
+  // get the output
+  vtkPolyData* output = vtkPolyData::GetData(outInfo);
+
+  // This is a vector giving the positions of intermediate points. Thus, if empty, only the
+  // end points for each line segment are generated.
+  std::vector<double> refinements;
+  if (this->UseRegularRefinement)
+  {
+    assert(this->Resolution >= 1);
+    refinements.reserve(this->Resolution + 1);
+    for (int cc = 0; cc < this->Resolution; ++cc)
+    {
+      refinements.push_back(static_cast<double>(cc) / this->Resolution);
+    }
+    refinements.push_back(1.0);
+  }
+  else
+  {
+    refinements = this->RefinementRatios;
+  }
+
+  vtkSmartPointer<vtkPoints> pts = this->Points;
+  if (this->Points == nullptr)
+  {
+    // using end points.
+    pts = vtkSmartPointer<vtkPoints>::New();
+    pts->SetDataType(VTK_DOUBLE);
+    pts->SetNumberOfPoints(2);
+    pts->SetPoint(0, this->Point1);
+    pts->SetPoint(1, this->Point2);
+  }
+
   // Create and allocate lines
-  vtkIdType numLines = nSegments * this->Resolution;
-  vtkCellArray* newLines = vtkCellArray::New();
-  newLines->AllocateEstimate(numLines, 2);
+  vtkIdType numPts = nSegments * static_cast<vtkIdType>(refinements.size());
 
   // Create and allocate points
-  vtkIdType numPts = numLines + 1;
-  vtkPoints* newPoints = vtkPoints::New();
+  vtkNew<vtkPoints> newPoints;
 
   // Set the desired precision for the points in the output.
   if (this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
@@ -105,102 +183,82 @@ int vtkLineSource::RequestData(vtkInformation* vtkNotUsed(request),
   {
     newPoints->SetDataType(VTK_FLOAT);
   }
-
   newPoints->Allocate(numPts);
 
-  // Create and allocate texture coordinates
-  vtkFloatArray* newTCoords = vtkFloatArray::New();
-  newTCoords->SetNumberOfComponents(2);
-  newTCoords->Allocate(2 * numPts);
-  newTCoords->SetName("Texture Coordinates");
+  // Generate points
 
-  // Allocate convenience storage
-  double x[3], tc[3], v[3];
+  // Point index offset for fast insertion
+  vtkIdType offset = 0;
 
-  // Generate points and texture coordinates
-  if (this->Points)
+  // Iterate over segments
+  for (vtkIdType seg = 0; seg < nSegments; ++seg)
   {
-    // Create storage for segment endpoints
-    double point1[3];
-    double point2[3];
+    assert((seg + 1) < pts->GetNumberOfPoints());
 
-    // Point index offset for fast insertion
-    vtkIdType offset = 0;
+    // Get coordinates of endpoints
+    vtkVector3d point1, point2;
 
-    // Iterate over segments
-    for (vtkIdType s = 0; s < nSegments; ++s)
-    {
-      // Get coordinates of endpoints
-      this->Points->GetPoint(s, point1);
-      this->Points->GetPoint(s + 1, point2);
+    pts->GetPoint(seg, point1.GetData());
+    pts->GetPoint(seg + 1, point2.GetData());
 
-      // Calculate segment vector
-      for (int i = 0; i < 3; ++i)
-      {
-        v[i] = point2[i] - point1[i];
-      }
-
-      // Generate points along segment
-      tc[1] = 0.;
-      tc[2] = 0.;
-      for (vtkIdType i = 0; i < this->Resolution; ++i, ++offset)
-      {
-        tc[0] = static_cast<double>(i) / this->Resolution;
-        for (int j = 0; j < 3; ++j)
-        {
-          x[j] = point1[j] + tc[0] * v[j];
-        }
-        newPoints->InsertPoint(offset, x);
-        newTCoords->InsertTuple(offset, tc);
-      }
-    } // s
-
-    // Generate last endpoint
-    newPoints->InsertPoint(numLines, point2);
-    tc[0] = 1.;
-    newTCoords->InsertTuple(numLines, tc);
-
-  } // if ( this->Points )
-  else
-  {
     // Calculate segment vector
-    for (int i = 0; i < 3; ++i)
-    {
-      v[i] = this->Point2[i] - this->Point1[i];
-    }
+    const vtkVector3d v = point2 - point1;
 
     // Generate points along segment
-    tc[1] = 0.;
-    tc[2] = 0.;
-    for (vtkIdType i = 0; i < numPts; ++i)
+    for (size_t i = 0; i < refinements.size(); ++i)
     {
-      tc[0] = static_cast<double>(i) / this->Resolution;
-      for (int j = 0; j < 3; ++j)
+      if (seg > 0 && i == 0 && refinements.front() == 0.0 && refinements.back() == 1.0)
       {
-        x[j] = this->Point1[j] + tc[0] * v[j];
+        // skip adding first point in the segment if it is same as the last point
+        // from previously added segment.
+        continue;
       }
-      newPoints->InsertPoint(i, x);
-      newTCoords->InsertTuple(i, tc);
+      const vtkVector3d pt = point1 + refinements[i] * v;
+      newPoints->InsertPoint(offset, pt.GetData());
+      ++offset;
     }
-  } // else
+  } // seg
+
+  // update number of points estimate.
+  numPts = offset;
 
   //  Generate lines
+  vtkNew<vtkCellArray> newLines;
+  newLines->AllocateEstimate(1, numPts);
   newLines->InsertNextCell(numPts);
   for (vtkIdType i = 0; i < numPts; ++i)
   {
     newLines->InsertCellPoint(i);
   }
 
+  // Generate texture coordinates
+  vtkNew<vtkFloatArray> newTCoords;
+  newTCoords->SetNumberOfComponents(2);
+  newTCoords->SetNumberOfTuples(numPts);
+  newTCoords->SetName("Texture Coordinates");
+  newTCoords->FillValue(0.0f);
+
+  float length_sum = 0.0f;
+  for (vtkIdType cc = 1; cc < numPts; ++cc)
+  {
+    vtkVector3d p1, p2;
+    newPoints->GetPoint(cc - 1, p1.GetData());
+    newPoints->GetPoint(cc, p2.GetData());
+
+    length_sum += static_cast<float>((p2 - p1).Norm());
+    newTCoords->SetTypedComponent(cc, 0, length_sum);
+  }
+
+  // now normalize the tcoord
+  for (vtkIdType cc = 1; cc < numPts; ++cc)
+  {
+    newTCoords->SetTypedComponent(cc, 0, newTCoords->GetTypedComponent(cc, 0) / length_sum);
+  }
+
   // Update ourselves and release memory
   output->SetPoints(newPoints);
-  newPoints->Delete();
-
   output->GetPointData()->SetTCoords(newTCoords);
-  newTCoords->Delete();
-
   output->SetLines(newLines);
-  newLines->Delete();
-
   return 1;
 }
 
@@ -246,6 +304,13 @@ void vtkLineSource::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << "(none)" << endl;
   }
+  os << indent << "UseRegularRefinement: " << this->UseRegularRefinement << endl;
+  os << indent << "RefinementRatios: [";
+  for (const auto& r : this->RefinementRatios)
+  {
+    os << r << " ";
+  }
+  os << "]" << endl;
 
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }

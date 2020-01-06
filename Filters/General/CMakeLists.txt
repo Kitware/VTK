@@ -11,7 +11,6 @@ set(classes
   vtkBooleanOperationPolyDataFilter
   vtkBoxClipDataSet
   vtkBrownianPoints
-  vtkCellCenters
   vtkCellDerivatives
   vtkCellTreeLocator
   vtkCellValidator
