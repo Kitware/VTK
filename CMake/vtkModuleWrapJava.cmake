@@ -27,6 +27,8 @@ function (_vtk_module_wrap_java_sources module sources java_sources)
     return ()
   endif ()
 
+  file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_java_library_name}Java")
+
   set(_vtk_java_args_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_java_library_name}Java/${_vtk_java_library_name}-java.$<CONFIGURATION>.args")
   set(_vtk_java_init_data_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_java_library_name}Java/${_vtk_java_library_name}-java-init.data")
 

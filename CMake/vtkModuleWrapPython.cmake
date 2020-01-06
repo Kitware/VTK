@@ -73,6 +73,8 @@ function (_vtk_module_wrap_python_sources module sources classes)
     return ()
   endif ()
 
+  file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_python_library_name}Python")
+
   set(_vtk_python_args_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_python_library_name}Python/${_vtk_python_library_name}-python.$<CONFIGURATION>.args")
 
   set(_vtk_python_genex_compile_definitions
