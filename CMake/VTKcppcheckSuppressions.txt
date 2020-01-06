@@ -13,7 +13,7 @@
 //=========================================================================
 
 // This file contains enough suppressions to result in no cppcheck warnings,
-// at least on macOS with cppcheck 1.89 with the flags below.
+// at least on macOS with cppcheck 1.90 with the flags below.
 
 // To run:
 // cd /path/to/VTK/
@@ -46,6 +46,9 @@ unreadVariable:*/Testing/Cxx/*
 
 // When analyzing different define possibilities, it will sometimes hit a #error line
 preprocessorErrorDirective
+
+// strdup() is more portable than the suggested _strdup().
+strdupCalled
 
 // Can't fix in portable way for all VTK-supported platforms.
 duplicateExpression:*/IO/PostgreSQL/vtkPostgreSQLQuery.cxx
@@ -637,6 +640,10 @@ constParameter:*/Rendering/RayTracing/RTWrapper/VisRTX/Object.h
 
 // False positive: Assignment of function parameter has no effect outside the function. Did you forget dereferencing it?
 uselessAssignmentPtrArg:*/Wrapping/Tools/vtkParse.tab.c
+
+// False positives: https://trac.cppcheck.net/ticket/9223#comment:3
+nullPointerRedundantCheck,*/Wrapping/Tools/vtkWrapPython.c
+nullPointerRedundantCheck,*/Wrapping/Tools/vtkParsePreprocess.c
 
 // Not technically false positives, but there's no bug here and no clear way to rework the code in a better way
 constArgument:*/Wrapping/Tools/vtkParsePreprocess.c
