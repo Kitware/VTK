@@ -43,6 +43,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cstdlib>
 #include <cstring>
 #include <iostream>
 #include <sstream>
@@ -97,6 +98,14 @@ public:
         {
           info.TextureCoordinates = textureCoordinates;
           const char* polyId = textureCoordinates.attribute("ring").value();
+          // in the Berlin 3D dataset
+          // https://www.businesslocationcenter.de/en/economic-atlas/download-portal/
+          // app:textureCoordinates ring attribute is prefixed by a #,
+          // while gml:LinearRing gml:id attribute is not
+          if (polyId[0] == '#')
+          {
+            ++polyId;
+          }
           this->PolyIdToTextureCoordinates[polyId] = info;
         }
         targetNode = targetNode.next_sibling("app:target");
@@ -119,7 +128,7 @@ public:
         const char* value = node.child_value();
         std::istringstream iss(value);
         std::array<float, 3> color;
-        for (size_t i = 0; i < color.size() && !iss.eof(); ++i)
+        for (size_t i = 0; i < color.size(); ++i)
         {
           iss >> color[i];
         }
@@ -303,8 +312,6 @@ public:
   PolygonType GetPolygonInfo(const char* id, const char* exteriorId, size_t* index,
     std::string* imageURI, std::string* tcoordsString)
   {
-    std::vector<int> components;
-    ParseGMLId(id, &components);
     if (GetPolygonTextureInfo(exteriorId, imageURI, tcoordsString))
       return PolygonType::TEXTURE;
     if (GetPolygonMaterialInfo(id, index))
@@ -378,22 +385,24 @@ public:
           {
             if (j)
             {
-              vtkWarningWithObjectMacro(
-                this->Reader, << "Number of values have to be multiple of three. Extra " << j
-                              << " values. See: " << posList.child_value());
+              std::ostringstream oss;
+              oss << "Number of values have to be multiple of three. Extra " << j
+                  << " values. See: " << posList.child_value();
+              throw std::runtime_error(oss.str());
             }
             else
             {
+              std::ostringstream oss;
               double* pFirst = points->GetPoint(0);
               double* pLast = points->GetPoint(polyPointIds->GetNumberOfIds() - 1);
               if (!vtkMathUtilities::FuzzyCompare(pFirst[0], pLast[0]) ||
                 !vtkMathUtilities::FuzzyCompare(pFirst[1], pLast[1]) ||
                 !vtkMathUtilities::FuzzyCompare(pFirst[2], pLast[2]))
               {
-                vtkWarningWithObjectMacro(this->Reader,
-                  << "gml:posList: First point (" << pFirst[0] << ", " << pFirst[1] << ", "
-                  << pFirst[2] << ") is not equal with last point (" << pLast[0] << ", " << pLast[1]
-                  << ", " << pLast[2] << "). File may be corrupted.");
+                oss << "gml:posList: First point (" << pFirst[0] << ", " << pFirst[1] << ", "
+                    << pFirst[2] << ") is not equal with last point (" << pLast[0] << ", "
+                    << pLast[1] << ", " << pLast[2] << "). File may be corrupted.";
+                throw std::runtime_error(oss.str());
               }
             }
             validPoint = false;
@@ -488,15 +497,16 @@ public:
   void ParseGMLId(const char* idC, std::vector<int>* components)
   {
     std::string id(idC);
-    size_t uPrev = id.find("_"), u;
-    while ((u = id.find("_", uPrev + 1)) != std::string::npos)
+    size_t uPrev = id.find_first_of("_-"), u;
+    char* strEnd;
+    while ((u = id.find_first_of("_-", uPrev + 1)) != std::string::npos)
     {
-      int value = atoi(id.substr(uPrev + 1, u - uPrev - 1).c_str());
+      int value = std::strtol(id.substr(uPrev + 1, u - uPrev - 1).c_str(), &strEnd, 16);
       components->push_back(value);
       uPrev = u;
     }
     u = id.size();
-    int value = atoi(id.substr(uPrev + 1, u - uPrev - 1).c_str());
+    int value = std::strtol(id.substr(uPrev + 1, u - uPrev - 1).c_str(), &strEnd, 16);
     components->push_back(value);
   }
 
@@ -539,8 +549,7 @@ public:
    */
   void ReadMultiSurface(const pugi::xml_node& multiSurfaceNode, vtkMultiBlockDataSet* output)
   {
-    // a multi surface can have several materials. The remaining polygons can have
-    // several textures.
+    // A multi surface can have several materials and several textures.
     // We create a polydata for each material and texture and one for
     // no material and texture.
     std::unordered_map<size_t, vtkPolyData*> materialIndexToPolyData;
@@ -786,7 +795,8 @@ public:
   }
 
   void ReadMultiSurfaceGroup(pugi::xml_document& doc, vtkMultiBlockDataSet* output,
-    const char* gmlNamespace, const char* feature, float progressStart, float progressEnd)
+    const char* gmlNamespace, const char* feature, float progressStart, float progressEnd,
+    int maximumNumberOfNodes = std::numeric_limits<int>::max())
   {
     std::ostringstream ostr;
     std::string element = std::string(gmlNamespace) + ":" + feature;
@@ -821,6 +831,10 @@ public:
         }
       }
       ++i;
+      if (i >= maximumNumberOfNodes)
+      {
+        break;
+      }
       if (i % 1024 == 0)
       {
         this->Reader->UpdateProgress(progressStart + (progressEnd - progressStart) * i / size);
@@ -936,6 +950,7 @@ vtkCityGMLReader::vtkCityGMLReader()
   this->UseTransparencyAsOpacity = false;
   this->Impl = new Implementation(this, this->LOD, this->UseTransparencyAsOpacity);
   this->SetNumberOfInputPorts(0);
+  this->MaximumNumberOfBuildings = std::numeric_limits<int>::max();
 }
 
 //----------------------------------------------------------------------------
@@ -983,7 +998,8 @@ int vtkCityGMLReader::RequestData(
     this->Impl->ReadMultiSurfaceGroup(doc, output, "tran", "Railway", 0.45, 0.475);
     this->Impl->ReadMultiSurfaceGroup(doc, output, "tran", "Road", 0.475, 0.5);
     this->UpdateProgress(0.5);
-    this->Impl->ReadMultiSurfaceGroup(doc, output, "bldg", "Building", 0.5, 0.875);
+    this->Impl->ReadMultiSurfaceGroup(
+      doc, output, "bldg", "Building", 0.5, 0.875, this->MaximumNumberOfBuildings);
     this->Impl->ReadMultiSurfaceGroup(doc, output, "frn", "CityFurniture", 0.875, 0.9);
     this->UpdateProgress(0.9);
     this->Impl->CacheImplicitGeometry(doc, "frn", "CityFurniture");

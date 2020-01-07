@@ -84,6 +84,15 @@ public:
   vtkBooleanMacro(UseTransparencyAsOpacity, int);
   //@}
 
+  //@{
+  /**
+   * Maximum number of buildings read from the file.
+   * Default is numberic_limits<int>::max().
+   */
+  vtkSetMacro(MaximumNumberOfBuildings, int);
+  vtkGetMacro(MaximumNumberOfBuildings, int);
+  //@}
+
 protected:
   vtkCityGMLReader();
   ~vtkCityGMLReader() override;
@@ -93,6 +102,7 @@ protected:
   char* FileName;
   int LOD;
   int UseTransparencyAsOpacity;
+  int MaximumNumberOfBuildings;
 
 private:
   vtkCityGMLReader(const vtkCityGMLReader&) = delete;
