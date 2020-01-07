@@ -362,7 +362,7 @@ public:
       output->InsertTuple(output->GetNumberOfTuples(), textureValue);
       ++count;
     }
-    // first point is repeated
+    // first point is repeated in the last position
     count = count - 1;
     output->SetNumberOfTuples(output->GetNumberOfTuples() - 1);
     return count;
@@ -454,26 +454,71 @@ public:
 
   void ReadLinearRingLines(pugi::xml_node nodeRing, vtkPoints* points, vtkCellArray* lines)
   {
-    std::array<double, 3> p;
-    // Part-1-Terrain-WaterBody-Vegetation-V2.gml repeates the first point at the end
-    vtkIdType n = std::distance(nodeRing.begin(), nodeRing.end());
-
-    auto it = nodeRing.begin();
-    {
-      std::istringstream iss(it->child_value());
-      for (size_t j = 0; j < p.size(); ++j)
-      {
-        iss >> p[j];
-      }
-    }
-    points->InsertNextPoint(&p[0]);
-    vtkIdType firstPointIndex = points->GetNumberOfPoints() - 1;
-    vtkIdType i = 1;
-    for (++it; it != nodeRing.end(); ++it, ++i)
+    pugi::xml_node posList = nodeRing.child("gml:posList");
+    if (posList)
     {
       vtkNew<vtkLine> line;
-      // the last point is the same as the first point
-      if (i < n - 1)
+      vtkIdType i = 1;
+      std::istringstream iss(posList.child_value());
+      bool validPoint = true;
+      double p[3] = { 0., 0., 0. };
+      for (vtkIdType j = 0; j < 3; ++j)
+      {
+        iss >> p[j];
+        if (iss.fail())
+        {
+          std::ostringstream oss;
+          oss << "Number of values have to be multiple of three. Extra " << j
+              << " values. See: " << posList.child_value();
+          throw std::runtime_error(oss.str());
+        }
+      }
+      points->InsertNextPoint(p);
+      vtkIdType firstPointIndex = points->GetNumberOfPoints() - 1;
+      do
+      {
+        double p[3] = { 0., 0., 0. };
+        for (vtkIdType j = 0; j < 3; ++j)
+        {
+          iss >> p[j];
+          if (iss.fail())
+          {
+            if (j)
+            {
+              std::ostringstream oss;
+              oss << "Number of values have to be multiple of three. Extra " << j
+                  << " values. See: " << posList.child_value();
+              throw std::runtime_error(oss.str());
+            }
+            validPoint = false;
+            break;
+          }
+        }
+        if (validPoint)
+        {
+          line->GetPointIds()->SetId(0, points->GetNumberOfPoints() - 1);
+          points->InsertNextPoint(p);
+          line->GetPointIds()->SetId(1, points->GetNumberOfPoints() - 1);
+          lines->InsertNextCell(line);
+          ++i;
+        }
+      } while (validPoint);
+      // first point is repeated in the last position
+      // one point less
+      points->SetNumberOfPoints(points->GetNumberOfPoints() - 1);
+      // point the last point of the last cell to the first point
+      vtkNew<vtkIdList> cell;
+      lines->GetCellAtId(lines->GetNumberOfCells() - 1, cell);
+      cell->SetId(1, firstPointIndex);
+      lines->ReplaceCellAtId(lines->GetNumberOfCells() - 1, cell);
+    }
+    else
+    {
+      std::array<double, 3> p;
+      // Part-1-Terrain-WaterBody-Vegetation-V2.gml repeates the first point at the end
+      vtkIdType n = std::distance(nodeRing.begin(), nodeRing.end());
+
+      auto it = nodeRing.begin();
       {
         std::istringstream iss(it->child_value());
         for (size_t j = 0; j < p.size(); ++j)
@@ -481,17 +526,33 @@ public:
           iss >> p[j];
         }
       }
-      line->GetPointIds()->SetId(0, points->GetNumberOfPoints() - 1);
-      if (i < n - 1)
+      points->InsertNextPoint(&p[0]);
+      vtkIdType firstPointIndex = points->GetNumberOfPoints() - 1;
+      vtkIdType i = 1;
+      for (++it; it != nodeRing.end(); ++it, ++i)
       {
-        points->InsertNextPoint(&p[0]);
-        line->GetPointIds()->SetId(1, points->GetNumberOfPoints() - 1);
+        vtkNew<vtkLine> line;
+        // the last point is the same as the first point
+        if (i < n - 1)
+        {
+          std::istringstream iss(it->child_value());
+          for (size_t j = 0; j < p.size(); ++j)
+          {
+            iss >> p[j];
+          }
+        }
+        line->GetPointIds()->SetId(0, points->GetNumberOfPoints() - 1);
+        if (i < n - 1)
+        {
+          points->InsertNextPoint(&p[0]);
+          line->GetPointIds()->SetId(1, points->GetNumberOfPoints() - 1);
+        }
+        else
+        {
+          line->GetPointIds()->SetId(1, firstPointIndex);
+        }
+        lines->InsertNextCell(line);
       }
-      else
-      {
-        line->GetPointIds()->SetId(1, firstPointIndex);
-      }
-      lines->InsertNextCell(line);
     }
   }
 
