@@ -74,7 +74,7 @@ protected:
 
   void SavePixelBuffer(int passNo) override;
 
-  bool OriginalMultisample;
+  int OriginalMultiSample;
   bool OriginalBlending;
 
 private:
