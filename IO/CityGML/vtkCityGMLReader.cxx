@@ -356,12 +356,15 @@ public:
     std::istringstream iss(textureCoordinates);
     float textureValue[2];
     vtkIdType count = 0;
-    for (iss >> textureValue[0] >> textureValue[1]; !iss.eof();
+    for (iss >> textureValue[0] >> textureValue[1]; !iss.fail();
          iss >> textureValue[0] >> textureValue[1])
     {
       output->InsertTuple(output->GetNumberOfTuples(), textureValue);
       ++count;
     }
+    // first point is repeated
+    count = count - 1;
+    output->SetNumberOfTuples(output->GetNumberOfTuples() - 1);
     return count;
   }
 
@@ -419,6 +422,7 @@ public:
       // gml:posList repeates the last point in a
       // polygon (there are n points). We only need the first n - 1.
       polyPointIds->SetNumberOfIds(polyPointIds->GetNumberOfIds() - 1);
+      points->SetNumberOfPoints(points->GetNumberOfPoints() - 1);
       polys->InsertNextCell(poly);
     }
     else
