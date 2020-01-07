@@ -686,7 +686,8 @@ public:
       exteriorPoints->SetDataType(VTK_DOUBLE);
       vtkNew<vtkCellArray> exteriorCells;
       exteriorContour->SetPoints(exteriorPoints);
-      if (polygonType == PolygonType::TEXTURE)
+      bool hasTexture = (polygonType == PolygonType::TEXTURE);
+      if (hasTexture)
       {
         vtkNew<vtkDoubleArray> exteriorTcoords;
         exteriorTcoords->SetNumberOfComponents(2);
@@ -712,7 +713,6 @@ public:
         interiorContour->SetLines(interiorCells);
         interiorContour->GetPointData()->SetTCoords(interiorTCoords);
         // exterior and all interior polygons have texture
-        bool hasTexture = (polygonType == PolygonType::TEXTURE);
         while (nodeInterior)
         {
           auto nodeInteriorRing = nodeInterior.child("gml:LinearRing");
@@ -809,6 +809,26 @@ public:
       {
         this->ReadLinearRingPolygon(nodeExteriorRing, exteriorPoints, exteriorCells);
         exteriorContour->SetPolys(exteriorCells);
+        if (exteriorTcoordsCount != exteriorPoints->GetNumberOfPoints())
+        {
+          if (hasTexture)
+          {
+            vtkWarningWithObjectMacro(this->Reader,
+              << "Tcoords count (" << exteriorTcoordsCount << ") does not match point count ("
+              << exteriorPoints->GetNumberOfPoints() << "): " << exteriorId);
+            // fill in with the last texcoord value
+            if (exteriorTcoordsCount < exteriorPoints->GetNumberOfPoints())
+            {
+              vtkDataArray* exteriorTcoords = exteriorContour->GetPointData()->GetTCoords();
+              double* lastTex = exteriorTcoords->GetTuple(exteriorTcoords->GetNumberOfTuples());
+              for (int i = 0; i < exteriorPoints->GetNumberOfPoints() - exteriorTcoordsCount; ++i)
+              {
+                exteriorTcoords->InsertTuple(exteriorTcoords->GetNumberOfTuples(), lastTex);
+              }
+            }
+          }
+        }
+
         // polygon can be concave
         vtkNew<vtkTriangleFilter> triangulate;
         triangulate->SetInputDataObject(exteriorContour);
