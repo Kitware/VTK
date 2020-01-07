@@ -40,7 +40,7 @@ public:
   unsigned long GetEstimatedSize(vtkAlgorithm* input, int inputPort, int connection);
 
   /**
-   * Determine how many subpieces an should use to fit a target memory
+   * Determine how many subpieces a mapper should use to fit a target memory
    * limit. The piece and numPieces can be queried from the mapper using
    * `vtkPolyDataMapper::GetPiece` and
    * `vtkPolyDataMapper::GetNumberOfSubPieces`.
