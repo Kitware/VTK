@@ -233,10 +233,7 @@ void vtkOpenVRInteractorStyle::OnMove3D(vtkEventData* edata)
   }
 
   // Update rays
-  if (this->HoverPick)
-  {
-    this->UpdateRay(edd->GetDevice());
-  }
+  this->UpdateRay(edd->GetDevice());
 }
 
 //----------------------------------------------------------------------------
@@ -278,22 +275,21 @@ void vtkOpenVRInteractorStyle::StartPick(vtkEventDataDevice3D* edata)
   this->HideBillboard();
   this->HidePickActor();
 
-  // turn on ray and update length
-  this->ShowRay(edata->GetDevice());
-  this->UpdateRay(edata->GetDevice());
-
   this->InteractionState[static_cast<int>(edata->GetDevice())] = VTKIS_PICK;
+
+  // update ray
+  this->UpdateRay(edata->GetDevice());
 }
 //----------------------------------------------------------------------------
 void vtkOpenVRInteractorStyle::EndPick(vtkEventDataDevice3D* edata)
 {
-  // turn off ray
-  this->HideRay(edata->GetDevice());
-
   // perform probe
   this->ProbeData(edata->GetDevice());
 
   this->InteractionState[static_cast<int>(edata->GetDevice())] = VTKIS_NONE;
+
+  // turn off ray
+  this->UpdateRay(edata->GetDevice());
 }
 
 //----------------------------------------------------------------------------
@@ -941,17 +937,46 @@ void vtkOpenVRInteractorStyle::UpdateRay(vtkEventDataDevice controller)
     return;
   }
 
-  // Set length to its max if interactive picking is off
-  if (!this->HoverPick)
+  int idev = static_cast<int>(controller);
+
+  // Keep the same ray if a controller is interacting with a prop
+  if (this->InteractionProps[idev] != nullptr)
   {
-    mod->SetRayLength(ren->GetActiveCamera()->GetClippingRange()[1]);
     return;
   }
 
-  int idev = static_cast<int>(controller);
-  // Keep the same length if a controller is interacting with a prop
-  if (this->InteractionProps[idev] != nullptr)
+  // Check if interacting with a widget
+  vtkPropCollection* props = ren->GetViewProps();
+
+  vtkIdType nbProps = props->GetNumberOfItems();
+  for (vtkIdType i = 0; i < nbProps; i++)
   {
+    vtkWidgetRepresentation* rep = vtkWidgetRepresentation::SafeDownCast(props->GetItemAsObject(i));
+
+    if (rep && rep->GetInteractionState() != 0)
+    {
+      mod->SetShowRay(true);
+      mod->SetRayLength(ren->GetActiveCamera()->GetClippingRange()[1]);
+      mod->SetRayColor(0.0, 0.0, 1.0);
+      return;
+    }
+  }
+
+  if (this->GetGrabWithRay() || this->InteractionState[idev] == VTKIS_PICK)
+  {
+    mod->SetShowRay(true);
+  }
+  else
+  {
+    mod->SetShowRay(false);
+    return;
+  }
+
+  // Set length to its max if interactive picking is off
+  if (!this->HoverPick)
+  {
+    mod->SetRayColor(1.0, 0.0, 0.0);
+    mod->SetRayLength(ren->GetActiveCamera()->GetClippingRange()[1]);
     return;
   }
 

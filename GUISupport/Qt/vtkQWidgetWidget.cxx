@@ -153,12 +153,6 @@ void vtkQWidgetWidget::MoveAction3D(vtkAbstractWidget* w)
 {
   vtkQWidgetWidget* self = reinterpret_cast<vtkQWidgetWidget*>(w);
 
-  // See whether we're active
-  if (self->WidgetState == vtkQWidgetWidget::Start)
-  {
-    return;
-  }
-
   int interactionState = self->WidgetRep->ComputeComplexInteractionState(
     self->Interactor, self, vtkWidgetEvent::Select3D, self->CallData);
 
@@ -199,7 +193,6 @@ void vtkQWidgetWidget::MoveAction3D(vtkAbstractWidget* w)
 
   self->LastWidgetCoordinates = mousePos;
 
-  self->EventCallbackCommand->SetAbortFlag(1);
   self->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
 }
 
