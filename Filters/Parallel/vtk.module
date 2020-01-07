@@ -23,7 +23,6 @@ PRIVATE_DEPENDS
   VTK::CommonTransforms
   VTK::IOLegacy
   VTK::ParallelCore
-  VTK::RenderingCore
 TEST_DEPENDS
   VTK::FiltersFlowPaths
   VTK::FiltersParallelImaging
