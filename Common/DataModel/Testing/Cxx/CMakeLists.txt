@@ -103,7 +103,12 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests data_tests
   TestQuadraticPolygonFilters.cxx
   )
 # add to the list but don't define a test
-list(APPEND data_tests TestPolyhedron2.cxx TestPolyhedronContouring.cxx TestPolyhedronCutter.cxx)
+list(APPEND data_tests
+  TestPolyhedron2.cxx
+  TestPolyhedronContouring.cxx
+  TestPolyhedronCutter.cxx
+  TestStaticCellLocatorEdgeCases.cxx
+  )
 
 vtk_add_test_cxx(vtkCommonDataModelCxxTests output_tests
   TestKdTreeRepresentation.cxx,NO_DATA
@@ -122,6 +127,11 @@ ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
   NAME VTK::CommonDataModelCxxTests-TestPolyhedronCutter
   COMMAND vtkCommonDataModelCxxTests TestPolyhedronCutter
   DATA{../Data/onePolyhedron.vtu} DATA{../Data/sliceOfPolyhedron.vtu}
+  )
+ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
+  NAME VTK::CommonDataModelCxxTests-TestStaticCellLocatorEdgeCases
+  COMMAND vtkCommonDataModelCxxTests TestStaticCellLocatorEdgeCases
+  DATA{../Data/test_surface.vtp}
   )
 
 set(all_tests
