@@ -269,6 +269,7 @@ int vtkLineRepresentation::GetResolution()
 //----------------------------------------------------------------------
 void vtkLineRepresentation::GetPolyData(vtkPolyData* pd)
 {
+  this->LineSource->Update();
   pd->ShallowCopy(this->LineSource->GetOutput());
 }
 
