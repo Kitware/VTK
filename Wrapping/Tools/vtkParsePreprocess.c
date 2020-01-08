@@ -166,6 +166,7 @@ static MacroInfo* preproc_new_macro(PreprocessInfo* info, const char* name, cons
 /** Free a preprocessor macro struct. */
 static void preproc_free_macro(MacroInfo* info)
 {
+  free((char**)info->Parameters);
   free(info);
 }
 
