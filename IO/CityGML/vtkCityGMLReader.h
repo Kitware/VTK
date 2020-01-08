@@ -87,7 +87,7 @@ public:
   //@{
   /**
    * Maximum number of buildings read from the file.
-   * Default is numberic_limits<int>::max().
+   * Default is numeric_limits<int>::max().
    */
   vtkSetMacro(MaximumNumberOfBuildings, int);
   vtkGetMacro(MaximumNumberOfBuildings, int);
