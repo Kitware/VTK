@@ -136,11 +136,12 @@ void vtkDataSetEdgeSubdivisionCriterion::EvaluateCellDataField(
 
 bool vtkDataSetEdgeSubdivisionCriterion::EvaluateLocationAndFields(double* midpt, int field_start)
 {
-  static double weights[27];
   static int dummySubId = -1;
   double realMidPt[3];
 
-  this->CurrentCellData->EvaluateLocation(dummySubId, midpt + 3, realMidPt, weights);
+  std::vector<double> weights(this->CurrentCellData->GetNumberOfPoints());
+
+  this->CurrentCellData->EvaluateLocation(dummySubId, midpt + 3, realMidPt, weights.data());
   double chord2 = 0.;
   double tmp;
   int c;
@@ -156,7 +157,7 @@ bool vtkDataSetEdgeSubdivisionCriterion::EvaluateLocationAndFields(double* midpt
     for (c = 0; c < 3; ++c)
       midpt[c] = realMidPt[c];
 
-    this->EvaluateFields(midpt, weights, field_start);
+    this->EvaluateFields(midpt, weights.data(), field_start);
     return true;
   }
 
@@ -165,7 +166,7 @@ bool vtkDataSetEdgeSubdivisionCriterion::EvaluateLocationAndFields(double* midpt
   {
     double real_pf[6 + vtkStreamingTessellator::MaxFieldSize];
     std::copy(midpt, midpt + field_start, real_pf);
-    this->EvaluateFields(real_pf, weights, field_start);
+    this->EvaluateFields(real_pf, weights.data(), field_start);
     rval = this->FixedFieldErrorEval(midpt, real_pf, field_start, active, this->FieldError2);
     if (rval)
     {

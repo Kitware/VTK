@@ -34,10 +34,6 @@
 #include "vtkTessellatorFilter.h"
 #include "vtkUnstructuredGrid.h"
 
-// The 3D cell with the maximum number of points is VTK_LAGRANGE_HEXAHEDRON.
-// We support up to 6th order hexahedra.
-#define VTK_MAXIMUM_NUMBER_OF_POINTS 216
-
 vtkStandardNewMacro(vtkTessellatorFilter);
 
 namespace
@@ -1181,7 +1177,6 @@ static int vtkTessellatorHasPolys = 0;
 int vtkTessellatorFilter::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  static double weights[VTK_MAXIMUM_NUMBER_OF_POINTS];
   int dummySubId = -1;
   int p;
 
@@ -1237,6 +1232,7 @@ int vtkTessellatorFilter::RequestData(
 
       vtkCell* cp = this->Subdivider->GetCell(); // We set the cell ID, get the vtkCell pointer
       int np = cp->GetCellType();
+      std::vector<double> weights(cp->GetNumberOfPoints());
       double* pcoord = cp->GetParametricCoords();
       if (!pcoord || np == VTK_POLYGON || np == VTK_TRIANGLE_STRIP || np == VTK_CONVEX_POINT_SET ||
         np == VTK_POLY_LINE || np == VTK_POLY_VERTEX || np == VTK_POLYHEDRON ||
@@ -1344,8 +1340,8 @@ int vtkTessellatorFilter::RequestData(
             {
               pts[p][y + 3] = extraWedgeParams[p - 6][y];
             }
-            cp->EvaluateLocation(dummySubId, pts[p] + 3, pts[p], weights);
-            this->Subdivider->EvaluateFields(pts[p], weights, 6);
+            cp->EvaluateLocation(dummySubId, pts[p] + 3, pts[p], weights.data());
+            this->Subdivider->EvaluateFields(pts[p], weights.data(), 6);
           }
           if (dim == 3)
           {
@@ -1391,8 +1387,8 @@ int vtkTessellatorFilter::RequestData(
           {
             pts[2][y + 3] = extraLagrangeCurveParams[y];
           }
-          cp->EvaluateLocation(dummySubId, pts[2] + 3, pts[2], weights);
-          this->Subdivider->EvaluateFields(pts[2], weights, 6);
+          cp->EvaluateLocation(dummySubId, pts[2] + 3, pts[2], weights.data());
+          this->Subdivider->EvaluateFields(pts[2], weights.data(), 6);
           VTK_FALLTHROUGH;
         case VTK_QUADRATIC_EDGE:
           dim = 1;
@@ -1413,8 +1409,8 @@ int vtkTessellatorFilter::RequestData(
             {
               pts[p][y + 3] = extraLagrangeTriParams[p - 3][y];
             }
-            cp->EvaluateLocation(dummySubId, pts[p] + 3, pts[p], weights);
-            this->Subdivider->EvaluateFields(pts[p], weights, 6);
+            cp->EvaluateLocation(dummySubId, pts[p] + 3, pts[p], weights.data());
+            this->Subdivider->EvaluateFields(pts[p], weights.data(), 6);
           }
           VTK_FALLTHROUGH;
         case VTK_QUADRATIC_TRIANGLE:
@@ -1457,8 +1453,8 @@ int vtkTessellatorFilter::RequestData(
               {
                 pts[4 + nn][c + 3] = extraLagrangeQuadParams[nn][c];
               }
-              cp->EvaluateLocation(dummySubId, pts[4 + nn] + 3, pts[4 + nn], weights);
-              this->Subdivider->EvaluateFields(pts[4 + nn], weights, 6);
+              cp->EvaluateLocation(dummySubId, pts[4 + nn] + 3, pts[4 + nn], weights.data());
+              this->Subdivider->EvaluateFields(pts[4 + nn], weights.data(), 6);
             }
           }
           VTK_FALLTHROUGH;
@@ -1468,8 +1464,8 @@ int vtkTessellatorFilter::RequestData(
           {
             pts[8][c + 3] = extraQuadQuadParams[0][c];
           }
-          cp->EvaluateLocation(dummySubId, pts[8] + 3, pts[8], weights);
-          this->Subdivider->EvaluateFields(pts[8], weights, 6);
+          cp->EvaluateLocation(dummySubId, pts[8] + 3, pts[8], weights.data());
+          this->Subdivider->EvaluateFields(pts[8], weights.data(), 6);
           if (dim > 1)
           {
             dim = 2;
@@ -1491,8 +1487,8 @@ int vtkTessellatorFilter::RequestData(
             {
               pts[p][y + 3] = extraLagrangeTetraParams[p - 4][y];
             }
-            cp->EvaluateLocation(dummySubId, pts[p] + 3, pts[p], weights);
-            this->Subdivider->EvaluateFields(pts[p], weights, 6);
+            cp->EvaluateLocation(dummySubId, pts[p] + 3, pts[p], weights.data());
+            this->Subdivider->EvaluateFields(pts[p], weights.data(), 6);
           }
           VTK_FALLTHROUGH;
         case VTK_QUADRATIC_TETRA:
@@ -1523,8 +1519,8 @@ int vtkTessellatorFilter::RequestData(
             {
               pts[p][y + 3] = extraLinHexParams[p - 8][y];
             }
-            cp->EvaluateLocation(dummySubId, pts[p] + 3, pts[p], weights);
-            this->Subdivider->EvaluateFields(pts[p], weights, 6);
+            cp->EvaluateLocation(dummySubId, pts[p] + 3, pts[p], weights.data());
+            this->Subdivider->EvaluateFields(pts[p], weights.data(), 6);
           }
           VTK_FALLTHROUGH;
         case VTK_QUADRATIC_HEXAHEDRON:
@@ -1535,8 +1531,8 @@ int vtkTessellatorFilter::RequestData(
             {
               pts[p][x + 3] = extraQuadHexParams[p - 20][x];
             }
-            cp->EvaluateLocation(dummySubId, pts[p] + 3, pts[p], weights);
-            this->Subdivider->EvaluateFields(pts[p], weights, 6);
+            cp->EvaluateLocation(dummySubId, pts[p] + 3, pts[p], weights.data());
+            this->Subdivider->EvaluateFields(pts[p], weights.data(), 6);
           }
           if (dim == 3)
           {
@@ -1563,8 +1559,8 @@ int vtkTessellatorFilter::RequestData(
             {
               pts[p][y + 3] = extraLinHexParams[p - 8][y];
             }
-            cp->EvaluateLocation(dummySubId, pts[p] + 3, pts[p], weights);
-            this->Subdivider->EvaluateFields(pts[p], weights, 6);
+            cp->EvaluateLocation(dummySubId, pts[p] + 3, pts[p], weights.data());
+            this->Subdivider->EvaluateFields(pts[p], weights.data(), 6);
           }
           for (p = 20; p < 27; ++p)
           {
@@ -1573,8 +1569,8 @@ int vtkTessellatorFilter::RequestData(
             {
               pts[p][x + 3] = extraQuadHexParams[p - 20][x];
             }
-            cp->EvaluateLocation(dummySubId, pts[p] + 3, pts[p], weights);
-            this->Subdivider->EvaluateFields(pts[p], weights, 6);
+            cp->EvaluateLocation(dummySubId, pts[p] + 3, pts[p], weights.data());
+            this->Subdivider->EvaluateFields(pts[p], weights.data(), 6);
           }
           if (dim == 3)
           {
