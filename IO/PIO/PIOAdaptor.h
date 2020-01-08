@@ -38,7 +38,7 @@ public:
   int GetNumberOfTimeSteps() { return this->numberOfTimeSteps; }
   double GetTimeStep(int step) { return this->timeSteps[step]; }
 
-  int GetNumberOfVariables() { return this->numberOfVariables; }
+  int GetNumberOfVariables() { return this->variableName.size(); }
   const char* GetVariableName(int indx) { return this->variableName[indx].c_str(); }
 
 protected:
@@ -122,8 +122,7 @@ protected:
   bool useTracer;
 
   // Requested variables for block structures
-  int numberOfVariables;
-  std::string* variableName;
+  std::vector<std::string> variableName;
 
   // Record the ordering of the cells when building the hypertree grid
   // Needed so that the data will line up correctly

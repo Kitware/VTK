@@ -88,7 +88,6 @@ PIOAdaptor::~PIOAdaptor()
 {
   if (this->pioData != 0)
     delete this->pioData;
-  delete[] this->variableName;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -97,11 +96,6 @@ PIOAdaptor::~PIOAdaptor()
 //
 // DUMP_DIRECTORY dumps       (Default to .)
 // DUMP_BASE_NAME base        (Required)
-//
-// DATA_VARIABLES 3           (Default to standard vars)
-// "pres"
-// "tev"
-// "momentum"
 //
 // MAKE_HTG YES    (Default NO) means create unstructured grid
 // MAKE_TRACER NO  (Default NO) means don't create unstructured grid of particles
@@ -182,30 +176,8 @@ int PIOAdaptor::initializeGlobal(const char* PIOFileName)
         if (rest == "YES")
           this->useTracer = true;
       }
-      if (keyword == "DATA_VARIABLES")
-      {
-        line >> this->numberOfVariables;
-        this->variableName = new string[this->numberOfVariables];
-        for (int i = 0; i < this->numberOfVariables; i++)
-        {
-          inStr.getline(inBuf, 256);
-          string variableLine(inBuf);
-          string::size_type lastPos = variableLine.rfind('"');
-          this->variableName[i] = variableLine.substr(1, lastPos - 1);
-        }
-      }
     }
   }
-
-  // If no variables were requested default to a standard set
-  this->numberOfVariables = 6;
-  this->variableName = new string[this->numberOfVariables];
-  this->variableName[0] = "mass";
-  this->variableName[1] = "tev";
-  this->variableName[2] = "pres";
-  this->variableName[3] = "rade";
-  this->variableName[4] = "cell_energy";
-  this->variableName[5] = "cell_momentum";
 
   /////////////////////////////////////////////////////////////////////////////
   //
@@ -268,33 +240,40 @@ int PIOAdaptor::initializeGlobal(const char* PIOFileName)
 
   /////////////////////////////////////////////////////////////////////////////
   //
-  // Verify that requested variables exist in dump files (use first file)
-  // Collect information about the number of components
+  // Collect variables having a value for every cell from dump file
   //
-  std::list<std::string> varFields;
-  for (int i = 0; i < this->numberOfVariables; i++)
-  {
-    varFields.push_back(this->variableName[i]);
-  }
-
-  this->pioData = new PIO_DATA(this->dumpFileName[0].c_str(), &varFields);
-  int validCount = 0;
+  this->pioData = new PIO_DATA(this->dumpFileName[0].c_str());
   if (this->pioData->good_read())
   {
-    for (int i = 0; i < this->numberOfVariables; i++)
+    std::valarray<int> numcell;
+    this->pioData->set_scalar_field(numcell, "hist_size");
+    int numberOfCells = numcell[0];
+    int numberOfFields = this->pioData->get_pio_num();
+    PIO_FIELD* pioField = this->pioData->get_pio_field();
+
+    for (int i = 0; i < numberOfFields; i++)
     {
-      if (this->pioData->VarMMap.find(this->variableName[i].c_str()) !=
-        this->pioData->VarMMap.end())
+      if (pioField[i].length == numberOfCells && pioField[i].cdata_len == 0)
       {
-        this->variableName[validCount] = this->variableName[i];
-        validCount++;
-      }
-      else
-      {
-        std::cerr << "Variable is not in PIO file: " << this->variableName[i] << std::endl;
+        // index = 0 is scalar, index = 1 is vector, index = -1 is request from input deck
+        int index = pioField[i].index;
+        if (index == 0 || index == 1 || index == -1)
+        {
+          // Discard names used in geometry and variables with too many components
+          // which are present for use in tracers
+          char* pioName = pioField[i].pio_name;
+          int numberOfComponents = this->pioData->VarMMap.count(pioName);
+          if ((numberOfComponents <= 9) && (strcmp(pioName, "cell_index") != 0) &&
+            (strcmp(pioName, "cell_level") != 0) && (strcmp(pioName, "cell_mother") != 0) &&
+            (strcmp(pioName, "cell_daughter") != 0) && (strcmp(pioName, "cell_center") != 0) &&
+            (strcmp(pioName, "cell_active") != 0) && (strcmp(pioName, "amr_tag") != 0))
+          {
+            this->variableName.push_back(pioName);
+          }
+        }
       }
     }
-    this->numberOfVariables = validCount;
+    sort(this->variableName.begin(), this->variableName.end());
   }
 
   /////////////////////////////////////////////////////////////////////////////
@@ -324,7 +303,7 @@ int PIOAdaptor::initializeGlobal(const char* PIOFileName)
   }
 
   // Requested variable fields from pio meta file
-  for (int i = 0; i < this->numberOfVariables; i++)
+  for (int i = 0; i < this->variableName.size(); i++)
   {
     this->fieldsToRead.push_back(this->variableName[i]);
   }
@@ -1110,7 +1089,7 @@ void PIOAdaptor::load_variable_data(vtkMultiBlockDataSet* grid)
 {
   int64_t* cell_daughter = &daughter[0];
 
-  for (int var = 0; var < this->numberOfVariables; var++)
+  for (int var = 0; var < this->variableName.size(); var++)
   {
     int numberOfComponents =
       static_cast<int>(this->pioData->VarMMap.count(this->variableName[var].c_str()));
