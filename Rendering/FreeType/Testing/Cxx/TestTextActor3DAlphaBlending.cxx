@@ -65,7 +65,8 @@ int TestTextActor3DAlphaBlending(int argc, char* argv[])
 
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage(renWin);
+  // usual font issues so we up the tolerance a bit
+  int retVal = vtkTesting::Test(argc, argv, renWin, 0.17);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
