@@ -477,7 +477,7 @@ public:
       vtkIdType firstPointIndex = points->GetNumberOfPoints() - 1;
       do
       {
-        double p[3] = { 0., 0., 0. };
+        std::fill(p, p + 3, 0);
         for (vtkIdType j = 0; j < 3; ++j)
         {
           iss >> p[j];
