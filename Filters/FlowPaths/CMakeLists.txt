@@ -6,10 +6,10 @@ set(classes
   vtkCompositeInterpolatedVelocityField
   vtkEvenlySpacedStreamlines2D
   vtkInterpolatedVelocityField
-  vtkLagrangianParticle
-  vtkLagrangianParticleTracker
   vtkLagrangianBasicIntegrationModel
   vtkLagrangianMatidaIntegrationModel
+  vtkLagrangianParticle
+  vtkLagrangianParticleTracker
   vtkModifiedBSPTree
   vtkParticlePathFilter
   vtkParticleTracer
