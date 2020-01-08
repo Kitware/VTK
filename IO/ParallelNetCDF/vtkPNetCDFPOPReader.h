@@ -85,7 +85,7 @@ public:
 
 protected:
   vtkPNetCDFPOPReader();
-  ~vtkPNetCDFPOPReader();
+  ~vtkPNetCDFPOPReader() override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   virtual int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,

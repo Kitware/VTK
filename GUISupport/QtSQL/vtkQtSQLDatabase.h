@@ -170,7 +170,7 @@ public:
 
 protected:
   vtkQtSQLDatabase();
-  ~vtkQtSQLDatabase();
+  ~vtkQtSQLDatabase() override;
 
   char* DatabaseType;
   char* HostName;

@@ -175,7 +175,7 @@ public:
 
 protected:
   vtkXYPlotRepresentation();
-  ~vtkXYPlotRepresentation();
+  ~vtkXYPlotRepresentation() override;
 
   vtkXYPlotActor* XYPlotActor;
 

@@ -71,7 +71,7 @@ public:
 
 protected:
   vtkBoostSplitTableField();
-  ~vtkBoostSplitTableField();
+  ~vtkBoostSplitTableField() override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

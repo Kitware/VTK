@@ -89,7 +89,7 @@ public:
 
 protected:
   vtkQtSQLQuery();
-  ~vtkQtSQLQuery();
+  ~vtkQtSQLQuery() override;
 
   vtkQtSQLQueryInternals* Internals;
   friend class vtkQtSQLDatabase;

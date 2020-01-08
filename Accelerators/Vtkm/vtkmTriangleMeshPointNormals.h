@@ -59,7 +59,7 @@ public:
 
 protected:
   vtkmTriangleMeshPointNormals();
-  ~vtkmTriangleMeshPointNormals();
+  ~vtkmTriangleMeshPointNormals() override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

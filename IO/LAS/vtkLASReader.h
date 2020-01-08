@@ -58,7 +58,7 @@ public:
 
 protected:
   vtkLASReader();
-  virtual ~vtkLASReader();
+  ~vtkLASReader() override;
 
   /**
    * Core implementation of the data set reader

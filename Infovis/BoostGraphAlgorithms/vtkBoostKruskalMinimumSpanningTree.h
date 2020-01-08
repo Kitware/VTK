@@ -84,7 +84,7 @@ public:
 
 protected:
   vtkBoostKruskalMinimumSpanningTree();
-  ~vtkBoostKruskalMinimumSpanningTree();
+  ~vtkBoostKruskalMinimumSpanningTree() override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

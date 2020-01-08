@@ -36,7 +36,7 @@ public:
 
 protected:
   vtkOSPRayViewNodeFactory();
-  ~vtkOSPRayViewNodeFactory();
+  ~vtkOSPRayViewNodeFactory() override;
 
 private:
   vtkOSPRayViewNodeFactory(const vtkOSPRayViewNodeFactory&) = delete;

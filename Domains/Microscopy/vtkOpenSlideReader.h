@@ -66,7 +66,7 @@ public:
 
 protected:
   vtkOpenSlideReader() {}
-  ~vtkOpenSlideReader();
+  ~vtkOpenSlideReader() override;
   //@}
 
   void ExecuteInformation() override;

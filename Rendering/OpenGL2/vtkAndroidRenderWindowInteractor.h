@@ -112,7 +112,7 @@ public:
 
 protected:
   vtkAndroidRenderWindowInteractor();
-  ~vtkAndroidRenderWindowInteractor();
+  ~vtkAndroidRenderWindowInteractor() override;
 
   int MouseInWindow;
   int StartedMessageLoop;

@@ -58,7 +58,7 @@ public:
 
 protected:
   vtkPLagrangianParticleTracker();
-  ~vtkPLagrangianParticleTracker();
+  ~vtkPLagrangianParticleTracker() override;
 
   virtual int RequestUpdateExtent(
     vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

@@ -82,7 +82,7 @@ public:
 
 protected:
   vtkOTKernelSmoothing();
-  ~vtkOTKernelSmoothing();
+  ~vtkOTKernelSmoothing() override;
 
   /**
    * Do the actual computation and store it in output

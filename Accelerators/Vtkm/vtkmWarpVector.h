@@ -40,7 +40,7 @@ public:
 
 protected:
   vtkmWarpVector();
-  ~vtkmWarpVector();
+  ~vtkmWarpVector() override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

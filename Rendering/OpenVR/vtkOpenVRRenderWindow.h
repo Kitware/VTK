@@ -389,7 +389,7 @@ public:
 
 protected:
   vtkOpenVRRenderWindow();
-  ~vtkOpenVRRenderWindow();
+  ~vtkOpenVRRenderWindow() override;
 
   virtual void CreateAWindow() {}
   virtual void DestroyWindow() {}

@@ -45,7 +45,7 @@ public:
 
 protected:
   vtkmContour();
-  ~vtkmContour();
+  ~vtkmContour() override;
 
   virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

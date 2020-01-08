@@ -46,7 +46,7 @@ public:
 
 protected:
   vtkPExtractGrid();
-  virtual ~vtkPExtractGrid();
+  ~vtkPExtractGrid() override;
 
   // Standard VTK Pipeline methods
   virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

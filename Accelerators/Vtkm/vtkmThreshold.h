@@ -44,7 +44,7 @@ public:
 
 protected:
   vtkmThreshold();
-  ~vtkmThreshold();
+  ~vtkmThreshold() override;
 
   virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

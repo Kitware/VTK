@@ -48,7 +48,7 @@ public:
 
 protected:
   vtkOSPRayPolyDataMapperNode();
-  ~vtkOSPRayPolyDataMapperNode();
+  ~vtkOSPRayPolyDataMapperNode() override;
 
   void ORenderPoly(void* renderer, vtkOSPRayActorNode* aNode, vtkPolyData* poly,
     double* ambientColor, double* diffuseColor, double opacity, std::string material);

@@ -88,7 +88,7 @@ public:
 
 protected:
   vtkOSPRayLightNode();
-  ~vtkOSPRayLightNode();
+  ~vtkOSPRayLightNode() override;
 
 private:
   vtkOSPRayLightNode(const vtkOSPRayLightNode&) = delete;

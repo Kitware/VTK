@@ -55,7 +55,7 @@ public:
 
 protected:
   vtkReebGraphSimplificationFilter();
-  ~vtkReebGraphSimplificationFilter();
+  ~vtkReebGraphSimplificationFilter() override;
 
   double SimplificationThreshold;
 

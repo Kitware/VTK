@@ -82,7 +82,7 @@ public:
 
 protected:
   vtkMPIEventLog();
-  ~vtkMPIEventLog();
+  ~vtkMPIEventLog() override;
 
   static int LastEventId;
   int Active;

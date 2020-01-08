@@ -55,7 +55,7 @@ public:
 
 protected:
   vtkPDALReader();
-  virtual ~vtkPDALReader();
+  ~vtkPDALReader() override;
 
   /**
    * Core implementation of the data set reader

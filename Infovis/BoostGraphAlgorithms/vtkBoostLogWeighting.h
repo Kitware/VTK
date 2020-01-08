@@ -69,7 +69,7 @@ public:
 
 protected:
   vtkBoostLogWeighting();
-  ~vtkBoostLogWeighting();
+  ~vtkBoostLogWeighting() override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

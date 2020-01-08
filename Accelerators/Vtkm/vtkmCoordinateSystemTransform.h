@@ -55,7 +55,7 @@ public:
 
 protected:
   vtkmCoordinateSystemTransform();
-  ~vtkmCoordinateSystemTransform();
+  ~vtkmCoordinateSystemTransform() override;
 
   int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;

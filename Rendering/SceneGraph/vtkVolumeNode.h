@@ -41,7 +41,7 @@ public:
 
 protected:
   vtkVolumeNode();
-  ~vtkVolumeNode();
+  ~vtkVolumeNode() override;
 
 private:
   vtkVolumeNode(const vtkVolumeNode&) = delete;

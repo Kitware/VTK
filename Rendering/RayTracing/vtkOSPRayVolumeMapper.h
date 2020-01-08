@@ -56,7 +56,7 @@ public:
 
 protected:
   vtkOSPRayVolumeMapper();
-  ~vtkOSPRayVolumeMapper();
+  ~vtkOSPRayVolumeMapper() override;
 
   vtkOSPRayPass* InternalOSPRayPass;
   vtkRenderer* InternalRenderer;

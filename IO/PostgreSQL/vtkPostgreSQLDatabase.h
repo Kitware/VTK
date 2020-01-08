@@ -209,7 +209,7 @@ public:
 
 protected:
   vtkPostgreSQLDatabase();
-  ~vtkPostgreSQLDatabase();
+  ~vtkPostgreSQLDatabase() override;
 
   /**
    * Create or refresh the map from Postgres column types to VTK array types.

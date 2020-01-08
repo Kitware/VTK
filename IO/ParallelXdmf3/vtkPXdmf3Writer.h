@@ -52,7 +52,7 @@ public:
 
 protected:
   vtkPXdmf3Writer();
-  ~vtkPXdmf3Writer();
+  ~vtkPXdmf3Writer() override;
   int CheckParameters() override;
 
   int RequestUpdateExtent(vtkInformation* request, vtkInformationVector** inputVector,

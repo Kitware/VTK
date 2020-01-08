@@ -258,7 +258,7 @@ public:
 
 protected:
   vtkMILVideoSource();
-  ~vtkMILVideoSource();
+  ~vtkMILVideoSource() override;
 
   virtual void AllocateMILDigitizer();
   virtual void AllocateMILBuffer();

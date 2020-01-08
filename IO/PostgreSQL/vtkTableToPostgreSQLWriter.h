@@ -45,7 +45,7 @@ public:
 
 protected:
   vtkTableToPostgreSQLWriter();
-  ~vtkTableToPostgreSQLWriter();
+  ~vtkTableToPostgreSQLWriter() override;
   void WriteData() override;
 
   int FillInputPortInformation(int port, vtkInformation* info) override;

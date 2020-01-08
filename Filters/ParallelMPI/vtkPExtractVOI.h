@@ -48,7 +48,7 @@ public:
 
 protected:
   vtkPExtractVOI();
-  virtual ~vtkPExtractVOI();
+  ~vtkPExtractVOI() override;
 
   // Standard VTK Pipeline methods
   virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

@@ -102,7 +102,7 @@ public:
 
 protected:
   vtkOpenQubeElectronicData();
-  ~vtkOpenQubeElectronicData();
+  ~vtkOpenQubeElectronicData() override;
 
   //@{
   /**

@@ -39,7 +39,7 @@ public:
 
 protected:
   vtkmAverageToPoints();
-  ~vtkmAverageToPoints();
+  ~vtkmAverageToPoints() override;
 
   virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

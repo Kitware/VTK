@@ -88,7 +88,7 @@ public:
 
 protected:
   vtkPSurfaceLICComposite();
-  ~vtkPSurfaceLICComposite();
+  ~vtkPSurfaceLICComposite() override;
 
 private:
   /**

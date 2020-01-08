@@ -89,7 +89,7 @@ public:
 
 protected:
   vtkSQLDatabaseGraphSource();
-  ~vtkSQLDatabaseGraphSource();
+  ~vtkSQLDatabaseGraphSource() override;
 
   int RequestDataObject(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
 

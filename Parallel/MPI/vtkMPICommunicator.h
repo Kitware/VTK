@@ -263,7 +263,7 @@ public:
 
 protected:
   vtkMPICommunicator();
-  ~vtkMPICommunicator();
+  ~vtkMPICommunicator() override;
 
   // Obtain size and rank setting NumberOfProcesses and LocalProcessId Should
   // not be called if the current communicator does not include this process

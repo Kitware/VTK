@@ -41,7 +41,7 @@ public:
 
 protected:
   vtkmPointElevation();
-  ~vtkmPointElevation();
+  ~vtkmPointElevation() override;
 
   virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

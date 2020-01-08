@@ -219,7 +219,7 @@ public:
 
 protected:
   vtkMySQLDatabase();
-  ~vtkMySQLDatabase();
+  ~vtkMySQLDatabase() override;
 
 private:
   // We want this to be private, a user of this class

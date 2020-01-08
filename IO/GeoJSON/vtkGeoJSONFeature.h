@@ -65,7 +65,7 @@ public:
 
 protected:
   vtkGeoJSONFeature();
-  ~vtkGeoJSONFeature();
+  ~vtkGeoJSONFeature() override;
 
   /**
    * Json::Value featureRoot corresponds to the root of the geoJSON feature

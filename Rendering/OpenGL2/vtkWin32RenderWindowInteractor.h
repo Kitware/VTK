@@ -144,7 +144,7 @@ public:
 
 protected:
   vtkWin32RenderWindowInteractor();
-  ~vtkWin32RenderWindowInteractor();
+  ~vtkWin32RenderWindowInteractor() override;
 
   HWND WindowId;
   WNDPROC OldProc;

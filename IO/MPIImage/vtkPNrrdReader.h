@@ -65,7 +65,7 @@ public:
 
 protected:
   vtkPNrrdReader();
-  ~vtkPNrrdReader();
+  ~vtkPNrrdReader() override;
 
   virtual int ReadHeader() override;
   virtual int ReadHeader(vtkCharArray* headerBuffer) override;

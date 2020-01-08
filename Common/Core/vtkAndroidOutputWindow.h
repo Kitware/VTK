@@ -57,7 +57,7 @@ public:
 
 protected:
   vtkAndroidOutputWindow();
-  virtual ~vtkAndroidOutputWindow();
+  ~vtkAndroidOutputWindow() override;
 
 private:
   vtkAndroidOutputWindow(const vtkAndroidOutputWindow&) = delete;

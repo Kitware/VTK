@@ -49,7 +49,7 @@ public:
 
 protected:
   vtkmImageConnectivity();
-  ~vtkmImageConnectivity();
+  ~vtkmImageConnectivity() override;
 
   virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

@@ -68,7 +68,7 @@ public:
 
 protected:
   vtkPResampleWithDataSet();
-  ~vtkPResampleWithDataSet();
+  ~vtkPResampleWithDataSet() override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

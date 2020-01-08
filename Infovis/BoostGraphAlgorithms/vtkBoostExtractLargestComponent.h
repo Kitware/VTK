@@ -54,7 +54,7 @@ public:
 
 protected:
   vtkBoostExtractLargestComponent();
-  ~vtkBoostExtractLargestComponent() {}
+  ~vtkBoostExtractLargestComponent() override {}
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

@@ -88,7 +88,7 @@ public:
 
 protected:
   vtkReebGraphVolumeSkeletonFilter();
-  ~vtkReebGraphVolumeSkeletonFilter();
+  ~vtkReebGraphVolumeSkeletonFilter() override;
 
   vtkIdType FieldId;
   int NumberOfSamples, NumberOfSmoothingIterations;

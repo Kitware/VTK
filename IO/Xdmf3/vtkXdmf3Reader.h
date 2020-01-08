@@ -163,7 +163,7 @@ public:
 
 protected:
   vtkXdmf3Reader();
-  ~vtkXdmf3Reader();
+  ~vtkXdmf3Reader() override;
 
   const char* FileNameInternal;
   vtkSetStringMacro(FileNameInternal);

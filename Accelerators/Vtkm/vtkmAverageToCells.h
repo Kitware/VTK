@@ -40,7 +40,7 @@ public:
 
 protected:
   vtkmAverageToCells();
-  ~vtkmAverageToCells();
+  ~vtkmAverageToCells() override;
 
   virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

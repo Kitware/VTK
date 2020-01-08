@@ -39,7 +39,7 @@ public:
 
 protected:
   vtkOSPRayWindowNode();
-  ~vtkOSPRayWindowNode();
+  ~vtkOSPRayWindowNode() override;
 
 private:
   vtkOSPRayWindowNode(const vtkOSPRayWindowNode&) = delete;

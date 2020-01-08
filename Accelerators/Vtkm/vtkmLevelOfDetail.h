@@ -81,7 +81,7 @@ public:
 
 protected:
   vtkmLevelOfDetail();
-  ~vtkmLevelOfDetail();
+  ~vtkmLevelOfDetail() override;
 
   virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

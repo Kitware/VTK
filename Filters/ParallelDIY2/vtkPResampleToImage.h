@@ -51,7 +51,7 @@ public:
 
 protected:
   vtkPResampleToImage();
-  ~vtkPResampleToImage();
+  ~vtkPResampleToImage() override;
 
   virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

@@ -72,7 +72,7 @@ public:
 
 protected:
   vtkMPIImageReader();
-  ~vtkMPIImageReader();
+  ~vtkMPIImageReader() override;
 
   vtkMultiProcessController* Controller;
 

@@ -167,7 +167,7 @@ public:
 
 protected:
   vtkMySQLQuery();
-  ~vtkMySQLQuery();
+  ~vtkMySQLQuery() override;
 
   vtkSetStringMacro(LastErrorText);
 
