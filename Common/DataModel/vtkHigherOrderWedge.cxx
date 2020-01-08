@@ -1142,6 +1142,7 @@ vtkHigherOrderQuadrilateral* vtkHigherOrderWedge::GetQuadrilateralFace(int di, i
       result->Points->SetPoint(ii, this->Points->GetPoint(srcId));
       result->PointIds->SetId(ii, this->PointIds->GetId(srcId));
     }
+    result->SetOrder(2, 2);
     return result;
   }
 #endif
