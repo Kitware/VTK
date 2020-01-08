@@ -906,13 +906,13 @@ public:
       }
       if (groupBlock->GetNumberOfBlocks())
       {
-        pugi::xml_node nameNode = featureNode.node().child("gml:name");
         output->SetBlock(output->GetNumberOfBlocks(), groupBlock);
         this->SetField(groupBlock, "element", element.c_str());
-        if (nameNode)
+        pugi::xml_attribute gmlIdAttribute = featureNode.node().attribute("gml:id");
+        auto gmlId = gmlIdAttribute.value();
+        if (gmlId)
         {
-          const char* name = nameNode.child_value();
-          this->SetField(groupBlock, "name", name);
+          this->SetField(groupBlock, "gml_id", gmlId);
         }
       }
       ++i;
@@ -1035,7 +1035,7 @@ vtkCityGMLReader::vtkCityGMLReader()
   this->UseTransparencyAsOpacity = false;
   this->Impl = new Implementation(this, this->LOD, this->UseTransparencyAsOpacity);
   this->SetNumberOfInputPorts(0);
-  this->MaximumNumberOfBuildings = std::numeric_limits<int>::max();
+  this->NumberOfBuildings = std::numeric_limits<int>::max();
 }
 
 //----------------------------------------------------------------------------
@@ -1084,7 +1084,7 @@ int vtkCityGMLReader::RequestData(
     this->Impl->ReadMultiSurfaceGroup(doc, output, "tran", "Road", 0.475, 0.5);
     this->UpdateProgress(0.5);
     this->Impl->ReadMultiSurfaceGroup(
-      doc, output, "bldg", "Building", 0.5, 0.875, this->MaximumNumberOfBuildings);
+      doc, output, "bldg", "Building", 0.5, 0.875, this->NumberOfBuildings);
     this->Impl->ReadMultiSurfaceGroup(doc, output, "frn", "CityFurniture", 0.875, 0.9);
     this->UpdateProgress(0.9);
     this->Impl->CacheImplicitGeometry(doc, "frn", "CityFurniture");
