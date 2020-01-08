@@ -327,7 +327,7 @@ void vtkStreamingTessellator::AdaptivelySample1Facet( double* v0, double* v1, in
       for ( int i=0; i<this->PointDimension[1]; i++ )
         midpt0[i] = (v0[i] + v1[i])/2.;
 
-      if ( this->Algorithm->EvaluateEdge( v0, midpt0, v1, 3+this->EmbeddingDimension[1] ) )
+      if ( this->Algorithm->EvaluateLocationAndFields(midpt0, 3+this->EmbeddingDimension[1] ) )
         edgeCode += 1;
   }
 
@@ -368,11 +368,11 @@ void vtkStreamingTessellator::AdaptivelySample2Facet( double* v0, double* v1, do
       midpt2[i] = (v2[i] + v0[i])/2.;
     }
 
-    if ( (move & 1) && Algorithm->EvaluateEdge( v0, midpt0, v1, 3+this->EmbeddingDimension[2] ) )
+    if ( (move & 1) && Algorithm->EvaluateLocationAndFields( midpt0, 3+this->EmbeddingDimension[2] ) )
       edgeCode += 1;
-    if ( (move & 2) && Algorithm->EvaluateEdge( v1, midpt1, v2, 3+this->EmbeddingDimension[2] ) )
+    if ( (move & 2) && Algorithm->EvaluateLocationAndFields( midpt1, 3+this->EmbeddingDimension[2] ) )
       edgeCode += 2;
-    if ( (move & 4) && Algorithm->EvaluateEdge( v2, midpt2, v0, 3+this->EmbeddingDimension[2] ) )
+    if ( (move & 4) && Algorithm->EvaluateLocationAndFields( midpt2, 3+this->EmbeddingDimension[2] ) )
       edgeCode += 4;
 #ifdef UGLY_ASPECT_RATIO_HACK
     double dist0=0.;
@@ -543,18 +543,18 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
       midpt5[i] = (v2[i] + v3[i])/2.;
     }
 
-    if ( Algorithm->EvaluateEdge( v0, midpt0, v1, 3+this->EmbeddingDimension[3] ) )
+    if ( Algorithm->EvaluateLocationAndFields(midpt0, 3+this->EmbeddingDimension[3] ) )
       edgeCode |=  1;
-    if ( Algorithm->EvaluateEdge( v1, midpt1, v2, 3+this->EmbeddingDimension[3] ) )
+    if ( Algorithm->EvaluateLocationAndFields(midpt1, 3+this->EmbeddingDimension[3] ) )
       edgeCode |=  2;
-    if ( Algorithm->EvaluateEdge( v2, midpt2, v0, 3+this->EmbeddingDimension[3] ) )
+    if ( Algorithm->EvaluateLocationAndFields(midpt2, 3+this->EmbeddingDimension[3] ) )
       edgeCode |=  4;
 
-    if ( Algorithm->EvaluateEdge( v0, midpt3, v3, 3+this->EmbeddingDimension[3] ) )
+    if ( Algorithm->EvaluateLocationAndFields(midpt3, 3+this->EmbeddingDimension[3] ) )
       edgeCode |=  8;
-    if ( Algorithm->EvaluateEdge( v1, midpt4, v3, 3+this->EmbeddingDimension[3] ) )
+    if ( Algorithm->EvaluateLocationAndFields(midpt4, 3+this->EmbeddingDimension[3] ) )
       edgeCode |= 16;
-    if ( Algorithm->EvaluateEdge( v2, midpt5, v3, 3+this->EmbeddingDimension[3] ) )
+    if ( Algorithm->EvaluateLocationAndFields(midpt5, 3+this->EmbeddingDimension[3] ) )
       edgeCode |= 32;
 
     edgeLength2[0] = edgeLength2[1] = edgeLength2[2] = edgeLength2[3]
@@ -644,6 +644,7 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
         {
           permuted[10][i] = (permuted[0][i] + permuted[2][i])*0.375 + permuted[1][i]/4.;
         }
+        Algorithm->EvaluateLocationAndFields(permuted[10], 3+this->EmbeddingDimension[3] );
       }
       VTK_TESSELLATOR_INCR_CASE_COUNT(1);
       outputTets.push( vtkStreamingTessellator::TetrahedralDecompositions + 9 );
@@ -692,6 +693,7 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
         {
           permuted[10][i] = (permuted[1][i] + permuted[2][i])*0.375 + permuted[0][i]/4.;
         }
+        Algorithm->EvaluateLocationAndFields(permuted[10], 3+this->EmbeddingDimension[3] );
       }
       if ( (comparisonBits & 12) == 12 )
       {
@@ -700,6 +702,7 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
         {
           permuted[11][i] = (permuted[1][i] + permuted[3][i])*0.375 + permuted[0][i]/4.;
         }
+        Algorithm->EvaluateLocationAndFields(permuted[11], 3+this->EmbeddingDimension[3] );
       }
       if ( (comparisonBits & 48) == 48 )
       {
@@ -708,6 +711,7 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
         {
           permuted[13][i] = (permuted[2][i] + permuted[3][i])*0.375 + permuted[0][i]/4.;
         }
+        Algorithm->EvaluateLocationAndFields(permuted[13], 3+this->EmbeddingDimension[3] );
       }
       VTK_TESSELLATOR_INCR_CASE_COUNT(3);
       outputTets.push( vtkStreamingTessellator::TetrahedralDecompositions + 66 );
@@ -815,6 +819,7 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
         {
           permuted[11][i] = (permuted[1][i] + permuted[3][i])*0.375 + permuted[0][i]/4.;
         }
+        Algorithm->EvaluateLocationAndFields(permuted[11], 3+this->EmbeddingDimension[3] );
       }
       if ( (comparisonBits & 12) == 12 )
       {
@@ -823,6 +828,7 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
         {
           permuted[10][i] = (permuted[0][i] + permuted[2][i])*0.375 + permuted[1][i]/4.;
         }
+        Algorithm->EvaluateLocationAndFields(permuted[10], 3+this->EmbeddingDimension[3] );
       }
       VTK_TESSELLATOR_INCR_CASE_COUNT(5);
       switch (comparisonBits)
@@ -895,6 +901,7 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
         {
           permuted[10][i] = (permuted[1][i] + permuted[2][i])*0.375 + permuted[0][i]/4.;
         }
+        Algorithm->EvaluateLocationAndFields(permuted[10], 3+this->EmbeddingDimension[3] );
       }
       if ( (comparisonBits & 12) == 12 )
       {
@@ -903,6 +910,7 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
         {
           permuted[11][i] = (permuted[0][i] + permuted[3][i])*0.375 + permuted[1][i]/4.;
         }
+        Algorithm->EvaluateLocationAndFields(permuted[11], 3+this->EmbeddingDimension[3] );
       }
       VTK_TESSELLATOR_INCR_CASE_COUNT(6);
       switch (comparisonBits)
@@ -975,6 +983,7 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
         {
           permuted[12][i] = (permuted[1][i] + permuted[2][i])*0.375 + permuted[3][i]/4.;
         }
+        Algorithm->EvaluateLocationAndFields(permuted[12], 3+this->EmbeddingDimension[3] );
       }
       if ( (comparisonBits & 12) == 12 )
       {
@@ -983,6 +992,7 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
         {
           permuted[11][i] = (permuted[0][i] + permuted[1][i])*0.375 + permuted[3][i]/4.;
         }
+        Algorithm->EvaluateLocationAndFields(permuted[11], 3+this->EmbeddingDimension[3] );
       }
       VTK_TESSELLATOR_INCR_CASE_COUNT(7);
       outputTets.push( vtkStreamingTessellator::TetrahedralDecompositions + 554 );
@@ -1061,6 +1071,7 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
         {
           permuted[13][i] = (permuted[2][i] + permuted[3][i])*0.375 + permuted[0][i]/4.;
         }
+        Algorithm->EvaluateLocationAndFields(permuted[13], 3+this->EmbeddingDimension[3] );
       }
       if ( (comparisonBits & 12) == 12 )
       {
@@ -1069,6 +1080,7 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
         {
           permuted[10][i] = (permuted[1][i] + permuted[0][i])*0.375 + permuted[2][i]/4.;
         }
+        Algorithm->EvaluateLocationAndFields(permuted[10], 3+this->EmbeddingDimension[3] );
       }
       if ( (comparisonBits & 48) == 48 )
       {
@@ -1077,6 +1089,7 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
         {
           permuted[12][i] = (permuted[2][i] + permuted[3][i])*0.375 + permuted[1][i]/4.;
         }
+        Algorithm->EvaluateLocationAndFields(permuted[12], 3+this->EmbeddingDimension[3] );
       }
       if ( (comparisonBits & 192) == 192 )
       {
@@ -1085,6 +1098,7 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
         {
           permuted[11][i] = (permuted[0][i] + permuted[1][i])*0.375 + permuted[3][i]/4.;
         }
+        Algorithm->EvaluateLocationAndFields(permuted[11], 3+this->EmbeddingDimension[3] );
       }
       VTK_TESSELLATOR_INCR_CASE_COUNT(8);
       switch (comparisonBits)
@@ -1409,6 +1423,7 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
         {
           permuted[10][i] = (permuted[1][i] + permuted[0][i])*0.375 + permuted[2][i]/4.;
         }
+        Algorithm->EvaluateLocationAndFields(permuted[10], 3+this->EmbeddingDimension[3] );
       }
       if ( (comparisonBits & 12) == 12 )
       {
@@ -1417,6 +1432,7 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
         {
           permuted[11][i] = (permuted[0][i] + permuted[1][i])*0.375 + permuted[3][i]/4.;
         }
+        Algorithm->EvaluateLocationAndFields(permuted[11], 3+this->EmbeddingDimension[3] );
       }
       VTK_TESSELLATOR_INCR_CASE_COUNT(9);
       outputTets.push( vtkStreamingTessellator::TetrahedralDecompositions + 1091 );

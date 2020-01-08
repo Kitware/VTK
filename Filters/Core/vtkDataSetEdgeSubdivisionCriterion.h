@@ -25,8 +25,8 @@
  *
  * It provides functions for setting the current cell being tessellated and a
  * convenience routine, \a EvaluateFields() to evaluate field values at a
- * point. You should call \a EvaluateFields() from inside \a EvaluateEdge()
- * whenever the result of \a EvaluateEdge() will be true. Otherwise, do
+ * point. You should call \a EvaluateFields() from inside \a EvaluateLocationAndFields()
+ * whenever the result of \a EvaluateLocationAndFields() will be true. Otherwise, do
  * not call \a EvaluateFields() as the midpoint is about to be discarded.
  * (<i>Implementor's note</i>: This isn't true if UGLY_ASPECT_RATIO_HACK
  * has been defined. But in that case, we don't want the exact field values;
@@ -63,7 +63,7 @@ public:
 
   const vtkCell* GetCell() const;
 
-  bool EvaluateEdge(const double* p0, double* midpt, const double* p1, int field_start) override;
+  bool EvaluateLocationAndFields(double* midpt, int field_start) override;
 
   /**
    * Evaluate all of the fields that should be output with the
@@ -118,7 +118,7 @@ public:
   //@{
   /**
    * Get/Set the square of the allowable chord error at any edge's midpoint.
-   * This value is used by EvaluateEdge.
+   * This value is used by EvaluateLocationAndFields.
    */
   vtkSetMacro(ChordError2, double);
   vtkGetMacro(ChordError2, double);

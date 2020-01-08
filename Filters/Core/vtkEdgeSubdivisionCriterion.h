@@ -26,7 +26,7 @@
  * based on an absolute error metric (chord error) or on some
  * view-dependent metric (chord error compared to device resolution)
  * or on some abstract metric (color error). Or anything else, really.
- * Just so long as you implement the EvaluateEdge member, all will
+ * Just so long as you implement the EvaluateLocationAndFields member, all will
  * be well.
  *
  * @sa
@@ -51,7 +51,7 @@ public:
    * It will be called by \p vtkStreamingTessellator for each
    * edge in each primitive that vtkStreamingTessellator generates.
    */
-  virtual bool EvaluateEdge(const double* p0, double* p1, const double* p2, int field_start) = 0;
+  virtual bool EvaluateLocationAndFields(double* p1, int field_start) = 0;
 
   /**
    * This is a helper routine called by \p PassFields() which
@@ -174,8 +174,8 @@ protected:
    * for any field are greater than the value specified
    * here, the member will return true.
    */
-  bool FixedFieldErrorEval(const double* p0, double* p1, double* p1_actual, const double* p2,
-    int field_start, int field_criteria, double* allowableFieldErr) const;
+  bool FixedFieldErrorEval(double* p1, double* p1_actual, int field_start, int field_criteria,
+    double* allowableFieldErr) const;
 
 private:
   vtkEdgeSubdivisionCriterion(const vtkEdgeSubdivisionCriterion&) = delete;

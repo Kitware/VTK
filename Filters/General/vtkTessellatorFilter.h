@@ -28,7 +28,7 @@ statement of authorship are reproduced on all copies.
  * tesselates each cell and uses the vtkStreamingTessellator and
  * vtkDataSetEdgeSubdivisionCriterion classes to generate simplices that
  * approximate the nonlinear mesh using some approximation metric (encoded
- * in the particular vtkDataSetEdgeSubdivisionCriterion::EvaluateEdge
+ * in the particular vtkDataSetEdgeSubdivisionCriterion::EvaluateLocationAndFields
  * implementation). The simplices are placed into the filter's output
  * vtkDataSet object by the callback routines AddATetrahedron,
  * AddATriangle, and AddALine, which are registered with the triangulator.
