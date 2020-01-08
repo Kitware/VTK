@@ -29,18 +29,50 @@ the install tree (assuming a shared prefix). This function computes the default
 and sets the passed variable to the value in the calling scope.
 
 ~~~
-vtk_module_python_default_destination(<var>)
+vtk_module_python_default_destination(<var>
+  [MAJOR_VERSION <major>])
 ~~~
 
 By default, the destination is `${CMAKE_INSTALL_BINDIR}/Lib/site-packages` on
 Windows and `${CMAKE_INSTALL_LIBDIR}/python<VERSION>/site-packages` otherwise.
+
+`<MAJOR_VERSION>` must be one of `2` or `3`. If not specified, it defaults to
+the value of `${VTK_PYTHON_VERSION}`.
 #]==]
 function (vtk_module_python_default_destination var)
+  cmake_parse_arguments(_vtk_module_python
+    ""
+    "MAJOR_VERSION"
+    ""
+    ${ARGN})
+
+  if (_vtk_module_python_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR
+      "Unparsed arguments for vtk_module_python_default_destination: "
+      "${_vtk_module_python_UNPARSED_ARGUMENTS}")
+  endif ()
+
+  if (NOT _vtk_module_python_MAJOR_VERSION)
+    if (NOT DEFINED VTK_PYTHON_VERSION)
+      message(FATAL_ERROR
+        "A major version of Python must be specified (or `VTK_PYTHON_VERSION` "
+        "be set).")
+    endif ()
+
+    set(_vtk_module_python_MAJOR_VERSION "${VTK_PYTHON_VERSION}")
+  endif ()
+
+  if (NOT _vtk_module_python_MAJOR_VERSION STREQUAL "2" AND
+      NOT _vtk_module_python_MAJOR_VERSION STREQUAL "3")
+    message(FATAL_ERROR
+      "Only Python2 and Python3 are supported right now.")
+  endif ()
+
   if (WIN32 AND NOT CYGWIN)
     set(destination "${CMAKE_INSTALL_BINDIR}/Lib/site-packages")
   else ()
-    if (PYTHON_VERSION_MAJOR AND PYTHON_VERSION_MINOR)
-      set(_vtk_python_version_suffix "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
+    if (Python${_vtk_module_python_MAJOR_VERSION}_VERSION_MAJOR AND Python${_vtk_module_python_MAJOR_VERSION}_VERSION_MINOR)
+      set(_vtk_python_version_suffix "${Python${VTK_PYTHON_VERSION}_VERSION_MAJOR}.${Python${VTK_PYTHON_VERSION}_VERSION_MINOR}")
     else ()
       message(WARNING
         "The version of Python is unknown; not using a versioned directory "
