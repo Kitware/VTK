@@ -40,7 +40,7 @@ public:
 
 protected:
   vtkNonOverlappingAMRLevelIdScalars();
-  ~vtkNonOverlappingAMRLevelIdScalars();
+  ~vtkNonOverlappingAMRLevelIdScalars() override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
 

@@ -100,7 +100,7 @@ protected:
   /**
    * Destructor.
    */
-  virtual ~vtkOSPRayPass();
+  ~vtkOSPRayPass() override;
 
   vtkOSPRayRendererNode* SceneGraph;
   vtkCameraPass* CameraPass;

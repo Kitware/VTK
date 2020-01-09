@@ -198,7 +198,7 @@ public:
 
 protected:
   vtkODBCDatabase();
-  ~vtkODBCDatabase();
+  ~vtkODBCDatabase() override;
 
   vtkSetStringMacro(LastErrorText);
 

@@ -119,7 +119,7 @@ public:
 
 protected:
   vtkOpenVROverlay();
-  ~vtkOpenVROverlay();
+  ~vtkOpenVROverlay() override;
 
   virtual void SetupSpots() {}
 

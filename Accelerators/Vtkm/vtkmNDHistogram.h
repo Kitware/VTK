@@ -62,7 +62,7 @@ public:
 
 protected:
   vtkmNDHistogram();
-  ~vtkmNDHistogram();
+  ~vtkmNDHistogram() override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;

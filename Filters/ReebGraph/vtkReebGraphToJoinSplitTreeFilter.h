@@ -70,7 +70,7 @@ public:
 
 protected:
   vtkReebGraphToJoinSplitTreeFilter();
-  ~vtkReebGraphToJoinSplitTreeFilter();
+  ~vtkReebGraphToJoinSplitTreeFilter() override;
 
   bool IsSplitTree;
 

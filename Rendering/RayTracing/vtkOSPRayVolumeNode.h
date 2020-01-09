@@ -49,7 +49,7 @@ public:
 
 protected:
   vtkOSPRayVolumeNode();
-  ~vtkOSPRayVolumeNode();
+  ~vtkOSPRayVolumeNode() override;
 
 private:
   vtkOSPRayVolumeNode(const vtkOSPRayVolumeNode&) = delete;

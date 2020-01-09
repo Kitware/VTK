@@ -62,7 +62,7 @@ public:
 
 protected:
   vtkWindowNode();
-  ~vtkWindowNode();
+  ~vtkWindowNode() override;
 
   // TODO: use a map with string keys being renderable's member name
   // state

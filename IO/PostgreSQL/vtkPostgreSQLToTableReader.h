@@ -37,7 +37,7 @@ public:
 
 protected:
   vtkPostgreSQLToTableReader();
-  ~vtkPostgreSQLToTableReader();
+  ~vtkPostgreSQLToTableReader() override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:

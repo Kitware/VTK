@@ -198,7 +198,7 @@ public:
 
 protected:
   vtkEGLRenderWindow();
-  ~vtkEGLRenderWindow();
+  ~vtkEGLRenderWindow() override;
 
   int ScreenSize[2];
   int OwnWindow;

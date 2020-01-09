@@ -130,7 +130,7 @@ public:
 
 protected:
   vtkOTDensityMap();
-  ~vtkOTDensityMap();
+  ~vtkOTDensityMap() override;
 
   /**
    * Protected method to find the next cellid in specified direction on

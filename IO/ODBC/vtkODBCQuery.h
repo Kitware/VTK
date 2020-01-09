@@ -163,7 +163,7 @@ public:
 
 protected:
   vtkODBCQuery();
-  ~vtkODBCQuery();
+  ~vtkODBCQuery() override;
 
   vtkSetStringMacro(LastErrorText);
   vtkSetStringMacro(QueryText);

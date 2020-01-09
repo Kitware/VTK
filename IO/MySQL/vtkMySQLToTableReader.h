@@ -37,7 +37,7 @@ public:
 
 protected:
   vtkMySQLToTableReader();
-  ~vtkMySQLToTableReader();
+  ~vtkMySQLToTableReader() override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:

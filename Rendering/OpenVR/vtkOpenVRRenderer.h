@@ -89,7 +89,7 @@ public:
 
 protected:
   vtkOpenVRRenderer();
-  ~vtkOpenVRRenderer();
+  ~vtkOpenVRRenderer() override;
 
   vtkActor* FloorActor;
   bool ShowFloor;

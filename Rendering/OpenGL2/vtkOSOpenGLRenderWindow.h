@@ -210,7 +210,7 @@ public:
 
 protected:
   vtkOSOpenGLRenderWindow();
-  ~vtkOSOpenGLRenderWindow();
+  ~vtkOSOpenGLRenderWindow() override;
 
   vtkOSOpenGLRenderWindowInternal* Internal;
 

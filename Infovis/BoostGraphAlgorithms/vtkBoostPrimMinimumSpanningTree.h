@@ -111,7 +111,7 @@ public:
 
 protected:
   vtkBoostPrimMinimumSpanningTree();
-  ~vtkBoostPrimMinimumSpanningTree();
+  ~vtkBoostPrimMinimumSpanningTree() override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

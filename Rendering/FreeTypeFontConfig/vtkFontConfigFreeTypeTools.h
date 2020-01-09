@@ -60,7 +60,7 @@ public:
 
 protected:
   vtkFontConfigFreeTypeTools();
-  ~vtkFontConfigFreeTypeTools();
+  ~vtkFontConfigFreeTypeTools() override;
 
   /**
    * Reimplemented from Superclass to use the FontConfig face lookup callback.

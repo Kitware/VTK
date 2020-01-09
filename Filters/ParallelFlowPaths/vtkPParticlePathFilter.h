@@ -40,7 +40,7 @@ public:
 
 protected:
   vtkPParticlePathFilter();
-  ~vtkPParticlePathFilter();
+  ~vtkPParticlePathFilter() override;
 
   virtual void ResetCache() override;
   virtual int OutputParticles(vtkPolyData* poly) override;

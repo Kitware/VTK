@@ -122,7 +122,7 @@ public:
 
 protected:
   vtkOpenVRRenderWindowInteractor();
-  ~vtkOpenVRRenderWindowInteractor();
+  ~vtkOpenVRRenderWindowInteractor() override;
 
   //@{
   /**

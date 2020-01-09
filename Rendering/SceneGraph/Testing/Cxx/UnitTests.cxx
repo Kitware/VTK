@@ -53,7 +53,7 @@ public:
     }
   }
   vtkMyActorNode() {}
-  ~vtkMyActorNode() {}
+  ~vtkMyActorNode() override {}
 };
 vtkStandardNewMacro(vtkMyActorNode);
 
@@ -73,7 +73,7 @@ public:
     }
   }
   vtkMyCameraNode() {}
-  ~vtkMyCameraNode() {}
+  ~vtkMyCameraNode() override {}
 };
 vtkStandardNewMacro(vtkMyCameraNode);
 
@@ -93,7 +93,7 @@ public:
     }
   }
   vtkMyLightNode() {}
-  ~vtkMyLightNode() {}
+  ~vtkMyLightNode() override {}
 };
 vtkStandardNewMacro(vtkMyLightNode);
 
@@ -113,7 +113,7 @@ public:
     }
   }
   vtkMyRendererNode() {}
-  ~vtkMyRendererNode() {}
+  ~vtkMyRendererNode() override {}
 };
 vtkStandardNewMacro(vtkMyRendererNode);
 
@@ -133,7 +133,7 @@ public:
     }
   }
   vtkMyWindowNode() {}
-  ~vtkMyWindowNode() {}
+  ~vtkMyWindowNode() override {}
 };
 vtkStandardNewMacro(vtkMyWindowNode);
 

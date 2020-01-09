@@ -42,7 +42,7 @@ public:
 
 protected:
   vtkOTFilter();
-  ~vtkOTFilter();
+  ~vtkOTFilter() override;
 
   /**
    * Set the input of this filter, a vtkTable

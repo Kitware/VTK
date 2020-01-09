@@ -54,7 +54,7 @@ public:
 
 protected:
   vtkPolyDataMapperNode();
-  ~vtkPolyDataMapperNode();
+  ~vtkPolyDataMapperNode() override;
 
   // Utilities for children
   /**

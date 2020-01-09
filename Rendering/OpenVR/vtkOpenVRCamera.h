@@ -63,7 +63,7 @@ public:
 
 protected:
   vtkOpenVRCamera();
-  ~vtkOpenVRCamera();
+  ~vtkOpenVRCamera() override;
 
   // gets the pose and projections for the left and right eves from
   // the openvr library

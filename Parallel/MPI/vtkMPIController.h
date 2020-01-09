@@ -344,7 +344,7 @@ public:
 
 protected:
   vtkMPIController();
-  ~vtkMPIController();
+  ~vtkMPIController() override;
 
   // Set the communicator to comm and call InitializeNumberOfProcesses()
   void InitializeCommunicator(vtkMPICommunicator* comm);

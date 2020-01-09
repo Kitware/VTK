@@ -102,7 +102,7 @@ public:
 
 protected:
   vtkAVIWriter();
-  ~vtkAVIWriter();
+  ~vtkAVIWriter() override;
 
   vtkAVIWriterInternal* Internals;
 

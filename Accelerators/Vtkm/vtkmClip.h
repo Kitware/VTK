@@ -72,7 +72,7 @@ public:
 
 protected:
   vtkmClip();
-  ~vtkmClip();
+  ~vtkmClip() override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

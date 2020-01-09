@@ -156,7 +156,7 @@ public:
 
 protected:
   vtkSQLGraphReader();
-  ~vtkSQLGraphReader();
+  ~vtkSQLGraphReader() override;
 
   bool Directed;
   bool CollapseEdges;

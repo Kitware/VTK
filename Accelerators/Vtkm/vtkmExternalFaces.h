@@ -63,7 +63,7 @@ public:
 
 protected:
   vtkmExternalFaces();
-  ~vtkmExternalFaces();
+  ~vtkmExternalFaces() override;
 
   int FillInputPortInformation(int, vtkInformation*) override;
   int FillOutputPortInformation(int, vtkInformation*) override;

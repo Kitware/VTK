@@ -41,7 +41,7 @@ public:
 
 protected:
   vtkOpenVRFollower();
-  ~vtkOpenVRFollower();
+  ~vtkOpenVRFollower() override;
 
   double LastViewUp[3];
 

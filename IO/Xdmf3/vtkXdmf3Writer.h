@@ -90,7 +90,7 @@ public:
 
 protected:
   vtkXdmf3Writer();
-  ~vtkXdmf3Writer();
+  ~vtkXdmf3Writer() override;
 
   // Overridden to set up automatic loop over time steps.
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

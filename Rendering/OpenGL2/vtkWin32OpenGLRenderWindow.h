@@ -283,7 +283,7 @@ public:
 
 protected:
   vtkWin32OpenGLRenderWindow();
-  ~vtkWin32OpenGLRenderWindow();
+  ~vtkWin32OpenGLRenderWindow() override;
 
   HINSTANCE ApplicationInstance;
   HPALETTE Palette;

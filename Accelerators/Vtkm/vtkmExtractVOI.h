@@ -47,7 +47,7 @@ public:
 
 protected:
   vtkmExtractVOI();
-  ~vtkmExtractVOI();
+  ~vtkmExtractVOI() override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

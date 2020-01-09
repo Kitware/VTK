@@ -38,7 +38,7 @@ public:
 
 protected:
   vtkOpenVRDefaultOverlay();
-  ~vtkOpenVRDefaultOverlay();
+  ~vtkOpenVRDefaultOverlay() override;
 
   void SetupSpots() override;
 

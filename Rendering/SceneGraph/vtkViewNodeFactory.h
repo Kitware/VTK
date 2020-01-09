@@ -55,7 +55,7 @@ public:
 
 protected:
   vtkViewNodeFactory();
-  ~vtkViewNodeFactory();
+  ~vtkViewNodeFactory() override;
 
 private:
   vtkViewNodeFactory(const vtkViewNodeFactory&) = delete;

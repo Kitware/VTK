@@ -57,7 +57,7 @@ class SurfaceTest : public BenchmarkTest
 public:
   SurfaceTest() {}
 
-  virtual ~SurfaceTest() {}
+  ~SurfaceTest() override {}
 
   vtkIdType Build(vtkRenderer* renderer, const vtkVector2i& res) override
   {

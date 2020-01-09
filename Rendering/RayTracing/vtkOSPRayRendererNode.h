@@ -327,7 +327,7 @@ public:
 
 protected:
   vtkOSPRayRendererNode();
-  ~vtkOSPRayRendererNode();
+  ~vtkOSPRayRendererNode() override;
 
   /**
    * Denoise the colors stored in ColorBuffer and put into Buffer

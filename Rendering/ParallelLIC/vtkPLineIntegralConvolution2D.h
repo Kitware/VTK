@@ -70,7 +70,7 @@ public:
 
 protected:
   vtkPLineIntegralConvolution2D();
-  virtual ~vtkPLineIntegralConvolution2D();
+  ~vtkPLineIntegralConvolution2D() override;
 
   //@{
   /**

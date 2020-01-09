@@ -47,7 +47,7 @@ public:
 
 protected:
   vtkMPIMultiBlockPLOT3DReader();
-  ~vtkMPIMultiBlockPLOT3DReader();
+  ~vtkMPIMultiBlockPLOT3DReader() override;
 
   /**
    * Determines we should use MPI-IO for the current file. We don't use MPI-IO

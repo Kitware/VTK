@@ -128,7 +128,7 @@ public:
 
 protected:
   vtkmProbe();
-  ~vtkmProbe() = default;
+  ~vtkmProbe() override = default;
 
   vtkTypeBool PassCellArrays;
   vtkTypeBool PassPointArrays;

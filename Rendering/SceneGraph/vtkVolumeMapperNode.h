@@ -42,7 +42,7 @@ public:
 
 protected:
   vtkVolumeMapperNode();
-  ~vtkVolumeMapperNode();
+  ~vtkVolumeMapperNode() override;
 
 private:
   vtkVolumeMapperNode(const vtkVolumeMapperNode&) = delete;

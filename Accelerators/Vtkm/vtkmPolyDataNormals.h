@@ -54,7 +54,7 @@ public:
 
 protected:
   vtkmPolyDataNormals();
-  ~vtkmPolyDataNormals();
+  ~vtkmPolyDataNormals() override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

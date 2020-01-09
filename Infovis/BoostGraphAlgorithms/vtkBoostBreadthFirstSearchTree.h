@@ -85,7 +85,7 @@ public:
 
 protected:
   vtkBoostBreadthFirstSearchTree();
-  ~vtkBoostBreadthFirstSearchTree();
+  ~vtkBoostBreadthFirstSearchTree() override;
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
 

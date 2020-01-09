@@ -100,7 +100,7 @@ public:
 
 protected:
   vtkFFMPEGWriter();
-  ~vtkFFMPEGWriter();
+  ~vtkFFMPEGWriter() override;
 
   vtkFFMPEGWriterInternal* Internals;
 

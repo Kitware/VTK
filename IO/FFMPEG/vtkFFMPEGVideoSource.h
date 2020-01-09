@@ -182,7 +182,7 @@ public:
 
 protected:
   vtkFFMPEGVideoSource();
-  ~vtkFFMPEGVideoSource();
+  ~vtkFFMPEGVideoSource() override;
 
   AudioCallbackType AudioCallback;
   void* AudioCallbackClientData;

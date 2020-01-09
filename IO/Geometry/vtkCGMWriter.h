@@ -122,7 +122,7 @@ public:
 
 protected:
   vtkCGMWriter();
-  ~vtkCGMWriter();
+  ~vtkCGMWriter() override;
   void WriteData();
 
   vtkViewport* Viewport;

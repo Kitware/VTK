@@ -58,7 +58,7 @@ public:
 
 protected:
   vtkPStreamTracer();
-  ~vtkPStreamTracer();
+  ~vtkPStreamTracer() override;
 
   virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   virtual int RequestUpdateExtent(

@@ -122,7 +122,7 @@ public:
 
 protected:
   vtkWin32VideoSource();
-  ~vtkWin32VideoSource();
+  ~vtkWin32VideoSource() override;
 
   char WndClassName[16];
   int BitMapSize;

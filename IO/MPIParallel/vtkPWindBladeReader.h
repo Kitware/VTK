@@ -46,7 +46,7 @@ public:
 
 protected:
   vtkPWindBladeReader();
-  ~vtkPWindBladeReader();
+  ~vtkPWindBladeReader() override;
 
   virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

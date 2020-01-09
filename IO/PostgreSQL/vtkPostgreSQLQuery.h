@@ -118,7 +118,7 @@ public:
 
 protected:
   vtkPostgreSQLQuery();
-  ~vtkPostgreSQLQuery();
+  ~vtkPostgreSQLQuery() override;
 
   vtkSetStringMacro(LastErrorText);
 

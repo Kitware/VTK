@@ -41,7 +41,7 @@ public:
 
 protected:
   vtkMapperNode();
-  ~vtkMapperNode();
+  ~vtkMapperNode() override;
 
   vtkAbstractArray* GetArrayToProcess(vtkDataSet* input, int& association);
 

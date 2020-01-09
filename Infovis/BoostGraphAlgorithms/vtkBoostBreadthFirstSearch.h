@@ -126,7 +126,7 @@ public:
 
 protected:
   vtkBoostBreadthFirstSearch();
-  ~vtkBoostBreadthFirstSearch();
+  ~vtkBoostBreadthFirstSearch() override;
 
   virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

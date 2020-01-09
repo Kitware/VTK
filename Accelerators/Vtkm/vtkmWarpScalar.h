@@ -53,7 +53,7 @@ public:
 
 protected:
   vtkmWarpScalar();
-  ~vtkmWarpScalar();
+  ~vtkmWarpScalar() override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
