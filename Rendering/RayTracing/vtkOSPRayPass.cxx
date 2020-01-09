@@ -69,6 +69,10 @@ public:
     this->ColorTexture->AutoParametersOff();
     this->DepthTexture->SetContext(context);
     this->DepthTexture->AutoParametersOff();
+    this->SharedColorTexture->SetContext(context);
+    this->SharedColorTexture->AutoParametersOff();
+    this->SharedDepthTexture->SetContext(context);
+    this->SharedDepthTexture->AutoParametersOff();
   }
 
   void Render(const vtkRenderState* s) override { this->Parent->RenderInternal(s); }
@@ -80,6 +84,8 @@ public:
   vtkOpenGLQuadHelper* QuadHelper = nullptr;
   vtkNew<vtkTextureObject> ColorTexture;
   vtkNew<vtkTextureObject> DepthTexture;
+  vtkNew<vtkTextureObject> SharedColorTexture;
+  vtkNew<vtkTextureObject> SharedDepthTexture;
 };
 
 int vtkOSPRayPass::RTDeviceRefCount = 0;
@@ -267,13 +273,19 @@ void vtkOSPRayPass::RenderInternal(const vtkRenderState* s)
       return;
     }
 
+    windowOpenGL->MakeCurrent();
+
+    vtkTextureObject* usedColorTex = nullptr;
+    vtkTextureObject* usedDepthTex = nullptr;
+
     if (colorTexGL != 0 && depthTexGL != 0 && windowOpenGL != nullptr)
     {
       // for visRTX, re-use existing OpenGL texture provided
-      windowOpenGL->MakeCurrent();
+      this->Internal->SharedColorTexture->AssignToExistingTexture(colorTexGL, GL_TEXTURE_2D);
+      this->Internal->SharedDepthTexture->AssignToExistingTexture(depthTexGL, GL_TEXTURE_2D);
 
-      this->Internal->ColorTexture->AssignToExistingTexture(colorTexGL, GL_TEXTURE_2D);
-      this->Internal->DepthTexture->AssignToExistingTexture(depthTexGL, GL_TEXTURE_2D);
+      usedColorTex = this->Internal->SharedColorTexture;
+      usedDepthTex = this->Internal->SharedDepthTexture;
     }
     else
     {
@@ -282,15 +294,18 @@ void vtkOSPRayPass::RenderInternal(const vtkRenderState* s)
         viewportWidth, viewportHeight, 4, VTK_UNSIGNED_CHAR, this->SceneGraph->GetBuffer());
       this->Internal->DepthTexture->CreateDepthFromRaw(viewportWidth, viewportHeight,
         vtkTextureObject::Float32, VTK_FLOAT, this->SceneGraph->GetZBuffer());
+
+      usedColorTex = this->Internal->ColorTexture;
+      usedDepthTex = this->Internal->DepthTexture;
     }
 
-    this->Internal->ColorTexture->Activate();
-    this->Internal->DepthTexture->Activate();
+    usedColorTex->Activate();
+    usedDepthTex->Activate();
 
     this->Internal->QuadHelper->Program->SetUniformi(
-      "colorTexture", this->Internal->ColorTexture->GetTextureUnit());
+      "colorTexture", usedColorTex->GetTextureUnit());
     this->Internal->QuadHelper->Program->SetUniformi(
-      "depthTexture", this->Internal->DepthTexture->GetTextureUnit());
+      "depthTexture", usedDepthTex->GetTextureUnit());
 
     vtkOpenGLState* ostate = windowOpenGL->GetState();
 
@@ -325,8 +340,8 @@ void vtkOSPRayPass::RenderInternal(const vtkRenderState* s)
 
     this->Internal->QuadHelper->Render();
 
-    this->Internal->DepthTexture->Deactivate();
-    this->Internal->ColorTexture->Deactivate();
+    usedDepthTex->Deactivate();
+    usedColorTex->Deactivate();
   }
 }
 
