@@ -1,7 +1,7 @@
 include(CMakeFindDependencyMacro)
-find_dependency(PythonInterp)
+find_dependency("Python${VTK_PYTHON_VERSION}" COMPONENTS Interpreter)
 execute_process(
-  COMMAND "${PYTHON_EXECUTABLE}" -c
+  COMMAND "${Python${VTK_PYTHON_VERSION}_EXECUTABLE}" -c
           "import mpi4py"
   OUTPUT_VARIABLE _mpi4py_out
   ERROR_VARIABLE  _mpi4py_out
@@ -12,7 +12,7 @@ endif ()
 
 if (NOT mpi4py_INCLUDE_DIR OR NOT EXISTS "${mpi4py_INCLUDE_DIR}")
   execute_process(
-    COMMAND "${PYTHON_EXECUTABLE}" -c
+    COMMAND "${Python${VTK_PYTHON_VERSION}_EXECUTABLE}" -c
             "import mpi4py; print(mpi4py.get_include())"
     OUTPUT_VARIABLE _mpi4py_INCLUDE_DIR
     RESULT_VARIABLE _mpi4py_include_dir_res

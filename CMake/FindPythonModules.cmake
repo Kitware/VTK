@@ -4,7 +4,7 @@
 function(_find_python_module_internal module_name)
   # Check for presence of the module.  Even though we don't use all the
   # variable names set here, assigning them suppresses their output in CMake.
-  execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import ${module_name}"
+  execute_process(COMMAND "${Python${VTK_PYTHON_VERSION}_EXECUTABLE}" -c "import ${module_name}"
     RESULT_VARIABLE IMPORT_${module_name}_EXITCODE
     OUTPUT_VARIABLE IMPORT_${module_name}_OUTPUT
     ERROR_VARIABLE IMPORT_${module_name}_ERROR

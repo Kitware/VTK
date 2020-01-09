@@ -16,8 +16,7 @@ endif()
 
 if(BUILD_TESTING OR VTK_WRAP_PYTHON)
   # Need PYTHON_EXECUTABLE for HeaderTesting or python wrapping
-  find_package(PythonInterp "${VTK_PYTHON_VERSION}" QUIET)
-  mark_as_advanced(PYTHON_EXECUTABLE)
+  find_package("Python${VTK_PYTHON_VERSION}" QUIET COMPONENTS Interpreter)
 endif()
 
 if(VTK_WRAP_PYTHON)

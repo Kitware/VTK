@@ -3638,7 +3638,7 @@ function (_vtk_module_add_header_tests)
   # public headers have their includes satisfied by a public dependency.
 
   # Bad...
-  if (NOT PYTHON_EXECUTABLE)
+  if (NOT "Python${VTK_PYTHON_VERSION}_EXECUTABLE")
     return ()
   endif ()
 
@@ -3649,7 +3649,7 @@ function (_vtk_module_add_header_tests)
 
   add_test(
     NAME    "${_vtk_build_module}-HeaderTest"
-    COMMAND "${PYTHON_EXECUTABLE}"
+    COMMAND "${Python${VTK_PYTHON_VERSION}_EXECUTABLE}"
             # TODO: What to do when using this from a VTK install?
             "${VTK_SOURCE_DIR}/Testing/Core/HeaderTesting.py"
             "${CMAKE_CURRENT_SOURCE_DIR}"
