@@ -250,9 +250,12 @@ int vtkLineSource::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   // now normalize the tcoord
-  for (vtkIdType cc = 1; cc < numPts; ++cc)
+  if (length_sum)
   {
-    newTCoords->SetTypedComponent(cc, 0, newTCoords->GetTypedComponent(cc, 0) / length_sum);
+    for (vtkIdType cc = 1; cc < numPts; ++cc)
+    {
+      newTCoords->SetTypedComponent(cc, 0, newTCoords->GetTypedComponent(cc, 0) / length_sum);
+    }
   }
 
   // Update ourselves and release memory
