@@ -43,6 +43,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cstdlib>
 #include <cstring>
 #include <iostream>
 #include <sstream>
@@ -97,6 +98,14 @@ public:
         {
           info.TextureCoordinates = textureCoordinates;
           const char* polyId = textureCoordinates.attribute("ring").value();
+          // in the Berlin 3D dataset
+          // https://www.businesslocationcenter.de/en/economic-atlas/download-portal/
+          // app:textureCoordinates ring attribute is prefixed by a #,
+          // while gml:LinearRing gml:id attribute is not
+          if (polyId[0] == '#')
+          {
+            ++polyId;
+          }
           this->PolyIdToTextureCoordinates[polyId] = info;
         }
         targetNode = targetNode.next_sibling("app:target");
@@ -119,7 +128,7 @@ public:
         const char* value = node.child_value();
         std::istringstream iss(value);
         std::array<float, 3> color;
-        for (size_t i = 0; i < color.size() && !iss.eof(); ++i)
+        for (size_t i = 0; i < color.size(); ++i)
         {
           iss >> color[i];
         }
@@ -303,8 +312,6 @@ public:
   PolygonType GetPolygonInfo(const char* id, const char* exteriorId, size_t* index,
     std::string* imageURI, std::string* tcoordsString)
   {
-    std::vector<int> components;
-    ParseGMLId(id, &components);
     if (GetPolygonTextureInfo(exteriorId, imageURI, tcoordsString))
       return PolygonType::TEXTURE;
     if (GetPolygonMaterialInfo(id, index))
@@ -349,12 +356,15 @@ public:
     std::istringstream iss(textureCoordinates);
     float textureValue[2];
     vtkIdType count = 0;
-    for (iss >> textureValue[0] >> textureValue[1]; !iss.eof();
+    for (iss >> textureValue[0] >> textureValue[1]; !iss.fail();
          iss >> textureValue[0] >> textureValue[1])
     {
       output->InsertTuple(output->GetNumberOfTuples(), textureValue);
       ++count;
     }
+    // first point is repeated in the last position
+    count = count - 1;
+    output->SetNumberOfTuples(output->GetNumberOfTuples() - 1);
     return count;
   }
 
@@ -378,22 +388,24 @@ public:
           {
             if (j)
             {
-              vtkWarningWithObjectMacro(
-                this->Reader, << "Number of values have to be multiple of three. Extra " << j
-                              << " values. See: " << posList.child_value());
+              std::ostringstream oss;
+              oss << "Number of values have to be multiple of three. Extra " << j
+                  << " values. See: " << posList.child_value();
+              throw std::runtime_error(oss.str());
             }
             else
             {
+              std::ostringstream oss;
               double* pFirst = points->GetPoint(0);
               double* pLast = points->GetPoint(polyPointIds->GetNumberOfIds() - 1);
               if (!vtkMathUtilities::FuzzyCompare(pFirst[0], pLast[0]) ||
                 !vtkMathUtilities::FuzzyCompare(pFirst[1], pLast[1]) ||
                 !vtkMathUtilities::FuzzyCompare(pFirst[2], pLast[2]))
               {
-                vtkWarningWithObjectMacro(this->Reader,
-                  << "gml:posList: First point (" << pFirst[0] << ", " << pFirst[1] << ", "
-                  << pFirst[2] << ") is not equal with last point (" << pLast[0] << ", " << pLast[1]
-                  << ", " << pLast[2] << "). File may be corrupted.");
+                oss << "gml:posList: First point (" << pFirst[0] << ", " << pFirst[1] << ", "
+                    << pFirst[2] << ") is not equal with last point (" << pLast[0] << ", "
+                    << pLast[1] << ", " << pLast[2] << "). File may be corrupted.";
+                throw std::runtime_error(oss.str());
               }
             }
             validPoint = false;
@@ -410,6 +422,7 @@ public:
       // gml:posList repeates the last point in a
       // polygon (there are n points). We only need the first n - 1.
       polyPointIds->SetNumberOfIds(polyPointIds->GetNumberOfIds() - 1);
+      points->SetNumberOfPoints(points->GetNumberOfPoints() - 1);
       polys->InsertNextCell(poly);
     }
     else
@@ -441,26 +454,71 @@ public:
 
   void ReadLinearRingLines(pugi::xml_node nodeRing, vtkPoints* points, vtkCellArray* lines)
   {
-    std::array<double, 3> p;
-    // Part-1-Terrain-WaterBody-Vegetation-V2.gml repeates the first point at the end
-    vtkIdType n = std::distance(nodeRing.begin(), nodeRing.end());
-
-    auto it = nodeRing.begin();
-    {
-      std::istringstream iss(it->child_value());
-      for (size_t j = 0; j < p.size(); ++j)
-      {
-        iss >> p[j];
-      }
-    }
-    points->InsertNextPoint(&p[0]);
-    vtkIdType firstPointIndex = points->GetNumberOfPoints() - 1;
-    vtkIdType i = 1;
-    for (++it; it != nodeRing.end(); ++it, ++i)
+    pugi::xml_node posList = nodeRing.child("gml:posList");
+    if (posList)
     {
       vtkNew<vtkLine> line;
-      // the last point is the same as the first point
-      if (i < n - 1)
+      vtkIdType i = 1;
+      std::istringstream iss(posList.child_value());
+      bool validPoint = true;
+      double p[3] = { 0., 0., 0. };
+      for (vtkIdType j = 0; j < 3; ++j)
+      {
+        iss >> p[j];
+        if (iss.fail())
+        {
+          std::ostringstream oss;
+          oss << "Number of values have to be multiple of three. Extra " << j
+              << " values. See: " << posList.child_value();
+          throw std::runtime_error(oss.str());
+        }
+      }
+      points->InsertNextPoint(p);
+      vtkIdType firstPointIndex = points->GetNumberOfPoints() - 1;
+      do
+      {
+        std::fill(p, p + 3, 0);
+        for (vtkIdType j = 0; j < 3; ++j)
+        {
+          iss >> p[j];
+          if (iss.fail())
+          {
+            if (j)
+            {
+              std::ostringstream oss;
+              oss << "Number of values have to be multiple of three. Extra " << j
+                  << " values. See: " << posList.child_value();
+              throw std::runtime_error(oss.str());
+            }
+            validPoint = false;
+            break;
+          }
+        }
+        if (validPoint)
+        {
+          line->GetPointIds()->SetId(0, points->GetNumberOfPoints() - 1);
+          points->InsertNextPoint(p);
+          line->GetPointIds()->SetId(1, points->GetNumberOfPoints() - 1);
+          lines->InsertNextCell(line);
+          ++i;
+        }
+      } while (validPoint);
+      // first point is repeated in the last position
+      // one point less
+      points->SetNumberOfPoints(points->GetNumberOfPoints() - 1);
+      // point the last point of the last cell to the first point
+      vtkNew<vtkIdList> cell;
+      lines->GetCellAtId(lines->GetNumberOfCells() - 1, cell);
+      cell->SetId(1, firstPointIndex);
+      lines->ReplaceCellAtId(lines->GetNumberOfCells() - 1, cell);
+    }
+    else
+    {
+      std::array<double, 3> p;
+      // Part-1-Terrain-WaterBody-Vegetation-V2.gml repeates the first point at the end
+      vtkIdType n = std::distance(nodeRing.begin(), nodeRing.end());
+
+      auto it = nodeRing.begin();
       {
         std::istringstream iss(it->child_value());
         for (size_t j = 0; j < p.size(); ++j)
@@ -468,17 +526,33 @@ public:
           iss >> p[j];
         }
       }
-      line->GetPointIds()->SetId(0, points->GetNumberOfPoints() - 1);
-      if (i < n - 1)
+      points->InsertNextPoint(&p[0]);
+      vtkIdType firstPointIndex = points->GetNumberOfPoints() - 1;
+      vtkIdType i = 1;
+      for (++it; it != nodeRing.end(); ++it, ++i)
       {
-        points->InsertNextPoint(&p[0]);
-        line->GetPointIds()->SetId(1, points->GetNumberOfPoints() - 1);
+        vtkNew<vtkLine> line;
+        // the last point is the same as the first point
+        if (i < n - 1)
+        {
+          std::istringstream iss(it->child_value());
+          for (size_t j = 0; j < p.size(); ++j)
+          {
+            iss >> p[j];
+          }
+        }
+        line->GetPointIds()->SetId(0, points->GetNumberOfPoints() - 1);
+        if (i < n - 1)
+        {
+          points->InsertNextPoint(&p[0]);
+          line->GetPointIds()->SetId(1, points->GetNumberOfPoints() - 1);
+        }
+        else
+        {
+          line->GetPointIds()->SetId(1, firstPointIndex);
+        }
+        lines->InsertNextCell(line);
       }
-      else
-      {
-        line->GetPointIds()->SetId(1, firstPointIndex);
-      }
-      lines->InsertNextCell(line);
     }
   }
 
@@ -488,15 +562,16 @@ public:
   void ParseGMLId(const char* idC, std::vector<int>* components)
   {
     std::string id(idC);
-    size_t uPrev = id.find("_"), u;
-    while ((u = id.find("_", uPrev + 1)) != std::string::npos)
+    size_t uPrev = id.find_first_of("_-"), u;
+    char* strEnd;
+    while ((u = id.find_first_of("_-", uPrev + 1)) != std::string::npos)
     {
-      int value = atoi(id.substr(uPrev + 1, u - uPrev - 1).c_str());
+      int value = std::strtol(id.substr(uPrev + 1, u - uPrev - 1).c_str(), &strEnd, 16);
       components->push_back(value);
       uPrev = u;
     }
     u = id.size();
-    int value = atoi(id.substr(uPrev + 1, u - uPrev - 1).c_str());
+    int value = std::strtol(id.substr(uPrev + 1, u - uPrev - 1).c_str(), &strEnd, 16);
     components->push_back(value);
   }
 
@@ -539,8 +614,7 @@ public:
    */
   void ReadMultiSurface(const pugi::xml_node& multiSurfaceNode, vtkMultiBlockDataSet* output)
   {
-    // a multi surface can have several materials. The remaining polygons can have
-    // several textures.
+    // A multi surface can have several materials and several textures.
     // We create a polydata for each material and texture and one for
     // no material and texture.
     std::unordered_map<size_t, vtkPolyData*> materialIndexToPolyData;
@@ -612,7 +686,8 @@ public:
       exteriorPoints->SetDataType(VTK_DOUBLE);
       vtkNew<vtkCellArray> exteriorCells;
       exteriorContour->SetPoints(exteriorPoints);
-      if (polygonType == PolygonType::TEXTURE)
+      bool hasTexture = (polygonType == PolygonType::TEXTURE);
+      if (hasTexture)
       {
         vtkNew<vtkDoubleArray> exteriorTcoords;
         exteriorTcoords->SetNumberOfComponents(2);
@@ -638,7 +713,6 @@ public:
         interiorContour->SetLines(interiorCells);
         interiorContour->GetPointData()->SetTCoords(interiorTCoords);
         // exterior and all interior polygons have texture
-        bool hasTexture = (polygonType == PolygonType::TEXTURE);
         while (nodeInterior)
         {
           auto nodeInteriorRing = nodeInterior.child("gml:LinearRing");
@@ -735,6 +809,26 @@ public:
       {
         this->ReadLinearRingPolygon(nodeExteriorRing, exteriorPoints, exteriorCells);
         exteriorContour->SetPolys(exteriorCells);
+        if (exteriorTcoordsCount != exteriorPoints->GetNumberOfPoints())
+        {
+          if (hasTexture)
+          {
+            vtkWarningWithObjectMacro(this->Reader,
+              << "Tcoords count (" << exteriorTcoordsCount << ") does not match point count ("
+              << exteriorPoints->GetNumberOfPoints() << "): " << exteriorId);
+            // fill in with the last texcoord value
+            if (exteriorTcoordsCount < exteriorPoints->GetNumberOfPoints())
+            {
+              vtkDataArray* exteriorTcoords = exteriorContour->GetPointData()->GetTCoords();
+              double* lastTex = exteriorTcoords->GetTuple(exteriorTcoords->GetNumberOfTuples());
+              for (int i = 0; i < exteriorPoints->GetNumberOfPoints() - exteriorTcoordsCount; ++i)
+              {
+                exteriorTcoords->InsertTuple(exteriorTcoords->GetNumberOfTuples(), lastTex);
+              }
+            }
+          }
+        }
+
         // polygon can be concave
         vtkNew<vtkTriangleFilter> triangulate;
         triangulate->SetInputDataObject(exteriorContour);
@@ -786,7 +880,8 @@ public:
   }
 
   void ReadMultiSurfaceGroup(pugi::xml_document& doc, vtkMultiBlockDataSet* output,
-    const char* gmlNamespace, const char* feature, float progressStart, float progressEnd)
+    const char* gmlNamespace, const char* feature, float progressStart, float progressEnd,
+    int maximumNumberOfNodes = std::numeric_limits<int>::max())
   {
     std::ostringstream ostr;
     std::string element = std::string(gmlNamespace) + ":" + feature;
@@ -811,16 +906,20 @@ public:
       }
       if (groupBlock->GetNumberOfBlocks())
       {
-        pugi::xml_node nameNode = featureNode.node().child("gml:name");
         output->SetBlock(output->GetNumberOfBlocks(), groupBlock);
         this->SetField(groupBlock, "element", element.c_str());
-        if (nameNode)
+        pugi::xml_attribute gmlIdAttribute = featureNode.node().attribute("gml:id");
+        auto gmlId = gmlIdAttribute.value();
+        if (gmlId)
         {
-          const char* name = nameNode.child_value();
-          this->SetField(groupBlock, "name", name);
+          this->SetField(groupBlock, "gml_id", gmlId);
         }
       }
       ++i;
+      if (i >= maximumNumberOfNodes)
+      {
+        break;
+      }
       if (i % 1024 == 0)
       {
         this->Reader->UpdateProgress(progressStart + (progressEnd - progressStart) * i / size);
@@ -936,6 +1035,7 @@ vtkCityGMLReader::vtkCityGMLReader()
   this->UseTransparencyAsOpacity = false;
   this->Impl = new Implementation(this, this->LOD, this->UseTransparencyAsOpacity);
   this->SetNumberOfInputPorts(0);
+  this->NumberOfBuildings = std::numeric_limits<int>::max();
 }
 
 //----------------------------------------------------------------------------
@@ -983,7 +1083,8 @@ int vtkCityGMLReader::RequestData(
     this->Impl->ReadMultiSurfaceGroup(doc, output, "tran", "Railway", 0.45, 0.475);
     this->Impl->ReadMultiSurfaceGroup(doc, output, "tran", "Road", 0.475, 0.5);
     this->UpdateProgress(0.5);
-    this->Impl->ReadMultiSurfaceGroup(doc, output, "bldg", "Building", 0.5, 0.875);
+    this->Impl->ReadMultiSurfaceGroup(
+      doc, output, "bldg", "Building", 0.5, 0.875, this->NumberOfBuildings);
     this->Impl->ReadMultiSurfaceGroup(doc, output, "frn", "CityFurniture", 0.875, 0.9);
     this->UpdateProgress(0.9);
     this->Impl->CacheImplicitGeometry(doc, "frn", "CityFurniture");
