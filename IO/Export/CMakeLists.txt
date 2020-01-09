@@ -3,6 +3,7 @@ set(classes
   vtkGLTFExporter
   vtkIVExporter
   vtkJSONDataSetWriter
+  vtkJSONRenderWindowExporter
   vtkJSONSceneExporter
   vtkOBJExporter
   vtkOOGLExporter

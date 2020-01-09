@@ -15,6 +15,7 @@ DEPENDS
   VTK::RenderingContext2D
   VTK::RenderingCore
   VTK::RenderingFreeType
+  VTK::RenderingVtkJS
 PRIVATE_DEPENDS
   VTK::CommonDataModel
   VTK::CommonMath
@@ -24,6 +25,8 @@ PRIVATE_DEPENDS
   VTK::ImagingCore
   VTK::jsoncpp
   VTK::libharu
+OPTIONAL_DEPENDS
+  VTK::RenderingOpenGL2
 TEST_DEPENDS
   VTK::ChartsCore
   VTK::CommonColor

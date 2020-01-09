@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkJSONSceneExporter.h"
 
+#include "vtkArchiver.h"
 #include "vtkCamera.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
@@ -209,7 +210,7 @@ std::string vtkJSONSceneExporter::WriteDataSet(vtkDataSet* dataset, const char* 
 
   vtkNew<vtkJSONDataSetWriter> dsWriter;
   dsWriter->SetInputData(dataset);
-  dsWriter->SetFileName(dsPath.c_str());
+  dsWriter->GetArchiver()->SetArchiveName(dsPath.c_str());
   dsWriter->Write();
 
   if (!dsWriter->IsDataSetValid())
@@ -591,7 +592,7 @@ vtkSmartPointer<vtkPolyData> vtkJSONSceneExporter::WritePolyLODSeries(
       "sourceLOD_" + std::to_string(this->DatasetCount) + "_" + std::to_string(++count) + ".zip";
     std::string full_path = path + name;
     dsWriter->SetInputData(polyData);
-    dsWriter->SetFileName(full_path.c_str());
+    dsWriter->GetArchiver()->SetArchiveName(full_path.c_str());
     dsWriter->Write();
     files.push_back(name);
     this->FilesToZip.push_back(full_path);
