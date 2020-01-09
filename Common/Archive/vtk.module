@@ -1,0 +1,12 @@
+NAME
+  VTK::CommonArchive
+LIBRARY_NAME
+  vtkCommonArchive
+DEPENDS
+  VTK::CommonCore
+TEST_DEPENDS
+  VTK::FiltersSources
+  VTK::IOExport
+  VTK::TestingCore
+  VTK::RenderingOpenGL2
+  VTK::TestingRendering
