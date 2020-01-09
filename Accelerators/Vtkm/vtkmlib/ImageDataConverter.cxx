@@ -18,11 +18,58 @@
 #include <vtkm/cont/DataSetBuilderUniform.h>
 
 #include "ArrayConverters.h"
+#include "DataSetConverters.h"
 
+#include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkImageData.h"
 #include "vtkPointData.h"
+
+namespace
+{
+
+struct ComputeExtents
+{
+  template <vtkm::IdComponent Dim>
+  void operator()(const vtkm::cont::CellSetStructured<Dim>& cs,
+    const vtkm::Id3& structuredCoordsDims, int extent[6]) const
+  {
+    auto extStart = cs.GetGlobalPointIndexStart();
+    for (int i = 0, ii = 0; i < 3; ++i)
+    {
+      if (structuredCoordsDims[i] > 1)
+      {
+        extent[2 * i] = vtkm::VecTraits<decltype(extStart)>::GetComponent(extStart, ii++);
+        extent[(2 * i) + 1] = extent[2 * i] + structuredCoordsDims[i] - 1;
+      }
+      else
+      {
+        extent[2 * i] = extent[(2 * i) + 1] = 0;
+      }
+    }
+  }
+};
+
+struct SetGlobalPointIndexStart
+{
+  template <vtkm::IdComponent Dim, typename DynamicCellSetType>
+  void operator()(const vtkm::cont::CellSetStructured<Dim>&, const vtkm::Id3& structuredCoordsDims,
+    const int extent[6], DynamicCellSetType& dcs) const
+  {
+    typename vtkm::cont::CellSetStructured<Dim>::SchedulingRangeType extStart{};
+    for (int i = 0, ii = 0; i < 3; ++i)
+    {
+      if (structuredCoordsDims[i] > 1)
+      {
+        vtkm::VecTraits<decltype(extStart)>::SetComponent(extStart, ii++, extent[2 * i]);
+      }
+    }
+    vtkm::cont::Cast<vtkm::cont::CellSetStructured<Dim> >(dcs).SetGlobalPointIndexStart(extStart);
+  }
+};
+
+} // anonymous namespace
 
 namespace tovtkm
 {
@@ -49,6 +96,11 @@ vtkm::cont::DataSet Convert(vtkImageData* input, FieldsFlag fields)
   vtkm::Id3 dims(vdims[0], vdims[1], vdims[2]);
 
   vtkm::cont::DataSet dataset = vtkm::cont::DataSetBuilderUniform::Create(dims, origin, spacing);
+
+  using ListCellSetStructured = vtkm::List<vtkm::cont::CellSetStructured<1>,
+    vtkm::cont::CellSetStructured<2>, vtkm::cont::CellSetStructured<3> >;
+  auto cellSet = dataset.GetCellSet().ResetCellSetList(ListCellSetStructured{});
+  vtkm::cont::CastAndCall(cellSet, SetGlobalPointIndexStart{}, dims, extent, dataset.GetCellSet());
 
   ProcessFields(input, dataset, fields);
 
@@ -90,15 +142,8 @@ bool Convert(
   bool arraysConverted = fromvtkm::ConvertArrays(voutput, output);
 
   // Pass information about attributes.
-  for (int attributeType = 0; attributeType < vtkDataSetAttributes::NUM_ATTRIBUTES; attributeType++)
-  {
-    vtkDataArray* attribute = input->GetPointData()->GetAttribute(attributeType);
-    if (attribute == nullptr)
-    {
-      continue;
-    }
-    output->GetPointData()->SetActiveAttribute(attribute->GetName(), attributeType);
-  }
+  PassAttributesInformation(input->GetPointData(), output->GetPointData());
+  PassAttributesInformation(input->GetCellData(), output->GetCellData());
 
   return arraysConverted;
 }
@@ -115,8 +160,12 @@ bool Convert(const vtkm::cont::DataSet& voutput, vtkImageData* output, vtkDataSe
   auto portal = points.GetPortalConstControl();
 
   auto dim = portal.GetDimensions();
-  int extents[6] = { 0, static_cast<int>(dim[0] - 1), 0, static_cast<int>(dim[1] - 1), 0,
-    static_cast<int>(dim[2] - 1) };
+  int extents[6];
+  using ListCellSetStructured = vtkm::List<vtkm::cont::CellSetStructured<1>,
+    vtkm::cont::CellSetStructured<2>, vtkm::cont::CellSetStructured<3> >;
+  auto cellSet = voutput.GetCellSet().ResetCellSetList(ListCellSetStructured{});
+  vtkm::cont::CastAndCall(cellSet, ComputeExtents{}, dim, extents);
+
   return Convert(voutput, extents, output, input);
 }
 
