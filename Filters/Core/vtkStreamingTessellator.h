@@ -30,7 +30,7 @@
  * The subdivision algorithm should change the vertex
  * coordinates (it must change both geometric and, if desired, parametric
  * coordinates) of the midpoint. These coordinates need not be
- * changed unless the EvaluateEdge() member returns true.
+ * changed unless the EvaluateLocationAndFields() member returns true.
  * The vtkStreamingTessellator itself has no way of creating
  * a more accurate midpoint vertex.
  *

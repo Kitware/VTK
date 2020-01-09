@@ -147,8 +147,8 @@ bool vtkEdgeSubdivisionCriterion::ViewDependentEval(const double* p0, double* p1
   return false; // no need to subdivide
 }
 
-bool vtkEdgeSubdivisionCriterion::FixedFieldErrorEval(const double*, double* p1, double* real_pf,
-  const double*, int field_start, int criteria, double* AllowableL2Error2) const
+bool vtkEdgeSubdivisionCriterion::FixedFieldErrorEval(
+  double* p1, double* real_pf, int field_start, int criteria, double* AllowableL2Error2) const
 {
   int id = 0;
   double mag;
