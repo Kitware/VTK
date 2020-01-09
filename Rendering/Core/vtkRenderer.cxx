@@ -54,7 +54,7 @@ vtkCxxSetObjectMacro(vtkRenderer, Pass, vtkRenderPass);
 vtkCxxSetObjectMacro(vtkRenderer, FXAAOptions, vtkFXAAOptions);
 
 //----------------------------------------------------------------------------
-// Return NULL if no override is supplied.
+// Return nullptr if no override is supplied.
 vtkAbstractObjectFactoryNewMacro(vtkRenderer);
 //----------------------------------------------------------------------------
 

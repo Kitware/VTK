@@ -56,7 +56,7 @@ bool vtkGDALRasterReprojection::SuggestOutputDimensions(GDALDataset* dataset,
     vtkWarningMacro(<< "OGRSpatialReference::SetFromUserInput(" << projection << ") returned "
                     << errcode << ". You might need to set GDAL_DATA.");
   }
-  char* outputWKT = NULL;
+  char* outputWKT = nullptr;
   errcode = ref.exportToWkt(&outputWKT);
   if (errcode != OGRERR_NONE)
   {
@@ -69,8 +69,8 @@ bool vtkGDALRasterReprojection::SuggestOutputDimensions(GDALDataset* dataset,
   const char* inputWKT = dataset->GetProjectionRef();
   bool useGCPs = false;
   int order = 0; // only applies to GCP transforms
-  void* transformer =
-    GDALCreateGenImgProjTransformer(dataset, inputWKT, NULL, outputWKT, useGCPs, maxError, order);
+  void* transformer = GDALCreateGenImgProjTransformer(
+    dataset, inputWKT, nullptr, outputWKT, useGCPs, maxError, order);
   CPLFree(outputWKT);
   if (transformer == nullptr)
   {
@@ -123,7 +123,7 @@ bool vtkGDALRasterReprojection::Reproject(GDALDataset* input, GDALDataset* outpu
   }
 
   GDALProgressFunc progressFcn = GDALTermProgress;
-  void* progressArg = NULL;
+  void* progressArg = nullptr;
   double memoryLimit = 0.0; // use default
   GDALWarpOptions* warpOptions = GDALCreateWarpOptions();
 
@@ -142,7 +142,7 @@ bool vtkGDALRasterReprojection::Reproject(GDALDataset* input, GDALDataset* outpu
   warpOptions->pfnTransformer = GDALGenImgProjTransform;
 
   // multithreaded option seems to cause a data race
-  // char** stringWarpOptions = NULL;
+  // char** stringWarpOptions = nullptr;
   // stringWarpOptions =
   //   CSLSetNameValue(stringWarpOptions, "NUM_THREADS", "ALL_CPUS");
   // warpOptions->papszWarpOptions = stringWarpOptions;

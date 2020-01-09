@@ -72,7 +72,7 @@ struct StreamingVoiceContext : public IXAudio2VoiceCallback
 {
   HANDLE hBufferEndEvent;
   StreamingVoiceContext()
-    : hBufferEndEvent(CreateEvent(NULL, FALSE, FALSE, NULL))
+    : hBufferEndEvent(CreateEvent(nullptr, FALSE, FALSE, nullptr))
   {
   }
   ~StreamingVoiceContext() { CloseHandle(hBufferEndEvent); }
@@ -144,7 +144,7 @@ void setupAudioPlayback(vtkFFMPEGVideoSource* video)
       wfx.Samples.wValidBitsPerSample = wfx.Format.wBitsPerSample;
       wfx.Samples.wSamplesPerBlock = acbd.NumberOfSamples;
       if (FAILED(hr = pXAudio2->CreateSourceVoice(&pSourceVoice, (WAVEFORMATEX*)&wfx, 0,
-                   XAUDIO2_DEFAULT_FREQ_RATIO, &aContext, NULL, NULL)))
+                   XAUDIO2_DEFAULT_FREQ_RATIO, &aContext, nullptr, nullptr)))
       {
         return;
       }

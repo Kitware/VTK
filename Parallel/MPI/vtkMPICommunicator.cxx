@@ -742,7 +742,7 @@ char* vtkMPICommunicator::Allocate(size_t size)
 {
 #ifdef MPIPROALLOC
   char* ptr;
-  MPI_Alloc_mem(size, NULL, &ptr);
+  MPI_Alloc_mem(size, nullptr, &ptr);
   return ptr;
 #else
   return new char[size];
@@ -1153,8 +1153,8 @@ int vtkMPICommunicator::GatherVVoidArray(const void* sendBuffer, void* recvBuffe
   }
   else
   {
-    return CheckForMPIError(MPI_Gatherv(const_cast<void*>(sendBuffer), sendLength, mpiType, NULL,
-      NULL, NULL, mpiType, destProcessId, *this->MPIComm->Handle));
+    return CheckForMPIError(MPI_Gatherv(const_cast<void*>(sendBuffer), sendLength, mpiType, nullptr,
+      nullptr, nullptr, mpiType, destProcessId, *this->MPIComm->Handle));
   }
 }
 
@@ -1219,8 +1219,8 @@ int vtkMPICommunicator::ScatterVVoidArray(const void* sendBuffer, void* recvBuff
   }
   else
   {
-    return CheckForMPIError(MPI_Scatterv(NULL, NULL, NULL, mpiType, recvBuffer, recvLength, mpiType,
-      srcProcessId, *this->MPIComm->Handle));
+    return CheckForMPIError(MPI_Scatterv(nullptr, nullptr, nullptr, mpiType, recvBuffer, recvLength,
+      mpiType, srcProcessId, *this->MPIComm->Handle));
   }
 }
 

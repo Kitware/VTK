@@ -403,7 +403,7 @@ vtkUniformGrid* vtkGDALRasterConverter::CreateVTKUniformGrid(GDALDataset* datase
   if (dataset->GetGeoTransform(geoTransform) != CE_None)
   {
     vtkErrorMacro(<< "Error calling GetGeoTransform()");
-    return NULL;
+    return nullptr;
   }
 
   // Initialize image
@@ -430,10 +430,10 @@ vtkUniformGrid* vtkGDALRasterConverter::CreateVTKUniformGrid(GDALDataset* datase
   int rasterCount = dataset->GetRasterCount();
   if (rasterCount < 1)
   {
-    return NULL;
+    return nullptr;
   }
 
-  vtkDataArray* array = NULL;
+  vtkDataArray* array = nullptr;
   switch (dataset->GetRasterBand(1)->GetRasterDataType())
   {
     case GDT_Byte:
@@ -476,7 +476,7 @@ vtkUniformGrid* vtkGDALRasterConverter::CreateVTKUniformGrid(GDALDataset* datase
 
   if (!array)
   {
-    return NULL;
+    return nullptr;
   }
 
   image->GetCellData()->SetScalars(array);
@@ -491,7 +491,7 @@ GDALDataset* vtkGDALRasterConverter::CreateGDALDataset(
 {
   GDALDriver* driver = GetGDALDriverManager()->GetDriverByName("MEM");
   GDALDataType gdalType = this->Internal->ToGDALDataType(vtkDataType);
-  GDALDataset* dataset = driver->Create("", xDim, yDim, numberOfBands, gdalType, NULL);
+  GDALDataset* dataset = driver->Create("", xDim, yDim, numberOfBands, gdalType, nullptr);
   return dataset;
 }
 
@@ -521,7 +521,7 @@ void vtkGDALRasterConverter::SetGDALProjection(GDALDataset* dataset, const char*
   // Use OGRSpatialReference to convert to WKT
   OGRSpatialReference ref;
   ref.SetFromUserInput(projectionString);
-  char* wkt = NULL;
+  char* wkt = nullptr;
   ref.exportToWkt(&wkt);
   // std::cout << "Projection WKT: " << wkt << std::endl;
   dataset->SetProjection(wkt);
@@ -587,7 +587,7 @@ void vtkGDALRasterConverter::WriteTifFile(GDALDataset* dataset, const char* file
   }
 
   // Copy dataset to GTiFF driver, which creates file
-  GDALDataset* copy = driver->CreateCopy(filename, dataset, false, NULL, NULL, NULL);
+  GDALDataset* copy = driver->CreateCopy(filename, dataset, false, nullptr, nullptr, nullptr);
   GDALClose(copy);
 }
 

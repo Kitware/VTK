@@ -33,7 +33,6 @@ public:
   vtkBilinearQuadIntersection(const vtkVector3d& pt00, const vtkVector3d& Pt01,
     const vtkVector3d& Pt10, const vtkVector3d& Pt11);
   vtkBilinearQuadIntersection() = default;
-  ~vtkBilinearQuadIntersection() = default;
 
   //@{
   /**

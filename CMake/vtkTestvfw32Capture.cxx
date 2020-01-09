@@ -24,7 +24,7 @@ int main()
   vtkWin32VideoSourceInternal internal;
 
   internal.CapWnd =
-    capCreateCaptureWindow("Capture", WS_CHILD | WS_VISIBLE, 0, 0, 100, 100, NULL, 1);
+    capCreateCaptureWindow("Capture", WS_CHILD | WS_VISIBLE, 0, 0, 100, 100, nullptr, 1);
 
   //  capDriverConnect
   //  capDriverGetCaps

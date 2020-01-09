@@ -76,9 +76,9 @@ vtkRasterReprojectionFilter::vtkRasterReprojectionFilterInternal::
 vtkRasterReprojectionFilter::vtkRasterReprojectionFilter()
 {
   this->Internal = new vtkRasterReprojectionFilterInternal;
-  this->InputProjection = NULL;
+  this->InputProjection = nullptr;
   this->FlipAxis[0] = this->FlipAxis[1] = this->FlipAxis[2] = 0;
-  this->OutputProjection = NULL;
+  this->OutputProjection = nullptr;
   this->OutputDimensions[0] = this->OutputDimensions[1] = 0;
   this->NoDataValue = vtkMath::Nan();
   this->MaxError = 0.0;

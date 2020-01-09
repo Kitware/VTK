@@ -230,7 +230,7 @@ public:
       H5Eset_auto(nullptr, nullptr);
       status = H5Gget_objinfo(this->FileId, groupName.str().c_str(), 0, nullptr);
     }
-    // H5Eset_auto(NULL, NULL);
+    // H5Eset_auto(nullptr, nullptr);
     this->NUMBER_OF_STATES = count ? count - 1 : 0;
     // ----------------------------------
 

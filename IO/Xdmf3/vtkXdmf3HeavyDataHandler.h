@@ -70,11 +70,6 @@ public:
     vtkXdmf3ArrayKeeper* keeper, bool asTime);
 
   /**
-   * destructor
-   */
-  ~vtkXdmf3HeavyDataHandler();
-
-  /**
    * recursively create and populate vtk data objects for the provided Xdmf item
    */
   vtkDataObject* Populate(shared_ptr<XdmfGrid> item, vtkDataObject* toFill);
@@ -87,11 +82,6 @@ public:
   shared_ptr<XdmfDomain> testItem2;
 
 protected:
-  /**
-   * constructor
-   */
-  vtkXdmf3HeavyDataHandler();
-
   /**
    * for parallel partitioning
    */
