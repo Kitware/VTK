@@ -122,7 +122,7 @@ void vtkQWidgetWidget::SelectAction3D(vtkAbstractWidget* w)
   Qt::MouseButton button = Qt::LeftButton;
   QPoint ptGlobal = mousePos.toPoint();
   QGraphicsSceneMouseEvent mouseEvent(QEvent::GraphicsSceneMousePress);
-  mouseEvent.setWidget(NULL);
+  mouseEvent.setWidget(nullptr);
   mouseEvent.setPos(mousePos);
   mouseEvent.setButtonDownPos(button, mousePos);
   mouseEvent.setButtonDownScenePos(button, ptGlobal);
@@ -175,7 +175,7 @@ void vtkQWidgetWidget::MoveAction3D(vtkAbstractWidget* w)
   QPointF mousePos(widgetCoords[0], widgetCoords[1]);
   QPoint ptGlobal = mousePos.toPoint();
   QGraphicsSceneMouseEvent mouseEvent(QEvent::GraphicsSceneMouseMove);
-  mouseEvent.setWidget(NULL);
+  mouseEvent.setWidget(nullptr);
   mouseEvent.setPos(mousePos);
   mouseEvent.setScenePos(ptGlobal);
   mouseEvent.setScreenPos(ptGlobal);
@@ -226,7 +226,7 @@ void vtkQWidgetWidget::EndSelectAction3D(vtkAbstractWidget* w)
   Qt::MouseButton button = Qt::LeftButton;
   QPoint ptGlobal = mousePos.toPoint();
   QGraphicsSceneMouseEvent mouseEvent(QEvent::GraphicsSceneMouseRelease);
-  mouseEvent.setWidget(NULL);
+  mouseEvent.setWidget(nullptr);
   mouseEvent.setPos(mousePos);
   mouseEvent.setButtonDownPos(button, mousePos);
   mouseEvent.setButtonDownScenePos(button, ptGlobal);

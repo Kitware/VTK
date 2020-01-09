@@ -256,7 +256,7 @@ vtkUnsignedCharArray* vtkWebApplication::StillRenderToBuffer(
     this->LastStillRenderToMTime = array->GetMTime();
     return array;
   }
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------

@@ -19,7 +19,7 @@
 
 // ----------------------------------------------------------------------------
 // Description:
-// Constructor. All values are initialized to 0 or NULL.
+// Constructor. All values are initialized to 0 or nullptr.
 // \pre renderer_exists: renderer!=0
 // \post renderer_is_set: GetRenderer()==renderer.
 // \post valid_state: IsValid()

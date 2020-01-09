@@ -244,7 +244,7 @@ void vtkFFMPEGVideoSource::Initialize()
   this->Internal->RGBContext = sws_getContext(this->Internal->VideoDecodeContext->width,
     this->Internal->VideoDecodeContext->height, this->Internal->VideoDecodeContext->pix_fmt,
     this->Internal->VideoDecodeContext->width, this->Internal->VideoDecodeContext->height,
-    AV_PIX_FMT_RGB24, SWS_FAST_BILINEAR, NULL, NULL, NULL);
+    AV_PIX_FMT_RGB24, SWS_FAST_BILINEAR, nullptr, nullptr, nullptr);
   if (!this->Internal->RGBContext)
   {
     vtkErrorMacro("Failed to create RGB context");
@@ -296,7 +296,7 @@ void vtkFFMPEGVideoSource::Initialize()
     return;
   }
 
-  /* initialize packet, set data to NULL, let the demuxer fill it */
+  /* initialize packet, set data to nullptr, let the demuxer fill it */
   av_init_packet(&this->Internal->Packet);
   this->Internal->Packet.data = nullptr;
   this->Internal->Packet.size = 0;

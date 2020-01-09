@@ -69,12 +69,6 @@ shared_ptr<vtkXdmf3HeavyDataHandler> vtkXdmf3HeavyDataHandler::New(vtkXdmf3Array
 }
 
 //------------------------------------------------------------------------------
-vtkXdmf3HeavyDataHandler::vtkXdmf3HeavyDataHandler() {}
-
-//------------------------------------------------------------------------------
-vtkXdmf3HeavyDataHandler::~vtkXdmf3HeavyDataHandler() {}
-
-//------------------------------------------------------------------------------
 vtkDataObject* vtkXdmf3HeavyDataHandler::Populate(
   shared_ptr<XdmfDomain> item, vtkDataObject* toFill)
 {

@@ -60,7 +60,6 @@ vtkAMRVolumeMapper::vtkAMRVolumeMapper()
   this->ResamplerUpdateTolerance = 10e-8;
   this->GridNeedsToBeUpdated = true;
   this->UseDefaultThreading = false;
-  vtkMath::UninitializeBounds(this->Bounds);
 }
 
 //----------------------------------------------------------------------------

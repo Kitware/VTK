@@ -62,9 +62,6 @@ shared_ptr<vtkXdmf3LightDataHandler> vtkXdmf3LightDataHandler::New(vtkXdmf3SILBu
 }
 
 //------------------------------------------------------------------------------
-vtkXdmf3LightDataHandler::~vtkXdmf3LightDataHandler() {}
-
-//------------------------------------------------------------------------------
 vtkXdmf3LightDataHandler::vtkXdmf3LightDataHandler()
 {
   SILBuilder = nullptr;

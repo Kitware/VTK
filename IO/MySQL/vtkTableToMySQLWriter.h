@@ -50,8 +50,6 @@ protected:
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  vtkTable* Input;
-
 private:
   vtkTableToMySQLWriter(const vtkTableToMySQLWriter&) = delete;
   void operator=(const vtkTableToMySQLWriter&) = delete;

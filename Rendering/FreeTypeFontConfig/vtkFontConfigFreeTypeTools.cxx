@@ -117,16 +117,16 @@ bool vtkFontConfigFreeTypeTools::LookupFaceFontConfig(
   FcPatternAddCharSet(pattern, FC_CHARSET, charSet);
 
   // Replace common font names, e.g. arial, times, etc -> sans, serif, etc
-  FcConfigSubstitute(NULL, pattern, FcMatchPattern);
+  FcConfigSubstitute(nullptr, pattern, FcMatchPattern);
 
   // Fill in any missing defaults:
   FcDefaultSubstitute(pattern);
 
   // Match pattern
   FcResult result;
-  FcFontSet* fontMatches = FcFontSort(NULL, pattern, false, NULL, &result);
+  FcFontSet* fontMatches = FcFontSort(nullptr, pattern, false, nullptr, &result);
   FcPatternDestroy(pattern);
-  pattern = NULL;
+  pattern = nullptr;
   if (!fontMatches || fontMatches->nfont == 0)
   {
     if (fontMatches)
@@ -138,7 +138,7 @@ bool vtkFontConfigFreeTypeTools::LookupFaceFontConfig(
 
   // Grab the first match that is scalable -- even though we've requested
   // scalable fonts in the match, FC seems to not weigh that option very heavily
-  FcPattern* match = NULL;
+  FcPattern* match = nullptr;
   for (int i = 0; i < fontMatches->nfont; ++i)
   {
     match = fontMatches->fonts[i];
@@ -181,9 +181,9 @@ bool vtkFontConfigFreeTypeTools::LookupFaceFontConfig(
   }
 
   FcCharSetDestroy(charSet);
-  charSet = NULL;
+  charSet = nullptr;
   FcFontSetDestroy(fontMatches);
-  fontMatches = NULL;
+  fontMatches = nullptr;
 
   if (error)
   {

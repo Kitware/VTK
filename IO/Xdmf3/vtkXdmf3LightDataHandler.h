@@ -55,11 +55,6 @@ public:
     vtkXdmf3ArraySelection* sc, unsigned int processor, unsigned int nprocessors);
 
   /**
-   * destructor
-   */
-  ~vtkXdmf3LightDataHandler();
-
-  /**
    * recursively inspect XDMF data hierarchy to determine
    * times that we can provide data at
    * name of arrays to select from

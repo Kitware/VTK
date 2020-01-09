@@ -356,8 +356,9 @@ bool vtkODBCDatabase::Open(const char* password)
   SQLSMALLINT cb;
   SQLTCHAR connectionOut[1024];
   status = SQLDriverConnect(this->Internals->Connection, nullptr,
-    (SQLCHAR*)(connectionString.c_str()), static_cast<SQLSMALLINT>(connectionString.size()),
-    connectionOut, 1024, &cb, SQL_DRIVER_NOPROMPT);
+    (SQLCHAR*)(const_cast<char*>(connectionString.c_str())),
+    static_cast<SQLSMALLINT>(connectionString.size()), connectionOut, 1024, &cb,
+    SQL_DRIVER_NOPROMPT);
 
   if (status != SQL_SUCCESS && status != SQL_SUCCESS_WITH_INFO)
   {
@@ -457,8 +458,8 @@ vtkStringArray* vtkODBCDatabase::GetTables()
 
     vtkStdString tableType("TABLE,");
 
-    status = SQLTables(statement, nullptr, 0, nullptr, 0, nullptr, 0, (SQLCHAR*)(tableType.c_str()),
-      static_cast<SQLSMALLINT>(tableType.size()));
+    status = SQLTables(statement, nullptr, 0, nullptr, 0, nullptr, 0,
+      (SQLCHAR*)(const_cast<char*>(tableType.c_str())), static_cast<SQLSMALLINT>(tableType.size()));
 
     if (status != SQL_SUCCESS)
     {
@@ -522,7 +523,7 @@ vtkStringArray* vtkODBCDatabase::GetRecord(const char* table)
     nullptr, // catalog
     0,
     nullptr, // schema
-    0, (SQLCHAR*)(table), static_cast<SQLSMALLINT>(strlen(table)),
+    0, (SQLCHAR*)(const_cast<char*>(table)), static_cast<SQLSMALLINT>(strlen(table)),
     nullptr, // column
     0);
 
