@@ -15,7 +15,6 @@ DEPENDS
   VTK::IOGeometry
   VTK::IOImage
   VTK::IOLegacy
-  VTK::IONetCDF
   VTK::jsoncpp
 PRIVATE_DEPENDS
   VTK::CommonMisc
@@ -24,8 +23,6 @@ PRIVATE_DEPENDS
   VTK::FiltersExtraction
   VTK::FiltersParallel
   VTK::ParallelCore
-  VTK::exodusII
-  VTK::netcdf
   VTK::vtksys
 TEST_DEPENDS
   VTK::FiltersGeometry

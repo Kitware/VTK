@@ -311,7 +311,7 @@ struct vtkPSLACReaderIdTypeHash
 };
 
 //=============================================================================
-vtkStandardNewMacro(vtkPSLACReader);
+vtkObjectFactoryNewMacro(vtkPSLACReader);
 
 vtkCxxSetObjectMacro(vtkPSLACReader, Controller, vtkMultiProcessController);
 

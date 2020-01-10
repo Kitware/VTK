@@ -35,12 +35,12 @@
 #ifndef vtkPSLACReader_h
 #define vtkPSLACReader_h
 
-#include "vtkIOParallelModule.h" // For export macro
+#include "vtkIOParallelNetCDFModule.h" // For export macro
 #include "vtkSLACReader.h"
 
 class vtkMultiProcessController;
 
-class VTKIOPARALLEL_EXPORT vtkPSLACReader : public vtkSLACReader
+class VTKIOPARALLELNETCDF_EXPORT vtkPSLACReader : public vtkSLACReader
 {
 public:
   vtkTypeMacro(vtkPSLACReader, vtkSLACReader);
