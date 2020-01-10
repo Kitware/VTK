@@ -757,17 +757,23 @@ int vtkPythonOverload::CheckArg(PyObject* arg, const char* format, const char* n
         PyObject* sarg = arg;
         while (PySequence_Check(sarg))
         {
-          Py_ssize_t m = PySequence_Size(sarg);
+          PyObject* seq = sarg;
+          Py_ssize_t m = PySequence_Size(seq);
           if (m <= 0 || (sizeneeded != 0 && m != sizeneeded))
           {
             break;
           }
 
-          PyObject* sargsave = sarg;
-          sarg = PySequence_GetItem(sarg, 0);
+          sarg = PySequence_GetItem(seq, 0);
           if (*cptr != '[')
           {
             penalty = vtkPythonOverload::CheckArg(sarg, &classname[1], "");
+            // increase penalty for sequences, to disambiguate the use
+            // of an object as a sequence vs. direct use of the object
+            if (penalty < VTK_PYTHON_NEEDS_CONVERSION)
+            {
+              penalty++;
+            }
             Py_DECREF(sarg);
             break;
           }
@@ -778,9 +784,9 @@ int vtkPythonOverload::CheckArg(PyObject* arg, const char* format, const char* n
           {
             cptr++;
           }
-          if (sargsave != arg)
+          if (seq != arg)
           {
-            Py_DECREF(sargsave);
+            Py_DECREF(seq);
           }
         }
       }
