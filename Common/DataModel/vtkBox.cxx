@@ -20,6 +20,7 @@
 
 #include <algorithm> // for sorting
 #include <cassert>
+#include <limits> // for IntersectWithInfiniteLine
 #include <vector> // for IntersectWithPlane
 
 vtkStandardNewMacro(vtkBox);
@@ -319,7 +320,7 @@ void vtkBox::EvaluateGradient(double x[3], double n[3])
 // coordinate along line. (Notes: the intersection ray dir[3] is NOT
 // normalized.  Valid intersections will only occur between 0<=t<=1.)
 char vtkBox::IntersectBox(
-  double bounds[6], const double origin[3], double dir[3], double coord[3], double& t)
+  const double bounds[6], const double origin[3], const double dir[3], double coord[3], double& t)
 {
   bool inside = true;
   char quadrant[3];
@@ -521,6 +522,68 @@ int vtkBox::IntersectWithLine(const double bounds[6], const double p1[3], const 
   }
 
   return 1;
+}
+
+//----------------------------------------------------------------------------
+bool vtkBox::IntersectWithInfiniteLine(const double bounds[6], const double p1[3],
+  const double p2[3], double& t1, double& t2, double x1[3], double x2[3], int& plane1, int& plane2)
+{
+  plane1 = -1;
+  plane2 = -1;
+  t1 = -std::numeric_limits<double>::infinity();
+  t2 = std::numeric_limits<double>::infinity();
+
+  for (int j = 0; j < 3; j++)
+  {
+    for (int k = 0; k < 2; k++)
+    {
+      // Compute distances of p1 and p2 from the plane along the plane normal
+      int i = 2 * j + k;
+      double t =
+        std::abs(bounds[i] - p1[j]) < VTK_DBL_MIN ? 0.0 : (bounds[i] - p1[j]) / (p2[j] - p1[j]);
+      double xface = p1[(j + 1) % 3] + t * (p2[(j + 1) % 3] - p1[(j + 1) % 3]),
+             yface = p1[(j + 2) % 3] + t * (p2[(j + 2) % 3] - p1[(j + 2) % 3]);
+      // if (xface, yface) is inside the current face
+      if (xface >= bounds[(2 * j + 2) % 6] && xface <= bounds[(2 * j + 3) % 6] &&
+        yface >= bounds[(2 * j + 4) % 6] && yface <= bounds[(2 * j + 5) % 6])
+      {
+        if (t1 == -std::numeric_limits<double>::infinity())
+        {
+          t1 = t;
+          plane1 = 2 * j + k;
+        }
+        else if (t >= t1)
+        {
+          t2 = t;
+          plane2 = 2 * j + k;
+          break;
+        }
+        else
+        {
+          t2 = t1;
+          t1 = t;
+          plane2 = plane1;
+          plane1 = 2 * j + k;
+          break;
+        }
+      }
+    }
+  }
+
+  if (x1)
+  {
+    x1[0] = p1[0] + t1 * (p2[0] - p1[0]);
+    x1[1] = p1[1] + t1 * (p2[1] - p1[1]);
+    x1[2] = p1[2] + t1 * (p2[2] - p1[2]);
+  }
+  if (x2)
+  {
+    x2[0] = p1[0] + t2 * (p2[0] - p1[0]);
+    x2[1] = p1[1] + t2 * (p2[1] - p1[1]);
+    x2[2] = p1[2] + t2 * (p2[2] - p1[2]);
+  }
+
+  return t1 != -std::numeric_limits<double>::infinity();
 }
 
 //----------------------------------------------------------------------------
