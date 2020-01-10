@@ -63,18 +63,27 @@ void vtkDataSetEdgeSubdivisionCriterion::SetMesh(vtkDataSet* mesh)
   this->Modified();
 
   if (this->CurrentMesh)
+  {
     this->CurrentMesh->Register(this);
+    this->CurrentMesh->Modified();
+  }
 }
 
 void vtkDataSetEdgeSubdivisionCriterion::SetCellId(vtkIdType cell)
 {
-  if (cell == this->CurrentCellId)
-    return;
+  if ((cell == this->CurrentCellId) && this->CurrentCellData)
+  {
+    if (this->CurrentCellData->GetMTime() >= this->CurrentMesh->GetMTime())
+      return;
+  }
 
   this->CurrentCellId = cell;
 
   if (this->CurrentMesh)
+  {
     this->CurrentCellData = this->CurrentMesh->GetCell(this->CurrentCellId);
+    this->CurrentCellData->Modified();
+  }
 
   this->Modified();
 }
