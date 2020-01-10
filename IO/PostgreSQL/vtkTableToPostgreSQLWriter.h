@@ -50,8 +50,6 @@ protected:
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  vtkTable* Input;
-
 private:
   vtkTableToPostgreSQLWriter(const vtkTableToPostgreSQLWriter&) = delete;
   void operator=(const vtkTableToPostgreSQLWriter&) = delete;
