@@ -35,10 +35,17 @@ namespace RTW
             else
             {
                 const std::string materialname = "::ospray::" + this->type;
-                this->material = rtx->CreateMDLMaterial(materialname.c_str(), (char*)OSPRay_mdl, (uint32_t) sizeof(OSPRay_mdl), 0, nullptr, VisRTX::CompilationType::INSTANCE);
-                if (!this->material)
+                try
+                {
+                    this->material = rtx->CreateMDLMaterial(materialname.c_str(), (char*)OSPRay_mdl, (uint32_t) sizeof(OSPRay_mdl), 0, nullptr, VisRTX::CompilationType::INSTANCE);
+                }
+                catch(const std::exception&)
                 {
                     std::cerr << "CreateMDLMaterial failed! Falling back to BasicMaterial.\n";
+                    this->material = nullptr;
+                }
+                if (!this->material)
+                {
                     this->material = rtx->CreateBasicMaterial();
                 }
             }
