@@ -141,13 +141,7 @@ public:
   static double DistanceBetweenLineSegments(double l0[3], double l1[3], double m0[3], double m1[3],
     double closestPt1[3], double closestPt2[3], double& t1, double& t2);
 
-  /**
-   * @deprecated Replaced by vtkLine::InterpolateFunctions as of VTK 5.2
-   */
   static void InterpolationFunctions(const double pcoords[3], double weights[2]);
-  /**
-   * @deprecated Replaced by vtkLine::InterpolateDerivs as of VTK 5.2
-   */
   static void InterpolationDerivs(const double pcoords[3], double derivs[2]);
   //@{
   /**

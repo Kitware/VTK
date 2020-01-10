@@ -116,9 +116,6 @@ public:
     int subId, const double pcoords[3], const double* values, int dim, double* derivs) override;
   //@}
 
-  /**
-   * @deprecated Replaced by vtkVoxel::InterpolateDerivs as of VTK 5.2
-   */
   static void InterpolationDerivs(const double pcoords[3], double derivs[24]);
   //@{
   /**

@@ -72,13 +72,7 @@ public:
     int subId, const double pcoords[3], const double* values, int dim, double* derivs) override;
   double* GetParametricCoords() override;
 
-  /**
-   * @deprecated Replaced by vtkPixel::InterpolateFunctions as of VTK 5.2
-   */
   static void InterpolationFunctions(const double pcoords[3], double weights[4]);
-  /**
-   * @deprecated Replaced by vtkPixel::InterpolateDerivs as of VTK 5.2
-   */
   static void InterpolationDerivs(const double pcoords[3], double derivs[8]);
   //@{
   /**

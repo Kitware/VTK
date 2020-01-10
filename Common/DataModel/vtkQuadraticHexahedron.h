@@ -90,13 +90,7 @@ public:
   int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t, double x[3],
     double pcoords[3], int& subId) override;
 
-  /**
-   * @deprecated Replaced by vtkQuadraticHexahedron::InterpolateFunctions as of VTK 5.2
-   */
   static void InterpolationFunctions(const double pcoords[3], double weights[20]);
-  /**
-   * @deprecated Replaced by vtkQuadraticHexahedron::InterpolateDerivs as of VTK 5.2
-   */
   static void InterpolationDerivs(const double pcoords[3], double derivs[60]);
   //@{
   /**

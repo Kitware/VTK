@@ -124,13 +124,7 @@ public:
    */
   int GetParametricCenter(double pcoords[3]) override;
 
-  /**
-   * @deprecated Replaced by vtkHexagonalPrism::InterpolateFunctions as of VTK 5.2
-   */
   static void InterpolationFunctions(const double pcoords[3], double weights[12]);
-  /**
-   * @deprecated Replaced by vtkHexagonalPrism::InterpolateDerivs as of VTK 5.2
-   */
   static void InterpolationDerivs(const double pcoords[3], double derivs[36]);
   //@{
   /**
