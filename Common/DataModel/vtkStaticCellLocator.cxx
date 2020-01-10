@@ -187,12 +187,13 @@ struct vtkCellBinner
     for (; cellId < endCellId; ++cellId, bds += 6)
     {
       this->DataSet->GetCellBounds(cellId, bds);
-      xmin[0] = bds[0];
-      xmin[1] = bds[2];
-      xmin[2] = bds[4];
-      xmax[0] = bds[1];
-      xmax[1] = bds[3];
-      xmax[2] = bds[5];
+      double tol = this->binTol;
+      xmin[0] = bds[0] - tol;
+      xmin[1] = bds[2] - tol;
+      xmin[2] = bds[4] - tol;
+      xmax[0] = bds[1] + tol;
+      xmax[1] = bds[3] + tol;
+      xmax[2] = bds[5] + tol;
 
       this->GetBinIndices(xmin, ijkMin);
       this->GetBinIndices(xmax, ijkMax);
@@ -378,12 +379,13 @@ struct CellProcessor : public vtkCellProcessor
 
     for (; cellId < endCellId; ++cellId, bds += 6)
     {
-      xmin[0] = bds[0];
-      xmin[1] = bds[2];
-      xmin[2] = bds[4];
-      xmax[0] = bds[1];
-      xmax[1] = bds[3];
-      xmax[2] = bds[5];
+      double tol = this->Binner->binTol;
+      xmin[0] = bds[0] - tol;
+      xmin[1] = bds[2] - tol;
+      xmin[2] = bds[4] - tol;
+      xmax[0] = bds[1] + tol;
+      xmax[1] = bds[3] + tol;
+      xmax[2] = bds[5] + tol;
 
       this->Binner->GetBinIndices(xmin, ijkMin);
       this->Binner->GetBinIndices(xmax, ijkMax);
