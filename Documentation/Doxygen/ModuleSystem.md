@@ -745,12 +745,68 @@ For details on the implementation of the autoinit system, please see
 
 ## <a name="wrapping"></a>Wrapping
 
+VTK comes with support for wrapping its classes into other languages.
+Currently, VTK supports wrapping its classes for use in the Python and Java
+languages. In order to wrap a set of modules for a language, a separate
+function is used for each language.
+
+All languages read the headers of classes with a `__VTK_WRAP__` preprocessor
+definition defined. This may be used to hide methods or other details from the
+wrapping code if wanted.
+
+### Python
+
+For Python, the [vtk_module_wrap_python][] function must be used. This function
+takes a list of modules in its `MODULES` argument and creates Python modules
+for use under the `PYTHON_PACKAGE` package. No `__init__.py` for this package
+is created automatically and must be provided in some other way.
+
+A target named by the `TARGET` argument is created and installed. This target
+may be linked to in order to be able to import static Python modules. In this
+case, a header and function named according to the basename of `TARGET` (e.g.,
+`VTK::PythonWrapped` has a basename of `PythonWrapped`) must be used. The
+header is named `<TARGET_BASENAME>.h` and the function which adds the wrapped
+modules to the static import table is `<void TARGET_BASENAME>_load()`. This
+function is also created in shared builds, but does nothing so that it may
+always be called in static or shared builds.
+
+The modules will be installed under the `MODULE_DESTINATION` given to the
+function into the `PYTHON_PACKAGE` directory needed for it. The
+[vtk_module_python_default_destination][] function is used to determine a
+default if one is not passed.
+
+The Python wrappers define a `__VTK_WRAP_PYTHON__` preprocessor definition when
+reading code which may be used to hide methods or other details from the Python
+wrapping code.
+
 [vtk_module_wrap_python]: @ref vtk_module_wrap_python
+[vtk_module_python_default_destination]: @ref vtk_module_python_default_destination
+
+### Java
+
+For Java, the [vtk_module_wrap_java][] function must be used. This function
+creates Java sources for classes in the modules passed in its `MODULES`
+argument. The sources are written to a `JAVA_OUTPUT` directory. These then can
+be compiled by CMake normally.
+
+For this purpose, there are `<MODULE>Java` targets which contain a
+`_vtk_module_java_files` properties containing a list of `.java` sources
+generated for the given module. There is also a `<MODULE>Java-java-sources`
+target which may be depended upon if just the source generation needs to used
+in an [`add_dependencies`][cmake-add_dependencies] call.
+
+The Java wrappers define a `__VTK_WRAP_JAVA__` preprocessor definition when
+reading code which may be used to hide methods or other details from the Java
+wrapping code.
+
 [vtk_module_wrap_java]: @ref vtk_module_wrap_java
 
 ### Hierarchy files
 
-TODO
+Hierarchy files are used by the language wrapper tools to know the class
+inheritance for classes within a module. Each module has a hierarchy file
+associated with it. The path to a module's hierarchy file is stored in its
+`hierarchy` module property.
 
 ## Third party
 
