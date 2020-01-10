@@ -810,7 +810,108 @@ associated with it. The path to a module's hierarchy file is stored in its
 
 ## Third party
 
-TODO
+The module system has support for representing third party modules in its
+build. These may be built as part of the project or represented using other
+mechanisms (usually [`find_package`][cmake-find_package] and a set of imported
+targets from it).
+
+The primary API is [vtk_module_third_party][] which creates a
+`VTK_MODULE_USE_EXTERNAL_Namespace_Target` option for the module to switch
+between an internal and external source for the third party code. This value
+defaults to the setting of the `USE_EXTERNAL` argument for the calling
+[vtk_module_build][] function. Arguments passed under the `INTERNAL` and
+`EXTERNAL` arguments to this command are then passed on to
+[vtk_module_third_party_internal][] or [vtk_module_third_party_external][],
+respectively, depending on the `VTK_MODULE_USE_EXTERNAL_Namespace_Target`
+option.
+
+Note that third party modules (marked as such by adding the `THIRD_PARTY`
+keyword to a `vtk.module` file) may not be part of a kit, be wrapped, or
+participate in autoinit.
+
+[vtk_module_third_party]: @ref vtk_module_third_party
+[vtk_module_third_party_internal]: @ref vtk_module_third_party_internal
+[vtk_module_third_party_external]: @ref vtk_module_third_party_external
+
+### External third party modules
+
+External modules are found using CMake's [`find_package`][cmake-find_package]
+mechanism. In addition to the arguments supported by
+[vtk_module_find_package][] (except `PRIVATE`), information about the found
+package is used to construct a module target which represents the third party
+package. The preferred mechanism is to give a list of imported targets to the
+`LIBRARIES` argument. These will be added to the `INTERFACE` of the module and
+provide the third party package for use within the module system.
+
+If imported targets are not available (they really should be created if not),
+variable names may be passed to `INCLUDE_DIRS`, `LIBRARIES`, and `DEFINITIONS`
+to create the module interface.
+
+In addition, any variables which should be forwarded from the package to the
+rest of the build may be specified using the `USE_VARIABLES` argument.
+
+The `STANDARD_INCLUDE_DIRS` argument creates an include interface for the
+module target which includes the "standard" module include directories to.
+Basically, the source and binary directories of the module.
+
+### Internal third party modules
+
+Internal modules are those that may be built as part of the build. These should
+ideally specify a set of `LICENSE_FILES` indicating the license status of the
+third party code. These files will be installed along with the third party
+package to aid in any licensing requirements of the code. It is also
+recommended to set the `VERSION` argument so that it is known what version of
+the code is provided at a glance.
+
+By default, the `LIBRARY_NAME` of the module is used as the name of the
+subdirectory to include, but this may be changed by using the `SUBDIRECTORY`
+argument.
+
+Header-only third party modules may be indicated by using the `HEADER_ONLY`
+argument. Modules which represent multiple libraries at once from a project may
+use the `INTERFACE` argument.
+
+The `STANDARD_INCLUDE_DIRS` argument creates an include interface for the
+module target which includes the "standard" module include directories to.
+Basically, the source and binary directories of the module. A subdirectory may
+be used by setting the `HEADERS_SUBDIR` option. It is implied for
+`HEADERS_ONLY` third party modules.
+
+After the subdirectory is added a target with the module's name must exist.
+However, a target is automatically created if it is `HEADERS_ONLY`.
+
+#### Properly shipping internal third party code
+
+There are many things that really should be done to ship internal third party
+code (also known as vendoring) properly. The issue is mainly that the internal
+code may conflict with other code bringing in another copy of the same package
+into a process. Most platforms do not behave well in this situation.
+
+In order to avoid conflicts at every level possible, a process called "name
+mangling" should be performed. A non-exhaustive list of name manglings that
+must be done to fully handle this case includes:
+
+  - moving headers to a subdirectory (to avoid compilations from finding
+    incompatible headers);
+  - changing the library name (to avoid DLL lookups from finding incompatible
+    copies); and
+  - mangling symbols (to avoid symbol lookup from confusing two copies in the
+    same process).
+
+Some projects may need further work like editing CMake APIs or the like to be
+mangled as well.
+
+Moving headers and changing library names is fairly straightforward by editing
+CMake code. Mangling symbols usually involves creating a header which has a
+`#define` for each public symbol to change its name at runtime to be distinct
+from another copy that may end up existing in the same process from another
+project.
+
+Typically, a header needs to be created at the module level which hides the
+differences between third party code which may or may not be provided by an
+external package. In this case, it is recommended that code using the third
+party module use unmangled names and let the module interface and mangling
+headers handle the mangling at that level.
 
 ## Debugging
 
