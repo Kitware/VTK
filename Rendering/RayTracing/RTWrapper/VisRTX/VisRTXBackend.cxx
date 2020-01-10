@@ -296,6 +296,6 @@ namespace RTW
         if (!frameBuffer)
             return 0;
 
-        return reinterpret_cast<FrameBuffer*>(frameBuffer)->GetDepthtextureGL();
+        return reinterpret_cast<FrameBuffer*>(frameBuffer)->GetDepthTextureGL();
     }
 }
