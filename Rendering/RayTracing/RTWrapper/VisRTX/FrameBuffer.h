@@ -64,12 +64,26 @@ namespace RTW
 
         int GetColorTextureGL()
         {
-            return this->frameBuffer->GetColorTextureGL();
+            try
+            {
+                return this->frameBuffer->GetColorTextureGL();
+            }
+            catch(const VisRTX::Exception& e)
+            {
+                return 0;
+            }  
         }
 
-        int GetDepthtextureGL()
+        int GetDepthTextureGL()
         {
-            return this->frameBuffer->GetDepthTextureGL();
+            try
+            {
+                return this->frameBuffer->GetDepthTextureGL();
+            }
+            catch(const VisRTX::Exception& e)
+            {
+                return 0;
+            }             
         }
 
     private:
