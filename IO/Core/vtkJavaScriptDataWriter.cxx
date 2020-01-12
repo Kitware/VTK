@@ -52,7 +52,7 @@ vtkJavaScriptDataWriter::~vtkJavaScriptDataWriter()
 {
   this->SetFileName(nullptr);
   this->SetVariableName(nullptr);
-  CloseFile();
+  this->CloseFile();
 }
 
 //-----------------------------------------------------------------------------
@@ -91,7 +91,7 @@ bool vtkJavaScriptDataWriter::OpenFile()
     return false;
   }
 
-  CloseFile();
+  this->CloseFile();
   vtkDebugMacro(<< "Opening file for writing...");
 
   this->OutputFile = new vtksys::ofstream(this->FileName, ios::out);
@@ -99,7 +99,7 @@ bool vtkJavaScriptDataWriter::OpenFile()
   {
     vtkErrorMacro(<< "Unable to open file: " << this->FileName);
     this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
-    CloseFile();
+    this->CloseFile();
     return false;
   }
 

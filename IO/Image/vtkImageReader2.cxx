@@ -88,7 +88,7 @@ vtkImageReader2::vtkImageReader2()
 //----------------------------------------------------------------------------
 vtkImageReader2::~vtkImageReader2()
 {
-  CloseFile();
+  this->CloseFile();
 
   if (this->FileNames)
   {
@@ -568,7 +568,7 @@ int vtkImageReader2::OpenFile()
     return 0;
   }
 
-  CloseFile();
+  this->CloseFile();
   // Open the new file
   vtkDebugMacro(<< "Initialize: opening file " << this->InternalFileName);
   vtksys::SystemTools::Stat_t fs;
