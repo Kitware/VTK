@@ -6,8 +6,11 @@ KIT
   VTK::Parallel
 GROUPS
   MPI
+IMPLEMENTS
+  VTK::IONetCDF
 DEPENDS
   VTK::CommonExecutionModel
+  VTK::IONetCDF
 PRIVATE_DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
@@ -20,4 +23,5 @@ TEST_DEPENDS
   VTK::InteractionStyle
   VTK::ParallelMPI
   VTK::RenderingOpenGL2
+  VTK::RenderingParallel
   VTK::TestingRendering

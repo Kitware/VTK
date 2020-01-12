@@ -447,7 +447,7 @@ bool vtkSLACReader::MidpointIdMap::GetNextMidpoint(EdgeEndpoints& edge, vtkIdTyp
 }
 
 //=============================================================================
-vtkStandardNewMacro(vtkSLACReader);
+vtkObjectFactoryNewMacro(vtkSLACReader);
 
 vtkInformationKeyMacro(vtkSLACReader, IS_INTERNAL_VOLUME, Integer);
 vtkInformationKeyMacro(vtkSLACReader, IS_EXTERNAL_SURFACE, Integer);

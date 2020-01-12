@@ -6,8 +6,7 @@ set(classes
   vtkPDataSetReader
   vtkPDataSetWriter
   vtkPImageWriter
-  vtkPOpenFOAMReader
-  vtkPSLACReader)
+  vtkPOpenFOAMReader)
 
 set(sources
   vtkMultiBlockPLOT3DReaderInternals.cxx)
