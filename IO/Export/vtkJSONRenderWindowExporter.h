@@ -84,7 +84,7 @@ public:
 
 protected:
   vtkJSONRenderWindowExporter();
-  ~vtkJSONRenderWindowExporter();
+  ~vtkJSONRenderWindowExporter() override;
 
 private:
   vtkJSONRenderWindowExporter(const vtkJSONRenderWindowExporter&) = delete;

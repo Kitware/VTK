@@ -118,7 +118,7 @@ public:
 
 protected:
   vtkVtkJSSceneGraphSerializer();
-  ~vtkVtkJSSceneGraphSerializer();
+  ~vtkVtkJSSceneGraphSerializer() override;
 
   //@{
   /**

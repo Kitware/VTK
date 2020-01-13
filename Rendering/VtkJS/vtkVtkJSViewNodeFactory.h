@@ -53,7 +53,7 @@ public:
 
 protected:
   vtkVtkJSViewNodeFactory();
-  ~vtkVtkJSViewNodeFactory();
+  ~vtkVtkJSViewNodeFactory() override;
 
   vtkVtkJSSceneGraphSerializer* Serializer;
 

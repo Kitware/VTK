@@ -90,7 +90,7 @@ public:
 
 protected:
   vtkBufferedArchiver();
-  ~vtkBufferedArchiver();
+  ~vtkBufferedArchiver() override;
 
   struct Internal;
   Internal* Internals;
