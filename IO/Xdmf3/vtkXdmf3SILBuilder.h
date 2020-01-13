@@ -74,6 +74,7 @@ public:
 
   vtkXdmf3SILBuilder();
   ~vtkXdmf3SILBuilder();
+  vtkXdmf3SILBuilder(const vtkXdmf3SILBuilder&) = delete;
 };
 
 #endif // vtkXdmf3SILBuilder_h

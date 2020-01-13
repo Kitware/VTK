@@ -67,6 +67,8 @@ public:
    */
   void Release(bool force);
 
+  vtkXdmf3ArrayKeeper(const vtkXdmf3ArrayKeeper&) = delete;
+
 private:
   unsigned int generation;
 };
