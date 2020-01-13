@@ -219,6 +219,8 @@ public:
       H5Dread(coordinates, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &points_out[0][0]);
     if (status < 0)
     {
+      delete[] points_out[0];
+      delete[] points_out;
       return nullptr;
     }
 
