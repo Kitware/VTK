@@ -115,8 +115,8 @@ void WritePoints(std::ostream& f, vtkPoints* pts, vtkDataArray* normals, vtkData
 bool WriteTexture(
   std::ostream& f, const std::string& baseName, vtkImageData* texture, const char* textureFileName)
 {
-  std::string mtlName = baseName + ".mtl";
-  vtksys::ofstream fmtl(mtlName.c_str(), vtksys::ofstream::out);
+  std::string mtlFileName = baseName + ".mtl";
+  vtksys::ofstream fmtl(mtlFileName.c_str(), vtksys::ofstream::out);
   if (fmtl.fail())
   {
     return false;
@@ -137,15 +137,16 @@ bool WriteTexture(
   }
 
   // remove directories
-  mtlName = vtksys::SystemTools::GetFilenameName(mtlName);
+  mtlFileName = vtksys::SystemTools::GetFilenameName(mtlFileName);
 
   // set material
-  fmtl << "newmtl vtktexture\n";
+  std::string mtlName = vtksys::SystemTools::GetFilenameName(baseName);
+  fmtl << "newmtl " << mtlName << "\n";
   fmtl << "map_Kd " << textureFileName << "\n";
 
   // declare material in obj file
-  f << "mtllib " + mtlName + "\n";
-  f << "usemtl vtktexture\n";
+  f << "mtllib " + mtlFileName + "\n";
+  f << "usemtl " << mtlName << "\n";
 
   return true;
 }
@@ -224,18 +225,6 @@ void vtkOBJWriter::WriteData()
     texture = nullptr;
   }
 
-  // Write material if a texture is specified
-  if (texture || this->TextureFileName)
-  {
-    std::vector<std::string> comp;
-    vtksys::SystemTools::SplitPath(vtksys::SystemTools::GetFilenamePath(this->FileName), comp);
-    comp.push_back(vtksys::SystemTools::GetFilenameWithoutLastExtension(this->FileName));
-    if (!::WriteTexture(f, vtksys::SystemTools::JoinPath(comp), texture, this->TextureFileName))
-    {
-      vtkErrorMacro("Unable to create material file");
-    }
-  }
-
   // Write points
   ::WritePoints(f, pts, normals, tcoords);
 
@@ -247,6 +236,18 @@ void vtkOBJWriter::WriteData()
     for (strips->InitTraversal(); strips->GetNextCell(npts, ptIds);)
     {
       vtkTriangleStrip::DecomposeStrip(npts, ptIds, polyStrips);
+    }
+  }
+
+  // Write material if a texture is specified
+  if (texture || this->TextureFileName)
+  {
+    std::vector<std::string> comp;
+    vtksys::SystemTools::SplitPath(vtksys::SystemTools::GetFilenamePath(this->FileName), comp);
+    comp.push_back(vtksys::SystemTools::GetFilenameWithoutLastExtension(this->FileName));
+    if (!::WriteTexture(f, vtksys::SystemTools::JoinPath(comp), texture, this->TextureFileName))
+    {
+      vtkErrorMacro("Unable to create material file");
     }
   }
 
