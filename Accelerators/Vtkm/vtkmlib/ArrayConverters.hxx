@@ -46,7 +46,8 @@ vtkm::cont::VariantArrayHandle vtkDataArrayToVariantArrayHandle(DataArrayType* i
     {
       vtkm::Id numTuples = input->GetNumberOfTuples();
       auto subHandle = DataArrayToArrayHandle<DataArrayType, 1>::Wrap(input);
-      auto offsets = vtkm::cont::ArrayHandleCounting<vtkm::IdComponent>(0, numComps, numTuples);
+      auto offsets =
+        vtkm::cont::ArrayHandleCounting<vtkm::Id>(vtkm::Id(0), vtkm::Id(numComps), numTuples);
       auto handle = vtkm::cont::make_ArrayHandleGroupVecVariable(subHandle, offsets);
       return vtkm::cont::VariantArrayHandle(handle);
     }
