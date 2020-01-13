@@ -112,6 +112,7 @@ set(vtk_cmake_patch_files
   patches/99/FindGDAL.cmake
   patches/99/FindHDF5.cmake
   patches/99/FindJPEG.cmake
+  patches/99/FindLibArchive.cmake
   patches/99/FindOpenGL.cmake
   patches/99/FindPython/Support.cmake
   patches/99/FindPython2.cmake

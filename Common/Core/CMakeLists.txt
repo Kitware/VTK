@@ -74,6 +74,7 @@ configure_file(
 set(classes
   vtkAbstractArray
   vtkAnimationCue
+  vtkArchiver
   vtkArray
   vtkArrayCoordinates
   vtkArrayExtents
@@ -207,6 +208,7 @@ set(template_classes
   vtkTypeList)
 
 set(sources
+  vtkArchiver.cxx
   vtkArrayIteratorTemplateInstantiate.cxx
   vtkGenericDataArray.cxx
   vtkSOADataArrayTemplateInstantiate.cxx
@@ -256,6 +258,7 @@ configure_file(
 
 set(headers
   vtkABI.h
+  vtkArchiver.h
   vtkArrayIteratorIncludes.h
   vtkAssume.h
   vtkAtomicTypeConcepts.h

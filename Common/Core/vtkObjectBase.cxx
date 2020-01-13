@@ -125,6 +125,24 @@ vtkTypeBool vtkObjectBase::IsA(const char* type)
   return this->vtkObjectBase::IsTypeOf(type);
 }
 
+vtkIdType vtkObjectBase::GetNumberOfGenerationsFromBaseType(const char* name)
+{
+  if (!strcmp("vtkObjectBase", name))
+  {
+    return 0;
+  }
+  // Return the lowest value for vtkIdType. Because of recursion, the returned
+  // value for derived classes will be this value added to the type distance to
+  // vtkObjectBase. This sum will still be a negative (and, therefore, invalid)
+  // value.
+  return VTK_ID_MIN;
+}
+
+vtkIdType vtkObjectBase::GetNumberOfGenerationsFromBase(const char* type)
+{
+  return this->vtkObjectBase::GetNumberOfGenerationsFromBaseType(type);
+}
+
 // Delete a vtk object. This method should always be used to delete an object
 // when the new operator was used to create it. Using the C++ delete method
 // will not work with reference counting.

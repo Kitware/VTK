@@ -19,6 +19,7 @@
 #include "vtkCameraNode.h"
 #include "vtkLight.h"
 #include "vtkLightNode.h"
+#include "vtkMapperNode.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
@@ -97,6 +98,26 @@ public:
 };
 vtkStandardNewMacro(vtkMyLightNode);
 
+class vtkMyMapperNode : public vtkMapperNode
+{
+public:
+  static vtkMyMapperNode* New();
+  vtkTypeMacro(vtkMyMapperNode, vtkMapperNode);
+  virtual void Render(bool prepass) override
+  {
+    if (prepass)
+    {
+      cerr << "Render " << this << " " << this->GetClassName() << endl;
+      resultS += "Render ";
+      resultS += this->GetClassName();
+      resultS += "\n";
+    }
+  }
+  vtkMyMapperNode(){};
+  ~vtkMyMapperNode(){};
+};
+vtkStandardNewMacro(vtkMyMapperNode);
+
 class vtkMyRendererNode : public vtkRendererNode
 {
 public:
@@ -164,6 +185,14 @@ vtkViewNode* light_maker()
   return vn;
 }
 
+vtkViewNode* mapper_maker()
+{
+  vtkMyMapperNode* vn = vtkMyMapperNode::New();
+  cerr << "make mapper node " << vn << endl;
+  resultS += "make mapper\n";
+  return vn;
+}
+
 vtkViewNode* ren_maker()
 {
   vtkMyRendererNode* vn = vtkMyRendererNode::New();
@@ -226,6 +255,8 @@ int UnitTests(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   ren->AddLight(light);
   light->Delete();
 
+  vnf->RegisterOverride("vtkMapper", mapper_maker);
+
   vtkCamera* cam = vtkCamera::New();
   vnf->RegisterOverride(cam->GetClassName(), cam_maker);
   cam->Delete();
@@ -261,9 +292,10 @@ int UnitTests(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   cerr << "Results is [" << endl;
   cerr << resultS << "]" << endl;
-  std::string ok_res = "make window\nmake renderer\nmake light\nmake actor\nmake camera\nRender "
-                       "vtkMyWindowNode\nRender vtkMyRendererNode\nRender vtkMyLightNode\nRender "
-                       "vtkMyActorNode\nRender vtkMyCameraNode\n";
+  std::string ok_res = "make window\nmake renderer\nmake light\nmake actor\nmake camera\nmake "
+                       "mapper\nRender vtkMyWindowNode\nRender vtkMyRendererNode\nRender "
+                       "vtkMyLightNode\nRender vtkMyActorNode\nRender vtkMyMapperNode\nRender "
+                       "vtkMyCameraNode\n";
   if (resultS != ok_res)
   {
     cerr << "Which does not match [" << endl;

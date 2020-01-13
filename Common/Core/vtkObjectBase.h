@@ -71,7 +71,7 @@ class VTKCOMMONCORE_EXPORT vtkObjectBase
 
 public:
 #ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-  // Avoid windows name mangling.
+// Avoid windows name mangling.
 #define GetClassNameA GetClassName
 #define GetClassNameW GetClassName
 #endif
@@ -104,6 +104,26 @@ public:
    * combination with vtkTypeMacro found in vtkSetGet.h.
    */
   virtual vtkTypeBool IsA(const char* name);
+
+  /**
+   * Given a the name of a base class of this class type, return the distance
+   * of inheritance between this class type and the named class (how many
+   * generations of inheritance are there between this class and the named
+   * class). If the named class is not in this class's inheritance tree, return
+   * a negative value. Valid responses will always be nonnegative. This method
+   * works in combination with vtkTypeMacro found in vtkSetGet.h.
+   */
+  static vtkIdType GetNumberOfGenerationsFromBaseType(const char* name);
+
+  /**
+   * Given a the name of a base class of this class type, return the distance
+   * of inheritance between this class type and the named class (how many
+   * generations of inheritance are there between this class and the named
+   * class). If the named class is not in this class's inheritance tree, return
+   * a negative value. Valid responses will always be nonnegative. This method
+   * works in combination with vtkTypeMacro found in vtkSetGet.h.
+   */
+  virtual vtkIdType GetNumberOfGenerationsFromBase(const char* name);
 
   /**
    * Delete a VTK object.  This method should always be used to delete
@@ -182,9 +202,9 @@ public:
    */
   void SetReferenceCount(int);
 
-  /**
-   * Legacy.  Do not call.
-   */
+/**
+ * Legacy.  Do not call.
+ */
 #ifndef VTK_LEGACY_REMOVE
   void PrintRevisions(ostream&) {}
 #endif

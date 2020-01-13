@@ -138,6 +138,7 @@ vtk_add_test_cxx(vtkCommonCoreCxxTests tests
   TestMersenneTwister.cxx
   TestMinimalStandardRandomSequence.cxx
   TestNew.cxx
+  TestNumberOfGenerationsFromBase.cxx
   TestObjectFactory.cxx
   TestObservers.cxx
   TestObserversPerformance.cxx
