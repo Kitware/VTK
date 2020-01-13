@@ -8,3 +8,5 @@ DEPENDS
   VTK::jsoncpp
   VTK::RenderingCore
   VTK::RenderingSceneGraph
+OPTIONAL_DEPENDS
+  VTK::RenderingOpenGL2
