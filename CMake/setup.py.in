@@ -1,0 +1,113 @@
+from setuptools import Extension, setup
+from setuptools.command.build_ext import build_ext
+import os
+import shutil
+import subprocess
+import sys
+
+
+import vtk_features
+
+
+CMAKE_EXE = os.environ.get('CMAKE_EXE', shutil.which('cmake'))
+BUILD_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
+if not CMAKE_EXE or not os.path.exists(CMAKE_EXE):
+    print('cmake is required to build from source.', file=sys.stderr)
+    print('Please install cmake or set CMAKE_EXE environment variable.', file=sys.stderr)
+    sys.exit(1)
+
+
+class ConfiguredCMakeExtension(Extension):
+    def __init__(self, name, target=None):
+        Extension.__init__(self, name, sources=[])
+        if target is None:
+            self.target = name
+        else:
+            self.target = target
+
+
+class CMakeBuildExt(build_ext):
+    def build_extension(self, ext):
+        if isinstance(ext, ConfiguredCMakeExtension):
+            output_dir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
+            subprocess.check_call([CMAKE_EXE, '--build', BUILD_DIR, '--target', ext.target],
+                                  cwd=BUILD_DIR)
+        else:
+            super().build_extension(ext)
+
+
+vtk_reqs_path = os.path.join(BUILD_DIR, 'requirements.txt')
+with open(vtk_reqs_path, 'r') as fin:
+    reqs = [
+        line
+        for line in [
+            rawline.strip()
+            for rawline in fin
+        ]
+        if not line.startswith('#')
+    ]
+
+
+python_code_features = {
+    'gtk': [],
+    'numpy': ['numpy>=1.9'],
+    'qt': [],
+    'tk': [],
+    'wx': [],
+}
+features = python_code_features
+features.update(vtk_features.FEATURES)
+
+setup(
+    name='vtk',
+    version='@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@.@VTK_BUILD_VERSION@',
+    author='VTK developers',
+    packages=[
+        'vtkmodules',
+        'vtkmodules.gtk',
+        'vtkmodules.numpy_interface',
+        'vtkmodules.qt',
+        'vtkmodules.test',
+        'vtkmodules.tk',
+        'vtkmodules.util',
+        'vtkmodules.wx',
+    ],
+    py_modules=[
+        'vtk',
+    ],
+    ext_package='vtkmodules',
+    ext_modules=[
+        # https://gitlab.kitware.com/cmake/cmake/issues/19145
+        #ConfiguredCMakeExtension('vtkmodules', target='vtkpythonmodules'),
+        ConfiguredCMakeExtension('vtkCommonCorePython', target='vtkCommonCorePython'),
+    ],
+    package_data={
+        'vtkmodules': [
+            # Linux modules.
+            '*Python.so',
+            # Unix shared libraries.
+            'lib*.so*',
+            # macOS modules.
+            '*-darwin.so',
+            # macOS shared libraries.
+            'lib*.dylib*',
+            # Windows modules.
+            '*Python.pyd',
+            # Windows shared libraries.
+            '*.dll',
+        ],
+    },
+    cmdclass={
+        'build_ext': CMakeBuildExt,
+    },
+    url='https://vtk.org',
+    license_file='@license_file@',
+    description='',
+    long_description='',
+    install_requires=reqs,
+    extras_require=features,
+    include_package_data=True,
+    zip_safe=False,
+)

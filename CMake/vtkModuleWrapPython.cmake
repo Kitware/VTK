@@ -420,6 +420,7 @@ extern PyObject* PyInit_${_vtk_python_library_name}();
       # (regardless of VTK's build type). Otherwise, no postfix.
       if (FALSE)
         set_property(TARGET "${name}"
+          APPEND_STRING
           PROPERTY
             DEBUG_POSTFIX "_d")
       endif ()
@@ -500,6 +501,7 @@ vtk_module_wrap_python(
   [LIBRARY_DESTINATION <destination>]
 
   [PYTHON_PACKAGE <package>]
+  [SOABI <soabi>]
 
   [INSTALL_EXPORT <export>]
   [COMPONENT <component>])
@@ -541,6 +543,8 @@ vtk_module_wrap_python(
   * `PYTHON_PACKAGE`: (Recommended) All generated modules will be added to this
     Python package. The format is in Python syntax (e.g.,
     `package.subpackage`).
+  * `SOABI`: (Required for wheel support): If given, generate libraries with
+    the SOABI tag in the module filename.
   * `INSTALL_EXPORT`: If provided, static installs will add the installed
     libraries to the provided export set.
   * `COMPONENT`: Defaults to `python`. All install rules created by this
@@ -549,7 +553,7 @@ vtk_module_wrap_python(
 function (vtk_module_wrap_python)
   cmake_parse_arguments(_vtk_python
     ""
-    "MODULE_DESTINATION;STATIC_MODULE_DESTINATION;LIBRARY_DESTINATION;PYTHON_PACKAGE;BUILD_STATIC;INSTALL_HEADERS;INSTALL_EXPORT;TARGET;COMPONENT;WRAPPED_MODULES;CMAKE_DESTINATION;DEPENDS"
+    "MODULE_DESTINATION;STATIC_MODULE_DESTINATION;LIBRARY_DESTINATION;PYTHON_PACKAGE;BUILD_STATIC;INSTALL_HEADERS;INSTALL_EXPORT;TARGET;COMPONENT;WRAPPED_MODULES;CMAKE_DESTINATION;DEPENDS;SOABI"
     "MODULES"
     ${ARGN})
 
@@ -580,6 +584,22 @@ function (vtk_module_wrap_python)
 
   if (NOT DEFINED _vtk_python_INSTALL_HEADERS)
     set(_vtk_python_INSTALL_HEADERS ON)
+  endif ()
+
+  if (_vtk_python_SOABI)
+    get_property(_vtk_python_is_multi_config GLOBAL
+      PROPERTY GENERATOR_IS_MULTI_CONFIG)
+    if (_vtk_python_is_multi_config)
+      foreach (_vtk_python_config IN LISTS CMAKE_CONFIGURATION_TYPES)
+        string(TOUPPER "${_vtk_python_config}" _vtk_python_upper_config)
+        set("CMAKE_${_vtk_python_upper_config}_POSTFIX"
+          ".${_vtk_python_SOABI}")
+      endforeach ()
+    else ()
+      string(TOUPPER "${CMAKE_BUILD_TYPE}" _vtk_python_upper_config)
+      set("CMAKE_${_vtk_python_upper_config}_POSTFIX"
+        ".${_vtk_python_SOABI}")
+    endif ()
   endif ()
 
   if (_vtk_python_INSTALL_HEADERS AND NOT DEFINED _vtk_python_CMAKE_DESTINATION)
@@ -650,15 +670,19 @@ function (vtk_module_wrap_python)
   if (DEFINED _vtk_python_LIBRARY_DESTINATION)
     # Set up rpaths
     set(CMAKE_BUILD_RPATH_USE_ORIGIN 1)
-    if (UNIX AND NOT APPLE)
+    if (UNIX)
       file(RELATIVE_PATH _vtk_python_relpath
         "/prefix/${_vtk_python_MODULE_DESTINATION}/${_vtk_python_package_path}"
         "/prefix/${_vtk_python_LIBRARY_DESTINATION}")
-      set(_vtk_python_origin_rpath
-        "$ORIGIN/${_vtk_python_relpath}")
+
+      if (APPLE)
+        set(_vtk_python_origin_stem "@loader_path")
+      else ()
+        set(_vtk_python_origin_stem "$ORIGIN")
+      endif()
 
       list(APPEND CMAKE_INSTALL_RPATH
-        "${_vtk_python_origin_rpath}")
+        "${_vtk_python_origin_stem}/${_vtk_python_relpath}")
     endif ()
   endif ()
 

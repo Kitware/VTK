@@ -119,6 +119,10 @@ mark_as_advanced(VTK_ENABLE_LOGGING)
 
 include(vtkEncodeString)
 
+if (VTK_WHEEL_BUILD)
+  include(vtkWheelPreparation)
+endif ()
+
 # Set up our directory structure for output libraries and binaries
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${VTK_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${VTK_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
@@ -279,14 +283,16 @@ if (VTK_VERSIONED_INSTALL)
 endif ()
 
 set(vtk_install_export VTK)
-set(vtk_cmake_destination
-  "${CMAKE_INSTALL_LIBDIR}/cmake/vtk${vtk_version_suffix}")
-set(vtk_target_package)
-if (VTK_BUILD_COMPILE_TOOLS_ONLY)
-  set(vtk_install_export VTKCompileTools)
+if (NOT DEFINED vtk_cmake_destination)
   set(vtk_cmake_destination
-    "${CMAKE_INSTALL_LIBDIR}/cmake/vtkcompiletools${vtk_version_suffix}")
-  set(vtk_target_package PACKAGE "${vtk_install_export}")
+    "${CMAKE_INSTALL_LIBDIR}/cmake/vtk${vtk_version_suffix}")
+  set(vtk_target_package)
+  if (VTK_BUILD_COMPILE_TOOLS_ONLY)
+    set(vtk_install_export VTKCompileTools)
+    set(vtk_cmake_destination
+      "${CMAKE_INSTALL_LIBDIR}/cmake/vtkcompiletools${vtk_version_suffix}")
+    set(vtk_target_package PACKAGE "${vtk_install_export}")
+  endif ()
 endif ()
 
 set(VTK_CUSTOM_LIBRARY_SUFFIX "<DEFAULT>"
@@ -306,6 +312,7 @@ vtk_module_build(
   INSTALL_EXPORT      "${vtk_install_export}"
   ${vtk_target_package}
   HEADERS_DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/vtk${vtk_version_suffix}"
+  ${vtk_hierarchy_destination_args}
   CMAKE_DESTINATION   "${vtk_cmake_destination}"
   LIBRARY_NAME_SUFFIX "${VTK_CUSTOM_LIBRARY_SUFFIX}"
   VERSION             "${VTK_VERSION}"
@@ -344,6 +351,7 @@ if (VTK_WRAP_PYTHON)
     MODULE_DESTINATION  "${VTK_PYTHON_SITE_PACKAGES_SUFFIX}"
     CMAKE_DESTINATION   "${vtk_cmake_destination}"
     INSTALL_HEADERS     "${VTK_INSTALL_SDK}"
+    SOABI               "${vtk_soabi}"
     WRAPPED_MODULES vtk_python_wrapped_modules
     TARGET          VTK::vtkpythonmodules)
 
@@ -436,6 +444,10 @@ install(
   COMPONENT   "license")
 
 # TODO: HeaderTest exclusions for memcheck.
+
+if (VTK_WHEEL_BUILD)
+  include(vtkWheelFinalization)
+endif ()
 
 #-----------------------------------------------------------------------------
 # Do this at the end so the all variables it uses are setup.
