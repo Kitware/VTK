@@ -56,8 +56,8 @@ vtkHyperTree* vtkHyperTreeGridGeometryLevelEntry::Initialize(
 //-----------------------------------------------------------------------------
 vtkIdType vtkHyperTreeGridGeometryLevelEntry::GetGlobalNodeIndex() const
 {
-  assert("pre: not_tree" && this->Tree);
-  return this->Tree->GetGlobalIndexFromLocal(this->Index);
+  return this->Tree ? this->Tree->GetGlobalIndexFromLocal(this->Index)
+                    : vtkHyperTreeGrid::InvalidIndex;
 }
 
 //-----------------------------------------------------------------------------

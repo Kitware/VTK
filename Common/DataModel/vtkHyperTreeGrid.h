@@ -106,6 +106,12 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
+   * Invalid index that is returned for undefined nodes, for example for nodes that are out of
+   * bounds (they can exist with the super cursors).
+   */
+  static constexpr vtkIdType InvalidIndex = ~0;
+
+  /**
    * Set/Get mode squeeze
    */
   vtkSetStringMacro(ModeSqueeze); // By copy
