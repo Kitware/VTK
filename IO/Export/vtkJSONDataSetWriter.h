@@ -42,6 +42,8 @@
 
 #include "vtkWriter.h"
 
+#include <string> // std::string used as parameters in a few methods
+
 class vtkDataSet;
 class vtkDataArray;
 class vtkDataSetAttributes;
