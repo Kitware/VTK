@@ -385,9 +385,7 @@ public:
 
 private:
   vtkSingleFileArchiver() = default;
-  virtual ~vtkSingleFileArchiver() = default;
-
-  vtkArchiver* RenderWindowArchiver;
+  virtual ~vtkSingleFileArchiver() override = default;
 };
 vtkStandardNewMacro(vtkSingleFileArchiver);
 }

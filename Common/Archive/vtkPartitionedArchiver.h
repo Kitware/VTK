@@ -97,7 +97,7 @@ public:
 
 protected:
   vtkPartitionedArchiver();
-  ~vtkPartitionedArchiver();
+  ~vtkPartitionedArchiver() override;
 
   struct Internal;
   Internal* Internals;

@@ -155,6 +155,7 @@ int TestPartitionedRenderWindowExporter(int argc, char* argv[])
         {
           r = ARCHIVE_FATAL;
           std::fclose(fp);
+          std::free(buffer);
           break;
         }
 
@@ -170,6 +171,7 @@ int TestPartitionedRenderWindowExporter(int argc, char* argv[])
 
         std::fclose(fp);
         std::free(buffer);
+        std::free(fbuffer);
       }
     }
 

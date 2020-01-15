@@ -2,9 +2,9 @@ NAME
   VTK::RenderingVtkJS
 LIBRARY_NAME
   vtkRenderingVtkJS
-KIT
-  VTK::Rendering
 DEPENDS
   VTK::jsoncpp
   VTK::RenderingCore
   VTK::RenderingSceneGraph
+OPTIONAL_DEPENDS
+  VTK::RenderingOpenGL2

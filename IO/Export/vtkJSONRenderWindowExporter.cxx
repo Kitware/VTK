@@ -55,7 +55,7 @@ public:
 
 private:
   vtkJSONDataSetArchiver() { this->RenderWindowArchiver = vtkArchiver::New(); }
-  virtual ~vtkJSONDataSetArchiver() { this->SetRenderWindowArchiver(nullptr); }
+  virtual ~vtkJSONDataSetArchiver() override { this->SetRenderWindowArchiver(nullptr); }
 
   vtkArchiver* RenderWindowArchiver;
 };

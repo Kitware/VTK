@@ -72,7 +72,7 @@ public:
 
 protected:
   vtkArchiver();
-  ~vtkArchiver();
+  ~vtkArchiver() override;
 
   char* ArchiveName;
 
