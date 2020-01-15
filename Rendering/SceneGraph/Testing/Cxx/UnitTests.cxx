@@ -114,7 +114,7 @@ public:
     }
   }
   vtkMyMapperNode(){};
-  ~vtkMyMapperNode(){};
+  ~vtkMyMapperNode() override{};
 };
 vtkStandardNewMacro(vtkMyMapperNode);
 

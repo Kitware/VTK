@@ -134,6 +134,15 @@ if (NOT cdash_show_third_party_warnings)
     # warnings from moc generated code such as
     # GUISupport/Qt/GUISupportQt_autogen/EWIEGA46WW/moc_QVTKInteractorInternal.cpp:73:55: warning: redundant parentheses surrounding declarator [-Wredundant-parens]
     "autogen.*moc.*redundant parentheses"
+
+    # third party hdf5
+    # if(NULL == (*full_name = (char *)H5MM_malloc(path1_len + path2_len + 2 + 2))) /* Extra "+2" to quiet GCC warning - 2019/07/05, QAK */
+    "H5MM.*quiet GCC warning"
+
+    # missing overrides may be suppressed, but the superclass shows up as a match on some systems
+    # it makes no sense to suppress the offending class but report the superclass
+    # vtkPolyDataAlgorithm.h:91:3: note: overridden virtual function is here
+    "note: overridden virtual function is here"
   )
 endif ()
 
