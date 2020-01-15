@@ -400,6 +400,8 @@ macro (HDF_DIR_PATHS package_prefix)
     set (CMAKE_PREFIX_PATH ${ADDITIONAL_CMAKE_PREFIX_PATH} ${CMAKE_PREFIX_PATH})
   endif ()
 
+  # XXX(kitware): VTK handles library naming.
+  if (FALSE)
   #set the default debug suffix for all library targets
     if(NOT CMAKE_DEBUG_POSTFIX)
       if (WIN32)
@@ -407,6 +409,7 @@ macro (HDF_DIR_PATHS package_prefix)
       else ()
         set (CMAKE_DEBUG_POSTFIX "_debug")
       endif ()
+  endif ()
   endif ()
 
   SET_HDF_BUILD_TYPE()
