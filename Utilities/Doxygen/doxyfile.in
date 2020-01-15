@@ -6,6 +6,7 @@
 PROJECT_NAME         = VTK
 
 FULL_PATH_NAMES      = YES
+STRIP_FROM_PATH      = "@VTK_BINARY_DIR@/Utilities/Doxygen/dox"
 WARN_IF_UNDOCUMENTED = NO
 
 GENERATE_TREEVIEW    = NO
@@ -36,7 +37,7 @@ MAX_DOT_GRAPH_DEPTH  = 3
 
 ALLEXTERNALS         = NO
 
-IMAGE_PATH           = "@VTK_SOURCE_DIR@/Utilities/Doxygen" "@VTK_BINARY_DIR@/Utilities/Doxygen/contrib" \
+IMAGE_PATH           = "@VTK_SOURCE_DIR@/Utilities/Doxygen" \
                        "@VTK_SOURCE_DIR@/Filters" \
                        "@VTK_SOURCE_DIR@/Geovis" \
                        "@VTK_SOURCE_DIR@/Rendering"
@@ -56,20 +57,13 @@ INPUT                = \
 EXCLUDE_PATTERNS     =
 EXCLUDE              = \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/Core/vtkSetGet.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/DataModel/vtkMarchingSquaresCases.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/DataModel/vtkMarchingCubesCases.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/DataModel/vtkMarchingSquaresLineCases.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/DataModel/vtkMarchingCubesTriangleCases.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/Core/vtkWindows.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkTk.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkPython.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkPythonUtil.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkJavaAwt.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkJavaUtil.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkPythonUtil.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Parallel/MPI/vtkMPI.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/IO/Import/vtk3DS.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/IO/Import/vtkVRML.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/IO/PLY/vtkPLY.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Rendering/OpenGL/vtkOpenGL.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Rendering/FreeType/fonts/vtkEmbeddedFonts.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Testing/Rendering/Testing/vtkRegressionTestImage.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Testing/Core/Testing/vtkTestDriver.h" \
@@ -96,7 +90,9 @@ HTML_TIMESTAMP       = YES
 SHORT_NAMES          = @DOXYGEN_SHORT_NAMES@
 # PAPER_TYPE           = letter
 
-FILE_PATTERNS        = *.h *.md
+FILE_PATTERNS        = *.h *.md *.cmake
+EXTENSION_MAPPING    = cmake=c
+FILTER_PATTERNS      = *.cmake="@PERL_EXECUTABLE@ @VTK_SOURCE_DIR@/Utilities/Doxygen/filters/cmake2c.pl"
 RECURSIVE            = YES
 
 ALPHABETICAL_INDEX   = YES

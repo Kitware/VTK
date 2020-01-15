@@ -33,22 +33,22 @@ endif()
 
 # Build up a list of all module source directories. Note that this should be
 # all source directories and so does not use the normal variables.
-unset(VTK_MODULE_DIRS_DOXYGEN)
-file(GLOB src RELATIVE "${VTK_SOURCE_DIR}" "${VTK_SOURCE_DIR}/*/*/module.cmake")
-foreach(module ${src})
-  get_filename_component(module_BASE ${module} PATH)
-  if("${module_BASE}" MATCHES "^Utilities" OR ${module_BASE} MATCHES "^Third")
+set(VTK_MODULE_DIRS_DOXYGEN "")
+foreach(module IN LISTS vtk_module_files)
+  file(RELATIVE_PATH module_dir "${VTK_SOURCE_DIR}" "${module}")
+  get_filename_component(module_BASE ${module_dir} PATH)
+  if(module_BASE MATCHES "^Utilities" OR module_BASE MATCHES "^ThirdParty")
     # Skip the utilities and third parties directories.
-  else()
-    # Use both the source and binary directories, this ensures that
-    # generated files will be included, but they may then be architecture,
-    # build configuration and/or compiler specific. All source directories
-    # are included whether the module is enabled or not.
-    set(VTK_MODULE_DIRS_DOXYGEN
-      "${VTK_MODULE_DIRS_DOXYGEN}
-  \"${VTK_SOURCE_DIR}/${module_BASE}\"
-  \"${VTK_BINARY_DIR}/${module_BASE}\"")
-  endif()
+    continue()
+  endif ()
+  # Use both the source and binary directories, this ensures that
+  # generated files will be included, but they may then be architecture,
+  # build configuration and/or compiler specific. All source directories
+  # are included whether the module is enabled or not.
+  string(APPEND VTK_MODULE_DIRS_DOXYGEN
+    "\"${VTK_SOURCE_DIR}/${module_BASE}\"
+\"${VTK_BINARY_DIR}/${module_BASE}\"
+")
 endforeach()
 
 configure_file(
