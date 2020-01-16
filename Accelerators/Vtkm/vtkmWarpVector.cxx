@@ -104,7 +104,7 @@ int vtkmWarpVector::RequestData(vtkInformation* vtkNotUsed(request),
 
     vtkmInputFilterPolicy policy;
     vtkm::filter::WarpVector warpVector(this->ScaleFactor);
-    warpVector.SetUseCoordinateSystemAsField("true");
+    warpVector.SetUseCoordinateSystemAsField(true);
     warpVector.SetVectorField(vectorField.GetName(), vectorField.GetAssociation());
     auto result = warpVector.Execute(in, policy);
 
