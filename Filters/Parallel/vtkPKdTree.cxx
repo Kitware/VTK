@@ -1876,8 +1876,8 @@ void vtkPKdTree::GetLocalMinMax(int L, int R, int me, float* min, float* max)
     // this guy has none of the data, but still must participate
     //   in ReduceMax and ReduceMin
 
-    double* regionMin = this->Top->GetMinBounds();
-    double* regionMax = this->Top->GetMaxBounds();
+    const double* regionMin = this->Top->GetMinBounds();
+    const double* regionMax = this->Top->GetMaxBounds();
 
     for (d = 0; d < 3; d++)
     {
@@ -1979,14 +1979,14 @@ void vtkPKdTree::PackData(vtkKdNode* kd, double* data)
   data[1] = (double)kd->GetLeft()->GetNumberOfPoints();
   data[2] = (double)kd->GetRight()->GetNumberOfPoints();
 
-  double* lmin = kd->GetLeft()->GetMinBounds();
-  double* lmax = kd->GetLeft()->GetMaxBounds();
-  double* lminData = kd->GetLeft()->GetMinDataBounds();
-  double* lmaxData = kd->GetLeft()->GetMaxDataBounds();
-  double* rmin = kd->GetRight()->GetMinBounds();
-  double* rmax = kd->GetRight()->GetMaxBounds();
-  double* rminData = kd->GetRight()->GetMinDataBounds();
-  double* rmaxData = kd->GetRight()->GetMaxDataBounds();
+  const double* lmin = kd->GetLeft()->GetMinBounds();
+  const double* lmax = kd->GetLeft()->GetMaxBounds();
+  const double* lminData = kd->GetLeft()->GetMinDataBounds();
+  const double* lmaxData = kd->GetLeft()->GetMaxDataBounds();
+  const double* rmin = kd->GetRight()->GetMinBounds();
+  const double* rmax = kd->GetRight()->GetMaxBounds();
+  const double* rminData = kd->GetRight()->GetMinDataBounds();
+  const double* rmaxData = kd->GetRight()->GetMaxDataBounds();
 
   v = 3;
   for (i = 0; i < 3; i++)
@@ -2126,8 +2126,8 @@ void vtkPKdTree::CheckFixRegionBoundaries(vtkKdNode* tree)
   vtkKdNode* left = tree->GetLeft();
   vtkKdNode* right = tree->GetRight();
 
-  double* min = tree->GetMinBounds();
-  double* max = tree->GetMaxBounds();
+  const double* min = tree->GetMinBounds();
+  const double* max = tree->GetMaxBounds();
   double* lmin = left->GetMinBounds();
   double* lmax = left->GetMaxBounds();
   double* rmin = right->GetMinBounds();

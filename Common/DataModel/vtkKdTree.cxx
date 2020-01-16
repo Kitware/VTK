@@ -2211,8 +2211,8 @@ vtkIdType vtkKdTree::FindClosestPoint(double x, double y, double z, double& dist
     double pt[3];
     this->Top->GetDistance2ToBoundary(x, y, z, pt, 1);
 
-    double* min = this->Top->GetMinBounds();
-    double* max = this->Top->GetMaxBounds();
+    const double* min = this->Top->GetMinBounds();
+    const double* max = this->Top->GetMaxBounds();
 
     // GetDistance2ToBoundary will sometimes return a point *just*
     // *barely* outside the bounds of the region.  Move that point to
@@ -3194,8 +3194,8 @@ void vtkKdTree::GenerateRepresentationWholeSpace(int level, vtkPolyData* pd)
   double x[3];
   vtkKdNode* kd = this->Top;
 
-  double* min = kd->GetMinBounds();
-  double* max = kd->GetMaxBounds();
+  const double* min = kd->GetMinBounds();
+  const double* max = kd->GetMaxBounds();
 
   x[0] = min[0];
   x[1] = max[1];
@@ -3298,9 +3298,9 @@ void vtkKdTree::_generateRepresentationWholeSpace(
     return;
   }
 
-  double* min = kd->GetMinBounds();
-  double* max = kd->GetMaxBounds();
-  double* leftmax = kd->GetLeft()->GetMaxBounds();
+  const double* min = kd->GetMinBounds();
+  const double* max = kd->GetMaxBounds();
+  const double* leftmax = kd->GetLeft()->GetMaxBounds();
 
   // splitting plane
 
@@ -3435,8 +3435,8 @@ void vtkKdTree::AddPolys(vtkKdNode* kd, vtkPoints* pts, vtkCellArray* polys)
   vtkIdType idList[4];
   double x[3];
 
-  double* min;
-  double* max;
+  const double* min;
+  const double* max;
 
   if (this->GenerateRepresentationUsingDataBounds)
   {

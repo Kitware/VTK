@@ -113,7 +113,7 @@ void vtkKdNode::SetDataBounds(double x1, double x2, double y1, double y2, double
 }
 
 //------------------------------------------------------------------------------
-void vtkKdNode::SetDataBounds(float* v)
+void vtkKdNode::SetDataBounds(VTK_FUTURE_CONST float* v)
 {
   int x;
   double newbounds[6];
