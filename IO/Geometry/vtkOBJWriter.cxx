@@ -112,28 +112,13 @@ void WritePoints(std::ostream& f, vtkPoints* pts, vtkDataArray* normals, vtkData
 }
 
 //----------------------------------------------------------------------------
-bool WriteTexture(
-  std::ostream& f, const std::string& baseName, vtkImageData* texture, const char* textureFileName)
+bool WriteMtl(std::ostream& f, const std::string& baseName, const char* textureFileName)
 {
   std::string mtlFileName = baseName + ".mtl";
   vtksys::ofstream fmtl(mtlFileName.c_str(), vtksys::ofstream::out);
   if (fmtl.fail())
   {
     return false;
-  }
-
-  std::string pngName;
-  if (texture)
-  {
-    // write png file
-    pngName = baseName + ".png";
-    vtkNew<vtkPNGWriter> pngWriter;
-    pngWriter->SetInputData(texture);
-    pngWriter->SetFileName(pngName.c_str());
-    pngWriter->Write();
-    // remove directories
-    pngName = vtksys::SystemTools::GetFilenameName(pngName);
-    textureFileName = pngName.c_str();
   }
 
   // remove directories
@@ -143,11 +128,6 @@ bool WriteTexture(
   std::string mtlName = vtksys::SystemTools::GetFilenameName(baseName);
   fmtl << "newmtl " << mtlName << "\n";
   fmtl << "map_Kd " << textureFileName << "\n";
-
-  // declare material in obj file
-  f << "mtllib " + mtlFileName + "\n";
-  f << "usemtl " << mtlName << "\n";
-
   return true;
 }
 }
@@ -225,6 +205,30 @@ void vtkOBJWriter::WriteData()
     texture = nullptr;
   }
 
+  std::vector<std::string> comp;
+  vtksys::SystemTools::SplitPath(vtksys::SystemTools::GetFilenamePath(this->FileName), comp);
+  comp.push_back(vtksys::SystemTools::GetFilenameWithoutLastExtension(this->FileName));
+  std::string baseName = vtksys::SystemTools::JoinPath(comp);
+  if (texture || this->TextureFileName)
+  {
+    std::string textureFileName = texture ? baseName + ".png" : this->TextureFileName;
+    if (!::WriteMtl(f, baseName, textureFileName.c_str()))
+    {
+      vtkErrorMacro("Unable to create material file");
+    }
+    if (texture)
+    {
+      vtkNew<vtkPNGWriter> pngWriter;
+      pngWriter->SetInputData(texture);
+      pngWriter->SetFileName(textureFileName.c_str());
+      pngWriter->Write();
+    }
+    // write mtllib line
+    std::string mtlFileName = baseName + ".mtl";
+    std::string mtlName = vtksys::SystemTools::GetFilenameName(mtlFileName);
+    f << "mtllib " + mtlName + "\n";
+  }
+
   // Write points
   ::WritePoints(f, pts, normals, tcoords);
 
@@ -242,13 +246,9 @@ void vtkOBJWriter::WriteData()
   // Write material if a texture is specified
   if (texture || this->TextureFileName)
   {
-    std::vector<std::string> comp;
-    vtksys::SystemTools::SplitPath(vtksys::SystemTools::GetFilenamePath(this->FileName), comp);
-    comp.push_back(vtksys::SystemTools::GetFilenameWithoutLastExtension(this->FileName));
-    if (!::WriteTexture(f, vtksys::SystemTools::JoinPath(comp), texture, this->TextureFileName))
-    {
-      vtkErrorMacro("Unable to create material file");
-    }
+    // declare material in obj file
+    std::string mtlName = vtksys::SystemTools::GetFilenameName(baseName);
+    f << "usemtl " << mtlName << "\n";
   }
 
   // Write triangle strips
