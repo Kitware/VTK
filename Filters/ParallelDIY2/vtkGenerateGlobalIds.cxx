@@ -156,7 +156,7 @@ static bool GenerateIds(vtkDataObject* dobj, vtkGenerateGlobalIds* self, bool ce
 
   diy::Master master(
     comm, 1, -1, []() { return static_cast<void*>(new ElementBlockT); },
-    [](void* b) { delete static_cast<ElementBlockT*>(b); });
+    [](void* b) -> void { delete static_cast<ElementBlockT*>(b); });
 
   vtkLogStartScope(TRACE, "populate master");
   std::vector<int> gids;
@@ -185,8 +185,8 @@ static bool GenerateIds(vtkDataObject* dobj, vtkGenerateGlobalIds* self, bool ce
 
   vtkLogStartScope(TRACE, "merge-points");
   // iterate over all local blocks to give them unique ids.
-  master.foreach ([](ElementBlockT* b,                 // local block
-                    const diy::Master::ProxyWithLink&) // communication proxy
+  master.foreach ([](ElementBlockT* b,                         // local block
+                    const diy::Master::ProxyWithLink&) -> void // communication proxy
     { b->MergeElements(); });
   vtkLogEndScope("merge-points");
   self->UpdateProgress(0.75);
@@ -454,8 +454,8 @@ public:
   vtkIdType UniqueElementsCount{ 0 };
   std::map<int, std::vector<MessageItemTT> > OutMessage;
 
-  vtkSmartPointer<vtkIdTypeArray> GlobalIds = nullptr;
-  vtkSmartPointer<vtkUnsignedCharArray> GhostArray = nullptr;
+  vtkSmartPointer<vtkIdTypeArray> GlobalIds;
+  vtkSmartPointer<vtkUnsignedCharArray> GhostArray;
 
   void Initialize(int self_gid, vtkPoints* points, vtkDataSet* dataset)
   {
