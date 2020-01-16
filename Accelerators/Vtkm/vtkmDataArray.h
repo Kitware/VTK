@@ -76,7 +76,7 @@ public:
 
 protected:
   vtkmDataArray();
-  ~vtkmDataArray();
+  ~vtkmDataArray() override;
 
   /// concept methods for \c vtkGenericDataArray
   bool AllocateTuples(vtkIdType numTuples);
