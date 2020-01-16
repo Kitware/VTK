@@ -675,17 +675,17 @@ struct FastBounds
         double x = static_cast<double>(tuple[0]);
         double y = static_cast<double>(tuple[1]);
         double z = static_cast<double>(tuple[2]);
+
         localBds[0] = std::min(x, localBds[0]);
         localBds[1] = std::max(x, localBds[1]);
         localBds[2] = std::min(y, localBds[2]);
         localBds[3] = std::max(y, localBds[3]);
         localBds[4] = std::min(z, localBds[4]);
         localBds[5] = std::max(z, localBds[5]);
-
-        if (this->PointUses != nullptr)
-        {
-          ++used;
-        }
+      }
+      if (this->PointUses != nullptr)
+      {
+        ++used;
       }
     }
   }
@@ -725,8 +725,9 @@ struct BoundsWorker
   template <typename PointsT>
   void operator()(PointsT* pts, const unsigned char* ptUses, double* bds)
   {
+    vtkIdType numPts = pts->GetNumberOfTuples();
     FastBounds<PointsT> fastBds(pts, ptUses, bds);
-    vtkSMPTools::For(0, pts->GetNumberOfTuples(), fastBds);
+    vtkSMPTools::For(0, numPts, fastBds);
   }
 };
 

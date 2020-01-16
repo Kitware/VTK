@@ -510,17 +510,16 @@ void vtkPolyData::ComputeBounds()
     // thread pool).
     for (auto ca = 0; ca < 4; ca++)
     {
-      if ((numCells = cellA[ca]->GetNumberOfCells()) > 0)
-      //      if ( (numCells=cellA[ca]->GetNumberOfCells()) > 250000 )
+      if ((numCells = cellA[ca]->GetNumberOfCells()) > 250000)
       {
         // Lambda to parallel compute bounds
         vtkSMPTools::For(0, numCells, [&](vtkIdType cellId, vtkIdType endCellId) {
+          auto iter = vtk::TakeSmartPointer(cellA[ca]->NewIterator());
           for (; cellId < endCellId; ++cellId)
           {
-            // Don't move these variable outside the lamda, results in a huge performance hit
             vtkIdType npts, ptIdx;
             const vtkIdType* pts;
-            cellA[ca]->GetCellAtId(cellId, npts, pts);
+            iter->GetCellAtId(cellId, npts, pts); // thread-safe
             for (ptIdx = 0; ptIdx < npts; ++ptIdx)
             {
               ptUses[pts[ptIdx]] = 1;
@@ -528,15 +527,13 @@ void vtkPolyData::ComputeBounds()
           }
         }); // end lambda
       }
-      else
-      //      else if ( numCells > 0 ) // serial
+      else if (numCells > 0) // serial
       {
-        auto iter = vtk::TakeSmartPointer(cellA[ca]->NewIterator());
-        for (iter->GoToFirstCell(); !iter->IsDoneWithTraversal(); iter->GoToNextCell())
+        for (auto cellId = 0; cellId < numCells; ++cellId)
         {
           vtkIdType npts, ptIdx;
           const vtkIdType* pts;
-          iter->GetCurrentCell(npts, pts);
+          cellA[ca]->GetCellAtId(cellId, npts, pts);
           for (ptIdx = 0; ptIdx < npts; ++ptIdx)
           {
             ptUses[pts[ptIdx]] = 1;
