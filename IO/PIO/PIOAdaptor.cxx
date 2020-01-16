@@ -262,7 +262,7 @@ int PIOAdaptor::initializeGlobal(const char* PIOFileName)
           // Discard names used in geometry and variables with too many components
           // which are present for use in tracers
           char* pioName = pioField[i].pio_name;
-          int numberOfComponents = this->pioData->VarMMap.count(pioName);
+          size_t numberOfComponents = this->pioData->VarMMap.count(pioName);
           if ((numberOfComponents <= 9) && (strcmp(pioName, "cell_index") != 0) &&
             (strcmp(pioName, "cell_level") != 0) && (strcmp(pioName, "cell_mother") != 0) &&
             (strcmp(pioName, "cell_daughter") != 0) && (strcmp(pioName, "cell_center") != 0) &&
@@ -303,7 +303,7 @@ int PIOAdaptor::initializeGlobal(const char* PIOFileName)
   }
 
   // Requested variable fields from pio meta file
-  for (int i = 0; i < this->variableName.size(); i++)
+  for (unsigned int i = 0; i < this->variableName.size(); i++)
   {
     this->fieldsToRead.push_back(this->variableName[i]);
   }
@@ -1089,7 +1089,7 @@ void PIOAdaptor::load_variable_data(vtkMultiBlockDataSet* grid)
 {
   int64_t* cell_daughter = &daughter[0];
 
-  for (int var = 0; var < this->variableName.size(); var++)
+  for (unsigned int var = 0; var < this->variableName.size(); var++)
   {
     int numberOfComponents =
       static_cast<int>(this->pioData->VarMMap.count(this->variableName[var].c_str()));

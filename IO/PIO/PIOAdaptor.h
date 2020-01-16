@@ -38,7 +38,7 @@ public:
   int GetNumberOfTimeSteps() { return this->numberOfTimeSteps; }
   double GetTimeStep(int step) { return this->timeSteps[step]; }
 
-  int GetNumberOfVariables() { return this->variableName.size(); }
+  int GetNumberOfVariables() { return (int)this->variableName.size(); }
   const char* GetVariableName(int indx) { return this->variableName[indx].c_str(); }
 
 protected:
