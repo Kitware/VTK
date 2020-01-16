@@ -46,6 +46,12 @@ int vtkTextureMapToSphere::RequestData(vtkInformation* vtkNotUsed(request),
   vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkDataSet* output = vtkDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
+  if (!input || !output)
+  {
+    vtkErrorMacro(<< "Invalid input or output");
+    return 1;
+  }
+
   vtkFloatArray* newTCoords;
   vtkIdType numPts = input->GetNumberOfPoints();
   vtkIdType ptId;
@@ -59,7 +65,8 @@ int vtkTextureMapToSphere::RequestData(vtkInformation* vtkNotUsed(request),
 
   if (numPts < 1)
   {
-    vtkErrorMacro(<< "Can't generate texture coordinates without points");
+    // Needs to be called in case MPI is in use
+    this->ComputeCenter(input);
     return 1;
   }
 
