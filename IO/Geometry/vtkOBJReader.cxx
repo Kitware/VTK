@@ -165,6 +165,9 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkSmartPointer<vtkStringArray> matNames = vtkSmartPointer<vtkStringArray>::New();
   matNames->SetName("MaterialNames");
   matNames->SetNumberOfComponents(1);
+  vtkSmartPointer<vtkStringArray> libNames = vtkSmartPointer<vtkStringArray>::New();
+  libNames->SetName("MaterialLibraries");
+  libNames->SetNumberOfComponents(1);
   std::unordered_map<std::string, int> matNameToId;
   std::unordered_map<vtkIdType, std::string> startCellToMatName;
   bool cellWithNotTextureFound = false;
@@ -180,6 +183,7 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
     const int MAX_LINE = 1024 * 256;
     char rawLine[MAX_LINE];
     char tcoordsName[100];
+    char libName[256];
     float xyz[3];
     int numPoints = 0;
     int numTCoords = 0;
@@ -389,6 +393,15 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
         }
         // remember that starting with current cell, we should draw with it
         startCellToMatName[polys->GetNumberOfCells()] = tcoordsName;
+      }
+      else if (strcmp(cmd, "mtllib") == 0)
+      {
+        if (sscanf(pLine, "%s", libName) != 1)
+        {
+          vtkErrorMacro(<< "Error reading 'mtllib' at line " << lineNr);
+          everything_ok = false;
+        }
+        libNames->InsertNextValue(libName);
       }
       else if (strcmp(cmd, "vt") == 0)
       {
@@ -852,6 +865,10 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
         }
         output->GetCellData()->AddArray(matIds);
         output->GetFieldData()->AddArray(matNames);
+        if (libNames->GetNumberOfTuples() > 0)
+        {
+          output->GetFieldData()->AddArray(libNames);
+        }
       }
 
       if (hasGroups && faceScalars)
@@ -996,6 +1013,10 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
       {
         output->GetCellData()->AddArray(matIds);
         output->GetFieldData()->AddArray(matNames);
+        if (libNames->GetNumberOfTuples() > 0)
+        {
+          output->GetFieldData()->AddArray(libNames);
+        }
       }
 
       if (hasGroups && faceScalars)
