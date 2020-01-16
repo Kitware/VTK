@@ -3,8 +3,12 @@ NAME
 LIBRARY_NAME
   vtkRenderingVtkJS
 DEPENDS
-  VTK::jsoncpp
-  VTK::RenderingCore
+  VTK::CommonCore
   VTK::RenderingSceneGraph
+  VTK::jsoncpp
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::RenderingCore
 OPTIONAL_DEPENDS
   VTK::RenderingOpenGL2
