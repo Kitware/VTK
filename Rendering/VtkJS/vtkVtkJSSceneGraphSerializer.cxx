@@ -46,6 +46,7 @@
 #endif
 
 #include <array>
+#include <ios>
 #include <sstream>
 #include <unordered_map>
 
@@ -104,6 +105,13 @@ void computeMD5(const unsigned char* content, int size, std::string& hash)
   vtksysMD5_Delete(md5);
 
   hash = md5Hash;
+}
+
+std::string ptrToString(void* ptr)
+{
+  std::stringstream s;
+  s << std::hex << reinterpret_cast<uintptr_t>(ptr);
+  return s.str();
 }
 }
 
@@ -573,6 +581,8 @@ Json::Value vtkVtkJSSceneGraphSerializer::ToJson(
 
   Json::Value properties;
 
+  properties["address"] = ptrToString(imageData);
+
   for (int i = 0; i < 3; i++)
   {
     properties["spacing"][i] = imageData->GetSpacing()[i];
@@ -632,6 +642,8 @@ Json::Value vtkVtkJSSceneGraphSerializer::ToJson(
 
   Json::Value properties;
 
+  properties["address"] = ptrToString(polyData);
+
   {
     properties["points"] = this->ToJson(polyData->GetPoints()->GetData());
     properties["points"]["vtkClass"] = "vtkPoints";
@@ -679,6 +691,7 @@ Json::Value vtkVtkJSSceneGraphSerializer::ToJson(Json::Value& parent, vtkPropert
 
   Json::Value properties;
 
+  properties["address"] = ptrToString(property);
   properties["representation"] = property->GetRepresentation();
   for (int i = 0; i < 3; i++)
   {
@@ -716,6 +729,7 @@ Json::Value vtkVtkJSSceneGraphSerializer::ToJson(
   val["type"] = "vtkActor";
 
   Json::Value properties;
+  properties["address"] = ptrToString(actor);
   for (int i = 0; i < 3; i++)
   {
     properties["origin"][i] = actor->GetOrigin()[i];
@@ -761,6 +775,7 @@ Json::Value vtkVtkJSSceneGraphSerializer::ToJson(Json::Value& parent, vtkLookupT
 
   Json::Value properties;
 
+  properties["address"] = ptrToString(lookupTable);
   properties["numberOfColors"] = static_cast<Json::Value::Int64>(lookupTable->GetNumberOfColors());
   for (int i = 0; i < 2; ++i)
   {
@@ -792,6 +807,7 @@ Json::Value vtkVtkJSSceneGraphSerializer::ToJson(
 
   Json::Value properties;
 
+  properties["address"] = ptrToString(mapper);
   properties["colorByArrayName"] = mapper->GetArrayName();
   properties["arrayAccessMode"] = mapper->GetArrayAccessMode();
   properties["colorMode"] = mapper->GetColorMode();
@@ -835,6 +851,7 @@ Json::Value vtkVtkJSSceneGraphSerializer::ToJson(
 
   Json::Value& properties = val["properties"];
 
+  properties["address"] = ptrToString(mapper);
   properties["orient"] = mapper->GetOrient();
   properties["orientationMode"] = mapper->GetOrientationMode();
   properties["scaleFactor"] = mapper->GetScaleFactor();
@@ -852,6 +869,8 @@ Json::Value vtkVtkJSSceneGraphSerializer::ToJson(Json::Value& parent, vtkCamera*
   val["type"] = "vtkCamera";
 
   Json::Value properties;
+
+  properties["address"] = ptrToString(camera);
 
   for (int i = 0; i < 3; ++i)
   {
@@ -875,6 +894,7 @@ Json::Value vtkVtkJSSceneGraphSerializer::ToJson(Json::Value& parent, vtkLight* 
 
   Json::Value properties;
 
+  properties["address"] = ptrToString(light);
   properties["intensity"] = light->GetIntensity();
   properties["switch"] = light->GetSwitch();
   properties["positional"] = light->GetPositional();
@@ -907,6 +927,7 @@ Json::Value vtkVtkJSSceneGraphSerializer::ToJson(Json::Value& parent, vtkRendere
 
   Json::Value properties;
 
+  properties["address"] = ptrToString(renderer);
   properties["twoSidedLighting"] = renderer->GetTwoSidedLighting();
   properties["lightFollowCamera"] = renderer->GetLightFollowCamera();
   properties["automaticLightCreation"] = renderer->GetAutomaticLightCreation();
@@ -974,6 +995,7 @@ Json::Value vtkVtkJSSceneGraphSerializer::ToJson(vtkRenderWindow* renderWindow)
   val["mtime"] = static_cast<Json::UInt64>(renderWindow->GetMTime());
 
   Json::Value properties;
+  properties["address"] = ptrToString(renderWindow);
   properties["numberOfLayers"] = renderWindow->GetNumberOfLayers();
 
   val["properties"] = properties;
