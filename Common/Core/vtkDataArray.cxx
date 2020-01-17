@@ -117,12 +117,13 @@ struct DeepCopyWorker
     const auto srcRange = vtk::DataArrayValueRange(src);
     auto dstRange = vtk::DataArrayValueRange(dst);
 
-    using SrcT = typename decltype(srcRange)::ValueType;
     using DstT = typename decltype(dstRange)::ValueType;
-
-    // use transform instead of copy to avoid -Wconversion warnings
-    std::transform(srcRange.cbegin(), srcRange.cend(), dstRange.begin(),
-      [](const SrcT v) -> DstT { return static_cast<DstT>(v); });
+    auto destIter = dstRange.begin();
+    // use for loop instead of copy to avoid -Wconversion warnings
+    for (auto v = srcRange.cbegin(); v != srcRange.cend(); ++v, ++destIter)
+    {
+      *destIter = static_cast<DstT>(*v);
+    }
   }
 
   // These overloads are split so that the above specializations will be
