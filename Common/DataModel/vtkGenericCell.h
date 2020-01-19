@@ -87,7 +87,7 @@ public:
     int subId, const double pcoords[3], const double* values, int dim, double* derivs) override;
   int GetParametricCenter(double pcoords[3]) override;
   double* GetParametricCoords() override;
-  int IsPrimaryCell() override;
+  int IsPrimaryCell() VTK_FUTURE_CONST override;
   ///@}
 
   ///@{

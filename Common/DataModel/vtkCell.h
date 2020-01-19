@@ -385,7 +385,7 @@ public:
    * primary cells (e.g., a triangle strip composite cell is made up of
    * triangle primary cells).
    */
-  virtual int IsPrimaryCell() { return 1; }
+  virtual int IsPrimaryCell() VTK_FUTURE_CONST { return 1; }
 
   /**
    * Return a contiguous array of parametric coordinates of the points
