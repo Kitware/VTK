@@ -52,7 +52,7 @@ public:
   /**
    * Returns the number of vtkArray instances in the collection
    */
-  vtkIdType GetNumberOfArrays();
+  vtkIdType GetNumberOfArrays() VTK_FUTURE_CONST;
 
   /**
    * Returns the n-th vtkArray in the collection

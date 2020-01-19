@@ -105,7 +105,7 @@ void vtkArrayData::ClearArrays()
   this->Modified();
 }
 
-vtkIdType vtkArrayData::GetNumberOfArrays()
+vtkIdType vtkArrayData::GetNumberOfArrays() VTK_FUTURE_CONST
 {
   return static_cast<vtkIdType>(this->Implementation->Arrays.size());
 }
