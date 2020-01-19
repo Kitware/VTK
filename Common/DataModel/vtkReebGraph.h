@@ -130,7 +130,7 @@ public:
    * VTK_RECTILINEAR_GRID (see vtkSetGet.h for definitions).
    * THIS METHOD IS THREAD SAFE
    */
-  int GetDataObjectType() override { return VTK_REEB_GRAPH; }
+  int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_REEB_GRAPH; }
 
   enum
   {

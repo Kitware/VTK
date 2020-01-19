@@ -169,7 +169,7 @@ public:
   /**
    * Overridden to return `VTK_DATA_OBJECT_TREE`.
    */
-  int GetDataObjectType() override { return VTK_DATA_OBJECT_TREE; }
+  int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_DATA_OBJECT_TREE; }
 
 protected:
   vtkDataObjectTree();

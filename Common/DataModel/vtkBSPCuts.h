@@ -37,7 +37,7 @@ public:
   /**
    * Returns VTK_BSP_CUTS.
    */
-  int GetDataObjectType() override { return VTK_BSP_CUTS; }
+  int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_BSP_CUTS; }
 
   /**
    * Initialize the cuts with arrays of information.  This type of

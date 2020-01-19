@@ -47,7 +47,7 @@ public:
   /**
    * Return what type of dataset this is.
    */
-  int GetDataObjectType() override { return VTK_RECTILINEAR_GRID; }
+  int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_RECTILINEAR_GRID; }
 
   /**
    * Copy the geometric and topological structure of an input rectilinear grid

@@ -72,7 +72,7 @@ public:
   /**
    * Standard vtkDataSet API methods. See vtkDataSet for more information.
    */
-  int GetDataObjectType() override { return VTK_POINT_SET; }
+  int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_POINT_SET; }
 
   ///@{
   /**

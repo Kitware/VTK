@@ -254,7 +254,7 @@ public:
   /**
    * Return the type of data object.
    */
-  int GetDataObjectType() override;
+  int GetDataObjectType() VTK_FUTURE_CONST override;
 
   /**
    * Estimated size needed after tessellation (or special operation)

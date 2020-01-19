@@ -69,7 +69,7 @@ public:
   /**
    * Return what type of dataset this is.
    */
-  int GetDataObjectType() override { return VTK_TABLE; }
+  int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_TABLE; }
 
   /**
    * Return the actual size of the data in kibibytes (1024 bytes). This number

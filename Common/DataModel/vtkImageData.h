@@ -60,7 +60,7 @@ public:
   /**
    * Return what type of dataset this is.
    */
-  int GetDataObjectType() override { return VTK_IMAGE_DATA; }
+  int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_IMAGE_DATA; }
 
   ///@{
   /**

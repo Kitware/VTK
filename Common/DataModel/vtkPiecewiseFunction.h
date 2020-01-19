@@ -52,7 +52,7 @@ public:
   /**
    * Return what type of dataset this is.
    */
-  int GetDataObjectType() override { return VTK_PIECEWISE_FUNCTION; }
+  int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_PIECEWISE_FUNCTION; }
 
   /**
    * Get the number of points used to specify the function

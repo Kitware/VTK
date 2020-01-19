@@ -55,7 +55,7 @@ public:
   /**
    * Return what type of dataset this is.
    */
-  int GetDataObjectType() override { return VTK_STRUCTURED_GRID; }
+  int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_STRUCTURED_GRID; }
 
   /**
    * Copy the geometric and topological structure of an input poly data object.

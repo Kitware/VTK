@@ -88,7 +88,7 @@ public:
   /**
    * Return what type of dataset this is.
    */
-  int GetDataObjectType() override { return VTK_MOLECULE; }
+  int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_MOLECULE; }
 
   /**
    * Add new atom with atomic number 0 (dummy atom) at origin. Return

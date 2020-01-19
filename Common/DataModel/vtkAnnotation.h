@@ -39,7 +39,7 @@ public:
   /**
    * Returns `VTK_ANNOTATION`.
    */
-  int GetDataObjectType() override { return VTK_ANNOTATION; }
+  int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_ANNOTATION; }
 
   ///@{
   /**

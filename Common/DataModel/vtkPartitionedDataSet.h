@@ -44,7 +44,7 @@ public:
    * Return class name of data type (see vtkType.h for
    * definitions).
    */
-  int GetDataObjectType() override { return VTK_PARTITIONED_DATA_SET; }
+  int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_PARTITIONED_DATA_SET; }
 
   /**
    * Set the number of partitions. This will cause allocation if the new number of

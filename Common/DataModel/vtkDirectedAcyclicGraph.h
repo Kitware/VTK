@@ -46,7 +46,7 @@ public:
   /**
    * Return what type of dataset this is.
    */
-  int GetDataObjectType() override { return VTK_DIRECTED_ACYCLIC_GRAPH; }
+  int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_DIRECTED_ACYCLIC_GRAPH; }
 
   ///@{
   /**

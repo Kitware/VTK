@@ -268,7 +268,7 @@ class MappedGrid
 public:
   typedef vtkMappedUnstructuredGrid<MappedGridImpl, MappedCellIterator<MappedGridImpl>> _myBase;
 
-  int GetDataObjectType() override { return VTK_UNSTRUCTURED_GRID_BASE; }
+  int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_UNSTRUCTURED_GRID_BASE; }
 
   static MappedGrid* New();
 

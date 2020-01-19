@@ -34,7 +34,7 @@ public:
   /**
    * Returns `VTK_IMAGE_STENCIL_DATA`.
    */
-  int GetDataObjectType() override { return VTK_IMAGE_STENCIL_DATA; }
+  int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_IMAGE_STENCIL_DATA; }
 
   /**
    * The extent type is 3D, just like vtkImageData.

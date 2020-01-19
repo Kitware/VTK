@@ -58,7 +58,7 @@ public:
    * Return class name of data type.
    * THIS METHOD IS THREAD SAFE
    */
-  int GetDataObjectType() override { return VTK_CELL_GRID; }
+  int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_CELL_GRID; }
 
   /**
    * Return the actual size of the data in kibibytes (1024 bytes). This number

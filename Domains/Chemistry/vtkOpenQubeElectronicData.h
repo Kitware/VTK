@@ -34,7 +34,7 @@ public:
   /**
    * Returns `VTK_OPEN_QUBE_ELECTRONIC_DATA`.
    */
-  int GetDataObjectType() override { return VTK_OPEN_QUBE_ELECTRONIC_DATA; }
+  int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_OPEN_QUBE_ELECTRONIC_DATA; }
 
   /**
    * Returns the number of molecular orbitals in the OpenQube::BasisSet.

@@ -53,7 +53,7 @@ public:
   /**
    * Standard vtkDataSet API methods. See vtkDataSet for more information.
    */
-  int GetDataObjectType() override { return VTK_UNSTRUCTURED_GRID; }
+  int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_UNSTRUCTURED_GRID; }
 
   /**
    * @brief Pre-allocate memory in internal data structures. Does not change
