@@ -266,7 +266,7 @@ void vtkLineRepresentation::GetPolyData(vtkPolyData* pd)
 //-- Set/Get position of the three handles -----------------------------
 // Point1
 //------------------------------------------------------------------------------
-void vtkLineRepresentation::GetPoint1WorldPosition(double pos[3])
+void vtkLineRepresentation::GetPoint1WorldPosition(double pos[3]) VTK_FUTURE_CONST
 {
   this->Point1Representation->GetWorldPosition(pos);
 }
@@ -277,7 +277,7 @@ double* vtkLineRepresentation::GetPoint1WorldPosition()
 }
 
 //------------------------------------------------------------------------------
-void vtkLineRepresentation::GetPoint1DisplayPosition(double pos[3])
+void vtkLineRepresentation::GetPoint1DisplayPosition(double pos[3]) VTK_FUTURE_CONST
 {
   this->Point1Representation->GetDisplayPosition(pos);
 }
@@ -308,7 +308,7 @@ void vtkLineRepresentation::SetPoint1DisplayPosition(double x[3])
 
 // Point2
 //------------------------------------------------------------------------------
-void vtkLineRepresentation::GetPoint2WorldPosition(double pos[3])
+void vtkLineRepresentation::GetPoint2WorldPosition(double pos[3]) VTK_FUTURE_CONST
 {
   this->Point2Representation->GetWorldPosition(pos);
 }
@@ -319,7 +319,7 @@ double* vtkLineRepresentation::GetPoint2WorldPosition()
 }
 
 //------------------------------------------------------------------------------
-void vtkLineRepresentation::GetPoint2DisplayPosition(double pos[3])
+void vtkLineRepresentation::GetPoint2DisplayPosition(double pos[3]) VTK_FUTURE_CONST
 {
   this->Point2Representation->GetDisplayPosition(pos);
 }

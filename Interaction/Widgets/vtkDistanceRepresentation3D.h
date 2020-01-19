@@ -111,16 +111,16 @@ public:
    */
   double* GetPoint1WorldPosition() override;
   double* GetPoint2WorldPosition() override;
-  void GetPoint1WorldPosition(double pos[3]) override;
-  void GetPoint2WorldPosition(double pos[3]) override;
+  void GetPoint1WorldPosition(double pos[3]) VTK_FUTURE_CONST override;
+  void GetPoint2WorldPosition(double pos[3]) VTK_FUTURE_CONST override;
   void SetPoint1WorldPosition(double pos[3]) override;
   void SetPoint2WorldPosition(double pos[3]) override;
   ///@}
 
   void SetPoint1DisplayPosition(double pos[3]) override;
   void SetPoint2DisplayPosition(double pos[3]) override;
-  void GetPoint1DisplayPosition(double pos[3]) override;
-  void GetPoint2DisplayPosition(double pos[3]) override;
+  void GetPoint1DisplayPosition(double pos[3]) VTK_FUTURE_CONST override;
+  void GetPoint2DisplayPosition(double pos[3]) VTK_FUTURE_CONST override;
 
   ///@{
   /**

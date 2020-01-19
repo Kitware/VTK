@@ -54,18 +54,18 @@ public:
    * this representation. Note that methods are available for both
    * display and world coordinates.
    */
-  void GetPoint1WorldPosition(double pos[3]) override;
-  void GetCenterWorldPosition(double pos[3]) override;
-  void GetPoint2WorldPosition(double pos[3]) override;
+  void GetPoint1WorldPosition(double pos[3]) VTK_FUTURE_CONST override;
+  void GetCenterWorldPosition(double pos[3]) VTK_FUTURE_CONST override;
+  void GetPoint2WorldPosition(double pos[3]) VTK_FUTURE_CONST override;
   void SetPoint1DisplayPosition(double pos[3]) override;
   void SetPoint1WorldPosition(double pos[3]);
   void SetCenterDisplayPosition(double pos[3]) override;
   void SetCenterWorldPosition(double pos[3]);
   void SetPoint2DisplayPosition(double pos[3]) override;
   void SetPoint2WorldPosition(double pos[3]);
-  void GetPoint1DisplayPosition(double pos[3]) override;
-  void GetCenterDisplayPosition(double pos[3]) override;
-  void GetPoint2DisplayPosition(double pos[3]) override;
+  void GetPoint1DisplayPosition(double pos[3]) VTK_FUTURE_CONST override;
+  void GetCenterDisplayPosition(double pos[3]) VTK_FUTURE_CONST override;
+  void GetPoint2DisplayPosition(double pos[3]) VTK_FUTURE_CONST override;
   ///@}
 
   ///@{

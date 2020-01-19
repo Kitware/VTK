@@ -51,13 +51,13 @@ vtkDistanceRepresentation2D::~vtkDistanceRepresentation2D()
 }
 
 //------------------------------------------------------------------------------
-void vtkDistanceRepresentation2D::GetPoint1WorldPosition(double pos[3])
+void vtkDistanceRepresentation2D::GetPoint1WorldPosition(double pos[3]) VTK_FUTURE_CONST
 {
   this->Point1Representation->GetWorldPosition(pos);
 }
 
 //------------------------------------------------------------------------------
-void vtkDistanceRepresentation2D::GetPoint2WorldPosition(double pos[3])
+void vtkDistanceRepresentation2D::GetPoint2WorldPosition(double pos[3]) VTK_FUTURE_CONST
 {
   this->Point2Representation->GetWorldPosition(pos);
 }
@@ -125,14 +125,14 @@ void vtkDistanceRepresentation2D::SetPoint2WorldPosition(double x[3])
 }
 
 //------------------------------------------------------------------------------
-void vtkDistanceRepresentation2D::GetPoint1DisplayPosition(double pos[3])
+void vtkDistanceRepresentation2D::GetPoint1DisplayPosition(double pos[3]) VTK_FUTURE_CONST
 {
   this->Point1Representation->GetDisplayPosition(pos);
   pos[2] = 0.0;
 }
 
 //------------------------------------------------------------------------------
-void vtkDistanceRepresentation2D::GetPoint2DisplayPosition(double pos[3])
+void vtkDistanceRepresentation2D::GetPoint2DisplayPosition(double pos[3]) VTK_FUTURE_CONST
 {
   this->Point2Representation->GetDisplayPosition(pos);
   pos[2] = 0.0;

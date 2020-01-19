@@ -60,16 +60,16 @@ public:
   virtual void SetPoint2WorldPosition(double pos[3]);
   virtual void SetPoint3WorldPosition(double pos[3]);
   virtual void SetPoint4WorldPosition(double pos[3]);
-  virtual void GetPoint1WorldPosition(double pos[3]);
-  virtual void GetPoint2WorldPosition(double pos[3]);
+  virtual void GetPoint1WorldPosition(double pos[3]) VTK_FUTURE_CONST;
+  virtual void GetPoint2WorldPosition(double pos[3]) VTK_FUTURE_CONST;
   virtual void GetPoint3WorldPosition(double pos[3]);
   virtual void GetPoint4WorldPosition(double pos[3]);
   virtual void SetPoint1DisplayPosition(double pos[3]);
   virtual void SetPoint2DisplayPosition(double pos[3]);
   virtual void SetPoint3DisplayPosition(double pos[3]);
   virtual void SetPoint4DisplayPosition(double pos[3]);
-  virtual void GetPoint1DisplayPosition(double pos[3]);
-  virtual void GetPoint2DisplayPosition(double pos[3]);
+  virtual void GetPoint1DisplayPosition(double pos[3]) VTK_FUTURE_CONST;
+  virtual void GetPoint2DisplayPosition(double pos[3]) VTK_FUTURE_CONST;
   virtual void GetPoint3DisplayPosition(double pos[3]);
   virtual void GetPoint4DisplayPosition(double pos[3]);
   ///@}

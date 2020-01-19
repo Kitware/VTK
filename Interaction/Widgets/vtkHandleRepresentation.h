@@ -67,7 +67,7 @@ public:
   virtual void GetDisplayPosition(double pos[2]);
   virtual double* GetDisplayPosition() VTK_SIZEHINT(2);
   virtual void SetWorldPosition(double pos[3]);
-  virtual void GetWorldPosition(double pos[3]);
+  virtual void GetWorldPosition(double pos[3]) VTK_FUTURE_CONST;
   virtual double* GetWorldPosition() VTK_SIZEHINT(3);
   ///@}
 
