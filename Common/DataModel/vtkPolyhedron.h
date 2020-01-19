@@ -354,7 +354,7 @@ public:
    * needs explicit faces definition in order to describe the topology
    * of the cell.
    */
-  int RequiresExplicitFaceRepresentation() override { return 1; }
+  int RequiresExplicitFaceRepresentation() VTK_FUTURE_CONST override { return 1; }
 
   /**
    * Set the faces of the polyhedron.

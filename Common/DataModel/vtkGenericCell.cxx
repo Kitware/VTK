@@ -116,7 +116,7 @@ int vtkGenericCell::GetCellDimension()
 }
 
 //------------------------------------------------------------------------------
-int vtkGenericCell::IsLinear()
+int vtkGenericCell::IsLinear() VTK_FUTURE_CONST
 {
   return this->Cell->IsLinear();
 }
@@ -128,7 +128,7 @@ int vtkGenericCell::RequiresInitialization()
 }
 
 //------------------------------------------------------------------------------
-int vtkGenericCell::RequiresExplicitFaceRepresentation()
+int vtkGenericCell::RequiresExplicitFaceRepresentation() VTK_FUTURE_CONST
 {
   return this->Cell->RequiresExplicitFaceRepresentation();
 }

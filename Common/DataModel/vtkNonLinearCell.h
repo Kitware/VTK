@@ -33,7 +33,7 @@ public:
    * converting to graphics primitives (during mapping). The vtkCell
    * API IsLinear() is modified to indicate this requirement.
    */
-  int IsLinear() override { return 0; }
+  int IsLinear() VTK_FUTURE_CONST override { return 0; }
 
   /**
    * Clip the cell based on the input cellScalars and the

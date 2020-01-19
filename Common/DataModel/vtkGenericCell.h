@@ -53,10 +53,10 @@ public:
   void DeepCopy(vtkCell* c) override;
   int GetCellType() override;
   int GetCellDimension() override;
-  int IsLinear() override;
+  int IsLinear() VTK_FUTURE_CONST override;
   int RequiresInitialization() override;
   void Initialize() override;
-  int RequiresExplicitFaceRepresentation() override;
+  int RequiresExplicitFaceRepresentation() VTK_FUTURE_CONST override;
   VTK_DEPRECATED_IN_9_4_0("Use SetCellFaces.")
   void SetFaces(vtkIdType* faces) override;
   VTK_DEPRECATED_IN_9_4_0("Use GetCellFaces.")
