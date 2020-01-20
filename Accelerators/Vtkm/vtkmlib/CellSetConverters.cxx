@@ -73,7 +73,7 @@ struct ReorderHex : public vtkm::exec::FunctorBase
 struct RunReorder
 {
   RunReorder(vtkm::cont::ArrayHandle<vtkm::Id>& handle)
-    : Handle{ handle }
+    : Handle(handle)
   {
   }
 
@@ -135,9 +135,13 @@ struct BuildSingleTypeVoxelCellSetVisitor
       vtkm::cont::ArrayCopy(
         vtkm::cont::make_ArrayHandle(origData, numIds, vtkm::CopyFlag::Off), connHandle);
 
-      // reorder cells from voxel->hex:
+      // reorder cells from voxel->hex: which only can run on
+      // devices that have shared memory / vtable with the CPU
+      using SMPTypes = vtkm::List<vtkm::cont::DeviceAdapterTagTBB,
+        vtkm::cont::DeviceAdapterTagOpenMP, vtkm::cont::DeviceAdapterTagSerial>;
+
       RunReorder reorder{ connHandle };
-      vtkm::cont::TryExecute(reorder);
+      vtkm::cont::TryExecute(reorder, SMPTypes{});
     }
 
     using CellSetType = vtkm::cont::CellSetSingleType<>;

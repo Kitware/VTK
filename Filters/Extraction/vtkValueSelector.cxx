@@ -97,11 +97,12 @@ struct ArrayValueMatchFunctor
       vtkSMPTools::For(0, fArray->GetNumberOfTuples(), [=](vtkIdType begin, vtkIdType end) {
         const auto fRange = vtk::DataArrayTupleRange(fArray, begin, end);
         auto insideRange = vtk::DataArrayValueRange<1>(insidednessArray, begin, end);
-        using FTupleCRefType = typename decltype(fRange)::ConstTupleReferenceType;
-        std::transform(fRange.cbegin(), fRange.cend(), insideRange.begin(),
-          [&](FTupleCRefType fTuple) -> signed char {
-            return std::binary_search(haystack_begin, haystack_end, fTuple[comp]) ? 1 : 0;
-          });
+        auto insideIter = insideRange.begin();
+        for (auto i = fRange.cbegin(); i != fRange.cend(); ++i, ++insideIter)
+        {
+          auto result = std::binary_search(haystack_begin, haystack_end, (*i)[comp]);
+          *insideIter = result ? 1 : 0;
+        }
       });
     }
     else
@@ -113,7 +114,7 @@ struct ArrayValueMatchFunctor
         using FTupleCRefType = typename decltype(fRange)::ConstTupleReferenceType;
         std::transform(fRange.cbegin(), fRange.cend(), insideRange.begin(),
           [&](FTupleCRefType fTuple) -> signed char {
-            ValueType val{ 0 };
+            ValueType val = ValueType(0);
             for (const ValueType fComp : fTuple)
             {
               val += fComp * fComp;
