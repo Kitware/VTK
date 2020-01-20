@@ -56,17 +56,17 @@ struct FunctionWorker
     const auto srcTuples = vtk::DataArrayTupleRange<3>(input);
     auto dstValues = vtk::DataArrayValueRange<1>(output);
 
-    using SrcTupleCRefT = typename decltype(srcTuples)::ConstTupleReferenceType;
     using DstValueT = typename decltype(dstValues)::ValueType;
 
-    std::transform(srcTuples.cbegin(), srcTuples.cend(), dstValues.begin(),
-      [&](SrcTupleCRefT tuple) -> DstValueT {
-        double in[3];
-        in[0] = static_cast<double>(tuple[0]);
-        in[1] = static_cast<double>(tuple[1]);
-        in[2] = static_cast<double>(tuple[2]);
-        return static_cast<DstValueT>(this->F(in));
-      });
+    double in[3];
+    auto destIter = dstValues.begin();
+    for (auto tuple = srcTuples.cbegin(); tuple != srcTuples.cend(); ++tuple, ++destIter)
+    {
+      in[0] = static_cast<double>((*tuple)[0]);
+      in[1] = static_cast<double>((*tuple)[1]);
+      in[2] = static_cast<double>((*tuple)[2]);
+      *destIter = static_cast<DstValueT>(this->F(in));
+    }
   }
 };
 
