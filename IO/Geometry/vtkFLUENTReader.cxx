@@ -93,14 +93,14 @@ struct vtkFLUENTReader::Face
 struct vtkFLUENTReader::ScalarDataChunk
 {
   int subsectionId;
-  unsigned int zoneId;
+  vtkIdType zoneId;
   std::vector<double> scalarData;
 };
 
 struct vtkFLUENTReader::VectorDataChunk
 {
   int subsectionId;
-  unsigned int zoneId;
+  vtkIdType zoneId;
   std::vector<double> iComponentData;
   std::vector<double> jComponentData;
   std::vector<double> kComponentData;
@@ -374,7 +374,7 @@ int vtkFLUENTReader::RequestData(vtkInformation* vtkNotUsed(request),
   for (size_t addTo = 0; addTo < this->CellZones->value.size(); addTo++)
   {
     grid[addTo]->SetPoints(Points);
-    output->SetBlock(static_cast<vtkIdType>(addTo), grid[addTo]);
+    output->SetBlock(static_cast<unsigned int>(addTo), grid[addTo]);
     grid[addTo]->Delete();
   }
   return 1;

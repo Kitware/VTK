@@ -68,7 +68,7 @@ public:
    * Get the total number of cells. The number of cells is only valid after a
    * successful read of the data file is performed. Initial value is 0.
    */
-  vtkGetMacro(NumberOfCells, int);
+  vtkGetMacro(NumberOfCells, vtkIdType);
   //@}
 
   /**
@@ -209,7 +209,7 @@ protected:
   //
   vtkDataArraySelection* CellDataArraySelection;
   char* FileName;
-  int NumberOfCells;
+  vtkIdType NumberOfCells;
   int NumberOfCellArrays;
 
   ifstream* FluentCaseFile;
