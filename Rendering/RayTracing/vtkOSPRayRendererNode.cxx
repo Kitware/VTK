@@ -1511,7 +1511,8 @@ void vtkOSPRayRendererNode::Render(bool prepass)
           static_cast<unsigned char>(std::min(this->ColorBuffer[i].y * 255.f, 255.f));
         this->Buffer[bi + 2] =
           static_cast<unsigned char>(std::min(this->ColorBuffer[i].z * 255.f, 255.f));
-        this->Buffer[bi + 3] = 255;
+        this->Buffer[bi + 3] =
+          static_cast<unsigned char>(std::min(this->ColorBuffer[i].w * 255.f, 255.f));
       }
 #else
       // std::copy((unsigned char*)rgba, this->Size[0]*this->Size[1]*4*sizeof(float),
