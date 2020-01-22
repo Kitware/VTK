@@ -49,7 +49,7 @@
  * AOS array (i.e., a 1D array), then shared access to the vtkCellArray
  * storage is provided. Otherwise, the data from storage is copied into an
  * internal iterator buffer. (Of course copying is slower and can result in
- * 5-6x reduction in traversal performance. On the other hand, the
+ * 3-4x reduction in traversal performance. On the other hand, the
  * vtkCellArray can use the appropriate storage to save memory, perform
  * zero-copy, and/or efficiently represent the cell connectivity
  * information.) Note that referencing internal vtkCellArray storage has
