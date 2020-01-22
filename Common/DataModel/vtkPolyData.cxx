@@ -67,6 +67,7 @@ struct vtkPolyDataDummyContainter
 
 vtkPolyDataDummyContainter vtkPolyData::DummyContainer;
 
+//----------------------------------------------------------------------------
 unsigned char vtkPolyData::GetCell(vtkIdType cellId, vtkIdType const*& cell)
 {
   vtkIdType npts;
@@ -92,6 +93,7 @@ unsigned char vtkPolyData::GetCell(vtkIdType cellId, vtkIdType const*& cell)
   return type;
 }
 
+//----------------------------------------------------------------------------
 vtkPolyData::vtkPolyData()
 {
   this->Information->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_PIECES_EXTENT);
@@ -416,7 +418,7 @@ void vtkPolyData::CopyCells(vtkPolyData* pd, vtkIdList* idList, vtkIncrementalPo
 
 //----------------------------------------------------------------------------
 // Fast implementation of GetCellBounds().  Bounds are calculated without
-// constructing a cell.
+// constructing a cell. This method is expected to be thread-safe.
 void vtkPolyData::GetCellBounds(vtkIdType cellId, double bounds[6])
 {
   if (!this->Cells)
@@ -434,7 +436,18 @@ void vtkPolyData::GetCellBounds(vtkIdType cellId, double bounds[6])
   vtkIdType numPts;
   const vtkIdType* pts;
   vtkCellArray* cells = this->GetCellArrayInternal(tag);
-  cells->GetCellAtId(tag.GetCellId(), numPts, pts);
+  vtkSmartPointer<vtkCellArrayIterator> iter;
+  if (cells->IsStorageShareable())
+  {
+    // much faster and thread-safe if storage is shareable
+    cells->GetCellAtId(tag.GetCellId(), numPts, pts);
+  }
+  else
+  {
+    // guaranteed thread safe
+    iter = vtk::TakeSmartPointer(cells->NewIterator());
+    iter->GetCellAtId(tag.GetCellId(), numPts, pts);
+  }
 
   // carefully compute the bounds
   double x[3];
@@ -450,12 +463,12 @@ void vtkPolyData::GetCellBounds(vtkIdType cellId, double bounds[6])
     for (vtkIdType i = 1; i < numPts; ++i)
     {
       this->Points->GetPoint(pts[i], x);
-      bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
-      bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
-      bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
-      bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
-      bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
-      bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
+      bounds[0] = std::min(x[0], bounds[0]);
+      bounds[1] = std::max(x[0], bounds[1]);
+      bounds[2] = std::min(x[1], bounds[2]);
+      bounds[3] = std::max(x[1], bounds[3]);
+      bounds[4] = std::min(x[2], bounds[4]);
+      bounds[5] = std::max(x[2], bounds[5]);
     }
   }
   else
@@ -1354,6 +1367,7 @@ void vtkPolyData::GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdList
   }
 }
 
+//----------------------------------------------------------------------------
 int vtkPolyData::IsEdge(vtkIdType p1, vtkIdType p2)
 {
   vtkIdType ncells;
@@ -1435,7 +1449,6 @@ int vtkPolyData::IsEdge(vtkIdType p1, vtkIdType p2)
 }
 
 //----------------------------------------------------------------------------
-
 unsigned long vtkPolyData::GetActualMemorySize()
 {
   unsigned long size = this->vtkPointSet::GetActualMemorySize();
@@ -1536,6 +1549,7 @@ void vtkPolyData::DeepCopy(vtkDataObject* dataObject)
   }
 }
 
+//----------------------------------------------------------------------------
 void vtkPolyData::RemoveGhostCells()
 {
   // Get a pointer to the cell ghost level array.
@@ -1666,6 +1680,7 @@ void vtkPolyData::RemoveGhostCells()
 
   this->Squeeze();
 }
+
 //----------------------------------------------------------------------------
 void vtkPolyData::RemoveDeletedCells()
 {
@@ -1717,6 +1732,7 @@ void vtkPolyData::RemoveDeletedCells()
 
   this->CellData->Squeeze();
 }
+
 //----------------------------------------------------------------------------
 vtkPolyData* vtkPolyData::GetData(vtkInformation* info)
 {

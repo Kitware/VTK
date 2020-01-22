@@ -93,13 +93,10 @@ public:
   vtkCellArray* GetCellArray() { return this->CellArray; }
 
   /**
-   * The following are methods supporting forward iteration.
-   */
-
-  /**
    * Intialize the iterator to a specific cell. This will revalidate the
    * iterator if the underlying vtkCellArray has been modified. This method
-   * can always be used to set the starting location for forward iteration.
+   * can always be used to set the starting location for forward iteration,
+   * and it is also used to support random access.
    */
   void GoToCell(vtkIdType cellId)
   {
@@ -107,6 +104,10 @@ public:
     this->NumberOfCells = this->CellArray->GetNumberOfCells();
     assert(cellId <= this->NumberOfCells);
   }
+
+  /**
+   * The following are methods supporting random access iteration.
+   */
 
   //@{
   /**
@@ -135,7 +136,7 @@ public:
   //@}
 
   /**
-   * The following are methods supporting random access iteration.
+   * The following are methods supporting forward iteration.
    */
 
   /**

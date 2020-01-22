@@ -564,13 +564,17 @@ public:
    * Return the point ids for the cell at @a cellId.
    *
    * @warning Subsequent calls to this method may invalidate previous call
-   * results if shared pointer access is provided to internal storage.
+   * results if shared pointer access is provided to internal storage. In other
+   * words, the method may not be thread safe. Check if shareable, or use an
+   * vtkCellArrayIterator for thread safety.
    */
   void GetCellAtId(vtkIdType cellId, vtkIdType& cellSize, vtkIdType const*& cellPoints)
     VTK_SIZEHINT(cellPoints, cellSize) VTK_EXPECTS(0 <= cellId && cellId < GetNumberOfCells());
 
   /**
-   * Return the point ids for the cell at @a cellId.
+   * Return the point ids for the cell at @a cellId. This always copies
+   * the cell ids (i.e., the list of points @a pts into the supplied
+   * vtkIdList). This method id thread safe.
    */
   void GetCellAtId(vtkIdType cellId, vtkIdList* pts)
     VTK_EXPECTS(0 <= cellId && cellId < GetNumberOfCells());
