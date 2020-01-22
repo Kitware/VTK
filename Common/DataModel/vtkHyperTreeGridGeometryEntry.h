@@ -56,14 +56,7 @@ public:
   /**
    * Constructor
    */
-  vtkHyperTreeGridGeometryEntry()
-  {
-    this->Index = 0;
-    for (unsigned int d = 0; d < 3; ++d)
-    {
-      this->Origin[d] = 0.;
-    }
-  }
+  vtkHyperTreeGridGeometryEntry();
 
   /**
    * Constructor
