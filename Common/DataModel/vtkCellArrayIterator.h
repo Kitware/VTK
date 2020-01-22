@@ -117,7 +117,7 @@ public:
    * storage is possible, if vtkIdType is the same as the vtkCellArray buffer
    * (which is typical).
    */
-  void GetCellAtId(vtkIdType cellId, vtkIdType numCellPts, vtkIdType const*& cellPts)
+  void GetCellAtId(vtkIdType cellId, vtkIdType& numCellPts, vtkIdType const*& cellPts)
   {
     this->GoToCell(cellId);
     this->GetCurrentCell(numCellPts, cellPts);

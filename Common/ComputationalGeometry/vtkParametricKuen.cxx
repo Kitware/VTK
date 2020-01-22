@@ -15,6 +15,8 @@
 #include "vtkParametricKuen.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+
+#include <cfloat>
 #include <cmath>
 
 vtkStandardNewMacro(vtkParametricKuen);
@@ -46,11 +48,9 @@ void vtkParametricKuen::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
   // Copy the parameters out of the vector, for the sake of convenience.
   double u = uvw[0];
   double v = uvw[1];
+
   // This is needed to prevent Pt[2] going to -inf.
-  if (v == 0)
-  {
-    v = this->DeltaV0;
-  }
+  v = (v == 0 ? this->DeltaV0 : v);
 
   // We're only going to need the u and v partial derivatives.
   // The w partial derivatives are not needed.
@@ -76,9 +76,16 @@ void vtkParametricKuen::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
 
   // Location of the point. This parametrization was taken from:
   // http://mathworld.wolfram.com/KuenSurface.html
+
+  // Conditional is needed to prevent Pt[2] going to inf (due to log(tan(Pi/2))).
+  // Limit of log(tan(0))=1.
+  double logTanvO2 =
+    ((vtkMath::Pi() - FLT_EPSILON <= v) && (v <= vtkMath::Pi() + FLT_EPSILON) ? 1.0
+                                                                              : log(tan(v / 2.0)));
   Pt[0] = 2. * sinv * (sinu - u * cosu) / denom_1;
   Pt[1] = 2. * sinv * (cosu + u * sinu) / denom_1;
-  Pt[2] = log(tan(v / 2.)) + 2. * cosv / denom_1;
+  Pt[2] = logTanvO2 + 2. * cosv / denom_1;
+
   // The derivative with respect to u:
   Du[1] = (2. * u * sinv * (cosu + ((u * u - 2.) * cosu - 2. * u * sinu) * sinv * sinv)) /
     (denom_1 * denom_1);
