@@ -1031,8 +1031,8 @@ if (HDF5_FOUND)
           set(_hdf5_location "${HDF5_${hdf5_lang}_LIBRARY_${hdf5_target_name}}")
         elseif (DEFINED "HDF5_${hdf5_target_name}_LIBRARY")
           set(_hdf5_location "${HDF5_${hdf5_target_name}_LIBRARY}")
-        elseif (DEFINED "HDF5_${hdf5_lang}_LIBRARY")
-          set(_hdf5_location "${HDF5_${hdf5_lang}_LIBRARY}")
+        elseif (DEFINED "HDF5_${hdf5_lang}_HL_LIBRARY")
+          set(_hdf5_location "${HDF5_${hdf5_lang}_HL_LIBRARY}")
         else ()
           # Error if we still don't have the location.
           message(SEND_ERROR
