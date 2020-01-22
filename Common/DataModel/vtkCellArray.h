@@ -45,10 +45,10 @@
  * Connectivity: {0, 1, 2, 5, 7, 2, 3, 4, 6, 7, 5, 8}
  * ```
  *
- * While this class provides traversal methods (InitTraversal, GetNextCell),
- * these are not thread-safe and are a bit difficult to use correctly as they
- * do not use the typical VTK iterator API. Prefer to use a local
- * vtkCellArrayIterator object, which can be obtained via:
+ * While this class provides traversal methods (the legacy InitTraversal(),
+ * GetNextCell() methods, and the newer method GetCellAtId()) these are in
+ * general not thread-safe. Whenever possible it is preferrable to use a
+ * local thread-safe, vtkCellArrayIterator object, which can be obtained via:
  *
  * ```
  * auto iter = vtk::TakeSmartPointer(cellArray->NewIterator());
@@ -57,18 +57,34 @@
  *   // do work with iter
  * }
  * ```
+ * (Note however that depending on the type and structure of internal
+ * storage, a cell array iterator may be significantly slower than direct
+ * traversal over the cell array due to extra data copying. Factors of 3-4X
+ * are not uncommon. See vtkCellArrayIterator for more information. Also note
+ * that an iterator may become invalid if the internal vtkCellArray storage
+ * is modified.)
  *
- * The internal arrays may store either 32- or 64-bit values, though most of the API
- * will prefer to use vtkIdType to refer to items in these arrays. This enables
- * significant memory savings when vtkIdType is 64-bit, but 32 bits are
- * sufficient to store all of the values in the connectivity table. Using
- * 64-bit storage with a 32-bit vtkIdType is permitted, but values too large to
- * fit in a 32-bit signed integer will be truncated when accessed through the
- * API.
+ * Other methods are also available for allocation and memory-related
+ * management; insertion of new cells into the vtkCellArray; and limited
+ * editing operations such as replacing one cell with a new cell of the
+ * same size.
+ *
+ * The internal arrays may store either 32- or 64-bit values, though most of
+ * the API will prefer to use vtkIdType to refer to items in these
+ * arrays. This enables significant memory savings when vtkIdType is 64-bit,
+ * but 32 bits are sufficient to store all of the values in the connectivity
+ * table. Using 64-bit storage with a 32-bit vtkIdType is permitted, but
+ * values too large to fit in a 32-bit signed integer will be truncated when
+ * accessed through the API. (The particular internal storage type has
+ * implications on performance depending on vtkIdType. If the internal
+ * storage is equivalent to vtkIdType, then methods that return pointers to
+ * arrays of point ids can share the internal storage; otherwise a copy of
+ * internal memory must be performed.)
  *
  * Methods for managing the storage type are:
  *
  * - `bool IsStorage64Bit()`
+ * - `bool IsStorageShareable() // Can pointers to internal storage be shared`
  * - `void Use32BitStorage()`
  * - `void Use64BitStorage()`
  * - `void UseDefaultStorage() // Depends on vtkIdType`
@@ -80,9 +96,9 @@
  * - `bool ConvertToDefaultStorage() // Depends on vtkIdType`
  * - `bool ConvertToSmallestStorage() // Depends on current values in arrays`
  *
- * Note that some methods are still available that reflect the previous
- * storage format of this data, which embedded the cell sizes into the
- * Connectivity array:
+ * Note that some legacy methods are still available that reflect the
+ * previous storage format of this data, which embedded the cell sizes into
+ * the Connectivity array:
  *
  * ```
  * vtkCellArray (legacy):
@@ -107,11 +123,11 @@
  * - SetCells (Use ImportLegacyFormat, or SetData)
  * - GetData (Use ExportLegacyFormat, or Get[Offsets|Connectivity]Array[|32|64])
  *
- * Some other methods were completely removed, such as GetPointer /
- * WritePointer, since they are simply not able to be emulated under the current
- * design. If external code needs to support both the old and new version of the
- * vtkCellArray API, the VTK_CELL_ARRAY_V2 preprocessor definition may be used
- * to detect which API is being compiled against.
+ * Some other legacy methods were completely removed, such as GetPointer() /
+ * WritePointer(), since they are cannot be effectively emulated under the
+ * current design. If external code needs to support both the old and new
+ * version of the vtkCellArray API, the VTK_CELL_ARRAY_V2 preprocessor
+ * definition may be used to detect which API is being compiled against.
  *
  * @sa vtkCellTypes vtkCellLinks
  */
@@ -163,12 +179,19 @@ class vtkIdTypeArray;
 class VTKCOMMONDATAMODEL_EXPORT vtkCellArray : public vtkObject
 {
 public:
+  using ArrayType32 = vtkTypeInt32Array;
+  using ArrayType64 = vtkTypeInt64Array;
+
+  //@{
+  /**
+   * Standard methods for instantiation, type information, and
+   * printing.
+   */
+  static vtkCellArray* New();
   vtkTypeMacro(vtkCellArray, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   void PrintDebug(ostream& os);
-
-  using ArrayType32 = vtkTypeInt32Array;
-  using ArrayType64 = vtkTypeInt64Array;
+  //@}
 
   /**
    * List of possible array types used for storage. May be used with
@@ -182,8 +205,8 @@ public:
 
   /**
    * List of possible ArrayTypes that are compatible with internal storage.
-   * Single component AoS-layout arrays holding one of these types may be
-   * passed to SetData to setup the cell array state.
+   * Single component AOS-layout arrays holding one of these types may be
+   * passed to the method SetData to setup the cell array state.
    *
    * This can be used with vtkArrayDispatch::DispatchByArray, etc to
    * check input arrays before assigning them to a cell array.
@@ -193,18 +216,12 @@ public:
       vtkAOSDataArrayTemplate<long>, vtkAOSDataArrayTemplate<long long> > >::Result;
 
   /**
-   * Instantiate cell array (connectivity list).
-   */
-  static vtkCellArray* New();
-
-  /**
    * Allocate memory.
    *
    * This currently allocates both the offsets and connectivity arrays to @a sz.
    *
-   * @note The internal storage no longer makes sense with this method.
-   * Use AllocateEstimate(numCells, maxCellSize) or
-   * AllocateExact(numCells, connectivitySize) instead.
+   * @note It is preferrable to use AllocateEstimate(numCells, maxCellSize)
+   * or AllocateExact(numCells, connectivitySize) instead.
    */
   vtkTypeBool Allocate(vtkIdType sz, vtkIdType vtkNotUsed(ext) = 1000)
   {
@@ -251,7 +268,7 @@ public:
   }
 
   /**
-   * @brief ResizeExact resizes the internal structures to hold @a numCells
+   * @brief ResizeExact() resizes the internal structures to hold @a numCells
    * total cell offsets and @a connectivitySize total pointIds. Old data is
    * preserved, and newly-available memory is not initialized.
    *
@@ -267,7 +284,7 @@ public:
   void Initialize();
 
   /**
-   * Reuse list. Reset to initial condition without freeing memory.
+   * Reuse list. Reset to initial state without freeing memory.
    */
   void Reset();
 
@@ -283,7 +300,7 @@ public:
    *
    * Specifically, this function returns true if and only if:
    * - The offset and connectivity arrays have exactly one component.
-   * - The offset array has at least one value and starts at 0
+   * - The offset array has at least one value and starts at 0.
    * - The offset array values never decrease.
    * - The connectivity array has as many entries as the last value in the
    *   offset array.
@@ -324,7 +341,8 @@ public:
   /**
    * Get the size of the connectivity array that stores the point ids.
    * @note Do not confuse this with the deprecated
-   * GetNumberOfConnectivityEntries, which refers to an outdated memory layout.
+   * GetNumberOfConnectivityEntries(), which refers to the legacy memory
+   * layout.
    */
   vtkIdType GetNumberOfConnectivityIds() const
   {
@@ -385,6 +403,24 @@ public:
    * the storage is using 32 bit arrays.
    */
   bool IsStorage64Bit() const { return this->Storage.Is64Bit(); }
+
+  /**
+   * @return True if the internal storage can be shared as a
+   * pointer to vtkIdType, i.e., the type and organization of internal
+   * storage is such that copying of data can be avoided, and instead
+   * a pointer to vtkIdType can be used.
+   */
+  bool IsStorageShareable() const
+  {
+    if (this->Storage.Is64Bit())
+    {
+      return this->Storage.GetArrays64().ValueTypeIsSameAsIdType;
+    }
+    else
+    {
+      return this->Storage.GetArrays32().ValueTypeIsSameAsIdType;
+    }
+  }
 
   /**
    * Initialize internal data structures to use 32- or 64-bit storage.
@@ -528,13 +564,19 @@ public:
    * Return the point ids for the cell at @a cellId.
    *
    * @warning Subsequent calls to this method may invalidate previous call
-   * results.
+   * results if the internal storage type is not the same as vtkIdType and
+   * cannot be shared through the @a cellPoints pointer. In other words, the
+   * method may not be thread safe. Check if shareable (using
+   * IsStorageShareable()), or use a vtkCellArrayIterator to guarantee thread
+   * safety.
    */
   void GetCellAtId(vtkIdType cellId, vtkIdType& cellSize, vtkIdType const*& cellPoints)
     VTK_SIZEHINT(cellPoints, cellSize) VTK_EXPECTS(0 <= cellId && cellId < GetNumberOfCells());
 
   /**
-   * Return the point ids for the cell at @a cellId.
+   * Return the point ids for the cell at @a cellId. This always copies
+   * the cell ids (i.e., the list of points @a pts into the supplied
+   * vtkIdList). This method is thread safe.
    */
   void GetCellAtId(vtkIdType cellId, vtkIdList* pts)
     VTK_EXPECTS(0 <= cellId && cellId < GetNumberOfCells());
@@ -574,15 +616,15 @@ public:
   }
 
   /**
-   * Create cells by specifying count, and then adding points one at a time
-   * using method InsertCellPoint(). If you don't know the count initially,
-   * use the method UpdateCellCount() to complete the cell. Return the cell
-   * id of the cell.
+   * Create cells by specifying a count of total points to be inserted, and
+   * then adding points one at a time using method InsertCellPoint(). If you
+   * don't know the count initially, use the method UpdateCellCount() to
+   * complete the cell. Return the cell id of the cell.
    */
   vtkIdType InsertNextCell(int npts);
 
   /**
-   * Used in conjunction with InsertNextCell(int npts) to add another point
+   * Used in conjunction with InsertNextCell(npts) to add another point
    * to the list of cells.
    */
   void InsertCellPoint(vtkIdType id);
@@ -707,6 +749,8 @@ public:
    * been updated.
    */
   unsigned long GetActualMemorySize() const;
+
+  // The following code is used to support
 
   // The wrappers get understandably confused by some of the template code below
 #ifndef __VTK_WRAP__

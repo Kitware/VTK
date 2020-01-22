@@ -133,7 +133,9 @@ public:
   void GetPointCells(vtkIdType ptId, vtkIdList* cellIds) override;
 
   /**
-   * Compute the (X, Y, Z)  bounds of the data.
+   * Compute the (X, Y, Z)  bounds of the data. Note that the method only considers
+   * points that are used by cells (unless there are no cells, in which case all
+   * points are considered). This is done for usability and historical reasons.
    */
   void ComputeBounds() override;
 

@@ -154,6 +154,14 @@ public:
    */
   static int IsLinear(unsigned char type);
 
+  //@{
+  /**
+   * Methods for obtaining the arrays representing types and locations.
+   */
+  vtkUnsignedCharArray* GetCellTypesArray() { return this->TypeArray; }
+  vtkIdTypeArray* GetCellLocationsArray() { return this->LocationArray; }
+  //@}
+
 protected:
   vtkCellTypes();
   ~vtkCellTypes() override;

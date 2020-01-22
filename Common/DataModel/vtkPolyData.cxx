@@ -14,7 +14,9 @@
 =========================================================================*/
 #include "vtkPolyData.h"
 
+#include "vtkBoundingBox.h"
 #include "vtkCellArray.h"
+#include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
 #include "vtkEmptyCell.h"
 #include "vtkGenericCell.h"
@@ -29,12 +31,12 @@
 #include "vtkPolyVertex.h"
 #include "vtkPolygon.h"
 #include "vtkQuad.h"
+#include "vtkSMPTools.h"
+#include "vtkSmartPointer.h"
 #include "vtkTriangle.h"
 #include "vtkTriangleStrip.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkVertex.h"
-
-#include "vtkSmartPointer.h"
 
 #include <stdexcept>
 
@@ -65,6 +67,7 @@ struct vtkPolyDataDummyContainter
 
 vtkPolyDataDummyContainter vtkPolyData::DummyContainer;
 
+//----------------------------------------------------------------------------
 unsigned char vtkPolyData::GetCell(vtkIdType cellId, vtkIdType const*& cell)
 {
   vtkIdType npts;
@@ -90,6 +93,7 @@ unsigned char vtkPolyData::GetCell(vtkIdType cellId, vtkIdType const*& cell)
   return type;
 }
 
+//----------------------------------------------------------------------------
 vtkPolyData::vtkPolyData()
 {
   this->Information->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_PIECES_EXTENT);
@@ -414,7 +418,7 @@ void vtkPolyData::CopyCells(vtkPolyData* pd, vtkIdList* idList, vtkIncrementalPo
 
 //----------------------------------------------------------------------------
 // Fast implementation of GetCellBounds().  Bounds are calculated without
-// constructing a cell.
+// constructing a cell. This method is expected to be thread-safe.
 void vtkPolyData::GetCellBounds(vtkIdType cellId, double bounds[6])
 {
   if (!this->Cells)
@@ -432,7 +436,18 @@ void vtkPolyData::GetCellBounds(vtkIdType cellId, double bounds[6])
   vtkIdType numPts;
   const vtkIdType* pts;
   vtkCellArray* cells = this->GetCellArrayInternal(tag);
-  cells->GetCellAtId(tag.GetCellId(), numPts, pts);
+  vtkSmartPointer<vtkCellArrayIterator> iter;
+  if (cells->IsStorageShareable())
+  {
+    // much faster and thread-safe if storage is shareable
+    cells->GetCellAtId(tag.GetCellId(), numPts, pts);
+  }
+  else
+  {
+    // guaranteed thread safe
+    iter = vtk::TakeSmartPointer(cells->NewIterator());
+    iter->GetCellAtId(tag.GetCellId(), numPts, pts);
+  }
 
   // carefully compute the bounds
   double x[3];
@@ -448,12 +463,12 @@ void vtkPolyData::GetCellBounds(vtkIdType cellId, double bounds[6])
     for (vtkIdType i = 1; i < numPts; ++i)
     {
       this->Points->GetPoint(pts[i], x);
-      bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
-      bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
-      bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
-      bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
-      bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
-      bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
+      bounds[0] = std::min(x[0], bounds[0]);
+      bounds[1] = std::max(x[0], bounds[1]);
+      bounds[2] = std::min(x[1], bounds[2]);
+      bounds[3] = std::max(x[1], bounds[3]);
+      bounds[4] = std::min(x[2], bounds[4]);
+      bounds[5] = std::max(x[2], bounds[5]);
     }
   }
   else
@@ -463,58 +478,86 @@ void vtkPolyData::GetCellBounds(vtkIdType cellId, double bounds[6])
 }
 
 //----------------------------------------------------------------------------
+// This method only considers points that are used by one or more cells. Thus
+// unused points make no contribution to the bounding box computation. This
+// is more costly to compute than using just the points, but for rendering
+// and historical reasons, produces preferred results.
 void vtkPolyData::ComputeBounds()
 {
   if (this->GetMeshMTime() > this->ComputeTime)
   {
-    // If there are no cells, but there are points, back to the
-    // bounds of the points set.
-    if (this->GetNumberOfCells() == 0 && this->GetNumberOfPoints())
+    // If there are no cells, but there are points, compute the bounds from the
+    // parent class vtkPointSet (which just examines points).
+    vtkIdType numPts = this->GetNumberOfPoints();
+    vtkIdType numCells = this->GetNumberOfCells();
+    if (numCells <= 0 && numPts > 0)
     {
       vtkPointSet::ComputeBounds();
       return;
     }
 
-    int t, i;
-    const vtkIdType* pts = nullptr;
-    vtkIdType npts = 0;
-    double x[3];
+    // We are going to compute the bounds
+    this->ComputeTime.Modified();
 
-    vtkCellArray* cella[4];
-
-    cella[0] = this->GetVerts();
-    cella[1] = this->GetLines();
-    cella[2] = this->GetPolys();
-    cella[3] = this->GetStrips();
-
-    // carefully compute the bounds
-    int doneOne = 0;
-    this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = VTK_DOUBLE_MAX;
-    this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_DOUBLE_MAX;
-
-    // Iterate over cells's points
-    for (t = 0; t < 4; t++)
-    {
-      for (cella[t]->InitTraversal(); cella[t]->GetNextCell(npts, pts);)
-      {
-        for (i = 0; i < npts; i++)
-        {
-          this->Points->GetPoint(pts[i], x);
-          this->Bounds[0] = (x[0] < this->Bounds[0] ? x[0] : this->Bounds[0]);
-          this->Bounds[1] = (x[0] > this->Bounds[1] ? x[0] : this->Bounds[1]);
-          this->Bounds[2] = (x[1] < this->Bounds[2] ? x[1] : this->Bounds[2]);
-          this->Bounds[3] = (x[1] > this->Bounds[3] ? x[1] : this->Bounds[3]);
-          this->Bounds[4] = (x[2] < this->Bounds[4] ? x[2] : this->Bounds[4]);
-          this->Bounds[5] = (x[2] > this->Bounds[5] ? x[2] : this->Bounds[5]);
-          doneOne = 1;
-        }
-      }
-    }
-    if (!doneOne)
+    // Make sure this vtkPolyData has points.
+    if (this->Points == nullptr || numPts <= 0)
     {
       vtkMath::UninitializeBounds(this->Bounds);
+      return;
     }
-    this->ComputeTime.Modified();
+
+    // With cells available, loop over the cells of the polydata.
+    // Mark points that are used by one or more cells. Unmarked
+    // points do not contribute.
+    unsigned char* ptUses = new unsigned char[numPts];
+    std::fill_n(ptUses, numPts, 0); // initially unvisited
+
+    vtkCellArray* cellA[4];
+    cellA[0] = this->GetVerts();
+    cellA[1] = this->GetLines();
+    cellA[2] = this->GetPolys();
+    cellA[3] = this->GetStrips();
+
+    // Process each cell array separately. Note that threading is only used
+    // if the model is big enough (since there is a cost to spinning up the
+    // thread pool).
+    for (auto ca = 0; ca < 4; ca++)
+    {
+      if ((numCells = cellA[ca]->GetNumberOfCells()) > 250000)
+      {
+        // Lambda to threaded compute bounds
+        vtkSMPTools::For(0, numCells, [&](vtkIdType cellId, vtkIdType endCellId) {
+          vtkIdType npts, ptIdx;
+          const vtkIdType* pts;
+          auto iter = vtk::TakeSmartPointer(cellA[ca]->NewIterator());
+          for (; cellId < endCellId; ++cellId)
+          {
+            iter->GetCellAtId(cellId, npts, pts); // thread-safe
+            for (ptIdx = 0; ptIdx < npts; ++ptIdx)
+            {
+              ptUses[pts[ptIdx]] = 1;
+            }
+          }
+        }); // end lambda
+      }
+      else if (numCells > 0) // serial
+      {
+        vtkIdType npts, ptIdx;
+        const vtkIdType* pts;
+        for (auto cellId = 0; cellId < numCells; ++cellId)
+        {
+          cellA[ca]->GetCellAtId(cellId, npts, pts);
+          for (ptIdx = 0; ptIdx < npts; ++ptIdx)
+          {
+            ptUses[pts[ptIdx]] = 1;
+          }
+        }
+      }
+    } // for all cell arrays
+
+    // Perform the bounding box computation
+    vtkBoundingBox::ComputeBounds(this->Points, ptUses, this->Bounds);
+    delete[] ptUses;
   }
 }
 
@@ -1324,6 +1367,7 @@ void vtkPolyData::GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdList
   }
 }
 
+//----------------------------------------------------------------------------
 int vtkPolyData::IsEdge(vtkIdType p1, vtkIdType p2)
 {
   vtkIdType ncells;
@@ -1405,7 +1449,6 @@ int vtkPolyData::IsEdge(vtkIdType p1, vtkIdType p2)
 }
 
 //----------------------------------------------------------------------------
-
 unsigned long vtkPolyData::GetActualMemorySize()
 {
   unsigned long size = this->vtkPointSet::GetActualMemorySize();
@@ -1506,6 +1549,7 @@ void vtkPolyData::DeepCopy(vtkDataObject* dataObject)
   }
 }
 
+//----------------------------------------------------------------------------
 void vtkPolyData::RemoveGhostCells()
 {
   // Get a pointer to the cell ghost level array.
@@ -1636,6 +1680,7 @@ void vtkPolyData::RemoveGhostCells()
 
   this->Squeeze();
 }
+
 //----------------------------------------------------------------------------
 void vtkPolyData::RemoveDeletedCells()
 {
@@ -1687,6 +1732,7 @@ void vtkPolyData::RemoveDeletedCells()
 
   this->CellData->Squeeze();
 }
+
 //----------------------------------------------------------------------------
 vtkPolyData* vtkPolyData::GetData(vtkInformation* info)
 {

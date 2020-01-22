@@ -20,6 +20,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   TestAMRBox.cxx
   TestBiQuadraticQuad.cxx
   TestCellArray.cxx
+  TestCellArrayTraversal.cxx
   TestCompositeDataSets.cxx
   TestCompositeDataSetRange.cxx
   TestComputeBoundingSphere.cxx

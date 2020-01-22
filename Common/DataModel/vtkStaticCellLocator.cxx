@@ -1413,6 +1413,10 @@ void vtkStaticCellLocator::BuildLocator()
   // The bounding box can be slow
   int i, ndivs[3];
   const double* bounds = this->DataSet->GetBounds();
+
+  cout << "Bounds (" << bounds[0] << "," << bounds[1] << ", " << bounds[2] << "," << bounds[3]
+       << ", " << bounds[4] << "," << bounds[5] << ")\n";
+
   vtkIdType numBins = static_cast<vtkIdType>(
     static_cast<double>(numCells) / static_cast<double>(this->NumberOfCellsPerNode));
   numBins = (numBins > this->MaxNumberOfBuckets ? this->MaxNumberOfBuckets : numBins);

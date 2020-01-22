@@ -13,8 +13,15 @@
 
 =========================================================================*/
 #include "vtkBoundingBox.h"
+#include "vtkArrayDispatch.h"
+#include "vtkDataArrayRange.h"
 #include "vtkMath.h"
 #include "vtkPlane.h"
+#include "vtkPoints.h"
+#include "vtkSMPThreadLocal.h"
+#include "vtkSMPTools.h"
+
+#include <array>
 #include <cassert>
 #include <cmath>
 
@@ -618,4 +625,142 @@ bool vtkBoundingBox::IntersectPlane(double origin[3], double normal[3])
   }
 
   return true;
+}
+
+// ---------------------------------------------------------------------------
+// Support ComputeBounds()
+namespace
+{
+
+template <typename PointsT>
+struct FastBounds
+{
+  PointsT* Points;
+  const unsigned char* PointUses;
+  double* Bounds;
+  vtkSMPThreadLocal<std::array<double, 6> > LocalBounds;
+
+  FastBounds(PointsT* pts, const unsigned char* ptUses, double* bds)
+    : Points(pts)
+    , PointUses(ptUses)
+    , Bounds(bds)
+  {
+  }
+
+  void Initialize()
+  {
+    std::array<double, 6>& localBds = this->LocalBounds.Local();
+
+    localBds[0] = VTK_DOUBLE_MAX;
+    localBds[2] = VTK_DOUBLE_MAX;
+    localBds[4] = VTK_DOUBLE_MAX;
+
+    localBds[1] = VTK_DOUBLE_MIN;
+    localBds[3] = VTK_DOUBLE_MIN;
+    localBds[5] = VTK_DOUBLE_MIN;
+  }
+
+  void operator()(vtkIdType beginPtId, vtkIdType endPtId)
+  {
+    std::array<double, 6>& localBds = this->LocalBounds.Local();
+    const auto tuples = vtk::DataArrayTupleRange<3>(this->Points, beginPtId, endPtId);
+    const unsigned char usedConst[1] = { 1 };
+    const unsigned char* used =
+      (this->PointUses != nullptr ? this->PointUses + beginPtId : usedConst);
+
+    for (const auto tuple : tuples)
+    {
+      if (*used)
+      {
+        double x = static_cast<double>(tuple[0]);
+        double y = static_cast<double>(tuple[1]);
+        double z = static_cast<double>(tuple[2]);
+
+        localBds[0] = std::min(x, localBds[0]);
+        localBds[1] = std::max(x, localBds[1]);
+        localBds[2] = std::min(y, localBds[2]);
+        localBds[3] = std::max(y, localBds[3]);
+        localBds[4] = std::min(z, localBds[4]);
+        localBds[5] = std::max(z, localBds[5]);
+      }
+      if (this->PointUses != nullptr)
+      {
+        ++used;
+      }
+    }
+  }
+
+  void Reduce()
+  {
+    // Composite bounds from all threads
+    double xmin = VTK_DOUBLE_MAX;
+    double ymin = VTK_DOUBLE_MAX;
+    double zmin = VTK_DOUBLE_MAX;
+    double xmax = VTK_DOUBLE_MIN;
+    double ymax = VTK_DOUBLE_MIN;
+    double zmax = VTK_DOUBLE_MIN;
+
+    for (auto iter = this->LocalBounds.begin(); iter != this->LocalBounds.end(); ++iter)
+    {
+      xmin = std::min((*iter)[0], xmin);
+      xmax = std::max((*iter)[1], xmax);
+      ymin = std::min((*iter)[2], ymin);
+      ymax = std::max((*iter)[3], ymax);
+      zmin = std::min((*iter)[4], zmin);
+      zmax = std::max((*iter)[5], zmax);
+    }
+
+    this->Bounds[0] = xmin;
+    this->Bounds[1] = xmax;
+    this->Bounds[2] = ymin;
+    this->Bounds[3] = ymax;
+    this->Bounds[4] = zmin;
+    this->Bounds[5] = zmax;
+  }
+};
+
+// Hooks into dispatcher vtkArrayDispatch by providing a callable generic
+struct BoundsWorker
+{
+  template <typename PointsT>
+  void operator()(PointsT* pts, const unsigned char* ptUses, double* bds)
+  {
+    vtkIdType numPts = pts->GetNumberOfTuples();
+    FastBounds<PointsT> fastBds(pts, ptUses, bds);
+    vtkSMPTools::For(0, numPts, fastBds);
+  }
+};
+
+} // anonymous namespace
+
+// ---------------------------------------------------------------------------
+// Fast computing of bounding box from vtkPoints.
+void vtkBoundingBox::ComputeBounds(vtkPoints* pts, double bounds[6])
+{
+  return vtkBoundingBox::ComputeBounds(pts, nullptr, bounds);
+}
+
+// ---------------------------------------------------------------------------
+// Fast computing of bounding box from vtkPoints and optional array that marks
+// points that should be used in the computation.
+void vtkBoundingBox::ComputeBounds(vtkPoints* pts, const unsigned char* ptUses, double bounds[6])
+{
+  // Check for valid
+  vtkIdType numPts;
+  if (pts == nullptr || (numPts = pts->GetNumberOfPoints()) < 1)
+  {
+    bounds[0] = bounds[2] = bounds[4] = VTK_DOUBLE_MAX;
+    bounds[1] = bounds[3] = bounds[5] = VTK_DOUBLE_MIN;
+    return;
+  }
+
+  // Compute bounds: dispatch to real types, fallback for other types.
+  using vtkArrayDispatch::Reals;
+  using Dispatcher = vtkArrayDispatch::DispatchByValueType<Reals>;
+  BoundsWorker worker;
+
+  if (!Dispatcher::Execute(pts->GetData(), worker, ptUses, bounds))
+  { // Fallback to slowpath for other point types
+    worker(pts->GetData(), ptUses, bounds);
+  }
 }
