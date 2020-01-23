@@ -172,6 +172,7 @@ int PyVTKReference_SetValue(PyObject* self, PyObject* val)
     PyObject** op = &((PyVTKReference*)self)->value;
 
     PyObject* result = PyVTKReference_CompatibleObject(self, val);
+    Py_DECREF(val);
     if (result)
     {
       Py_DECREF(*op);
