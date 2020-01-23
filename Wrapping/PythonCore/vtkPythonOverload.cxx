@@ -296,6 +296,24 @@ static int vtkPythonStringPenalty(PyObject* u, char format, int penalty)
 }
 #endif
 
+#ifdef VTK_PY3K
+//--------------------------------------------------------------------
+// Check if object supports conversion to integer
+
+static bool vtkPythonCanConvertToInt(PyObject* arg)
+{
+  // Python 3.8 deprecated implicit conversions via __int__, so we must
+  // check for the existence of the __int__ and __index__ slots ourselves
+  // instead of simply attempting a conversion.
+  PyNumberMethods* nb = Py_TYPE(arg)->tp_as_number;
+#if PY_VERSION_HEX >= 0x03080000
+  return (nb && (nb->nb_int || nb->nb_index));
+#else
+  return (nb && nb->nb_int);
+#endif
+}
+#endif
+
 //--------------------------------------------------------------------
 // This must check the same format chars that are used by
 // vtkWrapPython_ArgCheckString() in vtkWrapPythonOverload.c.
@@ -402,15 +420,18 @@ int vtkPythonOverload::CheckArg(PyObject* arg, const char* format, const char* n
         {
           penalty = VTK_PYTHON_NEEDS_CONVERSION;
 #ifdef VTK_PY3K
-          PY_LONG_LONG tmpi = PyLong_AsLongLong(arg);
+          if (!vtkPythonCanConvertToInt(arg))
+          {
+            penalty = VTK_PYTHON_INCOMPATIBLE;
+          }
 #else
           long tmpi = PyInt_AsLong(arg);
-#endif
           if (tmpi == -1 || PyErr_Occurred())
           {
             PyErr_Clear();
             penalty = VTK_PYTHON_INCOMPATIBLE;
           }
+#endif
         }
         else
         {
@@ -430,12 +451,19 @@ int vtkPythonOverload::CheckArg(PyObject* arg, const char* format, const char* n
           if (level == 0)
           {
             penalty = VTK_PYTHON_NEEDS_CONVERSION;
+#ifdef VTK_PY3K
+            if (!vtkPythonCanConvertToInt(arg))
+            {
+              penalty = VTK_PYTHON_INCOMPATIBLE;
+            }
+#else
             PyLong_AsLongLong(arg);
             if (PyErr_Occurred())
             {
               PyErr_Clear();
               penalty = VTK_PYTHON_INCOMPATIBLE;
             }
+#endif
           }
           else
           {
