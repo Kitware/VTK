@@ -112,17 +112,18 @@ int PIOAdaptor::initializeGlobal(const char* PIOFileName)
     return 0;
   }
 
+  // Get the directory name from the full path of the .pio file
   string::size_type dirPos = this->descFileName.find_last_of(Slash);
   string dirName;
   if (dirPos == string::npos)
   {
-    dirName = ".";
+    std::cerr << "Bad input file name: " << PIOFileName << std::endl;
+    return 0;
   }
   else
   {
     dirName = this->descFileName.substr(0, dirPos);
   }
-  dirName = dirName + Slash;
 
   /////////////////////////////////////////////////////////////////////////////
   //
@@ -133,7 +134,7 @@ int PIOAdaptor::initializeGlobal(const char* PIOFileName)
   string keyword;
   this->useHTG = false;
   this->useTracer = false;
-  this->dumpDirectory = ".";
+  this->dumpDirectory = dirName;
 
   while (inStr.getline(inBuf, 256))
   {
@@ -150,12 +151,14 @@ int PIOAdaptor::initializeGlobal(const char* PIOFileName)
         line >> rest;
         if (rest[0] == '/')
         {
+          // If a full path is given use it
           this->dumpDirectory = rest;
         }
         else
         {
+          // If partial path append to the dir of the .pio file
           ostringstream tempStr;
-          tempStr << dirName << rest;
+          tempStr << dirName << Slash << rest;
           this->dumpDirectory = tempStr.str();
         }
       }
@@ -289,6 +292,7 @@ int PIOAdaptor::initializeGlobal(const char* PIOFileName)
   this->fieldsToRead.push_back("global_numcell");
   this->fieldsToRead.push_back("hist_cycle");
   this->fieldsToRead.push_back("hist_time");
+  this->fieldsToRead.push_back("hist_size");
   this->fieldsToRead.push_back("l_eap_version");
 
   if (this->useTracer == true)
@@ -325,6 +329,7 @@ int PIOAdaptor::initializeDump(int timeStep)
     delete this->pioData;
     this->pioData = 0;
   }
+  this->currentTimeStep = timeStep;
 
   // Create one PIOData which accesses the PIO file to fetch data
   if (this->pioData == 0)
@@ -427,19 +432,20 @@ void PIOAdaptor::create_geometry(vtkMultiBlockDataSet* grid)
   }
 
   // Collect geometry information from PIOData files
+  std::valarray<int> histcell;
   std::valarray<int> level;
   std::valarray<int> numcell;
   std::valarray<double> simCycle;
   std::valarray<double> simTime;
   std::valarray<std::valarray<double> > center;
 
+  this->pioData->set_scalar_field(histcell, "hist_size");
   this->pioData->set_scalar_field(daughter, "cell_daughter");
   this->pioData->set_scalar_field(level, "cell_level");
   this->pioData->set_scalar_field(numcell, "global_numcell");
   this->pioData->set_vector_field(center, "cell_center");
 
-  int numberOfCells = static_cast<int>(daughter.size());
-  // int numberOfDaughters = (int)pow(2.0, dimension);
+  int numberOfCells = histcell[this->currentTimeStep];
   int numProc = static_cast<int>(numcell.size());
 
   int64_t* cell_daughter = &daughter[0];
@@ -1019,7 +1025,6 @@ void PIOAdaptor::create_amr_HTG(vtkMultiBlockDataSet* grid,
   {
     if (cell_level[i] == 1)
     {
-
       // Calculate which tree because the XRAGE arrangement does not match the HTG
       int xIndx = gridSize[0] * ((cell_center[0][i] - minLoc[0]) / (maxLoc[0] - minLoc[0]));
       int yIndx = gridSize[1] * ((cell_center[1][i] - minLoc[1]) / (maxLoc[1] - minLoc[1]));
