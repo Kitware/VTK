@@ -73,6 +73,11 @@ list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
   # Qt has some functions marked as `__forceinline` which MSVC refuses to inline.
   "[Qq]t.*warning C4714"
   "[Qq]t.*note: see declaration of"
+
+  # Intel compilers warn about large functions, but we don't usually care.
+  "remark #11074: Inlining inhibited by limit max-total-size"
+  # Ignore the suggestion line for more information too.
+  "remark #11076: To get full report use"
   )
 
 set(cdash_show_third_party_warnings "@VTK_ENABLE_CDASH_THIRD_PARTY_WARNINGS@")
