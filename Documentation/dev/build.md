@@ -208,8 +208,8 @@ are not otherwise controlled by the other options provided.
     > **_WARNING:_**
     >
     > Activating this option within an interactive cmake configuration (i.e. ccmake, cmake-gui)
-    > using external sources at non-standard locations may cause wrong linking within the VTK
-    > libraries.
+    > could end up finding libraries in the standard locations rather than copies
+    > in non-standard locations.
     >
     > It is recommended to pass the variables necessary to find the intended external package to
     > the first configure to avoid finding unintended copies of the external package.

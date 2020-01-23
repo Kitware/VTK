@@ -1,13 +1,5 @@
 set(HDF5_EXTERNALLY_CONFIGURED 1)
 
-# WARNING
-# To compile VTK with an external HDF5 in a non-standard location,
-# cmake needs to be executed from scratch with HDF5_DIR or HDF5_ROOT
-# defined on the command line.
-# This mainly affects interactive cmake configurations sessions using
-# tools like ccmake or cmake-gui.
-# (e.g. ccmake -D HDF5_ROOT:PATH=/home/user/myhdf5 ../sources)
-
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES "vtkhdf5/COPYING"
