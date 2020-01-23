@@ -42,6 +42,7 @@ vtk_module_test_data(
   Data/flow.tec
   Data/flow.tec.gz
   Data/obj_multitexture.obj
+  Data/obj_multitexture_notexture.obj
   Data/obj_singletexture.obj
   Data/obj_with_materials.obj
   Data/obj_with_normals_and_tcoords.obj
