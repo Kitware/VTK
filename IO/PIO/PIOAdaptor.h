@@ -116,6 +116,7 @@ protected:
   std::vector<std::string> dumpFileName;
   int numberOfTimeSteps;
   double* timeSteps;
+  int currentTimeStep;
 
   // Type of block structures to create within multiblock dataset
   bool useHTG;
