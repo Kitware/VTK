@@ -603,11 +603,25 @@ vtkMTimeType vtk3DLinearGridCrinkleExtractor::GetMTime()
 int vtk3DLinearGridCrinkleExtractor::ProcessPiece(
   vtkUnstructuredGrid* input, vtkImplicitFunction* f, vtkUnstructuredGrid* grid)
 {
+  if (input == nullptr || f == nullptr || grid == nullptr)
+  {
+    // Not really an error
+    return 1;
+  }
+
   // Make sure there is input data to process
   vtkPoints* inPts = input->GetPoints();
-  vtkIdType numPts = inPts->GetNumberOfPoints();
+  vtkIdType numPts = 0;
+  if (inPts)
+  {
+    numPts = inPts->GetNumberOfPoints();
+  }
   vtkCellArray* cells = input->GetCells();
-  vtkIdType numCells = cells->GetNumberOfCells();
+  vtkIdType numCells = 0;
+  if (cells)
+  {
+    numCells = cells->GetNumberOfCells();
+  }
   if (numPts <= 0 || numCells <= 0)
   {
     vtkLog(INFO, "Empty input");
