@@ -75,7 +75,7 @@ list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
   "[Qq]t.*note: see declaration of"
 
   # Intel compilers warn about large functions, but we don't usually care.
-  "remark #11074: Inlining inhibited by limit max-total-size"
+  "remark #11074: Inlining inhibited by limit (max-total-size|max-size)"
   # Ignore the suggestion line for more information too.
   "remark #11076: To get full report use"
   )
