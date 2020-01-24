@@ -400,6 +400,8 @@ void vtkUnstructuredGrid::CopyStructure(vtkDataSet* ds)
     this->Connectivity = ug->Connectivity;
     this->Links = ug->Links;
     this->Types = ug->Types;
+    this->DistinctCellTypes = nullptr;
+    this->DistinctCellTypesUpdateMTime = 0;
     this->Faces = ug->Faces;
     this->FaceLocations = ug->FaceLocations;
   }
@@ -1399,6 +1401,8 @@ void vtkUnstructuredGrid::SetCells(vtkUnsignedCharArray* cellTypes, vtkCellArray
 {
   this->Connectivity = cells;
   this->Types = cellTypes;
+  this->DistinctCellTypes = nullptr;
+  this->DistinctCellTypesUpdateMTime = 0;
   this->Faces = faces;
   this->FaceLocations = faceLocations;
 }
@@ -1514,6 +1518,12 @@ public:
 //----------------------------------------------------------------------------
 void vtkUnstructuredGrid::GetCellTypes(vtkCellTypes* types)
 {
+  if (this->Types == nullptr)
+  {
+    // No cell types
+    return;
+  }
+
   if (this->DistinctCellTypes == nullptr ||
     this->Types->GetMTime() > this->DistinctCellTypesUpdateMTime)
   {
@@ -1803,6 +1813,8 @@ void vtkUnstructuredGrid::ShallowCopy(vtkDataObject* dataObject)
     this->Connectivity = grid->Connectivity;
     this->Links = grid->Links;
     this->Types = grid->Types;
+    this->DistinctCellTypes = nullptr;
+    this->DistinctCellTypesUpdateMTime = 0;
     this->Faces = grid->Faces;
     this->FaceLocations = grid->FaceLocations;
   }
