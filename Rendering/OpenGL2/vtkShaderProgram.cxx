@@ -541,6 +541,7 @@ void vtkShaderProgram::ReleaseGraphicsResources(vtkWindow* win)
   {
     this->TransformFeedback->ReleaseGraphicsResources();
   }
+  this->Modified();
 }
 
 bool vtkShaderProgram::EnableAttributeArray(const char* name)
