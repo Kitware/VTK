@@ -8,7 +8,7 @@ readonly name="xdmf3"
 readonly ownership="XDMF Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/xdmf.git"
-readonly tag="for/vtk-20190225-master-gfe7dd1ca"
+readonly tag="for/vtk-20191216-master-gfe7dd1ca"
 readonly paths="
 .gitattributes
 CMake/XdmfFunctions.cmake
