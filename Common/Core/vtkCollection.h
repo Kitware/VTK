@@ -104,7 +104,7 @@ public:
   /**
    * Return the number of objects in the list.
    */
-  int GetNumberOfItems() { return this->NumberOfItems; }
+  int GetNumberOfItems() VTK_FUTURE_CONST { return this->NumberOfItems; }
 
   /**
    * Initialize the traversal of the collection. This means the data pointer
@@ -137,7 +137,7 @@ public:
    * A reentrant safe way to get the next object as a collection. Just pass the
    * same cookie back and forth.
    */
-  vtkObject* GetNextItemAsObject(vtkCollectionSimpleIterator& cookie);
+  vtkObject* GetNextItemAsObject(vtkCollectionSimpleIterator& cookie) VTK_FUTURE_CONST;
 
   /**
    * Get an iterator to traverse the objects in this collection.
@@ -187,7 +187,7 @@ inline vtkObject* vtkCollection::GetNextItemAsObject()
   }
 }
 
-inline vtkObject* vtkCollection::GetNextItemAsObject(void*& cookie)
+inline vtkObject* vtkCollection::GetNextItemAsObject(void*& cookie) VTK_FUTURE_CONST
 {
   vtkCollectionElement* elem = static_cast<vtkCollectionElement*>(cookie);
 

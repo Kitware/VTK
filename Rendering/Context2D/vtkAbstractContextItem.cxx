@@ -98,7 +98,7 @@ vtkIdType vtkAbstractContextItem::GetItemIndex(vtkAbstractContextItem* item)
 }
 
 //------------------------------------------------------------------------------
-vtkIdType vtkAbstractContextItem::GetNumberOfItems()
+vtkIdType vtkAbstractContextItem::GetNumberOfItems() VTK_FUTURE_CONST
 {
   return static_cast<vtkIdType>(this->Children->size());
 }
