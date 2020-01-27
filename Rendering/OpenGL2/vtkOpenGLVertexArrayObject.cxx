@@ -226,6 +226,7 @@ void vtkOpenGLVertexArrayObject::Release()
       }
     }
   }
+  this->Modified();
 }
 
 void vtkOpenGLVertexArrayObject::ShaderProgramChanged()
