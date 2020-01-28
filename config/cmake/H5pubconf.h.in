@@ -363,7 +363,7 @@
 /* #undef H5_HAVE_THREADSAFE */
 #else
 /* Define if we have thread safe support */
-# cmakedefine H5_HAVE_THREADSAFE @H5_HAVE_THREADSAFE@
+#cmakedefine H5_HAVE_THREADSAFE @H5_HAVE_THREADSAFE@
 #endif
 
 /* Define if timezone is a global variable */
