@@ -470,6 +470,18 @@ public:
   int Gather(vtkDataObject* sendBuffer, std::vector<vtkSmartPointer<vtkDataObject> >& recvBuffer,
     int destProcessId);
 
+  /**
+   * Gathers vtkMultiProcessStream (\c sendBuffer) from all ranks to the \c
+   * destProcessId.
+   * @param[in]  sendBuffer - vtkMultiProcessStream to send from local process.
+   * @param[out] recvBuffer - vector of vtkMultiProcessStream instances recevied
+   *             on the receiving rank (identified by \c destProcessId).
+   * @param[in]  destProcessId - process id to gather on.
+   * @return     1 on success, 0 on failure.
+   */
+  int Gather(const vtkMultiProcessStream& sendBuffer,
+    std::vector<vtkMultiProcessStream>& recvBuffer, int destProcessId);
+
   //@{
   /**
    * GatherV is the vector variant of Gather.  It extends the functionality of
