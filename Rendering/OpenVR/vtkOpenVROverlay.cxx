@@ -29,6 +29,7 @@
 #include "vtkTextureObject.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLUtilities.h"
+#include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
 #include "vtkOpenVROverlayInternal.h"
@@ -108,7 +109,7 @@ void vtkOpenVROverlay::WriteCameraPoses()
 {
   std::string fname = this->GetSessionName();
   fname += "VTKOpenVRCameraPoses.vovrcp";
-  std::ofstream os(fname, ios::out);
+  vtksys::ofstream os(fname.c_str(), ios::out);
   this->WriteCameraPoses(os);
 
   os.flush();
@@ -129,7 +130,7 @@ void vtkOpenVROverlay::ReadCameraPoses()
     return;
   }
 
-  std::ifstream is(fname);
+  vtksys::ifstream is(fname.c_str());
   this->ReadCameraPoses(is);
 }
 
