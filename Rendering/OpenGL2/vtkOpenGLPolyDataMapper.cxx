@@ -2185,7 +2185,7 @@ void vtkOpenGLPolyDataMapper::UpdateShaders(
     gss->Delete();
 
     // if the shader changed reinitialize the VAO
-    if (newShader != cellBO.Program)
+    if (newShader != cellBO.Program || cellBO.Program->GetMTime() > cellBO.AttributeUpdateTime)
     {
       cellBO.Program = newShader;
       // reset the VAO as the shader has changed
@@ -2197,6 +2197,11 @@ void vtkOpenGLPolyDataMapper::UpdateShaders(
   else
   {
     renWin->GetShaderCache()->ReadyShaderProgram(cellBO.Program);
+    if (cellBO.Program->GetMTime() > cellBO.AttributeUpdateTime)
+    {
+      // reset the VAO as the shader has changed
+      cellBO.VAO->ReleaseGraphicsResources();
+    }
   }
 
   if (cellBO.Program)
@@ -2234,7 +2239,8 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(
 
   if (cellBO.IBO->IndexCount &&
     (this->VBOs->GetMTime() > cellBO.AttributeUpdateTime ||
-      cellBO.ShaderSourceTime > cellBO.AttributeUpdateTime))
+      cellBO.ShaderSourceTime > cellBO.AttributeUpdateTime ||
+      cellBO.VAO->GetMTime() > cellBO.AttributeUpdateTime))
   {
     cellBO.VAO->Bind();
 
