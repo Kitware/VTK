@@ -204,6 +204,24 @@ are not otherwise controlled by the other options provided.
   * `VTK_MODULE_USE_EXTERNAL_<name>` (default depends on `VTK_USE_EXTERNAL`):
     Use an external source for the named third-party module rather than the
     copy contained within the VTK source tree.
+
+    > **_WARNING:_**
+    >
+    > Activating this option within an interactive cmake configuration (i.e. ccmake, cmake-gui)
+    > could end up finding libraries in the standard locations rather than copies
+    > in non-standard locations.
+    >
+    > It is recommended to pass the variables necessary to find the intended external package to
+    > the first configure to avoid finding unintended copies of the external package.
+    > The variables which matter depend on the package being found, but those ending with
+    > `_LIBRARY` and `_INCLUDE_DIR` as well as the general CMake `find_package` variables ending
+    > with `_DIR` and `_ROOT` are likely candidates.
+    >
+    > ```
+    > Example:
+    > ccmake -D HDF5_ROOT:PATH=/home/user/myhdf5 ../vtk/sources
+    > ```
+
   * `VTK_MODULE_ENABLE_<name>` (default `DEFAULT`): Change the build settings
     for the named module. Valid values are those for the module system's build
     settings (see below).
