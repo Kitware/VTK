@@ -120,6 +120,12 @@ void vtkPartitionedArchiver::InsertIntoArchive(
 }
 
 //----------------------------------------------------------------------------
+bool vtkPartitionedArchiver::Contains(const std::string& relativePath)
+{
+  return this->Internals->Buffers.find(relativePath) != this->Internals->Buffers.end();
+}
+
+//----------------------------------------------------------------------------
 const char* vtkPartitionedArchiver::GetBuffer(const char* relativePath)
 {
   auto bufferIt = this->Internals->Buffers.find(std::string(relativePath));

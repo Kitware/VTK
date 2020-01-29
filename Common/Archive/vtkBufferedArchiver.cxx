@@ -19,12 +19,15 @@
 #include <archive.h>
 #include <archive_entry.h>
 
+#include <set>
+
 struct vtkBufferedArchiver::Internal
 {
   struct archive* Archive;
   char* Buffer;
   size_t AllocatedSize;
   size_t BufferSize;
+  std::set<std::string> Entries;
 };
 
 //----------------------------------------------------------------------------
@@ -85,6 +88,14 @@ void vtkBufferedArchiver::InsertIntoArchive(
   archive_write_header(this->Internals->Archive, entry);
   archive_write_data(this->Internals->Archive, data, size);
   archive_entry_free(entry);
+
+  this->Internals->Entries.insert(relativePath);
+}
+
+//----------------------------------------------------------------------------
+bool vtkBufferedArchiver::Contains(const std::string& relativePath)
+{
+  return this->Internals->Entries.find(relativePath) != this->Internals->Entries.end();
 }
 
 //----------------------------------------------------------------------------
