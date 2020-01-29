@@ -100,7 +100,7 @@ private:
   std::set<const char*, Cstring_less> RealData;
   std::set<const char*, Cstring_less> CharData;
   const char* name;
-  std::ifstream Infile;
+  std::istream* Infile;
   bool reverse_endian;
   int PIO_VERSION;
   int PIO_NAME_LENGTH;
@@ -138,7 +138,7 @@ private:
   inline T read_pio_word(T& val)
   {
     double word;
-    Infile.read((char*)&word, sizeof(word));
+    this->Infile->read((char*)&word, sizeof(word));
     if (reverse_endian)
       byte_flip((char*)&word, sizeof(word));
     val = T(word);
@@ -148,7 +148,7 @@ private:
   inline bool read_pio_bool()
   {
     double word;
-    Infile.read((char*)&word, sizeof(word));
+    this->Infile->read((char*)&word, sizeof(word));
     if (reverse_endian)
       byte_flip((char*)&word, sizeof(word));
     return (word != 0) ? true : false;
@@ -174,7 +174,7 @@ private:
       size_buf = len + 1;
       buf = new char[size_buf];
     }
-    Infile.read(buf, len);
+    this->Infile->read(buf, len);
     buf[len] = '\0';
     fstr2Cstr(buf, len);
     char* val = new char[strlen(buf) + 1];

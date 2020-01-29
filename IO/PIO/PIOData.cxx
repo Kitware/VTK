@@ -1,12 +1,12 @@
 #include <PIOData.h>
 #include <iostream>
-
-using namespace std;
+#include <vtksys/FStream.hxx>
 
 PIO_DATA::PIO_DATA(const char* piofile, const std::list<std::string>* fields_to_read,
   bool _defer_read_data, const std::set<const char*, Cstring_less>* rdata,
   const std::set<const char*, Cstring_less>* cdata)
 {
+  this->Infile = nullptr;
   buf = 0;
   size_buf = 0;
   pio_field = 0;
@@ -130,8 +130,8 @@ PIO_DATA::~PIO_DATA()
     delete[] pio_dandt;
   pio_dandt = 0;
   VarMMap.clear();
-  if (Infile)
-    Infile.close();
+  delete this->Infile;
+  this->Infile = nullptr;
   std::set<const char*, Cstring_less>::const_iterator q;
   for (q = RealData.begin(); q != RealData.end(); ++q)
     delete[] * q;
@@ -149,14 +149,20 @@ bool PIO_DATA::read(const char* piofile, const std::list<std::string>* fields_to
     std::cerr << "PIO_DATA::read - file name not given" << std::endl;
     return false;
   }
-  Infile.open(piofile, std::ios::binary);
-  if (!Infile)
+  delete this->Infile;
+  this->Infile = new vtksys::ifstream(piofile, std::ios::binary);
+  if (this->Infile->fail())
   {
+    delete this->Infile;
+    this->Infile = nullptr;
     return false;
   }
   status = read(fields_to_read);
   if (!defer_read_data)
-    Infile.close();
+  {
+    delete this->Infile;
+    this->Infile = nullptr;
+  }
   return status;
 } // End PIO_DATA::read
 
@@ -178,14 +184,15 @@ bool PIO_DATA::read(const std::list<std::string>* fields_to_read)
 {
   double two;
 
-  Infile.seekg(0, std::ios::beg);
+  this->Infile->seekg(0, std::ios::beg);
   name = read_pio_char_string(8);
   if (strcmp(name, "pio_file") != 0)
   {
-    Infile.close();
+    delete this->Infile;
+    this->Infile = nullptr;
     return false;
   }
-  Infile.read((char*)&two, sizeof(two));
+  this->Infile->read((char*)&two, sizeof(two));
   reverse_endian = (two != 2.0) ? true : false;
   read_pio_word(PIO_VERSION);
   read_pio_word(PIO_NAME_LENGTH);
@@ -198,12 +205,13 @@ bool PIO_DATA::read(const std::list<std::string>* fields_to_read)
   if (pio_num <= 0)
   {
     pio_field = 0;
-    Infile.close();
+    delete this->Infile;
+    this->Infile = nullptr;
     return true;
   }
   pio_field = new PIO_FIELD[pio_num];
   memset((void*)pio_field, 0, pio_num * sizeof(PIO_FIELD));
-  Infile.seekg(pio_position, std::ios::beg);
+  this->Infile->seekg(pio_position, std::ios::beg);
 
   for (int i = 0; i < pio_num; ++i)
   {
@@ -218,7 +226,7 @@ bool PIO_DATA::read(const std::list<std::string>* fields_to_read)
     num_read -= sizeof(double);
     read_pio_word(pio_field[i].chksum);
     num_read -= sizeof(double);
-    Infile.seekg(num_read, std::ios::cur);
+    this->Infile->seekg(num_read, std::ios::cur);
     pio_field[i].read_field_data = read_field(pio_field[i].pio_name, fields_to_read);
   }
 
@@ -228,14 +236,14 @@ bool PIO_DATA::read(const std::list<std::string>* fields_to_read)
   {
     if ((pio_field[i].length > 0) && (strcmp(pio_field[i].pio_name, "MATIDENT_LEN") == 0))
     {
-      Infile.seekg(pio_field[i].position, std::ios::beg);
+      this->Infile->seekg(pio_field[i].position, std::ios::beg);
       double dtmp;
       read_pio_word(dtmp);
       matident_len = (size_t)dtmp;
     }
     if ((pio_field[i].length > 0) && (strcmp(pio_field[i].pio_name, "TIMERTYPE_LEN") == 0))
     {
-      Infile.seekg(pio_field[i].position, std::ios::beg);
+      this->Infile->seekg(pio_field[i].position, std::ios::beg);
       double dtmp;
       read_pio_word(dtmp);
       timertype_len = (size_t)dtmp;
@@ -524,19 +532,26 @@ void PIO_DATA::print(std::ostream& out)
 bool PIO_DATA::GetPIOfileTime(const char* piofile, double& time)
 {
   time = -HUGE_VAL;
-  Infile.open(piofile, std::ios::binary);
-  if (!Infile)
+  delete this->Infile;
+  this->Infile = new vtksys::ifstream(piofile, std::ios::binary);
+  if (this->Infile->fail())
+  {
+    delete this->Infile;
+    this->Infile = nullptr;
     return false;
+  }
+
   double two;
 
-  Infile.seekg(0, std::ios::beg);
+  this->Infile->seekg(0, std::ios::beg);
   name = read_pio_char_string(8);
   if (strcmp(name, "pio_file") != 0)
   {
-    Infile.close();
+    delete this->Infile;
+    this->Infile = nullptr;
     return false;
   }
-  Infile.read((char*)&two, sizeof(two));
+  this->Infile->read((char*)&two, sizeof(two));
   reverse_endian = (two != 2.0) ? true : false;
   read_pio_word(PIO_VERSION);
   read_pio_word(PIO_NAME_LENGTH);
@@ -549,12 +564,13 @@ bool PIO_DATA::GetPIOfileTime(const char* piofile, double& time)
   if (pio_num <= 0)
   {
     pio_field = 0;
-    Infile.close();
+    delete this->Infile;
+    this->Infile = nullptr;
     return false;
   }
   PIO_FIELD Pio_field;
   memset((void*)&Pio_field, 0, sizeof(Pio_field));
-  Infile.seekg(pio_position, std::ios::beg);
+  this->Infile->seekg(pio_position, std::ios::beg);
   bool time_found = false;
   for (int i = 0; i < pio_num; ++i)
   {
@@ -567,16 +583,17 @@ bool PIO_DATA::GetPIOfileTime(const char* piofile, double& time)
     num_read -= sizeof(double);
     Pio_field.position = sizeof(double) * read_pio_word(Pio_field.position);
     num_read -= sizeof(double);
-    Infile.seekg(num_read, std::ios::cur);
+    this->Infile->seekg(num_read, std::ios::cur);
     if (strcmp(Pio_field.pio_name, "controller_r8") == 0)
     {
       time_found = true;
       break;
     }
   }
-  Infile.seekg(Pio_field.position, std::ios::beg);
+  this->Infile->seekg(Pio_field.position, std::ios::beg);
   read_pio_word(time);
-  Infile.close();
+  delete this->Infile;
+  this->Infile = nullptr;
   return time_found;
 } // End PIO_DATA::GetPIOfileTime(const char *piofile,double &time)
 
@@ -589,14 +606,14 @@ bool GetPIOfileTime(const char* piofile, double& time)
 bool IsPIOfile(const char* piofile)
 {
   char name[9];
-  std::ifstream Infile(piofile, std::ios::binary);
-  if (!Infile)
+  vtksys::ifstream file(piofile, std::ios::binary);
+  if (!file)
     return false;
 
-  Infile.seekg(0, std::ios::beg);
-  Infile.read(name, 8);
+  file.seekg(0, std::ios::beg);
+  file.read(name, 8);
   name[8] = '\0';
-  Infile.close();
+  file.close();
   return (strcmp(name, "pio_file") == 0) ? true : false;
 } // End IsPIOfile
 
@@ -753,7 +770,7 @@ void PIO_DATA::ReadPioFieldData(PIO_FIELD& _pio_field)
 {
   if (_pio_field.data != 0 || _pio_field.cdata != 0)
     return; // Data already read
-  Infile.seekg(_pio_field.position, std::ios::beg);
+  this->Infile->seekg(_pio_field.position, std::ios::beg);
   size_t slen = sizeof(double);
   if (_pio_field.data != 0)
     delete[] _pio_field.data;
@@ -829,7 +846,7 @@ void PIO_DATA::ReadPioFieldData(PIO_FIELD& _pio_field)
     {
       if (matident_len != sizeof(double))
       {
-        Infile.seekg(_pio_field.position, std::ios::beg);
+        this->Infile->seekg(_pio_field.position, std::ios::beg);
         if (_pio_field.cdata)
           delete[] _pio_field.cdata;
         _pio_field.cdata_len = matident_len + 1;
@@ -837,7 +854,7 @@ void PIO_DATA::ReadPioFieldData(PIO_FIELD& _pio_field)
         _pio_field.cdata = new char[_pio_field.length * _pio_field.cdata_len];
         for (int64_t j = 0; j < _pio_field.length; ++j)
         {
-          Infile.read(_pio_field.cdata + j * _pio_field.cdata_len, matident_len);
+          this->Infile->read(_pio_field.cdata + j * _pio_field.cdata_len, matident_len);
           fstr2Cstr(_pio_field.cdata + j * _pio_field.cdata_len, matident_len);
         }
       }
@@ -846,7 +863,7 @@ void PIO_DATA::ReadPioFieldData(PIO_FIELD& _pio_field)
     {
       if (timertype_len != 2 * sizeof(double))
       {
-        Infile.seekg(_pio_field.position, std::ios::beg);
+        this->Infile->seekg(_pio_field.position, std::ios::beg);
         if (_pio_field.cdata)
           delete[] _pio_field.cdata;
         _pio_field.cdata_len = timertype_len + 1;
@@ -854,7 +871,7 @@ void PIO_DATA::ReadPioFieldData(PIO_FIELD& _pio_field)
         _pio_field.cdata = new char[_pio_field.length * _pio_field.cdata_len];
         for (int64_t j = 0; j < _pio_field.length; ++j)
         {
-          Infile.read(_pio_field.cdata + j * _pio_field.cdata_len, timertype_len);
+          this->Infile->read(_pio_field.cdata + j * _pio_field.cdata_len, timertype_len);
           fstr2Cstr(_pio_field.cdata + j * _pio_field.cdata_len, timertype_len);
         }
       }
