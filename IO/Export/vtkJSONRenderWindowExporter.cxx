@@ -49,13 +49,22 @@ public:
   virtual void InsertIntoArchive(
     const std::string& relativePath, const char* data, std::streamsize size) override
   {
-    std::string subArchiveName = std::string(this->GetArchiveName()) + "/" + relativePath;
-    this->RenderWindowArchiver->InsertIntoArchive(subArchiveName, data, size);
+    this->RenderWindowArchiver->InsertIntoArchive(this->SubArchiveName(relativePath), data, size);
+  }
+
+  virtual bool Contains(const std::string& relativePath) override
+  {
+    return this->RenderWindowArchiver->Contains(this->SubArchiveName(relativePath));
   }
 
 private:
   vtkJSONDataSetArchiver() { this->RenderWindowArchiver = vtkArchiver::New(); }
   virtual ~vtkJSONDataSetArchiver() override { this->SetRenderWindowArchiver(nullptr); }
+
+  std::string SubArchiveName(const std::string& relativePath)
+  {
+    return std::string(this->GetArchiveName()) + "/" + relativePath;
+  }
 
   vtkArchiver* RenderWindowArchiver;
 };
@@ -174,7 +183,13 @@ void vtkJSONRenderWindowExporter::WriteData()
     for (vtkIdType i = 0; i < this->GetSerializer()->GetNumberOfDataArrays(); ++i)
     {
       std::string daArchiveName = this->GetSerializer()->GetDataArrayId(i);
-      dsWriter->WriteArrayContents(this->GetSerializer()->GetDataArray(i), daArchiveName.c_str());
+
+      // Only write the array if its id (which is its hash) has not yet been
+      // added to the archive.
+      if (!dsArchiver->Contains(daArchiveName))
+      {
+        dsWriter->WriteArrayContents(this->GetSerializer()->GetDataArray(i), daArchiveName.c_str());
+      }
     }
   }
 
