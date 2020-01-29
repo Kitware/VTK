@@ -62,6 +62,13 @@ public:
 
   //@{
   /**
+   * Checks if \p relativePath represents an entry in the archive.
+   */
+  bool Contains(const std::string& relativePath) override;
+  //@}
+
+  //@{
+  /**
    * Access the buffer.
    */
   const char* GetBuffer(const char* relativePath);

@@ -70,6 +70,13 @@ public:
     const std::string& relativePath, const char* data, std::streamsize size);
   //@}
 
+  //@{
+  /**
+   * Checks if \p relativePath represents an entry in the archive.
+   */
+  virtual bool Contains(const std::string& relativePath);
+  //@}
+
 protected:
   vtkArchiver();
   ~vtkArchiver() override;

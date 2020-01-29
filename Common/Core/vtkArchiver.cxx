@@ -69,6 +69,15 @@ void vtkArchiver::InsertIntoArchive(
 }
 
 //----------------------------------------------------------------------------
+bool vtkArchiver::Contains(const std::string& relativePath)
+{
+  std::stringstream path;
+  path << this->ArchiveName << "/" << relativePath;
+
+  return vtksys::SystemTools::FileExists(vtksys::SystemTools::GetFilenamePath(path.str()), true);
+}
+
+//----------------------------------------------------------------------------
 void vtkArchiver::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
