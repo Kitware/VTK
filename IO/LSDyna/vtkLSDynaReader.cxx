@@ -743,7 +743,7 @@ std::string vtkLSDynaReader::GetDatabaseDirectory()
 const char* vtkLSDynaReader::GetDatabaseDirectory()
 {
   static thread_local std::string surrogate;
-  surrogate = this->GetDatabaseDirectory();
+  surrogate = this->P->Fam.GetDatabaseDirectory();
   return surrogate.c_str();
 }
 #endif
