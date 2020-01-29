@@ -65,9 +65,8 @@ void vtkOSPRayCameraNode::Render(bool prepass)
       }
     }
 
-    vtkWindow* win = ren->GetVTKWindow();
-    double* vp = win->GetTileViewport();
-    int* ts = win->GetTileScale();
+    double* vp = orn->GetViewport();
+    int* ts = orn->GetScale();
 
     vtkCamera* cam = static_cast<vtkCamera*>(this->Renderable);
     double myDistance = cam->GetDistance();
