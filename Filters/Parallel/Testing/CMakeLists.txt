@@ -3,7 +3,8 @@ vtk_module_test_data(
   Data/SampleStructGrid.vtk
   Data/ironProt.vtk
   Data/periodicPiece.vtu
-  Data/tetraMesh.vtk)
+  Data/tetraMesh.vtk
+  Data/two_vtk_logos_stacked.png)
 
 add_subdirectory(Cxx)
 

@@ -9,6 +9,7 @@ if (TARGET VTK::ParallelMPI)
     TESTING_DATA
     DistributedData.cxx
     DistributedDataRenderPass.cxx
+    PTextureMapToSphere.cxx
     TestPExtractDataArraysOverTime.cxx,NO_VALID
     TransmitImageData.cxx
     TransmitImageDataRenderPass.cxx
