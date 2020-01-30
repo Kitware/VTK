@@ -23,9 +23,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-//----------------------------------------------------------------------------
-// Return nullptr if no override is supplied.
-vtkAbstractObjectFactoryNewMacro(vtkPolyDataMapper);
+vtkObjectFactoryNewMacro(vtkPolyDataMapper);
 
 //----------------------------------------------------------------------------
 vtkPolyDataMapper::vtkPolyDataMapper()

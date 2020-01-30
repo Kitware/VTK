@@ -38,9 +38,7 @@ vtkCxxSetObjectMacro(vtkActor, Mapper, vtkMapper);
 vtkCxxSetObjectMacro(vtkActor, BackfaceProperty, vtkProperty);
 vtkCxxSetObjectMacro(vtkActor, Property, vtkProperty);
 
-//----------------------------------------------------------------------------
-// Return nullptr if no override is supplied.
-vtkAbstractObjectFactoryNewMacro(vtkActor);
+vtkObjectFactoryNewMacro(vtkActor);
 
 // Creates an actor with the following defaults: origin(0,0,0)
 // position=(0,0,0) scale=(1,1,1) visibility=1 pickable=1 dragable=1

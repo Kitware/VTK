@@ -154,7 +154,7 @@ public:
   /**
    * Start the rendering process for a frame
    */
-  virtual void Start() = 0;
+  virtual void Start() {}
 
   /**
    * Update the system, if needed, at end of render process
@@ -164,19 +164,19 @@ public:
   /**
    * Finalize the rendering process.
    */
-  virtual void Finalize() = 0;
+  virtual void Finalize() {}
 
   /**
    * A termination method performed at the end of the rendering process
    * to do things like swapping buffers (if necessary) or similar actions.
    */
-  virtual void Frame() = 0;
+  virtual void Frame() {}
 
   /**
    * Block the thread until the actual rendering is finished().
    * Useful for measurement only.
    */
-  virtual void WaitForCompletion() = 0;
+  virtual void WaitForCompletion() {}
 
   /**
    * Performed at the end of the rendering process to generate image.
@@ -198,8 +198,8 @@ public:
    * Set cursor position in window (note that (0,0) is the lower left
    * corner).
    */
-  virtual void HideCursor() = 0;
-  virtual void ShowCursor() = 0;
+  virtual void HideCursor() {}
+  virtual void ShowCursor() {}
   virtual void SetCursorPosition(int, int) {}
   //@}
 
@@ -215,7 +215,7 @@ public:
   /**
    * Turn on/off rendering full screen window size.
    */
-  virtual void SetFullScreen(vtkTypeBool) = 0;
+  virtual void SetFullScreen(vtkTypeBool) {}
   vtkGetMacro(FullScreen, vtkTypeBool);
   vtkBooleanMacro(FullScreen, vtkTypeBool);
   //@}
@@ -391,7 +391,7 @@ public:
    * It is useful for changing properties that can't normally be changed
    * once the window is up.
    */
-  virtual void WindowRemap() = 0;
+  virtual void WindowRemap() {}
 
   //@{
   /**
@@ -415,10 +415,16 @@ public:
    * (x,y) is any corner of the rectangle. (x2,y2) is its opposite corner on
    * the diagonal.
    */
-  virtual int SetPixelData(
-    int x, int y, int x2, int y2, unsigned char* data, int front, int right = 0) = 0;
-  virtual int SetPixelData(
-    int x, int y, int x2, int y2, vtkUnsignedCharArray* data, int front, int right = 0) = 0;
+  virtual int SetPixelData(int /*x*/, int /*y*/, int /*x2*/, int /*y2*/, unsigned char* /*data*/,
+    int /*front*/, int /*right*/ = 0)
+  {
+    return 0;
+  }
+  virtual int SetPixelData(int /*x*/, int /*y*/, int /*x2*/, int /*y2*/,
+    vtkUnsignedCharArray* /*data*/, int /*front*/, int /*right*/ = 0)
+  {
+    return 0;
+  }
   //@}
 
   //@{
@@ -429,22 +435,47 @@ public:
    * method blends the data with the previous contents of the frame buffer
    * or completely replaces the frame buffer data.
    */
-  virtual float* GetRGBAPixelData(int x, int y, int x2, int y2, int front, int right = 0) = 0;
-  virtual int GetRGBAPixelData(
-    int x, int y, int x2, int y2, int front, vtkFloatArray* data, int right = 0) = 0;
+  virtual float* GetRGBAPixelData(
+    int /*x*/, int /*y*/, int /*x2*/, int /*y2*/, int /*front*/, int /*right*/ = 0)
+  {
+    return nullptr;
+  }
+  virtual int GetRGBAPixelData(int /*x*/, int /*y*/, int /*x2*/, int /*y2*/, int /*front*/,
+    vtkFloatArray* /*data*/, int /*right*/ = 0)
+  {
+    return 0;
+  }
+  virtual int SetRGBAPixelData(int /*x*/, int /*y*/, int /*x2*/, int /*y2*/, float*, int /*front*/,
+    int /*blend*/ = 0, int /*right*/ = 0)
+  {
+    return 0;
+  }
   virtual int SetRGBAPixelData(
-    int x, int y, int x2, int y2, float*, int front, int blend = 0, int right = 0) = 0;
-  virtual int SetRGBAPixelData(
-    int, int, int, int, vtkFloatArray*, int, int blend = 0, int right = 0) = 0;
-  virtual void ReleaseRGBAPixelData(float* data) = 0;
+    int, int, int, int, vtkFloatArray*, int, int /*blend*/ = 0, int /*right*/ = 0)
+  {
+    return 0;
+  }
+  virtual void ReleaseRGBAPixelData(float* /*data*/) {}
   virtual unsigned char* GetRGBACharPixelData(
-    int x, int y, int x2, int y2, int front, int right = 0) = 0;
-  virtual int GetRGBACharPixelData(
-    int x, int y, int x2, int y2, int front, vtkUnsignedCharArray* data, int right = 0) = 0;
-  virtual int SetRGBACharPixelData(
-    int x, int y, int x2, int y2, unsigned char* data, int front, int blend = 0, int right = 0) = 0;
-  virtual int SetRGBACharPixelData(int x, int y, int x2, int y2, vtkUnsignedCharArray* data,
-    int front, int blend = 0, int right = 0) = 0;
+    int /*x*/, int /*y*/, int /*x2*/, int /*y2*/, int /*front*/, int /*right*/ = 0)
+  {
+    return nullptr;
+  }
+  virtual int GetRGBACharPixelData(int /*x*/, int /*y*/, int /*x2*/, int /*y2*/, int /*front*/,
+    vtkUnsignedCharArray* /*data*/, int /*right*/ = 0)
+  {
+    return 0;
+  }
+  virtual int SetRGBACharPixelData(int /*x*/, int /*y*/, int /*x2*/, int /*y2*/,
+    unsigned char* /*data*/, int /*front*/, int /*blend*/ = 0, int /*right*/ = 0)
+  {
+    return 0;
+  }
+  virtual int SetRGBACharPixelData(int /*x*/, int /*y*/, int /*x2*/, int /*y2*/,
+    vtkUnsignedCharArray* /*data*/, int /*front*/, int /*blend*/ = 0, int /*right*/ = 0)
+  {
+    return 0;
+  }
   //@}
 
   //@{
@@ -453,11 +484,23 @@ public:
    * (x,y) is any corner of the rectangle. (x2,y2) is its opposite corner on
    * the diagonal.
    */
-  virtual float* GetZbufferData(int x, int y, int x2, int y2) = 0;
-  virtual int GetZbufferData(int x, int y, int x2, int y2, float* z) = 0;
-  virtual int GetZbufferData(int x, int y, int x2, int y2, vtkFloatArray* z) = 0;
-  virtual int SetZbufferData(int x, int y, int x2, int y2, float* z) = 0;
-  virtual int SetZbufferData(int x, int y, int x2, int y2, vtkFloatArray* z) = 0;
+  virtual float* GetZbufferData(int /*x*/, int /*y*/, int /*x2*/, int /*y2*/) { return nullptr; }
+  virtual int GetZbufferData(int /*x*/, int /*y*/, int /*x2*/, int /*y2*/, float* /*z*/)
+  {
+    return 0;
+  }
+  virtual int GetZbufferData(int /*x*/, int /*y*/, int /*x2*/, int /*y2*/, vtkFloatArray* /*z*/)
+  {
+    return 0;
+  }
+  virtual int SetZbufferData(int /*x*/, int /*y*/, int /*x2*/, int /*y2*/, float* /*z*/)
+  {
+    return 0;
+  }
+  virtual int SetZbufferData(int /*x*/, int /*y*/, int /*x2*/, int /*y2*/, vtkFloatArray* /*z*/)
+  {
+    return 0;
+  }
   float GetZbufferDataAtPoint(int x, int y)
   {
     float value;
@@ -501,7 +544,7 @@ public:
    * on any event which causes the DesiredUpdateRate to switch from
    * a high-quality rate to a more interactive rate.
    */
-  virtual int GetEventPending() = 0;
+  virtual int GetEventPending() { return 0; }
 
   /**
    * Are we rendering at the moment
@@ -559,18 +602,18 @@ public:
   /**
    * Dummy stubs for vtkWindow API.
    */
-  void SetDisplayId(void*) override = 0;
-  void SetWindowId(void*) override = 0;
-  virtual void SetNextWindowId(void*) = 0;
-  void SetParentId(void*) override = 0;
-  void* GetGenericDisplayId() override = 0;
-  void* GetGenericWindowId() override = 0;
-  void* GetGenericParentId() override = 0;
-  void* GetGenericContext() override = 0;
-  void* GetGenericDrawable() override = 0;
-  void SetWindowInfo(const char*) override = 0;
-  virtual void SetNextWindowInfo(const char*) = 0;
-  void SetParentInfo(const char*) override = 0;
+  void SetDisplayId(void*) override {}
+  void SetWindowId(void*) override {}
+  virtual void SetNextWindowId(void*) {}
+  void SetParentId(void*) override {}
+  void* GetGenericDisplayId() override { return nullptr; }
+  void* GetGenericWindowId() override { return nullptr; }
+  void* GetGenericParentId() override { return nullptr; }
+  void* GetGenericContext() override { return nullptr; }
+  void* GetGenericDrawable() override { return nullptr; }
+  void SetWindowInfo(const char*) override {}
+  virtual void SetNextWindowInfo(const char*) {}
+  void SetParentInfo(const char*) override {}
   //@}
 
   /**
@@ -596,13 +639,13 @@ public:
    * Attempt to make this window the current graphics context for the calling
    * thread.
    */
-  void MakeCurrent() override = 0;
+  void MakeCurrent() override {}
 
   /**
    * Tells if this window is the current graphics context for the calling
    * thread.
    */
-  virtual bool IsCurrent() = 0;
+  virtual bool IsCurrent() { return false; }
 
   /**
    * Test if the window has a valid drawable. This is
@@ -638,13 +681,13 @@ public:
    * This method should be defined by the subclass. How many bits of
    * precision are there in the zbuffer?
    */
-  virtual int GetDepthBufferSize() = 0;
+  virtual int GetDepthBufferSize() { return 0; }
 
   /**
    * Get the size of the color buffer.
    * Returns 0 if not able to determine otherwise sets R G B and A into buffer.
    */
-  virtual int GetColorBufferSizes(int* rgba) = 0;
+  virtual int GetColorBufferSizes(int* /*rgba*/) { return 0; }
 
   //@{
   /**

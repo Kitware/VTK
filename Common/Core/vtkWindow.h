@@ -82,7 +82,7 @@ public:
   /**
    * Get the current size of the screen in pixels.
    */
-  virtual int* GetScreenSize() VTK_SIZEHINT(2) = 0;
+  virtual int* GetScreenSize() VTK_SIZEHINT(2) { return nullptr; }
 
   //@{
   /**
@@ -166,9 +166,16 @@ public:
    * (x,y) is any corner of the rectangle. (x2,y2) is its opposite corner on
    * the diagonal.
    */
-  virtual unsigned char* GetPixelData(int x, int y, int x2, int y2, int front, int right = 0) = 0;
-  virtual int GetPixelData(
-    int x, int y, int x2, int y2, int front, vtkUnsignedCharArray* data, int right = 0) = 0;
+  virtual unsigned char* GetPixelData(
+    int /*x*/, int /*y*/, int /*x2*/, int /*y2*/, int /*front*/, int /*right*/ = 0)
+  {
+    return nullptr;
+  }
+  virtual int GetPixelData(int /*x*/, int /*y*/, int /*x2*/, int /*y2*/, int /*front*/,
+    vtkUnsignedCharArray* /*data*/, int /*right*/ = 0)
+  {
+    return 0;
+  }
   //@}
 
   //@{

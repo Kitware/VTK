@@ -28,7 +28,7 @@
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
-vtkAbstractObjectFactoryNewMacro(vtkCamera);
+vtkObjectFactoryNewMacro(vtkCamera);
 
 vtkCxxSetObjectMacro(vtkCamera, Information, vtkInformation);
 vtkCxxSetObjectMacro(vtkCamera, EyeTransformMatrix, vtkMatrix4x4);

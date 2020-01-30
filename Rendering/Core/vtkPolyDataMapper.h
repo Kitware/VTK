@@ -43,7 +43,7 @@ public:
   /**
    * Implemented by sub classes. Actual rendering is done here.
    */
-  virtual void RenderPiece(vtkRenderer* ren, vtkActor* act) = 0;
+  virtual void RenderPiece(vtkRenderer*, vtkActor*){};
 
   /**
    * This calls RenderPiece (in a for loop if streaming is necessary).
