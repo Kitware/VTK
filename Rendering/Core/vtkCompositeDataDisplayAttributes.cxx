@@ -31,7 +31,12 @@ vtkCompositeDataDisplayAttributes::~vtkCompositeDataDisplayAttributes() = defaul
 
 void vtkCompositeDataDisplayAttributes::SetBlockVisibility(vtkDataObject* data_object, bool visible)
 {
+  if (this->HasBlockVisibility(data_object) && this->GetBlockVisibility(data_object) == visible)
+  {
+    return;
+  }
   this->BlockVisibilities[data_object] = visible;
+  this->Modified();
 }
 
 bool vtkCompositeDataDisplayAttributes::GetBlockVisibility(vtkDataObject* data_object) const
@@ -65,6 +70,10 @@ void vtkCompositeDataDisplayAttributes::RemoveBlockVisibility(vtkDataObject* dat
 
 void vtkCompositeDataDisplayAttributes::RemoveBlockVisibilities()
 {
+  if (this->HasBlockVisibilities())
+  {
+    this->Modified();
+  }
   this->BlockVisibilities.clear();
 }
 
@@ -80,7 +89,12 @@ void vtkCompositeDataDisplayAttributes::RemoveBlockVisibilites()
 void vtkCompositeDataDisplayAttributes::SetBlockPickability(
   vtkDataObject* data_object, bool visible)
 {
+  if (this->HasBlockPickability(data_object) && this->GetBlockPickability(data_object) == visible)
+  {
+    return;
+  }
   this->BlockPickabilities[data_object] = visible;
+  this->Modified();
 }
 
 bool vtkCompositeDataDisplayAttributes::GetBlockPickability(vtkDataObject* data_object) const
@@ -114,13 +128,27 @@ void vtkCompositeDataDisplayAttributes::RemoveBlockPickability(vtkDataObject* da
 
 void vtkCompositeDataDisplayAttributes::RemoveBlockPickabilities()
 {
+  if (this->HasBlockPickabilities())
+  {
+    this->Modified();
+  }
   this->BlockPickabilities.clear();
 }
 
 void vtkCompositeDataDisplayAttributes::SetBlockColor(
   vtkDataObject* data_object, const double color[3])
 {
+  if (this->HasBlockColor(data_object))
+  {
+    double currentColor[3];
+    this->GetBlockColor(data_object, currentColor);
+    if (color[0] == currentColor[0] && color[1] == currentColor[1] && color[2] == currentColor[2])
+    {
+      return;
+    }
+  }
   this->BlockColors[data_object] = vtkColor3d(color[0], color[1], color[2]);
+  this->Modified();
 }
 
 void vtkCompositeDataDisplayAttributes::GetBlockColor(
@@ -160,6 +188,10 @@ void vtkCompositeDataDisplayAttributes::RemoveBlockColor(vtkDataObject* data_obj
 
 void vtkCompositeDataDisplayAttributes::RemoveBlockColors()
 {
+  if (this->HasBlockColors())
+  {
+    this->Modified();
+  }
   this->BlockColors.clear();
 }
 
@@ -170,7 +202,12 @@ void vtkCompositeDataDisplayAttributes::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkCompositeDataDisplayAttributes::SetBlockOpacity(vtkDataObject* data_object, double opacity)
 {
+  if (this->HasBlockOpacity(data_object) && this->GetBlockOpacity(data_object) == opacity)
+  {
+    return;
+  }
   this->BlockOpacities[data_object] = opacity;
+  this->Modified();
 }
 
 double vtkCompositeDataDisplayAttributes::GetBlockOpacity(vtkDataObject* data_object) const
@@ -202,13 +239,22 @@ void vtkCompositeDataDisplayAttributes::RemoveBlockOpacity(vtkDataObject* data_o
 
 void vtkCompositeDataDisplayAttributes::RemoveBlockOpacities()
 {
+  if (this->HasBlockOpacities())
+  {
+    this->Modified();
+  }
   this->BlockOpacities.clear();
 }
 
 void vtkCompositeDataDisplayAttributes::SetBlockMaterial(
   vtkDataObject* data_object, const std::string& material)
 {
+  if (this->HasBlockMaterial(data_object) && this->GetBlockMaterial(data_object) == material)
+  {
+    return;
+  }
   this->BlockMaterials[data_object] = material;
+  this->Modified();
 }
 
 const std::string& vtkCompositeDataDisplayAttributes::GetBlockMaterial(
@@ -242,6 +288,10 @@ void vtkCompositeDataDisplayAttributes::RemoveBlockMaterial(vtkDataObject* data_
 
 void vtkCompositeDataDisplayAttributes::RemoveBlockMaterials()
 {
+  if (this->HasBlockMaterials())
+  {
+    this->Modified();
+  }
   this->BlockMaterials.clear();
 }
 
