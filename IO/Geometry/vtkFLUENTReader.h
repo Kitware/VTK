@@ -212,8 +212,8 @@ protected:
   vtkIdType NumberOfCells;
   int NumberOfCellArrays;
 
-  ifstream* FluentCaseFile;
-  ifstream* FluentDataFile;
+  istream* FluentCaseFile;
+  istream* FluentDataFile;
   stdString* CaseBuffer;
   stdString* DataBuffer;
 

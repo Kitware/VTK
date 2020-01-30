@@ -246,10 +246,11 @@ public:
   vtkBooleanMacro(SwapBytes, vtkTypeBool);
   //@}
 
-  ifstream* GetFile() { return this->File; }
+  istream* GetFile() { return this->File; }
   vtkGetVectorMacro(DataIncrements, unsigned long, 4);
 
   virtual int OpenFile();
+  void CloseFile();
   virtual void SeekFile(int i, int j, int k);
 
   //@{
@@ -311,7 +312,7 @@ protected:
   const void* MemoryBuffer;
   vtkIdType MemoryBufferLength;
 
-  ifstream* File;
+  istream* File;
   unsigned long DataIncrements[4];
   int DataExtent[6];
   vtkTypeBool SwapBytes;

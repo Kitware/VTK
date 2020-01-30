@@ -249,7 +249,7 @@ protected:
 
   int ReportErrors;
 
-  ofstream* LogFile;
+  ostream* LogFile;
   ostream* LogStream;
 
   vtkSocketCommunicator();

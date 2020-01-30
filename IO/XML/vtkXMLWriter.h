@@ -32,7 +32,8 @@
 
 #include "vtkAlgorithm.h"
 #include "vtkIOXMLModule.h" // For export macro
-#include <sstream>          // For ostringstream ivar
+
+#include <sstream> // For ostringstream ivar
 
 class vtkAbstractArray;
 class vtkArrayIterator;
@@ -482,7 +483,7 @@ protected:
   // then adds any additional field arrays. For example, TimeValue.
   void UpdateFieldData(vtkFieldData*);
 
-  ofstream* OutFile;
+  ostream* OutFile;
   std::ostringstream* OutStringStream;
 
   int OpenStream();

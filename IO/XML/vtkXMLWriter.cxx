@@ -61,6 +61,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLReaderVersion.h"
 #include "vtksys/Encoding.hxx"
+#include "vtksys/FStream.hxx"
 #include <memory>
 
 #include <cassert>
@@ -903,13 +904,11 @@ int vtkXMLWriter::OpenFile()
     this->FileName[i] = 0;
   }
 
-  // Try to open the output file for writing.
+  std::ios_base::openmode mode = ios::out;
 #ifdef _WIN32
-  this->OutFile =
-    new ofstream(vtksys::Encoding::ToWindowsExtendedPath(this->FileName), ios::out | ios::binary);
-#else
-  this->OutFile = new ofstream(this->FileName, ios::out);
+  mode |= ios::binary;
 #endif
+  this->OutFile = new vtksys::ofstream(this->FileName, mode);
   if (!this->OutFile || !*this->OutFile)
   {
     vtkErrorMacro("Error opening output file \"" << this->FileName << "\"");

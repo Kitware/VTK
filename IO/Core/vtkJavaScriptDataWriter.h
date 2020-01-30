@@ -87,7 +87,8 @@ protected:
   vtkJavaScriptDataWriter();
   ~vtkJavaScriptDataWriter() override;
 
-  ofstream* OpenFile();
+  bool OpenFile();
+  void CloseFile();
 
   void WriteData() override;
   virtual void WriteTable(vtkTable* table, ostream* stream_ptr);
@@ -104,6 +105,8 @@ protected:
 private:
   vtkJavaScriptDataWriter(const vtkJavaScriptDataWriter&) = delete;
   void operator=(const vtkJavaScriptDataWriter&) = delete;
+
+  ostream* OutputFile;
 };
 
 #endif

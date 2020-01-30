@@ -36,6 +36,7 @@
 #include "vtkType.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtksys/Encoding.hxx"
+#include "vtksys/FStream.hxx"
 
 #include <map>
 
@@ -182,12 +183,11 @@ int vtkAVSucdReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
+  std::ios_base::openmode mode = ios::in;
 #ifdef _WIN32
-  std::wstring wfilename = vtksys::Encoding::ToWindowsExtendedPath(this->FileName);
-  this->FileStream = new ifstream(wfilename, ios::in | ios::binary);
-#else
-  this->FileStream = new ifstream(this->FileName, ios::in);
+  mode |= ios::binary;
 #endif
+  this->FileStream = new vtksys::ifstream(this->FileName, mode);
   if (this->FileStream->fail())
   {
     this->SetErrorCode(vtkErrorCode::FileNotFoundError);
@@ -204,14 +204,7 @@ int vtkAVSucdReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   { // most likely an ASCII file
     this->BinaryFile = 0;
     delete this->FileStream; // close file to reopen it later
-    this->FileStream = nullptr;
-
-#ifdef _WIN32
-    wfilename = vtksys::Encoding::ToWindowsExtendedPath(this->FileName);
-    this->FileStream = new ifstream(wfilename, ios::in);
-#else
-    this->FileStream = new ifstream(this->FileName, ios::in);
-#endif
+    this->FileStream = new vtksys::ifstream(this->FileName);
     char c = '\0';
     while (!FileStream->eof())
     {

@@ -78,7 +78,7 @@ protected:
   void Initialize();
 
   char* FileName;
-  ofstream* OStream;
+  ostream* OStream;
   vtkTypeBool Flush;
   vtkTypeBool Append;
 

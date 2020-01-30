@@ -31,6 +31,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtksys/Encoding.hxx"
+#include "vtksys/FStream.hxx"
 
 #include <sstream>
 #include <vector>
@@ -51,6 +52,7 @@ vtkJavaScriptDataWriter::~vtkJavaScriptDataWriter()
 {
   this->SetFileName(nullptr);
   this->SetVariableName(nullptr);
+  this->CloseFile();
 }
 
 //-----------------------------------------------------------------------------
@@ -72,33 +74,36 @@ ostream* vtkJavaScriptDataWriter::GetOutputStream()
   return this->OutputStream;
 }
 
+//----------------------------------------------------------------------------
+void vtkJavaScriptDataWriter::CloseFile()
+{
+  delete this->OutputFile;
+  this->OutputFile = nullptr;
+}
+
 //-----------------------------------------------------------------------------
-ofstream* vtkJavaScriptDataWriter::OpenFile()
+bool vtkJavaScriptDataWriter::OpenFile()
 {
   if (!this->FileName)
   {
     vtkErrorMacro(<< "No FileName specified! Can't write!");
     this->SetErrorCode(vtkErrorCode::NoFileNameError);
-    return nullptr;
+    return false;
   }
 
+  this->CloseFile();
   vtkDebugMacro(<< "Opening file for writing...");
 
-#ifdef _WIN32
-  ofstream* fptr = new ofstream(vtksys::Encoding::ToWindowsExtendedPath(this->FileName), ios::out);
-#else
-  ofstream* fptr = new ofstream(this->FileName, ios::out);
-#endif
-
-  if (fptr->fail())
+  this->OutputFile = new vtksys::ofstream(this->FileName, ios::out);
+  if (this->OutputFile->fail())
   {
     vtkErrorMacro(<< "Unable to open file: " << this->FileName);
     this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
-    delete fptr;
-    return nullptr;
+    this->CloseFile();
+    return false;
   }
 
-  return fptr;
+  return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -116,15 +121,13 @@ void vtkJavaScriptDataWriter::WriteData()
   // Check for filename
   if (this->FileName)
   {
-    ofstream* file_stream = this->OpenFile();
-    if (file_stream)
+    if (this->OpenFile())
     {
-      this->WriteTable(input_table, file_stream);
+      this->WriteTable(input_table, this->OutputFile);
+      this->CloseFile();
     }
-    file_stream->close();
   }
-
-  else if (this->OutputStream)
+  else
   {
     this->WriteTable(input_table, this->OutputStream);
   }
@@ -133,64 +136,70 @@ void vtkJavaScriptDataWriter::WriteData()
 //-----------------------------------------------------------------------------
 void vtkJavaScriptDataWriter::WriteTable(vtkTable* table, ostream* stream_ptr)
 {
-  vtkIdType numRows = table->GetNumberOfRows();
-  vtkIdType numCols = table->GetNumberOfColumns();
-  vtkDataSetAttributes* dsa = table->GetRowData();
-  if (this->FileName && !this->OpenFile())
+  if (stream_ptr == nullptr)
   {
-    return;
-  }
-
-  vtkStdString rowHeader = "[";
-  vtkStdString rowFooter = "],";
-  if (this->IncludeFieldNames)
-  {
-    rowHeader = "{";
-    rowFooter = "},";
-  }
-
-  // Header stuff
-  if (this->VariableName)
-  {
-    (*stream_ptr) << "var " << this->VariableName << " = [\n";
-  }
-  else
-  {
-    (*stream_ptr) << "[";
-  }
-
-  // For each row
-  for (vtkIdType r = 0; r < numRows; ++r)
-  {
-    // row header
-    (*stream_ptr) << rowHeader;
-
-    // Now for each column put out in the form
-    // colname1: data1, colname2: data2, etc
-    for (int c = 0; c < numCols; ++c)
+    if (this->FileName && this->OpenFile())
     {
-      if (this->IncludeFieldNames)
-      {
-        (*stream_ptr) << dsa->GetAbstractArray(c)->GetName() << ":";
-      }
+      stream_ptr = this->OutputFile;
+    }
+  }
 
-      // If the array is a string array put "" around it
-      if (vtkArrayDownCast<vtkStringArray>(dsa->GetAbstractArray(c)))
-      {
-        (*stream_ptr) << "\"" << table->GetValue(r, c).ToString() << "\",";
-      }
-      else
-      {
-        (*stream_ptr) << table->GetValue(r, c).ToString() << ",";
-      }
+  if (stream_ptr != nullptr)
+  {
+    vtkIdType numRows = table->GetNumberOfRows();
+    vtkIdType numCols = table->GetNumberOfColumns();
+    vtkDataSetAttributes* dsa = table->GetRowData();
+
+    vtkStdString rowHeader = "[";
+    vtkStdString rowFooter = "],";
+    if (this->IncludeFieldNames)
+    {
+      rowHeader = "{";
+      rowFooter = "},";
     }
 
-    // row footer
-    (*stream_ptr) << rowFooter;
-  }
+    // Header stuff
+    if (this->VariableName)
+    {
+      (*stream_ptr) << "var " << this->VariableName << " = [\n";
+    }
+    else
+    {
+      (*stream_ptr) << "[";
+    }
 
-  // Footer
-  (*stream_ptr) << (this->VariableName ? "];\n" : "]");
+    for (vtkIdType r = 0; r < numRows; ++r)
+    {
+      // row header
+      (*stream_ptr) << rowHeader;
+
+      // Now for each column put out in the form
+      // colname1: data1, colname2: data2, etc
+      for (int c = 0; c < numCols; ++c)
+      {
+        if (this->IncludeFieldNames)
+        {
+          (*stream_ptr) << dsa->GetAbstractArray(c)->GetName() << ":";
+        }
+
+        // If the array is a string array put "" around it
+        if (vtkArrayDownCast<vtkStringArray>(dsa->GetAbstractArray(c)))
+        {
+          (*stream_ptr) << "\"" << table->GetValue(r, c).ToString() << "\",";
+        }
+        else
+        {
+          (*stream_ptr) << table->GetValue(r, c).ToString() << ",";
+        }
+      }
+
+      // row footer
+      (*stream_ptr) << rowFooter;
+    }
+
+    // Footer
+    (*stream_ptr) << (this->VariableName ? "];\n" : "]");
+  }
 }
 
 //-----------------------------------------------------------------------------

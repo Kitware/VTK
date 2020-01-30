@@ -26,6 +26,7 @@
 #include "vtkStringArray.h"
 
 #include "vtksys/Encoding.hxx"
+#include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
 vtkStandardNewMacro(vtkImageReader2);
@@ -87,12 +88,7 @@ vtkImageReader2::vtkImageReader2()
 //----------------------------------------------------------------------------
 vtkImageReader2::~vtkImageReader2()
 {
-  if (this->File)
-  {
-    this->File->close();
-    delete this->File;
-    this->File = nullptr;
-  }
+  this->CloseFile();
 
   if (this->FileNames)
   {
@@ -553,6 +549,16 @@ void vtkImageReader2::ComputeDataIncrements()
 }
 
 //----------------------------------------------------------------------------
+void vtkImageReader2::CloseFile()
+{
+  if (this->File)
+  {
+    delete this->File;
+    this->File = nullptr;
+  }
+}
+
+//----------------------------------------------------------------------------
 int vtkImageReader2::OpenFile()
 {
   if (!this->FileName && !this->FilePattern && !this->FileNames)
@@ -562,25 +568,17 @@ int vtkImageReader2::OpenFile()
     return 0;
   }
 
-  // Close file from any previous image
-  if (this->File)
-  {
-    this->File->close();
-    delete this->File;
-    this->File = nullptr;
-  }
-
+  this->CloseFile();
   // Open the new file
   vtkDebugMacro(<< "Initialize: opening file " << this->InternalFileName);
   vtksys::SystemTools::Stat_t fs;
   if (!vtksys::SystemTools::Stat(this->InternalFileName, &fs))
   {
+    std::ios_base::openmode mode = ios::in;
 #ifdef _WIN32
-    std::wstring wfilename = vtksys::Encoding::ToWindowsExtendedPath(this->InternalFileName);
-    this->File = new ifstream(wfilename, ios::in | ios::binary);
-#else
-    this->File = new ifstream(this->InternalFileName, ios::in);
+    mode |= ios::binary;
 #endif
+    this->File = new vtksys::ifstream(this->InternalFileName, mode);
   }
   if (!this->File || this->File->fail())
   {

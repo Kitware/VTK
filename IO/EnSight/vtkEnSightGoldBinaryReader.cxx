@@ -28,6 +28,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtksys/Encoding.hxx"
+#include "vtksys/FStream.hxx"
 
 #include <cctype>
 #include <map>
@@ -83,13 +84,8 @@ vtkEnSightGoldBinaryReader::vtkEnSightGoldBinaryReader()
 vtkEnSightGoldBinaryReader::~vtkEnSightGoldBinaryReader()
 {
   delete this->FileOffsets;
-
-  if (this->GoldIFile)
-  {
-    this->GoldIFile->close();
-    delete this->GoldIFile;
-    this->GoldIFile = nullptr;
-  }
+  delete this->GoldIFile;
+  this->GoldIFile = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -101,13 +97,8 @@ int vtkEnSightGoldBinaryReader::OpenFile(const char* filename)
     return 0;
   }
 
-  // Close file from any previous image
-  if (this->GoldIFile)
-  {
-    this->GoldIFile->close();
-    delete this->GoldIFile;
-    this->GoldIFile = nullptr;
-  }
+  delete this->GoldIFile;
+  this->GoldIFile = nullptr;
 
   // Open the new file
   vtkDebugMacro(<< "Opening file " << filename);
@@ -117,12 +108,11 @@ int vtkEnSightGoldBinaryReader::OpenFile(const char* filename)
     // Find out how big the file is.
     this->FileSize = static_cast<vtkTypeUInt64>(fs.st_size);
 
+    std::ios_base::openmode mode = ios::in;
 #ifdef _WIN32
-    this->GoldIFile =
-      new ifstream(vtksys::Encoding::ToWindowsExtendedPath(filename), ios::in | ios::binary);
-#else
-    this->GoldIFile = new ifstream(filename, ios::in);
+    mode |= ios::binary;
 #endif
+    this->GoldIFile = new vtksys::ifstream(filename, mode);
   }
   else
   {
@@ -408,24 +398,17 @@ int vtkEnSightGoldBinaryReader::ReadGeometryFile(
       if (lineRead < 0)
       {
         free(name);
-        if (this->GoldIFile)
-        {
-          this->GoldIFile->close();
-          delete this->GoldIFile;
-          this->GoldIFile = nullptr;
-        }
+        delete this->GoldIFile;
+        this->GoldIFile = nullptr;
         return 0;
       }
     }
     free(name);
   }
 
-  if (this->GoldIFile)
-  {
-    this->GoldIFile->close();
-    delete this->GoldIFile;
-    this->GoldIFile = nullptr;
-  }
+  delete this->GoldIFile;
+  this->GoldIFile = nullptr;
+
   if (lineRead < 0)
   {
     return 0;
@@ -553,12 +536,8 @@ int vtkEnSightGoldBinaryReader::SkipTimeStep()
 
   if (lineRead < 0)
   {
-    if (this->GoldIFile)
-    {
-      this->GoldIFile->close();
-      delete this->GoldIFile;
-      this->GoldIFile = nullptr;
-    }
+    delete this->GoldIFile;
+    this->GoldIFile = nullptr;
     return 0;
   }
 
@@ -1257,12 +1236,9 @@ int vtkEnSightGoldBinaryReader::ReadMeasuredGeometryFile(
   delete[] yCoords;
   delete[] zCoords;
 
-  if (this->GoldIFile)
-  {
-    this->GoldIFile->close();
-    delete this->GoldIFile;
-    this->GoldIFile = nullptr;
-  }
+  delete this->GoldIFile;
+  this->GoldIFile = nullptr;
+
   return 1;
 }
 
@@ -1395,12 +1371,10 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(const char* fileName, const c
       scalars->Delete();
       delete[] scalarsRead;
     }
-    if (this->GoldIFile)
-    {
-      this->GoldIFile->close();
-      delete this->GoldIFile;
-      this->GoldIFile = nullptr;
-    }
+
+    delete this->GoldIFile;
+    this->GoldIFile = nullptr;
+
     return 1;
   }
 
@@ -1475,12 +1449,9 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(const char* fileName, const c
     lineRead = this->ReadLine(line);
   }
 
-  if (this->GoldIFile)
-  {
-    this->GoldIFile->close();
-    delete this->GoldIFile;
-    this->GoldIFile = nullptr;
-  }
+  delete this->GoldIFile;
+  this->GoldIFile = nullptr;
+
   return 1;
 }
 
@@ -1604,12 +1575,10 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(const char* fileName, const c
       }
       vectors->Delete();
     }
-    if (this->GoldIFile)
-    {
-      this->GoldIFile->close();
-      delete this->GoldIFile;
-      this->GoldIFile = nullptr;
-    }
+
+    delete this->GoldIFile;
+    this->GoldIFile = nullptr;
+
     return 1;
   }
 
@@ -1677,12 +1646,8 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(const char* fileName, const c
     lineRead = this->ReadLine(line);
   }
 
-  if (this->GoldIFile)
-  {
-    this->GoldIFile->close();
-    delete this->GoldIFile;
-    this->GoldIFile = nullptr;
-  }
+  delete this->GoldIFile;
+  this->GoldIFile = nullptr;
 
   return 1;
 }
@@ -1826,12 +1791,8 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerNode(const char* fileName, const c
     lineRead = this->ReadLine(line);
   }
 
-  if (this->GoldIFile)
-  {
-    this->GoldIFile->close();
-    delete this->GoldIFile;
-    this->GoldIFile = nullptr;
-  }
+  delete this->GoldIFile;
+  this->GoldIFile = nullptr;
 
   return 1;
 }
@@ -1925,12 +1886,8 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(const char* fileName, cons
               if (elementType == -1)
               {
                 vtkErrorMacro("Unknown element type \"" << line << "\"");
-                if (this->GoldIFile)
-                {
-                  this->GoldIFile->close();
-                  delete this->GoldIFile;
-                  this->GoldIFile = nullptr;
-                }
+                delete this->GoldIFile;
+                this->GoldIFile = nullptr;
                 return 0;
               }
               idx = this->UnstructuredPartIds->IsId(realId);
@@ -2005,12 +1962,9 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(const char* fileName, cons
           if (elementType == -1)
           {
             vtkErrorMacro("Unknown element type \"" << line << "\"");
-            if (this->GoldIFile)
-            {
-              this->GoldIFile->close();
-              delete this->GoldIFile;
-              this->GoldIFile = nullptr;
-            }
+            delete this->GoldIFile;
+            this->GoldIFile = nullptr;
+
             if (component == 0)
             {
               scalars->Delete();
@@ -2067,12 +2021,8 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(const char* fileName, cons
     }
   }
 
-  if (this->GoldIFile)
-  {
-    this->GoldIFile->close();
-    delete this->GoldIFile;
-    this->GoldIFile = nullptr;
-  }
+  delete this->GoldIFile;
+  this->GoldIFile = nullptr;
   return 1;
 }
 
@@ -2301,12 +2251,8 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(const char* fileName, cons
     }
   }
 
-  if (this->GoldIFile)
-  {
-    this->GoldIFile->close();
-    delete this->GoldIFile;
-    this->GoldIFile = nullptr;
-  }
+  delete this->GoldIFile;
+  this->GoldIFile = nullptr;
   return 1;
 }
 
@@ -2556,12 +2502,9 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(const char* fileName, cons
     }
   }
 
-  if (this->GoldIFile)
-  {
-    this->GoldIFile->close();
-    delete this->GoldIFile;
-    this->GoldIFile = nullptr;
-  }
+  delete this->GoldIFile;
+  this->GoldIFile = nullptr;
+
   return 1;
 }
 

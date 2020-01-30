@@ -46,6 +46,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkWedge.h"
 #include "vtksys/Encoding.hxx"
+#include "vtksys/FStream.hxx"
 
 #include "fstream"
 #include <algorithm>
@@ -447,14 +448,11 @@ int vtkFLUENTReader::RequestInformation(vtkInformation* vtkNotUsed(request),
 //----------------------------------------------------------------------------
 bool vtkFLUENTReader::OpenCaseFile(const char* filename)
 {
+  std::ios_base::openmode mode = ios::in;
 #ifdef _WIN32
-  std::wstring wfilename = vtksys::Encoding::ToWindowsExtendedPath(filename);
-  this->FluentCaseFile = new ifstream(wfilename, ios::in | ios::binary);
-#else
-  // this->FluentCaseFile->open(filename, ios::in);
-  this->FluentCaseFile = new ifstream(filename, ios::in);
+  mode |= ios::binary;
 #endif
-
+  this->FluentCaseFile = new vtksys::ifstream(filename, mode);
   if (!this->FluentCaseFile->fail())
   {
     return true;
@@ -517,14 +515,11 @@ bool vtkFLUENTReader::OpenDataFile(const char* filename)
   dfilename.erase(dfilename.length() - 3, 3);
   dfilename.append("dat");
 
+  std::ios_base::openmode mode = ios::in;
 #ifdef _WIN32
-  this->FluentDataFile =
-    new ifstream(vtksys::Encoding::ToWindowsExtendedPath(dfilename), ios::in | ios::binary);
-#else
-  // this->FluentDataFile->open(dfilename.c_str(), ios::in);
-  this->FluentDataFile = new ifstream(dfilename.c_str(), ios::in);
+  mode |= ios::binary;
 #endif
-
+  this->FluentDataFile = new vtksys::ifstream(dfilename.c_str(), mode);
   if (this->FluentDataFile->fail())
   {
     vtkErrorMacro("Could not open data file "

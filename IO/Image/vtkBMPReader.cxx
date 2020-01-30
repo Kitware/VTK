@@ -468,7 +468,7 @@ void vtkBMPReaderUpdate2(vtkBMPReader* self, vtkImageData* data, OT* outPtr)
             << idx1 << ", Read = " << streamRead << ", Skip0 = " << streamSkip0 << ", Skip1 = "
             << streamSkip1 << ", FilePos = " << static_cast<vtkIdType>(self->GetFile()->tellg())
             << ", FileName = " << self->GetInternalFileName());
-        self->GetFile()->close();
+        self->CloseFile();
         return;
       }
 
@@ -506,7 +506,7 @@ void vtkBMPReaderUpdate2(vtkBMPReader* self, vtkImageData* data, OT* outPtr)
     outPtr2 += outIncr[2];
   }
 
-  self->GetFile()->close();
+  self->CloseFile();
 
   // delete the temporary buffer
 }

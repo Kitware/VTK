@@ -29,6 +29,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtksys/Encoding.hxx"
+#include "vtksys/FStream.hxx"
 
 vtkStandardNewMacro(vtkGAMBITReader);
 
@@ -139,12 +140,7 @@ int vtkGAMBITReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
-#ifdef _WIN32
-  this->FileStream = new ifstream(vtksys::Encoding::ToWindowsExtendedPath(this->FileName), ios::in);
-#else
-  this->FileStream = new ifstream(this->FileName, ios::in);
-#endif
-
+  this->FileStream = new vtksys::ifstream(this->FileName);
   if (this->FileStream->fail())
   {
     this->SetErrorCode(vtkErrorCode::FileNotFoundError);

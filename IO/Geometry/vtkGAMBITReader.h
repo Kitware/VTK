@@ -91,7 +91,7 @@ protected:
   int NumberOfBoundaryConditionSets;
   int NumberOfCoordinateDirections;
   int NumberOfVelocityComponents;
-  ifstream* FileStream;
+  istream* FileStream;
 
   enum GAMBITCellType
   {

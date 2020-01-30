@@ -80,7 +80,7 @@ protected:
   vtkDataSet* CheckOutput();
   void SetNumberOfPieces(int num);
 
-  ifstream* OpenFile(const char*);
+  istream* OpenFile(const char*);
 
   int ReadXML(istream* file, char** block, char** param, char** value);
   int VTKFileFlag;

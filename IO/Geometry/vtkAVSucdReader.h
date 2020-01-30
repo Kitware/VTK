@@ -171,7 +171,7 @@ protected:
   int NumberOfFields;
   int NlistNodes;
 
-  ifstream* FileStream;
+  istream* FileStream;
 
   vtkDataArraySelection* PointDataArraySelection;
   vtkDataArraySelection* CellDataArraySelection;
