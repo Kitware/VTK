@@ -226,21 +226,33 @@ void vtkOSPRayPass::RenderInternal(const vtkRenderState* s)
     vtkFrameBufferObjectBase* fbo = s->GetFrameBuffer();
     int viewportX, viewportY;
     int viewportWidth, viewportHeight;
+    double tileViewport[4];
+    int tileScale[2];
     if (fbo)
     {
       viewportX = 0;
       viewportY = 0;
       fbo->GetLastSize(viewportWidth, viewportHeight);
+
+      tileViewport[0] = tileViewport[1] = 0.0;
+      tileViewport[2] = tileViewport[3] = 1.0;
+      tileScale[0] = tileScale[1] = 1;
     }
     else
     {
       ren->GetTiledSizeAndOrigin(&viewportWidth, &viewportHeight, &viewportX, &viewportY);
+
+      vtkWindow* win = ren->GetVTKWindow();
+      win->GetTileViewport(tileViewport);
+      win->GetTileScale(tileScale);
     }
 
     vtkOSPRayRendererNode* oren =
       vtkOSPRayRendererNode::SafeDownCast(this->SceneGraph->GetViewNodeFor(ren));
 
     oren->SetSize(viewportWidth, viewportHeight);
+    oren->SetViewport(tileViewport);
+    oren->SetScale(tileScale);
 
     this->SceneGraph->TraverseAllPasses();
 

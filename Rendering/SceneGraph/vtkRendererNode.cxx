@@ -36,6 +36,12 @@ vtkRendererNode::vtkRendererNode()
 {
   this->Size[0] = 0;
   this->Size[1] = 0;
+  this->Viewport[0] = 0.0;
+  this->Viewport[1] = 0.0;
+  this->Viewport[2] = 1.0;
+  this->Viewport[3] = 1.0;
+  this->Scale[0] = 1;
+  this->Scale[1] = 1;
 }
 
 //----------------------------------------------------------------------------
