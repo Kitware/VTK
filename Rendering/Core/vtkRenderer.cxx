@@ -54,9 +54,7 @@ vtkCxxSetObjectMacro(vtkRenderer, Pass, vtkRenderPass);
 vtkCxxSetObjectMacro(vtkRenderer, FXAAOptions, vtkFXAAOptions);
 
 //----------------------------------------------------------------------------
-// Return nullptr if no override is supplied.
-vtkAbstractObjectFactoryNewMacro(vtkRenderer);
-//----------------------------------------------------------------------------
+vtkObjectFactoryNewMacro(vtkRenderer);
 
 // Create a vtkRenderer with a black background, a white ambient light,
 // two-sided lighting turned on, a viewport of (0,0,1,1), and backface culling

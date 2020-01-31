@@ -34,9 +34,7 @@
 #include <utility> // for std::swap
 
 //----------------------------------------------------------------------------
-// Use the vtkAbstractObjectFactoryNewMacro to allow the object factory overrides.
-vtkAbstractObjectFactoryNewMacro(vtkRenderWindow);
-//----------------------------------------------------------------------------
+vtkObjectFactoryNewMacro(vtkRenderWindow);
 
 // Construct an instance of  vtkRenderWindow with its screen size
 // set to 300x300, borders turned on, positioned at (0,0), double
@@ -94,15 +92,12 @@ vtkRenderWindow::~vtkRenderWindow()
 
   if (this->Renderers)
   {
-    vtkCollectionSimpleIterator rsit;
-    this->Renderers->InitTraversal(rsit);
-    vtkRenderer* aren;
-    while ((aren = this->Renderers->GetNextRenderer(rsit)))
+    vtkRenderer* ren;
+    vtkCollectionSimpleIterator rit;
+    this->Renderers->InitTraversal(rit);
+    while ((ren = this->Renderers->GetNextRenderer(rit)))
     {
-      if (aren->GetRenderWindow() == this)
-      {
-        vtkErrorMacro("Window destructed with renderer still associated with it!");
-      }
+      ren->SetRenderWindow(nullptr);
     }
 
     this->Renderers->Delete();

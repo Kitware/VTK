@@ -22,9 +22,7 @@
 vtkCxxSetObjectMacro(vtkLight, Information, vtkInformation);
 vtkCxxSetObjectMacro(vtkLight, TransformMatrix, vtkMatrix4x4);
 
-//----------------------------------------------------------------------------
-// Return nullptr if no override is supplied.
-vtkAbstractObjectFactoryNewMacro(vtkLight);
+vtkObjectFactoryNewMacro(vtkLight);
 
 // Create a light with the focal point at the origin and its position
 // set to (0,0,1). The lights color is white, intensity=1, and the light
