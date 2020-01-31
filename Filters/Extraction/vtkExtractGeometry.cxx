@@ -87,8 +87,9 @@ int vtkExtractGeometry::RequestData(
   // May be nullptr, check before dereferencing.
   vtkUnstructuredGrid* gridInput = vtkUnstructuredGrid::SafeDownCast(input);
 
-  if (vtk3DLinearGridCrinkleExtractor::CanFullyProcessDataObject(input) &&
-    this->GetExtractBoundaryCells())
+  if (!this->GetExtractInside() && this->GetExtractOnlyBoundaryCells() &&
+    this->GetExtractBoundaryCells() &&
+    vtk3DLinearGridCrinkleExtractor::CanFullyProcessDataObject(input))
   {
     vtkNew<vtk3DLinearGridCrinkleExtractor> linear3DExtractor;
     linear3DExtractor->SetImplicitFunction(this->GetImplicitFunction());
