@@ -61,7 +61,7 @@ int vtkAppendLocationAttributes::RequestData(vtkInformation* vtkNotUsed(request)
   {
     vtkPointData* outPD = output->GetPointData();
     vtkPointSet* outPointSet = vtkPointSet::SafeDownCast(output);
-    if (outPointSet)
+    if (outPointSet && outPointSet->GetPoints())
     {
       // Access point data array and shallow copy it to a point data array
       vtkDataArray* pointArray = outPointSet->GetPoints()->GetData();
