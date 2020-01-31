@@ -945,7 +945,7 @@ int vtk3DLinearGridPlaneCutter::ProcessPiece(
   }
 
   // Report the results of execution
-  vtkLog(INFO,
+  vtkLog(TRACE,
     "Created: " << outPts->GetNumberOfPoints() << " points, " << newPolys->GetNumberOfCells()
                 << " triangles");
 
