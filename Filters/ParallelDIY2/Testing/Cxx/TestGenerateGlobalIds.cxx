@@ -35,14 +35,13 @@
 
 namespace
 {
-static const int nblocks = 3;
 static int whole_extent[] = { 0, 99, 0, 99, 0, 99 };
 
 vtkSmartPointer<vtkMultiBlockDataSet> CreateDataSet(
-  vtkMultiProcessController* contr, int ghost_level)
+  vtkMultiProcessController* contr, int ghost_level, int nblocks)
 {
-  const int num_ranks = contr->GetNumberOfProcesses();
-  const int rank = contr->GetLocalProcessId();
+  const int num_ranks = contr ? contr->GetNumberOfProcesses() : 1;
+  const int rank = contr ? contr->GetLocalProcessId() : 0;
   const int total_nblocks = nblocks * num_ranks;
 
   vtkNew<vtkExtentTranslator> translator;
@@ -68,10 +67,10 @@ vtkSmartPointer<vtkMultiBlockDataSet> CreateDataSet(
   return mb;
 }
 
-bool ValidateDataset(
-  vtkMultiBlockDataSet* mb, vtkMultiProcessController* contr, int vtkNotUsed(ghost_level))
+bool ValidateDataset(vtkMultiBlockDataSet* mb, vtkMultiProcessController* contr,
+  int vtkNotUsed(ghost_level), int nblocks)
 {
-  const int num_ranks = contr->GetNumberOfProcesses();
+  const int num_ranks = contr ? contr->GetNumberOfProcesses() : 1;
   const int total_nblocks = nblocks * num_ranks;
 
   vtkIdType local_non_duplicated_points = 0;
@@ -144,27 +143,41 @@ int TestGenerateGlobalIds(int argc, char* argv[])
   vtkMultiProcessController::SetGlobalController(contr);
 
   int status = EXIT_SUCCESS;
-  if (auto dataset = CreateDataSet(contr, 0)) // no cell overlap
+  if (auto dataset = CreateDataSet(contr, 0, 3)) // no cell overlap
   {
     vtkNew<vtkGenerateGlobalIds> generator;
     generator->SetInputDataObject(dataset);
     generator->Update();
 
     if (!ValidateDataset(
-          vtkMultiBlockDataSet::SafeDownCast(generator->GetOutputDataObject(0)), contr, 0))
+          vtkMultiBlockDataSet::SafeDownCast(generator->GetOutputDataObject(0)), contr, 0, 3))
     {
       status = EXIT_FAILURE;
     }
   }
 
-  if (auto dataset = CreateDataSet(contr, 1)) // cell overlap
+  if (auto dataset = CreateDataSet(contr, 1, 3)) // cell overlap
   {
     vtkNew<vtkGenerateGlobalIds> generator;
     generator->SetInputDataObject(dataset);
     generator->Update();
 
     if (!ValidateDataset(
-          vtkMultiBlockDataSet::SafeDownCast(generator->GetOutputDataObject(0)), contr, 1))
+          vtkMultiBlockDataSet::SafeDownCast(generator->GetOutputDataObject(0)), contr, 1, 3))
+    {
+      status = EXIT_FAILURE;
+    }
+  }
+
+  // test a dataset with 1 block per rank.
+  if (auto dataset = CreateDataSet(contr, 1, 1))
+  {
+    vtkNew<vtkGenerateGlobalIds> generator;
+    generator->SetInputDataObject(dataset);
+    generator->Update();
+
+    if (!ValidateDataset(
+          vtkMultiBlockDataSet::SafeDownCast(generator->GetOutputDataObject(0)), contr, 1, 1))
     {
       status = EXIT_FAILURE;
     }
