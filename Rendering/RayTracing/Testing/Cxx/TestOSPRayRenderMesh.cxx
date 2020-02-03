@@ -247,6 +247,7 @@ int TestOSPRayRenderMesh(int argc, char* argv[])
   renWin->AddRenderer(renderer);
   renderer->AutomaticLightCreationOn();
   renderer->SetBackground(0.75, 0.75, 0.75);
+  renderer->SetEnvironmentalBG(0.75, 0.75, 0.75);
   renWin->SetSize(600, 550);
   vtkSmartPointer<vtkCamera> camera = vtkSmartPointer<vtkCamera>::New();
   camera->SetPosition(2.5, 11, -3);

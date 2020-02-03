@@ -960,14 +960,14 @@ int vtkOSPRayRendererNode::GetBackgroundMode(vtkRenderer* renderer)
 {
   if (!renderer)
   {
-    return 1;
+    return 2;
   }
   vtkInformation* info = renderer->GetInformation();
   if (info && info->Has(vtkOSPRayRendererNode::BACKGROUND_MODE()))
   {
     return (info->Get(vtkOSPRayRendererNode::BACKGROUND_MODE()));
   }
-  return 1;
+  return 2;
 }
 
 //----------------------------------------------------------------------------

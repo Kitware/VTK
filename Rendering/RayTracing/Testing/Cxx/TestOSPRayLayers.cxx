@@ -47,12 +47,14 @@ int TestOSPRayLayers(int argc, char* argv[])
   vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
   renderer->AddActor(actor);
   actor->SetMapper(mapper);
-  renderer->SetBackground(0.5, 0.5, 1.0); // should see a light blue background
+  renderer->SetBackground(0.5, 0.5, 1.0);      // should see a light blue background
+  renderer->SetEnvironmentalBG(0.5, 0.5, 1.0); // should see a light blue background
 
   vtkSmartPointer<vtkRenderer> renderer2 = vtkSmartPointer<vtkRenderer>::New();
   renderer2->SetLayer(1);
   renWin->AddRenderer(renderer2);
-  renderer2->SetBackground(1.0, 0.0, 0.0); // should not see red background
+  renderer2->SetBackground(1.0, 0.0, 0.0);      // should not see red background
+  renderer2->SetEnvironmentalBG(1.0, 0.0, 0.0); // should not see red background
   vtkSmartPointer<vtkConeSource> cone = vtkSmartPointer<vtkConeSource>::New();
   vtkSmartPointer<vtkPolyDataMapper> mapper2 = vtkSmartPointer<vtkPolyDataMapper>::New();
   mapper2->SetInputConnection(cone->GetOutputPort());

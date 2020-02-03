@@ -73,6 +73,7 @@ int TestOSPRayImplicits(int argc, char* argv[])
   renWin->AddRenderer(renderer);
   renderer->AutomaticLightCreationOn();
   renderer->SetBackground(0.75, 0.75, 0.75);
+  renderer->SetEnvironmentalBG(0.75, 0.75, 0.75);
   renWin->SetSize(600, 550);
 
   vtkSmartPointer<vtkOSPRayPass> ospray = vtkSmartPointer<vtkOSPRayPass>::New();

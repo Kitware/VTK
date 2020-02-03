@@ -58,6 +58,7 @@ int TestOSPRayMultiBlock(int argc, char* argv[])
   renderer->AddActor(actor);
   actor->SetMapper(mapper);
   renderer->SetBackground(0.1, 0.1, 1.0);
+  renderer->SetEnvironmentalBG(0.1, 0.1, 1.0);
   renWin->SetSize(400, 400);
   renWin->Render();
 
