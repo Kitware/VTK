@@ -41,15 +41,15 @@ vtkViewport::vtkViewport()
 
   this->GradientBackground = false;
 
-  this->EnvBackground[0] = 0;
-  this->EnvBackground[1] = 0;
-  this->EnvBackground[2] = 0;
+  this->EnvironmentalBG[0] = 0;
+  this->EnvironmentalBG[1] = 0;
+  this->EnvironmentalBG[2] = 0;
 
-  this->EnvBackground2[0] = 0.2;
-  this->EnvBackground2[1] = 0.2;
-  this->EnvBackground2[2] = 0.2;
+  this->EnvironmentalBG2[0] = 0.2;
+  this->EnvironmentalBG2[1] = 0.2;
+  this->EnvironmentalBG2[2] = 0.2;
 
-  this->GradientEnvBackground = false;
+  this->GradientEnvironmentalBG = false;
 
   this->Viewport[0] = 0;
   this->Viewport[1] = 0;

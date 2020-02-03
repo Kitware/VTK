@@ -49,7 +49,7 @@
 vtkCxxSetObjectMacro(vtkRenderer, Information, vtkInformation);
 vtkCxxSetObjectMacro(vtkRenderer, Delegate, vtkRendererDelegate);
 vtkCxxSetObjectMacro(vtkRenderer, BackgroundTexture, vtkTexture);
-vtkCxxSetObjectMacro(vtkRenderer, EnvBackgroundTexture, vtkTexture);
+vtkCxxSetObjectMacro(vtkRenderer, EnvironmentalBGTexture, vtkTexture);
 vtkCxxSetObjectMacro(vtkRenderer, RightBackgroundTexture, vtkTexture);
 vtkCxxSetObjectMacro(vtkRenderer, Pass, vtkRenderPass);
 vtkCxxSetObjectMacro(vtkRenderer, FXAAOptions, vtkFXAAOptions);
@@ -142,9 +142,8 @@ vtkRenderer::vtkRenderer()
   this->TexturedBackground = false;
   this->BackgroundTexture = nullptr;
   this->RightBackgroundTexture = nullptr;
-  this->EnvBackgroundTexture = nullptr;
-
-  this->TexturedEnvBackground = false;
+  this->TexturedEnvironmentalBG = false;
+  this->EnvironmentalBGTexture = nullptr;
 
   this->Pass = nullptr;
 
@@ -204,9 +203,9 @@ vtkRenderer::~vtkRenderer()
     this->RightBackgroundTexture->Delete();
   }
 
-  if (this->EnvBackgroundTexture != nullptr)
+  if (this->EnvironmentalBGTexture != nullptr)
   {
-    this->EnvBackgroundTexture->Delete();
+    this->EnvironmentalBGTexture->Delete();
   }
 
   this->SetInformation(nullptr);
@@ -241,9 +240,9 @@ void vtkRenderer::ReleaseGraphicsResources(vtkWindow* renWin)
   {
     this->RightBackgroundTexture->ReleaseGraphicsResources(renWin);
   }
-  if (this->EnvBackgroundTexture != nullptr)
+  if (this->EnvironmentalBGTexture != nullptr)
   {
-    this->EnvBackgroundTexture->ReleaseGraphicsResources(renWin);
+    this->EnvironmentalBGTexture->ReleaseGraphicsResources(renWin);
   }
   vtkProp* aProp;
   vtkCollectionSimpleIterator pit;

@@ -304,13 +304,13 @@ public:
         retval = false;
       }
     }
-    bool useenvbgtexture = ren->GetTexturedEnvBackground();
+    bool useenvbgtexture = ren->GetTexturedEnvironmentalBG();
     if (this->luseenvbgtexture != useenvbgtexture)
     {
       this->luseenvbgtexture = useenvbgtexture;
       retval = false;
     }
-    vtkTexture* envbgtexture = ren->GetEnvBackgroundTexture();
+    vtkTexture* envbgtexture = ren->GetEnvironmentalBGTexture();
     vtkMTimeType envbgttime = 0;
     if (envbgtexture)
     {
@@ -322,14 +322,14 @@ public:
       this->lenvbgttime = envbgttime;
       retval = false;
     }
-    bool useenvgradient = ren->GetGradientEnvBackground();
+    bool useenvgradient = ren->GetGradientEnvironmentalBG();
     if (this->luseenvgradient != useenvgradient)
     {
       this->luseenvgradient = useenvgradient;
       retval = false;
     }
-    double* nenvbgcolor1 = ren->GetEnvBackground();
-    double* nenvbgcolor2 = ren->GetEnvBackground2();
+    double* nenvbgcolor1 = ren->GetEnvironmentalBG();
+    double* nenvbgcolor2 = ren->GetEnvironmentalBG2();
     if (this->lenvbgcolor1[0] != nenvbgcolor1[0] || this->lenvbgcolor1[1] != nenvbgcolor1[1] ||
       this->lenvbgcolor1[2] != nenvbgcolor1[2] || this->lenvbgcolor2[0] != nenvbgcolor2[0] ||
       this->lenvbgcolor2[1] != nenvbgcolor2[1] || this->lenvbgcolor2[2] != nenvbgcolor2[2])
@@ -447,12 +447,12 @@ public:
     bool reuseable = this->CanReuseBG() && (nowbgmode == this->lbackgroundmode);
     if (!reuseable)
     {
-      double* bg1 = ren->GetEnvBackground();
+      double* bg1 = ren->GetEnvironmentalBG();
       unsigned char* ochars;
       int isize = 1;
       int jsize = 1;
-      vtkTexture* text = ren->GetEnvBackgroundTexture();
-      if (text && (ren->GetTexturedEnvBackground() || ren->GetUseImageBasedLighting()))
+      vtkTexture* text = ren->GetEnvironmentalBGTexture();
+      if (text && (ren->GetTexturedEnvironmentalBG() || ren->GetUseImageBasedLighting()))
       {
         vtkImageData* vColorTextureMap = text->GetInput();
         // todo, fallback to gradient when either of above return nullptr
@@ -478,9 +478,9 @@ public:
         isize++;
         jsize++;
       }
-      else if (ren->GetGradientEnvBackground())
+      else if (ren->GetGradientEnvironmentalBG())
       {
-        double* bg2 = ren->GetEnvBackground2();
+        double* bg2 = ren->GetEnvironmentalBG2();
         isize = 256; // todo: configurable
         jsize = 2;
         ochars = new unsigned char[isize * jsize * 3];

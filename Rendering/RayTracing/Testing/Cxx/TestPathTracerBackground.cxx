@@ -85,13 +85,13 @@ int TestPathTracerBackground(int argc, char* argv[])
     }
   }
 
-  renderer->SetEnvBackground(0.1, 0.1, 1.0);
+  renderer->SetEnvironmentalBG(0.1, 0.1, 1.0);
   renWin->Render();
   renWin->Render(); // should cache
 
-  renderer->SetEnvBackground(0.0, 0.0, 0.0);
-  renderer->SetEnvBackground2(0.8, 0.8, 1.0);
-  renderer->GradientEnvBackgroundOn();
+  renderer->SetEnvironmentalBG(0.0, 0.0, 0.0);
+  renderer->SetEnvironmentalBG2(0.8, 0.8, 1.0);
+  renderer->GradientEnvironmentalBGOn();
   renWin->Render(); // should invalidate and remake using default up
   renWin->Render(); // should cache
 
@@ -119,9 +119,9 @@ int TestPathTracerBackground(int argc, char* argv[])
   delete[] fname;
   imgReader->Update();
   textr->SetInputConnection(imgReader->GetOutputPort(0));
-  renderer->TexturedEnvBackgroundOn();
+  renderer->TexturedEnvironmentalBGOn();
   renWin->Render(); // shouldn't crash
-  renderer->SetEnvBackgroundTexture(textr);
+  renderer->SetEnvironmentalBGTexture(textr);
   renWin->Render(); // should invalidate and remake
   renWin->Render(); // should cache
   // spin up around x axis

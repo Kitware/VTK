@@ -51,9 +51,9 @@ int TestCategoricalMultiBlock(int argc, char* argv[])
   iren->SetRenderWindow(renWin);
   vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
   vtkOSPRayRendererNode::SetBackgroundMode(2, renderer);
-  renderer->SetEnvBackground(0.0, 0.0, 0.0);
-  renderer->SetEnvBackground2(0.8, 0.8, 1.0);
-  renderer->GradientEnvBackgroundOn();
+  renderer->SetEnvironmentalBG(0.0, 0.0, 0.0);
+  renderer->SetEnvironmentalBG2(0.8, 0.8, 1.0);
+  renderer->GradientEnvironmentalBGOn();
   renWin->AddRenderer(renderer);
   vtkSmartPointer<vtkOSPRayPass> ospray = vtkSmartPointer<vtkOSPRayPass>::New();
   renderer->SetPass(ospray);

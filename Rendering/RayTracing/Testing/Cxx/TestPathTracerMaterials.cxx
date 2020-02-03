@@ -86,8 +86,8 @@ int TestPathTracerMaterials(int argc, char* argv[])
   delete[] fname;
   imgReader->Update();
   textr->SetInputConnection(imgReader->GetOutputPort(0));
-  renderer->TexturedEnvBackgroundOn();
-  renderer->SetEnvBackgroundTexture(textr);
+  renderer->TexturedEnvironmentalBGOn();
+  renderer->SetEnvironmentalBGTexture(textr);
   vtkSmartPointer<vtkOSPRayTestInteractor> style = vtkSmartPointer<vtkOSPRayTestInteractor>::New();
   iren->SetInteractorStyle(style);
   style->SetCurrentRenderer(renderer);

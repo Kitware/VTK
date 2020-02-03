@@ -334,30 +334,31 @@ public:
 
   //@{
   /**
-   * Set/Get the background color of the rendering screen using an rgb color
-   * specification.
+   * Set/Get the constant environmental color using an rgb color specification.
+   * Note this is currently ignored outside of RayTracing.
    */
-  vtkSetVector3Macro(EnvBackground, double);
-  vtkGetVector3Macro(EnvBackground, double);
+  vtkSetVector3Macro(EnvironmentalBG, double);
+  vtkGetVector3Macro(EnvironmentalBG, double);
   //@}
 
   //@{
   /**
-   * Set/Get the second background color of the rendering screen
-   * for gradient backgrounds using an rgb color specification.
+   * Set/Get the second environmental gradient color using an rgb color specification.
+   * Note this is currently ignored outside of RayTracing.
    */
-  vtkSetVector3Macro(EnvBackground2, double);
-  vtkGetVector3Macro(EnvBackground2, double);
+  vtkSetVector3Macro(EnvironmentalBG2, double);
+  vtkGetVector3Macro(EnvironmentalBG2, double);
   //@}
   //@{
   /**
-   * Set/Get whether this viewport should have a gradient background
-   * using the Background (bottom) and Background2 (top) colors.
+   * Set/Get whether this viewport should enable the gradient environment
+   * using the EnvironmentalBG (bottom) and EnvironmentalBG2 (top) colors.
+   * Note this is currently ignored outside of RayTracing.
    * Default is off.
    */
-  vtkSetMacro(GradientEnvBackground, bool);
-  vtkGetMacro(GradientEnvBackground, bool);
-  vtkBooleanMacro(GradientEnvBackground, bool);
+  vtkSetMacro(GradientEnvironmentalBG, bool);
+  vtkGetMacro(GradientEnvironmentalBG, bool);
+  vtkBooleanMacro(GradientEnvironmentalBG, bool);
   //@}
 
 protected:
@@ -391,9 +392,9 @@ protected:
   double Center[2];
   bool GradientBackground;
 
-  double EnvBackground[3];
-  double EnvBackground2[3];
-  bool GradientEnvBackground;
+  double EnvironmentalBG[3];
+  double EnvironmentalBG2[3];
+  bool GradientEnvironmentalBG;
 
   int Size[2];
   int Origin[2];
