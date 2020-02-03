@@ -200,153 +200,85 @@ class vtkOSPRayRendererNodeInternals
   // todo: move the rest of the internal data here too
 public:
   vtkOSPRayRendererNodeInternals(vtkOSPRayRendererNode* _owner)
-    : Owner(_owner)
-  {
-    // grumble!
-    // vs2013 error C2536:...: cannot specify explicit initializer for arrays
-    this->lbgcolor1[0] = 0.;
-    this->lbgcolor1[1] = 0.;
-    this->lbgcolor1[2] = 0.;
-    this->lbgcolor2[0] = 0.;
-    this->lbgcolor2[1] = 0.;
-    this->lbgcolor2[2] = 0.;
-    this->lenvbgcolor1[0] = 0.;
-    this->lenvbgcolor1[1] = 0.;
-    this->lenvbgcolor1[2] = 0.;
-    this->lenvbgcolor2[0] = 0.;
-    this->lenvbgcolor2[1] = 0.;
-    this->lenvbgcolor2[2] = 0.;
-    this->lup[0] = 1.;
-    this->lup[1] = 0.;
-    this->lup[2] = 0.;
-    this->least[0] = 0.;
-    this->least[1] = 1.;
-    this->least[2] = 0.;
-    this->LastViewPort[0] = 0.;
-    this->LastViewPort[1] = 0.;
-    this->LastParallelScale = 0.0;
-    this->Backend = nullptr;
-  };
+    : Owner(_owner){};
 
   ~vtkOSPRayRendererNodeInternals() {}
 
-  bool CanReuseBP()
+  bool CanReuseBG(bool forbackplate)
   {
     bool retval = true;
-
+    int index = (forbackplate ? 0 : 1);
     vtkRenderer* ren = vtkRenderer::SafeDownCast(this->Owner->GetRenderable());
-    bool usebgtexture = ren->GetTexturedBackground();
-    if (this->lusebgtexture != usebgtexture)
+    bool useTexture =
+      (forbackplate ? ren->GetTexturedBackground() : ren->GetTexturedEnvironmentalBG());
+    if (this->lUseTexture[index] != useTexture)
     {
-      this->lusebgtexture = usebgtexture;
+      this->lUseTexture[index] = useTexture;
       retval = false;
     }
-    vtkTexture* bgtexture = ren->GetBackgroundTexture();
-    vtkMTimeType bgttime = 0;
-    if (bgtexture)
+    vtkTexture* envTexture =
+      (forbackplate ? ren->GetBackgroundTexture() : ren->GetEnvironmentalBGTexture());
+    vtkMTimeType envTextureTime = 0;
+    if (envTexture)
     {
-      bgttime = bgtexture->GetMTime();
+      envTextureTime = envTexture->GetMTime();
     }
-    if (this->lbgtexture != bgtexture || bgttime > this->lbgttime)
+    if (this->lTexture[index] != envTexture || envTextureTime > this->lTextureTime[index])
     {
-      this->lbgtexture = bgtexture;
-      this->lbgttime = bgttime;
+      this->lTexture[index] = envTexture;
+      this->lTextureTime[index] = envTextureTime;
       retval = false;
     }
-    bool usegradient = ren->GetGradientBackground();
-    if (this->lusegradient != usegradient)
+    bool useGradient =
+      (forbackplate ? ren->GetGradientBackground() : ren->GetGradientEnvironmentalBG());
+    if (this->lUseGradient[index] != useGradient)
     {
-      this->lusegradient = usegradient;
+      this->lUseGradient[index] = useGradient;
       retval = false;
     }
-    double* nbgcolor1 = ren->GetBackground();
-    double* nbgcolor2 = ren->GetBackground2();
-    if (this->lbgcolor1[0] != nbgcolor1[0] || this->lbgcolor1[1] != nbgcolor1[1] ||
-      this->lbgcolor1[2] != nbgcolor1[2] || this->lbgcolor2[0] != nbgcolor2[0] ||
-      this->lbgcolor2[1] != nbgcolor2[1] || this->lbgcolor2[2] != nbgcolor2[2])
+    double* color1 = (forbackplate ? ren->GetBackground() : ren->GetEnvironmentalBG());
+    double* color2 = (forbackplate ? ren->GetBackground2() : ren->GetEnvironmentalBG2());
+    if (this->lColor1[index][0] != color1[0] || this->lColor1[index][1] != color1[1] ||
+      this->lColor1[index][2] != color1[2] || this->lColor2[index][0] != color2[0] ||
+      this->lColor2[index][1] != color2[1] || this->lColor2[index][2] != color2[2])
     {
-      this->lbgcolor1[0] = nbgcolor1[0];
-      this->lbgcolor1[1] = nbgcolor1[1];
-      this->lbgcolor1[2] = nbgcolor1[2];
-      this->lbgcolor2[0] = nbgcolor2[0];
-      this->lbgcolor2[1] = nbgcolor2[1];
-      this->lbgcolor2[2] = nbgcolor2[2];
+      this->lColor1[index][0] = color1[0];
+      this->lColor1[index][1] = color1[1];
+      this->lColor1[index][2] = color1[2];
+      this->lColor2[index][0] = color2[0];
+      this->lColor2[index][1] = color2[1];
+      this->lColor2[index][2] = color2[2];
       retval = false;
     }
-
+    if (!forbackplate)
+    {
+      double* up = vtkOSPRayRendererNode::GetNorthPole(ren);
+      if (up)
+      {
+        if (this->lup[0] != up[0] || this->lup[1] != up[1] || this->lup[2] != up[2])
+        {
+          this->lup[0] = up[0];
+          this->lup[1] = up[1];
+          this->lup[2] = up[2];
+          retval = false;
+        }
+      }
+      double* east = vtkOSPRayRendererNode::GetEastPole(ren);
+      if (east)
+      {
+        if (this->least[0] != east[0] || this->least[1] != east[1] || this->least[2] != east[2])
+        {
+          this->least[0] = east[0];
+          this->least[1] = east[1];
+          this->least[2] = east[2];
+          retval = false;
+        }
+      }
+    }
     return retval;
   }
 
-  bool CanReuseBG()
-  {
-    bool retval = true;
-
-    vtkRenderer* ren = vtkRenderer::SafeDownCast(this->Owner->GetRenderable());
-    double* up = vtkOSPRayRendererNode::GetNorthPole(ren);
-    if (up)
-    {
-      if (this->lup[0] != up[0] || this->lup[1] != up[1] || this->lup[2] != up[2])
-      {
-        this->lup[0] = up[0];
-        this->lup[1] = up[1];
-        this->lup[2] = up[2];
-        retval = false;
-      }
-    }
-    double* east = vtkOSPRayRendererNode::GetEastPole(ren);
-    if (east)
-    {
-      if (this->least[0] != east[0] || this->least[1] != east[1] || this->least[2] != east[2])
-      {
-        this->least[0] = east[0];
-        this->least[1] = east[1];
-        this->least[2] = east[2];
-        retval = false;
-      }
-    }
-    bool useenvbgtexture = ren->GetTexturedEnvironmentalBG();
-    if (this->luseenvbgtexture != useenvbgtexture)
-    {
-      this->luseenvbgtexture = useenvbgtexture;
-      retval = false;
-    }
-    vtkTexture* envbgtexture = ren->GetEnvironmentalBGTexture();
-    vtkMTimeType envbgttime = 0;
-    if (envbgtexture)
-    {
-      envbgttime = envbgtexture->GetMTime();
-    }
-    if (this->lenvbgtexture != envbgtexture || envbgttime > this->lenvbgttime)
-    {
-      this->lenvbgtexture = envbgtexture;
-      this->lenvbgttime = envbgttime;
-      retval = false;
-    }
-    bool useenvgradient = ren->GetGradientEnvironmentalBG();
-    if (this->luseenvgradient != useenvgradient)
-    {
-      this->luseenvgradient = useenvgradient;
-      retval = false;
-    }
-    double* nenvbgcolor1 = ren->GetEnvironmentalBG();
-    double* nenvbgcolor2 = ren->GetEnvironmentalBG2();
-    if (this->lenvbgcolor1[0] != nenvbgcolor1[0] || this->lenvbgcolor1[1] != nenvbgcolor1[1] ||
-      this->lenvbgcolor1[2] != nenvbgcolor1[2] || this->lenvbgcolor2[0] != nenvbgcolor2[0] ||
-      this->lenvbgcolor2[1] != nenvbgcolor2[1] || this->lenvbgcolor2[2] != nenvbgcolor2[2])
-    {
-      this->lenvbgcolor1[0] = nenvbgcolor1[0];
-      this->lenvbgcolor1[1] = nenvbgcolor1[1];
-      this->lenvbgcolor1[2] = nenvbgcolor1[2];
-      this->lenvbgcolor2[0] = nenvbgcolor2[0];
-      this->lenvbgcolor2[1] = nenvbgcolor2[1];
-      this->lenvbgcolor2[2] = nenvbgcolor2[2];
-      retval = false;
-    }
-
-    return retval;
-  }
-
-  bool SetupPathTraceBackplate(RTW::Backend* backend, OSPRenderer oRenderer)
+  bool SetupPathTraceBG(bool forbackplate, RTW::Backend* backend, OSPRenderer oRenderer)
   {
     vtkRenderer* ren = vtkRenderer::SafeDownCast(this->Owner->GetRenderable());
     if (std::string(this->Owner->GetRendererType(ren)).find(std::string("pathtracer")) ==
@@ -355,16 +287,17 @@ public:
       return true;
     }
     OSPTexture t2d = nullptr;
-    int nowbgmode = vtkOSPRayRendererNode::GetBackgroundMode(ren);
-    bool reuseable = this->CanReuseBP() && (nowbgmode == this->lbackgroundmode);
+    int bgMode = vtkOSPRayRendererNode::GetBackgroundMode(ren);
+    bool reuseable = this->CanReuseBG(forbackplate) && (bgMode == this->lBackgroundMode);
     if (!reuseable)
     {
-      double* bg1 = ren->GetBackground();
+      double* bg1 = (forbackplate ? ren->GetBackground() : ren->GetEnvironmentalBG());
       unsigned char* ochars;
       int isize = 1;
       int jsize = 1;
-      vtkTexture* text = ren->GetBackgroundTexture();
-      if (text && ren->GetTexturedBackground())
+      vtkTexture* text =
+        (forbackplate ? ren->GetBackgroundTexture() : ren->GetEnvironmentalBGTexture());
+      if (text && (forbackplate ? ren->GetTexturedBackground() : ren->GetTexturedEnvironmentalBG()))
       {
         vtkImageData* vColorTextureMap = text->GetInput();
         // todo, fallback to gradient when either of above return nullptr
@@ -390,9 +323,9 @@ public:
         isize++;
         jsize++;
       }
-      else if (ren->GetGradientBackground())
+      else if (forbackplate ? ren->GetGradientBackground() : ren->GetGradientEnvironmentalBG())
       {
-        double* bg2 = ren->GetBackground2();
+        double* bg2 = (forbackplate ? ren->GetBackground2() : ren->GetEnvironmentalBG2());
         isize = 256; // todo: configurable
         jsize = 2;
         ochars = new unsigned char[isize * jsize * 3];
@@ -416,126 +349,53 @@ public:
         ochars[1] = bg1[1] * 255;
         ochars[2] = bg1[2] * 255;
       }
-
       t2d = vtkOSPRayMaterialHelpers::NewTexture2D(
         backend, osp::vec2i{ jsize, isize }, OSP_TEXTURE_RGB8, ochars, 0, 3 * sizeof(char));
 
-      delete[] ochars;
-
-      if (nowbgmode & 0x1)
+      if (forbackplate)
       {
-        ospSetData(oRenderer, "backplate", t2d);
-      }
-      else
-      {
-        ospSetData(oRenderer, "backplate", nullptr);
-      }
-    }
-
-    return reuseable;
-  }
-
-  bool SetupPathTraceBackground(RTW::Backend* backend)
-  {
-    vtkRenderer* ren = vtkRenderer::SafeDownCast(this->Owner->GetRenderable());
-    if (std::string(this->Owner->GetRendererType(ren)).find(std::string("pathtracer")) ==
-      std::string::npos)
-    {
-      return true;
-    }
-    int nowbgmode = vtkOSPRayRendererNode::GetBackgroundMode(ren);
-    bool reuseable = this->CanReuseBG() && (nowbgmode == this->lbackgroundmode);
-    if (!reuseable)
-    {
-      double* bg1 = ren->GetEnvironmentalBG();
-      unsigned char* ochars;
-      int isize = 1;
-      int jsize = 1;
-      vtkTexture* text = ren->GetEnvironmentalBGTexture();
-      if (text && (ren->GetTexturedEnvironmentalBG() || ren->GetUseImageBasedLighting()))
-      {
-        vtkImageData* vColorTextureMap = text->GetInput();
-        // todo, fallback to gradient when either of above return nullptr
-        // otherwise can't load texture in PV when in OSP::PT mode
-        // todo: this code is duplicated from vtkOSPRayPolyDataMapperNode
-        jsize = vColorTextureMap->GetExtent()[1];
-        isize = vColorTextureMap->GetExtent()[3];
-        unsigned char* ichars = (unsigned char*)vColorTextureMap->GetScalarPointer();
-        ochars = new unsigned char[(isize + 1) * (jsize + 1) * 3];
-        unsigned char* oc = ochars;
-        int comps = vColorTextureMap->GetNumberOfScalarComponents();
-        for (int i = 0; i < isize + 1; i++)
+        if (bgMode & 0x1)
         {
-          for (int j = 0; j < jsize + 1; j++)
-          {
-            oc[0] = ichars[0];
-            oc[1] = ichars[1];
-            oc[2] = ichars[2];
-            oc += 3;
-            ichars += comps;
-          }
+          ospSetData(oRenderer, "backplate", t2d);
         }
-        isize++;
-        jsize++;
-      }
-      else if (ren->GetGradientEnvironmentalBG())
-      {
-        double* bg2 = ren->GetEnvironmentalBG2();
-        isize = 256; // todo: configurable
-        jsize = 2;
-        ochars = new unsigned char[isize * jsize * 3];
-        unsigned char* oc = ochars;
-        for (int i = 0; i < isize; i++)
+        else
         {
-          double frac = (double)i / (double)isize;
-          *(oc + 0) = (bg1[0] * (1.0 - frac) + bg2[0] * frac) * 255;
-          *(oc + 1) = (bg1[1] * (1.0 - frac) + bg2[1] * frac) * 255;
-          *(oc + 2) = (bg1[2] * (1.0 - frac) + bg2[2] * frac) * 255;
-          *(oc + 3) = (bg1[0] * (1.0 - frac) + bg2[0] * frac) * 255;
-          *(oc + 4) = (bg1[1] * (1.0 - frac) + bg2[1] * frac) * 255;
-          *(oc + 5) = (bg1[2] * (1.0 - frac) + bg2[2] * frac) * 255;
-          oc += 6;
+          ospSetData(oRenderer, "backplate", nullptr);
         }
       }
       else
       {
-        ochars = new unsigned char[3];
-        ochars[0] = bg1[0] * 255;
-        ochars[1] = bg1[1] * 255;
-        ochars[2] = bg1[2] * 255;
-      }
 
-      OSPTexture t2d = vtkOSPRayMaterialHelpers::NewTexture2D(
-        backend, osp::vec2i{ jsize, isize }, OSP_TEXTURE_RGB8, ochars, 0, 3 * sizeof(char));
+        OSPLight ospLight = ospNewLight3("hdri");
+        ospSetObject(ospLight, "map", t2d);
+        ospRelease(t2d);
 
-      OSPLight ospLight = ospNewLight3("hdri");
-      ospSetObject(ospLight, "map", t2d);
-      ospRelease(t2d);
-
-      double* up = vtkOSPRayRendererNode::GetNorthPole(ren);
-      if (up)
-      {
-        ospSet3f(ospLight, "up", (float)up[0], (float)up[1], (float)up[2]);
+        double* up = vtkOSPRayRendererNode::GetNorthPole(ren);
+        if (up)
+        {
+          ospSet3f(ospLight, "up", (float)up[0], (float)up[1], (float)up[2]);
+        }
+        else
+        {
+          ospSet3f(ospLight, "up", 1.0f, 0.0f, 0.0f);
+        }
+        double* east = vtkOSPRayRendererNode::GetEastPole(ren);
+        if (east)
+        {
+          ospSet3f(ospLight, "dir", (float)east[0], (float)east[1], (float)east[2]);
+        }
+        else
+        {
+          ospSet3f(ospLight, "dir", 0.0f, 1.0f, 0.0f);
+        }
+        ospCommit(t2d);
+        ospCommit(ospLight);
+        this->BGLight = ospLight;
       }
-      else
-      {
-        ospSet3f(ospLight, "up", 1.0f, 0.0f, 0.0f); // todo: configurable
-      }
-      double* east = vtkOSPRayRendererNode::GetEastPole(ren);
-      if (east)
-      {
-        ospSet3f(ospLight, "dir", (float)east[0], (float)east[1], (float)east[2]);
-      }
-      else
-      {
-        ospSet3f(ospLight, "dir", 0.0f, 1.0f, 0.0f); // todo: configurable
-      }
-      ospCommit(t2d);
-      ospCommit(ospLight); // todo: make sure osp frees its side
       delete[] ochars;
-      this->BGLight = ospLight;
     }
-    if (nowbgmode & 0x2)
+
+    if (!forbackplate && (bgMode & 0x2))
     {
       this->Owner->AddLight(this->BGLight);
     }
@@ -546,28 +406,23 @@ public:
   std::map<vtkProp3D*, vtkAbstractMapper3D*> LastMapperFor;
   vtkOSPRayRendererNode* Owner;
 
-  bool lusebgtexture = false;
-  vtkWeakPointer<vtkTexture> lbgtexture = nullptr;
-  vtkMTimeType lbgttime = 0;
-  bool lusegradient = false;
-  double lbgcolor1[3]; // not initializing here bc visstudio2013
-  double lbgcolor2[3];
-  bool luseenvbgtexture = false;
-  vtkWeakPointer<vtkTexture> lenvbgtexture = nullptr;
-  vtkMTimeType lenvbgttime = 0;
-  bool luseenvgradient = false;
-  double lenvbgcolor1[3]; // not initializing here bc visstudio2013
-  double lenvbgcolor2[3];
+  int lBackgroundMode = 0;
+  double lColor1[2][3] = { { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 } };
+  bool lUseGradient[2] = { false, false };
+  double lColor2[2][3] = { { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 } };
+  bool lUseTexture[2] = { false, false };
+  vtkWeakPointer<vtkTexture> lTexture[2] = { nullptr, nullptr };
+  vtkMTimeType lTextureTime[2] = { 0, 0 };
   double lup[3];
   double least[3];
+
   double LastViewPort[2];
-  double LastParallelScale;
+  double LastParallelScale = 0.0;
   double LastFocalDisk = -1.0;
   double LastFocalDistance = -1.0;
-  int lbackgroundmode = 0;
 
   OSPLight BGLight;
-  RTW::Backend* Backend;
+  RTW::Backend* Backend = nullptr;
 };
 
 //============================================================================
@@ -1185,9 +1040,9 @@ void vtkOSPRayRendererNode::Traverse(int operation)
     this->Lights.push_back(ospAmbient);
   }
 
-  bool bpreused = this->Internal->SetupPathTraceBackplate(backend, oRenderer);
-  bool envreused = this->Internal->SetupPathTraceBackground(backend);
-  this->Internal->lbackgroundmode = vtkOSPRayRendererNode::GetBackgroundMode(
+  bool bpreused = this->Internal->SetupPathTraceBG(true, backend, oRenderer);
+  bool envreused = this->Internal->SetupPathTraceBG(false, backend, oRenderer);
+  this->Internal->lBackgroundMode = vtkOSPRayRendererNode::GetBackgroundMode(
     static_cast<vtkRenderer*>(this->Renderable)); // save it only once both of the above check
   bool bgreused = envreused && bpreused;
   ospRelease(this->OLightArray);
