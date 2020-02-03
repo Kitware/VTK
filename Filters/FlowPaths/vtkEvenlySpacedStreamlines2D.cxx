@@ -34,6 +34,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkIntArray.h"
 #include "vtkInterpolatedVelocityField.h"
 #include "vtkMath.h"
+#include "vtkMathUtilities.h"
 #include "vtkModifiedBSPTree.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
@@ -119,7 +120,7 @@ int vtkEvenlySpacedStreamlines2D::RequestData(vtkInformation* vtkNotUsed(request
   }
   double bounds[6];
   vtkEvenlySpacedStreamlines2D::GetBounds(this->InputData, bounds);
-  if (bounds[5] != bounds[4])
+  if (!vtkMathUtilities::FuzzyCompare(bounds[4], bounds[5]))
   {
     this->InputData->UnRegister(this);
     vtkErrorMacro("vtkEvenlySpacedStreamlines2D does not support planes not aligned with XY.");
