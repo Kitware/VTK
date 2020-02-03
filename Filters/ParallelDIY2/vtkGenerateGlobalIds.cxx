@@ -176,11 +176,14 @@ static bool GenerateIds(vtkDataObject* dobj, vtkGenerateGlobalIds* self, bool ce
   vtkLogEndScope("populate master");
   self->UpdateProgress(0.25);
 
-  vtkLogStartScope(TRACE, "kdtree");
-  // use diy::kdtree to shuffle points around so that all spatially co-located
-  // points are within a block.
-  diy::kdtree(master, assigner, 3, gdomain, &ElementBlockT::Elements, /*hist_bins=*/512);
-  vtkLogEndScope("kdtree");
+  if (assigner.nblocks() > 1)
+  {
+    vtkLogStartScope(TRACE, "kdtree");
+    // use diy::kdtree to shuffle points around so that all spatially co-located
+    // points are within a block.
+    diy::kdtree(master, assigner, 3, gdomain, &ElementBlockT::Elements, /*hist_bins=*/512);
+    vtkLogEndScope("kdtree");
+  }
   self->UpdateProgress(0.50);
 
   vtkLogStartScope(TRACE, "merge-points");
