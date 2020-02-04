@@ -76,6 +76,16 @@ public:
   void AddCellIds(const vtkIdType* ptr, vtkIdType numValues);
   //@}
 
+  //@{
+  /**
+   * If all cells are being extracted, this filter can use fast path to speed up
+   * the extraction. In that case, one can set this flag to true. When set to
+   * true, cell ids added via the various methods are simply ignored.
+   */
+  vtkSetMacro(ExtractAllCells, bool);
+  vtkGetMacro(ExtractAllCells, bool);
+  vtkBooleanMacro(ExtractAllCells, bool);
+  //@}
 protected:
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
@@ -93,6 +103,7 @@ protected:
   vtkIdType SubSetUGridCellArraySize = 0;
   vtkIdType SubSetUGridFacesArraySize = 0;
   bool InputIsUgrid = false;
+  bool ExtractAllCells = false;
 
 private:
   vtkExtractCells(const vtkExtractCells&) = delete;

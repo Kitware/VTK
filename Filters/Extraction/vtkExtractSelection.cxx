@@ -40,9 +40,12 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkValueSelector.h"
 
+#include <cassert>
 #include <map>
 #include <memory>
+#include <numeric>
 #include <set>
+#include <vector>
 
 vtkStandardNewMacro(vtkExtractSelection);
 //----------------------------------------------------------------------------
@@ -453,27 +456,24 @@ vtkSmartPointer<vtkDataObject> vtkExtractSelection::ExtractElements(
 void vtkExtractSelection::ExtractSelectedCells(
   vtkDataSet* input, vtkUnstructuredGrid* output, vtkSignedCharArray* cellInside)
 {
+  vtkLogScopeF(TRACE, "ExtractSelectedCells");
   const vtkIdType numPts = input->GetNumberOfPoints();
   const vtkIdType numCells = input->GetNumberOfCells();
 
-  if (!cellInside || cellInside->GetNumberOfTuples() <= 0 ||
-    cellInside->GetNumberOfTuples() != numCells)
+  if (!cellInside || cellInside->GetNumberOfTuples() <= 0)
   {
     // Assume nothing was selected and return.
     return;
   }
 
-  // convert insideness array to cell ids to extract.
-  std::vector<vtkIdType> ids;
-  ids.reserve(numCells);
-  for (vtkIdType cc = 0; cc < numCells; ++cc)
+  assert(cellInside->GetNumberOfTuples() == numCells);
+
+  const auto range = cellInside->GetValueRange(0);
+  if (range[0] == 0 && range[1] == 0)
   {
-    if (cellInside->GetValue(cc) != 0)
-    {
-      ids.push_back(cc);
-    }
+    // all elements are being masked out, nothing to do.
+    return;
   }
-  ids.shrink_to_fit();
 
   // The "input" is a shallow copy of the input to this filter and hence we can
   // modify it. We add original cell ids and point ids arrays.
@@ -481,24 +481,38 @@ void vtkExtractSelection::ExtractSelectedCells(
   originalPointIds->SetNumberOfComponents(1);
   originalPointIds->SetName("vtkOriginalPointIds");
   originalPointIds->SetNumberOfTuples(numPts);
-  for (vtkIdType cc = 0; cc < numPts; ++cc)
-  {
-    originalPointIds->SetValue(cc, cc);
-  }
+  std::iota(originalPointIds->GetPointer(0), originalPointIds->GetPointer(0) + numPts, 0);
   input->GetPointData()->AddArray(originalPointIds);
 
   vtkNew<vtkIdTypeArray> originalCellIds;
   originalCellIds->SetNumberOfComponents(1);
   originalCellIds->SetName("vtkOriginalCellIds");
   originalCellIds->SetNumberOfTuples(numCells);
-  for (vtkIdType cc = 0; cc < numCells; ++cc)
-  {
-    originalCellIds->SetValue(cc, cc);
-  }
+  std::iota(originalCellIds->GetPointer(0), originalCellIds->GetPointer(0) + numCells, 0);
   input->GetCellData()->AddArray(originalCellIds);
 
   vtkNew<vtkExtractCells> extractor;
-  extractor->SetCellIds(&ids.front(), static_cast<vtkIdType>(ids.size()));
+  if (range[0] == 1 && range[1] == 1)
+  {
+    // all elements are selected, pass all data.
+    // we still use the extractor since it does the data conversion, if needed
+    extractor->SetExtractAllCells(true);
+  }
+  else
+  {
+    // convert insideness array to cell ids to extract.
+    std::vector<vtkIdType> ids;
+    ids.reserve(numCells);
+    for (vtkIdType cc = 0; cc < numCells; ++cc)
+    {
+      if (cellInside->GetValue(cc) != 0)
+      {
+        ids.push_back(cc);
+      }
+    }
+    extractor->SetCellIds(&ids.front(), static_cast<vtkIdType>(ids.size()));
+  }
+
   extractor->SetInputDataObject(input);
   extractor->Update();
   output->ShallowCopy(extractor->GetOutput());
