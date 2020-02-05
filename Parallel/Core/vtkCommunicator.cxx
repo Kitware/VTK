@@ -1009,6 +1009,41 @@ int vtkCommunicator::Gather(vtkDataObject* sendBuffer,
 }
 
 //-----------------------------------------------------------------------------
+int vtkCommunicator::Gather(const vtkMultiProcessStream& sendBuffer,
+  std::vector<vtkMultiProcessStream>& recvBuffer, int destProcessId)
+{
+  vtkNew<vtkUnsignedCharArray> sendArray;
+  auto rawData = sendBuffer.GetRawData();
+  sendArray->SetArray(&rawData[0], static_cast<vtkIdType>(rawData.size()), /*save*/ 1);
+
+  vtkNew<vtkUnsignedCharArray> fullRecvArray;
+  std::vector<vtkSmartPointer<vtkDataArray> > recvArrays(this->NumberOfProcesses);
+  if (this->LocalProcessId == destProcessId)
+  {
+    recvBuffer.resize(this->NumberOfProcesses);
+    for (int cc = 0; cc < this->NumberOfProcesses; ++cc)
+    {
+      recvArrays[cc] = vtkSmartPointer<vtkUnsignedCharArray>::New();
+    }
+  }
+
+  if (this->GatherV(sendArray, fullRecvArray, &recvArrays[0], destProcessId))
+  {
+    if (this->LocalProcessId == destProcessId)
+    {
+      for (int cc = 0; cc < this->NumberOfProcesses; ++cc)
+      {
+        auto array = vtkArrayDownCast<vtkUnsignedCharArray>(recvArrays[cc]);
+        recvBuffer[cc].SetRawData(
+          array->GetPointer(0), static_cast<unsigned int>(array->GetNumberOfValues()));
+      }
+    }
+    return 1;
+  }
+  return 0;
+}
+
+//-----------------------------------------------------------------------------
 int vtkCommunicator::GatherV(vtkDataArray* sendBuffer, vtkDataArray* recvBuffer,
   vtkSmartPointer<vtkDataArray>* recvBuffers, int destProcessId)
 {
