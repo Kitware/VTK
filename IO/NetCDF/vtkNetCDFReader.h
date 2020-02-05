@@ -105,6 +105,12 @@ public:
    */
   virtual void SetDimensions(const char* dimensions);
 
+  /**
+   * Enables arrays in VariableArraySelection depending on Dimensions.
+   * Returns true if one variable matching Dimensions was found.
+   */
+  bool ComputeArraySelection();
+
   //@{
   /**
    * Returns an array with string encodings for the dimension combinations used
@@ -167,6 +173,8 @@ protected:
    * Placeholder for structure returned from GetVariableDimensions().
    */
   vtkStringArray* VariableDimensions;
+
+  std::string CurrentDimensions;
 
   /**
    * Placeholder for structure returned from GetAllDimensions().

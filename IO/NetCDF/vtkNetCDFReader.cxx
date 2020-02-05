@@ -433,6 +433,7 @@ int vtkNetCDFReader::RequestData(vtkInformation* vtkNotUsed(request),
   int ncFD;
   CALL_NETCDF(nc_open(this->FileName, NC_NOWRITE, &ncFD));
 
+  this->ComputeArraySelection();
   // Iterate over arrays and load selected ones.
   int numArrays = this->VariableArraySelection->GetNumberOfArrays();
   for (int arrayIndex = 0; arrayIndex < numArrays; arrayIndex++)
@@ -554,18 +555,34 @@ vtkStringArray* vtkNetCDFReader::GetAllVariableArrayNames()
 }
 
 //-----------------------------------------------------------------------------
-void vtkNetCDFReader::SetDimensions(const char* dimensions)
+bool vtkNetCDFReader::ComputeArraySelection()
 {
+  if (this->VariableArraySelection->GetNumberOfArrays() == 0 || this->CurrentDimensions.empty())
+  {
+    return false;
+  }
+
   this->VariableArraySelection->DisableAllArrays();
 
   for (vtkIdType i = 0; i < this->VariableDimensions->GetNumberOfValues(); i++)
   {
-    if (this->VariableDimensions->GetValue(i) == dimensions)
+    if (this->VariableDimensions->GetValue(i) == this->CurrentDimensions)
     {
       const char* variableName = this->VariableArraySelection->GetArrayName(i);
       this->VariableArraySelection->EnableArray(variableName);
+      return true;
     }
   }
+
+  vtkWarningMacro("Variable dimensions (" << this->CurrentDimensions << ") not found.");
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+void vtkNetCDFReader::SetDimensions(const char* dimensions)
+{
+  this->CurrentDimensions = dimensions;
+  this->ComputeArraySelection();
 }
 
 //-----------------------------------------------------------------------------
