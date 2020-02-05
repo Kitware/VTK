@@ -25,6 +25,7 @@
 #include "vtkIntArray.h"
 #include "vtkLagrangianParticle.h"
 #include "vtkLagrangianParticleTracker.h"
+#include "vtkLagrangianThreadedData.h"
 #include "vtkLongLongArray.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
@@ -262,12 +263,7 @@ int vtkLagrangianBasicIntegrationModel::FunctionValues(double* x, double* f, voi
   if (this->FindInLocators(x, particle, ds, cellId, loc, weights))
   {
     // Evaluate integration model velocity field with the found cell
-    if (this->FunctionValues(particle, ds, cellId, weights, x, f) != 0)
-    {
-      // Found a cell, keep an hand to it in the particle
-      particle->SetLastCell(loc, ds, cellId);
-      return 1;
-    }
+    return this->FunctionValues(particle, ds, cellId, weights, x, f);
   }
 
   // Can't evaluate
@@ -313,8 +309,8 @@ vtkLagrangianParticle* vtkLagrangianBasicIntegrationModel::ComputeSurfaceInterac
     {
       vtkAbstractCellLocator* loc = (*this->SurfaceLocators)[iDs];
       vtkDataSet* tmpSurface = (*this->Surfaces)[iDs].second;
-      vtkGenericCell* cell = particle->GetThreadedGenericCell();
-      vtkIdList* cellList = particle->GetThreadedIdList();
+      vtkGenericCell* cell = particle->GetThreadedData()->GenericCell;
+      vtkIdList* cellList = particle->GetThreadedData()->IdList;
       cellList->Reset();
       loc->FindCellsAlongLine(
         particle->GetPosition(), particle->GetNextPosition(), this->Tolerance, cellList);
@@ -566,7 +562,7 @@ bool vtkLagrangianBasicIntegrationModel::IntersectWithLine(vtkLagrangianParticle
 
       // create 4 points and fill the bqi
       vtkPoints* points = quad->GetPoints();
-      vtkBilinearQuadIntersection* bqi = particle->GetThreadedBilinearQuadIntersection();
+      vtkBilinearQuadIntersection* bqi = particle->GetThreadedData()->BilinearQuadIntersection;
       points->GetPoint(0, bqi->GetP00Data());
       points->GetPoint(3, bqi->GetP01Data());
       points->GetPoint(1, bqi->GetP10Data());
@@ -723,16 +719,40 @@ bool vtkLagrangianBasicIntegrationModel::FindInLocators(double* x, vtkLagrangian
     return false;
   }
 
-  vtkGenericCell* cell = particle->GetThreadedGenericCell();
+  vtkGenericCell* cell = particle->GetThreadedData()->GenericCell;
 
-  // Try the provided particle cache
+  // Try the provided cache
   dataset = particle->GetLastDataSet();
   loc = particle->GetLastLocator();
+  cellId = particle->GetLastCellId();
+  double* lastPosition = particle->GetLastCellPosition();
   if (dataset)
   {
+    // Check the last cell
+    if (cellId != -1)
+    {
+      // Check if previous call was the same
+      if (lastPosition[0] == x[0] && lastPosition[1] == x[1] && lastPosition[2] == x[2])
+      {
+        return true;
+      }
+
+      // If not, check if new position is in the same cell
+      double pcoords[3];
+      int subId;
+      double dist2;
+      dataset->GetCell(cellId, cell);
+      if (cell->EvaluatePosition(x, nullptr, subId, pcoords, dist2, weights) == 1)
+      {
+        return true;
+      }
+    }
+
+    // Not in provided cell cache, try the whole dataset
     cellId = this->FindInLocator(dataset, loc, x, cell, weights);
     if (cellId != -1)
     {
+      particle->SetLastCell(loc, dataset, cellId, x);
       return true;
     }
   }
@@ -748,6 +768,8 @@ bool vtkLagrangianBasicIntegrationModel::FindInLocators(double* x, vtkLagrangian
       cellId = this->FindInLocator(dataset, loc, x, cell, weights);
       if (cellId != -1)
       {
+        // Store the found cell for caching purpose
+        particle->SetLastCell(loc, dataset, cellId, x);
         return true;
       }
     }
@@ -980,7 +1002,7 @@ bool vtkLagrangianBasicIntegrationModel::GetFlowOrSurfaceData(vtkLagrangianParti
       }
 
       // Manual interpolation of data at particle location
-      vtkIdList* idList = particle->GetThreadedIdList();
+      vtkIdList* idList = particle->GetThreadedData()->IdList;
       dataSet->GetCellPoints(tupleId, idList);
       for (int j = 0; j < array->GetNumberOfComponents(); j++)
       {
@@ -1258,7 +1280,7 @@ void vtkLagrangianBasicIntegrationModel::InsertParticleSeedData(
     vtkDataArray* arr = data->GetArray(name);
     if (arr->GetNumberOfTuples() < maxTuples)
     {
-      arr->InsertNextTuple(0, seedData->GetArray(i));
+      arr->InsertNextTuple(particle->GetSeedArrayTupleIndex(), seedData->GetArray(i));
     }
   }
 }
