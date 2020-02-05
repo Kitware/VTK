@@ -510,6 +510,7 @@ void vtkExtractSelection::ExtractSelectedCells(
         ids.push_back(cc);
       }
     }
+    extractor->SetAssumeSortedAndUniqueIds(true);
     extractor->SetCellIds(&ids.front(), static_cast<vtkIdType>(ids.size()));
   }
 

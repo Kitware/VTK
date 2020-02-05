@@ -81,10 +81,22 @@ public:
    * If all cells are being extracted, this filter can use fast path to speed up
    * the extraction. In that case, one can set this flag to true. When set to
    * true, cell ids added via the various methods are simply ignored.
+   * Defaults to false.
    */
   vtkSetMacro(ExtractAllCells, bool);
   vtkGetMacro(ExtractAllCells, bool);
   vtkBooleanMacro(ExtractAllCells, bool);
+  //@}
+
+  //@{
+  /**
+   * If the cell ids specified are already sorted and unique, then set this to
+   * true to avoid the filter from doing time-consuming sorts and uniquification
+   * operations. Defaults to false.
+   */
+  vtkSetMacro(AssumeSortedAndUniqueIds, bool);
+  vtkGetMacro(AssumeSortedAndUniqueIds, bool);
+  vtkBooleanMacro(AssumeSortedAndUniqueIds, bool);
   //@}
 protected:
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
@@ -104,6 +116,7 @@ protected:
   vtkIdType SubSetUGridFacesArraySize = 0;
   bool InputIsUgrid = false;
   bool ExtractAllCells = false;
+  bool AssumeSortedAndUniqueIds = false;
 
 private:
   vtkExtractCells(const vtkExtractCells&) = delete;
