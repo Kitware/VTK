@@ -20,6 +20,7 @@
 #include "vtkCellData.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDataSet.h"
+#include "vtkExtractCells.h"
 #include "vtkFrustumSelector.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -39,9 +40,12 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkValueSelector.h"
 
+#include <cassert>
 #include <map>
 #include <memory>
+#include <numeric>
 #include <set>
+#include <vector>
 
 vtkStandardNewMacro(vtkExtractSelection);
 //----------------------------------------------------------------------------
@@ -452,107 +456,67 @@ vtkSmartPointer<vtkDataObject> vtkExtractSelection::ExtractElements(
 void vtkExtractSelection::ExtractSelectedCells(
   vtkDataSet* input, vtkUnstructuredGrid* output, vtkSignedCharArray* cellInside)
 {
+  vtkLogScopeF(TRACE, "ExtractSelectedCells");
+  const vtkIdType numPts = input->GetNumberOfPoints();
+  const vtkIdType numCells = input->GetNumberOfCells();
+
   if (!cellInside || cellInside->GetNumberOfTuples() <= 0)
   {
     // Assume nothing was selected and return.
     return;
   }
 
-  vtkIdType numPts = input->GetNumberOfPoints();
-  vtkIdType numCells = input->GetNumberOfCells();
+  assert(cellInside->GetNumberOfTuples() == numCells);
 
-  vtkPointData* pd = input->GetPointData();
-  vtkCellData* cd = input->GetCellData();
-  vtkPointData* outputPD = output->GetPointData();
-  vtkCellData* outputCD = output->GetCellData();
-
-  // To copy points in a type agnostic way later
-  auto pointSet = vtkPointSet::SafeDownCast(input);
-
-  vtkNew<vtkPoints> newPts;
-  if (pointSet)
+  const auto range = cellInside->GetValueRange(0);
+  if (range[0] == 0 && range[1] == 0)
   {
-    newPts->SetDataType(pointSet->GetPoints()->GetDataType());
+    // all elements are being masked out, nothing to do.
+    return;
   }
-  newPts->Allocate(numPts / 4, numPts);
 
-  outputPD->SetCopyGlobalIds(1);
-  outputPD->CopyFieldOff("vtkOriginalPointIds");
-  outputPD->CopyAllocate(pd);
-
-  outputCD->SetCopyGlobalIds(1);
-  outputCD->CopyFieldOff("vtkOriginalCellIds");
-  outputCD->CopyAllocate(cd);
-
-  double x[3];
-
-  vtkNew<vtkIdList> newCellPts;
-  newCellPts->Allocate(VTK_CELL_SIZE);
-
-  // The new point id for each point (-1 for not in selection)
-  std::vector<vtkIdType> pointMap;
-  pointMap.resize(numPts);
-  std::fill(pointMap.begin(), pointMap.end(), -1);
-
+  // The "input" is a shallow copy of the input to this filter and hence we can
+  // modify it. We add original cell ids and point ids arrays.
   vtkNew<vtkIdTypeArray> originalPointIds;
   originalPointIds->SetNumberOfComponents(1);
   originalPointIds->SetName("vtkOriginalPointIds");
-  outputPD->AddArray(originalPointIds);
+  originalPointIds->SetNumberOfTuples(numPts);
+  std::iota(originalPointIds->GetPointer(0), originalPointIds->GetPointer(0) + numPts, 0);
+  input->GetPointData()->AddArray(originalPointIds);
 
   vtkNew<vtkIdTypeArray> originalCellIds;
   originalCellIds->SetNumberOfComponents(1);
   originalCellIds->SetName("vtkOriginalCellIds");
-  outputCD->AddArray(originalCellIds);
+  originalCellIds->SetNumberOfTuples(numCells);
+  std::iota(originalCellIds->GetPointer(0), originalCellIds->GetPointer(0) + numCells, 0);
+  input->GetCellData()->AddArray(originalCellIds);
 
-  vtkNew<vtkIdList> cellPts;
-
-  for (vtkIdType cellId = 0; cellId < numCells; ++cellId)
+  vtkNew<vtkExtractCells> extractor;
+  if (range[0] == 1 && range[1] == 1)
   {
-    // 1 means selected, 0 means not selected
-    signed char isInside;
-    assert(cellId < cellInside->GetNumberOfValues());
-    cellInside->GetTypedTuple(cellId, &isInside);
-    if (isInside)
-    {
-      input->GetCellPoints(cellId, cellPts);
-      int cellType = input->GetCellType(cellId);
-      vtkIdType numCellPts = cellPts->GetNumberOfIds();
-      newCellPts->Reset();
-      for (vtkIdType i = 0; i < numCellPts; ++i)
-      {
-        vtkIdType ptId = cellPts->GetId(i);
-        vtkIdType newPointId = pointMap[ptId];
-        if (newPointId < 0)
-        {
-          if (pointSet)
-          {
-            newPointId = newPts->GetNumberOfPoints();
-            newPts->InsertPoints(newPointId, 1, ptId, pointSet->GetPoints());
-          }
-          else
-          {
-            input->GetPoint(ptId, x);
-            newPointId = newPts->InsertNextPoint(x);
-          }
-          outputPD->CopyData(pd, ptId, newPointId);
-          originalPointIds->InsertNextValue(ptId);
-          pointMap[ptId] = newPointId;
-        }
-        newCellPts->InsertId(i, newPointId);
-      }
-      // special handling for polyhedron cells
-      if (vtkUnstructuredGrid::SafeDownCast(input) && cellType == VTK_POLYHEDRON)
-      {
-        newCellPts->Reset();
-        vtkUnstructuredGrid::SafeDownCast(input)->GetFaceStream(cellId, newCellPts);
-        vtkUnstructuredGrid::ConvertFaceStreamPointIds(newCellPts, &pointMap[0]);
-      }
-      vtkIdType newCellId = output->InsertNextCell(cellType, newCellPts);
-      outputCD->CopyData(cd, cellId, newCellId);
-      originalCellIds->InsertNextValue(cellId);
-    }
+    // all elements are selected, pass all data.
+    // we still use the extractor since it does the data conversion, if needed
+    extractor->SetExtractAllCells(true);
   }
-  output->SetPoints(newPts);
+  else
+  {
+    // convert insideness array to cell ids to extract.
+    std::vector<vtkIdType> ids;
+    ids.reserve(numCells);
+    for (vtkIdType cc = 0; cc < numCells; ++cc)
+    {
+      if (cellInside->GetValue(cc) != 0)
+      {
+        ids.push_back(cc);
+      }
+    }
+    extractor->SetAssumeSortedAndUniqueIds(true);
+    extractor->SetCellIds(&ids.front(), static_cast<vtkIdType>(ids.size()));
+  }
+
+  extractor->SetInputDataObject(input);
+  extractor->Update();
+  output->ShallowCopy(extractor->GetOutput());
 }
 
 //----------------------------------------------------------------------------
