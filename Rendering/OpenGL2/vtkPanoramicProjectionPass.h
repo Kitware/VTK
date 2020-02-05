@@ -98,6 +98,17 @@ public:
   vtkSetClampMacro(Angle, double, 90.0, 360.0);
   //@}
 
+  //@{
+  /**
+   * Get/Set the interpolation mode.
+   * If true, the projection of the cubemap use hardware interpolation.
+   * Default is off.
+   */
+  vtkGetMacro(Interpolate, bool);
+  vtkSetMacro(Interpolate, bool);
+  vtkBooleanMacro(Interpolate, bool);
+  //@}
+
 protected:
   vtkPanoramicProjectionPass() = default;
   ~vtkPanoramicProjectionPass() override = default;
@@ -118,6 +129,7 @@ protected:
   unsigned int CubeResolution = 300;
   int ProjectionType = Equirectangular;
   double Angle = 180.0;
+  bool Interpolate = false;
 
 private:
   vtkPanoramicProjectionPass(const vtkPanoramicProjectionPass&) = delete;
