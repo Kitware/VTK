@@ -22,6 +22,7 @@
 #include "vtkCell.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkNew.h"
@@ -35,6 +36,7 @@
 #include "vtkUnstructuredGrid.h"
 
 #include <algorithm>
+#include <iterator>
 #include <numeric>
 #include <vector>
 
@@ -368,16 +370,34 @@ void vtkExtractCells::Copy(vtkDataSet* input, vtkUnstructuredGrid* output)
 
   vtkIdType numPoints = input->GetNumberOfPoints();
   vtkIdType numCells = input->GetNumberOfCells();
-
   output->Allocate(numCells);
 
-  vtkNew<vtkPoints> pts;
-  pts->SetNumberOfPoints(numPoints);
-  output->SetPoints(pts);
-
-  for (vtkIdType i = 0; i < numPoints; i++)
+  if (auto inputPS = vtkPointSet::SafeDownCast(input))
   {
-    pts->SetPoint(i, input->GetPoint(i));
+    vtkNew<vtkPoints> pts;
+    pts->ShallowCopy(inputPS->GetPoints());
+    output->SetPoints(pts);
+  }
+  else
+  {
+    vtkNew<vtkPoints> pts;
+    pts->SetDataTypeToDouble();
+    pts->SetNumberOfPoints(numPoints);
+
+    double temp[3];
+    pts->GetPoint(0, temp);
+
+    auto array = vtkDoubleArray::SafeDownCast(pts->GetData());
+    assert(array && array->GetNumberOfTuples() == numPoints);
+    vtkSMPTools::For(0, numPoints, [&array, &input](vtkIdType first, vtkIdType last) {
+      double coords[3];
+      for (vtkIdType cc = first; cc < last; ++cc)
+      {
+        input->GetPoint(cc, coords);
+        array->SetTypedTuple(cc, coords);
+      }
+    });
+    output->SetPoints(pts);
   }
 
   vtkNew<vtkIdList> cellPoints;
