@@ -40,10 +40,11 @@ class vtkHyperTreeGrid;
 class vtkPoints;
 class vtkIncrementalPointLocator;
 class vtkDoubleArray;
+class vtkHyperTreeGridNonOrientedGeometryCursor;
+class vtkHyperTreeGridNonOrientedVonNeumannSuperCursor;
 class vtkIdList;
 class vtkIdTypeArray;
-class vtkHyperTreeGridNonOrientedGeometryCursor;
-class vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight;
+class vtkUnsignedCharArray;
 
 class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridGeometry : public vtkHyperTreeGridAlgorithm
 {
@@ -80,8 +81,7 @@ protected:
    * Recursively descend into tree down to leaves
    */
   void RecursivelyProcessTreeNot3D(vtkHyperTreeGridNonOrientedGeometryCursor*);
-  void RecursivelyProcessTree3D(
-    vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight*, unsigned char);
+  void RecursivelyProcessTree3D(vtkHyperTreeGridNonOrientedVonNeumannSuperCursor*, unsigned char);
 
   /**
    * Process 1D leaves and issue corresponding edges (lines)
@@ -96,13 +96,13 @@ protected:
   /**
    * Process 3D leaves and issue corresponding cells (voxels)
    */
-  void ProcessLeaf3D(vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight*);
+  void ProcessLeaf3D(vtkHyperTreeGridNonOrientedVonNeumannSuperCursor*);
 
   /**
    * Helper method to generate a face based on its normal and offset from cursor origin
    */
   void AddFace(vtkIdType useId, const double* origin, const double* size, unsigned int offset,
-    unsigned int orientation);
+    unsigned int orientation, unsigned char hideEdge);
 
   void AddFace2(vtkIdType inId, vtkIdType useId, const double* origin, const double* size,
     unsigned int offset, unsigned int orientation, bool create = true);
@@ -165,6 +165,12 @@ protected:
 
   vtkDoubleArray* FaceScalarsA;
   vtkDoubleArray* FaceScalarsB;
+
+  /**
+   * Array used to hide edges
+   * left by masked cells.
+   */
+  vtkUnsignedCharArray* EdgeFlags;
 
 private:
   vtkHyperTreeGridGeometry(const vtkHyperTreeGridGeometry&) = delete;

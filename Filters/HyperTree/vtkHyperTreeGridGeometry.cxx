@@ -18,37 +18,39 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkDoubleArray.h"
 #include "vtkExtentTranslator.h"
 #include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
+#include "vtkHyperTreeGridNonOrientedVonNeumannSuperCursor.h"
+#include "vtkHyperTreeGridOrientedGeometryCursor.h"
+#include "vtkIdList.h"
+#include "vtkIdTypeArray.h"
+#include "vtkIncrementalPointLocator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
+#include "vtkMathUtilities.h"
+#include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkUnsignedCharArray.h"
 
-#include "vtkDoubleArray.h"
-#include "vtkIdList.h"
-#include "vtkIdTypeArray.h"
-
-#include "vtkIncrementalPointLocator.h"
-#include "vtkMergePoints.h"
-
-#include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
-#include "vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight.h"
-
+#include <limits>
 #include <set>
 #include <vector>
 
-static const unsigned int VonNeumannCursors3D[] = { 0, 1, 2, 4, 5, 6 };
-static const unsigned int VonNeumannOrientations3D[] = { 2, 1, 0, 0, 1, 2 };
-static const unsigned int VonNeumannOffsets3D[] = { 0, 0, 0, 1, 1, 1 };
+static constexpr unsigned int VonNeumannCursors3D[] = { 0, 1, 2, 4, 5, 6 };
+static constexpr unsigned int VonNeumannOrientations3D[] = { 2, 1, 0, 0, 1, 2 };
+static constexpr unsigned int VonNeumannOffsets3D[] = { 0, 0, 0, 1, 1, 1 };
 
-static const unsigned int EdgeIndices[3][2][4] = { { { 3, 11, 7, 8 }, { 1, 10, 5, 9 } },
+static constexpr unsigned int EdgeIndices[3][2][4] = { { { 3, 11, 7, 8 }, { 1, 10, 5, 9 } },
   { { 0, 9, 4, 8 }, { 2, 10, 6, 11 } }, { { 0, 1, 2, 3 }, { 4, 5, 6, 7 } } };
 
-const unsigned char FULL_WORK_FACES = (unsigned char)255;
+constexpr unsigned char FULL_WORK_FACES = std::numeric_limits<unsigned char>::max();
 
 vtkStandardNewMacro(vtkHyperTreeGridGeometry);
 
@@ -89,6 +91,8 @@ vtkHyperTreeGridGeometry::vtkHyperTreeGridGeometry()
   this->FaceScalarsA->SetNumberOfTuples(4);
   this->FaceScalarsB = vtkDoubleArray::New();
   this->FaceScalarsB->SetNumberOfTuples(4);
+
+  this->EdgeFlags = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -334,12 +338,21 @@ int vtkHyperTreeGridGeometry::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObjec
   input->InitializeTreeIterator(it);
   if (this->Dimension == 3)
   {
-    vtkNew<vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight> cursor;
+    // Flag used to hide edges when needed
+    this->EdgeFlags = vtkUnsignedCharArray::New();
+    this->EdgeFlags->SetName("vtkEdgeFlags");
+    this->EdgeFlags->SetNumberOfComponents(1);
+
+    vtkPointData* outPointData = output->GetPointData();
+    outPointData->AddArray(this->EdgeFlags);
+    outPointData->SetActiveAttribute(this->EdgeFlags->GetName(), vtkDataSetAttributes::EDGEFLAG);
+
+    vtkNew<vtkHyperTreeGridNonOrientedVonNeumannSuperCursor> cursor;
     while (it.GetNextTree(index))
     {
       // Initialize new cursor at root of current tree
       // In 3 dimensions, von Neumann neighborhood information is needed
-      input->InitializeNonOrientedVonNeumannSuperCursorLight(cursor, index);
+      input->InitializeNonOrientedVonNeumannSuperCursor(cursor, index);
       // Build geometry recursively
       this->RecursivelyProcessTree3D(cursor, FULL_WORK_FACES);
     } // it
@@ -366,6 +379,12 @@ int vtkHyperTreeGridGeometry::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObjec
   else
   {
     output->SetPolys(this->Cells);
+  }
+
+  if (this->EdgeFlags)
+  {
+    this->EdgeFlags->Delete();
+    this->EdgeFlags = nullptr;
   }
 
   if (this->Points)
@@ -492,7 +511,7 @@ void vtkHyperTreeGridGeometry::ProcessLeaf2D(vtkHyperTreeGridNonOrientedGeometry
 
 //----------------------------------------------------------------------------
 void vtkHyperTreeGridGeometry::RecursivelyProcessTree3D(
-  vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight* cursor, unsigned char crtWorkFaces)
+  vtkHyperTreeGridNonOrientedVonNeumannSuperCursor* cursor, unsigned char crtWorkFaces)
 {
   // FR Traitement specifique pour la maille fille centrale en raffinement 3
   // Create geometry output if cursor is at leaf
@@ -584,7 +603,7 @@ void vtkHyperTreeGridGeometry::RecursivelyProcessTree3D(
 //----------------------------------------------------------------------------
 // JB Meme code que vtkAdaptativeDataSetSurfaceFiltre ??
 void vtkHyperTreeGridGeometry::ProcessLeaf3D(
-  vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight* superCursor)
+  vtkHyperTreeGridNonOrientedVonNeumannSuperCursor* superCursor)
 {
   // Cell at cursor center is a leaf, retrieve its global index, and mask
   vtkIdType inId = superCursor->GetGlobalNodeIndex();
@@ -626,11 +645,50 @@ void vtkHyperTreeGridGeometry::ProcessLeaf3D(
     //   generate face, breaking ties at same level. This ensures that faces between
     //   unmasked and masked cells will be generated once and only once.
     if ((!superCursor->IsMasked() && (!treeN || maskedN)) ||
-      (superCursor->IsMasked() && treeN && leafN && levelN < level && !maskedN))
+      (superCursor->IsMasked() && treeN && leafN && levelN <= level && !maskedN))
     {
+      double boundsN[6], bounds[6];
+      vtkSmartPointer<vtkHyperTreeGridOrientedGeometryCursor> cursorN =
+        superCursor->GetOrientedGeometryCursor(VonNeumannCursors3D[c]);
+
+      // If not using a flag on edges, faces that are neighbor to masked cells have unwanted edges.
+      // That is because it is actually the neighbors of the coarser level that, accumulate,
+      // construct this face. This flag intends to hide edges that are inside the face.
+      unsigned char edgeFlag;
+
+      if (cursorN->GetTree() && superCursor->GetTree())
+      {
+        superCursor->GetBounds(bounds);
+        cursorN->GetBounds(boundsN);
+
+        edgeFlag = (static_cast<unsigned char>(vtkMathUtilities::NearlyEqual(
+                     boundsN[((VonNeumannOrientations3D[c] + 1) % 3) * 2],
+                     bounds[((VonNeumannOrientations3D[c] + 1) % 3) * 2]))) |
+          (static_cast<unsigned char>(
+             vtkMathUtilities::NearlyEqual(boundsN[((VonNeumannOrientations3D[c] + 1) % 3) * 2 + 1],
+               bounds[((VonNeumannOrientations3D[c] + 1) % 3) * 2 + 1]))
+            << 1) |
+          (static_cast<unsigned char>(
+             vtkMathUtilities::NearlyEqual(boundsN[((VonNeumannOrientations3D[c] + 2) % 3) * 2],
+               bounds[((VonNeumannOrientations3D[c] + 2) % 3) * 2]))
+            << 2) |
+          (static_cast<unsigned char>(
+             vtkMathUtilities::NearlyEqual(boundsN[((VonNeumannOrientations3D[c] + 2) % 3) * 2 + 1],
+               bounds[((VonNeumannOrientations3D[c] + 2) % 3) * 2 + 1]))
+            << 3);
+      }
+      else
+      {
+        edgeFlag = 15;
+      }
+      if (levelN == level || !treeN || !superCursor->IsMasked())
+      {
+        edgeFlag = 15; // 1111 in binary
+      }
+
       // Generate face with corresponding normal and offset
       this->AddFace(superCursor->IsMasked() ? idN : inId, superCursor->GetOrigin(),
-        superCursor->GetSize(), VonNeumannOffsets3D[c], VonNeumannOrientations3D[c]);
+        superCursor->GetSize(), VonNeumannOffsets3D[c], VonNeumannOrientations3D[c], edgeFlag);
     }
     /*
         // In 3D masked and unmasked cells are handled differently
@@ -768,11 +826,14 @@ void vtkHyperTreeGridGeometry::ProcessLeaf3D(
 
 //----------------------------------------------------------------------------
 void vtkHyperTreeGridGeometry::AddFace(vtkIdType useId, const double* origin, const double* size,
-  unsigned int offset, unsigned int orientation)
+  unsigned int offset, unsigned int orientation, unsigned char hideEdge)
 {
-  // cerr << "AddFace" << std::endl;
+  // Reading edge flag encoded in binary, each bit corresponding to an edge of the constructed face.
+  this->EdgeFlags->InsertNextValue((hideEdge & 4) != 0);
+  this->EdgeFlags->InsertNextValue((hideEdge & 2) != 0);
+  this->EdgeFlags->InsertNextValue((hideEdge & 8) != 0);
+  this->EdgeFlags->InsertNextValue((hideEdge & 1) != 0);
 
-  // Storage for point coordinates
   double pt[] = { 0., 0., 0. };
 
   // Storage for face vertex IDs
@@ -816,8 +877,8 @@ void vtkHyperTreeGridGeometry::AddFace(vtkIdType useId, const double* origin, co
     cerr << std::endl;
 #endif
     // Create other face vertices depending on orientation
-    unsigned int axis1 = orientation ? 0 : 1;
-    unsigned int axis2 = orientation == 2 ? 1 : 2;
+    unsigned int axis1 = (orientation + 1) % 3;
+    unsigned int axis2 = (orientation + 2) % 3;
     pt[axis1] += size[axis1];
     ids[1] = this->Points->InsertNextPoint(pt);
 #ifdef TRACE
