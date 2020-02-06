@@ -366,6 +366,14 @@ int vtkPUnstructuredGridGhostCellsGenerator::RequestData(vtkInformation* vtkNotU
   output->ShallowCopy(this->Internals->CurrentGrid);
   output->GetInformation()->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), maxGhostLevel);
 
+  // copy field data
+  if (cleanedInput && cleanedInput->GetFieldData())
+  {
+    vtkNew<vtkFieldData> fd;
+    fd->ShallowCopy(cleanedInput->GetFieldData());
+    output->SetFieldData(fd);
+  }
+
   vtkDebugMacro("Produced " << maxGhostLevel << " ghost levels.");
 
   delete this->Internals;
