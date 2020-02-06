@@ -130,8 +130,11 @@ void vtkPanoramicProjectionPass::InitOpenGLResources(vtkOpenGLRenderWindow* renW
     // alpha channel is also mandatory for remote rendering
     this->CubeMapTexture = vtkTextureObject::New();
     this->CubeMapTexture->SetContext(renWin);
-    this->CubeMapTexture->SetMinificationFilter(vtkTextureObject::Linear);
-    this->CubeMapTexture->SetMagnificationFilter(vtkTextureObject::Linear);
+    if (this->Interpolate)
+    {
+      this->CubeMapTexture->SetMinificationFilter(vtkTextureObject::Linear);
+      this->CubeMapTexture->SetMagnificationFilter(vtkTextureObject::Linear);
+    }
     this->CubeMapTexture->SetWrapS(vtkTextureObject::ClampToEdge);
     this->CubeMapTexture->SetWrapT(vtkTextureObject::ClampToEdge);
     this->CubeMapTexture->SetWrapR(vtkTextureObject::ClampToEdge);
@@ -246,6 +249,9 @@ void vtkPanoramicProjectionPass::Project(vtkOpenGLRenderWindow* renWin)
   this->QuadHelper->Program->SetUniform2f("scale", scale);
   this->QuadHelper->Program->SetUniform2f("shift", shift);
 
+  vtkOpenGLState* ostate = renWin->GetState();
+  ostate->vtkglEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
   this->QuadHelper->Render();
 
   this->CubeMapTexture->Deactivate();
@@ -254,9 +260,11 @@ void vtkPanoramicProjectionPass::Project(vtkOpenGLRenderWindow* renWin)
 // ----------------------------------------------------------------------------
 void vtkPanoramicProjectionPass::RenderOnFace(const vtkRenderState* s, int faceIndex)
 {
-  if (faceIndex == GL_TEXTURE_CUBE_MAP_NEGATIVE_Z && this->Angle < 180.0)
+  // We can cull the back face is angle is inferior to 2 * (pi - atan(sqrt(2))) radians
+  const double cullBackFaceAngle = 250.528779;
+
+  if (faceIndex == GL_TEXTURE_CUBE_MAP_NEGATIVE_Z && this->Angle <= cullBackFaceAngle)
   {
-    // it's not necessary to render -Z if angle is less than 180 degrees
     return;
   }
 
