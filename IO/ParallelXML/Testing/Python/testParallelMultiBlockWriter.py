@@ -43,6 +43,13 @@ else:
 #   |   |-- [0,1,..nranks](0,1,...nranks)
 #   |   |-- [0,1,..nranks](0,1,...nranks)
 #   |   ... (up to total number of ranks)
+#   |
+#   |-- <MP>    # level where a multipiece dataset is present on all ranks
+#   |  |
+#   |  |-- [0,1,..nranks](0,1,...nranks)
+#   |  |-- [0,1,..nranks](0,1,...nranks)
+#   |  |-- [0,1,..nranks](0,1,...nranks)
+#   |  ... (up to total number of ranks)
 
 
 def createDataSet(empty):
@@ -62,12 +69,20 @@ def createData(non_null_ranks, non_empty_ranks, num_ranks):
         mb.SetBlock(i, createDataSet(i not in non_empty_ranks))
     return mb
 
+def createMP(num_pieces):
+    mp = vtk.vtkMultiPieceDataSet()
+    mp.SetNumberOfPieces(num_pieces)
+    for i in range(num_pieces):
+        mp.SetPiece(i, createDataSet(False))
+    return mp
+
 def createMB(piece, num_pieces):
     output = vtk.vtkMultiBlockDataSet()
-    output.SetNumberOfBlocks(3)
+    output.SetNumberOfBlocks(4)
     output.SetBlock(0, createData([piece], [piece], num_pieces))
     output.SetBlock(1, createData(range(num_pieces), [piece], num_pieces))
     output.SetBlock(2, createData(range(num_pieces), range(num_pieces), num_pieces))
+    output.SetBlock(3, createMP(num_pieces))
     return output
 
 writer = vtk.vtkXMLPMultiBlockDataWriter()
@@ -104,6 +119,6 @@ if rank == 0:
     # set of files, let's just look at the files we wrote out.
     files = os.listdir(prefix)
 
-    expected_file_count = nranks + nranks + (nranks*nranks)
+    expected_file_count = nranks + nranks + 2*(nranks*nranks)
     print ("Expecting %d files for the leaf nodes" % expected_file_count)
     assert (len(files) == expected_file_count)

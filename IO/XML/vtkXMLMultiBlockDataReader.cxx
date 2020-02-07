@@ -172,7 +172,20 @@ void vtkXMLMultiBlockDataReader::ReadComposite(vtkXMLDataElement* element,
     // Child is a multipiece dataset. Create it.
     else if (mblock != nullptr && strcmp(tagName, "Piece") == 0)
     {
-      vtkMultiPieceDataSet* childDS = vtkMultiPieceDataSet::New();
+      // Look ahead to see if there is a nested Piece structure, which can happen when
+      // the dataset pieces in a vtkMultiPieceDataSet are themselves split into
+      // vtkMultiPieceDataSets when saved in parallel.
+      vtkCompositeDataSet* childDS;
+      if (childXML->FindNestedElementWithName("Piece"))
+      {
+        // Create a multiblock to handle a multipiece child
+        childDS = vtkMultiBlockDataSet::New();
+      }
+      else
+      {
+        // Child is not multipiece, so it is safe to create a vtkMultiPieceDataSet
+        childDS = vtkMultiPieceDataSet::New();
+      }
       this->ReadComposite(childXML, childDS, filePath, dataSetIndex);
       const char* name = childXML->GetAttribute("name");
       mblock->SetBlock(index, childDS);
@@ -284,7 +297,21 @@ int vtkXMLMultiBlockDataReader::FillMetaData(vtkCompositeDataSet* metadata,
     // Child is a multipiece dataset. Create it.
     else if (mblock != nullptr && strcmp(tagName, "Piece") == 0)
     {
-      vtkMultiPieceDataSet* childDS = vtkMultiPieceDataSet::New();
+      // Look ahead to see if there is a nested Piece structure, which can happen when
+      // the dataset pieces in a vtkMultiPieceDataSet are themselves split into
+      // vtkMultiPieceDataSets when saved in parallel.
+      vtkCompositeDataSet* childDS;
+      if (childXML->FindNestedElementWithName("Piece"))
+      {
+        // Create a multiblock to handle a multipiece child
+        childDS = vtkMultiBlockDataSet::New();
+      }
+      else
+      {
+        // Child is not multipiece, so it is safe to create a vtkMultiPieceDataSet
+        childDS = vtkMultiPieceDataSet::New();
+      }
+
       this->FillMetaData(childDS, childXML, filePath, dataSetIndex);
       mblock->SetBlock(index, childDS);
       childDS->Delete();
