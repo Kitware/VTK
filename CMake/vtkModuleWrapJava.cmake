@@ -107,7 +107,8 @@ $<$<BOOL:${_vtk_java_genex_include_directories}>:\n-I\'$<JOIN:${_vtk_java_genex_
 
     add_custom_command(
       OUTPUT  "${_vtk_java_source_output}"
-      COMMAND "${_vtk_java_wrap_target}"
+      COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR}
+              "$<TARGET_FILE:${_vtk_java_wrap_target}>"
               "@${_vtk_java_args_file}"
               -o "${_vtk_java_source_output}"
               "${_vtk_java_header}"

@@ -173,7 +173,8 @@ $<$<BOOL:${_vtk_python_genex_include_directories}>:\n-I\'$<JOIN:${_vtk_python_ge
 
     add_custom_command(
       OUTPUT  "${_vtk_python_source_output}"
-      COMMAND "${_vtk_python_wrap_target}"
+      COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR}
+              "$<TARGET_FILE:${_vtk_python_wrap_target}>"
               "@${_vtk_python_args_file}"
               -o "${_vtk_python_source_output}"
               "${_vtk_python_header}"
