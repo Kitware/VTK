@@ -332,6 +332,35 @@ public:
    */
   virtual double GetPickedZ() { return this->PickedZ; }
 
+  //@{
+  /**
+   * Set/Get the constant environmental color using an rgb color specification.
+   * Note this is currently ignored outside of RayTracing.
+   */
+  vtkSetVector3Macro(EnvironmentalBG, double);
+  vtkGetVector3Macro(EnvironmentalBG, double);
+  //@}
+
+  //@{
+  /**
+   * Set/Get the second environmental gradient color using an rgb color specification.
+   * Note this is currently ignored outside of RayTracing.
+   */
+  vtkSetVector3Macro(EnvironmentalBG2, double);
+  vtkGetVector3Macro(EnvironmentalBG2, double);
+  //@}
+  //@{
+  /**
+   * Set/Get whether this viewport should enable the gradient environment
+   * using the EnvironmentalBG (bottom) and EnvironmentalBG2 (top) colors.
+   * Note this is currently ignored outside of RayTracing.
+   * Default is off.
+   */
+  vtkSetMacro(GradientEnvironmentalBG, bool);
+  vtkGetMacro(GradientEnvironmentalBG, bool);
+  vtkBooleanMacro(GradientEnvironmentalBG, bool);
+  //@}
+
 protected:
   // Create a vtkViewport with a black background, a white ambient light,
   // two-sided lighting turned on, a viewport of (0,0,1,1), and back face
@@ -362,6 +391,10 @@ protected:
   double PixelAspect[2];
   double Center[2];
   bool GradientBackground;
+
+  double EnvironmentalBG[3];
+  double EnvironmentalBG2[3];
+  bool GradientEnvironmentalBG;
 
   int Size[2];
   int Origin[2];

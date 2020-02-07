@@ -766,6 +766,26 @@ public:
   virtual void SetEnvironmentCubeMap(vtkTexture* cubemap, bool isSRGB = false);
   //@}
 
+  /**
+   * Set/Get the environmental texture, which is more or less the
+   * EnvironmentalCubeMap, but for ray tracing.
+   * Note this is currently ignored outside of RayTracing.
+   * Default is off.
+   */
+  virtual void SetEnvironmentalBGTexture(vtkTexture*);
+  vtkGetObjectMacro(EnvironmentalBGTexture, vtkTexture);
+
+  //@{
+  /**
+   * Set/Get whether the environmental texture should be used.
+   * Note this is currently ignored outside of RayTracing.
+   * Default is off.
+   */
+  vtkSetMacro(TexturedEnvironmentalBG, bool);
+  vtkGetMacro(TexturedEnvironmentalBG, bool);
+  vtkBooleanMacro(TexturedEnvironmentalBG, bool);
+  //@}
+
 protected:
   vtkRenderer();
   ~vtkRenderer() override;
@@ -1002,6 +1022,9 @@ protected:
 
   bool UseImageBasedLighting;
   vtkTexture* EnvironmentCubeMap;
+
+  bool TexturedEnvironmentalBG;
+  vtkTexture* EnvironmentalBGTexture;
 
 private:
   vtkRenderer(const vtkRenderer&) = delete;

@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// This test verifies that background options work with path tracer
+// This test verifies that environmental background options work with path tracer
 //
 // The command line arguments are:
 // -I        => run in interactive mode; unless this is used, the program will
@@ -49,6 +49,7 @@ int TestPathTracerBackground(int argc, char* argv[])
   iren->SetRenderWindow(renWin);
   vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
   renWin->AddRenderer(renderer);
+  vtkOSPRayRendererNode::SetBackgroundMode(2, renderer);
   vtkOSPRayRendererNode::SetSamplesPerPixel(16, renderer);
 
   vtkSmartPointer<vtkLight> l = vtkSmartPointer<vtkLight>::New();
@@ -84,13 +85,13 @@ int TestPathTracerBackground(int argc, char* argv[])
     }
   }
 
-  renderer->SetBackground(0.1, 0.1, 1.0);
+  renderer->SetEnvironmentalBG(0.1, 0.1, 1.0);
   renWin->Render();
   renWin->Render(); // should cache
 
-  renderer->SetBackground(0.0, 0.0, 0.0);
-  renderer->SetBackground2(0.8, 0.8, 1.0);
-  renderer->GradientBackgroundOn();
+  renderer->SetEnvironmentalBG(0.0, 0.0, 0.0);
+  renderer->SetEnvironmentalBG2(0.8, 0.8, 1.0);
+  renderer->GradientEnvironmentalBGOn();
   renWin->Render(); // should invalidate and remake using default up
   renWin->Render(); // should cache
 
@@ -118,9 +119,9 @@ int TestPathTracerBackground(int argc, char* argv[])
   delete[] fname;
   imgReader->Update();
   textr->SetInputConnection(imgReader->GetOutputPort(0));
-  renderer->TexturedBackgroundOn();
+  renderer->TexturedEnvironmentalBGOn();
   renWin->Render(); // shouldn't crash
-  renderer->SetBackgroundTexture(textr);
+  renderer->SetEnvironmentalBGTexture(textr);
   renWin->Render(); // should invalidate and remake
   renWin->Render(); // should cache
   // spin up around x axis

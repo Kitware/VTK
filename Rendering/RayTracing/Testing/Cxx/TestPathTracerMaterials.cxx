@@ -58,6 +58,7 @@ int TestPathTracerMaterials(int argc, char* argv[])
   vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
   renWin->AddRenderer(renderer);
   vtkOSPRayRendererNode::SetSamplesPerPixel(1, renderer);
+  vtkOSPRayRendererNode::SetBackgroundMode(2, renderer);
   renWin->SetSize(700, 700);
   double up[3] = { 0., 1., 0. };
   vtkOSPRayRendererNode::SetNorthPole(up, renderer);
@@ -85,8 +86,8 @@ int TestPathTracerMaterials(int argc, char* argv[])
   delete[] fname;
   imgReader->Update();
   textr->SetInputConnection(imgReader->GetOutputPort(0));
-  renderer->TexturedBackgroundOn();
-  renderer->SetBackgroundTexture(textr);
+  renderer->TexturedEnvironmentalBGOn();
+  renderer->SetEnvironmentalBGTexture(textr);
   vtkSmartPointer<vtkOSPRayTestInteractor> style = vtkSmartPointer<vtkOSPRayTestInteractor>::New();
   iren->SetInteractorStyle(style);
   style->SetCurrentRenderer(renderer);

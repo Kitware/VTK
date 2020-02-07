@@ -73,6 +73,7 @@ int TestOSPRayWindow(int argc, char* argv[])
   //
   ren1->AddActor(sphereActor);
   ren1->SetBackground(.2, .3, .4);
+  ren1->SetEnvironmentalBG(.2, .3, .4);
 
   // render the image
   renWin->SetWindowName("VTK - Scalar Bar options");

@@ -50,6 +50,7 @@ int TestOSPRayTiling(int argc, char* argv[])
   vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
   renWin->AddRenderer(renderer);
   vtkOSPRayRendererNode::SetSamplesPerPixel(16, renderer);
+  vtkOSPRayRendererNode::SetBackgroundMode(2, renderer);
 
   vtkSmartPointer<vtkLight> l = vtkSmartPointer<vtkLight>::New();
   l->SetLightTypeToHeadlight();
@@ -94,8 +95,8 @@ int TestOSPRayTiling(int argc, char* argv[])
   delete[] fname;
   imgReader->Update();
   textr->SetInputConnection(imgReader->GetOutputPort(0));
-  renderer->TexturedBackgroundOn();
-  renderer->SetBackgroundTexture(textr);
+  renderer->TexturedEnvironmentalBGOn();
+  renderer->SetEnvironmentalBGTexture(textr);
 
   double up[3] = { 0.0, 1.0, 0.0 };
   double east[3] = { -1.0, 0.0, 0.0 };
@@ -121,7 +122,7 @@ int TestOSPRayTiling(int argc, char* argv[])
   ren2->AddActor(imageActor);
 
   // Background color white to distinguish image boundary
-  ren2->SetBackground(1, 1, 1);
+  ren2->SetEnvironmentalBG(1, 1, 1);
   vtkNew<vtkRenderWindow> renderWindow;
   renderWindow->AddRenderer(ren2);
   renderWindow->Render();
