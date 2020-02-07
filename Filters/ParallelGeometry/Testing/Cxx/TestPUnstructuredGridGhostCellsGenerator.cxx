@@ -84,6 +84,18 @@ private:
 
 vtkStandardNewMacro(vtkRTAnalyticSource2);
 
+bool CheckFieldData(vtkFieldData* fd)
+{
+  vtkUnsignedCharArray* fdArray = vtkUnsignedCharArray::SafeDownCast(fd->GetArray("FieldData"));
+  if (!fdArray || fdArray->GetValue(0) != 2)
+  {
+    cerr << "Field data array value is not the same as the input" << endl;
+    return false;
+  }
+
+  return true;
+}
+
 } // anonymous namespace
 
 //------------------------------------------------------------------------------
@@ -106,7 +118,17 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
   tetrahedralize->SetInputConnection(wavelet->GetOutputPort());
   tetrahedralize->UpdatePiece(myRank, nbRanks, 0);
 
-  vtkUnstructuredGrid* initialGrid = tetrahedralize->GetOutput();
+  vtkNew<vtkUnstructuredGrid> initialGrid;
+  initialGrid->ShallowCopy(tetrahedralize->GetOutput());
+
+  // Add field data
+  vtkNew<vtkUnsignedCharArray> fdArray;
+  fdArray->SetNumberOfTuples(1);
+  fdArray->SetName("FieldData");
+  fdArray->SetValue(0, 2);
+  vtkNew<vtkFieldData> fd;
+  fd->AddArray(fdArray);
+  initialGrid->SetFieldData(fd);
 
   // Prepare the ghost cells generator
   vtkNew<vtkPUnstructuredGridGhostCellsGenerator> ghostGenerator;
@@ -132,6 +154,14 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
   {
     cerr << "Ghost were generated but were not requested on process "
          << controller->GetLocalProcessId() << endl;
+    ret = EXIT_FAILURE;
+  }
+
+  // Check that field data is copied
+  ghostGenerator->Update();
+  if (!CheckFieldData(ghostGenerator->GetOutput()->GetFieldData()))
+  {
+    cerr << "Field data was not copied correctly" << std::endl;
     ret = EXIT_FAILURE;
   }
 
@@ -163,6 +193,12 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
 
       // Save the grid for further analysis
       outGrids[step] = ghostGenerator->GetOutput();
+
+      if (!CheckFieldData(outGrids[step]->GetFieldData()))
+      {
+        cerr << "Field data was not copied" << std::endl;
+        ret = EXIT_FAILURE;
+      }
 
       double elapsed = timer->GetElapsedTime();
 
