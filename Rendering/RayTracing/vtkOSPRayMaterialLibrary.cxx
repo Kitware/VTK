@@ -500,8 +500,8 @@ bool vtkOSPRayMaterialLibrary::InternalParseMTL(
         try
         {
           d1 = std::stod(v1);
-          d2 = std::stod(v1);
-          d3 = std::stod(v1);
+          d2 = std::stod(v2);
+          d3 = std::stod(v3);
           OK = true;
         }
         catch (const std::invalid_argument&)
