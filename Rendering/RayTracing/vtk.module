@@ -6,6 +6,7 @@ IMPLEMENTS
   VTK::RenderingVolume
 DEPENDS
   VTK::CommonDataModel
+  VTK::DomainsChemistry
   VTK::RenderingCore
   VTK::RenderingOpenGL2
   VTK::RenderingSceneGraph
