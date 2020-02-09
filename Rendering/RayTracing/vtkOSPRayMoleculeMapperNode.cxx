@@ -20,6 +20,7 @@
 #include "vtkOSPRayCache.h"
 #include "vtkOSPRayRendererNode.h"
 #include "vtkObjectFactory.h"
+#include "vtkPoints.h"
 #include "vtkRenderer.h"
 
 #include <algorithm>
@@ -53,19 +54,55 @@ void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
 {
   if (prepass)
   {
-    vtkMoleculeMapper* mapper = vtkMoleculeMapper::SafeDownCast(this->GetRenderable());
     vtkOSPRayRendererNode* orn =
       static_cast<vtkOSPRayRendererNode*>(this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
-    vtkRenderer* ren = vtkRenderer::SafeDownCast(orn->GetRenderable());
     RTW::Backend* backend = orn->GetBackend();
     if (backend == nullptr)
     {
       return;
     }
-
-    OSPModel OSPRayModel = orn->GetOModel();
   }
   else
   {
+    vtkOSPRayRendererNode* orn =
+      static_cast<vtkOSPRayRendererNode*>(this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
+    RTW::Backend* backend = orn->GetBackend();
+    if (backend == nullptr)
+    {
+      return;
+    }
+    auto oModel = orn->GetOModel();
+
+    vtkMoleculeMapper* mapper = vtkMoleculeMapper::SafeDownCast(this->GetRenderable());
+    vtkMolecule* molecule = mapper->GetInput();
+    if (mapper->GetRenderAtoms())
+    {
+      std::vector<double> _vertices;
+      vtkPoints* allPoints = molecule->GetAtomicPositionArray();
+      for (vtkIdType i = 0; i < molecule->GetNumberOfAtoms(); i++)
+      {
+        _vertices.push_back(allPoints->GetPoint(i)[0]);
+        _vertices.push_back(allPoints->GetPoint(i)[1]);
+        _vertices.push_back(allPoints->GetPoint(i)[2]);
+      }
+      osp::vec3f* vertices = new osp::vec3f[molecule->GetNumberOfAtoms()];
+      for (size_t i = 0; i < molecule->GetNumberOfAtoms(); i++)
+      {
+        vertices[i] = osp::vec3f{ static_cast<float>(_vertices[i * 3 + 0]),
+          static_cast<float>(_vertices[i * 3 + 1]), static_cast<float>(_vertices[i * 3 + 2]) };
+      }
+      OSPData position = ospNewData(molecule->GetNumberOfAtoms(), OSP_FLOAT3, &vertices[0]);
+      ospCommit(position);
+      _vertices.clear();
+      OSPGeometry ospMesh = ospNewGeometry("spheres");
+      ospSetObject(ospMesh, "spheres", position);
+      ospSet1i(ospMesh, "bytes_per_sphere", 3 * sizeof(float));
+      ospSet1i(ospMesh, "offset_center", 0 * sizeof(float));
+      ospSet1f(ospMesh, "radius", 1.0);
+      ospCommit(ospMesh);
+      ospRelease(position);
+      ospAddGeometry(oModel, ospMesh);
+    }
+    OSPModel OSPRayModel = orn->GetOModel();
   }
 }
