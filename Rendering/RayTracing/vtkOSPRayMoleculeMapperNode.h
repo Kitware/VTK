@@ -45,6 +45,8 @@ protected:
   ~vtkOSPRayMoleculeMapperNode() override;
 
   vtkOSPRayCache<vtkOSPRayCacheItemObject>* Cache;
+  OSPGeometry OSPMesh;
+  vtkTimeStamp BuildTime;
 
 private:
   vtkOSPRayMoleculeMapperNode(const vtkOSPRayMoleculeMapperNode&) = delete;
