@@ -15,14 +15,17 @@
 #include "vtkOSPRayMoleculeMapperNode.h"
 
 #include "vtkInformation.h"
+#include "vtkLookupTable.h"
 #include "vtkMolecule.h"
 #include "vtkMoleculeMapper.h"
 #include "vtkOSPRayActorNode.h"
 #include "vtkOSPRayCache.h"
 #include "vtkOSPRayRendererNode.h"
 #include "vtkObjectFactory.h"
+#include "vtkPeriodicTable.h"
 #include "vtkPoints.h"
 #include "vtkRenderer.h"
+#include "vtkUnsignedShortArray.h"
 
 #include <algorithm>
 #include <vector>
@@ -88,22 +91,45 @@ void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
     if (mapper->GetRenderAtoms())
     {
       vtkPoints* allPoints = molecule->GetAtomicPositionArray();
-      osp::vec3f* vertices = new osp::vec3f[molecule->GetNumberOfAtoms()];
+      float* mdata = new float[molecule->GetNumberOfAtoms() * 4];
+      int* idata = (int*)mdata;
+
+      vtkUnsignedShortArray* inputColorArray = molecule->GetAtomicNumberArray();
+      vtkScalarsToColors* lut = mapper->GetLookupTable();
+      float* _colors = new float[molecule->GetNumberOfAtoms() * 4];
+
       for (size_t i = 0; i < molecule->GetNumberOfAtoms(); i++)
       {
-        vertices[i] = osp::vec3f{ static_cast<float>(allPoints->GetPoint(i)[0]),
-          static_cast<float>(allPoints->GetPoint(i)[1]),
-          static_cast<float>(allPoints->GetPoint(i)[2]) };
+        mdata[i * 4 + 0] = static_cast<float>(allPoints->GetPoint(i)[0]);
+        mdata[i * 4 + 1] = static_cast<float>(allPoints->GetPoint(i)[1]);
+        mdata[i * 4 + 2] = static_cast<float>(allPoints->GetPoint(i)[2]);
+        idata[i * 4 + 3] = i; // index into colors array
+
+        const unsigned char* ucolor = lut->MapValue(inputColorArray->GetTuple1(i));
+        _colors[i * 4 + 0] = static_cast<float>(ucolor[0] / 255.0);
+        _colors[i * 4 + 1] = static_cast<float>(ucolor[1] / 255.0);
+        _colors[i * 4 + 2] = static_cast<float>(ucolor[2] / 255.0);
+        _colors[i * 4 + 3] = static_cast<float>(ucolor[3] / 255.0);
       }
-      OSPData position = ospNewData(molecule->GetNumberOfAtoms(), OSP_FLOAT3, &vertices[0]);
-      ospCommit(position);
+      OSPData mesh = ospNewData(molecule->GetNumberOfAtoms(), OSP_FLOAT4, &mdata[0]);
+      ospCommit(mesh);
+
+      OSPData colors = ospNewData(molecule->GetNumberOfAtoms(), OSP_FLOAT4, &_colors[0]);
+      ospCommit(colors);
+
       this->OSPMesh = ospNewGeometry("spheres");
-      ospSetObject(this->OSPMesh, "spheres", position);
-      ospSet1i(this->OSPMesh, "bytes_per_sphere", 3 * sizeof(float));
-      ospSet1i(this->OSPMesh, "offset_center", 0 * sizeof(float));
+      ospSetObject(this->OSPMesh, "spheres", mesh);
       ospSet1f(this->OSPMesh, "radius", 1.0);
+      ospSet1i(this->OSPMesh, "bytes_per_sphere", 4 * sizeof(float));
+      ospSet1i(this->OSPMesh, "offset_center", 0 * sizeof(float));
+      ospSet1i(this->OSPMesh, "offset_colorID", 3 * sizeof(float));
+      ospSetData(this->OSPMesh, "color", colors);
       ospCommit(this->OSPMesh);
-      ospRelease(position);
+      ospRelease(mesh);
+      ospRelease(colors);
+
+      delete[] mdata;
+      delete[] _colors;
     }
     this->BuildTime.Modified();
   }
