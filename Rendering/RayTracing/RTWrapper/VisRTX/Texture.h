@@ -31,6 +31,8 @@ namespace RTW
         return VisRTX::TextureFormat::R8;
       case RTW_TEXTURE_R32F:
         return VisRTX::TextureFormat::R32F;
+      default:
+        break;
       }
 
       assert(false);

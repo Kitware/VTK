@@ -291,66 +291,56 @@ public:
     bool reuseable = this->CanReuseBG(forbackplate) && (bgMode == this->lBackgroundMode);
     if (!reuseable)
     {
-      double* bg1 = (forbackplate ? ren->GetBackground() : ren->GetEnvironmentalBG());
-      unsigned char* ochars;
-      int isize = 1;
-      int jsize = 1;
       vtkTexture* text =
         (forbackplate ? ren->GetBackgroundTexture() : ren->GetEnvironmentalBGTexture());
       if (text && (forbackplate ? ren->GetTexturedBackground() : ren->GetTexturedEnvironmentalBG()))
       {
         vtkImageData* vColorTextureMap = text->GetInput();
-        // todo, fallback to gradient when either of above return nullptr
-        // otherwise can't load texture in PV when in OSP::PT mode
-        // todo: this code is duplicated from vtkOSPRayPolyDataMapperNode
-        jsize = vColorTextureMap->GetExtent()[1];
-        isize = vColorTextureMap->GetExtent()[3];
-        unsigned char* ichars = (unsigned char*)vColorTextureMap->GetScalarPointer();
-        ochars = new unsigned char[(isize + 1) * (jsize + 1) * 3];
-        unsigned char* oc = ochars;
-        int comps = vColorTextureMap->GetNumberOfScalarComponents();
-        for (int i = 0; i < isize + 1; i++)
+
+        // todo: if the imageData is empty, we should download the texture from the GPU
+        if (vColorTextureMap)
         {
-          for (int j = 0; j < jsize + 1; j++)
+          t2d = vtkOSPRayMaterialHelpers::VTKToOSPTexture(backend, vColorTextureMap);
+        }
+      }
+
+      if (t2d == nullptr)
+      {
+        std::vector<unsigned char> ochars;
+        double* bg1 = (forbackplate ? ren->GetBackground() : ren->GetEnvironmentalBG());
+        int isize = 1;
+        int jsize = 1;
+
+        if (forbackplate ? ren->GetGradientBackground() : ren->GetGradientEnvironmentalBG())
+        {
+          double* bg2 = (forbackplate ? ren->GetBackground2() : ren->GetEnvironmentalBG2());
+          isize = 256; // todo: configurable
+          jsize = 2;
+          ochars.resize(isize * jsize * 3);
+          unsigned char* oc = ochars.data();
+          for (int i = 0; i < isize; i++)
           {
-            oc[0] = ichars[0];
-            oc[1] = ichars[1];
-            oc[2] = ichars[2];
-            oc += 3;
-            ichars += comps;
+            double frac = (double)i / (double)isize;
+            *(oc + 0) = (bg1[0] * (1.0 - frac) + bg2[0] * frac) * 255;
+            *(oc + 1) = (bg1[1] * (1.0 - frac) + bg2[1] * frac) * 255;
+            *(oc + 2) = (bg1[2] * (1.0 - frac) + bg2[2] * frac) * 255;
+            *(oc + 3) = *(oc + 0);
+            *(oc + 4) = *(oc + 1);
+            *(oc + 5) = *(oc + 2);
+            oc += 6;
           }
         }
-        isize++;
-        jsize++;
-      }
-      else if (forbackplate ? ren->GetGradientBackground() : ren->GetGradientEnvironmentalBG())
-      {
-        double* bg2 = (forbackplate ? ren->GetBackground2() : ren->GetEnvironmentalBG2());
-        isize = 256; // todo: configurable
-        jsize = 2;
-        ochars = new unsigned char[isize * jsize * 3];
-        unsigned char* oc = ochars;
-        for (int i = 0; i < isize; i++)
+        else
         {
-          double frac = (double)i / (double)isize;
-          *(oc + 0) = (bg1[0] * (1.0 - frac) + bg2[0] * frac) * 255;
-          *(oc + 1) = (bg1[1] * (1.0 - frac) + bg2[1] * frac) * 255;
-          *(oc + 2) = (bg1[2] * (1.0 - frac) + bg2[2] * frac) * 255;
-          *(oc + 3) = (bg1[0] * (1.0 - frac) + bg2[0] * frac) * 255;
-          *(oc + 4) = (bg1[1] * (1.0 - frac) + bg2[1] * frac) * 255;
-          *(oc + 5) = (bg1[2] * (1.0 - frac) + bg2[2] * frac) * 255;
-          oc += 6;
+          ochars.resize(3);
+          ochars[0] = bg1[0] * 255;
+          ochars[1] = bg1[1] * 255;
+          ochars[2] = bg1[2] * 255;
         }
+
+        t2d = vtkOSPRayMaterialHelpers::NewTexture2D(backend, osp::vec2i{ jsize, isize },
+          OSP_TEXTURE_RGB8, ochars.data(), 0, 3 * sizeof(char));
       }
-      else
-      {
-        ochars = new unsigned char[3];
-        ochars[0] = bg1[0] * 255;
-        ochars[1] = bg1[1] * 255;
-        ochars[2] = bg1[2] * 255;
-      }
-      t2d = vtkOSPRayMaterialHelpers::NewTexture2D(
-        backend, osp::vec2i{ jsize, isize }, OSP_TEXTURE_RGB8, ochars, 0, 3 * sizeof(char));
 
       if (forbackplate)
       {
@@ -392,7 +382,6 @@ public:
         ospCommit(ospLight);
         this->BGLight = ospLight;
       }
-      delete[] ochars;
     }
 
     if (!forbackplate && (bgMode & 0x2))
