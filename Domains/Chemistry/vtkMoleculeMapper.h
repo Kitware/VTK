@@ -298,6 +298,8 @@ public:
    */
   virtual void SetMapScalars(bool map);
 
+  vtkPeriodicTable* GetPeriodicTable() { return this->PeriodicTable; }
+
 protected:
   vtkMoleculeMapper();
   ~vtkMoleculeMapper() override;
