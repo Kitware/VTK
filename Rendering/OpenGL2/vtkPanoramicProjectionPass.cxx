@@ -249,8 +249,10 @@ void vtkPanoramicProjectionPass::Project(vtkOpenGLRenderWindow* renWin)
   this->QuadHelper->Program->SetUniform2f("scale", scale);
   this->QuadHelper->Program->SetUniform2f("shift", shift);
 
+#ifndef GL_ES_VERSION_3_0
   vtkOpenGLState* ostate = renWin->GetState();
   ostate->vtkglEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+#endif
 
   this->QuadHelper->Render();
 
