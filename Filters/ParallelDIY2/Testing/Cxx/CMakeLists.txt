@@ -14,6 +14,7 @@ if (TARGET VTK::mpi)
   set (vtkFiltersParallelDIY2CxxTests-MPI_NUMPROCS 4)
   vtk_add_test_mpi(vtkFiltersParallelDIY2CxxTests-MPI no_data_tests_4_procs
     DIYAggregateDataSet.cxx
+    TestAdaptiveResampleToImage.cxx
     TestGenerateGlobalIds.cxx
     )
 
@@ -28,6 +29,7 @@ endif()
 # non-mpi tests
 vtk_add_test_cxx(vtkFiltersParallelDIY2CxxTests non_mpi_tests
   TestExtractSubsetWithSeed.cxx
+  TestAdaptiveResampleToImage.cxx,NO_VALID
   TestGenerateGlobalIds.cxx,NO_VALID
   TestRedistributeDataSetFilter.cxx,NO_VALID)
 vtk_test_cxx_executable(vtkFiltersParallelDIY2CxxTests non_mpi_tests)
