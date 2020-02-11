@@ -24,12 +24,14 @@
 #include "vtkObjectFactory.h"
 #include "vtkPeriodicTable.h"
 #include "vtkPoints.h"
+#include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkUnsignedShortArray.h"
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 
 #include <algorithm>
+#include <string.h>
 #include <vector>
 
 //============================================================================
@@ -134,7 +136,6 @@ void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
 
       atoms = ospNewGeometry("spheres");
       ospSetObject(atoms, "spheres", mesh);
-      ospSet1f(atoms, "radius", 1.0);
       ospSet1i(atoms, "bytes_per_sphere", 5 * sizeof(float));
       ospSet1i(atoms, "offset_center", 0 * sizeof(float));
       ospSet1i(atoms, "offset_radius", 3 * sizeof(float));
@@ -240,11 +241,102 @@ void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
       ospRelease(colors);
     }
 
-    if (mapper->GetRenderLattice())
+    if (mapper->GetRenderLattice() && molecule->HasLattice())
     {
-      // OSPGeometry lattice;
-      // todo: take a half hour and translate vtkMoleculeMapper::UpdateLatticePolyData() to ospray
-      // API this->Geometries.emplace_back(lattice);
+      OSPGeometry lattice = ospNewGeometry("cylinders");
+
+      vtkVector3d a;
+      vtkVector3d b;
+      vtkVector3d c;
+      vtkVector3d origin;
+
+      molecule->GetLattice(a, b, c, origin);
+      float tdata[8 * 3];
+      for (int i = 0; i < 8; ++i)
+      {
+        vtkVector3d corner;
+        switch (i)
+        {
+          case 0:
+            corner = origin;
+            break;
+          case 1:
+            corner = origin + a;
+            break;
+          case 2:
+            corner = origin + b;
+            break;
+          case 3:
+            corner = origin + c;
+            break;
+          case 4:
+            corner = origin + a + b;
+            break;
+          case 5:
+            corner = origin + a + c;
+            break;
+          case 6:
+            corner = origin + b + c;
+            break;
+          case 7:
+            corner = origin + a + b + c;
+            break;
+        }
+        tdata[i * 3 + 0] = corner.GetData()[0];
+        tdata[i * 3 + 1] = corner.GetData()[1];
+        tdata[i * 3 + 2] = corner.GetData()[2];
+      }
+
+      float* mdata = new float[12 * 2 * 3];
+      memcpy(&mdata[0 * 3], &tdata[0 * 3], 3 * sizeof(float));
+      memcpy(&mdata[1 * 3], &tdata[1 * 3], 3 * sizeof(float));
+      memcpy(&mdata[2 * 3], &tdata[1 * 3], 3 * sizeof(float));
+      memcpy(&mdata[3 * 3], &tdata[4 * 3], 3 * sizeof(float));
+      memcpy(&mdata[4 * 3], &tdata[4 * 3], 3 * sizeof(float));
+      memcpy(&mdata[5 * 3], &tdata[2 * 3], 3 * sizeof(float));
+      memcpy(&mdata[6 * 3], &tdata[2 * 3], 3 * sizeof(float));
+      memcpy(&mdata[7 * 3], &tdata[0 * 3], 3 * sizeof(float));
+      memcpy(&mdata[8 * 3], &tdata[0 * 3], 3 * sizeof(float));
+      memcpy(&mdata[9 * 3], &tdata[3 * 3], 3 * sizeof(float));
+      memcpy(&mdata[10 * 3], &tdata[2 * 3], 3 * sizeof(float));
+      memcpy(&mdata[11 * 3], &tdata[6 * 3], 3 * sizeof(float));
+      memcpy(&mdata[12 * 3], &tdata[4 * 3], 3 * sizeof(float));
+      memcpy(&mdata[13 * 3], &tdata[7 * 3], 3 * sizeof(float));
+      memcpy(&mdata[14 * 3], &tdata[1 * 3], 3 * sizeof(float));
+      memcpy(&mdata[15 * 3], &tdata[5 * 3], 3 * sizeof(float));
+      memcpy(&mdata[16 * 3], &tdata[6 * 3], 3 * sizeof(float));
+      memcpy(&mdata[17 * 3], &tdata[3 * 3], 3 * sizeof(float));
+      memcpy(&mdata[18 * 3], &tdata[5 * 3], 3 * sizeof(float));
+      memcpy(&mdata[19 * 3], &tdata[3 * 3], 3 * sizeof(float));
+      memcpy(&mdata[20 * 3], &tdata[5 * 3], 3 * sizeof(float));
+      memcpy(&mdata[21 * 3], &tdata[7 * 3], 3 * sizeof(float));
+      memcpy(&mdata[22 * 3], &tdata[6 * 3], 3 * sizeof(float));
+      memcpy(&mdata[23 * 3], &tdata[7 * 3], 3 * sizeof(float));
+
+      OSPData _mdata = ospNewData(12 * 2 * 3, OSP_FLOAT, mdata);
+      ospSet1i(lattice, "bytes_per_cylinder", 6 * sizeof(float));
+      ospSet1i(lattice, "offset_v0", 0);
+      ospSet1i(lattice, "offset_v1", 3 * sizeof(float));
+
+      double length = length = mapper->GetLength();
+      vtkProperty* property = act->GetProperty();
+      double lineWidth = length / 1000.0 * property->GetLineWidth();
+      ospSet1f(lattice, "radius", lineWidth);
+
+      float ocolor[3];
+      unsigned char* vcolor = mapper->GetLatticeColor();
+      ocolor[0] = vcolor[0] / 255.0;
+      ocolor[1] = vcolor[1] / 255.0;
+      ocolor[2] = vcolor[2] / 255.0;
+      ospSet3fv(lattice, "color", ocolor);
+      ospCommit(_mdata);
+
+      ospSetData(lattice, "cylinders", _mdata);
+      ospCommit(lattice);
+
+      this->Geometries.emplace_back(lattice);
+
+      ospRelease(_mdata);
     }
 
     this->BuildTime.Modified();
