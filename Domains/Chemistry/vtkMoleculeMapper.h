@@ -298,6 +298,9 @@ public:
    */
   virtual void SetMapScalars(bool map);
 
+  /**
+   * Accessor to internal structure. This is exposed to make it available for ray tracers.
+   */
   vtkPeriodicTable* GetPeriodicTable() { return this->PeriodicTable; }
 
 protected:
