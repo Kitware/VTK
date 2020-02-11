@@ -85,7 +85,7 @@ class vtkPointData;
 class vtkPolyData;
 class vtkStringArray;
 class vtkSurfaceType;
-struct vtkLagrangianUserData;
+struct vtkLagrangianThreadedData;
 
 class VTKFILTERSFLOWPATHS_EXPORT vtkLagrangianBasicIntegrationModel : public vtkFunctionSet
 {
@@ -361,16 +361,16 @@ public:
   virtual void ParallelManualShift(vtkLagrangianParticle* vtkNotUsed(particle)) {}
 
   /**
-   * Let the model allocate and initialize a user data at thread level
+   * Let the model allocate and initialize a threaded data.
    * This method is thread-safe, its reimplementation should still be thread-safe.
    */
-  virtual void InitializeThreadedUserData(vtkLagrangianUserData* vtkNotUsed(data)) {}
+  virtual void InitializeThreadedData(vtkLagrangianThreadedData* vtkNotUsed(data)) {}
 
   /**
    * Let the model finalize and deallocate a user data at thread level
    * This method is called serially for each thread and does not require to be thread safe.
    */
-  virtual void FinalizeThreadedUserData(vtkLagrangianUserData* vtkNotUsed(data)) {}
+  virtual void FinalizeThreadedData(vtkLagrangianThreadedData* vtkNotUsed(data)) {}
 
   /**
    * Enable model post process on output

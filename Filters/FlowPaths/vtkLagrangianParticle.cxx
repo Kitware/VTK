@@ -27,6 +27,8 @@ vtkLagrangianParticle::vtkLagrangianParticle(int numberOfVariables, vtkIdType se
   , ParentId(-1)
   , SeedId(seedId)
   , NumberOfSteps(0)
+  , SeedArrayTupleIndex(seedArrayTupleIndex)
+  , SeedData(seedData)
   , StepTime(0)
   , IntegrationTime(integrationTime)
   , PrevIntegrationTime(0)
@@ -61,14 +63,6 @@ vtkLagrangianParticle::vtkLagrangianParticle(int numberOfVariables, vtkIdType se
   this->LastSurfaceCellId = -1;
   this->LastSurfaceDataSet = nullptr;
 
-  // Initialize Seed Data
-  this->SeedData->CopyAllocate(seedData, 1);
-  if (seedArrayTupleIndex >= 0)
-  {
-    // In some cases we may want to leave it uninitialized
-    this->SeedData->CopyData(seedData, seedArrayTupleIndex, 0);
-  }
-
   // Initialize tracked user data
   this->PrevTrackedUserData.resize(numberOfTrackedUserData, 0);
   this->TrackedUserData.resize(numberOfTrackedUserData, 0);
@@ -79,15 +73,6 @@ vtkLagrangianParticle::vtkLagrangianParticle(int numberOfVariables, vtkIdType se
 // Default destructor in implementation in order to be able to use
 // vtkNew in header
 vtkLagrangianParticle::~vtkLagrangianParticle() = default;
-
-//---------------------------------------------------------------------------
-vtkLagrangianParticle* vtkLagrangianParticle::NewInstance(int numberOfVariables, vtkIdType seedId,
-  vtkIdType particleId, vtkIdType seedArrayTupleIndex, double integrationTime,
-  vtkPointData* seedData, int weightsSize, int numberOfTrackedUserData)
-{
-  return new vtkLagrangianParticle(numberOfVariables, seedId, particleId, seedArrayTupleIndex,
-    integrationTime, seedData, weightsSize, numberOfTrackedUserData);
-}
 
 //---------------------------------------------------------------------------
 vtkLagrangianParticle* vtkLagrangianParticle::NewInstance(int numberOfVariables, vtkIdType seedId,
@@ -106,9 +91,10 @@ vtkLagrangianParticle* vtkLagrangianParticle::NewInstance(int numberOfVariables,
 vtkLagrangianParticle* vtkLagrangianParticle::NewParticle(vtkIdType particleId)
 {
   // Create particle and copy members
-  vtkLagrangianParticle* particle = this->NewInstance(this->GetNumberOfVariables(),
-    this->GetSeedId(), particleId, 0, this->IntegrationTime + this->StepTime, this->SeedData,
-    this->WeightsSize, static_cast<int>(this->TrackedUserData.size()));
+  vtkLagrangianParticle* particle =
+    vtkLagrangianParticle::NewInstance(this->GetNumberOfVariables(), this->GetSeedId(), particleId,
+      this->SeedArrayTupleIndex, this->IntegrationTime + this->StepTime, this->SeedData,
+      this->WeightsSize, static_cast<int>(this->TrackedUserData.size()));
   particle->ParentId = this->GetId();
   particle->NumberOfSteps = this->GetNumberOfSteps() + 1;
 
@@ -127,10 +113,7 @@ vtkLagrangianParticle* vtkLagrangianParticle::NewParticle(vtkIdType particleId)
   std::fill(particle->NextTrackedUserData.begin(), particle->NextTrackedUserData.end(), 0);
 
   // Copy thread-specific data as well
-  particle->ThreadedGenericCell = this->ThreadedGenericCell;
-  particle->ThreadedIdList = this->ThreadedIdList;
-  particle->ThreadedBilinearQuadIntersection = this->ThreadedBilinearQuadIntersection;
-  particle->ThreadedUserData = this->ThreadedUserData;
+  particle->ThreadedData = this->ThreadedData;
 
   return particle;
 }
@@ -138,9 +121,9 @@ vtkLagrangianParticle* vtkLagrangianParticle::NewParticle(vtkIdType particleId)
 //---------------------------------------------------------------------------
 vtkLagrangianParticle* vtkLagrangianParticle::CloneParticle()
 {
-  vtkLagrangianParticle* clone = this->NewInstance(this->GetNumberOfVariables(), this->GetSeedId(),
-    this->GetId(), 0, this->IntegrationTime, this->GetSeedData(), this->WeightsSize,
-    static_cast<int>(this->TrackedUserData.size()));
+  vtkLagrangianParticle* clone = vtkLagrangianParticle::NewInstance(this->GetNumberOfVariables(),
+    this->GetSeedId(), this->GetId(), this->SeedArrayTupleIndex, this->IntegrationTime,
+    this->GetSeedData(), this->WeightsSize, static_cast<int>(this->TrackedUserData.size()));
   clone->Id = this->Id;
   clone->ParentId = this->ParentId;
   clone->NumberOfSteps = this->NumberOfSteps;
@@ -160,10 +143,7 @@ vtkLagrangianParticle* vtkLagrangianParticle::CloneParticle()
   clone->StepTime = this->StepTime;
 
   // Copy thread-specific data as well
-  clone->ThreadedGenericCell = this->ThreadedGenericCell;
-  clone->ThreadedIdList = this->ThreadedIdList;
-  clone->ThreadedBilinearQuadIntersection = this->ThreadedBilinearQuadIntersection;
-  clone->ThreadedUserData = this->ThreadedUserData;
+  clone->ThreadedData = this->ThreadedData;
 
   return clone;
 }
@@ -181,6 +161,12 @@ vtkIdType vtkLagrangianParticle::GetLastCellId()
 }
 
 //---------------------------------------------------------------------------
+double* vtkLagrangianParticle::GetLastCellPosition()
+{
+  return this->LastCellPosition;
+}
+
+//---------------------------------------------------------------------------
 vtkDataSet* vtkLagrangianParticle::GetLastDataSet()
 {
   return this->LastDataSet;
@@ -194,11 +180,12 @@ vtkAbstractCellLocator* vtkLagrangianParticle::GetLastLocator()
 
 //---------------------------------------------------------------------------
 void vtkLagrangianParticle::SetLastCell(
-  vtkAbstractCellLocator* locator, vtkDataSet* dataset, vtkIdType cellId)
+  vtkAbstractCellLocator* locator, vtkDataSet* dataset, vtkIdType cellId, double cellPosition[3])
 {
   this->LastLocator = locator;
   this->LastDataSet = dataset;
   this->LastCellId = cellId;
+  std::copy(cellPosition, cellPosition + 3, this->LastCellPosition);
 }
 
 //---------------------------------------------------------------------------
@@ -266,6 +253,12 @@ int vtkLagrangianParticle::GetNumberOfUserVariables()
 vtkPointData* vtkLagrangianParticle::GetSeedData()
 {
   return this->SeedData;
+}
+
+//---------------------------------------------------------------------------
+vtkIdType vtkLagrangianParticle::GetSeedArrayTupleIndex() const
+{
+  return this->SeedArrayTupleIndex;
 }
 
 //---------------------------------------------------------------------------
@@ -392,6 +385,7 @@ void vtkLagrangianParticle::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NumberOfVariables: " << this->NumberOfVariables << std::endl;
   os << indent << "ParentId: " << this->ParentId << std::endl;
   os << indent << "SeedData: " << this->SeedData << std::endl;
+  os << indent << "SeedArrayTupleIndex: " << this->SeedArrayTupleIndex << std::endl;
   os << indent << "SeedId: " << this->SeedId << std::endl;
   os << indent << "StepTime: " << this->StepTime << std::endl;
   os << indent << "IntegrationTime: " << this->IntegrationTime << std::endl;
@@ -441,9 +435,5 @@ void vtkLagrangianParticle::PrintSelf(ostream& os, vtkIndent indent)
   }
   os << std::endl;
 
-  os << indent << "ThreadedUserData: " << this->ThreadedUserData << std::endl;
-  os << indent << "ThreadedGenericCell: " << this->ThreadedGenericCell << std::endl;
-  os << indent << "ThreadedIdList: " << this->ThreadedIdList << std::endl;
-  os << indent << "ThreadedBilinearQuadIntersection: " << this->ThreadedBilinearQuadIntersection
-     << std::endl;
+  os << indent << "ThreadedData: " << this->ThreadedData << std::endl;
 }

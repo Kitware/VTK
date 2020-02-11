@@ -86,8 +86,13 @@ protected:
     std::queue<vtkLagrangianParticle*>& particleQueue, vtkPolyData* particlePathsOutput,
     vtkPolyLine* particlePath, vtkDataObject* interactionOutput) override;
 
+  //@{
+  /**
+   * Non threadsafe methods to send and receive particles
+   */
   void SendParticle(vtkLagrangianParticle* particle);
   void ReceiveParticles(std::queue<vtkLagrangianParticle*>& particleQueue);
+  //@}
 
   bool FinalizeOutputs(vtkPolyData* particlePathsOutput, vtkDataObject* interactionOutput) override;
 
@@ -99,12 +104,10 @@ protected:
    */
   virtual vtkIdType GetNewParticleId() override;
 
-  //@{
   /**
    * Get the complete number of created particles
    */
   vtkGetMacro(ParticleCounter, vtkIdType);
-  //@}
 
   vtkNew<vtkUnstructuredGrid> TmpSurfaceInput;
   vtkNew<vtkMultiBlockDataSet> TmpSurfaceInputMB;

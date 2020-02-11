@@ -118,7 +118,7 @@ int vtkLagrangianMatidaIntegrationModel::FunctionValues(vtkLagrangianParticle* p
     return 0;
   }
   double particleDiameter;
-  particleDiameters->GetTuple(0, &particleDiameter);
+  particleDiameters->GetTuple(particle->GetSeedArrayTupleIndex(), &particleDiameter);
 
   // Fetch Particle Density at index 7
   vtkDataArray* particleDensities = vtkDataArray::SafeDownCast(this->GetSeedArray(7, particle));
@@ -135,7 +135,7 @@ int vtkLagrangianMatidaIntegrationModel::FunctionValues(vtkLagrangianParticle* p
     return 0;
   }
   double particleDensity;
-  particleDensities->GetTuple(0, &particleDensity);
+  particleDensities->GetTuple(particle->GetSeedArrayTupleIndex(), &particleDensity);
 
   // Compute function values
   for (int i = 0; i < 3; i++)

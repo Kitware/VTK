@@ -21,11 +21,11 @@
 #include "vtkDataSetSurfaceFilter.h"
 #include "vtkDataSetTriangleFilter.h"
 #include "vtkDoubleArray.h"
-#include "vtkGenericCell.h"
 #include "vtkImageData.h"
 #include "vtkIntArray.h"
 #include "vtkLagrangianParticle.h"
 #include "vtkLagrangianParticleTracker.h"
+#include "vtkLagrangianThreadedData.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
@@ -172,15 +172,11 @@ int TestLagrangianIntegrationModel(int, char*[])
   }
   odeWavelet->SetUseInitialIntegrationTime(false);
 
-  vtkNew<vtkGenericCell> cell;
+  std::unique_ptr<vtkLagrangianThreadedData> data(new vtkLagrangianThreadedData);
   vtkLagrangianParticle part(nvar, seedIdx, seedIdx, 0, 0, pd, odeWavelet->GetWeightsSize(), 3);
-  part.SetThreadedGenericCell(cell);
-
-  vtkNew<vtkIdList> cellId;
-  part.SetThreadedIdList(cellId);
-
-  vtkBilinearQuadIntersection bqi;
-  part.SetThreadedBilinearQuadIntersection(&bqi);
+  std::unique_ptr<vtkBilinearQuadIntersection> bqi(new vtkBilinearQuadIntersection);
+  data->BilinearQuadIntersection = bqi.get();
+  part.SetThreadedData(data.get());
 
   odeWavelet->InitializeParticleData(pd);
   odeWavelet->InsertParticleData(&part, pd, 0);
