@@ -22,7 +22,10 @@
 
 #include <cstdlib>
 #include <memory>
+#include <mutex>
 #include <sstream>
+#include <thread>
+#include <unordered_map>
 #include <vector>
 
 //=============================================================================
@@ -72,10 +75,12 @@ namespace detail
 {
 #if VTK_MODULE_ENABLE_VTK_loguru
 using scope_pair = std::pair<std::string, std::shared_ptr<loguru::LogScopeRAII> >;
+static std::mutex g_mutex;
+static std::unordered_map<std::thread::id, std::vector<scope_pair> > g_vectors;
 static std::vector<scope_pair>& get_vector()
 {
-  static std::vector<scope_pair> the_vector{};
-  return the_vector;
+  std::lock_guard<std::mutex> guard(g_mutex);
+  return g_vectors[std::this_thread::get_id()];
 }
 
 static void push_scope(const char* id, std::shared_ptr<loguru::LogScopeRAII> ptr)
@@ -89,6 +94,12 @@ static void pop_scope(const char* id)
   if (vector.size() > 0 && vector.back().first == id)
   {
     vector.pop_back();
+
+    if (vector.empty())
+    {
+      std::lock_guard<std::mutex> guard(g_mutex);
+      g_vectors.erase(std::this_thread::get_id());
+    }
   }
   else
   {
