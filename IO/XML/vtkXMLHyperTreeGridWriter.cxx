@@ -247,6 +247,14 @@ void vtkXMLHyperTreeGridWriter::WritePrimaryElementAttributes(ostream& os, vtkIn
   this->WriteScalarAttribute("TransposedRootIndexing", (bool)input->GetTransposedRootIndexing());
   this->WriteVectorAttribute(
     "Dimensions", 3, (int*)const_cast<unsigned int*>(input->GetDimensions()));
+  if (input->GetHasInterface())
+  {
+    this->WriteStringAttribute("InterfaceNormalsName", input->GetInterfaceNormalsName());
+  }
+  if (input->GetHasInterface())
+  {
+    this->WriteStringAttribute("InterfaceInterceptsName", input->GetInterfaceInterceptsName());
+  }
 
   if (this->GetDataSetMajorVersion() < 1)
   {
@@ -667,8 +675,10 @@ int vtkXMLHyperTreeGridWriter::WriteTrees_1(vtkIndent indent)
       if (this->DataMode == Appended)
       {
         this->WriteArrayAppended(a, infoIndent.GetNextIndent(),
-          this->PointDataOMG->GetElement(treeIndx * numberOfPointDataArrays + i), a->GetName(),
-          numberOfVertices * a->GetNumberOfComponents());
+          this->PointDataOMG->GetElement(treeIndx * numberOfPointDataArrays + i), a->GetName(), 0);
+        // Last parameter will eventually become the size of the stored arrays.
+        // When this modification is done, 0 should be replaced by:
+        // numberOfVertices * a->GetNumberOfComponents());
       }
       else
       {

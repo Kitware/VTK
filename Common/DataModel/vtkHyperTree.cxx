@@ -185,7 +185,7 @@ public:
     assert(globalIdByLevel.size() == maxLevels);
     for (int iLevel = 0; iLevel < maxLevels; ++iLevel)
     {
-      nb += globalIdByLevel[iLevel].size();
+      nb += static_cast<vtkIdType>(globalIdByLevel[iLevel].size());
       nbVerticesbyLevel->InsertNextValue(
         static_cast<unsigned long>(globalIdByLevel[iLevel].size()));
     }

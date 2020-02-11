@@ -137,6 +137,7 @@ bool vtkXMLHyperTreeGridReader::IsSelectedHT(
       assert("pre: error_value" && true);
       break;
   }
+  return false;
 }
 
 //----------------------------------------------------------------------------
@@ -312,6 +313,7 @@ void vtkXMLHyperTreeGridReader::ReadXMLData()
   int branchFactor;
   int transposedRootIndexing;
   int dimensions[3];
+  const char* name;
 
   // Read the attributes of the hyper tree grid
   // Whether or not there is a file description in the XML file,
@@ -329,6 +331,14 @@ void vtkXMLHyperTreeGridReader::ReadXMLData()
     dimensions[0] = 1;
     dimensions[1] = 1;
     dimensions[2] = 1;
+  }
+  if ((name = ePrimary->GetAttribute("InterfaceNormalsName")))
+  {
+    output->SetInterfaceNormalsName(name);
+  }
+  if ((name = ePrimary->GetAttribute("InterfaceInterceptsName")))
+  {
+    output->SetInterfaceInterceptsName(name);
   }
   if (!ePrimary->GetScalarAttribute("NumberOfVertices", this->NumberOfPoints))
   {
@@ -725,7 +735,7 @@ void vtkXMLHyperTreeGridReader::ReadTrees_1(vtkXMLDataElement* elem)
 
     vtkIdType limitedLevel = this->GetFixedLevelOfThisHT(numberOfLevels, treeIndxInHTG);
     vtkIdType fixedNbVertices = 0;
-    for (unsigned int ilevel = 0; ilevel < limitedLevel; ++ilevel)
+    for (vtkIdType ilevel = 0; ilevel < limitedLevel; ++ilevel)
     {
       fixedNbVertices += nbByLvl->GetValue(ilevel);
     }
