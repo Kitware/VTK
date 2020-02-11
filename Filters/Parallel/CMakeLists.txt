@@ -21,6 +21,7 @@ set(classes
   vtkPKdTree
   vtkPLinearExtrusionFilter
   vtkPMaskPoints
+  vtkPMergeArrays
   vtkPOutlineCornerFilter
   vtkPOutlineFilter
   vtkPOutlineFilterInternals
