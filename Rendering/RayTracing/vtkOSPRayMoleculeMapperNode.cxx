@@ -34,10 +34,7 @@
 vtkStandardNewMacro(vtkOSPRayMoleculeMapperNode);
 
 //----------------------------------------------------------------------------
-vtkOSPRayMoleculeMapperNode::vtkOSPRayMoleculeMapperNode()
-{
-  this->OSPMesh = nullptr;
-}
+vtkOSPRayMoleculeMapperNode::vtkOSPRayMoleculeMapperNode() {}
 
 //----------------------------------------------------------------------------
 vtkOSPRayMoleculeMapperNode::~vtkOSPRayMoleculeMapperNode()
@@ -48,7 +45,11 @@ vtkOSPRayMoleculeMapperNode::~vtkOSPRayMoleculeMapperNode()
     RTW::Backend* backend = orn->GetBackend();
     if (backend != nullptr)
     {
-      ospRelease(this->OSPMesh);
+      for (auto g : this->Geometries)
+      {
+        ospRelease(g);
+      }
+      this->Geometries.clear();
     }
   }
   delete this->Cache;
@@ -87,10 +88,16 @@ void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
   vtkMolecule* molecule = mapper->GetInput();
   if (mapper->GetMTime() > this->BuildTime || molecule->GetMTime() > this->BuildTime)
   {
-    ospRelease(this->OSPMesh);
+    for (auto g : this->Geometries)
+    {
+      ospRelease(g);
+    }
+    this->Geometries.clear();
 
     if (mapper->GetRenderAtoms())
     {
+      OSPGeometry atoms;
+
       vtkPoints* allPoints = molecule->GetAtomicPositionArray();
       float* mdata = new float[molecule->GetNumberOfAtoms() * 5];
       int* idata = (int*)mdata;
@@ -121,16 +128,18 @@ void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
       OSPData colors = ospNewData(molecule->GetNumberOfAtoms(), OSP_FLOAT4, &_colors[0]);
       ospCommit(colors);
 
-      this->OSPMesh = ospNewGeometry("spheres");
-      ospSetObject(this->OSPMesh, "spheres", mesh);
-      ospSet1f(this->OSPMesh, "radius", 1.0);
-      ospSet1i(this->OSPMesh, "bytes_per_sphere", 5 * sizeof(float));
-      ospSet1i(this->OSPMesh, "offset_center", 0 * sizeof(float));
-      ospSet1i(this->OSPMesh, "offset_radius", 3 * sizeof(float));
-      ospSet1i(this->OSPMesh, "offset_colorID", 4 * sizeof(float));
-      ospSetData(this->OSPMesh, "color", colors);
+      atoms = ospNewGeometry("spheres");
+      ospSetObject(atoms, "spheres", mesh);
+      ospSet1f(atoms, "radius", 1.0);
+      ospSet1i(atoms, "bytes_per_sphere", 5 * sizeof(float));
+      ospSet1i(atoms, "offset_center", 0 * sizeof(float));
+      ospSet1i(atoms, "offset_radius", 3 * sizeof(float));
+      ospSet1i(atoms, "offset_colorID", 4 * sizeof(float));
+      ospSetData(atoms, "color", colors);
 
-      ospCommit(this->OSPMesh);
+      this->Geometries.emplace_back(atoms);
+
+      ospCommit(atoms);
       ospRelease(mesh);
       ospRelease(colors);
 
@@ -140,5 +149,8 @@ void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
     this->BuildTime.Modified();
   }
 
-  ospAddGeometry(oModel, this->OSPMesh);
+  for (auto g : this->Geometries)
+  {
+    ospAddGeometry(oModel, g);
+  }
 }

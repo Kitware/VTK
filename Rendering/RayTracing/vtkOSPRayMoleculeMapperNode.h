@@ -27,6 +27,7 @@
 #include "vtkRenderingRayTracingModule.h" // For export macro
 
 #include "RTWrapper/RTWrapper.h" // for handle types
+#include <vector>
 
 class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayMoleculeMapperNode : public vtkPolyDataMapperNode
 {
@@ -45,8 +46,9 @@ protected:
   ~vtkOSPRayMoleculeMapperNode() override;
 
   vtkOSPRayCache<vtkOSPRayCacheItemObject>* Cache;
-  OSPGeometry OSPMesh;
   vtkTimeStamp BuildTime;
+
+  std::vector<OSPGeometry> Geometries;
 
 private:
   vtkOSPRayMoleculeMapperNode(const vtkOSPRayMoleculeMapperNode&) = delete;
