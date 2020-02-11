@@ -78,6 +78,8 @@ void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
   {
     return;
   }
+  vtkProperty* property = act->GetProperty(); // for opacity, linewidth
+  double opacity = property->GetOpacity();
 
   vtkOSPRayRendererNode* orn =
     static_cast<vtkOSPRayRendererNode*>(this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
@@ -90,7 +92,8 @@ void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
   auto oModel = orn->GetOModel();
   vtkMoleculeMapper* mapper = vtkMoleculeMapper::SafeDownCast(this->GetRenderable());
   vtkMolecule* molecule = mapper->GetInput();
-  if (mapper->GetMTime() > this->BuildTime || molecule->GetMTime() > this->BuildTime)
+  if (mapper->GetMTime() > this->BuildTime || property->GetMTime() > this->BuildTime ||
+    act->GetMTime() > this->BuildTime || molecule->GetMTime() > this->BuildTime)
   {
     for (auto g : this->Geometries)
     {
@@ -126,7 +129,7 @@ void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
         _colors[i * 4 + 0] = static_cast<float>(ucolor[0] / 255.0);
         _colors[i * 4 + 1] = static_cast<float>(ucolor[1] / 255.0);
         _colors[i * 4 + 2] = static_cast<float>(ucolor[2] / 255.0);
-        _colors[i * 4 + 3] = static_cast<float>(ucolor[3] / 255.0);
+        _colors[i * 4 + 3] = static_cast<float>(ucolor[3] / 255.0) * opacity;
       }
       OSPData mesh = ospNewData(numAtoms * 5, OSP_FLOAT, &mdata[0]);
       ospCommit(mesh);
@@ -171,6 +174,12 @@ void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
       vtkUnsignedShortArray* atomicNumbers = molecule->GetAtomicNumberArray();
       vtkScalarsToColors* lut = mapper->GetLookupTable();
       float* _colors = new float[2 * numBonds * 4];
+      float ocolor[4];
+      unsigned char* vcolor = mapper->GetBondColor();
+      ocolor[0] = vcolor[0] / 255.0;
+      ocolor[1] = vcolor[1] / 255.0;
+      ocolor[2] = vcolor[2] / 255.0;
+      ocolor[3] = opacity;
 
       for (vtkIdType bondInd = 0; bondInd < numBonds; ++bondInd)
       {
@@ -198,11 +207,21 @@ void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
         // todo: make a single color array for the vtkPeriodicTable and index into that instead of
         // one color per atom
         idata[(bondInd * 2 + 0) * width + 7] = bondInd * 2 + 0; // index into colors array
-        const unsigned char* ucolor = lut->MapValue(atomicNumbers->GetTuple1(atomIds[0]));
-        _colors[(bondInd * 2 + 0) * 4 + 0] = static_cast<float>(ucolor[0] / 255.0);
-        _colors[(bondInd * 2 + 0) * 4 + 1] = static_cast<float>(ucolor[1] / 255.0);
-        _colors[(bondInd * 2 + 0) * 4 + 2] = static_cast<float>(ucolor[2] / 255.0);
-        _colors[(bondInd * 2 + 0) * 4 + 3] = static_cast<float>(ucolor[3] / 255.0);
+        if (mapper->GetBondColorMode() == vtkMoleculeMapper::DiscreteByAtom)
+        {
+          const unsigned char* ucolor = lut->MapValue(atomicNumbers->GetTuple1(atomIds[0]));
+          _colors[(bondInd * 2 + 0) * 4 + 0] = static_cast<float>(ucolor[0] / 255.0);
+          _colors[(bondInd * 2 + 0) * 4 + 1] = static_cast<float>(ucolor[1] / 255.0);
+          _colors[(bondInd * 2 + 0) * 4 + 2] = static_cast<float>(ucolor[2] / 255.0);
+          _colors[(bondInd * 2 + 0) * 4 + 3] = static_cast<float>(ucolor[3] / 255.0) * opacity;
+        }
+        else
+        {
+          _colors[(bondInd * 2 + 0) * 4 + 0] = ocolor[0];
+          _colors[(bondInd * 2 + 0) * 4 + 1] = ocolor[1];
+          _colors[(bondInd * 2 + 0) * 4 + 2] = ocolor[2];
+          _colors[(bondInd * 2 + 0) * 4 + 3] = ocolor[3];
+        }
 
         mdata[(bondInd * 2 + 1) * width + 0] = static_cast<float>(bondCenter.GetX());
         mdata[(bondInd * 2 + 1) * width + 1] = static_cast<float>(bondCenter.GetY());
@@ -212,11 +231,21 @@ void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
         mdata[(bondInd * 2 + 1) * width + 5] = static_cast<float>(pos2.GetZ());
         mdata[(bondInd * 2 + 1) * width + 6] = bondRadius;
         idata[(bondInd * 2 + 1) * width + 7] = bondInd * 2 + 1; // index into colors array
-        ucolor = lut->MapValue(atomicNumbers->GetTuple1(atomIds[1]));
-        _colors[(bondInd * 2 + 1) * 4 + 0] = static_cast<float>(ucolor[0] / 255.0);
-        _colors[(bondInd * 2 + 1) * 4 + 1] = static_cast<float>(ucolor[1] / 255.0);
-        _colors[(bondInd * 2 + 1) * 4 + 2] = static_cast<float>(ucolor[2] / 255.0);
-        _colors[(bondInd * 2 + 1) * 4 + 3] = static_cast<float>(ucolor[3] / 255.0);
+        if (mapper->GetBondColorMode() == vtkMoleculeMapper::DiscreteByAtom)
+        {
+          const unsigned char* ucolor = lut->MapValue(atomicNumbers->GetTuple1(atomIds[1]));
+          _colors[(bondInd * 2 + 1) * 4 + 0] = static_cast<float>(ucolor[0] / 255.0);
+          _colors[(bondInd * 2 + 1) * 4 + 1] = static_cast<float>(ucolor[1] / 255.0);
+          _colors[(bondInd * 2 + 1) * 4 + 2] = static_cast<float>(ucolor[2] / 255.0);
+          _colors[(bondInd * 2 + 1) * 4 + 3] = static_cast<float>(ucolor[3] / 255.0) * opacity;
+        }
+        else
+        {
+          _colors[(bondInd * 2 + 1) * 4 + 0] = ocolor[0];
+          _colors[(bondInd * 2 + 1) * 4 + 1] = ocolor[1];
+          _colors[(bondInd * 2 + 1) * 4 + 2] = ocolor[2];
+          _colors[(bondInd * 2 + 1) * 4 + 3] = ocolor[3];
+        }
       }
 
       OSPData _mdata = ospNewData(2 * numBonds * width, OSP_FLOAT, mdata);
@@ -224,14 +253,13 @@ void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
       ospSet1i(bonds, "offset_v0", 0);
       ospSet1i(bonds, "offset_v1", 3 * sizeof(float));
       ospSet1i(bonds, "offset_radius", 6 * sizeof(float));
-      ospSet1i(bonds, "offset_colorID", 7 * sizeof(float));
-      ospCommit(_mdata);
+      ospSetData(bonds, "cylinders", _mdata);
 
       OSPData colors = ospNewData(2 * numBonds, OSP_FLOAT4, &_colors[0]);
+      ospSet1i(bonds, "offset_colorID", 7 * sizeof(float));
       ospCommit(colors);
-
-      ospSetData(bonds, "cylinders", _mdata);
       ospSetData(bonds, "color", colors);
+      ospCommit(_mdata);
 
       ospCommit(bonds);
 
@@ -319,15 +347,15 @@ void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
       ospSet1i(lattice, "offset_v1", 3 * sizeof(float));
 
       double length = length = mapper->GetLength();
-      vtkProperty* property = act->GetProperty();
       double lineWidth = length / 1000.0 * property->GetLineWidth();
       ospSet1f(lattice, "radius", lineWidth);
 
-      float ocolor[3];
+      float ocolor[4];
       unsigned char* vcolor = mapper->GetLatticeColor();
       ocolor[0] = vcolor[0] / 255.0;
       ocolor[1] = vcolor[1] / 255.0;
       ocolor[2] = vcolor[2] / 255.0;
+      ocolor[3] = opacity;
       ospSet3fv(lattice, "color", ocolor);
       ospCommit(_mdata);
 
