@@ -139,11 +139,19 @@ protected:
    */
   virtual vtkDataArray* InterpolateDataArray(double ratio, vtkDataArray** arrays, vtkIdType N);
 
+  /// Return values for VerifyArrays().
+  enum ArrayMatch
+  {
+    MATCHED = 0,           //!< Arrays match in number of components and tuples.
+    MISMATCHED_TUPLES = 1, //!< Arrays match number of components but not tuples.
+    MISMATCHED_COMPS = 2   //!< Arrays do not have the same number of components.
+  };
+
   /**
    * Called just before interpolation of each dataset to ensure
    * each data array has the same number of tuples/components etc
    */
-  virtual bool VerifyArrays(vtkDataArray** arrays, int N);
+  virtual ArrayMatch VerifyArrays(vtkDataArray** arrays, int N);
 
   // internally used : Ratio is {0,1} between two time steps
   // DeltaT is time between current 2 steps.

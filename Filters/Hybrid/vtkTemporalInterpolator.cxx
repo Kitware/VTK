@@ -312,22 +312,23 @@ int vtkTemporalInterpolator::RequestUpdateExtent(vtkInformation* vtkNotUsed(requ
 }
 
 //----------------------------------------------------------------------------
-bool vtkTemporalInterpolator ::VerifyArrays(vtkDataArray** arrays, int N)
+vtkTemporalInterpolator::ArrayMatch vtkTemporalInterpolator::VerifyArrays(
+  vtkDataArray** arrays, int N)
 {
   vtkIdType Nt = arrays[0]->GetNumberOfTuples();
   vtkIdType Nc = arrays[0]->GetNumberOfComponents();
   for (int i = 1; i < N; ++i)
   {
-    if (arrays[i]->GetNumberOfTuples() != Nt)
-    {
-      return false;
-    }
     if (arrays[i]->GetNumberOfComponents() != Nc)
     {
-      return false;
+      return MISMATCHED_COMPS;
+    }
+    if (arrays[i]->GetNumberOfTuples() != Nt)
+    {
+      return MISMATCHED_TUPLES;
     }
   }
-  return true;
+  return MATCHED;
 }
 
 //----------------------------------------------------------------------------
@@ -419,7 +420,7 @@ vtkDataSet* vtkTemporalInterpolator ::InterpolateDataSet(
 
       // allocate double for output if input is double - otherwise float
       // do a quick check to see if all arrays have the same number of tuples
-      if (!this->VerifyArrays(arrays, 2))
+      if (this->VerifyArrays(arrays, 2) != MATCHED)
       {
         vtkWarningMacro("Interpolation aborted for points because the number of "
                         "tuples/components in each time step are different");
@@ -486,7 +487,7 @@ vtkDataSet* vtkTemporalInterpolator ::InterpolateDataSet(
     if (arrays[1])
     {
       // do a quick check to see if all arrays have the same number of tuples
-      if (!this->VerifyArrays(&arrays[0], 2))
+      if (this->VerifyArrays(&arrays[0], 2) != MATCHED)
       {
         vtkWarningMacro(<< "Interpolation aborted for array "
                         << (scalarname ? scalarname : "(unnamed array)")
@@ -541,7 +542,7 @@ vtkDataSet* vtkTemporalInterpolator ::InterpolateDataSet(
     if (arrays[1])
     {
       // do a quick check to see if all arrays have the same number of tuples
-      if (!this->VerifyArrays(&arrays[0], 2))
+      if (this->VerifyArrays(&arrays[0], 2) != MATCHED)
       {
         vtkWarningMacro(<< "Interpolation aborted for array "
                         << (scalarname ? scalarname : "(unnamed array)")

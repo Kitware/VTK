@@ -1,4 +1,5 @@
 set(classes
+  vtkAdaptiveTemporalInterpolator
   vtkAggregateDataSetFilter
   vtkAngularPeriodicFilter
   vtkCollectGraph
