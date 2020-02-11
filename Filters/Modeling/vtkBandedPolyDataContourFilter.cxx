@@ -188,31 +188,68 @@ int vtkBandedPolyDataContourFilter::ClipEdge(int v1, int v2, vtkPoints* newPts,
     return 0;
   }
 
-  double x[3], x1[3], x2[3];
-  newPts->GetPoint(v1, x1);
-  newPts->GetPoint(v2, x2);
-
+  // Insert from back to front if point ids are not ordered by increasing id
   bool reverse = (v1 > v2);
-  if (low > high)
+
+  // We iterate from lowest to highest end point
+  bool swap = (low > high);
+  if (swap)
   {
     std::swap(low, high);
     std::swap(b, e);
-    std::swap(x1[0], x2[0]);
-    std::swap(x1[1], x2[1]);
-    std::swap(x1[2], x2[2]);
     reverse = !reverse;
   }
 
   // start with the first clip value larger than low
   ++b;
-  // include the clipvalue for high
-  ++e;
 
-  vtkIdType* pt = reverse ? edgePts + std::distance(b, e) - 1 : edgePts;
-  const int inc = reverse ? -1 : +1;
+  // ComputeClipValue may have accepted a slightly too large value for the high
+  // clip value. If the difference between high and low is in the order of the
+  // internal clip tolerance this may lead to an interpolation factor that
+  // is significantly larger than 1. To prevent this only include the last
+  // clip value if it doesn't cause an overshoot of more than .01%
+  if ((*e - low) / (high - low) < 1.0001)
+  {
+    ++e;
+  }
+
+  if (b == e)
+  {
+    return 0;
+  }
+
+  // Interpolate between x1 and x2
+  double x1[3];
+  double x2[3];
+  if (!swap)
+  {
+    newPts->GetPoint(v1, x1);
+    newPts->GetPoint(v2, x2);
+  }
+  else
+  {
+    newPts->GetPoint(v2, x1);
+    newPts->GetPoint(v1, x2);
+  }
+
+  // Initialize the insertion pointer and increment
+  vtkIdType* pt{ nullptr };
+  int inc = 0;
+  if (!reverse)
+  {
+    pt = edgePts;
+    inc = +1;
+  }
+  else
+  {
+    pt = edgePts + std::distance(b, e) - 1;
+    inc = -1;
+  }
+
   for (auto iter = b; iter != e; ++iter)
   {
     double t = (*iter - low) / (high - low);
+    double x[3];
     x[0] = x1[0] + t * (x2[0] - x1[0]);
     x[1] = x1[1] + t * (x2[1] - x1[1]);
     x[2] = x1[2] + t * (x2[2] - x1[2]);
