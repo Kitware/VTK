@@ -82,7 +82,7 @@ int TestResampleToImage(int, char*[])
   vtkIdType numHiddenCells = 0;
   for (vtkIdType i = 0; i < numCells; ++i)
   {
-    if (cellGhostArray->GetValue(i) & vtkDataSetAttributes::HIDDENPOINT)
+    if (cellGhostArray->GetValue(i) & vtkDataSetAttributes::HIDDENCELL)
     {
       ++numHiddenCells;
     }
