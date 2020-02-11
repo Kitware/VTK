@@ -3059,7 +3059,8 @@ $<$<BOOL:${_vtk_hierarchy_genex_include_directories}>:\n-I\'$<JOIN:${_vtk_hierar
 
   add_custom_command(
     OUTPUT  "${_vtk_hierarchy_file}"
-    COMMAND "${_vtk_hierarchy_tool_target}"
+    COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR}
+            "$<TARGET_FILE:${_vtk_hierarchy_tool_target}>"
             "@${_vtk_hierarchy_args_file}"
             -o "${_vtk_hierarchy_file}"
             "${_vtk_hierarchy_data_file}"
