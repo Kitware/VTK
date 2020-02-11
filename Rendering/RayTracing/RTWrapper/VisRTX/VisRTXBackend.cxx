@@ -74,6 +74,8 @@ namespace RTW
             return true;
         case RTW_DENOISER:
             return true;
+        default:
+            break;
         }
         return false;
     }

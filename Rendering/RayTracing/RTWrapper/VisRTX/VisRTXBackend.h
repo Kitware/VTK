@@ -38,7 +38,7 @@ namespace RTW
         void Set1i(RTWObject object, const char *id, int32_t x) override;
         void Set1f(RTWObject object, const char *id, float x) override;
         void Set2f(RTWObject object, const char *id, float x, float y) override;
-        void Set2i(RTWObject object, const char *id, int x, int y);
+        void Set2i(RTWObject object, const char *id, int x, int y) override;
         void Set3i(RTWObject object, const char *id, int x, int y, int z) override;
         void Set3f(RTWObject object, const char *id, float x, float y, float z) override;
         void Set4f(RTWObject object, const char *id, float x, float y, float z, float w) override;
