@@ -19,7 +19,7 @@
 #include <cstring>
 
 #include "vtkAndroidRenderWindowInteractor.h"
-#include "vtkEGLRenderWindow.h"
+#include "vtkRenderWindow.h"
 
 #include "vtkActor.h"
 #include "vtkCommand.h"
@@ -530,12 +530,12 @@ void vtkAndroidRenderWindowInteractor::Initialize()
     return;
   }
 
-  vtkEGLRenderWindow* ren;
+  vtkRenderWindow* ren;
   int* size;
 
   this->Initialized = 1;
   // get the info we need from the RenderingWindow
-  ren = (vtkEGLRenderWindow*)(this->RenderWindow);
+  ren = this->RenderWindow;
 
   if (ren->GetOwnWindow())
   {

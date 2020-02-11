@@ -31,7 +31,7 @@ vtkCxxSetObjectMacro(vtkProperty, Information, vtkInformation);
 
 //----------------------------------------------------------------------------
 // Return nullptr if no override is supplied.
-vtkAbstractObjectFactoryNewMacro(vtkProperty);
+vtkObjectFactoryNewMacro(vtkProperty);
 
 // Construct object with object color, ambient color, diffuse color,
 // specular color, and edge color white; ambient coefficient=0; diffuse

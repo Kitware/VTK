@@ -12,12 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkOpenGLRenderWindow.h"
-
-#import "vtkCommand.h"
-#import "vtkIOSRenderWindow.h"
 #import "vtkIOSRenderWindowInteractor.h"
+#import "vtkCommand.h"
 #import "vtkObjectFactory.h"
+#import "vtkRenderWindow.h"
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkIOSRenderWindowInteractor);
@@ -55,7 +53,7 @@ void vtkIOSRenderWindowInteractor::Initialize()
   }
   this->Initialized = 1;
   // get the info we need from the RenderingWindow
-  vtkIOSRenderWindow* renWin = (vtkIOSRenderWindow*)(this->RenderWindow);
+  vtkRenderWindow* renWin = this->RenderWindow;
   renWin->Start();
   int* size = renWin->GetSize();
 

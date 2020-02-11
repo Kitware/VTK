@@ -11,7 +11,8 @@ Created by Prabhu Ramachandran, April 2002
 
 from __future__ import absolute_import
 import math, os, sys
-from vtkmodules.vtkRenderingCore import vtkGenericRenderWindowInteractor, vtkRenderWindow
+from vtkmodules.vtkRenderingCore import vtkRenderWindow
+from vtkmodules.vtkRenderingUI import vtkGenericRenderWindowInteractor
 
 if sys.hexversion < 0x03000000:
     # for Python2

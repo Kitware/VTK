@@ -135,10 +135,10 @@ public:
   virtual void SetNextWindowId(void*) override {}
   virtual void SetParentId(void*) override {}
   virtual void* GetGenericDisplayId() override;
-  virtual void* GetGenericWindowId() override { return NULL; }
-  virtual void* GetGenericParentId() override { return NULL; }
+  virtual void* GetGenericWindowId() override { return nullptr; }
+  virtual void* GetGenericParentId() override { return nullptr; }
   virtual void* GetGenericContext() override;
-  virtual void* GetGenericDrawable() override { return NULL; }
+  virtual void* GetGenericDrawable() override { return nullptr; }
   virtual void SetWindowInfo(const char*) override;
   virtual void SetNextWindowInfo(const char*) override {}
   virtual void SetParentInfo(const char*) override {}

@@ -11,6 +11,7 @@ DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
   VTK::RenderingCore
+  VTK::RenderingUI
   VTK::glew
 PRIVATE_DEPENDS
   VTK::CommonExecutionModel
