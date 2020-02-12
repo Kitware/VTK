@@ -40,6 +40,7 @@ class VTKCOMMONCORE_EXPORT vtkUnicodeStringArray : public vtkAbstractArray
 {
 public:
   static vtkUnicodeStringArray* New();
+  static vtkUnicodeStringArray* ExtendedNew();
   vtkTypeMacro(vtkUnicodeStringArray, vtkAbstractArray);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 

@@ -18,7 +18,13 @@
 #include "vtkGarbageCollector.h"
 #include "vtkWeakPointerBase.h"
 
+#include <cassert>
 #include <sstream>
+
+#ifdef VTK_USE_MEMKIND
+#include <memkind.h>
+struct memkind* MemkindHandle = nullptr;
+#endif
 
 #define vtkBaseDebugMacro(x)
 
@@ -35,18 +41,82 @@ public:
   static void ClearPointer(vtkWeakPointerBase* p) { p->Object = nullptr; }
 };
 
-// avoid dll boundary problems
-#ifdef _WIN32
-void* vtkObjectBase::operator new(size_t nSize)
+//----------------------------------------------------------------------------
+void* vtkCustomMalloc(size_t size)
 {
-  void* p = malloc(nSize);
-  return p;
+#ifdef VTK_USE_MEMKIND
+  if (MemkindHandle == nullptr)
+  {
+    vtkGenericWarningMacro(<< "memkind_malloc() called before memkind initialized.");
+  }
+  else
+  {
+    return memkind_malloc(MemkindHandle, size);
+  }
+#else
+  (void)size;
+#endif
+  return nullptr;
 }
 
+//----------------------------------------------------------------------------
+void* vtkCustomRealloc(void* p, size_t size)
+{
+#ifdef VTK_USE_MEMKIND
+  if (MemkindHandle == nullptr)
+  {
+    vtkGenericWarningMacro(<< "memkind_realloc() called before memkind initialized.");
+  }
+  else
+  {
+    return memkind_realloc(MemkindHandle, p, size);
+  }
+#else
+  (void)p;
+  (void)size;
+#endif
+  return nullptr;
+}
+
+//----------------------------------------------------------------------------
+void vtkCustomFree(void* addr)
+{
+#ifdef VTK_USE_MEMKIND
+  memkind_free(MemkindHandle, addr);
+#else
+  (void)addr;
+#endif
+}
+
+#if defined(_WIN32) || defined(VTK_USE_MEMKIND)
+//----------------------------------------------------------------------------
+// Take control of allocation to avoid dll boundary problems or to use memkind.
+void* vtkObjectBase::operator new(size_t nSize)
+{
+#ifdef VTK_USE_MEMKIND
+  return vtkObjectBase::GetCurrentMallocFunction()(nSize);
+#else
+  return malloc(nSize);
+#endif
+}
+
+//----------------------------------------------------------------------------
 void vtkObjectBase::operator delete(void* p)
 {
+#ifdef VTK_USE_MEMKIND
+  if (static_cast<vtkObjectBase*>(p)->GetIsInMemkind())
+  {
+    vtkCustomFree(p);
+  }
+  else
+  {
+    free(p);
+  }
+#else
   free(p);
+#endif
 }
+// take control of ... above
 #endif
 
 // ------------------------------------vtkObjectBase----------------------
@@ -60,6 +130,7 @@ ostream& operator<<(ostream& os, vtkObjectBase& o)
   return os;
 }
 
+//----------------------------------------------------------------------------
 // Create an object with Debug turned off and modified time initialized
 // to zero.
 vtkObjectBase::vtkObjectBase()
@@ -69,8 +140,14 @@ vtkObjectBase::vtkObjectBase()
 #ifdef VTK_DEBUG_LEAKS
   vtkDebugLeaks::ConstructingObject(this);
 #endif
+#ifdef VTK_USE_MEMKIND
+  this->SetIsInMemkind(vtkObjectBase::GetUsingMemkind());
+#else
+  this->IsInMemkind = false;
+#endif
 }
 
+//----------------------------------------------------------------------------
 vtkObjectBase::~vtkObjectBase()
 {
 #ifdef VTK_DEBUG_LEAKS
@@ -261,4 +338,136 @@ void vtkObjectBase::UnRegisterInternal(vtkObjectBase*, vtkTypeBool check)
 void vtkObjectBase::ReportReferences(vtkGarbageCollector*)
 {
   // vtkObjectBase has no references to report.
+}
+
+namespace
+{
+thread_local char* MemkindDirectory = nullptr;
+thread_local bool UsingMemkind = false;
+thread_local vtkMallocingFunction CurrentMallocFunction = malloc;
+thread_local vtkReallocingFunction CurrentReallocFunction = realloc;
+thread_local vtkFreeingFunction CurrentFreeFunction = free;
+thread_local vtkFreeingFunction AlternateFreeFunction = vtkCustomFree;
+}
+
+//----------------------------------------------------------------------------
+void vtkObjectBase::SetMemkindDirectory(const char* fn)
+{
+#ifdef VTK_USE_MEMKIND
+  if (MemkindDirectory == nullptr && MemkindHandle == nullptr)
+  {
+    MemkindDirectory = strdup(fn);
+    int err = 0;
+    if (!strncmp(fn, "ALLOCATOR_ONLY", 4))
+    {
+      // This gives us memkind's managed allocator but without extended memory.
+      // It is useful for comparison and has performance benefits from page fault avoidance.
+      MemkindHandle = MEMKIND_DEFAULT;
+    }
+    else
+    {
+      err = memkind_create_pmem(MemkindDirectory, 0, &MemkindHandle);
+    }
+    if (err)
+    {
+      perror("memkind_create_pmem()");
+      free(MemkindDirectory);
+      MemkindDirectory = nullptr;
+    }
+  }
+  else
+  {
+    vtkGenericWarningMacro(<< "Warning, can only initialize memkind once.");
+  }
+#else
+  (void)fn;
+#endif
+}
+
+//----------------------------------------------------------------------------
+bool vtkObjectBase::GetUsingMemkind()
+{
+  return UsingMemkind;
+}
+
+//----------------------------------------------------------------------------
+void vtkObjectBase::SetUsingMemkind(bool b)
+{
+#ifdef VTK_USE_MEMKIND
+  UsingMemkind = b;
+  if (b)
+  {
+    CurrentMallocFunction = vtkCustomMalloc;
+    CurrentReallocFunction = vtkCustomRealloc;
+    CurrentFreeFunction = vtkCustomFree;
+  }
+  else
+  {
+    CurrentMallocFunction = malloc;
+    CurrentReallocFunction = realloc;
+    CurrentFreeFunction = free;
+  }
+#else
+  // no harm in the above but avoid the cycles if we can
+  (void)b;
+  assert(!b);
+#endif
+}
+
+//----------------------------------------------------------------------------
+vtkMallocingFunction vtkObjectBase::GetCurrentMallocFunction()
+{
+  return CurrentMallocFunction;
+}
+//----------------------------------------------------------------------------
+vtkReallocingFunction vtkObjectBase::GetCurrentReallocFunction()
+{
+  return CurrentReallocFunction;
+}
+//----------------------------------------------------------------------------
+vtkFreeingFunction vtkObjectBase::GetCurrentFreeFunction()
+{
+  return CurrentFreeFunction;
+}
+//----------------------------------------------------------------------------
+vtkFreeingFunction vtkObjectBase::GetAlternateFreeFunction()
+{
+  return AlternateFreeFunction;
+}
+
+//----------------------------------------------------------------------------
+bool vtkObjectBase::GetIsInMemkind() const
+{
+  return this->IsInMemkind;
+}
+
+//----------------------------------------------------------------------------
+void vtkObjectBase::SetIsInMemkind(bool v)
+{
+#ifdef VTK_USE_MEMKIND
+  this->IsInMemkind = v;
+#else
+  (void)v;
+  assert(!v);
+#endif
+}
+
+//----------------------------------------------------------------------------
+vtkObjectBase::vtkMemkindRAII::vtkMemkindRAII(bool newValue)
+{
+#ifdef VTK_USE_MEMKIND
+  this->OriginalValue = vtkObjectBase::GetUsingMemkind();
+  vtkObjectBase::SetUsingMemkind(newValue);
+#else
+  // no harm in the above but avoid the cycles if we can
+  (void)newValue;
+#endif
+}
+
+//----------------------------------------------------------------------------
+vtkObjectBase::vtkMemkindRAII::~vtkMemkindRAII()
+{
+#ifdef VTK_USE_MEMKIND
+  vtkObjectBase::SetUsingMemkind(this->OriginalValue);
+#endif
 }

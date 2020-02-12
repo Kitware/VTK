@@ -285,7 +285,7 @@ void vtkUniformGridAMR::DeepCopy(vtkDataObject* src)
   {
     return;
   }
-
+  auto mkhold = vtkMemkindRAII(this->GetIsInMemkind());
   this->Superclass::DeepCopy(src);
 
   if (vtkUniformGridAMR* hbds = vtkUniformGridAMR::SafeDownCast(src))

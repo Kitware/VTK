@@ -23,6 +23,7 @@ VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATE(unsigned long long);
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkUnsignedLongLongArray);
+vtkStandardExtendedNewMacro(vtkUnsignedLongLongArray);
 
 //----------------------------------------------------------------------------
 vtkUnsignedLongLongArray::vtkUnsignedLongLongArray() = default;

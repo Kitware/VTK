@@ -23,6 +23,7 @@ VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATE(int);
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkIntArray);
+vtkStandardExtendedNewMacro(vtkIntArray);
 
 //----------------------------------------------------------------------------
 vtkIntArray::vtkIntArray() = default;

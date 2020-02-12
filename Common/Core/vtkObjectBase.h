@@ -60,6 +60,11 @@ class vtkGarbageCollectorToObjectBaseFriendship;
 class vtkWeakPointerBase;
 class vtkWeakPointerBaseToObjectBaseFriendship;
 
+// typedefs for malloc and free compatible replacement functions
+typedef void* (*vtkMallocingFunction)(size_t);
+typedef void* (*vtkReallocingFunction)(void*, size_t);
+typedef void (*vtkFreeingFunction)(void*);
+
 class VTKCOMMONCORE_EXPORT vtkObjectBase
 {
   /**
@@ -156,8 +161,8 @@ public:
   // vtkDebugLeaks registration:
   void InitializeObjectBase();
 
-#ifdef _WIN32
-  // avoid dll boundary problems
+#if defined(_WIN32) || defined(VTK_USE_MEMKIND)
+  // Take control of allocation to avoid dll boundary problems or to use memkind.
   void* operator new(size_t tSize);
   void operator delete(void* p);
 #endif
@@ -209,6 +214,44 @@ public:
   void PrintRevisions(ostream&) {}
 #endif
 
+  /**
+   * The name of a directory, ideally mounted -o dax, to memory map an
+   * extended memory space within.
+   * This must be called before any objects are constructed in the extended space.
+   * It can not be changed once setup.
+   */
+  static void SetMemkindDirectory(const char* directoryname);
+
+  //@{
+  /**
+   * A global state flag that controls whether vtkObjects are
+   * constructed in the usual way (the default) or within the extended
+   * memory space.
+   */
+  static bool GetUsingMemkind();
+  //@}
+
+  /**
+   * A class to help modify and restore the global UsingMemkind state, like
+   * SetUsingMemkind(newValue), but safer. Declare it on the stack in a function where you want to
+   * make a temporary change. When the function returns it will restore the original value.
+   */
+  class vtkMemkindRAII
+  {
+    bool OriginalValue;
+
+  public:
+    vtkMemkindRAII(bool newValue);
+    ~vtkMemkindRAII();
+    vtkMemkindRAII(vtkMemkindRAII const&) = default;
+  };
+
+  /**
+   * A local state flag that remembers whether this object lives in
+   * the normal or extended memory space.
+   */
+  bool GetIsInMemkind() const;
+
 protected:
   vtkObjectBase();
   virtual ~vtkObjectBase();
@@ -229,16 +272,30 @@ protected:
   // See vtkGarbageCollector.h:
   virtual void ReportReferences(vtkGarbageCollector*);
 
+  // Call this to call from either malloc or memkind_malloc depending on current UsingMemkind
+  static vtkMallocingFunction GetCurrentMallocFunction();
+  // Call this to call from either realloc or memkind_realloc depending on current UsingMemkind
+  static vtkReallocingFunction GetCurrentReallocFunction();
+  // Call this to call from either free or memkind_free depending on instance's IsInMemkind
+  static vtkFreeingFunction GetCurrentFreeFunction();
+  // Call this to unconditionally call memkind_free
+  static vtkFreeingFunction GetAlternateFreeFunction();
+
 private:
   friend VTKCOMMONCORE_EXPORT ostream& operator<<(ostream& os, vtkObjectBase& o);
   friend class vtkGarbageCollectorToObjectBaseFriendship;
   friend class vtkWeakPointerBaseToObjectBaseFriendship;
 
+  friend class vtkMemkindRAII;
+  friend class vtkTDSCMemkindRAII;
+  static void SetUsingMemkind(bool);
+  bool IsInMemkind;
+  void SetIsInMemkind(bool);
+
 protected:
   vtkObjectBase(const vtkObjectBase&) {}
   void operator=(const vtkObjectBase&) {}
 };
-
 #endif
 
 // VTK-HeaderTest-Exclude: vtkObjectBase.h

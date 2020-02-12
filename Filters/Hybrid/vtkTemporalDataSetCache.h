@@ -52,6 +52,16 @@ public:
   vtkGetMacro(CacheSize, int);
   //@}
 
+  //@{
+  /**
+   * Tells the filter that it should store the dataobjects it holds in memkind
+   * extended memory space rather than in normal memory space.
+   */
+  vtkSetMacro(CacheInMemkind, bool);
+  vtkGetMacro(CacheInMemkind, bool);
+  vtkBooleanMacro(CacheInMemkind, bool);
+  //@}
+
 protected:
   vtkTemporalDataSetCache();
   ~vtkTemporalDataSetCache() override;
@@ -79,6 +89,9 @@ protected:
 private:
   vtkTemporalDataSetCache(const vtkTemporalDataSetCache&) = delete;
   void operator=(const vtkTemporalDataSetCache&) = delete;
+
+  void ReplaceCacheItem(vtkDataObject* input, double inTime, vtkMTimeType dTime);
+  bool CacheInMemkind;
 };
 
 #endif

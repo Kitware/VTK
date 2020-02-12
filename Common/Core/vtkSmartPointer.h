@@ -216,6 +216,15 @@ public:
    * Create an instance of a VTK object.
    */
   static vtkSmartPointer<T> New() { return vtkSmartPointer<T>(T::New(), NoReference()); }
+  /**
+   * Create an instance of a VTK object in a memkind extended memory space. Note that not all
+   * vtkObjects support this yet and that VTK needs to be compiled with VTK_USE_MEMKIND to enable
+   * those that do. If not enabled, this is equivalent to calling New()
+   */
+  static vtkSmartPointer<T> ExtendedNew()
+  {
+    return vtkSmartPointer<T>(T::ExtendedNew(), NoReference());
+  }
 
   /**
    * Create a new instance of the given VTK object.

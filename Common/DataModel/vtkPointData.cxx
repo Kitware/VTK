@@ -20,6 +20,7 @@
 #include <vector>
 
 vtkStandardNewMacro(vtkPointData);
+vtkStandardExtendedNewMacro(vtkPointData);
 
 void vtkPointData::NullPoint(vtkIdType ptId)
 {

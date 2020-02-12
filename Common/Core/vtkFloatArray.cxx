@@ -23,6 +23,7 @@ VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATE(float);
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkFloatArray);
+vtkStandardExtendedNewMacro(vtkFloatArray);
 
 //----------------------------------------------------------------------------
 vtkFloatArray::vtkFloatArray() = default;

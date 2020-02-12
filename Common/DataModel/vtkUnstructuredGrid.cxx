@@ -89,6 +89,7 @@
 #include <set>
 
 vtkStandardNewMacro(vtkUnstructuredGrid);
+vtkStandardExtendedNewMacro(vtkUnstructuredGrid);
 
 //----------------------------------------------------------------------------
 vtkIdTypeArray* vtkUnstructuredGrid::GetCellLocationsArray()
@@ -1838,6 +1839,7 @@ void vtkUnstructuredGrid::ShallowCopy(vtkDataObject* dataObject)
 //----------------------------------------------------------------------------
 void vtkUnstructuredGrid::DeepCopy(vtkDataObject* dataObject)
 {
+  auto mkhold = vtkMemkindRAII(this->GetIsInMemkind());
   vtkUnstructuredGrid* grid = vtkUnstructuredGrid::SafeDownCast(dataObject);
 
   if (grid != nullptr)

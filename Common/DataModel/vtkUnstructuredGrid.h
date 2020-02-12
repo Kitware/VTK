@@ -96,6 +96,7 @@ public:
    * Standard instantiation method.
    */
   static vtkUnstructuredGrid* New();
+  static vtkUnstructuredGrid* ExtendedNew();
 
   //@{
   /**

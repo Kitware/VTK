@@ -45,6 +45,7 @@ public:
   };
 
   static vtkStringArray* New();
+  static vtkStringArray* ExtendedNew();
   vtkTypeMacro(vtkStringArray, vtkAbstractArray);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 

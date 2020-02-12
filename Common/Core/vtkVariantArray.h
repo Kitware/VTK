@@ -62,6 +62,7 @@ public:
   };
 
   static vtkVariantArray* New();
+  static vtkVariantArray* ExtendedNew();
   vtkTypeMacro(vtkVariantArray, vtkAbstractArray);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 

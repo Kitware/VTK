@@ -63,6 +63,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkTable : public vtkDataObject
 {
 public:
   static vtkTable* New();
+  static vtkTable* ExtendedNew();
   vtkTypeMacro(vtkTable, vtkDataObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 

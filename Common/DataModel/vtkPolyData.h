@@ -85,6 +85,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkPolyData : public vtkPointSet
 {
 public:
   static vtkPolyData* New();
+  static vtkPolyData* ExtendedNew();
 
   vtkTypeMacro(vtkPolyData, vtkPointSet);
   void PrintSelf(ostream& os, vtkIndent indent) override;

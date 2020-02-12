@@ -45,6 +45,7 @@ public:
 #undef vtkDataArray
 #endif
   static vtkLongArray* New();
+  static vtkLongArray* ExtendedNew();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // This macro expands to the set of method declarations that

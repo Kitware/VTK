@@ -348,6 +348,16 @@ static vtkObjectFactoryRegistryCleanup vtkObjectFactoryRegistryCleanupInstance;
 #define vtkStandardNewMacro(thisClass)                                                             \
   thisClass* thisClass::New() { VTK_STANDARD_NEW_BODY(thisClass); }
 
+// Macro to implement the ExtendedNew() to create an object in a memkind extended memory space. If
+// VTK is not compiled with VTK_USE_MEMKIND this is equivalent to New()
+#define vtkStandardExtendedNewMacro(thisClass)                                                     \
+  thisClass* thisClass::ExtendedNew()                                                              \
+  {                                                                                                \
+    auto mkhold = vtkMemkindRAII(true);                                                            \
+    (void)mkhold;                                                                                  \
+    return thisClass::New();                                                                       \
+  }
+
 // Macro to implement the object factory form of the New() method.
 #define vtkObjectFactoryNewMacro(thisClass)                                                        \
   thisClass* thisClass::New() { VTK_OBJECT_FACTORY_NEW_BODY(thisClass); }

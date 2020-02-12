@@ -23,6 +23,7 @@ VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATE(long long);
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkLongLongArray);
+vtkStandardExtendedNewMacro(vtkLongLongArray);
 
 //----------------------------------------------------------------------------
 vtkLongLongArray::vtkLongLongArray() = default;
