@@ -265,6 +265,7 @@ void vtkCocoaRenderWindowInteractor::Initialize()
   // get the info we need from the RenderingWindow
   vtkCocoaRenderWindow* renWin = (vtkCocoaRenderWindow*)(this->RenderWindow);
   renWin->Start();
+  renWin->End();
   const int* size = renWin->GetSize();
 
   renWin->GetPosition(); // update values of this->Position[2]
