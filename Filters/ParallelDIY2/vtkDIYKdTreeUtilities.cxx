@@ -17,6 +17,7 @@
 #include "vtkAppendFilter.h"
 #include "vtkBoundingBox.h"
 #include "vtkCellData.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkDIYExplicitAssigner.h"
 #include "vtkDIYUtilities.h"
 #include "vtkIdTypeArray.h"
@@ -115,11 +116,26 @@ void vtkDIYKdTreeUtilities::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 std::vector<vtkBoundingBox> vtkDIYKdTreeUtilities::GenerateCuts(vtkDataObject* dobj,
-  int number_of_partitions, bool use_cell_centers, vtkMultiProcessController* controller)
+  int number_of_partitions, bool use_cell_centers, vtkMultiProcessController* controller,
+  const double* local_bounds)
 {
+  double bds[6];
+  vtkMath::UninitializeBounds(bds);
+  if (local_bounds == nullptr)
+  {
+    auto bbox = vtkDIYUtilities::GetLocalBounds(dobj);
+    if (bbox.IsValid())
+    {
+      bbox.GetBounds(bds);
+    }
+  }
+  else
+  {
+    std::copy(local_bounds, local_bounds + 6, bds);
+  }
   const auto datasets = vtkDIYUtilities::GetDataSets(dobj);
   const auto pts = vtkDIYUtilities::ExtractPoints(datasets, use_cell_centers);
-  return vtkDIYKdTreeUtilities::GenerateCuts(pts, number_of_partitions, controller);
+  return vtkDIYKdTreeUtilities::GenerateCuts(pts, number_of_partitions, controller, bds);
 }
 
 //----------------------------------------------------------------------------
@@ -162,7 +178,8 @@ std::vector<vtkBoundingBox> vtkDIYKdTreeUtilities::GenerateCuts(
     return std::vector<vtkBoundingBox>();
   }
 
-  bbox.Inflate(0.1 * bbox.GetDiagonalLength());
+  // I am removing this. it doesn't not make sense to inflate here.
+  // bbox.Inflate(0.1 * bbox.GetDiagonalLength());
 
   if (number_of_partitions == 1)
   {

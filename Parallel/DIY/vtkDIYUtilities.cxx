@@ -306,6 +306,22 @@ std::vector<vtkSmartPointer<vtkPoints> > vtkDIYUtilities::ExtractPoints(
 }
 
 //----------------------------------------------------------------------------
+vtkBoundingBox vtkDIYUtilities::GetLocalBounds(vtkDataObject* dobj)
+{
+  double bds[6];
+  vtkMath::UninitializeBounds(bds);
+  if (auto ds = vtkDataSet::SafeDownCast(dobj))
+  {
+    ds->GetBounds(bds);
+  }
+  else if (auto cd = vtkCompositeDataSet::SafeDownCast(dobj))
+  {
+    cd->GetBounds(bds);
+  }
+  return vtkBoundingBox(bds);
+}
+
+//----------------------------------------------------------------------------
 void vtkDIYUtilities::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

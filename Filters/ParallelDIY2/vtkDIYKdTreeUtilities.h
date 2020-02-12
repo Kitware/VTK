@@ -50,12 +50,16 @@ public:
    * cell-centers) into `number_of_partitions` requested. If `controller` is non-null,
    * the operation will be performed taking points on the multiple ranks into consideration.
    *
+   * `local_bounds` provides the local domain bounds. If not specified, domain
+   * bounds will be computed using the `dobj`.
+
    * Returns a vector a bounding boxes that can be used to partition the points
    * into load balanced chunks. The size of the vector is greater than or equal
    * to the `number_of_partitions`.
    */
   static std::vector<vtkBoundingBox> GenerateCuts(vtkDataObject* dobj, int number_of_partitions,
-    bool use_cell_centers, vtkMultiProcessController* controller = nullptr);
+    bool use_cell_centers, vtkMultiProcessController* controller = nullptr,
+    const double* local_bounds = nullptr);
 
   /**
    * Given a collection of points, this method will generate box cuts in the
