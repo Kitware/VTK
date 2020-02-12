@@ -25,6 +25,7 @@
 #define vtkDIYKdTreeUtilities_h
 
 #include "vtkBoundingBox.h"               // for vtkBoundingBox
+#include "vtkDIYExplicitAssigner.h"       // for vtkDIYExplicitAssigner
 #include "vtkFiltersParallelDIY2Module.h" // for export macros
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" // for vtkSmartPointer
@@ -104,6 +105,23 @@ public:
    */
   static bool GenerateGlobalCellIds(vtkPartitionedDataSet* parts,
     vtkMultiProcessController* controller, vtkIdType* mb_offset = nullptr);
+
+  /**
+   * `GenerateCuts` returns a kd-tree with power of 2 nodes. Oftentimes, we want
+   * to generate rank assignments for a fewer number of ranks for the nodes such
+   * that each rank gets assigned a complete sub-tree. Use this function to
+   * generate such an assignment.  This has following constraints:
+   * 1. `num_blocks` must be a power of two.
+   * 2. `num_ranks` cannot be greater than num_blocks.
+   */
+  static std::vector<int> ComputeAssignments(int num_blocks, int num_ranks);
+
+  /**
+   * Returns an assigner that assigns power-of-two blocks to an arbitrary number
+   * of ranks such that each rank with a non-empty assignment gets a subtree --
+   * thus preserving the kd-tree ordering between ranks.
+   */
+  static vtkDIYExplicitAssigner CreateAssigner(diy::mpi::communicator& comm, int num_blocks);
 
 protected:
   vtkDIYKdTreeUtilities();
