@@ -425,12 +425,11 @@ private:
 
   unsigned int FindDichotomic(double value, vtkDataArray* coord) const;
 
-protected:
+public:
   virtual unsigned int FindDichotomicX(double value) const;
   virtual unsigned int FindDichotomicY(double value) const;
   virtual unsigned int FindDichotomicZ(double value) const;
 
-public:
   /**
    * JB
    */
@@ -645,57 +644,6 @@ public:
    * Allocate ghost array for points.
    */
   vtkUnsignedCharArray* AllocateTreeGhostArray();
-
-  //@{
-  /**
-   * A simplified hyper tree cursor, to be used by the hyper tree.
-   * grid supercursor.
-   */
-  class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeSimpleCursor
-  {
-  public:
-    vtkHyperTreeSimpleCursor();
-    ~vtkHyperTreeSimpleCursor();
-    //@}
-
-    //@{
-    /**
-     * Methods that belong to the vtkHyperTreeCursor API.
-     */
-    vtkHyperTree* GetTree() { return this->Tree; }
-    //@}
-
-    /**
-     * Only valid for leaves.
-     */
-    vtkIdType GetLeafIndex() { return this->Index; }
-
-    /**
-     * Return level at which cursor is positioned.
-     */
-    unsigned short GetLevel() { return this->Level; }
-
-  private:
-    vtkHyperTree* Tree;
-    vtkIdType Index;
-    unsigned short Level;
-  };
-
-  /**
-   * Public structure used by filters to move around the hyper
-   * tree grid and easily access neighbors to leaves.
-   * The super cursor is 'const'. Methods in vtkHyperTreeGrid
-   * initialize and compute children for moving toward leaves.
-   */
-  struct vtkHyperTreeGridSuperCursor
-  {
-    double Origin[3];
-    double Size[3];
-    int NumberOfCursors;
-    int MiddleCursorId;
-    vtkHyperTreeSimpleCursor Cursors[3 * 3 * 3];
-    vtkHyperTreeSimpleCursor* GetCursor(int);
-  };
 
   /**
    * An iterator object to iteratively access trees in the grid.
