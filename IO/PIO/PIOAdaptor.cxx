@@ -41,10 +41,6 @@ using namespace std;
 
 namespace
 {
-// Multiprocessor information
-// int myProc;
-// int totProc;
-
 // Global size information
 int dimension = 0;
 int numberOfDaughters = 0;
@@ -248,9 +244,10 @@ int PIOAdaptor::initializeGlobal(const char* PIOFileName)
   this->pioData = new PIO_DATA(this->dumpFileName[0].c_str());
   if (this->pioData->good_read())
   {
-    std::valarray<int> numcell;
-    this->pioData->set_scalar_field(numcell, "hist_size");
-    int numberOfCells = numcell[0];
+    // Get the number of cells in the first dump file available
+    std::valarray<int> histsize;
+    this->pioData->set_scalar_field(histsize, "hist_size");
+    int numberOfCells = histsize[histsize.size() - 1];
     int numberOfFields = this->pioData->get_pio_num();
     PIO_FIELD* pioField = this->pioData->get_pio_field();
 
@@ -345,9 +342,6 @@ int PIOAdaptor::initializeDump(int timeStep)
 
       if (amhc_i != 0 && amhc_r8 != 0 && amhc_l != 0)
       {
-        // bool cylin = (amhc_l[Ncylin] != 0.0) ? true : false;
-        // bool sphere = (amhc_l[Nsphere] != 0.0) ? true : false;
-
         dimension = uint32_t(amhc_i[Nnumdim]);
         numberOfDaughters = (int)pow(2.0, dimension);
 
@@ -432,20 +426,20 @@ void PIOAdaptor::create_geometry(vtkMultiBlockDataSet* grid)
   }
 
   // Collect geometry information from PIOData files
-  std::valarray<int> histcell;
+  std::valarray<int> histsize;
   std::valarray<int> level;
   std::valarray<int> numcell;
   std::valarray<double> simCycle;
   std::valarray<double> simTime;
   std::valarray<std::valarray<double> > center;
 
-  this->pioData->set_scalar_field(histcell, "hist_size");
+  this->pioData->set_scalar_field(histsize, "hist_size");
   this->pioData->set_scalar_field(daughter, "cell_daughter");
   this->pioData->set_scalar_field(level, "cell_level");
   this->pioData->set_scalar_field(numcell, "global_numcell");
   this->pioData->set_vector_field(center, "cell_center");
 
-  int numberOfCells = histcell[this->currentTimeStep];
+  int numberOfCells = histsize[histsize.size() - 1];
   int numProc = static_cast<int>(numcell.size());
 
   int64_t* cell_daughter = &daughter[0];
