@@ -126,6 +126,7 @@ int vtkExtractVOI::RequestInformation(vtkInformation* vtkNotUsed(request),
   double in_spacing[3];
   double out_spacing[3];
   double out_origin[3];
+  double direction[9];
 
   // get the info objects
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
@@ -146,6 +147,14 @@ int vtkExtractVOI::RequestInformation(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
+  bool hasDirection = false;
+  if (inInfo->Has(vtkDataObject::DIRECTION()))
+  {
+    hasDirection = true;
+    inInfo->Get(vtkDataObject::DIRECTION(), direction);
+    outInfo->Set(vtkDataObject::DIRECTION(), direction, 9);
+  }
+
   this->Internal->GetOutputWholeExtent(outWholeExt);
 
   if ((this->SampleRate[0] == 1) && (this->SampleRate[1] == 1) && (this->SampleRate[2] == 1))
@@ -160,7 +169,15 @@ int vtkExtractVOI::RequestInformation(vtkInformation* vtkNotUsed(request),
     for (int dim = 0; dim < 3; ++dim)
     {
       out_spacing[dim] = in_spacing[dim] * this->SampleRate[dim];
-      out_origin[dim] = in_origin[dim] + this->VOI[dim * 2] * in_spacing[dim];
+      if (!hasDirection)
+      {
+        out_origin[dim] = in_origin[dim] + this->VOI[dim * 2] * in_spacing[dim];
+      }
+    }
+    if (hasDirection)
+    {
+      vtkImageData::TransformContinuousIndexToPhysicalPoint(
+        this->VOI[0], this->VOI[2], this->VOI[4], in_origin, in_spacing, direction, out_origin);
     }
   } // END else if sub-sampling
 
@@ -231,33 +248,43 @@ bool vtkExtractVOI::RequestDataImpl(
   vtkCellData* outCD = output->GetCellData();
 
   int* inExt = input->GetExtent();
-  int* outExt = output->GetExtent();
 
   // Compute output data origin:
   double inOrigin[3];
   input->GetOrigin(inOrigin);
-  double outOrigin[3];
+  double outMinExt[3];
+  bool resampled = false;
   for (int dim = 0; dim < 3; ++dim)
   {
     if (this->SampleRate[dim] == 1)
     {
       // Old origin will work for this dimension since we don't reset extents.
-      outOrigin[dim] = inOrigin[dim];
+      outMinExt[dim] = inExt[dim * 2];
     }
     else
     {
+      resampled = true;
       // Extent minimum is reset to 0, need to update origin.
       // Get the input extent value matching output extent 0 (the origin)
-      int inExtVal = this->Internal->GetMappedExtentValue(dim, 0);
-      // Find the coordinate in dim of the inExtVal
-      outOrigin[dim] = inOrigin[dim] + inExtVal * inSpacing[dim];
+      outMinExt[dim] = this->Internal->GetMappedExtentValue(dim, 0);
     }
   }
-  output->SetOrigin(outOrigin);
+  if (resampled)
+  {
+    // Find the new origin, based on the min extent.
+    double outOrigin[3];
+    input->TransformContinuousIndexToPhysicalPoint(outMinExt, outOrigin);
+    output->SetOrigin(outOrigin);
+  }
+  else
+  {
+    output->SetOrigin(inOrigin);
+  }
+  output->SetDirectionMatrix(input->GetDirectionMatrix());
 
   vtkDebugMacro(<< "Extracting Grid");
-  this->Internal->CopyPointsAndPointData(inExt, outExt, pd, nullptr, outPD, nullptr);
-  this->Internal->CopyCellData(inExt, outExt, cd, outCD);
+  this->Internal->CopyPointsAndPointData(inExt, output->GetExtent(), pd, nullptr, outPD, nullptr);
+  this->Internal->CopyCellData(inExt, output->GetExtent(), cd, outCD);
 
   return 1;
 }

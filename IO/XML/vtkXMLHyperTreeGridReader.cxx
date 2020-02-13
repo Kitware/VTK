@@ -31,6 +31,10 @@
 
 #include <algorithm>
 
+#ifdef WIN32&& DEBUG
+#define not!
+#endif
+
 vtkStandardNewMacro(vtkXMLHyperTreeGridReader);
 
 //----------------------------------------------------------------------------
