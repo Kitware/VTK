@@ -124,6 +124,7 @@ int TestBufferedRenderWindowExporter(int argc, char* argv[])
       {
         vtkErrorWithObjectMacro(nullptr, "Could not open file on disk");
         r = ARCHIVE_FATAL;
+        std::free(buffer);
         break;
       }
 
@@ -134,6 +135,7 @@ int TestBufferedRenderWindowExporter(int argc, char* argv[])
         vtkErrorWithObjectMacro(nullptr, "Buffered file size does not match file size on disk");
         r = ARCHIVE_FATAL;
         std::fclose(fp);
+        std::free(buffer);
         break;
       }
 
