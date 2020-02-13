@@ -180,7 +180,7 @@ protected:
   virtual void FetchPoints() = 0;
 
   /**
-   * Lookup the cell faces in the data set and store them in this->Points.
+   * Lookup the cell faces in the data set and store them in this->Faces.
    * Few data sets support faces, so this method has a no-op default
    * implementation. See vtkUnstructuredGrid::GetFaceStream for
    * a description of the layout that Faces should have.
