@@ -85,6 +85,14 @@ int TestPathTracerMaterialLibrary(int argc, char* argv[])
     cout << *it << endl;
     ++it;
   }
+
+  auto ks = lib->GetDoubleShaderVariable("mat1", "Ks");
+  if (ks[2] != 0.882353)
+  {
+    cerr << "Problem, could not find expected material mat1 ks component." << endl;
+    return VTK_ERROR;
+  }
+
   if (mats.find("mat2") == mats.end())
   {
     cerr << "Problem, could not find expected material named mat2." << endl;
