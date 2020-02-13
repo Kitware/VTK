@@ -1,5 +1,6 @@
 vtk_add_test_cxx(vtkFiltersSourcesCxxTests tests
   TestArcSource.cxx,NO_VALID
+  TestCapsuleSource.cxx,NO_VALID
   TestCellTypeSource.cxx,NO_VALID
   TestConeSource.cxx,NO_VALID
   TestCubeSource.cxx,NO_VALID

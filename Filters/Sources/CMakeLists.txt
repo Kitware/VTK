@@ -2,6 +2,7 @@ set(classes
   vtkArcSource
   vtkArrowSource
   vtkButtonSource
+  vtkCapsuleSource
   vtkCellTypeSource
   vtkConeSource
   vtkCubeSource
