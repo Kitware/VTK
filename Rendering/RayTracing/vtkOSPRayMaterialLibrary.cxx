@@ -489,7 +489,7 @@ bool vtkOSPRayMaterialLibrary::InternalParseMTL(
       {
         std::string vs = tstr.substr(key.size());
         size_t loc1 = vs.find(" ");
-        size_t loc2 = vs.find(" ", loc1);
+        size_t loc2 = vs.find(" ", loc1 + 1);
         std::string v1 = vs.substr(0, loc1);
         std::string v2 = vs.substr(loc1 + 1, loc2);
         std::string v3 = vs.substr(loc2 + 1);
