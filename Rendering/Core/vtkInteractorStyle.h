@@ -131,6 +131,7 @@ class vtkOutlineSource;
 class vtkPolyDataMapper;
 class vtkProp3D;
 class vtkProp;
+class vtkStringArray;
 class vtkTDxInteractorStyle;
 
 class VTKRENDERINGCORE_EXPORT vtkInteractorStyle : public vtkInteractorObserver
@@ -345,6 +346,21 @@ public:
   virtual void StartGesture();
   virtual void EndGesture();
   //@}
+
+  /**
+   * When the mouse location is updated while dragging files.
+   * The argument contains the position relative to the window of the mouse
+   * where the files are dropped.
+   * It is called before OnDropFiles.
+   */
+  virtual void OnDropLocation(double* vtkNotUsed(position)) {}
+
+  /**
+   * When files are dropped on the render window.
+   * The argument contains the list of file paths dropped.
+   * It is called after OnDropLocation.
+   */
+  virtual void OnDropFiles(vtkStringArray* vtkNotUsed(filePaths)) {}
 
   //@{
   /**

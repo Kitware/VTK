@@ -14,6 +14,7 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   TestCompositePolyDataMapper2CellScalars.cxx,NO_DATA
   TestCompositePolyDataMapper2MixedGeometryCellScalars.cxx,NO_DATA
   TestCompositePolyDataMapper2MixedGeometryEdges.cxx,NO_DATA
+  TestDragEvent.cxx
   # composite glyphs are only supported on OpenGL2.
   TestGlyph3DMapperTreeIndexingCompositeGlyphs.cxx,NO_DATA
   TestMultiBlockPartialArrayPointData.cxx
