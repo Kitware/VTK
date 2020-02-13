@@ -59,6 +59,7 @@ set(classes
   vtkLoopBooleanPolyDataFilter
   vtkMarchingContourFilter
   vtkMatricizeArray
+  vtkMergeArrays
   vtkMergeCells
   vtkMultiBlockDataGroupFilter
   vtkMultiBlockFromTimeSeriesFilter

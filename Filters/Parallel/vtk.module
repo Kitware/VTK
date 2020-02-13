@@ -15,6 +15,7 @@ DEPENDS
   VTK::FiltersExtraction
   VTK::FiltersGeneral
   VTK::FiltersGeometry
+  VTK::FiltersHybrid
   VTK::FiltersModeling
   VTK::FiltersSources
   VTK::FiltersTexture
@@ -26,6 +27,7 @@ PRIVATE_DEPENDS
 TEST_DEPENDS
   VTK::FiltersFlowPaths
   VTK::FiltersParallelImaging
+  VTK::IOExodus
   VTK::IOImage
   VTK::IOLegacy
   VTK::IOParallelExodus

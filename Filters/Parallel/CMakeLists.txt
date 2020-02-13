@@ -1,4 +1,5 @@
 set(classes
+  vtkAdaptiveTemporalInterpolator
   vtkAggregateDataSetFilter
   vtkAngularPeriodicFilter
   vtkCollectGraph
@@ -21,6 +22,7 @@ set(classes
   vtkPKdTree
   vtkPLinearExtrusionFilter
   vtkPMaskPoints
+  vtkPMergeArrays
   vtkPOutlineCornerFilter
   vtkPOutlineFilter
   vtkPOutlineFilterInternals
