@@ -172,14 +172,14 @@ int vtkTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
   newPts->Allocate(numPts);
   if (inVectors)
   {
-    newVectors = this->CreateNewDataArray();
+    newVectors = this->CreateNewDataArray(inVectors);
     newVectors->SetNumberOfComponents(3);
     newVectors->Allocate(3 * numPts);
     newVectors->SetName(inVectors->GetName());
   }
   if (inNormals)
   {
-    newNormals = this->CreateNewDataArray();
+    newNormals = this->CreateNewDataArray(inNormals);
     newNormals->SetNumberOfComponents(3);
     newNormals->Allocate(3 * numPts);
     newNormals->SetName(inNormals->GetName());
@@ -201,7 +201,7 @@ int vtkTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
       if (tmpArray != inVectors && tmpArray != inNormals && tmpArray->GetNumberOfComponents() == 3)
       {
         inVrsArr[nInputVectors] = tmpArray;
-        vtkDataArray* tmpOutArray = this->CreateNewDataArray();
+        vtkDataArray* tmpOutArray = this->CreateNewDataArray(tmpArray);
         tmpOutArray->SetNumberOfComponents(3);
         tmpOutArray->Allocate(3 * numPts);
         tmpOutArray->SetName(tmpArray->GetName());
@@ -235,7 +235,7 @@ int vtkTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
   {
     if (inCellVectors)
     {
-      newCellVectors = this->CreateNewDataArray();
+      newCellVectors = this->CreateNewDataArray(inCellVectors);
       newCellVectors->SetNumberOfComponents(3);
       newCellVectors->Allocate(3 * numCells);
       newCellVectors->SetName(inCellVectors->GetName());
@@ -249,7 +249,7 @@ int vtkTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
         if (tmpArray != inCellVectors && tmpArray != inCellNormals &&
           tmpArray->GetNumberOfComponents() == 3)
         {
-          vtkDataArray* tmpOutArray = this->CreateNewDataArray();
+          vtkDataArray* tmpOutArray = this->CreateNewDataArray(tmpArray);
           tmpOutArray->SetNumberOfComponents(3);
           tmpOutArray->Allocate(3 * numCells);
           tmpOutArray->SetName(tmpArray->GetName());
@@ -261,7 +261,7 @@ int vtkTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
     }
     if (inCellNormals)
     {
-      newCellNormals = this->CreateNewDataArray();
+      newCellNormals = this->CreateNewDataArray(inCellNormals);
       newCellNormals->SetNumberOfComponents(3);
       newCellNormals->Allocate(3 * numCells);
       newCellNormals->SetName(inCellNormals->GetName());
@@ -371,8 +371,13 @@ vtkMTimeType vtkTransformFilter::GetMTime()
   return mTime;
 }
 
-vtkDataArray* vtkTransformFilter::CreateNewDataArray()
+vtkDataArray* vtkTransformFilter::CreateNewDataArray(vtkDataArray* input)
 {
+  if (this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION && input != nullptr)
+  {
+    return input->NewInstance();
+  }
+
   switch (this->OutputPointsPrecision)
   {
     case vtkAlgorithm::DOUBLE_PRECISION:

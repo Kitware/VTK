@@ -94,7 +94,7 @@ protected:
     vtkInformationVector* outputVector) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  vtkDataArray* CreateNewDataArray();
+  vtkDataArray* CreateNewDataArray(vtkDataArray* input = nullptr);
 
   vtkAbstractTransform* Transform;
   int OutputPointsPrecision;
