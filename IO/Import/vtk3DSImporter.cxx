@@ -28,6 +28,8 @@
 #include "vtkStripper.h"
 #include "vtksys/SystemTools.hxx"
 
+#include <sstream>
+
 vtkStandardNewMacro(vtk3DSImporter);
 
 // Silence warning like
@@ -142,6 +144,23 @@ void vtk3DSImporter::ImportEnd()
     fclose(this->FileFD);
   }
   this->FileFD = nullptr;
+}
+
+//----------------------------------------------------------------------------
+std::string vtk3DSImporter::GetOutputsDescription()
+{
+  std::stringstream ss;
+  size_t idx = 0;
+  for (auto mesh = this->MeshList; mesh != (vtk3DSMesh*)nullptr;
+       mesh = (vtk3DSMesh*)mesh->next, idx++)
+  {
+    if (mesh->aPolyData)
+    {
+      ss << "Mesh " << idx << " polydata:\n";
+      ss << vtkImporter::GetDataSetDescription(mesh->aPolyData, vtkIndent(1)) << "\n";
+    }
+  }
+  return "";
 }
 
 int vtk3DSImporter::Read3DS()

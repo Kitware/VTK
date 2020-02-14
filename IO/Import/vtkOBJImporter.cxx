@@ -126,6 +126,18 @@ const char* vtkOBJImporter::GetTexturePath() const
   return this->Impl->GetTexturePath().data();
 }
 
+//----------------------------------------------------------------------------
+std::string vtkOBJImporter::GetOutputsDescription()
+{
+  std::stringstream ss;
+  for (int i = 0; i < this->Impl->GetNumberOfOutputs(); i++)
+  {
+    ss << this->GetOutputDescription(i) << std::endl;
+  }
+  return ss.str();
+}
+
+//----------------------------------------------------------------------------
 std::string vtkOBJImporter::GetOutputDescription(int idx)
 {
   vtkOBJImportedMaterial* mtl = this->Impl->GetMaterial(idx);
@@ -221,6 +233,11 @@ vtkOBJPolyDataProcessor::~vtkOBJPolyDataProcessor()
     delete poly_list[k];
     poly_list[k] = nullptr;
   }
+}
+//----------------------------------------------------------------------------
+int vtkOBJPolyDataProcessor::GetNumberOfOutputs()
+{
+  return static_cast<int>(poly_list.size());
 }
 
 //----------------------------------------------------------------------------

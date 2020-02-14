@@ -97,6 +97,11 @@ public:
    */
   size_t GetNumberOfCameras();
 
+  /**
+   * Get a printable string describing all outputs
+   */
+  std::string GetOutputsDescription() override { return this->OutputsDescription; };
+
 protected:
   vtkGLTFImporter() = default;
   ~vtkGLTFImporter() override;
@@ -111,6 +116,7 @@ protected:
   std::vector<vtkSmartPointer<vtkCamera> > Cameras;
   std::map<int, vtkSmartPointer<vtkTexture> > Textures;
   vtkSmartPointer<vtkGLTFDocumentLoader> Loader;
+  std::string OutputsDescription;
 
 private:
   vtkGLTFImporter(const vtkGLTFImporter&) = delete;

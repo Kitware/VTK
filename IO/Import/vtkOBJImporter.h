@@ -77,6 +77,11 @@ public:
   //@}
 
   /**
+   * Get a printable string describing all outputs
+   */
+  std::string GetOutputsDescription() override;
+
+  /**
    * Get a string describing an output
    */
   std::string GetOutputDescription(int idx);
