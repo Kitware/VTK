@@ -51,7 +51,6 @@ ren.ResetCamera()
 
 renWin = vtk.vtkRenderWindow()
 renWin.AddRenderer(ren)
-renWin.Render()
 
 dm = voi.GetOutput().GetDirectionMatrix()
 if dm.GetElement(0, 0) != -1 or dm.GetElement(1, 1) != -1 or dm.GetElement(2, 2) != 1:

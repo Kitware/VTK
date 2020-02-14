@@ -31,10 +31,6 @@
 
 #include <algorithm>
 
-#ifdef WIN32&& DEBUG
-#define not!
-#endif
-
 vtkStandardNewMacro(vtkXMLHyperTreeGridReader);
 
 //----------------------------------------------------------------------------
@@ -53,7 +49,7 @@ void vtkXMLHyperTreeGridReader::PrintSelf(ostream& os, vtkIndent indent)
 void vtkXMLHyperTreeGridReader::SetCoordinatesBoundingBox(
   double xmin, double xmax, double ymin, double ymax, double zmin, double zmax)
 {
-  assert("pre: too_late" && not this->FixedHTs);
+  assert("pre: too_late" && !this->FixedHTs);
   this->SelectedHTs = COORDINATES_BOUNDING_BOX;
   this->CoordinatesBoundingBox[0] = xmin;
   this->CoordinatesBoundingBox[1] = xmax;
@@ -67,7 +63,7 @@ void vtkXMLHyperTreeGridReader::SetCoordinatesBoundingBox(
 void vtkXMLHyperTreeGridReader::SetIndicesBoundingBox(unsigned int imin, unsigned int imax,
   unsigned int jmin, unsigned int jmax, unsigned int kmin, unsigned int kmax)
 {
-  assert("pre: too_late" && not this->FixedHTs);
+  assert("pre: too_late" && !this->FixedHTs);
   this->SelectedHTs = INDICES_BOUNDING_BOX;
   this->IndicesBoundingBox[0] = imin;
   this->IndicesBoundingBox[1] = imax;
@@ -80,7 +76,7 @@ void vtkXMLHyperTreeGridReader::SetIndicesBoundingBox(unsigned int imin, unsigne
 //----------------------------------------------------------------------------
 void vtkXMLHyperTreeGridReader::ClearAndAddSelectedHT(unsigned int idg, unsigned int fixedLevel)
 {
-  assert("pre: too_late" && not this->FixedHTs);
+  assert("pre: too_late" && !this->FixedHTs);
   this->SelectedHTs = IDS_SELECTED;
   this->IdsSelected.clear();
   this->IdsSelected[idg] = fixedLevel;
@@ -89,7 +85,7 @@ void vtkXMLHyperTreeGridReader::ClearAndAddSelectedHT(unsigned int idg, unsigned
 //----------------------------------------------------------------------------
 void vtkXMLHyperTreeGridReader::AddSelectedHT(unsigned int idg, unsigned int fixedLevel)
 {
-  assert("pre: too_late" && not this->FixedHTs);
+  assert("pre: too_late" && !this->FixedHTs);
   assert("pre: not_clear_and_add_selected " && this->SelectedHTs == IDS_SELECTED);
   this->IdsSelected[idg] = fixedLevel;
 }
@@ -97,7 +93,7 @@ void vtkXMLHyperTreeGridReader::AddSelectedHT(unsigned int idg, unsigned int fix
 //----------------------------------------------------------------------------
 void vtkXMLHyperTreeGridReader::CalculateHTs(const vtkHyperTreeGrid* grid)
 {
-  assert("pre: already_done" && not this->FixedHTs);
+  assert("pre: already_done" && !this->FixedHTs);
   if (this->SelectedHTs == COORDINATES_BOUNDING_BOX)
   {
     this->SelectedHTs = INDICES_BOUNDING_BOX;
