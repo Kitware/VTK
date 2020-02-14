@@ -319,25 +319,6 @@ std::vector<SeedT> ExtractSliceFromSeed(const vtkVector3d& seed,
   return next_seeds;
 }
 
-/**
- * shallow copy except those blocks where the predicate returns true.
- */
-template <typename UnaryPredicate>
-void ShallowCopyIfNot(vtkCompositeDataSet* input, vtkCompositeDataSet* output, UnaryPredicate p)
-{
-  output->CopyStructure(input);
-  auto iter = input->NewIterator();
-  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-  {
-    auto dobj = iter->GetCurrentDataObject();
-    if (!p(dobj))
-    {
-      output->SetDataSet(iter, dobj);
-    }
-  }
-  iter->Delete();
-}
-
 void Append(vtkPartitionedDataSet* input, vtkPartitionedDataSet* output)
 {
   unsigned int next = output->GetNumberOfPartitions();
