@@ -27,7 +27,10 @@
 
 #include "vtkWin32OpenGLRenderWindow.h"
 
-#include <winuser.h> // for touch support
+#include "vtkStringArray.h"
+
+#include <shellapi.h> // for drag and drop
+#include <winuser.h>  // for touch support
 
 // Mouse wheel support
 // In an ideal world we would just have to include <zmouse.h>, but it is not
@@ -238,6 +241,9 @@ void vtkWin32RenderWindowInteractor::Enable()
       this->Device->StartListening();
     }
 #endif
+
+    // enable drag and drop events
+    DragAcceptFiles(this->WindowId, TRUE);
 
     // in case the size of the window has changed while we were away
     int* size;
@@ -750,6 +756,57 @@ int vtkWin32RenderWindowInteractor::OnTouch(HWND hWnd, UINT wParam, UINT lParam)
 }
 
 //----------------------------------------------------------------------------
+int vtkWin32RenderWindowInteractor::OnDropFiles(HWND, WPARAM wParam)
+{
+  if (!this->Enabled)
+  {
+    return 0;
+  }
+
+  int ret = 0;
+
+  HDROP hdrop = reinterpret_cast<HDROP>(wParam);
+
+  POINT pt;
+  if (DragQueryPoint(hdrop, &pt))
+  {
+    double location[2];
+    location[0] = static_cast<double>(pt.x);
+    location[1] = static_cast<double>(this->Size[1] - pt.y - 1); // flip Y
+
+    this->InvokeEvent(vtkCommand::UpdateDropLocationEvent, location);
+  }
+
+  UINT cFiles = DragQueryFile(hdrop, 0xFFFFFFFF, nullptr, 0);
+
+  if (cFiles > 0)
+  {
+    vtkNew<vtkStringArray> filePaths;
+    filePaths->Allocate(cFiles);
+
+    for (UINT i = 0; i < cFiles; i++)
+    {
+      TCHAR file[MAX_PATH];
+      UINT cch = DragQueryFile(hdrop, i, file, MAX_PATH);
+      if (cch > 0 && cch < MAX_PATH)
+      {
+#ifdef UNICODE
+        char cFile[MAX_PATH];
+        wcstombs(cFile, file, cch);
+        filePaths->InsertNextValue(cFile);
+#else
+        filePaths->InsertNextValue(file);
+#endif
+        ret = 1;
+      }
+    }
+    this->InvokeEvent(vtkCommand::DropFilesEvent, filePaths);
+  }
+
+  return ret;
+}
+
+//----------------------------------------------------------------------------
 // This is only called when InstallMessageProc is true
 LRESULT CALLBACK vtkHandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -914,6 +971,10 @@ LRESULT CALLBACK vtkHandleMessage2(
 
     case WM_TOUCH:
       handled = me->OnTouch(hWnd, wParam, lParam);
+      break;
+
+    case WM_DROPFILES:
+      handled = me->OnDropFiles(hWnd, wParam);
       break;
 
     default:

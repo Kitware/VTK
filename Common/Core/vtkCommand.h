@@ -275,6 +275,8 @@
     _vtk_add_event(ErrorEvent)                                                                     \
     _vtk_add_event(WarningEvent)                                                                   \
     _vtk_add_event(StartInteractionEvent)                                                          \
+    _vtk_add_event(DropFilesEvent)                                                                 \
+    _vtk_add_event(UpdateDropLocationEvent)                                                        \
         /*^ mainly used by vtkInteractorObservers*/                                                \
     _vtk_add_event(InteractionEvent)                                                               \
     _vtk_add_event(EndInteractionEvent)                                                            \

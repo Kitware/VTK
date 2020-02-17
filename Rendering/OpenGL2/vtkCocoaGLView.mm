@@ -20,6 +20,8 @@
 #import "vtkCocoaRenderWindow.h"
 #import "vtkCocoaRenderWindowInteractor.h"
 #import "vtkCommand.h"
+#import "vtkNew.h"
+#import "vtkStringArray.h"
 
 //----------------------------------------------------------------------------
 // Private
@@ -57,6 +59,8 @@
     {
       [NSThread detachNewThreadSelector:@selector(emptyMethod:) toTarget:self withObject:nil];
     }
+
+    [self registerForDraggedTypes:[NSArray arrayWithObjects:NSURLPboardType, nil]];
   }
   return self;
 }
@@ -471,6 +475,47 @@ static const char* vtkMacKeyCodeToKeySymTable[128] = { nullptr, nullptr, nullptr
 - (void)otherMouseUp:(NSEvent*)theEvent
 {
   [self invokeVTKButtonEvent:vtkCommand::MiddleButtonReleaseEvent cocoaEvent:theEvent];
+}
+
+//----------------------------------------------------------------------------
+- (NSDragOperation)draggingEntered:(id<NSDraggingInfo>)sender
+{
+  if ([[[sender draggingPasteboard] types] containsObject:NSURLPboardType])
+  {
+    return NSDragOperationCopy;
+  }
+  return NSDragOperationNone;
+}
+
+//----------------------------------------------------------------------------
+- (BOOL)performDragOperation:(id<NSDraggingInfo>)sender
+{
+  vtkCocoaRenderWindowInteractor* interactor = [self getInteractor];
+
+  NSPoint pt = [sender draggingLocation];
+  NSPoint viewLoc = [self convertPoint:pt fromView:nil];
+  NSPoint backingLoc = [self convertPointToBacking:viewLoc];
+  double location[2];
+  location[0] = backingLoc.x;
+  location[1] = backingLoc.y;
+  interactor->InvokeEvent(vtkCommand::UpdateDropLocationEvent, location);
+
+  if ([sender draggingSource] == nil)
+  {
+    NSPasteboard* pboard = [sender draggingPasteboard];
+    if ([[pboard types] containsObject:NSURLPboardType])
+    {
+      vtkNew<vtkStringArray> files;
+      for (NSURL* fileURL in [pboard readObjectsForClasses:@ [[NSURL class]] options:nil])
+      {
+        files->InsertNextValue([fileURL fileSystemRepresentation]);
+      }
+
+      interactor->InvokeEvent(vtkCommand::DropFilesEvent, files);
+    }
+  }
+
+  return [super performDragOperation:sender];
 }
 
 //----------------------------------------------------------------------------

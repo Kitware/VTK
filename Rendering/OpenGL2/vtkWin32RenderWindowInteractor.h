@@ -123,6 +123,7 @@ public:
   virtual int OnFocus(HWND wnd, UINT nFlags);
   virtual int OnKillFocus(HWND wnd, UINT nFlags);
   virtual int OnTouch(HWND wnd, UINT wParam, UINT lParam);
+  virtual int OnDropFiles(HWND wnd, WPARAM wParam);
   //@}
 
   //@{

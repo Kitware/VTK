@@ -247,6 +247,9 @@ void vtkInteractorStyle::SetInteractor(vtkRenderWindowInteractor* i)
 
     i->AddObserver(vtkCommand::Move3DEvent, this->EventCallbackCommand, this->Priority);
     i->AddObserver(vtkCommand::Button3DEvent, this->EventCallbackCommand, this->Priority);
+
+    i->AddObserver(vtkCommand::DropFilesEvent, this->EventCallbackCommand, this->Priority);
+    i->AddObserver(vtkCommand::UpdateDropLocationEvent, this->EventCallbackCommand, this->Priority);
   }
 
   this->EventForwarder->SetTarget(this->Interactor);
@@ -1375,6 +1378,28 @@ void vtkInteractorStyle::ProcessEvents(
       if (!aborted)
       {
         self->OnButton3D(static_cast<vtkEventData*>(calldata));
+      }
+      break;
+
+    case vtkCommand::DropFilesEvent:
+      if (self->HandleObservers && self->HasObserver(vtkCommand::DropFilesEvent))
+      {
+        aborted = (self->InvokeEvent(vtkCommand::DropFilesEvent, calldata) == 1);
+      }
+      if (!aborted)
+      {
+        self->OnDropFiles(static_cast<vtkStringArray*>(calldata));
+      }
+      break;
+
+    case vtkCommand::UpdateDropLocationEvent:
+      if (self->HandleObservers && self->HasObserver(vtkCommand::UpdateDropLocationEvent))
+      {
+        aborted = (self->InvokeEvent(vtkCommand::UpdateDropLocationEvent, calldata) == 1);
+      }
+      if (!aborted)
+      {
+        self->OnDropLocation(static_cast<double*>(calldata));
       }
       break;
   }
