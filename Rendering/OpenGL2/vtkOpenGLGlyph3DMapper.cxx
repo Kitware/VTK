@@ -475,7 +475,7 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer* ren, vtkActor* actor, vtkDataSe
     {
       vtkOpenGLGlyph3DHelper* mapper = nullptr;
 
-      int mapperIdx = cdsIter ? cdsIter->GetCurrentFlatIndex() : -1;
+      int mapperIdx = cdsIter ? static_cast<int>(cdsIter->GetCurrentFlatIndex()) : -1;
       vtkOpenGLGlyph3DMapperEntry::MapperMap::iterator mapIter = entry->Mappers.find(mapperIdx);
       if (mapIter == entry->Mappers.end())
       {
