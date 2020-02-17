@@ -4,8 +4,6 @@ LIBRARY_NAME
   vtkFiltersParallelDIY2
 KIT
   VTK::Parallel
-GROUPS
-  MPI
 IMPLEMENTS
   VTK::FiltersCore
   VTK::FiltersParallel
