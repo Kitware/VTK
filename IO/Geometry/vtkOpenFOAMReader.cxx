@@ -4034,6 +4034,22 @@ int vtkFoamEntryValue::Read(vtkFoamIOobject& io)
       throw vtkFoamError() << "Unsupported nonuniform list type " << currToken;
     }
   }
+  // turbulentTemperatureCoupledBaffleMixed boundary condition
+  // uses lists without a uniform/nonuniform keyword
+  else if (currToken == "List<scalar>")
+  {
+    this->IsUniform = false;
+    if (io.GetUse64BitFloats())
+    {
+      this->ReadNonuniformList<SCALARLIST, listTraits<vtkFloatArray,
+                                                      double> >(io);
+    }
+    else
+    {
+      this->ReadNonuniformList<SCALARLIST, listTraits<vtkFloatArray,
+                                                      float> >(io);
+    }
+  }
   // zones have list without a uniform/nonuniform keyword
   else if (currToken == "List<label>")
   {
