@@ -210,7 +210,7 @@ struct BuildLinks
       const auto cell = state.GetCellRange(cellId);
       for (const ValueType cellPtId : cell)
       {
-        const size_t ptId = static_cast<const size_t>(cellPtId);
+        const size_t ptId = static_cast<size_t>(cellPtId);
         --linkOffsets[ptId];
         links[linkOffsets[ptId]] = static_cast<TIds>(idOffset + cellId);
       }
@@ -236,7 +236,7 @@ struct BuildLinksThreaded
       const auto cell = state.GetCellRange(cellId);
       for (const ValueType cellPtId : cell)
       {
-        const size_t ptId = static_cast<const size_t>(cellPtId);
+        const size_t ptId = static_cast<size_t>(cellPtId);
         // memory_order_relaxed is safe here, since we're not using the atomics
         // for synchroniziation.
         const TIds offset =
