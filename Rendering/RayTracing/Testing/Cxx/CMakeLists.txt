@@ -23,6 +23,7 @@ if (VTK_ENABLE_OSPRAY)
     TestOSPRayTime.cxx
     TestOSPRayWindow.cxx
     TestOSPRayStereo.cxx
+    TestRayTracedMolecules.cxx
     # Volume rendering tests
     TestGPURayCastCameraInside.cxx
     TestGPURayCastCellData.cxx
