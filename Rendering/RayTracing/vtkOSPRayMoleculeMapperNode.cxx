@@ -66,71 +66,6 @@ void vtkOSPRayMoleculeMapperNode::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
-#if 0
-//------------------------------------------------------------------------------
-void (vtkOSPRayRendererNode* orn, OSPRenderer oRenderer, vtkPolyData* poly,
-  vtkMapper* mapper, vtkScalarsToColors* s2c, std::map<std::string, OSPMaterial> mats,
-  std::vector<OSPMaterial>& ospMaterials, vtkUnsignedCharArray* vColors, float* specColor,
-  float specPower, float opacity)
-{
-  RTW::Backend* backend = orn->GetBackend();
-  if (backend == nullptr)
-    return;
-  vtkAbstractArray* scalars = nullptr;
-  bool try_mats = s2c->GetIndexedLookup() && s2c->GetNumberOfAnnotatedValues() && mats.size() > 0;
-  if (try_mats)
-  {
-    int cflag2 = -1;
-    scalars = mapper->GetAbstractScalars(poly, mapper->GetScalarMode(),
-      mapper->GetArrayAccessMode(), mapper->GetArrayId(), mapper->GetArrayName(), cflag2);
-  }
-  int numColors = vColors->GetNumberOfTuples();
-  int width = vColors->GetNumberOfComponents();
-  for (int i = 0; i < numColors; i++)
-  {
-    bool found = false;
-    if (scalars)
-    {
-      vtkVariant v = scalars->GetVariantValue(i);
-      vtkIdType idx = s2c->GetAnnotatedValueIndex(v);
-      if (idx > -1)
-      {
-        std::string name(s2c->GetAnnotation(idx));
-        if (mats.find(name) != mats.end())
-        {
-          OSPMaterial oMaterial = mats[name];
-          ospCommit(oMaterial);
-          ospMaterials.push_back(oMaterial);
-          found = true;
-        }
-      }
-    }
-    if (!found)
-    {
-      double* color = vColors->GetTuple(i);
-      OSPMaterial oMaterial;
-      oMaterial = vtkOSPRayMaterialHelpers::NewMaterial(orn, oRenderer, "OBJMaterial");
-      float diffusef[] = { static_cast<float>(color[0]) / (255.0f),
-        static_cast<float>(color[1]) / (255.0f), static_cast<float>(color[2]) / (255.0f) };
-      float localOpacity = 1.f;
-      if (width >= 4)
-      {
-        localOpacity = static_cast<float>(color[3]) / (255.0f);
-      }
-      ospSet3fv(oMaterial, "Kd", diffusef);
-      float specAdjust = 2.0f / (2.0f + specPower);
-      float specularf[] = { specColor[0] * specAdjust, specColor[1] * specAdjust,
-        specColor[2] * specAdjust };
-      ospSet3fv(oMaterial, "Ks", specularf);
-      ospSet1f(oMaterial, "Ns", specPower);
-      ospSet1f(oMaterial, "d", opacity * localOpacity);
-      ospCommit(oMaterial);
-      ospMaterials.push_back(oMaterial);
-    }
-  }
-}
-#endif
-
 //----------------------------------------------------------------------------
 void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
 {
@@ -230,8 +165,7 @@ void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
       ospSet1i(atoms, "bytes_per_sphere", 5 * sizeof(float));
       ospSet1i(atoms, "offset_center", 0 * sizeof(float));
       ospSet1i(atoms, "offset_radius", 3 * sizeof(float));
-      ospSet1i(atoms, "offset_materialID",
-        4 * sizeof(float)); // todo: visRTX needs offset_colorId, fix it there rather than here
+      ospSet1i(atoms, "offset_materialID", 4 * sizeof(float));
       ospSetData(atoms, "materialList", cellMaterials);
 
       this->Geometries.emplace_back(atoms);
@@ -304,8 +238,7 @@ void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
 
       if (mapper->GetBondColorMode() == vtkMoleculeMapper::DiscreteByAtom)
       {
-        ospSet1i(bonds, "offset_materialID",
-          7 * sizeof(float)); // todo: visRTX needs offset_colorID fix it there rather than here
+        ospSet1i(bonds, "offset_materialID", 7 * sizeof(float));
         ospSetData(bonds, "materialList", cellMaterials);
       }
       else
