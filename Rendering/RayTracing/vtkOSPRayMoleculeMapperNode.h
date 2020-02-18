@@ -22,7 +22,6 @@
 #ifndef vtkOSPRayMoleculeMapperNode_h
 #define vtkOSPRayMoleculeMapperNode_h
 
-#include "vtkOSPRayCache.h" // For common cache infrastructure
 #include "vtkPolyDataMapperNode.h"
 #include "vtkRenderingRayTracingModule.h" // For export macro
 
@@ -45,9 +44,7 @@ protected:
   vtkOSPRayMoleculeMapperNode();
   ~vtkOSPRayMoleculeMapperNode() override;
 
-  vtkOSPRayCache<vtkOSPRayCacheItemObject>* Cache;
   vtkTimeStamp BuildTime;
-
   std::vector<OSPGeometry> Geometries;
 
 private:
