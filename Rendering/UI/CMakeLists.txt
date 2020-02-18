@@ -18,8 +18,11 @@ elseif (WIN32)
     vtk_object_factory_declare(
       BASE vtkRenderWindowInteractor
       OVERRIDE vtkWin32RenderWindowInteractor)
+    vtk_object_factory_declare(
+      BASE vtkHardwareWindow
+      OVERRIDE vtkWin32HardwareWindow)
   endif ()
-  list(APPEND classes vtkWin32RenderWindowInteractor)
+  list(APPEND classes vtkWin32HardwareWindow vtkWin32RenderWindowInteractor)
 elseif (VTK_USE_COCOA)
   # Add some custom overrides
   if (NOT VTK_DEFAULT_RENDER_WINDOW_HEADLESS)

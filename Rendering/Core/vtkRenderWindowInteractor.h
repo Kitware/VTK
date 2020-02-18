@@ -62,6 +62,7 @@ class vtkTimerIdMap;
 class vtkAbstractPicker;
 class vtkAbstractPropPicker;
 class vtkAssemblyPath;
+class vtkHardwareWindow;
 class vtkInteractorObserver;
 class vtkRenderWindow;
 class vtkRenderer;
@@ -159,6 +160,16 @@ public:
    */
   void SetRenderWindow(vtkRenderWindow* aren);
   vtkGetObjectMacro(RenderWindow, vtkRenderWindow);
+  //@}
+
+  //@{
+  /**
+   * Set/Get the hardware window being controlled by this object.
+   * For opengl the hardware window is not used as the opengl
+   * subclasses of RenderWindow provide the functionality.
+   */
+  void SetHardwareWindow(vtkHardwareWindow* aren);
+  vtkGetObjectMacro(HardwareWindow, vtkHardwareWindow);
   //@}
 
   /**
@@ -794,6 +805,7 @@ protected:
   ~vtkRenderWindowInteractor() override;
 
   vtkRenderWindow* RenderWindow;
+  vtkHardwareWindow* HardwareWindow;
   vtkInteractorObserver* InteractorStyle;
 
   // Used as a helper object to pick instances of vtkProp

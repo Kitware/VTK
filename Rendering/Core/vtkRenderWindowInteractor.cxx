@@ -18,6 +18,7 @@
 #include "vtkCommand.h"
 #include "vtkDebugLeaks.h"
 #include "vtkGraphicsFactory.h"
+#include "vtkHardwareWindow.h"
 #include "vtkInteractorStyleSwitchBase.h"
 #include "vtkMath.h"
 #include "vtkObserverMediator.h"
@@ -61,12 +62,14 @@ static int vtkTimerId = 1;
 
 //----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkRenderWindowInteractor, Picker, vtkAbstractPicker);
+vtkCxxSetObjectMacro(vtkRenderWindowInteractor, HardwareWindow, vtkHardwareWindow);
 
 //----------------------------------------------------------------------
 // Construct object so that light follows camera motion.
 vtkRenderWindowInteractor::vtkRenderWindowInteractor()
 {
   this->RenderWindow = nullptr;
+  this->HardwareWindow = nullptr;
   // Here we are using base, and relying on the graphics factory or standard
   // object factory logic to create the correct instance, which should be the
   // vtkInteractorStyleSwitch when linked to the interactor styles, or
@@ -165,6 +168,7 @@ vtkRenderWindowInteractor::~vtkRenderWindowInteractor()
 
   this->SetPickingManager(nullptr);
   this->SetRenderWindow(nullptr);
+  this->SetHardwareWindow(nullptr);
 }
 
 //----------------------------------------------------------------------
@@ -294,6 +298,10 @@ void vtkRenderWindowInteractor::UpdateSize(int x, int y)
     this->Size[0] = this->EventSize[0] = x;
     this->Size[1] = this->EventSize[1] = y;
     this->RenderWindow->SetSize(x, y);
+    if (this->HardwareWindow)
+    {
+      this->HardwareWindow->SetSize(x, y);
+    }
     this->InvokeEvent(vtkCommand::WindowResizeEvent);
   }
 }
