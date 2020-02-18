@@ -14,3 +14,4 @@ PRIVATE_DEPENDS
   VTK::CommonDataModel
   VTK::FiltersGeneral
   VTK::RenderingCore
+  VTK::RenderingUI

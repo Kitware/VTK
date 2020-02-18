@@ -31,15 +31,15 @@
 #define vtkWin32RenderWindowInteractor_h
 
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRenderingOpenGL2Module.h" // For export macro
-#include "vtkWindows.h"                // For windows API.
+#include "vtkRenderingUIModule.h" // For export macro
+#include "vtkWindows.h"           // For windows API.
 
 #include "vtkTDxConfigure.h" // defines VTK_USE_TDX
 #ifdef VTK_USE_TDX
 class vtkTDxWinDevice;
 #endif
 
-class VTKRENDERINGOPENGL2_EXPORT vtkWin32RenderWindowInteractor : public vtkRenderWindowInteractor
+class VTKRENDERINGUI_EXPORT vtkWin32RenderWindowInteractor : public vtkRenderWindowInteractor
 {
 public:
   /**
@@ -95,9 +95,9 @@ public:
    */
   void TerminateApp(void) override;
 
-  friend VTKRENDERINGOPENGL2_EXPORT LRESULT CALLBACK vtkHandleMessage(
+  friend VTKRENDERINGUI_EXPORT LRESULT CALLBACK vtkHandleMessage(
     HWND hwnd, UINT uMsg, WPARAM w, LPARAM l);
-  friend VTKRENDERINGOPENGL2_EXPORT LRESULT CALLBACK vtkHandleMessage2(
+  friend VTKRENDERINGUI_EXPORT LRESULT CALLBACK vtkHandleMessage2(
     HWND hwnd, UINT uMsg, WPARAM w, LPARAM l, vtkWin32RenderWindowInteractor* me);
 
   //@{

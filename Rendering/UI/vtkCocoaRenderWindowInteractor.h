@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkIOSRenderWindowInteractor.h
+  Module:    vtkCocoaRenderWindowInteractor.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,34 +13,42 @@
 
 =========================================================================*/
 /**
- * @class   vtkIOSRenderWindowInteractor
- * @brief   implements IOS specific functions
+ * @class   vtkCocoaRenderWindowInteractor
+ * @brief   implements Cocoa specific functions
  * required by vtkRenderWindowInteractor.
  *
  *
- * The interactor interfaces with vtkIOSRenderWindow and vtkIOSGLView
- * to trap messages from the IOS window manager and send them to vtk.
+ * The interactor interfaces with vtkCocoaRenderWindow and vtkCocoaGLView
+ * to trap messages from the Cocoa window manager and send them to vtk.
+ * Since OS X applications typically use the Command key where UNIX and
+ * Windows applications would use the Ctrl key, this interactor maps the
+ * Command key to Ctrl.  In versions of VTK prior to VTK 6.2, it was
+ * mapped to Alt.  On OS X, the Option key can be used as Alt.
  *
- * IMPORTANT: This header must be in C++ only because it is included by .cxx files.
- * That means no Objective C may be used. That's why some instance variables are
- * void* instead of what they really should be.
+ * IMPORTANT: This header must be in C++ only because it is included by .cxx
+ * files.  That means no Objective C may be used. That's why some instance
+ * variables are void* instead of what they really should be.
  */
 
-#ifndef vtkIOSRenderWindowInteractor_h
-#define vtkIOSRenderWindowInteractor_h
+#ifndef vtkCocoaRenderWindowInteractor_h
+#define vtkCocoaRenderWindowInteractor_h
 
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkRenderingUIModule.h" // For export macro
+#include "vtkTDxConfigure.h"      // defines VTK_USE_TDX
+#ifdef VTK_USE_TDX
+class vtkTDxMacDevice;
+#endif
 
-class VTKRENDERINGOPENGL2_EXPORT vtkIOSRenderWindowInteractor : public vtkRenderWindowInteractor
+class VTKRENDERINGUI_EXPORT vtkCocoaRenderWindowInteractor : public vtkRenderWindowInteractor
 {
 public:
   /**
    * Construct object so that light follows camera motion.
    */
-  static vtkIOSRenderWindowInteractor* New();
+  static vtkCocoaRenderWindowInteractor* New();
 
-  vtkTypeMacro(vtkIOSRenderWindowInteractor, vtkRenderWindowInteractor);
+  vtkTypeMacro(vtkCocoaRenderWindowInteractor, vtkRenderWindowInteractor);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -63,18 +71,25 @@ public:
   //@}
 
   /**
-   * IOS specific application terminate, calls ClassExitMethod then
+   * Cocoa specific application terminate, calls ClassExitMethod then
    * calls PostQuitMessage(0) to terminate app. An application can Specify
    * ExitMethod for alternative behaviour (i.e. suppresion of keyboard exit)
    */
   void TerminateApp() override;
+
+  /**
+   * Run the event loop and return. This is provided so that you can
+   * implement your own event loop but yet use the vtk event handling as
+   * well.
+   */
+  void ProcessEvents() override;
 
   //@{
   /**
    * Methods to set the default exit method for the class. This method is
    * only used if no instance level ExitMethod has been defined.  It is
    * provided as a means to control how an interactor is exited given
-   * the various language bindings (IOS, etc.).
+   * the various language bindings (Cocoa, etc.).
    */
   static void SetClassExitMethod(void (*f)(void*), void* arg);
   static void SetClassExitMethodArgDelete(void (*f)(void*));
@@ -90,11 +105,11 @@ public:
   //  void SetButtonDown(int button);
 
 protected:
-  vtkIOSRenderWindowInteractor();
-  ~vtkIOSRenderWindowInteractor() override;
+  vtkCocoaRenderWindowInteractor();
+  ~vtkCocoaRenderWindowInteractor() override;
 
   /**
-   * Accessors for the IOS member variables. These should be used at all time, even
+   * Accessors for the Cocoa member variables. These should be used at all time, even
    * by this class.
    */
   void SetTimerDictionary(void* dictionary); // Really an NSMutableDictionary*
@@ -104,7 +119,7 @@ protected:
   /**
    * Class variables so an exit method can be defined for this class
    * (used to set different exit methods for various language bindings,
-   * i.e. java, IOS)
+   * i.e. java, Cocoa)
    */
   static void (*ClassExitMethod)(void*);
   static void (*ClassExitMethodArgDelete)(void*);
@@ -113,7 +128,7 @@ protected:
 
   //@{
   /**
-   * IOS-specific internal timer methods. See the superclass for detailed
+   * Cocoa-specific internal timer methods. See the superclass for detailed
    * documentation.
    */
   int InternalCreateTimer(int timerId, int timerType, unsigned long duration) override;
@@ -129,24 +144,28 @@ protected:
 
   //@{
   /**
-   * Accessors for the IOS manager (Really an NSMutableDictionary*).
-   * It manages all IOS objects in this C++ class.
+   * Accessors for the cocoa manager (Really an NSMutableDictionary*).
+   * It manages all Cocoa objects in this C++ class.
    */
-  void SetIOSManager(void* manager);
-  void* GetIOSManager();
+  void SetCocoaManager(void* manager);
+  void* GetCocoaManager();
   //@}
 
+#ifdef VTK_USE_TDX
+  vtkTDxMacDevice* Device;
+#endif
+
 private:
-  vtkIOSRenderWindowInteractor(const vtkIOSRenderWindowInteractor&) = delete;
-  void operator=(const vtkIOSRenderWindowInteractor&) = delete;
+  vtkCocoaRenderWindowInteractor(const vtkCocoaRenderWindowInteractor&) = delete;
+  void operator=(const vtkCocoaRenderWindowInteractor&) = delete;
 
   // Important: this class cannot contain Objective-C instance
   // variables for 2 reasons:
   // 1) C++ files include this header
   // 2) because of garbage collection
-  // Instead, use the IOSManager dictionary to keep a collection
+  // Instead, use the CocoaManager dictionary to keep a collection
   // of what would otherwise be Objective-C instance variables.
-  void* IOSManager; // Really an NSMutableDictionary*
+  void* CocoaManager; // Really an NSMutableDictionary*
 };
 
 #endif

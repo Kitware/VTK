@@ -196,7 +196,7 @@ public:
   int CreateRepeatingTimer(unsigned long duration);
 
   /**
-   * Create a one shot timer, with the specified duretion (in milliseconds).
+   * Create a one shot timer, with the specified duration (in milliseconds).
    * \return the timer id.
    */
   int CreateOneShotTimer(unsigned long duration);

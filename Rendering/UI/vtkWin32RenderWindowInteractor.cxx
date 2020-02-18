@@ -25,7 +25,9 @@
 #define _WIN32_WINNT 0x0601 // for touch support, 0x0601 means target Windows 7 or later
 #endif
 
-#include "vtkWin32OpenGLRenderWindow.h"
+#include "vtkRenderWindow.h"
+#include "vtkWin32RenderWindowInteractor.h"
+#include "vtkWindows.h"
 
 #include "vtkStringArray.h"
 
@@ -46,14 +48,13 @@
 // sees it in the friend decl in vtkWin32RenderWindowInteractor, but
 // GCC needs to see the declaration beforehand. It has to do with the
 // CALLBACK attribute.
-VTKRENDERINGOPENGL2_EXPORT LRESULT CALLBACK vtkHandleMessage(HWND, UINT, WPARAM, LPARAM);
-VTKRENDERINGOPENGL2_EXPORT LRESULT CALLBACK vtkHandleMessage2(
+VTKRENDERINGUI_EXPORT LRESULT CALLBACK vtkHandleMessage(HWND, UINT, WPARAM, LPARAM);
+VTKRENDERINGUI_EXPORT LRESULT CALLBACK vtkHandleMessage2(
   HWND, UINT, WPARAM, LPARAM, class vtkWin32RenderWindowInteractor*);
 
 #include "vtkActor.h"
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
-#include "vtkWin32RenderWindowInteractor.h"
 
 #ifdef VTK_USE_TDX
 #include "vtkTDxWinDevice.h"
@@ -100,14 +101,13 @@ vtkWin32RenderWindowInteractor::vtkWin32RenderWindowInteractor()
 //----------------------------------------------------------------------------
 vtkWin32RenderWindowInteractor::~vtkWin32RenderWindowInteractor()
 {
-  vtkWin32OpenGLRenderWindow* tmp;
+  vtkRenderWindow* tmp;
 
   // we need to release any hold we have on a windows event loop
   if (this->WindowId && this->Enabled && this->InstallMessageProc)
   {
-    vtkWin32OpenGLRenderWindow* ren;
-    ren = static_cast<vtkWin32OpenGLRenderWindow*>(this->RenderWindow);
-    tmp = (vtkWin32OpenGLRenderWindow*)(vtkGetWindowLong(this->WindowId, sizeof(vtkLONG)));
+    vtkRenderWindow* ren = this->RenderWindow;
+    tmp = (vtkRenderWindow*)(vtkGetWindowLong(this->WindowId, sizeof(vtkLONG)));
     // watch for odd conditions
     if ((tmp != ren) && (ren != nullptr))
     {
@@ -169,7 +169,7 @@ void vtkWin32RenderWindowInteractor::StartEventLoop()
 // Begin processing keyboard strokes.
 void vtkWin32RenderWindowInteractor::Initialize()
 {
-  vtkWin32OpenGLRenderWindow* ren;
+  vtkRenderWindow* ren;
   int* size;
 
   // make sure we have a RenderWindow and camera
@@ -184,12 +184,12 @@ void vtkWin32RenderWindowInteractor::Initialize()
   }
   this->Initialized = 1;
   // get the info we need from the RenderingWindow
-  ren = (vtkWin32OpenGLRenderWindow*)(this->RenderWindow);
+  ren = this->RenderWindow;
   ren->Start();
   ren->End();
   size = ren->GetSize();
   ren->GetPosition();
-  this->WindowId = ren->GetWindowId();
+  this->WindowId = (HWND)(ren->GetGenericWindowId());
   this->Enable();
   this->Size[0] = size[0];
   this->Size[1] = size[1];
@@ -198,8 +198,8 @@ void vtkWin32RenderWindowInteractor::Initialize()
 //----------------------------------------------------------------------------
 void vtkWin32RenderWindowInteractor::Enable()
 {
-  vtkWin32OpenGLRenderWindow* ren;
-  vtkWin32OpenGLRenderWindow* tmp;
+  vtkRenderWindow* ren;
+  vtkRenderWindow* tmp;
   if (this->Enabled)
   {
     return;
@@ -207,9 +207,9 @@ void vtkWin32RenderWindowInteractor::Enable()
   if (this->InstallMessageProc)
   {
     // add our callback
-    ren = (vtkWin32OpenGLRenderWindow*)(this->RenderWindow);
+    ren = this->RenderWindow;
     this->OldProc = (WNDPROC)vtkGetWindowLong(this->WindowId, vtkGWL_WNDPROC);
-    tmp = (vtkWin32OpenGLRenderWindow*)vtkGetWindowLong(this->WindowId, sizeof(vtkLONG));
+    tmp = (vtkRenderWindow*)vtkGetWindowLong(this->WindowId, sizeof(vtkLONG));
     // watch for odd conditions
     if (tmp != ren)
     {
@@ -258,7 +258,7 @@ void vtkWin32RenderWindowInteractor::Enable()
 //----------------------------------------------------------------------------
 void vtkWin32RenderWindowInteractor::Disable()
 {
-  vtkWin32OpenGLRenderWindow* tmp;
+  vtkRenderWindow* tmp;
   if (!this->Enabled)
   {
     return;
@@ -267,9 +267,8 @@ void vtkWin32RenderWindowInteractor::Disable()
   if (this->InstallMessageProc && this->Enabled && this->WindowId)
   {
     // we need to release any hold we have on a windows event loop
-    vtkWin32OpenGLRenderWindow* ren;
-    ren = (vtkWin32OpenGLRenderWindow*)(this->RenderWindow);
-    tmp = (vtkWin32OpenGLRenderWindow*)vtkGetWindowLong(this->WindowId, sizeof(vtkLONG));
+    vtkRenderWindow* ren = this->RenderWindow;
+    tmp = (vtkRenderWindow*)vtkGetWindowLong(this->WindowId, sizeof(vtkLONG));
     // watch for odd conditions
     if ((tmp != ren) && (ren != nullptr))
     {
@@ -811,10 +810,10 @@ int vtkWin32RenderWindowInteractor::OnDropFiles(HWND, WPARAM wParam)
 LRESULT CALLBACK vtkHandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
   LRESULT res = 0;
-  vtkWin32OpenGLRenderWindow* ren;
+  vtkRenderWindow* ren;
   vtkWin32RenderWindowInteractor* me = 0;
 
-  ren = (vtkWin32OpenGLRenderWindow*)vtkGetWindowLong(hWnd, sizeof(vtkLONG));
+  ren = (vtkRenderWindow*)vtkGetWindowLong(hWnd, sizeof(vtkLONG));
 
   if (ren)
   {

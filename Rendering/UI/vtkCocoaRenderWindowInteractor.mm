@@ -13,13 +13,12 @@
 
 =========================================================================*/
 #import "vtkCocoaMacOSXSDKCompatibility.h" // Needed to support old SDKs
-#import "vtkOpenGLRenderWindow.h"
 #import <Cocoa/Cocoa.h>
 
-#import "vtkCocoaRenderWindow.h"
 #import "vtkCocoaRenderWindowInteractor.h"
 #import "vtkCommand.h"
 #import "vtkObjectFactory.h"
+#import "vtkRenderWindow.h"
 
 #ifdef VTK_USE_TDX
 #import "vtkTDxMacDevice.h"
@@ -263,7 +262,7 @@ void vtkCocoaRenderWindowInteractor::Initialize()
   }
   this->Initialized = 1;
   // get the info we need from the RenderingWindow
-  vtkCocoaRenderWindow* renWin = (vtkCocoaRenderWindow*)(this->RenderWindow);
+  vtkRenderWindow* renWin = this->RenderWindow;
   renWin->Start();
   renWin->End();
   const int* size = renWin->GetSize();

@@ -31,11 +31,11 @@
 #define vtkAndroidRenderWindowInteractor_h
 
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkRenderingUIModule.h" // For export macro
 
 struct AInputEvent;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkAndroidRenderWindowInteractor : public vtkRenderWindowInteractor
+class VTKRENDERINGUI_EXPORT vtkAndroidRenderWindowInteractor : public vtkRenderWindowInteractor
 {
 public:
   /**

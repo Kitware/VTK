@@ -1,9 +1,3 @@
-# The TDx support has not been moved, this header is here to define nothing,
-# and so allow classes in other modules to safely include it and keep going.
-configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/vtkTDxConfigure.h.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkTDxConfigure.h")
-
 set(classes
   vtkCameraPass
   vtkClearRGBPass
@@ -107,7 +101,6 @@ endif()
 set(headers
   vtkOpenGL.h
   vtkStateStorage.h
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkTDxConfigure.h"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkOpenGLError.h"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkRenderingOpenGLConfigure.h")
 
@@ -229,54 +222,37 @@ if (VTK_USE_X)
   # Add some custom overrides
   if (NOT VTK_DEFAULT_RENDER_WINDOW_HEADLESS)
     vtk_object_factory_declare(
-      BASE vtkRenderWindowInteractor
-      OVERRIDE vtkXRenderWindowInteractor)
-    vtk_object_factory_declare(
       BASE vtkRenderWindow
       OVERRIDE vtkXOpenGLRenderWindow)
     set(has_vtkRenderWindow_override 1)
   endif ()
-  list(APPEND classes
-    vtkXRenderWindowInteractor
-    vtkXOpenGLRenderWindow)
+  list(APPEND classes vtkXOpenGLRenderWindow)
 elseif (WIN32)
   # Add some custom overrides
   if (NOT VTK_DEFAULT_RENDER_WINDOW_HEADLESS)
-    vtk_object_factory_declare(
-      BASE vtkRenderWindowInteractor
-      OVERRIDE vtkWin32RenderWindowInteractor)
     vtk_object_factory_declare(
       BASE vtkRenderWindow
       OVERRIDE vtkWin32OpenGLRenderWindow)
     set(has_vtkRenderWindow_override 1)
   endif ()
-  list(APPEND classes
-    vtkWin32RenderWindowInteractor
-    vtkWin32OpenGLRenderWindow)
+  list(APPEND classes vtkWin32OpenGLRenderWindow)
 elseif (VTK_USE_COCOA)
   # Add some custom overrides
   if (NOT VTK_DEFAULT_RENDER_WINDOW_HEADLESS)
-    vtk_object_factory_declare(
-      BASE vtkRenderWindowInteractor
-      OVERRIDE vtkCocoaRenderWindowInteractor)
     vtk_object_factory_declare(
       BASE vtkRenderWindow
       OVERRIDE vtkCocoaRenderWindow)
     set(has_vtkRenderWindow_override 1)
   endif ()
   list(APPEND sources
-    vtkCocoaRenderWindowInteractor.mm
     vtkCocoaRenderWindow.mm
     vtkCocoaGLView.mm)
   list(APPEND headers
-    vtkCocoaRenderWindowInteractor.h
     vtkCocoaRenderWindow.h
-    vtkCocoaGLView.h
-    vtkCocoaMacOSXSDKCompatibility.h)
+    vtkCocoaGLView.h)
   # Set specified Objective-C++ flags, if any.
   if (VTK_REQUIRED_OBJCXX_FLAGS)
     set_source_files_properties(
-      vtkCocoaRenderWindowInteractor.mm
       vtkCocoaRenderWindow.mm
       vtkCocoaGLView.mm
       PROPERTIES
@@ -285,34 +261,21 @@ elseif (VTK_USE_COCOA)
 elseif (ANDROID)
   # Add some custom overrides
   vtk_object_factory_declare(
-    BASE vtkRenderWindowInteractor
-    OVERRIDE vtkAndroidRenderWindowInteractor)
-  vtk_object_factory_declare(
     BASE vtkRenderWindow
     OVERRIDE vtkEGLRenderWindow)
   set(has_vtkRenderWindow_override 1)
-  list(APPEND classes
-    vtkAndroidRenderWindowInteractor)
   include_directories("${CMAKE_ANDROID_NDK}/sources/android/native_app_glue")
 elseif (APPLE_IOS)
   # Add some custom overrides
   vtk_object_factory_declare(
-    BASE vtkRenderWindowInteractor
-    OVERRIDE vtkIOSRenderWindowInteractor)
-  vtk_object_factory_declare(
     BASE vtkRenderWindow
     OVERRIDE vtkIOSRenderWindow)
   set(has_vtkRenderWindow_override 1)
-  list(APPEND sources
-    vtkIOSRenderWindowInteractor.mm
-    vtkIOSRenderWindow.mm)
-  list(APPEND headers
-    vtkIOSRenderWindowInteractor.h
-    vtkIOSRenderWindow.h)
+  list(APPEND sources vtkIOSRenderWindow.mm)
+  list(APPEND headers vtkIOSRenderWindow.h)
   # Set specified Objective-C++ flags, if any.
   if (VTK_REQUIRED_OBJCXX_FLAGS)
     set_source_files_properties(
-      vtkIOSRenderWindowInteractor.mm
       vtkIOSRenderWindow.mm
       PROPERTIES
         COMPILE_FLAGS "${VTK_REQUIRED_OBJCXX_FLAGS}")
