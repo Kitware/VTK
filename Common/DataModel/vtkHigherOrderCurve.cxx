@@ -66,11 +66,11 @@ int vtkHigherOrderCurve::CellBoundary(
   pts->SetNumberOfIds(1);
   if (pcoords[0] <= 0.5)
   {
-    pts->SetId(0, this->TmpIds->GetId(0));
+    pts->SetId(0, this->PointIds->GetId(0));
   }
   else
   {
-    pts->SetId(0, this->TmpIds->GetId(this->TmpIds->GetNumberOfIds()));
+    pts->SetId(0, this->PointIds->GetId(1));
   }
   return pcoords[0] >= 0.0 && pcoords[0] <= 1.0 ? 1 : 0;
 }
