@@ -148,7 +148,7 @@ void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
       int* idata = (int*)mdata;
       vtkUnsignedShortArray* atomicNumbers = molecule->GetAtomicNumberArray();
 
-      for (size_t i = 0; i < numAtoms; i++)
+      for (vtkIdType i = 0; i < numAtoms; i++)
       {
         mdata[i * 5 + 0] = static_cast<float>(allPoints->GetPoint(i)[0]);
         mdata[i * 5 + 1] = static_cast<float>(allPoints->GetPoint(i)[1]);
@@ -339,7 +339,7 @@ void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
       ospSet1i(lattice, "offset_v0", 0);
       ospSet1i(lattice, "offset_v1", 3 * sizeof(float));
 
-      double length = length = mapper->GetLength();
+      double length = mapper->GetLength();
       double lineWidth = length / 1000.0 * property->GetLineWidth();
       ospSet1f(lattice, "radius", lineWidth);
 
