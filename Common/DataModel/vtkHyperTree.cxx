@@ -173,7 +173,7 @@ public:
   void GetByLevelForWriter(vtkBitArray* inIsMasked, vtkUnsignedLongArray* nbVerticesbyLevel,
     vtkBitArray* isParent, vtkBitArray* isMasked, vtkIdList* ids) override
   {
-    std::size_t maxLevels = this->GetNumberOfLevels();
+    int maxLevels = this->GetNumberOfLevels();
     std::vector<std::vector<bool> > descByLevel(maxLevels);
     std::vector<std::vector<bool> > maskByLevel(maxLevels);
     std::vector<std::vector<uint64_t> > globalIdByLevel(maxLevels);
@@ -182,8 +182,8 @@ public:
     // nbVerticesbyLevel
     vtkIdType nb = 0;
     nbVerticesbyLevel->Resize(0);
-    assert(globalIdByLevel.size() == maxLevels);
-    for (std::size_t iLevel = 0; iLevel < maxLevels; ++iLevel)
+    assert(globalIdByLevel.size() == static_cast<std::size_t>(maxLevels));
+    for (int iLevel = 0; iLevel < maxLevels; ++iLevel)
     {
       nb += static_cast<vtkIdType>(globalIdByLevel[iLevel].size());
       nbVerticesbyLevel->InsertNextValue(static_cast<vtkIdType>(globalIdByLevel[iLevel].size()));
