@@ -6,6 +6,7 @@ set(classes
   vtkOSPRayLightNode
   vtkOSPRayMaterialHelpers
   vtkOSPRayMaterialLibrary
+  vtkOSPRayMoleculeMapperNode
   vtkOSPRayPass
   vtkOSPRayPolyDataMapperNode
   vtkOSPRayRendererNode
