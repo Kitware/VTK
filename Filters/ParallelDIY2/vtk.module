@@ -10,6 +10,7 @@ IMPLEMENTS
 DEPENDS
   VTK::FiltersCore
   VTK::FiltersParallel
+  VTK::ParallelDIY
 OPTIONAL_DEPENDS
   VTK::ParallelMPI
 PRIVATE_DEPENDS
@@ -19,7 +20,6 @@ PRIVATE_DEPENDS
   VTK::ImagingCore
   VTK::IOXML
   VTK::ParallelCore
-  VTK::ParallelDIY
 TEST_DEPENDS
   VTK::diy2
   VTK::FiltersGeometry
