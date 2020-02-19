@@ -124,6 +124,14 @@ protected:
   int PositionBeforeStereo[2];
   vtkXRenderWindowInteractorInternals* Internal;
 
+  // Drag and drop related
+  Window XdndSource;
+  Atom XdndPositionAtom;
+  Atom XdndDropAtom;
+  Atom XdndActionCopyAtom;
+  Atom XdndStatusAtom;
+  Atom XdndFinishedAtom;
+
   //@{
   /**
    * X-specific internal timer methods. See the superclass for detailed

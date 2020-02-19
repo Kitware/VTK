@@ -29,10 +29,20 @@
 #include "vtkInteractorStyle.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
-#include <X11/Xutil.h>
-#include <cmath>
+#include "vtkStringArray.h"
 
+#include <vtksys/SystemTools.hxx>
+
+#include <X11/Shell.h>
+#include <X11/X.h>
+#include <X11/Xatom.h>
+#include <X11/Xutil.h>
+#include <X11/keysym.h>
+
+#include <climits>
+#include <cmath>
 #include <map>
+#include <sstream>
 
 vtkStandardNewMacro(vtkXRenderWindowInteractor);
 
@@ -140,6 +150,12 @@ vtkXRenderWindowInteractor::vtkXRenderWindowInteractor()
   this->DisplayId = nullptr;
   this->WindowId = 0;
   this->KillAtom = 0;
+  this->XdndSource = 0;
+  this->XdndPositionAtom = 0;
+  this->XdndDropAtom = 0;
+  this->XdndActionCopyAtom = 0;
+  this->XdndStatusAtom = 0;
+  this->XdndFinishedAtom = 0;
 }
 
 //-------------------------------------------------------------------------
@@ -333,6 +349,17 @@ void vtkXRenderWindowInteractor::Enable()
   // Setup for capturing the window deletion
   this->KillAtom = XInternAtom(this->DisplayId, "WM_DELETE_WINDOW", False);
   XSetWMProtocols(this->DisplayId, this->WindowId, &this->KillAtom, 1);
+
+  // Enable drag and drop
+  Atom xdndAwareAtom = XInternAtom(this->DisplayId, "XdndAware", False);
+  char xdndVersion = 5;
+  XChangeProperty(this->DisplayId, this->WindowId, xdndAwareAtom, XA_ATOM, 32, PropModeReplace,
+    (unsigned char*)&xdndVersion, 1);
+  this->XdndPositionAtom = XInternAtom(this->DisplayId, "XdndPosition", False);
+  this->XdndDropAtom = XInternAtom(this->DisplayId, "XdndDrop", False);
+  this->XdndActionCopyAtom = XInternAtom(this->DisplayId, "XdndActionCopy", False);
+  this->XdndStatusAtom = XInternAtom(this->DisplayId, "XdndStatus", False);
+  this->XdndFinishedAtom = XInternAtom(this->DisplayId, "XdndFinished", False);
 
   this->Enabled = 1;
 
@@ -664,13 +691,125 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
     }
     break;
 
+    // Selection request for drag and drop has been delivered
+    case SelectionNotify:
+    {
+      // Sanity checks
+      if (!event->xselection.property || !this->XdndSource)
+      {
+        return;
+      }
+
+      // Recover the dropped file
+      char* data = nullptr;
+      Atom actualType;
+      int actualFormat;
+      ulong itemCount, bytesAfter;
+      XGetWindowProperty(this->DisplayId, event->xselection.requestor, event->xselection.property,
+        0, LONG_MAX, False, event->xselection.target, &actualType, &actualFormat, &itemCount,
+        &bytesAfter, (unsigned char**)&data);
+
+      // Conversion checks
+      if ((event->xselection.target != AnyPropertyType && actualType != event->xselection.target) ||
+        itemCount == 0)
+      {
+        return;
+      }
+
+      // Recover filepaths from uris and invoke DropFilesEvent
+      std::stringstream uris(data);
+      std::string uri, protocol, hostname, filePath;
+      std::string unused0, unused1, unused2, unused3;
+      vtkNew<vtkStringArray> filePaths;
+      while (std::getline(uris, uri, '\n'))
+      {
+        if (vtksys::SystemTools::ParseURL(
+              uri, protocol, unused0, unused1, hostname, unused3, filePath, true))
+        {
+          if (protocol == "file" && (hostname.empty() || hostname == "localhost"))
+          {
+            // The uris are crlf delimited, remove the ending \r
+            filePath.pop_back();
+
+            // The extracted filepath miss the first slash
+            filePath.insert(0, "/");
+
+            filePaths->InsertNextValue(filePath);
+          }
+        }
+      }
+      this->InvokeEvent(vtkCommand::DropFilesEvent, filePaths);
+      XFree(data);
+
+      // Inform the source the the drag and drop operation was sucessfull
+      XEvent reply;
+      memset(&reply, 0, sizeof(reply));
+
+      reply.type = ClientMessage;
+      reply.xclient.window = event->xclient.data.l[0];
+      reply.xclient.message_type = this->XdndFinishedAtom;
+      reply.xclient.format = 32;
+      reply.xclient.data.l[0] = this->WindowId;
+      reply.xclient.data.l[1] = itemCount;
+      reply.xclient.data.l[2] = this->XdndActionCopyAtom;
+
+      XSendEvent(this->DisplayId, this->XdndSource, False, NoEventMask, &reply);
+      XFlush(this->DisplayId);
+      this->XdndSource = 0;
+    }
+    break;
+
     case ClientMessage:
     {
-      // cout << "XGetAtomName(message_type): "
-      //  << XGetAtomName(this->DisplayId,
-      //       (reinterpret_cast<XClientMessageEvent *>(event))->message_type)
-      //  << endl;
-      if (static_cast<Atom>(event->xclient.data.l[0]) == this->KillAtom)
+      if (event->xclient.message_type == this->XdndPositionAtom)
+      {
+        // Drag and drop event inside the window
+
+        // Recover the position
+        int xWindow, yWindow;
+        int xRoot = event->xclient.data.l[2] >> 16;
+        int yRoot = event->xclient.data.l[2] & 0xffff;
+        Window root = DefaultRootWindow(this->DisplayId);
+        Window child;
+        XTranslateCoordinates(
+          this->DisplayId, root, this->WindowId, xRoot, yRoot, &xWindow, &yWindow, &child);
+
+        // Convert it to VTK compatible location
+        double location[2];
+        location[0] = static_cast<double>(xWindow);
+        location[1] = static_cast<double>(this->Size[1] - yWindow - 1);
+        this->InvokeEvent(vtkCommand::UpdateDropLocationEvent, location);
+
+        // Reply that we are ready to copy the dragged data
+        XEvent reply;
+        memset(&reply, 0, sizeof(reply));
+
+        reply.type = ClientMessage;
+        reply.xclient.window = event->xclient.data.l[0];
+        reply.xclient.message_type = this->XdndStatusAtom;
+        reply.xclient.format = 32;
+        reply.xclient.data.l[0] = this->WindowId;
+        reply.xclient.data.l[1] = 1; // Always accept the dnd with no rectangle
+        reply.xclient.data.l[2] = 0; // Specify an empty rectangle
+        reply.xclient.data.l[3] = 0;
+        reply.xclient.data.l[4] = this->XdndActionCopyAtom;
+
+        XSendEvent(this->DisplayId, event->xclient.data.l[0], False, NoEventMask, &reply);
+        XFlush(this->DisplayId);
+      }
+      else if (event->xclient.message_type == this->XdndDropAtom)
+      {
+        // Item dropped in the window
+        // Store the source of the drag and drop
+        this->XdndSource = event->xclient.data.l[0];
+
+        // Ask for a conversion of the selection. This will trigger a SelectioNotify event later.
+        Atom xdndSelectionAtom = XInternAtom(this->DisplayId, "XdndSelection", False);
+        XConvertSelection(this->DisplayId, xdndSelectionAtom,
+          XInternAtom(this->DisplayId, "UTF8_STRING", False), xdndSelectionAtom, this->WindowId,
+          CurrentTime);
+      }
+      else if (static_cast<Atom>(event->xclient.data.l[0]) == this->KillAtom)
       {
         this->ExitCallback();
       }
