@@ -45,6 +45,7 @@ set(classes
   vtkGraphToGlyphs
   vtkGraphicsFactory
   vtkHardwareSelector
+  vtkHardwareWindow
   vtkHierarchicalPolyDataMapper
   vtkImageActor
   vtkImageMapper

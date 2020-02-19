@@ -271,6 +271,8 @@ bool vtkWin32OpenGLRenderWindow::SetSwapControl(int i)
 }
 
 // ----------------------------------------------------------------------------
+namespace
+{
 void AdjustWindowRectForBorders(
   HWND hwnd, DWORD style, const int x, const int y, const int width, const int height, RECT& r)
 {
@@ -287,6 +289,7 @@ void AdjustWindowRectForBorders(
   {
     vtkGenericWarningMacro("AdjustWindowRect failed, error: " << GetLastError());
   }
+}
 }
 
 // ----------------------------------------------------------------------------
