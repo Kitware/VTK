@@ -49,7 +49,7 @@ const std::map<std::string, std::map<std::string, std::string> > Aliases = {
   { "Glass",
     { { "etaInside", "eta" }, { "etaOutside", "eta" },
       { "attenuationColorOutside", "attenuationColor" } } },
-  { "Principled", {} }, { "CarPaint", {} }, { "Metal", {} }, { "Alloy", {} }
+  { "Principled", {} }, { "CarPaint", {} }, { "Metal", {} }, { "Alloy", {} }, { "Luminous", {} }
 };
 
 std::string FindRealName(const std::string& materialType, const std::string& alias)
@@ -1106,6 +1106,12 @@ vtkOSPRayMaterialLibrary::GetParametersDictionary()
         { "map_baseColor.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
         { "map_baseColor.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "map_baseColor.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+      } },
+    { "Luminous",
+      {
+        { "color", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
+        { "intensity", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
+        { "transparency", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
       } },
   };
   return dic;
