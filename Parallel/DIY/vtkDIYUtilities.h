@@ -112,6 +112,12 @@ public:
   static std::vector<vtkSmartPointer<vtkPoints> > ExtractPoints(
     const std::vector<vtkDataSet*>& datasets, bool use_cell_centers);
   //@}
+
+  /**
+   * Convenience method to get local bounds for the data object.
+   */
+  static vtkBoundingBox GetLocalBounds(vtkDataObject* dobj);
+
 protected:
   vtkDIYUtilities();
   ~vtkDIYUtilities() override;

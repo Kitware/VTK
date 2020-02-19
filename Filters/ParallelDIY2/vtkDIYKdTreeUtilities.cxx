@@ -17,10 +17,12 @@
 #include "vtkAppendFilter.h"
 #include "vtkBoundingBox.h"
 #include "vtkCellData.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkDIYExplicitAssigner.h"
 #include "vtkDIYUtilities.h"
 #include "vtkIdTypeArray.h"
 #include "vtkLogger.h"
+#include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPartitionedDataSet.h"
@@ -30,6 +32,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <iterator>
 #include <map>
 #include <tuple>
 
@@ -80,25 +83,6 @@ struct BlockT
   }
 };
 
-unsigned int nextPowerOf2(unsigned int n)
-{
-  unsigned int count = 0;
-  if (n <= 1)
-  {
-    return 2;
-  }
-
-  if (!(n & (n - 1)))
-  {
-    return n;
-  }
-  while (n != 0)
-  {
-    n >>= 1;
-    count += 1;
-  }
-  return (1 << count);
-}
 }
 
 //----------------------------------------------------------------------------
@@ -115,11 +99,26 @@ void vtkDIYKdTreeUtilities::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 std::vector<vtkBoundingBox> vtkDIYKdTreeUtilities::GenerateCuts(vtkDataObject* dobj,
-  int number_of_partitions, bool use_cell_centers, vtkMultiProcessController* controller)
+  int number_of_partitions, bool use_cell_centers, vtkMultiProcessController* controller,
+  const double* local_bounds)
 {
+  double bds[6];
+  vtkMath::UninitializeBounds(bds);
+  if (local_bounds == nullptr)
+  {
+    auto bbox = vtkDIYUtilities::GetLocalBounds(dobj);
+    if (bbox.IsValid())
+    {
+      bbox.GetBounds(bds);
+    }
+  }
+  else
+  {
+    std::copy(local_bounds, local_bounds + 6, bds);
+  }
   const auto datasets = vtkDIYUtilities::GetDataSets(dobj);
   const auto pts = vtkDIYUtilities::ExtractPoints(datasets, use_cell_centers);
-  return vtkDIYKdTreeUtilities::GenerateCuts(pts, number_of_partitions, controller);
+  return vtkDIYKdTreeUtilities::GenerateCuts(pts, number_of_partitions, controller, bds);
 }
 
 //----------------------------------------------------------------------------
@@ -162,14 +161,15 @@ std::vector<vtkBoundingBox> vtkDIYKdTreeUtilities::GenerateCuts(
     return std::vector<vtkBoundingBox>();
   }
 
-  bbox.Inflate(0.1 * bbox.GetDiagonalLength());
+  // I am removing this. it doesn't not make sense to inflate here.
+  // bbox.Inflate(0.1 * bbox.GetDiagonalLength());
 
   if (number_of_partitions == 1)
   {
     return std::vector<vtkBoundingBox>{ bbox };
   }
 
-  const int num_cuts = ::nextPowerOf2(number_of_partitions);
+  const int num_cuts = vtkMath::NearestPowerOfTwo(number_of_partitions);
   if (num_cuts < comm.size())
   {
     // TODO: we need a MxN transfer
@@ -452,4 +452,59 @@ bool vtkDIYKdTreeUtilities::GenerateGlobalCellIds(vtkPartitionedDataSet* parts,
   }
 
   return true;
+}
+
+//----------------------------------------------------------------------------
+std::vector<int> vtkDIYKdTreeUtilities::ComputeAssignments(int num_blocks, int num_ranks)
+{
+  assert(num_blocks == vtkMath::NearestPowerOfTwo(num_blocks));
+
+  std::vector<int> assignments(num_blocks);
+  std::iota(assignments.begin(), assignments.end(), 0);
+
+  if (num_ranks >= num_blocks)
+  {
+    return assignments;
+  }
+
+  const int next = vtkMath::NearestPowerOfTwo(num_ranks);
+  const int divisor = num_blocks / next;
+  for (auto& rank : assignments)
+  {
+    rank /= divisor;
+  }
+
+  const int window = divisor * 2;
+  int num_windows_to_merge = (next - num_ranks);
+  int rank = (num_ranks - 1);
+  for (int cc = (num_blocks - window); cc >= 0 && num_windows_to_merge > 0; cc -= window)
+  {
+    for (int kk = 0; kk < window; ++kk)
+    {
+      assignments[cc + kk] = rank;
+    }
+    --num_windows_to_merge;
+    --rank;
+  }
+
+  return assignments;
+}
+
+//----------------------------------------------------------------------------
+vtkDIYExplicitAssigner vtkDIYKdTreeUtilities::CreateAssigner(
+  diy::mpi::communicator& comm, int num_blocks)
+{
+  assert(num_blocks == vtkMath::NearestPowerOfTwo(num_blocks));
+
+  const auto assignments = vtkDIYKdTreeUtilities::ComputeAssignments(num_blocks, comm.size());
+  const int rank = comm.rank();
+  int local_blocks = 0;
+  for (const auto& assignment : assignments)
+  {
+    if (rank == assignment)
+    {
+      ++local_blocks;
+    }
+  }
+  return vtkDIYExplicitAssigner(comm, local_blocks, true);
 }

@@ -28,6 +28,7 @@
 #include "vtkRectilinearGridToPointSet.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLDataObjectWriter.h"
+#include "vtkXMLImageDataReader.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
 #if VTK_MODULE_ENABLE_VTK_ParallelMPI
@@ -168,14 +169,35 @@ void vtkDIYUtilities::Load(diy::BinaryBuffer& bb, vtkDataSet*& p)
     std::string data;
     diy::load(bb, data);
 
-    assert(type == VTK_UNSTRUCTURED_GRID);
-    vtkNew<vtkXMLUnstructuredGridReader> reader;
-    reader->ReadFromInputStringOn();
-    reader->SetInputString(data);
-    reader->Update();
+    vtkSmartPointer<vtkDataSet> ds;
+    switch (type)
+    {
+      case VTK_UNSTRUCTURED_GRID:
+      {
+        vtkNew<vtkXMLUnstructuredGridReader> reader;
+        reader->ReadFromInputStringOn();
+        reader->SetInputString(data);
+        reader->Update();
+        ds = vtkDataSet::SafeDownCast(reader->GetOutputDataObject(0));
+      }
+      break;
 
-    p = vtkUnstructuredGrid::New();
-    p->ShallowCopy(reader->GetOutputDataObject(0));
+      case VTK_IMAGE_DATA:
+      {
+        vtkNew<vtkXMLImageDataReader> reader;
+        reader->ReadFromInputStringOn();
+        reader->SetInputString(data);
+        reader->Update();
+        ds = vtkDataSet::SafeDownCast(reader->GetOutputDataObject(0));
+      }
+      break;
+      default:
+        // aborting for debugging purposes.
+        abort();
+    }
+
+    ds->Register(nullptr);
+    p = ds.GetPointer();
   }
 }
 
@@ -303,6 +325,22 @@ std::vector<vtkSmartPointer<vtkPoints> > vtkDIYUtilities::ExtractPoints(
     }
   }
   return all_points;
+}
+
+//----------------------------------------------------------------------------
+vtkBoundingBox vtkDIYUtilities::GetLocalBounds(vtkDataObject* dobj)
+{
+  double bds[6];
+  vtkMath::UninitializeBounds(bds);
+  if (auto ds = vtkDataSet::SafeDownCast(dobj))
+  {
+    ds->GetBounds(bds);
+  }
+  else if (auto cd = vtkCompositeDataSet::SafeDownCast(dobj))
+  {
+    cd->GetBounds(bds);
+  }
+  return vtkBoundingBox(bds);
 }
 
 //----------------------------------------------------------------------------

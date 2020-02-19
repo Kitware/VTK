@@ -302,7 +302,7 @@ public:
       if (!validCell)
       {
         this->CellGhostArray->SetValue(
-          cellId, this->CellGhostArray->GetValue(cellId) | vtkDataSetAttributes::HIDDENPOINT);
+          cellId, this->CellGhostArray->GetValue(cellId) | vtkDataSetAttributes::HIDDENCELL);
       }
     }
   }

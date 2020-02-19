@@ -54,9 +54,6 @@ public:
   void local_gids(int rank, std::vector<int>& gids) const override;
 
 private:
-  vtkDIYExplicitAssigner(const vtkDIYExplicitAssigner&) = delete;
-  void operator=(const vtkDIYExplicitAssigner&) = delete;
-
   std::vector<int> IScanBlockCounts;
 };
 
