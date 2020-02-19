@@ -485,9 +485,12 @@ static char* JNU_GetStringNativeChars(JNIEnv* env, jstring jstr)
   {
     return 0; /* out of memory error */
   }
-  jclass Class_java_lang_String = env->FindClass("java/lang/String");
-  jmethodID MID_String_getBytes = env->GetMethodID(Class_java_lang_String, "getBytes", "()[B");
-  bytes = (jbyteArray)env->CallObjectMethod(jstr, MID_String_getBytes);
+  jclass Class_java_lang_String = env->GetObjectClass(jstr);
+  jmethodID MID_String_getBytes =
+    env->GetMethodID(Class_java_lang_String, "getBytes", "(Ljava/lang/String;)[B");
+  jstring encoding = env->NewStringUTF("UTF-8");
+  bytes = (jbyteArray)env->CallObjectMethod(jstr, MID_String_getBytes, encoding);
+  env->DeleteLocalRef(encoding);
   exc = env->ExceptionOccurred();
   if (!exc)
   {
@@ -537,7 +540,21 @@ JNIEXPORT jstring vtkJavaMakeJavaString(JNIEnv* env, const char* in)
   }
   else
   {
-    return env->NewStringUTF(in);
+    size_t length = strlen(in);
+    jbyteArray bytes = env->NewByteArray((jsize)length);
+    env->SetByteArrayRegion(bytes, 0, (jsize)length, (jbyte*)in);
+
+    jclass Class_java_lang_String = env->FindClass("java/lang/String");
+    jmethodID MID_String_ctor =
+      env->GetMethodID(Class_java_lang_String, "<init>", "([BLjava/lang/String;)V");
+
+    jstring encoding = env->NewStringUTF("UTF-8");
+    jstring result =
+      (jstring)env->NewObject(Class_java_lang_String, MID_String_ctor, bytes, encoding);
+    env->DeleteLocalRef(encoding);
+    env->DeleteLocalRef(bytes);
+
+    return result;
   }
 }
 
