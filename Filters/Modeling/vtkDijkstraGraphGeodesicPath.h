@@ -24,7 +24,8 @@
  * enhancement are added though. All vertices are not pushed on the heap
  * at start, instead a front set is maintained. The heap is implemented as
  * a binary heap. The output of the filter is a set of lines describing
- * the shortest path from StartVertex to EndVertex.
+ * the shortest path from StartVertex to EndVertex. If a path cannot be found
+ * the output will have no lines or points.
  *
  * @warning
  * The input polydata must have only triangle cells.
