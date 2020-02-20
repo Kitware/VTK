@@ -157,10 +157,10 @@ std::string vtk3DSImporter::GetOutputsDescription()
     if (mesh->aPolyData)
     {
       ss << "Mesh " << idx << " polydata:\n";
-      ss << vtkImporter::GetDataSetDescription(mesh->aPolyData, vtkIndent(1)) << "\n";
+      ss << vtkImporter::GetDataSetDescription(mesh->aPolyData, vtkIndent(1));
     }
   }
-  return "";
+  return ss.str();
 }
 
 int vtk3DSImporter::Read3DS()
