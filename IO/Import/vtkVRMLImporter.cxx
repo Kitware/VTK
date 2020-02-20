@@ -1398,12 +1398,17 @@ std::string vtkVRMLImporter::GetOutputsDescription()
   std::stringstream ss;
   for (int i = 0; i < this->Internal->Heap.Count(); i++)
   {
-    vtkPolyData* pd = vtkPolyData::SafeDownCast(this->Internal->Heap.Get(i));
-    if (pd)
+    vtkObject* obj = this->Internal->Heap.Get(i);
+    vtkPoints* points = vtkPoints::SafeDownCast(obj);
+    vtkDataArray* array = vtkDataArray::SafeDownCast(obj);
+    if (points)
     {
-      ss << "Mesh " << i << " polydata: "
-         << "\n";
-      ss << vtkImporter::GetDataSetDescription(pd, vtkIndent(1)) << "\n";
+      ss << "Points with " << points->GetNumberOfPoints() << " points\n";
+    }
+    else if (array)
+    {
+      ss << "Array with " << array->GetNumberOfTuples() << " tuples\n";
+      ss << vtkImporter::GetArrayDescription(array, vtkIndent(1));
     }
   }
   return ss.str();

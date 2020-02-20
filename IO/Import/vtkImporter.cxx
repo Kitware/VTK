@@ -116,10 +116,16 @@ void vtkImporter::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 std::string vtkImporter::GetArrayDescription(vtkDataArray* array, vtkIndent indent)
 {
+  std::stringstream ss;
+  ss << indent;
+  if (array->GetName())
+  {
+    ss << array->GetName() << " : ";
+  }
+  ss << array->GetDataTypeAsString() << " : ";
+
   int nComp = array->GetNumberOfComponents();
   double range[2];
-  std::stringstream ss;
-  ss << indent << array->GetName() << " : " << array->GetDataTypeAsString() << " : ";
   for (int j = 0; j < nComp; j++)
   {
     array->GetRange(range, j);
