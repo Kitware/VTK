@@ -29,6 +29,7 @@ int TestPSimpleBondPerceiver(int argc, char* argv[])
   vtkMultiProcessController::SetGlobalController(controller);
 
   const int rank = controller->GetLocalProcessId();
+  const float COVALENT_RADIUS = 1.02f;
 
   vtkNew<vtkMolecule> mol;
   vtkNew<vtkPSimpleBondPerceiver> bonder;
@@ -36,7 +37,7 @@ int TestPSimpleBondPerceiver(int argc, char* argv[])
   const vtkIdType atomicNb = 4;
   vtkNew<vtkPeriodicTable> periodicTable;
   // assert table is as expected when writing the test. cf values in vtkBlueObeliskDataInternal.h
-  if (periodicTable->GetCovalentRadius(atomicNb) != 0.9f)
+  if (periodicTable->GetCovalentRadius(atomicNb) != COVALENT_RADIUS)
   {
     std::cout << "Warning : covalent radius from periodic table has changed since the test has "
                  "been written."
@@ -44,60 +45,79 @@ int TestPSimpleBondPerceiver(int argc, char* argv[])
   }
 
   // First create a test molecule:
-  mol->AppendAtom(atomicNb, 2.5 * rank, 0, 0);
-  mol->AppendAtom(atomicNb, 2.5 * rank, 2, 0);
-  mol->AppendAtom(atomicNb, 2.5 * rank, 0, 2);
-  mol->AppendAtom(atomicNb, 2.5 * rank, 2, 2);
+
+  // inter atomic distance : create a square per rank
+  const float interAtomic = 2 * COVALENT_RADIUS;
+  // inter rank distance so we will have inter rank bonds before diagonals inside a rank.
+  // 1.25 < sqrt(2)
+  const float interRank = 1.25 * interAtomic;
+
+  mol->AppendAtom(atomicNb, interRank * rank, 0, 0);
+  mol->AppendAtom(atomicNb, interRank * rank, interAtomic, 0);
+  mol->AppendAtom(atomicNb, interRank * rank, 0, interAtomic);
+  mol->AppendAtom(atomicNb, interRank * rank, interAtomic, interAtomic);
   bonder->SetInputData(mol);
 
+  // 1.
+  // bonds only between the 4 atoms of the rank. (no diagonals)
+  // relative tolerance
+  //  - greater than 1 to create bonds
+  //  - less than sqrt(2) to avoid the diagonals
+  //  - less than 1.25 to avoid inter - rank
   bonder->SetIsToleranceAbsolute(false);
   bonder->SetTolerance(1.15);
   bonder->Update();
 
   vtkIdType numOfBonds = bonder->GetOutput()->GetNumberOfBonds();
-  // bonds only  between the 4 atoms of the rank. (no diagonals)
   vtkIdType expectedNumOfBonds = 4;
   if (numOfBonds != expectedNumOfBonds)
   {
-    std::cout << "Case 1.15 relative : Wrong number of bonds for (have " << numOfBonds
-              << " instead of " << expectedNumOfBonds << ")" << std::endl;
+    std::cout << "Case 1 : Wrong number of bonds for (have " << numOfBonds << " instead of "
+              << expectedNumOfBonds << ")" << std::endl;
+    controller->Finalize();
     return EXIT_FAILURE;
   }
 
-  bonder->SetTolerance(1.5);
+  // 2.
+  // bonds between the 4 atoms of the rank AND between rank.
+  bonder->SetTolerance(1.4);
   bonder->Update();
   numOfBonds = bonder->GetOutput()->GetNumberOfBonds();
-  // bonds between the 4 atoms of the rank AND between rank.
   expectedNumOfBonds = 8;
   if (numOfBonds != expectedNumOfBonds)
   {
-    std::cout << "Case 1.5 relative : Wrong number of bonds ! (have " << numOfBonds
-              << " instead of " << expectedNumOfBonds << ")" << std::endl;
+    std::cout << "Case 2 : Wrong number of bonds ! (have " << numOfBonds << " instead of "
+              << expectedNumOfBonds << ")" << std::endl;
+    controller->Finalize();
     return EXIT_FAILURE;
   }
 
+  // 3.
+  // bonds between the 4 atoms of the rank. (no diagonals)
   bonder->SetIsToleranceAbsolute(true);
-  bonder->SetTolerance(0.4);
+  bonder->SetTolerance(0.3);
   bonder->Update();
   numOfBonds = bonder->GetOutput()->GetNumberOfBonds();
-  // bonds between the 4 atoms of the rank.
   expectedNumOfBonds = 4;
   if (numOfBonds != expectedNumOfBonds)
   {
-    std::cout << "Case 0.4 absolute : Wrong number of bonds ! (have " << numOfBonds
-              << " instead of " << expectedNumOfBonds << ")" << std::endl;
+    std::cout << "Case 3 : Wrong number of bonds ! (have " << numOfBonds << " instead of "
+              << expectedNumOfBonds << ")" << std::endl;
+    controller->Finalize();
     return EXIT_FAILURE;
   }
 
+  // 4.
+  // bonds between the 4 atoms of the rank AND between rank.
   bonder->SetTolerance(0.8);
   bonder->Update();
   numOfBonds = bonder->GetOutput()->GetNumberOfBonds();
-  // bonds between the 4 atoms of the rank AND between rank.
   expectedNumOfBonds = 8;
   if (numOfBonds != expectedNumOfBonds)
   {
-    std::cout << "Case 0.8 absolute : Wrong number of bonds ! (have " << numOfBonds
-              << " instead of " << expectedNumOfBonds << ")" << std::endl;
+    std::cout << "Case 4 : Wrong number of bonds ! (have " << numOfBonds << " instead of "
+              << expectedNumOfBonds << ")" << std::endl;
+    controller->Finalize();
     return EXIT_FAILURE;
   }
 

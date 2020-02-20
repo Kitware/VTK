@@ -141,7 +141,7 @@ int TestPeriodicTable(int, char*[])
 
   // Check atomic radius.
   float radius = pTab->GetCovalentRadius(5);
-  if (!vtkMathUtilities::FuzzyCompare(radius, 0.82f, 0.01f))
+  if (!vtkMathUtilities::FuzzyCompare(radius, 0.85f, 0.01f))
   {
     cout << "Incorrect radius: " << setprecision(8) << radius << endl;
     ++errors;
