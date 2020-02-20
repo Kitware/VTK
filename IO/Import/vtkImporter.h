@@ -48,6 +48,8 @@
 #include "vtkIOImportModule.h" // For export macro
 #include "vtkObject.h"
 
+class vtkDataArray;
+class vtkDataSet;
 class vtkRenderWindow;
 class vtkRenderer;
 
@@ -86,6 +88,12 @@ public:
   void Update() { this->Read(); }
   //@}
 
+  /**
+   * Recover a printable string that let importer implementation
+   * Describe their outputs.
+   */
+  virtual std::string GetOutputsDescription() { return ""; };
+
 protected:
   vtkImporter();
   ~vtkImporter() override;
@@ -96,6 +104,9 @@ protected:
   virtual void ImportCameras(vtkRenderer*) {}
   virtual void ImportLights(vtkRenderer*) {}
   virtual void ImportProperties(vtkRenderer*) {}
+
+  static std::string GetDataSetDescription(vtkDataSet* ds, vtkIndent indent);
+  static std::string GetArrayDescription(vtkDataArray* array, vtkIndent indent);
 
   vtkRenderer* Renderer;
   vtkRenderWindow* RenderWindow;

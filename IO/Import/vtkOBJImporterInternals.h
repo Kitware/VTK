@@ -106,6 +106,8 @@ public:
 
   virtual vtkPolyData* GetOutput(int idx);
 
+  int GetNumberOfOutputs();
+
   vtkOBJImportedMaterial* GetMaterial(int k);
 
   std::string GetTextureFilename(int idx); // return string by index

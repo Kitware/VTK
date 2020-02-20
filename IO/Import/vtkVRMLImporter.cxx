@@ -1391,3 +1391,20 @@ vtkObject* vtkVRMLImporter::GetVRMLDEFObject(const char* name)
   }
   return nullptr;
 }
+
+//----------------------------------------------------------------------------
+std::string vtkVRMLImporter::GetOutputsDescription()
+{
+  std::stringstream ss;
+  for (int i = 0; i < this->Internal->Heap.Count(); i++)
+  {
+    vtkPolyData* pd = vtkPolyData::SafeDownCast(this->Internal->Heap.Get(i));
+    if (pd)
+    {
+      ss << "Mesh " << i << " polydata: "
+         << "\n";
+      ss << vtkImporter::GetDataSetDescription(pd, vtkIndent(1)) << "\n";
+    }
+  }
+  return ss.str();
+}

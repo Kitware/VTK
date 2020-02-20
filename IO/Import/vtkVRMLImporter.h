@@ -106,6 +106,11 @@ public:
    */
   vtkObject* GetVRMLDEFObject(const char* name);
 
+  /**
+   * Get a printable string describing the outputs
+   */
+  std::string GetOutputsDescription() override;
+
 protected:
   vtkVRMLImporter();
   ~vtkVRMLImporter() override;

@@ -13,8 +13,15 @@
 
 =========================================================================*/
 #include "vtkImporter.h"
+#include "vtkCellData.h"
+#include "vtkDataArray.h"
+#include "vtkDataSet.h"
+#include "vtkPointData.h"
+#include "vtkPolyData.h"
 #include "vtkRenderWindow.h"
 #include "vtkRendererCollection.h"
+
+#include <sstream>
 
 vtkCxxSetObjectMacro(vtkImporter, RenderWindow, vtkRenderWindow);
 
@@ -104,4 +111,59 @@ void vtkImporter::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << "(none)\n";
   }
+}
+
+//----------------------------------------------------------------------------
+std::string vtkImporter::GetArrayDescription(vtkDataArray* array, vtkIndent indent)
+{
+  int nComp = array->GetNumberOfComponents();
+  double range[2];
+  std::stringstream ss;
+  ss << indent << array->GetName() << " : " << array->GetDataTypeAsString() << " : ";
+  for (int j = 0; j < nComp; j++)
+  {
+    array->GetRange(range, j);
+    ss << "[" << range[0] << ", " << range[1] << "] ";
+  }
+  ss << "\n";
+  return ss.str();
+}
+
+//----------------------------------------------------------------------------
+std::string vtkImporter::GetDataSetDescription(vtkDataSet* ds, vtkIndent indent)
+{
+  std::stringstream ss;
+  ss << indent << "Number of points: " << ds->GetNumberOfPoints() << "\n";
+
+  vtkPolyData* pd = vtkPolyData::SafeDownCast(ds);
+  if (pd)
+  {
+    ss << indent << "Number of polygons: " << pd->GetNumberOfPolys() << "\n";
+    ss << indent << "Number of lines: " << pd->GetNumberOfLines() << "\n";
+    ss << indent << "Number of vertices: " << pd->GetNumberOfVerts() << "\n";
+  }
+  else
+  {
+    ss << indent << "Number of cells: " << ds->GetNumberOfCells() << "\n";
+  }
+
+  vtkPointData* pointData = ds->GetPointData();
+  vtkCellData* cellData = ds->GetCellData();
+  int nbPointData = pointData->GetNumberOfArrays();
+  int nbCellData = cellData->GetNumberOfArrays();
+
+  ss << indent << nbPointData << " point data array(s):\n";
+  for (vtkIdType i = 0; i < nbPointData; i++)
+  {
+    vtkDataArray* array = pointData->GetArray(i);
+    ss << vtkImporter::GetArrayDescription(array, indent.GetNextIndent());
+  }
+
+  ss << indent << nbCellData << " cell data array(s):\n";
+  for (vtkIdType i = 0; i < nbCellData; i++)
+  {
+    vtkDataArray* array = cellData->GetArray(i);
+    ss << vtkImporter::GetArrayDescription(array, indent.GetNextIndent());
+  }
+  return ss.str();
 }

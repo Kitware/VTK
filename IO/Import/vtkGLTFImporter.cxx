@@ -384,6 +384,8 @@ void vtkGLTFImporter::ImportActors(vtkRenderer* renderer)
     nodeIdStack.push(nodeId);
   }
 
+  this->OutputsDescription = "";
+
   // Iterate over tree
   while (!nodeIdStack.empty())
   {
@@ -420,6 +422,14 @@ void vtkGLTFImporter::ImportActors(vtkRenderer* renderer)
 
         actor->SetMapper(mapper);
         actor->SetUserTransform(node.GlobalTransform);
+
+        if (!mesh.Name.empty())
+        {
+          this->OutputsDescription += mesh.Name + " ";
+        }
+        this->OutputsDescription += "Primitive Geometry:\n";
+        this->OutputsDescription +=
+          vtkImporter::GetDataSetDescription(primitive.Geometry, vtkIndent(1));
 
         if (primitive.Material >= 0 &&
           primitive.Material < static_cast<int>(model->Materials.size()))

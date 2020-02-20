@@ -58,6 +58,11 @@ public:
   //@}
 
   /**
+   * Get a printable string describing the outputs
+   */
+  std::string GetOutputsDescription() override;
+
+  /**
    * Return the file pointer to the open file.
    */
   FILE* GetFileFD() { return this->FileFD; }
