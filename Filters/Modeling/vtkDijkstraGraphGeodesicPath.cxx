@@ -157,10 +157,16 @@ double vtkDijkstraGraphGeodesicPath::CalculateStaticEdgeCost(
 
   if (this->UseScalarWeights)
   {
+    double s2 = 0.0;
     // Note this edge cost is not symmetric!
-    vtkFloatArray* scalars = static_cast<vtkFloatArray*>(inData->GetPointData()->GetScalars());
-    //    float s1 = scalars->GetValue(u);
-    double s2 = static_cast<double>(scalars->GetValue(v));
+    if (inData->GetPointData())
+    {
+      vtkFloatArray* scalars = vtkFloatArray::SafeDownCast(inData->GetPointData()->GetScalars());
+      if (scalars)
+      {
+        s2 = static_cast<double>(scalars->GetValue(v));
+      }
+    }
 
     double wt = s2 * s2;
     if (wt != 0.0)
@@ -237,7 +243,13 @@ void vtkDijkstraGraphGeodesicPath::TraceShortestPath(
   vtkIdType id;
   while (v != startv)
   {
-    IdList->InsertNextId(v);
+    if (v < 0)
+    {
+      // Invalid vertex. Path does not exist.
+      break;
+    }
+
+    this->IdList->InsertNextId(v);
 
     inData->GetPoint(v, pt);
     id = points->InsertNextPoint(pt);
@@ -246,13 +258,20 @@ void vtkDijkstraGraphGeodesicPath::TraceShortestPath(
     v = this->Internals->Predecessors[v];
   }
 
-  this->IdList->InsertNextId(v);
+  if (v >= 0)
+  {
+    this->IdList->InsertNextId(v);
+    inData->GetPoint(v, pt);
+    id = points->InsertNextPoint(pt);
+    lines->InsertCellPoint(id);
+    lines->UpdateCellCount(points->GetNumberOfPoints());
+  }
+  else
+  {
+    points->Reset();
+    lines->Reset();
+  }
 
-  inData->GetPoint(v, pt);
-  id = points->InsertNextPoint(pt);
-  lines->InsertCellPoint(id);
-
-  lines->UpdateCellCount(points->GetNumberOfPoints());
   outPoly->SetPoints(points);
   points->Delete();
   outPoly->SetLines(lines);
