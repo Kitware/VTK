@@ -621,6 +621,7 @@ OSPMaterial MakeActorMaterial(vtkOSPRayRendererNode* orn, OSPRenderer oRenderer,
     OSPMaterial oMaterial = vtkOSPRayMaterialHelpers::NewMaterial(orn, oRenderer, "Luminous");
     ospSet3fv(oMaterial, "color", diffusef);
     ospSetf(oMaterial, "intensity", lum);
+    ospSetf(oMaterial, "transparency", 1.0 - opacity);
     return oMaterial;
   }
 
