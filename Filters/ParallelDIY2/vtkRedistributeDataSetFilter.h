@@ -53,7 +53,14 @@
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkFiltersParallelDIY2Module.h" // for export macros
 #include "vtkSmartPointer.h"              // for vtkSmartPointer
-#include <vector>                         // for std::vector
+
+#include <memory> // for std::shared_ptr
+#include <vector> // for std::vector
+
+// clang-format off
+#include "vtk_diy2.h"
+#include VTK_DIY2(diy/assigner.hpp)
+// clang-format on
 
 class vtkMultiProcessController;
 class vtkBoundingBox;
@@ -130,6 +137,16 @@ public:
   int GetNumberOfExplicitCuts() const;
   const vtkBoundingBox& GetExplicitCut(int index) const;
   //@}
+
+  //@{
+  /**
+   * Specify the DIY assigner used for distributing cuts. If you use this API, you have to be
+   * careful and use an assigner matching your setup. For example, if you use explicit cuts (by
+   * calling SetExplicitCuts()), you want to assign all the cuts you provide.
+   */
+  void SetAssigner(std::shared_ptr<diy::Assigner> assigner);
+  std::shared_ptr<diy::Assigner> GetAssigner();
+  std::shared_ptr<const diy::Assigner> GetAssigner() const;
 
   //@{
   /**
@@ -285,6 +302,7 @@ private:
 
   std::vector<vtkBoundingBox> ExplicitCuts;
   std::vector<vtkBoundingBox> Cuts;
+  std::shared_ptr<diy::Assigner> Assigner;
 
   vtkMultiProcessController* Controller;
   int BoundaryMode;
