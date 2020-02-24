@@ -48,6 +48,8 @@
 #include "vtkIOImportModule.h" // For export macro
 #include "vtkObject.h"
 
+#include <string>
+
 class vtkDataArray;
 class vtkDataSet;
 class vtkRenderWindow;
