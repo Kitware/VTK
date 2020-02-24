@@ -29,6 +29,11 @@ vtkOpenGLCellToVTKCellMap::vtkOpenGLCellToVTKCellMap()
   this->PrimitiveOffsets[1] = 0;
   this->PrimitiveOffsets[2] = 0;
   this->PrimitiveOffsets[3] = 0;
+
+  this->CellMapSizes[0] = 0;
+  this->CellMapSizes[1] = 0;
+  this->CellMapSizes[2] = 0;
+  this->CellMapSizes[3] = 0;
 }
 
 // ----------------------------------------------------------------------------
