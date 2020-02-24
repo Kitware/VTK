@@ -161,11 +161,11 @@ int vtkAdaptiveDataSetSurfaceFilter::RequestData(
     return this->Superclass::RequestData(request, inputVector, outputVector);
   }
 
-  return this->DataSetExecute(input, output);
+  return this->DataObjectExecute(input, output);
 }
 
 //------------------------------------------------------------------------------
-int vtkAdaptiveDataSetSurfaceFilter::DataSetExecute(vtkDataObject* inputDS, vtkPolyData* output)
+int vtkAdaptiveDataSetSurfaceFilter::DataObjectExecute(vtkDataObject* inputDS, vtkPolyData* output)
 {
   // Retrieve input grid
   vtkHyperTreeGrid* input = vtkHyperTreeGrid::SafeDownCast(inputDS);

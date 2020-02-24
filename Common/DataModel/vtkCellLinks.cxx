@@ -19,6 +19,7 @@
 #include "vtkGenericCell.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
+#include "vtkSMPTools.h"
 
 #include <vector>
 
@@ -44,6 +45,8 @@ void vtkCellLinks::Initialize()
     delete[] this->Array;
     this->Array = nullptr;
   }
+  this->NumberOfPoints = 0;
+  this->NumberOfCells = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -129,8 +132,8 @@ vtkCellLinks::Link* vtkCellLinks::Resize(vtkIdType sz)
 // Build the link list array.
 void vtkCellLinks::BuildLinks(vtkDataSet* data)
 {
-  vtkIdType numPts = data->GetNumberOfPoints();
-  vtkIdType numCells = data->GetNumberOfCells();
+  vtkIdType numPts = this->NumberOfPoints = data->GetNumberOfPoints();
+  vtkIdType numCells = this->NumberOfCells = data->GetNumberOfCells();
   int j;
   vtkIdType cellId;
 
@@ -213,6 +216,28 @@ vtkIdType vtkCellLinks::InsertNextPoint(int numLinks)
   }
   this->Array[this->MaxId].cells = new vtkIdType[numLinks];
   return this->MaxId;
+}
+
+//------------------------------------------------------------------------------
+// Mark cells with one or more points whose degree lies in the range indicated.
+void vtkCellLinks::SelectCells(vtkIdType minMaxDegree[2], unsigned char* cellSelection)
+{
+  std::fill_n(cellSelection, this->NumberOfCells, 0);
+  vtkSMPTools::For(0, this->NumberOfPoints,
+    [this, minMaxDegree, cellSelection](vtkIdType ptId, vtkIdType endPtId) {
+      for (; ptId < endPtId; ++ptId)
+      {
+        vtkIdType degree = this->GetNcells(0);
+        if (degree >= minMaxDegree[0] && degree < minMaxDegree[1])
+        {
+          vtkIdType* cells = this->GetCells(ptId);
+          for (auto i = 0; i < degree; ++i)
+          {
+            cellSelection[cells[i]] = 1;
+          }
+        }
+      } // for all points in this batch
+    }); // end lambda
 }
 
 //------------------------------------------------------------------------------

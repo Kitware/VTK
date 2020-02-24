@@ -589,4 +589,28 @@ void vtkStaticCellLinksTemplate<TIds>::DeepCopy(vtkAbstractCellLinks* src)
   }
 }
 
+//----------------------------------------------------------------------------
+// Support the vtkAbstractCellLinks API
+template <typename TIds>
+void vtkStaticCellLinksTemplate<TIds>::SelectCells(
+  vtkIdType minMaxDegree[2], unsigned char* cellSelection)
+{
+  std::fill_n(cellSelection, this->NumCells, 0);
+  vtkSMPTools::For(
+    0, this->NumPts, [this, minMaxDegree, cellSelection](vtkIdType ptId, vtkIdType endPtId) {
+      for (; ptId < endPtId; ++ptId)
+      {
+        vtkIdType degree = this->Offsets[ptId + 1] - this->Offsets[ptId];
+        if (degree >= minMaxDegree[0] && degree < minMaxDegree[1])
+        {
+          TIds* cells = this->GetCells(ptId);
+          for (auto i = 0; i < degree; ++i)
+          {
+            cellSelection[cells[i]] = 1;
+          }
+        }
+      } // for all points in this batch
+    }); // end lambda
+}
+
 #endif

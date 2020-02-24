@@ -14,40 +14,78 @@
 =========================================================================*/
 /**
  * @class   vtkGeometryFilter
- * @brief   extract geometry from data (or convert data to polygonal type)
+ * @brief   extract boundary geometry from dataset (or convert data to polygonal type)
  *
- * vtkGeometryFilter is a general-purpose filter to extract geometry (and
- * associated data) from any type of dataset. Geometry is obtained as
- * follows: all 0D, 1D, and 2D cells are extracted. All 2D faces that are
- * used by only one 3D cell (i.e., boundary faces) are extracted. It also is
- * possible to specify conditions on point ids, cell ids, and on
- * bounding box (referred to as "Extent") to control the extraction process.
+ * vtkGeometryFilter is a general-purpose filter to extract dataset boundary
+ * geometry, topology, and associated attribute data from any type of
+ * dataset. Geometry is obtained as follows: all 0D, 1D, and 2D cells are
+ * extracted. All 2D faces that are used by only one 3D cell (i.e., boundary
+ * faces) are extracted. It also is possible to specify conditions on point
+ * ids, cell ids, and on a bounding box (referred to as "Extent") to control
+ * the extraction process.  This point and cell id- and extent-based clipping
+ * is a powerful way to "see inside" datasets; however it may impact
+ * performance significantly.
  *
- * This filter also may be used to convert any type of data to polygonal
- * type. The conversion process may be less than satisfactory for some 3D
- * datasets. For example, this filter will extract the outer surface of a
- * volume or structured grid dataset. (For structured data you may want to
- * use vtkImageDataGeometryFilter, vtkStructuredGridGeometryFilter,
- * vtkExtractUnstructuredGrid, vtkRectilinearGridGeometryFilter, or
- * vtkExtractVOI.)
+ * This filter may also be used to convert any type of data to polygonal
+ * type. This is particularly useful for surface rendering. The conversion
+ * process may be less than satisfactory for some 3D datasets. For example,
+ * this filter will extract the outer surface of a volume or structured grid
+ * dataset (if point, cell, and extent clipping is disabled). (For structured
+ * data you may want to use vtkImageDataGeometryFilter,
+ * vtkStructuredGridGeometryFilter, vtkExtractUnstructuredGrid,
+ * vtkRectilinearGridGeometryFilter, or vtkExtractVOI.)
+ *
+ * Another important feature of vtkGeometryFilter is that it preserves
+ * topological connectivity. This enables filters that depend on correct
+ * connectivity (e.g., vtkQuadricDecimation, vtkFeatureEdges, etc.) to
+ * operate properly . It is possible to label the output polydata with an
+ * originating cell (PassThroughCellIds) or point id (PassThroughPointIds).
+ * The output precision of created points (if they need to be created) can
+ * also be specified.
+ *
+ * In some cases (especially for large unstructured grids) the
+ * vtkGeometryFilter can be slow. Consequently the filter has an optional
+ * "fast mode" that may execute significantly faster (>4-5x) than normal
+ * execution. The fast mode visits a subset of cells that may be on the
+ * boundary of the dataset (and skips interior cells which contribute nothing
+ * to the output). The set of subsetted cells is determined by inspecting
+ * the topological connectivity degree of each point (i.e., the number of
+ * unique cells using a particular point is that point's degree). With fast
+ * mode enabled, those cells connected to a point with degree <= Degree
+ * are visited. Note that this approach may miss some cells which contribute
+ * boundary faces--thus the output is an approximation to the normal
+ * execution of vtkGeometryFilter.
  *
  * @warning
- * When vtkGeometryFilter extracts cells (or boundaries of cells) it
- * will (by default) merge duplicate vertices. This may cause problems
- * in some cases. For example, if you've run vtkPolyDataNormals to
- * generate normals, which may split meshes and create duplicate
- * vertices, vtkGeometryFilter will merge these points back
- * together. Turn merging off to prevent this from occurring.
+ * While vtkGeometryFilter and vtkDataSetSurfaceFilter perform similar operations,
+ * there are important differences as follows:
+ * 1. vtkGeometryFilter preserves topological connectivity. vtkDataSetSurfaceFilter
+ *    produces output primitives which may be disconnected from one another.
+ * 2. vtkGeometryFilter can generate output based on cell ids, point ids, and/or
+ *    extent (bounding box) clipping. vtkDataSetSurfaceFilter strictly extracts
+ *    the boundary surface of a dataset.
+ * 3. vtkGeometryFilter is much faster than vtkDataSetSurfaceFilter, especially
+ *    for vtkUnstructuredGrids. As a result, vtkDataSetSurfaceFilter will
+ *    delegate the processing of linear unstructured grids to vtkGeometryFilter.
+ * 4. vtkGeometryFilter can (currently) only handle linear cells. The filter
+ *    will delegate to vtkDataSetSurfaceFilter for higher-order cells. (This
+ *    is a historical artifact and may be rectified in the future.)
  *
  * @warning
- * This filter assumes that the input dataset is composed of either:
- * 0D cells OR 1D cells OR 2D and/or 3D cells. In other words,
- * the input dataset cannot be a combination of different dimensional cells
- * with the exception of 2D and 3D cells.
+ * If point merging (MergingOff) is disabled, the filter will (if possible)
+ * use the input points and point attributes.  This can result in a lot of
+ * unused points in the output, at some gain in filter performance.  If
+ * enabled, point merging will generate only new points that are used by the
+ * output polydata cells.
+ *
+ * @warning
+ * This class has been threaded with vtkSMPTools. Using TBB or other
+ * non-sequential type (set in the CMake variable
+ * VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
  *
  * @sa
- * vtkImageDataGeometryFilter vtkStructuredGridGeometryFilter
- * vtkExtractGeometry vtkExtractVOI
+ * vtkDataSetSurfaceFilter vtkImageDataGeometryFilter
+ * vtkStructuredGridGeometryFilter vtkExtractGeometry vtkExtractVOI
  */
 
 #ifndef vtkGeometryFilter_h
@@ -57,39 +95,58 @@
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkIncrementalPointLocator;
+class vtkStructuredGrid;
+class vtkUnstructuredGrid;
+class vtkGeometryFilter;
+class vtkDataSetSurfaceFilter;
+struct vtkGeometryFilterHelper;
+
+// Used to coordinate delegation to vtkDataSetSurfaceFilter
+struct VTKFILTERSGEOMETRY_EXPORT vtkGeometryFilterHelper
+{
+  unsigned char IsLinear;
+  static vtkGeometryFilterHelper* CharacterizeUnstructuredGrid(vtkUnstructuredGrid*);
+  static void CopyFilterParams(vtkGeometryFilter* gf, vtkDataSetSurfaceFilter* dssf);
+  static void CopyFilterParams(vtkDataSetSurfaceFilter* dssf, vtkGeometryFilter* gf);
+};
 
 class VTKFILTERSGEOMETRY_EXPORT vtkGeometryFilter : public vtkPolyDataAlgorithm
 {
 public:
+  //@{
+  /**
+   * Standard methods for instantiation, type information, and printing.
+   */
   static vtkGeometryFilter* New();
   vtkTypeMacro(vtkGeometryFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+  //@}
 
   //@{
   /**
    * Turn on/off selection of geometry by point id.
    */
-  vtkSetMacro(PointClipping, vtkTypeBool);
-  vtkGetMacro(PointClipping, vtkTypeBool);
-  vtkBooleanMacro(PointClipping, vtkTypeBool);
+  vtkSetMacro(PointClipping, bool);
+  vtkGetMacro(PointClipping, bool);
+  vtkBooleanMacro(PointClipping, bool);
   //@}
 
   //@{
   /**
    * Turn on/off selection of geometry by cell id.
    */
-  vtkSetMacro(CellClipping, vtkTypeBool);
-  vtkGetMacro(CellClipping, vtkTypeBool);
-  vtkBooleanMacro(CellClipping, vtkTypeBool);
+  vtkSetMacro(CellClipping, bool);
+  vtkGetMacro(CellClipping, bool);
+  vtkBooleanMacro(CellClipping, bool);
   //@}
 
   //@{
   /**
    * Turn on/off selection of geometry via bounding box.
    */
-  vtkSetMacro(ExtentClipping, vtkTypeBool);
-  vtkGetMacro(ExtentClipping, vtkTypeBool);
-  vtkBooleanMacro(ExtentClipping, vtkTypeBool);
+  vtkSetMacro(ExtentClipping, bool);
+  vtkGetMacro(ExtentClipping, bool);
+  vtkBooleanMacro(ExtentClipping, bool);
   //@}
 
   //@{
@@ -139,19 +196,59 @@ public:
 
   //@{
   /**
-   * Turn on/off merging of coincident points. Note that is merging is
-   * on, points with different point attributes (e.g., normals) are merged,
-   * which may cause rendering artifacts.
+   * Turn on/off merging of points. This will reduce the number of output
+   * points, at some cost to performance. If Merging is off, then if possible
+   * (i.e., if the point representation is explicit), the filter will reuse
+   * the input points to create the output polydata. Certain input dataset
+   * types (with implicit point representations) will always create new
+   * points (effectively performing a merge operation).
    */
-  vtkSetMacro(Merging, vtkTypeBool);
-  vtkGetMacro(Merging, vtkTypeBool);
-  vtkBooleanMacro(Merging, vtkTypeBool);
+  vtkSetMacro(Merging, bool);
+  vtkGetMacro(Merging, bool);
+  vtkBooleanMacro(Merging, bool);
   //@}
 
   //@{
   /**
-   * Set / get a spatial locator for merging points. By
-   * default an instance of vtkMergePoints is used.
+   * Set/get the desired precision for the output types. See the
+   * documentation for the vtkAlgorithm::DesiredOutputPrecision enum for an
+   * explanation of the available precision settings. This only applies for
+   * data types where we create points (merging) as opposed to passing them
+   * from input to output, such as unstructured grids.
+   */
+  void SetOutputPointsPrecision(int precision);
+  int GetOutputPointsPrecision() const;
+  //@}
+
+  //@{
+  /**
+   * Turn on/off fast mode execution. If enabled, fast mode typically runs
+   * much faster (2-3x) than the standard algorithm, however the output is an
+   * approximation to the correct result. Also, note that the FastMode
+   * depends on the data member Degree for its execution.
+   */
+  vtkSetMacro(FastMode, bool);
+  vtkGetMacro(FastMode, bool);
+  vtkBooleanMacro(FastMode, bool);
+  //@}
+
+  //@{
+  /**
+   * If fast mode is enabled, then Degree controls which cells are
+   * visited. Basically, any cell connected to a point with connectivity
+   * degree <= is visited and processed. Low degree points tend to be
+   * located on the boundary of datasets - thus attached cells frequently
+   * produce output boundary fragments.
+   */
+  vtkSetClampMacro(Degree, unsigned int, 1, VTK_INT_MAX);
+  vtkGetMacro(Degree, unsigned int);
+  //@}
+
+  //@{
+  /**
+   * Set / get a spatial locator for merging points. By default an instance
+   * of vtkMergePoints is used. (This method is now deprecated and has no
+   * effect.)
    */
   void SetLocator(vtkIncrementalPointLocator* locator);
   vtkGetObjectMacro(Locator, vtkIncrementalPointLocator);
@@ -159,23 +256,94 @@ public:
 
   /**
    * Create default locator. Used to create one when none is specified.
+   * This method is now deprecated.
    */
   void CreateDefaultLocator();
 
-  /**
-   * Return the MTime also considering the locator.
-   */
-  vtkMTimeType GetMTime() override;
+  // The following are methods compatible with vtkDataSetSurfaceFilter.
 
   //@{
   /**
-   * Set/get the desired precision for the output types. See the documentation
-   * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
-   * the available precision settings. This only applies for data types where
-   * we create points as opposed to pass them, such as rectilinear grid.
+   * If PieceInvariant is true, vtkDataSetSurfaceFilter requests
+   * 1 ghost level from input in order to remove internal surface
+   * that are between processes. False by default.
    */
-  void SetOutputPointsPrecision(int precision);
-  int GetOutputPointsPrecision() const;
+  vtkSetMacro(PieceInvariant, int);
+  vtkGetMacro(PieceInvariant, int);
+  //@}
+
+  //@{
+  /**
+   * If on, the output polygonal dataset will have a celldata array that
+   * holds the cell index of the original 3D cell that produced each output
+   * cell. This is useful for cell picking. The default is off to conserve
+   * memory. Note that PassThroughCellIds will be ignored if UseStrips is on,
+   * since in that case each tringle strip can represent more than on of the
+   * input cells.
+   */
+  vtkSetMacro(PassThroughCellIds, vtkTypeBool);
+  vtkGetMacro(PassThroughCellIds, vtkTypeBool);
+  vtkBooleanMacro(PassThroughCellIds, vtkTypeBool);
+  vtkSetMacro(PassThroughPointIds, vtkTypeBool);
+  vtkGetMacro(PassThroughPointIds, vtkTypeBool);
+  vtkBooleanMacro(PassThroughPointIds, vtkTypeBool);
+  //@}
+
+  //@{
+  /**
+   * If PassThroughCellIds or PassThroughPointIds is on, then these ivars
+   * control the name given to the field in which the ids are written into.  If
+   * set to nullptr, then vtkOriginalCellIds or vtkOriginalPointIds (the default)
+   * is used, respectively.
+   */
+  vtkSetStringMacro(OriginalCellIdsName);
+  virtual const char* GetOriginalCellIdsName()
+  {
+    return (this->OriginalCellIdsName ? this->OriginalCellIdsName : "vtkOriginalCellIds");
+  }
+  vtkSetStringMacro(OriginalPointIdsName);
+  virtual const char* GetOriginalPointIdsName()
+  {
+    return (this->OriginalPointIdsName ? this->OriginalPointIdsName : "vtkOriginalPointIds");
+  }
+  //@}
+
+  //@{
+  /**
+   * If the input is an unstructured grid with nonlinear faces, this parameter
+   * determines how many times the face is subdivided into linear faces.  If 0,
+   * the output is the equivalent of its linear counterpart (and the midpoints
+   * determining the nonlinear interpolation are discarded).  If 1 (the
+   * default), the nonlinear face is triangulated based on the midpoints.  If
+   * greater than 1, the triangulated pieces are recursively subdivided to reach
+   * the desired subdivision.  Setting the value to greater than 1 may cause
+   * some point data to not be passed even if no nonlinear faces exist.  This
+   * option has no effect if the input is not an unstructured grid.
+   */
+  vtkSetMacro(NonlinearSubdivisionLevel, int);
+  vtkGetMacro(NonlinearSubdivisionLevel, int);
+  //@}
+
+  //@{
+  /**
+   * Disable delegation to an internal vtkDataSetSurfaceFilter.
+   */
+  vtkSetMacro(Delegation, vtkTypeBool);
+  vtkGetMacro(Delegation, vtkTypeBool);
+  vtkBooleanMacro(Delegation, vtkTypeBool);
+  //@}
+
+  //@{
+  /**
+   * Direct access methods so that this class can be used as an
+   * algorithm without using it as a filter (i.e., no pipeline updates).
+   */
+  virtual int PolyDataExecute(vtkDataSet*, vtkPolyData*);
+  int UnstructuredGridExecute(
+    vtkDataSet* input, vtkPolyData* output, vtkGeometryFilterHelper* info);
+  virtual int UnstructuredGridExecute(vtkDataSet* input, vtkPolyData* output);
+  virtual int StructuredExecute(vtkDataSet* input, vtkPolyData* output, vtkInformation* inInfo);
+  virtual int DataSetExecute(vtkDataSet* input, vtkPolyData* output);
   //@}
 
 protected:
@@ -186,9 +354,6 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
   // special cases for performance
-  void PolyDataExecute(vtkDataSet*, vtkPolyData*);
-  void UnstructuredGridExecute(vtkDataSet*, vtkPolyData*);
-  void StructuredGridExecute(vtkDataSet*, vtkPolyData*, vtkInformation*);
   int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   vtkIdType PointMaximum;
@@ -196,13 +361,28 @@ protected:
   vtkIdType CellMinimum;
   vtkIdType CellMaximum;
   double Extent[6];
-  vtkTypeBool PointClipping;
-  vtkTypeBool CellClipping;
-  vtkTypeBool ExtentClipping;
+  bool PointClipping;
+  bool CellClipping;
+  bool ExtentClipping;
   int OutputPointsPrecision;
 
-  vtkTypeBool Merging;
+  bool Merging;
   vtkIncrementalPointLocator* Locator;
+
+  bool FastMode;
+  unsigned int Degree;
+
+  // This methods support compatability with vtkDataSetSurfaceFilter
+  int PieceInvariant;
+  vtkTypeBool PassThroughCellIds;
+  char* OriginalCellIdsName;
+
+  vtkTypeBool PassThroughPointIds;
+  char* OriginalPointIdsName;
+
+  int NonlinearSubdivisionLevel;
+
+  vtkTypeBool Delegation;
 
 private:
   vtkGeometryFilter(const vtkGeometryFilter&) = delete;

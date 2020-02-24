@@ -128,6 +128,7 @@ int TestSplitByCellScalarFilter(int argc, char* argv[])
   // Test with polydata input and pass all points option turned on
   vtkNew<vtkGeometryFilter> geom;
   geom->SetInputData(grid);
+  geom->MergingOff();
   geom->Update();
 
   vtkPolyData* mesh = geom->GetOutput();

@@ -1149,7 +1149,6 @@ void vtkFlyingEdgesPlaneCutterAlgorithm<T>::Contour(vtkFlyingEdgesPlaneCutter* s
     {
       // Make sure we don't interpolate the input scalars twice
       output->GetPointData()->InterpolateAllocate(input->GetPointData(), totalPts);
-      output->GetPointData()->RemoveArray(inScalars->GetName());
       algo.Arrays.ExcludeArray(inScalars);
       algo.Arrays.AddArrays(totalPts, input->GetPointData(), output->GetPointData());
     }

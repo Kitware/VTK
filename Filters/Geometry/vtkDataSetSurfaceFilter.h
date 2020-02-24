@@ -14,21 +14,72 @@
 =========================================================================*/
 /**
  * @class   vtkDataSetSurfaceFilter
- * @brief   Extracts outer (polygonal) surface.
+ * @brief   Extracts outer surface (as vtkPolyData) of any dataset
  *
- * vtkDataSetSurfaceFilter is a faster version of vtkGeometry filter, but it
- * does not have an option to select bounds.  It may use more memory than
- * vtkGeometryFilter.  It only has one option: whether to use triangle strips
- * when the input type is structured.
+ * vtkDataSetSurfaceFilter is a general-purpose filter to extract boundary
+ * geometry (and associated data) from any type of dataset. Geometry is
+ * obtained as follows: all 0D, 1D, and 2D cells are extracted. All 2D faces
+ * that are used by only one 3D cell (i.e., boundary faces) are
+ * extracted. The filter will handle any type of dataset, including
+ * unstructured grids with non-linear cells. (See also vtkGeometryFilter for
+ * additional documentation and information - vtkGeometryFilter is the
+ * preferred filter to use in most cases and may be deprecated in the
+ * future.)
+ *
+ * The filter only has only a few options: whether to produce triangle strips
+ * when the input dataset type is structured; methods for passing through
+ * point and cell ids (to support picking); and controls for nonlinear cell
+ * subdivision. At this time vtkDataSetSurfaceFilter has the distinction of
+ * being able to process non-linear cells requiring subdivision. For this
+ * reason, vtkDataSetSurfaceFilter should be used with non-linear cells;
+ * otherwise vtkGeometryFilter should be used. (Note: by default this filter
+ * will delegate processing of linear vtkUnstructuredGrids to
+ * vtkGeometryFilter as vtkGeometryFilter is so much faster. And
+ * vtkGeometryFilter will delegate to vtkDataSetSurfaceFilter when it
+ * encounters nonlinear cells.)
+ *
+ * @warning
+ * At one time, vtkDataSetSurfaceFilter was a faster version of
+ * vtkGeometryFilter when processing unstructured grids, however
+ * vtkGeometryFilter is now faster. Also, vtkDataSetSurfaceFilter typically
+ * uses more memory than vtkGeometryFilter.  Consequently as a convenience to
+ * the user, vtkDataSetSurfaceFilter will delegate to vtkGeometryFilter when
+ * processing linear vtkUnstructuredGrids. This typically produces a 5-10x
+ * speed up. (See vtkGeometryFilter for more information.) This delegation can
+ * be disabled by setting the Delegation data member.
+ *
+ * @warning
+ * vtkDataSetSurfaceFilter will generally not preserve topological
+ * connectivity.  In other words, the output polygonal primitives may not be
+ * connected although in the originating dataset the boundary entities (e.g.,
+ * faces) may have been connected. This can result in issues for filters that
+ * expect proper topological connectivity (e.g., vtkQuadricDecimation or
+ * vtkFeatureEdges).
+ *
+ * @warning
+ * A key step in this algorithm (for 3D cells) is to count the number times a
+ * face is used by a cell. If used only once, then the face is considered a
+ * boundary face and sent to the filter output. The filter determines this by
+ * creating a hash table of faces: faces that are placed into the hash table
+ * a single time are used only once, and therefore sent to the output. Thus
+ * large amounts of extra memory is necessary to build the hash table. This
+ * obsoleted approach requires a significant amount of memory, and is a
+ * significant bottleneck to threading.
+ *
+ * @warning
+ * This filter may create duplicate points. Unlike vtkGeometryFilter, it does
+ * not have the option to merge points. However it will eliminate points
+ * not used by any output polygonal primitive (i.e., not on the boundary).
  *
  * @sa
- * vtkGeometryFilter vtkStructuredGridGeometryFilter.
+ * vtkGeometryFilter vtkStructuredGridGeometryFilter
  */
 
 #ifndef vtkDataSetSurfaceFilter_h
 #define vtkDataSetSurfaceFilter_h
 
 #include "vtkFiltersGeometryModule.h" // For export macro
+#include "vtkGeometryFilter.h"        // To facilitate delegation
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkPointData;
@@ -49,6 +100,10 @@ typedef struct vtkFastGeomQuadStruct vtkFastGeomQuad;
 class VTKFILTERSGEOMETRY_EXPORT vtkDataSetSurfaceFilter : public vtkPolyDataAlgorithm
 {
 public:
+  //@{
+  /**
+   * Statndard methods for object instantiation, type information, and printing.
+   */
   static vtkDataSetSurfaceFilter* New();
   vtkTypeMacro(vtkDataSetSurfaceFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
@@ -128,8 +183,19 @@ public:
 
   //@{
   /**
-   * Direct access methods that can be used to use the this class as an
-   * algorithm without using it as a filter.
+   * Disable delegation to an internal vtkGeometryFilter. The geometry filter runs
+   * much faster (especially for unstructured grids); however the two filters
+   * produce slightly different output. Hence by default delegation is disabled.
+   */
+  vtkSetMacro(Delegation, vtkTypeBool);
+  vtkGetMacro(Delegation, vtkTypeBool);
+  vtkBooleanMacro(Delegation, vtkTypeBool);
+  //@}
+
+  //@{
+  /**
+   * Direct access methods so that this class can be used as an
+   * algorithm without using it as a filter (i.e., no pipeline updates).
    */
   virtual int StructuredExecute(
     vtkDataSet* input, vtkPolyData* output, vtkIdType* ext, vtkIdType* wholeExt);
@@ -147,6 +213,8 @@ public:
   }
 #endif
   virtual int UnstructuredGridExecute(vtkDataSet* input, vtkPolyData* output);
+  int UnstructuredGridExecute(
+    vtkDataSet* input, vtkPolyData* output, vtkGeometryFilterHelper* info);
   virtual int DataSetExecute(vtkDataSet* input, vtkPolyData* output);
   virtual int StructuredWithBlankingExecute(vtkStructuredGrid* input, vtkPolyData* output);
   virtual int UniformGridExecute(vtkDataSet* input, vtkPolyData* output, vtkIdType* ext,
@@ -252,6 +320,8 @@ protected:
   char* OriginalPointIdsName;
 
   int NonlinearSubdivisionLevel;
+
+  vtkTypeBool Delegation;
 
 private:
   vtkDataSetSurfaceFilter(const vtkDataSetSurfaceFilter&) = delete;

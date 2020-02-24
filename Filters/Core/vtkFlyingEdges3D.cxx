@@ -1243,9 +1243,9 @@ void vtkFlyingEdges3DAlgorithm<T>::Contour(vtkFlyingEdges3D* self, vtkImageData*
           // Make sure we don't interpolate the input scalars twice; or generate scalars
           // when ComputeScalars is off.
           output->GetPointData()->InterpolateAllocate(input->GetPointData(), totalPts);
-          output->GetPointData()->RemoveArray(inScalars->GetName());
           algo.Arrays.ExcludeArray(inScalars);
           algo.Arrays.AddArrays(totalPts, input->GetPointData(), output->GetPointData());
+          output->GetPointData()->RemoveArray(inScalars->GetName());
         }
         else
         {

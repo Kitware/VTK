@@ -124,7 +124,7 @@ protected:
 
   int RequestData(vtkInformation* vtkNotUsed(request), vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
-  int DataSetExecute(vtkDataObject* input, vtkPolyData* output) /*override*/;
+  int DataObjectExecute(vtkDataObject* input, vtkPolyData* output);
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
   /**

@@ -292,13 +292,34 @@ public:
    */
   vtkCellArray* GetCells() { return this->Connectivity; }
 
+  //@{
   /**
-   * Topological inquiry to get all cells using list of points exclusive of
-   * cell specified (e.g., cellId).
-   * THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
-   * THE DATASET IS NOT MODIFIED
+   * A topological inquiry to retrieve all of the cells using list of points
+   * exclusive of the current cell specified (e.g., cellId).  THIS METHOD IS
+   * THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND THE DATASET IS NOT
+   * MODIFIED.
    */
-  void GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdList* cellIds) override;
+  void GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdList* cellIds) override
+  {
+    this->GetCellNeighbors(cellId, ptIds->GetNumberOfIds(), ptIds->GetPointer(0), cellIds);
+  }
+  void GetCellNeighbors(
+    vtkIdType cellId, vtkIdType npts, const vtkIdType* ptIds, vtkIdList* cellIds);
+  //@}
+
+  //@{
+  /**
+   * A topological inquiry to determine whether a topological entity (e.g.,
+   * point, edge, or face) defined by the point ids (ptIds of length npts) is
+   * a boundary entity of a specified cell (indicated by cellId). A boundary
+   * entity is a topological feature used by exactly one cell. This method is
+   * related to GetCellNeighbors() except that it simply indicates whether a
+   * topological feature is boundary - hence the method is faster.  THIS
+   * METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND THE
+   * DATASET IS NOT MODIFIED.
+   */
+  bool IsCellBoundary(vtkIdType cellId, vtkIdType npts, const vtkIdType* ptIds);
+  //@}
 
   //@{
   /**

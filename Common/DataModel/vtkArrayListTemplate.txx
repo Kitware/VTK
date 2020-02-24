@@ -103,71 +103,68 @@ inline vtkDataArray* ArrayList::AddArrayPair(vtkIdType numTuples, vtkDataArray* 
 }
 
 //----------------------------------------------------------------------------
-// Add the arrays to interpolate here. This presumes that vtkDataSetAttributes::CopyData() or
-// vtkDataSetAttributes::InterpolateData() has been called, and the input and output array
-// names match.
+// Add the arrays to interpolate here. This presumes that
+// vtkDataSetAttributes::CopyAllocate() or vtkDataSetAttributes::InterpolateAllocate()
+// has been called prior to invoking this method.
 inline void ArrayList::AddArrays(vtkIdType numOutPts, vtkDataSetAttributes* inPD,
   vtkDataSetAttributes* outPD, double nullValue, vtkTypeBool promote)
 {
-  // Build the vector of interpolation pairs. Note that InterpolateAllocate should have
-  // been called at this point (output arrays created and allocated).
-  char* name;
+  // Build the vector of interpolation pairs. Note that
+  // vtkDataSetAttributes::InterpolateAllocate or CopyAllocate() should have
+  // been called at this point (i.e., output arrays created and allocated).
   vtkDataArray *iArray, *oArray;
   int iType, oType;
   void *iD, *oD;
   int iNumComp, oNumComp;
-  int i, numArrays = outPD->GetNumberOfArrays();
+  int i;
 
-  for (i = 0; i < numArrays; ++i)
+  for (i = outPD->RequiredArrays.BeginIndex(); !outPD->RequiredArrays.End();
+       i = outPD->RequiredArrays.NextIndex())
   {
-    oArray = outPD->GetArray(i);
-    if (oArray && !this->IsExcluded(oArray))
-    {
-      name = oArray->GetName();
-      iArray = inPD->GetArray(name);
-      if (iArray && !this->IsExcluded(iArray))
-      {
-        iType = iArray->GetDataType();
-        oType = oArray->GetDataType();
-        iNumComp = iArray->GetNumberOfComponents();
-        oNumComp = oArray->GetNumberOfComponents();
-        if (promote && oType != VTK_FLOAT && oType != VTK_DOUBLE)
-        {
-          oType = VTK_FLOAT;
-          vtkFloatArray* fArray = vtkFloatArray::New();
-          fArray->SetName(oArray->GetName());
-          fArray->SetNumberOfComponents(oNumComp);
-          outPD->AddArray(fArray); // nasty side effect will replace current array in the same spot
-          oArray = fArray;
-          fArray->Delete();
-        }
-        oArray->SetNumberOfTuples(numOutPts);
+    iArray = vtkArrayDownCast<vtkDataArray>(inPD->Data[i]);
+    oArray = vtkArrayDownCast<vtkDataArray>(outPD->Data[outPD->TargetIndices[i]]);
 
-        assert(iNumComp == oNumComp);
-        if (iType == oType)
+    if (iArray && oArray && !this->IsExcluded(oArray) && !this->IsExcluded(iArray))
+    {
+      iType = iArray->GetDataType();
+      oType = oArray->GetDataType();
+      iNumComp = iArray->GetNumberOfComponents();
+      oNumComp = oArray->GetNumberOfComponents();
+      if (promote && oType != VTK_FLOAT && oType != VTK_DOUBLE)
+      {
+        oType = VTK_FLOAT;
+        vtkFloatArray* fArray = vtkFloatArray::New();
+        fArray->SetName(oArray->GetName());
+        fArray->SetNumberOfComponents(oNumComp);
+        outPD->AddArray(fArray); // nasty side effect will replace current array in the same spot
+        oArray = fArray;
+        fArray->Delete();
+      }
+      oArray->SetNumberOfTuples(numOutPts);
+
+      assert(iNumComp == oNumComp);
+      if (iType == oType)
+      {
+        iD = iArray->GetVoidPointer(0);
+        oD = oArray->GetVoidPointer(0);
+        switch (iType)
         {
-          iD = iArray->GetVoidPointer(0);
-          oD = oArray->GetVoidPointer(0);
-          switch (iType)
-          {
-            vtkTemplateMacro(
-              CreateArrayPair(this, static_cast<VTK_TT*>(iD), static_cast<VTK_TT*>(oD), numOutPts,
-                oNumComp, oArray, static_cast<VTK_TT>(nullValue)));
-          }  // over all VTK types
-        }    // if matching types
-        else // promoted type
+          vtkTemplateMacro(CreateArrayPair(this, static_cast<VTK_TT*>(iD), static_cast<VTK_TT*>(oD),
+            numOutPts, oNumComp, oArray, static_cast<VTK_TT>(nullValue)));
+        }  // over all VTK types
+      }    // if matching types
+      else // promoted type
+      {
+        iD = iArray->GetVoidPointer(0);
+        oD = oArray->GetVoidPointer(0);
+        switch (iType)
         {
-          iD = iArray->GetVoidPointer(0);
-          oD = oArray->GetVoidPointer(0);
-          switch (iType)
-          {
-            vtkTemplateMacro(CreateRealArrayPair(this, static_cast<VTK_TT*>(iD),
-              static_cast<float*>(oD), numOutPts, iNumComp, oArray, static_cast<float>(nullValue)));
-          } // over all VTK types
-        }   // if promoted pair
-      }     // if matching input array
-    }       // if output array
-  }         // for each candidate array
+          vtkTemplateMacro(CreateRealArrayPair(this, static_cast<VTK_TT*>(iD),
+            static_cast<float*>(oD), numOutPts, iNumComp, oArray, static_cast<float>(nullValue)));
+        } // over all VTK types
+      }   // if promoted pair
+    }
+  } // for each candidate array
 }
 
 //----------------------------------------------------------------------------

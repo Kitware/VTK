@@ -1021,9 +1021,9 @@ int ProcessMerged(vtkIdType numCells, vtkPoints* inPts, CellIter* cellIter, int 
     if (totalPts <= 0) // first contour value generating output
     {
       outPD->InterpolateAllocate(inPD, numPts);
-      outPD->RemoveArray(inScalars->GetName());
       arrays->ExcludeArray(inScalars);
       arrays->AddArrays(numPts, inPD, outPD);
+      outPD->RemoveArray(inScalars->GetName());
     }
     else
     {

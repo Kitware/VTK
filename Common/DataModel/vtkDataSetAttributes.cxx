@@ -800,6 +800,8 @@ void vtkDataSetAttributes::RemoveArray(int index)
     return;
   }
   this->Superclass::RemoveArray(index);
+
+  // Adjust attribute types
   int attributeType;
   for (attributeType = 0; attributeType < NUM_ATTRIBUTES; attributeType++)
   {

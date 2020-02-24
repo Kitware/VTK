@@ -35,7 +35,7 @@
  * problems in some cases. Turn merging off to prevent this from occurring.
  *
  * @sa
- * vtkGeometryFilter
+ * vtkGeometryFilter vtkDataSetSurfaceFilter
  */
 
 #ifndef vtkUnstructuredGridGeometryFilter_h

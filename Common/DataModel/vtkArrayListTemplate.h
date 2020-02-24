@@ -14,7 +14,7 @@
 =========================================================================*/
 /**
  * @class   vtkArrayListTemplate
- * @brief   thread-safe and efficient data attribute manipulation
+ * @brief   thread-safe and efficient data attribute processing
  *
  *
  * vtkArrayListTemplate supplements the vtkDataSetAttributes class to provide
@@ -28,10 +28,15 @@
  * vtkDataSetAttributes::CopyInterpolate() or InterpolateAllocate() which
  * performs the initial magic of constructing input and output arrays. Then
  * the input attributes, and output attributes, are passed to initialize the
- * internal structures. Essentially these internal structures are pairs of
- * arrays of the same type, which can be efficiently accessed and
- * assigned. The operations on these array pairs (e.g., interpolation) occur
- * using a typeless, virtual dispatch base class.
+ * internal structures via the AddArrays() method. Essentially these internal
+ * structures are templated pairs of arrays of the same type, which can be
+ * efficiently accessed and assigned. The operations on these array pairs
+ * (e.g., interpolation) occur using a typeless, virtual dispatch base class.
+ *
+ * @warning
+ * vtkDataSetAttributes is not in general thread safe due to the use of its
+ * vtkFieldData::BasicIterator RequiredArrays data member. This class augments
+ * vtkDataSetAttributes for thread safety.
  *
  * @sa
  * vtkFieldData vtkDataSetAttributes vtkPointData vtkCellData
@@ -250,7 +255,8 @@ struct ArrayList
   std::vector<BaseArrayPair*> Arrays;
   std::vector<vtkDataArray*> ExcludedArrays;
 
-  // Add the arrays to interpolate here (from attribute data)
+  // Add the arrays to interpolate here (from attribute data). Note that this method is
+  // not thread-safe due to its use of vtkDataSetAttributes.
   void AddArrays(vtkIdType numOutPts, vtkDataSetAttributes* inPD, vtkDataSetAttributes* outPD,
     double nullValue = 0.0, vtkTypeBool promote = true);
 
@@ -269,7 +275,8 @@ struct ArrayList
   void ExcludeArray(vtkDataArray* da);
   vtkTypeBool IsExcluded(vtkDataArray* da);
 
-  // Loop over the array pairs and copy data from one to another
+  // Loop over the array pairs and copy data from one to another. This (and the following methods)
+  // can be used within threads.
   void Copy(vtkIdType inId, vtkIdType outId)
   {
     for (std::vector<BaseArrayPair*>::iterator it = Arrays.begin(); it != Arrays.end(); ++it)
