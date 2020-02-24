@@ -20,7 +20,7 @@ def renderWindowTooSmall():
         trw = vtkRenderWindow()
         trr = vtkRenderer()
         trr.SetBackground(1,1,1)
-        trw.SetSize(512,512)
+        trw.SetSize(300,300)
         trw.AddRenderer(trr)
         twi = vtkWindowToImageFilter()
         twi.SetInput(trw)
@@ -43,7 +43,7 @@ class LagrangeGeometricOperations(Testing.vtkTest):
         self.rs.SetCurrentStyleToTrackballCamera()
         self.rs.SetCurrentStyleToMultiTouchCamera()
         self.rr.SetBackground(1,1,1)
-        self.rw.SetSize(512, 512)
+        self.rw.SetSize(300, 300)
 
         self.rdr = vtkXMLUnstructuredGridReader()
         self.rdr.SetFileName(self.pathToData('Elements.vtu'))
