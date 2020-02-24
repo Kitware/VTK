@@ -50,6 +50,7 @@
 
 class vtkDataArray;
 class vtkDataSet;
+class vtkDoubleArray;
 class vtkRenderWindow;
 class vtkRenderer;
 
@@ -93,6 +94,41 @@ public:
    * Describe their outputs.
    */
   virtual std::string GetOutputsDescription() { return ""; };
+
+  /**
+   * Get the number of available animations.
+   * Return -1 if not provided by implementation.
+   */
+  virtual vtkIdType GetNumberOfAnimations();
+
+  /**
+   * Get the name of an animation.
+   * Return an empty if not provided by implementation.
+   */
+  virtual std::string GetAnimationName(vtkIdType vtkNotUsed(animationIndex)) { return ""; };
+
+  //@{
+  /**
+   * Enable/Disable/Get the status of specific animations
+   */
+  virtual void EnableAnimation(vtkIdType vtkNotUsed(animationIndex)){};
+  virtual void DisableAnimation(vtkIdType vtkNotUsed(animationIndex)){};
+  virtual bool IsAnimationEnabled(vtkIdType vtkNotUsed(animationIndex)) { return false; };
+  //@}
+
+  /**
+   * Get temporal informations for the currently enabled animations.
+   * the three return arguments can be defined or not.
+   * Return true in case of success, false otherwise.
+   */
+  virtual bool GetTemporalInformation(
+    vtkIdType animationIndex, int& nbTimeSteps, double timeRange[2], vtkDoubleArray* timeSteps);
+
+  /**
+   * Import the actors, camera, lights and properties at a specific timestep.
+   * If not reimplemented, only call Update().
+   */
+  virtual void UpdateTimeStep(double timeStep);
 
 protected:
   vtkImporter();
