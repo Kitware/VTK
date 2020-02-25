@@ -173,3 +173,23 @@ std::string vtkImporter::GetDataSetDescription(vtkDataSet* ds, vtkIndent indent)
   }
   return ss.str();
 }
+
+//----------------------------------------------------------------------------
+vtkIdType vtkImporter::GetNumberOfAnimations()
+{
+  return -1;
+}
+
+//----------------------------------------------------------------------------
+bool vtkImporter::GetTemporalInformation(vtkIdType vtkNotUsed(animationIdx),
+  int& vtkNotUsed(nbTimeSteps), double vtkNotUsed(timeRange)[2],
+  vtkDoubleArray* vtkNotUsed(timeSteps))
+{
+  return false;
+}
+
+//----------------------------------------------------------------------------
+void vtkImporter::UpdateTimeStep(double vtkNotUsed(timeStep))
+{
+  this->Update();
+}
