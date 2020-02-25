@@ -29,7 +29,9 @@
 #include "vtkFiltersParallelDIY2Module.h" // for export macros
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" // for vtkSmartPointer
-#include <vector>            // for std::vector
+
+#include <memory> // for std::shared_ptr
+#include <vector> // for std::vector
 
 class vtkDataObject;
 class vtkDataSet;
@@ -91,9 +93,13 @@ public:
    * The returned vtkPartitionedDataSet will also have exactly as many
    * partitions as the input vtkPartitionedDataSet, however only the partitions
    * assigned to this current rank may be non-null.
+   *
+   * block_assigner is an optional parameter that should be set if the user wants
+   * to assign blocks in a custom way. The default assigner is the one returned
+   * by vtkDIYKdTreeUtilities::CreateAssigner.
    */
-  static vtkSmartPointer<vtkPartitionedDataSet> Exchange(
-    vtkPartitionedDataSet* parts, vtkMultiProcessController* controller);
+  static vtkSmartPointer<vtkPartitionedDataSet> Exchange(vtkPartitionedDataSet* parts,
+    vtkMultiProcessController* controller, std::shared_ptr<diy::Assigner> block_assigner = nullptr);
 
   /**
    * Generates and adds global cell ids to datasets in `parts`. One this to note

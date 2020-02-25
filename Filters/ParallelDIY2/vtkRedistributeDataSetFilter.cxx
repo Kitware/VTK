@@ -41,6 +41,13 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <memory>
+
+// clang-format off
+#include "vtk_diy2.h"
+#include VTK_DIY2(diy/assigner.hpp)
+// clang-format on
+
 namespace
 {
 static const char* CELL_OWNERSHIP_ARRAYNAME = "__RDSF_CELL_OWNERSHIP__";
@@ -205,7 +212,8 @@ vtkStandardNewMacro(vtkRedistributeDataSetFilter);
 vtkCxxSetObjectMacro(vtkRedistributeDataSetFilter, Controller, vtkMultiProcessController);
 //----------------------------------------------------------------------------
 vtkRedistributeDataSetFilter::vtkRedistributeDataSetFilter()
-  : Controller(nullptr)
+  : Assigner(nullptr)
+  , Controller(nullptr)
   , BoundaryMode(vtkRedistributeDataSetFilter::ASSIGN_TO_ONE_REGION)
   , NumberOfPartitions(0)
   , PreservePartitionsInOutput(false)
@@ -734,7 +742,7 @@ bool vtkRedistributeDataSetFilter::RedistributeDataSet(
   auto parts = this->SplitDataSet(inputDS, cuts);
   assert(parts->GetNumberOfPartitions() == static_cast<unsigned int>(cuts.size()));
 
-  auto pieces = vtkDIYKdTreeUtilities::Exchange(parts, this->GetController());
+  auto pieces = vtkDIYKdTreeUtilities::Exchange(parts, this->GetController(), this->Assigner);
   assert(pieces->GetNumberOfPartitions() == parts->GetNumberOfPartitions());
   outputPDS->ShallowCopy(pieces);
   return true;
@@ -1057,6 +1065,28 @@ void vtkRedistributeDataSetFilter::MarkValidDimensions(vtkDataObject* inputDO)
       this->ValidDim[i] = true;
     }
   }
+}
+
+//----------------------------------------------------------------------------
+void vtkRedistributeDataSetFilter::SetAssigner(std::shared_ptr<diy::Assigner> assigner)
+{
+  if (this->Assigner != assigner)
+  {
+    this->Assigner = assigner;
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+std::shared_ptr<diy::Assigner> vtkRedistributeDataSetFilter::GetAssigner()
+{
+  return this->Assigner;
+}
+
+//----------------------------------------------------------------------------
+std::shared_ptr<const diy::Assigner> vtkRedistributeDataSetFilter::GetAssigner() const
+{
+  return this->Assigner;
 }
 
 //----------------------------------------------------------------------------

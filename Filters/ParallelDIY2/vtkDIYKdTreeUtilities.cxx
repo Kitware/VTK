@@ -34,6 +34,7 @@
 
 #include <iterator>
 #include <map>
+#include <memory>
 #include <tuple>
 
 // clang-format off
@@ -250,7 +251,8 @@ std::vector<vtkBoundingBox> vtkDIYKdTreeUtilities::GenerateCuts(
 
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkPartitionedDataSet> vtkDIYKdTreeUtilities::Exchange(
-  vtkPartitionedDataSet* localParts, vtkMultiProcessController* controller)
+  vtkPartitionedDataSet* localParts, vtkMultiProcessController* controller,
+  std::shared_ptr<diy::Assigner> block_assigner /*= nullptr*/)
 {
   diy::mpi::communicator comm = vtkDIYUtilities::GetCommunicator(controller);
   const int nblocks = static_cast<int>(localParts->GetNumberOfPartitions());
@@ -262,7 +264,11 @@ vtkSmartPointer<vtkPartitionedDataSet> vtkDIYKdTreeUtilities::Exchange(
     assert(sumblocks == nblocks * comm.size());
   }
 #endif
-  diy::ContiguousAssigner block_assigner(comm.size(), nblocks);
+  if (!block_assigner)
+  {
+    block_assigner = std::make_shared<vtkDIYExplicitAssigner>(
+      vtkDIYKdTreeUtilities::CreateAssigner(comm, nblocks));
+  }
 
   using VectorOfUG = std::vector<vtkSmartPointer<vtkUnstructuredGrid> >;
   using VectorOfVectorOfUG = std::vector<VectorOfUG>;
@@ -279,7 +285,7 @@ vtkSmartPointer<vtkPartitionedDataSet> vtkDIYKdTreeUtilities::Exchange(
 
   const int myrank = comm.rank();
   diy::all_to_all(master, assigner,
-    [&block_assigner, &myrank, localParts](VectorOfVectorOfUG* block, const diy::ReduceProxy& rp) {
+    [block_assigner, &myrank, localParts](VectorOfVectorOfUG* block, const diy::ReduceProxy& rp) {
       if (rp.in_link().size() == 0)
       {
         // enqueue blocks to send.
@@ -288,7 +294,7 @@ vtkSmartPointer<vtkPartitionedDataSet> vtkDIYKdTreeUtilities::Exchange(
         {
           if (auto part = vtkUnstructuredGrid::SafeDownCast(localParts->GetPartition(partId)))
           {
-            auto target_rank = block_assigner.rank(partId);
+            auto target_rank = block_assigner->rank(partId);
             if (target_rank == myrank)
             {
               // short-circuit messages to self.
