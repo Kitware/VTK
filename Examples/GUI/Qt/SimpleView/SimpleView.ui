@@ -80,7 +80,7 @@
          </property>
         </layout>
        </widget>
-       <widget class="QVTKRenderWidget" name="qvtkWidget" >
+       <widget class="QVTKOpenGLStereoWidget" name="qvtkWidget" >
         <property name="sizePolicy" >
          <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
           <horstretch>1</horstretch>
@@ -187,9 +187,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QVTKRenderWidget</class>
+   <class>QVTKOpenGLStereoWidget</class>
    <extends>QWidget</extends>
-   <header>QVTKRenderWidget.h</header>
+   <header>QVTKOpenGLStereoWidget.h</header>
   </customwidget>
  </customwidgets>
  <resources>

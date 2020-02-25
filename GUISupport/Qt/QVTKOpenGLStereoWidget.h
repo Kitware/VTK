@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    QVTKOpenGLWidget.h
+  Module:    QVTKOpenGLStereoWidget.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef QVTKOpenGLWidget_h
-#define QVTKOpenGLWidget_h
+#ifndef QVTKOpenGLStereoWidget_h
+#define QVTKOpenGLStereoWidget_h
 
 #include "vtkGUISupportQtModule.h" // For export macro
 #include <QWidget>
@@ -33,48 +33,48 @@ class vtkRenderWindow;
 class vtkRenderWindowInteractor;
 
 /**
- * @class QVTKOpenGLWidget
+ * @class QVTKOpenGLStereoWidget
  * @brief QWidget for displaying a vtkRenderWindow in a Qt Application.
  *
- * QVTKOpenGLWidget simplifies using a QVTKOpenGLWindow as a widget in Qt
+ * QVTKOpenGLStereoWidget simplifies using a QVTKOpenGLWindow as a widget in Qt
  * application so it can be embedded in a layout rather than being a top-level
  * window. QVTKOpenGLWindow has all the limitations posed by Qt with
  * `QWidget::createWindowContainer` hence developers are advised to refer to Qt
  * docs for more details.
  *
  * In general QVTKOpenGLNativeWidget may be a better choice, however
- * QVTKOpenGLWindow-based QVTKOpenGLWidget may be better choice for applications
+ * QVTKOpenGLWindow-based QVTKOpenGLStereoWidget may be better choice for applications
  * requiring quad-buffer stereo.
  *
- * Due to Qt limitations, QVTKOpenGLWidget does not support being a
+ * Due to Qt limitations, QVTKOpenGLStereoWidget does not support being a
  * native widget. But native widget are sometimes mandatory, for example within
  * QScrollArea and QMDIArea, so the QVTKOpenGLNativeWidget should be
  * used when in needs of VTK rendering in the context of Qt native widget.
  *
- * If a QVTKOpenGLWidget is used in a QScrollArea or in a QMDIArea, it
+ * If a QVTKOpenGLStereoWidget is used in a QScrollArea or in a QMDIArea, it
  * will force it to be native and this is *NOT* supported.
  *
- * Unlike QVTKOpenGLNativeWidget, QVTKOpenGLWidget does not require that the
+ * Unlike QVTKOpenGLNativeWidget, QVTKOpenGLStereoWidget does not require that the
  * default surface format for the application be changed. One can simply specify
- * the needed QSurfaceFormat for the specific QVTKOpenGLWidget instance by
- * calling `QVTKOpenGLWidget::setFormat` before the widget is initialized.
+ * the needed QSurfaceFormat for the specific QVTKOpenGLStereoWidget instance by
+ * calling `QVTKOpenGLStereoWidget::setFormat` before the widget is initialized.
  *
  * @sa QVTKOpenGLWindow QVTKOpenGLNativeWidget
  */
-class VTKGUISUPPORTQT_EXPORT QVTKOpenGLWidget : public QWidget
+class VTKGUISUPPORTQT_EXPORT QVTKOpenGLStereoWidget : public QWidget
 {
   Q_OBJECT
   typedef QWidget Superclass;
 
 public:
-  QVTKOpenGLWidget(QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-  QVTKOpenGLWidget(
+  QVTKOpenGLStereoWidget(QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+  QVTKOpenGLStereoWidget(
     QOpenGLContext* shareContext, QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-  QVTKOpenGLWidget(vtkGenericOpenGLRenderWindow* w, QWidget* parent = nullptr,
+  QVTKOpenGLStereoWidget(vtkGenericOpenGLRenderWindow* w, QWidget* parent = nullptr,
     Qt::WindowFlags f = Qt::WindowFlags());
-  QVTKOpenGLWidget(vtkGenericOpenGLRenderWindow* w, QOpenGLContext* shareContext,
+  QVTKOpenGLStereoWidget(vtkGenericOpenGLRenderWindow* w, QOpenGLContext* shareContext,
     QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-  ~QVTKOpenGLWidget() override;
+  ~QVTKOpenGLStereoWidget() override;
 
   //@{
   /**

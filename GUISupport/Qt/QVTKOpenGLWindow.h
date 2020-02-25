@@ -23,11 +23,11 @@
  * Since QVTKOpenGLWindow is based on QOpenGLWindow it is intended for
  * rendering in a top-level window. QVTKOpenGLWindow can be embedded in a
  * another QWidget using `QWidget::createWindowContainer` or by using
- * QVTKOpenGLWidget instead. However, developers are encouraged to check
+ * QVTKOpenGLStereoWidget instead. However, developers are encouraged to check
  * Qt documentation for `QWidget::createWindowContainer` idiosyncrasies.
  * Using QVTKOpenGLNativeWidget instead is generally a better choice for causes
  * where you want to embed VTK rendering results in a QWidget. QVTKOpenGLWindow
- * or QVTKOpenGLWidget is still preferred for applications that want to support
+ * or QVTKOpenGLStereoWidget is still preferred for applications that want to support
  * quad-buffer based stereo rendering.
  *
  * To request a specific configuration for the context, use
@@ -44,7 +44,7 @@
  * will be used.
  *
  * @note QVTKOpenGLWindow requires Qt version 5.9 and above.
- * @sa QVTKOpenGLWidget QVTKOpenGLNativeWidget
+ * @sa QVTKOpenGLStereoWidget QVTKOpenGLNativeWidget
  */
 #ifndef QVTKOpenGLWindow_h
 #define QVTKOpenGLWindow_h
@@ -185,11 +185,11 @@ protected slots:
   void updateSize();
 
   /**
-   * QVTKOpenGLWidget is given friendship so it can call `cleanupContext` in its
+   * QVTKOpenGLStereoWidget is given friendship so it can call `cleanupContext` in its
    * destructor to ensure that OpenGL state is proporly cleaned up before the
    * widget goes away.
    */
-  friend class QVTKOpenGLWidget;
+  friend class QVTKOpenGLStereoWidget;
 
 protected:
   bool event(QEvent* evt) override;

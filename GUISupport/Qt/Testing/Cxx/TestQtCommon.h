@@ -1,5 +1,5 @@
 #include "QVTKOpenGLNativeWidget.h"
-#include "QVTKOpenGLWidget.h"
+#include "QVTKOpenGLStereoWidget.h"
 #include "QVTKOpenGLWindow.h"
 #include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkLogger.h"
@@ -17,7 +17,7 @@ enum class Type
 {
   USE_QVTKOPENGLNATIVEWIDGET = 0,
   USE_QVTKOPENGLWINDOW = 1,
-  USE_QVTKOPENGLWIDGET = 2
+  USE_QVTKOPENGLSTEREOWIDGET = 2
 };
 
 Type select_widget(int argc, char* argv[]);

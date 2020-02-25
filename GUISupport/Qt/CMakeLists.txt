@@ -4,7 +4,7 @@ set(classes
   QVTKInteractor
   QVTKInteractorAdapter
   QVTKOpenGLNativeWidget
-  QVTKOpenGLWidget
+  QVTKOpenGLStereoWidget
   QVTKOpenGLWindow
   QVTKRenderWindowAdapter
   vtkEventQtSlotConnect

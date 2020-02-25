@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-#include "QVTKRenderWidget.h"
+#include "QVTKOpenGLStereoWidget.h"
 #include "vtkChartXY.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkCompositeTransferFunctionItem.h"
@@ -40,13 +40,13 @@
 int main(int argc, char* argv[])
 {
   // needed to ensure appropriate OpenGL context is created for VTK rendering.
-  QSurfaceFormat::setDefaultFormat(QVTKRenderWidget::defaultFormat());
+  QSurfaceFormat::setDefaultFormat(QVTKOpenGLStereoWidget::defaultFormat());
 
   // Qt initialization
   QApplication app(argc, argv);
 
   // QVTK set up and initialization
-  QVTKRenderWidget qvtkWidget;
+  QVTKOpenGLStereoWidget qvtkWidget;
 
   vtkNew<vtkGenericOpenGLRenderWindow> renderWindow;
   qvtkWidget.setRenderWindow(renderWindow);
