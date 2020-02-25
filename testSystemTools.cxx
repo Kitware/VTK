@@ -1074,6 +1074,43 @@ static bool CheckCopyFileIfDifferent()
     }
   }
 
+  if (!kwsys::SystemTools::MakeDirectory("dir_a") ||
+      !kwsys::SystemTools::MakeDirectory("dir_b")) {
+    return false;
+  }
+
+  if (!kwsys::SystemTools::CopyFileIfDifferent("dir_a/", "dir_b")) {
+    ret = false;
+  }
+
+  return ret;
+}
+
+static bool CheckURLParsing()
+{
+  bool ret = true;
+  std::string url = "http://user:pw@hostname:42/full/url.com";
+
+  std::string protocol, username, password, hostname, dataport, database;
+  kwsys::SystemTools::ParseURL(url, protocol, username, password, hostname,
+                               dataport, database);
+  if (protocol != "http" || username != "user" || password != "pw" ||
+      hostname != "hostname" || dataport != "42" ||
+      database != "full/url.com") {
+    std::cerr << "Incorrect URL parsing" << std::endl;
+    ret = false;
+  }
+
+  std::string uri =
+    "file://hostname/path/to/"
+    "a%20file%20with%20str%C3%A0ng%C3%A8%20ch%40r%20and%20s%C2%B5aces";
+  kwsys::SystemTools::ParseURL(uri, protocol, username, password, hostname,
+                               dataport, database, true);
+  if (protocol != "file" || hostname != "hostname" ||
+      database != "path/to/a file with stràngè ch@r and sµaces") {
+    std::cerr << "Incorrect URL parsing or decoding" << std::endl;
+    ret = false;
+  }
   return ret;
 }
 
@@ -1123,6 +1160,8 @@ int testSystemTools(int, char* [])
   res &= CheckTextFilesDiffer();
 
   res &= CheckCopyFileIfDifferent();
+
+  res &= CheckURLParsing();
 
   return res ? 0 : 1;
 }
