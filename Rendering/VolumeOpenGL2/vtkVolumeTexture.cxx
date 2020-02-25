@@ -650,7 +650,8 @@ void vtkVolumeTexture::SortBlocksBackToFront(vtkRenderer* ren, vtkMatrix4x4* vol
   if (this->ImageDataBlocks.size() > 1)
   {
     vtkBlockSortHelper::BackToFront<vtkImageData> sortBlocks(ren, volumeMat);
-    std::sort(this->ImageDataBlocks.begin(), this->ImageDataBlocks.end(), sortBlocks);
+    vtkBlockSortHelper::Sort(
+      this->ImageDataBlocks.begin(), this->ImageDataBlocks.end(), sortBlocks);
 
     size_t const numBlocks = this->ImageDataBlocks.size();
     this->SortedVolumeBlocks.clear();
