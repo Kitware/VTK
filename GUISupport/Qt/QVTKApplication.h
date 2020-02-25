@@ -25,7 +25,7 @@
 // In this case, QVTKApplication provides a model of implementation.
 
 // .SECTION See Also
-// vtkTDxQtUnixDevices QVTKWidget
+// vtkTDxQtUnixDevices
 
 #ifndef __QVTKApplication_h
 #define __QVTKApplication_h
@@ -66,7 +66,7 @@ public:
 public Q_SLOTS:
   // Description:
   // Slot to receive signal CreateDevice coming from vtkTDxQtUnixDevices.
-  // It re-emit signal CreateDevice (to QVTKWidget slots)
+  // It re-emit signal CreateDevice
   // No-op if not X11 (ie Q_OS_LINUX and Q_WS_X11 is not defined).
   void setDevice(vtkTDxDevice* device);
 

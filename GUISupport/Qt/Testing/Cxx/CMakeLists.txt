@@ -34,15 +34,6 @@ vtk_add_test_cxx(vtkGUISupportQtCxxTests tests
   TestQVTKOpenGLWindowWithMSAA,TestQtWithMSAA.cxx
   )
 
-if(NOT VTK_LEGACY_REMOVE)
-  # tests use legacy QVTKWidget.
-  if(WIN32)
-    vtk_add_test_cxx(vtkGUISupportQtCxxTests tests
-      NO_VALID
-      TestWin32QVTKWidget.cxx)
-  endif()
-endif()
-
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
 vtk_test_cxx_executable(vtkGUISupportQtCxxTests tests
