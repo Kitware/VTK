@@ -1887,16 +1887,12 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
     else // not lines, so surface
     {
       vtkShaderProgram::Substitute(FSSource, "//VTK::UniformFlow::Impl",
-        "vec3 fdx = vec3(dFdx(vertexVC.x),dFdx(vertexVC.y),dFdx(vertexVC.z));\n"
-        "  vec3 fdy = vec3(dFdy(vertexVC.x),dFdy(vertexVC.y),dFdy(vertexVC.z));\n"
+        "vec3 fdx = dFdx(vertexVC.xyz);\n"
+        "  vec3 fdy = dFdy(vertexVC.xyz);\n"
         "  //VTK::UniformFlow::Impl\n" // For further replacements
       );
       vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Impl",
-        "fdx = normalize(fdx);\n"
-        "  fdy = normalize(fdy);\n"
         "  vec3 normalVCVSOutput = normalize(cross(fdx,fdy));\n"
-        // the code below is faster, but does not work on some devices
-        //"vec3 normalVC = normalize(cross(dFdx(vertexVC.xyz), dFdy(vertexVC.xyz)));\n"
         "  if (cameraParallel == 1 && normalVCVSOutput.z < 0.0) { normalVCVSOutput = "
         "-1.0*normalVCVSOutput; }\n"
         "  if (cameraParallel == 0 && dot(normalVCVSOutput,vertexVC.xyz) > 0.0) { normalVCVSOutput "
