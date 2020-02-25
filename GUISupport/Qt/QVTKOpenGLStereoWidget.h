@@ -59,7 +59,7 @@ class vtkRenderWindowInteractor;
  * the needed QSurfaceFormat for the specific QVTKOpenGLStereoWidget instance by
  * calling `QVTKOpenGLStereoWidget::setFormat` before the widget is initialized.
  *
- * @sa QVTKOpenGLWindow QVTKOpenGLNativeWidget
+ * @sa QVTKOpenGLWindow QVTKOpenGLNativeWidget QVTKRenderWidget
  */
 class VTKGUISUPPORTQT_EXPORT QVTKOpenGLStereoWidget : public QWidget
 {

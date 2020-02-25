@@ -92,11 +92,12 @@
  * `QVTKOpenGLNativeWidget::renderVTK`.
  *
  * @section Caveats
- * QVTKOpenGLNativeWidget only supports **OpenGL2** rendering backend.
  * QVTKOpenGLNativeWidget does not support stereo,
  * please use QVTKOpenGLStereoWidget if you need support for stereo rendering
  *
  * QVTKOpenGLNativeWidget is targeted for Qt version 5.5 and above.
+ *
+ * @sa QVTKOpenGLStereoWidget QVTKRenderWidget
  *
  */
 #ifndef QVTKOpenGLNativeWidget_h
