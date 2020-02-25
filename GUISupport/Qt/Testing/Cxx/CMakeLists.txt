@@ -44,6 +44,17 @@ vtk_add_test_cxx(vtkGUISupportQtCxxTests tests
   TestQVTKRenderWidgetWithMSAA,TestQtWithMSAA.cxx
   )
 
+if (NOT VTK_LEGACY_REMOVE)
+vtk_add_test_cxx(vtkGUISupportQtCxxTests tests
+  -w QVTKOpenGLWidget
+  TestQVTKOpenGLWidgetQWidgetWidget,TestQWidgetWidget.cxx,NO_VALID
+  TestQVTKOpenGLWidgetPicking,TestQtPicking.cxx,NO_VALID
+  TestQVTKOpenGLWidgetSwapWindows,TestQtSwapWindows.cxx,NO_VALID
+  TestQVTKOpenGLWidget,TestQtWidget.cxx
+  TestQVTKOpenGLWidgetWithDisabledInteractor,TestQtWithDisabledInteractor.cxx
+  TestQVTKOpenGLWidgetWithMSAA,TestQtWithMSAA.cxx
+  )
+endif()
 
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
@@ -64,6 +75,11 @@ set_tests_properties(VTK::GUISupportQtCxx-TestQVTKOpenGLWindowPicking
 set_tests_properties(VTK::GUISupportQtCxx-TestQVTKRenderWidgetPicking
  PROPERTIES RUN_SERIAL ON)
 
+if (NOT VTK_LEGACY_REMOVE)
+  set_tests_properties(VTK::GUISupportQtCxx-TestQVTKOpenGLWidgetPicking
+   PROPERTIES RUN_SERIAL ON)
+endif()
+
 
 # since these tests grab from on-screen buffer, they must be run serially.
 set_tests_properties(VTK::GUISupportQtCxx-TestQVTKOpenGLStereoWidgetWithDisabledInteractor
@@ -74,3 +90,8 @@ set_tests_properties(VTK::GUISupportQtCxx-TestQVTKOpenGLWindowWithDisabledIntera
  PROPERTIES RUN_SERIAL ON)
 set_tests_properties(VTK::GUISupportQtCxx-TestQVTKRenderWidgetWithDisabledInteractor
  PROPERTIES RUN_SERIAL ON)
+
+if (NOT VTK_LEGACY_REMOVE)
+  set_tests_properties(VTK::GUISupportQtCxx-TestQVTKOpenGLWidgetWithDisabledInteractor
+   PROPERTIES RUN_SERIAL ON)
+endif()
