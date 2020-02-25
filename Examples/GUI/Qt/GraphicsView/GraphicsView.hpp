@@ -4,7 +4,7 @@
 
 #include <QGraphicsView>
 #include <QResizeEvent>
-#include "QVTKWidget2.h"
+#include "QVTKOpenGLNativeWidget.h"
 #include "OpenGLScene.hpp"
 #include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkRenderer.h"
@@ -16,7 +16,7 @@ class GraphicsView : public QGraphicsView
     GraphicsView()
     {
       mCtx = new QGLContext(QGLFormat());
-      mWidget = new QVTKWidget2(mCtx);
+      mWidget = new QVTKOpenGLNativeWidget(mCtx);
       this->setViewport(mWidget);
       this->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
       this->setScene(new OpenGLScene(mCtx, this));
@@ -57,7 +57,7 @@ class GraphicsView : public QGraphicsView
         mWidget->GetRenderWindow()->SetSize(event->size().width(), event->size().height());
       }
     QGLContext* mCtx;
-    QVTKWidget2* mWidget;
+    QVTKOpenGLNativeWidget* mWidget;
 };
 
 #endif
