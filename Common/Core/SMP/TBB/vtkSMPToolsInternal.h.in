@@ -60,7 +60,7 @@ void vtkSMPTools_Impl_For(
   FunctorInternal& fi)
 {
   vtkIdType range = last - first;
-  if (!range)
+  if (range <= 0)
   {
     return;
   }
