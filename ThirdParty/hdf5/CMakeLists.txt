@@ -1,3 +1,6 @@
+cmake_policy(PUSH)
+cmake_policy(SET CMP0074 NEW)
+
 set(HDF5_EXTERNALLY_CONFIGURED 1)
 
 vtk_module_third_party(
@@ -35,3 +38,5 @@ configure_file(
 
 vtk_module_install_headers(
   FILES "${CMAKE_CURRENT_BINARY_DIR}/vtk_hdf5.h")
+
+cmake_policy(POP)
