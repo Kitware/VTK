@@ -850,8 +850,11 @@ double vtkHigherOrderTetra::GetParametricDistance(const double pcoords[3])
 //----------------------------------------------------------------------------
 vtkIdType vtkHigherOrderTetra::ComputeOrder()
 {
-  vtkIdType nPoints = this->Points->GetNumberOfPoints();
+  return vtkHigherOrderTetra::ComputeOrder(this->Points->GetNumberOfPoints());
+}
 
+vtkIdType vtkHigherOrderTetra::ComputeOrder(const vtkIdType nPoints)
+{
   switch (nPoints)
   {
     case 1:

@@ -88,6 +88,7 @@ public:
 
   vtkIdType GetOrder() const { return this->Order; }
   vtkIdType ComputeOrder();
+  static vtkIdType ComputeOrder(const vtkIdType nPoints);
 
   void ToBarycentricIndex(vtkIdType index, vtkIdType* bindex);
   vtkIdType ToIndex(const vtkIdType* bindex);
