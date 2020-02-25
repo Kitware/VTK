@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestQVTKOpenGLWidget.cxx
+  Module:    TestQtWidget.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// Tests QVTKOpenGLWidget/QVTKOpenGLWindow/QVTKOpenGLNativeWidget
+// Tests QVTKOpenGLStereoWidget/QVTKOpenGLWindow/QVTKOpenGLNativeWidget
 
 #include "TestQtCommon.h"
 

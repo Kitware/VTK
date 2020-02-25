@@ -18,9 +18,9 @@ Type select_widget(int argc, char* argv[])
       {
         return Type::USE_QVTKOPENGLWINDOW;
       }
-      else if (strcmp(typestr, "QVTKOpenGLWidget") == 0)
+      else if (strcmp(typestr, "QVTKOpenGLStereoWidget") == 0)
       {
-        return Type::USE_QVTKOPENGLWIDGET;
+        return Type::USE_QVTKOPENGLSTEREOWIDGET;
       }
     }
   }
@@ -69,10 +69,10 @@ std::shared_ptr<QObject> create_widget_or_window(Type type, vtkGenericOpenGLRend
       }
       return std::static_pointer_cast<QObject>(widget);
     }
-    case Type::USE_QVTKOPENGLWIDGET:
+    case Type::USE_QVTKOPENGLSTEREOWIDGET:
     {
-      vtkLogF(INFO, "creating QVTKOpenGLWidget.");
-      auto widget = std::make_shared<QVTKOpenGLWidget>();
+      vtkLogF(INFO, "creating QVTKOpenGLStereoWidget.");
+      auto widget = std::make_shared<QVTKOpenGLStereoWidget>();
       vtkLogF(INFO, "set format on Qt widget explicitly");
       widget->setFormat(QVTKOpenGLWindow::defaultFormat());
       if (renWin)
@@ -98,7 +98,7 @@ std::shared_ptr<QWidget> create_widget(
 
 vtkRenderWindow* get_render_window(std::shared_ptr<QObject> widgetOrWindow)
 {
-  if (auto w1 = qobject_cast<QVTKOpenGLWidget*>(widgetOrWindow.get()))
+  if (auto w1 = qobject_cast<QVTKOpenGLStereoWidget*>(widgetOrWindow.get()))
   {
     return w1->renderWindow();
   }
@@ -117,7 +117,7 @@ vtkRenderWindow* get_render_window(std::shared_ptr<QObject> widgetOrWindow)
 
 void set_render_window(std::shared_ptr<QObject> widgetOrWindow, vtkRenderWindow* renWin)
 {
-  if (auto w1 = qobject_cast<QVTKOpenGLWidget*>(widgetOrWindow.get()))
+  if (auto w1 = qobject_cast<QVTKOpenGLStereoWidget*>(widgetOrWindow.get()))
   {
     w1->setRenderWindow(renWin);
   }
@@ -177,7 +177,7 @@ void show(std::shared_ptr<QObject> widgetOrWindow, const QSize& size)
 
 QImage grab_framebuffer(std::shared_ptr<QObject> widgetOrWindow)
 {
-  if (auto w1 = qobject_cast<QVTKOpenGLWidget*>(widgetOrWindow.get()))
+  if (auto w1 = qobject_cast<QVTKOpenGLStereoWidget*>(widgetOrWindow.get()))
   {
     return w1->grabFramebuffer();
   }

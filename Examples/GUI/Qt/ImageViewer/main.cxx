@@ -33,14 +33,14 @@
 #include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 
-#include "QVTKOpenGLWidget.h"
+#include "QVTKOpenGLStereoWidget.h"
 
 int main(int argc, char** argv)
 {
   // set surface format before application initialization
-  QSurfaceFormat::setDefaultFormat(QVTKOpenGLWidget::defaultFormat());
+  QSurfaceFormat::setDefaultFormat(QVTKOpenGLStereoWidget::defaultFormat());
   QApplication app(argc, argv);
-  QVTKOpenGLWidget widget;
+  QVTKOpenGLStereoWidget widget;
   widget.resize(256, 256);
   vtkNew<vtkGenericOpenGLRenderWindow> renWin;
   widget.setRenderWindow(renWin);
