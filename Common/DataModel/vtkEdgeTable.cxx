@@ -488,7 +488,7 @@ int vtkEdgeTable::GetNextEdge(vtkIdType& p1, vtkIdType& p2, void*& ptr)
   return 0;
 }
 
-vtkIdList** vtkEdgeTable::Resize(vtkIdType sz)
+vtkIdList** vtkEdgeTable::Resize(vtkIdType size)
 {
   vtkIdList** newTableArray;
   vtkIdList** newAttributeArray;
@@ -496,19 +496,19 @@ vtkIdList** vtkEdgeTable::Resize(vtkIdType sz)
   vtkIdType newSize, i;
   vtkIdType extend = this->TableSize / 2 + 1;
 
-  if (sz >= this->TableSize)
+  if (size >= this->TableSize)
   {
-    newSize = this->TableSize + extend * (((sz - this->TableSize) / extend) + 1);
+    newSize = this->TableSize + extend * (((size - this->TableSize) / extend) + 1);
   }
   else
   {
-    newSize = sz;
+    newSize = size;
   }
 
-  sz = (sz < this->TableSize ? sz : this->TableSize);
+  size = (size < this->TableSize ? size : this->TableSize);
   newTableArray = new vtkIdList*[newSize];
-  memcpy(newTableArray, this->Table, sz * sizeof(vtkIdList*));
-  for (i = sz; i < newSize; i++)
+  memcpy(newTableArray, this->Table, size * sizeof(vtkIdList*));
+  for (i = size; i < newSize; i++)
   {
     newTableArray[i] = nullptr;
   }
@@ -519,8 +519,8 @@ vtkIdList** vtkEdgeTable::Resize(vtkIdType sz)
   if (this->StoreAttributes == 1)
   {
     newAttributeArray = new vtkIdList*[newSize];
-    memcpy(newAttributeArray, this->Attributes, sz * sizeof(vtkIdList*));
-    for (i = sz; i < newSize; i++)
+    memcpy(newAttributeArray, this->Attributes, size * sizeof(vtkIdList*));
+    for (i = size; i < newSize; i++)
     {
       newAttributeArray[i] = nullptr;
     }
@@ -530,8 +530,8 @@ vtkIdList** vtkEdgeTable::Resize(vtkIdType sz)
   else if (this->StoreAttributes == 2)
   {
     newPointerAttributeArray = new vtkVoidArray*[newSize];
-    memcpy(newPointerAttributeArray, this->Attributes, sz * sizeof(vtkVoidArray*));
-    for (i = sz; i < newSize; i++)
+    memcpy(newPointerAttributeArray, this->Attributes, size * sizeof(vtkVoidArray*));
+    for (i = size; i < newSize; i++)
     {
       newPointerAttributeArray[i] = nullptr;
     }

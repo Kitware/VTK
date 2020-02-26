@@ -339,15 +339,15 @@ public:
 
   /**
    * Given an integer association type, this static method returns a string type
-   * for the attribute (i.e. type = 0: returns "Points").
+   * for the attribute (i.e. associationType = 0: returns "Points").
    */
   static const char* GetAssociationTypeAsString(int associationType);
 
   /**
-   * Given an integer association type, this static method returns a string type
-   * for the attribute (i.e. type = 0: returns "Points").
+   * Given a string association name, this static method returns an integer association type
+   * for the attribute (i.e. associationName = "Points": returns 0).
    */
-  static int GetAssociationTypeFromString(const char* associationType);
+  static int GetAssociationTypeFromString(const char* associationName);
 
   // \ingroup InformationKeys
   static vtkInformationStringKey* DATA_TYPE_NAME();

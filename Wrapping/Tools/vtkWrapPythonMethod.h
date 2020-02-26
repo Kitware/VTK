@@ -30,7 +30,7 @@ void vtkWrapPython_DeclareVariables(FILE* fp, ClassInfo* data, FunctionInfo* the
 
 /* Write the code to convert an argument with vtkPythonArgs */
 void vtkWrapPython_GetSingleArgument(
-  FILE* fp, ClassInfo* data, int i, ValueInfo* arg, int call_static);
+  FILE* fp, ClassInfo* data, int i, ValueInfo* arg, int static_call);
 
 /* print the code to build python return value from a method */
 void vtkWrapPython_ReturnValue(FILE* fp, ClassInfo* data, ValueInfo* val, int static_call);

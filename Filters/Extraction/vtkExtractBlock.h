@@ -100,8 +100,8 @@ protected:
   void CopySubTree(
     vtkDataObjectTreeIterator* loc, vtkMultiBlockDataSet* output, vtkMultiBlockDataSet* input);
   bool Prune(vtkMultiBlockDataSet* mblock);
-  bool Prune(vtkMultiPieceDataSet* mblock);
-  bool Prune(vtkDataObject* mblock);
+  bool Prune(vtkMultiPieceDataSet* mpiece);
+  bool Prune(vtkDataObject* branch);
 
   vtkTypeBool PruneOutput;
   vtkTypeBool MaintainStructure;

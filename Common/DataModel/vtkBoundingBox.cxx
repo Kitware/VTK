@@ -179,14 +179,14 @@ void vtkBoundingBox::SetMaxPoint(double x, double y, double z)
 }
 
 // ---------------------------------------------------------------------------
-void vtkBoundingBox::Inflate(double delX, double delY, double delZ)
+void vtkBoundingBox::Inflate(double deltaX, double deltaY, double deltaZ)
 {
-  this->MinPnt[0] -= delX;
-  this->MaxPnt[0] += delX;
-  this->MinPnt[1] -= delY;
-  this->MaxPnt[1] += delY;
-  this->MinPnt[2] -= delZ;
-  this->MaxPnt[2] += delZ;
+  this->MinPnt[0] -= deltaX;
+  this->MaxPnt[0] += deltaX;
+  this->MinPnt[1] -= deltaY;
+  this->MaxPnt[1] += deltaY;
+  this->MinPnt[2] -= deltaZ;
+  this->MaxPnt[2] += deltaZ;
 }
 
 // ---------------------------------------------------------------------------

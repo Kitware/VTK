@@ -126,7 +126,7 @@ protected:
 
   void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,
-    int extent[6], int id) override;
+    int outExt[6], int id) override;
   void Iterate(
     vtkImageData* in, vtkImageData* out, double ar0, double ar1, int* coreExtent, int count);
 

@@ -49,7 +49,7 @@ public:
 
   void SetMappedUnstructuredGrid(vtkMappedUnstructuredGrid<I, ThisType>* grid);
 
-  void PrintSelf(std::ostream& os, vtkIndent id) override;
+  void PrintSelf(std::ostream& os, vtkIndent indent) override;
 
   bool IsDoneWithTraversal() override;
   vtkIdType GetCellId() override;
@@ -157,7 +157,7 @@ public:
     _grid = ug;
   }
 
-  void PrintSelf(std::ostream& os, vtkIndent id) override;
+  void PrintSelf(std::ostream& os, vtkIndent indent) override;
 
   // API for vtkMappedUnstructuredGrid implementation
   virtual int GetCellType(vtkIdType cellId);

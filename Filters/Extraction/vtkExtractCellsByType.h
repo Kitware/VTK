@@ -82,11 +82,11 @@ protected:
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  void ExtractUnstructuredData(vtkDataSet* input, vtkDataSet* output);
+  void ExtractUnstructuredData(vtkDataSet* inDS, vtkDataSet* outDS);
   void ExtractPolyDataCells(
-    vtkDataSet* input, vtkDataSet* output, vtkIdType* ptMap, vtkIdType& numNewPts);
+    vtkDataSet* inDS, vtkDataSet* outDS, vtkIdType* ptMap, vtkIdType& numNewPts);
   void ExtractUnstructuredGridCells(
-    vtkDataSet* input, vtkDataSet* output, vtkIdType* ptMap, vtkIdType& numNewPts);
+    vtkDataSet* inDS, vtkDataSet* outDS, vtkIdType* ptMap, vtkIdType& numNewPts);
 
   vtkExtractCellsByType();
   ~vtkExtractCellsByType() override;

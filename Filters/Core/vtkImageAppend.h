@@ -53,7 +53,7 @@ public:
    * establish a pipeline connection. Use SetInputConnection() to
    * setup a pipeline connection.
    */
-  void SetInputData(int num, vtkDataObject* input);
+  void SetInputData(int idx, vtkDataObject* input);
   void SetInputData(vtkDataObject* input) { this->SetInputData(0, input); }
   //@}
 
@@ -63,7 +63,7 @@ public:
    * old-style pipeline connections.  When writing new code you should
    * use vtkAlgorithm::GetInputConnection(0, num).
    */
-  vtkDataObject* GetInput(int num);
+  vtkDataObject* GetInput(int idx);
   vtkDataObject* GetInput() { return this->GetInput(0); }
   //@}
 

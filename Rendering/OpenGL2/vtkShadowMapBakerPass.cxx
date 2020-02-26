@@ -616,7 +616,8 @@ bool vtkShadowMapBakerPass::PreReplaceShaderValues(
 // \pre light_exists: light!=0
 // \pre light_is_spotlight: light->LightTypeIsSceneLight() && light->GetPositional() &&
 // light->GetConeAngle() < 90.0 \pre camera_exists: camera!=0
-void vtkShadowMapBakerPass::BuildCameraLight(vtkLight* light, double* bb, vtkCamera* lcamera)
+void vtkShadowMapBakerPass::BuildCameraLight(
+  vtkLight* light, double* boundingBox, vtkCamera* lcamera)
 {
   assert("pre: light_exists" && light != nullptr);
   assert("pre: camera_exists" && lcamera != nullptr);
@@ -632,7 +633,7 @@ void vtkShadowMapBakerPass::BuildCameraLight(vtkLight* light, double* bb, vtkCam
   double vx[3], vup[3];
   vtkMath::Perpendiculars(dir, vx, vup, 0);
   double mNear, mFar;
-  BoxNearFar(bb, lcamera->GetPosition(), dir, mNear, mFar);
+  BoxNearFar(boundingBox, lcamera->GetPosition(), dir, mNear, mFar);
   lcamera->SetViewUp(vup);
 
   if (light->GetPositional())
@@ -661,9 +662,9 @@ void vtkShadowMapBakerPass::BuildCameraLight(vtkLight* light, double* bb, vtkCam
 
     double minx, maxx, miny, maxy, minz, maxz;
     double orig[3] = { 0, 0, 0 };
-    this->BoxNearFar(bb, orig, vx, minx, maxx);
-    this->BoxNearFar(bb, orig, vup, miny, maxy);
-    this->BoxNearFar(bb, orig, dir, minz, maxz);
+    this->BoxNearFar(boundingBox, orig, vx, minx, maxx);
+    this->BoxNearFar(boundingBox, orig, vup, miny, maxy);
+    this->BoxNearFar(boundingBox, orig, dir, minz, maxz);
 
     double sizex, sizey;
     sizex = maxx - minx;

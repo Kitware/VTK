@@ -431,7 +431,7 @@ extern "C"
   /**
    * Add default constructors to a class if they do not already exist
    */
-  void vtkParse_AddDefaultConstructors(ClassInfo* data, StringCache* cache);
+  void vtkParse_AddDefaultConstructors(ClassInfo* cls, StringCache* cache);
 
 #ifdef __cplusplus
 } /* extern "C" */

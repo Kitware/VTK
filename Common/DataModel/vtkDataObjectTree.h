@@ -178,7 +178,7 @@ protected:
   /**
    * Returns a child dataset at a given index.
    */
-  vtkDataObject* GetChild(unsigned int num);
+  vtkDataObject* GetChild(unsigned int index);
 
   /**
    * Returns the meta-data at a given index. If the index is valid, however, no

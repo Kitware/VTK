@@ -40,7 +40,7 @@ public:
   }
   void Initialize(vtkParticleTracerBase* filter);
   virtual ~ParticlePathFilterInternal() {}
-  virtual int OutputParticles(vtkPolyData* poly);
+  virtual int OutputParticles(vtkPolyData* particles);
   void SetClearCache(bool clearCache) { this->ClearCache = clearCache; }
   bool GetClearCache() { return this->ClearCache; }
   void Finalize();
@@ -69,7 +69,7 @@ protected:
   void operator=(const vtkParticlePathFilter&) = delete;
 
   void ResetCache() override;
-  int OutputParticles(vtkPolyData* poly) override;
+  int OutputParticles(vtkPolyData* particles) override;
   void InitializeExtraPointDataArrays(vtkPointData* outputPD) override;
   void AppendToExtraPointDataArrays(vtkParticleTracerBaseNamespace::ParticleInformation&) override;
 

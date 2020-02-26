@@ -214,7 +214,7 @@ protected:
   int TrianglePlaneCheck(
     const double t0[3], const double t1[3], const double t2[3], const double* x);
   void ComputeNumberOfComponents(void);
-  void UpdateEdgeData(vtkIdType ptoId, vtkIdType pt1Id);
+  void UpdateEdgeData(vtkIdType pt0Id, vtkIdType pt1Id);
 
   //@{
   /**

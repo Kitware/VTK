@@ -127,7 +127,7 @@ protected:
    * vtkAbstractCellLocator::FindCell() (instead of involving vtkPointLocator)
    * to locate the next cell if the given point is outside the current cell.
    */
-  int FunctionValues(vtkDataSet* ds, vtkAbstractCellLocator* loc, double* x, double* f);
+  int FunctionValues(vtkDataSet* dataset, vtkAbstractCellLocator* loc, double* x, double* f);
 
   /**
    * Evaluate the velocity field f at point (x, y, z) in a specified dataset

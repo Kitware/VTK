@@ -53,8 +53,8 @@ public:
    * the same number of points.  If you add or change points in these objects,
    * you must call Modified() on them or the transformation might not update.
    */
-  void SetSourceLandmarks(vtkPoints* points);
-  void SetTargetLandmarks(vtkPoints* points);
+  void SetSourceLandmarks(vtkPoints* source);
+  void SetTargetLandmarks(vtkPoints* target);
   vtkGetObjectMacro(SourceLandmarks, vtkPoints);
   vtkGetObjectMacro(TargetLandmarks, vtkPoints);
   //@}

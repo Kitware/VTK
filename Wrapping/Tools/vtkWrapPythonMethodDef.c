@@ -47,7 +47,7 @@ static int vtkWrapPython_IsValueWrappable(
 
 /* weed out methods that will never be called */
 static void vtkWrapPython_RemovePrecededMethods(
-  FunctionInfo* wrappedFunctions[], int numberWrapped, int fnum);
+  FunctionInfo* wrappedFunctions[], int numberOfWrappedFunctions, int fnum);
 
 /* -------------------------------------------------------------------- */
 /* Check for type precedence. Some method signatures will just never

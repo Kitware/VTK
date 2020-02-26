@@ -61,7 +61,7 @@ public:
     vtkTextProperty* tprop, const char* str, int dpi, vtkTextRenderer::Metrics& metrics) override;
 
   /**
-   * Render the given string @a str into the vtkImageData @a data with a
+   * Render the given string @a str into the vtkImageData @a image with a
    * resolution of @a dpi. The image is resized automatically. textDims
    * will be overwritten by the pixel width and height of the rendered string.
    * This is useful when ScaleToPowerOfTwo is true, and the image dimensions may
@@ -70,7 +70,7 @@ public:
    * described by the text property's vertical and horizontal justification
    * options.
    */
-  bool RenderString(const char* str, vtkImageData* data, vtkTextProperty* tprop, int dpi,
+  bool RenderString(const char* str, vtkImageData* image, vtkTextProperty* tprop, int dpi,
     int textDims[2] = NULL) override;
 
   /**

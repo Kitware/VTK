@@ -238,7 +238,7 @@ protected:
    * contains the probe point q.
    */
   int ProbeGridPointInAMR(double q[3], unsigned int& donorLevel, unsigned int& donorGridId,
-    vtkOverlappingAMR* amrds, unsigned int maxLevel, bool useCached);
+    vtkOverlappingAMR* amrds, unsigned int maxLevel, bool hadDonorGrid);
 
   /**
    * Finds the AMR grid that contains the point q. If donorGrid points to a

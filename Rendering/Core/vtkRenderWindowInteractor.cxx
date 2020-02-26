@@ -584,12 +584,12 @@ void vtkRenderWindowInteractor::SetScale(double scale)
 }
 
 //----------------------------------------------------------------------------
-void vtkRenderWindowInteractor::SetRotation(double rot)
+void vtkRenderWindowInteractor::SetRotation(double rotation)
 {
   this->LastRotation = this->Rotation;
-  if (this->Rotation != rot)
+  if (this->Rotation != rotation)
   {
-    this->Rotation = rot;
+    this->Rotation = rotation;
     this->Modified();
   }
 }

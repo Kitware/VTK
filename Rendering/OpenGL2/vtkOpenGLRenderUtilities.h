@@ -51,7 +51,7 @@ public:
    */
   static void RenderQuad(
     float* verts, float* tcoords, vtkShaderProgram* program, vtkOpenGLVertexArrayObject* vao);
-  static void RenderTriangles(float* verts, unsigned int numVerts, GLuint* indices,
+  static void RenderTriangles(float* verts, unsigned int numVerts, GLuint* iboData,
     unsigned int numIndices, float* tcoords, vtkShaderProgram* program,
     vtkOpenGLVertexArrayObject* vao);
   //@}
@@ -112,7 +112,7 @@ public:
 
   // older signsature, we suggest you use the newer signature above
   static bool PrepFullScreenVAO(
-    vtkOpenGLBufferObject* verts, vtkOpenGLVertexArrayObject* vao, vtkShaderProgram* prog);
+    vtkOpenGLBufferObject* vertBuf, vtkOpenGLVertexArrayObject* vao, vtkShaderProgram* prog);
 
   /**
    * Pass a debugging mark to the render engine to assist development via tools

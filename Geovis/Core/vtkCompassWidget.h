@@ -107,9 +107,9 @@ public:
   double GetHeading();
   void SetHeading(double v);
   double GetTilt();
-  void SetTilt(double t);
+  void SetTilt(double value);
   double GetDistance();
-  void SetDistance(double t);
+  void SetDistance(double value);
   //@}
 
 protected:

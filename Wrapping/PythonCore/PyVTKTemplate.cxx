@@ -561,20 +561,20 @@ PyObject* PyVTKTemplate_NameFromKey(PyObject* self, PyObject* key)
 
 //--------------------------------------------------------------------
 // Generate template args by unmangling the class name
-PyObject* PyVTKTemplate_KeyFromName(PyObject* self, PyObject* o)
+PyObject* PyVTKTemplate_KeyFromName(PyObject* self, PyObject* arg)
 {
   // convert arg to a C string
   const char* name = nullptr;
-  if (PyBytes_Check(o))
+  if (PyBytes_Check(arg))
   {
-    name = PyBytes_AS_STRING(o);
+    name = PyBytes_AS_STRING(arg);
   }
-  else if (PyUnicode_Check(o))
+  else if (PyUnicode_Check(arg))
   {
 #if PY_VERSION_HEX >= 0x03030000
-    name = PyUnicode_AsUTF8(o);
+    name = PyUnicode_AsUTF8(arg);
 #else
-    PyObject* s = _PyUnicode_AsDefaultEncodedString(o, nullptr);
+    PyObject* s = _PyUnicode_AsDefaultEncodedString(arg, nullptr);
     name = PyBytes_AS_STRING(s);
 #endif
   }

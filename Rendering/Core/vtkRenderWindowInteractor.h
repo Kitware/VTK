@@ -584,7 +584,7 @@ public:
   /**
    * Set/get the rotation for the gesture in degrees, update LastRotation
    */
-  void SetRotation(double val);
+  void SetRotation(double rotation);
   vtkGetMacro(Rotation, double);
   vtkGetMacro(LastRotation, double);
   //@}
@@ -593,7 +593,7 @@ public:
   /**
    * Set/get the scale for the gesture, updates LastScale
    */
-  void SetScale(double val);
+  void SetScale(double scale);
   vtkGetMacro(Scale, double);
   vtkGetMacro(LastScale, double);
   //@}

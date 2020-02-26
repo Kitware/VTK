@@ -272,7 +272,7 @@ public:
    * Map one value through the lookup table and return the color as
    * an RGB[3] array of doubles between 0 and 1. Note lack of alpha.
    */
-  void GetColor(double x, double rgb[3]) override;
+  void GetColor(double v, double rgb[3]) override;
 
   /**
    * Map one value through the lookup table and return the alpha value
@@ -317,13 +317,13 @@ public:
    * Return an RGBA color value for the given index into the lookup table. Color
    * components are expressed as [0,1] double values.
    */
-  double* GetTableValue(vtkIdType id) VTK_SIZEHINT(4);
+  double* GetTableValue(vtkIdType indx) VTK_SIZEHINT(4);
 
   /**
    * Return an RGBA color value for the given index into the lookup table. Color
    * components are expressed as [0,1] double values.
    */
-  void GetTableValue(vtkIdType id, double rgba[4]);
+  void GetTableValue(vtkIdType indx, double rgba[4]);
 
   /**
    * Get pointer to color table data. Format is array of unsigned char
@@ -393,12 +393,12 @@ public:
    * This member function is thread safe.
    */
   void MapScalarsThroughTable2(void* input, unsigned char* output, int inputDataType,
-    int numberOfValues, int inputIncrement, int outputIncrement) override;
+    int numberOfValues, int inputIncrement, int outputFormat) override;
 
   /**
    * Copy the contents from another LookupTable.
    */
-  void DeepCopy(vtkScalarsToColors* lut) override;
+  void DeepCopy(vtkScalarsToColors* obj) override;
 
   /**
    * This should return 1 if the subclass is using log scale for mapping scalars

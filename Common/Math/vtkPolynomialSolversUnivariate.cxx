@@ -2166,38 +2166,38 @@ int vtkPolynomialSolversUnivariate::SolveQuadratic(double* c, double* r, int* m)
 }
 
 //----------------------------------------------------------------------------
-// Solves a linear equation c2*t  + c3 = 0 when c2 and c3 are REAL.
+// Solves a linear equation c0*t  + c1 = 0 when c0 and c1 are REAL.
 // Solution is motivated by Numerical Recipes In C 2nd Ed.
 // Return array contains number of roots followed by roots themselves.
-double* vtkPolynomialSolversUnivariate::SolveLinear(double c2, double c3)
+double* vtkPolynomialSolversUnivariate::SolveLinear(double c0, double c1)
 {
   static double roots[3];
   int num_roots;
   roots[1] = 0.0;
-  roots[2] = vtkPolynomialSolversUnivariate::SolveLinear(c2, c3, &roots[1], &num_roots);
+  roots[2] = vtkPolynomialSolversUnivariate::SolveLinear(c0, c1, &roots[1], &num_roots);
   roots[0] = num_roots;
   return roots;
 }
 
 //----------------------------------------------------------------------------
-// Solves a linear equation c2*t + c3 = 0 when c2 and c3 are REAL.
+// Solves a linear equation c0*t + c1 = 0 when c0 and c1 are REAL.
 // Solution is motivated by Numerical Recipes In C 2nd Ed.
 // Root and number of (real) roots are stored in user provided variables
 // r2 and num_roots.
-int vtkPolynomialSolversUnivariate::SolveLinear(double c2, double c3, double* r1, int* num_roots)
+int vtkPolynomialSolversUnivariate::SolveLinear(double c0, double c1, double* r1, int* num_roots)
 {
-  // Linear equation: c2*t + c3 = 0
+  // Linear equation: c0*t + c1 = 0
   // Now this had better be linear
-  if (c2 != 0.0)
+  if (c0 != 0.0)
   {
-    *r1 = -c3 / c2;
+    *r1 = -c1 / c0;
     *num_roots = 1;
     return *num_roots;
   }
   else
   {
     *num_roots = 0;
-    if (c3 == 0.0)
+    if (c1 == 0.0)
     {
       return (-1);
     }

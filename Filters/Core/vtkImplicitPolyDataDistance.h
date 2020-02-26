@@ -126,7 +126,7 @@ protected:
    */
   void CreateDefaultLocator(void);
 
-  double SharedEvaluate(double x[3], double g[3], double p[3]);
+  double SharedEvaluate(double x[3], double g[3], double closestPoint[3]);
 
   double NoGradient[3];
   double NoClosestPoint[3];

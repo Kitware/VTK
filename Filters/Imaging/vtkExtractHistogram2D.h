@@ -194,7 +194,7 @@ protected:
    * Execute the calculations required by the Learn option.
    * This is what actually does the histogram computation.
    */
-  void Learn(vtkTable* inData, vtkTable* inParameters, vtkMultiBlockDataSet* inMeta) override;
+  void Learn(vtkTable* inData, vtkTable* inParameters, vtkMultiBlockDataSet* outMeta) override;
 
   /**
    * Execute the calculations required by the Derive option. Not used.

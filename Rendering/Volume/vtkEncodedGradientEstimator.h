@@ -104,8 +104,8 @@ public:
   /**
    * Get the encoded normal at an x,y,z location in the volume
    */
-  int GetEncodedNormalIndex(vtkIdType xyz_index);
-  int GetEncodedNormalIndex(int x_index, int y_index, int z_index);
+  int GetEncodedNormalIndex(vtkIdType xyzIndex);
+  int GetEncodedNormalIndex(int xIndex, int yIndex, int zIndex);
   //@}
 
   /**

@@ -56,7 +56,7 @@ public:
    * information object.
    */
   void Append(vtkInformation* info, const char* value);
-  void Set(vtkInformation* info, const char* value, int idx = 0);
+  void Set(vtkInformation* info, const char* value, int index = 0);
   void Append(vtkInformation* info, const std::string& value);
   void Set(vtkInformation* info, const std::string& value, int idx = 0);
   const char* Get(vtkInformation* info, int idx = 0);

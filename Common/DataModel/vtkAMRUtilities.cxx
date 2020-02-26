@@ -97,7 +97,7 @@ bool vtkAMRUtilities::HasPartiallyOverlappingGhostCells(vtkOverlappingAMR* amr)
 
 //------------------------------------------------------------------------------
 void vtkAMRUtilities::CopyFieldData(
-  vtkFieldData* target, vtkIdType targetIdx, vtkFieldData* source, vtkIdType srcIdx)
+  vtkFieldData* target, vtkIdType targetIdx, vtkFieldData* source, vtkIdType sourceIdx)
 {
   assert("pre: target should not be nullptr" && (target != nullptr));
   assert("pre: source should not be nullptr" && (source != nullptr));
@@ -114,13 +114,13 @@ void vtkAMRUtilities::CopyFieldData(
       (targetArray->GetNumberOfComponents() == srcArray->GetNumberOfComponents()));
     assert("pre: target/source array names mismatch!" &&
       (strcmp(targetArray->GetName(), srcArray->GetName()) == 0));
-    assert("pre: source index is out-of-bounds" && (srcIdx >= 0) &&
-      (srcIdx < srcArray->GetNumberOfTuples()));
+    assert("pre: source index is out-of-bounds" && (sourceIdx >= 0) &&
+      (sourceIdx < srcArray->GetNumberOfTuples()));
     assert("pre: target index is out-of-bounds" && (targetIdx >= 0) &&
       (targetIdx < targetArray->GetNumberOfTuples()));
 
     // copy the tuple from the source array
-    targetArray->SetTuple(targetIdx, srcIdx, srcArray);
+    targetArray->SetTuple(targetIdx, sourceIdx, srcArray);
   } // END for all arrays
 }
 

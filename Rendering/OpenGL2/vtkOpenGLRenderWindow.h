@@ -119,7 +119,7 @@ public:
    */
   float* GetZbufferData(int x1, int y1, int x2, int y2) override;
   int GetZbufferData(int x1, int y1, int x2, int y2, float* z) override;
-  int GetZbufferData(int x1, int y1, int x2, int y2, vtkFloatArray* z) override;
+  int GetZbufferData(int x1, int y1, int x2, int y2, vtkFloatArray* buffer) override;
   int SetZbufferData(int x1, int y1, int x2, int y2, float* buffer) override;
   int SetZbufferData(int x1, int y1, int x2, int y2, vtkFloatArray* buffer) override;
   //@}

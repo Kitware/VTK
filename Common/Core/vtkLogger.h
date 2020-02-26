@@ -357,7 +357,7 @@ public:
    * Accepted string values are OFF, ERROR, WARNING, INFO, TRACE, MAX, INVALID or ASCII
    * representation for an integer in the range [-9,9].
    */
-  static Verbosity ConvertToVerbosity(const char* value);
+  static Verbosity ConvertToVerbosity(const char* text);
 
   //@{
   /**

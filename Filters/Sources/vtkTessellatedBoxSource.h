@@ -121,7 +121,7 @@ protected:
    * happens here.
    */
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
-    vtkInformationVector* outpuVector) override;
+    vtkInformationVector* outputVector) override;
 
   void DuplicateSharedPointsMethod(double* bounds, vtkPoints* points, vtkCellArray* polys);
 

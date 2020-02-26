@@ -856,10 +856,10 @@ const char* vtkWrapText_FormatComment(const char* comment, size_t width)
 /* Create a signature for the python version of a method. */
 
 static void vtkWrapText_PythonTypeSignature(
-  struct vtkWPString* result, const char* delims[2], ValueInfo* arg);
+  struct vtkWPString* result, const char* braces[2], ValueInfo* arg);
 
 static void vtkWrapText_PythonArraySignature(struct vtkWPString* result, const char* classname,
-  const char* delims[2], int ndim, const char** dims);
+  const char* braces[2], int ndim, const char** dims);
 
 const char* vtkWrapText_PythonSignature(FunctionInfo* currentFunction)
 {

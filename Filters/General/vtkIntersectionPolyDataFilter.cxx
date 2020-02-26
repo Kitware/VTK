@@ -98,7 +98,7 @@ protected:
 
   // Function to add point to check edge list for remeshing step
   int AddToPointEdgeMap(int index, vtkIdType ptId, double x[3], vtkPolyData* mesh, vtkIdType cellId,
-    vtkIdType edgeId, vtkIdType lineId, const vtkIdType triPts[3]);
+    vtkIdType edgeId, vtkIdType lineId, const vtkIdType triPtIds[3]);
 
   // Function to add information about the new cell data
   void AddToNewCellMap(

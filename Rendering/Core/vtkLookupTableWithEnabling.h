@@ -61,7 +61,7 @@ public:
    * Map a set of scalars through the lookup table.
    */
   void MapScalarsThroughTable2(void* input, unsigned char* output, int inputDataType,
-    int numberOfValues, int inputIncrement, int outputIncrement) override;
+    int numberOfValues, int inputIncrement, int outputFormat) override;
 
   /**
    * A convenience method for taking a color and desaturating it.
