@@ -5,34 +5,19 @@ endif()
 
 vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   ${extra_opengl2_tests}
-  TestBlockOpacity.cxx TestBlockVisibility.cxx
-  TestCompositeDataPointGaussian.cxx,NO_DATA
-  TestCompositeDataPointGaussianSelection.cxx,NO_DATA
-  TestCompositePolyDataMapper2.cxx,NO_DATA
-  TestCompositePolyDataMapper2Picking.cxx,NO_DATA
-  TestCompositePolyDataMapper2Scalars.cxx,NO_DATA
-  TestCompositePolyDataMapper2CellScalars.cxx,NO_DATA
-  TestCompositePolyDataMapper2MixedGeometryCellScalars.cxx,NO_DATA
-  TestCompositePolyDataMapper2MixedGeometryEdges.cxx,NO_DATA
-  TestDragEvent.cxx
-  # composite glyphs are only supported on OpenGL2.
-  TestGlyph3DMapperTreeIndexingCompositeGlyphs.cxx,NO_DATA
-  TestMultiBlockPartialArrayPointData.cxx
-  TestMultiBlockPartialArrayFieldData.cxx
-  # the following produce incorrect results in OpenGL
-  TestTranslucentLUTAlphaBlending.cxx
-  TestTranslucentLUTTextureAlphaBlending.cxx
-  TestAreaSelections.cxx
-  TestValuePassFloatingPoint.cxx
-  TestToggleOSWithInteractor.cxx,NO_DATA
-  otherCoordinate.cxx,NO_DATA,NO_VALID
   FrustumClip.cxx
   Mace.cxx
+  otherCoordinate.cxx,NO_DATA,NO_VALID
+  otherLookupTable.cxx,NO_VALID
+  otherLookupTableWithEnabling.cxx,NO_VALID
+  RenderNonFinite.cxx
   RGrid.cxx
+  SurfacePlusEdges.cxx
   TestActor2D.cxx
   TestActor2DTextures.cxx
   TestActorLightingFlag.cxx
   TestAnimationScene.cxx
+  TestAreaSelections.cxx
   TestAssemblyBounds.cxx,NO_VALID
   TestBackfaceCulling.cxx
   TestBareScalarsToColors.cxx
@@ -44,8 +29,9 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   TestColorTransferFunctionStringArray.cxx,NO_VALID
   TestDirectScalarsToColors.cxx
   TestDiscretizableColorTransferFunction.cxx,NO_VALID
-  TestDiscretizableColorTransferFunctionStringArray.cxx,NO_VALID
   TestDiscretizableColorTransferFunctionOpacity.cxx,NO_VALID
+  TestDiscretizableColorTransferFunctionStringArray.cxx,NO_VALID
+  TestDragEvent.cxx
   TestEdgeFlags.cxx
   TestFollowerPicking.cxx
   TestGlyph3DMapper.cxx
@@ -54,28 +40,25 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   TestGlyph3DMapperIndexing.cxx,NO_DATA
   TestGlyph3DMapperMasking.cxx
   TestGlyph3DMapperOrientationArray.cxx
-  TestGlyph3DMapperQuaternionArray.cxx
   TestGlyph3DMapperPicking.cxx
+  TestGlyph3DMapperQuaternionArray.cxx
   TestGlyph3DMapperTreeIndexing.cxx,NO_DATA
   TestGradientBackground.cxx
-  TestHiddenLineRemovalPass.cxx
   TestHomogeneousTransformOfActor.cxx
   TestImageAndAnnotations.cxx,NO_DATA
   TestInteractorStyleImageProperty.cxx,NO_VALID
   TestInteractorTimers.cxx,NO_VALID
   TestLabeledContourMapper.cxx
   TestLabeledContourMapperWithActorMatrix.cxx
-  TestPickingManager.cxx,NO_VALID
   TestManyActors.cxx,NO_VALID
   TestMapVectorsAsRGBColors.cxx
   TestMapVectorsToColors.cxx
   TestOffAxisStereo.cxx
-  TestOrderedTriangulator.cxx
-  TestOpacity.cxx
-  TestStereoBackgroundLeft.cxx
-  TestStereoBackgroundRight.cxx
-  TestOSConeCxx.cxx
   TestOnAndOffScreenConeCxx.cxx
+  TestOpacity.cxx
+  TestOrderedTriangulator.cxx
+  TestOSConeCxx.cxx
+  TestPickingManager.cxx,NO_VALID
   TestPickTextActor.cxx,NO_VALID
   TestPointSelection.cxx,NO_VALID
   TestPointSelectionWithCellData.cxx,NO_VALID
@@ -84,25 +67,26 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   TestResetCameraVerticalAspectRatioParallel.cxx
   TestSelectVisiblePoints.cxx,NO_VALID
   TestSplitViewportStereoHorizontal.cxx
+  TestStereoBackgroundLeft.cxx
+  TestStereoBackgroundRight.cxx
   TestTexturedBackground.cxx
-  TestTextureSize.cxx,NO_VALID
   TestTextureRGBA.cxx
   TestTextureRGBADepthPeeling.cxx
+  TestTextureSize.cxx,NO_VALID
   TestTilingCxx.cxx
+  TestToggleOSWithInteractor.cxx,NO_DATA
   TestTransformCoordinateUseDouble.cxx
   TestTranslucentImageActorAlphaBlending.cxx
   TestTranslucentImageActorDepthPeeling.cxx
+  TestTranslucentLUTAlphaBlending.cxx
   TestTranslucentLUTDepthPeeling.cxx
+  TestTranslucentLUTTextureAlphaBlending.cxx
   TestTranslucentLUTTextureDepthPeeling.cxx
   TestTStripsColorsTCoords.cxx
   TestTStripsNormalsColorsTCoords.cxx
   TestTStripsNormalsTCoords.cxx
   TestTStripsTCoords.cxx
   TestWindowToImageFilter.cxx
-  otherLookupTable.cxx,NO_VALID
-  otherLookupTableWithEnabling.cxx,NO_VALID
-  RenderNonFinite.cxx
-  SurfacePlusEdges.cxx
   # TestViewDependentErrorMetric.cxx # Loads of extra deps - move?
   # TestHierarchicalBoxPipeline.cxx  # legacy code
   )

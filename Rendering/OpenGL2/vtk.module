@@ -22,15 +22,22 @@ PRIVATE_DEPENDS
   VTK::vtksys
 TEST_DEPENDS
   VTK::CommonSystem
+  VTK::FiltersExtraction
   VTK::FiltersGeneral
   VTK::FiltersGeometry
+  VTK::FiltersProgrammable
   VTK::FiltersSources
+  VTK::IOExodus
+  VTK::IOExport
   VTK::IOImage
   VTK::IOLegacy
+  VTK::IOParallel
   VTK::IOPLY
+  VTK::IOXML
   VTK::ImagingGeneral
   VTK::ImagingSources
   VTK::InteractionStyle
+  VTK::RenderingAnnotation
   VTK::RenderingFreeType
   VTK::RenderingImage
   VTK::TestingCore
