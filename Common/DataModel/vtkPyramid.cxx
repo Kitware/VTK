@@ -117,13 +117,15 @@ static constexpr vtkIdType numberOfPointsInFace[vtkPyramid::NumberOfFaces] = {
   4, // 0
   3, // 1
   3, // 2
-  3  // 3
+  3, // 3
+  3  // 4
 };
 static constexpr vtkIdType valenceAtPoint[vtkPyramid::NumberOfPoints] = {
   4, // 0
   3, // 1
   3, // 2
-  3  // 3
+  3, // 3
+  3  // 4
 };
 
 typedef int EDGE_LIST;
