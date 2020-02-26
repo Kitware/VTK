@@ -322,7 +322,7 @@ bool vtkBlueObeliskData::GenerateHeaderFromXML(std::istream& xml, std::ostream& 
          "\n"
          "namespace _vtkBlueObeliskData {\n"
          "\n"
-         "const static unsigned int numberOfElements = "
+         "static const unsigned int numberOfElements = "
       << data->GetNumberOfElements() << ";\n\n";
 
 #define DUMPARRAY(type, name) Write##type##Array(#name, data->Get##name(), out)

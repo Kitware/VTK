@@ -15,7 +15,7 @@
 #include "vtkBlueObeliskData.h"
 #include "vtkChemistryConfigure.h"
 
-#include <fstream>
+#include "vtksys/FStream.hxx"
 
 int GenerateBlueObeliskHeader(int, char*[])
 {

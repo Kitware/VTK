@@ -18,7 +18,7 @@ class TestXYZMolReader(Testing.vtkTest):
     mol = reader.GetOutput()
     bonder = vtk.vtkSimpleBondPerceiver()
     bonder.SetInputData(mol)
-    bonder.SetTolerance(.3)
+    bonder.SetTolerance(.7)
     bonder.Update()
     mol = bonder.GetOutput()
     self.assertEqual(mol.GetNumberOfAtoms(), 3254)
