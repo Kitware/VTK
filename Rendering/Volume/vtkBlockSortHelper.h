@@ -143,14 +143,12 @@ struct BackToFront
 
     int dims = 0;
     int degenDims = 0;
-    int axes[3];
     int degenAxes[3];
     int dimSize[3];
     for (int i = 0; i < 6; i += 2)
     {
       if (aboundsP[i] != aboundsP[i + 1])
       {
-        axes[dims] = i / 2;
         dimSize[dims] = aboundsP[i + 1] - aboundsP[i];
         dims++;
       }
@@ -170,14 +168,10 @@ struct BackToFront
       {
         if (dimSize[0] < dimSize[2])
         {
-          axes[0] = 1;
-          axes[1] = 2;
           degenAxes[0] = 0;
         }
         else
         {
-          axes[0] = 0;
-          axes[1] = 1;
           degenAxes[0] = 2;
         }
       }
@@ -185,14 +179,10 @@ struct BackToFront
       {
         if (dimSize[1] < dimSize[2])
         {
-          axes[0] = 0;
-          axes[1] = 2;
           degenAxes[0] = 1;
         }
         else
         {
-          axes[0] = 0;
-          axes[1] = 1;
           degenAxes[0] = 2;
         }
       }
@@ -312,7 +302,6 @@ template <class RandomIt, typename T>
 inline void Sort(RandomIt bitr, RandomIt eitr, BackToFront<T>& me)
 {
   auto start = bitr;
-  auto end = eitr;
 
   // brute force for testing
 
