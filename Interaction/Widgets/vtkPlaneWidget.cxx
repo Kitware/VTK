@@ -981,7 +981,9 @@ void vtkPlaneWidget::MoveOrigin(double* p1, double* p2)
   double n13 = vtkMath::Norm(p13);
   double n23 = vtkMath::Norm(p23);
   if ((n13 < VTK_PLANE_ZERO_THRESHOLD) || (n23 < VTK_PLANE_ZERO_THRESHOLD))
+  {
     return;
+  }
 
   // Project v onto these vector to determine the amount of motion
   // Scale it by the relative size of the motion to the vector length
