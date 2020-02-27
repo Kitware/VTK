@@ -1105,7 +1105,9 @@ void vtkPlaneWidget::MovePoint2(double* p1, double* p2)
   double n31 = vtkMath::Norm(p31);
   double n01 = vtkMath::Norm(p01);
   if ((n31 < VTK_PLANE_ZERO_THRESHOLD) || (n01 < VTK_PLANE_ZERO_THRESHOLD))
+  {
     return;
+  }
 
   // Project v onto these vector to determine the amount of motion
   // Scale it by the relative size of the motion to the vector length
