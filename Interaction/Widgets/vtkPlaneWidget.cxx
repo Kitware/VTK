@@ -959,7 +959,9 @@ void vtkPlaneWidget::MoveOrigin(double* p1, double* p2)
   double vN = vtkMath::Norm(v);
   // if there is no motion then return
   if (vN < VTK_PLANE_ZERO_THRESHOLD)
+  {
     return;
+  }
 
   // The point opposite the origin (pt3) stays fixed
   double pt3[3];
