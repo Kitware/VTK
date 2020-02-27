@@ -14,6 +14,10 @@
 =========================================================================*/
 #include <algorithm>
 
+// uncomment the following line to add a lot of debugging
+// code to the sorting process
+// #define MB_DEBUG
+
 #include "vtkBlockSortHelper.h"
 #include "vtkBoundingBox.h"
 #include "vtkCompositeDataIterator.h"
@@ -28,6 +32,19 @@
 #include "vtkRenderWindow.h"
 #include "vtkSmartVolumeMapper.h"
 
+#include "vtkCubeSource.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
+
+namespace vtkBlockSortHelper
+{
+template <>
+inline void GetBounds(vtkSmartVolumeMapper* first, double bds[6])
+{
+  first->GetInput()->GetBounds(bds);
+}
+}
+
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkMultiBlockVolumeMapper);
 
@@ -40,12 +57,28 @@ vtkMultiBlockVolumeMapper::vtkMultiBlockVolumeMapper()
   , VectorComponent(0)
   , RequestedRenderMode(vtkSmartVolumeMapper::DefaultRenderMode)
 {
+#ifdef MB_DEBUG
+  this->DebugWin = vtkRenderWindow::New();
+  this->DebugRen = vtkRenderer::New();
+  this->DebugWin->AddRenderer(this->DebugRen);
+#else
+  this->DebugWin = nullptr;
+  this->DebugRen = nullptr;
+#endif
 }
 
 //------------------------------------------------------------------------------
 vtkMultiBlockVolumeMapper::~vtkMultiBlockVolumeMapper()
 {
   this->ClearMappers();
+  if (this->DebugRen)
+  {
+    this->DebugRen->Delete();
+  }
+  if (this->DebugWin)
+  {
+    this->DebugWin->Delete();
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -75,13 +108,46 @@ void vtkMultiBlockVolumeMapper::Render(vtkRenderer* ren, vtkVolume* vol)
 
     (*it)->Render(ren, vol);
   }
+
+#ifdef MB_DEBUG
+  this->DebugRen->RemoveAllViewProps();
+  unsigned int count = 0;
+  for (MapperVec::const_iterator it = this->Mappers.begin(); it != end; ++it)
+  {
+    double* bnds = (*it)->GetInput()->GetBounds();
+    // vtkErrorMacro("Count: " << count << " bnds " << bnds[0] << " " << bnds[1] << " " << bnds[2]
+    // << " " << bnds[3]
+    //   << " " << bnds[4] << " " << bnds[5]);
+    double rgb[3];
+    rgb[0] = (count % 4) * 85 / 255.0;
+    rgb[1] = ((count / 4) % 4) * 85 / 255.0;
+    rgb[2] = (count / 16) * 85 / 255.0;
+    vtkNew<vtkActor> act;
+    act->GetProperty()->SetColor(rgb);
+    act->GetProperty()->SetDiffuse(0);
+    act->GetProperty()->SetAmbient(1);
+    vtkNew<vtkCubeSource> cube;
+    cube->SetBounds(bnds);
+    vtkNew<vtkPolyDataMapper> mapper;
+    mapper->SetInputConnection(cube->GetOutputPort());
+    act->SetMapper(mapper);
+    this->DebugRen->AddActor(act);
+    count++;
+  }
+
+  this->DebugRen->GetActiveCamera()->ShallowCopy(ren->GetActiveCamera());
+  this->DebugWin->SetSize(ren->GetVTKWindow()->GetSize());
+  this->DebugWin->MakeCurrent();
+  this->DebugWin->Render();
+  ren->GetVTKWindow()->MakeCurrent();
+#endif
 }
 
 //------------------------------------------------------------------------------
 void vtkMultiBlockVolumeMapper::SortMappers(vtkRenderer* ren, vtkMatrix4x4* volumeMat)
 {
   vtkBlockSortHelper::BackToFront<vtkVolumeMapper> sortMappers(ren, volumeMat);
-  std::sort(this->Mappers.begin(), this->Mappers.end(), sortMappers);
+  vtkBlockSortHelper::Sort(this->Mappers.begin(), this->Mappers.end(), sortMappers);
 }
 
 //------------------------------------------------------------------------------
