@@ -1143,7 +1143,9 @@ void vtkPlaneWidget::MovePoint3(double* p1, double* p2)
   double vN = vtkMath::Norm(v);
   // if there is no motion then return
   if (vN < VTK_PLANE_ZERO_THRESHOLD)
+  {
     return;
+  }
 
   // Define vectors from point pt3
   double p10[3], p20[3];
