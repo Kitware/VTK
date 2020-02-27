@@ -29,15 +29,13 @@ TEST_DEPENDS
   VTK::FiltersGeometry
   VTK::FiltersProgrammable
   VTK::FiltersSources
-  VTK::IOExodus
-  VTK::IOExport
+  VTK::ImagingSources
+  VTK::InteractionStyle
+  VTK::IOImage
   VTK::IOLegacy
   VTK::IOParallel
   VTK::IOXML
-  VTK::ImagingSources
-  VTK::InteractionStyle
   VTK::RenderingAnnotation
-  VTK::RenderingFreeType
   VTK::RenderingOpenGL2
   VTK::TestingCore
   VTK::TestingRendering
