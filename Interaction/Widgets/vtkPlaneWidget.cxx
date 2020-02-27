@@ -1083,7 +1083,9 @@ void vtkPlaneWidget::MovePoint2(double* p1, double* p2)
   double vN = vtkMath::Norm(v);
   // if there is no motion then return
   if (vN < VTK_PLANE_ZERO_THRESHOLD)
+  {
     return;
+  }
 
   // The point opposite point2 (pt1) stays fixed
   double pt3[3];
