@@ -12,27 +12,23 @@ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+
 #include "vtkHyperTree.h"
-
-#include "vtkObjectFactory.h"
-
+#include "vtkBitArray.h"
 #include "vtkHyperTreeGridScales.h"
-
-#include "limits.h"
+#include "vtkIdList.h"
+#include "vtkObjectFactory.h"
+#include "vtkTypeInt64Array.h"
 
 #include <algorithm>
 #include <cassert>
+#include <cstdint>
 #include <deque>
+#include <limits>
 #include <memory>
 #include <vector>
 
-#include "vtkBitArray.h"
-#include "vtkUnsignedLongArray.h"
-
-#include "vtkIdList.h"
-
 //-----------------------------------------------------------------------------
-
 void vtkHyperTree::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -59,7 +55,6 @@ void vtkHyperTree::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
-
 void vtkHyperTree::Initialize(
   unsigned char branchFactor, unsigned char dimension, unsigned char numberOfChildren)
 {
@@ -170,7 +165,7 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  void GetByLevelForWriter(vtkBitArray* inIsMasked, vtkUnsignedLongArray* nbVerticesbyLevel,
+  void GetByLevelForWriter(vtkBitArray* inIsMasked, vtkTypeInt64Array* nbVerticesByLevel,
     vtkBitArray* isParent, vtkBitArray* isMasked, vtkIdList* ids) override
   {
     int maxLevels = this->GetNumberOfLevels();
@@ -179,16 +174,16 @@ public:
     std::vector<std::vector<uint64_t> > globalIdByLevel(maxLevels);
     // Build information by levels
     RecursiveGetByLevelForWriter(inIsMasked, 0, 0, descByLevel, maskByLevel, globalIdByLevel);
-    // nbVerticesbyLevel
+    // nbVerticesByLevel
     vtkIdType nb = 0;
-    nbVerticesbyLevel->Resize(0);
+    nbVerticesByLevel->Resize(0);
     assert(globalIdByLevel.size() == static_cast<std::size_t>(maxLevels));
     for (int iLevel = 0; iLevel < maxLevels; ++iLevel)
     {
       nb += static_cast<vtkIdType>(globalIdByLevel[iLevel].size());
-      nbVerticesbyLevel->InsertNextValue(static_cast<vtkIdType>(globalIdByLevel[iLevel].size()));
+      nbVerticesByLevel->InsertNextValue(static_cast<std::int64_t>(globalIdByLevel[iLevel].size()));
     }
-    nbVerticesbyLevel->Squeeze();
+    nbVerticesByLevel->Squeeze();
     // Ids
     ids->SetNumberOfIds(nb);
     std::size_t i = 0;

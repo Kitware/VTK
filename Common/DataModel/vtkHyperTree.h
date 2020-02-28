@@ -142,11 +142,9 @@
 #include <memory>  // std::shared_ptr
 
 class vtkBitArray;
-class vtkUnsignedLongArray;
-
 class vtkIdList;
-
 class vtkHyperTreeGridScales;
+class vtkTypeInt64Array;
 
 //=============================================================================
 struct vtkHyperTreeData
@@ -230,7 +228,7 @@ public:
    * corresponding. It is useless to declare all the latest values
    * to False.
    */
-  virtual void GetByLevelForWriter(vtkBitArray* inIsMasked, vtkUnsignedLongArray* nbVerticesbyLevel,
+  virtual void GetByLevelForWriter(vtkBitArray* inIsMasked, vtkTypeInt64Array* nbVerticesbyLevel,
     vtkBitArray* isParent, vtkBitArray* isMasked, vtkIdList* ids) = 0;
 
   /**
