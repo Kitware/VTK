@@ -1,13 +1,13 @@
 #include <QApplication>
 #include <QSurfaceFormat>
 
-#include "QVTKOpenGLStereoWidget.h"
+#include "QVTKRenderWidget.h"
 #include "QtVTKRenderWindows.h"
 
 int main(int argc, char** argv)
 {
   // needed to ensure appropriate OpenGL context is created for VTK rendering.
-  QSurfaceFormat::setDefaultFormat(QVTKOpenGLStereoWidget::defaultFormat());
+  QSurfaceFormat::setDefaultFormat(QVTKRenderWidget::defaultFormat());
 
   // QT Stuff
   QApplication app(argc, argv);

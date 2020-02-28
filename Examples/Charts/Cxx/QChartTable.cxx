@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "QVTKOpenGLStereoWidget.h"
+#include "QVTKRenderWidget.h"
 #include "vtkChartXY.h"
 #include "vtkContextScene.h"
 #include "vtkContextView.h"
@@ -38,14 +38,14 @@
 int main(int argc, char* argv[])
 {
   // needed to ensure appropriate OpenGL context is created for VTK rendering.
-  QSurfaceFormat::setDefaultFormat(QVTKOpenGLStereoWidget::defaultFormat());
+  QSurfaceFormat::setDefaultFormat(QVTKRenderWidget::defaultFormat());
 
   // Qt initialization
   QApplication app(argc, argv);
   QMainWindow mainWindow;
   mainWindow.setGeometry(0, 0, 1150, 600);
 
-  QVTKOpenGLStereoWidget* qvtkWidget = new QVTKOpenGLStereoWidget(&mainWindow);
+  QVTKRenderWidget* qvtkWidget = new QVTKRenderWidget(&mainWindow);
 
   vtkNew<vtkGenericOpenGLRenderWindow> renderWindow;
   qvtkWidget->setRenderWindow(renderWindow);
