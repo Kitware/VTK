@@ -33,14 +33,14 @@
 #include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 
-#include "QVTKOpenGLWidget.h"
+#include "QVTKRenderWidget.h"
 
 int main(int argc, char** argv)
 {
   // set surface format before application initialization
-  QSurfaceFormat::setDefaultFormat(QVTKOpenGLWidget::defaultFormat());
+  QSurfaceFormat::setDefaultFormat(QVTKRenderWidget::defaultFormat());
   QApplication app(argc, argv);
-  QVTKOpenGLWidget widget;
+  QVTKRenderWidget widget;
   widget.resize(256, 256);
   vtkNew<vtkGenericOpenGLRenderWindow> renWin;
   widget.setRenderWindow(renWin);
