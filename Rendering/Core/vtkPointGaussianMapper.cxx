@@ -17,7 +17,7 @@
 #include "vtkPiecewiseFunction.h"
 
 //-----------------------------------------------------------------------------
-vtkAbstractObjectFactoryNewMacro(vtkPointGaussianMapper);
+vtkObjectFactoryNewMacro(vtkPointGaussianMapper);
 
 vtkCxxSetObjectMacro(vtkPointGaussianMapper, ScaleFunction, vtkPiecewiseFunction);
 vtkCxxSetObjectMacro(vtkPointGaussianMapper, ScalarOpacityFunction, vtkPiecewiseFunction);

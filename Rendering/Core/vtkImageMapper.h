@@ -90,7 +90,7 @@ public:
   /**
    * Function called by Render to actually draw the image to to the screen
    */
-  virtual void RenderData(vtkViewport*, vtkImageData*, vtkActor2D*) = 0;
+  virtual void RenderData(vtkViewport*, vtkImageData*, vtkActor2D*) {}
 
   //@{
   /**
