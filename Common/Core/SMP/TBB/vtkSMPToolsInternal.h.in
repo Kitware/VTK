@@ -59,8 +59,8 @@ void vtkSMPTools_Impl_For(
   vtkIdType first, vtkIdType last, vtkIdType grain,
   FunctorInternal& fi)
 {
-  vtkIdType n = last - first;
-  if (!n)
+  vtkIdType range = last - first;
+  if (range <= 0)
   {
     return;
   }
@@ -70,7 +70,23 @@ void vtkSMPTools_Impl_For(
   }
   else
   {
-    tbb::parallel_for(tbb::blocked_range<vtkIdType>(first, last), FuncCall<FunctorInternal>(fi));
+    // When the grain is not specified, automatically calculate an appropriate grain size so
+    // most of the time will still be spent running the calculation and not task overhead.
+    const vtkIdType numberThreadsEstimate = 40; // Estimate of how many threads we might be able to run
+    const vtkIdType batchesPerThread = 5; // Plan for a few batches per thread so one busy core doesn't stall the whole system
+    const vtkIdType batches = numberThreadsEstimate * batchesPerThread;
+
+    if (range >= batches)
+    {
+      vtkIdType calculatedGrain = static_cast<vtkIdType>(std::ceil(static_cast<double>(range) / static_cast<double>(batches)));
+      tbb::parallel_for(tbb::blocked_range<vtkIdType>(first, last, calculatedGrain), FuncCall<FunctorInternal>(fi));
+    }
+    else
+    {
+      // Data is too small to generate a reasonable grain. Fallback to default so data still runs
+      // on as many threads as possible (Jan 2020: Default is one index per tbb task).
+      tbb::parallel_for(tbb::blocked_range<vtkIdType>(first, last), FuncCall<FunctorInternal>(fi));
+    }
   }
 }
 
