@@ -74,7 +74,7 @@ class OffsetsManagerArray;
 class vtkHyperTree;
 class vtkHyperTreeGrid;
 class vtkHyperTreeGridNonOrientedCursor;
-class vtkUnsignedLongArray;
+class vtkTypeInt64Array;
 
 class VTKIOXML_EXPORT vtkXMLHyperTreeGridWriter : public vtkXMLWriter
 {
@@ -145,7 +145,7 @@ protected:
   std::vector<vtkBitArray*> Descriptors;
 
   // Descriptors for individual hypertrees
-  std::vector<vtkUnsignedLongArray*> NbVerticesbyLevels;
+  std::vector<vtkTypeInt64Array*> NbVerticesByLevels;
 
   // Masks for individual hypertrees
   std::vector<vtkBitArray*> Masks;
@@ -161,7 +161,7 @@ protected:
 
   OffsetsManagerGroup* CoordsOMG;
   OffsetsManagerGroup* DescriptorOMG;
-  OffsetsManagerGroup* NbVerticesbyLevelOMG;
+  OffsetsManagerGroup* NbVerticesByLevelOMG;
   OffsetsManagerGroup* MaskOMG;
   OffsetsManagerGroup* PointDataOMG;
 

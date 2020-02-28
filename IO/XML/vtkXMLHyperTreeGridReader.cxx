@@ -25,7 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkUnsignedLongArray.h"
+#include "vtkTypeInt64Array.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
 
@@ -718,7 +718,7 @@ void vtkXMLHyperTreeGridReader::ReadTrees_1(vtkXMLDataElement* elem)
     int numberOfNodes = 0;
     nbByLvl_e->GetScalarAttribute("NumberOfTuples", numberOfNodes);
     nbByLvl_d->SetNumberOfTuples(numberOfNodes);
-    vtkUnsignedLongArray* nbByLvl = vtkArrayDownCast<vtkUnsignedLongArray>(nbByLvl_d);
+    vtkTypeInt64Array* nbByLvl = vtkArrayDownCast<vtkTypeInt64Array>(nbByLvl_d);
 
     this->ReadArrayValues(nbByLvl_e, 0, nbByLvl_d, 0, numberOfNodes);
 
