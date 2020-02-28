@@ -11,12 +11,14 @@ set(classes
   vtkLagrangianParticle
   vtkLagrangianParticleTracker
   vtkModifiedBSPTree
+  vtkParallelVectors
   vtkParticlePathFilter
   vtkParticleTracer
   vtkParticleTracerBase
   vtkStreaklineFilter
   vtkStreamTracer
-  vtkTemporalInterpolatedVelocityField)
+  vtkTemporalInterpolatedVelocityField
+  vtkVortexCore)
 
 if (NOT VTK_LEGACY_REMOVE)
   list(APPEND classes vtkTemporalStreamTracer)

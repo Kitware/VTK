@@ -15,9 +15,11 @@ DEPENDS
   VTK::CommonMath
 PRIVATE_DEPENDS
   VTK::FiltersCore
+  VTK::FiltersGeneral
   VTK::FiltersGeometry
   VTK::FiltersSources
   VTK::IOCore
+  VTK::eigen
 TEST_DEPENDS
   VTK::FiltersAMR
   VTK::FiltersExtraction
