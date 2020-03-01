@@ -47,6 +47,7 @@ class vtkActor;
 class vtkCamera;
 class vtkCameraActor;
 class vtkBoundingBox;
+class vtkProperty;
 
 class VTKRENDERINGCORE_EXPORT vtkLightActor : public vtkProp3D
 {
@@ -72,6 +73,15 @@ public:
   void SetClippingRange(double dNear, double dFar);
   void SetClippingRange(const double a[2]);
   vtkGetVector2Macro(ClippingRange, double);
+  //@}
+
+  //@{
+  /**
+   * Set/Get properties of the different actors used to represent
+   * the camera
+   */
+  vtkProperty* GetConeProperty();
+  vtkProperty* GetFrustumProperty();
   //@}
 
   /**

@@ -91,6 +91,26 @@ void vtkLightActor::SetClippingRange(const double a[2])
 }
 
 // ----------------------------------------------------------------------------
+vtkProperty* vtkLightActor::GetConeProperty()
+{
+  if (this->ConeActor == nullptr)
+  {
+    this->UpdateViewProps();
+  }
+  return this->ConeActor->GetProperty();
+}
+
+// ----------------------------------------------------------------------------
+vtkProperty* vtkLightActor::GetFrustumProperty()
+{
+  if (this->FrustumActor == nullptr)
+  {
+    this->UpdateViewProps();
+  }
+  return this->FrustumActor->GetProperty();
+}
+
+// ----------------------------------------------------------------------------
 // Description:
 // Support the standard render methods.
 int vtkLightActor::RenderOpaqueGeometry(vtkViewport* viewport)
