@@ -210,14 +210,14 @@ public:
     int index = (forbackplate ? 0 : 1);
     vtkRenderer* ren = vtkRenderer::SafeDownCast(this->Owner->GetRenderable());
     bool useTexture =
-      (forbackplate ? ren->GetTexturedBackground() : ren->GetTexturedEnvironmentalBG());
+      (forbackplate ? ren->GetTexturedBackground() : ren->GetUseImageBasedLighting());
     if (this->lUseTexture[index] != useTexture)
     {
       this->lUseTexture[index] = useTexture;
       retval = false;
     }
     vtkTexture* envTexture =
-      (forbackplate ? ren->GetBackgroundTexture() : ren->GetEnvironmentalBGTexture());
+      (forbackplate ? ren->GetBackgroundTexture() : ren->GetEnvironmentTexture());
     vtkMTimeType envTextureTime = 0;
     if (envTexture)
     {
@@ -253,26 +253,29 @@ public:
     if (!forbackplate)
     {
       double* up = vtkOSPRayRendererNode::GetNorthPole(ren);
-      if (up)
+      if (!up)
       {
-        if (this->lup[0] != up[0] || this->lup[1] != up[1] || this->lup[2] != up[2])
-        {
-          this->lup[0] = up[0];
-          this->lup[1] = up[1];
-          this->lup[2] = up[2];
-          retval = false;
-        }
+        up = ren->GetEnvironmentUp();
       }
-      double* east = vtkOSPRayRendererNode::GetEastPole(ren);
-      if (east)
+      if (this->lup[0] != up[0] || this->lup[1] != up[1] || this->lup[2] != up[2])
       {
-        if (this->least[0] != east[0] || this->least[1] != east[1] || this->least[2] != east[2])
-        {
-          this->least[0] = east[0];
-          this->least[1] = east[1];
-          this->least[2] = east[2];
-          retval = false;
-        }
+        this->lup[0] = up[0];
+        this->lup[1] = up[1];
+        this->lup[2] = up[2];
+        retval = false;
+      }
+
+      double* east = vtkOSPRayRendererNode::GetEastPole(ren);
+      if (!east)
+      {
+        east = ren->GetEnvironmentRight();
+      }
+      if (this->least[0] != east[0] || this->least[1] != east[1] || this->least[2] != east[2])
+      {
+        this->least[0] = east[0];
+        this->least[1] = east[1];
+        this->least[2] = east[2];
+        retval = false;
       }
     }
     return retval;
@@ -292,8 +295,8 @@ public:
     if (!reuseable)
     {
       vtkTexture* text =
-        (forbackplate ? ren->GetBackgroundTexture() : ren->GetEnvironmentalBGTexture());
-      if (text && (forbackplate ? ren->GetTexturedBackground() : ren->GetTexturedEnvironmentalBG()))
+        (forbackplate ? ren->GetBackgroundTexture() : ren->GetEnvironmentTexture());
+      if (text && (forbackplate ? ren->GetTexturedBackground() : ren->GetUseImageBasedLighting()))
       {
         vtkImageData* vColorTextureMap = text->GetInput();
 
@@ -361,23 +364,19 @@ public:
         ospRelease(t2d);
 
         double* up = vtkOSPRayRendererNode::GetNorthPole(ren);
-        if (up)
+        if (!up)
         {
-          ospSet3f(ospLight, "up", (float)up[0], (float)up[1], (float)up[2]);
+          up = ren->GetEnvironmentUp();
         }
-        else
-        {
-          ospSet3f(ospLight, "up", 1.0f, 0.0f, 0.0f);
-        }
+        ospSet3f(ospLight, "up", (float)up[0], (float)up[1], (float)up[2]);
+
         double* east = vtkOSPRayRendererNode::GetEastPole(ren);
-        if (east)
+        if (!east)
         {
-          ospSet3f(ospLight, "dir", (float)east[0], (float)east[1], (float)east[2]);
+          east = ren->GetEnvironmentRight();
         }
-        else
-        {
-          ospSet3f(ospLight, "dir", 0.0f, 1.0f, 0.0f);
-        }
+        ospSet3f(ospLight, "dir", (float)east[0], (float)east[1], (float)east[2]);
+
         ospCommit(t2d);
         ospCommit(ospLight);
         this->BGLight = ospLight;

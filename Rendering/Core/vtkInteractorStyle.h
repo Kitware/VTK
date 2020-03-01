@@ -118,6 +118,7 @@
 #define VTKIS_TOGGLE_DRAW_CONTROLS 16 // draw device controls helpers
 #define VTKIS_MENU 17                 // invoke an application menu
 #define VTKIS_GESTURE 18              // touch interaction in progress
+#define VTKIS_ENV_ROTATE 19           // rotate the renderer environment texture
 
 #define VTKIS_ANIM_OFF 0
 #define VTKIS_ANIM_ON 1
@@ -294,6 +295,7 @@ public:
   virtual void Dolly() {}
   virtual void Zoom() {}
   virtual void UniformScale() {}
+  virtual void EnvironmentRotate() {}
 
   /**
    * gesture based events
@@ -345,6 +347,8 @@ public:
   virtual void EndTwoPointer();
   virtual void StartGesture();
   virtual void EndGesture();
+  virtual void StartEnvRotate();
+  virtual void EndEnvRotate();
   //@}
 
   /**
