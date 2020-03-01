@@ -85,6 +85,10 @@ int TestPathTracerBackground(int argc, char* argv[])
     }
   }
 
+  // default orientation
+  renderer->SetEnvironmentUp(1.0, 0.0, 0.0);
+  renderer->SetEnvironmentRight(0.0, 1.0, 0.0);
+
   renderer->SetEnvironmentalBG(0.1, 0.1, 1.0);
   renWin->Render();
   renWin->Render(); // should cache
@@ -96,17 +100,12 @@ int TestPathTracerBackground(int argc, char* argv[])
   renWin->Render(); // should cache
 
   // default view with this data is x to right, z toward camera and y up
-  double up[3] = { 0., 1., 0. };
-  vtkOSPRayRendererNode::SetNorthPole(up, renderer);
-  double east[3] = { 1., 0., 0. };
-  vtkOSPRayRendererNode::SetEastPole(east, renderer);
+  renderer->SetEnvironmentUp(0.0, 1.0, 0.0);
+  renderer->SetEnvironmentRight(1.0, 0.0, 0.0);
   // spin up around x axis
   for (double i = 0.; i < 6.28; i += 1.)
   {
-    up[0] = 0.0;
-    up[1] = cos(i);
-    up[2] = sin(i);
-    vtkOSPRayRendererNode::SetNorthPole(up, renderer);
+    renderer->SetEnvironmentUp(0.0, cos(i), sin(i));
     renWin->Render();
   }
 
@@ -119,30 +118,22 @@ int TestPathTracerBackground(int argc, char* argv[])
   delete[] fname;
   imgReader->Update();
   textr->SetInputConnection(imgReader->GetOutputPort(0));
-  renderer->TexturedEnvironmentalBGOn();
+  renderer->UseImageBasedLightingOn();
   renWin->Render(); // shouldn't crash
-  renderer->SetEnvironmentalBGTexture(textr);
+  renderer->SetEnvironmentTexture(textr);
   renWin->Render(); // should invalidate and remake
   renWin->Render(); // should cache
   // spin up around x axis
-  vtkOSPRayRendererNode::SetNorthPole(up, renderer);
   for (double i = 0.; i < 6.28; i += 1.)
   {
-    up[0] = 0.0;
-    up[1] = cos(i);
-    up[2] = sin(i);
-    vtkOSPRayRendererNode::SetNorthPole(up, renderer);
+    renderer->SetEnvironmentUp(0.0, cos(i), sin(i));
     renWin->Render();
   }
 
   // spin east around y axis
-  vtkOSPRayRendererNode::SetNorthPole(up, renderer);
   for (double i = 0.; i < 6.28; i += 1.)
   {
-    east[0] = cos(i);
-    east[1] = 0.0;
-    east[2] = sin(i);
-    vtkOSPRayRendererNode::SetEastPole(east, renderer);
+    renderer->SetEnvironmentRight(cos(i), 0.0, sin(i));
     renWin->Render();
   }
 

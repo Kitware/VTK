@@ -42,10 +42,10 @@ public:
 
   //@{
   /**
-   * Get/Set the input cubemap.
+   * Get/Set the input texture.
    */
-  void SetInputCubeMap(vtkOpenGLTexture*);
-  vtkGetObjectMacro(InputCubeMap, vtkOpenGLTexture);
+  void SetInputTexture(vtkOpenGLTexture*);
+  vtkGetObjectMacro(InputTexture, vtkOpenGLTexture);
   //@}
 
   /**
@@ -92,7 +92,7 @@ public:
   //@{
   /**
    * Set/Get the conversion to linear color space.
-   * If the input cubemap is in sRGB color space and the conversion is not done by OpenGL
+   * If the input texture is in sRGB color space and the conversion is not done by OpenGL
    * directly with the texture format, the conversion can be done in the shader with this flag.
    */
   vtkGetMacro(ConvertToLinear, bool);
@@ -115,7 +115,7 @@ protected:
   unsigned int PrefilterSize = 128;
   unsigned int PrefilterLevels = 5;
   unsigned int PrefilterSamples = 1024;
-  vtkOpenGLTexture* InputCubeMap = nullptr;
+  vtkOpenGLTexture* InputTexture = nullptr;
   bool ConvertToLinear = false;
 
 private:

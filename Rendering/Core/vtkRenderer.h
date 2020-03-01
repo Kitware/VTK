@@ -756,34 +756,34 @@ public:
 
   //@{
   /**
-   * Set/Get the environment cubemap used for image based lighting.
-   * Warning, this cubemap must be expressed in linear color space.
-   * If the cubemap is in sRGB color space, set the color flag on the texture or
+   * Set/Get the environment texture used for image based lighting.
+   * This texture is supposed to represent the scene background.
+   * If it is not a cubemap, the texture is supposed to represent an equirectangular projection.
+   * If used with raytracing backends, the texture must be an equirectangular projection and must be
+   * constructed with a valid vtkImageData.
+   * Warning, this texture must be expressed in linear color space.
+   * If the texture is in sRGB color space, set the color flag on the texture or
    * set the argument isSRGB to true.
    * @sa vtkTexture::UseSRGBColorSpaceOn
    */
-  vtkGetObjectMacro(EnvironmentCubeMap, vtkTexture);
-  virtual void SetEnvironmentCubeMap(vtkTexture* cubemap, bool isSRGB = false);
+  vtkGetObjectMacro(EnvironmentTexture, vtkTexture);
+  virtual void SetEnvironmentTexture(vtkTexture* texture, bool isSRGB = false);
   //@}
-
-  /**
-   * Set/Get the environmental texture, which is more or less the
-   * EnvironmentalCubeMap, but for ray tracing.
-   * Note this is currently ignored outside of RayTracing.
-   * Default is off.
-   */
-  virtual void SetEnvironmentalBGTexture(vtkTexture*);
-  vtkGetObjectMacro(EnvironmentalBGTexture, vtkTexture);
 
   //@{
   /**
-   * Set/Get whether the environmental texture should be used.
-   * Note this is currently ignored outside of RayTracing.
-   * Default is off.
+   * Set/Get the environment up vector.
    */
-  vtkSetMacro(TexturedEnvironmentalBG, bool);
-  vtkGetMacro(TexturedEnvironmentalBG, bool);
-  vtkBooleanMacro(TexturedEnvironmentalBG, bool);
+  vtkGetVector3Macro(EnvironmentUp, double);
+  vtkSetVector3Macro(EnvironmentUp, double);
+  //@}
+
+  //@{
+  /**
+   * Set/Get the environment right vector.
+   */
+  vtkGetVector3Macro(EnvironmentRight, double);
+  vtkSetVector3Macro(EnvironmentRight, double);
   //@}
 
 protected:
@@ -1021,10 +1021,10 @@ protected:
   vtkInformation* Information;
 
   bool UseImageBasedLighting;
-  vtkTexture* EnvironmentCubeMap;
+  vtkTexture* EnvironmentTexture;
 
-  bool TexturedEnvironmentalBG;
-  vtkTexture* EnvironmentalBGTexture;
+  double EnvironmentUp[3];
+  double EnvironmentRight[3];
 
 private:
   vtkRenderer(const vtkRenderer&) = delete;

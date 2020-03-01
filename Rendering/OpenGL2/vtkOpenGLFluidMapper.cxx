@@ -665,7 +665,7 @@ void vtkOpenGLFluidMapper::Render(vtkRenderer* renderer, vtkVolume* vol)
                        : glState->vtkglDisable(GL_SCISSOR_TEST);
 
   {
-    bool useIBL = oren->GetUseImageBasedLighting() && oren->GetEnvironmentCubeMap();
+    bool useIBL = oren->GetUseImageBasedLighting() && oren->GetEnvironmentTexture();
 
     // Final blend, render everything
     if (!this->QuadFinalBlend)
