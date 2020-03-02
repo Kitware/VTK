@@ -1519,13 +1519,12 @@ void vtkCellTypeSource::GenerateLagrangeHexes(vtkUnstructuredGrid* output, int e
   output->Allocate(numCells * (numPtsPerCell + 1));
   std::vector<vtkIdType> conn;
   conn.resize(numPtsPerCell);
-  int cc = 0;
   const int order[3] = { this->CellOrder, this->CellOrder, this->CellOrder };
   for (int k = 0; k < zDim; ++k)
   {
     for (int j = 0; j < yDim; ++j)
     {
-      for (int i = 0; i < xDim; ++i, ++cc)
+      for (int i = 0; i < xDim; ++i)
       {
         conn[0] = i + (j + k * (yDim + 1)) * (xDim + 1);
         conn[1] = i + 1 + (j + k * (yDim + 1)) * (xDim + 1);
@@ -1600,12 +1599,11 @@ void vtkCellTypeSource::GenerateLagrangeWedges(vtkUnstructuredGrid* output, int 
   std::vector<vtkIdType> ctb;
   cta.resize(numPtsPerCell);
   ctb.resize(numPtsPerCell);
-  int cc = 0;
   for (int k = 0; k < zDim; ++k)
   {
     for (int j = 0; j < yDim; ++j)
     {
-      for (int i = 0; i < xDim; ++i, ++cc)
+      for (int i = 0; i < xDim; ++i)
       {
         cta[0] = i + (j + k * (yDim + 1)) * (xDim + 1);       // 0
         cta[1] = i + 1 + (j + k * (yDim + 1)) * (xDim + 1);   // 1
@@ -2017,13 +2015,12 @@ void vtkCellTypeSource::GenerateBezierHexes(vtkUnstructuredGrid* output, int ext
   output->Allocate(numCells * (numPtsPerCell + 1));
   std::vector<vtkIdType> conn;
   conn.resize(numPtsPerCell);
-  int cc = 0;
   const int order[3] = { this->CellOrder, this->CellOrder, this->CellOrder };
   for (int k = 0; k < zDim; ++k)
   {
     for (int j = 0; j < yDim; ++j)
     {
-      for (int i = 0; i < xDim; ++i, ++cc)
+      for (int i = 0; i < xDim; ++i)
       {
         conn[0] = i + (j + k * (yDim + 1)) * (xDim + 1);
         conn[1] = i + 1 + (j + k * (yDim + 1)) * (xDim + 1);
@@ -2098,12 +2095,11 @@ void vtkCellTypeSource::GenerateBezierWedges(vtkUnstructuredGrid* output, int ex
   std::vector<vtkIdType> ctb;
   cta.resize(numPtsPerCell);
   ctb.resize(numPtsPerCell);
-  int cc = 0;
   for (int k = 0; k < zDim; ++k)
   {
     for (int j = 0; j < yDim; ++j)
     {
-      for (int i = 0; i < xDim; ++i, ++cc)
+      for (int i = 0; i < xDim; ++i)
       {
         cta[0] = i + (j + k * (yDim + 1)) * (xDim + 1);       // 0
         cta[1] = i + 1 + (j + k * (yDim + 1)) * (xDim + 1);   // 1
