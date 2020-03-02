@@ -407,24 +407,15 @@ int vtkConvertSelection::ConvertFromQueryNodeCompositeDataSet(
         continue;
       }
 
-      auto inputProperties = inputNode->GetProperties();
-      bool hasCompositeKey = inputProperties->Has(vtkSelectionNode::COMPOSITE_INDEX()) != 0;
-      bool hasHierarchicalKey = inputProperties->Has(vtkSelectionNode::HIERARCHICAL_INDEX()) != 0 &&
-        inputProperties->Has(vtkSelectionNode::HIERARCHICAL_LEVEL()) != 0;
-
       // Create a selection node for the block
       vtkNew<vtkSelectionNode> outputNode;
       outputNode->SetFieldType(inputNode->GetFieldType());
       outputNode->SetContentType(vtkSelectionNode::INDICES);
       auto outputProperties = outputNode->GetProperties();
       outputProperties->Set(vtkSelectionNode::INVERSE(), 0);
+      outputProperties->Set(vtkSelectionNode::COMPOSITE_INDEX(), iter->GetCurrentFlatIndex());
 
-      if (hasCompositeKey)
-      {
-        outputProperties->Set(vtkSelectionNode::COMPOSITE_INDEX(), iter->GetCurrentFlatIndex());
-      }
-
-      if (hasHierarchicalKey && hbIter)
+      if (hbIter)
       {
         outputProperties->Set(vtkSelectionNode::HIERARCHICAL_LEVEL(), hbIter->GetCurrentLevel());
         outputProperties->Set(vtkSelectionNode::HIERARCHICAL_INDEX(), hbIter->GetCurrentIndex());
