@@ -95,8 +95,8 @@ int TestOSPRayTiling(int argc, char* argv[])
   delete[] fname;
   imgReader->Update();
   textr->SetInputConnection(imgReader->GetOutputPort(0));
-  renderer->TexturedEnvironmentalBGOn();
-  renderer->SetEnvironmentalBGTexture(textr);
+  renderer->UseImageBasedLightingOn();
+  renderer->SetEnvironmentTexture(textr);
 
   double up[3] = { 0.0, 1.0, 0.0 };
   double east[3] = { -1.0, 0.0, 0.0 };

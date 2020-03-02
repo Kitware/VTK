@@ -89,7 +89,7 @@ int TestPBRMapping(int argc, char* argv[])
     textureCubemap->SetInputConnection(i, flip->GetOutputPort());
   }
 
-  renderer->SetEnvironmentCubeMap(textureCubemap);
+  renderer->SetEnvironmentTexture(textureCubemap);
   renderer->UseImageBasedLightingOn();
 
   vtkNew<vtkCubeSource> cube;

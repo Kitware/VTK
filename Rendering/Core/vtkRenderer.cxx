@@ -49,7 +49,6 @@
 vtkCxxSetObjectMacro(vtkRenderer, Information, vtkInformation);
 vtkCxxSetObjectMacro(vtkRenderer, Delegate, vtkRendererDelegate);
 vtkCxxSetObjectMacro(vtkRenderer, BackgroundTexture, vtkTexture);
-vtkCxxSetObjectMacro(vtkRenderer, EnvironmentalBGTexture, vtkTexture);
 vtkCxxSetObjectMacro(vtkRenderer, RightBackgroundTexture, vtkTexture);
 vtkCxxSetObjectMacro(vtkRenderer, Pass, vtkRenderPass);
 vtkCxxSetObjectMacro(vtkRenderer, FXAAOptions, vtkFXAAOptions);
@@ -140,8 +139,6 @@ vtkRenderer::vtkRenderer()
   this->TexturedBackground = false;
   this->BackgroundTexture = nullptr;
   this->RightBackgroundTexture = nullptr;
-  this->TexturedEnvironmentalBG = false;
-  this->EnvironmentalBGTexture = nullptr;
 
   this->Pass = nullptr;
 
@@ -150,7 +147,13 @@ vtkRenderer::vtkRenderer()
   this->Information->Delete();
 
   this->UseImageBasedLighting = false;
-  this->EnvironmentCubeMap = nullptr;
+  this->EnvironmentTexture = nullptr;
+  this->EnvironmentUp[0] = 0.0;
+  this->EnvironmentUp[1] = 1.0;
+  this->EnvironmentUp[2] = 0.0;
+  this->EnvironmentRight[0] = 1.0;
+  this->EnvironmentRight[1] = 0.0;
+  this->EnvironmentRight[2] = 0.0;
 }
 
 vtkRenderer::~vtkRenderer()
@@ -201,16 +204,11 @@ vtkRenderer::~vtkRenderer()
     this->RightBackgroundTexture->Delete();
   }
 
-  if (this->EnvironmentalBGTexture != nullptr)
-  {
-    this->EnvironmentalBGTexture->Delete();
-  }
-
   this->SetInformation(nullptr);
 
-  if (this->EnvironmentCubeMap != nullptr)
+  if (this->EnvironmentTexture != nullptr)
   {
-    this->EnvironmentCubeMap->Delete();
+    this->EnvironmentTexture->Delete();
   }
 }
 
@@ -226,9 +224,9 @@ vtkTexture* vtkRenderer::GetLeftBackgroundTexture()
 
 void vtkRenderer::ReleaseGraphicsResources(vtkWindow* renWin)
 {
-  if (this->EnvironmentCubeMap != nullptr)
+  if (this->EnvironmentTexture != nullptr)
   {
-    this->EnvironmentCubeMap->ReleaseGraphicsResources(renWin);
+    this->EnvironmentTexture->ReleaseGraphicsResources(renWin);
   }
   if (this->BackgroundTexture != nullptr)
   {
@@ -237,10 +235,6 @@ void vtkRenderer::ReleaseGraphicsResources(vtkWindow* renWin)
   if (this->RightBackgroundTexture != nullptr)
   {
     this->RightBackgroundTexture->ReleaseGraphicsResources(renWin);
-  }
-  if (this->EnvironmentalBGTexture != nullptr)
-  {
-    this->EnvironmentalBGTexture->ReleaseGraphicsResources(renWin);
   }
   vtkProp* aProp;
   vtkCollectionSimpleIterator pit;
@@ -1824,9 +1818,9 @@ vtkAssemblyPath* vtkRenderer::PickProp(
 }
 
 //----------------------------------------------------------------------------
-void vtkRenderer::SetEnvironmentCubeMap(vtkTexture* cubemap, bool vtkNotUsed(isSRGB))
+void vtkRenderer::SetEnvironmentTexture(vtkTexture* texture, bool vtkNotUsed(isSRGB))
 {
-  vtkSetObjectBodyMacro(EnvironmentCubeMap, vtkTexture, cubemap);
+  vtkSetObjectBodyMacro(EnvironmentTexture, vtkTexture, texture);
 }
 
 //----------------------------------------------------------------------------

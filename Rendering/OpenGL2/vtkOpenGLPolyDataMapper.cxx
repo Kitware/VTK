@@ -847,7 +847,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
     }
 
     // IBL
-    if (ren->GetUseImageBasedLighting() && ren->GetEnvironmentCubeMap())
+    if (ren->GetUseImageBasedLighting() && ren->GetEnvironmentTexture())
     {
       vtkOpenGLRenderer* oglRen = vtkOpenGLRenderer::SafeDownCast(ren);
       if (oglRen)
@@ -879,8 +879,8 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
 
     if (hasIBL)
     {
-      toString << "  vec3 irradiance = texture(irradianceTex, inverse(normalMatrix)*N).rgb;\n";
-      toString << "  vec3 worldReflect = normalize(inverse(normalMatrix)*reflect(-V, N));\n"
+      toString << "  vec3 irradiance = texture(irradianceTex, envMatrix*N).rgb;\n";
+      toString << "  vec3 worldReflect = normalize(envMatrix*reflect(-V, N));\n"
                   "  vec3 prefilteredColor = textureLod(prefilterTex, worldReflect,"
                   " roughness * prefilterMaxLevel).rgb;\n";
       toString << "  vec2 brdf = texture(brdfTex, vec2(NdV, roughness)).rg;\n";
@@ -912,6 +912,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
       // add uniforms
       vtkShaderProgram::Substitute(FSSource, "//VTK::Light::Dec",
         "//VTK::Light::Dec\n"
+        "uniform mat3 envMatrix;"
         "uniform sampler2D brdfTex;\n"
         "uniform samplerCube irradianceTex;\n"
         "uniform samplerCube prefilterTex;\n");
@@ -2246,7 +2247,7 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(
   }
 
   // Add IBL textures
-  if (ren->GetUseImageBasedLighting() && ren->GetEnvironmentCubeMap())
+  if (ren->GetUseImageBasedLighting() && ren->GetEnvironmentTexture())
   {
     vtkOpenGLRenderer* oglRen = vtkOpenGLRenderer::SafeDownCast(ren);
     if (oglRen)
@@ -2451,6 +2452,23 @@ void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(
     }
   }
 
+  vtkNew<vtkMatrix3x3> env;
+  if (program->IsUniformUsed("envMatrix"))
+  {
+    double up[3];
+    double right[3];
+    double front[3];
+    ren->GetEnvironmentUp(up);
+    ren->GetEnvironmentRight(right);
+    vtkMath::Cross(right, up, front);
+    for (int i = 0; i < 3; i++)
+    {
+      env->SetElement(i, 0, right[i]);
+      env->SetElement(i, 1, up[i]);
+      env->SetElement(i, 2, front[i]);
+    }
+  }
+
   // If the VBO coordinates were shifted and scaled, apply the inverse transform
   // to the model->view matrix:
   vtkOpenGLVertexBufferObject* vvbo = this->VBOs->GetVBO("vertexMC");
@@ -2475,6 +2493,13 @@ void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(
         vtkMatrix3x3::Multiply3x3(anorms, norms, this->TempMatrix3);
         program->SetUniformMatrix("normalMatrix", this->TempMatrix3);
       }
+      if (program->IsUniformUsed("envMatrix"))
+      {
+        vtkMatrix3x3::Multiply3x3(anorms, norms, this->TempMatrix3);
+        this->TempMatrix3->Invert();
+        vtkMatrix3x3::Multiply3x3(this->TempMatrix3, env, this->TempMatrix3);
+        program->SetUniformMatrix("envMatrix", this->TempMatrix3);
+      }
     }
     else
     {
@@ -2488,6 +2513,12 @@ void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(
       if (program->IsUniformUsed("normalMatrix"))
       {
         program->SetUniformMatrix("normalMatrix", norms);
+      }
+      if (program->IsUniformUsed("envMatrix"))
+      {
+        vtkMatrix3x3::Invert(norms, this->TempMatrix3);
+        vtkMatrix3x3::Multiply3x3(this->TempMatrix3, env, this->TempMatrix3);
+        program->SetUniformMatrix("envMatrix", this->TempMatrix3);
       }
     }
   }
@@ -2510,6 +2541,13 @@ void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(
         vtkMatrix3x3::Multiply3x3(anorms, norms, this->TempMatrix3);
         program->SetUniformMatrix("normalMatrix", this->TempMatrix3);
       }
+      if (program->IsUniformUsed("envMatrix"))
+      {
+        vtkMatrix3x3::Multiply3x3(anorms, norms, this->TempMatrix3);
+        this->TempMatrix3->Invert();
+        vtkMatrix3x3::Multiply3x3(this->TempMatrix3, env, this->TempMatrix3);
+        program->SetUniformMatrix("envMatrix", this->TempMatrix3);
+      }
     }
     else
     {
@@ -2521,6 +2559,12 @@ void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(
       if (program->IsUniformUsed("normalMatrix"))
       {
         program->SetUniformMatrix("normalMatrix", norms);
+      }
+      if (program->IsUniformUsed("envMatrix"))
+      {
+        vtkMatrix3x3::Invert(norms, this->TempMatrix3);
+        vtkMatrix3x3::Multiply3x3(this->TempMatrix3, env, this->TempMatrix3);
+        program->SetUniformMatrix("envMatrix", this->TempMatrix3);
       }
     }
   }
@@ -2841,7 +2885,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor* actor)
 
 #ifndef GL_ES_VERSION_3_0
   // when using IBL, we need seamless cubemaps to avoid artifacts
-  if (ren->GetUseImageBasedLighting() && ren->GetEnvironmentCubeMap())
+  if (ren->GetUseImageBasedLighting() && ren->GetEnvironmentTexture())
   {
     vtkOpenGLRenderWindow* renWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
     vtkOpenGLState* ostate = renWin->GetState();

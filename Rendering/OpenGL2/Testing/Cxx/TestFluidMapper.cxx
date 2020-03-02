@@ -43,7 +43,6 @@
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 
-
 #include "vtkOpenGLFluidMapper.h"
 
 #include <array>
@@ -80,8 +79,7 @@ int TestFluidMapper(int argc, char* argv[])
   renderer->RemoveCuller(renderer->GetCullers()->GetLastItem());
 
   //------------------------------------------------------------
-  const char* fileName =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/dragon.ply");
+  const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/dragon.ply");
   vtkNew<vtkPLYReader> reader;
   reader->SetFileName(fileName);
   reader->Update();
@@ -127,7 +125,7 @@ int TestFluidMapper(int argc, char* argv[])
     textureCubemap->SetInputConnection(i, flip->GetOutputPort());
   }
 
-  renderer->SetEnvironmentCubeMap(textureCubemap);
+  renderer->SetEnvironmentTexture(textureCubemap);
   renderer->UseImageBasedLightingOn();
 
   vtkNew<vtkSkybox> skybox;
@@ -136,7 +134,7 @@ int TestFluidMapper(int argc, char* argv[])
 
   //------------------------------------------------------------
   vtkNew<vtkImageGridSource> grid;
-  grid->SetGridSpacing(32,32,0);
+  grid->SetGridSpacing(32, 32, 0);
   grid->SetLineValue(0.2);
   grid->SetFillValue(1.0);
 
@@ -180,8 +178,7 @@ int TestFluidMapper(int argc, char* argv[])
   fluidMapper->SetInputData(pointData);
 
 #ifdef INTERACTIVE_DEMO
-  setupInteractiveDemo(renderWindow, renderer, iren, pointData,
-                       dragon, fluidMapper);
+  setupInteractiveDemo(renderWindow, renderer, iren, pointData, dragon, fluidMapper);
 #else
   renderWindow->SetSize(400, 400);
   const float spacing = 0.1f;
@@ -192,8 +189,7 @@ int TestFluidMapper(int argc, char* argv[])
       for (int x = 0; x < 50; ++x)
       {
         g_Points->InsertNextPoint(static_cast<double>(x * spacing),
-                                  static_cast<double>(y * spacing),
-                                  static_cast<double>(z * spacing));
+          static_cast<double>(y * spacing), static_cast<double>(z * spacing));
       }
     }
   }
@@ -222,13 +218,11 @@ int TestFluidMapper(int argc, char* argv[])
   // Set the filtering method, it's up to personal choice
   // This is an optional parameter, default value is NarrowRange, other value is
   // BilateralGaussian
-  fluidMapper->SetSurfaceFilterMethod(
-    vtkOpenGLFluidMapper::FluidSurfaceFilterMethod::NarrowRange);
+  fluidMapper->SetSurfaceFilterMethod(vtkOpenGLFluidMapper::FluidSurfaceFilterMethod::NarrowRange);
 
   // Set the display method, from transparent volume to opaque surface etc
   // Default value is TransparentFluidVolume
-  fluidMapper->SetDisplayMode(
-    vtkOpenGLFluidMapper::FluidDisplayMode::TransparentFluidVolume);
+  fluidMapper->SetDisplayMode(vtkOpenGLFluidMapper::FluidDisplayMode::TransparentFluidVolume);
 
 #ifdef BLUE_WATER
   // Set the volume attenuation color (color that will be absorbed
