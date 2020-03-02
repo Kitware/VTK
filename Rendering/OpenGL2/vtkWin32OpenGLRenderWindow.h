@@ -296,6 +296,7 @@ protected:
   HWND NextWindowId;
   int OwnWindow;
   int ScreenSize[2];
+  static const std::string DEFAULT_BASE_WINDOW_NAME;
 
   std::stack<HGLRC> ContextStack;
   std::stack<HDC> DCStack;
