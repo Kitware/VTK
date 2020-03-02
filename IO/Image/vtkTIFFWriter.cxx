@@ -14,13 +14,16 @@
 =========================================================================*/
 #include "vtkTIFFWriter.h"
 
+#include "vtkDataArray.h"
 #include "vtkErrorCode.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkSetGet.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtk_tiff.h"
 
+#include <sstream>
 #include <vector>
 
 vtkStandardNewMacro(vtkTIFFWriter);
@@ -35,6 +38,9 @@ vtkTIFFWriter::vtkTIFFWriter()
   , XResolution(-1.0)
   , YResolution(-1.0)
 {
+  // by default process active point scalars
+  this->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
 }
 
 //----------------------------------------------------------------------------
@@ -115,10 +121,12 @@ void vtkTIFFWriter::Write()
 //----------------------------------------------------------------------------
 void vtkTIFFWriter::WriteFileHeader(ostream*, vtkImageData* data, int wExt[6])
 {
+  vtkDataArray* scalarArray = this->GetInputArrayToProcess(0, this->GetInput());
+
   int dims[3];
   data->GetDimensions(dims);
-  int scomponents = data->GetNumberOfScalarComponents();
-  int stype = data->GetScalarType();
+  int scomponents = scalarArray->GetNumberOfComponents();
+  int stype = scalarArray->GetDataType();
   uint32 rowsperstrip = (uint32)-1;
 
   int bps;
@@ -137,7 +145,7 @@ void vtkTIFFWriter::WriteFileHeader(ostream*, vtkImageData* data, int wExt[6])
       bps = 32;
       break;
     default:
-      vtkErrorMacro(<< "Unsupported data type: " << data->GetScalarTypeAsString());
+      vtkErrorMacro(<< "Unsupported data type: " << vtkImageScalarTypeNameMacro(stype));
       this->SetErrorCode(vtkErrorCode::FileFormatError);
       return;
   }
@@ -154,7 +162,15 @@ void vtkTIFFWriter::WriteFileHeader(ostream*, vtkImageData* data, int wExt[6])
   this->XResolution = 10.0 / data->GetSpacing()[0];
   this->YResolution = 10.0 / data->GetSpacing()[1];
 
-  TIFF* tif = TIFFOpen(this->InternalFileName, "w");
+  std::stringstream writeMode;
+  writeMode << "w";
+  vtkTypeInt64 len = this->Width * this->Height * this->Pages * scomponents * (bps / 8);
+  if (len > VTK_INT_MAX)
+  {
+    // Large image detected, use BigTIFF mode
+    writeMode << "8";
+  }
+  TIFF* tif = TIFFOpen(this->InternalFileName, writeMode.str().c_str());
 
   if (!tif)
   {
@@ -249,8 +265,10 @@ void vtkTIFFWriter::WriteFileHeader(ostream*, vtkImageData* data, int wExt[6])
 //----------------------------------------------------------------------------
 void vtkTIFFWriter::WriteFile(ostream*, vtkImageData* data, int extent[6], int*)
 {
+  vtkDataArray* scalarArray = this->GetInputArrayToProcess(0, this->GetInput());
+
   // Make sure we actually have data.
-  if (!data->GetPointData()->GetScalars())
+  if (!scalarArray)
   {
     vtkErrorMacro(<< "Could not get data from input.");
     return;
@@ -264,9 +282,9 @@ void vtkTIFFWriter::WriteFile(ostream*, vtkImageData* data, int extent[6], int*)
     return;
   }
 
+  int dataType = scalarArray->GetDataType();
   // take into consideration the scalar type
-  if (data->GetScalarType() != VTK_UNSIGNED_CHAR && data->GetScalarType() != VTK_UNSIGNED_SHORT &&
-    data->GetScalarType() != VTK_FLOAT)
+  if (dataType != VTK_UNSIGNED_CHAR && dataType != VTK_UNSIGNED_SHORT && dataType != VTK_FLOAT)
   {
     vtkErrorMacro("TIFFWriter only accepts unsigned char/short or float scalars!");
     return;
@@ -275,9 +293,9 @@ void vtkTIFFWriter::WriteFile(ostream*, vtkImageData* data, int extent[6], int*)
   if (this->Pages > 1)
   {
     // Call the correct templated function for the input
-    void* inPtr = data->GetScalarPointer();
+    void* inPtr = scalarArray->GetVoidPointer(0);
 
-    switch (data->GetScalarType())
+    switch (dataType)
     {
       vtkTemplateMacro(this->WriteVolume((VTK_TT*)(inPtr)));
       default:
@@ -292,7 +310,8 @@ void vtkTIFFWriter::WriteFile(ostream*, vtkImageData* data, int extent[6], int*)
     {
       for (int idx1 = extent[3]; idx1 >= extent[2]; idx1--)
       {
-        void* ptr = data->GetScalarPointer(extent[0], idx1, idx2);
+        int coords[3] = { extent[0], idx1, idx2 };
+        void* ptr = data->GetArrayPointer(scalarArray, coords);
         if (TIFFWriteScanline(tif, static_cast<unsigned char*>(ptr), row, 0) < 0)
         {
           this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
