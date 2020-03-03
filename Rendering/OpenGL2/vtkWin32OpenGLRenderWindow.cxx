@@ -873,16 +873,10 @@ void vtkWin32OpenGLRenderWindow::CreateAWindow()
     {
       this->DeviceContext = 0;
 
-      if (strcmp(this->GetWindowName(), DEFAULT_BASE_WINDOW_NAME.c_str()) == 0)
+      if (this->GetWindowName() == DEFAULT_BASE_WINDOW_NAME)
       {
         static int count = 1;
-
-        int len = static_cast<int>(strlen(DEFAULT_BASE_WINDOW_NAME.c_str())) +
-          (int)ceil((double)log10((double)(count + 1))) + 1;
-        char* windowName = new char[len];
-        snprintf(windowName, len, "%s%i", DEFAULT_BASE_WINDOW_NAME.c_str(), count++);
-        this->SetWindowName(windowName);
-        delete[] windowName;
+        this->SetWindowName((DEFAULT_BASE_WINDOW_NAME + std::to_string(count++)).c_str());
       }
 
 #ifdef UNICODE
