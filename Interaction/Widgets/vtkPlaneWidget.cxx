@@ -956,6 +956,13 @@ void vtkPlaneWidget::MoveOrigin(double* p1, double* p2)
   v[1] = p2[1] - p1[1];
   v[2] = p2[2] - p1[2];
 
+  double vN = vtkMath::Norm(v);
+  // if there is no motion then return
+  if (vN < VTK_PLANE_ZERO_THRESHOLD)
+  {
+    return;
+  }
+
   // The point opposite the origin (pt3) stays fixed
   double pt3[3];
   pt3[0] = o[0] + (pt1[0] - o[0]) + (pt2[0] - o[0]);
@@ -971,9 +978,12 @@ void vtkPlaneWidget::MoveOrigin(double* p1, double* p2)
   p23[1] = pt2[1] - pt3[1];
   p23[2] = pt2[2] - pt3[2];
 
-  double vN = vtkMath::Norm(v);
   double n13 = vtkMath::Norm(p13);
   double n23 = vtkMath::Norm(p23);
+  if ((n13 < VTK_PLANE_ZERO_THRESHOLD) || (n23 < VTK_PLANE_ZERO_THRESHOLD))
+  {
+    return;
+  }
 
   // Project v onto these vector to determine the amount of motion
   // Scale it by the relative size of the motion to the vector length
@@ -1009,6 +1019,13 @@ void vtkPlaneWidget::MovePoint1(double* p1, double* p2)
   v[1] = p2[1] - p1[1];
   v[2] = p2[2] - p1[2];
 
+  double vN = vtkMath::Norm(v);
+  // if there is no motion then return
+  if (vN < VTK_PLANE_ZERO_THRESHOLD)
+  {
+    return;
+  }
+
   // Need the point opposite the origin (pt3)
   double pt3[3];
   pt3[0] = o[0] + (pt1[0] - o[0]) + (pt2[0] - o[0]);
@@ -1024,12 +1041,9 @@ void vtkPlaneWidget::MovePoint1(double* p1, double* p2)
   p32[1] = pt3[1] - pt2[1];
   p32[2] = pt3[2] - pt2[2];
 
-  double vN = vtkMath::Norm(v);
   double n02 = vtkMath::Norm(p02);
   double n32 = vtkMath::Norm(p32);
-
-  // if there is no motion then return
-  if (vN == 0.0)
+  if ((n02 < VTK_PLANE_ZERO_THRESHOLD) || (n32 < VTK_PLANE_ZERO_THRESHOLD))
   {
     return;
   }
@@ -1066,6 +1080,13 @@ void vtkPlaneWidget::MovePoint2(double* p1, double* p2)
   v[1] = p2[1] - p1[1];
   v[2] = p2[2] - p1[2];
 
+  double vN = vtkMath::Norm(v);
+  // if there is no motion then return
+  if (vN < VTK_PLANE_ZERO_THRESHOLD)
+  {
+    return;
+  }
+
   // The point opposite point2 (pt1) stays fixed
   double pt3[3];
   pt3[0] = o[0] + (pt1[0] - o[0]) + (pt2[0] - o[0]);
@@ -1081,12 +1102,9 @@ void vtkPlaneWidget::MovePoint2(double* p1, double* p2)
   p01[1] = o[1] - pt1[1];
   p01[2] = o[2] - pt1[2];
 
-  double vN = vtkMath::Norm(v);
   double n31 = vtkMath::Norm(p31);
   double n01 = vtkMath::Norm(p01);
-
-  // if there is no motion then return
-  if (vN == 0.0)
+  if ((n31 < VTK_PLANE_ZERO_THRESHOLD) || (n01 < VTK_PLANE_ZERO_THRESHOLD))
   {
     return;
   }
@@ -1122,6 +1140,12 @@ void vtkPlaneWidget::MovePoint3(double* p1, double* p2)
   v[0] = p2[0] - p1[0];
   v[1] = p2[1] - p1[1];
   v[2] = p2[2] - p1[2];
+  double vN = vtkMath::Norm(v);
+  // if there is no motion then return
+  if (vN < VTK_PLANE_ZERO_THRESHOLD)
+  {
+    return;
+  }
 
   // Define vectors from point pt3
   double p10[3], p20[3];
@@ -1132,12 +1156,9 @@ void vtkPlaneWidget::MovePoint3(double* p1, double* p2)
   p20[1] = pt2[1] - o[1];
   p20[2] = pt2[2] - o[2];
 
-  double vN = vtkMath::Norm(v);
   double n10 = vtkMath::Norm(p10);
   double n20 = vtkMath::Norm(p20);
-
-  // if there is no motion then return
-  if (vN == 0.0)
+  if ((n10 < VTK_PLANE_ZERO_THRESHOLD) || (n20 < VTK_PLANE_ZERO_THRESHOLD))
   {
     return;
   }

@@ -97,6 +97,8 @@ class vtkPlane;
 #define VTK_PLANE_WIREFRAME 2
 #define VTK_PLANE_SURFACE 3
 
+#define VTK_PLANE_ZERO_THRESHOLD (std::numeric_limits<double>::min() * 1000)
+
 class VTKINTERACTIONWIDGETS_EXPORT vtkPlaneWidget : public vtkPolyDataSourceWidget
 {
 public:
