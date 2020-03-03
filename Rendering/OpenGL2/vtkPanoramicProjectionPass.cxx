@@ -330,6 +330,8 @@ void vtkPanoramicProjectionPass::RenderOnFace(const vtkRenderState* s, int faceI
       break;
   }
 
+  newCamera->OrthogonalizeViewUp();
+
   double range[2];
   oldCamera->GetClippingRange(range);
   newCamera->SetClippingRange(range);
