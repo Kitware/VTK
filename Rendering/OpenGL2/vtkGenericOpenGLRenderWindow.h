@@ -178,6 +178,10 @@ protected:
   int ReadPixels(
     const vtkRecti& rect, int front, int glFormat, int glType, void* data, int right) override;
 
+  int SetPixelData(
+    int x1, int y1, int x2, int y2, unsigned char* data, int front, int right) override;
+  int SetPixelData(
+    int x1, int y1, int x2, int y2, vtkUnsignedCharArray* data, int front, int right) override;
   int SetRGBACharPixelData(
     int x1, int y1, int x2, int y2, unsigned char* data, int front, int blend, int right) override;
   int SetRGBACharPixelData(int x, int y, int x2, int y2, vtkUnsignedCharArray* data, int front,
