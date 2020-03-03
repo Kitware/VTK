@@ -4,6 +4,7 @@ set(classes
   vtkDEMReader
   vtkDICOMImageReader
   vtkGESignaReader
+  vtkHDRReader
   vtkImageExport
   vtkImageImport
   vtkImageImportExecutive
