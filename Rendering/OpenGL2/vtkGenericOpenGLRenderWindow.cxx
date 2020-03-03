@@ -252,6 +252,34 @@ int vtkGenericOpenGLRenderWindow::ReadPixels(
   return VTK_ERROR;
 }
 
+int vtkGenericOpenGLRenderWindow::SetPixelData(
+  int x1, int y1, int x2, int y2, unsigned char* data, int front, int right)
+{
+  if (this->ReadyForRendering)
+  {
+    this->MakeCurrent();
+    this->GetState()->ResetFramebufferBindings();
+    return this->Superclass::SetPixelData(x1, y1, x2, y2, data, front, right);
+  }
+
+  vtkWarningMacro("`SetPixelData` called before window is ready for rendering; ignoring.");
+  return VTK_ERROR;
+}
+
+int vtkGenericOpenGLRenderWindow::SetPixelData(
+  int x1, int y1, int x2, int y2, vtkUnsignedCharArray* data, int front, int right)
+{
+  if (this->ReadyForRendering)
+  {
+    this->MakeCurrent();
+    this->GetState()->ResetFramebufferBindings();
+    return this->Superclass::SetPixelData(x1, y1, x2, y2, data, front, right);
+  }
+
+  vtkWarningMacro("`SetPixelData` called before window is ready for rendering; ignoring.");
+  return VTK_ERROR;
+}
+
 int vtkGenericOpenGLRenderWindow::SetRGBACharPixelData(
   int x1, int y1, int x2, int y2, unsigned char* data, int front, int blend, int right)
 {
