@@ -142,7 +142,7 @@
             </layout>
            </widget>
           </widget>
-          <widget class="QVTKOpenGLWidget" name="vtkGraphViewWidget" >
+          <widget class="QVTKRenderWidget" name="vtkGraphViewWidget" >
            <property name="sizePolicy" >
             <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
              <horstretch>1</horstretch>
@@ -263,9 +263,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QVTKOpenGLWidget</class>
+   <class>QVTKRenderWidget</class>
    <extends>QWidget</extends>
-   <header>QVTKOpenGLWidget.h</header>
+   <header>QVTKRenderWidget.h</header>
   </customwidget>
  </customwidgets>
  <resources>

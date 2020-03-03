@@ -18,14 +18,9 @@
  * application.
  *
  * QVTKOpenGLNativeWidget extends QOpenGLWidget to make it work with a
- * vtkGenericOpenGLRenderWindow. This is akin to QVTKWidget except it uses Qt to create and
- * manage the OpenGL context using QOpenGLWidget (added in Qt 5.4).
+ * vtkGenericOpenGLRenderWindow.
  *
- * While QVTKOpenGLNativeWidget is intended to be a replacement for QVTKWidget when
- * using Qt 5, there are a few difference between QVTKOpenGLNativeWidget and
- * QVTKWidget.
- *
- * Unlike QVTKWidget, QVTKOpenGLNativeWidget only works with vtkGenericOpenGLRenderWindow.
+ * Please note that QVTKOpenGLNativeWidget only works with vtkGenericOpenGLRenderWindow.
  * This is necessary since QOpenGLWidget wants to take over the window management as
  * well as the OpenGL context creation. Getting that to work reliably with
  * vtkXRenderWindow or vtkWin32RenderWindow (and other platform specific
@@ -97,11 +92,12 @@
  * `QVTKOpenGLNativeWidget::renderVTK`.
  *
  * @section Caveats
- * QVTKOpenGLNativeWidget only supports **OpenGL2** rendering backend.
  * QVTKOpenGLNativeWidget does not support stereo,
- * please use QVTKOpenGLWidget if you need support for stereo rendering
+ * please use QVTKOpenGLStereoWidget if you need support for stereo rendering
  *
  * QVTKOpenGLNativeWidget is targeted for Qt version 5.5 and above.
+ *
+ * @sa QVTKOpenGLStereoWidget QVTKRenderWidget
  *
  */
 #ifndef QVTKOpenGLNativeWidget_h

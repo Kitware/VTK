@@ -1,8 +1,13 @@
 #include "QVTKOpenGLNativeWidget.h"
-#include "QVTKOpenGLWidget.h"
+#include "QVTKOpenGLStereoWidget.h"
 #include "QVTKOpenGLWindow.h"
+#include "QVTKRenderWidget.h"
 #include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkLogger.h"
+
+#ifndef VTK_LEGACY_REMOVE
+#include "QVTKOpenGLWidget.h"
+#endif
 
 #include <QApplication>
 #include <QEventLoop>
@@ -15,9 +20,11 @@ namespace detail
 {
 enum class Type
 {
-  USE_QVTKOPENGLNATIVEWIDGET = 0,
-  USE_QVTKOPENGLWINDOW = 1,
-  USE_QVTKOPENGLWIDGET = 2
+  USE_QVTKRENDERWIDGET = 0,
+  USE_QVTKOPENGLNATIVEWIDGET = 1,
+  USE_QVTKOPENGLWINDOW = 2,
+  USE_QVTKOPENGLSTEREOWIDGET = 3,
+  USE_QVTKOPENGLWIDGET = 4
 };
 
 Type select_widget(int argc, char* argv[]);

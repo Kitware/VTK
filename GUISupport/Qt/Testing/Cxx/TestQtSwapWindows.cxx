@@ -18,7 +18,7 @@ int TestQtSwapWindows(int argc, char* argv[])
   QApplication app(argc, argv);
 
   // Set up frame with two horizontally stacked panels,
-  // Each containing a QVTKOpenGLWidget
+  // Each containing a QVTKOpenGLStereoWidget
   QWidget frame;
   QHBoxLayout* layout = new QHBoxLayout(&frame);
 
@@ -47,7 +47,7 @@ int TestQtSwapWindows(int argc, char* argv[])
   detail::get_render_window(rightVTKWidget)->Render();
   app.processEvents();
 
-  // Swap QVTKOpenGLWidget
+  // Swap QVTKOpenGLStereoWidget
   rightLayout->removeWidget(rightVTKWidget.get());
   leftLayout->removeWidget(leftVTKWidget.get());
   rightVTKWidget->setParent(leftPanel);
