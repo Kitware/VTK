@@ -26,6 +26,9 @@ if (VTK_BINARY_DIR)
         PROPERTY
           ENVIRONMENT "PATH=${example_path}")
     endif ()
+    set_property(TEST "VTKExample-${dir}" APPEND
+      PROPERTY
+        SKIP_REGULAR_EXPRESSION "Skipping example")
   endfunction ()
 else ()
   macro (add_example dir)
@@ -67,6 +70,9 @@ else ()
   #add_example(VisualizationAlgorithms/Cxx)
   #add_example(VolumeRendering/Cxx)
   #add_example(Widgets/Cxx)
+
+  add_example(Modules/UsingVTK)
+  add_example(Modules/Wrapping)
 
   if (WIN32)
     #add_example(GUI/Win32/SimpleCxx)
