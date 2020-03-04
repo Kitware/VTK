@@ -22,7 +22,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
-#include "vtkViewNodeCollection.h"
 #include "vtkWindow.h"
 
 #include "RTWrapper/RTWrapper.h"

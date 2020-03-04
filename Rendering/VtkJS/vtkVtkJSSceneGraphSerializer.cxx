@@ -37,7 +37,6 @@
 #include <vtkRenderWindow.h>
 #include <vtkRenderer.h>
 #include <vtkViewNode.h>
-#include <vtkViewNodeCollection.h>
 #include <vtksys/SystemTools.hxx>
 
 #if VTK_MODULE_ENABLE_VTK_RenderingOpenGL2
@@ -264,22 +263,16 @@ void vtkVtkJSSceneGraphSerializer::Add(vtkViewNode* node, vtkActor* actor)
   //       be removed when vtk-js support for composite data structures is in
   //       place.
   {
-    vtkViewNodeCollection* children = node->GetChildren();
-    if (children->GetNumberOfItems() > 0)
+    auto const& children = node->GetChildren();
+    for (auto child : children)
     {
-      children->InitTraversal();
-
-      for (vtkViewNode* child = children->GetNextItem(); child != nullptr;
-           child = children->GetNextItem())
-      {
-        if (vtkCompositePolyDataMapper::SafeDownCast(child->GetRenderable())
+      if (vtkCompositePolyDataMapper::SafeDownCast(child->GetRenderable())
 #if VTK_MODULE_ENABLE_VTK_RenderingOpenGL2
-          || vtkCompositePolyDataMapper2::SafeDownCast(child->GetRenderable())
+        || vtkCompositePolyDataMapper2::SafeDownCast(child->GetRenderable())
 #endif
-        )
-        {
-          return;
-        }
+      )
+      {
+        return;
       }
     }
   }

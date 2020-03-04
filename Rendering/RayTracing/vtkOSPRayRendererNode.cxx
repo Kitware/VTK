@@ -46,7 +46,6 @@
 #include "vtkRenderer.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
-#include "vtkViewNodeCollection.h"
 #include "vtkVolume.h"
 #include "vtkVolumeCollection.h"
 #include "vtkWeakPointer.h"
@@ -981,27 +980,23 @@ void vtkOSPRayRendererNode::Traverse(int operation)
   // camera
   // TODO: this repeated traversal to find things of particular types
   // is bad, find something smarter
-  vtkViewNodeCollection* nodes = this->GetChildren();
-  vtkCollectionIterator* it = nodes->NewIterator();
-  it->InitTraversal();
-  while (!it->IsDoneWithTraversal())
+  auto const& nodes = this->GetChildren();
+  for (auto node : nodes)
   {
-    vtkOSPRayCameraNode* child = vtkOSPRayCameraNode::SafeDownCast(it->GetCurrentObject());
+    vtkOSPRayCameraNode* child = vtkOSPRayCameraNode::SafeDownCast(node);
     if (child)
     {
       child->Traverse(operation);
       break;
     }
-    it->GoToNextItem();
   }
 
   // lights
   this->Lights.clear();
-  it->InitTraversal();
   bool hasAmbient = false;
-  while (!it->IsDoneWithTraversal())
+  for (auto node : nodes)
   {
-    vtkOSPRayLightNode* child = vtkOSPRayLightNode::SafeDownCast(it->GetCurrentObject());
+    vtkOSPRayLightNode* child = vtkOSPRayLightNode::SafeDownCast(node);
     if (child)
     {
       child->Traverse(operation);
@@ -1010,7 +1005,6 @@ void vtkOSPRayRendererNode::Traverse(int operation)
         hasAmbient = true;
       }
     }
-    it->GoToNextItem();
   }
 
   RTW::Backend* backend = this->Internal->Backend;
@@ -1040,17 +1034,16 @@ void vtkOSPRayRendererNode::Traverse(int operation)
 
   // actors
   OSPModel oModel = nullptr;
-  it->InitTraversal();
   // since we have to spatially sort everything
   // let's see if we can avoid that in the common case when
   // the objects have not changed. Note we also cache in actornodes
   // to reuse already created ospray meshes
   vtkMTimeType recent = 0;
   int numAct = 0; // catches removed actors
-  while (!it->IsDoneWithTraversal())
+  for (auto node : nodes)
   {
-    vtkOSPRayActorNode* child = vtkOSPRayActorNode::SafeDownCast(it->GetCurrentObject());
-    vtkOSPRayVolumeNode* vchild = vtkOSPRayVolumeNode::SafeDownCast(it->GetCurrentObject());
+    vtkOSPRayActorNode* child = vtkOSPRayActorNode::SafeDownCast(node);
+    vtkOSPRayVolumeNode* vchild = vtkOSPRayVolumeNode::SafeDownCast(node);
     if (child)
     {
       numAct++;
@@ -1061,8 +1054,6 @@ void vtkOSPRayRendererNode::Traverse(int operation)
       numAct++;
       recent = std::max(recent, vchild->GetMTime());
     }
-
-    it->GoToNextItem();
   }
 
   bool enable_cache = true; // turn off to force rebuilds for debugging
@@ -1072,20 +1063,18 @@ void vtkOSPRayRendererNode::Traverse(int operation)
     ospRelease((OSPModel)this->OModel);
     oModel = ospNewModel();
     this->OModel = oModel;
-    it->InitTraversal();
-    while (!it->IsDoneWithTraversal())
+    for (auto node : nodes)
     {
-      vtkOSPRayActorNode* child = vtkOSPRayActorNode::SafeDownCast(it->GetCurrentObject());
+      vtkOSPRayActorNode* child = vtkOSPRayActorNode::SafeDownCast(node);
       if (child)
       {
         child->Traverse(operation);
       }
-      vtkOSPRayVolumeNode* vchild = vtkOSPRayVolumeNode::SafeDownCast(it->GetCurrentObject());
+      vtkOSPRayVolumeNode* vchild = vtkOSPRayVolumeNode::SafeDownCast(node);
       if (vchild)
       {
         vchild->Traverse(operation);
       }
-      it->GoToNextItem();
     }
     this->RenderTime = recent;
     ospCommit(oModel);
@@ -1098,7 +1087,6 @@ void vtkOSPRayRendererNode::Traverse(int operation)
     ospSetObject(oRenderer, "model", oModel);
     ospCommit(oRenderer);
   }
-  it->Delete();
 
   if (!bgreused)
   {

@@ -26,7 +26,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkRendererNode.h"
-#include "vtkViewNodeCollection.h"
 
 //============================================================================
 vtkStandardNewMacro(vtkRendererNode);
@@ -68,6 +67,13 @@ void vtkRendererNode::Build(bool prepass)
     this->AddMissingNodes(mine->GetLights());
     this->AddMissingNodes(mine->GetActors());
     this->AddMissingNodes(mine->GetVolumes());
+
+    // make sure we have a camera setup
+    if (!mine->IsActiveCameraCreated())
+    {
+      mine->GetActiveCamera();
+      mine->ResetCamera();
+    }
     this->AddMissingNode(mine->GetActiveCamera());
     this->RemoveUnusedNodes();
   }

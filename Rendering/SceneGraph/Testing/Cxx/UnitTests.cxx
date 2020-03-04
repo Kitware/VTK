@@ -26,7 +26,6 @@
 #include "vtkRenderer.h"
 #include "vtkRendererNode.h"
 #include "vtkSphereSource.h"
-#include "vtkViewNodeCollection.h"
 #include "vtkViewNodeFactory.h"
 #include "vtkWindowNode.h"
 
@@ -214,19 +213,12 @@ int UnitTests(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   vtkWindowNode* wvn = vtkWindowNode::New();
   cerr << "made " << wvn << endl;
-
-  vtkViewNodeCollection* vnc = vtkViewNodeCollection::New();
-  cerr << "made " << vnc << endl;
-  vnc->AddItem(wvn);
-  vnc->PrintSelf(cerr, vtkIndent(0));
   wvn->Delete();
-  vnc->Delete();
 
   vtkViewNode* vn = nullptr;
   vtkViewNodeFactory* vnf = vtkViewNodeFactory::New();
   cerr << "CREATE pre override" << endl;
-  vnc = nullptr;
-  vn = vnf->CreateNode(vnc);
+  vn = vnf->CreateNode(nullptr);
   if (vn)
   {
     cerr << "Shouldn't have made anything" << endl;

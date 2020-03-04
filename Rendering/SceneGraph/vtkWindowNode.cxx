@@ -22,7 +22,6 @@
 #include "vtkRendererCollection.h"
 #include "vtkRendererNode.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkViewNodeCollection.h"
 
 //============================================================================
 vtkStandardNewMacro(vtkWindowNode);
@@ -110,15 +109,11 @@ void vtkWindowNode::Synchronize(bool prepass)
       GetUseConstantFDOffsets()       vtkRenderWindow virtual
     */
 
-    vtkViewNodeCollection* renderers = this->GetChildren();
-    vtkCollectionIterator* it = renderers->NewIterator();
-    it->InitTraversal();
-    while (!it->IsDoneWithTraversal())
+    auto const& renderers = this->GetChildren();
+    for (auto ren : renderers)
     {
-      vtkRendererNode* child = vtkRendererNode::SafeDownCast(it->GetCurrentObject());
+      vtkRendererNode* child = vtkRendererNode::SafeDownCast(ren);
       child->SetSize(this->Size);
-      it->GoToNextItem();
     }
-    it->Delete();
   }
 }

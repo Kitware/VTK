@@ -27,7 +27,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPolyData.h"
-#include "vtkViewNodeCollection.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 

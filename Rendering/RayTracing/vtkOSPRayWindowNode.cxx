@@ -23,7 +23,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRendererCollection.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkViewNodeCollection.h"
 
 #include "RTWrapper/RTWrapper.h"
 
@@ -65,28 +64,23 @@ void vtkOSPRayWindowNode::Render(bool prepass)
     this->ZBuffer->SetNumberOfTuples(this->Size[0] * this->Size[1]);
     float* z = static_cast<float*>(this->ZBuffer->GetVoidPointer(0));
 
-    vtkViewNodeCollection* renderers = this->GetChildren();
-    vtkCollectionIterator* it = renderers->NewIterator();
-    it->InitTraversal();
+    auto const& renderers = this->GetChildren();
 
     int layer = 0;
     int count = 0;
-    while (count < renderers->GetNumberOfItems())
+    while (count < static_cast<int>(renderers.size()))
     {
-      it->InitTraversal();
-      while (!it->IsDoneWithTraversal())
+      for (auto node : renderers)
       {
-        vtkOSPRayRendererNode* child = vtkOSPRayRendererNode::SafeDownCast(it->GetCurrentObject());
+        vtkOSPRayRendererNode* child = vtkOSPRayRendererNode::SafeDownCast(node);
         vtkRenderer* ren = vtkRenderer::SafeDownCast(child->GetRenderable());
         if (ren->GetLayer() == layer)
         {
           child->WriteLayer(rgba, z, this->Size[0], this->Size[1], layer);
           count++;
         }
-        it->GoToNextItem();
       }
       layer++;
     }
-    it->Delete();
   }
 }
