@@ -48,12 +48,6 @@ public:
    */
   vtkViewNode* CreateNode(vtkObject*);
 
-  /**
-   * @deprecated As of 9.0, No longer equivalent to CreateNode(vtkObject*).
-   * Unused in 8.2.
-   */
-  VTK_LEGACY(vtkViewNode* CreateNode(const char*));
-
 protected:
   vtkViewNodeFactory();
   ~vtkViewNodeFactory() override;

@@ -170,6 +170,8 @@ public:
    */
   static void Multiply4x4(const vtkMatrix4x4* a, const vtkMatrix4x4* b, vtkMatrix4x4* c);
   static void Multiply4x4(const double a[16], const double b[16], double c[16]);
+  static void Multiply4x4(const double a[16], const double b[16], float c[16]);
+  static void MultiplyAndTranspose4x4(const double a[16], const double b[16], float c[16]);
   //@}
 
   /**
@@ -237,6 +239,36 @@ inline void vtkMatrix4x4::Multiply4x4(const double a[16], const double b[16], do
   for (int k = 0; k < 16; k++)
   {
     c[k] = tmp[k];
+  }
+}
+
+//----------------------------------------------------------------------------
+// Multiplies matrices a and b and stores the result in c.
+inline void vtkMatrix4x4::Multiply4x4(const double a[16], const double b[16], float c[16])
+{
+  for (int i = 0; i < 16; i += 4)
+  {
+    for (int j = 0; j < 4; j++)
+    {
+      c[i + j] =
+        a[i + 0] * b[j + 0] + a[i + 1] * b[j + 4] + a[i + 2] * b[j + 8] + a[i + 3] * b[j + 12];
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
+// Multiplies matrices a and b and stores the result in c.
+inline void vtkMatrix4x4::MultiplyAndTranspose4x4(
+  const double a[16], const double b[16], float c[16])
+{
+  for (int i = 0; i < 4; i++)
+  {
+    for (int j = 0; j < 4; j++)
+    {
+      int it4 = i * 4;
+      c[i + j * 4] = a[it4 + 0] * b[j + 0] + a[it4 + 1] * b[j + 4] + a[it4 + 2] * b[j + 8] +
+        a[it4 + 3] * b[j + 12];
+    }
   }
 }
 

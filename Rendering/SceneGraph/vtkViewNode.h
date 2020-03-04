@@ -29,10 +29,11 @@
 #include "vtkObject.h"
 #include "vtkRenderingSceneGraphModule.h" // For export macro
 #include "vtkWeakPointer.h"               //avoid ref loop to parent
+#include <list>                           // for ivar
+#include <map>                            // for ivar
 
 class vtkCollection;
 class vtkViewNodeFactory;
-class vtkViewNodeCollection;
 
 class VTKRENDERINGSCENEGRAPH_EXPORT vtkViewNode : public vtkObject
 {
@@ -79,8 +80,7 @@ public:
   /**
    * Access nodes that this one owns.
    */
-  virtual void SetChildren(vtkViewNodeCollection*);
-  vtkGetObjectMacro(Children, vtkViewNodeCollection);
+  virtual std::list<vtkViewNode*> const& GetChildren() { return this->Children; }
   //@}
 
   //@{
@@ -160,7 +160,6 @@ protected:
    * Keeps track of the nodes that should be in the collection
    */
   void PrepareNodes();
-  vtkCollection* PreparedNodes;
   //@}
 
   /**
@@ -176,10 +175,13 @@ protected:
 
   vtkObject* Renderable;
   vtkWeakPointer<vtkViewNode> Parent;
-  vtkViewNodeCollection* Children;
+  std::list<vtkViewNode*> Children;
   vtkViewNodeFactory* MyFactory;
-
+  std::map<vtkObject*, vtkViewNode*> Renderables;
   friend class vtkViewNodeFactory;
+
+  // used in the prepare/add/remove opertions
+  bool Used;
 
 private:
   vtkViewNode(const vtkViewNode&) = delete;

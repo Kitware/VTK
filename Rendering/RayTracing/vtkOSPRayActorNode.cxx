@@ -30,7 +30,6 @@
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
 #include "vtkTexture.h"
-#include "vtkViewNodeCollection.h"
 
 #include "RTWrapper/RTWrapper.h"
 

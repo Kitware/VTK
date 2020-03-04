@@ -106,21 +106,6 @@ vtkViewNode* vtkViewNodeFactory::CreateNode(vtkObject* who)
 }
 
 //----------------------------------------------------------------------------
-#if !defined(VTK_LEGACY_REMOVE)
-vtkViewNode* vtkViewNodeFactory::CreateNode(const char* forwhom)
-{
-  if (this->Internals->Overrides.find(forwhom) == this->Internals->Overrides.end())
-  {
-    return nullptr;
-  }
-  vtkViewNode* (*func)() = this->Internals->Overrides.find(forwhom)->second;
-  vtkViewNode* vn = func();
-  vn->SetMyFactory(this);
-  return vn;
-}
-#endif
-
-//----------------------------------------------------------------------------
 void vtkViewNodeFactory::RegisterOverride(const char* name, vtkViewNode* (*func)())
 {
   this->Internals->Overrides[name] = func;
