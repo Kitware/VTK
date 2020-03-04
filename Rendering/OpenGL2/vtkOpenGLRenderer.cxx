@@ -229,7 +229,9 @@ void vtkOpenGLRenderer::DeviceRender()
 {
   vtkTimerLog::MarkStartEvent("OpenGL Dev Render");
 
-  if (this->UseImageBasedLighting && this->EnvironmentTexture)
+  bool computeIBLTextures = !(this->Pass && this->Pass->IsA("vtkOSPRayPass")) &&
+    this->UseImageBasedLighting && this->EnvironmentTexture;
+  if (computeIBLTextures)
   {
     this->GetEnvMapLookupTable()->Load(this);
     this->GetEnvMapIrradiance()->Load(this);
@@ -260,7 +262,7 @@ void vtkOpenGLRenderer::DeviceRender()
     vtkOpenGLCheckErrorMacro("failed after DeviceRender");
   }
 
-  if (this->UseImageBasedLighting && this->EnvironmentTexture)
+  if (computeIBLTextures)
   {
     this->GetEnvMapLookupTable()->PostRender(this);
     this->GetEnvMapIrradiance()->PostRender(this);
