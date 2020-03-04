@@ -150,6 +150,9 @@ vtkCamera::vtkCamera()
   this->Information = vtkInformation::New();
   this->Information->Register(this);
   this->Information->Delete();
+
+  this->ExplicitAspectRatio = 1.0;
+  this->UseExplicitAspectRatio = false;
 }
 
 //----------------------------------------------------------------------------
@@ -1048,6 +1051,11 @@ void vtkCamera::ComputeProjectionTransform(double aspect, double nearz, double f
     return;
   }
 
+  if (this->UseExplicitAspectRatio)
+  {
+    aspect = this->ExplicitAspectRatio;
+  }
+
   // adjust Z-buffer range
   this->ProjectionTransform->AdjustZBuffer(-1, +1, nearz, farz);
 
@@ -1235,6 +1243,11 @@ void vtkCamera::GetFrustumPlanes(double aspect, double planes[24])
     normals[i][3] = 1.0;
     // if i is even set to 1, if odd set to -1
     normals[i][i / 2] = 1 - (i % 2) * 2;
+  }
+
+  if (this->UseExplicitAspectRatio)
+  {
+    aspect = this->ExplicitAspectRatio;
   }
 
   // get the composite perspective matrix
