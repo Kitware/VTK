@@ -16,6 +16,7 @@
 
 #include "vtkArrayDispatch.h"
 #include "vtkCell3D.h"
+#include "vtkCharArray.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"
@@ -160,6 +161,38 @@ bool computeVortexCriteria(const double s[9], const double omega[9], double vort
 
   return true;
 }
+
+struct ComputeCriteriaWorker
+{
+  template <typename JacobianArrayType, typename AcceptedPointsArrayType>
+  void operator()(JacobianArrayType* jacobianArray, AcceptedPointsArrayType* acceptedPointsArray)
+  {
+    const auto jacobianRange = vtk::DataArrayTupleRange<9>(jacobianArray);
+    auto acceptedPointsRange = vtk::DataArrayTupleRange<1>(acceptedPointsArray);
+
+    auto j = jacobianRange.cbegin();
+    auto a = acceptedPointsRange.begin();
+
+    for (; j != jacobianRange.cend(); ++j, ++a)
+    {
+      std::array<double, 4> vortexCriteria;
+      double S[9];
+      double Omega[9];
+      static const std::array<typename decltype(j)::value_type::size_type, 9> idxT = { 0, 3, 6, 1,
+        4, 7, 2, 5, 8 };
+      for (int i = 0; i < 9; i++)
+      {
+        double j_i = (*j)[i];
+
+        double jt_i = (*j)[idxT[i]];
+
+        S[i] = (j_i + jt_i) / 2.;
+        Omega[i] = (j_i - jt_i) / 2.;
+      }
+      (*a)[0] = computeVortexCriteria(S, Omega, vortexCriteria.data());
+    }
+  }
+};
 }
 
 class vtkParallelVectorsForVortexCore : public vtkParallelVectors
@@ -168,7 +201,11 @@ public:
   static vtkParallelVectorsForVortexCore* New();
   vtkTypeMacro(vtkParallelVectorsForVortexCore, vtkParallelVectors);
 
-  void SetJacobianDataArray(vtkSmartPointer<vtkDataArray>& jacobian) { Jacobian = jacobian; }
+  void SetAcceptedPointsArray(vtkSmartPointer<vtkCharArray>& array)
+  {
+    this->AcceptedPoints = array;
+  }
+  void SetJacobianDataArray(vtkSmartPointer<vtkDataArray>& jacobian) { this->Jacobian = jacobian; }
 
 protected:
   vtkParallelVectorsForVortexCore() {}
@@ -177,9 +214,12 @@ protected:
   void Prefilter(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   void Postfilter(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
+  bool AcceptSurfaceTriangle(const vtkIdType surfaceSimplexIndices[3]) override;
+
   bool ComputeAdditionalCriteria(
     const vtkIdType surfaceSimplexIndices[3], double s, double t) override;
 
+  vtkSmartPointer<vtkCharArray> AcceptedPoints;
   vtkSmartPointer<vtkDataArray> Jacobian;
 
   vtkNew<vtkDoubleArray> QCriterionArray;
@@ -197,10 +237,10 @@ vtkStandardNewMacro(vtkParallelVectorsForVortexCore);
 void vtkParallelVectorsForVortexCore::Prefilter(
   vtkInformation*, vtkInformationVector**, vtkInformationVector*)
 {
-  QCriterionArray->SetName("q-criterion");
-  DeltaCriterionArray->SetName("delta-criterion");
-  Lambda_2CriterionArray->SetName("lambda_2-criterion");
-  Lambda_ciCriterionArray->SetName("lambda_ci-criterion");
+  this->QCriterionArray->SetName("q-criterion");
+  this->DeltaCriterionArray->SetName("delta-criterion");
+  this->Lambda_2CriterionArray->SetName("lambda_2-criterion");
+  this->Lambda_ciCriterionArray->SetName("lambda_ci-criterion");
 }
 
 //----------------------------------------------------------------------------
@@ -210,10 +250,26 @@ void vtkParallelVectorsForVortexCore::Postfilter(
   vtkInformation* info = outputVector->GetInformationObject(0);
   vtkPolyData* output = vtkPolyData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
 
-  output->GetPointData()->AddArray(QCriterionArray);
-  output->GetPointData()->AddArray(DeltaCriterionArray);
-  output->GetPointData()->AddArray(Lambda_2CriterionArray);
-  output->GetPointData()->AddArray(Lambda_ciCriterionArray);
+  output->GetPointData()->AddArray(this->QCriterionArray);
+  output->GetPointData()->AddArray(this->DeltaCriterionArray);
+  output->GetPointData()->AddArray(this->Lambda_2CriterionArray);
+  output->GetPointData()->AddArray(this->Lambda_ciCriterionArray);
+}
+
+//----------------------------------------------------------------------------
+bool vtkParallelVectorsForVortexCore::AcceptSurfaceTriangle(
+  const vtkIdType surfaceSimplexIndices[3])
+{
+  char accepted[3];
+  for (int i = 0; i < 3; i++)
+  {
+    this->AcceptedPoints->GetTypedTuple(surfaceSimplexIndices[i], &accepted[i]);
+    if (!accepted[i])
+    {
+      return false;
+    }
+  }
+  return true;
 }
 
 //----------------------------------------------------------------------------
@@ -225,7 +281,7 @@ bool vtkParallelVectorsForVortexCore::ComputeAdditionalCriteria(
     double j[3][9];
     for (int i = 0; i < 3; i++)
     {
-      Jacobian->GetTuple(surfaceSimplexIndices[i], j[i]);
+      this->Jacobian->GetTuple(surfaceSimplexIndices[i], j[i]);
     }
 
     double S[9];
@@ -248,10 +304,10 @@ bool vtkParallelVectorsForVortexCore::ComputeAdditionalCriteria(
     }
   }
 
-  QCriterionArray->InsertNextTuple(&vortexCriteria[0]);
-  DeltaCriterionArray->InsertNextTuple(&vortexCriteria[1]);
-  Lambda_2CriterionArray->InsertNextTuple(&vortexCriteria[2]);
-  Lambda_ciCriterionArray->InsertNextTuple(&vortexCriteria[3]);
+  this->QCriterionArray->InsertNextTuple(&vortexCriteria[0]);
+  this->DeltaCriterionArray->InsertNextTuple(&vortexCriteria[1]);
+  this->Lambda_2CriterionArray->InsertNextTuple(&vortexCriteria[2]);
+  this->Lambda_ciCriterionArray->InsertNextTuple(&vortexCriteria[3]);
 
   return true;
 }
@@ -373,10 +429,28 @@ int vtkVortexCore::RequestData(
     wField = jerk;
   }
 
+  // Use criteria to assign acceptance value to each point in the dataset
+  vtkSmartPointer<vtkCharArray> acceptedPoints;
+  {
+    acceptedPoints = vtkSmartPointer<vtkCharArray>::New();
+    acceptedPoints->SetNumberOfTuples(jacobian->GetNumberOfTuples());
+
+    ComputeCriteriaWorker worker;
+
+    using Dispatcher =
+      vtkArrayDispatch::Dispatch2ByValueType<vtkArrayDispatch::Reals, vtkArrayDispatch::Integrals>;
+
+    if (!Dispatcher::Execute(jacobian, acceptedPoints, worker))
+    {
+      worker(jacobian.Get(), acceptedPoints.Get());
+    }
+  }
+
   // Compute polylines that correspond to locations where two vector point
   // fields are parallel.
   vtkNew<vtkParallelVectorsForVortexCore> parallelVectorsForVortexCore;
   parallelVectorsForVortexCore->SetInputData(dataset);
+  parallelVectorsForVortexCore->SetAcceptedPointsArray(acceptedPoints);
   parallelVectorsForVortexCore->SetJacobianDataArray(jacobian);
   parallelVectorsForVortexCore->SetFirstVectorFieldName(vField->GetName());
   parallelVectorsForVortexCore->SetSecondVectorFieldName(wField->GetName());
