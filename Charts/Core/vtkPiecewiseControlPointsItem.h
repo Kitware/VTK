@@ -69,15 +69,6 @@ public:
    */
   vtkIdType RemovePoint(double* pos) override;
 
-  //@{
-  /**
-   * Controls whether or not control points are drawn (true) or clicked and
-   * moved (false).
-   * False by default.
-   */
-  vtkSetMacro(StrokeMode, bool);
-  //@}
-
 protected:
   vtkPiecewiseControlPointsItem();
   ~vtkPiecewiseControlPointsItem() override;
