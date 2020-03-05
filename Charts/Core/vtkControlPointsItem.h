@@ -189,6 +189,7 @@ public:
    * moved (false).
    * False by default.
    */
+  vtkSetMacro(StrokeMode, bool);
   vtkGetMacro(StrokeMode, bool);
   //@}
 
