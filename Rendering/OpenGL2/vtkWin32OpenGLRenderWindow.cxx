@@ -42,6 +42,9 @@ PURPOSE.  See the above copyright notice for more information.
 
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
+const std::string vtkWin32OpenGLRenderWindow::DEFAULT_BASE_WINDOW_NAME =
+  "Visualization Toolkit - Win32OpenGL #";
+
 vtkWin32OpenGLRenderWindow::vtkWin32OpenGLRenderWindow()
 {
   this->ApplicationInstance = nullptr;
@@ -57,6 +60,8 @@ vtkWin32OpenGLRenderWindow::vtkWin32OpenGLRenderWindow()
 
   this->CreatingOffScreenWindow = 0;
   this->WindowIdReferenceCount = 0;
+
+  this->SetWindowName(DEFAULT_BASE_WINDOW_NAME.c_str());
 }
 
 vtkWin32OpenGLRenderWindow::~vtkWin32OpenGLRenderWindow()
@@ -864,19 +869,15 @@ void vtkWin32OpenGLRenderWindow::CreateAWindow()
 
   if (this->WindowIdReferenceCount == 0)
   {
-    static int count = 1;
-    char* windowName;
-
     if (!this->WindowId)
     {
       this->DeviceContext = 0;
 
-      int len = static_cast<int>(strlen("Visualization Toolkit - Win32OpenGL #")) +
-        (int)ceil((double)log10((double)(count + 1))) + 1;
-      windowName = new char[len];
-      snprintf(windowName, len, "Visualization Toolkit - Win32OpenGL #%i", count++);
-      this->SetWindowName(windowName);
-      delete[] windowName;
+      if (this->GetWindowName() == DEFAULT_BASE_WINDOW_NAME)
+      {
+        static int count = 1;
+        this->SetWindowName((DEFAULT_BASE_WINDOW_NAME + std::to_string(count++)).c_str());
+      }
 
 #ifdef UNICODE
       wchar_t* wname = new wchar_t[mbstowcs(nullptr, this->WindowName, 32000) + 1];
