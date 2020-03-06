@@ -69,6 +69,8 @@ protected:
   virtual void Prefilter(vtkInformation*, vtkInformationVector**, vtkInformationVector*) {}
   virtual void Postfilter(vtkInformation*, vtkInformationVector**, vtkInformationVector*) {}
 
+  virtual bool AcceptSurfaceTriangle(const vtkIdType surfaceSimplexIndices[3]);
+
   virtual bool ComputeAdditionalCriteria(
     const vtkIdType surfaceSimplexIndices[3], double s, double t);
 

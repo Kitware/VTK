@@ -427,6 +427,12 @@ vtkParallelVectors::~vtkParallelVectors()
 }
 
 //----------------------------------------------------------------------------
+bool vtkParallelVectors::AcceptSurfaceTriangle(const vtkIdType*)
+{
+  return true;
+}
+
+//----------------------------------------------------------------------------
 bool vtkParallelVectors::ComputeAdditionalCriteria(const vtkIdType*, double, double)
 {
   return true;
@@ -559,6 +565,11 @@ int vtkParallelVectors::RequestData(
     // For each triangle comprising the cell's surface...
     for (const std::array<vtkIdType, 3>& triangle : surfaceTriangles)
     {
+      if (!this->AcceptSurfaceTriangle(triangle.data()))
+      {
+        continue;
+      }
+
       // ...access the vector values at the vertices
       for (int i = 0; i < 3; i++)
       {
