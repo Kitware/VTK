@@ -629,7 +629,8 @@ OSPMaterial MakeActorMaterial(vtkOSPRayRendererNode* orn, OSPRenderer oRenderer,
   {
     if (std::string("Value Indexed") == property->GetMaterialName())
     {
-      vtkOSPRayMaterialHelpers::MakeMaterials(orn, oRenderer, mats);
+      vtkOSPRayMaterialHelpers::MakeMaterials(
+        orn, oRenderer, mats); // todo: do an mtime check to avoid doing this when unchanged
       std::string requested_mat_name = materialName;
       if (requested_mat_name != "" && requested_mat_name != "Value Indexed")
       {

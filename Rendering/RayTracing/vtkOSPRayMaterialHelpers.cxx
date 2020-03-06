@@ -306,6 +306,7 @@ OSPMaterial vtkOSPRayMaterialHelpers::MakeMaterial(
             vtkImageData* vColorTextureMap = vtkImageData::SafeDownCast(texname->GetInput());
             OSPTexture t2d = vtkOSPRayMaterialHelpers::VTKToOSPTexture(backend, vColorTextureMap);
             ospSetObject(oMaterial, param.first.c_str(), static_cast<OSPTexture>(t2d));
+            ospRelease(t2d);
           }
         }
         break;
