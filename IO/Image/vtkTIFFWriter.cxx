@@ -164,7 +164,8 @@ void vtkTIFFWriter::WriteFileHeader(ostream*, vtkImageData* data, int wExt[6])
 
   std::stringstream writeMode;
   writeMode << "w";
-  vtkTypeInt64 len = this->Width * this->Height * this->Pages * scomponents * (bps / 8);
+  vtkTypeInt64 len =
+    static_cast<vtkTypeInt64>(this->Width) * this->Height * this->Pages * scomponents * (bps / 8);
   if (len > VTK_INT_MAX)
   {
     // Large image detected, use BigTIFF mode
