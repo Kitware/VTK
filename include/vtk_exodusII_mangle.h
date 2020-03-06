@@ -382,4 +382,20 @@
 #define ne_check_file_version vtkexodusII_ne_check_file_version
 #define ne_id_lkup vtkexodusII_ne_id_lkup
 
+// global variables
+#define exoptval vtkexodusII_exoptval
+#define ex__default_max_name_length vtkexodusII_ex__default_max_name_length
+#define exoII_fam vtkexodusII_exoII_fam
+#define exoII_edm vtkexodusII_exoII_edm
+#define exoII_els vtkexodusII_exoII_els
+#define exoII_fs vtkexodusII_exoII_fs
+#define exoII_fa vtkexodusII_exoII_fa
+#define exoII_es vtkexodusII_exoII_es
+#define exoII_ed vtkexodusII_exoII_ed
+#define exoII_nm vtkexodusII_exoII_nm
+#define exoII_em vtkexodusII_exoII_em
+#define exoII_ss vtkexodusII_exoII_ss
+#define exoII_ns vtkexodusII_exoII_ns
+#define exoII_eb vtkexodusII_exoII_eb
+
 #endif
