@@ -436,6 +436,11 @@ public:
   }
   //@}
 
+  /**
+   * Overridden to pass on to internal actors for ray tracers to see.
+   */
+  virtual void SetVisibility(vtkTypeBool) override;
+
 protected:
   vtkImplicitPlaneRepresentation();
   ~vtkImplicitPlaneRepresentation() override;

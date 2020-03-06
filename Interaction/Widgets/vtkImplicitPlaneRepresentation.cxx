@@ -1797,3 +1797,18 @@ void vtkImplicitPlaneRepresentation::RegisterPickers()
   }
   pm->AddPicker(this->Picker, this);
 }
+
+//----------------------------------------------------------------------
+void vtkImplicitPlaneRepresentation::SetVisibility(vtkTypeBool nv)
+{
+  this->Superclass::SetVisibility(nv);
+
+  this->OutlineActor->SetVisibility(nv);
+  this->CutActor->SetVisibility(nv);
+  this->EdgesActor->SetVisibility(nv);
+  this->ConeActor->SetVisibility(nv);
+  this->LineActor->SetVisibility(nv);
+  this->ConeActor2->SetVisibility(nv);
+  this->LineActor2->SetVisibility(nv);
+  this->SphereActor->SetVisibility(nv);
+}
