@@ -36,6 +36,8 @@
 
 #include "vtkAlgorithm.h"
 #include "vtkIOFidesModule.h" // For export macro
+#include <memory>             // for std::unique_ptr
+#include <string>             // for std::string
 
 class vtkDataArraySelection;
 class vtkInformationIntegerKey;
@@ -43,6 +45,17 @@ class vtkInformationIntegerKey;
 class VTKIOFIDES_EXPORT vtkFidesReader : public vtkAlgorithm
 {
 public:
+  /**
+   * When using streaming mode instead of random access,
+   * PrepareNextStep receives a step status from Fides/ADIOS
+   */
+  enum StepStatus
+  {
+    OK,
+    NotReady,
+    EndOfStream
+  };
+
   vtkTypeMacro(vtkFidesReader, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -52,11 +65,25 @@ public:
   static vtkFidesReader* New();
 
   /**
+   * Test whether or not a given file should even be attempted for use with this
+   * reader.
+   */
+  int CanReadFile(const std::string& name);
+
+  /**
+   * Set the filename to be read
+   */
+  void SetFileName(const std::string& fname);
+
+  //@{
+  /**
    * Given a json filename, parse and internally store a data
    * model. Has to be called before any data input can take place.
    * See the Fides documentation for the description of the schema.
    */
   void ParseDataModel(const std::string& fname);
+  void ParseDataModel();
+  //@}
 
   /**
    * Set the path for a Fides data source. This can be a file, an
@@ -78,6 +105,14 @@ public:
    * the reader to force the next update to cause an execution.
    */
   void PrepareNextStep();
+
+  /**
+   * Get the StepStatus of the next step reported by Fides.
+   * See enum vtkFidesReader::StepStatus for potential return values.
+   * This is updated in PrepareNextStep() and set back to
+   * NotReady after reading a step.
+   */
+  int GetNextStepStatus();
 
   //@{
   /**
@@ -108,8 +143,10 @@ protected:
   struct vtkFidesReaderImpl;
   std::unique_ptr<vtkFidesReaderImpl> Impl;
 
+  std::string FileName;
   bool ConvertToVTK;
   bool StreamSteps;
+  StepStatus NextStepStatus;
 
   virtual int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector);
@@ -122,8 +159,11 @@ protected:
 
   vtkDataArraySelection* PointDataArraySelection;
   vtkDataArraySelection* CellDataArraySelection;
+  vtkDataArraySelection* FieldDataArraySelection;
 
   static vtkInformationIntegerKey* NUMBER_OF_BLOCKS();
+
+  int ADIOSAttributeCheck(const std::string& name);
 
 private:
   vtkFidesReader(const vtkFidesReader&) = delete;
