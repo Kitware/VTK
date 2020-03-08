@@ -266,7 +266,7 @@ void vtkHigherOrderCurve::SetParametricCoords()
   if (static_cast<int>(this->PointParametricCoordinates->GetNumberOfPoints()) != this->GetOrder(1))
   {
     this->PointParametricCoordinates->Initialize();
-    vtkHigherOrderInterpolation::AppendQuadrilateralCollocationPoints(
+    vtkHigherOrderInterpolation::AppendCurveCollocationPoints(
       this->PointParametricCoordinates, this->Order);
   }
 }
