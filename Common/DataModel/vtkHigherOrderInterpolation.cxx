@@ -1036,7 +1036,7 @@ int vtkHigherOrderInterpolation::GetFixedParameterOfWedgeFace(int faceId)
   return wedgeFaceCorners[faceId][6];
 }
 
-void vtkHigherOrderInterpolation::AppendCurveCollocationPoints(
+void vtkHigherOrderInterpolation::AppendQuadrilateralCollocationPoints(
   vtkSmartPointer<vtkPoints>& pts, const int order[1])
 {
   if (!pts)
