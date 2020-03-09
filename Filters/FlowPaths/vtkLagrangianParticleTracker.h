@@ -374,6 +374,12 @@ protected:
     double t, double& delT, double& delTActual, double minStep, double maxStep, double cellLength,
     int& integrationRes, vtkLagrangianParticle* particle);
 
+  /**
+   * This method is thread safe
+   * Call the ParticleAboutToBeDeleted model method and delete the particle
+   */
+  virtual void DeleteParticle(vtkLagrangianParticle* particle);
+
   vtkLagrangianBasicIntegrationModel* IntegrationModel;
   vtkInitialValueProblemSolver* Integrator;
 

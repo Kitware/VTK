@@ -61,6 +61,8 @@ public:
    *   maximum number of steps was reached
    * PARTICLE_TERMINATION_OUT_OF_TIME = 6, means the particle was terminated because
    *   maximum integration time was reached
+   * PARTICLE_TERMINATION_TRANSFERRED = 7, means the particle was terminated because
+   *   it was transferred to another process to continue the integration
    */
   typedef enum ParticleTermination
   {
@@ -70,7 +72,8 @@ public:
     PARTICLE_TERMINATION_SURF_BREAK,
     PARTICLE_TERMINATION_OUT_OF_DOMAIN,
     PARTICLE_TERMINATION_OUT_OF_STEPS,
-    PARTICLE_TERMINATION_OUT_OF_TIME
+    PARTICLE_TERMINATION_OUT_OF_TIME,
+    PARTICLE_TERMINATION_TRANSFERRED
   } ParticleTermination;
 
   /**

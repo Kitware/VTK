@@ -41,8 +41,11 @@
 #include "vtkLagrangianParticleTracker.h"
 #include "vtkNew.h" // for ivars
 
+#include <map>
+
 class MasterFlagManager;
 class ParticleStreamManager;
+class ParticleIdManager;
 class RankFlagManager;
 class vtkMPIController;
 class vtkMultiBlockDataSet;
@@ -86,13 +89,15 @@ protected:
     std::queue<vtkLagrangianParticle*>& particleQueue, vtkPolyData* particlePathsOutput,
     vtkPolyLine* particlePath, vtkDataObject* interactionOutput) override;
 
-  //@{
   /**
-   * Non threadsafe methods to send and receive particles
+   * Non threadsafe methods to receive particles
    */
-  void SendParticle(vtkLagrangianParticle* particle);
   void ReceiveParticles(std::queue<vtkLagrangianParticle*>& particleQueue);
-  //@}
+
+  /**
+   * Non threadsafe methods to receive transferred particle ids
+   */
+  void ReceiveTransferredParticleIds(std::vector<vtkIdType>& particleIds);
 
   bool FinalizeOutputs(vtkPolyData* particlePathsOutput, vtkDataObject* interactionOutput) override;
 
@@ -102,7 +107,14 @@ protected:
    * Get an unique id for a particle
    * This method is thread safe
    */
-  virtual vtkIdType GetNewParticleId() override;
+  vtkIdType GetNewParticleId() override;
+
+  /**
+   * Delete a particle if not out of domain
+   * If out of domain, it will be stored and deleted later
+   * in case it needs to be registered as a transferred particle
+   */
+  void DeleteParticle(vtkLagrangianParticle* particle) override;
 
   /**
    * Get the complete number of created particles
@@ -113,10 +125,14 @@ protected:
   vtkNew<vtkMultiBlockDataSet> TmpSurfaceInputMB;
   vtkMPIController* Controller;
   ParticleStreamManager* StreamManager;
+  ParticleIdManager* TransferredParticleIdManager;
   MasterFlagManager* MFlagManager;
   RankFlagManager* RFlagManager;
 
   std::mutex StreamManagerMutex;
+  std::mutex OutOfDomainParticleMapMutex;
+
+  std::map<vtkIdType, vtkLagrangianParticle*> OutOfDomainParticleMap;
 
 private:
   vtkPLagrangianParticleTracker(const vtkPLagrangianParticleTracker&) = delete;

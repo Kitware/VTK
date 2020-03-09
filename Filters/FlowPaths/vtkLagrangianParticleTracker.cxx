@@ -135,8 +135,7 @@ struct IntegratingFunctor
 
       this->Tracker->IntegratedParticleCounter += this->Tracker->IntegratedParticleCounterIncrement;
 
-      this->Tracker->IntegrationModel->ParticleAboutToBeDeleted(particle);
-      delete particle;
+      this->Tracker->DeleteParticle(particle);
 
       // Special case to show progress in serial
       if (this->Serial)
@@ -551,8 +550,7 @@ int vtkLagrangianParticleTracker::RequestData(vtkInformation* vtkNotUsed(request
     {
       vtkLagrangianParticle* particle = particlesQueue.front();
       particlesQueue.pop();
-      this->IntegrationModel->ParticleAboutToBeDeleted(particle);
-      delete particle;
+      this->DeleteParticle(particle);
     }
   }
   // Finalize outputs
@@ -973,8 +971,7 @@ void vtkLagrangianParticleTracker::GenerateParticles(const vtkBoundingBox* vtkNo
     }
     else
     {
-      this->IntegrationModel->ParticleAboutToBeDeleted(particle);
-      delete particle;
+      this->DeleteParticle(particle);
     }
   }
 }
@@ -1070,8 +1067,7 @@ int vtkLagrangianParticleTracker::Integrate(vtkInitialValueProblemSolver* integr
       {
         this->InsertInteractionOutputPoint(
           interactionParticle, interactedSurfaceFlaxIndex, interactionOutput);
-        this->IntegrationModel->ParticleAboutToBeDeleted(interactionParticle);
-        delete interactionParticle;
+        this->DeleteParticle(interactionParticle);
         interactionParticle = nullptr;
       }
 
@@ -1089,8 +1085,7 @@ int vtkLagrangianParticleTracker::Integrate(vtkInitialValueProblemSolver* integr
         this->InsertInteractionOutputPoint(item.second, item.first, interactionOutput);
 
         // the pass through particles needs to be deleted
-        this->IntegrationModel->ParticleAboutToBeDeleted(item.second);
-        delete item.second;
+        this->DeleteParticle(item.second);
       }
 
       // Particle has been correctly integrated and interacted, record it
@@ -1371,4 +1366,11 @@ bool vtkLagrangianParticleTracker::ComputeNextStep(vtkInitialValueProblemSolver*
     return false;
   }
   return true;
+}
+
+//---------------------------------------------------------------------------
+void vtkLagrangianParticleTracker::DeleteParticle(vtkLagrangianParticle* particle)
+{
+  this->IntegrationModel->ParticleAboutToBeDeleted(particle);
+  delete particle;
 }

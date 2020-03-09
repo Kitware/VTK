@@ -38,6 +38,7 @@
 #define LAGRANGIAN_PARTICLE_TAG 621
 #define LAGRANGIAN_RANG_FLAG_TAG 622
 #define LAGRANGIAN_ARRAY_TAG 623
+#define LAGRANGIAN_PARTICLE_ID_TAG 624
 
 namespace
 {
@@ -221,7 +222,7 @@ public:
       if (particle->GetPManualShift() || this->Boxes[i].ContainsPoint(particle->GetPosition()))
       {
         ++sendStream->count; // increment counter on message
-        this->SendRequests.push_back(std::make_pair(new vtkMPICommunicator::Request, sendStream));
+        this->SendRequests.emplace_back(new vtkMPICommunicator::Request, sendStream);
         this->Controller->NoBlockSend(sendStream->GetRawData(), this->StreamSize, i,
           LAGRANGIAN_PARTICLE_TAG, *this->SendRequests.back().first);
       }
@@ -340,6 +341,109 @@ private:
   vtkPointData* SeedData;
   ParticleStreamManager(const ParticleStreamManager&) {}
   std::vector<vtkBoundingBox> Boxes;
+  std::vector<std::pair<vtkMPICommunicator::Request*, MessageStream*> > SendRequests;
+};
+
+// A singleton class used by each rank to send particle id to each other
+// It sends it to all other ranks and can receive it from any other rank.
+class ParticleIdManager
+{
+public:
+  ParticleIdManager(vtkMPIController* controller)
+  {
+    // Initialize Members
+    this->Controller = controller;
+
+    // Compute StreamSize
+    // This is strongly linked to Send and Receive code
+    this->StreamSize = sizeof(vtkIdType);
+
+    // Initialize Streams
+    this->ReceiveStream = new MessageStream(this->StreamSize);
+  }
+
+  ~ParticleIdManager()
+  {
+    for (size_t i = 0; i < this->SendRequests.size(); i++)
+    {
+      this->SendRequests[i].first->Wait();
+    }
+    this->CleanSendRequests();
+
+    // Delete  receive stream
+    delete this->ReceiveStream;
+  }
+
+  // Method to send a particle id to others ranks
+  void SendParticleId(vtkIdType id)
+  {
+    // This is strongly linked to Constructor and Receive code
+    MessageStream* sendStream = new MessageStream(this->StreamSize);
+    *sendStream << id;
+
+    // clean out old requests & sendStreams
+    this->CleanSendRequests();
+
+    // Send to other ranks
+    for (int i = 0; i < this->Controller->GetNumberOfProcesses(); i++)
+    {
+      if (i == this->Controller->GetLocalProcessId())
+      {
+        continue;
+      }
+      ++sendStream->count; // increment counter on message
+      this->SendRequests.emplace_back(new vtkMPICommunicator::Request, sendStream);
+      this->Controller->NoBlockSend(sendStream->GetRawData(), this->StreamSize, i,
+        LAGRANGIAN_PARTICLE_ID_TAG, *this->SendRequests.back().first);
+    }
+  }
+
+  // Method to receive a particle id from any other rank
+  bool ReceiveParticleIdIfAny(vtkIdType& id)
+  {
+    int probe, source;
+    if (this->Controller->Iprobe(
+          vtkMultiProcessController::ANY_SOURCE, LAGRANGIAN_PARTICLE_ID_TAG, &probe, &source) &&
+      probe)
+    {
+      this->ReceiveStream->Reset();
+      this->Controller->Receive(this->ReceiveStream->GetRawData(), this->StreamSize,
+        vtkMultiProcessController::ANY_SOURCE, LAGRANGIAN_PARTICLE_ID_TAG);
+
+      *this->ReceiveStream >> id;
+      return true;
+    }
+    return false;
+  }
+
+  void CleanSendRequests()
+  {
+    auto it = SendRequests.begin();
+    while (it != SendRequests.end())
+    {
+      if (it->first->Test())
+      {
+        delete it->first;    // delete Request
+        --it->second->count; // decrement counter
+        if (it->second->count == 0)
+        {
+          // delete the SendStream
+          delete it->second;
+        }
+        it = SendRequests.erase(it);
+      }
+      else
+      {
+        ++it;
+      }
+    }
+  }
+
+private:
+  vtkMPIController* Controller;
+  int StreamSize;
+  MessageStream* ReceiveStream;
+  ParticleIdManager(const ParticleIdManager&) {}
   std::vector<std::pair<vtkMPICommunicator::Request*, MessageStream*> > SendRequests;
 };
 
@@ -503,6 +607,7 @@ vtkStandardNewMacro(vtkPLagrangianParticleTracker);
 vtkPLagrangianParticleTracker::vtkPLagrangianParticleTracker()
   : Controller(vtkMPIController::SafeDownCast(vtkMultiProcessController::GetGlobalController()))
   , StreamManager(nullptr)
+  , TransferredParticleIdManager(nullptr)
   , MFlagManager(nullptr)
   , RFlagManager(nullptr)
 {
@@ -519,6 +624,7 @@ vtkPLagrangianParticleTracker::~vtkPLagrangianParticleTracker()
   delete RFlagManager;
   delete MFlagManager;
   delete StreamManager;
+  delete TransferredParticleIdManager;
 }
 
 //---------------------------------------------------------------------------
@@ -571,6 +677,7 @@ void vtkPLagrangianParticleTracker::GenerateParticles(const vtkBoundingBox* boun
     delete RFlagManager;
     delete MFlagManager;
     delete StreamManager;
+    delete TransferredParticleIdManager;
 
     // Reduce SeedData Arrays
     int nArrays = seedData->GetNumberOfArrays();
@@ -778,6 +885,8 @@ void vtkPLagrangianParticleTracker::GenerateParticles(const vtkBoundingBox* boun
     // Create managers
     this->StreamManager =
       new ParticleStreamManager(this->Controller, seedData, this->IntegrationModel, bounds);
+    this->TransferredParticleIdManager = new ParticleIdManager(this->Controller);
+
     if (this->Controller->GetLocalProcessId() == 0)
     {
       this->MFlagManager = new MasterFlagManager(this->Controller);
@@ -925,6 +1034,22 @@ void vtkPLagrangianParticleTracker::GetParticleFeed(
       } while (particleQueue.empty() && !finished);
     }
   }
+
+  // Recover transferred particle id
+  std::vector<vtkIdType> ids;
+  this->ReceiveTransferredParticleIds(ids);
+  for (vtkIdType id : ids)
+  {
+    // Delete transferred particle without calling
+    // ParticleAboutToBeDeleted
+    auto iter = this->OutOfDomainParticleMap.find(id);
+    if (iter != this->OutOfDomainParticleMap.end())
+    {
+      iter->second->SetTermination(vtkLagrangianParticle::PARTICLE_TERMINATION_TRANSFERRED);
+      this->Superclass::DeleteParticle(iter->second);
+      this->OutOfDomainParticleMap.erase(iter);
+    }
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -963,6 +1088,17 @@ int vtkPLagrangianParticleTracker::Integrate(vtkInitialValueProblemSolver* integ
 }
 
 //---------------------------------------------------------------------------
+void vtkPLagrangianParticleTracker::ReceiveTransferredParticleIds(
+  std::vector<vtkIdType>& particleIds)
+{
+  vtkIdType id;
+  while (this->TransferredParticleIdManager->ReceiveParticleIdIfAny(id))
+  {
+    particleIds.push_back(id);
+  }
+}
+
+//---------------------------------------------------------------------------
 void vtkPLagrangianParticleTracker::ReceiveParticles(
   std::queue<vtkLagrangianParticle*>& particleQueue)
 {
@@ -986,6 +1122,9 @@ void vtkPLagrangianParticleTracker::ReceiveParticles(
     if (this->IntegrationModel->FindInLocators(receivedParticle->GetPosition(), &dummyParticle))
     {
       particleQueue.push(receivedParticle);
+
+      // Inform other ranks that it was received
+      this->TransferredParticleIdManager->SendParticleId(receivedParticle->GetId());
     }
     else
     {
@@ -998,39 +1137,48 @@ void vtkPLagrangianParticleTracker::ReceiveParticles(
 bool vtkPLagrangianParticleTracker::FinalizeOutputs(
   vtkPolyData* particlePathsOutput, vtkDataObject* interactionOutput)
 {
-  if (this->GenerateParticlePathsOutput && this->Controller &&
-    this->Controller->GetNumberOfProcesses() > 1)
+  if (this->Controller && this->Controller->GetNumberOfProcesses() > 1)
   {
-    // Construct array with all non outofdomains ids and terminations
-    vtkNew<vtkLongLongArray> idTermination;
-    vtkNew<vtkLongLongArray> allIdTermination;
-    idTermination->Allocate(particlePathsOutput->GetNumberOfCells());
-    idTermination->SetNumberOfComponents(2);
-    vtkIntArray* terminations =
-      vtkIntArray::SafeDownCast(particlePathsOutput->GetCellData()->GetArray("Termination"));
-    vtkLongLongArray* ids =
-      vtkLongLongArray::SafeDownCast(particlePathsOutput->GetCellData()->GetArray("Id"));
-    for (int i = 0; i < particlePathsOutput->GetNumberOfCells(); i++)
+    // Cleanly delete remaining out of domain particles
+    for (auto iter : this->OutOfDomainParticleMap)
     {
-      if (terminations->GetValue(i) != vtkLagrangianParticle::PARTICLE_TERMINATION_OUT_OF_DOMAIN)
-      {
-        idTermination->InsertNextTuple2(ids->GetValue(i), terminations->GetValue(i));
-      }
+      this->Superclass::DeleteParticle(iter.second);
     }
-    idTermination->Squeeze();
+    this->OutOfDomainParticleMap.clear();
 
-    // AllGather it
-    this->Controller->AllGatherV(idTermination, allIdTermination);
-
-    // Modify current terminations
-    for (vtkIdType i = 0; i < allIdTermination->GetNumberOfTuples(); i++)
+    if (this->GenerateParticlePathsOutput)
     {
-      vtkIdType id = allIdTermination->GetTuple2(i)[0];
-      for (vtkIdType j = 0; j < particlePathsOutput->GetNumberOfCells(); j++)
+      // Construct array with all non outofdomains ids and terminations
+      vtkNew<vtkLongLongArray> idTermination;
+      vtkNew<vtkLongLongArray> allIdTermination;
+      idTermination->Allocate(particlePathsOutput->GetNumberOfCells());
+      idTermination->SetNumberOfComponents(2);
+      vtkIntArray* terminations =
+        vtkIntArray::SafeDownCast(particlePathsOutput->GetCellData()->GetArray("Termination"));
+      vtkLongLongArray* ids =
+        vtkLongLongArray::SafeDownCast(particlePathsOutput->GetCellData()->GetArray("Id"));
+      for (int i = 0; i < particlePathsOutput->GetNumberOfCells(); i++)
       {
-        if (ids->GetValue(j) == id)
+        if (terminations->GetValue(i) != vtkLagrangianParticle::PARTICLE_TERMINATION_OUT_OF_DOMAIN)
         {
-          terminations->SetTuple1(j, allIdTermination->GetTuple2(i)[1]);
+          idTermination->InsertNextTuple2(ids->GetValue(i), terminations->GetValue(i));
+        }
+      }
+      idTermination->Squeeze();
+
+      // AllGather it
+      this->Controller->AllGatherV(idTermination, allIdTermination);
+
+      // Modify current terminations
+      for (vtkIdType i = 0; i < allIdTermination->GetNumberOfTuples(); i++)
+      {
+        vtkIdType id = allIdTermination->GetTuple2(i)[0];
+        for (vtkIdType j = 0; j < particlePathsOutput->GetNumberOfCells(); j++)
+        {
+          if (ids->GetValue(j) == id)
+          {
+            terminations->SetTuple1(j, allIdTermination->GetTuple2(i)[1]);
+          }
         }
       }
     }
@@ -1154,4 +1302,19 @@ vtkIdType vtkPLagrangianParticleTracker::GetNewParticleId()
 void vtkPLagrangianParticleTracker::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+}
+
+//---------------------------------------------------------------------------
+void vtkPLagrangianParticleTracker::DeleteParticle(vtkLagrangianParticle* particle)
+{
+  if (particle->GetTermination() != vtkLagrangianParticle::PARTICLE_TERMINATION_OUT_OF_DOMAIN)
+  {
+    this->Superclass::DeleteParticle(particle);
+  }
+  else
+  {
+    // store the particle to be deleted later
+    std::lock_guard<std::mutex> guard(this->OutOfDomainParticleMapMutex);
+    this->OutOfDomainParticleMap[particle->GetId()] = particle;
+  }
 }
