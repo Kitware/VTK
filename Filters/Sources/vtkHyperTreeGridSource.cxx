@@ -396,6 +396,11 @@ int vtkHyperTreeGridSource::RequestData(
   }
 
   output->Initialize();
+  if (this->UseMask)
+  {
+    vtkNew<vtkBitArray> mask;
+    output->SetMask(mask);
+  }
 
   vtkPointData* outData = output->GetPointData();
 
