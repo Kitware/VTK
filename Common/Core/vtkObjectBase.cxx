@@ -342,7 +342,9 @@ void vtkObjectBase::ReportReferences(vtkGarbageCollector*)
 
 namespace
 {
+#ifdef VTK_USE_MEMKIND
 thread_local char* MemkindDirectory = nullptr;
+#endif
 thread_local bool UsingMemkind = false;
 thread_local vtkMallocingFunction CurrentMallocFunction = malloc;
 thread_local vtkReallocingFunction CurrentReallocFunction = realloc;
@@ -459,7 +461,7 @@ vtkObjectBase::vtkMemkindRAII::vtkMemkindRAII(bool newValue)
   this->OriginalValue = vtkObjectBase::GetUsingMemkind();
   vtkObjectBase::SetUsingMemkind(newValue);
 #else
-  // no harm in the above but avoid the cycles if we can
+  (void)this->OriginalValue;
   (void)newValue;
 #endif
 }

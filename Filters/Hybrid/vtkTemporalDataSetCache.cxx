@@ -52,6 +52,7 @@ public:
     vtkObjectBase::SetUsingMemkind(this->OriginalValue);
 #endif
   }
+  vtkTDSCMemkindRAII(vtkTDSCMemkindRAII const&) = default;
 };
 //}
 

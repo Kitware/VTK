@@ -236,7 +236,7 @@ public:
    * SetUsingMemkind(newValue), but safer. Declare it on the stack in a function where you want to
    * make a temporary change. When the function returns it will restore the original value.
    */
-  class vtkMemkindRAII
+  class VTKCOMMONCORE_EXPORT vtkMemkindRAII
   {
     bool OriginalValue;
 
