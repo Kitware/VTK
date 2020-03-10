@@ -25,16 +25,47 @@
 
 #include <vector>
 
-//---------------------------------------------------------------------------
-vtkStandardNewMacro(vtkTemporalDataSetCache);
+// namespace
+//{
+// A class to to turn on memkind, if enabled, while ensuring it always is restored
+class vtkTDSCMemkindRAII
+{
+  bool OriginalValue = false;
+
+public:
+  vtkTDSCMemkindRAII(vtkTemporalDataSetCache* owner)
+  {
+#ifdef VTK_USE_MEMKIND
+    this->OriginalValue = vtkObjectBase::GetUsingMemkind();
+    if (owner->GetCacheInMemkind())
+    {
+      vtkObjectBase::SetUsingMemkind(true);
+    }
+#else
+    (void)owner;
+    (void)this->OriginalValue;
+#endif
+  }
+  ~vtkTDSCMemkindRAII()
+  {
+#ifdef VTK_USE_MEMKIND
+    vtkObjectBase::SetUsingMemkind(this->OriginalValue);
+#endif
+  }
+  vtkTDSCMemkindRAII(vtkTDSCMemkindRAII const&) = default;
+};
+//}
 
 //----------------------------------------------------------------------------
+vtkStandardNewMacro(vtkTemporalDataSetCache);
+
 //----------------------------------------------------------------------------
 vtkTemporalDataSetCache::vtkTemporalDataSetCache()
 {
   this->CacheSize = 10;
   this->SetNumberOfInputPorts(1);
   this->SetNumberOfOutputPorts(1);
+  this->CacheInMemkind = false;
 }
 
 //----------------------------------------------------------------------------
@@ -48,6 +79,7 @@ vtkTemporalDataSetCache::~vtkTemporalDataSetCache()
   }
 }
 
+//----------------------------------------------------------------------------
 vtkTypeBool vtkTemporalDataSetCache::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -123,6 +155,7 @@ void vtkTemporalDataSetCache::SetCacheSize(int size)
   }
 }
 
+//----------------------------------------------------------------------------
 int vtkTemporalDataSetCache::RequestDataObject(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -148,6 +181,7 @@ int vtkTemporalDataSetCache::RequestDataObject(
 
       if (!output || !output->IsA(input->GetClassName()))
       {
+        auto mkhold = vtkTDSCMemkindRAII(this);
         vtkDataObject* newOutput = input->NewInstance();
         info->Set(vtkDataObject::DATA_OBJECT(), newOutput);
         newOutput->Delete();
@@ -268,10 +302,10 @@ int vtkTemporalDataSetCache::RequestData(vtkInformation* vtkNotUsed(request),
   CacheType::iterator pos = this->Cache.find(upTime);
   if (pos != this->Cache.end())
   {
+    auto mkhold = vtkTDSCMemkindRAII(this);
     vtkDataObject* cachedData = pos->second.second;
     output.TakeReference(cachedData->NewInstance());
     output->ShallowCopy(cachedData);
-
     // update the m time in the cache
     pos->second.first = outputUpdateTime;
   }
@@ -280,8 +314,16 @@ int vtkTemporalDataSetCache::RequestData(vtkInformation* vtkNotUsed(request),
   {
     if (input->GetInformation()->Has(vtkDataObject::DATA_TIME_STEP()) && (inTime == upTime))
     {
+      auto mkhold = vtkTDSCMemkindRAII(this);
       output.TakeReference(input->NewInstance());
-      output->ShallowCopy(input);
+      if (this->GetCacheInMemkind())
+      {
+        output->DeepCopy(input);
+      }
+      else
+      {
+        output->ShallowCopy(input);
+      }
     }
     else
     {
@@ -298,42 +340,61 @@ int vtkTemporalDataSetCache::RequestData(vtkInformation* vtkNotUsed(request),
   // size add the requested data to the cache first
   if (input->GetInformation()->Has(vtkDataObject::DATA_TIME_STEP()))
   {
-
-    // is the input time not already in the cache?
-    CacheType::iterator pos1 = this->Cache.find(inTime);
-    if (pos1 == this->Cache.end())
-    {
-      // if we have room in the Cache then just add the new data
-      if (this->Cache.size() < static_cast<unsigned long>(this->CacheSize))
-      {
-        vtkDataObject* cachedData = input->NewInstance();
-        cachedData->ShallowCopy(input);
-
-        this->Cache[inTime] =
-          std::pair<unsigned long, vtkDataObject*>(outputUpdateTime, cachedData);
-      }
-      // no room in the cache, we need to get rid of something
-      else
-      {
-        // get rid of the oldest data in the cache
-        CacheType::iterator pos2 = this->Cache.begin();
-        CacheType::iterator oldestpos = this->Cache.begin();
-        for (; pos2 != this->Cache.end(); ++pos2)
-        {
-          if (pos2->second.first < oldestpos->second.first)
-          {
-            oldestpos = pos2;
-          }
-        }
-        // was there old data?
-        if (oldestpos->second.first < outputUpdateTime)
-        {
-          oldestpos->second.second->UnRegister(this);
-          this->Cache.erase(oldestpos);
-        }
-        // if no old data and no room then we are done
-      }
-    }
+    this->ReplaceCacheItem(input, inTime, outputUpdateTime);
   }
   return 1;
+}
+
+//-----------------------------------------------------------------------------
+void vtkTemporalDataSetCache::ReplaceCacheItem(
+  vtkDataObject* input, double inTime, vtkMTimeType outputUpdateTime)
+{
+  // is the input time not already in the cache?
+  CacheType::iterator pos1 = this->Cache.find(inTime);
+  if (pos1 == this->Cache.end())
+  {
+    // if we have room in the Cache then just add the new data
+    if (this->Cache.size() < static_cast<unsigned long>(this->CacheSize))
+    {
+      auto mkhold = vtkTDSCMemkindRAII(this);
+      vtkDataObject* cachedData = input->NewInstance();
+      if (input->GetUsingMemkind())
+      {
+        cachedData->ShallowCopy(input);
+      }
+      else
+      {
+        if (this->GetCacheInMemkind())
+        {
+          cachedData->DeepCopy(input);
+        }
+        else
+        {
+          cachedData->ShallowCopy(input);
+        }
+      }
+      this->Cache[inTime] = std::pair<unsigned long, vtkDataObject*>(outputUpdateTime, cachedData);
+    }
+    // no room in the cache, we need to get rid of something
+    else
+    {
+      // get rid of the oldest data in the cache
+      CacheType::iterator pos2 = this->Cache.begin();
+      CacheType::iterator oldestpos = this->Cache.begin();
+      for (; pos2 != this->Cache.end(); ++pos2)
+      {
+        if (pos2->second.first < oldestpos->second.first)
+        {
+          oldestpos = pos2;
+        }
+      }
+      // was there old data?
+      if (oldestpos->second.first < outputUpdateTime)
+      {
+        oldestpos->second.second->UnRegister(this);
+        this->Cache.erase(oldestpos);
+      }
+      // if no old data and no room then we are done
+    }
+  }
 }

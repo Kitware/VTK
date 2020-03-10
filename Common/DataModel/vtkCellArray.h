@@ -791,12 +791,42 @@ public:
 
   protected:
     VisitState()
-      : Connectivity(vtkSmartPointer<ArrayType>::New())
-      , Offsets(vtkSmartPointer<ArrayType>::New())
     {
+      this->Connectivity = vtkSmartPointer<ArrayType>::New();
+      this->Offsets = vtkSmartPointer<ArrayType>::New();
       this->Offsets->InsertNextValue(0);
+      if (vtkObjectBase::GetUsingMemkind())
+      {
+        this->IsInMemkind = true;
+      }
     }
     ~VisitState() = default;
+    void* operator new(size_t nSize)
+    {
+      void* r;
+#ifdef VTK_USE_MEMKIND
+      r = vtkObjectBase::GetCurrentMallocFunction()(nSize);
+#else
+      r = malloc(nSize);
+#endif
+      return r;
+    }
+    void operator delete(void* p)
+    {
+#ifdef VTK_USE_MEMKIND
+      VisitState* a = static_cast<VisitState*>(p);
+      if (a->IsInMemkind)
+      {
+        vtkObjectBase::GetAlternateFreeFunction()(p);
+      }
+      else
+      {
+        free(p);
+      }
+#else
+      free(p);
+#endif
+    }
 
     vtkSmartPointer<ArrayType> Connectivity;
     vtkSmartPointer<ArrayType> Offsets;
@@ -804,6 +834,7 @@ public:
   private:
     VisitState(const VisitState&) = delete;
     VisitState& operator=(const VisitState&) = delete;
+    bool IsInMemkind = false;
   };
 
 private: // Helpers that allow Visit to return a value:
@@ -1119,37 +1150,68 @@ protected:
     union ArraySwitch {
       ArraySwitch() {}  // handled by Storage
       ~ArraySwitch() {} // handle by Storage
-
-      VisitState<ArrayType32> Int32;
-      VisitState<ArrayType64> Int64;
+      void* operator new(size_t nSize)
+      {
+        void* p;
+#ifdef VTK_USE_MEMKIND
+        p = vtkObjectBase::GetCurrentMallocFunction()(nSize);
+#else
+        p = malloc(nSize);
+#endif
+        return p;
+      }
+      VisitState<ArrayType32>* Int32;
+      VisitState<ArrayType64>* Int64;
     };
 
     Storage()
     {
+      this->Arrays = new ArraySwitch;
+
       // Default to the compile-time setting:
 #ifdef VTK_USE_64BIT_IDS
 
-      new (&this->Arrays.Int64) VisitState<ArrayType64>;
+      this->Arrays->Int64 = new VisitState<ArrayType64>;
       this->StorageIs64Bit = true;
 
 #else // VTK_USE_64BIT_IDS
 
-      new (&this->Arrays.Int32) VisitState<ArrayType32>;
+      this->Arrays->Int32 = new VisitState<ArrayType32>;
       this->StorageIs64Bit = false;
 
 #endif // VTK_USE_64BIT_IDS
+#ifdef VTK_USE_MEMKIND
+      if (vtkObjectBase::GetUsingMemkind())
+      {
+        this->IsInMemkind = true;
+      }
+#else
+      (void)this->IsInMemkind; // comp warning workaround
+#endif
     }
 
     ~Storage()
     {
       if (this->StorageIs64Bit)
       {
-        this->Arrays.Int64.~VisitState();
+        this->Arrays->Int64->~VisitState();
       }
       else
       {
-        this->Arrays.Int32.~VisitState();
+        this->Arrays->Int32->~VisitState();
       }
+#ifdef VTK_USE_MEMKIND
+      if (this->IsInMemkind)
+      {
+        vtkObjectBase::GetAlternateFreeFunction()(this->Arrays);
+      }
+      else
+      {
+        free(this->Arrays);
+      }
+#else
+      delete this->Arrays;
+#endif
     }
 
     // Switch the internal arrays to be 32-bit. Any old data is lost. Returns
@@ -1161,8 +1223,8 @@ protected:
         return false;
       }
 
-      this->Arrays.Int64.~VisitState();
-      new (&this->Arrays.Int32) VisitState<ArrayType32>;
+      this->Arrays->Int64->~VisitState();
+      this->Arrays->Int32 = new VisitState<ArrayType32>;
       this->StorageIs64Bit = false;
 
       return true;
@@ -1177,8 +1239,8 @@ protected:
         return false;
       }
 
-      this->Arrays.Int32.~VisitState();
-      new (&this->Arrays.Int64) VisitState<ArrayType64>;
+      this->Arrays->Int32->~VisitState();
+      this->Arrays->Int64 = new VisitState<ArrayType64>;
       this->StorageIs64Bit = true;
 
       return true;
@@ -1191,33 +1253,34 @@ protected:
     VisitState<ArrayType32>& GetArrays32()
     {
       assert(!this->StorageIs64Bit);
-      return this->Arrays.Int32;
+      return *this->Arrays->Int32;
     }
 
     const VisitState<ArrayType32>& GetArrays32() const
     {
       assert(!this->StorageIs64Bit);
-      return this->Arrays.Int32;
+      return *this->Arrays->Int32;
     }
 
     // Get the VisitState for 64-bit arrays
     VisitState<ArrayType64>& GetArrays64()
     {
       assert(this->StorageIs64Bit);
-      return this->Arrays.Int64;
+      return *this->Arrays->Int64;
     }
 
     const VisitState<ArrayType64>& GetArrays64() const
     {
       assert(this->StorageIs64Bit);
-      return this->Arrays.Int64;
+      return *this->Arrays->Int64;
     }
 
   private:
     // Access restricted to ensure proper union construction/destruction thru
     // API.
-    ArraySwitch Arrays;
+    ArraySwitch* Arrays;
     bool StorageIs64Bit;
+    bool IsInMemkind = false;
   };
 
   Storage Storage;

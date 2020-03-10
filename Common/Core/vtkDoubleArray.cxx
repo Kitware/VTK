@@ -23,6 +23,7 @@ VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATE(double);
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkDoubleArray);
+vtkStandardExtendedNewMacro(vtkDoubleArray);
 
 //----------------------------------------------------------------------------
 vtkDoubleArray::vtkDoubleArray() = default;

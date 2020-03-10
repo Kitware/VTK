@@ -20,6 +20,7 @@
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkFieldData);
+vtkStandardExtendedNewMacro(vtkFieldData);
 
 //----------------------------------------------------------------------------
 vtkFieldData::BasicIterator::BasicIterator(const int* list, unsigned int listSize)

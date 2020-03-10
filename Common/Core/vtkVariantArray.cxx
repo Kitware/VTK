@@ -81,6 +81,7 @@ public:
 //
 
 vtkStandardNewMacro(vtkVariantArray);
+vtkStandardExtendedNewMacro(vtkVariantArray);
 //----------------------------------------------------------------------------
 void vtkVariantArray::PrintSelf(ostream& os, vtkIndent indent)
 {

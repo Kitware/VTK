@@ -40,6 +40,15 @@ set(vtk_smp_defines)
 set(vtk_smp_libraries)
 include("${CMAKE_CURRENT_SOURCE_DIR}/vtkSMPSelection.cmake")
 
+# An optional dependency on memkind
+set(vtk_memkind_libraries)
+if (VTK_USE_MEMKIND)
+  vtk_module_find_package(
+    PACKAGE MEMKIND)
+  list(APPEND vtk_memkind_libraries
+    MEMKIND::MEMKIND)
+endif()
+
 # Generate the vtkTypeList_Create macros:
 include("${CMAKE_CURRENT_SOURCE_DIR}/vtkCreateTypeListMacros.cmake")
 CreateTypeListMacros(
@@ -489,18 +498,20 @@ vtk_module_add_module(VTK::CommonCore
 if (vtk_include_dirs)
   vtk_module_include(VTK::CommonCore
     PRIVATE
-      ${vtk_include_dirs})
+    ${vtk_include_dirs})
 endif ()
 
 vtk_module_link(VTK::CommonCore
   PUBLIC
     Threads::Threads
     ${vtk_smp_libraries}
+    ${vtk_memkind_libraries}
   PRIVATE
     # Need nsl to resolve gethostbyname on SunOS-5.8 and socket also
     $<$<PLATFORM_ID:SunOS>:socket>
     $<$<PLATFORM_ID:SunOS>:nsl>
-    $<$<PLATFORM_ID:Android>:log>)
+    $<$<PLATFORM_ID:Android>:log>
+    )
 vtk_module_compile_features(VTK::CommonCore
   PUBLIC
     cxx_std_11)

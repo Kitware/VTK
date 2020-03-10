@@ -74,6 +74,7 @@ public:
 };
 
 vtkStandardNewMacro(vtkStringArray);
+vtkStandardExtendedNewMacro(vtkStringArray);
 
 //-----------------------------------------------------------------------------
 

@@ -1,15 +1,23 @@
-  if(VTK_LEGACY_REMOVE)
+if(VTK_LEGACY_REMOVE)
   set(legacy_srcs)
-  else()
+else()
   set(legacy_srcs
     TestDataArrayDispatcher.cxx
     TestDispatchers.cxx
     )
 endif()
 
+set(memkind_tests)
+if(VTK_USE_MEMKIND)
+  set(memkind_tests
+    TestMemkindData.cxx
+    )
+endif()
+
 vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   NO_DATA NO_VALID NO_OUTPUT
   ${legacy_srcs}
+  ${memkind_tests}
   LagrangeHexahedron.cxx
   BezierInterpolation.cxx
   TestBezier.cxx

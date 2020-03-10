@@ -38,6 +38,7 @@
 //
 
 vtkStandardNewMacro(vtkTable);
+vtkStandardExtendedNewMacro(vtkTable);
 vtkCxxSetObjectMacro(vtkTable, RowData, vtkDataSetAttributes);
 
 //----------------------------------------------------------------------------
@@ -645,6 +646,7 @@ void vtkTable::ShallowCopy(vtkDataObject* src)
 //----------------------------------------------------------------------------
 void vtkTable::DeepCopy(vtkDataObject* src)
 {
+  auto mkhold = vtkMemkindRAII(this->GetIsInMemkind());
   if (vtkTable* const table = vtkTable::SafeDownCast(src))
   {
     this->RowData->DeepCopy(table->RowData);

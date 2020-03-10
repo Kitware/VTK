@@ -29,6 +29,7 @@
 #include "vtkVertex.h"
 
 vtkStandardNewMacro(vtkStructuredGrid);
+vtkStandardExtendedNewMacro(vtkStructuredGrid);
 
 unsigned char vtkStructuredGrid::MASKED_CELL_VALUE =
   vtkDataSetAttributes::HIDDENCELL | vtkDataSetAttributes::REFINEDCELL;
@@ -1123,6 +1124,7 @@ void vtkStructuredGrid::ShallowCopy(vtkDataObject* dataObject)
 //----------------------------------------------------------------------------
 void vtkStructuredGrid::DeepCopy(vtkDataObject* dataObject)
 {
+  auto mkhold = vtkMemkindRAII(this->GetIsInMemkind());
   vtkStructuredGrid* grid = vtkStructuredGrid::SafeDownCast(dataObject);
   if (grid != nullptr)
   {

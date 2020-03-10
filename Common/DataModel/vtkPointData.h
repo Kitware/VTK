@@ -32,6 +32,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkPointData : public vtkDataSetAttributes
 {
 public:
   static vtkPointData* New();
+  static vtkPointData* ExtendedNew();
 
   vtkTypeMacro(vtkPointData, vtkDataSetAttributes);
   void PrintSelf(ostream& os, vtkIndent indent) override;

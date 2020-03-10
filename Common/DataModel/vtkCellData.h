@@ -33,6 +33,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkCellData : public vtkDataSetAttributes
 {
 public:
   static vtkCellData* New();
+  static vtkCellData* ExtendedNew();
 
   vtkTypeMacro(vtkCellData, vtkDataSetAttributes);
   void PrintSelf(ostream& os, vtkIndent indent) override;

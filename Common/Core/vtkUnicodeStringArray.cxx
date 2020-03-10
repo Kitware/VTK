@@ -31,6 +31,7 @@ public:
 };
 
 vtkStandardNewMacro(vtkUnicodeStringArray);
+vtkStandardExtendedNewMacro(vtkUnicodeStringArray);
 
 vtkUnicodeStringArray::vtkUnicodeStringArray()
 {

@@ -58,6 +58,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkStructuredGrid : public vtkPointSet
 {
 public:
   static vtkStructuredGrid* New();
+  static vtkStructuredGrid* ExtendedNew();
 
   vtkTypeMacro(vtkStructuredGrid, vtkPointSet);
   void PrintSelf(ostream& os, vtkIndent indent) override;

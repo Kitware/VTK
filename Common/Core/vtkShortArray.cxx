@@ -23,6 +23,7 @@ VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATE(short);
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkShortArray);
+vtkStandardExtendedNewMacro(vtkShortArray);
 
 //----------------------------------------------------------------------------
 vtkShortArray::vtkShortArray() = default;

@@ -33,6 +33,7 @@
 #include "vtkVoxel.h"
 
 vtkStandardNewMacro(vtkImageData);
+vtkStandardExtendedNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
 vtkImageData::vtkImageData()
@@ -1495,6 +1496,7 @@ int vtkImageData::GetScalarType(vtkInformation* meta_data)
 //----------------------------------------------------------------------------
 void vtkImageData::AllocateScalars(vtkInformation* pipeline_info)
 {
+  auto mkhold = vtkMemkindRAII(this->GetIsInMemkind());
   int newType = VTK_DOUBLE;
   int newNumComp = 1;
 
@@ -1518,6 +1520,7 @@ void vtkImageData::AllocateScalars(vtkInformation* pipeline_info)
 //----------------------------------------------------------------------------
 void vtkImageData::AllocateScalars(int dataType, int numComponents)
 {
+  auto mkhold = vtkMemkindRAII(this->GetIsInMemkind());
   vtkDataArray* scalars;
 
   // if the scalar type has not been set then we have a problem
@@ -2023,6 +2026,7 @@ void vtkImageData::ShallowCopy(vtkDataObject* dataObject)
 //----------------------------------------------------------------------------
 void vtkImageData::DeepCopy(vtkDataObject* dataObject)
 {
+  auto mkhold = vtkMemkindRAII(this->GetIsInMemkind());
   vtkImageData* imageData = vtkImageData::SafeDownCast(dataObject);
 
   if (imageData != nullptr)

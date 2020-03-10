@@ -26,6 +26,7 @@
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkIdTypeArray);
+vtkStandardExtendedNewMacro(vtkIdTypeArray);
 
 //----------------------------------------------------------------------------
 vtkIdTypeArray::vtkIdTypeArray() = default;

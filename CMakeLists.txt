@@ -103,6 +103,12 @@ if (VTK_BUILD_TESTING)
 endif ()
 
 #-----------------------------------------------------------------------------
+# Add an option to enable memkind
+if (UNIX AND NOT APPLE)
+  option(VTK_USE_MEMKIND "Build support for extended memory" OFF)
+endif()
+
+#-----------------------------------------------------------------------------
 # Add an option to enable/disable components that have CUDA.
 option(VTK_USE_CUDA "Support CUDA compilation" OFF)
 if(VTK_USE_CUDA)

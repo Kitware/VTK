@@ -42,6 +42,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkImageData : public vtkDataSet
 {
 public:
   static vtkImageData* New();
+  static vtkImageData* ExtendedNew();
 
   vtkTypeMacro(vtkImageData, vtkDataSet);
   void PrintSelf(ostream& os, vtkIndent indent) override;

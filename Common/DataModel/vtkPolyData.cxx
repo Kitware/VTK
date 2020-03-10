@@ -45,12 +45,14 @@ namespace vtkPolyData_detail
 {
 
 vtkStandardNewMacro(CellMap);
+
 CellMap::CellMap() = default;
 CellMap::~CellMap() = default;
 
 } // end namespace vtkPolyData_detail
 
 vtkStandardNewMacro(vtkPolyData);
+vtkStandardExtendedNewMacro(vtkPolyData);
 
 //----------------------------------------------------------------------------
 // Initialize static member.  This member is used to simplify traversal
@@ -1506,9 +1508,10 @@ void vtkPolyData::ShallowCopy(vtkDataObject* dataObject)
 //----------------------------------------------------------------------------
 void vtkPolyData::DeepCopy(vtkDataObject* dataObject)
 {
-  // Do superclass
-  // We have to do this BEFORE we call BuildLinks, else there are no points
-  // to build the links on (the parent DeepCopy copies the points)
+  auto mkhold = vtkMemkindRAII(this->GetIsInMemkind());
+  // Do superclass We have to do this BEFORE we call BuildLinks, else
+  // there are no points to build the links on (the parent DeepCopy
+  // copies the points)
   this->vtkPointSet::DeepCopy(dataObject);
 
   vtkPolyData* polyData = vtkPolyData::SafeDownCast(dataObject);

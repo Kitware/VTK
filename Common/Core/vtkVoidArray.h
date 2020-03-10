@@ -34,6 +34,7 @@ public:
    * Initialize with empty array.
    */
   static vtkVoidArray* New();
+  static vtkVoidArray* ExtendedNew();
 
   vtkTypeMacro(vtkVoidArray, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;

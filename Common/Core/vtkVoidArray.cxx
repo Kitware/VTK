@@ -16,6 +16,7 @@
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkVoidArray);
+vtkStandardExtendedNewMacro(vtkVoidArray);
 
 typedef void* voidPtr;
 

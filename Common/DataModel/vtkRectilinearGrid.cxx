@@ -30,6 +30,7 @@
 #include "vtkVoxel.h"
 
 vtkStandardNewMacro(vtkRectilinearGrid);
+vtkStandardExtendedNewMacro(vtkRectilinearGrid);
 
 vtkCxxSetObjectMacro(vtkRectilinearGrid, XCoordinates, vtkDataArray);
 vtkCxxSetObjectMacro(vtkRectilinearGrid, YCoordinates, vtkDataArray);
@@ -1033,6 +1034,7 @@ void vtkRectilinearGrid::ShallowCopy(vtkDataObject* dataObject)
 //----------------------------------------------------------------------------
 void vtkRectilinearGrid::DeepCopy(vtkDataObject* dataObject)
 {
+  auto mkhold = vtkMemkindRAII(this->GetIsInMemkind());
   vtkRectilinearGrid* grid = vtkRectilinearGrid::SafeDownCast(dataObject);
 
   if (grid != nullptr)

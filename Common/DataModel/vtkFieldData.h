@@ -54,6 +54,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkFieldData : public vtkObject
 {
 public:
   static vtkFieldData* New();
+  static vtkFieldData* ExtendedNew();
 
   vtkTypeMacro(vtkFieldData, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;

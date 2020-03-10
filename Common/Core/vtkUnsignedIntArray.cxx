@@ -23,6 +23,7 @@ VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATE(unsigned int);
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkUnsignedIntArray);
+vtkStandardExtendedNewMacro(vtkUnsignedIntArray);
 
 //----------------------------------------------------------------------------
 vtkUnsignedIntArray::vtkUnsignedIntArray() = default;

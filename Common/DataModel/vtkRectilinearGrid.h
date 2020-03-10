@@ -52,6 +52,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkRectilinearGrid : public vtkDataSet
 {
 public:
   static vtkRectilinearGrid* New();
+  static vtkRectilinearGrid* ExtendedNew();
 
   vtkTypeMacro(vtkRectilinearGrid, vtkDataSet);
   void PrintSelf(ostream& os, vtkIndent indent) override;

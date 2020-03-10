@@ -37,6 +37,7 @@
 #include <vector>
 
 vtkStandardNewMacro(vtkDataSetAttributes);
+vtkStandardExtendedNewMacro(vtkDataSetAttributes);
 //--------------------------------------------------------------------------
 const char vtkDataSetAttributes::AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][19] = {
   "Scalars",
