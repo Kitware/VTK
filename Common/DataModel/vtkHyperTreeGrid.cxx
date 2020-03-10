@@ -221,9 +221,7 @@ void vtkHyperTreeGrid::Initialize()
   this->DepthLimiter = UINT_MAX;
 
   // Masked primal leaves
-  vtkBitArray* mask = vtkBitArray::New();
-  this->SetMask(mask);
-  mask->FastDelete();
+  this->SetMask(nullptr);
 
   // No interface by default
   this->HasInterface = false;
