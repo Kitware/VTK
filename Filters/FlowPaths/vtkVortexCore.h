@@ -43,7 +43,9 @@
  * between local vortex identification schemes. Journal of Fluid Mechanics, 535,
  * 189-214.
  *
- * is computed. All criteria values are stored as point values on the output
+ * is computed. The Q-criterion and delta-criterion are used to prefilter cells
+ * prior to the execution of the parallel lines algorithm, and all criteria
+ * values are stored as point values on the output
  * polylines.
  *
  * @sa

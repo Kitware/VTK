@@ -72,7 +72,8 @@ struct MatrixVectorMultiplyWorker
 // Chakraborty, P., Balachandar, S., & Adran, R. (2005). On the relationships
 // between local vortex identification schemes. Journal of Fluid Mechanics, 535,
 // 189-214. Return false if any criterion is not satisfied.
-bool computeVortexCriteria(const double s[9], const double omega[9], double vortexCriteria[4])
+bool computeVortexCriteria(const double s[9], const double omega[9], double vortexCriteria[4],
+  const vtkTypeBool computeAdditionalTerms = true)
 {
   // The velocity gradient tensor J_{ij} = \frac{\partial u_i}{\partial x_j} can be
   // decomposed into a symmetric and antisymmetric part:
@@ -110,6 +111,11 @@ bool computeVortexCriteria(const double s[9], const double omega[9], double vort
   if (delta <= 0.)
   {
     return false;
+  }
+
+  if (computeAdditionalTerms == false)
+  {
+    return true;
   }
 
   // The lambda_2-criterion is defined as
@@ -189,7 +195,8 @@ struct ComputeCriteriaWorker
         S[i] = (j_i + jt_i) / 2.;
         Omega[i] = (j_i - jt_i) / 2.;
       }
-      (*a)[0] = computeVortexCriteria(S, Omega, vortexCriteria.data());
+      // Only use the first two criteria to discriminate points
+      (*a)[0] = computeVortexCriteria(S, Omega, vortexCriteria.data(), false);
     }
   }
 };
@@ -429,14 +436,15 @@ int vtkVortexCore::RequestData(
     wField = jerk;
   }
 
-  // Use criteria to assign acceptance value to each point in the dataset
+  // Use criteria to assign acceptance value to each point in the dataset.
+  // This worker will be run on all points, so we only use the first two
+  // criteria (as they are computationally less expensive).
   vtkSmartPointer<vtkCharArray> acceptedPoints;
   {
     acceptedPoints = vtkSmartPointer<vtkCharArray>::New();
     acceptedPoints->SetNumberOfTuples(jacobian->GetNumberOfTuples());
 
     ComputeCriteriaWorker worker;
-
     using Dispatcher =
       vtkArrayDispatch::Dispatch2ByValueType<vtkArrayDispatch::Reals, vtkArrayDispatch::Integrals>;
 
@@ -454,6 +462,7 @@ int vtkVortexCore::RequestData(
   parallelVectorsForVortexCore->SetJacobianDataArray(jacobian);
   parallelVectorsForVortexCore->SetFirstVectorFieldName(vField->GetName());
   parallelVectorsForVortexCore->SetSecondVectorFieldName(wField->GetName());
+
   parallelVectorsForVortexCore->Update();
 
   vtkPolyData* parallelVectorsOutput =
