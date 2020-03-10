@@ -678,26 +678,20 @@ int vtkRedistributeDataSetFilter::RedistributeMultiPieceDataSet(
 
   output->CopyStructure(input);
 
-  // because different ranks may have different numbers of pieces, we combine
-  // into a single unstructured grid before redistributing data
-  vtkNew<vtkAppendFilter> input_appender;
-  vtkNew<vtkUnstructuredGrid> inputUG;
+  // ranks may have different number of non-null datasets;
+  // lets package the input pieces into a `vtkPartitionedDataSet` and call the
+  // vtkPartitionedDataSet-based implementation.
+  vtkNew<vtkPartitionedDataSet> inputAsPDS;
   for (unsigned int piece_id = 0; piece_id < input->GetNumberOfPieces(); ++piece_id)
   {
     if (auto ds = input->GetPiece(piece_id))
     {
-      input_appender->AddInputDataObject(ds);
+      inputAsPDS->SetPartition(inputAsPDS->GetNumberOfPartitions(), ds);
     }
-  }
-  if (input_appender->GetNumberOfInputConnections(0) > 0)
-  {
-    input_appender->Update();
-    inputUG->ShallowCopy(input_appender->GetOutput(0));
   }
 
   vtkNew<vtkPartitionedDataSet> parts;
-
-  if (!this->Redistribute(inputUG, parts, this->Cuts, mb_offset))
+  if (!this->Redistribute(inputAsPDS, parts, this->Cuts, mb_offset))
   {
     return 0;
   }
