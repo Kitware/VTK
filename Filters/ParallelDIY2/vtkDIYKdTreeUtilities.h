@@ -65,6 +65,14 @@ public:
     const double* local_bounds = nullptr);
 
   /**
+   * Another variant to GenerateCuts that simply takes in a vector of
+   * dataobjects, each can be a dataset or a composite dataset.
+   */
+  static std::vector<vtkBoundingBox> GenerateCuts(const std::vector<vtkDataObject*>& dobjs,
+    int number_of_partitions, bool use_cell_centers,
+    vtkMultiProcessController* controller = nullptr, const double* local_bounds = nullptr);
+
+  /**
    * Given a collection of points, this method will generate box cuts in the
    * domain to approximately load balance the points into `number_of_partitions`
    * requested. If `controller` is non-null, the operation will be performed

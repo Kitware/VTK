@@ -124,6 +124,38 @@ std::vector<vtkBoundingBox> vtkDIYKdTreeUtilities::GenerateCuts(vtkDataObject* d
 
 //----------------------------------------------------------------------------
 std::vector<vtkBoundingBox> vtkDIYKdTreeUtilities::GenerateCuts(
+  const std::vector<vtkDataObject*>& dobjs, int number_of_partitions, bool use_cell_centers,
+  vtkMultiProcessController* controller, const double* local_bounds)
+{
+  std::vector<vtkSmartPointer<vtkPoints> > points;
+
+  vtkBoundingBox bbox;
+  if (local_bounds != nullptr)
+  {
+    bbox.AddBounds(local_bounds);
+  }
+  for (auto dobj : dobjs)
+  {
+    if (local_bounds == nullptr)
+    {
+      bbox.AddBox(vtkDIYUtilities::GetLocalBounds(dobj));
+    }
+    const auto datasets = vtkDIYUtilities::GetDataSets(dobj);
+    const auto pts = vtkDIYUtilities::ExtractPoints(datasets, use_cell_centers);
+    points.insert(points.end(), pts.begin(), pts.end());
+  }
+
+  double bds[6];
+  vtkMath::UninitializeBounds(bds);
+  if (bbox.IsValid())
+  {
+    bbox.GetBounds(bds);
+  }
+  return vtkDIYKdTreeUtilities::GenerateCuts(points, number_of_partitions, controller, bds);
+}
+
+//----------------------------------------------------------------------------
+std::vector<vtkBoundingBox> vtkDIYKdTreeUtilities::GenerateCuts(
   const std::vector<vtkSmartPointer<vtkPoints> >& points, int number_of_partitions,
   vtkMultiProcessController* controller, const double* local_bounds /*=nullptr*/)
 {
