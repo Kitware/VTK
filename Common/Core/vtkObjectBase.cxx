@@ -342,6 +342,7 @@ void vtkObjectBase::ReportReferences(vtkGarbageCollector*)
 
 namespace
 {
+#ifdef VTK_HAS_THREADLOCAL
 #ifdef VTK_USE_MEMKIND
 thread_local char* MemkindDirectory = nullptr;
 #endif
@@ -350,11 +351,24 @@ thread_local vtkMallocingFunction CurrentMallocFunction = malloc;
 thread_local vtkReallocingFunction CurrentReallocFunction = realloc;
 thread_local vtkFreeingFunction CurrentFreeFunction = free;
 thread_local vtkFreeingFunction AlternateFreeFunction = vtkCustomFree;
+#else
+#ifdef VTK_USE_MEMKIND
+char* MemkindDirectory = nullptr;
+#endif
+bool UsingMemkind = false;
+vtkMallocingFunction CurrentMallocFunction = malloc;
+vtkReallocingFunction CurrentReallocFunction = realloc;
+vtkFreeingFunction CurrentFreeFunction = free;
+vtkFreeingFunction AlternateFreeFunction = vtkCustomFree;
+#endif
 }
 
 //----------------------------------------------------------------------------
 void vtkObjectBase::SetMemkindDirectory(const char* fn)
 {
+#ifndef VTK_HAS_THREADLOCAL
+  vtkGenericWarningMacro(<< "Warning, memkind features are not thread safe on this platform.");
+#endif
 #ifdef VTK_USE_MEMKIND
   if (MemkindDirectory == nullptr && MemkindHandle == nullptr)
   {

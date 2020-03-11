@@ -482,6 +482,13 @@ configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtkFloatingPointExceptionsConfigure.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkFloatingPointExceptionsConfigure.h")
 
+# Allow work arounds for lack of thread_local on odd compilers
+if (NOT (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0) )
+  set_property(SOURCE vtkObjectBase.cxx
+      PROPERTY
+        COMPILE_DEFINITIONS VTK_HAS_THREADLOCAL)
+endif ()
+
 if(MSVC)
   set_source_files_properties(
     vtkDataArray.cxx

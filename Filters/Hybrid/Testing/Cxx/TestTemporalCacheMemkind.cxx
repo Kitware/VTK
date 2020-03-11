@@ -28,6 +28,8 @@
 #include <vtkTemporalInterpolator.h>
 
 #include <cassert>
+#include <functional>
+#include <vector>
 
 namespace
 {
@@ -119,9 +121,9 @@ int vtkTemporalSphereSource2::RequestData(
   if (this->TimeStep == 0 && outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
   {
     double requestedTimeValue = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
-    this->ActualTimeStep =
-      std::find_if(this->TimeStepValues.begin(), this->TimeStepValues.end(),
-        std::bind2nd(vtkTestTemporalCacheSimpleWithinTolerance2(), requestedTimeValue)) -
+    this->ActualTimeStep = std::find_if(this->TimeStepValues.begin(), this->TimeStepValues.end(),
+                             std::bind(vtkTestTemporalCacheSimpleWithinTolerance2(),
+                               std::placeholders::_1, requestedTimeValue)) -
       this->TimeStepValues.begin();
     this->ActualTimeStep = this->ActualTimeStep + this->TimeStepRange[0];
   }

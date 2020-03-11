@@ -1150,23 +1150,18 @@ protected:
     union ArraySwitch {
       ArraySwitch() {}  // handled by Storage
       ~ArraySwitch() {} // handle by Storage
-      void* operator new(size_t nSize)
-      {
-        void* p;
-#ifdef VTK_USE_MEMKIND
-        p = vtkObjectBase::GetCurrentMallocFunction()(nSize);
-#else
-        p = malloc(nSize);
-#endif
-        return p;
-      }
       VisitState<ArrayType32>* Int32;
       VisitState<ArrayType64>* Int64;
     };
 
     Storage()
     {
+#ifdef VTK_USE_MEMKIND
+      this->Arrays =
+        static_cast<ArraySwitch*>(vtkObjectBase::GetCurrentMallocFunction()(sizeof(ArraySwitch)));
+#else
       this->Arrays = new ArraySwitch;
+#endif
 
       // Default to the compile-time setting:
 #ifdef VTK_USE_64BIT_IDS
