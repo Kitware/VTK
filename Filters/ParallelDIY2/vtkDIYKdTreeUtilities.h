@@ -137,6 +137,16 @@ public:
    */
   static vtkDIYExplicitAssigner CreateAssigner(diy::mpi::communicator& comm, int num_blocks);
 
+  /**
+   * `GenerateCuts` returns a kd-tree with power of 2 nodes. Use this function
+   * to resize the cuts to lower number while still preserving the kd-tree. This
+   * is done by merging leaf nodes till the requested size is reached. If `size`
+   * is negative or greater than then number of `cuts.size()`, then this
+   * function does nothing. Otherwise when the function returns, `cuts.size() ==
+   * size`.
+   */
+  static void ResizeCuts(std::vector<vtkBoundingBox>& cuts, int size);
+
 protected:
   vtkDIYKdTreeUtilities();
   ~vtkDIYKdTreeUtilities() override;

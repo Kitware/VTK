@@ -546,3 +546,35 @@ vtkDIYExplicitAssigner vtkDIYKdTreeUtilities::CreateAssigner(
   }
   return vtkDIYExplicitAssigner(comm, local_blocks, true);
 }
+
+//----------------------------------------------------------------------------
+void vtkDIYKdTreeUtilities::ResizeCuts(std::vector<vtkBoundingBox>& cuts, int size)
+{
+  if (size == 0)
+  {
+    cuts.resize(0);
+    return;
+  }
+
+  if (size < 0 || size >= static_cast<int>(cuts.size()))
+  {
+    return;
+  }
+
+  if (!vtkMath::IsPowerOfTwo(static_cast<vtkTypeUInt64>(cuts.size())))
+  {
+    vtkLogF(ERROR, "Argument has non-power of two cuts. This is not supported.");
+    return;
+  }
+
+  auto assignments = vtkDIYKdTreeUtilities::ComputeAssignments(static_cast<int>(cuts.size()), size);
+  assert(assignments.size() == cuts.size());
+
+  std::vector<vtkBoundingBox> new_cuts(size);
+  for (size_t idx = 0; idx < cuts.size(); ++idx)
+  {
+    new_cuts[assignments[idx]].AddBox(cuts[idx]);
+  }
+  cuts.swap(new_cuts);
+  assert(static_cast<int>(cuts.size()) == size);
+}
