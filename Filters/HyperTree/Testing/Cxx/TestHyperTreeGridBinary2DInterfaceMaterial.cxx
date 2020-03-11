@@ -58,7 +58,7 @@ int TestHyperTreeGridBinary2DInterfaceMaterial(int argc, char* argv[])
 
   // Modify intercepts array
   vtkDataArray* interArray =
-    vtkHyperTreeGrid::SafeDownCast(htGrid->GetOutput())->GetPointData()->GetArray("Intercepts");
+    vtkHyperTreeGrid::SafeDownCast(htGrid->GetOutput())->GetCellData()->GetArray("Intercepts");
   for (vtkIdType i = 0; i < interArray->GetNumberOfTuples(); ++i)
   {
     interArray->SetTuple3(i, -.25, -.5, -1.);

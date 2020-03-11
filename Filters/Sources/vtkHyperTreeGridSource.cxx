@@ -15,6 +15,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkHyperTreeGridSource.h"
 
 #include "vtkBitArray.h"
+#include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkHyperTree.h"
@@ -26,7 +27,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkPointData.h"
 #include "vtkQuadric.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
@@ -402,7 +402,7 @@ int vtkHyperTreeGridSource::RequestData(
     output->SetMask(mask);
   }
 
-  vtkPointData* outData = output->GetPointData();
+  vtkCellData* outData = output->GetCellData();
 
   this->LevelBitsIndexCnt.clear();
   this->LevelBitsIndexCnt.push_back(0);
@@ -896,7 +896,7 @@ void vtkHyperTreeGridSource::SubdivideFromStringDescriptor(vtkHyperTreeGrid* out
   int idx[3], int parentPos)
 {
   // Get handle on point data
-  vtkPointData* outData = output->GetPointData();
+  vtkCellData* outData = output->GetCellData();
 
   // Calculate pointer into level descriptor string
   unsigned int pointer = level ? childIdx + parentPos * this->BlockSize : treeIdx;
@@ -1112,7 +1112,7 @@ void vtkHyperTreeGridSource::SubdivideFromBitsDescriptor(vtkHyperTreeGrid* outpu
   int idx[3], int parentPos)
 {
   // Get handle on point data
-  vtkPointData* outData = output->GetPointData();
+  vtkCellData* outData = output->GetCellData();
 
   vtkIdType startIdx = this->LevelBitsIndex[level];
   int pointer = level ? childIdx + parentPos * this->BlockSize : treeIdx;
@@ -1273,7 +1273,7 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric(vtkHyperTreeGrid* output,
   double origin[3], double size[3])
 {
   // Get handle on point data
-  vtkPointData* outData = output->GetPointData();
+  vtkCellData* outData = output->GetCellData();
 
   // Calculate the node global index
   vtkIdType id = cursor->GetTree()->GetGlobalIndexFromLocal(cursor->GetVertexId());

@@ -100,7 +100,7 @@ sideArray = vtk.vtkUnsignedCharArray()
 sideArray.SetName('sideArray')
 sideArray.SetNumberOfValues(0)
 sideArray.SetNumberOfComponents(1)
-htg.GetPointData().AddArray(sideArray)
+htg.GetCellData().AddArray(sideArray)
 
 mask = vtk.vtkBitArray()
 mask.SetName('mask')
@@ -139,10 +139,10 @@ print('offsetIndex: ', offsetIndex)
 htg.Squeeze()
 
 # Activation d'une scalaire
-htg.GetPointData().SetActiveScalars('sideArray')
+htg.GetCellData().SetActiveScalars('sideArray')
 
 # DataRange sideArray on PointData HTG
-dataRange = htg.GetPointData().GetArray('sideArray').GetRange()
+dataRange = htg.GetCellData().GetArray('sideArray').GetRange()
 print('sideArray on PointData HTG:', dataRange)
 
 isFilter = False

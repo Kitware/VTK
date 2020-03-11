@@ -168,7 +168,7 @@ int TestHyperTreeGridTernary2DFullMaterialBits(int argc, char* argv[])
   {
     idArray->SetValue(i, i);
   }
-  ht->GetPointData()->SetScalars(idArray);
+  ht->GetCellData()->SetScalars(idArray);
 
   // Geometry
   cout << "Constructing geometry..." << endl;

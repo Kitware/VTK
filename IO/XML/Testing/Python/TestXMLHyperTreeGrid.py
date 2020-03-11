@@ -72,12 +72,12 @@ htg.SetBranchFactor(2)
 levelArray = vtk.vtkUnsignedCharArray()
 levelArray.SetName('level')
 levelArray.SetNumberOfValues(0)
-htg.GetPointData().AddArray(levelArray)
+htg.GetCellData().AddArray(levelArray)
 
 scalarArray = vtk.vtkDoubleArray()
 scalarArray.SetName('scalar')
 scalarArray.SetNumberOfValues(0)
-htg.GetPointData().AddArray(scalarArray)
+htg.GetCellData().AddArray(scalarArray)
 
 xValues = vtk.vtkDoubleArray() #x
 xValues.SetNumberOfValues(4)
@@ -117,11 +117,11 @@ for treeId in range(htg.GetMaxNumberOfTrees()):
 #Tables cannot be assigned before.
 #Maybe because if we do it at the beginning their zero size cancels
 #this step ?
-htg.GetPointData().AddArray(levelArray)
-htg.GetPointData().AddArray(scalarArray)
+htg.GetCellData().AddArray(levelArray)
+htg.GetCellData().AddArray(scalarArray)
 
 #print("# ", crtIndex)
-scalar = htg.GetPointData().GetArray('scalar')
+scalar = htg.GetCellData().GetArray('scalar')
 assert(scalar)
 
 #Depth Limiter Filter
@@ -262,7 +262,7 @@ gc.SetInputConnection(ex.GetOutputPort())
 ##htg = depth.GetOutput()
 #htg = ex.GetOutput()
 #print('htg:',htg.GetNumberOfVertices())
-#pointData = htg.GetPointData()
+#pointData = htg.GetCellData()
 #field = pointData.GetArray('level')
 #print('Field: level')
 #print('> nb: ', field.GetNumberOfTuples())

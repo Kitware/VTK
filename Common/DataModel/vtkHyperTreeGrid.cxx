@@ -16,6 +16,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkBitArray.h"
 #include "vtkBoundingBox.h"
+#include "vtkCellData.h"
 #include "vtkCollection.h"
 #include "vtkDoubleArray.h"
 #include "vtkFieldData.h"
@@ -39,7 +40,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 #include "vtkStructuredData.h"
 #include "vtkUnsignedCharArray.h"
@@ -200,8 +200,8 @@ vtkHyperTreeGrid::vtkHyperTreeGrid()
 void vtkHyperTreeGrid::Initialize()
 {
   this->Superclass::Initialize();
-  // DataObject Initialize will not do PointData
-  this->PointData->Initialize();
+  // DataObject Initialize will not do CellData
+  this->CellData->Initialize();
   // Delete existing trees
   this->HyperTrees.clear();
 
@@ -413,8 +413,8 @@ void vtkHyperTreeGrid::PrintSelf(ostream& os, vtkIndent indent)
   }
   os << indent << "HyperTrees: " << this->HyperTrees.size() << endl;
 
-  os << indent << "PointData:" << endl;
-  this->PointData->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "CellData:" << endl;
+  this->CellData->PrintSelf(os, indent.GetNextIndent());
 }
 
 //----------------------------------------------------------------------------
@@ -467,7 +467,7 @@ void vtkHyperTreeGrid::CopyEmptyStructure(vtkDataObject* ds)
   this->SetInterfaceNormalsName(htg->InterfaceNormalsName);
   this->SetInterfaceInterceptsName(htg->InterfaceInterceptsName);
 
-  this->PointData->CopyStructure(htg->GetPointData());
+  this->CellData->CopyStructure(htg->GetCellData());
 }
 
 //-----------------------------------------------------------------------------
@@ -512,7 +512,7 @@ void vtkHyperTreeGrid::CopyStructure(vtkDataObject* ds)
   this->SetMask(htg->GetMask());
   vtkSetObjectBodyMacro(PureMask, vtkBitArray, htg->GetPureMask());
 
-  this->PointData->CopyStructure(htg->GetPointData());
+  this->CellData->CopyStructure(htg->GetCellData());
 
   // Search for hyper tree with given index
   this->HyperTrees.clear();
@@ -1159,7 +1159,7 @@ void vtkHyperTreeGrid::ShallowCopy(vtkDataObject* src)
   // Copy member variables
   this->CopyStructure(htg);
 
-  this->PointData->ShallowCopy(htg->GetPointData());
+  this->CellData->ShallowCopy(htg->GetCellData());
 
   // Call superclass
   this->Superclass::ShallowCopy(src);
@@ -1204,7 +1204,7 @@ void vtkHyperTreeGrid::DeepCopy(vtkDataObject* src)
     this->InitPureMask = htg->InitPureMask;
   }
 
-  this->PointData->DeepCopy(htg->GetPointData());
+  this->CellData->DeepCopy(htg->GetCellData());
 
   // Rectilinear part
   memcpy(this->Dimensions, htg->GetDimensions(), 3 * sizeof(unsigned int));
@@ -1376,7 +1376,7 @@ unsigned long vtkHyperTreeGrid::GetActualMemorySizeBytes()
 
   // JB Faut il compter le cout des grandeurs dans la representation ???
   // JB Il ne me semble pas que cela soit fait ainsi dans les autres representations
-  size += this->PointData->GetActualMemorySize() << 10;
+  size += this->CellData->GetActualMemorySize() << 10;
 
   return static_cast<unsigned long>(size);
 }
@@ -1659,9 +1659,9 @@ void vtkHyperTreeGrid::GetCenter(double* octr)
 }
 
 //-----------------------------------------------------------------------------
-vtkPointData* vtkHyperTreeGrid::GetPointData()
+vtkCellData* vtkHyperTreeGrid::GetCellData()
 {
-  return this->PointData.GetPointer();
+  return this->CellData.GetPointer();
 }
 
 //-----------------------------------------------------------------------------
@@ -1670,12 +1670,12 @@ vtkUnsignedCharArray* vtkHyperTreeGrid::GetTreeGhostArray()
   if (!this->TreeGhostArrayCached)
   {
     this->TreeGhostArray = vtkArrayDownCast<vtkUnsignedCharArray>(
-      this->GetPointData()->GetArray(vtkDataSetAttributes::GhostArrayName()));
+      this->GetCellData()->GetArray(vtkDataSetAttributes::GhostArrayName()));
     this->TreeGhostArrayCached = true;
   }
   assert(this->TreeGhostArray ==
     vtkArrayDownCast<vtkUnsignedCharArray>(
-      this->GetPointData()->GetArray(vtkDataSetAttributes::GhostArrayName())));
+      this->GetCellData()->GetArray(vtkDataSetAttributes::GhostArrayName())));
   return this->TreeGhostArray;
 }
 
@@ -1689,7 +1689,7 @@ vtkUnsignedCharArray* vtkHyperTreeGrid::AllocateTreeGhostArray()
     ghosts->SetNumberOfComponents(1);
     ghosts->SetNumberOfTuples(this->GetMaxNumberOfTrees());
     ghosts->Fill(0);
-    this->GetPointData()->AddArray(ghosts);
+    this->GetCellData()->AddArray(ghosts);
     ghosts->Delete();
     this->TreeGhostArray = ghosts;
     this->TreeGhostArrayCached = true;
@@ -1701,11 +1701,11 @@ vtkUnsignedCharArray* vtkHyperTreeGrid::AllocateTreeGhostArray()
 vtkUnsignedCharArray* vtkHyperTreeGrid::GetGhostCells()
 {
   return vtkUnsignedCharArray::SafeDownCast(
-    this->PointData->GetArray(vtkDataSetAttributes::GhostArrayName()));
+    this->CellData->GetArray(vtkDataSetAttributes::GhostArrayName()));
 }
 
 //----------------------------------------------------------------------------
 bool vtkHyperTreeGrid::HasAnyGhostCells() const
 {
-  return this->PointData->GetArray(vtkDataSetAttributes::GhostArrayName()) != nullptr;
+  return this->CellData->GetArray(vtkDataSetAttributes::GhostArrayName()) != nullptr;
 }

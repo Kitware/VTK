@@ -15,6 +15,7 @@
 #include "vtkXMLPHyperTreeGridReader.h"
 
 #include "vtkCallbackCommand.h"
+#include "vtkCellData.h"
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeCursor.h"
 #include "vtkHyperTreeGrid.h"
@@ -23,7 +24,6 @@
 #include "vtkInformationVector.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLHyperTreeGridReader.h"
@@ -250,18 +250,18 @@ int vtkXMLPHyperTreeGridReader::ReadPieceData()
     this->RecursivelyProcessTree(inCursor, outCursor);
   }
 
-  for (vtkIdType i = 0; i < input->GetPointData()->GetNumberOfArrays(); i++)
+  for (vtkIdType i = 0; i < input->GetCellData()->GetNumberOfArrays(); i++)
   {
-    vtkAbstractArray* inArray = input->GetPointData()->GetAbstractArray(i);
-    vtkAbstractArray* outArray = output->GetPointData()->GetAbstractArray(i);
+    vtkAbstractArray* inArray = input->GetCellData()->GetAbstractArray(i);
+    vtkAbstractArray* outArray = output->GetCellData()->GetAbstractArray(i);
     if (outArray == nullptr)
     {
-      // Create output PointData array
+      // Create output CellData array
       outArray = inArray->NewInstance();
       outArray->SetName(inArray->GetName());
       outArray->SetNumberOfComponents(inArray->GetNumberOfComponents());
       outArray->SetNumberOfTuples(this->TotalNumberOfPoints);
-      output->GetPointData()->AddArray(outArray);
+      output->GetCellData()->AddArray(outArray);
       outArray->Delete();
     }
 

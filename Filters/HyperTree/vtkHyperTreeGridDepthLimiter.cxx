@@ -15,13 +15,13 @@
 #include "vtkHyperTreeGridDepthLimiter.h"
 
 #include "vtkBitArray.h"
+#include "vtkCellData.h"
 #include "vtkDoubleArray.h"
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkPointData.h"
 #include "vtkUniformHyperTreeGrid.h"
 #include "vtkUnstructuredGrid.h"
 
@@ -106,8 +106,8 @@ int vtkHyperTreeGridDepthLimiter::ProcessTrees(vtkHyperTreeGrid* input, vtkDataO
   output->SetInterfaceInterceptsName(input->GetInterfaceInterceptsName());
 
   // Initialize output point data
-  this->InData = input->GetPointData();
-  this->OutData = output->GetPointData();
+  this->InData = input->GetCellData();
+  this->OutData = output->GetCellData();
   this->OutData->CopyAllocate(this->InData);
 
   // Output indices begin at 0

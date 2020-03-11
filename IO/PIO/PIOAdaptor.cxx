@@ -1176,7 +1176,7 @@ void PIOAdaptor::add_amr_HTG_scalar(vtkMultiBlockDataSet* grid, vtkStdString var
       varData[varIndex++] = (float)data[j][this->indexNodeLeaf[i]];
     }
   }
-  htgrid->GetPointData()->AddArray(arr);
+  htgrid->GetCellData()->AddArray(arr);
   arr->Delete();
 }
 

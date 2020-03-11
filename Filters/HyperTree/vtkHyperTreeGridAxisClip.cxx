@@ -25,7 +25,6 @@
 #include "vtkInformationVector.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkPointData.h"
 #include "vtkQuadric.h"
 #include "vtkUniformHyperTreeGrid.h"
 
@@ -292,8 +291,8 @@ int vtkHyperTreeGridAxisClip::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObjec
   output->CopyEmptyStructure(input);
 
   // Initialize output point data
-  this->InData = input->GetPointData();
-  this->OutData = output->GetPointData();
+  this->InData = input->GetCellData();
+  this->OutData = output->GetCellData();
   this->OutData->CopyAllocate(this->InData);
 
   // Output indices begin at 0

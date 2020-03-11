@@ -546,7 +546,7 @@ vtkAbstractArray* vtkAlgorithm::GetInputAbstractArrayToProcess(
 
     if (vtkHyperTreeGrid::SafeDownCast(input))
     {
-      return vtkHyperTreeGrid::SafeDownCast(input)->GetPointData()->GetAbstractArray(name);
+      return vtkHyperTreeGrid::SafeDownCast(input)->GetCellData()->GetAbstractArray(name);
     }
 
     vtkDataSet* inputDS = vtkDataSet::SafeDownCast(input);
@@ -578,7 +578,7 @@ vtkAbstractArray* vtkAlgorithm::GetInputAbstractArrayToProcess(
       if (vtkHyperTreeGrid::SafeDownCast(input))
       {
         int fType = inArrayInfo->Get(vtkDataObject::FIELD_ATTRIBUTE_TYPE());
-        return vtkHyperTreeGrid::SafeDownCast(input)->GetPointData()->GetAbstractAttribute(fType);
+        return vtkHyperTreeGrid::SafeDownCast(input)->GetCellData()->GetAbstractAttribute(fType);
       }
       vtkErrorMacro("Attempt to get point or cell data from a data object");
       return nullptr;

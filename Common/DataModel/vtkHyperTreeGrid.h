@@ -64,7 +64,6 @@
 
 #include "vtkNew.h"          // vtkSmartPointer
 #include "vtkSmartPointer.h" // vtkSmartPointer
-// #include "vtkPointData.h" // vtkPointData
 
 #include <cassert> // std::assert
 #include <map>     // std::map
@@ -90,7 +89,7 @@ class vtkIdTypeArray;
 class vtkLine;
 class vtkPixel;
 class vtkPoints;
-class vtkPointData;
+class vtkCellData;
 class vtkUnsignedCharArray;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGrid : public vtkDataObject
@@ -720,7 +719,7 @@ public:
    * Return a pointer to this dataset's point/tree data.
    * THIS METHOD IS THREAD SAFE
    */
-  vtkPointData* GetPointData();
+  vtkCellData* GetCellData();
   //@}
 
 protected:
@@ -788,7 +787,7 @@ protected:
 
   std::map<vtkIdType, vtkSmartPointer<vtkHyperTree> > HyperTrees;
 
-  vtkNew<vtkPointData> PointData; // Scalars, vectors, etc. associated w/ each point
+  vtkNew<vtkCellData> CellData; // Scalars, vectors, etc. associated w/ each point
 
   unsigned int DepthLimiter;
 

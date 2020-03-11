@@ -22,7 +22,6 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkPointData.h"
 #include "vtkUniformHyperTreeGrid.h"
 
 vtkStandardNewMacro(vtkHyperTreeGridAxisReflection);
@@ -80,8 +79,8 @@ int vtkHyperTreeGridAxisReflection::ProcessTrees(vtkHyperTreeGrid* input, vtkDat
   output->CopyStructure(input);
 
   // Shallow copy data of input into output
-  this->InData = input->GetPointData();
-  this->OutData = output->GetPointData();
+  this->InData = input->GetCellData();
+  this->OutData = output->GetCellData();
   this->OutData->PassData(this->InData);
 
   // Retrieve reflection direction and coordinates to be reflected

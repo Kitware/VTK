@@ -274,7 +274,7 @@ int vtkHyperTreeGridContour::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObject
   }
 
   // Initialize output point data
-  this->InData = input->GetPointData();
+  this->InData = input->GetCellData();
   this->OutData = output->GetPointData();
   this->OutData->CopyAllocate(this->InData);
 
@@ -327,9 +327,12 @@ int vtkHyperTreeGridContour::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObject
   }
   this->Locator->InitPointInsertion(newPts, input->GetBounds(), estimatedSize);
 
+  vtkNew<vtkPointData> inPointData;
+  inPointData->PassData(input->GetCellData());
+
   // Instantiate a contour helper for convenience, with triangle generation on
-  this->Helper = new vtkContourHelper(this->Locator, newVerts, newLines, newPolys,
-    input->GetPointData(), nullptr, output->GetPointData(), nullptr, estimatedSize, true);
+  this->Helper = new vtkContourHelper(this->Locator, newVerts, newLines, newPolys, inPointData,
+    nullptr, output->GetPointData(), nullptr, estimatedSize, true);
 
   // Create storage to keep track of selected cells
   this->SelectedCells = vtkBitArray::New();
