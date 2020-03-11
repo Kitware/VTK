@@ -14,32 +14,21 @@
 =========================================================================*/
 #include "vtkPointData.h"
 
-#include "vtkDataArray.h"
 #include "vtkObjectFactory.h"
-
-#include <vector>
 
 vtkStandardNewMacro(vtkPointData);
 
+#ifndef VTK_LEGACY_REMOVE
+//----------------------------------------------------------------------------
 void vtkPointData::NullPoint(vtkIdType ptId)
 {
-  vtkFieldData::Iterator it(this);
-  vtkDataArray* da;
-  std::vector<float> tuple(32, 0.f);
-  for (da = it.Begin(); !it.End(); da = it.Next())
-  {
-    if (da)
-    {
-      const size_t numComps = static_cast<size_t>(da->GetNumberOfComponents());
-      if (numComps > tuple.size())
-      {
-        tuple.resize(numComps, 0.f);
-      }
-      da->InsertTuple(ptId, tuple.data());
-    }
-  }
+  VTK_LEGACY_REPLACED_BODY(
+    vtkPointData::NullPoint(vtkIdType), "VTK 10", vtkFieldData::NullData(vtkIdType));
+  this->NullData(ptId);
 }
+#endif
 
+//----------------------------------------------------------------------------
 void vtkPointData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

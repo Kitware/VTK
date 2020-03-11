@@ -48,17 +48,15 @@ namespace
 struct Spread
 {
   template <typename SrcArrayT, typename DstArrayT>
-  void operator()(SrcArrayT* const srcarray, DstArrayT* const dstarray,
-                  vtkDataSet* const src, vtkUnsignedIntArray* const num,
-                  vtkIdType ncells, vtkIdType npoints, vtkIdType ncomps,
-                  int highestCellDimension, int contributingCellOption) const
+  void operator()(SrcArrayT* const srcarray, DstArrayT* const dstarray, vtkDataSet* const src,
+    vtkUnsignedIntArray* const num, vtkIdType ncells, vtkIdType npoints, vtkIdType ncomps,
+    int highestCellDimension, int contributingCellOption) const
   {
     // Both arrays will have the same value type:
     using T = vtk::GetAPIType<SrcArrayT>;
 
     // zero initialization
-    std::fill_n(vtk::DataArrayValueRange(dstarray).begin(),
-                npoints*ncomps, T(0));
+    std::fill_n(vtk::DataArrayValueRange(dstarray).begin(), npoints * ncomps, T(0));
 
     const auto srcTuples = vtk::DataArrayTupleRange(srcarray);
     auto dstTuples = vtk::DataArrayTupleRange(dstarray);
@@ -78,11 +76,8 @@ struct Spread
             const vtkIdType ptId = pids->GetId(i);
             auto dstTuple = dstTuples[ptId];
             // accumulate cell data to point data <==> point_data += cell_data
-            std::transform(srcTuple.cbegin(),
-                           srcTuple.cend(),
-                           dstTuple.cbegin(),
-                           dstTuple.begin(),
-                           std::plus<T>());
+            std::transform(srcTuple.cbegin(), srcTuple.cend(), dstTuple.cbegin(), dstTuple.begin(),
+              std::plus<T>());
           }
         }
       }
@@ -95,43 +90,41 @@ struct Spread
           // divide point data by the number of cells using it <==>
           // point_data /= denum
           auto dstTuple = dstTuples[pid];
-          std::transform(dstTuple.cbegin(),
-                         dstTuple.cend(),
-                         dstTuple.begin(),
-                         std::bind(std::divides<T>(), std::placeholders::_1, denom));
+          std::transform(dstTuple.cbegin(), dstTuple.cend(), dstTuple.begin(),
+            std::bind(std::divides<T>(), std::placeholders::_1, denom));
         }
       }
     }
     else
     { // compute over cell patches
       vtkNew<vtkIdList> cellsOnPoint;
-      std::vector<T> data(4*ncomps);
+      std::vector<T> data(4 * ncomps);
       for (vtkIdType pid = 0; pid < npoints; ++pid)
       {
         std::fill(data.begin(), data.end(), 0);
-        T numPointCells[4] = {0, 0, 0, 0};
+        T numPointCells[4] = { 0, 0, 0, 0 };
         // Get all cells touching this point.
         src->GetPointCells(pid, cellsOnPoint);
         vtkIdType numPatchCells = cellsOnPoint->GetNumberOfIds();
-        for (vtkIdType pc = 0; pc  < numPatchCells; pc++)
+        for (vtkIdType pc = 0; pc < numPatchCells; pc++)
         {
           vtkIdType cellId = cellsOnPoint->GetId(pc);
           int cellDimension = src->GetCell(cellId)->GetCellDimension();
           numPointCells[cellDimension] += 1;
           const auto srcTuple = srcTuples[cellId];
-          for (int comp=0;comp<ncomps;comp++)
+          for (int comp = 0; comp < ncomps; comp++)
           {
-            data[comp+ncomps*cellDimension] += srcTuple[comp];
+            data[comp + ncomps * cellDimension] += srcTuple[comp];
           }
         }
         auto dstTuple = dstTuples[pid];
-        for (int dimension=3;dimension>=0;dimension--)
+        for (int dimension = 3; dimension >= 0; dimension--)
         {
           if (numPointCells[dimension])
           {
-            for (int comp=0;comp<ncomps;comp++)
+            for (int comp = 0; comp < ncomps; comp++)
             {
-              dstTuple[comp] = data[comp+dimension*ncomps] / numPointCells[dimension];
+              dstTuple[comp] = data[comp + dimension * ncomps] / numPointCells[dimension];
             }
             break;
           }
@@ -222,7 +215,7 @@ public:
       }
       else
       {
-        outPD->NullPoint(ptId);
+        outPD->NullData(ptId);
       }
     }
 
@@ -494,12 +487,11 @@ int vtkCellDataToPointData::RequestDataForUnstructuredData(
 
       Spread worker;
       using Dispatcher = vtkArrayDispatch::Dispatch2SameValueType;
-      if (!Dispatcher::Execute(srcarray, dstarray, worker, src, num,
-                               ncells, npoints, ncomps, highestCellDimension,
-                               this->ContributingCellOption))
+      if (!Dispatcher::Execute(srcarray, dstarray, worker, src, num, ncells, npoints, ncomps,
+            highestCellDimension, this->ContributingCellOption))
       { // fallback for unknown arrays:
-        worker(srcarray, dstarray, src, num, ncells, npoints, ncomps,
-               highestCellDimension, this->ContributingCellOption);
+        worker(srcarray, dstarray, src, num, ncells, npoints, ncomps, highestCellDimension,
+          this->ContributingCellOption);
       }
     }
   };
@@ -578,7 +570,7 @@ int vtkCellDataToPointData::InterpolatePointData(vtkDataSet* input, vtkDataSet* 
     }
     else
     {
-      outPD->NullPoint(ptId);
+      outPD->NullData(ptId);
     }
   }
 
