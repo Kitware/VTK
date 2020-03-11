@@ -23,9 +23,9 @@
  * example, small left-button motions cause small changes in the rotation of
  * the camera around its focal point. For a 3-button mouse, the left button
  * is for rotation, the right button for zooming, the middle button for
- * panning, and ctrl + left button for spinning.  (With fewer mouse buttons,
- * ctrl + shift + left button is for zooming, and shift + left button is for
- * panning.)
+ * panning, ctrl + left button for spinning, and shift + right button for
+ * environment rotation. (With fewer mouse buttons, ctrl + shift + left button
+ * is for zooming, and shift + left button is for panning.)
  *
  * @sa
  * vtkInteractorStyleTrackballActor vtkInteractorStyleJoystickCamera
@@ -69,6 +69,7 @@ public:
   void Spin() override;
   void Pan() override;
   void Dolly() override;
+  void EnvironmentRotate() override;
 
   //@{
   /**
