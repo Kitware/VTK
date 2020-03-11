@@ -34,7 +34,8 @@
 #include "vtkFiltersHybridModule.h" // For export macro
 
 #include "vtkAlgorithm.h"
-#include <map> // used for the cache
+#include <map>    // used for the cache
+#include <vector> // used for the timestep records
 
 class VTKFILTERSHYBRID_EXPORT vtkTemporalDataSetCache : public vtkAlgorithm
 {
@@ -62,6 +63,16 @@ public:
   vtkBooleanMacro(CacheInMemkind, bool);
   //@}
 
+  //@{
+  /**
+   * Tells the filter that needs to act as a pipeline source rather than a midpipline filter. In
+   * that situation it needs to react differently in a few cases.
+   */
+  vtkSetMacro(IsASource, bool);
+  vtkGetMacro(IsASource, bool);
+  vtkBooleanMacro(IsASource, bool);
+  //@}
+
 protected:
   vtkTemporalDataSetCache();
   ~vtkTemporalDataSetCache() override;
@@ -70,7 +81,7 @@ protected:
 
   typedef std::map<double, std::pair<unsigned long, vtkDataObject*> > CacheType;
   CacheType Cache;
-
+  std::vector<double> TimeStepValues;
   /**
    * see vtkAlgorithm for details
    */
@@ -79,6 +90,10 @@ protected:
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
   int FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info) override;
+
+  virtual int RequestInformation(
+    vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector);
+
   virtual int RequestDataObject(
     vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector);
 
@@ -92,6 +107,12 @@ private:
 
   void ReplaceCacheItem(vtkDataObject* input, double inTime, vtkMTimeType dTime);
   bool CacheInMemkind;
+  bool IsASource;
+
+  // a helper to deal with eviction smoothly. In effect we are an N+1 cache.
+  void SetEjected(vtkDataObject*);
+  vtkGetObjectMacro(Ejected, vtkDataObject);
+  vtkDataObject* Ejected;
 };
 
 #endif
