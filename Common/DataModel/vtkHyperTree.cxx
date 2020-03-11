@@ -146,7 +146,8 @@ public:
     std::vector<std::vector<uint64_t> >& globalIdByLevel)
   {
     vtkIdType idg = this->GetGlobalIndexFromLocal(index);
-    bool mask = (inIsMasked->GetValue(idg) != 0);
+    bool mask = (inIsMasked != nullptr) && (inIsMasked->GetNumberOfValues() > 0) &&
+      (inIsMasked->GetValue(idg) != 0);
     maskByLevel[level].push_back(mask);
     globalIdByLevel[level].emplace_back(idg);
     if (!this->IsLeaf(index) && !mask)
@@ -198,7 +199,6 @@ public:
     }
     assert(static_cast<vtkIdType>(i) == nb);
     globalIdByLevel.clear();
-
     // isParent compressed
     {
       // Find last level with cells
