@@ -261,15 +261,6 @@ void vtkSynchronizedRenderers::HandleEndRender()
     }
   }
 
-  // restore viewport before `PushImageToScreen`, but after
-  // `CaptureRenderedImage`.
-  this->Renderer->SetViewport(this->LastViewport);
-
-  if (this->WriteBackImages)
-  {
-    this->PushImageToScreen();
-  }
-
   if (this->FixBackground)
   {
     // restore background values.
@@ -277,6 +268,15 @@ void vtkSynchronizedRenderers::HandleEndRender()
     this->Renderer->SetBackgroundAlpha(this->LastBackgroundAlpha);
     this->Renderer->SetTexturedBackground(this->LastTexturedBackground);
     this->Renderer->SetGradientBackground(this->LastGradientBackground);
+  }
+
+  // restore viewport before `PushImageToScreen`, but after
+  // `CaptureRenderedImage`.
+  this->Renderer->SetViewport(this->LastViewport);
+
+  if (this->WriteBackImages)
+  {
+    this->PushImageToScreen();
   }
 
   // restore FXAA state.
