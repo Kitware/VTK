@@ -1190,10 +1190,12 @@ protected:
       if (this->StorageIs64Bit)
       {
         this->Arrays->Int64->~VisitState();
+        delete this->Arrays->Int64;
       }
       else
       {
         this->Arrays->Int32->~VisitState();
+        delete this->Arrays->Int32;
       }
 #ifdef VTK_USE_MEMKIND
       if (this->IsInMemkind)
