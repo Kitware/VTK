@@ -714,13 +714,25 @@ public:
    */
   void GetCenter(double center[3]);
 
-  //@{
   /**
-   * Return a pointer to this dataset's point/tree data.
+   * Return a pointer to this dataset's hypertree node data.
    * THIS METHOD IS THREAD SAFE
    */
   vtkCellData* GetCellData();
-  //@}
+
+  /**
+   * Returns the hypertree node field data stored as cell data.
+   * If type != vtkDataObject::AttributeTypes::CELL,
+   * it defers to vtkDataObject;
+   */
+  vtkFieldData* GetAttributesAsFieldData(int type) override;
+
+  /**
+   * Returns the number of nodes.
+   * Ii type == vtkDataObject::AttributeTypes::CELL,
+   * it defers to vtkDataObject.
+   */
+  vtkIdType GetNumberOfElements(int type) override;
 
 protected:
   /**
