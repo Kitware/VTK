@@ -594,6 +594,7 @@ void vtkFieldData::RemoveArray(int index)
     this->Data[i] = this->Data[i + 1];
   }
   this->Data[this->NumberOfActiveArrays] = nullptr;
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
