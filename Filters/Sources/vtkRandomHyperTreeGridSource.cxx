@@ -15,6 +15,7 @@
 
 #include "vtkRandomHyperTreeGridSource.h"
 
+#include "vtkCellData.h"
 #include "vtkDoubleArray.h"
 #include "vtkExtentTranslator.h"
 #include "vtkHyperTree.h"
@@ -25,7 +26,6 @@
 #include "vtkInformationVector.h"
 #include "vtkMinimalStandardRandomSequence.h"
 #include "vtkObjectFactory.h"
-#include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkStandardNewMacro(vtkRandomHyperTreeGridSource);
@@ -134,7 +134,7 @@ int vtkRandomHyperTreeGridSource::RequestData(
 
   vtkNew<vtkDoubleArray> levels;
   levels->SetName("Depth");
-  htg->GetPointData()->AddArray(levels);
+  htg->GetCellData()->AddArray(levels);
   this->Levels = levels;
 
   vtkIdType treeOffset = 0;

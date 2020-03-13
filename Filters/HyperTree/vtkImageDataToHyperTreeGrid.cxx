@@ -27,7 +27,6 @@
 #include <vtkIntArray.h>
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
-#include <vtkPointData.h>
 #include <vtkUnsignedCharArray.h>
 
 #include <cmath>
@@ -119,8 +118,8 @@ int vtkImageDataToHyperTreeGrid::RequestData(vtkInformation* vtkNotUsed(request)
   coordZ->SetValue(1, 0);
   output->SetZCoordinates(coordZ);
 
-  this->InData = input->GetPointData();
-  this->OutData = output->GetPointData();
+  this->InData = input->GetCellData();
+  this->OutData = output->GetCellData();
   this->OutData->CopyAllocate(this->InData);
 
   this->Color = vtkUnsignedCharArray::New();

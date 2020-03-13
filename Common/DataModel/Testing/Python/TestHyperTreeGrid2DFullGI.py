@@ -14,8 +14,8 @@ htg.Initialize()
 scalarArray = vtk.vtkUnsignedCharArray()
 scalarArray.SetName('scalar')
 scalarArray.SetNumberOfValues(26)
-htg.GetPointData().AddArray(scalarArray)
-htg.GetPointData().SetActiveScalars('scalar')
+htg.GetCellData().AddArray(scalarArray)
+htg.GetCellData().SetActiveScalars('scalar')
 
 for i in range(26):
   scalarArray.InsertTuple1(i, i+1)

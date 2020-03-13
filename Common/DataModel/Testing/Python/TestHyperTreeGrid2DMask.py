@@ -12,7 +12,7 @@ htg.Initialize()
 scalarArray = vtk.vtkUnsignedCharArray()
 scalarArray.SetName('scalar')
 scalarArray.SetNumberOfValues(0)
-htg.GetPointData().AddArray(scalarArray)
+htg.GetCellData().AddArray(scalarArray)
 
 mask = vtk.vtkBitArray()
 mask.SetName('mask')

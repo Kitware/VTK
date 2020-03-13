@@ -15,6 +15,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkHyperTreeGridToDualGrid.h"
 
 #include "vtkBitArray.h"
+#include "vtkCellData.h"
 #include "vtkCellType.h"
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
@@ -200,7 +201,7 @@ int vtkHyperTreeGridToDualGrid::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObj
 
   // now populate my output from the mesh internals made above
   output->SetPoints(this->Points);
-  output->GetPointData()->ShallowCopy(input->GetPointData());
+  output->GetPointData()->ShallowCopy(input->GetCellData());
 
   int numPts = 1 << input->GetDimension();
   int type = VTK_VOXEL;

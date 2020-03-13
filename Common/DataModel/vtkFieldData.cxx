@@ -23,6 +23,26 @@ vtkStandardNewMacro(vtkFieldData);
 vtkStandardExtendedNewMacro(vtkFieldData);
 
 //----------------------------------------------------------------------------
+void vtkFieldData::NullData(vtkIdType id)
+{
+  vtkFieldData::Iterator it(this);
+  vtkDataArray* da;
+  std::vector<double> tuple(32, .0);
+  for (da = it.Begin(); !it.End(); da = it.Next())
+  {
+    if (da)
+    {
+      const size_t numComps = static_cast<size_t>(da->GetNumberOfComponents());
+      if (numComps > tuple.size())
+      {
+        tuple.resize(numComps, .0);
+      }
+      da->InsertTuple(id, tuple.data());
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
 vtkFieldData::BasicIterator::BasicIterator(const int* list, unsigned int listSize)
 {
   if (list)

@@ -25,7 +25,6 @@
 #include "vtkInformationVector.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkPointData.h"
 #include "vtkUniformHyperTreeGrid.h"
 
 #include "vtkHyperTreeGridNonOrientedCursor.h"
@@ -142,8 +141,8 @@ int vtkHyperTreeGridAxisCut::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObject
   output->SetInterfaceInterceptsName(input->GetInterfaceInterceptsName());
 
   // Initialize output point data
-  this->InData = input->GetPointData();
-  this->OutData = output->GetPointData();
+  this->InData = input->GetCellData();
+  this->OutData = output->GetCellData();
   this->OutData->CopyAllocate(this->InData);
 
   // Output indices begin at 0

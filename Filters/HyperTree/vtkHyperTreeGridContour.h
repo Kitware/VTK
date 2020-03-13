@@ -44,6 +44,7 @@
 #include <vector> // For STL
 
 class vtkBitArray;
+class vtkCellData;
 class vtkContourHelper;
 class vtkDataArray;
 class vtkHyperTreeGrid;
@@ -51,7 +52,6 @@ class vtkIdList;
 class vtkIncrementalPointLocator;
 class vtkLine;
 class vtkPixel;
-class vtkPointData;
 class vtkUnsignedCharArray;
 class vtkVoxel;
 class vtkHyperTreeGridNonOrientedCursor;

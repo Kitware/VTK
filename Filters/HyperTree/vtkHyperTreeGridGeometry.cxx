@@ -287,7 +287,7 @@ int vtkHyperTreeGridGeometry::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObjec
   this->BranchFactor = static_cast<int>(input->GetBranchFactor());
 
   // Initialize output cell data
-  this->InData = input->GetPointData();
+  this->InData = input->GetCellData();
   this->OutData = output->GetCellData();
   this->OutData->CopyAllocate(this->InData);
 
@@ -403,7 +403,6 @@ int vtkHyperTreeGridGeometry::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObjec
     this->Locator->Delete();
     this->Locator = nullptr;
   }
-
   return 1;
 }
 

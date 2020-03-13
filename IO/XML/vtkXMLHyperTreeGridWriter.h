@@ -134,7 +134,7 @@ protected:
   // Grid coordinates and mask
   int WriteGrid(vtkIndent);
 
-  // Tree Descriptor and  PointData
+  // Tree Descriptor and  CellData
   int WriteTrees_0(vtkIndent);
   int WriteTrees_1(vtkIndent);
 
@@ -156,14 +156,14 @@ protected:
   // Helper to simplify writing appended array data
   void WriteAppendedArrayDataHelper(vtkAbstractArray* array, OffsetsManager& offsets);
 
-  void WritePointDataAppendedArrayDataHelper(
+  void WriteCellDataAppendedArrayDataHelper(
     vtkAbstractArray* array, vtkIdType treeCount, OffsetsManager& offsets, vtkHyperTree* tree);
 
   OffsetsManagerGroup* CoordsOMG;
   OffsetsManagerGroup* DescriptorOMG;
   OffsetsManagerGroup* NbVerticesByLevelOMG;
   OffsetsManagerGroup* MaskOMG;
-  OffsetsManagerGroup* PointDataOMG;
+  OffsetsManagerGroup* CellDataOMG;
 
   int NumberOfTrees;
 

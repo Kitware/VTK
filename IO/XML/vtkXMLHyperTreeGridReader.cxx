@@ -16,6 +16,7 @@
 #include "vtkXMLHyperTreeGridReader.h"
 
 #include "vtkBitArray.h"
+#include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
@@ -23,7 +24,6 @@
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
-#include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTypeInt64Array.h"
 #include "vtkXMLDataElement.h"
@@ -547,14 +547,14 @@ void vtkXMLHyperTreeGridReader::ReadTrees_0(vtkXMLDataElement* elem)
       hasMaskData = true;
     }
 
-    // PointData belonging to hypertree immediately follows descriptor
-    vtkPointData* pointData = output->GetPointData();
-    vtkXMLDataElement* ePointData = eTree->GetNestedElement(2);
-    if (ePointData)
+    // CellData belonging to hypertree immediately follows descriptor
+    vtkCellData* pointData = output->GetCellData();
+    vtkXMLDataElement* eCellData = eTree->GetNestedElement(2);
+    if (eCellData)
     {
-      for (int j = 0; j < ePointData->GetNumberOfNestedElements(); j++)
+      for (int j = 0; j < eCellData->GetNumberOfNestedElements(); j++)
       {
-        vtkXMLDataElement* eNested = ePointData->GetNestedElement(j);
+        vtkXMLDataElement* eNested = eCellData->GetNestedElement(j);
         const char* ename = eNested->GetAttribute("Name");
         vtkAbstractArray* outArray = pointData->GetArray(ename);
         int numberOfComponents = 1;
@@ -564,7 +564,7 @@ void vtkXMLHyperTreeGridReader::ReadTrees_0(vtkXMLDataElement* elem)
           numberOfComponents = atoi(eNC);
         }
 
-        // Create the output PointData array when processing first tree
+        // Create the output CellData array when processing first tree
         if (outArray == nullptr)
         {
           outArray = this->CreateArray(eNested);
@@ -744,15 +744,15 @@ void vtkXMLHyperTreeGridReader::ReadTrees_1(vtkXMLDataElement* elem)
     nbByLvl_a->Delete();
     desc_a->Delete();
     mask_a->Delete();
-    // PointData belonging to hypertree immediately follows descriptor
-    vtkPointData* pointData = output->GetPointData();
-    vtkXMLDataElement* ePointData = eTree->GetNestedElement(3);
-    if (ePointData)
+    // CellData belonging to hypertree immediately follows descriptor
+    vtkCellData* pointData = output->GetCellData();
+    vtkXMLDataElement* eCellData = eTree->GetNestedElement(3);
+    if (eCellData)
     {
 
-      for (int j = 0; j < ePointData->GetNumberOfNestedElements(); ++j)
+      for (int j = 0; j < eCellData->GetNumberOfNestedElements(); ++j)
       {
-        vtkXMLDataElement* eNested = ePointData->GetNestedElement(j);
+        vtkXMLDataElement* eNested = eCellData->GetNestedElement(j);
         const char* ename = eNested->GetAttribute("Name");
         vtkAbstractArray* outArray = pointData->GetArray(ename);
         int numberOfComponents = 1;
@@ -762,7 +762,7 @@ void vtkXMLHyperTreeGridReader::ReadTrees_1(vtkXMLDataElement* elem)
           numberOfComponents = atoi(eNC);
         }
 
-        // Create the output PointData array when processing first tree
+        // Create the output CellData array when processing first tree
         if (outArray == nullptr)
         {
           outArray = this->CreateArray(eNested);

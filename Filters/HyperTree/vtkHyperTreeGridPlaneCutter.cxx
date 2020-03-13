@@ -21,6 +21,8 @@
 #include "vtkCutter.h"
 #include "vtkDataObject.h"
 #include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
+#include "vtkHyperTreeGridNonOrientedMooreSuperCursor.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkMath.h"
@@ -31,15 +33,15 @@
 #include "vtkPolyData.h"
 #include "vtkUnstructuredGrid.h"
 
-#include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
-#include "vtkHyperTreeGridNonOrientedMooreSuperCursor.h"
-
 #include <cassert>
 
+namespace
+{
 vtkIdType First8Integers[] = { 0, 1, 2, 3, 4, 5, 6, 7 };
 
-static const unsigned int MooreCursors3D[26] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15,
-  16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26 };
+static constexpr unsigned int MooreCursors3D[26] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14,
+  15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26 };
+}
 
 vtkStandardNewMacro(vtkHyperTreeGridPlaneCutter);
 
@@ -231,7 +233,7 @@ int vtkHyperTreeGridPlaneCutter::ProcessTrees(vtkHyperTreeGrid* input, vtkDataOb
   output->Initialize();
 
   // Retrieve input point data
-  this->InData = input->GetPointData();
+  this->InData = input->GetCellData();
 
   // Retrieve material mask
   this->InMask = input->HasMask() ? input->GetMask() : nullptr;

@@ -216,7 +216,7 @@ int vtkGenericProbeFilter::RequestData(vtkInformation* vtkNotUsed(request),
     }
     else
     {
-      outputPD->NullPoint(ptId);
+      outputPD->NullData(ptId);
     }
   }
   cellIt->Delete();

@@ -36,14 +36,14 @@
 
 class vtkBitArray;
 class vtkCellArray;
-class vtkHyperTreeGrid;
-class vtkPoints;
-class vtkIncrementalPointLocator;
 class vtkDoubleArray;
+class vtkHyperTreeGrid;
 class vtkHyperTreeGridNonOrientedGeometryCursor;
 class vtkHyperTreeGridNonOrientedVonNeumannSuperCursor;
 class vtkIdList;
 class vtkIdTypeArray;
+class vtkIncrementalPointLocator;
+class vtkPoints;
 class vtkUnsignedCharArray;
 
 class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridGeometry : public vtkHyperTreeGridAlgorithm

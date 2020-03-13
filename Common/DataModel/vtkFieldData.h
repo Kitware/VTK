@@ -104,6 +104,11 @@ public:
    */
   int AddArray(vtkAbstractArray* array);
 
+  /**
+   * Sets every vtkDataArray at index id to a null tuple.
+   */
+  void NullData(vtkIdType id);
+
   //@{
   /**
    * Remove an array (with the given name or index) from the list of arrays.

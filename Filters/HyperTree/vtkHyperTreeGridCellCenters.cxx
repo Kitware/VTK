@@ -17,6 +17,7 @@
 #include "vtkAlgorithm.h"
 #include "vtkBitArray.h"
 #include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkInformation.h"
@@ -127,7 +128,7 @@ int vtkHyperTreeGridCellCenters::RequestData(
   this->Output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Initialize output cell data
-  this->InData = this->Input->GetPointData();
+  this->InData = this->Input->GetCellData();
   this->OutData = this->Output->GetPointData();
   this->OutData->CopyAllocate(this->InData);
 

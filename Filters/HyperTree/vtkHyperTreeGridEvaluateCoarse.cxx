@@ -14,12 +14,12 @@
 =========================================================================*/
 #include "vtkHyperTreeGridEvaluateCoarse.h"
 #include "vtkBitArray.h"
+#include "vtkCellData.h"
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkInformation.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkPointData.h"
 
 #include "vtkUniformHyperTreeGrid.h"
 
@@ -87,8 +87,8 @@ int vtkHyperTreeGridEvaluateCoarse::ProcessTrees(vtkHyperTreeGrid* input, vtkDat
   this->NumberOfChildren = output->GetNumberOfChildren();
 
   this->NbChilds = input->GetNumberOfChildren();
-  this->InData = input->GetPointData();
-  this->OutData = output->GetPointData();
+  this->InData = input->GetCellData();
+  this->OutData = output->GetCellData();
   this->OutData->CopyAllocate(this->InData);
   // Iterate over all input and output hyper trees
   vtkIdType index;

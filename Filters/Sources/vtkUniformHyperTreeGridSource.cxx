@@ -14,11 +14,11 @@ PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 #include "vtkUniformHyperTreeGridSource.h"
 
+#include "vtkCellData.h"
 #include "vtkDataObject.h"
 #include "vtkDoubleArray.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
-#include "vtkPointData.h"
 #include "vtkUniformHyperTreeGrid.h"
 
 vtkStandardNewMacro(vtkUniformHyperTreeGridSource);
@@ -57,7 +57,7 @@ int vtkUniformHyperTreeGridSource::RequestData(
 
   output->Initialize();
 
-  vtkPointData* outData = output->GetPointData();
+  vtkCellData* outData = output->GetCellData();
 
   this->LevelBitsIndexCnt.clear();
   this->LevelBitsIndexCnt.push_back(0);

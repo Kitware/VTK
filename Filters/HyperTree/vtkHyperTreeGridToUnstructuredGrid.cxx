@@ -21,7 +21,6 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
@@ -78,7 +77,7 @@ int vtkHyperTreeGridToUnstructuredGrid::ProcessTrees(
   this->Axes = input->GetAxes();
 
   // Initialize output cell data
-  this->InData = input->GetPointData();
+  this->InData = input->GetCellData();
   this->OutData = output->GetCellData();
   this->OutData->CopyAllocate(this->InData);
 

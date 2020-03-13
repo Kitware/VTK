@@ -100,12 +100,12 @@ sideArray = vtk.vtkUnsignedCharArray()
 sideArray.SetName('sideArray')
 sideArray.SetNumberOfValues(0)
 sideArray.SetNumberOfComponents(1)
-htg.GetPointData().AddArray(sideArray)
+htg.GetCellData().AddArray(sideArray)
 
 #quand je mets cela je n'ai plus rien d'affiche
-#htg.GetPointData().SetScalars(levels)
-#htg.GetPointData().AddArray(sideArray)
-#htg.GetPointData().SetActiveScalars('levels')
+#htg.GetCellData().SetScalars(levels)
+#htg.GetCellData().AddArray(sideArray)
+#htg.GetCellData().SetActiveScalars('levels')
 #htg.SetMaterialMask(mask)
 
 mask = vtk.vtkBitArray()
@@ -145,10 +145,10 @@ print('offsetIndex: ', offsetIndex)
 htg.Squeeze()
 
 # Activation d'une scalaire
-htg.GetPointData().SetActiveScalars('sideArray')
+htg.GetCellData().SetActiveScalars('sideArray')
 
 # DataRange sideArray on PointData HTG
-dataRange = htg.GetPointData().GetArray('sideArray').GetRange()
+dataRange = htg.GetCellData().GetArray('sideArray').GetRange()
 print('sideArray on PointData HTG:', dataRange)
 print('HTG:', htg.GetNumberOfVertices())
 

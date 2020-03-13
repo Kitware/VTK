@@ -183,7 +183,7 @@ int vtkAdaptiveDataSetSurfaceFilter::DataSetExecute(vtkDataObject* inputDS, vtkP
   this->Orientation = input->GetOrientation();
 
   // Initialize output cell data
-  this->InData = static_cast<vtkDataSetAttributes*>(input->GetPointData());
+  this->InData = static_cast<vtkDataSetAttributes*>(input->GetCellData());
   this->OutData = static_cast<vtkDataSetAttributes*>(output->GetCellData());
   this->OutData->CopyAllocate(this->InData);
 
