@@ -476,6 +476,16 @@ int vtkXMLUnstructuredDataReader::ReadPieceData()
 namespace
 {
 
+// We just need this to use the ArrayDispatch mechanism to evaluate
+// whether the offset type array is valid, so the functor does nothing.
+struct ValidateOffsetsType
+{
+  template <typename ArrayT>
+  void operator()(ArrayT*)
+  {
+  }
+};
+
 struct ValidateOffsets
 {
   bool Valid{ false };
@@ -642,7 +652,21 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
   // Validate the offsets
   ValidateOffsets offsetValidator;
   using SupportedArrays = vtkCellArray::InputArrayList;
+
+  // Convert array to supported type if necessary
   using Dispatch = vtkArrayDispatch::DispatchByArray<SupportedArrays>;
+  bool offsetsNeedConversion = !Dispatch::Execute(cellOffsets, ValidateOffsetsType{});
+  if (offsetsNeedConversion)
+  {
+    // Use a vtkCellArray::ArrayType64 to ensure we can represent the incoming offset array type.
+    vtkSmartPointer<vtkCellArray::ArrayType64> newArray =
+      vtkSmartPointer<vtkCellArray::ArrayType64>::New();
+
+    // DeepCopy takes care of the type conversion.
+    newArray->DeepCopy(cellOffsets);
+    cellOffsets = newArray;
+  }
+
   if (!Dispatch::Execute(cellOffsets, offsetValidator))
   {
     vtkErrorMacro(
@@ -722,6 +746,16 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
     if (this->AbortExecute)
     {
       return 0;
+    }
+
+    // If the offset array was converted, we need to make sure the connectivity
+    // array is of the same type.
+    if (offsetsNeedConversion)
+    {
+      vtkSmartPointer<vtkCellArray::ArrayType64> newArray =
+        vtkSmartPointer<vtkCellArray::ArrayType64>::New();
+      newArray->DeepCopy(conn);
+      conn = newArray;
     }
   }
 
