@@ -16,13 +16,13 @@
 // This test was written by Philippe Pebay, 2016
 // This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 
-#include "vtkHyperTreeGridGeometry.h"
-#include "vtkHyperTreeGridSource.h"
-#include "vtkHyperTreeGridThreshold.h"
-
 #include "vtkCamera.h"
 #include "vtkCellData.h"
 #include "vtkDataSetMapper.h"
+#include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridGeometry.h"
+#include "vtkHyperTreeGridSource.h"
+#include "vtkHyperTreeGridThreshold.h"
 #include "vtkNew.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
@@ -44,6 +44,9 @@ int TestHyperTreeGridBinary2DThreshold(int argc, char* argv[])
   htGrid->SetBranchFactor(2);
   htGrid->SetDescriptor("RRRRR.|.... .R.. RRRR R... R...|.R.. ...R ..RR .R.. R... .... ....|.... "
                         "...R ..R. .... .R.. R...|.... .... .R.. ....|....");
+  htGrid->Update();
+  vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(htGrid->GetOutput());
+  htg->GetCellData()->SetScalars(htg->GetCellData()->GetArray("Depth"));
 
   // Threshold
   vtkNew<vtkHyperTreeGridThreshold> threshold;
@@ -68,7 +71,7 @@ int TestHyperTreeGridBinary2DThreshold(int argc, char* argv[])
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
   vtkNew<vtkDataSetMapper> mapper1;
   mapper1->SetInputConnection(shrink->GetOutputPort());
-  mapper1->SetScalarRange(pd->GetCellData()->GetScalars()->GetRange());
+  mapper1->SetScalarRange(pd->GetCellData()->GetArray("Depth")->GetRange());
   vtkNew<vtkPolyDataMapper> mapper2;
   mapper2->SetInputConnection(geometry1->GetOutputPort());
   mapper2->ScalarVisibilityOff();

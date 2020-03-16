@@ -17,16 +17,15 @@
 // This test was revised by Philippe Pebay, 2016
 // This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 
-#include "vtkHyperTreeGrid.h"
-#include "vtkHyperTreeGridGeometry.h"
-#include "vtkHyperTreeGridSource.h"
-#include "vtkHyperTreeGridToDualGrid.h"
-
 #include "vtkBitArray.h"
 #include "vtkCamera.h"
 #include "vtkCellData.h"
 #include "vtkContourFilter.h"
 #include "vtkDataSetMapper.h"
+#include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridGeometry.h"
+#include "vtkHyperTreeGridSource.h"
+#include "vtkHyperTreeGridToDualGrid.h"
 #include "vtkIdTypeArray.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
@@ -149,6 +148,8 @@ int TestHyperTreeGridTernary2DFullMaterialBits(int argc, char* argv[])
        << "  depth: " << depth << "..." << endl;
   timer->StartTimer();
   htGrid->Update();
+  vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(htGrid->GetOutput());
+  htg->GetCellData()->SetScalars(htg->GetCellData()->GetArray("Depth"));
   timer->StopTimer();
   vtkHyperTreeGrid* ht = htGrid->GetHyperTreeGridOutput();
   cout << " Done in " << timer->GetElapsedTime() << "s" << endl;
@@ -156,7 +157,7 @@ int TestHyperTreeGridTernary2DFullMaterialBits(int argc, char* argv[])
   timer->StartTimer();
   timer->StopTimer();
 
-  cout << "HTG takes " << htGrid->GetOutput()->GetActualMemorySize() << "KB in memory." << endl;
+  cout << "HTG takes " << htg->GetActualMemorySize() << "KB in memory." << endl;
 
   // Prepare an array of ids
   vtkNew<vtkIdTypeArray> idArray;
@@ -174,14 +175,14 @@ int TestHyperTreeGridTernary2DFullMaterialBits(int argc, char* argv[])
   cout << "Constructing geometry..." << endl;
   timer->StartTimer();
   vtkNew<vtkHyperTreeGridGeometry> geometry;
-  geometry->SetInputData(htGrid->GetOutput());
+  geometry->SetInputData(htg);
   geometry->Update();
   vtkPolyData* pd = geometry->GetPolyDataOutput();
   timer->StopTimer();
   cout << " Done in " << timer->GetElapsedTime() << "s" << endl;
 
   vtkNew<vtkHyperTreeGridToDualGrid> h2ug;
-  h2ug->SetInputData(htGrid->GetOutput());
+  h2ug->SetInputData(htg);
   h2ug->Update();
 
   // Mappers

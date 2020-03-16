@@ -582,7 +582,7 @@ int vtkHyperTreeGridSource::RequestData(
   vtkNew<vtkDoubleArray> depthArray;
   depthArray->SetName("Depth");
   depthArray->SetNumberOfComponents(1);
-  outData->SetScalars(depthArray);
+  outData->AddArray(depthArray);
 
   if (this->GenerateInterfaceFields)
   {

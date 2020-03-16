@@ -16,14 +16,14 @@
 // This test was written by Philippe Pebay, 2016
 // This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 
-#include "vtkHyperTreeGridCellCenters.h"
-#include "vtkHyperTreeGridGeometry.h"
-#include "vtkHyperTreeGridSource.h"
-
 #include "vtkCamera.h"
 #include "vtkCellData.h"
 #include "vtkGlyph2D.h"
 #include "vtkGlyphSource2D.h"
+#include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridCellCenters.h"
+#include "vtkHyperTreeGridGeometry.h"
+#include "vtkHyperTreeGridSource.h"
 #include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
@@ -47,6 +47,9 @@ int TestHyperTreeGridBinary2DCellCentersMaterial(int argc, char* argv[])
                         "...R ..R. .... .R.. R...|.... .... .R.. ....|....");
   htGrid->SetMask("111111|0000 1111 1111 1111 1111|1111 0001 0111 0101 1011 1111 0111|1111 0111 "
                   "1111 1111 1111 1111|1111 1111 1111 1111|1111");
+  htGrid->Update();
+  vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(htGrid->GetOutput());
+  htg->GetCellData()->SetScalars(htg->GetCellData()->GetArray("Depth"));
 
   // Geometry
   vtkNew<vtkHyperTreeGridGeometry> geometry;
@@ -76,7 +79,7 @@ int TestHyperTreeGridBinary2DCellCentersMaterial(int argc, char* argv[])
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
   vtkNew<vtkPolyDataMapper> mapper1;
   mapper1->SetInputConnection(geometry->GetOutputPort());
-  mapper1->SetScalarRange(pd->GetCellData()->GetScalars()->GetRange());
+  mapper1->SetScalarRange(pd->GetCellData()->GetArray("Depth")->GetRange());
   vtkNew<vtkPolyDataMapper> mapper2;
   mapper2->SetInputConnection(geometry->GetOutputPort());
   mapper2->ScalarVisibilityOff();

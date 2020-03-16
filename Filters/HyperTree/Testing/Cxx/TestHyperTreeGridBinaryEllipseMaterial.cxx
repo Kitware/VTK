@@ -17,13 +17,13 @@
 // This test was revised by Philippe Pebay, 2016
 // This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 
-#include "vtkHyperTreeGridGeometry.h"
-#include "vtkHyperTreeGridSource.h"
-
 #include "vtkCamera.h"
 #include "vtkCellData.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkContourFilter.h"
+#include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridGeometry.h"
+#include "vtkHyperTreeGridSource.h"
 #include "vtkHyperTreeGridToDualGrid.h"
 #include "vtkNew.h"
 #include "vtkPolyData.h"
@@ -42,6 +42,9 @@ int TestHyperTreeGridBinaryEllipseMaterial(int argc, char* argv[])
 {
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
+  htGrid->Update();
+  vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(htGrid->GetOutput());
+  htg->GetCellData()->SetScalars(htg->GetCellData()->GetArray("Depth"));
   htGrid->SetMaxDepth(8);
   htGrid->SetDimensions(17, 25, 1); // Dimension 2 in xy plane GridCell 16, 24, 1
   htGrid->SetGridScale(.5, .25, .7);

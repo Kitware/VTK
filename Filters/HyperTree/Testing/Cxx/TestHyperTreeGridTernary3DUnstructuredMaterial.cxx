@@ -17,13 +17,12 @@
 // This test was revised by Philippe Pebay, 2016
 // This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 
-#include "vtkHyperTreeGrid.h"
-#include "vtkHyperTreeGridSource.h"
-#include "vtkHyperTreeGridToUnstructuredGrid.h"
-
 #include "vtkCamera.h"
 #include "vtkCellData.h"
 #include "vtkDataSetMapper.h"
+#include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridSource.h"
+#include "vtkHyperTreeGridToUnstructuredGrid.h"
 #include "vtkNew.h"
 #include "vtkOutlineFilter.h"
 #include "vtkProperty.h"
@@ -71,6 +70,9 @@ int TestHyperTreeGridTernary3DUnstructuredMaterial(int argc, char* argv[])
     "111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 "
     "111111111111111111111111111 111111111111111111111111111 "
     "110110110100111110111000000|111111111111111111111111111  11111111111111111111111111");
+  htGrid->Update();
+  vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(htGrid->GetOutput());
+  htg->GetCellData()->SetScalars(htg->GetCellData()->GetArray("Depth"));
 
   // Outline
   vtkNew<vtkOutlineFilter> outline;
@@ -91,7 +93,7 @@ int TestHyperTreeGridTernary3DUnstructuredMaterial(int argc, char* argv[])
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
   vtkNew<vtkDataSetMapper> mapper1;
   mapper1->SetInputConnection(shrink->GetOutputPort());
-  mapper1->SetScalarRange(pd->GetCellData()->GetScalars()->GetRange());
+  mapper1->SetScalarRange(pd->GetCellData()->GetArray("Depth")->GetRange());
   vtkNew<vtkDataSetMapper> mapper2;
   mapper2->SetInputConnection(htg2ug->GetOutputPort());
   mapper2->ScalarVisibilityOff();

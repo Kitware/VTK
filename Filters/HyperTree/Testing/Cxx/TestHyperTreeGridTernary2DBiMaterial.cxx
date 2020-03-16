@@ -17,12 +17,12 @@
 // This test was revised by Philippe Pebay, 2016
 // This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 
-#include "vtkHyperTreeGridGeometry.h"
-#include "vtkHyperTreeGridSource.h"
-
 #include "vtkCamera.h"
 #include "vtkCellData.h"
 #include "vtkDataSetMapper.h"
+#include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridGeometry.h"
+#include "vtkHyperTreeGridSource.h"
 #include "vtkNew.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
@@ -45,6 +45,9 @@ int TestHyperTreeGridTernary2DBiMaterial(int argc, char* argv[])
   htGrid1->UseMaskOn();
   htGrid1->SetDescriptor(".R|.R..R..R.|......... ......... .........");
   htGrid1->SetMask("11|110110110|110110110 110110110 110110110");
+  htGrid1->Update();
+  vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(htGrid1->GetOutput());
+  htg->GetCellData()->SetScalars(htg->GetCellData()->GetArray("Depth"));
   vtkNew<vtkHyperTreeGridSource> htGrid2;
   htGrid2->SetMaxDepth(3);
   htGrid2->SetOrigin(1., 0., 0.);
@@ -54,6 +57,9 @@ int TestHyperTreeGridTernary2DBiMaterial(int argc, char* argv[])
   htGrid2->UseMaskOn();
   htGrid2->SetDescriptor("R.|.R..R..R.|......... ......... .........");
   htGrid2->SetMask("11|011011011|011011011 011011011 011011011");
+  htGrid2->Update();
+  htg = vtkHyperTreeGrid::SafeDownCast(htGrid2->GetOutput());
+  htg->GetCellData()->SetScalars(htg->GetCellData()->GetArray("Depth"));
 
   // Geometries
   vtkNew<vtkHyperTreeGridGeometry> geometry1;
@@ -74,7 +80,7 @@ int TestHyperTreeGridTernary2DBiMaterial(int argc, char* argv[])
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
   vtkNew<vtkDataSetMapper> mapper1;
   mapper1->SetInputConnection(shrink1->GetOutputPort());
-  mapper1->SetScalarRange(pd1->GetCellData()->GetScalars()->GetRange());
+  mapper1->SetScalarRange(pd1->GetCellData()->GetArray("Depth")->GetRange());
   vtkNew<vtkPolyDataMapper> mapper2;
   mapper2->SetInputConnection(geometry2->GetOutputPort());
   mapper2->ScalarVisibilityOff();

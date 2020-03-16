@@ -17,14 +17,14 @@
 // This test was modified by Philippe Pebay, NexGen Analytics 2017
 // This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 
-#include "vtkHyperTreeGrid.h"
-#include "vtkHyperTreeGridSource.h"
-#include "vtkHyperTreeGridToUnstructuredGrid.h"
-
 #include "vtkCamera.h"
+#include "vtkCellData.h"
 #include "vtkClipDataSet.h"
 #include "vtkDataSetMapper.h"
+#include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridSource.h"
 #include "vtkHyperTreeGridToDualGrid.h"
+#include "vtkHyperTreeGridToUnstructuredGrid.h"
 #include "vtkNew.h"
 #include "vtkPlane.h"
 #include "vtkPointData.h"
@@ -58,6 +58,9 @@ int TestHyperTreeGridTernary3DClip(int argc, char* argv[])
     "........................... ........................... ........................... "
     "........................... ........................... "
     "...........................|........................... ...........................");
+  htGrid->Update();
+  vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(htGrid->GetOutput());
+  htg->GetCellData()->SetScalars(htg->GetCellData()->GetArray("Depth"));
 
   // DualGrid
   vtkNew<vtkHyperTreeGridToDualGrid> dualFilter;
@@ -88,7 +91,7 @@ int TestHyperTreeGridTernary3DClip(int argc, char* argv[])
   mapper1->ScalarVisibilityOff();
   vtkNew<vtkDataSetMapper> mapper2;
   mapper2->SetInputConnection(shrink->GetOutputPort());
-  mapper2->SetScalarRange(clip->GetOutput()->GetPointData()->GetScalars()->GetRange());
+  mapper2->SetScalarRange(clip->GetOutput()->GetPointData()->GetArray("Depth")->GetRange());
 
   // Actors
   vtkNew<vtkActor> actor1;

@@ -16,12 +16,12 @@
 // This test was written by Philippe Pebay, 2016
 // This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 
+#include "vtkCamera.h"
+#include "vtkCellData.h"
+#include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridAxisReflection.h"
 #include "vtkHyperTreeGridGeometry.h"
 #include "vtkHyperTreeGridSource.h"
-
-#include "vtkCamera.h"
-#include "vtkCellData.h"
 #include "vtkNew.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
@@ -45,6 +45,9 @@ int TestHyperTreeGridBinary2DAxisReflectionXCenterMaterial(int argc, char* argv[
                         "...R ..R. .... .R.. R...|.... .... .R.. ....|....");
   htGrid->SetMask("111111|0000 1111 1111 1111 1111|1111 0001 0111 0101 1011 1111 0111|1111 0111 "
                   "1111 1111 1111 1111|1111 1111 1111 1111|1111");
+  htGrid->Update();
+  vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(htGrid->GetOutput());
+  htg->GetCellData()->SetScalars(htg->GetCellData()->GetArray("Depth"));
 
   // Axis reflection
   vtkNew<vtkHyperTreeGridAxisReflection> reflection;
@@ -67,7 +70,7 @@ int TestHyperTreeGridBinary2DAxisReflectionXCenterMaterial(int argc, char* argv[
   mapper1->ScalarVisibilityOff();
   vtkNew<vtkPolyDataMapper> mapper2;
   mapper2->SetInputConnection(geometry2->GetOutputPort());
-  mapper2->SetScalarRange(pd->GetCellData()->GetScalars()->GetRange());
+  mapper2->SetScalarRange(pd->GetCellData()->GetArray("Depth")->GetRange());
 
   // Actors
   vtkNew<vtkActor> actor1;
