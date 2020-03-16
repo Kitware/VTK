@@ -50,7 +50,7 @@ class Tag:
 
         tag = tagMatcherType.search(line)
         if not tag:
-            raise KeyError, "line %s is not an expected ctags line" %line
+            raise KeyError("line %s is not an expected ctags line" %line)
 
         self._name = tag.expand('\\1').strip()
         self._fyle = tag.expand('\\2').strip()
@@ -151,14 +151,14 @@ class CompareVersions():
         self.get_diff()
 
     def get_diff(self):
-        print "Parsing tag file %s..." % self.tag_f1
+        print("Parsing tag file %s..." % self.tag_f1)
         T1 = CTags()
         T1.set_tag_file(self.tag_f1)
-        print "Parsing tag file %s...Done" % self.tag_f1
-        print "Parsing tag file %s..." % self.tag_f2
+        print("Parsing tag file %s...Done" % self.tag_f1)
+        print("Parsing tag file %s..." % self.tag_f2)
         T2 = CTags()
         T2.set_tag_file(self.tag_f2)
-        print "Parsing tag file %s...Done" % self.tag_f2
+        print("Parsing tag file %s...Done" % self.tag_f2)
         self.classes_added = list(set(T2._classes) - set(T1._classes))
         self.classes_removed = list(set(T1._classes) - set(T2._classes))
         self.pub_methods_added = list(set(T2._pub_methods) - set(T1._pub_methods))
@@ -182,9 +182,9 @@ class CompareVersions():
         git_m_proc.wait()
         git_m_proc_stdout = git_m_proc.stdout.read()
         if git_m_proc_stdout:
-            print "Working tree has local modifications."
-            print "Please commit or reset the following files:"
-            print git_m_proc_stdout
+            print("Working tree has local modifications.")
+            print("Please commit or reset the following files:")
+            print(git_m_proc_stdout)
             sys.exit(1)
 
         # Reset the working tree to version specified
@@ -194,8 +194,8 @@ class CompareVersions():
         git_proc.wait()
         git_proc_stderr = git_proc.stderr.read()
         if git_proc.returncode:
-            print "Error while git reset to version:", ver
-            print git_proc_stderr
+            print("Error while git reset to version:", ver)
+            print(git_proc_stderr)
             sys.exit(1)
 
     def create_tagfile(self, src_dir, fname):
@@ -208,36 +208,36 @@ class CompareVersions():
         ctags_proc.wait()
         ctags_proc_stderr = ctags_proc.stderr.read()
         if ctags_proc_stderr:
-            print "Error while creating tagfile with ctags:", fname
-            print ctags_proc_stderr
+            print("Error while creating tagfile with ctags:", fname)
+            print(ctags_proc_stderr)
             sys.exit(1)
 
     def generate_ctags(self):
         # Store the current HEAD SHA-1 sum
-        print "Getting the SHA-1 sum of HEAD of current working tree..."
+        print("Getting the SHA-1 sum of HEAD of current working tree...")
         self._git_HEAD = self.git_current_version(self.src_dir)
-        print "Getting the SHA-1 sum of HEAD of current working tree... %s" %\
-            self._git_HEAD
+        print("Getting the SHA-1 sum of HEAD of current working tree... %s" %\
+            self._git_HEAD)
         # Reset working tree to version1
-        print "Checking out version %s..." % self.version1
+        print("Checking out version %s..." % self.version1)
         self.git_checkout_version(self.version1)
         # Create tag file for version1
         self.tag_f1 = self.gen_tagfile_name(self.version1)
-        print "Creating tagfile (%s) for version %s..." % (self.tag_f1,
-                self.version1)
+        print("Creating tagfile (%s) for version %s..." % (self.tag_f1,
+                self.version1))
         self.create_tagfile(self.src_dir, self.tag_f1)
-        print "Creating tagfile (%s) for version %s...Done" % (self.tag_f1,
-                self.version1)
+        print("Creating tagfile (%s) for version %s...Done" % (self.tag_f1,
+                self.version1))
         # Reset working tree to version2
-        print "Checking out version %s..." % self.version2
+        print("Checking out version %s..." % self.version2)
         self.git_checkout_version(self.version2)
         # Create tag file for version2
         self.tag_f2 = self.gen_tagfile_name(self.version2)
-        print "Creating tagfile (%s) for version %s..." % (self.tag_f2,
-                self.version2)
+        print("Creating tagfile (%s) for version %s..." % (self.tag_f2,
+                self.version2))
         self.create_tagfile(self.src_dir, self.tag_f2)
-        print "Creating tagfile (%s) for version %s...Done" % (self.tag_f2,
-                self.version2)
+        print("Creating tagfile (%s) for version %s...Done" % (self.tag_f2,
+                self.version2))
 
     def gen_tagfile_name(self, ver):
         tag_f_name = self.tmp_dir + os.sep + os.path.basename(self.src_dir) +\
@@ -252,8 +252,8 @@ class CompareVersions():
         git_proc.wait()
         git_proc_stderr = git_proc.stderr.read()
         if git_proc_stderr:
-            print "Error while getting current HEAD SHA-1 sum:"
-            print git_proc_stderr
+            print("Error while getting current HEAD SHA-1 sum:")
+            print(git_proc_stderr)
             sys.exit(1)
         return git_proc.stdout.read()
 
@@ -269,9 +269,9 @@ class CompareVersions():
             git_proc.wait()
             git_proc_stderr = git_proc.stderr.read()
             if git_proc.returncode:
-                print "Error while getting git diff between versions %s and %s" %\
-                    (self.version1, self.version2)
-                print git_proc_stderr
+                print("Error while getting git diff between versions %s and %s" %\
+                    (self.version1, self.version2))
+                print(git_proc_stderr)
                 sys.exit(1)
 
     def get_deprecated_methods(self):
@@ -297,8 +297,8 @@ class CompareVersions():
                             [fname, dep_diff.expand('\\2').strip()]
 
     def setup_src_dir(self):
-        print "Setting up a clone of working tree (%s) in %s..." %\
-            (self.src_work_dir, self.src_dir)
+        print("Setting up a clone of working tree (%s) in %s..." %\
+            (self.src_work_dir, self.src_dir))
         git_cmd = self.svar.git_exe + ' clone -l --no-hardlinks -q ' +\
             self.src_work_dir + ' ' + self.src_dir
         git_proc = subprocess.Popen(git_cmd.split(), stdout=subprocess.PIPE,
@@ -306,12 +306,12 @@ class CompareVersions():
         git_proc.wait()
         git_proc_stderr = git_proc.stderr.read()
         if git_proc_stderr:
-            print "Error while git clone into temporary working directory."
-            print "Command Used:", git_cmd
-            print git_proc_stderr
+            print("Error while git clone into temporary working directory.")
+            print("Command Used:", git_cmd)
+            print(git_proc_stderr)
             sys.exit(1)
-        print "Setting up a clone of working tree (%s) in %s...Done" %\
-            (self.src_work_dir, self.src_dir)
+        print("Setting up a clone of working tree (%s) in %s...Done" %\
+            (self.src_work_dir, self.src_dir))
 
     def cleanup(self):
         if os.path.exists(self.tag_f1):
@@ -336,18 +336,18 @@ class SystemVar():
     def get_exe(self, exe):
         exe_file = distutils.spawn.find_executable(exe)
         if not exe_file:
-            print "%s not found in system PATH" % exe
+            print("%s not found in system PATH" % exe)
             for trial in range(3):
-                exe_file = raw_input("Enter full path to %s executable:\n"\
+                exe_file = input("Enter full path to %s executable:\n"\
                         % exe)
                 if os.path.isfile(exe_file) and os.access(exe_file, os.X_OK):
                     break
                 else:
-                    print "The provided path is not an executable"
+                    print("The provided path is not an executable")
                     exe_file = None
             if not exe_file:
-                print "Could not locate %s executable in 3 tries. Exiting..."\
-                        % exe
+                print("Could not locate %s executable in 3 tries. Exiting..."\
+                        % exe)
                 sys.exit(1)
         return exe_file
 
@@ -382,79 +382,79 @@ def printReport(comp, args):
             key=lambda cls: getDir(cls))
 
     if args.wikiOutput:
-        print "==API differences when going from version %s to version %s=="\
-            %(args.versions[0], args.versions[1])
-        print "===Classes/Structs added in version %s===" %args.versions[1]
-        print r'{| class="wikitable sortable" border="1" cellpadding="5" '\
-            'cellspacing="0"'
-        print r'!Class Name'
-        print r'!File'
+        print("==API differences when going from version %s to version %s=="\
+            %(args.versions[0], args.versions[1]))
+        print("===Classes/Structs added in version %s===" %args.versions[1])
+        print(r'{| class="wikitable sortable" border="1" cellpadding="5" '\
+            'cellspacing="0"')
+        print(r'!Class Name')
+        print(r'!File')
         for cls in cleanListIndices(comp._classes_added):
-            print r'|-'
-            print r'|%s' %cls
-            print r'|%s' %comp._classes_added[cls].replace(str_to_replace, '')
-        print r'|}'
-        print "===Classes/Structs removed from version %s===" %args.versions[0]
-        print r'{| class="wikitable sortable" border="1" cellpadding="5" '\
-            'cellspacing="0"'
-        print r'!Class Name'
-        print r'!File'
+            print(r'|-')
+            print(r'|%s' %cls)
+            print(r'|%s' %comp._classes_added[cls].replace(str_to_replace, ''))
+        print(r'|}')
+        print("===Classes/Structs removed from version %s===" %args.versions[0])
+        print(r'{| class="wikitable sortable" border="1" cellpadding="5" '\
+            'cellspacing="0"')
+        print(r'!Class Name')
+        print(r'!File')
         for cls in cleanListIndices(comp._classes_removed):
-            print r'|-'
-            print r'|%s' %cls
-            print r'|%s' %comp._classes_removed[cls].replace(str_to_replace, '')
-        print r'|}'
-        print "===Public methods added in version %s===" %args.versions[1]
-        print r'{| class="wikitable sortable" border="1" cellpadding="5" '\
-            'cellspacing="0"'
-        print r'!Method'
-        print r'!File'
+            print(r'|-')
+            print(r'|%s' %cls)
+            print(r'|%s' %comp._classes_removed[cls].replace(str_to_replace, ''))
+        print(r'|}')
+        print("===Public methods added in version %s===" %args.versions[1])
+        print(r'{| class="wikitable sortable" border="1" cellpadding="5" '\
+            'cellspacing="0"')
+        print(r'!Method')
+        print(r'!File')
         for cls in cleanListIndices(comp._pub_methods_added, comp._classes_added):
-            print r'|-'
-            print r'|%s' %cls
-            print r'|%s' %comp._pub_methods_added[cls].replace(str_to_replace, '')
-        print r'|}'
-        print "===Public methods removed from version %s===" %args.versions[0]
-        print r'{| class="wikitable sortable" border="1" cellpadding="5" '\
-            'cellspacing="0"'
-        print r'!Method'
-        print r'!File'
+            print(r'|-')
+            print(r'|%s' %cls)
+            print(r'|%s' %comp._pub_methods_added[cls].replace(str_to_replace, ''))
+        print(r'|}')
+        print("===Public methods removed from version %s===" %args.versions[0])
+        print(r'{| class="wikitable sortable" border="1" cellpadding="5" '\
+            'cellspacing="0"')
+        print(r'!Method')
+        print(r'!File')
         for cls in cleanListIndices(comp._pub_methods_removed, comp._classes_removed):
-            print r'|-'
-            print r'|%s' %cls
-            print r'|%s' %comp._pub_methods_removed[cls].replace(str_to_replace, '')
-        print r'|}'
-        print "==Deprecated Methods=="
-        print r'{| class="wikitable sortable" border="1" cellpadding="5" '\
-            'cellspacing="0"'
-        print r'!Method'
-        print r'!Deprecated in'
-        print r'!As of'
+            print(r'|-')
+            print(r'|%s' %cls)
+            print(r'|%s' %comp._pub_methods_removed[cls].replace(str_to_replace, ''))
+        print(r'|}')
+        print("==Deprecated Methods==")
+        print(r'{| class="wikitable sortable" border="1" cellpadding="5" '\
+            'cellspacing="0"')
+        print(r'!Method')
+        print(r'!Deprecated in')
+        print(r'!As of')
         for cls in cleanListIndices(comp.dep_methods):
-            print r'|-'
-            print r'|%s' %cls
-            print r'|%s' %comp.dep_methods[cls][0]
-            print r'|%s' %comp.dep_methods[cls][1]
-        print r'|}'
+            print(r'|-')
+            print(r'|%s' %cls)
+            print(r'|%s' %comp.dep_methods[cls][0])
+            print(r'|%s' %comp.dep_methods[cls][1])
+        print(r'|}')
     else:
-        print "-------------------- REPORT --------------------"
-        print "==API differences when going from version %s to version %s=="\
-            %(args.versions[0], args.versions[1])
-        print "~~~~~~~~~~~~~Classes/Structs Added~~~~~~~~~~~~~~~"
+        print("-------------------- REPORT --------------------")
+        print("==API differences when going from version %s to version %s=="\
+            %(args.versions[0], args.versions[1]))
+        print("~~~~~~~~~~~~~Classes/Structs Added~~~~~~~~~~~~~~~")
         for cls in cleanListIndices(comp._classes_added):
-            print "%s\t%s" %(cls, comp._classes_added[cls].replace(str_to_replace, ''))
-        print "~~~~~~~~~~~~Classes/Structs Removed~~~~~~~~~~~~~~"
+            print("%s\t%s" %(cls, comp._classes_added[cls].replace(str_to_replace, '')))
+        print("~~~~~~~~~~~~Classes/Structs Removed~~~~~~~~~~~~~~")
         for cls in cleanListIndices(comp._classes_removed):
-            print "%s\t%s" %(cls, comp._classes_removed[cls].replace(str_to_replace, ''))
-        print "~~~~~~~~~~~~~Public Methods Added~~~~~~~~~~~~~~~"
+            print("%s\t%s" %(cls, comp._classes_removed[cls].replace(str_to_replace, '')))
+        print("~~~~~~~~~~~~~Public Methods Added~~~~~~~~~~~~~~~")
         for cls in cleanListIndices(comp._pub_methods_added, comp._classes_added):
-            print "%s\t%s" %(cls, comp._pub_methods_added[cls].replace(str_to_replace, ''))
-        print "~~~~~~~~~~~~Public Methods Removed~~~~~~~~~~~~~~"
+            print("%s\t%s" %(cls, comp._pub_methods_added[cls].replace(str_to_replace, '')))
+        print("~~~~~~~~~~~~Public Methods Removed~~~~~~~~~~~~~~")
         for cls in cleanListIndices(comp._pub_methods_removed, comp._classes_removed):
-            print "%s\t%s" %(cls, comp._pub_methods_removed[cls].replace(str_to_replace, ''))
-        print "~~~~~~~~~~~~~~Deprecated Methods~~~~~~~~~~~~~~~~~"
+            print("%s\t%s" %(cls, comp._pub_methods_removed[cls].replace(str_to_replace, '')))
+        print("~~~~~~~~~~~~~~Deprecated Methods~~~~~~~~~~~~~~~~~")
         for cls in cleanListIndices(comp.dep_methods):
-            print "%s\tdeprecated in %s as of %s" %(cls, comp.dep_methods[cls][0], comp.dep_methods[cls][1])
+            print("%s\tdeprecated in %s as of %s" %(cls, comp.dep_methods[cls][0], comp.dep_methods[cls][1]))
 
 
 def start(args):
