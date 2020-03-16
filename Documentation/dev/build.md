@@ -26,6 +26,9 @@ git clone --recursive https://gitlab.kitware.com/vtk/vtk.git
 VTK supports all of the common generators supported by CMake. The Ninja,
 Makefiles, and Visual Studio generators are the most well-tested however.
 
+Note that VTK does not support in-source builds, so you must have a build tree
+that is not the source tree.
+
 ### Prerequisites
 
 VTK only requires a few packages in order to build in general, however
