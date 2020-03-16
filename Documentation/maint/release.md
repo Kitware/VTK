@@ -6,7 +6,6 @@ all of the tribal knowledge around it.
 ## Current Maintainers
 
   - Ben Boeckel (@ben.boeckel) <ben.boeckel@kitware.com>
-  - Dave DeMarle (@demarle) <dave.demarle@kitware.com>
   - TJ Corona (@tjcorona) <tj.corona@kitware.com>
   - Chuck Atkins (@chuck.atkins) <chuck.atkins@kitware.com>
 
