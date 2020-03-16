@@ -298,7 +298,7 @@ private:
   vtkSmartPointer<vtkDataSet> AssignGlobalCellIds(
     vtkDataSet* input, vtkIdType* mb_offset = nullptr);
 
-  void MarkValidDimensions(vtkDataObject* inputDO);
+  void MarkValidDimensions(const vtkBoundingBox& gbounds);
 
   std::vector<vtkBoundingBox> ExplicitCuts;
   std::vector<vtkBoundingBox> Cuts;

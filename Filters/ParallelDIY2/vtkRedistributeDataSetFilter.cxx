@@ -56,27 +56,11 @@ static const char* GHOST_CELL_ARRAYNAME = "__RDSF_GHOST_CELLS__";
 
 namespace detail
 {
-vtkBoundingBox GetBounds(vtkDataObject* dobj)
+vtkBoundingBox GetBounds(vtkDataObject* dobj, diy::mpi::communicator& comm)
 {
-  if (auto pds = vtkPartitionedDataSet::SafeDownCast(dobj))
-  {
-    double bds[6];
-    pds->GetBounds(bds);
-    return vtkBoundingBox(bds);
-  }
-  else if (auto mbds = vtkMultiBlockDataSet::SafeDownCast(dobj))
-  {
-    double bds[6];
-    mbds->GetBounds(bds);
-    return vtkBoundingBox(bds);
-  }
-  else if (auto ds = vtkDataSet::SafeDownCast(dobj))
-  {
-    double bds[6];
-    ds->GetBounds(bds);
-    return vtkBoundingBox(bds);
-  }
-  return vtkBoundingBox();
+  auto lbounds = vtkDIYUtilities::GetLocalBounds(dobj);
+  vtkDIYUtilities::AllReduce(comm, lbounds);
+  return lbounds;
 }
 
 /**
@@ -339,15 +323,15 @@ int vtkRedistributeDataSetFilter::RequestData(
 {
   auto inputDO = vtkDataObject::GetData(inputVector[0], 0);
   auto outputDO = vtkDataObject::GetData(outputVector, 0);
-  this->MarkValidDimensions(inputDO);
 
-  if (this->UseExplicitCuts && this->ExpandExplicitCuts)
+  auto comm = vtkDIYUtilities::GetCommunicator(this->Controller);
+  auto gbounds = detail::GetBounds(inputDO, comm);
+  this->MarkValidDimensions(gbounds);
+
+  if (this->UseExplicitCuts && this->ExpandExplicitCuts && gbounds.IsValid())
   {
-    auto bbox = detail::GetBounds(inputDO);
-    if (bbox.IsValid())
-    {
-      bbox.Inflate(0.1 * bbox.GetDiagonalLength());
-    }
+    auto bbox = gbounds;
+    bbox.Inflate(0.01 * bbox.GetLength(0), 0.01 * bbox.GetLength(1), 0.01 * bbox.GetLength(2));
     this->Cuts = vtkRedistributeDataSetFilter::ExpandCuts(this->ExplicitCuts, bbox);
   }
   else if (this->UseExplicitCuts)
@@ -429,8 +413,13 @@ std::vector<vtkBoundingBox> vtkRedistributeDataSetFilter::GenerateCuts(vtkDataOb
   const int num_partitions = (controller && this->GetNumberOfPartitions() == 0)
     ? controller->GetNumberOfProcesses()
     : this->GetNumberOfPartitions();
+  auto bbox = vtkDIYUtilities::GetLocalBounds(dobj);
+  bbox.Inflate(0.01 * bbox.GetLength(0), 0.01 * bbox.GetLength(1), 0.01 * bbox.GetLength(2));
+
+  double bds[6];
+  bbox.GetBounds(bds);
   return vtkDIYKdTreeUtilities::GenerateCuts(
-    dobj, std::max(1, num_partitions), /*use_cell_centers=*/true, controller);
+    dobj, std::max(1, num_partitions), /*use_cell_centers=*/true, controller, bds);
 }
 
 //----------------------------------------------------------------------------
@@ -678,26 +667,20 @@ int vtkRedistributeDataSetFilter::RedistributeMultiPieceDataSet(
 
   output->CopyStructure(input);
 
-  // because different ranks may have different numbers of pieces, we combine
-  // into a single unstructured grid before redistributing data
-  vtkNew<vtkAppendFilter> input_appender;
-  vtkNew<vtkUnstructuredGrid> inputUG;
+  // ranks may have different number of non-null datasets;
+  // lets package the input pieces into a `vtkPartitionedDataSet` and call the
+  // vtkPartitionedDataSet-based implementation.
+  vtkNew<vtkPartitionedDataSet> inputAsPDS;
   for (unsigned int piece_id = 0; piece_id < input->GetNumberOfPieces(); ++piece_id)
   {
     if (auto ds = input->GetPiece(piece_id))
     {
-      input_appender->AddInputDataObject(ds);
+      inputAsPDS->SetPartition(inputAsPDS->GetNumberOfPartitions(), ds);
     }
-  }
-  if (input_appender->GetNumberOfInputConnections(0) > 0)
-  {
-    input_appender->Update();
-    inputUG->ShallowCopy(input_appender->GetOutput(0));
   }
 
   vtkNew<vtkPartitionedDataSet> parts;
-
-  if (!this->Redistribute(inputUG, parts, this->Cuts, mb_offset))
+  if (!this->Redistribute(inputAsPDS, parts, this->Cuts, mb_offset))
   {
     return 0;
   }
@@ -1045,15 +1028,11 @@ std::vector<vtkBoundingBox> vtkRedistributeDataSetFilter::ExpandCuts(
 // when the BoundaryMode is set to SPLIT_BOUNDARY_CELLS. Otherwise if a dataset
 // ends up being 2D, performing plane clips on all sides of the bounding box may
 // result in full dataset being clipped away.
-void vtkRedistributeDataSetFilter::MarkValidDimensions(vtkDataObject* inputDO)
+void vtkRedistributeDataSetFilter::MarkValidDimensions(const vtkBoundingBox& gbounds)
 {
   static const int max_dim = 3;
-  auto bbox = detail::GetBounds(inputDO);
-  auto comm = vtkDIYUtilities::GetCommunicator(this->Controller);
-  vtkDIYUtilities::AllReduce(comm, bbox);
-
   double len[max_dim];
-  bbox.GetLengths(len);
+  gbounds.GetLengths(len);
   for (int i = 0; i < max_dim; ++i)
   {
     if (len[i] <= 0)

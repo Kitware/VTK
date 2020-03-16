@@ -124,6 +124,38 @@ std::vector<vtkBoundingBox> vtkDIYKdTreeUtilities::GenerateCuts(vtkDataObject* d
 
 //----------------------------------------------------------------------------
 std::vector<vtkBoundingBox> vtkDIYKdTreeUtilities::GenerateCuts(
+  const std::vector<vtkDataObject*>& dobjs, int number_of_partitions, bool use_cell_centers,
+  vtkMultiProcessController* controller, const double* local_bounds)
+{
+  std::vector<vtkSmartPointer<vtkPoints> > points;
+
+  vtkBoundingBox bbox;
+  if (local_bounds != nullptr)
+  {
+    bbox.AddBounds(local_bounds);
+  }
+  for (auto dobj : dobjs)
+  {
+    if (local_bounds == nullptr)
+    {
+      bbox.AddBox(vtkDIYUtilities::GetLocalBounds(dobj));
+    }
+    const auto datasets = vtkDIYUtilities::GetDataSets(dobj);
+    const auto pts = vtkDIYUtilities::ExtractPoints(datasets, use_cell_centers);
+    points.insert(points.end(), pts.begin(), pts.end());
+  }
+
+  double bds[6];
+  vtkMath::UninitializeBounds(bds);
+  if (bbox.IsValid())
+  {
+    bbox.GetBounds(bds);
+  }
+  return vtkDIYKdTreeUtilities::GenerateCuts(points, number_of_partitions, controller, bds);
+}
+
+//----------------------------------------------------------------------------
+std::vector<vtkBoundingBox> vtkDIYKdTreeUtilities::GenerateCuts(
   const std::vector<vtkSmartPointer<vtkPoints> >& points, int number_of_partitions,
   vtkMultiProcessController* controller, const double* local_bounds /*=nullptr*/)
 {
@@ -513,4 +545,36 @@ vtkDIYExplicitAssigner vtkDIYKdTreeUtilities::CreateAssigner(
     }
   }
   return vtkDIYExplicitAssigner(comm, local_blocks, true);
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYKdTreeUtilities::ResizeCuts(std::vector<vtkBoundingBox>& cuts, int size)
+{
+  if (size == 0)
+  {
+    cuts.resize(0);
+    return;
+  }
+
+  if (size < 0 || size >= static_cast<int>(cuts.size()))
+  {
+    return;
+  }
+
+  if (!vtkMath::IsPowerOfTwo(static_cast<vtkTypeUInt64>(cuts.size())))
+  {
+    vtkLogF(ERROR, "Argument has non-power of two cuts. This is not supported.");
+    return;
+  }
+
+  auto assignments = vtkDIYKdTreeUtilities::ComputeAssignments(static_cast<int>(cuts.size()), size);
+  assert(assignments.size() == cuts.size());
+
+  std::vector<vtkBoundingBox> new_cuts(size);
+  for (size_t idx = 0; idx < cuts.size(); ++idx)
+  {
+    new_cuts[assignments[idx]].AddBox(cuts[idx]);
+  }
+  cuts.swap(new_cuts);
+  assert(static_cast<int>(cuts.size()) == size);
 }

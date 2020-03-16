@@ -65,6 +65,14 @@ public:
     const double* local_bounds = nullptr);
 
   /**
+   * Another variant to GenerateCuts that simply takes in a vector of
+   * dataobjects, each can be a dataset or a composite dataset.
+   */
+  static std::vector<vtkBoundingBox> GenerateCuts(const std::vector<vtkDataObject*>& dobjs,
+    int number_of_partitions, bool use_cell_centers,
+    vtkMultiProcessController* controller = nullptr, const double* local_bounds = nullptr);
+
+  /**
    * Given a collection of points, this method will generate box cuts in the
    * domain to approximately load balance the points into `number_of_partitions`
    * requested. If `controller` is non-null, the operation will be performed
@@ -128,6 +136,16 @@ public:
    * thus preserving the kd-tree ordering between ranks.
    */
   static vtkDIYExplicitAssigner CreateAssigner(diy::mpi::communicator& comm, int num_blocks);
+
+  /**
+   * `GenerateCuts` returns a kd-tree with power of 2 nodes. Use this function
+   * to resize the cuts to lower number while still preserving the kd-tree. This
+   * is done by merging leaf nodes till the requested size is reached. If `size`
+   * is negative or greater than then number of `cuts.size()`, then this
+   * function does nothing. Otherwise when the function returns, `cuts.size() ==
+   * size`.
+   */
+  static void ResizeCuts(std::vector<vtkBoundingBox>& cuts, int size);
 
 protected:
   vtkDIYKdTreeUtilities();

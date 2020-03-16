@@ -99,22 +99,16 @@ public:
   vtkBooleanMacro(AssumeSortedAndUniqueIds, bool);
   //@}
 protected:
-  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-  int FillInputPortInformation(int port, vtkInformation* info) override;
-
   vtkExtractCells();
   ~vtkExtractCells() override;
 
-  void Copy(vtkDataSet* input, vtkUnstructuredGrid* output);
-  vtkIdType ReMapPointIds(vtkDataSet* grid);
-
-  void CopyCellsDataSet(vtkDataSet* input, vtkUnstructuredGrid* output);
-  void CopyCellsUnstructuredGrid(vtkDataSet* input, vtkUnstructuredGrid* output);
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
+  bool Copy(vtkDataSet* input, vtkUnstructuredGrid* output);
 
   vtkExtractCellsSTLCloak* CellList = nullptr;
   vtkIdType SubSetUGridCellArraySize = 0;
   vtkIdType SubSetUGridFacesArraySize = 0;
-  bool InputIsUgrid = false;
   bool ExtractAllCells = false;
   bool AssumeSortedAndUniqueIds = false;
 
