@@ -721,7 +721,8 @@ different by combining libraries). So include directories, compile definitions,
 and other usage requirements should not leak from other modules that are members
 of the same kit.
 
-## <a name="autoinit"></a>Autoinit
+<a name="autoinit"></a>
+## Autoinit
 
 The module system supports a mechanism for triggering static code construction
 for modules which require it. This cannot be done through normal CMake usage
@@ -743,7 +744,8 @@ For details on the implementation of the autoinit system, please see
 [vtk_module_autoinit]: @ref vtk_module_autoinit
 [autoinit]: @ref module-autoinit
 
-## <a name="wrapping"></a>Wrapping
+<a name="wrapping"></a>
+## Wrapping
 
 VTK comes with support for wrapping its classes into other languages.
 Currently, VTK supports wrapping its classes for use in the Python and Java
