@@ -485,9 +485,10 @@ int wrap_cmp( xmlNodePtr x, xmlNodePtr y );
 #define NAN (INFINITY / INFINITY)
 #endif
 
-double xmlXPathNAN;
-double xmlXPathPINF;
-double xmlXPathNINF;
+// Prevent link error in ARM Clang compiler
+double xmlXPathNAN = NAN;
+double xmlXPathPINF = INFINITY;
+double xmlXPathNINF = -INFINITY;
 
 /**
  * xmlXPathInit:
