@@ -1665,6 +1665,21 @@ vtkCellData* vtkHyperTreeGrid::GetCellData()
 }
 
 //-----------------------------------------------------------------------------
+vtkFieldData* vtkHyperTreeGrid::GetAttributesAsFieldData(int type)
+{
+  return type == vtkDataObject::AttributeTypes::CELL
+    ? this->CellData.GetPointer()
+    : this->Superclass::GetAttributesAsFieldData(type);
+}
+
+//-----------------------------------------------------------------------------
+vtkIdType vtkHyperTreeGrid::GetNumberOfElements(int type)
+{
+  return type == vtkDataObject::AttributeTypes::CELL ? this->CellData->GetNumberOfTuples()
+                                                     : this->Superclass::GetNumberOfElements(type);
+}
+
+//-----------------------------------------------------------------------------
 vtkUnsignedCharArray* vtkHyperTreeGrid::GetTreeGhostArray()
 {
   if (!this->TreeGhostArrayCached)
