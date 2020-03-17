@@ -37,6 +37,16 @@
 class VTKFILTERSCORE_EXPORT vtkMaskPoints : public vtkPolyDataAlgorithm
 {
 public:
+  // Method used to pick points
+  enum DistributionType
+  {
+    RANDOMIZED_ID_STRIDES,
+    RANDOM_SAMPLING,
+    SPATIALLY_STRATIFIED,
+    UNIFORM_SPATIAL_SURFACE,
+    UNIFORM_SPATIAL_VOLUME
+  };
+
   static vtkMaskPoints* New();
   vtkTypeMacro(vtkMaskPoints, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
@@ -77,6 +87,14 @@ public:
 
   //@{
   /**
+   * Set/Get Seed used for generating a spatially uniform distributions.
+   */
+  vtkSetMacro(RandomSeed, int);
+  vtkGetMacro(RandomSeed, int);
+  //@}
+
+  //@{
+  /**
    * Special mode selector that switches between random mode types.
    * 0 - randomized strides: randomly strides through the data (default);
    * fairly certain that this is not a statistically random sample
@@ -96,8 +114,12 @@ public:
    * Simulation for Interactive Visualization and Analysis",
    * Computer Graphics Forum, 2011 (EuroVis 2011).
    * (OnRatio and Offset are ignored) O(N log N)
+   * TODO: Add same comment than XML here
+   * 4 - spatially uniform (surface based): points randomly sampled
+   * via an inverse transform on surface area of each cell.
+   * Note that the mesh will be triangulated first.
    */
-  vtkSetClampMacro(RandomModeType, int, 0, 2);
+  vtkSetClampMacro(RandomModeType, int, RANDOMIZED_ID_STRIDES, UNIFORM_SPATIAL_VOLUME);
   vtkGetMacro(RandomModeType, int);
   //@}
 
@@ -162,6 +184,7 @@ protected:
   int OnRatio;      // every OnRatio point is on; all others are off.
   vtkIdType Offset; // offset (or starting point id)
   int RandomMode;   // turn on/off randomization
+  int RandomSeed;
   vtkIdType MaximumNumberOfPoints;
   vtkTypeBool GenerateVertices; // generate polydata verts
   vtkTypeBool SingleVertexPerCell;
@@ -171,12 +194,16 @@ protected:
 
   virtual void InternalScatter(unsigned long*, unsigned long*, int, int) {}
   virtual void InternalGather(unsigned long*, unsigned long*, int, int) {}
+  virtual void InternalBcast(double*, int, int) {}
+  virtual void InternalGather(double*, double*, int, int) {}
   virtual int InternalGetNumberOfProcesses() { return 1; }
   virtual int InternalGetLocalProcessId() { return 0; }
   virtual void InternalSplitController(int, int) {}
   virtual void InternalResetController() {}
   virtual void InternalBarrier() {}
+
   unsigned long GetLocalSampleSize(vtkIdType, int);
+  double GetLocalAreaFactor(double, int);
 
 private:
   vtkMaskPoints(const vtkMaskPoints&) = delete;

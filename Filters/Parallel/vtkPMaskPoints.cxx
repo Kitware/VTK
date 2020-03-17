@@ -102,6 +102,18 @@ void vtkPMaskPoints::InternalGather(unsigned long* a, unsigned long* b, int c, i
 }
 
 //----------------------------------------------------------------------------
+void vtkPMaskPoints::InternalBcast(double* a, int b, int c)
+{
+  this->Controller->Broadcast(a, b, c);
+}
+
+//----------------------------------------------------------------------------
+void vtkPMaskPoints::InternalGather(double* a, double* b, int c, int d)
+{
+  this->Controller->Gather(a, b, c, d);
+}
+
+//----------------------------------------------------------------------------
 int vtkPMaskPoints::InternalGetNumberOfProcesses()
 {
   return this->Controller->GetNumberOfProcesses();
