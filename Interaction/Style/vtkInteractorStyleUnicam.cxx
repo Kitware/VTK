@@ -65,7 +65,7 @@ vtkInteractorStyleUnicam::vtkInteractorStyleUnicam()
 
   // set to default modes
   this->IsDot = 0;
-  this->ButtonDown = VTK_UNICAM_NONE;
+  this->ButtonDown = vtkInteractorStyleUnicam::NONE;
   state = 0; // which camera mode is being used?
 
   // create focus sphere actor
@@ -125,7 +125,7 @@ void vtkInteractorStyleUnicam::OnLeftButtonDown()
   int x = this->Interactor->GetEventPosition()[0];
   int y = this->Interactor->GetEventPosition()[1];
 
-  this->ButtonDown = VTK_UNICAM_BUTTON_LEFT;
+  this->ButtonDown = vtkInteractorStyleUnicam::BUTTON_LEFT;
 
   this->DTime = TheTime();
   this->Dist = 0;
@@ -159,11 +159,11 @@ void vtkInteractorStyleUnicam::OnLeftButtonDown()
     {
       this->FocusSphere->GetPosition(this->Center);
     }
-    state = VTK_UNICAM_CAM_INT_ROT;
+    state = vtkInteractorStyleUnicam::CAM_INT_ROT;
   }
   else
   {
-    state = VTK_UNICAM_CAM_INT_CHOOSE;
+    state = vtkInteractorStyleUnicam::CAM_INT_CHOOSE;
   }
 }
 
@@ -203,8 +203,10 @@ void vtkInteractorStyleUnicam::OnMouseMove()
   // channel event to right method handler.
   switch (this->ButtonDown)
   {
-    case VTK_UNICAM_BUTTON_LEFT:
+    case vtkInteractorStyleUnicam::BUTTON_LEFT:
       OnLeftButtonMove();
+      break;
+    default:
       break;
   }
 
@@ -220,14 +222,14 @@ void vtkInteractorStyleUnicam::OnLeftButtonUp()
   int x = this->Interactor->GetEventPosition()[0];
   int y = this->Interactor->GetEventPosition()[1];
 
-  this->ButtonDown = VTK_UNICAM_NONE;
+  this->ButtonDown = vtkInteractorStyleUnicam::NONE;
 
-  if (state == VTK_UNICAM_CAM_INT_ROT && this->IsDot)
+  if (state == vtkInteractorStyleUnicam::CAM_INT_ROT && this->IsDot)
   {
     this->FocusSphereRenderer->RemoveActor(this->FocusSphere);
     this->IsDot = 0;
   }
-  else if (state == VTK_UNICAM_CAM_INT_CHOOSE)
+  else if (state == vtkInteractorStyleUnicam::CAM_INT_CHOOSE)
   {
     if (this->IsDot)
     {
@@ -285,16 +287,16 @@ void vtkInteractorStyleUnicam::OnLeftButtonMove()
 
   switch (state)
   {
-    case VTK_UNICAM_CAM_INT_CHOOSE:
+    case vtkInteractorStyleUnicam::CAM_INT_CHOOSE:
       this->ChooseXY(x, y);
       break;
-    case VTK_UNICAM_CAM_INT_ROT:
+    case vtkInteractorStyleUnicam::CAM_INT_ROT:
       this->RotateXY(x, y);
       break;
-    case VTK_UNICAM_CAM_INT_PAN:
+    case vtkInteractorStyleUnicam::CAM_INT_PAN:
       this->PanXY(x, y);
       break;
-    case VTK_UNICAM_CAM_INT_DOLLY:
+    case vtkInteractorStyleUnicam::CAM_INT_DOLLY:
       this->DollyXY(x, y);
       break;
   }
@@ -335,7 +337,7 @@ void vtkInteractorStyleUnicam::ChooseXY(int X, int Y)
   double len = sqrt(sdelt[0] * sdelt[0] + sdelt[1] * sdelt[1]);
   if (fabs(sdelt[ya]) / len > 0.9 && tdelt > 0.05)
   {
-    state = VTK_UNICAM_CAM_INT_DOLLY;
+    state = vtkInteractorStyleUnicam::CAM_INT_DOLLY;
   }
   else if (tdelt < 0.1 && this->Dist < 0.03)
   {
@@ -345,11 +347,11 @@ void vtkInteractorStyleUnicam::ChooseXY(int X, int Y)
   {
     if (fabs(sdelt[xa]) / len > 0.6)
     {
-      state = VTK_UNICAM_CAM_INT_PAN;
+      state = vtkInteractorStyleUnicam::CAM_INT_PAN;
     }
     else
     {
-      state = VTK_UNICAM_CAM_INT_DOLLY;
+      state = vtkInteractorStyleUnicam::CAM_INT_DOLLY;
     }
   }
 }

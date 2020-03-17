@@ -85,14 +85,9 @@
 class vtkCamera;
 class vtkWorldPointPicker;
 
-//
-// XXX - would have preferred to make these enumerations within the class,
-//    enum { NONE=0, BUTTON_LEFT, BUTTON_MIDDLE, BUTTON_RIGHT };
-//    enum {CAM_INT_ROT, CAM_INT_CHOOSE, CAM_INT_PAN, CAM_INT_DOLLY};
-// but vtkWrapTcl signaled a "syntax error" when it parsed the 'enum' line.
-// So, am making them defines which is what the other classes that want
-// to have constants appear to do.
-//
+#ifndef VTK_LEGACY_REMOVE
+// Replaced with the enum types in the `vtkInteractorStyleUnicam` class.
+
 // buttons pressed
 #define VTK_UNICAM_NONE 0
 #define VTK_UNICAM_BUTTON_LEFT 1
@@ -104,10 +99,26 @@ class vtkWorldPointPicker;
 #define VTK_UNICAM_CAM_INT_CHOOSE 1
 #define VTK_UNICAM_CAM_INT_PAN 2
 #define VTK_UNICAM_CAM_INT_DOLLY 3
+#endif
 
 class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleUnicam : public vtkInteractorStyle
 {
 public:
+  enum
+  {
+    NONE = 0,
+    BUTTON_LEFT = 1,
+    BUTTON_MIDDLE = 2,
+    BUTTON_RIGHT = 3
+  };
+  enum
+  {
+    CAM_INT_ROT = 0,
+    CAM_INT_CHOOSE = 1,
+    CAM_INT_PAN = 2,
+    CAM_INT_DOLLY = 3
+  };
+
   static vtkInteractorStyleUnicam* New();
   vtkTypeMacro(vtkInteractorStyleUnicam, vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent) override;
