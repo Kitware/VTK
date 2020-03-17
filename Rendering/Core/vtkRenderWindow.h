@@ -530,7 +530,7 @@ public:
 
   //@{
   /**
-   * @deprecated in VTK 8.3
+   * @deprecated in VTK 9.0
    */
   VTK_LEGACY(vtkTypeBool GetIsPicking());
   VTK_LEGACY(void SetIsPicking(vtkTypeBool));

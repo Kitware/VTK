@@ -669,19 +669,19 @@ const char* vtkRenderWindow::GetStereoTypeAsString(int type)
 #if !defined(VTK_LEGACY_REMOVE)
 vtkTypeBool vtkRenderWindow::GetIsPicking()
 {
-  VTK_LEGACY_BODY(vtkRenderWindow::GetIsPicking, "VTK 8.3");
+  VTK_LEGACY_BODY(vtkRenderWindow::GetIsPicking, "VTK 9.0");
   return false;
 }
 void vtkRenderWindow::SetIsPicking(vtkTypeBool)
 {
-  VTK_LEGACY_BODY(vtkRenderWindow::SetIsPicking, "VTK 8.3");
+  VTK_LEGACY_BODY(vtkRenderWindow::SetIsPicking, "VTK 9.0");
 }
 void vtkRenderWindow::IsPickingOn()
 {
-  VTK_LEGACY_BODY(vtkRenderWindow::IsPickingOn, "VTK 8.3");
+  VTK_LEGACY_BODY(vtkRenderWindow::IsPickingOn, "VTK 9.0");
 }
 void vtkRenderWindow::IsPickingOff()
 {
-  VTK_LEGACY_BODY(vtkRenderWindow::IsPickingOff, "VTK 8.3");
+  VTK_LEGACY_BODY(vtkRenderWindow::IsPickingOff, "VTK 9.0");
 }
 #endif

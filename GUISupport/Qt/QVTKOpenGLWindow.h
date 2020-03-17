@@ -134,7 +134,7 @@ public:
 
   //@{
   /**
-   * @deprecated in VTK 8.3. Use `setRenderWindow` instead.
+   * @deprecated in VTK 9.0. Use `setRenderWindow` instead.
    */
   VTK_LEGACY(void SetRenderWindow(vtkGenericOpenGLRenderWindow* win));
   VTK_LEGACY(void SetRenderWindow(vtkRenderWindow* win));
@@ -151,19 +151,19 @@ public:
   //@}
 
   /**
-   * @deprecated in VTK 8.3
+   * @deprecated in VTK 9.0
    * QVTKInteractorAdapter is an internal helper. Hence the API was removed.
    */
   VTK_LEGACY(QVTKInteractorAdapter* GetInteractorAdapter());
 
   /**
-   * @deprecated in VTK 8.3. Simply use `QWidget::setCursor` API to change
+   * @deprecated in VTK 9.0. Simply use `QWidget::setCursor` API to change
    * cursor.
    */
   VTK_LEGACY(void setQVTKCursor(const QCursor& cursor));
 
   /**
-   * @deprecated in VTK 8.3. Use `setDefaultCursor` instead.
+   * @deprecated in VTK 9.0. Use `setDefaultCursor` instead.
    */
   VTK_LEGACY(void setDefaultQVTKCursor(const QCursor& cursor));
 
