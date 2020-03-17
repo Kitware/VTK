@@ -15,12 +15,6 @@
 #ifndef vtkmConfig_h
 #define vtkmConfig_h
 
-//make sure we use 64bit id's just like vtk
-#include "vtkType.h"
-#ifdef VTK_USE_64BIT_IDS
-# define VTKM_USE_64BIT_IDS
-#endif
-
 /*--------------------------------------------------------------------------*/
 /* Other Configuration Options                                              */
 
@@ -33,16 +27,16 @@
 
 
 /*--------------------------------------------------------------------------*/
-/* Support the old exceptions                                               */
-#include <vtkm/cont/ArrayHandle.h>
-#ifdef vtk_m_cont_ErrorControlBadAllocation_h
-
-namespace vtkm {
-namespace cont {
-using ErrorBadAllocation = ErrorControlBadAllocation;
-using ErrorBadValue = ErrorControlBadValue;
-}
-}
+/* Make sure we use the same id's in VTK and VTK-m                          */
+#include "vtkType.h"
+#ifdef VTK_USE_64BIT_IDS
+# ifndef VTKM_USE_64BIT_IDS
+#  error VTK was defined with 64-bit ids but VTK-m with 32-bit ids.
+# endif
+#else // !VTK_USE_64BIT_IDS
+# ifdef VTKM_USE_64BIT_IDS
+#  error VTK was defined with 32-bit ids but VTK-m with 64-bit ids.
+# endif
 #endif
 
 

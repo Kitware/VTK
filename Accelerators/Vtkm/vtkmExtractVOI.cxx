@@ -29,17 +29,6 @@
 #include "vtkm/filter/ExtractStructured.h"
 #include "vtkm/filter/ExtractStructured.hxx"
 
-namespace
-{
-
-struct InputFilterPolicy : public vtkmInputFilterPolicy
-{
-  using StructuredCellSetList = vtkm::List<vtkm::cont::CellSetStructured<1>,
-    vtkm::cont::CellSetStructured<2>, vtkm::cont::CellSetStructured<3> >;
-};
-
-}
-
 vtkStandardNewMacro(vtkmExtractVOI);
 
 //------------------------------------------------------------------------------
@@ -77,12 +66,11 @@ int vtkmExtractVOI::RequestData(
     }
 
     // apply the filter
-    vtkm::filter::PolicyBase<InputFilterPolicy> policy;
     vtkm::filter::ExtractStructured filter;
     filter.SetVOI(voi[0], voi[1], voi[2], voi[3], voi[4], voi[5]);
     filter.SetSampleRate(this->SampleRate[0], this->SampleRate[1], this->SampleRate[2]);
     filter.SetIncludeBoundary((this->IncludeBoundary != 0));
-    auto result = filter.Execute(in, policy);
+    auto result = filter.Execute(in);
 
     // convert back to vtkImageData
     int outExtents[6];
@@ -95,8 +83,16 @@ int vtkmExtractVOI::RequestData(
   }
   catch (const vtkm::cont::Error& e)
   {
-    vtkErrorMacro(<< "VTK-m error: " << e.GetMessage() << "Falling back to vtkExtractVOI");
-    return this->Superclass::RequestData(request, inputVector, outputVector);
+    if (this->ForceVTKm)
+    {
+      vtkErrorMacro(<< "VTK-m error: " << e.GetMessage());
+      return 0;
+    }
+    else
+    {
+      vtkWarningMacro(<< "VTK-m error: " << e.GetMessage() << "Falling back to vtkExtractVOI");
+      return this->Superclass::RequestData(request, inputVector, outputVector);
+    }
   }
 
   return 1;

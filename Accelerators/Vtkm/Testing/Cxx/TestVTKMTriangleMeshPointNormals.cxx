@@ -56,6 +56,7 @@ int TestVTKMTriangleMeshPointNormals(int argc, char* argv[])
 
   // normals
   vtkNew<vtkmTriangleMeshPointNormals> normFilter;
+  normFilter->ForceVTKmOn();
   normFilter->SetInputConnection(cleanFilter->GetOutputPort());
 
   // mapper, actor

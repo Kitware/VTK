@@ -156,7 +156,6 @@ int vtkmCoordinateSystemTransform::RequestData(
   try
   {
     vtkm::cont::DataSet in = tovtkm::Convert(input, tovtkm::FieldsFlag::Points);
-    vtkmInputFilterPolicy policy;
     vtkDataArray* transformResult;
     if (this->TransformType == TransformTypes::CarToCyl ||
       this->TransformType == TransformTypes::CylToCar)
@@ -165,7 +164,7 @@ int vtkmCoordinateSystemTransform::RequestData(
       cylindricalCT.SetUseCoordinateSystemAsField(true);
       (this->TransformType == TransformTypes::CarToCyl) ? cylindricalCT.SetCartesianToCylindrical()
                                                         : cylindricalCT.SetCylindricalToCartesian();
-      auto result = cylindricalCT.Execute(in, policy);
+      auto result = cylindricalCT.Execute(in);
       transformResult = fromvtkm::Convert(result.GetField(
         "cylindricalCoordinateSystemTransform", vtkm::cont::Field::Association::POINTS));
     }
@@ -175,7 +174,7 @@ int vtkmCoordinateSystemTransform::RequestData(
       sphericalCT.SetUseCoordinateSystemAsField(true);
       (this->TransformType == TransformTypes::CarToSph) ? sphericalCT.SetCartesianToSpherical()
                                                         : sphericalCT.SetSphericalToCartesian();
-      auto result = sphericalCT.Execute(in, policy);
+      auto result = sphericalCT.Execute(in);
       transformResult = fromvtkm::Convert(result.GetField(
         "sphericalCoordinateSystemTransform", vtkm::cont::Field::Association::POINTS));
     }
@@ -190,6 +189,7 @@ int vtkmCoordinateSystemTransform::RequestData(
   catch (const vtkm::cont::Error& e)
   {
     vtkErrorMacro(<< "VTK-m error: " << e.GetMessage());
+    return 0;
   }
 
   // Update ourselves and release memory

@@ -259,6 +259,7 @@ int PerformTest(vtkDataSet* grid)
   const char resultName[] = "Result";
 
   VTK_CREATE(vtkmGradient, cellGradients);
+  cellGradients->ForceVTKmOn();
   cellGradients->SetInputData(grid);
   cellGradients->SetInputScalars(vtkDataObject::FIELD_ASSOCIATION_CELLS, fieldName);
   cellGradients->SetResultArrayName(resultName);
@@ -269,6 +270,7 @@ int PerformTest(vtkDataSet* grid)
   correctCellGradients->SetResultArrayName(resultName);
 
   VTK_CREATE(vtkmGradient, pointGradients);
+  pointGradients->ForceVTKmOn();
   pointGradients->SetInputData(grid);
   pointGradients->SetInputScalars(vtkDataObject::FIELD_ASSOCIATION_POINTS, fieldName);
   pointGradients->SetResultArrayName(resultName);
@@ -318,6 +320,7 @@ int PerformTest(vtkDataSet* grid)
 
   // now check on the vorticity calculations
   VTK_CREATE(vtkmGradient, cellVorticity);
+  cellVorticity->ForceVTKmOn();
   cellVorticity->SetInputData(grid);
   cellVorticity->SetInputScalars(vtkDataObject::FIELD_ASSOCIATION_CELLS, fieldName);
   cellVorticity->SetResultArrayName(resultName);
@@ -325,6 +328,7 @@ int PerformTest(vtkDataSet* grid)
   cellVorticity->Update();
 
   VTK_CREATE(vtkmGradient, pointVorticity);
+  pointVorticity->ForceVTKmOn();
   pointVorticity->SetInputData(grid);
   pointVorticity->SetInputScalars(vtkDataObject::FIELD_ASSOCIATION_POINTS, fieldName);
   pointVorticity->SetResultArrayName(resultName);

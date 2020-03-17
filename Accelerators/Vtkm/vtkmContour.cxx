@@ -105,10 +105,7 @@ int vtkmContour::RequestData(
       filter.SetFieldsToPass(vtkm::filter::FieldSelection(vtkm::filter::FieldSelection::MODE_NONE));
     }
 
-    vtkm::cont::DataSet result;
-    vtkmInputFilterPolicy policy;
-
-    result = filter.Execute(in, policy);
+    vtkm::cont::DataSet result = filter.Execute(in);
 
     // convert back the dataset to VTK
     if (!fromvtkm::Convert(result, output, input))

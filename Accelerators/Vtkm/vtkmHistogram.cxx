@@ -95,7 +95,6 @@ int vtkmHistogram::RequestData(vtkInformation* vtkNotUsed(request),
     auto field = tovtkm::Convert(fieldArray, association);
     in.AddField(field);
 
-    vtkmInputFilterPolicy policy;
     vtkm::filter::Histogram filter;
 
     filter.SetNumberOfBins(static_cast<vtkm::Id>(this->NumberOfBins));
@@ -112,7 +111,7 @@ int vtkmHistogram::RequestData(vtkInformation* vtkNotUsed(request),
       }
       filter.SetRange(vtkm::Range(this->CustomBinRange[0], this->CustomBinRange[1]));
     }
-    auto result = filter.Execute(in, policy);
+    auto result = filter.Execute(in);
     this->BinDelta = filter.GetBinDelta();
     this->ComputedRange[0] = filter.GetComputedRange().Min;
     this->ComputedRange[1] = filter.GetComputedRange().Max;

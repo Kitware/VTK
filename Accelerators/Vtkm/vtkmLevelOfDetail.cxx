@@ -135,12 +135,11 @@ int vtkmLevelOfDetail::RequestData(vtkInformation* vtkNotUsed(request),
       return 0;
     }
 
-    vtkmInputFilterPolicy policy;
     vtkm::filter::VertexClustering filter;
     filter.SetNumberOfDivisions(vtkm::make_Vec(
       this->NumberOfDivisions[0], this->NumberOfDivisions[1], this->NumberOfDivisions[2]));
 
-    auto result = filter.Execute(in, policy);
+    auto result = filter.Execute(in);
 
     // convert back the dataset to VTK
     if (!fromvtkm::Convert(result, output, input))

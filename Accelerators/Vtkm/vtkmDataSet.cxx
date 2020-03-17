@@ -44,8 +44,7 @@
 namespace
 {
 
-using SupportedCellSets =
-  vtkm::ListAppend<vtkmInputFilterPolicy::AllCellSetList, vtkmOutputFilterPolicy::AllCellSetList>;
+using SupportedCellSets = vtkmOutputFilterPolicy::AllCellSetList;
 
 template <typename LocatorControl>
 struct VtkmLocator

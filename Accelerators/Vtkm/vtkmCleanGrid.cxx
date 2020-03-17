@@ -75,10 +75,9 @@ int vtkmCleanGrid::RequestData(vtkInformation* vtkNotUsed(request),
     vtkm::cont::DataSet in = tovtkm::Convert(input, fieldsFlag);
 
     // apply the filter
-    vtkmInputFilterPolicy policy;
     vtkm::filter::CleanGrid filter;
     filter.SetCompactPointFields(this->CompactPoints);
-    auto result = filter.Execute(in, policy);
+    auto result = filter.Execute(in);
 
     // convert back to vtkDataSet (vtkUnstructuredGrid)
     if (!fromvtkm::Convert(result, output, input))

@@ -137,8 +137,7 @@ int vtkmPointTransform::RequestData(vtkInformation* vtkNotUsed(request),
     pointTransform.SetUseCoordinateSystemAsField(true);
     pointTransform.SetTransform(vtkmMatrix);
 
-    vtkmInputFilterPolicy policy;
-    auto result = pointTransform.Execute(in, policy);
+    auto result = pointTransform.Execute(in);
     vtkDataArray* pointTransformResult =
       fromvtkm::Convert(result.GetField("transform", vtkm::cont::Field::Association::POINTS));
     vtkPoints* newPts = vtkPoints::New();
@@ -152,6 +151,7 @@ int vtkmPointTransform::RequestData(vtkInformation* vtkNotUsed(request),
   catch (const vtkm::cont::Error& e)
   {
     vtkErrorMacro(<< "VTK-m error: " << e.GetMessage());
+    return 0;
   }
 
   // Update ourselves and release memory

@@ -74,7 +74,6 @@ int vtkmPolyDataNormals::RequestData(
     bool unsupported = this->Splitting != 0;
     if (!unsupported)
     {
-      vtkmInputFilterPolicy policy;
       vtkm::filter::SurfaceNormals filter;
       filter.SetGenerateCellNormals((this->ComputeCellNormals != 0));
       filter.SetCellNormalsName("Normals");
@@ -83,7 +82,7 @@ int vtkmPolyDataNormals::RequestData(
       filter.SetAutoOrientNormals(this->AutoOrientNormals != 0);
       filter.SetFlipNormals(this->FlipNormals != 0);
       filter.SetConsistency(this->Consistency != 0);
-      result = filter.Execute(in, policy);
+      result = filter.Execute(in);
     }
     else
     {
@@ -100,8 +99,16 @@ int vtkmPolyDataNormals::RequestData(
   }
   catch (const vtkm::cont::Error& e)
   {
-    vtkWarningMacro(<< "VTK-m error: " << e.GetMessage() << "Falling back to vtkPolyDataNormals");
-    return this->Superclass::RequestData(request, inputVector, outputVector);
+    if (this->ForceVTKm)
+    {
+      vtkErrorMacro(<< "VTK-m error: " << e.GetMessage());
+      return 0;
+    }
+    else
+    {
+      vtkWarningMacro(<< "VTK-m error: " << e.GetMessage() << "Falling back to vtkPolyDataNormals");
+      return this->Superclass::RequestData(request, inputVector, outputVector);
+    }
   }
 
   vtkSmartPointer<vtkDataArray> pointNormals = output->GetPointData()->GetArray("Normals");

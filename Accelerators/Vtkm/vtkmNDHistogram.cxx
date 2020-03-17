@@ -125,13 +125,12 @@ int vtkmNDHistogram::RequestData(vtkInformation* vtkNotUsed(request),
   {
     vtkm::cont::DataSet in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells);
 
-    vtkmInputFilterPolicy policy;
     vtkm::filter::NDHistogram filter;
     for (size_t i = 0; i < this->FieldNames.size(); i++)
     {
       filter.AddFieldAndBin(this->FieldNames[i], this->NumberOfBins[i]);
     }
-    vtkm::cont::DataSet out = filter.Execute(in, policy);
+    vtkm::cont::DataSet out = filter.Execute(in);
 
     vtkm::Id numberOfFields = out.GetNumberOfFields();
     this->BinDeltas.clear();

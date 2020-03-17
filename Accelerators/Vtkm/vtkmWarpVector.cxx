@@ -102,11 +102,10 @@ int vtkmWarpVector::RequestData(vtkInformation* vtkNotUsed(request),
     vtkm::cont::Field vectorField = tovtkm::Convert(vectors, vectorsAssociation);
     in.AddField(vectorField);
 
-    vtkmInputFilterPolicy policy;
     vtkm::filter::WarpVector warpVector(this->ScaleFactor);
     warpVector.SetUseCoordinateSystemAsField(true);
     warpVector.SetVectorField(vectorField.GetName(), vectorField.GetAssociation());
-    auto result = warpVector.Execute(in, policy);
+    auto result = warpVector.Execute(in);
 
     vtkDataArray* warpVectorResult =
       fromvtkm::Convert(result.GetField("warpvector", vtkm::cont::Field::Association::POINTS));

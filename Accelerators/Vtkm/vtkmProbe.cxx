@@ -97,13 +97,12 @@ int vtkmProbe::RequestData(vtkInformation* vtkNotUsed(request), vtkInformationVe
       return 0;
     }
 
-    vtkmInputFilterPolicy policy;
     vtkm::filter::Probe probe;
     // The input in VTK is the geometry in VTKM and the source in VTK is the input
     // in VTKM.
     probe.SetGeometry(in);
 
-    auto result = probe.Execute(so, policy);
+    auto result = probe.Execute(so);
     for (vtkm::Id i = 0; i < result.GetNumberOfFields(); i++)
     {
       const vtkm::cont::Field& field = result.GetField(i);

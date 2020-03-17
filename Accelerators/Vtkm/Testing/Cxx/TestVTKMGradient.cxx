@@ -210,6 +210,7 @@ int PerformTest(vtkDataSet* grid)
   const char resultName[] = "Result";
 
   vtkNew<vtkmGradient> pointGradients;
+  pointGradients->ForceVTKmOn();
   pointGradients->SetInputConnection(calculator->GetOutputPort());
   pointGradients->SetInputScalars(vtkDataObject::FIELD_ASSOCIATION_POINTS, fieldName);
   pointGradients->SetResultArrayName(resultName);
@@ -236,6 +237,7 @@ int PerformTest(vtkDataSet* grid)
   }
 
   vtkNew<vtkmGradient> pointVorticity;
+  pointVorticity->ForceVTKmOn();
   pointVorticity->SetInputConnection(calculator->GetOutputPort());
   pointVorticity->SetInputScalars(vtkDataObject::FIELD_ASSOCIATION_POINTS, fieldName);
   pointVorticity->SetResultArrayName(resultName);

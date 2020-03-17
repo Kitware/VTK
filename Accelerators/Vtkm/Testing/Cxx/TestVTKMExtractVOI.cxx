@@ -43,6 +43,7 @@ int TestVTKMExtractVOI(int argc, char* argv[])
   rt->SetWholeExtent(-50, 50, -50, 50, 0, 0);
 
   vtkNew<vtkmExtractVOI> voi;
+  voi->ForceVTKmOn();
   voi->SetInputConnection(rt->GetOutputPort());
   voi->SetVOI(-11, 39, 5, 45, 0, 0);
   voi->SetSampleRate(5, 5, 1);

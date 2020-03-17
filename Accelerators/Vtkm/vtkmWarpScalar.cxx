@@ -157,8 +157,7 @@ int vtkmWarpScalar::RequestData(vtkInformation* vtkNotUsed(request),
       warpScalar.SetScalarFactorField(std::string(inScalars->GetName()));
     }
 
-    vtkmInputFilterPolicy policy;
-    auto result = warpScalar.Execute(in, policy);
+    auto result = warpScalar.Execute(in);
     vtkDataArray* warpScalarResult =
       fromvtkm::Convert(result.GetField("warpscalar", vtkm::cont::Field::Association::POINTS));
     vtkPoints* newPts = vtkPoints::New();

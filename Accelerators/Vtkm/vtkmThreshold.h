@@ -42,11 +42,25 @@ public:
 
   static vtkmThreshold* New();
 
+  //@{
+  /**
+   * When this flag is off (the default), then the computation will fall back
+   * to the serial VTK version if VTK-m fails to run. When the flag is on,
+   * the filter will generate an error if VTK-m fails to run. This is mostly
+   * useful in testing to make sure the expected algorithm is run.
+   */
+  vtkGetMacro(ForceVTKm, vtkTypeBool);
+  vtkSetMacro(ForceVTKm, vtkTypeBool);
+  vtkBooleanMacro(ForceVTKm, vtkTypeBool);
+  //@}
+
 protected:
   vtkmThreshold();
   ~vtkmThreshold() override;
 
   virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+
+  vtkTypeBool ForceVTKm = false;
 
 private:
   vtkmThreshold(const vtkmThreshold&) = delete;

@@ -49,6 +49,7 @@ int TestVTKMThreshold2(int argc, char* argv[])
   elevation->SetHighPoint(10.0, 10.0, 10.0);
 
   vtkNew<vtkmThreshold> threshold;
+  threshold->ForceVTKmOn();
   threshold->SetInputConnection(elevation->GetOutputPort());
   threshold->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "RTData");
 
