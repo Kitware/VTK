@@ -21,6 +21,9 @@ GENERATE_TAGFILE     = "@VTK_BINARY_DIR@/Utilities/Doxygen/vtk@VTK_MAJOR_VERSION
 
 PDF_HYPERLINKS       = YES
 
+SEARCHENGINE         = YES
+SERVER_BASED_SEARCH  = NO
+
 HAVE_DOT             = @HAVE_DOT_YESNO@
 DOT_PATH             = "@DOT_PATH@"
 DOT_IMAGE_FORMAT     = svg
