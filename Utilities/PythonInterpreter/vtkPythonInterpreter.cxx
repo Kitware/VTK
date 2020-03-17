@@ -815,7 +815,7 @@ int vtkPythonInterpreter::GetLogVerbosity()
 int vtkPythonInterpreter::GetPythonVerboseFlag()
 {
   VTK_LEGACY_REPLACED_BODY(
-    vtkPythonInterpreter::GetPythonVerboseFlag, "VTK 8.3", vtkPythonInterpreter::GetLogVerbosity);
+    vtkPythonInterpreter::GetPythonVerboseFlag, "VTK 9.0", vtkPythonInterpreter::GetLogVerbosity);
   return vtkPythonInterpreter::LogVerbosity == vtkLogger::VERBOSITY_INFO ? 1 : 0;
 }
 #endif
