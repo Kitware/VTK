@@ -39,7 +39,7 @@ vtkObjectFactoryNewMacro(vtkExtractTemporalFieldData);
 vtkExtractTemporalFieldData::vtkExtractTemporalFieldData()
 {
   VTK_LEGACY_REPLACED_BODY(
-    vtkExtractTemporalFieldData, "VTK 8.3", vtkExtractExodusGlobalTemporalVariables);
+    vtkExtractTemporalFieldData, "VTK 9.0", vtkExtractExodusGlobalTemporalVariables);
 
   this->Internals = new vtkExtractTemporalFieldData::vtkInternals();
   this->HandleCompositeDataBlocksIndividually = true;

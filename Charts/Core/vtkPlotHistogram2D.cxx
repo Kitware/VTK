@@ -129,7 +129,7 @@ vtkIdType vtkPlotHistogram2D::GetNearestPoint(const vtkVector2f& point,
     {
       VTK_LEGACY_REPLACED_BODY(vtkPlotHistogram2D::GetNearestPoint(const vtkVector2f& point,
                                  const vtkVector2f& tolerance, vtkVector2f* location),
-        "VTK 8.3",
+        "VTK 9.0",
         vtkPlotHistogram2D::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tolerance,
           vtkVector2f* location, vtkIdType* segmentId));
       return ret;

@@ -333,28 +333,28 @@ void vtkWin32OutputWindow::PrintSelf(ostream& os, vtkIndent indent)
 void vtkWin32OutputWindow::SetSendToStdErr(bool val)
 {
   VTK_LEGACY_REPLACED_BODY(
-    vtkWin32OutputWindow::SetSendToStdErr, "VTK 8.3", vtkWin32OutputWindow::SetDisplayMode);
+    vtkWin32OutputWindow::SetSendToStdErr, "VTK 9.0", vtkWin32OutputWindow::SetDisplayMode);
   this->SetDisplayMode(val ? ALWAYS_STDERR : DEFAULT);
 }
 
 bool vtkWin32OutputWindow::GetSendToStdErr()
 {
   VTK_LEGACY_REPLACED_BODY(
-    vtkWin32OutputWindow::GetSendToStdErr, "VTK 8.3", vtkWin32OutputWindow::GetDisplayMode);
+    vtkWin32OutputWindow::GetSendToStdErr, "VTK 9.0", vtkWin32OutputWindow::GetDisplayMode);
   return this->GetDisplayMode() == ALWAYS_STDERR;
 }
 
 void vtkWin32OutputWindow::SendToStdErrOn()
 {
   VTK_LEGACY_REPLACED_BODY(
-    vtkWin32OutputWindow::SendToStdErrOn, "VTK 8.3", vtkWin32OutputWindow::SetDisplayMode);
+    vtkWin32OutputWindow::SendToStdErrOn, "VTK 9.0", vtkWin32OutputWindow::SetDisplayMode);
   this->SetDisplayMode(ALWAYS_STDERR);
 }
 void vtkWin32OutputWindow::SendToStdErrOff()
 {
 
   VTK_LEGACY_REPLACED_BODY(
-    vtkWin32OutputWindow::SendToStdErrOff, "VTK 8.3", vtkWin32OutputWindow::SetDisplayMode);
+    vtkWin32OutputWindow::SendToStdErrOff, "VTK 9.0", vtkWin32OutputWindow::SetDisplayMode);
   this->SetDisplayMode(DEFAULT);
 }
 #endif

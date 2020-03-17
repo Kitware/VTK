@@ -360,7 +360,7 @@ vtkIdType vtkPlotPoints::GetNearestPoint(const vtkVector2f& point, const vtkVect
     {
       VTK_LEGACY_REPLACED_BODY(vtkPlotPoints::GetNearestPoint(const vtkVector2f& point,
                                  const vtkVector2f& tol, vtkVector2f* location),
-        "VTK 8.3",
+        "VTK 9.0",
         vtkPlotPoints::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tol,
           vtkVector2f* location, vtkIdType* segmentId));
       return ret;
