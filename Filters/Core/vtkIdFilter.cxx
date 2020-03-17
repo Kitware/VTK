@@ -153,7 +153,7 @@ void vtkIdFilter::PrintSelf(ostream& os, vtkIndent indent)
 #if !defined(VTK_LEGACY_REMOVE)
 void vtkIdFilter::SetIdsArrayName(const char* name)
 {
-  VTK_LEGACY_REPLACED_BODY(vtkIdFilter::SetIdsArrayName, "VTK 8.3",
+  VTK_LEGACY_REPLACED_BODY(vtkIdFilter::SetIdsArrayName, "VTK 9.0",
     vtkIdFilter::SetPointIdsArrayName or vtkIdFilter::SetCellIdsArrayName);
   this->SetPointIdsArrayName(name);
   this->SetCellIdsArrayName(name);
@@ -163,7 +163,7 @@ void vtkIdFilter::SetIdsArrayName(const char* name)
 #if !defined(VTK_LEGACY_REMOVE)
 const char* vtkIdFilter::GetIdsArrayName()
 {
-  VTK_LEGACY_REPLACED_BODY(vtkIdFilter::GetIdsArrayName, "VTK 8.3",
+  VTK_LEGACY_REPLACED_BODY(vtkIdFilter::GetIdsArrayName, "VTK 9.0",
     vtkIdFilter::GetPointIdsArrayName or vtkIdFilter::GetCellIdsArrayName);
   return this->GetPointIdsArrayName();
 }
