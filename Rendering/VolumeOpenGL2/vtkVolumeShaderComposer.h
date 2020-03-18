@@ -2600,7 +2600,11 @@ std::string CompositeMaskImplementation(vtkRenderer* vtkNotUsed(ren),
     return shaderStr + std::string("\
         \nif (in_maskBlendFactor == 0.0)\
         \n  {\
-        \n  g_srcColor = computeColor(scalar, computeOpacity(scalar));\
+        \n  g_srcColor.a = computeOpacity(scalar);\
+        \n  if (g_srcColor.a > 0)\
+        \n    {\
+        \n    g_srcColor = computeColor(scalar, g_srcColor.a);\
+        \n    }\
         \n  }\
         \nelse\
         \n  {\
@@ -2621,7 +2625,11 @@ std::string CompositeMaskImplementation(vtkRenderer* vtkNotUsed(ren),
         \n    }\
         \n  if(maskValue.r == 0.0)\
         \n    {\
-        \n    g_srcColor = computeColor(scalar, opacity);\
+        \n    g_srcColor.a = opacity;\
+        \n    if (g_srcColor.a > 0)\
+        \n      {\
+        \n      g_srcColor = computeColor(scalar, g_srcColor.a);\
+        \n      }\
         \n    }\
         \n  else\
         \n    {\
