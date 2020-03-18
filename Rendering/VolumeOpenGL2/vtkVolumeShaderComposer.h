@@ -2635,12 +2635,15 @@ std::string CompositeMaskImplementation(vtkRenderer* vtkNotUsed(ren),
         \n    {\
         \n    g_srcColor = texture2D(in_labelMapTransfer,\
         \n                           vec2(scalar.r, maskValue.r));\
-        \n    g_srcColor = computeLighting(g_srcColor, 0, maskValue.r);\
+        \n    if (g_srcColor.a > 0)\
+        \n      {\
+        \n      g_srcColor = computeLighting(g_srcColor, 0, maskValue.r);\
+        \n      }\
         \n    if (in_maskBlendFactor < 1.0)\
         \n      {\
-        \n      g_srcColor = (1.0 - in_maskBlendFactor) *\
-        \n                   computeColor(scalar, opacity) +\
-        \n                   in_maskBlendFactor * g_srcColor;\
+        \n      vec4 color = opacity > 0 ? computeColor(scalar, opacity) : vec4(0);\
+        \n      g_srcColor = (1.0 - in_maskBlendFactor) * color +\
+        \n                           in_maskBlendFactor * g_srcColor;\
         \n      }\
         \n    }\
         \n  }");
