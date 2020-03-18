@@ -652,14 +652,14 @@ int vtkAMReXParticlesReader::CanReadFile(const char* fname, const char* particle
   {
     if (!vtksystools::FileExists(std::string(fname) + "/Header", true))
     {
-      return false;
+      return 0;
     }
 
     if (particleType == nullptr)
     {
       // may be should check for existence of subdirectories that could
       // potentially contain particles?
-      return true;
+      return 1;
     }
 
     // now let's confirm it has "particles" directory.
@@ -676,7 +676,9 @@ int vtkAMReXParticlesReader::CanReadFile(const char* fname, const char* particle
           if (std::getline(ifp, header_line))
           {
             return (header_line == "Version_Two_Dot_Zero_double" ||
-              header_line == "Version_Two_Dot_Zero_float");
+                     header_line == "Version_Two_Dot_Zero_float")
+              ? 1
+              : 0;
           }
         }
       }
