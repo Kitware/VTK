@@ -122,7 +122,7 @@ bool Convert(
   }
 
   auto points = cs.GetData().Cast<vtkm::cont::ArrayHandleUniformPointCoordinates>();
-  auto portal = points.GetPortalConstControl();
+  auto portal = points.ReadPortal();
 
   auto origin = portal.GetOrigin();
   auto spacing = portal.GetSpacing();
@@ -157,7 +157,7 @@ bool Convert(const vtkm::cont::DataSet& voutput, vtkImageData* output, vtkDataSe
   }
 
   auto points = cs.GetData().Cast<vtkm::cont::ArrayHandleUniformPointCoordinates>();
-  auto portal = points.GetPortalConstControl();
+  auto portal = points.ReadPortal();
 
   auto dim = portal.GetDimensions();
   int extents[6];

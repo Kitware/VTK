@@ -48,7 +48,7 @@ void TestWithArrayHandle(const ArrayHandleType& vtkmArray)
   vtkSmartPointer<vtkDataArray> vtkArray;
   vtkArray.TakeReference(make_vtkmDataArray(vtkmArray));
 
-  auto vtkmPortal = vtkmArray.GetPortalConstControl();
+  auto vtkmPortal = vtkmArray.ReadPortal();
 
   vtkIdType length = vtkArray->GetNumberOfTuples();
   std::cout << "Length: " << length << "\n";
