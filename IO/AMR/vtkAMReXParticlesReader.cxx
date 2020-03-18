@@ -45,7 +45,8 @@ using vtksystools = vtksys::SystemTools;
 namespace
 {
 // returns empty string on failure.
-std::string ReadAndBroadCastFile(const std::string& filename, vtkMultiProcessController* controller)
+std::string ReadAndBroadCastFile(
+  const std::string& filename, vtkMultiProcessController* controller, vtkAMReXParticlesReader* self)
 {
   std::string contents;
   if (controller == nullptr || controller->GetLocalProcessId() == 0)
@@ -70,6 +71,10 @@ std::string ReadAndBroadCastFile(const std::string& filename, vtkMultiProcessCon
       contents = data;
       delete[] data;
       data = nullptr;
+    }
+    else
+    {
+      vtkErrorWithObjectMacro(self, "Failed to open file '" << filename << "'.");
     }
   }
   else if (controller && controller->GetLocalProcessId() > 0)
@@ -393,14 +398,14 @@ public:
     }
   }
 
-  bool Parse(const std::string& headerData)
+  bool Parse(const std::string& headerData, vtkAMReXParticlesReader* self)
   {
     std::istringstream hstream(headerData);
     std::string version;
     hstream >> version;
     if (version.empty())
     {
-      vtkGenericWarningMacro("Failed to read version string.");
+      vtkErrorWithObjectMacro(self, "Failed to read version string.");
       return false;
     }
 
@@ -429,20 +434,20 @@ public:
       }
       else
       {
-        vtkGenericWarningMacro("Bad version string: " << version);
+        vtkErrorWithObjectMacro(self, "Bad version string: " << version);
         return false;
       }
     }
     else
     {
-      vtkGenericWarningMacro("Bad version string: " << version);
+      vtkErrorWithObjectMacro(self, "Bad version string: " << version);
       return false;
     }
 
     hstream >> this->dim;
     if (this->dim != 1 && this->dim != 2 && this->dim != 3)
     {
-      vtkGenericWarningMacro("dim must be 1, 2, or 3.");
+      vtkErrorWithObjectMacro(self, "dim must be 1, 2, or 3.");
       return false;
     }
 
@@ -452,7 +457,8 @@ public:
     hstream >> this->num_real_extra;
     if (this->num_real_extra < 0 || this->num_real_extra > 1024)
     {
-      vtkGenericWarningMacro("potentially incorrect num_real_extra=" << this->num_real_extra);
+      vtkErrorWithObjectMacro(
+        self, "potentially incorrect num_real_extra=" << this->num_real_extra);
       return false;
     }
     this->real_component_names.resize(this->num_real_extra);
@@ -464,7 +470,7 @@ public:
     hstream >> this->num_int_extra;
     if (this->num_int_extra < 0 || this->num_int_extra > 1024)
     {
-      vtkGenericWarningMacro("potentially incorrect num_int_extra=" << this->num_int_extra);
+      vtkErrorWithObjectMacro(self, "potentially incorrect num_int_extra=" << this->num_int_extra);
       return false;
     }
     this->int_component_names.resize(this->num_int_extra);
@@ -480,21 +486,21 @@ public:
     hstream >> this->num_particles;
     if (this->num_particles < 0)
     {
-      vtkGenericWarningMacro("num_particles must be >=0");
+      vtkErrorWithObjectMacro(self, "num_particles must be >=0");
       return false;
     }
 
     hstream >> this->max_next_id;
     if (this->max_next_id <= 0)
     {
-      vtkGenericWarningMacro("max_next_id must be > 0");
+      vtkErrorWithObjectMacro(self, "max_next_id must be > 0");
       return false;
     }
 
     hstream >> this->finest_level;
     if (this->finest_level < 0)
     {
-      vtkGenericWarningMacro("finest_level must be >= 0");
+      vtkErrorWithObjectMacro(self, "finest_level must be >= 0");
       return false;
     }
 
@@ -783,14 +789,14 @@ bool vtkAMReXParticlesReader::ReadMetaData()
   }
 
   const std::string hdrFileName = this->PlotFileName + "/" + this->ParticleType + "/Header";
-  const auto headerData = ::ReadAndBroadCastFile(hdrFileName, this->Controller);
+  const auto headerData = ::ReadAndBroadCastFile(hdrFileName, this->Controller, this);
   if (headerData.empty())
   {
     return false;
   }
 
   auto headerPtr = new AMReXParticleHeader();
-  if (!headerPtr->Parse(headerData))
+  if (!headerPtr->Parse(headerData, this))
   {
     delete headerPtr;
     return false;
