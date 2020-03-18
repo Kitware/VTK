@@ -184,17 +184,8 @@ class vtkAMReXParticlesReader::AMReXParticleHeader
       assert(this->num_real_base == this->dim);
       vtkNew<vtkAOSDataArrayTemplate<RealType> > coords;
       coords->SetName("Points");
-      coords->SetNumberOfComponents(3);
+      coords->SetNumberOfComponents(this->num_real_base);
       coords->SetNumberOfTuples(count);
-      if (this->num_real_base < 3)
-      {
-        // fill with 0, since this->dim may be less than 3.
-        std::fill_n(coords->GetPointer(0), 3 * count, 0.0);
-      }
-
-      vtkNew<vtkPoints> pts;
-      pts->SetData(coords);
-      pd->SetPoints(pts);
 
       rptrs[0] = coords->GetPointer(0);
       for (int cc = this->num_real_base; cc < this->num_real; ++cc)
@@ -227,6 +218,29 @@ class vtkAMReXParticlesReader::AMReXParticleHeader
           }
         }
       }
+
+      vtkNew<vtkPoints> pts;
+      if (this->num_real_base == 3)
+      {
+        pts->SetData(coords);
+      }
+      else
+      {
+        // convert to 3-components.
+        vtkNew<vtkAOSDataArrayTemplate<RealType> > newcoords;
+        newcoords->SetName("Points");
+        newcoords->SetNumberOfComponents(3);
+        newcoords->SetNumberOfTuples(count);
+        std::fill_n(newcoords->GetPointer(0), 3 * count, 0.0);
+        RealType tuple[3] = { 0, 0, 0 };
+        for (int cc = 0; cc < count; ++cc)
+        {
+          coords->GetTypedTuple(cc, tuple);
+          newcoords->SetTypedTuple(cc, tuple);
+        }
+        pts->SetData(newcoords);
+      }
+      pd->SetPoints(pts);
     }
 
     //// Now build connectivity information.
