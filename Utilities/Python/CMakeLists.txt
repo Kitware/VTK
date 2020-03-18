@@ -24,6 +24,10 @@ if (NOT DEFINED VTK_PYTHON_VERSION)
       STRINGS "2;3")
 endif ()
 
+# VTK only supports a single Python version at a time, so make artifact finding
+# interactive.
+set("Python${VTK_PYTHON_VERSION}_ARTIFACTS_INTERACTIVE" ON)
+
 if (VTK_PYTHON_VERSION STREQUAL "2")
   set(vtk_python_min_version "2.6")
   set(vtk_python_version_support "2.7")
