@@ -50,20 +50,39 @@ int Validate(vtkMultiBlockDataSet* mb)
 
 int TestAMReXParticlesReader(int argc, char* argv[])
 {
-  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/AMReX/MFIX-Exa/plt00000");
-  vtkNew<vtkAMReXParticlesReader> reader;
-  reader->SetPlotFileName(fname);
-  delete[] fname;
-
-  reader->SetParticleType("particles");
-  reader->GetPointDataArraySelection()->DisableArray("proc");
-  reader->UpdateInformation();
-  ensure(reader->GetPointDataArraySelection()->ArrayIsEnabled("proc") == 0,
-    "`proc` should be disabled.");
-  reader->Update();
-  if (Validate(reader->GetOutput()) == EXIT_FAILURE)
+  // Test 3D
   {
-    return EXIT_FAILURE;
+    char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/AMReX/MFIX-Exa/plt00000");
+    vtkNew<vtkAMReXParticlesReader> reader;
+    reader->SetPlotFileName(fname);
+    delete[] fname;
+
+    reader->SetParticleType("particles");
+    reader->GetPointDataArraySelection()->DisableArray("proc");
+    reader->UpdateInformation();
+    ensure(reader->GetPointDataArraySelection()->ArrayIsEnabled("proc") == 0,
+      "`proc` should be disabled.");
+    reader->Update();
+    if (Validate(reader->GetOutput()) == EXIT_FAILURE)
+    {
+      return EXIT_FAILURE;
+    }
+  }
+
+  // Test 2D
+  {
+    char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/AMReX/Sample2D/plt00100");
+    vtkNew<vtkAMReXParticlesReader> reader;
+    reader->SetPlotFileName(fname);
+    delete[] fname;
+
+    reader->SetParticleType("Tracer");
+    reader->UpdateInformation();
+    reader->Update();
+
+    double bds[6];
+    reader->GetOutput()->GetBounds(bds);
+    ensure(bds[4] == bds[5], "expecting 2D dataset");
   }
 
   return EXIT_SUCCESS;
