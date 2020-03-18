@@ -23,6 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
+#include "vtkTetra.h"
 #include "vtkTriangle.h"
 
 #include <cstdlib>
@@ -299,9 +300,9 @@ unsigned long vtkMaskPoints::GetLocalSampleSize(vtkIdType numPts, int np)
 //-----------------------------------------------------------------------------
 double vtkMaskPoints::GetLocalAreaFactor(double localArea, int np)
 {
-  double globalArea;
   if (np > 1)
   {
+    double globalArea;
     double send = (double)localArea;
     double* recv = new double[np];
 
@@ -316,19 +317,17 @@ double vtkMaskPoints::GetLocalAreaFactor(double localArea, int np)
         globalArea += recv[i];
       }
     }
-    this->InternalBcast(&globalArea, 1, 0);
+    this->InternalBroadcast(&globalArea, 1, 0);
 
     delete[] recv;
-  }
-  else
-  {
-    globalArea = localArea;
+
+    if (globalArea != 0)
+    {
+      return localArea / globalArea;
+    }
   }
 
-  if (globalArea == 0) // empty data set
-    return 1;
-
-  return localArea / globalArea;
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -589,7 +588,10 @@ int vtkMaskPoints::RequestData(vtkInformation* vtkNotUsed(request),
         break;
       }
       case UNIFORM_SPATIAL_SURFACE:
+        VTK_FALLTHROUGH;
+      case UNIFORM_SPATIAL_VOLUME:
       {
+        const int dim = (this->RandomModeType == UNIFORM_SPATIAL_SURFACE) ? 2 : 3;
         vtkNew<vtkIdList> idList;
         vtkNew<vtkPoints> pts;
         const vtkIdType nbCells = input->GetNumberOfCells();
@@ -598,22 +600,39 @@ int vtkMaskPoints::RequestData(vtkInformation* vtkNotUsed(request),
         for (vtkIdType cellId = 0; cellId < nbCells; ++cellId)
         {
           vtkCell* currentCell = input->GetCell(cellId);
-          if (currentCell->GetCellDimension() != 2)
+          if (currentCell->GetCellDimension() != dim)
           {
-            vtkWarningMacro("surface mode required only cells of dimension 2");
+            if (dim == 2)
+            {
+              vtkWarningMacro("In uniform surface mode, all cells must be 2D.");
+            }
+            else
+            {
+              vtkWarningMacro("In uniform volume mode, all cells must be 3D.");
+            }
+            cellContribs[cellId] = localArea;
             continue;
           }
-          currentCell->Triangulate(0, idList, pts);
+          currentCell->Triangulate(0, idList, pts); // subdivide cell in triangle / tetrahedrons
 
           const vtkIdType nbPts = pts->GetNumberOfPoints();
-          assert(nbPts % 3 == 0); // should have only triangles in the list
-          for (vtkIdType pt = 0; pt < nbPts; pt += 3)
+          assert(nbPts % (dim + 1) == 0); // should have only simplices
+          for (vtkIdType pt = 0; pt < nbPts; pt += (dim + 1))
           {
             double p1[3], p2[3], p3[3];
             pts->GetPoint(pt, p1);
             pts->GetPoint(pt + 1, p2);
             pts->GetPoint(pt + 2, p3);
-            localArea += vtkTriangle::TriangleArea(p1, p2, p3);
+            if (dim == 2)
+            {
+              localArea += vtkTriangle::TriangleArea(p1, p2, p3);
+            }
+            else
+            {
+              double p4[4];
+              pts->GetPoint(pt + 3, p4);
+              localArea += vtkTetra::ComputeVolume(p1, p2, p3, p4);
+            }
             cellContribs[cellId] = localArea;
           }
         }
@@ -636,7 +655,14 @@ int vtkMaskPoints::RequestData(vtkInformation* vtkNotUsed(request),
           // The sampling vector being sorted, just find the index of the sampled cell
           double sample = dis(gen);
           auto it = std::upper_bound(cellContribs.cbegin(), cellContribs.cend(), sample);
-          const vtkIdType randCellId = std::distance(cellContribs.cbegin(), it);
+          vtkIdType randCellId = std::distance(cellContribs.cbegin(), it);
+
+          // do not consider ignored cells
+          while (randCellId < cellContribs.size() &&
+            cellContribs[randCellId] == cellContribs[randCellId + 1])
+          {
+            ++randCellId;
+          }
 
           input->GetCellPoints(randCellId, idList);
           const vtkIdType nbCellPts = idList->GetNumberOfIds();
@@ -651,10 +677,6 @@ int vtkMaskPoints::RequestData(vtkInformation* vtkNotUsed(request),
               maskedPoints[randPtId] = true;
               break;
             }
-            // NOTE: if all points of a cell have already been masked,
-            // we discard the current value. The result will have less
-            // points thant requested by the user.
-            // Otherwise, this approach would have a worst case complexity of O(infinity)
           }
         }
 

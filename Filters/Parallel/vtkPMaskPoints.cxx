@@ -102,7 +102,7 @@ void vtkPMaskPoints::InternalGather(unsigned long* a, unsigned long* b, int c, i
 }
 
 //----------------------------------------------------------------------------
-void vtkPMaskPoints::InternalBcast(double* a, int b, int c)
+void vtkPMaskPoints::InternalBroadcast(double* a, int b, int c)
 {
   this->Controller->Broadcast(a, b, c);
 }

@@ -114,10 +114,12 @@ public:
    * Simulation for Interactive Visualization and Analysis",
    * Computer Graphics Forum, 2011 (EuroVis 2011).
    * (OnRatio and Offset are ignored) O(N log N)
-   * TODO: Add same comment than XML here
-   * 4 - spatially uniform (surface based): points randomly sampled
+   * 3 - spatially uniform (surface based): points randomly sampled
    * via an inverse transform on surface area of each cell.
-   * Note that the mesh will be triangulated first.
+   * Note that 3D cells are ignored.
+   * 4 - spatially uniform (volume based): points randomly sampled via an
+   * inverse transform on volume area of each cell.
+   * Note that 2D cells are ignored.
    */
   vtkSetClampMacro(RandomModeType, int, RANDOMIZED_ID_STRIDES, UNIFORM_SPATIAL_VOLUME);
   vtkGetMacro(RandomModeType, int);
@@ -194,7 +196,7 @@ protected:
 
   virtual void InternalScatter(unsigned long*, unsigned long*, int, int) {}
   virtual void InternalGather(unsigned long*, unsigned long*, int, int) {}
-  virtual void InternalBcast(double*, int, int) {}
+  virtual void InternalBroadcast(double*, int, int) {}
   virtual void InternalGather(double*, double*, int, int) {}
   virtual int InternalGetNumberOfProcesses() { return 1; }
   virtual int InternalGetLocalProcessId() { return 0; }
