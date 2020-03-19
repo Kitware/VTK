@@ -437,8 +437,8 @@ protected:
   vtkAbstractArray* AnnotatedValues;
   vtkStringArray* Annotations;
 
-  class vtkInternalAnnotatedValueMap;
-  vtkInternalAnnotatedValueMap* AnnotatedValueMap;
+  class vtkInternalAnnotatedValueList;
+  vtkInternalAnnotatedValueList* AnnotatedValueList;
 
   vtkTypeBool IndexedLookup;
 
