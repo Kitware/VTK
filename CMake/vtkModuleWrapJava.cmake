@@ -292,11 +292,10 @@ For dependency purposes, the `<module>Java-java-sources` target may also be
 used.
 #]==]
 function (vtk_module_wrap_java)
-  cmake_parse_arguments(_vtk_java
+  cmake_parse_arguments(PARSE_ARGV 0 _vtk_java
     ""
     "JAVA_OUTPUT;WRAPPED_MODULES"
-    "MODULES"
-    ${ARGN})
+    "MODULES")
 
   if (_vtk_java_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR

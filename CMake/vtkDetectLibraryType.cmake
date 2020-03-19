@@ -14,11 +14,10 @@ vtk_detect_library_type(<variable>
 ~~~
 #]==]
 function (vtk_detect_library_type output)
-  cmake_parse_arguments(vdlt
+  cmake_parse_arguments(PARSE_ARGV 1 vdlt
     ""
     "PATH"
-    ""
-    ${ARGN})
+    "")
 
   if (NOT DEFINED vdlt_PATH)
     message(FATAL_ERROR
