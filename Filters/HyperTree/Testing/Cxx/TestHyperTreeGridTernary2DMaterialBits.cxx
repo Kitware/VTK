@@ -17,14 +17,14 @@
 // This test was revised by Philippe Pebay, NexGen Analytics 2017
 // This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 
-#include "vtkHyperTreeGridGeometry.h"
-#include "vtkHyperTreeGridSource.h"
-
 #include "vtkBitArray.h"
 #include "vtkCamera.h"
 #include "vtkCellData.h"
 #include "vtkContourFilter.h"
 #include "vtkDataSetMapper.h"
+#include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridGeometry.h"
+#include "vtkHyperTreeGridSource.h"
 #include "vtkHyperTreeGridToDualGrid.h"
 #include "vtkIdTypeArray.h"
 #include "vtkNew.h"
@@ -67,6 +67,7 @@ int TestHyperTreeGridTernary2DMaterialBits(int argc, char* argv[])
     "111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 "
     "111111111 111111111 111111111 111111111 111111111|111111111 111111111 111111111 111111111 "
     "111111111 111111111 111111111 111111111 111111111";
+
   vtkNew<vtkIdTypeArray> zero;
   zero->InsertNextValue(1);
   zero->InsertNextValue(2);
@@ -80,6 +81,9 @@ int TestHyperTreeGridTernary2DMaterialBits(int argc, char* argv[])
   htGrid->SetDescriptorBits(desc);
   desc->Delete();
   htGrid->SetMaskBits(mat);
+  htGrid->Update();
+  vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(htGrid->GetOutput());
+  htg->GetCellData()->SetScalars(htg->GetCellData()->GetArray("Depth"));
   mat->Delete();
 
   // DualGrid
@@ -108,7 +112,7 @@ int TestHyperTreeGridTernary2DMaterialBits(int argc, char* argv[])
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
   vtkNew<vtkPolyDataMapper> mapper1;
   mapper1->SetInputConnection(geometry->GetOutputPort());
-  mapper1->SetScalarRange(pd->GetCellData()->GetScalars()->GetRange());
+  mapper1->SetScalarRange(pd->GetCellData()->GetArray("Depth")->GetRange());
   vtkNew<vtkPolyDataMapper> mapper2;
   mapper2->SetInputConnection(geometry->GetOutputPort());
   mapper2->ScalarVisibilityOff();

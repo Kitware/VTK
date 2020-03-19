@@ -15,17 +15,16 @@
 // .SECTION Thanks
 // This test was written by Philippe Pebay, NexGen Analytics 2017
 
-#include "vtkHyperTreeGrid.h"
-#include "vtkHyperTreeGridAxisClip.h"
-#include "vtkHyperTreeGridGeometry.h"
-#include "vtkHyperTreeGridSource.h"
-#include "vtkHyperTreeGridToUnstructuredGrid.h"
-
 #include "vtkCamera.h"
 #include "vtkCellData.h"
 #include "vtkClipDataSet.h"
 #include "vtkClipPolyData.h"
 #include "vtkDataSetMapper.h"
+#include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridAxisClip.h"
+#include "vtkHyperTreeGridGeometry.h"
+#include "vtkHyperTreeGridSource.h"
+#include "vtkHyperTreeGridToUnstructuredGrid.h"
 #include "vtkNew.h"
 #include "vtkPlane.h"
 #include "vtkPointData.h"
@@ -66,6 +65,9 @@ int TestHyperTreeGridBinaryClipPlanes(int argc, char* argv[])
   htg1->SetBranchFactor(2);
   htg1->UseDescriptorOff();
   htg1->SetQuadric(quadric);
+  htg1->Update();
+  vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(htg1->GetOutput());
+  htg->GetCellData()->SetActiveScalars("Depth");
   vtkNew<vtkHyperTreeGridSource> htg2;
   htg2->SetMaxDepth(0);
   htg2->SetDimensions(res + 1, res + 1, 1); // Dimension 2 suivant xy plane GridCell res, res, 1
@@ -73,6 +75,9 @@ int TestHyperTreeGridBinaryClipPlanes(int argc, char* argv[])
   htg2->SetBranchFactor(2);
   htg2->UseDescriptorOff();
   htg2->SetQuadric(quadric);
+  htg2->Update();
+  htg = vtkHyperTreeGrid::SafeDownCast(htg2->GetOutput());
+  htg->GetCellData()->SetActiveScalars("Depth");
   vtkNew<vtkHyperTreeGridSource> htg3;
   htg3->SetMaxDepth(0);
   htg3->SetDimensions(res + 1, res + 1, res + 1); // GridCell res, res, res
@@ -80,6 +85,9 @@ int TestHyperTreeGridBinaryClipPlanes(int argc, char* argv[])
   htg3->SetBranchFactor(2);
   htg3->UseDescriptorOff();
   htg3->SetQuadric(quadric);
+  htg3->Update();
+  htg = vtkHyperTreeGrid::SafeDownCast(htg3->GetOutput());
+  htg->GetCellData()->SetActiveScalars("Depth");
 
   // Geometries
   vtkNew<vtkHyperTreeGridGeometry> geometry1;

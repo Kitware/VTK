@@ -17,13 +17,12 @@
 // This test was revised by Philippe Pebay, 2016
 // This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 
+#include "vtkCamera.h"
+#include "vtkCellData.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridAxisReflection.h"
 #include "vtkHyperTreeGridGeometry.h"
 #include "vtkHyperTreeGridSource.h"
-
-#include "vtkCamera.h"
-#include "vtkCellData.h"
 #include "vtkNew.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
@@ -62,12 +61,14 @@ int TestHyperTreeGridTernarySphereMaterialReflections(int argc, char* argv[])
   htGrid->SetQuadric(quadric);
   timer->StartTimer();
   htGrid->Update();
+  vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(htGrid->GetOutput());
+  htg->GetCellData()->SetScalars(htg->GetCellData()->GetArray("Depth"));
   timer->StopTimer();
 #ifdef HYPERTREEGRID_GETRUSAGE
   struct rusage usage1;
   getrusage(RUSAGE_SELF, &usage1);
 #endif
-  vtkHyperTreeGrid* H = vtkHyperTreeGrid::SafeDownCast(htGrid->GetOutput());
+  vtkHyperTreeGrid* H = vtkHyperTreeGrid::SafeDownCast(htg);
   vtkIdType nV = H->GetNumberOfVertices();
   vtkIdType nL = H->GetNumberOfLeaves();
   cerr << "Time for 1 HyperTreeGridSource: " << timer->GetElapsedTime() << endl;
@@ -158,7 +159,7 @@ int TestHyperTreeGridTernarySphereMaterialReflections(int argc, char* argv[])
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
   vtkNew<vtkPolyDataMapper> mapper1;
   mapper1->SetInputConnection(geometry->GetOutputPort());
-  mapper1->SetScalarRange(pd->GetCellData()->GetScalars()->GetRange());
+  mapper1->SetScalarRange(pd->GetCellData()->GetArray("Depth")->GetRange());
   vtkNew<vtkPolyDataMapper> mapper2;
   mapper2->SetInputConnection(geometry->GetOutputPort());
   mapper2->ScalarVisibilityOff();

@@ -17,15 +17,14 @@
 // This test was modified by Philippe Pebay, NexGen Analytics 2017
 // This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 
-#include "vtkHyperTreeGrid.h"
-#include "vtkHyperTreeGridCellCenters.h"
-#include "vtkHyperTreeGridGeometry.h"
-#include "vtkHyperTreeGridSource.h"
-
 #include "vtkCamera.h"
 #include "vtkCellData.h"
 #include "vtkGlyph2D.h"
 #include "vtkGlyphSource2D.h"
+#include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridCellCenters.h"
+#include "vtkHyperTreeGridGeometry.h"
+#include "vtkHyperTreeGridSource.h"
 #include "vtkNew.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
@@ -39,6 +38,7 @@ int TestHyperTreeGridBinary2DVector(int argc, char* argv[])
 {
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
+  htGrid->Update();
   htGrid->SetMaxDepth(6);
   htGrid->SetBranchFactor(2);
   htGrid->SetDimensions(3, 4, 1);     // Dimension 2 in xy plane GridCell 2, 3
@@ -48,6 +48,8 @@ int TestHyperTreeGridBinary2DVector(int argc, char* argv[])
   htGrid->GenerateInterfaceFieldsOn();
   htGrid->Update();
   vtkHyperTreeGrid* H = vtkHyperTreeGrid::SafeDownCast(htGrid->GetOutput());
+  H->GetCellData()->SetScalars(H->GetCellData()->GetArray("Depth"));
+
   H->SetHasInterface(1);
   char normalsName[] = "Normals";
   H->SetInterfaceNormalsName(normalsName);
@@ -87,7 +89,7 @@ int TestHyperTreeGridBinary2DVector(int argc, char* argv[])
   mapper1->ScalarVisibilityOff();
   vtkNew<vtkPolyDataMapper> mapper2;
   mapper2->SetInputConnection(geometry2->GetOutputPort());
-  mapper2->SetScalarRange(pd->GetCellData()->GetScalars()->GetRange());
+  mapper2->SetScalarRange(pd->GetCellData()->GetArray("Depth")->GetRange());
   vtkNew<vtkPolyDataMapper> mapper3;
   mapper3->SetInputConnection(glypher->GetOutputPort());
   mapper3->ScalarVisibilityOff();

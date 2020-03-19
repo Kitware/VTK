@@ -17,13 +17,13 @@
 // This test was revised by Philippe Pebay, 2016
 // This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 
-#include "vtkHyperTreeGridGeometry.h"
-#include "vtkHyperTreeGridSource.h"
-
 #include "vtkCamera.h"
 #include "vtkCellData.h"
 #include "vtkContourFilter.h"
 #include "vtkDataSetMapper.h"
+#include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridGeometry.h"
+#include "vtkHyperTreeGridSource.h"
 #include "vtkHyperTreeGridToDualGrid.h"
 #include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
@@ -38,7 +38,6 @@ int TestHyperTreeGridTernary2DMaterial(int argc, char* argv[])
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
   int maxLevel = 6;
-  htGrid->SetMaxDepth(maxLevel);
   htGrid->SetDimensions(3, 4, 1);     // Dimension 2 in xy plane GridCell 2, 3, 1
   htGrid->SetGridScale(1.5, 1., 10.); // this is to test that orientation fixes scale
   htGrid->SetBranchFactor(3);
@@ -61,6 +60,10 @@ int TestHyperTreeGridTernary2DMaterial(int argc, char* argv[])
     "111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 "
     "111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111|111111111 "
     "111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111");
+  htGrid->SetMaxDepth(maxLevel);
+  htGrid->Update();
+  vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(htGrid->GetOutput());
+  htg->GetCellData()->SetScalars(htg->GetCellData()->GetArray("Depth"));
 
   // DualGrid
   vtkNew<vtkHyperTreeGridToDualGrid> dualFilter;
@@ -88,7 +91,7 @@ int TestHyperTreeGridTernary2DMaterial(int argc, char* argv[])
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
   vtkNew<vtkPolyDataMapper> mapper1;
   mapper1->SetInputConnection(geometry->GetOutputPort());
-  mapper1->SetScalarRange(pd->GetCellData()->GetScalars()->GetRange());
+  mapper1->SetScalarRange(pd->GetCellData()->GetArray("Depth")->GetRange());
   vtkNew<vtkPolyDataMapper> mapper2;
   mapper2->SetInputConnection(geometry->GetOutputPort());
   mapper2->ScalarVisibilityOff();

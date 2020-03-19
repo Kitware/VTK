@@ -17,13 +17,13 @@
 // This test was revised by Philippe Pebay, 2016
 // This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 
-#include "vtkHyperTreeGridGeometry.h"
-#include "vtkHyperTreeGridSource.h"
-
 #include "vtkCamera.h"
 #include "vtkCellData.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkContourFilter.h"
+#include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridGeometry.h"
+#include "vtkHyperTreeGridSource.h"
 #include "vtkHyperTreeGridToDualGrid.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
@@ -42,6 +42,9 @@ int TestHyperTreeGridTernaryHyperbola(int argc, char* argv[])
 {
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
+  htGrid->Update();
+  vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(htGrid->GetOutput());
+  htg->GetCellData()->SetScalars(htg->GetCellData()->GetArray("Depth"));
   htGrid->SetMaxDepth(6);
   htGrid->SetDimensions(9, 13, 1); // GridCell 8, 12, 1
   htGrid->SetGridScale(1.5, 1., .7);

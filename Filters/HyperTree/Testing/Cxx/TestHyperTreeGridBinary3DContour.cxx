@@ -16,12 +16,12 @@
 // This test was written by Philippe Pebay, NexGen Analytics 2017
 // This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 
+#include "vtkCamera.h"
+#include "vtkCellData.h"
+#include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridContour.h"
 #include "vtkHyperTreeGridGeometry.h"
 #include "vtkHyperTreeGridSource.h"
-
-#include "vtkCamera.h"
-#include "vtkCellData.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -46,6 +46,9 @@ int TestHyperTreeGridBinary3DContour(int argc, char* argv[])
     "........ ........|........ ........ ........ RR.RR.RR ........ RR...... ........ ........ "
     "........ ........ ........ ........ ........ ..RRR...|........ ..R..... ........ ........ "
     "........ ........ ........ ........ ........ ........ ........|........");
+  htGrid->Update();
+  vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(htGrid->GetOutput());
+  htg->GetCellData()->SetScalars(htg->GetCellData()->GetArray("Depth"));
 
   // Contour
   vtkNew<vtkHyperTreeGridContour> contour;
@@ -70,7 +73,7 @@ int TestHyperTreeGridBinary3DContour(int argc, char* argv[])
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
   vtkNew<vtkPolyDataMapper> mapper1;
   mapper1->SetInputConnection(contour->GetOutputPort());
-  mapper1->SetScalarRange(pd->GetCellData()->GetScalars()->GetRange());
+  mapper1->SetScalarRange(pd->GetCellData()->GetArray("Depth")->GetRange());
   vtkNew<vtkPolyDataMapper> mapper2;
   mapper2->SetInputConnection(contour->GetOutputPort());
   mapper2->ScalarVisibilityOff();

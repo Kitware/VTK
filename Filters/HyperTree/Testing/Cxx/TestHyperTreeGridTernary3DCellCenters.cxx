@@ -16,13 +16,13 @@
 // This test was written by Philippe Pebay, 2017
 // This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 
-#include "vtkHyperTreeGridCellCenters.h"
-#include "vtkHyperTreeGridGeometry.h"
-#include "vtkHyperTreeGridSource.h"
-
 #include "vtkCamera.h"
 #include "vtkCellData.h"
 #include "vtkGlyph3D.h"
+#include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridCellCenters.h"
+#include "vtkHyperTreeGridGeometry.h"
+#include "vtkHyperTreeGridSource.h"
 #include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
@@ -54,6 +54,9 @@ int TestHyperTreeGridTernary3DCellCenters(int argc, char* argv[])
     "........................... ........................... ........................... "
     "........................... ........................... "
     "...........................|........................... ...........................");
+  htGrid->Update();
+  vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(htGrid->GetOutput());
+  htg->GetCellData()->SetScalars(htg->GetCellData()->GetArray("Depth"));
 
   // Geometry
   vtkNew<vtkHyperTreeGridGeometry> geometry;
@@ -85,7 +88,7 @@ int TestHyperTreeGridTernary3DCellCenters(int argc, char* argv[])
   mapper1->ScalarVisibilityOff();
   vtkNew<vtkPolyDataMapper> mapper2;
   mapper2->SetInputConnection(glypher->GetOutputPort());
-  mapper2->SetScalarRange(pd->GetCellData()->GetScalars()->GetRange());
+  mapper2->SetScalarRange(pd->GetCellData()->GetArray("Depth")->GetRange());
 
   // Actors
   vtkNew<vtkActor> actor1;

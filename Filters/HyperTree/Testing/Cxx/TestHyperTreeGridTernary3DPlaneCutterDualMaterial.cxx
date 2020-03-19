@@ -16,15 +16,14 @@
 // This test was written by Philippe Pebay, 2016
 // This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 
+#include "vtkCamera.h"
+#include "vtkCellData.h"
+#include "vtkDataSetMapper.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridGeometry.h"
 #include "vtkHyperTreeGridPlaneCutter.h"
 #include "vtkHyperTreeGridSource.h"
 #include "vtkHyperTreeGridToUnstructuredGrid.h"
-
-#include "vtkCamera.h"
-#include "vtkCellData.h"
-#include "vtkDataSetMapper.h"
 #include "vtkNew.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
@@ -72,13 +71,16 @@ int TestHyperTreeGridTernary3DPlaneCutterDualMaterial(int argc, char* argv[])
     "111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 "
     "111111111111111111111111111 111111111111111111111111111 "
     "110110110100111110111000000|111111111111111111111111111  11111111111111111111111111");
+  htGrid->Update();
+  vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(htGrid->GetOutput());
+  htg->GetCellData()->SetScalars(htg->GetCellData()->GetArray("Depth"));
 
   // Hyper tree grid to unstructured grid filter
   vtkNew<vtkHyperTreeGridToUnstructuredGrid> htg2ug;
   htg2ug->SetInputConnection(htGrid->GetOutputPort());
   htg2ug->Update();
   vtkUnstructuredGrid* ug = htg2ug->GetUnstructuredGridOutput();
-  double* range = ug->GetCellData()->GetScalars()->GetRange();
+  double* range = ug->GetCellData()->GetArray("Depth")->GetRange();
 
   // Plane cutters
   vtkNew<vtkHyperTreeGridPlaneCutter> cut1;

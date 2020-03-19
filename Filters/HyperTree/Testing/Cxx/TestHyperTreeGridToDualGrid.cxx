@@ -15,12 +15,12 @@
 // This test verifies that VTK can obtain the dual grid representation
 // for a HyperTreeGrid.
 
-#include "vtkHyperTreeGridGeometry.h"
-#include "vtkHyperTreeGridSource.h"
-
 #include "vtkCamera.h"
 #include "vtkCellData.h"
 #include "vtkDataSetMapper.h"
+#include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridGeometry.h"
+#include "vtkHyperTreeGridSource.h"
 #include "vtkHyperTreeGridToDualGrid.h"
 #include "vtkHyperTreeGridToUnstructuredGrid.h"
 #include "vtkNew.h"
@@ -48,6 +48,9 @@ int TestHyperTreeGridToDualGrid(int argc, char* argv[])
   htGrid->SetBranchFactor(2);
   htGrid->SetDescriptor("RRRRR.|.... .R.. RRRR R... R...|.R.. ...R ..RR .R.. R... .... ....|.... "
                         "...R ..R. .... .R.. R...|.... .... .R.. ....|....");
+  htGrid->Update();
+  vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(htGrid->GetOutput());
+  htg->GetCellData()->SetScalars(htg->GetCellData()->GetArray("Depth"));
 
   // Geometry
   vtkNew<vtkHyperTreeGridToDualGrid> dualfilter;
@@ -79,7 +82,8 @@ int TestHyperTreeGridToDualGrid(int argc, char* argv[])
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
   vtkNew<vtkDataSetMapper> mapper1;
   mapper1->SetInputConnection(dualfilter->GetOutputPort());
-  // mapper1->SetScalarRange( dual->GetCellData()->GetScalars()->GetRange() ); //no cell data yet
+  // mapper1->SetScalarRange( dual->GetCellData()->GetArray("Depth")->GetRange() ); //no cell data
+  // yet
   vtkNew<vtkDataSetMapper> mapper2;
   mapper2->SetInputConnection(dualfilter->GetOutputPort());
   mapper2->ScalarVisibilityOff();

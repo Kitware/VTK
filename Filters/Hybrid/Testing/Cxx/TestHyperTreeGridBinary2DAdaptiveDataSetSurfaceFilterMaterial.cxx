@@ -21,6 +21,7 @@
 #include "vtkCamera.h"
 #include "vtkCellData.h"
 #include "vtkDataSetMapper.h"
+#include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridSource.h"
 #include "vtkNew.h"
 #include "vtkProperty.h"
@@ -34,6 +35,7 @@ int TestHyperTreeGridBinary2DAdaptiveDataSetSurfaceFilterMaterial(int argc, char
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
   int maxLevel = 6;
+  vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(htGrid->GetOutput());
   htGrid->SetMaxDepth(maxLevel);
   htGrid->SetDimensions(3, 4, 1);     // Dimension 2 in xy plane GridCell 2, 3, 1
   htGrid->SetGridScale(1.5, 1., 10.); // this is to test that orientation fixes scale
@@ -43,6 +45,8 @@ int TestHyperTreeGridBinary2DAdaptiveDataSetSurfaceFilterMaterial(int argc, char
                         "...R ..R. .... .R.. R...|.... .... .R.. ....|....");
   htGrid->SetMask("111111|0000 1111 1111 1111 1111|1111 0001 0111 0101 1011 1111 0111|1111 0111 "
                   "1111 1111 1111 1111|1111 1111 1111 1111|1111");
+  htGrid->Update();
+  htg->GetCellData()->SetScalars(htg->GetCellData()->GetArray("Depth"));
 
   // Data set surface
   vtkNew<vtkAdaptiveDataSetSurfaceFilter> surface;
@@ -51,7 +55,7 @@ int TestHyperTreeGridBinary2DAdaptiveDataSetSurfaceFilterMaterial(int argc, char
   surface->SetInputConnection(htGrid->GetOutputPort());
   surface->Update();
   vtkPolyData* pd = surface->GetOutput();
-  double* range = pd->GetCellData()->GetScalars()->GetRange();
+  double* range = pd->GetCellData()->GetArray("Depth")->GetRange();
 
   // Mappers
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();

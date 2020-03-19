@@ -17,10 +17,11 @@
 // This test was revised by Philippe Pebay, 2016
 // This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 
-#include "vtkHyperTreeGridSource.h"
-
 #include "vtkCamera.h"
+#include "vtkCellData.h"
 #include "vtkContourFilter.h"
+#include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridSource.h"
 #include "vtkHyperTreeGridToDualGrid.h"
 #include "vtkNew.h"
 #include "vtkOutlineFilter.h"
@@ -70,6 +71,9 @@ int TestHyperTreeGridTernary3DDualContourMaterial(int argc, char* argv[])
     "111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 "
     "111111111111111111111111111 111111111111111111111111111 "
     "110110110100111110111000000|111111111111111111111111111  11111111111111111111111111");
+  htGrid->Update();
+  vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(htGrid->GetOutput());
+  htg->GetCellData()->SetScalars(htg->GetCellData()->GetArray("Depth"));
 
   // DualGrid
   vtkNew<vtkHyperTreeGridToDualGrid> dualFilter;
@@ -98,7 +102,7 @@ int TestHyperTreeGridTernary3DDualContourMaterial(int argc, char* argv[])
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
   vtkNew<vtkPolyDataMapper> mapper1;
   mapper1->SetInputConnection(contour->GetOutputPort());
-  mapper1->SetScalarRange(pd->GetPointData()->GetScalars()->GetRange());
+  mapper1->SetScalarRange(pd->GetPointData()->GetArray("Depth")->GetRange());
   vtkNew<vtkPolyDataMapper> mapper2;
   mapper2->SetInputConnection(contour->GetOutputPort());
   mapper2->ScalarVisibilityOff();

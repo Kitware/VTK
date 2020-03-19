@@ -22,6 +22,7 @@
 #include "vtkCamera.h"
 #include "vtkCellData.h"
 #include "vtkDataSetMapper.h"
+#include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridSource.h"
 #include "vtkNew.h"
 #include "vtkProperty.h"
@@ -52,6 +53,9 @@ int TestHyperTreeGridTernary3DToUnstructuredAdaptiveDataSetSurfaceFilter(int arg
     "........................... ........................... ........................... "
     "........................... ........................... "
     "...........................|........................... ...........................");
+  htGrid->Update();
+  vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(htGrid->GetOutput());
+  htg->GetCellData()->SetScalars(htg->GetCellData()->GetArray("Depth"));
 
   // Hyper tree grid to unstructured grid filter
   vtkNew<vtkHyperTreeGridToUnstructuredGrid> htg2ug;
@@ -64,7 +68,7 @@ int TestHyperTreeGridTernary3DToUnstructuredAdaptiveDataSetSurfaceFilter(int arg
   surface->SetInputConnection(htGrid->GetOutputPort());
   surface->Update();
   vtkPolyData* pd = surface->GetOutput();
-  double* range = pd->GetCellData()->GetScalars()->GetRange();
+  double* range = pd->GetCellData()->GetArray("Depth")->GetRange();
 
   // Mappers
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
