@@ -1,15 +1,15 @@
 #include "PIOAdaptor.h"
 #include "BHTree.h"
 
-#include "vtkCellArray.h"
-#include "vtkCellData.h"
 #include "vtkCellType.h"
 #include "vtkDirectory.h"
 #include "vtkDoubleArray.h"
+#include "vtkFieldData.h"
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
 #include "vtkIntArray.h"
 #include "vtkNew.h"
+#include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkStdString.h"
 #include "vtkStringArray.h"
@@ -589,7 +589,7 @@ void PIOAdaptor::create_tracer_UG(vtkMultiBlockDataSet* grid)
       arr->SetNumberOfComponents(1);
       arr->SetNumberOfTuples(numberOfTracers);
       varData[var] = arr->GetPointer(0);
-      tgrid->GetCellData()->AddArray(arr);
+      tgrid->GetPointData()->AddArray(arr);
     }
     int index = 0;
     for (int i = 0; i < numberOfTracers; i++)
@@ -611,7 +611,7 @@ void PIOAdaptor::create_tracer_UG(vtkMultiBlockDataSet* grid)
       arr->SetNumberOfComponents(1);
       arr->SetNumberOfTuples(numberOfTracers);
       varData[var] = arr->GetPointer(0);
-      tgrid->GetCellData()->AddArray(arr);
+      tgrid->GetPointData()->AddArray(arr);
     }
     int index = 0;
     for (int i = 0; i < numberOfTracers; i++)
@@ -1108,12 +1108,12 @@ void PIOAdaptor::create_amr_HTG(vtkMultiBlockDataSet* grid,
 ///////////////////////////////////////////////////////////////////////////////
 
 void PIOAdaptor::load_variable_data(
-  vtkMultiBlockDataSet* grid, vtkDataArraySelection* cellDataArraySelection)
+  vtkMultiBlockDataSet* grid, vtkDataArraySelection* PointDataArraySelection)
 {
   for (unsigned int var = 0; var < this->variableName.size(); var++)
   {
     int64_t* cell_daughter = &daughter[0];
-    if (cellDataArraySelection->ArrayIsEnabled(this->variableName[var].c_str()))
+    if (PointDataArraySelection->ArrayIsEnabled(this->variableName[var].c_str()))
     {
       // Using PIOData fetch the variable data from the file
       int numberOfComponents =
@@ -1173,7 +1173,7 @@ void PIOAdaptor::add_amr_HTG_scalar(vtkMultiBlockDataSet* grid, vtkStdString var
     arr->SetName(varName);
     arr->SetNumberOfComponents(numberOfComponents);
     arr->SetNumberOfTuples(numberOfNodesLeaves);
-    htgrid->GetCellData()->AddArray(arr);
+    htgrid->GetPointData()->AddArray(arr);
     double* varData = arr->GetPointer(0);
 
     // Copy the data in the order needed for recursive create of HTG
@@ -1192,7 +1192,7 @@ void PIOAdaptor::add_amr_HTG_scalar(vtkMultiBlockDataSet* grid, vtkStdString var
     arr->SetName(varName);
     arr->SetNumberOfComponents(numberOfComponents);
     arr->SetNumberOfTuples(numberOfNodesLeaves);
-    htgrid->GetCellData()->AddArray(arr);
+    htgrid->GetPointData()->AddArray(arr);
     float* varData = arr->GetPointer(0);
 
     // Copy the data in the order needed for recursive create of HTG
@@ -1231,7 +1231,7 @@ void PIOAdaptor::add_amr_UG_scalar(vtkMultiBlockDataSet* grid, vtkStdString varN
     arr->SetName(varName);
     arr->SetNumberOfComponents(numberOfComponents);
     arr->SetNumberOfTuples(numberOfActiveCells);
-    ugrid->GetCellData()->AddArray(arr);
+    ugrid->GetPointData()->AddArray(arr);
     double* varData = arr->GetPointer(0);
 
     // Set the data in the matching cells skipping lower level cells
@@ -1253,7 +1253,7 @@ void PIOAdaptor::add_amr_UG_scalar(vtkMultiBlockDataSet* grid, vtkStdString varN
     arr->SetName(varName);
     arr->SetNumberOfComponents(numberOfComponents);
     arr->SetNumberOfTuples(numberOfActiveCells);
-    ugrid->GetCellData()->AddArray(arr);
+    ugrid->GetPointData()->AddArray(arr);
     float* varData = arr->GetPointer(0);
 
     // Set the data in the matching cells skipping lower level cells
