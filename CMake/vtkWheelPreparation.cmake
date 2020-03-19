@@ -1,17 +1,5 @@
-find_package(Python3 COMPONENTS Interpreter)
-
-execute_process(
-  COMMAND "${Python3_EXECUTABLE}"
-          -c "import sysconfig; print(sysconfig.get_config_var('SOABI'))"
-  OUTPUT_VARIABLE vtk_soabi
-  ERROR_VARIABLE  err
-  RESULT_VARIABLE res
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-  ERROR_STRIP_TRAILING_WHITESPACE)
-if (res)
-  message(FATAL_ERROR
-    "Failed to determine SOABI for Python implementation: ${err}")
-endif ()
+find_package(Python3 COMPONENTS Interpreter Development)
+set_property(GLOBAL PROPERTY _vtk_python_soabi "${Python3_SOABI}")
 
 execute_process(
   COMMAND "${Python3_EXECUTABLE}"

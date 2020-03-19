@@ -18,6 +18,9 @@ if(VTK_WRAP_HINTS AND NOT EXISTS ${VTK_WRAP_HINTS})
 endif()
 
 if(BUILD_TESTING OR VTK_WRAP_PYTHON)
+  # VTK only supports a single Python version at a time, so make artifact
+  # finding interactive.
+  set("Python${VTK_PYTHON_VERSION}_ARTIFACTS_INTERACTIVE" ON)
   # Need PYTHON_EXECUTABLE for HeaderTesting or python wrapping
   find_package("Python${VTK_PYTHON_VERSION}" QUIET COMPONENTS Interpreter)
 endif()
