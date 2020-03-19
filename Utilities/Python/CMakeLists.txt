@@ -24,6 +24,10 @@ if (NOT DEFINED VTK_PYTHON_VERSION)
       STRINGS "2;3")
 endif ()
 
+# VTK only supports a single Python version at a time, so make artifact finding
+# interactive.
+set("Python${VTK_PYTHON_VERSION}_ARTIFACTS_INTERACTIVE" ON)
+
 if (VTK_PYTHON_VERSION STREQUAL "2")
   set(vtk_python_min_version "2.6")
   set(vtk_python_version_support "2.7")
@@ -54,6 +58,8 @@ set(vtk_python_includes "${Python${VTK_PYTHON_VERSION}_INCLUDE_DIRS}")
 set(vtk_python_target "Python${VTK_PYTHON_VERSION}::Python")
 set(vtk_python_version "${Python${VTK_PYTHON_VERSION}_VERSION}")
 set(vtk_python_version_pair "${Python${VTK_PYTHON_VERSION}_VERSION_MAJOR}.${Python${VTK_PYTHON_VERSION}_VERSION_MINOR}")
+
+set_property(GLOBAL PROPERTY _vtk_python_soabi "${Python${VTK_PYTHON_VERSION}_SOABI}")
 
 # Check deprecated versions of Python
 if (NOT VTK_LEGACY_SILENT AND vtk_python_version VERSION_LESS vtk_python_version_support)

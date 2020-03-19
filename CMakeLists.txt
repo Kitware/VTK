@@ -343,6 +343,8 @@ if (VTK_WRAP_PYTHON)
   string(REPLACE ";" "\n" vtk_required_python_modules "${vtk_required_python_modules}")
   file(WRITE "${CMAKE_BINARY_DIR}/requirements.txt"
     "${vtk_required_python_modules}\n")
+  get_property(vtk_soabi GLOBAL
+    PROPERTY  _vtk_python_soabi)
   vtk_module_wrap_python(
     MODULES         ${vtk_modules}
     INSTALL_EXPORT  VTKPython
