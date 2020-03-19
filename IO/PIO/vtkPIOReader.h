@@ -65,6 +65,30 @@ public:
 
   //@{
   /**
+   * Specify the creation of hypertree grid
+   */
+  vtkGetMacro(HyperTreeGrid, bool);
+  vtkSetMacro(HyperTreeGrid, bool);
+  //@}
+
+  //@{
+  /**
+   * Specify the creation of tracer data
+   */
+  vtkSetMacro(Tracers, bool);
+  vtkGetMacro(Tracers, bool);
+  //@}
+
+  //@{
+  /**
+   * Specify the use of float64 for data
+   */
+  vtkSetMacro(Float64, bool);
+  vtkGetMacro(Float64, bool);
+  //@}
+
+  //@{
+  /**
    * Get the reader's output
    */
   vtkMultiBlockDataSet* GetOutput();
@@ -103,6 +127,10 @@ protected:
   int CurrentTimeStep;   // Time currently displayed
   int LastTimeStep;      // Last time displayed
 
+  bool HyperTreeGrid; // Create HTG rather than UnstructuredGrid
+  bool Tracers;       // Create UnstructuredGrid for tracer info
+  bool Float64;       // Load variable data as 64 bit float
+
   // Controls initializing and querrying MPI
   vtkMultiProcessController* MPIController;
 
@@ -116,9 +144,8 @@ protected:
   int RequestInformation(
     vtkInformation*, vtkInformationVector** inVector, vtkInformationVector*) override;
 
-  static void SelectionCallback(
+  static void SelectionModifiedCallback(
     vtkObject* caller, unsigned long eid, void* clientdata, void* calldata);
-  static void EventCallback(vtkObject* caller, unsigned long eid, void* clientdata, void* calldata);
 
 private:
   vtkPIOReader(const vtkPIOReader&) = delete;
