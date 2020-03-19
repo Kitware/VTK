@@ -9,8 +9,6 @@ can still be developed as a standalone file.
 
 set(_vtkEncodeString_script_file "${CMAKE_CURRENT_LIST_FILE}")
 
-include(CMakeParseArguments)
-
 #[==[
 @brief Encode a file as a C string at build time
 

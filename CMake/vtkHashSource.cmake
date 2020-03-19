@@ -7,8 +7,6 @@ generate a hash from a file and place that in a generated header.
 
 set(_vtkHashSource_script_file "${CMAKE_CURRENT_LIST_FILE}")
 
-include(CMakeParseArguments)
-
 #[==[
 @brief Generate a header containing the hash of a file
 

@@ -1,5 +1,3 @@
-include(CMakeParseArguments)
-
 #[==[
 @brief Detect library type of a library
 

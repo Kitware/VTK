@@ -140,7 +140,6 @@ function(vtk_fetch_module _name _description)
       VTK_MODULE_ENABLE_VTK_${_name} STREQUAL "YES" OR
       (VTK_MODULE_ENABLE_VTK_${_name} STREQUAL "DEFAULT" AND VTK_BUILD_ALL_MODULES))
     vtk_download_attempt_check(Module_${_name})
-    include(CMakeParseArguments)
     cmake_parse_arguments(_fetch_options "" "GIT_REPOSITORY;GIT_TAG" "" ${ARGN})
     find_package(Git)
     if(NOT GIT_EXECUTABLE)
