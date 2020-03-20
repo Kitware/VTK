@@ -22,12 +22,15 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkVariantArray.h"
 
-#include <map>
+#include <list>
 
 #include <cmath>
 
-// A helper map for quick lookups of annotated values.
-class vtkScalarsToColors::vtkInternalAnnotatedValueMap : public std::map<vtkVariant, vtkIdType>
+// A helper list lookups of annotated values.
+// Note you cannot use a map or sort etc as the
+// comparison operator for vtkVarient is not suitable
+// for strict sorting.
+class vtkScalarsToColors::vtkInternalAnnotatedValueList : public std::list<vtkVariant>
 {
 };
 
@@ -49,7 +52,7 @@ vtkScalarsToColors::vtkScalarsToColors()
   // should be indexed by annotated value.
   this->AnnotatedValues = nullptr;
   this->Annotations = nullptr;
-  this->AnnotatedValueMap = new vtkInternalAnnotatedValueMap;
+  this->AnnotatedValueList = new vtkInternalAnnotatedValueList;
   this->IndexedLookup = 0;
 
   // obsolete, kept for backwards compatibility
@@ -67,7 +70,7 @@ vtkScalarsToColors::~vtkScalarsToColors()
   {
     this->Annotations->UnRegister(this);
   }
-  delete this->AnnotatedValueMap;
+  delete this->AnnotatedValueList;
 }
 
 //----------------------------------------------------------------------------
@@ -1741,7 +1744,7 @@ void vtkScalarsToColors::ResetAnnotations()
   }
   this->AnnotatedValues->Reset();
   this->Annotations->Reset();
-  this->AnnotatedValueMap->clear();
+  this->AnnotatedValueList->clear();
   this->Modified();
 }
 
@@ -1779,9 +1782,17 @@ vtkIdType vtkScalarsToColors::CheckForAnnotatedValue(vtkVariant value)
 // internal use (no pointer checks performed)
 vtkIdType vtkScalarsToColors::GetAnnotatedValueIndexInternal(const vtkVariant& value)
 {
-  vtkInternalAnnotatedValueMap::iterator it = this->AnnotatedValueMap->find(value);
+  auto it = this->AnnotatedValueList->begin();
+  size_t idx = 0;
+  for (; idx < this->AnnotatedValueList->size(); ++idx, it++)
+  {
+    if (*it == value)
+    {
+      break;
+    }
+  }
   vtkIdType nv = this->GetNumberOfAvailableColors();
-  vtkIdType i = (it == this->AnnotatedValueMap->end() ? -1 : (nv ? it->second % nv : it->second));
+  vtkIdType i = (it == this->AnnotatedValueList->end() ? -1 : (nv ? idx % nv : idx));
   return i;
 }
 
@@ -1794,11 +1805,11 @@ void vtkScalarsToColors::GetIndexedColor(vtkIdType, double rgba[4])
 //----------------------------------------------------------------------------
 void vtkScalarsToColors::UpdateAnnotatedValueMap()
 {
-  this->AnnotatedValueMap->clear();
+  this->AnnotatedValueList->clear();
 
   vtkIdType na = this->AnnotatedValues ? this->AnnotatedValues->GetMaxId() + 1 : 0;
   for (vtkIdType i = 0; i < na; ++i)
   {
-    (*this->AnnotatedValueMap)[this->AnnotatedValues->GetVariantValue(i)] = i;
+    this->AnnotatedValueList->push_back(this->AnnotatedValues->GetVariantValue(i));
   }
 }
