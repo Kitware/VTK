@@ -25,6 +25,7 @@
 #define _WIN32_WINNT 0x0601 // for touch support, 0x0601 means target Windows 7 or later
 #endif
 
+#include "vtkHardwareWindow.h"
 #include "vtkRenderWindow.h"
 #include "vtkWin32RenderWindowInteractor.h"
 #include "vtkWindows.h"
@@ -189,7 +190,19 @@ void vtkWin32RenderWindowInteractor::Initialize()
   ren->End();
   size = ren->GetSize();
   ren->GetPosition();
+
   this->WindowId = (HWND)(ren->GetGenericWindowId());
+  if (this->HardwareWindow)
+  {
+    this->WindowId = (HWND)(this->HardwareWindow->GetGenericWindowId());
+    size = this->HardwareWindow->GetSize();
+    vtkSetWindowLong(this->WindowId, sizeof(vtkLONG), (intptr_t)ren);
+  }
+  else
+  {
+    this->WindowId = (HWND)(ren->GetGenericWindowId());
+  }
+
   this->Enable();
   this->Size[0] = size[0];
   this->Size[1] = size[1];

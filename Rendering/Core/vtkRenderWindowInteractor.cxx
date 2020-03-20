@@ -21,6 +21,7 @@
 #include "vtkHardwareWindow.h"
 #include "vtkInteractorStyleSwitchBase.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include "vtkObserverMediator.h"
 #include "vtkPickingManager.h"
 #include "vtkPropPicker.h"
@@ -171,20 +172,7 @@ vtkRenderWindowInteractor::~vtkRenderWindowInteractor()
   this->SetHardwareWindow(nullptr);
 }
 
-//----------------------------------------------------------------------
-vtkRenderWindowInteractor* vtkRenderWindowInteractor::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkRenderWindowInteractor");
-  if (ret)
-  {
-    return static_cast<vtkRenderWindowInteractor*>(ret);
-  }
-
-  vtkRenderWindowInteractor* o = new vtkRenderWindowInteractor;
-  o->InitializeObjectBase();
-  return o;
-}
+vtkObjectFactoryNewMacro(vtkRenderWindowInteractor);
 
 //----------------------------------------------------------------------
 void vtkRenderWindowInteractor::Render()
