@@ -22,7 +22,7 @@
 //---------------------------------------------------------------------------
 vtkLagrangianParticle::vtkLagrangianParticle(int numberOfVariables, vtkIdType seedId,
   vtkIdType particleId, vtkIdType seedArrayTupleIndex, double integrationTime,
-  vtkPointData* seedData, int weightsSize, int numberOfTrackedUserData)
+  vtkPointData* seedData, int numberOfTrackedUserData)
   : Id(particleId)
   , ParentId(-1)
   , SeedId(seedId)
@@ -52,13 +52,6 @@ vtkLagrangianParticle::vtkLagrangianParticle(int numberOfVariables, vtkIdType se
   this->NextVelocity = this->NextEquationVariables.data() + 3;
   this->NextUserVariables = this->NextEquationVariables.data() + 6;
 
-  // Initialize cell cache
-  this->LastCellId = -1;
-  this->LastDataSet = nullptr;
-  this->LastLocator = nullptr;
-  this->WeightsSize = weightsSize;
-  this->LastWeights.resize(this->WeightsSize);
-
   // Initialize surface cell cache
   this->LastSurfaceCellId = -1;
   this->LastSurfaceDataSet = nullptr;
@@ -77,11 +70,11 @@ vtkLagrangianParticle::~vtkLagrangianParticle() = default;
 //---------------------------------------------------------------------------
 vtkLagrangianParticle* vtkLagrangianParticle::NewInstance(int numberOfVariables, vtkIdType seedId,
   vtkIdType particleId, vtkIdType seedArrayTupleIndex, double integrationTime,
-  vtkPointData* seedData, int weightsSize, int numberOfTrackedUserData, vtkIdType numberOfSteps,
+  vtkPointData* seedData, int numberOfTrackedUserData, vtkIdType numberOfSteps,
   double previousIntegrationTime)
 {
   vtkLagrangianParticle* particle = new vtkLagrangianParticle(numberOfVariables, seedId, particleId,
-    seedArrayTupleIndex, integrationTime, seedData, weightsSize, numberOfTrackedUserData);
+    seedArrayTupleIndex, integrationTime, seedData, numberOfTrackedUserData);
   particle->NumberOfSteps = numberOfSteps;
   particle->PrevIntegrationTime = previousIntegrationTime;
   return particle;
@@ -94,7 +87,7 @@ vtkLagrangianParticle* vtkLagrangianParticle::NewParticle(vtkIdType particleId)
   vtkLagrangianParticle* particle =
     vtkLagrangianParticle::NewInstance(this->GetNumberOfVariables(), this->GetSeedId(), particleId,
       this->SeedArrayTupleIndex, this->IntegrationTime + this->StepTime, this->SeedData,
-      this->WeightsSize, static_cast<int>(this->TrackedUserData.size()));
+      static_cast<int>(this->TrackedUserData.size()));
   particle->ParentId = this->GetId();
   particle->NumberOfSteps = this->GetNumberOfSteps() + 1;
 
@@ -123,7 +116,7 @@ vtkLagrangianParticle* vtkLagrangianParticle::CloneParticle()
 {
   vtkLagrangianParticle* clone = vtkLagrangianParticle::NewInstance(this->GetNumberOfVariables(),
     this->GetSeedId(), this->GetId(), this->SeedArrayTupleIndex, this->IntegrationTime,
-    this->GetSeedData(), this->WeightsSize, static_cast<int>(this->TrackedUserData.size()));
+    this->GetSeedData(), static_cast<int>(this->TrackedUserData.size()));
   clone->Id = this->Id;
   clone->ParentId = this->ParentId;
   clone->NumberOfSteps = this->NumberOfSteps;
@@ -146,46 +139,6 @@ vtkLagrangianParticle* vtkLagrangianParticle::CloneParticle()
   clone->ThreadedData = this->ThreadedData;
 
   return clone;
-}
-
-//---------------------------------------------------------------------------
-double* vtkLagrangianParticle::GetLastWeights()
-{
-  return this->LastWeights.data();
-}
-
-//---------------------------------------------------------------------------
-vtkIdType vtkLagrangianParticle::GetLastCellId()
-{
-  return this->LastCellId;
-}
-
-//---------------------------------------------------------------------------
-double* vtkLagrangianParticle::GetLastCellPosition()
-{
-  return this->LastCellPosition;
-}
-
-//---------------------------------------------------------------------------
-vtkDataSet* vtkLagrangianParticle::GetLastDataSet()
-{
-  return this->LastDataSet;
-}
-
-//---------------------------------------------------------------------------
-vtkAbstractCellLocator* vtkLagrangianParticle::GetLastLocator()
-{
-  return this->LastLocator;
-}
-
-//---------------------------------------------------------------------------
-void vtkLagrangianParticle::SetLastCell(
-  vtkAbstractCellLocator* locator, vtkDataSet* dataset, vtkIdType cellId, double cellPosition[3])
-{
-  this->LastLocator = locator;
-  this->LastDataSet = dataset;
-  this->LastCellId = cellId;
-  std::copy(cellPosition, cellPosition + 3, this->LastCellPosition);
 }
 
 //---------------------------------------------------------------------------
@@ -378,9 +331,6 @@ void vtkLagrangianParticle::MoveToNextPosition()
 void vtkLagrangianParticle::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "Id: " << this->Id << std::endl;
-  os << indent << "LastCellId: " << this->LastCellId << std::endl;
-  os << indent << "LastDataSet: " << this->LastDataSet << std::endl;
-  os << indent << "LastLocator: " << this->LastLocator << std::endl;
   os << indent << "NumberOfSteps: " << this->NumberOfSteps << std::endl;
   os << indent << "NumberOfVariables: " << this->NumberOfVariables << std::endl;
   os << indent << "ParentId: " << this->ParentId << std::endl;

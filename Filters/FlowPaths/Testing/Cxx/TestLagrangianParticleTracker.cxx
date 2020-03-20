@@ -238,7 +238,7 @@ int TestLagrangianParticleTracker(int, char*[])
   tracker->SetMaximumNumberOfSteps(300);
   tracker->SetMaximumIntegrationTime(-1.0);
   tracker->SetSurfaceConnection(groupSurface->GetOutputPort());
-  tracker->SetCellLengthComputationMode(vtkLagrangianParticleTracker::STEP_LAST_CELL_VEL_DIR);
+  tracker->SetCellLengthComputationMode(vtkLagrangianParticleTracker::STEP_CUR_CELL_VEL_DIR);
   tracker->AdaptiveStepReintegrationOff();
   tracker->Update();
   if (tracker->GetStepFactor() != 0.1)
@@ -267,7 +267,7 @@ int TestLagrangianParticleTracker(int, char*[])
     return EXIT_FAILURE;
   }
   if (tracker->GetCellLengthComputationMode() !=
-    vtkLagrangianParticleTracker::STEP_LAST_CELL_VEL_DIR)
+    vtkLagrangianParticleTracker::STEP_CUR_CELL_VEL_DIR)
   {
     std::cerr << "Incorrect CellLengthComputationMode" << std::endl;
     return EXIT_FAILURE;

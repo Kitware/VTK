@@ -39,7 +39,7 @@ int TestLagrangianParticle(int, char*[])
 
   std::unique_ptr<vtkLagrangianThreadedData> data(new vtkLagrangianThreadedData);
   vtkNew<vtkGenericCell> cell;
-  vtkLagrangianParticle part(nvar, seedId, particleCounter, seedId, 0, pd, 8, 3);
+  vtkLagrangianParticle part(nvar, seedId, particleCounter, seedId, 0, pd, 3);
   part.SetThreadedData(data.get());
   particleCounter++;
   if (nvar != part.GetNumberOfVariables())
@@ -206,18 +206,6 @@ int TestLagrangianParticle(int, char*[])
     return EXIT_FAILURE;
   }
 
-  vtkNew<vtkStaticCellLocator> locator;
-  vtkNew<vtkPolyData> poly;
-  int cellId = 17;
-  double pos[3] = { 0, 0, 0 };
-  part.SetLastCell(locator, poly, cellId, pos);
-  if (part.GetLastLocator() != locator || part.GetLastDataSet() != poly ||
-    part.GetLastCellId() != cellId)
-  {
-    std::cerr << "Incorrect LastCellId or LastDataSet or LastLocator" << std::endl;
-    return EXIT_FAILURE;
-  }
-
   part.SetTermination(vtkLagrangianParticle::PARTICLE_TERMINATION_SURF_TERMINATED);
   if (part.GetTermination() != vtkLagrangianParticle::PARTICLE_TERMINATION_SURF_TERMINATED)
   {
@@ -278,11 +266,11 @@ int TestLagrangianParticle(int, char*[])
   part.PrintSelf(std::cout, vtkIndent(0));
 
   particleCounter = 0;
-  vtkLagrangianParticle part4(nvar, seedId, particleCounter, seedId, 0, pd, 8, 17);
+  vtkLagrangianParticle part4(nvar, seedId, particleCounter, seedId, 0, pd, 3);
   part4.SetThreadedData(data.get());
   particleCounter++;
   std::unique_ptr<vtkLagrangianParticle> part5(vtkLagrangianParticle::NewInstance(
-    nvar, seedId, particleCounter, seedId, 0.17, pd, 8, 7, 17, 0.13));
+    nvar, seedId, particleCounter, seedId, 0.17, pd, 7, 17, 0.13));
   particleCounter++;
   if (part4.GetId() != 0)
   {

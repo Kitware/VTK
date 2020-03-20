@@ -172,11 +172,9 @@ int TestLagrangianIntegrationModel(int, char*[])
   }
   odeWavelet->SetUseInitialIntegrationTime(false);
 
-  std::unique_ptr<vtkLagrangianThreadedData> data(new vtkLagrangianThreadedData);
-  vtkLagrangianParticle part(nvar, seedIdx, seedIdx, 0, 0, pd, odeWavelet->GetWeightsSize(), 3);
-  std::unique_ptr<vtkBilinearQuadIntersection> bqi(new vtkBilinearQuadIntersection);
-  data->BilinearQuadIntersection = bqi.get();
-  part.SetThreadedData(data.get());
+  vtkLagrangianThreadedData* data = odeWavelet->InitializeThreadedData();
+  vtkLagrangianParticle part(nvar, seedIdx, seedIdx, 0, 0, pd, 3);
+  part.SetThreadedData(data);
 
   odeWavelet->InitializeParticleData(pd);
   odeWavelet->InsertParticleData(&part, pd, 0);
@@ -197,7 +195,8 @@ int TestLagrangianIntegrationModel(int, char*[])
 
   if (odeWavelet->GetWeightsSize() != 8)
   {
-    std::cerr << "Incorrect Weights Size" << std::endl;
+    std::cerr << "Incorrect Weights Size: " << odeWavelet->GetWeightsSize() << ". Expecting 8"
+              << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -663,5 +662,7 @@ int TestLagrangianIntegrationModel(int, char*[])
               << std::endl;
     return EXIT_FAILURE;
   }
+
+  odeWavelet->FinalizeThreadedData(data);
   return EXIT_SUCCESS;
 }

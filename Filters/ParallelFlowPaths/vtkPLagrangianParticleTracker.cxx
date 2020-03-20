@@ -114,7 +114,6 @@ public:
     // Initialize Members
     this->Controller = controller;
     this->SeedData = seedData;
-    this->WeightsSize = model->GetWeightsSize();
 
     // Gather bounds and initialize requests
     std::vector<double> allBounds(6 * this->Controller->GetNumberOfProcesses(), 0);
@@ -260,8 +259,8 @@ public:
 
       // Create a particle with out of range seedData
       particle = vtkLagrangianParticle::NewInstance(nVar, seedId, particleId,
-        this->SeedData->GetNumberOfTuples(), iTime, this->SeedData, this->WeightsSize,
-        nTrackedUserData, nSteps, prevITime);
+        this->SeedData->GetNumberOfTuples(), iTime, this->SeedData, nTrackedUserData, nSteps,
+        prevITime);
       particle->SetParentId(parentId);
       particle->SetUserFlag(userFlag);
       particle->SetPInsertPreviousPosition(pInsertPrevious);
@@ -336,7 +335,6 @@ public:
 private:
   vtkMPIController* Controller;
   int StreamSize;
-  int WeightsSize;
   MessageStream* ReceiveStream;
   vtkPointData* SeedData;
   ParticleStreamManager(const ParticleStreamManager&) {}
@@ -896,12 +894,6 @@ void vtkPLagrangianParticleTracker::GenerateParticles(const vtkBoundingBox* boun
       this->RFlagManager = new RankFlagManager(this->Controller);
     }
 
-    // Create and set a dummy particle so FindInLocators can use caching.
-    std::unique_ptr<vtkLagrangianThreadedData> dummyData(new vtkLagrangianThreadedData);
-    vtkLagrangianParticle dummyParticle(
-      0, 0, 0, 0, 0, nullptr, this->IntegrationModel->GetWeightsSize(), 0);
-    dummyParticle.SetThreadedData(dummyData.get());
-
     // Generate particle and distribute the ones not in domain to other nodes
     for (vtkIdType i = 0; i < seeds->GetNumberOfPoints(); i++)
     {
@@ -911,12 +903,12 @@ void vtkPLagrangianParticleTracker::GenerateParticles(const vtkBoundingBox* boun
         initialIntegrationTimes ? initialIntegrationTimes->GetTuple1(i) : 0;
       vtkIdType particleId = this->GetNewParticleId();
       vtkLagrangianParticle* particle = new vtkLagrangianParticle(nVar, particleId, particleId, i,
-        initialIntegrationTime, seedData, this->IntegrationModel->GetWeightsSize(),
-        this->IntegrationModel->GetNumberOfTrackedUserData());
+        initialIntegrationTime, seedData, this->IntegrationModel->GetNumberOfTrackedUserData());
       memcpy(particle->GetPosition(), position, 3 * sizeof(double));
       initialVelocities->GetTuple(i, particle->GetVelocity());
+      particle->SetThreadedData(this->SerialThreadedData);
       this->IntegrationModel->InitializeParticle(particle);
-      if (this->IntegrationModel->FindInLocators(particle->GetPosition(), &dummyParticle))
+      if (this->IntegrationModel->FindInLocators(particle->GetPosition(), particle))
       {
         particles.push(particle);
       }
@@ -1104,14 +1096,10 @@ void vtkPLagrangianParticleTracker::ReceiveParticles(
 {
   vtkLagrangianParticle* receivedParticle;
 
-  // Create and set a dummy particle so FindInLocators can use caching.
-  std::unique_ptr<vtkLagrangianThreadedData> dummyData(new vtkLagrangianThreadedData);
-  vtkLagrangianParticle dummyParticle(
-    0, 0, 0, 0, 0, nullptr, this->IntegrationModel->GetWeightsSize(), 0);
-  dummyParticle.SetThreadedData(dummyData.get());
-
   while (this->StreamManager->ReceiveParticleIfAny(receivedParticle))
   {
+    receivedParticle->SetThreadedData(this->SerialThreadedData);
+
     // Check for manual shift
     if (receivedParticle->GetPManualShift())
     {
@@ -1119,7 +1107,7 @@ void vtkPLagrangianParticleTracker::ReceiveParticles(
       receivedParticle->SetPManualShift(false);
     }
     // Receive all particles
-    if (this->IntegrationModel->FindInLocators(receivedParticle->GetPosition(), &dummyParticle))
+    if (this->IntegrationModel->FindInLocators(receivedParticle->GetPosition(), receivedParticle))
     {
       particleQueue.push(receivedParticle);
 

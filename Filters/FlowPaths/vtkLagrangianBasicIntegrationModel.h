@@ -364,13 +364,13 @@ public:
    * Let the model allocate and initialize a threaded data.
    * This method is thread-safe, its reimplementation should still be thread-safe.
    */
-  virtual void InitializeThreadedData(vtkLagrangianThreadedData* vtkNotUsed(data)) {}
+  virtual vtkLagrangianThreadedData* InitializeThreadedData();
 
   /**
    * Let the model finalize and deallocate a user data at thread level
    * This method is called serially for each thread and does not require to be thread safe.
    */
-  virtual void FinalizeThreadedData(vtkLagrangianThreadedData* vtkNotUsed(data)) {}
+  virtual void FinalizeThreadedData(vtkLagrangianThreadedData*& data);
 
   /**
    * Enable model post process on output
@@ -594,7 +594,7 @@ protected:
   bool LocatorsBuilt;
   vtkLocatorsType* Locators;
   vtkDataSetsType* DataSets;
-  std::vector<double> SharedWeights;
+  int WeightsSize = 0;
 
   struct ArrayVal
   {
