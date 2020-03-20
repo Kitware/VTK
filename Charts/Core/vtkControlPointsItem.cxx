@@ -1513,7 +1513,10 @@ void vtkControlPointsItem::Stroke(const vtkVector2f& newPos)
       this->GetControlPoint(lastPointId + 1, point);
       while (pos[0] >= point[0])
       {
-        this->RemovePoint(point);
+        if (this->RemovePoint(point) == -1)
+        {
+          break;
+        }
         count = this->GetNumberOfPoints();
         if (lastPointId == count - 1)
         {
@@ -1529,7 +1532,10 @@ void vtkControlPointsItem::Stroke(const vtkVector2f& newPos)
       this->GetControlPoint(lastPointId - 1, point);
       while (pos[0] <= point[0])
       {
-        this->RemovePoint(point);
+        if (this->RemovePoint(point) == -1)
+        {
+          break;
+        }
         --lastPointId;
         if (lastPointId == 0)
         {
