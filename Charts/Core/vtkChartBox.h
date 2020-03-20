@@ -216,7 +216,7 @@ protected:
   bool LocatePointInPlots(const vtkContextMouseEvent& mouse, int invokeEvent = -1);
 
   int LocatePointInPlot(const vtkVector2f& position, const vtkVector2f& tolerance,
-    vtkVector2f& plotPos, vtkPlot* plot, vtkIdType& segmentIndex);
+    vtkVector2f& plotPos, vtkPlot* plot, vtkIdType& segmentId);
 
 private:
   vtkChartBox(const vtkChartBox&) = delete;

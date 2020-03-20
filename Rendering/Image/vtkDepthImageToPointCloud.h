@@ -173,8 +173,8 @@ protected:
 
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int RequestUpdateExtent(
-    vtkInformation* request, vtkInformationVector** inInfo, vtkInformationVector* outInfo) override;
+  int RequestUpdateExtent(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outInfo) override;
 
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;

@@ -1774,7 +1774,7 @@ void vtkStaticPointLocator::BuildLocator()
 //  subject to the constraints of levels and NumberOfPointsPerBucket.
 //  The result is directly addressable and of uniform subdivision.
 //
-void vtkStaticPointLocator::BuildLocator(const double* bds)
+void vtkStaticPointLocator::BuildLocator(const double* inBounds)
 {
   int ndivs[3];
   int i;
@@ -1806,7 +1806,7 @@ void vtkStaticPointLocator::BuildLocator(const double* bds)
   // level and divisions. The GetBounds() method below can be very slow;
   // hopefully it is cached or otherwise accelerated.
   //
-  const double* bounds = (bds == nullptr ? this->DataSet->GetBounds() : bds);
+  const double* bounds = (inBounds == nullptr ? this->DataSet->GetBounds() : inBounds);
   vtkIdType numBuckets = static_cast<vtkIdType>(
     static_cast<double>(numPts) / static_cast<double>(this->NumberOfPointsPerBucket));
   numBuckets = (numBuckets > this->MaxNumberOfBuckets ? this->MaxNumberOfBuckets : numBuckets);

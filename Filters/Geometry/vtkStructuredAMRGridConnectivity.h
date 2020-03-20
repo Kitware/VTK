@@ -202,12 +202,12 @@ protected:
   /**
    * Checks if the node is an interior node in the given extent.
    */
-  bool IsNodeInterior(const int i, const int j, const int k, int ext[6]);
+  bool IsNodeInterior(const int i, const int j, const int k, int GridExtent[6]);
 
   /**
    * Checks if the node is within the extent.
    */
-  bool IsNodeWithinExtent(const int i, const int j, const int k, int ext[6]);
+  bool IsNodeWithinExtent(const int i, const int j, const int k, int GridExtent[6]);
 
   /**
    * Checks if the node is on a shared boundary.
@@ -382,7 +382,7 @@ protected:
   /**
    * Fills the cell ghost arrays for the given grid
    */
-  virtual void FillCellsGhostArray(const int gridId, vtkUnsignedCharArray* cellArray);
+  virtual void FillCellsGhostArray(const int gridId, vtkUnsignedCharArray* cellsArray);
 
   /**
    * Fills ghost arrays.

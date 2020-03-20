@@ -103,7 +103,7 @@ protected:
   vtkKochanekSpline();
   ~vtkKochanekSpline() override {}
 
-  void Fit1D(int n, double* x, double* y, double tension, double bias, double continuity,
+  void Fit1D(int size, double* x, double* y, double tension, double bias, double continuity,
     double coefficients[][4], int leftConstraint, double leftValue, int rightConstraint,
     double rightValue);
 

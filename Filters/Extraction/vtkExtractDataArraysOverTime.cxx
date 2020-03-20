@@ -126,13 +126,14 @@ private:
   // change.
   vtkSmartPointer<vtkDoubleArray> TimeArray;
 
-  void AddTimeStepInternal(unsigned int cid, int ts_index, double time, vtkDataObject* data);
+  void AddTimeStepInternal(
+    unsigned int composite_index, int ts_index, double time, vtkDataObject* input);
 
   /**
    * Runs stats filters to summarize the data and return
    * a new dataobject with the summary.
    */
-  vtkSmartPointer<vtkDataObject> Summarize(vtkDataObject* data);
+  vtkSmartPointer<vtkDataObject> Summarize(vtkDataObject* input);
 
   vtkValue* GetOutput(const vtkKey& key, vtkDataSetAttributes* inDSA, bool using_gid);
 

@@ -206,7 +206,7 @@ protected:
    * Fills the ghost array for the nodes
    */
   void FillNodesGhostArray(const int gridID, const int dataDescription, int GridExtent[6],
-    int RealExtent[6], vtkUnsignedCharArray* nodeArray);
+    int RealExtent[6], vtkUnsignedCharArray* nodesArray);
 
   /**
    * Fills the ghost array for the grid cells
@@ -392,7 +392,8 @@ protected:
    * VTK_NODE_OVERLAP    1
    * VTK_PARTIAL_OVERLAP 3
    */
-  int PartialOverlap(int A[2], const int CofA, int B[2], const int CofB, int overlap[2]);
+  int PartialOverlap(
+    int A[2], const int CardinalityOfA, int B[2], const int CardinalityOfB, int overlap[2]);
 
   /**
    * Establishes the neighboring information between the two grids
@@ -554,7 +555,7 @@ protected:
   /**
    * This method transfers the fields
    */
-  void TransferLocalNeighborData(const int gridID, const vtkStructuredNeighbor& Neighor);
+  void TransferLocalNeighborData(const int gridID, const vtkStructuredNeighbor& Neighbor);
 
   /**
    * Copies the coordinates from the source points to the target points.

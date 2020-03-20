@@ -331,7 +331,7 @@ public:
    * of the single precision range. The chart that owns the plot should set this
    * and ensure the appropriate matrix is used when rendering the plot.
    */
-  void SetShiftScale(const vtkRectd& scaling);
+  void SetShiftScale(const vtkRectd& shiftScale);
   vtkRectd GetShiftScale();
   //@}
 

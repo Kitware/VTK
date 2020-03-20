@@ -128,7 +128,7 @@ public:
    * that if Python is initialized again (by calls to Initialize()), then these
    * paths will be re-added.
    */
-  static void PrependPythonPath(const char* path);
+  static void PrependPythonPath(const char* dir);
 
   //@{
   /**

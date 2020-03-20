@@ -249,7 +249,7 @@ protected:
   // Helper methods
   int GeneratePoints(vtkIdType offset, vtkIdType npts, const vtkIdType* pts, vtkPoints* inPts,
     vtkPoints* newPts, vtkPointData* pd, vtkPointData* outPD, vtkFloatArray* newNormals,
-    vtkDataArray* inScalars, double range[2], vtkDataArray* inVectors, double maxNorm,
+    vtkDataArray* inScalars, double range[2], vtkDataArray* inVectors, double maxSpeed,
     vtkDataArray* inNormals);
   void GenerateStrips(vtkIdType offset, vtkIdType npts, const vtkIdType* pts, vtkIdType inCellId,
     vtkCellData* cd, vtkCellData* outCD, vtkCellArray* newStrips);

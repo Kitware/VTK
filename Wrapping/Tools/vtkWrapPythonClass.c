@@ -596,7 +596,7 @@ void vtkWrapPython_GenerateObjectType(FILE* fp, const char* module, const char* 
 /* -------------------------------------------------------------------- */
 /* Wrap one class */
 int vtkWrapPython_WrapOneClass(FILE* fp, const char* module, const char* classname, ClassInfo* data,
-  FileInfo* finfo, HierarchyInfo* hinfo, int is_vtkobject)
+  FileInfo* file_info, HierarchyInfo* hinfo, int is_vtkobject)
 {
   int class_has_new = 0;
   int i;
@@ -604,7 +604,7 @@ int vtkWrapPython_WrapOneClass(FILE* fp, const char* module, const char* classna
   /* recursive handling of templated classes */
   if (data->Template)
   {
-    return vtkWrapPython_WrapTemplatedClass(fp, data, finfo, hinfo);
+    return vtkWrapPython_WrapTemplatedClass(fp, data, file_info, hinfo);
   }
 
   /* verify wrappability */
@@ -622,7 +622,7 @@ int vtkWrapPython_WrapOneClass(FILE* fp, const char* module, const char* classna
   /* the docstring for the class, as a static var ending in "Doc" */
   fprintf(fp, "\nstatic const char *Py%s_Doc =\n", classname);
 
-  vtkWrapPython_ClassDoc(fp, finfo, data, hinfo, is_vtkobject);
+  vtkWrapPython_ClassDoc(fp, file_info, data, hinfo, is_vtkobject);
 
   fprintf(fp, ";\n\n");
 
@@ -649,7 +649,7 @@ int vtkWrapPython_WrapOneClass(FILE* fp, const char* module, const char* classna
   }
 
   /* now output all the methods are wrappable */
-  vtkWrapPython_GenerateMethods(fp, classname, data, finfo, hinfo, is_vtkobject, 0);
+  vtkWrapPython_GenerateMethods(fp, classname, data, file_info, hinfo, is_vtkobject, 0);
 
   /* output the class initialization function for VTK objects */
   if (is_vtkobject)
@@ -661,7 +661,7 @@ int vtkWrapPython_WrapOneClass(FILE* fp, const char* module, const char* classna
   /* output the class initialization function for special objects */
   else
   {
-    vtkWrapPython_GenerateSpecialType(fp, module, classname, data, finfo, hinfo);
+    vtkWrapPython_GenerateSpecialType(fp, module, classname, data, file_info, hinfo);
   }
 
   return 1;

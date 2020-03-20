@@ -98,7 +98,7 @@ public:
       xprev, nullptr, xnext, t, delT, delTActual, minStep, maxStep, maxError, error, userData);
   }
   int ComputeNextStep(double* xprev, double* dxprev, double* xnext, double t, double& delT,
-    double& delTActual, double minStep, double maxStep, double maxError, double& error,
+    double& delTActual, double minStep, double maxStep, double maxError, double& estErr,
     void* userData) override;
   //@}
 

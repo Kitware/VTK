@@ -114,7 +114,7 @@ protected:
 
   // used when the texture exceeds the GL limit
   unsigned char* ResampleToPowerOfTwo(
-    int& xsize, int& ysize, unsigned char* dptr, int bpp, int maxTexSize);
+    int& xsize, int& ysize, unsigned char* dptr, int bpp, int maxDimGL);
 
 private:
   vtkOpenGLTexture(const vtkOpenGLTexture&) = delete;

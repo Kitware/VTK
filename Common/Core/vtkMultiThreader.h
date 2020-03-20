@@ -176,12 +176,12 @@ public:
   /**
    * Terminate the thread that was created with a SpawnThreadExecute()
    */
-  void TerminateThread(int thread_id);
+  void TerminateThread(int threadId);
 
   /**
    * Determine if a thread is still active
    */
-  vtkTypeBool IsThreadActive(int threadID);
+  vtkTypeBool IsThreadActive(int threadId);
 
   /**
    * Get the thread identifier of the calling thread.

@@ -151,7 +151,7 @@ public:
    * Main execution.
    */
   void ThreadedExecute(
-    vtkStructuredGrid* input, vtkInformationVector** inVec, vtkInformation* outInfo);
+    vtkStructuredGrid* input, vtkInformationVector** inputVector, vtkInformation* outInfo);
 
   /**
    * This filter will initiate streaming so that no piece requested

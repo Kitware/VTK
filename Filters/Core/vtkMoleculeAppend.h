@@ -45,7 +45,7 @@ public:
    * old-style pipeline connections.  When writing new code you should
    * use vtkAlgorithm::GetInputConnection(0, num).
    */
-  vtkDataObject* GetInput(int num);
+  vtkDataObject* GetInput(int idx);
   vtkDataObject* GetInput() { return this->GetInput(0); }
   //@}
 

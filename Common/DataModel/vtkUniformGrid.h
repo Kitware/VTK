@@ -163,7 +163,7 @@ public:
    * These methods should be called only after the dimensions of the
    * grid are set.
    */
-  virtual unsigned char IsPointVisible(vtkIdType ptId);
+  virtual unsigned char IsPointVisible(vtkIdType pointId);
 
   /**
    * Return non-zero value if specified cell is visible.

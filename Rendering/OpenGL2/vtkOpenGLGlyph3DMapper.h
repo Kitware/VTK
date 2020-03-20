@@ -106,7 +106,7 @@ protected:
   /**
    * Build data structures associated with
    */
-  virtual void RebuildStructures(vtkOpenGLGlyph3DMapperSubArray* entry, vtkIdType numPts,
+  virtual void RebuildStructures(vtkOpenGLGlyph3DMapperSubArray* subarray, vtkIdType numPts,
     vtkActor* actor, vtkDataSet* dataset, vtkBitArray* maskArray);
 
   vtkMTimeType BlockMTime; // Last time BlockAttributes was modified.

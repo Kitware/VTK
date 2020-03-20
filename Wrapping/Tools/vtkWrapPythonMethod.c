@@ -37,7 +37,7 @@ static void vtkWrapPython_SubstituteCode(
   FILE* fp, ClassInfo* data, FunctionInfo* func, const char* code);
 
 /* Check any "expects" preconditions prior to calling the function */
-static void vtkWrapPython_CheckPreconds(FILE* fp, ClassInfo* data, FunctionInfo* currentFunction);
+static void vtkWrapPython_CheckPreconds(FILE* fp, ClassInfo* data, FunctionInfo* func);
 
 /* save the contents of all arrays prior to calling the function */
 static void vtkWrapPython_SaveArgs(FILE* fp, FunctionInfo* currentFunction);

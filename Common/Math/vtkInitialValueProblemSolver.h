@@ -131,7 +131,7 @@ public:
   /**
    * Set / get the dataset used for the implicit function evaluation.
    */
-  virtual void SetFunctionSet(vtkFunctionSet* functionset);
+  virtual void SetFunctionSet(vtkFunctionSet* fset);
   vtkGetObjectMacro(FunctionSet, vtkFunctionSet);
   //@}
 

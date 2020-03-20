@@ -51,7 +51,7 @@ public:
   void Draw3DPath(vtkPath* path, vtkMatrix4x4* actorMatrix, double rasterPos[3],
     unsigned char actorColor[4], vtkRenderer* ren, const char* label = nullptr) override;
 
-  void DrawImage(vtkImageData* image, double pos[3]) override;
+  void DrawImage(vtkImageData* input, double pos[3]) override;
 
 protected:
   vtkOpenGLGL2PSHelperImpl();

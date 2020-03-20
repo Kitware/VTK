@@ -225,7 +225,7 @@ public:
    * you will be inserting points between (0,numPtsToInsert-1).
    */
   vtkUnstructuredGrid* InitPointInsertion(
-    double center[3], double length, vtkIdType numPts, vtkPoints*& pts);
+    double center[3], double length, vtkIdType numPts, vtkPoints*& points);
 
   /**
    * This is a helper method used with InitPointInsertion() to create
@@ -282,9 +282,9 @@ protected:
   vtkIncrementalPointLocator* Locator; // help locate points faster
 
   vtkTetraArray* TetraArray; // used to keep track of circumspheres/neighbors
-  int FindTetra(vtkUnstructuredGrid* Mesh, double x[3], vtkIdType tetId, int depth);
+  int FindTetra(vtkUnstructuredGrid* Mesh, double x[3], vtkIdType tetraId, int depth);
   int InSphere(double x[3], vtkIdType tetraId);
-  void InsertTetra(vtkUnstructuredGrid* Mesh, vtkPoints* pts, vtkIdType tetraId);
+  void InsertTetra(vtkUnstructuredGrid* Mesh, vtkPoints* points, vtkIdType tetraId);
 
   int NumberOfDuplicatePoints; // keep track of bad data
   int NumberOfDegeneracies;

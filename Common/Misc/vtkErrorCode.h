@@ -29,8 +29,8 @@
 class VTKCOMMONMISC_EXPORT vtkErrorCode
 {
 public:
-  static const char* GetStringFromErrorCode(unsigned long event);
-  static unsigned long GetErrorCodeFromString(const char* event);
+  static const char* GetStringFromErrorCode(unsigned long error);
+  static unsigned long GetErrorCodeFromString(const char* error);
   static unsigned long GetLastSystemError();
 
   // all the currently defined error codes

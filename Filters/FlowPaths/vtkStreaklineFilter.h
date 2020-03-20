@@ -39,7 +39,7 @@ public:
   }
   void Initialize(vtkParticleTracerBase* filter);
   virtual ~StreaklineFilterInternal() {}
-  virtual int OutputParticles(vtkPolyData* poly);
+  virtual int OutputParticles(vtkPolyData* particles);
   void Finalize();
   void Reset();
 
@@ -60,7 +60,7 @@ protected:
   ~vtkStreaklineFilter() override {}
   vtkStreaklineFilter(const vtkStreaklineFilter&) = delete;
   void operator=(const vtkStreaklineFilter&) = delete;
-  int OutputParticles(vtkPolyData* poly) override;
+  int OutputParticles(vtkPolyData* particles) override;
   void Finalize() override;
 
   StreaklineFilterInternal It;

@@ -54,8 +54,8 @@ public:
   static void Compress(
     vtkFloatArray* zIn, vtkDataArray* pIn, vtkFloatArray* zOut, vtkDataArray* pOut);
 
-  static void Uncompress(vtkFloatArray* zIn, vtkDataArray* pIn, vtkFloatArray* zOut,
-    vtkDataArray* pOut, int finalLength);
+  static void Uncompress(
+    vtkFloatArray* zIn, vtkDataArray* pIn, vtkFloatArray* zOut, vtkDataArray* pOut, int lengthOut);
 
   static void CompositeImagePair(vtkFloatArray* localZ, vtkDataArray* localP,
     vtkFloatArray* remoteZ, vtkDataArray* remoteP, vtkFloatArray* outZ, vtkDataArray* outP);

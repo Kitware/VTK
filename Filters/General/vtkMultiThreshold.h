@@ -458,7 +458,7 @@ protected:
    * Recursively update the setStates and unresolvedOutputs vectors based on this->DependentSets.
    */
   void UpdateDependents(int id, std::set<int>& unresolvedOutputs, TruthTreeValues& setStates,
-    vtkCellData* inCellData, vtkIdType cellId, vtkGenericCell* cell,
+    vtkCellData* inCellData, vtkIdType inCell, vtkGenericCell* cell,
     std::vector<vtkUnstructuredGrid*>& outv);
 
   /**

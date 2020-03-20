@@ -152,7 +152,7 @@ protected:
   ~vtkDepthSortPolyData() override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-  void ComputeProjectionVector(double vector[3], double origin[3]);
+  void ComputeProjectionVector(double direction[3], double origin[3]);
 
   int Direction;
   int DepthSortMode;

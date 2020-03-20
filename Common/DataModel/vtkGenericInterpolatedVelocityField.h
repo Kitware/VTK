@@ -159,7 +159,7 @@ protected:
 
   vtkGenericInterpolatedVelocityFieldDataSetsType* DataSets;
 
-  int FunctionValues(vtkGenericDataSet* ds, double* x, double* f);
+  int FunctionValues(vtkGenericDataSet* dataset, double* x, double* f);
 
   static const double TOLERANCE_SCALE;
 

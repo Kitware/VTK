@@ -220,7 +220,7 @@ protected:
    */
   void RasterizeTriangle(vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkVertexEntry* ve0,
     vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkVertexEntry* ve1,
-    vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkVertexEntry* ve2, bool exitFace);
+    vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkVertexEntry* ve2, bool externalFace);
 
   /**
    * Perform scan conversion of an horizontal span from left ro right at line

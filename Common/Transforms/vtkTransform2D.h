@@ -117,7 +117,7 @@ public:
    * of two floating point numbers. This is simply returning the scale
    * component of the 3x3 matrix.
    */
-  void GetScale(double pos[2]);
+  void GetScale(double scale[2]);
   void GetScale(float pos[2])
   {
     double temp[2];

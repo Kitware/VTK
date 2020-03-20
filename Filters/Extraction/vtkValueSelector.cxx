@@ -286,7 +286,7 @@ public:
   }
 
   // returns false on any failure or unhandled case.
-  bool Execute(vtkDataObject* dobj, vtkSignedCharArray* darray);
+  bool Execute(vtkDataObject* dobj, vtkSignedCharArray* insidednessArray);
 
 private:
   vtkInternals(vtkAbstractArray* selectionList, const std::string& fieldName, int fieldAssociation,

@@ -34,8 +34,8 @@
 
 vtkStandardNewMacro(vtkSuperquadricSource);
 
-static void evalSuperquadric(double u, double v, double du, double dv, double e, double n,
-  double dims[3], double alpha, double xyz[3], double nrm[3]);
+static void evalSuperquadric(double theta, double phi, double dtheta, double dphi, double rtheta,
+  double rphi, double dims[3], double alpha, double xyz[3], double nrm[3]);
 
 // Description:
 vtkSuperquadricSource::vtkSuperquadricSource(int res)

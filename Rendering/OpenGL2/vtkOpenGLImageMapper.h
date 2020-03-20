@@ -61,7 +61,7 @@ public:
    * draw the data once it has been converted to uchar, windowed leveled
    * used internally by the templated functions
    */
-  void DrawPixels(vtkViewport* vp, int width, int height, int numComponents, void* data);
+  void DrawPixels(vtkViewport* viewport, int width, int height, int numComponents, void* data);
 
   /**
    * Release any graphics resources that are being consumed by this

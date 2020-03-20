@@ -238,7 +238,7 @@ public:
   /**
    * Set the name of the current color scheme
    */
-  virtual void SetColorSchemeName(const vtkStdString& scheme);
+  virtual void SetColorSchemeName(const vtkStdString& name);
 
   /**
    * Return the ID of the color scheme currently in use.

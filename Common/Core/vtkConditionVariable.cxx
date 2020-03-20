@@ -352,9 +352,9 @@ void vtkSimpleConditionVariable::Broadcast()
   pthread_cond_broadcast(&this->ConditionVariable);
 }
 
-int vtkSimpleConditionVariable::Wait(vtkSimpleMutexLock& lock)
+int vtkSimpleConditionVariable::Wait(vtkSimpleMutexLock& mutex)
 {
-  return pthread_cond_wait(&this->ConditionVariable, &lock.MutexLock);
+  return pthread_cond_wait(&this->ConditionVariable, &mutex.MutexLock);
 }
 
 void vtkConditionVariable::PrintSelf(ostream& os, vtkIndent indent)

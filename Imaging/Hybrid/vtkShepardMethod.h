@@ -160,7 +160,7 @@ public:
   /**
    * Compute ModelBounds from the input geometry.
    */
-  double ComputeModelBounds(double origin[3], double ar[3]);
+  double ComputeModelBounds(double origin[3], double spacing[3]);
 
 protected:
   vtkShepardMethod();

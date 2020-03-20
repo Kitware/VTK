@@ -114,7 +114,7 @@ public:
    */
   vtkSetMacro(NormalizationScheme, int);
   vtkGetMacro(NormalizationScheme, int);
-  virtual void SetNormalizationSchemeByName(const char* sname);
+  virtual void SetNormalizationSchemeByName(const char* schemeName);
   virtual const char* GetNormalizationSchemeName(int scheme);
   //@}
 

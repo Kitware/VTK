@@ -26,7 +26,7 @@ public:
   static vtkQuadraticPolygonTest* New();
   vtkTypeMacro(vtkQuadraticPolygonTest, vtkQuadraticPolygon);
 
-  bool IsClose(double d1, double d2);
+  bool IsClose(double v1, double v2);
   bool IsClose(double* point1, double* point2);
 
   void InitializeCircle();

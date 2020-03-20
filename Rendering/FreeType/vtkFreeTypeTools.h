@@ -223,10 +223,10 @@ public:
   static vtkTypeUInt16 HashString(const char* str);
 
   /**
-   * Hash a string of a given length. This function hashes n chars and does
+   * Hash a buffer of a given length. This function hashes n bytes and does
    * not depend on a terminating null character.
    */
-  static vtkTypeUInt32 HashBuffer(const void* str, size_t n, vtkTypeUInt32 hash = 0);
+  static vtkTypeUInt32 HashBuffer(const void* buffer, size_t n, vtkTypeUInt32 hash = 0);
 
   //@{
   /**

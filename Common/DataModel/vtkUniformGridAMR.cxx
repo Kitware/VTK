@@ -241,9 +241,9 @@ void vtkUniformGridAMR::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 void vtkUniformGridAMR::GetLevelAndIndex(
-  unsigned int flatIdx, unsigned int& level, unsigned int& idx)
+  unsigned int compositeIdx, unsigned int& level, unsigned int& idx)
 {
-  this->AMRInfo->ComputeIndexPair(flatIdx, level, idx);
+  this->AMRInfo->ComputeIndexPair(compositeIdx, level, idx);
 }
 
 //----------------------------------------------------------------------------

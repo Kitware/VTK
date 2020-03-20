@@ -56,7 +56,7 @@ protected:
 
   void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,
-    int extent[6], int threadId) override;
+    int outExt[6], int threadId) override;
   int NumberOfDivisions[3];
 
 private:

@@ -112,9 +112,9 @@ public:
   void CopyAllocate(vtkDataSetAttributes* output, int ctype, vtkIdType sz, vtkIdType ext) const;
   void CopyData(int inputIndex, vtkDataSetAttributes* input, vtkIdType fromId,
     vtkDataSetAttributes* output, vtkIdType toId) const;
-  void CopyData(int inputIdx, vtkDataSetAttributes* input, vtkIdType inputStart,
+  void CopyData(int inputIndex, vtkDataSetAttributes* input, vtkIdType inputStart,
     vtkIdType numValues, vtkDataSetAttributes* output, vtkIdType outStart) const;
-  void InterpolatePoint(int inputIdx, vtkDataSetAttributes* input, vtkIdList* inputIds,
+  void InterpolatePoint(int inputIndex, vtkDataSetAttributes* input, vtkIdList* inputIds,
     double* weights, vtkDataSetAttributes* output, vtkIdType toId) const;
   //@}
 

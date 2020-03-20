@@ -49,9 +49,9 @@ public:
    */
   vtkSetVector3Macro(CutOff, double);
   void SetCutOff(double v) { this->SetCutOff(v, v, v); }
-  void SetXCutOff(double v);
-  void SetYCutOff(double v);
-  void SetZCutOff(double v);
+  void SetXCutOff(double cutOff);
+  void SetYCutOff(double cutOff);
+  void SetZCutOff(double cutOff);
   vtkGetVector3Macro(CutOff, double);
   double GetXCutOff() { return this->CutOff[0]; }
   double GetYCutOff() { return this->CutOff[1]; }

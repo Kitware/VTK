@@ -264,234 +264,234 @@ public:
   //@}
 
   // Get the next arg as a pointer to a buffer.
-  bool GetBuffer(void*& v, Py_buffer* buf);
-  static bool GetBuffer(PyObject* o, void*& v, Py_buffer* buf);
-  bool GetBuffer(const void*& v, Py_buffer* buf);
-  static bool GetBuffer(PyObject* o, const void*& v, Py_buffer* buf);
-  bool GetBuffer(float*& v, Py_buffer* buf);
-  static bool GetBuffer(PyObject* o, float*& v, Py_buffer* buf);
-  bool GetBuffer(const float*& v, Py_buffer* buf);
-  static bool GetBuffer(PyObject* o, const float*& v, Py_buffer* buf);
-  bool GetBuffer(double*& v, Py_buffer* buf);
-  static bool GetBuffer(PyObject* o, double*& v, Py_buffer* buf);
-  bool GetBuffer(const double*& v, Py_buffer* buf);
-  static bool GetBuffer(PyObject* o, const double*& v, Py_buffer* buf);
-  bool GetBuffer(bool*& v, Py_buffer* buf);
-  static bool GetBuffer(PyObject* o, bool*& v, Py_buffer* buf);
-  bool GetBuffer(const bool*& v, Py_buffer* buf);
-  static bool GetBuffer(PyObject* o, const bool*& v, Py_buffer* buf);
-  bool GetBuffer(char*& v, Py_buffer* buf);
-  static bool GetBuffer(PyObject* o, char*& v, Py_buffer* buf);
-  bool GetBuffer(const char*& v, Py_buffer* buf);
-  static bool GetBuffer(PyObject* o, const char*& v, Py_buffer* buf);
-  bool GetBuffer(signed char*& v, Py_buffer* buf);
-  static bool GetBuffer(PyObject* o, signed char*& v, Py_buffer* buf);
-  bool GetBuffer(const signed char*& v, Py_buffer* buf);
-  static bool GetBuffer(PyObject* o, const signed char*& v, Py_buffer* buf);
-  bool GetBuffer(unsigned char*& v, Py_buffer* buf);
-  static bool GetBuffer(PyObject* o, unsigned char*& v, Py_buffer* buf);
-  bool GetBuffer(const unsigned char*& v, Py_buffer* buf);
-  static bool GetBuffer(PyObject* o, const unsigned char*& v, Py_buffer* buf);
-  bool GetBuffer(short*& v, Py_buffer* buf);
-  static bool GetBuffer(PyObject* o, short*& v, Py_buffer* buf);
-  bool GetBuffer(const short*& v, Py_buffer* buf);
-  static bool GetBuffer(PyObject* o, const short*& v, Py_buffer* buf);
-  bool GetBuffer(unsigned short*& v, Py_buffer* buf);
-  static bool GetBuffer(PyObject* o, unsigned short*& v, Py_buffer* buf);
-  bool GetBuffer(const unsigned short*& v, Py_buffer* buf);
-  static bool GetBuffer(PyObject* o, const unsigned short*& v, Py_buffer* buf);
-  bool GetBuffer(int*& v, Py_buffer* buf);
-  static bool GetBuffer(PyObject* o, int*& v, Py_buffer* buf);
-  bool GetBuffer(const int*& v, Py_buffer* buf);
-  static bool GetBuffer(PyObject* o, const int*& v, Py_buffer* buf);
-  bool GetBuffer(unsigned int*& v, Py_buffer* buf);
-  static bool GetBuffer(PyObject* o, unsigned int*& v, Py_buffer* buf);
-  bool GetBuffer(const unsigned int*& v, Py_buffer* buf);
-  static bool GetBuffer(PyObject* o, const unsigned int*& v, Py_buffer* buf);
-  bool GetBuffer(long*& v, Py_buffer* buf);
-  static bool GetBuffer(PyObject* o, long*& v, Py_buffer* buf);
-  bool GetBuffer(const long*& v, Py_buffer* buf);
-  static bool GetBuffer(PyObject* o, const long*& v, Py_buffer* buf);
-  bool GetBuffer(unsigned long*& v, Py_buffer* buf);
-  static bool GetBuffer(PyObject* o, unsigned long*& v, Py_buffer* buf);
-  bool GetBuffer(const unsigned long*& v, Py_buffer* buf);
-  static bool GetBuffer(PyObject* o, const unsigned long*& v, Py_buffer* buf);
-  bool GetBuffer(long long*& v, Py_buffer* buf);
-  static bool GetBuffer(PyObject* o, long long*& v, Py_buffer* buf);
-  bool GetBuffer(const long long*& v, Py_buffer* buf);
-  static bool GetBuffer(PyObject* o, const long long*& v, Py_buffer* buf);
-  bool GetBuffer(unsigned long long*& v, Py_buffer* buf);
-  static bool GetBuffer(PyObject* o, unsigned long long*& v, Py_buffer* buf);
-  bool GetBuffer(const unsigned long long*& v, Py_buffer* buf);
-  static bool GetBuffer(PyObject* o, const unsigned long long*& v, Py_buffer* buf);
+  bool GetBuffer(void*& a, Py_buffer* buf);
+  static bool GetBuffer(PyObject* o, void*& a, Py_buffer* buf);
+  bool GetBuffer(const void*& a, Py_buffer* buf);
+  static bool GetBuffer(PyObject* o, const void*& a, Py_buffer* buf);
+  bool GetBuffer(float*& a, Py_buffer* buf);
+  static bool GetBuffer(PyObject* o, float*& a, Py_buffer* buf);
+  bool GetBuffer(const float*& a, Py_buffer* buf);
+  static bool GetBuffer(PyObject* o, const float*& a, Py_buffer* buf);
+  bool GetBuffer(double*& a, Py_buffer* buf);
+  static bool GetBuffer(PyObject* o, double*& a, Py_buffer* buf);
+  bool GetBuffer(const double*& a, Py_buffer* buf);
+  static bool GetBuffer(PyObject* o, const double*& a, Py_buffer* buf);
+  bool GetBuffer(bool*& a, Py_buffer* buf);
+  static bool GetBuffer(PyObject* o, bool*& a, Py_buffer* buf);
+  bool GetBuffer(const bool*& a, Py_buffer* buf);
+  static bool GetBuffer(PyObject* o, const bool*& a, Py_buffer* buf);
+  bool GetBuffer(char*& a, Py_buffer* buf);
+  static bool GetBuffer(PyObject* o, char*& a, Py_buffer* buf);
+  bool GetBuffer(const char*& a, Py_buffer* buf);
+  static bool GetBuffer(PyObject* o, const char*& a, Py_buffer* buf);
+  bool GetBuffer(signed char*& a, Py_buffer* buf);
+  static bool GetBuffer(PyObject* o, signed char*& a, Py_buffer* buf);
+  bool GetBuffer(const signed char*& a, Py_buffer* buf);
+  static bool GetBuffer(PyObject* o, const signed char*& a, Py_buffer* buf);
+  bool GetBuffer(unsigned char*& a, Py_buffer* buf);
+  static bool GetBuffer(PyObject* o, unsigned char*& a, Py_buffer* buf);
+  bool GetBuffer(const unsigned char*& a, Py_buffer* buf);
+  static bool GetBuffer(PyObject* o, const unsigned char*& a, Py_buffer* buf);
+  bool GetBuffer(short*& a, Py_buffer* buf);
+  static bool GetBuffer(PyObject* o, short*& a, Py_buffer* buf);
+  bool GetBuffer(const short*& a, Py_buffer* buf);
+  static bool GetBuffer(PyObject* o, const short*& a, Py_buffer* buf);
+  bool GetBuffer(unsigned short*& a, Py_buffer* buf);
+  static bool GetBuffer(PyObject* o, unsigned short*& a, Py_buffer* buf);
+  bool GetBuffer(const unsigned short*& a, Py_buffer* buf);
+  static bool GetBuffer(PyObject* o, const unsigned short*& a, Py_buffer* buf);
+  bool GetBuffer(int*& a, Py_buffer* buf);
+  static bool GetBuffer(PyObject* o, int*& a, Py_buffer* buf);
+  bool GetBuffer(const int*& a, Py_buffer* buf);
+  static bool GetBuffer(PyObject* o, const int*& a, Py_buffer* buf);
+  bool GetBuffer(unsigned int*& a, Py_buffer* buf);
+  static bool GetBuffer(PyObject* o, unsigned int*& a, Py_buffer* buf);
+  bool GetBuffer(const unsigned int*& a, Py_buffer* buf);
+  static bool GetBuffer(PyObject* o, const unsigned int*& a, Py_buffer* buf);
+  bool GetBuffer(long*& a, Py_buffer* buf);
+  static bool GetBuffer(PyObject* o, long*& a, Py_buffer* buf);
+  bool GetBuffer(const long*& a, Py_buffer* buf);
+  static bool GetBuffer(PyObject* o, const long*& a, Py_buffer* buf);
+  bool GetBuffer(unsigned long*& a, Py_buffer* buf);
+  static bool GetBuffer(PyObject* o, unsigned long*& a, Py_buffer* buf);
+  bool GetBuffer(const unsigned long*& a, Py_buffer* buf);
+  static bool GetBuffer(PyObject* o, const unsigned long*& a, Py_buffer* buf);
+  bool GetBuffer(long long*& a, Py_buffer* buf);
+  static bool GetBuffer(PyObject* o, long long*& a, Py_buffer* buf);
+  bool GetBuffer(const long long*& a, Py_buffer* buf);
+  static bool GetBuffer(PyObject* o, const long long*& a, Py_buffer* buf);
+  bool GetBuffer(unsigned long long*& a, Py_buffer* buf);
+  static bool GetBuffer(PyObject* o, unsigned long long*& a, Py_buffer* buf);
+  bool GetBuffer(const unsigned long long*& a, Py_buffer* buf);
+  static bool GetBuffer(PyObject* o, const unsigned long long*& a, Py_buffer* buf);
 
   //@{
   /**
    * Get the next argument as a string.
    */
-  bool GetValue(const char*& v);
-  static bool GetValue(PyObject* o, const char*& v);
-  bool GetValue(std::string& v);
-  static bool GetValue(PyObject* o, std::string& v);
-  bool GetValue(vtkUnicodeString& v);
-  static bool GetValue(PyObject* o, vtkUnicodeString& v);
+  bool GetValue(const char*& a);
+  static bool GetValue(PyObject* o, const char*& a);
+  bool GetValue(std::string& a);
+  static bool GetValue(PyObject* o, std::string& a);
+  bool GetValue(vtkUnicodeString& a);
+  static bool GetValue(PyObject* o, vtkUnicodeString& a);
   //@}
 
   //@{
   /**
    * Get the next string arg as a character.
    */
-  bool GetValue(char& v);
-  static bool GetValue(PyObject* o, char& v);
+  bool GetValue(char& a);
+  static bool GetValue(PyObject* o, char& a);
   //@}
 
   //@{
   /**
    * Get the next argument.  Sets a TypeError on failure.
    */
-  bool GetValue(float& v);
-  static bool GetValue(PyObject* o, float& v);
-  bool GetValue(double& v);
-  static bool GetValue(PyObject* o, double& v);
-  bool GetValue(bool& v);
-  static bool GetValue(PyObject* o, bool& v);
-  bool GetValue(signed char& v);
-  static bool GetValue(PyObject* o, signed char& v);
-  bool GetValue(unsigned char& v);
-  static bool GetValue(PyObject* o, unsigned char& v);
-  bool GetValue(short& v);
-  static bool GetValue(PyObject* o, short& v);
-  bool GetValue(unsigned short& v);
-  static bool GetValue(PyObject* o, unsigned short& v);
-  bool GetValue(int& v);
-  static bool GetValue(PyObject* o, int& v);
-  bool GetValue(unsigned int& v);
-  static bool GetValue(PyObject* o, unsigned int& v);
-  bool GetValue(long& v);
-  static bool GetValue(PyObject* o, long& v);
-  bool GetValue(unsigned long& v);
-  static bool GetValue(PyObject* o, unsigned long& v);
-  bool GetValue(long long& v);
-  static bool GetValue(PyObject* o, long long& v);
-  bool GetValue(unsigned long long& v);
-  static bool GetValue(PyObject* o, unsigned long long& v);
+  bool GetValue(float& a);
+  static bool GetValue(PyObject* o, float& a);
+  bool GetValue(double& a);
+  static bool GetValue(PyObject* o, double& a);
+  bool GetValue(bool& a);
+  static bool GetValue(PyObject* o, bool& a);
+  bool GetValue(signed char& a);
+  static bool GetValue(PyObject* o, signed char& a);
+  bool GetValue(unsigned char& a);
+  static bool GetValue(PyObject* o, unsigned char& a);
+  bool GetValue(short& a);
+  static bool GetValue(PyObject* o, short& a);
+  bool GetValue(unsigned short& a);
+  static bool GetValue(PyObject* o, unsigned short& a);
+  bool GetValue(int& a);
+  static bool GetValue(PyObject* o, int& a);
+  bool GetValue(unsigned int& a);
+  static bool GetValue(PyObject* o, unsigned int& a);
+  bool GetValue(long& a);
+  static bool GetValue(PyObject* o, long& a);
+  bool GetValue(unsigned long& a);
+  static bool GetValue(PyObject* o, unsigned long& a);
+  bool GetValue(long long& a);
+  static bool GetValue(PyObject* o, long long& a);
+  bool GetValue(unsigned long long& a);
+  static bool GetValue(PyObject* o, unsigned long long& a);
   //@}
 
   //@{
   /**
    * Get the next argument as an array.
    */
-  bool GetArray(float* v, size_t n);
-  bool GetArray(double* v, size_t n);
-  bool GetArray(bool* v, size_t n);
-  bool GetArray(char* v, size_t n);
-  bool GetArray(signed char* v, size_t n);
-  bool GetArray(unsigned char* v, size_t n);
-  bool GetArray(short* v, size_t n);
-  bool GetArray(unsigned short* v, size_t n);
-  bool GetArray(int* v, size_t n);
-  bool GetArray(unsigned int* v, size_t n);
-  bool GetArray(long* v, size_t n);
-  bool GetArray(unsigned long* v, size_t n);
-  bool GetArray(long long* v, size_t n);
-  bool GetArray(unsigned long long* v, size_t n);
-  bool GetArray(std::string* v, size_t n);
-  bool GetArray(vtkUnicodeString* v, size_t n);
+  bool GetArray(float* a, size_t n);
+  bool GetArray(double* a, size_t n);
+  bool GetArray(bool* a, size_t n);
+  bool GetArray(char* a, size_t n);
+  bool GetArray(signed char* a, size_t n);
+  bool GetArray(unsigned char* a, size_t n);
+  bool GetArray(short* a, size_t n);
+  bool GetArray(unsigned short* a, size_t n);
+  bool GetArray(int* a, size_t n);
+  bool GetArray(unsigned int* a, size_t n);
+  bool GetArray(long* a, size_t n);
+  bool GetArray(unsigned long* a, size_t n);
+  bool GetArray(long long* a, size_t n);
+  bool GetArray(unsigned long long* a, size_t n);
+  bool GetArray(std::string* a, size_t n);
+  bool GetArray(vtkUnicodeString* a, size_t n);
   //@}
 
   //@{
   /**
    * Get the next argument as a multi-dimensional array.
    */
-  bool GetNArray(float* v, int ndims, const size_t* dims);
-  bool GetNArray(double* v, int ndims, const size_t* dims);
-  bool GetNArray(bool* v, int ndims, const size_t* dims);
-  bool GetNArray(char* v, int ndims, const size_t* dims);
-  bool GetNArray(signed char* v, int ndims, const size_t* dims);
-  bool GetNArray(unsigned char* v, int ndims, const size_t* dims);
-  bool GetNArray(short* v, int ndims, const size_t* dims);
-  bool GetNArray(unsigned short* v, int ndims, const size_t* dims);
-  bool GetNArray(int* v, int ndims, const size_t* dims);
-  bool GetNArray(unsigned int* v, int ndims, const size_t* dims);
-  bool GetNArray(long* v, int ndims, const size_t* dims);
-  bool GetNArray(unsigned long* v, int ndims, const size_t* dims);
-  bool GetNArray(long long* v, int ndims, const size_t* dims);
-  bool GetNArray(unsigned long long* v, int ndims, const size_t* dims);
+  bool GetNArray(float* a, int ndims, const size_t* dims);
+  bool GetNArray(double* a, int ndims, const size_t* dims);
+  bool GetNArray(bool* a, int ndims, const size_t* dims);
+  bool GetNArray(char* a, int ndims, const size_t* dims);
+  bool GetNArray(signed char* a, int ndims, const size_t* dims);
+  bool GetNArray(unsigned char* a, int ndims, const size_t* dims);
+  bool GetNArray(short* a, int ndims, const size_t* dims);
+  bool GetNArray(unsigned short* a, int ndims, const size_t* dims);
+  bool GetNArray(int* a, int ndims, const size_t* dims);
+  bool GetNArray(unsigned int* a, int ndims, const size_t* dims);
+  bool GetNArray(long* a, int ndims, const size_t* dims);
+  bool GetNArray(unsigned long* a, int ndims, const size_t* dims);
+  bool GetNArray(long long* a, int ndims, const size_t* dims);
+  bool GetNArray(unsigned long long* a, int ndims, const size_t* dims);
   //@}
 
   //@{
   /**
    * Set the value of an argument that was passed by reference.
    */
-  bool SetArgValue(int i, const std::string& v);
-  bool SetArgValue(int i, const vtkUnicodeString& v);
-  bool SetArgValue(int i, char v);
-  bool SetArgValue(int i, float v);
-  bool SetArgValue(int i, double v);
-  bool SetArgValue(int i, bool v);
-  bool SetArgValue(int i, signed char v);
-  bool SetArgValue(int i, unsigned char v);
-  bool SetArgValue(int i, short v);
-  bool SetArgValue(int i, unsigned short v);
-  bool SetArgValue(int i, int v);
-  bool SetArgValue(int i, unsigned int v);
-  bool SetArgValue(int i, long v);
-  bool SetArgValue(int i, unsigned long v);
-  bool SetArgValue(int i, long long v);
-  bool SetArgValue(int i, unsigned long long v);
-  bool SetArgValue(int i, const float* v, size_t n);
-  bool SetArgValue(int i, const double* v, size_t n);
-  bool SetArgValue(int i, const bool* v, size_t n);
-  bool SetArgValue(int i, const signed char* v, size_t n);
-  bool SetArgValue(int i, const unsigned char* v, size_t n);
-  bool SetArgValue(int i, const short* v, size_t n);
-  bool SetArgValue(int i, const unsigned short* v, size_t n);
-  bool SetArgValue(int i, const int* v, size_t n);
-  bool SetArgValue(int i, const unsigned int* v, size_t n);
-  bool SetArgValue(int i, const long* v, size_t n);
-  bool SetArgValue(int i, const unsigned long* v, size_t n);
-  bool SetArgValue(int i, const long long* v, size_t n);
-  bool SetArgValue(int i, const unsigned long long* v, size_t n);
+  bool SetArgValue(int i, const std::string& a);
+  bool SetArgValue(int i, const vtkUnicodeString& a);
+  bool SetArgValue(int i, char a);
+  bool SetArgValue(int i, float a);
+  bool SetArgValue(int i, double a);
+  bool SetArgValue(int i, bool a);
+  bool SetArgValue(int i, signed char a);
+  bool SetArgValue(int i, unsigned char a);
+  bool SetArgValue(int i, short a);
+  bool SetArgValue(int i, unsigned short a);
+  bool SetArgValue(int i, int a);
+  bool SetArgValue(int i, unsigned int a);
+  bool SetArgValue(int i, long a);
+  bool SetArgValue(int i, unsigned long a);
+  bool SetArgValue(int i, long long a);
+  bool SetArgValue(int i, unsigned long long a);
+  bool SetArgValue(int i, const float* a, size_t n);
+  bool SetArgValue(int i, const double* a, size_t n);
+  bool SetArgValue(int i, const bool* a, size_t n);
+  bool SetArgValue(int i, const signed char* a, size_t n);
+  bool SetArgValue(int i, const unsigned char* a, size_t n);
+  bool SetArgValue(int i, const short* a, size_t n);
+  bool SetArgValue(int i, const unsigned short* a, size_t n);
+  bool SetArgValue(int i, const int* a, size_t n);
+  bool SetArgValue(int i, const unsigned int* a, size_t n);
+  bool SetArgValue(int i, const long* a, size_t n);
+  bool SetArgValue(int i, const unsigned long* a, size_t n);
+  bool SetArgValue(int i, const long long* a, size_t n);
+  bool SetArgValue(int i, const unsigned long long* a, size_t n);
   //@}
 
   //@{
   /**
    * Set the values in an array argument.
    */
-  bool SetArray(int i, const float* v, size_t n);
-  bool SetArray(int i, const double* v, size_t n);
-  bool SetArray(int i, const bool* v, size_t n);
-  bool SetArray(int i, const char* v, size_t n);
-  bool SetArray(int i, const signed char* v, size_t n);
-  bool SetArray(int i, const unsigned char* v, size_t n);
-  bool SetArray(int i, const short* v, size_t n);
-  bool SetArray(int i, const unsigned short* v, size_t n);
-  bool SetArray(int i, const int* v, size_t n);
-  bool SetArray(int i, const unsigned int* v, size_t n);
-  bool SetArray(int i, const long* v, size_t n);
-  bool SetArray(int i, const unsigned long* v, size_t n);
-  bool SetArray(int i, const long long* v, size_t n);
-  bool SetArray(int i, const unsigned long long* v, size_t n);
+  bool SetArray(int i, const float* a, size_t n);
+  bool SetArray(int i, const double* a, size_t n);
+  bool SetArray(int i, const bool* a, size_t n);
+  bool SetArray(int i, const char* a, size_t n);
+  bool SetArray(int i, const signed char* a, size_t n);
+  bool SetArray(int i, const unsigned char* a, size_t n);
+  bool SetArray(int i, const short* a, size_t n);
+  bool SetArray(int i, const unsigned short* a, size_t n);
+  bool SetArray(int i, const int* a, size_t n);
+  bool SetArray(int i, const unsigned int* a, size_t n);
+  bool SetArray(int i, const long* a, size_t n);
+  bool SetArray(int i, const unsigned long* a, size_t n);
+  bool SetArray(int i, const long long* a, size_t n);
+  bool SetArray(int i, const unsigned long long* a, size_t n);
   //@}
 
   //@{
   /**
    * Set the values in a multi-dimensional array argument.
    */
-  bool SetNArray(int i, const float* v, int n, const size_t* d);
-  bool SetNArray(int i, const double* v, int n, const size_t* d);
-  bool SetNArray(int i, const bool* v, int n, const size_t* d);
-  bool SetNArray(int i, const char* v, int n, const size_t* d);
-  bool SetNArray(int i, const signed char* v, int n, const size_t* d);
-  bool SetNArray(int i, const unsigned char* v, int n, const size_t* d);
-  bool SetNArray(int i, const short* v, int n, const size_t* d);
-  bool SetNArray(int i, const unsigned short* v, int n, const size_t* d);
-  bool SetNArray(int i, const int* v, int n, const size_t* d);
-  bool SetNArray(int i, const unsigned int* v, int n, const size_t* d);
-  bool SetNArray(int i, const long* v, int n, const size_t* d);
-  bool SetNArray(int i, const unsigned long* v, int n, const size_t* d);
-  bool SetNArray(int i, const long long* v, int n, const size_t* d);
-  bool SetNArray(int i, const unsigned long long* v, int n, const size_t* d);
+  bool SetNArray(int i, const float* a, int n, const size_t* d);
+  bool SetNArray(int i, const double* a, int n, const size_t* d);
+  bool SetNArray(int i, const bool* a, int n, const size_t* d);
+  bool SetNArray(int i, const char* a, int n, const size_t* d);
+  bool SetNArray(int i, const signed char* a, int n, const size_t* d);
+  bool SetNArray(int i, const unsigned char* a, int n, const size_t* d);
+  bool SetNArray(int i, const short* a, int n, const size_t* d);
+  bool SetNArray(int i, const unsigned short* a, int n, const size_t* d);
+  bool SetNArray(int i, const int* a, int n, const size_t* d);
+  bool SetNArray(int i, const unsigned int* a, int n, const size_t* d);
+  bool SetNArray(int i, const long* a, int n, const size_t* d);
+  bool SetNArray(int i, const unsigned long* a, int n, const size_t* d);
+  bool SetNArray(int i, const long long* a, int n, const size_t* d);
+  bool SetNArray(int i, const unsigned long long* a, int n, const size_t* d);
   //@}
 
   /**
@@ -569,21 +569,21 @@ public:
   /**
    * Build a tuple for a return value.
    */
-  static PyObject* BuildTuple(const float* v, size_t n);
-  static PyObject* BuildTuple(const double* v, size_t n);
-  static PyObject* BuildTuple(const bool* v, size_t n);
-  static PyObject* BuildTuple(const signed char* v, size_t n);
-  static PyObject* BuildTuple(const unsigned char* v, size_t n);
-  static PyObject* BuildTuple(const short* v, size_t n);
-  static PyObject* BuildTuple(const unsigned short* v, size_t n);
-  static PyObject* BuildTuple(const int* v, size_t n);
-  static PyObject* BuildTuple(const unsigned int* v, size_t n);
-  static PyObject* BuildTuple(const long* v, size_t n);
-  static PyObject* BuildTuple(const unsigned long* v, size_t n);
-  static PyObject* BuildTuple(const long long* v, size_t n);
-  static PyObject* BuildTuple(const unsigned long long* v, size_t n);
-  static PyObject* BuildTuple(const std::string* v, size_t n);
-  static PyObject* BuildTuple(const vtkUnicodeString* v, size_t n);
+  static PyObject* BuildTuple(const float* a, size_t n);
+  static PyObject* BuildTuple(const double* a, size_t n);
+  static PyObject* BuildTuple(const bool* a, size_t n);
+  static PyObject* BuildTuple(const signed char* a, size_t n);
+  static PyObject* BuildTuple(const unsigned char* a, size_t n);
+  static PyObject* BuildTuple(const short* a, size_t n);
+  static PyObject* BuildTuple(const unsigned short* a, size_t n);
+  static PyObject* BuildTuple(const int* a, size_t n);
+  static PyObject* BuildTuple(const unsigned int* a, size_t n);
+  static PyObject* BuildTuple(const long* a, size_t n);
+  static PyObject* BuildTuple(const unsigned long* a, size_t n);
+  static PyObject* BuildTuple(const long long* a, size_t n);
+  static PyObject* BuildTuple(const unsigned long long* a, size_t n);
+  static PyObject* BuildTuple(const std::string* a, size_t n);
+  static PyObject* BuildTuple(const vtkUnicodeString* a, size_t n);
   //@}
 
   /**
@@ -625,7 +625,7 @@ public:
   /**
    * Raise an error that says that a precondition failed.
    */
-  static bool PrecondError(const char* name);
+  static bool PrecondError(const char* ctext);
 
   /**
    * A simple RAII array class that stores small arrays on the stack.
@@ -678,8 +678,8 @@ protected:
   /**
    * Get the next argument as an object of the given type.
    */
-  void* GetArgAsSpecialObject(const char* classname, PyObject** newobj);
-  static void* GetArgAsSpecialObject(PyObject* o, const char* classname, PyObject** newobj);
+  void* GetArgAsSpecialObject(const char* classname, PyObject** p);
+  static void* GetArgAsSpecialObject(PyObject* o, const char* classname, PyObject** p);
   //@}
 
   //@{

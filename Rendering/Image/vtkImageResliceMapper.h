@@ -157,7 +157,7 @@ public:
    * Set a custom interpolator.  This will only be used if the
    * ResampleToScreenPixels option is on.
    */
-  virtual void SetInterpolator(vtkAbstractImageInterpolator* sampler);
+  virtual void SetInterpolator(vtkAbstractImageInterpolator* interpolator);
   virtual vtkAbstractImageInterpolator* GetInterpolator();
   //@}
 

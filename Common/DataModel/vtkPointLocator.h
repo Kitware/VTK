@@ -118,7 +118,7 @@ public:
    * place their data. Bounds are the box that the points lie in.
    * Not thread safe.
    */
-  int InitPointInsertion(vtkPoints* newPts, const double bounds[6], vtkIdType estSize) override;
+  int InitPointInsertion(vtkPoints* newPts, const double bounds[6], vtkIdType estNumPts) override;
 
   /**
    * Incrementally insert a point into search structure with a particular
