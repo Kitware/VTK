@@ -204,16 +204,7 @@ vtkStandardNewMacro(vtkMaskPoints);
 //-----------------------------------------------------------------------------
 vtkMaskPoints::vtkMaskPoints()
 {
-  this->OnRatio = 2;
-  this->Offset = 0;
-  this->RandomMode = 0;
-  this->RandomSeed = 1;
   this->MaximumNumberOfPoints = VTK_ID_MAX;
-  this->GenerateVertices = 0;
-  this->SingleVertexPerCell = 0;
-  this->RandomModeType = RANDOMIZED_ID_STRIDES;
-  this->ProportionalMaximumNumberOfPoints = 0;
-  this->OutputPointsPrecision = DEFAULT_PRECISION;
 }
 
 //-----------------------------------------------------------------------------
@@ -342,7 +333,6 @@ int vtkMaskPoints::RequestData(vtkInformation* vtkNotUsed(request),
   vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkPoints* newPts;
   vtkPointData* pd = input->GetPointData();
   vtkIdType numNewPts;
   double x[3];
@@ -383,7 +373,7 @@ int vtkMaskPoints::RequestData(vtkInformation* vtkNotUsed(request),
   vtkDebugMacro(<< "Masking points");
 
   // Allocate space
-  newPts = vtkPoints::New();
+  vtkNew<vtkPoints> newPts;
 
   // Set the desired precision for the points in the output.
   if (this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
@@ -602,14 +592,6 @@ int vtkMaskPoints::RequestData(vtkInformation* vtkNotUsed(request),
           vtkCell* currentCell = input->GetCell(cellId);
           if (currentCell->GetCellDimension() != dim)
           {
-            if (dim == 2)
-            {
-              vtkWarningMacro("In uniform surface mode, all cells must be 2D.");
-            }
-            else
-            {
-              vtkWarningMacro("In uniform volume mode, all cells must be 3D.");
-            }
             cellContribs[cellId] = localArea;
             continue;
           }
@@ -637,53 +619,52 @@ int vtkMaskPoints::RequestData(vtkInformation* vtkNotUsed(request),
           }
         }
 
-        vtkIdType numAddedPts = localMaxPts;
-        if (this->ProportionalMaximumNumberOfPoints)
+        if (localArea > 0)
         {
-          // How many point to add in each region in function of its contribution
-          // to the global surface
-          const double localAreaFactor =
-            this->GetLocalAreaFactor(localArea, this->InternalGetNumberOfProcesses());
-          numAddedPts = this->MaximumNumberOfPoints * localAreaFactor;
-        }
-
-        std::vector<bool> maskedPoints(numPts, false);
-        std::mt19937 gen(this->GetRandomSeed());
-        std::uniform_real_distribution<> dis(0.0, localArea);
-        for (ptId = 0; ptId < numAddedPts; ptId++)
-        {
-          // The sampling vector being sorted, just find the index of the sampled cell
-          double sample = dis(gen);
-          auto it = std::upper_bound(cellContribs.cbegin(), cellContribs.cend(), sample);
-          vtkIdType randCellId = std::distance(cellContribs.cbegin(), it);
-
-          // do not consider ignored cells
-          while (randCellId < cellContribs.size() &&
-            cellContribs[randCellId] == cellContribs[randCellId + 1])
+          vtkIdType numAddedPts = localMaxPts;
+          if (this->ProportionalMaximumNumberOfPoints)
           {
-            ++randCellId;
+            // How many point to add in each region in function of its contribution
+            // to the global surface
+            const double localAreaFactor =
+              this->GetLocalAreaFactor(localArea, this->InternalGetNumberOfProcesses());
+            numAddedPts = this->MaximumNumberOfPoints * localAreaFactor;
           }
 
-          input->GetCellPoints(randCellId, idList);
-          const vtkIdType nbCellPts = idList->GetNumberOfIds();
-          for (vtkIdType i = 0; i < nbCellPts; i++)
+          std::vector<bool> maskedPoints(numPts, false);
+          std::mt19937 gen(this->GetRandomSeed());
+          std::uniform_real_distribution<> dis(0.0, localArea);
+          for (ptId = 0; ptId < numAddedPts; ptId++)
           {
-            const vtkIdType randPtId = idList->GetId(i);
-            if (!maskedPoints[randPtId])
+            // The sampling vector being sorted, just find the index of the sampled cell
+            double sample = dis(gen);
+            auto it = std::upper_bound(cellContribs.cbegin(), cellContribs.cend(), sample);
+            vtkIdType randCellId = std::distance(cellContribs.cbegin(), it);
+
+            input->GetCellPoints(randCellId, idList);
+            const vtkIdType nbCellPts = idList->GetNumberOfIds();
+            for (vtkIdType i = 0; i < nbCellPts; i++)
             {
-              input->GetPoint(randPtId, x);
-              id = newPts->InsertNextPoint(x);
-              outputPD->CopyData(pd, ptId, id);
-              maskedPoints[randPtId] = true;
-              break;
+              const vtkIdType randPtId = idList->GetId(i);
+              if (!maskedPoints[randPtId])
+              {
+                input->GetPoint(randPtId, x);
+                id = newPts->InsertNextPoint(x);
+                outputPD->CopyData(pd, ptId, id);
+                maskedPoints[randPtId] = true;
+                break;
+              }
             }
           }
         }
-
+        else
+        {
+          vtkWarningMacro("Region has no 2D cells.");
+        }
         break;
       }
       default:
-        cerr << "Unsupported mode";
+        vtkWarningMacro("Unsupported random mode type.");
         break;
     }
   }
@@ -706,7 +687,7 @@ int vtkMaskPoints::RequestData(vtkInformation* vtkNotUsed(request),
   // Generate vertices if requested
   if (this->GenerateVertices)
   {
-    vtkCellArray* verts = vtkCellArray::New();
+    vtkNew<vtkCellArray> verts;
     if (this->SingleVertexPerCell)
     {
       verts->AllocateEstimate(id, 1);
@@ -733,12 +714,10 @@ int vtkMaskPoints::RequestData(vtkInformation* vtkNotUsed(request),
       }
     }
     output->SetVerts(verts);
-    verts->Delete();
   }
 
   // Update ourselves
   output->SetPoints(newPts);
-  newPts->Delete();
 
   output->Squeeze();
 

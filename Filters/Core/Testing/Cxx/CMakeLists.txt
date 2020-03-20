@@ -37,6 +37,7 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestImplicitPolyDataDistance.cxx
   TestImplicitProjectOnPlaneDistance.cxx
   TestMaskPoints.cxx,NO_VALID
+  TestMaskPointsModes.cxx
   TestNamedComponents.cxx,NO_VALID
   TestPointDataToCellData.cxx,NO_VALID
   TestPolyDataConnectivityFilter.cxx,NO_VALID
