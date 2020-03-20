@@ -49,6 +49,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   TestMappedGridDeepCopy.cxx
   TestPath.cxx
   TestPentagonalPrism.cxx
+  TestPiecewiseFunction.cxx
   TestPiecewiseFunctionLogScale.cxx
   TestPixelExtent.cxx
   TestPointLocators.cxx
