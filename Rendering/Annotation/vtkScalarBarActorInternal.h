@@ -3,9 +3,10 @@
 
 #ifndef __VTK_WRAP__
 
-#include "vtkColor.h"        // for AnnotationColors, LabelColorMap, and tuples
-#include "vtkSmartPointer.h" // for "smart vectors"
-#include "vtkStdString.h"    // for LabelMap
+#include "vtkColor.h"                     // for AnnotationColors, LabelColorMap, and tuples
+#include "vtkRenderingAnnotationModule.h" // For export macro
+#include "vtkSmartPointer.h"              // for "smart vectors"
+#include "vtkStdString.h"                 // for LabelMap
 
 #include <map>
 #include <vector>
@@ -20,7 +21,7 @@ class vtkUnsignedCharArray;
 
 /// A vector of smart pointers.
 template <class T>
-class vtkSmartVector : public std::vector<vtkSmartPointer<T> >
+class VTKRENDERINGANNOTATION_EXPORT vtkSmartVector : public std::vector<vtkSmartPointer<T> >
 {
 public:
   /**\brief Convert to an array of "dumb" pointers for functions
@@ -51,7 +52,7 @@ struct vtkScalarBarBox
 };
 
 /// Internal state for the scalar bar actor shared with subclasses.
-class vtkScalarBarActorInternal
+class VTKRENDERINGANNOTATION_EXPORT vtkScalarBarActorInternal
 {
 public:
   vtkScalarBarActorInternal()
