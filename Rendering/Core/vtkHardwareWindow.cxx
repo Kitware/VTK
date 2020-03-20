@@ -25,6 +25,8 @@ vtkHardwareWindow::vtkHardwareWindow()
 #ifdef VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN
   this->ShowWindow = false;
   this->UseOffScreenBuffers = true;
+#else
+  this->ShowWindow = true;
 #endif
 }
 
