@@ -296,10 +296,14 @@ vtkSmartPointer<vtkPartitionedDataSet> vtkDIYKdTreeUtilities::Exchange(
     assert(sumblocks == nblocks * comm.size());
   }
 #endif
-  if (!block_assigner)
+  if (!block_assigner && vtkMath::IsPowerOfTwo(nblocks))
   {
     block_assigner = std::make_shared<vtkDIYExplicitAssigner>(
       vtkDIYKdTreeUtilities::CreateAssigner(comm, nblocks));
+  }
+  else if (!block_assigner)
+  {
+    block_assigner = std::make_shared<diy::ContiguousAssigner>(comm.size(), nblocks);
   }
 
   using VectorOfUG = std::vector<vtkSmartPointer<vtkUnstructuredGrid> >;

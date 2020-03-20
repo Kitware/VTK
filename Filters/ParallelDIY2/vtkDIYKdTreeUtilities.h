@@ -94,9 +94,11 @@ public:
    * defined by the `controller`. The parts are assigned to ranks in a
    * contiguous fashion.
    *
-   * This method assumes that the input vtkPartitionedDataSet will have exactly
-   * same number of partitions on all ranks. This is assumed since the
-   * partitions' index is what dictates which rank it is assigned to.
+   * To determine which partition in the `parts` is targeted for which ranks,
+   * the `block_assigner` is used, if specified. If not specified, an assigner
+   * will be created internally using the following rules. If the number of
+   * partitions is a power of two, then `vtkDIYKdTreeUtilities::CreateAssigner`
+   * is used otherwise a `diy::ContiguousAssigner` is created.
    *
    * The returned vtkPartitionedDataSet will also have exactly as many
    * partitions as the input vtkPartitionedDataSet, however only the partitions
