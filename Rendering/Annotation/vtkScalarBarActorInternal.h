@@ -1,6 +1,7 @@
 #ifndef vtkScalarBarActorInternal_h
 #define vtkScalarBarActorInternal_h
-// VTK-HeaderTest-Exclude: vtkScalarBarActorInternal.h
+
+#ifndef __VTK_WRAP__
 
 #include "vtkColor.h"        // for AnnotationColors, LabelColorMap, and tuples
 #include "vtkSmartPointer.h" // for "smart vectors"
@@ -186,4 +187,7 @@ public:
   //@}
 };
 
+#endif
+
 #endif // vtkScalarBarActorInternal_h
+// VTK-HeaderTest-Exclude: vtkScalarBarActorInternal.h
