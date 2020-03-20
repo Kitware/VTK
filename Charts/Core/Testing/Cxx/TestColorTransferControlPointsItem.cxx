@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestVector.cxx
+  Module:    TestColorTransferControlPointsItem.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -27,7 +27,7 @@
 #include <iostream>
 
 //----------------------------------------------------------------------------
-int TestControlPointsItem(int, char*[])
+int TestColorTransferControlPointsItem(int, char*[])
 {
   vtkNew<vtkColorTransferFunction> transferFunction;
   transferFunction->AddHSVSegment(50., 0., 1., 1., 85., 0.3333, 1., 1.);

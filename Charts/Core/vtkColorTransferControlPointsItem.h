@@ -81,6 +81,8 @@ public:
    */
   vtkIdType AddPoint(double* newPos) override;
 
+  using Superclass::RemovePoint;
+
   /**
    * Remove a point of the function. Returns the index of the point (0 based),
    * or -1 on error.

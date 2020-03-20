@@ -892,7 +892,7 @@ vtkIdType vtkControlPointsItem::GetControlPointId(double* point)
   {
     double controlPoint[4];
     this->GetControlPoint(i, controlPoint);
-    if (controlPoint[0] == point[0])
+    if (controlPoint[0] == point[0] && controlPoint[1] == point[1])
     {
       return i;
     }
