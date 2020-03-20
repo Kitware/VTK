@@ -33,11 +33,10 @@ vtk_object_factory_declare(
 ~~~
 #]==]
 function (vtk_object_factory_declare)
-  cmake_parse_arguments(_vtk_object_factory_declare
+  cmake_parse_arguments(PARSE_ARGV 0 _vtk_object_factory_declare
     ""
     "BASE;OVERRIDE"
-    ""
-    ${ARGN})
+    "")
 
   if (_vtk_object_factory_declare_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
@@ -95,11 +94,10 @@ function (vtk_object_factory_configure)
       "The `vtk_object_factory_configure` function needs to be run within a module context.")
   endif ()
 
-  cmake_parse_arguments(_vtk_object_factory_configure
+  cmake_parse_arguments(PARSE_ARGV 0 _vtk_object_factory_configure
     ""
     "SOURCE_FILE;HEADER_FILE;INITIAL_CODE;EXPORT_MACRO"
-    "EXTRA_INCLUDES"
-    ${ARGN})
+    "EXTRA_INCLUDES")
 
   if (_vtk_object_factory_configure_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR

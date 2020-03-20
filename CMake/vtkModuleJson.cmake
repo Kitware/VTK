@@ -101,11 +101,10 @@ Example output:
 ~~~
 #]==]
 function (vtk_module_json)
-  cmake_parse_arguments(_vtk_json
+  cmake_parse_arguments(PARSE_ARGV 0 _vtk_json
     ""
     "OUTPUT"
-    "MODULES"
-    ${ARGN})
+    "MODULES")
 
   if (_vtk_json_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR

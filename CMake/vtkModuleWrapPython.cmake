@@ -40,11 +40,10 @@ Windows and `${CMAKE_INSTALL_LIBDIR}/python<VERSION>/site-packages` otherwise.
 the value of `${VTK_PYTHON_VERSION}`.
 #]==]
 function (vtk_module_python_default_destination var)
-  cmake_parse_arguments(_vtk_module_python
+  cmake_parse_arguments(PARSE_ARGV 1 _vtk_module_python
     ""
     "MAJOR_VERSION"
-    ""
-    ${ARGN})
+    "")
 
   if (_vtk_module_python_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
@@ -552,11 +551,10 @@ vtk_module_wrap_python(
     function will use this installation component.
 #]==]
 function (vtk_module_wrap_python)
-  cmake_parse_arguments(_vtk_python
+  cmake_parse_arguments(PARSE_ARGV 0 _vtk_python
     ""
     "MODULE_DESTINATION;STATIC_MODULE_DESTINATION;LIBRARY_DESTINATION;PYTHON_PACKAGE;BUILD_STATIC;INSTALL_HEADERS;INSTALL_EXPORT;TARGET;COMPONENT;WRAPPED_MODULES;CMAKE_DESTINATION;DEPENDS;SOABI"
-    "MODULES"
-    ${ARGN})
+    "MODULES")
 
   if (_vtk_python_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
@@ -962,11 +960,10 @@ function (vtk_module_add_python_package name)
       "Python modules must match their module names.")
   endif ()
 
-  cmake_parse_arguments(_vtk_add_python_package
+  cmake_parse_arguments(PARSE_ARGV 1 _vtk_add_python_package
     ""
     "PACKAGE;MODULE_DESTINATION;COMPONENT"
-    "FILES"
-    ${ARGN})
+    "FILES")
 
   if (_vtk_add_python_package_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
@@ -1061,11 +1058,10 @@ function (vtk_module_add_python_module name)
       "Python modules must match their module names.")
   endif ()
 
-  cmake_parse_arguments(_vtk_add_python_module
+  cmake_parse_arguments(PARSE_ARGV 1 _vtk_add_python_module
     ""
     ""
-    "PACKAGES"
-    ${ARGN})
+    "PACKAGES")
 
   if (_vtk_add_python_module_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR

@@ -7,8 +7,6 @@ generate a hash from a file and place that in a generated header.
 
 set(_vtkHashSource_script_file "${CMAKE_CURRENT_LIST_FILE}")
 
-include(CMakeParseArguments)
-
 #[==[
 @brief Generate a header containing the hash of a file
 
@@ -35,11 +33,10 @@ The only required variable is `INPUT`.
   * `HEADER_OUTPUT`: the variable to store the generated header path.
 #]==]
 function (vtk_hash_source)
-  cmake_parse_arguments(_vtk_hash_source
+  cmake_parse_arguments(PARSE_ARGV 0 _vtk_hash_source
     ""
     "INPUT;NAME;ALGORITHM;HEADER_OUTPUT"
-    ""
-    ${ARGN})
+    "")
 
   if (_vtk_hash_source_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR

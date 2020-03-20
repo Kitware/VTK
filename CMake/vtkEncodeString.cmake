@@ -9,8 +9,6 @@ can still be developed as a standalone file.
 
 set(_vtkEncodeString_script_file "${CMAKE_CURRENT_LIST_FILE}")
 
-include(CMakeParseArguments)
-
 #[==[
 @brief Encode a file as a C string at build time
 
@@ -53,11 +51,10 @@ library.
     in various compilers.
 #]==]
 function (vtk_encode_string)
-  cmake_parse_arguments(_vtk_encode_string
+  cmake_parse_arguments(PARSE_ARGV 0 _vtk_encode_string
     "BINARY;NUL_TERMINATE"
     "INPUT;NAME;EXPORT_SYMBOL;EXPORT_HEADER;HEADER_OUTPUT;SOURCE_OUTPUT"
-    ""
-    ${ARGN})
+    "")
 
   if (_vtk_encode_string_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR

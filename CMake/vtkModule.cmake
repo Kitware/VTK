@@ -520,11 +520,10 @@ endif ()
 ~~~
 #]==]
 function (vtk_module_scan)
-  cmake_parse_arguments(_vtk_scan
+  cmake_parse_arguments(PARSE_ARGV 0 _vtk_scan
     ""
     "WANT_BY_DEFAULT;HIDE_MODULES_FROM_CACHE;PROVIDES_MODULES;REQUIRES_MODULES;UNRECOGNIZED_MODULES;ENABLE_TESTS;PROVIDES_KITS"
-    "MODULE_FILES;KIT_FILES;REQUEST_MODULES;REJECT_MODULES"
-    ${ARGN})
+    "MODULE_FILES;KIT_FILES;REQUEST_MODULES;REJECT_MODULES")
 
   if (_vtk_scan_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
@@ -1213,11 +1212,10 @@ vtk_module_set_property(<module>
 ~~~
 #]==]
 function (vtk_module_set_property module)
-  cmake_parse_arguments(_vtk_property
+  cmake_parse_arguments(PARSE_ARGV 1 _vtk_property
     "APPEND;APPEND_STRING"
     "PROPERTY"
-    "VALUE"
-    ${ARGN})
+    "VALUE")
 
   if (_vtk_property_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
@@ -1274,11 +1272,10 @@ The variable name passed to the `VARIABLE` argument will be unset if the
 property is not set (rather than the empty string).
 #]==]
 function (vtk_module_get_property module)
-  cmake_parse_arguments(_vtk_property
+  cmake_parse_arguments(PARSE_ARGV 1 _vtk_property
     ""
     "PROPERTY;VARIABLE"
-    ""
-    ${ARGN})
+    "")
 
   if (_vtk_property_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
@@ -1369,11 +1366,10 @@ vtk_module_include(<module>
 ~~~
 #]==]
 function (vtk_module_include module)
-  cmake_parse_arguments(_vtk_include
+  cmake_parse_arguments(PARSE_ARGV 1 _vtk_include
     "SYSTEM"
     ""
-    "INTERFACE;PUBLIC;PRIVATE"
-    ${ARGN})
+    "INTERFACE;PUBLIC;PRIVATE")
 
   if (_vtk_include_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
@@ -1410,11 +1406,10 @@ vtk_module_definitions(<module>
 ~~~
 #]==]
 function (vtk_module_definitions module)
-  cmake_parse_arguments(_vtk_definitions
+  cmake_parse_arguments(PARSE_ARGV 1 _vtk_definitions
     ""
     ""
-    "INTERFACE;PUBLIC;PRIVATE"
-    ${ARGN})
+    "INTERFACE;PUBLIC;PRIVATE")
 
   if (_vtk_definitions_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
@@ -1445,11 +1440,10 @@ vtk_module_compile_options(<module>
 ~~~
 #]==]
 function (vtk_module_compile_options module)
-  cmake_parse_arguments(_vtk_compile_options
+  cmake_parse_arguments(PARSE_ARGV 1 _vtk_compile_options
     ""
     ""
-    "INTERFACE;PUBLIC;PRIVATE"
-    ${ARGN})
+    "INTERFACE;PUBLIC;PRIVATE")
 
   if (_vtk_compile_options_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
@@ -1480,11 +1474,10 @@ vtk_module_compile_features(<module>
 ~~~
 #]==]
 function (vtk_module_compile_features module)
-  cmake_parse_arguments(_vtk_compile_features
+  cmake_parse_arguments(PARSE_ARGV 1 _vtk_compile_features
     ""
     ""
-    "INTERFACE;PUBLIC;PRIVATE"
-    ${ARGN})
+    "INTERFACE;PUBLIC;PRIVATE")
 
   if (_vtk_compile_features_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
@@ -1517,11 +1510,10 @@ vtk_module_link(<module>
 ~~~
 #]==]
 function (vtk_module_link module)
-  cmake_parse_arguments(_vtk_link
+  cmake_parse_arguments(PARSE_ARGV 1 _vtk_link
     ""
     ""
-    "INTERFACE;PUBLIC;PRIVATE"
-    ${ARGN})
+    "INTERFACE;PUBLIC;PRIVATE")
 
   if (_vtk_link_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
@@ -1579,11 +1571,10 @@ vtk_module_link_options(<module>
 ~~~
 #]==]
 function (vtk_module_link_options module)
-  cmake_parse_arguments(_vtk_link_options
+  cmake_parse_arguments(PARSE_ARGV 1 _vtk_link_options
     ""
     ""
-    "INTERFACE;PUBLIC;PRIVATE"
-    ${ARGN})
+    "INTERFACE;PUBLIC;PRIVATE")
 
   if (_vtk_link_options_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
@@ -1681,11 +1672,10 @@ _vtk_module_set_module_property(<module>
 ~~~
 #]==]
 function (_vtk_module_set_module_property module)
-  cmake_parse_arguments(_vtk_property
+  cmake_parse_arguments(PARSE_ARGV 1 _vtk_property
     "APPEND;APPEND_STRING"
     "PROPERTY"
-    "VALUE"
-    ${ARGN})
+    "VALUE")
 
   if (_vtk_property_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
@@ -1751,11 +1741,10 @@ property is not set. The property name is automatically prepended with the
 required prefix.
 #]==]
 function (_vtk_module_get_module_property module)
-  cmake_parse_arguments(_vtk_property
+  cmake_parse_arguments(PARSE_ARGV 1 _vtk_property
     ""
     "PROPERTY;VARIABLE"
-    ""
-    ${ARGN})
+    "")
 
   if (_vtk_property_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
@@ -1913,11 +1902,10 @@ The set of properties exported is computed as follows:
     change between the build and installation.
 #]==]
 function (_vtk_module_export_properties)
-  cmake_parse_arguments(_vtk_export_properties
+  cmake_parse_arguments(PARSE_ARGV 0 _vtk_export_properties
     ""
     "BUILD_FILE;INSTALL_FILE;MODULE;KIT"
-    "FROM_GLOBAL_PROPERTIES;PROPERTIES;SPLIT_INSTALL_PROPERTIES"
-    ${ARGN})
+    "FROM_GLOBAL_PROPERTIES;PROPERTIES;SPLIT_INSTALL_PROPERTIES")
 
   if (_vtk_export_properties_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
@@ -2168,11 +2156,10 @@ function (vtk_module_build)
   # TODO: Add an option to build statically? Currently, `BUILD_SHARED_LIBS` is
   # used.
 
-  cmake_parse_arguments(_vtk_build
+  cmake_parse_arguments(PARSE_ARGV 0 _vtk_build
     ""
     "BUILD_WITH_KITS;USE_EXTERNAL;LIBRARY_NAME_SUFFIX;VERSION;SOVERSION;PACKAGE;${_vtk_build_install_arguments};${_vtk_build_test_arguments}"
-    "MODULES;KITS"
-    ${ARGN})
+    "MODULES;KITS")
 
   if (_vtk_build_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
@@ -2654,11 +2641,10 @@ _vtk_module_standard_includes(
 ~~~
 #]==]
 function (_vtk_module_standard_includes)
-  cmake_parse_arguments(_vtk_standard_includes
+  cmake_parse_arguments(PARSE_ARGV 0 _vtk_standard_includes
     "SYSTEM;INTERFACE"
     "TARGET;HEADERS_DESTINATION"
-    ""
-    ${ARGN})
+    "")
 
   if (NOT _vtk_standard_includes_TARGET)
     message(FATAL_ERROR
@@ -2798,11 +2784,10 @@ After this call, the targets given to the `TARGETS` argument will gain the
 preprocessor definitions to trigger registrations properly.
 #]==]
 function (vtk_module_autoinit)
-  cmake_parse_arguments(_vtk_autoinit
+  cmake_parse_arguments(PARSE_ARGV 0 _vtk_autoinit
     ""
     ""
-    "TARGETS;MODULES"
-    ${ARGN})
+    "TARGETS;MODULES")
 
   if (_vtk_autoinit_UNRECOGNIZED_ARGUMENTS)
     message(FATAL_ERROR
@@ -3153,11 +3138,10 @@ function (vtk_module_add_module name)
       "PRIVATE_${_vtk_add_module_kind}")
   endforeach ()
 
-  cmake_parse_arguments(_vtk_add_module
+  cmake_parse_arguments(PARSE_ARGV 1 _vtk_add_module
     "FORCE_STATIC;HEADER_ONLY"
     "EXPORT_MACRO_PREFIX;HEADERS_SUBDIR;LIBRARY_NAME_SUFFIX"
-    "${_vtk_add_module_source_keywords};SOURCES"
-    ${ARGN})
+    "${_vtk_add_module_source_keywords};SOURCES")
 
   if (_vtk_add_module_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
@@ -3681,11 +3665,10 @@ Installation of header directories follows CMake's `install` function semantics
 with respect to trailing slashes.
 #]==]
 function (vtk_module_install_headers)
-  cmake_parse_arguments(_vtk_install_headers
+  cmake_parse_arguments(PARSE_ARGV 0 _vtk_install_headers
     ""
     "SUBDIR"
-    "FILES;DIRECTORIES"
-    ${ARGN})
+    "FILES;DIRECTORIES")
 
   if (_vtk_install_headers_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
@@ -3743,11 +3726,10 @@ The following target properties are set based on the arguments to the calling
   - `DEBUG_POSTFIX` (on Windows)
 #]==]
 function (_vtk_module_apply_properties target)
-  cmake_parse_arguments(_vtk_apply_properties
+  cmake_parse_arguments(PARSE_ARGV 1 _vtk_apply_properties
     ""
     "BASENAME"
-    ""
-    ${ARGN})
+    "")
 
   if (_vtk_apply_properties_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
@@ -3875,11 +3857,10 @@ rather than `BASENAME`. In addition, the dependencies of the module will be
 linked.
 #]==]
 function (vtk_module_add_executable name)
-  cmake_parse_arguments(_vtk_add_executable
+  cmake_parse_arguments(PARSE_ARGV 1 _vtk_add_executable
     "NO_INSTALL;DEVELOPMENT"
     "BASENAME"
-    ""
-    ${ARGN})
+    "")
 
   if (NOT _vtk_add_executable_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
@@ -4222,11 +4203,10 @@ The `vtk_module_find_package` calls made by the modules listed in `MODULES`
 will be exported to this file.
 #]==]
 function (vtk_module_export_find_packages)
-  cmake_parse_arguments(_vtk_export
+  cmake_parse_arguments(PARSE_ARGV 0 _vtk_export
     ""
     "CMAKE_DESTINATION;FILE_NAME;COMPONENT"
-    "MODULES"
-    ${ARGN})
+    "MODULES")
 
   if (_vtk_export_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
@@ -4478,11 +4458,10 @@ functions for the arguments supported by the `EXTERNAL` and `INTERNAL`
 arguments, respectively.
 #]==]
 function (vtk_module_third_party)
-  cmake_parse_arguments(_vtk_third_party
+  cmake_parse_arguments(PARSE_ARGV 0 _vtk_third_party
     ""
     ""
-    "INTERNAL;EXTERNAL"
-    ${ARGN})
+    "INTERNAL;EXTERNAL")
 
   if (_vtk_third_party_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
@@ -4590,11 +4569,10 @@ Only the `PACKAGE` argument is required. The arguments are as follows:
     available to the caller.
 #]==]
 function (vtk_module_third_party_external)
-  cmake_parse_arguments(_vtk_third_party_external
+  cmake_parse_arguments(PARSE_ARGV 0 _vtk_third_party_external
     "STANDARD_INCLUDE_DIRS;CONFIG_MODE"
     "VERSION;PACKAGE;FORWARD_VERSION_REQ;VERSION_VAR"
-    "COMPONENTS;OPTIONAL_COMPONENTS;LIBRARIES;INCLUDE_DIRS;DEFINITIONS;TARGETS;USE_VARIABLES"
-    ${ARGN})
+    "COMPONENTS;OPTIONAL_COMPONENTS;LIBRARIES;INCLUDE_DIRS;DEFINITIONS;TARGETS;USE_VARIABLES")
 
   if (_vtk_third_party_external_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
@@ -4852,11 +4830,10 @@ function (vtk_module_third_party_internal)
   # TODO: Support scanning for third-party modules which don't support an
   # external copy.
 
-  cmake_parse_arguments(_vtk_third_party_internal
+  cmake_parse_arguments(PARSE_ARGV 0 _vtk_third_party_internal
     "INTERFACE;HEADER_ONLY;STANDARD_INCLUDE_DIRS"
     "SUBDIRECTORY;HEADERS_SUBDIR;VERSION"
-    "LICENSE_FILES"
-    ${ARGN})
+    "LICENSE_FILES")
 
   if (_vtk_third_party_internal_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR

@@ -130,11 +130,10 @@ vtk_module_graphviz(
     a cluster or not.
 #]==]
 function (vtk_module_graphviz)
-  cmake_parse_arguments(_vtk_graphviz
+  cmake_parse_arguments(PARSE_ARGV 0 _vtk_graphviz
     ""
     "PRIVATE_DEPENDENCIES;KIT_CLUSTERS;OUTPUT"
-    "MODULES"
-    ${ARGN})
+    "MODULES")
 
   if (_vtk_graphviz_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
