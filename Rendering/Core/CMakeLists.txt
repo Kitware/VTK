@@ -5,6 +5,7 @@ configure_file(
   "${CMAKE_CURRENT_BINARY_DIR}/vtkTDxConfigure.h")
 
 set(classes
+  vtkAbstractHyperTreeGridMapper
   vtkAbstractMapper
   vtkAbstractMapper3D
   vtkAbstractPicker
