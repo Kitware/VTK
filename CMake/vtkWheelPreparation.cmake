@@ -45,21 +45,20 @@ set(VTK_INSTALL_SDK OFF)
 set(VTK_INSTALL_PYTHON_EXES OFF)
 set(BUILD_SHARED_LIBS ON)
 
-# macOS loader settings.
-set(CMAKE_BUILD_WITH_INSTALL_NAME_DIR ON)
-set(CMAKE_INSTALL_NAME_DIR "@rpath")
 if (APPLE)
+  # macOS loader settings.
+  set(CMAKE_BUILD_WITH_INSTALL_NAME_DIR ON)
+  set(CMAKE_BUILD_WITH_INSTALL_RPATH ON)
+  set(CMAKE_INSTALL_NAME_DIR "@rpath")
   list(APPEND CMAKE_INSTALL_RPATH
     "@loader_path")
 elseif (UNIX)
+  # ELF loader settings.
+  set(CMAKE_BUILD_WITH_INSTALL_RPATH ON)
   list(APPEND CMAKE_INSTALL_RPATH
     "$ORIGIN")
 endif ()
 set(VTK_PYTHON_OPTIONAL_LINK ON)
-
-# ELF loader settings.
-set(CMAKE_BUILD_WITH_INSTALL_RPATH ON)
-set(CMAKE_INSTALL_RPATH "$ORIGIN")
 
 set(license_file
   "${CMAKE_SOURCE_DIR}/Copyright.txt")
