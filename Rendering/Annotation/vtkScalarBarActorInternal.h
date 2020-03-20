@@ -18,6 +18,7 @@ class vtkPoints;
 class vtkPolyData;
 class vtkPolyDataMapper2D;
 class vtkUnsignedCharArray;
+class vtkViewport;
 
 /// A vector of smart pointers.
 template <class T>
