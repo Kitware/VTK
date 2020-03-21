@@ -109,6 +109,13 @@ void vtkSelector::Execute(vtkDataObject* input, vtkDataObject* output)
     this->ProcessBlock(input, output, false);
   }
 
+  // handle expanding to connected elements.
+  this->ExpandToConnectedElements(output);
+}
+
+//--------------------------------------------------------------------------
+void vtkSelector::ExpandToConnectedElements(vtkDataObject* output)
+{
   // Expand layers, if requested.
   auto selectionProperties = this->Node->GetProperties();
   if (selectionProperties->Has(vtkSelectionNode::CONNECTED_LAYERS()))
