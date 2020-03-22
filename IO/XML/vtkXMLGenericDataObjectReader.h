@@ -26,7 +26,8 @@
 #ifndef vtkXMLGenericDataObjectReader_h
 #define vtkXMLGenericDataObjectReader_h
 
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkIOXMLModule.h"  // For export macro
+#include "vtkSmartPointer.h" // for API
 #include "vtkXMLDataReader.h"
 
 class vtkHierarchicalBoxDataSet;
@@ -89,6 +90,12 @@ public:
    * needing to read the whole file.
    */
   virtual int ReadOutputType(const char* name, bool& parallel);
+
+  /**
+   * Helper to create a reader based on the data object type.
+   * Returns null if the reader cannot be determined.
+   */
+  static vtkSmartPointer<vtkXMLReader> CreateReader(int data_object_type, bool parallel);
 
 protected:
   vtkXMLGenericDataObjectReader();
