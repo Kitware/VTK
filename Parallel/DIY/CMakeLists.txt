@@ -1,4 +1,5 @@
 set(classes
+  vtkDIYDataExchanger
   vtkDIYUtilities
   vtkDIYExplicitAssigner)
 
