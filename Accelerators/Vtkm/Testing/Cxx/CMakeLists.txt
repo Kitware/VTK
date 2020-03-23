@@ -9,6 +9,7 @@ vtk_add_test_cxx(vtkAcceleratorsVTKmCxxTests1 tests1
   TestVTKMGradient.cxx,NO_VALID
   TestVTKMGradientAndVorticity.cxx,NO_VALID
   TestVTKMHistogram.cxx,NO_VALID
+  TestVTKMImplicitDataArray.cxx
   TestVTKMLevelOfDetail.cxx
   TestVTKMMarchingCubes.cxx
   TestVTKMMarchingCubes2.cxx

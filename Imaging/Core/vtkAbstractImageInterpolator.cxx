@@ -81,10 +81,12 @@ vtkAbstractImageInterpolator::vtkAbstractImageInterpolator()
   this->ComponentCount = -1;
 
   this->InterpolationInfo = new vtkInterpolationInfo();
-  this->InterpolationInfo->Pointer = nullptr;
+  this->InterpolationInfo->Array = nullptr;
   this->InterpolationInfo->NumberOfComponents = 1;
   this->InterpolationInfo->InterpolationMode = 0;
   this->InterpolationInfo->ExtraInfo = nullptr;
+  this->InterpolationInfo->Pointer = nullptr;
+  this->InterpolationInfo->Index = 0;
 
   this->InterpolationFuncDouble = &(vtkInterpolateNOP<double>::InterpolationFunc);
   this->InterpolationFuncFloat = &(vtkInterpolateNOP<float>::InterpolationFunc);
@@ -695,6 +697,9 @@ void vtkAbstractImageInterpolator::Update()
     this->InterpolationInfo->Pointer = nullptr;
     this->InterpolationInfo->NumberOfComponents = 1;
 
+    this->InterpolationInfo->Array = nullptr;
+    this->InterpolationInfo->Index = 0;
+
     this->InterpolationFuncDouble = &(vtkInterpolateNOP<double>::InterpolationFunc);
     this->InterpolationFuncFloat = &(vtkInterpolateNOP<float>::InterpolationFunc);
     this->RowInterpolationFuncDouble = &(vtkInterpolateNOP<double>::RowInterpolationFunc);
@@ -759,6 +764,9 @@ void vtkAbstractImageInterpolator::Update()
   int dataSize = scalars->GetDataTypeSize();
   void* inPtr = scalars->GetVoidPointer(0);
   info->Pointer = static_cast<char*>(inPtr) + component * dataSize;
+
+  info->Array = scalars;
+  info->Index = component * dataSize;
 
   // set all other elements of the InterpolationInfo
   info->ScalarType = scalars->GetDataType();

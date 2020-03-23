@@ -33,6 +33,9 @@ struct vtkInterpolationInfo
   int BorderMode;
   int InterpolationMode;
   void* ExtraInfo;
+
+  vtkDataArray* Array;
+  vtkIdType Index;
 };
 
 // The interpolation weights struct
