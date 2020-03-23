@@ -18,8 +18,17 @@ if (netCDF_FOUND)
   set(NetCDF_VERSION "${NetCDFVersion}")
   if (NOT TARGET NetCDF::NetCDF)
     add_library(NetCDF::NetCDF INTERFACE IMPORTED)
-    set_target_properties(NetCDF::NetCDF PROPERTIES
-      INTERFACE_LINK_LIBRARIES "${NetCDF_LIBRARIES}")
+    if (TARGET "netCDF::netcdf")
+      # 4.7.3
+      set_target_properties(NetCDF::NetCDF PROPERTIES
+        INTERFACE_LINK_LIBRARIES "netCDF::netcdf")
+    elseif (TARGET "netcdf")
+      set_target_properties(NetCDF::NetCDF PROPERTIES
+        INTERFACE_LINK_LIBRARIES "netcdf")
+    else ()
+      set_target_properties(NetCDF::NetCDF PROPERTIES
+        INTERFACE_LINK_LIBRARIES "${netCDF_LIBRARIES}")
+    endif ()
   endif ()
   # Skip the rest of the logic in this file.
   return ()
