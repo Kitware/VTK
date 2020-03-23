@@ -83,11 +83,10 @@ vtk_module_add_module(VTK::RenderingUI
 
 if (VTK_USE_X)
   vtk_module_find_package(
-    PACKAGE X11 COMPONENTS Xt)
+    PACKAGE X11)
   vtk_module_link(VTK::RenderingUI
     PUBLIC
-      X11::X11
-      X11::Xt)
+      X11::X11)
 elseif (VTK_USE_COCOA)
   vtk_module_link(VTK::RenderingUI PUBLIC "-framework Cocoa")
 endif ()
