@@ -264,6 +264,30 @@ following settings affect the Android build:
   * `ANDROID_NATIVE_API_LEVEL`
   * `ANDROID_ARCH_ABI`
 
+#### Python wheels
+
+VTK also supports creating a Python wheel containing its Python wrappers for
+Python3. Python2 wheels are no longer supported. This is supported by setting
+the `VTK_WHEEL_BUILD` flag. This changes the build directory structure around
+to match that expected by wheels. Once configured, the build tree may be built
+as it would be normally and then the generated `setup.py` file used to create
+the wheel.
+
+```sh
+cmake -GNinja -DVTK_WHEEL_BUILD=ON path/to/vtk/source
+ninja
+python3 setup.py bdist_wheel
+```
+
+Any modules may be turned on or off as in a normal VTK build. Certain modules
+add features to the generated wheel to indicate their availability. These flags
+are not meant to be comprehensive, but any reasonable feature flags may be
+added to `CMake/vtkWheelFinalization.cmake` as needed.
+
+Note that the wheel will not include and external third party libraries in its
+wheel (e.g., X11, OpenGL, etc.) to avoid conflicts with systems or other wheels
+doing the same.
+
 ## Building documentation
 
 The following targets are used to build documentation for VTK:
