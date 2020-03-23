@@ -18,6 +18,7 @@
 #include "vtkCellCenters.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
+#include "vtkDataObjectTypes.h"
 #include "vtkImageData.h"
 #include "vtkImageDataToPointSet.h"
 #include "vtkLogger.h"
@@ -28,8 +29,7 @@
 #include "vtkRectilinearGridToPointSet.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLDataObjectWriter.h"
-#include "vtkXMLImageDataReader.h"
-#include "vtkXMLUnstructuredGridReader.h"
+#include "vtkXMLGenericDataObjectReader.h"
 
 #if VTK_MODULE_ENABLE_VTK_ParallelMPI
 #include "vtkMPI.h"
@@ -170,30 +170,19 @@ void vtkDIYUtilities::Load(diy::BinaryBuffer& bb, vtkDataSet*& p)
     diy::load(bb, data);
 
     vtkSmartPointer<vtkDataSet> ds;
-    switch (type)
+    if (auto reader = vtkXMLGenericDataObjectReader::CreateReader(type, /*parallel*/ false))
     {
-      case VTK_UNSTRUCTURED_GRID:
-      {
-        vtkNew<vtkXMLUnstructuredGridReader> reader;
-        reader->ReadFromInputStringOn();
-        reader->SetInputString(data);
-        reader->Update();
-        ds = vtkDataSet::SafeDownCast(reader->GetOutputDataObject(0));
-      }
-      break;
-
-      case VTK_IMAGE_DATA:
-      {
-        vtkNew<vtkXMLImageDataReader> reader;
-        reader->ReadFromInputStringOn();
-        reader->SetInputString(data);
-        reader->Update();
-        ds = vtkDataSet::SafeDownCast(reader->GetOutputDataObject(0));
-      }
-      break;
-      default:
-        // aborting for debugging purposes.
-        abort();
+      reader->ReadFromInputStringOn();
+      reader->SetInputString(data);
+      reader->Update();
+      ds = vtkDataSet::SafeDownCast(reader->GetOutputDataObject(0));
+    }
+    else
+    {
+      vtkLogF(ERROR, "Currrently type '%d' (%s) is not supported.", type,
+        vtkDataObjectTypes::GetClassNameFromTypeId(type));
+      // aborting for debugging purposes.
+      abort();
     }
 
     ds->Register(nullptr);

@@ -15,6 +15,7 @@
 #include "vtkXMLGenericDataObjectReader.h"
 
 #include "vtkCommand.h"
+#include "vtkDataObjectTypes.h"
 #include "vtkHierarchicalBoxDataSet.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
@@ -57,6 +58,14 @@ vtkXMLGenericDataObjectReader::~vtkXMLGenericDataObjectReader()
 {
   if (this->Reader != nullptr)
   {
+    if (auto observer = this->GetReaderErrorObserver())
+    {
+      this->Reader->RemoveObserver(observer);
+    }
+    if (auto observer = this->GetParserErrorObserver())
+    {
+      this->Reader->RemoveObserver(observer);
+    }
     this->Reader->Delete();
   }
 }
@@ -149,6 +158,70 @@ int vtkXMLGenericDataObjectReader::ReadOutputType(const char* name, bool& parall
 }
 
 // ---------------------------------------------------------------------------
+vtkSmartPointer<vtkXMLReader> vtkXMLGenericDataObjectReader::CreateReader(
+  int data_object_type, bool parallel)
+{
+  switch (data_object_type)
+  {
+    case VTK_HIERARCHICAL_BOX_DATA_SET:
+      return vtkSmartPointer<vtkXMLUniformGridAMRReader>::New();
+    case VTK_OVERLAPPING_AMR:
+      return vtkSmartPointer<vtkXMLUniformGridAMRReader>::New();
+    case VTK_NON_OVERLAPPING_AMR:
+      return vtkSmartPointer<vtkXMLUniformGridAMRReader>::New();
+    case VTK_IMAGE_DATA:
+      if (parallel)
+      {
+        return vtkSmartPointer<vtkXMLPImageDataReader>::New();
+      }
+      else
+      {
+        return vtkSmartPointer<vtkXMLImageDataReader>::New();
+      }
+    case VTK_MULTIBLOCK_DATA_SET:
+      return vtkSmartPointer<vtkXMLMultiBlockDataReader>::New();
+    case VTK_POLY_DATA:
+      if (parallel)
+      {
+        return vtkSmartPointer<vtkXMLPPolyDataReader>::New();
+      }
+      else
+      {
+        return vtkSmartPointer<vtkXMLPolyDataReader>::New();
+      }
+    case VTK_RECTILINEAR_GRID:
+      if (parallel)
+      {
+        return vtkSmartPointer<vtkXMLPRectilinearGridReader>::New();
+      }
+      else
+      {
+        return vtkSmartPointer<vtkXMLRectilinearGridReader>::New();
+      }
+    case VTK_STRUCTURED_GRID:
+      if (parallel)
+      {
+        return vtkSmartPointer<vtkXMLPStructuredGridReader>::New();
+      }
+      else
+      {
+        return vtkSmartPointer<vtkXMLStructuredGridReader>::New();
+      }
+    case VTK_UNSTRUCTURED_GRID:
+      if (parallel)
+      {
+        return vtkSmartPointer<vtkXMLPUnstructuredGridReader>::New();
+      }
+      else
+      {
+        return vtkSmartPointer<vtkXMLUnstructuredGridReader>::New();
+      }
+    default:
+      return nullptr;
+  }
+}
+
+// ---------------------------------------------------------------------------
 int vtkXMLGenericDataObjectReader::RequestDataObject(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -160,6 +233,14 @@ int vtkXMLGenericDataObjectReader::RequestDataObject(
 
   if (this->Reader != nullptr)
   {
+    if (auto observer = this->GetReaderErrorObserver())
+    {
+      this->Reader->RemoveObserver(observer);
+    }
+    if (auto observer = this->GetParserErrorObserver())
+    {
+      this->Reader->RemoveObserver(observer);
+    }
     this->Reader->Delete();
     this->Reader = nullptr;
   }
@@ -168,81 +249,16 @@ int vtkXMLGenericDataObjectReader::RequestDataObject(
 
   // Create reader.
   bool parallel = false;
-  switch (this->ReadOutputType(this->FileName, parallel))
+  auto data_type = this->ReadOutputType(this->FileName, parallel);
+  if (auto reader = vtkXMLGenericDataObjectReader::CreateReader(data_type, parallel))
   {
-    case VTK_HIERARCHICAL_BOX_DATA_SET:
-      this->Reader = vtkXMLUniformGridAMRReader::New();
-      output = vtkHierarchicalBoxDataSet::New();
-      break;
-    case VTK_OVERLAPPING_AMR:
-      this->Reader = vtkXMLUniformGridAMRReader::New();
-      output = vtkOverlappingAMR::New();
-      break;
-    case VTK_NON_OVERLAPPING_AMR:
-      this->Reader = vtkXMLUniformGridAMRReader::New();
-      output = vtkNonOverlappingAMR::New();
-      break;
-    case VTK_IMAGE_DATA:
-      if (parallel)
-      {
-        this->Reader = vtkXMLPImageDataReader::New();
-      }
-      else
-      {
-        this->Reader = vtkXMLImageDataReader::New();
-      }
-      output = vtkImageData::New();
-      break;
-    case VTK_MULTIBLOCK_DATA_SET:
-      this->Reader = vtkXMLMultiBlockDataReader::New();
-      output = vtkMultiBlockDataSet::New();
-      break;
-    case VTK_POLY_DATA:
-      if (parallel)
-      {
-        this->Reader = vtkXMLPPolyDataReader::New();
-      }
-      else
-      {
-        this->Reader = vtkXMLPolyDataReader::New();
-      }
-      output = vtkPolyData::New();
-      break;
-    case VTK_RECTILINEAR_GRID:
-      if (parallel)
-      {
-        this->Reader = vtkXMLPRectilinearGridReader::New();
-      }
-      else
-      {
-        this->Reader = vtkXMLRectilinearGridReader::New();
-      }
-      output = vtkRectilinearGrid::New();
-      break;
-    case VTK_STRUCTURED_GRID:
-      if (parallel)
-      {
-        this->Reader = vtkXMLPStructuredGridReader::New();
-      }
-      else
-      {
-        this->Reader = vtkXMLStructuredGridReader::New();
-      }
-      output = vtkStructuredGrid::New();
-      break;
-    case VTK_UNSTRUCTURED_GRID:
-      if (parallel)
-      {
-        this->Reader = vtkXMLPUnstructuredGridReader::New();
-      }
-      else
-      {
-        this->Reader = vtkXMLUnstructuredGridReader::New();
-      }
-      output = vtkUnstructuredGrid::New();
-      break;
-    default:
-      this->Reader = nullptr;
+    output = vtkDataObjectTypes::NewDataObject(data_type);
+    this->Reader = reader;
+    this->Reader->Register(this);
+  }
+  else
+  {
+    this->Reader = nullptr;
   }
 
   if (this->Reader != nullptr)
