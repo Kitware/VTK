@@ -1,10 +1,12 @@
 #ifndef vtkScalarBarActorInternal_h
 #define vtkScalarBarActorInternal_h
-// VTK-HeaderTest-Exclude: vtkScalarBarActorInternal.h
 
-#include "vtkColor.h"        // for AnnotationColors, LabelColorMap, and tuples
-#include "vtkSmartPointer.h" // for "smart vectors"
-#include "vtkStdString.h"    // for LabelMap
+#ifndef __VTK_WRAP__
+
+#include "vtkColor.h"                     // for AnnotationColors, LabelColorMap, and tuples
+#include "vtkRenderingAnnotationModule.h" // For export macro
+#include "vtkSmartPointer.h"              // for "smart vectors"
+#include "vtkStdString.h"                 // for LabelMap
 
 #include <map>
 #include <vector>
@@ -16,10 +18,11 @@ class vtkPoints;
 class vtkPolyData;
 class vtkPolyDataMapper2D;
 class vtkUnsignedCharArray;
+class vtkViewport;
 
 /// A vector of smart pointers.
 template <class T>
-class vtkSmartVector : public std::vector<vtkSmartPointer<T> >
+class VTKRENDERINGANNOTATION_EXPORT vtkSmartVector : public std::vector<vtkSmartPointer<T> >
 {
 public:
   /**\brief Convert to an array of "dumb" pointers for functions
@@ -50,7 +53,7 @@ struct vtkScalarBarBox
 };
 
 /// Internal state for the scalar bar actor shared with subclasses.
-class vtkScalarBarActorInternal
+class VTKRENDERINGANNOTATION_EXPORT vtkScalarBarActorInternal
 {
 public:
   vtkScalarBarActorInternal()
@@ -186,4 +189,7 @@ public:
   //@}
 };
 
+#endif
+
 #endif // vtkScalarBarActorInternal_h
+// VTK-HeaderTest-Exclude: vtkScalarBarActorInternal.h
