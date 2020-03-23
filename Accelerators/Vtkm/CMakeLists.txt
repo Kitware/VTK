@@ -29,7 +29,7 @@ set(private_headers
   vtkmlib/ArrayConverters.hxx
   vtkmlib/Portals.hxx
   vtkmlib/PortalTraits.h
-  vtkmDataArray.hxx)
+  vtkmlib/vtkmDataArray.hxx)
 
 set(impl_classes
   vtkmAverageToCells

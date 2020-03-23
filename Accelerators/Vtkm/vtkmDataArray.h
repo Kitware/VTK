@@ -121,7 +121,7 @@ extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT vtkmDataArray<unsigned
 
 #endif // vtkmDataArray_h
 
-#include "vtkmDataArray.hxx"
+#include "vtkmlib/vtkmDataArray.hxx"
 
 #endif
 #endif
