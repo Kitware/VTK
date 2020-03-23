@@ -86,7 +86,7 @@ static constexpr int wedgeFaceCorners[5][9] = {
 
   { 0, 1, 4, 3, 0, 2, 1, 1, -1 },
   { 1, 2, 5, 4, -1, 2, -1, 1, -1 },
-  { 0, 2, 5, 3, 1, 2, 0, 0, -1 },
+  { 2, 0, 3, 5, 1, 2, 0, 1, -1 },
 };
 
 static constexpr int wedgeFaceEdges[5][5] = {
