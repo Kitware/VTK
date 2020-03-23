@@ -26,9 +26,11 @@
 
 #include <vtkm/cont/ArrayCopy.h>
 #include <vtkm/cont/ArrayHandleCast.h>
+#include <vtkm/cont/ArrayHandleGroupVec.h>
 #include <vtkm/cont/CellSetSingleType.h>
 #include <vtkm/cont/TryExecute.h>
-#include <vtkm/worklet/DispatcherMapTopology.h>
+
+#include <vtkm/worklet/WorkletMapField.h>
 
 #include "vtkCellArray.h"
 #include "vtkCellType.h"
@@ -42,56 +44,21 @@ namespace tovtkm
 namespace
 {
 
-template <typename PortalT>
-struct ReorderHex : public vtkm::exec::FunctorBase
+struct ReorderHex : vtkm::worklet::WorkletMapField
 {
-  ReorderHex(PortalT portal)
-    : Portal{ portal }
+  using ControlSignature = void(FieldInOut);
+
+  void operator()(vtkm::Vec<vtkm::Id, 8>& indices) const
   {
-  }
-
-  void operator()(vtkm::Id index) const
-  {
-    const vtkm::Id offset = index * 8;
-
-    auto doSwap = [&](vtkm::Id id1, vtkm::Id id2) {
-      id1 += offset;
-      id2 += offset;
-
-      const auto t = this->Portal.Get(id1);
-      this->Portal.Set(id1, this->Portal.Get(id2));
-      this->Portal.Set(id2, t);
+    auto doSwap = [&](vtkm::IdComponent id1, vtkm::IdComponent id2) {
+      const auto t = indices[id1];
+      indices[id1] = indices[id2];
+      indices[id2] = t;
     };
 
     doSwap(2, 3);
     doSwap(6, 7);
   }
-
-  PortalT Portal;
-};
-
-struct RunReorder
-{
-  RunReorder(vtkm::cont::ArrayHandle<vtkm::Id>& handle)
-    : Handle(handle)
-  {
-  }
-
-  template <typename Device>
-  bool operator()(Device) const
-  {
-    using Algo = typename vtkm::cont::DeviceAdapterAlgorithm<Device>;
-
-    auto portal = this->Handle.PrepareForInPlace(Device{});
-
-    using Functor = ReorderHex<decltype(portal)>;
-    Functor reorder{ portal };
-
-    Algo::Schedule(reorder, portal.GetNumberOfValues() / 8);
-    return true;
-  }
-
-  vtkm::cont::ArrayHandle<vtkm::Id>& Handle;
 };
 
 struct BuildSingleTypeCellSetVisitor
@@ -137,11 +104,14 @@ struct BuildSingleTypeVoxelCellSetVisitor
 
       // reorder cells from voxel->hex: which only can run on
       // devices that have shared memory / vtable with the CPU
-      using SMPTypes = vtkm::List<vtkm::cont::DeviceAdapterTagTBB,
-        vtkm::cont::DeviceAdapterTagOpenMP, vtkm::cont::DeviceAdapterTagSerial>;
+      vtkm::cont::ScopedRuntimeDeviceTracker tracker(
+        vtkm::cont::DeviceAdapterTagAny{}, vtkm::cont::RuntimeDeviceTrackerMode::Disable);
+      tracker.ResetDevice(vtkm::cont::DeviceAdapterTagTBB{});
+      tracker.ResetDevice(vtkm::cont::DeviceAdapterTagOpenMP{});
+      tracker.ResetDevice(vtkm::cont::DeviceAdapterTagSerial{});
 
-      RunReorder reorder{ connHandle };
-      vtkm::cont::TryExecute(reorder, SMPTypes{});
+      vtkm::cont::Invoker invoke;
+      invoke(ReorderHex{}, vtkm::cont::make_ArrayHandleGroupVec<8>(connHandle));
     }
 
     using CellSetType = vtkm::cont::CellSetSingleType<>;

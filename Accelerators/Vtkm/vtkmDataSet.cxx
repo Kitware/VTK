@@ -135,7 +135,7 @@ double* vtkmDataSet::GetPoint(vtkIdType ptId)
 
 void vtkmDataSet::GetPoint(vtkIdType id, double x[3])
 {
-  auto portal = this->Internals->Coordinates.GetData().GetPortalConstControl();
+  auto portal = this->Internals->Coordinates.GetData().ReadPortal();
   auto value = portal.Get(id);
   x[0] = value[0];
   x[1] = value[1];
@@ -173,7 +173,7 @@ void vtkmDataSet::GetCellBounds(vtkIdType cellId, double bounds[6])
   {
     auto portal = this->Internals->Coordinates.GetData()
                     .Cast<vtkm::cont::ArrayHandleUniformPointCoordinates>()
-                    .GetPortalConstControl();
+                    .ReadPortal();
 
     vtkm::internal::ConnectivityStructuredInternals<3> helper;
     helper.SetPointDimensions(portal.GetDimensions());
@@ -270,7 +270,9 @@ vtkIdType vtkmDataSet::FindPoint(double x[3])
       locator.buildTime = this->GetMTime();
     }
   }
-  auto execLocator = locator.control->PrepareForExecution(vtkm::cont::DeviceAdapterTagSerial{});
+  vtkm::cont::Token token;
+  auto execLocator =
+    locator.control->PrepareForExecution(vtkm::cont::DeviceAdapterTagSerial{}, token);
 
   vtkm::Vec<vtkm::FloatDefault, 3> point(x[0], x[1], x[2]);
   vtkm::Id pointId = -1;
@@ -305,13 +307,15 @@ vtkIdType vtkmDataSet::FindCell(double x[3], vtkCell*, vtkGenericCell*, vtkIdTyp
       locator.buildTime = this->GetMTime();
     }
   }
-  auto execLocator = locator.control->PrepareForExecution(vtkm::cont::DeviceAdapterTagSerial{});
+  vtkm::cont::Token token;
+  auto execLocator =
+    locator.control->PrepareForExecution(vtkm::cont::DeviceAdapterTagSerial{}, token);
 
   vtkm::Vec<vtkm::FloatDefault, 3> point(x[0], x[1], x[2]);
   vtkm::Vec<vtkm::FloatDefault, 3> pc;
   vtkm::Id cellId = -1;
   // exec object created for the Serial device can be called directly
-  execLocator->FindCell(point, cellId, pc, vtkm::worklet::WorkletMapField{});
+  execLocator->FindCell(point, cellId, pc);
 
   if (cellId >= 0)
   {

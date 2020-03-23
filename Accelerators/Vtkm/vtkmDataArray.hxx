@@ -110,13 +110,13 @@ class ArrayHandleWrapper
 private:
   using ArrayHandleType = vtkm::cont::ArrayHandle<ValueType, StorageTag>;
   using ComponentType = typename FlattenVec<ValueType>::ComponentType;
-  using PortalType = typename ArrayHandleType::PortalControl;
+  using PortalType = typename ArrayHandleType::WritePortalType;
 
 public:
   explicit ArrayHandleWrapper(const ArrayHandleType& handle)
     : Handle(handle)
   {
-    this->Portal = this->Handle.GetPortalControl();
+    this->Portal = this->Handle.WritePortal();
     this->NumberOfComponents = (this->Portal.GetNumberOfValues() == 0)
       ? 1
       : FlattenVec<ValueType>::GetNumberOfComponents(this->Portal.Get(0));
@@ -161,7 +161,7 @@ public:
   void Allocate(vtkIdType numTuples) override
   {
     this->Handle.Allocate(numTuples);
-    this->Portal = this->Handle.GetPortalControl();
+    this->Portal = this->Handle.WritePortal();
   }
 
   void Reallocate(vtkIdType numTuples) override
@@ -171,7 +171,7 @@ public:
     vtkm::cont::Algorithm::CopySubRange(this->Handle, 0,
       std::min(this->Handle.GetNumberOfValues(), newHandle.GetNumberOfValues()), newHandle, 0);
     this->Handle = std::move(newHandle);
-    this->Portal = this->Handle.GetPortalControl();
+    this->Portal = this->Handle.WritePortal();
   }
 
   vtkm::cont::VariantArrayHandle GetVtkmVariantArrayHandle() const override
@@ -193,13 +193,13 @@ class ArrayHandleWrapperReadOnly
 private:
   using ArrayHandleType = vtkm::cont::ArrayHandle<ValueType, StorageTag>;
   using ComponentType = typename FlattenVec<ValueType>::ComponentType;
-  using PortalType = typename ArrayHandleType::PortalConstControl;
+  using PortalType = typename ArrayHandleType::ReadPortalType;
 
 public:
   explicit ArrayHandleWrapperReadOnly(const ArrayHandleType& handle)
     : Handle(handle)
   {
-    this->Portal = this->Handle.GetPortalConstControl();
+    this->Portal = this->Handle.ReadPortal();
     this->NumberOfComponents = (this->Portal.GetNumberOfValues() == 0)
       ? 1
       : FlattenVec<ValueType>::GetNumberOfComponents(this->Portal.Get(0));
@@ -269,7 +269,7 @@ public:
     : Handle(handle)
     , NumberOfComponents(numberOfComponents)
   {
-    this->Portal = this->Handle.GetPortalControl();
+    this->Portal = this->Handle.WritePortal();
   }
 
   vtkIdType GetNumberOfTuples() const override
@@ -312,7 +312,7 @@ public:
   void Allocate(vtkIdType numTuples) override
   {
     this->Handle.Allocate(numTuples * this->NumberOfComponents);
-    this->Portal = this->Handle.GetPortalControl();
+    this->Portal = this->Handle.WritePortal();
   }
 
   void Reallocate(vtkIdType numTuples) override
@@ -322,7 +322,7 @@ public:
     vtkm::cont::Algorithm::CopySubRange(this->Handle, 0,
       std::min(this->Handle.GetNumberOfValues(), newHandle.GetNumberOfValues()), newHandle, 0);
     this->Handle = std::move(newHandle);
-    this->Portal = this->Handle.GetPortalControl();
+    this->Portal = this->Handle.WritePortal();
   }
 
   vtkm::cont::VariantArrayHandle GetVtkmVariantArrayHandle() const override

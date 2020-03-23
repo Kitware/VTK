@@ -238,7 +238,7 @@ void TestDataSets(vtkDataSet* dsVtk, vtkDataSet* dsVtkm)
 //-----------------------------------------------------------------------------
 inline void CoordsCopy(const vtkm::cont::CoordinateSystem& coords, vtkPoints* points)
 {
-  auto ptsPortal = coords.GetData().GetPortalConstControl();
+  auto ptsPortal = coords.GetData().ReadPortal();
   auto numPoints = coords.GetNumberOfPoints();
 
   points->SetDataTypeToFloat();
@@ -255,7 +255,7 @@ inline void CoordsCopy(const vtkm::cont::CoordinateSystem& coords, vtkPoints* po
 inline void FieldCopy(
   const vtkm::cont::ArrayHandle<float>& src, const char* name, vtkFloatArray* dst)
 {
-  auto portal = src.GetPortalConstControl();
+  auto portal = src.ReadPortal();
   vtkm::Id length = portal.GetNumberOfValues();
 
   dst->SetName(name);
@@ -275,7 +275,7 @@ void TestUniformDataSet()
   auto dataset = Maker.Make3DUniformDataSet0();
   auto coords =
     dataset.GetCoordinateSystem().GetData().Cast<vtkm::cont::ArrayHandleUniformPointCoordinates>();
-  auto portal = coords.GetPortalConstControl();
+  auto portal = coords.ReadPortal();
   auto dims = portal.GetDimensions();
   auto origin = portal.GetOrigin();
   auto spacing = portal.GetSpacing();
