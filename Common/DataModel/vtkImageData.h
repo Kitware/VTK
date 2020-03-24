@@ -273,6 +273,15 @@ public:
 
   //@{
   /**
+   * Access the index for the scalar data
+   */
+  virtual vtkIdType GetScalarIndexForExtent(int extent[6]);
+  virtual vtkIdType GetScalarIndex(int coordinates[3]);
+  virtual vtkIdType GetScalarIndex(int x, int y, int z);
+  //@}
+
+  //@{
+  /**
    * For access to data from wrappers
    */
   virtual float GetScalarComponentAsFloat(int x, int y, int z, int component);
@@ -479,6 +488,17 @@ public:
    */
   void* GetArrayPointerForExtent(vtkDataArray* array, int extent[6]);
   void* GetArrayPointer(vtkDataArray* array, int coordinates[3]);
+  //@}
+
+  //@{
+  /**
+   * Given a data array and a coordinate, return the index of the tuple in the
+   * array corresponding to that coordinate.
+   *
+   * This method is analogous to GetArrayPointer(), but it conforms to the API
+   * of vtkGenericDataArray.
+   */
+  vtkIdType GetTupleIndex(vtkDataArray* array, int coordinates[3]);
   //@}
 
   /**
