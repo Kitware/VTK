@@ -43,6 +43,7 @@ public:
     RANDOMIZED_ID_STRIDES,
     RANDOM_SAMPLING,
     SPATIALLY_STRATIFIED,
+    UNIFORM_SPATIAL_BOUNDS,
     UNIFORM_SPATIAL_SURFACE,
     UNIFORM_SPATIAL_VOLUME
   };
@@ -115,10 +116,13 @@ public:
    * Simulation for Interactive Visualization and Analysis",
    * Computer Graphics Forum, 2011 (EuroVis 2011).
    * (OnRatio and Offset are ignored) O(N log N)
-   * 3 - spatially uniform (surface based): points randomly sampled
+   * 3 - spatially uniform (bound based): point randomly sampled
+   * using a point locator and random positions inside the bounds
+   * of the data set.
+   * 4 - spatially uniform (surface based): points randomly sampled
    * via an inverse transform on surface area of each cell.
    * Note that 3D cells are ignored.
-   * 4 - spatially uniform (volume based): points randomly sampled via an
+   * 5 - spatially uniform (volume based): points randomly sampled via an
    * inverse transform on volume area of each cell.
    * Note that 2D cells are ignored.
    */
