@@ -417,7 +417,7 @@ int vtkPiecewiseFunction::AddPoint(double x, double y, double midpoint, double s
   unsigned int i;
   for (i = 0; i < this->Internal->Nodes.size(); i++)
   {
-    if (this->Internal->Nodes[i]->X == x)
+    if (this->Internal->Nodes[i]->X == x && this->Internal->Nodes[i]->Y == y)
     {
       break;
     }

@@ -35,7 +35,13 @@ int TestPiecewiseFunction(int, char*[])
   // Add some points that will give easily predictable interpolations.
   func->AddPoint(0., -2.);
   func->AddPoint(50., 0.);
-  func->AddPoint(50., 2.);
+  int ret = func->AddPoint(50., 2.);
+  if (ret != 2)
+  {
+    std::cerr << "Error adding duplicated point" << std::endl;
+    return EXIT_FAILURE;
+  }
+
   func->AddPoint(100., 5.);
 
   // Check that the interpolations are correct.
