@@ -29,8 +29,6 @@
 #include "vtkRenderer.h"
 #include "vtkUniformHyperTreeGrid.h"
 
-static const double sqrt2 = sqrt(2.);
-
 vtkCxxSetObjectMacro(vtkAbstractHyperTreeGridMapper, ColorMap, vtkScalarsToColors);
 
 //----------------------------------------------------------------------------
