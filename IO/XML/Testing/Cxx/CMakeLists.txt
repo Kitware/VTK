@@ -5,6 +5,7 @@ set(all_tests
   TestMultiBlockXMLIOWithPartialArrays.cxx,NO_VALID
   TestMultiBlockXMLIOWithPartialArraysTable.cxx,NO_VALID
   TestReadDuplicateDataArrayNames.cxx,NO_DATA,NO_VALID
+  TestSettingTimeArrayInReader.cxx,NO_VALID,NO_OUTPUT
   TestXML.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   TestXMLGhostCellsImport.cxx
   TestXMLHierarchicalBoxDataFileConverter.cxx,NO_VALID
