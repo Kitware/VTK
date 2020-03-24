@@ -3,6 +3,10 @@ vtk_module_test_data(
   Data/AMR/HierarchicalBoxDataset.v1.0/,REGEX:.*
   Data/AMR/HierarchicalBoxDataset.v1.1.vthb
   Data/AMR/HierarchicalBoxDataset.v1.1/,REGEX:.*
+  Data/mg_diff/mg_diff_0000.vtm
+  Data/mg_diff/mg_diff_0000/,REGEX:.*
+  Data/mg_diff/mg_diff_0062.vtm
+  Data/mg_diff/mg_diff_0062/,REGEX:.*
   Data/HyperTreeGrid.1.htg
   Data/ghost_cells.vtu
   Data/many_time_steps.vtu

@@ -93,6 +93,7 @@ protected:
   // The PointData and CellData element representations for each piece.
   vtkXMLDataElement** PointDataElements;
   vtkXMLDataElement** CellDataElements;
+  vtkXMLDataElement** TimeDataElements;
 
   // The piece currently being read.
   int Piece;
