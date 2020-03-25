@@ -1,6 +1,7 @@
 set(classes
   vtkAbstractImageInterpolator
   vtkExtractVOI
+  vtkGenericImageInterpolator
   vtkImageAppendComponents
   vtkImageBlend
   vtkImageBSplineCoefficients

@@ -70,7 +70,7 @@ public:
    * a Set method since Initialize() was called, you must call this method
    * to update the interpolator before you can use it.
    */
-  void Update();
+  virtual void Update();
 
   /**
    * Get the result of interpolating the specified component of the input
