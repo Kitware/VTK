@@ -1,6 +1,6 @@
 include(vtkModuleWrapJava)
 vtk_module_wrap_java(
-  JAVA_OUTPUT     "${CMAKE_CURRENT_BINARY_DIR}/src/vtk"
+  JAVA_OUTPUT     "${CMAKE_CURRENT_BINARY_DIR}/vtk"
   MODULES         ${vtk_modules}
   WRAPPED_MODULES vtk_java_wrapped_modules
   LIBRARY_DESTINATION "${CMAKE_INSTALL_LIBDIR}"
@@ -95,14 +95,10 @@ if (TARGET VTK::FiltersModeling AND TARGET VTK::IOImage)
     vtk/sample/ImagePlaneWidget)
 endif ()
 
-set(vtk_java_class_output
-  "${CMAKE_CURRENT_BINARY_DIR}/class")
-file(MAKE_DIRECTORY "${vtk_java_class_output}")
-
 set(java_input_files)
 set(java_class_files)
 foreach (java_file IN LISTS java_sources)
-  set(output_file "${CMAKE_CURRENT_BINARY_DIR}/src/${java_file}.java")
+  set(output_file "${CMAKE_CURRENT_BINARY_DIR}/${java_file}.java")
   add_custom_command(
     OUTPUT  "${output_file}"
     DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${java_file}.java"
@@ -113,8 +109,6 @@ foreach (java_file IN LISTS java_sources)
 
   list(APPEND java_input_files
     "${output_file}")
-  list(APPEND java_class_files
-    "${vtk_java_class_output}/${java_file}.class")
 endforeach ()
 
 set(vtk_java_native_libraries)
@@ -129,8 +123,6 @@ foreach (_vtk_java_module IN LISTS vtk_java_wrapped_modules)
     PROPERTY  "_vtk_module_java_files")
   list(APPEND java_input_files
     ${_vtk_module_java_files})
-  #list(APPEND java_class_files
-  #  "${vtk_java_class_output}/${java_file}.class")
 
   string(APPEND vtk_java_native_libraries
     "  ${_vtk_java_library_name}(\"${_vtk_java_library_name}Java\"),\n")
@@ -144,88 +136,91 @@ set(java_configure_sources
   vtk/vtkSettings)
 
 foreach (java_file IN LISTS java_configure_sources)
-  set(output_file "${CMAKE_CURRENT_BINARY_DIR}/src/${java_file}.java")
+  set(output_file "${CMAKE_CURRENT_BINARY_DIR}/${java_file}.java")
   configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/${java_file}.java.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/src/${java_file}.java"
+    "${CMAKE_CURRENT_BINARY_DIR}/${java_file}.java"
     @ONLY)
 
   list(APPEND java_input_files
     "${output_file}")
-  list(APPEND java_class_files
-    "${vtk_java_class_output}/${java_file}.class")
 endforeach ()
 
-set(vtk_java_rsp_file
-  "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/java_files.rsp")
-
-file(GENERATE
-  OUTPUT  "${vtk_java_rsp_file}"
-  CONTENT "\'$<JOIN:${java_input_files},\'\n\'>\'\n")
-
 # Set the javac source version
-set(VTK_JAVA_SOURCE_VERSION "1.6" CACHE STRING "javac source version")
+set(VTK_JAVA_SOURCE_VERSION "<DEFAULT>" CACHE STRING "javac source version")
 mark_as_advanced(VTK_JAVA_SOURCE_VERSION)
-set(VTK_JAVA_TARGET_VERSION "1.6" CACHE STRING "javac target version")
+set(VTK_JAVA_TARGET_VERSION "<DEFAULT>" CACHE STRING "javac target version")
 mark_as_advanced(VTK_JAVA_TARGET_VERSION)
 
-set(vtk_compile_classpath)
-if (VTK_JAVA_SWT_COMPONENT)
-  list(APPEND vtk_compile_classpath
-    ${ECLIPSE_SWT_LIBRARIES})
+if (VTK_JAVA_SOURCE_VERSION STREQUAL "<DEFAULT>")
+  set(VTK_JAVA_SOURCE_VERSION "1.6")
 endif ()
+if (VTK_JAVA_TARGET_VERSION STREQUAL "<DEFAULT>")
+  set(VTK_JAVA_TARGET_VERSION "1.6")
+endif ()
+
+set(CMAKE_INSTALL_JARDIR "<LIBDIR>/java"
+  CACHE STRING "Java jar files (LIBDIR/java)")
+string(REPLACE "<LIBDIR>" "${CMAKE_INSTALL_LIBDIR}" CMAKE_INSTALL_JARDIR "${CMAKE_INSTALL_JARDIR}")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_JARDIR}")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_JARDIR}")
+
+set(classpath_separator ":")
+if (WIN32)
+  set(classpath_separator "\\;")
+endif ()
+set(java_classpath
+  "${CMAKE_CURRENT_BINARY_DIR}")
 if (VTK_JAVA_JOGL_COMPONENT)
-  list(APPEND vtk_compile_classpath
-    ${JOGL_LIB}
-    ${JOGL_GLUE})
+  list(APPEND java_classpath
+    "$<TARGET_PROPERTY:JOGL::glue,LOCATION>"
+    "$<TARGET_PROPERTY:JOGL::JOGL,LOCATION>")
 endif ()
-
-set(vtk_java_classpath_arguments)
-if (vtk_compile_classpath)
-  set(classpath_separator ":")
-  if (WIN32)
-    set(classpath_separator "\\;")
-  endif ()
-
-  string(REPLACE ";" "${classpath_separator}" vtk_compile_classpath "${vtk_compile_classpath}")
-  set(vtk_java_classpath_arguments
-    -classpath "${vtk_compile_classpath}")
+if (VTK_JAVA_SWT_COMPONENT)
+  list(APPEND java_classpath
+    ${SWT_ECLIPSE_LIBRARIES})
 endif ()
+string(REPLACE ";" "${classpath_separator}" java_classpath "${java_classpath}")
 
-add_custom_command(
-  OUTPUT  ${java_class_files}
-  DEPENDS ${java_input_files}
-  COMMAND "${Java_JAVAC_EXECUTABLE}"
-          ${vtk_java_classpath_arguments}
-          -source "${VTK_JAVA_SOURCE_VERSION}"
-          -target "${VTK_JAVA_TARGET_VERSION}"
-          -d "${vtk_java_class_output}"
-          "@${vtk_java_rsp_file}"
-  COMMENT "Compiling Java Classes")
+add_library(vtkjava STATIC
+  ${java_input_files})
+add_library(VTK::vtkjava ALIAS vtkjava)
+set_property(TARGET vtkjava
+  PROPERTY
+    LINKER_LANGUAGE Java)
+set_property(TARGET vtkjava
+  PROPERTY
+    OUTPUT_NAME "vtk")
+target_include_directories(vtkjava
+  PRIVATE
+    "${CMAKE_CURRENT_BINARY_DIR}")
+target_compile_options(vtkjava
+  PRIVATE
+    # TODO(java): Why does adding this to the include directories not work?
+    "SHELL:-classpath ${java_classpath}"
+    "SHELL:-source ${VTK_JAVA_SOURCE_VERSION}"
+    "SHELL:-target ${VTK_JAVA_TARGET_VERSION}")
+target_link_libraries(vtkjava
+  PRIVATE
+    $<$<BOOL:${VTK_JAVA_SWT_COMPONENT}>:${ECLIPSE_SWT_LIBRARIES}>
+    "$<$<BOOL:${VTK_JAVA_JOGL_COMPONENT}>:JOGL::JOGL>")
 
-set(vtk_jar_file
-  "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/vtk.jar")
-
-add_custom_command(
-  OUTPUT  "${vtk_jar_file}"
-  DEPENDS ${java_class_files}
-  COMMAND "${Java_JAR_EXECUTABLE}"
-          -cvf "${vtk_jar_file}"
-          -C "${vtk_java_class_output}"
-          vtk
-  COMMENT "Creating vtk.jar")
-
-add_custom_target(vtkjava ALL
-  DEPENDS
-    "${vtk_jar_file}")
-
-set_directory_properties(PROPERTIES
-  ADDITIONAL_MAKE_CLEAN_FILES
-    "${java_class_files};${vtk_jar_file}")
-#install(
-#  FILES       "${vtk_jar_file}"
-#  DESTINATION "${VTK_INSTALL_JAVA_DIR}"
-#  COMPONENT   "runtime")
+install(
+  TARGETS vtkjava
+  EXPORT VTKJava
+  COMPONENT "jar"
+  ARCHIVE DESTINATION "${CMAKE_INSTALL_JARDIR}"
+  LIBRARY DESTINATION "${CMAKE_INSTALL_JARDIR}")
+export(
+  EXPORT    VTKJava
+  NAMESPACE VTK::
+  FILE      "${CMAKE_BINARY_DIR}/${vtk_cmake_destination}/VTKJava-targets.cmake")
+install(
+  EXPORT    VTKJava
+  NAMESPACE VTK::
+  FILE      "VTKJava-targets.cmake"
+  DESTINATION "${vtk_cmake_destination}"
+  COMPONENT "development")
 
 if (BUILD_TESTING AND TARGET VTK::TestingRendering)
   add_subdirectory(Testing)
