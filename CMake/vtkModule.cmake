@@ -3251,8 +3251,6 @@ function (vtk_module_add_module name)
         "belong in kits.")
     endif ()
 
-    # XXX(cmake-3.12.0): This unset is no longer necessary when 3.12.0 is required.
-    unset("${_vtk_build_module}_LIB_DEPENDS" CACHE)
     add_library("${_vtk_add_module_real_target}" INTERFACE)
 
     if (NOT _vtk_build_module STREQUAL _vtk_add_module_real_target)
@@ -3279,8 +3277,6 @@ function (vtk_module_add_module name)
         PROPERTY
           "INTERFACE_vtk_module_library_name" "${_vtk_add_module_library_name}")
 
-      # XXX(cmake-3.12.0): This unset is no longer necessary when 3.12.0 is required.
-      unset("${_vtk_build_module}_LIB_DEPENDS" CACHE)
       add_library("${_vtk_add_module_real_target}-objects" OBJECT
         ${_vtk_add_module_SOURCES}
         ${_vtk_add_module_TEMPLATES}
@@ -4492,10 +4488,6 @@ function (vtk_module_third_party)
     PARENT_SCOPE)
 
   if (VTK_MODULE_USE_EXTERNAL_${_vtk_build_module_safe})
-    # XXX(cmake): https://gitlab.kitware.com/cmake/cmake/issues/16364.
-    # Unset a variable which CMake doesn't like when switching between real
-    # libraries (internal) and interface libraries (external).
-    unset("${_vtk_build_module}_LIB_DEPENDS" CACHE)
     vtk_module_third_party_external(${_vtk_third_party_EXTERNAL})
 
     # Bubble up variables again.
