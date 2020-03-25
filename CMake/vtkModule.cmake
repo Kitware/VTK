@@ -1532,7 +1532,7 @@ function (vtk_module_link module)
 
   get_property(_vtk_link_kit GLOBAL
     PROPERTY "_vtk_module_${module}_kit")
-  if (_vtk_link_kit AND NOT CMAKE_VERSION VERSION_LESS "3.12")
+  if (_vtk_link_kit)
     foreach (_vtk_link_private IN LISTS _vtk_link_PRIVATE)
       if (NOT TARGET "${_vtk_link_private}")
         continue ()
@@ -2213,12 +2213,6 @@ function (vtk_module_build)
 
   if (NOT DEFINED _vtk_build_BUILD_WITH_KITS)
     set(_vtk_build_BUILD_WITH_KITS OFF)
-  endif ()
-
-  if (_vtk_build_BUILD_WITH_KITS AND CMAKE_VERSION VERSION_LESS "3.12")
-    message(FATAL_ERROR
-      "Building with kits enabled requires CMake 3.12 which introduced "
-      "support for OBJECT libraries to have and utilize usage requirements.")
   endif ()
 
   if (_vtk_build_BUILD_WITH_KITS AND NOT DEFINED _vtk_build_KITS)
