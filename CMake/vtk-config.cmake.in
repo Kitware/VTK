@@ -49,8 +49,15 @@ data.
 [VTK module API]: TODO: Link to hosted documentation.
 #]==]
 
+if (CMAKE_VERSION VERSION_LESS "3.12")
+  set("${CMAKE_FIND_PACKAGE_NAME}_FOUND" 0)
+  set("${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE"
+    "VTK requires CMake 3.12 in order to reliably be used.")
+  return ()
+endif ()
+
 cmake_policy(PUSH)
-cmake_policy(VERSION 3.8...3.12)
+cmake_policy(VERSION 3.12)
 
 set(_vtk_temp_variables)
 set(_vtk_real_components)
