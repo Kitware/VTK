@@ -61,6 +61,8 @@ public:
    *   maximum number of steps was reached
    * PARTICLE_TERMINATION_OUT_OF_TIME = 6, means the particle was terminated because
    *   maximum integration time was reached
+   * PARTICLE_TERMINATION_TRANSFERRED = 7, means the particle was terminated because
+   *   it was transferred to another process to continue the integration
    */
   typedef enum ParticleTermination
   {
@@ -70,7 +72,8 @@ public:
     PARTICLE_TERMINATION_SURF_BREAK,
     PARTICLE_TERMINATION_OUT_OF_DOMAIN,
     PARTICLE_TERMINATION_OUT_OF_STEPS,
-    PARTICLE_TERMINATION_OUT_OF_TIME
+    PARTICLE_TERMINATION_OUT_OF_TIME,
+    PARTICLE_TERMINATION_TRANSFERRED
   } ParticleTermination;
 
   /**
@@ -104,7 +107,7 @@ public:
    * particle data is a pointer to the pointData associated to all particles.
    */
   vtkLagrangianParticle(int numberOfVariables, vtkIdType seedId, vtkIdType particleId,
-    vtkIdType seedArrayTupleIndex, double integrationTime, vtkPointData* seedData, int weightsSize,
+    vtkIdType seedArrayTupleIndex, double integrationTime, vtkPointData* seedData,
     int numberOfTrackedUserData);
 
   /**
@@ -113,8 +116,8 @@ public:
    */
   static vtkLagrangianParticle* NewInstance(int numberOfVariables, vtkIdType seedId,
     vtkIdType particleId, vtkIdType seedArrayTupleIndex, double integrationTime,
-    vtkPointData* seedData, int weightsSize, int numberOfTrackedUserData,
-    vtkIdType numberOfSteps = 0, double previousIntegrationTime = 0);
+    vtkPointData* seedData, int numberOfTrackedUserData, vtkIdType numberOfSteps = 0,
+    double previousIntegrationTime = 0);
 
   /**
    * method to create a particle from a parent particle.
@@ -343,32 +346,6 @@ public:
   virtual vtkIdType GetSeedArrayTupleIndex() const;
 
   /**
-   * Get the last weights computed when locating the
-   * particle in the last traversed cell
-   */
-  double* GetLastWeights();
-
-  /**
-   * Get the last traversed cell id
-   */
-  vtkIdType GetLastCellId();
-
-  /**
-   * Get the last position evaluated
-   */
-  double* GetLastCellPosition();
-
-  /**
-   * Get the dataset containing the last traversed cell
-   */
-  vtkDataSet* GetLastDataSet();
-
-  /**
-   * Get the locator used to find the last traversed cell
-   */
-  vtkAbstractCellLocator* GetLastLocator();
-
-  /**
    * Get the last intersected surface cell id.
    */
   vtkIdType GetLastSurfaceCellId();
@@ -377,12 +354,6 @@ public:
    * Get the dataset containing the last intersected surface cell
    */
   vtkDataSet* GetLastSurfaceDataSet();
-
-  /**
-   * Set the last dataset and last cell id
-   */
-  void SetLastCell(vtkAbstractCellLocator* locator, vtkDataSet* dataset, vtkIdType cellId,
-    double lastCellPosition[3]);
 
   /**
    * Set the last surface dataset and last surface cell id
@@ -506,13 +477,6 @@ protected:
   vtkIdType NumberOfSteps;
   vtkIdType SeedArrayTupleIndex;
   vtkPointData* SeedData;
-
-  vtkAbstractCellLocator* LastLocator;
-  vtkDataSet* LastDataSet;
-  vtkIdType LastCellId;
-  double LastCellPosition[3];
-  int WeightsSize;
-  std::vector<double> LastWeights;
 
   double StepTime;
   double IntegrationTime;

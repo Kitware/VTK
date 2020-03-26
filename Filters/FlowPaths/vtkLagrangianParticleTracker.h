@@ -112,6 +112,7 @@ class vtkPoints;
 class vtkPolyData;
 class vtkPolyLine;
 struct IntegratingFunctor;
+struct vtkLagrangianThreadedData;
 
 class VTKFILTERSFLOWPATHS_EXPORT vtkLagrangianParticleTracker : public vtkDataObjectAlgorithm
 {
@@ -122,11 +123,8 @@ public:
 
   typedef enum CellLengthComputation
   {
-    STEP_LAST_CELL_LENGTH = 0,
     STEP_CUR_CELL_LENGTH = 1,
-    STEP_LAST_CELL_VEL_DIR = 2,
     STEP_CUR_CELL_VEL_DIR = 3,
-    STEP_LAST_CELL_DIV_THEO = 4,
     STEP_CUR_CELL_DIV_THEO = 5
   } CellLengthComputation;
 
@@ -162,25 +160,15 @@ public:
   /**
    * Set/Get the cell length computation mode.
    * Available modes are :
-   * - STEP_LAST_CELL_LENGTH :
-   * Compute cell length using getLength method
-   * on the last cell the particle was in
    * - STEP_CUR_CELL_LENGTH :
    * Compute cell length using getLength method
    * on the current cell the particle is in
-   * - STEP_LAST_CELL_VEL_DIR :
-   * Compute cell length using the particle velocity
-   * and the edges of the last cell the particle was in.
    * - STEP_CUR_CELL_VEL_DIR :
    * Compute cell length using the particle velocity
    * and the edges of the last cell the particle was in.
-   * - STEP_LAST_CELL_DIV_THEO :
-   * Compute cell length using the particle velocity
-   * and the divergence theorem.
    * - STEP_CUR_CELL_DIV_THEO :
    * Compute cell length using the particle velocity
    * and the divergence theorem.
-   * Default is STEP_LAST_CELL_LENGTH.
    */
   vtkSetMacro(CellLengthComputationMode, int);
   vtkGetMacro(CellLengthComputationMode, int);
@@ -365,6 +353,10 @@ protected:
   void InsertInteractionOutputPoint(vtkLagrangianParticle* particle,
     unsigned int interactedSurfaceFlatIndex, vtkDataObject* interactionOutput);
 
+  /**
+   * Computes the cell length for the next step using the method set by
+   * CellLengthComputationMode. Returns -1 if particle is out the of domain.
+   */
   double ComputeCellLength(vtkLagrangianParticle* particle);
 
   /**
@@ -373,6 +365,12 @@ protected:
   bool ComputeNextStep(vtkInitialValueProblemSolver* integrator, double* xprev, double* xnext,
     double t, double& delT, double& delTActual, double minStep, double maxStep, double cellLength,
     int& integrationRes, vtkLagrangianParticle* particle);
+
+  /**
+   * This method is thread safe
+   * Call the ParticleAboutToBeDeleted model method and delete the particle
+   */
+  virtual void DeleteParticle(vtkLagrangianParticle* particle);
 
   vtkLagrangianBasicIntegrationModel* IntegrationModel;
   vtkInitialValueProblemSolver* Integrator;
@@ -404,6 +402,8 @@ protected:
 
   std::mutex ProgressMutex;
   friend struct IntegratingFunctor;
+
+  vtkLagrangianThreadedData* SerialThreadedData;
 
 private:
   vtkLagrangianParticleTracker(const vtkLagrangianParticleTracker&) = delete;
