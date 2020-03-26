@@ -593,6 +593,26 @@ void vtkContext2D::DrawStringRect(vtkPoints2D* rect, const char* string)
 }
 
 //-----------------------------------------------------------------------------
+void vtkContext2D::DrawStringRect(const float rect[4], const vtkStdString& string)
+{
+  vtkVector2f p = this->CalculateTextPosition(rect);
+  this->DrawString(p.GetX(), p.GetY(), string);
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::DrawStringRect(const float rect[4], const vtkUnicodeString& string)
+{
+  vtkVector2f p = this->CalculateTextPosition(rect);
+  this->DrawString(p.GetX(), p.GetY(), string);
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::DrawStringRect(const float rect[4], const char* string)
+{
+  this->DrawStringRect(rect, vtkStdString(string));
+}
+
+//-----------------------------------------------------------------------------
 void vtkContext2D::DrawString(vtkPoints2D* point, const vtkStdString& string)
 {
   float* f = vtkArrayDownCast<vtkFloatArray>(point->GetData())->GetPointer(0);
@@ -1008,7 +1028,7 @@ vtkVector2f vtkContext2D::CalculateTextPosition(vtkPoints2D* rect)
 }
 
 //-----------------------------------------------------------------------------
-vtkVector2f vtkContext2D::CalculateTextPosition(float rect[4])
+vtkVector2f vtkContext2D::CalculateTextPosition(const float rect[4])
 {
   // Draw the text at the appropriate point inside the rect for the alignment
   // specified. This is a convenience when an area of the screen should have
