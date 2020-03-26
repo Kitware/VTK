@@ -361,6 +361,9 @@ public:
   void DrawStringRect(vtkPoints2D* rect, const vtkStdString& string);
   void DrawStringRect(vtkPoints2D* rect, const vtkUnicodeString& string);
   void DrawStringRect(vtkPoints2D* rect, const char* string);
+  void DrawStringRect(const float rect[4], const vtkStdString& string);
+  void DrawStringRect(const float rect[4], const vtkUnicodeString& string);
+  void DrawStringRect(const float rect[4], const char* string);
   //@}
 
   //@{
@@ -560,7 +563,7 @@ private:
    * corner of the text box, and the 3rd and 4th elements
    * represent width and height.
    */
-  vtkVector2f CalculateTextPosition(float rect[4]);
+  vtkVector2f CalculateTextPosition(const float rect[4]);
 };
 
 inline int vtkContext2D::FloatToInt(float x)
