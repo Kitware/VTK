@@ -333,13 +333,17 @@ void vtkCompositeMapperHelper2::DrawIBO(vtkRenderer* ren, vtkActor* actor, int p
     // }
 
     bool selecting = (this->CurrentSelector ? true : false);
+    bool tpass = actor->IsRenderingTranslucentPolygonalGeometry();
+
     for (dataIter it = this->Data.begin(); it != this->Data.end(); ++it)
     {
       vtkCompositeMapperHelperData* starthdata = it->second;
-      if (starthdata->Visibility &&
-        ((selecting || starthdata->IsOpaque) != actor->IsRenderingTranslucentPolygonalGeometry()) &&
-        ((selecting && starthdata->Pickability) || !selecting) &&
-        starthdata->NextIndex[primType] > starthdata->StartIndex[primType])
+      bool shouldDraw = starthdata->Visibility     // must be visible
+        && (!selecting || starthdata->Pickability) // and pickable when selecting
+        && (((starthdata->IsOpaque || actor->GetForceOpaque()) && !tpass) // opaque during opaque
+             || ((!starthdata->IsOpaque || actor->GetForceTranslucent()) &&
+                  tpass)); // translucent during translucent
+      if (shouldDraw && starthdata->NextIndex[primType] > starthdata->StartIndex[primType])
       {
         // compilers think this can exceed the bounds so we also
         // test against primType even though we should not need to
