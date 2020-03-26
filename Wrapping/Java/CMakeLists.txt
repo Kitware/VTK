@@ -202,7 +202,7 @@ target_compile_options(vtkjava
     "SHELL:-target ${VTK_JAVA_TARGET_VERSION}")
 target_link_libraries(vtkjava
   PRIVATE
-    $<$<BOOL:${VTK_JAVA_SWT_COMPONENT}>:${ECLIPSE_SWT_LIBRARIES}>
+    $<$<BOOL:${VTK_JAVA_SWT_COMPONENT}>:${SWT_ECLIPSE_LIBRARIES}>
     "$<$<BOOL:${VTK_JAVA_JOGL_COMPONENT}>:JOGL::JOGL>")
 
 install(
