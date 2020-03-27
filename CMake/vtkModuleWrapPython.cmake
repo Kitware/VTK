@@ -118,14 +118,28 @@ function (_vtk_module_wrap_python_sources module sources classes)
     "$<TARGET_PROPERTY:${_vtk_python_target_name},COMPILE_DEFINITIONS>")
   set(_vtk_python_genex_include_directories
     "$<TARGET_PROPERTY:${_vtk_python_target_name},INCLUDE_DIRECTORIES>")
-  file(GENERATE
-    OUTPUT  "${_vtk_python_args_file}"
-    CONTENT "$<$<BOOL:${_vtk_python_genex_compile_definitions}>:\n-D\'$<JOIN:${_vtk_python_genex_compile_definitions},\'\n-D\'>\'>\n
-$<$<BOOL:${_vtk_python_genex_include_directories}>:\n-I\'$<JOIN:${_vtk_python_genex_include_directories},\'\n-I\'>\'>\n")
 
   _vtk_module_get_module_property("${module}"
     PROPERTY  "hierarchy"
-    VARIABLE  _vtk_python_hierarchy_file)
+    VARIABLE  _vtk_python_hierarchy_files)
+
+  _vtk_module_get_module_property("${module}"
+    PROPERTY  "private_depends"
+    VARIABLE  _vtk_python_private_depends)
+  foreach (_vtk_python_private_depend IN LISTS _vtk_python_private_depends)
+    _vtk_module_get_module_property("${_vtk_python_private_depend}"
+      PROPERTY  "hierarchy"
+      VARIABLE  _vtk_python_private_depend_hierarchy_file)
+    if (_vtk_python_private_depend_hierarchy_file)
+      list(APPEND _vtk_python_hierarchy_files "${_vtk_python_private_depend_hierarchy_file}")
+    endif ()
+  endforeach ()
+
+  file(GENERATE
+    OUTPUT  "${_vtk_python_args_file}"
+    CONTENT "$<$<BOOL:${_vtk_python_genex_compile_definitions}>:\n-D\'$<JOIN:${_vtk_python_genex_compile_definitions},\'\n-D\'>\'>\n
+$<$<BOOL:${_vtk_python_genex_include_directories}>:\n-I\'$<JOIN:${_vtk_python_genex_include_directories},\'\n-I\'>\'>\n
+$<$<BOOL:${_vtk_python_hierarchy_files}>:\n--types \'$<JOIN:${_vtk_python_hierarchy_files},\'\n--types \'>\'>\n")
 
   get_property(_vtk_python_is_imported
     TARGET    "${_vtk_python_target_name}"
@@ -183,7 +197,6 @@ $<$<BOOL:${_vtk_python_genex_include_directories}>:\n-I\'$<JOIN:${_vtk_python_ge
               "@${_vtk_python_args_file}"
               -o "${_vtk_python_source_output}"
               "${_vtk_python_header}"
-              --types "${_vtk_python_hierarchy_file}"
               ${_vtk_python_macros_args}
       IMPLICIT_DEPENDS
               CXX "${_vtk_python_header}"
