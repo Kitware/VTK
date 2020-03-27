@@ -36,14 +36,28 @@ function (_vtk_module_wrap_java_sources module sources java_sources)
     "$<TARGET_PROPERTY:${_vtk_java_target_name},COMPILE_DEFINITIONS>")
   set(_vtk_java_genex_include_directories
     "$<TARGET_PROPERTY:${_vtk_java_target_name},INCLUDE_DIRECTORIES>")
-  file(GENERATE
-    OUTPUT  "${_vtk_java_args_file}"
-    CONTENT "$<$<BOOL:${_vtk_java_genex_compile_definitions}>:\n-D\'$<JOIN:${_vtk_java_genex_compile_definitions},\'\n-D\'>\'>\n
-$<$<BOOL:${_vtk_java_genex_include_directories}>:\n-I\'$<JOIN:${_vtk_java_genex_include_directories},\'\n-I\'>\'>\n")
 
   _vtk_module_get_module_property("${module}"
     PROPERTY  "hierarchy"
-    VARIABLE  _vtk_java_hierarchy_file)
+    VARIABLE  _vtk_java_hierarchy_files)
+
+  _vtk_module_get_module_property("${module}"
+    PROPERTY  "private_depends"
+    VARIABLE  _vtk_java_private_depends)
+  foreach (_vtk_java_private_depend IN LISTS _vtk_java_private_depends)
+    _vtk_module_get_module_property("${_vtk_java_private_depend}"
+      PROPERTY  "hierarchy"
+      VARIABLE  _vtk_java_private_depend_hierarchy_file)
+    if (_vtk_java_private_depend_hierarchy_file)
+      list(APPEND _vtk_java_hierarchy_files "${_vtk_java_private_depend_hierarchy_file}")
+    endif ()
+  endforeach ()
+
+  file(GENERATE
+    OUTPUT  "${_vtk_java_args_file}"
+    CONTENT "$<$<BOOL:${_vtk_java_genex_compile_definitions}>:\n-D\'$<JOIN:${_vtk_java_genex_compile_definitions},\'\n-D\'>\'>\n
+$<$<BOOL:${_vtk_java_genex_include_directories}>:\n-I\'$<JOIN:${_vtk_java_genex_include_directories},\'\n-I\'>\'>\n
+$<$<BOOL:${_vtk_java_hierarchy_files}>:\n--types \'$<JOIN:${_vtk_java_hierarchy_files},\'\n--types \'>\'>\n")
 
   get_property(_vtk_java_is_imported
     TARGET    "${module}"
@@ -112,7 +126,6 @@ $<$<BOOL:${_vtk_java_genex_include_directories}>:\n-I\'$<JOIN:${_vtk_java_genex_
               "@${_vtk_java_args_file}"
               -o "${_vtk_java_source_output}"
               "${_vtk_java_header}"
-              --types "${_vtk_java_hierarchy_file}"
               ${_vtk_java_macros_args}
       IMPLICIT_DEPENDS
               CXX "${_vtk_java_header}"
@@ -135,7 +148,6 @@ $<$<BOOL:${_vtk_java_genex_include_directories}>:\n-I\'$<JOIN:${_vtk_java_genex_
               "@${_vtk_java_args_file}"
               -o "${_vtk_java_java_source_output}"
               "${_vtk_java_header}"
-              --types "${_vtk_java_hierarchy_file}"
               ${_vtk_java_macros_args}
       IMPLICIT_DEPENDS
               CXX "${_vtk_java_header}"

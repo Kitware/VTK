@@ -154,6 +154,10 @@ static void vtkWrapPython_GenerateSpecialHeaders(
             {
               classname = 0;
             }
+            else if ((aType & VTK_PARSE_REF) != 0)
+            {
+              classname = 0;
+            }
           }
           else
           {
