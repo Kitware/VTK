@@ -41,6 +41,8 @@ public:
 
   int GetNumberOfVariables() { return (int)this->variableName.size(); }
   const char* GetVariableName(int indx) { return this->variableName[indx].c_str(); }
+  int GetNumberOfDefaultVariables() { return (int)this->variableDefault.size(); }
+  const char* GetVariableDefault(int indx) { return this->variableDefault[indx].c_str(); }
 
   // Read pio dump file AMR as hypertree grid rather than unstructured grid
   bool GetHyperTreeGrid() { return this->useHTG; }
@@ -131,9 +133,11 @@ protected:
   bool useHTG;
   bool useTracer;
   bool useFloat64;
+  bool hasTracers;
 
-  // Requested variables for block structures
+  // Cell variable data and initially enabled variables
   std::vector<std::string> variableName;
+  std::vector<std::string> variableDefault;
 
   // Record the ordering of the cells when building the hypertree grid
   // Needed so that the data will line up correctly
