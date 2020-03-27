@@ -2,7 +2,9 @@ include(vtkModuleWrapJava)
 vtk_module_wrap_java(
   JAVA_OUTPUT     "${CMAKE_CURRENT_BINARY_DIR}/src/vtk"
   MODULES         ${vtk_modules}
-  WRAPPED_MODULES vtk_java_wrapped_modules)
+  WRAPPED_MODULES vtk_java_wrapped_modules
+  LIBRARY_DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+  JNILIB_DESTINATION  "${CMAKE_INSTALL_LIBDIR}/java/vtk-${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
 
 option(VTK_JAVA_SWT_COMPONENT "Enable the SWT component for Java" OFF)
 if (VTK_JAVA_SWT_COMPONENT)
