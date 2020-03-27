@@ -47,6 +47,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestOffscreenRenderingResize.cxx
   TestOrderIndependentTranslucentPass.cxx
   TestPanoramicProjectionPass.cxx,NO_DATA
+  TestPBRHdrEnvironment.cxx, "DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/spiaggia_di_mondello_1k.hdr}"
   TestPBRMapping.cxx
   TestPBRMaterials.cxx
   TestPointFillPass.cxx
