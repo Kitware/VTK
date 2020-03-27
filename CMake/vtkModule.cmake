@@ -2054,6 +2054,8 @@ vtk_module_build(
   [TARGETS_COMPONENT  <component>]
   [INSTALL_EXPORT     <export>]
 
+  [TARGET_SPECIFIC_COMPONENTS <ON|OFF>]
+
   [TEST_DIRECTORY_NAME        <name>]
   [TEST_DATA_TARGET           <target>]
   [TEST_INPUT_DATA_DIRECTORY  <directory>]
@@ -2096,6 +2098,8 @@ have reasonable defaults if not specified.
     component (e.g., CMake module files).
   * `TARGETS_COMPONENT`: `Defaults to `runtime`) The install component to use
     for the libraries built.
+  * `TARGET_SPECIFIC_COMPONENTS`: (Defaults to `OFF`) If `ON`, place artifacts
+    into target-specific install components (`<TARGET>-<COMPONENT>`).
   * `TARGET_NAMESPACE`: `Defaults to `\<AUTO\>`) The namespace for installed
     targets. All targets must have the same namespace. If set to `\<AUTO\>`,
     the namespace will be detected automatically.
@@ -2170,7 +2174,7 @@ function (vtk_module_build)
 
   cmake_parse_arguments(PARSE_ARGV 0 _vtk_build
     ""
-    "BUILD_WITH_KITS;USE_EXTERNAL;LIBRARY_NAME_SUFFIX;VERSION;SOVERSION;PACKAGE;ENABLE_WRAPPING;${_vtk_build_install_arguments};${_vtk_build_test_arguments}"
+    "BUILD_WITH_KITS;USE_EXTERNAL;TARGET_SPECIFIC_COMPONENTS;LIBRARY_NAME_SUFFIX;VERSION;SOVERSION;PACKAGE;ENABLE_WRAPPING;${_vtk_build_install_arguments};${_vtk_build_test_arguments}"
     "MODULES;KITS")
 
   if (_vtk_build_UNPARSED_ARGUMENTS)
@@ -2181,6 +2185,10 @@ function (vtk_module_build)
 
   if (NOT DEFINED _vtk_build_USE_EXTERNAL)
     set(_vtk_build_USE_EXTERNAL OFF)
+  endif ()
+
+  if (NOT DEFINED _vtk_build_TARGET_SPECIFIC_COMPONENTS)
+    set(_vtk_build_TARGET_SPECIFIC_COMPONENTS OFF)
   endif ()
 
   if (NOT DEFINED _vtk_build_PACKAGE)
@@ -3083,6 +3091,17 @@ $<$<BOOL:${_vtk_hierarchy_genex_include_directories}>:\n-I\'$<JOIN:${_vtk_hierar
       "INTERFACE_vtk_module_hierarchy" "${_vtk_hierarchy_file}")
 
   if (_vtk_build_INSTALL_HEADERS)
+    set(_vtk_hierarchy_headers_component "${_vtk_build_HEADERS_COMPONENT}")
+    if (_vtk_build_TARGET_SPECIFIC_COMPONENTS)
+      string(PREPEND _vtk_hierarchy_headers_component "${_vtk_build_module}-")
+      if (_vtk_build_BUILD_WITH_KITS)
+        get_property(_vtk_hierarchy_build_with_kit GLOBAL
+          PROPERTY "_vtk_module_${_vtk_build_module}_kit")
+        if (_vtk_hierarchy_build_with_kit)
+          set(_vtk_hierarchy_headers_component "${_vtk_hierarchy_build_with_kit}-${_vtk_build_HEADERS_COMPONENT}")
+        endif ()
+      endif ()
+    endif ()
     set_property(TARGET "${_vtk_add_module_real_target}"
       PROPERTY
         "INTERFACE_vtk_module_hierarchy_install" "\${_vtk_module_import_prefix}/${_vtk_build_HIERARCHY_DESTINATION}/${_vtk_hierarchy_filename}")
@@ -3090,7 +3109,7 @@ $<$<BOOL:${_vtk_hierarchy_genex_include_directories}>:\n-I\'$<JOIN:${_vtk_hierar
       FILES       "${_vtk_hierarchy_file}"
       DESTINATION "${_vtk_build_HIERARCHY_DESTINATION}"
       RENAME      "${_vtk_hierarchy_filename}"
-      COMPONENT   "${_vtk_build_HEADERS_COMPONENT}")
+      COMPONENT   "${_vtk_hierarchy_headers_component}")
   endif ()
 endfunction ()
 
@@ -3698,17 +3717,28 @@ function (vtk_module_install_headers)
 
   set(_vtk_install_headers_destination
     "${_vtk_build_HEADERS_DESTINATION}/${_vtk_install_headers_SUBDIR}")
+  set(_vtk_install_headers_headers_component "${_vtk_build_HEADERS_COMPONENT}")
+  if (_vtk_build_TARGET_SPECIFIC_COMPONENTS)
+    string(PREPEND _vtk_install_headers_headers_component "${_vtk_build_module}-")
+    if (_vtk_build_BUILD_WITH_KITS)
+      get_property(_vtk_install_headers_build_with_kit GLOBAL
+        PROPERTY "_vtk_module_${_vtk_build_module}_kit")
+      if (_vtk_install_headers_build_with_kit)
+        set(_vtk_install_headers_headers_component "${_vtk_install_headers_build_with_kit}-${_vtk_build_HEADERS_COMPONENT}")
+      endif ()
+    endif ()
+  endif ()
   if (_vtk_install_headers_FILES)
     install(
       FILES       ${_vtk_install_headers_FILES}
       DESTINATION "${_vtk_install_headers_destination}"
-      COMPONENT   "${_vtk_build_HEADERS_COMPONENT}")
+      COMPONENT   "${_vtk_install_headers_headers_component}")
   endif ()
   foreach (_vtk_install_headers_directory IN LISTS _vtk_install_headers_DIRECTORIES)
     install(
       DIRECTORY   "${_vtk_install_headers_directory}"
       DESTINATION "${_vtk_install_headers_destination}"
-      COMPONENT   "${_vtk_build_HEADERS_COMPONENT}")
+      COMPONENT   "${_vtk_install_headers_headers_component}")
   endforeach ()
 endfunction ()
 
@@ -3818,20 +3848,40 @@ function (_vtk_module_install target)
       EXPORT "${_vtk_build_INSTALL_EXPORT}")
   endif ()
 
+  set(_vtk_install_headers_component "${_vtk_build_HEADERS_COMPONENT}")
+  set(_vtk_install_targets_component "${_vtk_build_TARGETS_COMPONENT}")
+  if (_vtk_build_TARGET_SPECIFIC_COMPONENTS)
+    if (_vtk_build_kit)
+      string(PREPEND _vtk_install_headers_component "${_vtk_build_kit}-")
+      string(PREPEND _vtk_install_targets_component "${_vtk_build_kit}-")
+    else ()
+      string(PREPEND _vtk_install_headers_component "${_vtk_build_module}-")
+      string(PREPEND _vtk_install_targets_component "${_vtk_build_module}-")
+      if (_vtk_build_BUILD_WITH_KITS)
+        get_property(_vtk_install_kit GLOBAL
+          PROPERTY "_vtk_module_${_vtk_build_module}_kit")
+        if (_vtk_install_kit)
+          set(_vtk_install_headers_component "${_vtk_install_kit}-${_vtk_build_HEADERS_COMPONENT}")
+          set(_vtk_install_targets_component "${_vtk_install_kit}-${_vtk_build_TARGETS_COMPONENT}")
+        endif ()
+      endif ()
+    endif ()
+  endif ()
+
   install(
     TARGETS             "${target}"
     ${_vtk_install_export}
     ${ARGN}
     ARCHIVE
       DESTINATION "${_vtk_build_ARCHIVE_DESTINATION}"
-      COMPONENT   "${_vtk_build_HEADERS_COMPONENT}"
+      COMPONENT   "${_vtk_install_headers_component}"
     LIBRARY
       DESTINATION "${_vtk_build_LIBRARY_DESTINATION}"
-      COMPONENT   "${_vtk_build_TARGETS_COMPONENT}"
+      COMPONENT   "${_vtk_install_targets_component}"
       NAMELINK_COMPONENT "${_vtk_build_HEADERS_COMPONENT}"
     RUNTIME
       DESTINATION "${_vtk_build_RUNTIME_DESTINATION}"
-      COMPONENT   "${_vtk_build_TARGETS_COMPONENT}")
+      COMPONENT   "${_vtk_install_targets_component}")
 endfunction ()
 
 #[==[
@@ -4908,10 +4958,14 @@ function (vtk_module_third_party_internal)
   endif ()
 
   if (_vtk_third_party_internal_LICENSE_FILES)
+    set(_vtk_third_party_internal_license_component "license")
+    if (_vtk_build_TARGET_SPECIFIC_COMPONENTS)
+      string(PREPEND _vtk_third_party_internal_license_component "${_vtk_build_module}-")
+    endif ()
     install(
       FILES       ${_vtk_third_party_internal_LICENSE_FILES}
       DESTINATION "${_vtk_build_LICENSE_DESTINATION}/${_vtk_third_party_internal_library_name}/"
-      COMPONENT   "license")
+      COMPONENT   "${_vtk_third_party_internal_license_component}")
   endif ()
 
   _vtk_module_mark_third_party("${_vtk_third_party_internal_target_name}")

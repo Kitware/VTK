@@ -6,8 +6,12 @@ endif ()
 if (_vtk_build_INSTALL_HEADERS)
   set(KWIML_INSTALL_INCLUDE_DIR "${_vtk_build_HEADERS_DESTINATION}")
   set(KWIML_INCLUDE_PREFIX "vtkkwiml")
+  set(KWIML_HEADERS_COMPONENT "${_vtk_build_HEADERS_COMPONENT}")
+  if (_vtk_build_TARGET_SPECIFIC_COMPONENTS)
+    string(PREPEND KWIML_HEADERS_COMPONENT "VTK::kwiml-")
+  endif ()
   set(KWIML_INSTALL_INCLUDE_OPTIONS
-    COMPONENT "${_vtk_build_HEADERS_COMPONENT}")
+    COMPONENT "${KWIML_HEADERS_COMPONENT}")
 endif ()
 
 vtk_module_third_party_internal(
