@@ -118,7 +118,8 @@ void vtkToneMappingPass::Render(const vtkRenderState* s)
   renWin->GetState()->PopFramebufferBindings();
 
   if (this->QuadHelper &&
-    static_cast<unsigned int>(this->ToneMappingType) != this->QuadHelper->ShaderChangeValue)
+    (static_cast<unsigned int>(this->ToneMappingType) != this->QuadHelper->ShaderChangeValue ||
+      this->UseACES != this->UseACESChangeValue))
   {
     delete this->QuadHelper;
     this->QuadHelper = nullptr;
@@ -132,38 +133,85 @@ void vtkToneMappingPass::Render(const vtkRenderState* s)
       "uniform sampler2D source;\n"
       "//VTK::FSQ::Decl");
 
+    // Inverse gamma correction
     vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Impl",
-      "vec4 pixel = texture2D(source, texCoord);\n"
-      "  float Y = 0.2126 * pixel.r + 0.7152 * pixel.g + 0.0722 * pixel.b;\n"
-      "  //VTK::FSQ::Impl");
+      "  vec4 pixel = texture2D(source, texCoord);\n"
+      "  vec3 color = pow(pixel.rgb, vec3(2.2));\n" // to linear color space
+      "//VTK::FSQ::Impl");
 
     switch (this->ToneMappingType)
     {
       case Clamp:
         vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Impl",
-          "float scale = min(Y, 1.0) / Y;\n"
-          "  //VTK::FSQ::Impl");
+          "  vec3 toned = min(color, vec3(1.0));\n"
+          "//VTK::FSQ::Impl");
         break;
       case Reinhard:
         vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Impl",
-          "float scale = 1.0 / (Y + 1.0);\n"
-          "  //VTK::FSQ::Impl");
+          "  vec3 toned = color / (color + 1.0);\n"
+          "//VTK::FSQ::Impl");
         break;
       case Exponential:
         vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Decl", "uniform float exposure;\n");
         vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Impl",
-          "float scale = (1.0 - exp(-Y*exposure)) / Y;\n"
+          "  vec3 toned = (1.0 - exp(-color*exposure));\n"
           "  //VTK::FSQ::Impl");
+        break;
+      case GenericFilmic:
+        vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Decl",
+          "uniform float exposure;\n"
+          "uniform float a;\n"
+          "uniform float b;\n"
+          "uniform float c;\n"
+          "uniform float d;\n"
+          "//VTK::FSQ::Decl");
+
+        if (this->UseACES)
+        {
+          vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Decl",
+            "const mat3 acesInputMat = mat3(0.5972782409, 0.0760130499, 0.0284085382,\n"
+            "0.3545713181, 0.9083220973, 0.1338243154,\n"
+            "0.0482176639, 0.0156579968, 0.8375684636);\n"
+            "const mat3 acesOutputMat = mat3( 1.6047539945, -0.1020831870, -0.0032670420,\n"
+            "-0.5310794927, 1.1081322801, -0.0727552477,\n"
+            "-0.0736720338, -0.0060518756, 1.0760219533);\n"
+            "//VTK::FSQ::Decl");
+        }
+        vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Impl",
+          "  vec3 toned = color * exposure;\n"
+          "//VTK::FSQ::Impl");
+        if (this->UseACES)
+        {
+          vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Impl",
+            "  toned = acesInputMat * toned;\n"
+            "//VTK::FSQ::Impl");
+        }
+        vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Impl",
+          "  toned = pow(toned, vec3(a)) / (pow(toned, vec3(a * d)) * b + c);\n"
+          "//VTK::FSQ::Impl");
+        if (this->UseACES)
+        {
+          vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Impl",
+            "  toned = acesOutputMat * toned;\n"
+            "//VTK::FSQ::Impl");
+        }
+        vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Impl",
+          "  toned = clamp(toned, vec3(0.f), vec3(1.f));\n"
+          "//VTK::FSQ::Impl");
         break;
     }
 
-    vtkShaderProgram::Substitute(
-      FSSource, "//VTK::FSQ::Impl", "gl_FragData[0] = vec4(pixel.rgb * scale, pixel.a);");
+    // Recorrect gamma and output
+    vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Impl",
+      "  toned = pow(toned, vec3(1.0/2.2));\n" // to sRGB color space
+      "  gl_FragData[0] = vec4(toned , pixel.a);\n"
+      "//VTK::FSQ::Impl");
 
     this->QuadHelper = new vtkOpenGLQuadHelper(renWin,
       vtkOpenGLRenderUtilities::GetFullScreenQuadVertexShader().c_str(), FSSource.c_str(), "");
 
     this->QuadHelper->ShaderChangeValue = this->ToneMappingType;
+    this->UseACESChangeValue = this->UseACES;
   }
   else
   {
@@ -179,9 +227,24 @@ void vtkToneMappingPass::Render(const vtkRenderState* s)
   this->ColorTexture->Activate();
   this->QuadHelper->Program->SetUniformi("source", this->ColorTexture->GetTextureUnit());
 
+  // Precompute generic filmic parameters after each modification
+  if (this->PreComputeMTime > this->GetMTime())
+  {
+    this->PreComputeAnchorCurveGenericFilmic();
+    this->PreComputeMTime = this->GetMTime();
+  }
+
   if (this->ToneMappingType == Exponential)
   {
     this->QuadHelper->Program->SetUniformf("exposure", this->Exposure);
+  }
+  else if (this->ToneMappingType == GenericFilmic)
+  {
+    this->QuadHelper->Program->SetUniformf("exposure", this->Exposure);
+    this->QuadHelper->Program->SetUniformf("a", this->Contrast);
+    this->QuadHelper->Program->SetUniformf("b", this->ClippingPoint);
+    this->QuadHelper->Program->SetUniformf("c", this->ToeSpeed);
+    this->QuadHelper->Program->SetUniformf("d", this->Shoulder);
   }
 
   ostate->vtkglDisable(GL_BLEND);
@@ -216,4 +279,51 @@ void vtkToneMappingPass::ReleaseGraphicsResources(vtkWindow* w)
     this->ColorTexture->Delete();
     this->ColorTexture = nullptr;
   }
+}
+
+void vtkToneMappingPass::SetGenericFilmicDefaultPresets()
+{
+  this->Contrast = 1.6773;
+  this->Shoulder = 0.9714;
+  this->MidIn = 0.18;
+  this->MidOut = 0.18;
+  this->HdrMax = 11.0785;
+  this->UseACES = true;
+
+  this->Modified();
+}
+
+void vtkToneMappingPass::SetGenericFilmicUncharted2Presets()
+{
+  this->Contrast = 1.1759;
+  this->Shoulder = 0.9746;
+  this->MidIn = 0.18;
+  this->MidOut = 0.18;
+  this->HdrMax = 6.3704;
+  this->UseACES = false;
+
+  this->Modified();
+}
+
+void vtkToneMappingPass::PreComputeAnchorCurveGenericFilmic()
+{
+  const float& a = this->Contrast;
+  const float& d = this->Shoulder;
+  const float& m = this->MidIn;
+  const float& n = this->MidOut;
+
+  // Pre compute shape of the curve parameters
+  this->ClippingPoint =
+    -((powf(m, -a * d) *
+        (-powf(m, a) +
+          (n *
+            (powf(m, a * d) * n * powf(this->HdrMax, a) - powf(m, a) * powf(this->HdrMax, a * d))) /
+            (powf(m, a * d) * n - n * powf(this->HdrMax, a * d)))) /
+      n);
+
+  // Avoid discontinuous curve by clamping to 0
+  this->ToeSpeed =
+    std::max((powf(m, a * d) * n * powf(this->HdrMax, a) - powf(m, a) * powf(this->HdrMax, a * d)) /
+        (powf(m, a * d) * n - n * powf(this->HdrMax, a * d)),
+      0.f);
 }
