@@ -32,48 +32,49 @@ function (_vtk_module_wrap_java_sources module sources java_sources)
   set(_vtk_java_args_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_java_library_name}Java/${_vtk_java_library_name}-java.$<CONFIGURATION>.args")
   set(_vtk_java_init_data_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_java_library_name}Java/${_vtk_java_library_name}-java-init.data")
 
+  set(_vtk_java_hierarchy_depends "${module}")
+  _vtk_module_get_module_property("${module}"
+    PROPERTY  "private_depends"
+    VARIABLE  _vtk_java_private_depends)
+  list(APPEND _vtk_java_hierarchy_depends ${_vtk_java_private_depends})
+
+  set(_vtk_java_command_depends)
+  foreach (_vtk_java_hierarchy_depend IN LISTS _vtk_java_hierarchy_depends)
+    _vtk_module_get_module_property("${_vtk_java_hierarchy_depend}"
+      PROPERTY  "hierarchy"
+      VARIABLE  _vtk_java_hierarchy_file)
+    if (_vtk_java_hierarchy_file)
+      list(APPEND _vtk_java_hierarchy_files "${_vtk_java_hierarchy_file}")
+      get_property(_vtk_java_is_imported
+        TARGET    "${_vtk_java_hierarchy_depend}"
+        PROPERTY  "IMPORTED")
+      if (_vtk_java_is_imported OR CMAKE_GENERATOR MATCHES "Ninja")
+        list(APPEND _vtk_java_command_depends "${_vtk_java_hierarchy_file}")
+      else ()
+        _vtk_module_get_module_property("${_vtk_java_hierarchy_depend}"
+          PROPERTY  "library_name"
+          VARIABLE  _vtk_java_hierarchy_library_name)
+        if (TARGET "${_vtk_java_hierarchy_library_name}-hierarchy")
+          list(APPEND _vtk_java_command_depends "${_vtk_java_hierarchy_library_name}-hierarchy")
+        else ()
+          message(FATAL_ERROR
+            "The ${_vtk_java_hierarchy_depend} hierarchy file is attached to a non-imported target "
+            "and a hierarchy target (${_vtk_java_hierarchy_library_name}-hierarchy) is "
+            "missing.")
+        endif ()
+      endif ()
+    endif ()
+  endforeach ()
+
   set(_vtk_java_genex_compile_definitions
     "$<TARGET_PROPERTY:${_vtk_java_target_name},COMPILE_DEFINITIONS>")
   set(_vtk_java_genex_include_directories
     "$<TARGET_PROPERTY:${_vtk_java_target_name},INCLUDE_DIRECTORIES>")
-
-  _vtk_module_get_module_property("${module}"
-    PROPERTY  "hierarchy"
-    VARIABLE  _vtk_java_hierarchy_files)
-
-  _vtk_module_get_module_property("${module}"
-    PROPERTY  "private_depends"
-    VARIABLE  _vtk_java_private_depends)
-  foreach (_vtk_java_private_depend IN LISTS _vtk_java_private_depends)
-    _vtk_module_get_module_property("${_vtk_java_private_depend}"
-      PROPERTY  "hierarchy"
-      VARIABLE  _vtk_java_private_depend_hierarchy_file)
-    if (_vtk_java_private_depend_hierarchy_file)
-      list(APPEND _vtk_java_hierarchy_files "${_vtk_java_private_depend_hierarchy_file}")
-    endif ()
-  endforeach ()
-
   file(GENERATE
     OUTPUT  "${_vtk_java_args_file}"
     CONTENT "$<$<BOOL:${_vtk_java_genex_compile_definitions}>:\n-D\'$<JOIN:${_vtk_java_genex_compile_definitions},\'\n-D\'>\'>\n
 $<$<BOOL:${_vtk_java_genex_include_directories}>:\n-I\'$<JOIN:${_vtk_java_genex_include_directories},\'\n-I\'>\'>\n
 $<$<BOOL:${_vtk_java_hierarchy_files}>:\n--types \'$<JOIN:${_vtk_java_hierarchy_files},\'\n--types \'>\'>\n")
-
-  get_property(_vtk_java_is_imported
-    TARGET    "${module}"
-    PROPERTY  "IMPORTED")
-  if (_vtk_java_is_imported OR CMAKE_GENERATOR MATCHES "Ninja")
-    set(_vtk_java_command_depend "${_vtk_java_hierarchy_file}")
-  else ()
-    if (TARGET "${_vtk_java_library_name}-hierarchy")
-      set(_vtk_java_command_depend "${_vtk_java_library_name}-hierarchy")
-    else ()
-      message(FATAL_ERROR
-        "The ${module} hierarchy file is attached to a non-imported target "
-        "and a hierarchy target (${_vtk_java_library_name}-hierarchy) is "
-        "missing.")
-    endif ()
-  endif ()
 
   set(_vtk_java_sources)
   set(_vtk_java_java_sources)
@@ -100,7 +101,6 @@ $<$<BOOL:${_vtk_java_hierarchy_files}>:\n--types \'$<JOIN:${_vtk_java_hierarchy_
     list(APPEND _vtk_java_sources
       "${_vtk_java_source_output}")
 
-    set(_vtk_java_command_depends)
     set(_vtk_java_wrap_target "VTK::WrapJava")
     set(_vtk_java_macros_args)
     if (TARGET VTKCompileTools::WrapJava)
@@ -133,7 +133,6 @@ $<$<BOOL:${_vtk_java_hierarchy_files}>:\n--types \'$<JOIN:${_vtk_java_hierarchy_
       DEPENDS
         "${_vtk_java_header}"
         "${_vtk_java_args_file}"
-        "${_vtk_java_command_depend}"
         "$<TARGET_FILE:${_vtk_java_wrap_target}>"
         ${_vtk_java_command_depends})
 
@@ -155,7 +154,6 @@ $<$<BOOL:${_vtk_java_hierarchy_files}>:\n--types \'$<JOIN:${_vtk_java_hierarchy_
       DEPENDS
         "${_vtk_java_header}"
         "${_vtk_java_args_file}"
-        "${_vtk_java_command_depend}"
         "$<TARGET_FILE:${_vtk_java_parse_target}>"
         ${_vtk_java_command_depends})
   endforeach ()
