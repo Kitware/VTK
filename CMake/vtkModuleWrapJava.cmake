@@ -237,6 +237,9 @@ function (_vtk_module_wrap_java_library name)
 
   set(_vtk_java_target "${name}Java")
 
+  # XXX(java): Should this be a `MODULE`? If not, we should probably export
+  # these targets, but then we'll need logic akin to the `vtkModuleWrapPython`
+  # logic for loading wrapped modules from other packages.
   add_library("${_vtk_java_target}" SHARED
     ${_vtk_java_library_sources})
   add_custom_target("${_vtk_java_target}-java-sources"
@@ -278,6 +281,7 @@ function (_vtk_module_wrap_java_library name)
   target_link_libraries("${_vtk_java_target}"
     PRIVATE
       ${ARGN}
+      # XXX(java): If we use modules, remove this.
       ${_vtk_java_library_link_depends}
       VTK::Java)
 endfunction ()
