@@ -138,6 +138,13 @@ int vtkPIOReader::RequestInformation(vtkInformation* vtkNotUsed(reqInfo),
     {
       this->CellDataArraySelection->AddArray(this->pioAdaptor->GetVariableName(i));
     }
+    this->DisableAllCellArrays();
+
+    // Set the variable names loaded by default
+    for (int i = 0; i < this->pioAdaptor->GetNumberOfDefaultVariables(); i++)
+    {
+      this->SetCellArrayStatus(this->pioAdaptor->GetVariableDefault(i), 1);
+    }
 
     // Collect temporal information
     this->NumberOfTimeSteps = this->pioAdaptor->GetNumberOfTimeSteps();

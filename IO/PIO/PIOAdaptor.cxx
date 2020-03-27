@@ -102,7 +102,7 @@ int PIOAdaptor::initializeGlobal(const char* PIOFileName)
   ifstream inStr(this->descFileName);
   if (!inStr)
   {
-    std::cerr << "Could not open the global description .pio file: " << PIOFileName << std::endl;
+    vtkGenericWarningMacro("Could not open the global description .pio file: " << PIOFileName);
     return 0;
   }
 
@@ -111,7 +111,7 @@ int PIOAdaptor::initializeGlobal(const char* PIOFileName)
   string dirName;
   if (dirPos == string::npos)
   {
-    std::cerr << "Bad input file name: " << PIOFileName << std::endl;
+    vtkGenericWarningMacro("Bad input file name: " << PIOFileName);
     return 0;
   }
   else
@@ -136,6 +136,7 @@ int PIOAdaptor::initializeGlobal(const char* PIOFileName)
     this->useHTG = false;
     this->useTracer = false;
     this->useFloat64 = false;
+    this->hasTracers = false;
     this->dumpDirectory = dirName;
 
     while (inStr.getline(inBuf, 256))
@@ -206,6 +207,7 @@ int PIOAdaptor::initializeGlobal(const char* PIOFileName)
     this->useHTG = false;
     this->useTracer = false;
     this->useFloat64 = false;
+    this->hasTracers = false;
   }
 
   /////////////////////////////////////////////////////////////////////////////
@@ -258,12 +260,12 @@ int PIOAdaptor::initializeGlobal(const char* PIOFileName)
   }
   else
   {
-    std::cerr << "Dump directory does not exist: " << this->dumpDirectory << std::endl;
+    vtkGenericWarningMacro("Dump directory does not exist: " << this->dumpDirectory);
     return 0;
   }
   if (this->dumpFileName.size() == 0)
   {
-    std::cerr << "No files exist with the base name :" << this->dumpBaseName << std::endl;
+    vtkGenericWarningMacro("No files exist with the base name :" << this->dumpBaseName);
     return 0;
   }
 
@@ -293,7 +295,14 @@ int PIOAdaptor::initializeGlobal(const char* PIOFileName)
           // which are present for use in tracers
           char* pioName = pioField[i].pio_name;
           size_t numberOfComponents = this->pioData->VarMMap.count(pioName);
-          if ((numberOfComponents <= 9) && (strcmp(pioName, "cell_index") != 0) &&
+
+          // Are tracers available in file
+          if (strcmp(pioName, "tracer_num_pnts") == 0)
+          {
+            this->hasTracers = true;
+          }
+
+          if ((numberOfComponents <= 9) && (strcmp(pioName, "cell_has_tracers") != 0) &&
             (strcmp(pioName, "cell_level") != 0) && (strcmp(pioName, "cell_mother") != 0) &&
             (strcmp(pioName, "cell_daughter") != 0) && (strcmp(pioName, "cell_center") != 0) &&
             (strcmp(pioName, "cell_active") != 0) && (strcmp(pioName, "amr_tag") != 0))
@@ -304,6 +313,16 @@ int PIOAdaptor::initializeGlobal(const char* PIOFileName)
       }
     }
     sort(this->variableName.begin(), this->variableName.end());
+
+    // Default variable names that are initially enabled for loading
+    this->variableDefault.push_back("tev");
+    this->variableDefault.push_back("prs");
+    this->variableDefault.push_back("rho");
+    this->variableDefault.push_back("rade");
+    this->variableDefault.push_back("cell_energy");
+    this->variableDefault.push_back("kemax");
+    this->variableDefault.push_back("vel");
+    this->variableDefault.push_back("eng");
   }
 
   /////////////////////////////////////////////////////////////////////////////
@@ -321,13 +340,19 @@ int PIOAdaptor::initializeGlobal(const char* PIOFileName)
   this->fieldsToRead.push_back("hist_time");
   this->fieldsToRead.push_back("hist_size");
   this->fieldsToRead.push_back("l_eap_version");
+  this->fieldsToRead.push_back("hist_usernm");
+  this->fieldsToRead.push_back("hist_prbnm");
 
-  this->fieldsToRead.push_back("tracer_num_pnts");
-  this->fieldsToRead.push_back("tracer_num_vars");
-  this->fieldsToRead.push_back("tracer_record_count");
-  this->fieldsToRead.push_back("tracer_type");
-  this->fieldsToRead.push_back("tracer_position");
-  this->fieldsToRead.push_back("tracer_data");
+  // If tracers are contained in the file
+  if (this->hasTracers == true)
+  {
+    this->fieldsToRead.push_back("tracer_num_pnts");
+    this->fieldsToRead.push_back("tracer_num_vars");
+    this->fieldsToRead.push_back("tracer_record_count");
+    this->fieldsToRead.push_back("tracer_type");
+    this->fieldsToRead.push_back("tracer_position");
+    this->fieldsToRead.push_back("tracer_data");
+  }
 
   // Requested variable fields from pio meta file
   for (unsigned int i = 0; i < this->variableName.size(); i++)
@@ -398,7 +423,7 @@ int PIOAdaptor::initializeDump(int timeStep)
     }
     else
     {
-      std::cerr << "PIOFile " << this->dumpFileName[timeStep] << " can't be read " << std::endl;
+      vtkGenericWarningMacro("PIOFile " << this->dumpFileName[timeStep] << " can't be read ");
       return 0;
     }
   }
@@ -439,7 +464,7 @@ void PIOAdaptor::create_geometry(vtkMultiBlockDataSet* grid)
   }
 
   // If tracers are used add a second block of unstructured grid particles
-  if (this->useTracer == true)
+  if (this->hasTracers == true && this->useTracer == true)
   {
     grid->SetNumberOfBlocks(2);
     vtkNew<vtkUnstructuredGrid> tgrid;
@@ -485,19 +510,33 @@ void PIOAdaptor::create_geometry(vtkMultiBlockDataSet* grid)
     create_amr_UG(grid, numProc, global_numcell, cell_level, cell_daughter, cell_center);
   }
 
+  // Create Tracer Unstructured if tracers exist
   if (this->useTracer == true)
   {
-    // Create Tracer UnstructuredGrid
-    create_tracer_UG(grid);
+    if (this->hasTracers == true)
+    {
+      create_tracer_UG(grid);
+    }
+    else
+    {
+      vtkGenericWarningMacro("Tracers don't exist in .pio file: " << this->descFileName);
+    }
   }
 
   // Collect other information from PIOData
   const char* cdata;
   this->pioData->GetPIOData("l_eap_version", cdata);
   vtkStdString eap_version(cdata);
+
   this->pioData->set_scalar_field(simCycle, "hist_cycle");
   this->pioData->set_scalar_field(simTime, "hist_time");
   int curIndex = static_cast<int>(simCycle.size()) - 1;
+
+  this->pioData->GetPIOData("hist_usernm", cdata);
+  vtkStdString user_name(cdata);
+
+  this->pioData->GetPIOData("hist_prbnm", cdata);
+  vtkStdString problem_name(cdata);
 
   // Add FieldData array for cycle number
   vtkNew<vtkIntArray> cycleArray;
@@ -520,6 +559,18 @@ void PIOAdaptor::create_geometry(vtkMultiBlockDataSet* grid)
   versionArray->SetName("eap_version");
   versionArray->InsertNextValue(eap_version);
   grid->GetFieldData()->AddArray(versionArray);
+
+  // Add FieldData array for user name
+  vtkNew<vtkStringArray> userNameArray;
+  userNameArray->SetName("user_name");
+  userNameArray->InsertNextValue(user_name);
+  grid->GetFieldData()->AddArray(userNameArray);
+
+  // Add FieldData array for problem name
+  vtkNew<vtkStringArray> probNameArray;
+  probNameArray->SetName("problem_name");
+  probNameArray->InsertNextValue(problem_name);
+  grid->GetFieldData()->AddArray(probNameArray);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -569,9 +620,15 @@ void PIOAdaptor::create_tracer_UG(vtkMultiBlockDataSet* grid)
   tgrid->SetPoints(points);
   tgrid->Allocate(numberOfTracers, numberOfTracers);
   vtkIdType cell[1];
+  double pointPos[3] = { 0.0, 0.0, 0.0 };
+
   for (int i = 0; i < numberOfTracers; i++)
   {
-    points->InsertNextPoint(tracer_position[0][i], tracer_position[1][i], tracer_position[2][i]);
+    for (int dim = 0; dim < dimension; dim++)
+    {
+      pointPos[dim] = tracer_position[dim][i];
+    }
+    points->InsertNextPoint(pointPos[0], pointPos[1], pointPos[2]);
     cell[0] = i;
     tgrid->InsertNextCell(VTK_VERTEX, 1, cell);
   }
@@ -1038,17 +1095,21 @@ void PIOAdaptor::create_amr_HTG(vtkMultiBlockDataSet* grid,
 
   int planeSize = gridSize[1] * gridSize[0];
   int rowSize = gridSize[0];
+  int gridIndx[3] = { 0, 0, 0 };
+
   for (int i = 0; i < numberOfCells; i++)
   {
     if (cell_level[i] == 1)
     {
       // Calculate which tree because the XRAGE arrangement does not match the HTG
-      int xIndx = gridSize[0] * ((cell_center[0][i] - minLoc[0]) / (maxLoc[0] - minLoc[0]));
-      int yIndx = gridSize[1] * ((cell_center[1][i] - minLoc[1]) / (maxLoc[1] - minLoc[1]));
-      int zIndx = gridSize[2] * ((cell_center[2][i] - minLoc[2]) / (maxLoc[2] - minLoc[2]));
+      for (int dim = 0; dim < dimension; dim++)
+      {
+        gridIndx[dim] =
+          gridSize[dim] * ((cell_center[dim][i] - minLoc[dim]) / (maxLoc[dim] - minLoc[dim]));
+      }
 
       // Collect the count per tree for load balancing
-      int whichTree = (zIndx * planeSize) + (yIndx * rowSize) + xIndx;
+      int whichTree = (gridIndx[2] * planeSize) + (gridIndx[1] * rowSize) + gridIndx[0];
       int gridCount = count_hypertree(i, cell_daughter);
       treeCount.push_back(std::make_pair(gridCount, whichTree));
 
