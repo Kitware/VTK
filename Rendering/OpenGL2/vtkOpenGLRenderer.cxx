@@ -124,7 +124,7 @@ int vtkOpenGLRenderer::UpdateLights()
     }
   }
 
-  if (this->GetUseImageBasedLighting() && this->GetEnvironmentCubeMap() && lightingComplexity == 0)
+  if (this->GetUseImageBasedLighting() && this->GetEnvironmentTexture() && lightingComplexity == 0)
   {
     lightingComplexity = 1;
   }
@@ -229,7 +229,7 @@ void vtkOpenGLRenderer::DeviceRender()
 {
   vtkTimerLog::MarkStartEvent("OpenGL Dev Render");
 
-  if (this->UseImageBasedLighting && this->EnvironmentCubeMap)
+  if (this->UseImageBasedLighting && this->EnvironmentTexture)
   {
     this->GetEnvMapLookupTable()->Load(this);
     this->GetEnvMapIrradiance()->Load(this);
@@ -260,7 +260,7 @@ void vtkOpenGLRenderer::DeviceRender()
     vtkOpenGLCheckErrorMacro("failed after DeviceRender");
   }
 
-  if (this->UseImageBasedLighting && this->EnvironmentCubeMap)
+  if (this->UseImageBasedLighting && this->EnvironmentTexture)
   {
     this->GetEnvMapLookupTable()->PostRender(this);
     this->GetEnvMapIrradiance()->PostRender(this);
@@ -1040,31 +1040,24 @@ vtkTransform* vtkOpenGLRenderer::GetUserLightTransform()
 }
 
 // ----------------------------------------------------------------------------
-void vtkOpenGLRenderer::SetEnvironmentCubeMap(vtkTexture* cubemap, bool isSRGB)
+void vtkOpenGLRenderer::SetEnvironmentTexture(vtkTexture* texture, bool isSRGB)
 {
-  this->Superclass::SetEnvironmentCubeMap(cubemap);
+  this->Superclass::SetEnvironmentTexture(texture);
 
-  vtkOpenGLTexture* oglCubemap = vtkOpenGLTexture::SafeDownCast(cubemap);
+  vtkOpenGLTexture* oglTexture = vtkOpenGLTexture::SafeDownCast(texture);
 
-  if (oglCubemap)
+  if (oglTexture)
   {
-    if (oglCubemap->GetCubeMap())
-    {
-      this->GetEnvMapIrradiance()->SetInputCubeMap(oglCubemap);
-      this->GetEnvMapPrefiltered()->SetInputCubeMap(oglCubemap);
+    this->GetEnvMapIrradiance()->SetInputTexture(oglTexture);
+    this->GetEnvMapPrefiltered()->SetInputTexture(oglTexture);
 
-      this->GetEnvMapIrradiance()->SetConvertToLinear(isSRGB);
-      this->GetEnvMapPrefiltered()->SetConvertToLinear(isSRGB);
-    }
-    else
-    {
-      vtkErrorMacro("The environment texture is not a cube map");
-    }
+    this->GetEnvMapIrradiance()->SetConvertToLinear(isSRGB);
+    this->GetEnvMapPrefiltered()->SetConvertToLinear(isSRGB);
   }
   else
   {
-    this->GetEnvMapIrradiance()->SetInputCubeMap(nullptr);
-    this->GetEnvMapPrefiltered()->SetInputCubeMap(nullptr);
+    this->GetEnvMapIrradiance()->SetInputTexture(nullptr);
+    this->GetEnvMapPrefiltered()->SetInputTexture(nullptr);
   }
 }
 

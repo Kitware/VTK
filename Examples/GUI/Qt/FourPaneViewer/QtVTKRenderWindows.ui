@@ -35,16 +35,16 @@
     </property>
     <layout class="QGridLayout" name="gridLayout_2">
      <item row="1" column="0">
-      <widget class="QVTKOpenGLWidget" name="view2" native="true"/>
+      <widget class="QVTKRenderWidget" name="view2" native="true"/>
      </item>
      <item row="0" column="1">
-      <widget class="QVTKOpenGLWidget" name="view4" native="true"/>
+      <widget class="QVTKRenderWidget" name="view4" native="true"/>
      </item>
      <item row="1" column="1">
-      <widget class="QVTKOpenGLWidget" name="view3" native="true"/>
+      <widget class="QVTKRenderWidget" name="view3" native="true"/>
      </item>
      <item row="0" column="0">
-      <widget class="QVTKOpenGLWidget" name="view1" native="true"/>
+      <widget class="QVTKRenderWidget" name="view1" native="true"/>
      </item>
     </layout>
    </widget>
@@ -237,9 +237,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QVTKOpenGLWidget</class>
+   <class>QVTKRenderWidget</class>
    <extends>QWidget</extends>
-   <header>QVTKOpenGLWidget.h</header>
+   <header>QVTKRenderWidget.h</header>
   </customwidget>
  </customwidgets>
  <resources>

@@ -11,14 +11,14 @@
 #include <QSurfaceFormat>
 
 #include "EasyView.h"
-#include "QVTKOpenGLWidget.h"
+#include "QVTKRenderWidget.h"
 
 extern int qInitResources_icons();
 
 int main(int argc, char** argv)
 {
   // needed to ensure appropriate OpenGL context is created for VTK rendering.
-  QSurfaceFormat::setDefaultFormat(QVTKOpenGLWidget::defaultFormat());
+  QSurfaceFormat::setDefaultFormat(QVTKRenderWidget::defaultFormat());
 
   // QT Stuff
   QApplication app(argc, argv);

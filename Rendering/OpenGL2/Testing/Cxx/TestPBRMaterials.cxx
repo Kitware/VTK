@@ -78,7 +78,7 @@ int TestPBRMaterials(int argc, char* argv[])
     textureCubemap->SetInputConnection(i, flip->GetOutputPort());
   }
 
-  renderer->SetEnvironmentCubeMap(textureCubemap, true);
+  renderer->SetEnvironmentTexture(textureCubemap, true);
   renderer->UseImageBasedLightingOn();
 
   vtkNew<vtkSphereSource> sphere;

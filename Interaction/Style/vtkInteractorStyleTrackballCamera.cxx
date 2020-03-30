@@ -17,6 +17,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkCamera.h"
 #include "vtkMath.h"
+#include "vtkMatrix3x3.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
@@ -41,6 +42,12 @@ void vtkInteractorStyleTrackballCamera::OnMouseMove()
 
   switch (this->State)
   {
+    case VTKIS_ENV_ROTATE:
+      this->FindPokedRenderer(x, y);
+      this->EnvironmentRotate();
+      this->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
+      break;
+
     case VTKIS_ROTATE:
       this->FindPokedRenderer(x, y);
       this->Rotate();
@@ -170,7 +177,15 @@ void vtkInteractorStyleTrackballCamera::OnRightButtonDown()
   }
 
   this->GrabFocus(this->EventCallbackCommand);
-  this->StartDolly();
+
+  if (this->Interactor->GetShiftKey())
+  {
+    this->StartEnvRotate();
+  }
+  else
+  {
+    this->StartDolly();
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -178,14 +193,18 @@ void vtkInteractorStyleTrackballCamera::OnRightButtonUp()
 {
   switch (this->State)
   {
+    case VTKIS_ENV_ROTATE:
+      this->EndEnvRotate();
+      break;
+
     case VTKIS_DOLLY:
       this->EndDolly();
-
-      if (this->Interactor)
-      {
-        this->ReleaseFocus();
-      }
       break;
+  }
+
+  if (this->Interactor)
+  {
+    this->ReleaseFocus();
   }
 }
 
@@ -383,6 +402,64 @@ void vtkInteractorStyleTrackballCamera::Dolly(double factor)
   }
 
   this->Interactor->Render();
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleTrackballCamera::EnvironmentRotate()
+{
+  if (this->CurrentRenderer == nullptr)
+  {
+    return;
+  }
+
+  vtkRenderWindowInteractor* rwi = this->Interactor;
+
+  int dx = rwi->GetEventPosition()[0] - rwi->GetLastEventPosition()[0];
+  int sizeX = this->CurrentRenderer->GetRenderWindow()->GetSize()[0];
+
+  vtkNew<vtkMatrix3x3> mat;
+
+  double* up = this->CurrentRenderer->GetEnvironmentUp();
+  double* right = this->CurrentRenderer->GetEnvironmentRight();
+
+  double front[3];
+  vtkMath::Cross(right, up, front);
+  for (int i = 0; i < 3; i++)
+  {
+    mat->SetElement(i, 0, right[i]);
+    mat->SetElement(i, 1, up[i]);
+    mat->SetElement(i, 2, front[i]);
+  }
+
+  double angle = (dx / static_cast<double>(sizeX)) * this->MotionFactor;
+
+  double c = std::cos(angle);
+  double s = std::sin(angle);
+  double t = 1.0 - c;
+
+  vtkNew<vtkMatrix3x3> rot;
+
+  rot->SetElement(0, 0, t * up[0] * up[0] + c);
+  rot->SetElement(0, 1, t * up[0] * up[1] - up[2] * s);
+  rot->SetElement(0, 2, t * up[0] * up[2] + up[1] * s);
+
+  rot->SetElement(1, 0, t * up[0] * up[1] + up[2] * s);
+  rot->SetElement(1, 1, t * up[1] * up[1] + c);
+  rot->SetElement(1, 2, t * up[1] * up[2] - up[0] * s);
+
+  rot->SetElement(2, 0, t * up[0] * up[2] - up[1] * s);
+  rot->SetElement(2, 1, t * up[1] * up[2] + up[0] * s);
+  rot->SetElement(2, 2, t * up[2] * up[2] + c);
+
+  vtkMatrix3x3::Multiply3x3(rot, mat, mat);
+
+  // update environment orientation
+  this->CurrentRenderer->SetEnvironmentUp(
+    mat->GetElement(0, 1), mat->GetElement(1, 1), mat->GetElement(2, 1));
+  this->CurrentRenderer->SetEnvironmentRight(
+    mat->GetElement(0, 0), mat->GetElement(1, 0), mat->GetElement(2, 0));
+
+  rwi->Render();
 }
 
 //----------------------------------------------------------------------------

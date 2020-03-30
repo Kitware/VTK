@@ -646,6 +646,13 @@ vtkDataSetAttributes* vtkDataObject::GetAttributes(int type)
 }
 
 //----------------------------------------------------------------------------
+vtkDataArray* vtkDataObject::GetGhostArray(int type)
+{
+  vtkFieldData* fieldData = this->GetAttributesAsFieldData(type);
+  return fieldData ? fieldData->GetArray(vtkDataSetAttributes::GhostArrayName()) : nullptr;
+}
+
+//----------------------------------------------------------------------------
 vtkFieldData* vtkDataObject::GetAttributesAsFieldData(int type)
 {
   switch (type)

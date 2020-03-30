@@ -661,6 +661,26 @@ void vtkInteractorStyle::EndGesture()
 }
 
 //----------------------------------------------------------------------------
+void vtkInteractorStyle::StartEnvRotate()
+{
+  if (this->State != VTKIS_NONE)
+  {
+    return;
+  }
+  this->StartState(VTKIS_ENV_ROTATE);
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyle::EndEnvRotate()
+{
+  if (this->State != VTKIS_ENV_ROTATE)
+  {
+    return;
+  }
+  this->StopState();
+}
+
+//----------------------------------------------------------------------------
 // By overriding the Rotate, Rotate members we can
 // use this timer routine for Joystick or Trackball - quite tidy
 //----------------------------------------------------------------------------
@@ -707,6 +727,10 @@ void vtkInteractorStyle::OnTimer()
 
     case VTKIS_USCALE:
       this->UniformScale();
+      break;
+
+    case VTKIS_ENV_ROTATE:
+      this->EnvironmentRotate();
       break;
 
     case VTKIS_TIMER:

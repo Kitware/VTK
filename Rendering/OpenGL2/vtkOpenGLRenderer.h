@@ -151,9 +151,9 @@ public:
   //@}
 
   /**
-   * Overriden in order to connect the cubemap to the environment map textures.
+   * Overriden in order to connect the texture to the environment map textures.
    */
-  void SetEnvironmentCubeMap(vtkTexture* cubemap, bool isSRGB = false) override;
+  void SetEnvironmentTexture(vtkTexture* texture, bool isSRGB = false) override;
 
   // Method to release graphics resources
   void ReleaseGraphicsResources(vtkWindow* w) override;

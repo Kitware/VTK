@@ -54,6 +54,8 @@ int TestCategoricalMultiBlock(int argc, char* argv[])
   renderer->SetEnvironmentalBG(0.0, 0.0, 0.0);
   renderer->SetEnvironmentalBG2(0.8, 0.8, 1.0);
   renderer->GradientEnvironmentalBGOn();
+  renderer->SetEnvironmentUp(1.0, 0.0, 0.0);
+  renderer->SetEnvironmentRight(0.0, 1.0, 0.0);
   renWin->AddRenderer(renderer);
   vtkSmartPointer<vtkOSPRayPass> ospray = vtkSmartPointer<vtkOSPRayPass>::New();
   renderer->SetPass(ospray);

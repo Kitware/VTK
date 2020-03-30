@@ -16,7 +16,8 @@
  * @class   vtkPBRIrradianceTexture
  * @brief   precompute irradiance texture used in physically based rendering
  *
- * Irradiance texture is a cubemap which average light of a hemisphere of the input cubemap.
+ * Irradiance texture is a cubemap which average light of a hemisphere of the input texture.
+ * The input texture can be a cubemap or an equirectangular projection.
  * It is used in Image Base Lighting to compute the diffuse part.
  */
 
@@ -40,10 +41,10 @@ public:
 
   //@{
   /**
-   * Get/Set the input cubemap.
+   * Get/Set the input texture.
    */
-  void SetInputCubeMap(vtkOpenGLTexture* texture);
-  vtkGetObjectMacro(InputCubeMap, vtkOpenGLTexture);
+  void SetInputTexture(vtkOpenGLTexture* texture);
+  vtkGetObjectMacro(InputTexture, vtkOpenGLTexture);
   //@}
 
   /**
@@ -79,7 +80,7 @@ public:
   //@{
   /**
    * Set/Get the conversion to linear color space.
-   * If the input cubemap is in sRGB color space and the conversion is not done by OpenGL
+   * If the input texture is in sRGB color space and the conversion is not done by OpenGL
    * directly with the texture format, the conversion can be done in the shader with this flag.
    */
   vtkGetMacro(ConvertToLinear, bool);
@@ -101,7 +102,7 @@ protected:
 
   float IrradianceStep = 0.04908738521; // pi / 64
   unsigned int IrradianceSize = 256;
-  vtkOpenGLTexture* InputCubeMap = nullptr;
+  vtkOpenGLTexture* InputTexture = nullptr;
   bool ConvertToLinear = false;
 
 private:
