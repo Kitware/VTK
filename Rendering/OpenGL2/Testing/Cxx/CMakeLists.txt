@@ -56,12 +56,14 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestOutlineGlowPass.cxx
   TestOrderIndependentTranslucentPass.cxx
   TestPanoramicProjectionPass.cxx,NO_DATA
+  TestPBRClearCoat.cxx
   TestPBREdgeTint.cxx
   TestPBRHdrEnvironment.cxx
   TestPBRAnisotropy.cxx
   TestPBRIrradianceHDR.cxx
   TestPBRMapping.cxx
   TestPBRMaterials.cxx
+  TestPBRMaterialsCoat.cxx
   TestPointFillPass.cxx
   TestPointGaussianMapper.cxx
   TestPointGaussianMapperOpacity.cxx

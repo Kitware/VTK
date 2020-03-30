@@ -459,10 +459,11 @@ OSPGeometricModel RenderAsTriangles(OSPData vertices, std::vector<unsigned int>&
   std::vector<unsigned int>& rIndexArray, bool useCustomMaterial, OSPMaterial actorMaterial,
   int numNormals, const std::vector<osp::vec3f>& normals, int interpolationType,
   vtkImageData* vColorTextureMap, bool sRGB, vtkImageData* vNormalTextureMap,
-  vtkImageData* vMaterialTextureMap, vtkImageData* vAnisotropyTextureMap, int numTextureCoordinates,
-  float* textureCoordinates, const osp::vec4f& textureTransform, int numCellMaterials,
-  std::vector<OSPMaterial>& CellMaterials, int numPointColors, osp::vec4f* PointColors,
-  int numPointValueTextureCoords, float* pointValueTextureCoords, RTW::Backend* backend)
+  vtkImageData* vMaterialTextureMap, vtkImageData* vAnisotropyTextureMap,
+  vtkImageData* vCoatNormalTextureMap, int numTextureCoordinates, float* textureCoordinates,
+  const osp::vec4f& textureTransform, int numCellMaterials, std::vector<OSPMaterial>& CellMaterials,
+  int numPointColors, osp::vec4f* PointColors, int numPointValueTextureCoords,
+  float* pointValueTextureCoords, RTW::Backend* backend)
 {
   if (backend == nullptr)
     return OSPGeometry();
@@ -563,7 +564,6 @@ OSPGeometricModel RenderAsTriangles(OSPData vertices, std::vector<unsigned int>&
 
     if (interpolationType == VTK_PBR && _hastm)
     {
-
       if (vMaterialTextureMap)
       {
         vtkNew<vtkImageExtractComponents> extractRoughness;
@@ -622,7 +622,16 @@ OSPGeometricModel RenderAsTriangles(OSPData vertices, std::vector<unsigned int>&
         ospSetVec4f(actorMaterial, "map_rotation.transform", textureTransform.x, textureTransform.y,
           textureTransform.z, textureTransform.w);
         ospRelease(t2dR);
+        ospCommit(actorMaterial);
+      }
 
+      if (vCoatNormalTextureMap)
+      {
+        OSPTexture t2d = vtkOSPRayMaterialHelpers::VTKToOSPTexture(backend, vCoatNormalTextureMap);
+        ospSetObject(actorMaterial, "map_coatNormal", t2d);
+        ospSetVec4f(actorMaterial, "map_coatNormal.transform", textureTransform.x,
+          textureTransform.y, textureTransform.z, textureTransform.w);
+        ospRelease(t2d);
         ospCommit(actorMaterial);
       }
     }
@@ -733,13 +742,29 @@ OSPMaterial MakeActorMaterial(vtkOSPRayRendererNode* orn, OSPRenderer oRenderer,
     ospSetFloat(oMaterial, "metallic", static_cast<float>(property->GetMetallic()));
     ospSetFloat(oMaterial, "roughness", static_cast<float>(property->GetRoughness()));
     ospSetFloat(oMaterial, "opacity", static_cast<float>(opacity));
-    ospSetFloat(oMaterial, "ior", 1.5);
+    // As OSPRay seems to not recalculate the refractive index of the base layer
+    // we need to recalculate, from the effective reflectance of the base layer (with the
+    // coat), the ior of the base that will produce the same reflectance but with the air
+    // with an ior of 1.0
+    double baseF0 = property->ComputeReflectanceOfBaseLayer();
+    const double exteriorIor = 1.0;
+    double baseIor = vtkProperty::ComputeIORFromReflectance(baseF0, exteriorIor);
+    ospSetFloat(oMaterial, "ior", static_cast<float>(baseIor));
     float edgeColor[3] = { static_cast<float>(property->GetEdgeTint()[0]),
       static_cast<float>(property->GetEdgeTint()[1]),
       static_cast<float>(property->GetEdgeTint()[2]) };
     ospSetVec3f(oMaterial, "edgeColor", edgeColor[0], edgeColor[1], edgeColor[2]);
     ospSetFloat(oMaterial, "anisotropy", static_cast<float>(property->GetAnisotropy()));
     ospSetFloat(oMaterial, "rotation", static_cast<float>(property->GetAnisotropyRotation()));
+    ospSetFloat(oMaterial, "baseNormalScale", static_cast<float>(property->GetNormalScale()));
+    ospSetFloat(oMaterial, "coat", static_cast<float>(property->GetCoatStrength()));
+    ospSetFloat(oMaterial, "coatIor", static_cast<float>(property->GetCoatIOR()));
+    ospSetFloat(oMaterial, "coatRoughness", static_cast<float>(property->GetCoatRoughness()));
+    float coatColor[] = { static_cast<float>(property->GetCoatColor()[0]),
+      static_cast<float>(property->GetCoatColor()[1]),
+      static_cast<float>(property->GetCoatColor()[2]) };
+    ospSetVec3f(oMaterial, "coatColor", coatColor[0], coatColor[1], coatColor[2]);
+    ospSetFloat(oMaterial, "coatNormal", static_cast<float>(property->GetCoatNormalScale()));
   }
   else
   {
@@ -946,6 +971,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
   vtkImageData* vNormalTextureMap = nullptr;
   vtkImageData* vMaterialTextureMap = nullptr;
   vtkImageData* vAnisotropyTextureMap = nullptr;
+  vtkImageData* vCoatNormalTextureMap = nullptr;
 
   bool sRGB = false;
 
@@ -1173,11 +1199,15 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
           {
             vMaterialTextureMap = texture->GetInput();
           }
-
           texture = property->GetTexture("anisotropyTex");
           if (texture)
           {
             vAnisotropyTextureMap = texture->GetInput();
+          }
+          texture = property->GetTexture("coatNormalTex");
+          if (texture)
+          {
+            vCoatNormalTextureMap = texture->GetInput();
           }
         }
 
@@ -1185,8 +1215,8 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
           vtkosp::RenderAsTriangles(position, conn.triangle_index, conn.triangle_reverse,
             useCustomMaterial, oMaterial, numNormals, normals, property->GetInterpolation(),
             vColorTextureMap, sRGB, vNormalTextureMap, vMaterialTextureMap, vAnisotropyTextureMap,
-            numTextureCoordinates, (float*)textureCoordinates.data(), texTransform,
-            numCellMaterials, cellMaterials, numPointColors, pointColors.data(),
+            vCoatNormalTextureMap, numTextureCoordinates, (float*)textureCoordinates.data(),
+            texTransform, numCellMaterials, cellMaterials, numPointColors, pointColors.data(),
             numPointValueTextureCoords, (float*)pointValueTextureCoords.data(), backend));
       }
     }
@@ -1265,8 +1295,8 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
           vtkosp::RenderAsTriangles(position, conn.strip_index, conn.strip_reverse,
             useCustomMaterial, oMaterial, numNormals, normals, property->GetInterpolation(),
             vColorTextureMap, sRGB, vNormalTextureMap, vMaterialTextureMap, vAnisotropyTextureMap,
-            numTextureCoordinates, (float*)textureCoordinates.data(), texTransform,
-            numCellMaterials, cellMaterials, numPointColors, pointColors.data(),
+            vCoatNormalTextureMap, numTextureCoordinates, (float*)textureCoordinates.data(),
+            texTransform, numCellMaterials, cellMaterials, numPointColors, pointColors.data(),
             numPointValueTextureCoords, (float*)pointValueTextureCoords.data(), backend));
       }
     }
