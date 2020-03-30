@@ -10,7 +10,7 @@
 #include <QtGui/QSurfaceFormat>
 #include <QtWidgets/QApplication>
 
-#include "QVTKRenderWidget.h"
+#include "QVTKOpenGLStereoWidget.h"
 #include "SimpleView.h"
 
 extern int qInitResources_icons();
@@ -18,7 +18,7 @@ extern int qInitResources_icons();
 int main(int argc, char** argv)
 {
   // needed to ensure appropriate OpenGL context is created for VTK rendering.
-  QSurfaceFormat::setDefaultFormat(QVTKRenderWidget::defaultFormat());
+  QSurfaceFormat::setDefaultFormat(QVTKOpenGLStereoWidget::defaultFormat());
 
   // QT Stuff
   QApplication app(argc, argv);
