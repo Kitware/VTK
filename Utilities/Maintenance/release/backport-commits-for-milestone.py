@@ -26,6 +26,22 @@ import os
 import shutil
 import sys
 
+try:
+    from progress.bar import Bar
+except ImportError:
+    class Bar(object):
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def next(self):
+            pass
+
+        def iter(self, i):
+            return i
+
+        def finish(self):
+            pass
+
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument('-t', '--token',
                         help='gitlab api token (gitlab->settings->access tokens)',
@@ -48,9 +64,16 @@ MERGE_REQUEST_TRAILER_PREFIX = 'Merge-request: !'
 merged_mr_ids = set()
 branch_point = None
 
+bar = Bar('Searching for merged merge requests... %(hexsha)s')
+bar.hexsha = '0000000000000000000000000000000000000000'
 parents = main_repo.git.rev_list('--first-parent', '--min-parents=2', 'origin/release')
 
-for commit in parents.split('\n'):
+for sha in bar.iter(parents.split('\n')):
+    sha = sha.rstrip()
+    if not sha:
+        continue
+    commit = main_repo.commit(sha)
+    bar.hexsha = commit.hexsha
     # See if we're still tracking merges into the release branch.
     if not commit.summary.endswith('into release') and branch_point is None:
         branch_point = commit.hexsha
@@ -59,17 +82,20 @@ for commit in parents.split('\n'):
             mr_id = int(line[len(MERGE_REQUEST_TRAILER_PREFIX):])
             merged_mr_ids.add(mr_id)
 
+bar = Bar('Searching for the first ineligible commit... %(hexsha)s')
+bar.hexsha = '0000000000000000000000000000000000000000'
 parents = main_repo.git.rev_list('--first-parent', 'origin/master')
 master_merge_commits = set()
 
 # Find the first ineligible commit in the release branch.
 ineligible_commit = None
-for sha in parents.split('\n'):
+for sha in bar.iter(parents.split('\n')):
     sha = sha.rstrip()
     if not sha:
         continue
     if sha == branch_point:
         break
+    bar.hexsha = sha
     master_merge_commits.add(sha)
     ineligible_commit = sha
 
@@ -98,7 +124,12 @@ manual_mrs = []
 merged_mrs = []
 skipped_mrs = []
 
-for mr in merged_requests:
+bar = Bar('Scanning merge requests... !%(iid)d')
+bar.iid = 0
+
+for mr in bar.iter(merged_requests):
+    bar.iid = mr['iid']
+
     # This MR has already landed.
     if mr['iid'] in merged_mr_ids:
         continue
