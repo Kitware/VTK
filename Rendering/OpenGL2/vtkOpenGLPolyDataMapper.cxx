@@ -915,6 +915,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
   }
 
   bool hasIBL = false;
+  bool hasAnisotropy = false;
 
   if (actor->GetProperty()->GetInterpolation() == VTK_PBR && lastLightComplexity > 0)
   {
@@ -927,6 +928,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
       "uniform vec3 emissiveFactorUniform;\n"
       "uniform float aoStrengthUniform;\n"
       "uniform vec3 edgeTintUniform;\n"
+      "uniform float anisotropyUniform;\n\n"
       "float D_GGX(float NdH, float roughness)\n"
       "{\n"
       "  float a = roughness * roughness;\n"
@@ -941,14 +943,23 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
       "  float ggxL = NdV * sqrt(a2 + NdL * (NdL - a2 * NdL));\n"
       "  return 0.5 / (ggxV + ggxL);\n"
       "}\n"
-      "vec3 F_Schlick(vec3 F0, vec3 F90, float HdV)\n"
+      "vec3 F_Schlick(vec3 F0, vec3 F90, float HdL)\n"
       "{\n"
-      "  return F0 + (F90 - F0) * pow(1.0 - HdV, 5.0);\n"
+      "  return F0 + (F90 - F0) * pow(1.0 - HdL, 5.0);\n"
       "}\n"
       "vec3 DiffuseLambert(vec3 albedo)\n"
       "{\n"
       "  return albedo * recPI;\n"
-      "}\n",
+      "}\n"
+      "vec3 SpecularIsotropic(float NdH, float NdV, float NdL, float HdL, float roughness, vec3 "
+      "F0, vec3 F90, out vec3 F)\n"
+      "{\n"
+      "  float D = D_GGX(NdH, roughness);\n"
+      "  float V = V_SmithCorrelated(NdV, NdL, roughness);\n"
+      "  F = F_Schlick(F0, F90, HdL);\n"
+      "  return (D * V) * F;\n"
+      "}\n"
+      "//VTK::Anisotropy::Dec\n",
       false);
 
     // disable default behavior with textures
@@ -988,6 +999,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
           toString << "  vec3 emissiveColor = texture(emissiveTex, tcoordVCVSOutput).rgb;\n"
                       "  emissiveColor = emissiveColor * emissiveFactorUniform;\n";
         }
+        // Anisotropy texture is sampled in ReplaceShaderNormal
       }
     }
 
@@ -1020,6 +1032,59 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
                 "  vec3 V = normalize(-vertexVC.xyz);\n"
                 "  float NdV = clamp(dot(N, V), 1e-5, 1.0);\n";
 
+    if (actor->GetProperty()->GetAnisotropy() != 0.0 &&
+      this->VBOs->GetNumberOfComponents("normalMC") == 3 &&
+      this->VBOs->GetNumberOfComponents("tangentMC") == 3)
+    {
+      // anisotropy, tangentVC and bitangentVC are defined
+      hasAnisotropy = true;
+
+      // Add functions to handle specular and anisotropic lobe
+      vtkShaderProgram::Substitute(FSSource, "//VTK::Anisotropy::Dec\n",
+        "// Anisotropy functions\n"
+        "float D_GGX_Anisotropic(float at, float ab, float TdH, float BdH, float NdH)\n"
+        "{\n"
+        "  float a2 = at * ab;\n"
+        "  vec3 d = vec3(ab * TdH, at * BdH, a2 * NdH);\n"
+        "  float d2 = dot(d, d);\n"
+        "  float b2 = a2 / d2;\n"
+        "  return a2 * b2 * b2 * recPI;\n"
+        "}\n"
+        "float V_SmithGGXCorrelated_Anisotropic(float at, float ab, float TdV, float BdV, float "
+        "TdL, float BdL, float NdV, float NdL)\n"
+        "{\n"
+        "  float lambdaV = NdL * length(vec3(at * TdV, ab * BdV, NdV));\n"
+        "  float lambdaL = NdV * length(vec3(at * TdL, ab * BdL, NdL));\n"
+        "  return 0.5 / (lambdaV + lambdaL);\n"
+        "}\n"
+        "vec3 SpecularAnisotropic(float at, float ab, vec3 l, vec3 t, vec3 b, vec3 h, float TdV, "
+        "float BdV, float NdH, float NdV, float NdL,\n"
+        "float HdL, float roughness, float anisotropy, vec3 F0, vec3 F90, out vec3 F)\n"
+        "{\n"
+        "  float TdL = dot(t, l);\n"
+        "  float BdL = dot(b, l);\n"
+        "  float TdH = dot(t, h);\n"
+        "  float BdH = dot(b, h);\n"
+        "  // specular anisotropic BRDF\n"
+        "  float D = D_GGX_Anisotropic(at, ab, TdH, BdH, NdH);\n"
+        "  float V = V_SmithGGXCorrelated_Anisotropic(at, ab, TdV, BdV, TdL, BdL, NdV, NdL);\n"
+        "  F = F_Schlick(F0, F90, HdL);\n"
+        "  return (D * V) * F;\n"
+        "}\n\n\n",
+        false);
+
+      // Precompute anisotropic parameters
+      // at and ab are the roughness along the tangent and bitangent
+      // Disney, as in OSPray
+      toString << "  float r2 = roughness * roughness;\n"
+                  "  float aspect = sqrt(1.0 - 0.9 * anisotropy);\n";
+      toString << "  float at = max(r2 / aspect, 0.001);\n"
+                  "  float ab = max(r2 * aspect, 0.001);\n";
+
+      toString << "  float TdV = dot(tangentVC, V);\n"
+                  "  float BdV = dot(bitangentVC, V);\n";
+    }
+
     if (hasIBL)
     {
       if (!oglRen->GetUseSphericalHarmonics())
@@ -1032,8 +1097,20 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
         toString << "  vec3 irradiance = vec3(ComputeSH(rotN, shRed), ComputeSH(rotN, shGreen), "
                     "ComputeSH(rotN, shBlue));\n";
       }
-      toString << "  vec3 worldReflect = normalize(envMatrix*reflect(-V, N));\n"
-                  "  vec3 prefilteredColor = textureLod(prefilterTex, worldReflect,"
+
+      if (hasAnisotropy)
+      {
+        toString << "  vec3 anisotropicTangent = cross(bitangentVC, V);\n"
+                    "  vec3 anisotropicNormal = cross(anisotropicTangent, bitangentVC);\n"
+                    "  vec3 bentNormal = normalize(mix(N, anisotropicNormal, anisotropy));\n"
+                    "  vec3 worldReflect = normalize(envMatrix*reflect(-V, bentNormal));\n";
+      }
+      else
+      {
+        toString << "  vec3 worldReflect = normalize(envMatrix*reflect(-V, N));\n";
+      }
+
+      toString << "  vec3 prefilteredColor = textureLod(prefilterTex, worldReflect,"
                   " roughness * prefilterMaxLevel).rgb;\n";
       toString << "  vec2 brdf = texture(brdfTex, vec2(NdV, roughness)).rg;\n";
     }
@@ -1054,7 +1131,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
                   "  float f90 = clamp(dot(F0, vec3(50.0 * 0.33)), 0.0, 1.0);\n"
                   "  vec3 F90 = mix(vec3(f90), edgeTintUniform, metallic);\n"
                   "  vec3 L, H, radiance, F, specular, diffuse;\n"
-                  "  float NdL, NdH, HdV, distanceVC, attenuation, D, Vis;\n\n";
+                  "  float NdL, NdH, HdL, distanceVC, attenuation, D, Vis;\n\n";
     }
 
     toString << "//VTK::Light::Impl\n";
@@ -1119,13 +1196,20 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
       if (actor->GetProperty()->GetInterpolation() == VTK_PBR)
       {
         // L = V = H for headlights
-        toString << "  NdV = clamp(dot(N, V), 1e-5, 1.0);\n"
-                    "  D = D_GGX(NdV, roughness);\n"
-                    "  Vis = V_SmithCorrelated(NdV, NdV, roughness);\n"
-                    "  F = F_Schlick(F0, F90, 1.0);\n"
-                    "  specular = D * Vis * F;\n"
-                    "  diffuse = (1.0 - metallic) * (1.0 - F) * DiffuseLambert(albedo);\n"
-                    "  Lo += (diffuse + specular) * lightColor0 * NdV;\n\n"
+        if (hasAnisotropy)
+        {
+          // When V=H, maybe can be optimised
+          toString << "specular = SpecularAnisotropic(at, ab, V, tangentVC, bitangentVC, V, TdV, "
+                      "BdV, NdV, NdV, NdV,\n"
+                      "1.0, roughness, anisotropy, F0, F90, F);\n";
+        }
+        else
+        {
+          toString << "specular = SpecularIsotropic(NdV, NdV, NdV, 1.0, roughness, F0, F90, F);\n";
+        }
+        toString << "  diffuse = (1.0 - metallic) * (1.0 - F) * DiffuseLambert(albedo);\n"
+                    "  \n\n"
+                    "  Lo += lightColor0 * ((diffuse + specular) * NdV);\n"
                     "//VTK::Light::Impl\n";
       }
       else
@@ -1152,18 +1236,24 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
           toString << "  L = normalize(-lightDirectionVC" << i
                    << ");\n"
                       "  H = normalize(V + L);\n"
+                      "  HdL = clamp(dot(H, L), 1e-5, 1.0);\n"
                       "  NdL = clamp(dot(N, L), 1e-5, 1.0);\n"
                       "  NdH = clamp(dot(N, H), 1e-5, 1.0);\n"
-                      "  HdV = clamp(dot(H, V), 1e-5, 1.0);\n"
                       "  radiance = lightColor"
-                   << i
-                   << ";\n"
-                      "  D = D_GGX(NdH, roughness);\n"
-                      "  Vis = V_SmithCorrelated(NdV, NdL, roughness);\n"
-                      "  F = F_Schlick(F0, F90, HdV);\n"
-                      "  specular = D * Vis * F;\n"
-                      "  diffuse = (1.0 - metallic) * (1.0 - F) * DiffuseLambert(albedo);\n"
-                      "  Lo += (diffuse + specular) * radiance * NdL;\n";
+                   << i << ";\n";
+
+          if (hasAnisotropy)
+          {
+            toString << "  specular = SpecularAnisotropic(at, ab, L, tangentVC, bitangentVC, H, "
+                        "TdV, BdV, NdH, NdV, NdL, HdL, roughness, anisotropy, F0, F90, F);\n";
+          }
+          else
+          {
+            toString
+              << "  specular = SpecularIsotropic(NdH, NdV, NdL, HdL, roughness, F0, F90, F);\n";
+          }
+          toString << "  diffuse = (1.0 - metallic) * (1.0 - F) * DiffuseLambert(albedo);\n"
+                      "  Lo += (diffuse + specular) * NdL * radiance;\n";
         }
         toString << "//VTK::Light::Impl\n";
       }
@@ -1210,7 +1300,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
                       "  H = normalize(V + L);\n"
                       "  NdL = clamp(dot(N, L), 1e-5, 1.0);\n"
                       "  NdH = clamp(dot(N, H), 1e-5, 1.0);\n"
-                      "  HdV = clamp(dot(H, V), 1e-5, 1.0);\n"
+                      "  HdL = clamp(dot(H, L), 1e-5, 1.0);\n"
                       "  if (lightPositional"
                    << i
                    << " == 0)\n"
@@ -1251,13 +1341,20 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
                       "    }\n"
                       "  }\n"
                       "  radiance = lightColor"
-                   << i
-                   << " * attenuation;\n"
-                      "  D = D_GGX(NdH, roughness);\n"
-                      "  Vis = V_SmithCorrelated(NdV, NdL, roughness);\n"
-                      "  F = F_Schlick(F0, F90, HdV);\n"
-                      "  specular = D * Vis * F;\n"
-                      "  diffuse = (1.0 - metallic) * (1.0 - F) * DiffuseLambert(albedo);\n"
+                   << i << " * attenuation;\n";
+
+          if (hasAnisotropy)
+          {
+            toString << "  specular = SpecularAnisotropic(at, ab, L, tangentVC, bitangentVC, H, "
+                        "TdV, BdV, NdH, NdV, NdL, HdL, roughness, anisotropy, F0, F90, F);\n";
+          }
+          else
+          {
+            toString
+              << "  specular = SpecularIsotropic(NdH, NdV, NdL, HdL, roughness, F0, F90, F);\n";
+          }
+
+          toString << "  diffuse = (1.0 - metallic) * (1.0 - F) * DiffuseLambert(albedo);\n"
                       "  Lo += (diffuse + specular) * radiance * NdL;\n\n";
         }
         toString << "//VTK::Light::Impl\n";
@@ -1559,7 +1656,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
     // ignore special textures
     if (textures[i].second == "albedoTex" || textures[i].second == "normalTex" ||
       textures[i].second == "materialTex" || textures[i].second == "brdfTex" ||
-      textures[i].second == "emissiveTex")
+      textures[i].second == "emissiveTex" || textures[i].second == "anisotropyTex")
     {
       continue;
     }
@@ -1948,53 +2045,34 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
     std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
     std::string GSSource = shaders[vtkShader::Geometry]->GetSource();
 
-    // if we have point normals provided
+    // normal mapping
+    std::vector<texinfo> textures = this->GetTextures(actor);
+    bool normalMapping = std::find_if(textures.begin(), textures.end(), [](const texinfo& tex) {
+      return tex.second == "normalTex";
+    }) != textures.end();
+    bool rotationMap = std::find_if(textures.begin(), textures.end(), [](const texinfo& tex) {
+      return tex.second == "anisotropyTex";
+    }) != textures.end();
+
     if (this->VBOs->GetNumberOfComponents("normalMC") == 3)
     {
-      // normal mapping
-      std::vector<texinfo> textures = this->GetTextures(actor);
-      bool normalTex = std::find_if(textures.begin(), textures.end(), [](const texinfo& tex) {
-        return tex.second == "normalTex";
-      }) != textures.end();
-      if (normalTex && this->VBOs->GetNumberOfComponents("tangentMC") == 3 &&
-        !this->DrawingVertices)
-      {
-        vtkShaderProgram::Substitute(VSSource, "//VTK::Normal::Dec",
-          "//VTK::Normal::Dec\n"
-          "in vec3 tangentMC;\n"
-          "out vec3 tangentVCVSOutput;\n");
-
-        vtkShaderProgram::Substitute(VSSource, "//VTK::Normal::Impl",
-          "//VTK::Normal::Impl\n"
-          "  tangentVCVSOutput = normalMatrix * tangentMC;\n");
-
-        vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Dec",
-          "//VTK::Normal::Dec\n"
-          "uniform float normalScaleUniform;\n"
-          "in vec3 tangentVCVSOutput;");
-
-        vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Impl",
-          "//VTK::Normal::Impl\n"
-          "  vec3 normalTS = texture(normalTex, tcoordVCVSOutput).xyz * 2.0 - 1.0;\n"
-          "  normalTS = normalize(normalTS * vec3(normalScaleUniform, normalScaleUniform, 1.0));\n"
-          "  vec3 tangentVC = normalize(tangentVCVSOutput - dot(tangentVCVSOutput, "
-          "normalVCVSOutput) * normalVCVSOutput);\n"
-          "  vec3 bitangentVC = cross(normalVCVSOutput, tangentVC);\n"
-          "  mat3 tbn = mat3(tangentVC, bitangentVC, normalVCVSOutput);\n"
-          "  normalVCVSOutput = normalize(tbn * normalTS);\n");
-      }
       vtkShaderProgram::Substitute(VSSource, "//VTK::Normal::Dec",
+        "//VTK::Normal::Dec\n"
         "in vec3 normalMC;\n"
         "uniform mat3 normalMatrix;\n"
         "out vec3 normalVCVSOutput;");
-      vtkShaderProgram::Substitute(
-        VSSource, "//VTK::Normal::Impl", "normalVCVSOutput = normalMatrix * normalMC;");
+      vtkShaderProgram::Substitute(VSSource, "//VTK::Normal::Impl",
+        "normalVCVSOutput = normalMatrix * normalMC;\n"
+        "//VTK::Normal::Impl");
       vtkShaderProgram::Substitute(GSSource, "//VTK::Normal::Dec",
+        "//VTK::Normal::Dec\n"
         "in vec3 normalVCVSOutput[];\n"
         "out vec3 normalVCGSOutput;");
-      vtkShaderProgram::Substitute(
-        GSSource, "//VTK::Normal::Impl", "normalVCGSOutput = normalVCVSOutput[i];");
+      vtkShaderProgram::Substitute(GSSource, "//VTK::Normal::Impl",
+        "//VTK::Normal::Impl\n"
+        "normalVCGSOutput = normalVCVSOutput[i];");
       vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Dec",
+        "//VTK::Normal::Dec\n"
         "uniform mat3 normalMatrix;\n"
         "in vec3 normalVCVSOutput;");
       vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Impl",
@@ -2003,7 +2081,89 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
         //  if (int(gl_FrontFacing) == 0) does not work on mesa
         "  if (gl_FrontFacing == false) { normalVCVSOutput = -normalVCVSOutput; }\n"
         //"normalVC = normalVCVarying;"
-      );
+        "//VTK::Normal::Impl");
+
+      if ((normalMapping || actor->GetProperty()->GetAnisotropy() != 0.0) &&
+        this->VBOs->GetNumberOfComponents("tangentMC") == 3 && !this->DrawingVertices)
+      {
+        vtkShaderProgram::Substitute(GSSource, "//VTK::Normal::Dec",
+          "//VTK::Normal::Dec\n"
+          "in vec3 tangentVCVSOutput[];\n"
+          "out vec3 tangentVCGSOutput;");
+        vtkShaderProgram::Substitute(GSSource, "//VTK::Normal::Impl",
+          "//VTK::Normal::Impl\n"
+          "tangentVCGSOutput = tangentVCVSOutput[i];");
+        vtkShaderProgram::Substitute(VSSource, "//VTK::Normal::Dec",
+          "//VTK::Normal::Dec\n"
+          "in vec3 tangentMC;\n"
+          "out vec3 tangentVCVSOutput;\n");
+        vtkShaderProgram::Substitute(VSSource, "//VTK::Normal::Impl",
+          "//VTK::Normal::Impl\n"
+          "  tangentVCVSOutput = normalMatrix * tangentMC;\n");
+        vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Dec",
+          "//VTK::Normal::Dec\n"
+          "in vec3 tangentVCVSOutput;\n");
+        vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Impl",
+          " vec3 tangentVC = tangentVCVSOutput;\n"
+          "//VTK::Normal::Impl");
+
+        if (actor->GetProperty()->GetAnisotropy() != 0.0)
+        {
+          // We need to rotate the anisotropy direction (the tangent) by anisotropyRotation * 2 *
+          // PI
+          vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Dec",
+            "//VTK::Normal::Dec\n"
+            "uniform float anisotropyRotationUniform;\n");
+          if (rotationMap)
+          {
+            // Sample the texture
+            vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Impl",
+              "  vec2 anisotropySample = texture(anisotropyTex, tcoordVCVSOutput).rg;\n"
+              "  float anisotropy = anisotropySample.x * anisotropyUniform;\n"
+              "  float anisotropyRotation = anisotropySample.y * anisotropyRotationUniform;\n"
+              "//VTK::Normal::Impl");
+          }
+          else
+          {
+            vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Impl",
+              "  float anisotropy = anisotropyUniform;\n"
+              "  float anisotropyRotation = anisotropyRotationUniform;\n"
+              "//VTK::Normal::Impl");
+          }
+          vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Impl",
+            "  // Rotate the anisotropy direction (tangent) around the normal with a rotation "
+            "factor\n"
+            "  float r2pi = anisotropyRotation * 2 * PI;\n"
+            "  float s = - sin(r2pi);\n" // Counter clockwise (as in
+                                         // OSPray)
+            "  float c = cos(r2pi);\n"
+            "  vec3 Nn = normalize(normalVCVSOutput);\n"
+            "  tangentVC = (1.0-c) * dot(tangentVCVSOutput,Nn) * Nn\n"
+            "+ c * tangentVCVSOutput - s * cross(Nn, tangentVCVSOutput);\n"
+            "//VTK::Normal::Impl");
+        }
+
+        vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Impl",
+          "  tangentVC = normalize(tangentVC - dot(tangentVC, "
+          "normalVCVSOutput) * normalVCVSOutput);\n"
+          "  vec3 bitangentVC = cross(normalVCVSOutput, tangentVC);\n"
+          "//VTK::Normal::Impl");
+
+        if (normalMapping)
+        {
+          vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Dec",
+            "//VTK::Normal::Dec\n"
+            "uniform float normalScaleUniform;\n");
+
+          vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Impl",
+            "  vec3 normalTS = texture(normalTex, tcoordVCVSOutput).xyz * 2.0 - 1.0;\n"
+            "  normalTS = normalize(normalTS * vec3(normalScaleUniform, normalScaleUniform, "
+            "1.0));\n"
+            "  mat3 tbn = mat3(tangentVC, bitangentVC, normalVCVSOutput);\n"
+            "  normalVCVSOutput = normalize(tbn * normalTS);\n"
+            "//VTK::Normal::Impl");
+        }
+      }
 
       shaders[vtkShader::Vertex]->SetSource(VSSource);
       shaders[vtkShader::Geometry]->SetSource(GSSource);
@@ -2895,6 +3055,9 @@ void vtkOpenGLPolyDataMapper::SetPropertyShaderParameters(
       program->SetUniformf("aoStrengthUniform", static_cast<float>(ppty->GetOcclusionStrength()));
       program->SetUniform3f("emissiveFactorUniform", ppty->GetEmissiveFactor());
       program->SetUniform3f("edgeTintUniform", ppty->GetEdgeTint());
+      program->SetUniformf("anisotropyUniform", static_cast<float>(ppty->GetAnisotropy()));
+      program->SetUniformf(
+        "anisotropyRotationUniform", static_cast<float>(ppty->GetAnisotropyRotation()));
     }
 
     // handle specular

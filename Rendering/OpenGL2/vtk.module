@@ -28,6 +28,7 @@ TEST_DEPENDS
   VTK::FiltersGeometry
   VTK::FiltersProgrammable
   VTK::FiltersSources
+  VTK::FiltersTexture
   VTK::IOExodus
   VTK::IOExport
   VTK::IOImage

@@ -49,6 +49,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestPanoramicProjectionPass.cxx,NO_DATA
   TestPBREdgeTint.cxx
   TestPBRHdrEnvironment.cxx
+  TestPBRAnisotropy.cxx
   TestPBRIrradianceHDR.cxx
   TestPBRMapping.cxx
   TestPBRMaterials.cxx

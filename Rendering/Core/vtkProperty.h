@@ -198,6 +198,28 @@ public:
 
   //@{
   /**
+   * Set/Get the anisotropy coefficient.
+   * This value controls the anisotropy of the material (0.0 means isotropic)
+   * This parameter is only used by PBR Interpolation.
+   * Default value is 0.0
+   */
+  vtkSetClampMacro(Anisotropy, double, 0.0, 1.0);
+  vtkGetMacro(Anisotropy, double);
+  //@}
+
+  //@{
+  /**
+   * Set/Get the anisotropy rotation coefficient.
+   * This value controls the rotation of the direction of the anisotropy.
+   * This parameter is only used by PBR Interpolation.
+   * Default value is 0.0
+   */
+  vtkSetClampMacro(AnisotropyRotation, double, 0.0, 1.0);
+  vtkGetMacro(AnisotropyRotation, double);
+  //@}
+
+  //@{
+  /**
    * Set/Get the normal scale coefficient.
    * This value affects the strength of the normal deviation from the texture.
    * Default value is 1.0
@@ -512,10 +534,10 @@ public:
    * must be assigned unique names. Note that for texture blending the
    * textures will be rendering is alphabetical order and after any texture
    * defined in the actor.
-   * There exists 4 special textures with reserved names: "albedoTex", "materialTex", "normalTex"
-   * and "emissiveTex". While these textures can be added with the regular SetTexture method, it is
-   * prefered to use to method SetBaseColorTexture, SetORMTexture, SetNormalTexture and
-   * SetEmissiveTexture respectively.
+   * There exists 4 special textures with reserved names: "albedoTex", "materialTex", "normalTex",
+   * "emissiveTex" and "anisotropyTex". While these textures can be added with the regular
+   * SetTexture method, it is preferred to use the methods SetBaseColorTexture, SetORMTexture,
+   * SetNormalTexture, SetEmissiveTexture and SetAnisotropyTexture respectively.
    */
   void SetTexture(const char* name, vtkTexture* texture);
   vtkTexture* GetTexture(const char* name);
@@ -539,6 +561,18 @@ public:
    * @sa SetInterpolationToPBR SetOcclusionStrength SetMetallic SetRoughness
    */
   void SetORMTexture(vtkTexture* texture) { this->SetTexture("materialTex", texture); }
+
+  /**
+   * Set the anisotropy texture. This texture contains two independent components corresponding to
+   * the anisotropy value and anisotropy rotation. The last component (blue channel) is discarded.
+   * The anisotropy value is scaled by the anisotropy coefficient of the material. The anisotropy
+   * rotation rotates the direction of the anisotropy (ie. the tangent) around the normal and is not
+   * scaled by the anisotropy rotation coefficient.
+   * This texture must be in linear color space.
+   * This is only used by the PBR shading model.
+   * @sa SetInterpolationToPBR SetAnisotropy
+   */
+  void SetAnisotropyTexture(vtkTexture* texture) { this->SetTexture("anisotropyTex", texture); }
 
   /**
    * Set the normal texture. This texture is required for normal mapping. It is valid for both PBR
@@ -615,6 +649,8 @@ protected:
   double Diffuse;
   double Metallic;
   double Roughness;
+  double Anisotropy;
+  double AnisotropyRotation;
   double NormalScale;
   double OcclusionStrength;
   double EmissiveFactor[3];
