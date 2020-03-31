@@ -620,8 +620,20 @@ int vtkMaskPoints::RequestData(vtkInformation* vtkNotUsed(request),
         vtkNew<vtkMinimalStandardRandomSequence> randomGenerator;
         randomGenerator->SetSeed(this->GetRandomSeed());
 
-        // TODO: distribute numNewPts like for the other uniform approaches
-        for (vtkIdType i = 0; i < numNewPts; i++)
+        vtkIdType numAddedPts = localMaxPts;
+        if (this->ProportionalMaximumNumberOfPoints)
+        {
+          // How many point to add in each region in function of its contribution
+          // to the global area.
+          vtkBoundingBox boundingBox;
+          boundingBox.AddBounds(bounds);
+          const double localVolume = boundingBox.GetDiagonalLength();
+          const double localAreaFactor =
+            this->GetLocalAreaFactor(localVolume, this->InternalGetNumberOfProcesses());
+          numAddedPts = this->MaximumNumberOfPoints * localAreaFactor;
+        }
+
+        for (vtkIdType i = 0; i < numAddedPts; i++)
         {
           randomGenerator->Next();
           double randX = randomGenerator->GetRangeValue(bounds[0], bounds[1]);
