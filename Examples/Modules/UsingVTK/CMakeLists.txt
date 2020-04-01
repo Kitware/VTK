@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+8make_minimum_required(VERSION 3.8)
 project(UsingVTK)
 
 # We just need the CommonCore module here.
