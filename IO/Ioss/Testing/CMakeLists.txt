@@ -1,0 +1,17 @@
+vtk_module_test_data(
+  Data/Exodus/block_with_attributes.g
+  Data/Exodus/can.e.4/can.e.4.0
+  Data/Exodus/can.e.4/can.e.4.1
+  Data/Exodus/can.e.4/can.e.4.2
+  Data/Exodus/can.e.4/can.e.4.3
+  Data/Exodus/ExRestarts/blow.e
+  Data/Exodus/ExRestarts/blow.e-s.001
+  Data/Exodus/ExRestarts/blow.ex-timeseries
+  Data/Exodus/hello_world_fix-d_frf.frq
+  Data/Exodus/RubiksCubeWithRotations_gold.g
+  Data/Exodus/SAND2017-5827O-FSM_Residual-bad-eigen.e
+  Data/Exodus/SAND2017-5827O-FSM_Residual_good-eigen.e
+  Data/Exodus/SAND2020-4077_O-tri6sWFace2.exo
+  Data/Exodus/test-nfaced.exo)
+
+add_subdirectory(Cxx)
