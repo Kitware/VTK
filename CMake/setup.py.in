@@ -86,7 +86,7 @@ setup(
     package_data={
         'vtkmodules': [
             # Linux modules.
-            '*Python.so',
+            '*-linux-gnu.so',
             # Unix shared libraries.
             'lib*.so*',
             # macOS modules.
