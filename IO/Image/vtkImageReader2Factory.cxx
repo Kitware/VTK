@@ -16,6 +16,7 @@
 
 #include "vtkBMPReader.h"
 #include "vtkGESignaReader.h"
+#include "vtkHDRReader.h"
 #include "vtkImageReader2.h"
 #include "vtkImageReader2Collection.h"
 #include "vtkJPEGReader.h"
@@ -129,6 +130,8 @@ void vtkImageReader2Factory::InitializeReaders()
   vtkImageReader2Factory::AvailableReaders->AddItem((reader = vtkBMPReader::New()));
   reader->Delete();
   vtkImageReader2Factory::AvailableReaders->AddItem((reader = vtkSLCReader::New()));
+  reader->Delete();
+  vtkImageReader2Factory::AvailableReaders->AddItem((reader = vtkHDRReader::New()));
   reader->Delete();
   vtkImageReader2Factory::AvailableReaders->AddItem((reader = vtkJPEGReader::New()));
   reader->Delete();
