@@ -887,8 +887,8 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
     }
     else
     {
-      toString << "  vec3 irradiance = vec3(0.03);\n";
-      toString << "  vec3 prefilteredColor = vec3(0.03);\n";
+      toString << "  vec3 irradiance = vec3(0.0);\n";
+      toString << "  vec3 prefilteredColor = vec3(0.0);\n";
       toString << "  vec2 brdf = vec2(0.0, 0.0);\n";
     }
 

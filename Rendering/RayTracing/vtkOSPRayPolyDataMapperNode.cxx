@@ -654,6 +654,7 @@ OSPMaterial MakeActorMaterial(vtkOSPRayRendererNode* orn, OSPRenderer oRenderer,
     ospSet1f(oMaterial, "metallic", static_cast<float>(property->GetMetallic()));
     ospSet1f(oMaterial, "roughness", static_cast<float>(property->GetRoughness()));
     ospSet1f(oMaterial, "opacity", static_cast<float>(opacity));
+    ospSet1f(oMaterial, "ior", 1.5);
   }
   else
   {
