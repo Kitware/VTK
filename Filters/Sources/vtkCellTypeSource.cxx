@@ -1237,13 +1237,13 @@ void vtkCellTypeSource::GenerateLagrangeCurves(vtkUnstructuredGrid* output, int 
     output->GetPoint(i + 1, p1.GetData());
     dp = p1 - p0;
     conn[0] = i;
-    conn[this->CellOrder] = i + 1;
+    conn[1] = i + 1;
     double denom = static_cast<double>(this->CellOrder);
     for (int j = 1; j < this->CellOrder; ++j)
     {
       pm = p0 + (static_cast<double>(j) / denom) * dp;
       vtkIdType innerPointId = points->InsertNextPoint(pm.GetData());
-      conn[j] = innerPointId;
+      conn[j + 1] = innerPointId;
     }
     output->InsertNextCell(VTK_LAGRANGE_CURVE, this->CellOrder + 1, &conn[0]);
   }
@@ -1719,13 +1719,13 @@ void vtkCellTypeSource::GenerateBezierCurves(vtkUnstructuredGrid* output, int ex
     output->GetPoint(i + 1, p1.GetData());
     dp = p1 - p0;
     conn[0] = i;
-    conn[this->CellOrder] = i + 1;
+    conn[1] = i + 1;
     double denom = static_cast<double>(this->CellOrder);
     for (int j = 1; j < this->CellOrder; ++j)
     {
       pm = p0 + (static_cast<double>(j) / denom) * dp;
       vtkIdType innerPointId = points->InsertNextPoint(pm.GetData());
-      conn[j] = innerPointId;
+      conn[j + 1] = innerPointId;
     }
     output->InsertNextCell(VTK_BEZIER_CURVE, this->CellOrder + 1, &conn[0]);
   }
