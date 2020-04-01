@@ -715,7 +715,9 @@ void vtkXMLHyperTreeGridReader::ReadTrees_1(vtkXMLDataElement* elem)
     treeCursor->SetGlobalIndexStart(globalOffset);
 
     // Level 0 contains root of hypertree
-    posByLevel->InsertNextValue(0);
+    posByLevel->SetNumberOfValues(1);
+    posByLevel->SetValue(0, 0);
+
     vtkIdType nRefined = 0;
     vtkIdType nCurrentLevel = 0;
     vtkIdType nNextLevel = 1;
