@@ -2088,6 +2088,8 @@ have reasonable defaults if not specified.
   * `PACKAGE`: (Defaults to `${CMAKE_PROJECT_NAME}`) The name the build is
     meant to be found as when using `find_package`. Note that separate builds
     will require distinct `PACKAGE` values.
+  * `BUILD_WITH_KITS`: (Defaults to `OFF`) If enabled, kit libraries will be
+    built.
   * `USE_EXTERNAL`: (Defaults to `OFF`) Whether third party modules should find
     external copies rather than building their own copy.
   * `INSTALL_HEADERS`: (Defaults to `ON`) Whether or not to install public headers.
