@@ -15,9 +15,11 @@
 
 #include "vtkXMLHyperTreeGridReader.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkBitArray.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridNonOrientedCursor.h"
@@ -30,6 +32,7 @@
 #include "vtkXMLDataParser.h"
 
 #include <algorithm>
+#include <numeric>
 
 vtkStandardNewMacro(vtkXMLHyperTreeGridReader);
 
@@ -615,6 +618,31 @@ void vtkXMLHyperTreeGridReader::SubdivideFromDescriptor_0(
 }
 
 //----------------------------------------------------------------------------
+// Functor used to accumulate in the native array type with dispatch
+struct AccImpl
+{
+  explicit AccImpl(vtkIdType limitedLevel)
+    : LimitedLevel(limitedLevel)
+  {
+  }
+  // Fixed input
+  const vtkTypeInt64 LimitedLevel{ 0 };
+  const vtkTypeInt64 Zero{ 0 };
+  // Output
+  vtkTypeInt64 FixedNbVertices{ 0 };
+  vtkTypeInt64 LimitedLevelElement{ 0 };
+
+  template <typename ArrayType>
+  void operator()(ArrayType* array)
+  {
+    auto range = vtk::DataArrayValueRange<1>(array);
+    this->FixedNbVertices =
+      std::accumulate(range.begin(), range.begin() + this->LimitedLevel, this->Zero);
+    this->LimitedLevelElement = *(range.begin() + this->LimitedLevel - 1);
+  }
+};
+
+//----------------------------------------------------------------------------
 void vtkXMLHyperTreeGridReader::ReadTrees_1(vtkXMLDataElement* elem)
 {
   vtkHyperTreeGrid* output = vtkHyperTreeGrid::SafeDownCast(this->GetCurrentOutput());
@@ -718,7 +746,6 @@ void vtkXMLHyperTreeGridReader::ReadTrees_1(vtkXMLDataElement* elem)
     int numberOfNodes = 0;
     nbByLvl_e->GetScalarAttribute("NumberOfTuples", numberOfNodes);
     nbByLvl_d->SetNumberOfTuples(numberOfNodes);
-    vtkTypeInt64Array* nbByLvl = vtkArrayDownCast<vtkTypeInt64Array>(nbByLvl_d);
 
     this->ReadArrayValues(nbByLvl_e, 0, nbByLvl_d, 0, numberOfNodes);
 
@@ -730,17 +757,24 @@ void vtkXMLHyperTreeGridReader::ReadTrees_1(vtkXMLDataElement* elem)
     mask_e->GetScalarAttribute("NumberOfTuples", numberOfNodes);
     mask_d->SetNumberOfTuples(numberOfNodes);
     vtkBitArray* mask = vtkArrayDownCast<vtkBitArray>(mask_d);
-
+    // If XMLHTG has mask and output han no mask yet
+    if (mask_a && (output->GetMask() == nullptr))
+    {
+      // Create empty output HTG mask
+      vtkNew<vtkBitArray> empty_mask;
+      output->SetMask(empty_mask);
+    }
     this->ReadArrayValues(mask_e, 0, mask_d, 0, numberOfNodes);
 
-    vtkIdType limitedLevel = this->GetFixedLevelOfThisHT(numberOfLevels, treeIndxInHTG);
-    vtkIdType fixedNbVertices = 0;
-    for (vtkIdType ilevel = 0; ilevel < limitedLevel; ++ilevel)
+    AccImpl accFunctor(this->GetFixedLevelOfThisHT(numberOfLevels, treeIndxInHTG));
+    if (!vtkArrayDispatch::Dispatch::Execute(nbByLvl_d, accFunctor))
     {
-      fixedNbVertices += nbByLvl->GetValue(ilevel);
+      cerr << "Should not happen: could not dispatch nbByLvl_d array" << endl;
+      cerr << "Falling back to vtkDataArray, can pose problems on windows" << endl;
+      accFunctor(nbByLvl_d);
     }
-    treeCursor->GetTree()->InitializeForReader(limitedLevel, fixedNbVertices,
-      nbByLvl->GetValue(limitedLevel - 1), desc, mask, output->GetMask());
+    treeCursor->GetTree()->InitializeForReader(accFunctor.LimitedLevel, accFunctor.FixedNbVertices,
+      accFunctor.LimitedLevelElement, desc, mask, output->GetMask());
     nbByLvl_a->Delete();
     desc_a->Delete();
     mask_a->Delete();
@@ -772,16 +806,18 @@ void vtkXMLHyperTreeGridReader::ReadTrees_1(vtkXMLDataElement* elem)
           pointData->SetActiveScalars(ename);
           outArray->Delete();
         }
+
         // Doing Resize() is not enough !
-        // outArray->Resize(outArray->GetNumberOfTuples()+fixedNbVertices);
+        // outArray->Resize(outArray->GetNumberOfTuples()+accFunctor.FixedNbVertices);
         // Tip: insert copy of an existing table data in position 0 to
         // the last position of the same table
-        outArray->InsertTuple(outArray->GetNumberOfTuples() + fixedNbVertices - 1, 0, outArray);
+        outArray->InsertTuple(
+          outArray->GetNumberOfTuples() + accFunctor.FixedNbVertices - 1, 0, outArray);
 
         // Read data into the global offset which is
         // number of vertices in the tree * number of components in the data
         this->ReadArrayValues(eNested, globalOffset * numberOfComponents, outArray, 0,
-          fixedNbVertices * numberOfComponents, POINT_DATA);
+          accFunctor.FixedNbVertices * numberOfComponents, POINT_DATA);
       }
     }
     // Calculating the first offset of the next HyperTree

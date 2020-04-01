@@ -1122,6 +1122,7 @@ vtkHyperTree* vtkHyperTreeGrid::GetTree(vtkIdType index, bool create)
   if (create && !tree)
   {
     tree = vtkHyperTree::CreateInstance(this->BranchFactor, this->Dimension);
+    assert(tree != nullptr);
     tree->SetTreeIndex(index);
     this->HyperTrees[index] = tree;
     tree->Delete();

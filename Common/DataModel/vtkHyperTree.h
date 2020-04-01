@@ -468,12 +468,7 @@ public:
   //@}
 
 protected:
-  vtkHyperTree()
-    : BranchFactor(2)
-    , Dimension(3)
-    , NumberOfChildren(8)
-  {
-  }
+  vtkHyperTree();
 
   virtual ~vtkHyperTree() override {}
 
@@ -502,6 +497,8 @@ protected:
   mutable std::shared_ptr<vtkHyperTreeGridScales> Scales;
 
 private:
+  void InitializeBase(
+    unsigned char branchFactor, unsigned char dimension, unsigned char numberOfChildren);
   vtkHyperTree(const vtkHyperTree&) = delete;
   void operator=(const vtkHyperTree&) = delete;
 };

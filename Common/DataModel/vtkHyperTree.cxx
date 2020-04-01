@@ -29,6 +29,12 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vector>
 
 //-----------------------------------------------------------------------------
+vtkHyperTree::vtkHyperTree()
+{
+  this->InitializeBase(2, 3, 8);
+}
+
+//-----------------------------------------------------------------------------
 void vtkHyperTree::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -53,9 +59,7 @@ void vtkHyperTree::PrintSelf(ostream& os, vtkIndent indent)
 
   this->PrintSelfPrivate(os, indent);
 }
-
-//-----------------------------------------------------------------------------
-void vtkHyperTree::Initialize(
+void vtkHyperTree::InitializeBase(
   unsigned char branchFactor, unsigned char dimension, unsigned char numberOfChildren)
 {
   this->BranchFactor = branchFactor;
@@ -72,7 +76,12 @@ void vtkHyperTree::Initialize(
   this->Datas->GlobalIndexStart = -1;
 
   this->Scales = nullptr;
-
+}
+//-----------------------------------------------------------------------------
+void vtkHyperTree::Initialize(
+  unsigned char branchFactor, unsigned char dimension, unsigned char numberOfChildren)
+{
+  this->InitializeBase(branchFactor, dimension, numberOfChildren);
   this->InitializePrivate();
 }
 
