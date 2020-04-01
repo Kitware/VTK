@@ -17,7 +17,7 @@ endif ()
 if (NOT DEFINED "vtk_undefined_symbols_allowed")
   set(test_project_dir "${CMAKE_CURRENT_BINARY_DIR}/CMakeTmp/vtk_undefined_symbols_allowed")
   file(WRITE "${test_project_dir}/CMakeLists.txt"
-"cmake_minimum_required(VERSION 3.3...3.12)
+"cmake_minimum_required(VERSION 3.8...3.12)
 project(undefined C)
 add_library(undefined SHARED uses_undefined.c)
 add_executable(undefined_exe main.c)
