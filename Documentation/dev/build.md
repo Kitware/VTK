@@ -147,8 +147,8 @@ to modify include:
     not.
   * `VTK_USE_MPI` (default `OFF`): Whether MPI support will be available or
     not.
-  * `VTK_WRAP_PYTHON` (default `OFF`): Whether Python support will be
-    available or not.
+  * `VTK_WRAP_PYTHON` (default `OFF`; requires `VTK_ENABLE_WRAPPING`): Whether
+    Python support will be available or not.
   * `VTK_PYTHON_VERSION` (default `2`): The major version of Python to
     support. Must be either `2` or `3`.
 
@@ -165,8 +165,10 @@ Less common, but variables which may be of interest to some:
   * `VTK_ENABLE_KITS` (default `OFF`): requires CMake 3.12+): Compile VTK into
     a smaller set of libraries. Can be useful on platforms where VTK takes a
     long time to launch due to expensive disk access.
-  * `VTK_WRAP_JAVA` (default `OFF`): Whether Java support will be available or
-    not.
+  * `VTK_ENABLE_WRAPPING` (default `ON`): Whether any wrapping support will be
+    available or not.
+  * `VTK_WRAP_JAVA` (default `OFF`; requires `VTK_ENABLE_WRAPPING`): Whether
+    Java support will be available or not.
 
 More advanced options:
 

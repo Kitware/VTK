@@ -1,13 +1,16 @@
 # Configure files with settings for use by the build.
+option(VTK_ENABLE_WRAPPING "Whether wrapping is available or not" ON)
+mark_as_advanced(VTK_ENABLE_WRAPPING)
 
 # Add the option for build the Python wrapping to VTK.
-option(VTK_WRAP_PYTHON "Should VTK Python wrapping be built?" OFF)
+include(CMakeDependentOption)
+cmake_dependent_option(VTK_WRAP_PYTHON "Should VTK Python wrapping be built?" OFF
+  "VTK_ENABLE_WRAPPING" OFF)
 set(VTK_PYTHON_VERSION 2 CACHE STRING
   "Python version to use")
 set_property(CACHE VTK_PYTHON_VERSION
   PROPERTY
     STRINGS "2;3")
-include(CMakeDependentOption)
 cmake_dependent_option(VTK_WHEEL_BUILD "Generate a build for a Python wheel" OFF
   "VTK_WRAP_PYTHON;VTK_PYTHON_VERSION EQUAL 3" OFF)
 
@@ -30,11 +33,11 @@ if(VTK_WRAP_PYTHON)
   set(VTK_WRAP_PYTHON_INIT_EXE VTK::WrapPythonInit)
 endif()
 
-include(CMakeDependentOption)
 cmake_dependent_option(VTK_USE_TK "Build VTK with Tk support" OFF
   "VTK_WRAP_PYTHON" OFF)
 
-option(VTK_WRAP_JAVA "Should VTK Java wrapping be built?" OFF)
+cmake_dependent_option(VTK_WRAP_JAVA "Should VTK Java wrapping be built?" OFF
+  "VTK_ENABLE_WRAPPING" OFF)
 if(VTK_WRAP_JAVA)
   set(VTK_WRAP_JAVA3_INIT_DIR "${VTK_SOURCE_DIR}/Wrapping/Java")
   # Wrapping executables.

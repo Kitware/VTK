@@ -53,8 +53,8 @@ include(vtkDownload)
 include(vtkTesting)
 include(vtkDirectories)
 include(vtkMobileDevices)
-include(vtkCrossCompiling)
 include(vtkWrapSettings)
+include(vtkCrossCompiling)
 include(vtkObjectFactory)
 include(vtkCMakeBackports)
 
@@ -140,7 +140,6 @@ set(vtk_rejected_modules)
 if (VTK_WRAP_PYTHON)
   list(APPEND vtk_requested_modules
     VTK::WrappingPythonCore
-    VTK::WrappingTools
     VTK::PythonInterpreter)
 else ()
   list(APPEND vtk_rejected_modules
@@ -148,8 +147,7 @@ else ()
 endif ()
 if (VTK_WRAP_JAVA)
   list(APPEND vtk_requested_modules
-    VTK::Java
-    VTK::WrappingTools)
+    VTK::Java)
 else ()
   list(APPEND vtk_rejected_modules
     VTK::Java)
@@ -181,9 +179,13 @@ endif ()
 list(APPEND vtk_requested_modules
   # Required for just about everything.
   VTK::CommonCore
-  VTK::CommonDataModel
-  # Required for wrapping with hierarchy files.
-  VTK::WrappingTools)
+  VTK::CommonDataModel)
+
+if (VTK_ENABLE_WRAPPING)
+  list(APPEND vtk_requested_modules
+    # Required for wrapping with hierarchy files.
+    VTK::WrappingTools)
+endif ()
 
 if (vtk_requested_modules)
   list(REMOVE_DUPLICATES vtk_requested_modules)
@@ -328,6 +330,7 @@ vtk_module_build(
   INSTALL_HEADERS     "${VTK_INSTALL_SDK}"
   BUILD_WITH_KITS     "${VTK_ENABLE_KITS}"
   USE_EXTERNAL        "${VTK_USE_EXTERNAL}"
+  ENABLE_WRAPPING     "${VTK_ENABLE_WRAPPING}"
   TEST_INPUT_DATA_DIRECTORY   "${CMAKE_CURRENT_SOURCE_DIR}/Testing"
   TEST_OUTPUT_DATA_DIRECTORY  "${CMAKE_CURRENT_BINARY_DIR}/ExternalData/Testing")
 include(vtkModuleJson)

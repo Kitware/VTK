@@ -2038,6 +2038,8 @@ vtk_module_build(
 
   [BUILD_WITH_KITS  <ON|OFF>]
 
+  [ENABLE_WRAPPING <ON|OFF>]
+
   [USE_EXTERNAL <ON|OFF>]
 
   [INSTALL_HEADERS    <ON|OFF>]
@@ -2076,6 +2078,10 @@ have reasonable defaults if not specified.
   * `PACKAGE`: (Defaults to `${CMAKE_PROJECT_NAME}`) The name the build is
     meant to be found as when using `find_package`. Note that separate builds
     will require distinct `PACKAGE` values.
+  * `BUILD_WITH_KITS`: (Defaults to `OFF`) If enabled, kit libraries will be
+    built.
+  * `ENABLE_WRAPPING`: (Defaults to `ON`) If enabled, wrapping will be
+    available to the modules built in this call.
   * `USE_EXTERNAL`: (Defaults to `OFF`) Whether third party modules should find
     external copies rather than building their own copy.
   * `INSTALL_HEADERS`: (Defaults to `ON`) Whether or not to install public headers.
@@ -2158,7 +2164,7 @@ function (vtk_module_build)
 
   cmake_parse_arguments(PARSE_ARGV 0 _vtk_build
     ""
-    "BUILD_WITH_KITS;USE_EXTERNAL;LIBRARY_NAME_SUFFIX;VERSION;SOVERSION;PACKAGE;${_vtk_build_install_arguments};${_vtk_build_test_arguments}"
+    "BUILD_WITH_KITS;USE_EXTERNAL;LIBRARY_NAME_SUFFIX;VERSION;SOVERSION;PACKAGE;ENABLE_WRAPPING;${_vtk_build_install_arguments};${_vtk_build_test_arguments}"
     "MODULES;KITS")
 
   if (_vtk_build_UNPARSED_ARGUMENTS)
@@ -2189,6 +2195,10 @@ function (vtk_module_build)
 
   if (NOT DEFINED _vtk_build_INSTALL_HEADERS)
     set(_vtk_build_INSTALL_HEADERS ON)
+  endif ()
+
+  if (NOT DEFINED _vtk_build_ENABLE_WRAPPING)
+    set(_vtk_build_ENABLE_WRAPPING ON)
   endif ()
 
   if (NOT DEFINED _vtk_build_TARGET_NAMESPACE)
@@ -2494,8 +2504,11 @@ function (vtk_module_build)
       PROPERTY  "INTERFACE_vtk_module_${_vtk_build_module}_exclude_wrap")
     if (NOT _vtk_build_exclude_wrap)
       list(APPEND _vtk_build_split_properties
-        headers
-        hierarchy)
+        headers)
+      if (_vtk_build_ENABLE_WRAPPING)
+        list(APPEND _vtk_build_split_properties
+          hierarchy)
+      endif ()
     endif ()
 
     set(_vtk_build_properties_kit_properties)
@@ -3493,7 +3506,7 @@ function (vtk_module_add_module name)
   set_property(TARGET "${_vtk_add_module_real_target}"
     PROPERTY
       "INTERFACE_vtk_module_exclude_wrap" "${_vtk_add_module_exclude_wrap}")
-  if (NOT _vtk_add_module_exclude_wrap)
+  if (NOT _vtk_add_module_exclude_wrap AND _vtk_build_ENABLE_WRAPPING)
     _vtk_module_write_wrap_hierarchy()
   endif ()
 
