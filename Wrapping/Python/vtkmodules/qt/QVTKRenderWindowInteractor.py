@@ -63,7 +63,8 @@ try:
 except ImportError:
     pass
 
-from vtkmodules.vtkRenderingCore import vtkGenericRenderWindowInteractor, vtkRenderWindow
+from vtkmodules.vtkRenderingCore import vtkRenderWindow
+from vtkmodules.vtkRenderingUI import vtkGenericRenderWindowInteractor
 
 if PyQtImpl is None:
     # Autodetect the PyQt implementation to use
