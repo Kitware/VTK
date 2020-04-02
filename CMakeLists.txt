@@ -26,9 +26,12 @@ if (APPLE)
 endif ()
 
 # must be before the following iOS / Android
+find_package(Git QUIET)
+include(VTKDetermineVersion)
 include(vtkVersion)
 set(VTK_VERSION
     "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}.${VTK_BUILD_VERSION}")
+determine_version("${CMAKE_CURRENT_SOURCE_DIR}" "${GIT_EXECUTABLE}" "VTK")
 
 option(VTK_IOS_BUILD "Build vtk.framework for iOS" OFF)
 mark_as_advanced(VTK_IOS_BUILD)
