@@ -1792,8 +1792,18 @@ vtkIdType vtkScalarsToColors::GetAnnotatedValueIndexInternal(const vtkVariant& v
     }
   }
   vtkIdType nv = this->GetNumberOfAvailableColors();
-  vtkIdType i = (it == this->AnnotatedValueList->end() ? -1 : (nv ? idx % nv : idx));
-  return i;
+  vtkIdType result = static_cast<vtkIdType>(idx);
+
+  // if not found return -1
+  if (it == this->AnnotatedValueList->end())
+  {
+    result = -1;
+  }
+  else if (nv > 0)
+  {
+    result = result % nv;
+  }
+  return result;
 }
 
 //----------------------------------------------------------------------------
