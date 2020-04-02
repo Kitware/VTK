@@ -340,9 +340,10 @@ void vtkCompositeMapperHelper2::DrawIBO(vtkRenderer* ren, vtkActor* actor, int p
       vtkCompositeMapperHelperData* starthdata = it->second;
       bool shouldDraw = starthdata->Visibility     // must be visible
         && (!selecting || starthdata->Pickability) // and pickable when selecting
-        && (((starthdata->IsOpaque || actor->GetForceOpaque()) && !tpass) // opaque during opaque
-             || ((!starthdata->IsOpaque || actor->GetForceTranslucent()) &&
-                  tpass)); // translucent during translucent
+        && (((selecting || starthdata->IsOpaque || actor->GetForceOpaque()) &&
+              !tpass) // opaque during opaque or when selecting
+             || ((!starthdata->IsOpaque || actor->GetForceTranslucent()) && tpass &&
+                  !selecting)); // translucent during translucent and never selecting
       if (shouldDraw && starthdata->NextIndex[primType] > starthdata->StartIndex[primType])
       {
         // compilers think this can exceed the bounds so we also
