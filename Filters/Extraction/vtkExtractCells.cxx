@@ -71,7 +71,6 @@ struct AllElementsWork
   // CellWork API
   inline vtkIdType GetNumberOfCells() const { return this->NumberOfCells; }
   inline vtkIdType GetCellId(vtkIdType index) const { return index; }
-  inline vtkIdType MapPointId(vtkIdType id) const { return id; }
   inline void MapPointIds(vtkIdList*) const {};
 };
 
@@ -86,7 +85,7 @@ struct SubsetCellsWork
   inline vtkIdType GetCellId(vtkIdType index) const { return *std::next(this->Begin, index); }
   inline vtkIdType MapPointId(vtkIdType id) const
   {
-    assert(id >= 0 && id < this->PointMap.size());
+    assert(id >= 0 && id < static_cast<vtkIdType>(this->PointMap.size()));
     return this->PointMap[id];
   }
   inline void MapPointIds(vtkIdList* ids) const

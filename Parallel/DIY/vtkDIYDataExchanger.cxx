@@ -76,7 +76,7 @@ bool vtkDIYDataExchanger::AllToAll(const std::vector<vtkSmartPointer<vtkDataSet>
   {
     offsets[cc] = offsets[cc - 1] + sendCounts[cc - 1];
   }
-  assert((offsets.back() + sendCounts.back()) == sendBuffer.size());
+  assert((offsets.back() + sendCounts.back()) == static_cast<int>(sendBuffer.size()));
 
   // collect information from all ranks about who has data from whom. this helps
   // us setup links.
@@ -165,7 +165,7 @@ bool vtkDIYDataExchanger::AllToAll(const std::vector<vtkSmartPointer<vtkDataSet>
     });
 
   block = master.get<BlockT>(0);
-  assert(block != nullptr && block->size() == comm.size());
+  assert(block != nullptr && static_cast<int>(block->size()) == comm.size());
 
   recvBuffer.clear();
   recvCounts.clear();
