@@ -11,6 +11,7 @@ set(LagrangeGeometricOperations_ARGS
 
 vtk_add_test_python(
   dataSetSurfaceFilter.py
+  dataSetSurfaceFilter2.py,NO_DATA,NO_VALID,NO_OUTPUT
   geomFilter.py
   LagrangeGeometricOperations.py,JUST_VALID
   officeStreamPoints.py
