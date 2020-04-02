@@ -55,7 +55,9 @@ cmake_policy(VERSION 3.8...3.12)
 set(_vtk_temp_variables)
 set(_vtk_real_components)
 foreach (_vtk_component IN LISTS "${CMAKE_FIND_PACKAGE_NAME}_FIND_COMPONENTS")
-  if (_vtk_component MATCHES "^vtk" AND NOT _vtk_component STREQUAL "vtksys")
+  if (_vtk_component MATCHES "^vtk" AND
+      NOT _vtk_component STREQUAL "vtksys" AND
+      NOT _vtk_component STREQUAL "vtkjava")
     string(SUBSTRING "${_vtk_component}" 3 -1 _vtk_actual_component)
     if (NOT ${CMAKE_FIND_PACKAGE_NAME}_FIND_VERSION)
       if (NOT ${CMAKE_FIND_PACKAGE_NAME}_FIND_QUIETLY)
@@ -152,6 +154,24 @@ endif ()
 set("${CMAKE_FIND_PACKAGE_NAME}_WRAP_JAVA" "@VTK_WRAP_JAVA@")
 if (${CMAKE_FIND_PACKAGE_NAME}_WRAP_JAVA)
   include("${CMAKE_CURRENT_LIST_DIR}/vtkModuleWrapJava.cmake")
+
+  if (@VTK_JAVA_JOGL_COMPONENT@) # VTK_JAVA_JOGL_COMPONENT
+    set(_vtk_find_jogl_args)
+    if (${CMAKE_FIND_PACKAGE_NAME}_FIND_QUIETLY)
+      list(APPEND _vtk_find_jogl_args QUIET)
+    endif ()
+    find_package(JOGL ${_vtk_find_jogl_args})
+    unset(_vtk_find_jogl_args)
+
+    if (JOGL_FOUND)
+      include("${CMAKE_CURRENT_LIST_DIR}/VTKJava-targets.cmake")
+      set("${CMAKE_FIND_PACKAGE_NAME}_vtkjava_FOUND" 1)
+    else ()
+      set("${CMAKE_FIND_PACKAGE_NAME}_vtkjava_FOUND" 0)
+      set("${CMAKE_FIND_PACKAGE_NAME}_vtkjava_NOT_FOUND_MESSAGE"i
+        "JOGL was not found")
+    endif ()
+  endif ()
 endif ()
 
 set(_vtk_components_to_check)
@@ -259,6 +279,10 @@ if (NOT DEFINED "${CMAKE_FIND_PACKAGE_NAME}_FOUND")
     set(_vtk_found_components
       ${${CMAKE_FIND_PACKAGE_NAME}_AVAILABLE_COMPONENTS})
   endif ()
+  list(REMOVE _vtk_found_components
+    # This component needs to always be requested explicitly (it is not a
+    # module).
+    vtkjava)
   # Build the `_LIBRARIES` variable.
   foreach (_vtk_component IN LISTS _vtk_found_components)
     list(APPEND "${CMAKE_FIND_PACKAGE_NAME}_LIBRARIES"

@@ -60,6 +60,7 @@ set(vtk_cmake_module_files
   FindFreetype.cmake
   FindGL2PS.cmake
   FindGLEW.cmake
+  FindJOGL.cmake
   FindJsonCpp.cmake
   FindLibHaru.cmake
   FindLibPROJ.cmake

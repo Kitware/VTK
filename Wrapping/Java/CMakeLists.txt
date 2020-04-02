@@ -1,8 +1,14 @@
 include(vtkModuleWrapJava)
 vtk_module_wrap_java(
-  JAVA_OUTPUT     "${CMAKE_CURRENT_BINARY_DIR}/src/vtk"
+  JAVA_OUTPUT     "${CMAKE_CURRENT_BINARY_DIR}/vtk"
   MODULES         ${vtk_modules}
-  WRAPPED_MODULES vtk_java_wrapped_modules)
+  WRAPPED_MODULES vtk_java_wrapped_modules
+  LIBRARY_DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+  JNILIB_DESTINATION  "${CMAKE_INSTALL_LIBDIR}/java/vtk-${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
+
+# TODO: Make FindJava.cmake use imported targets.
+find_package(Java REQUIRED COMPONENTS Development)
+include(UseJava)
 
 option(VTK_JAVA_SWT_COMPONENT "Enable the SWT component for Java" OFF)
 if (VTK_JAVA_SWT_COMPONENT)
@@ -10,11 +16,10 @@ if (VTK_JAVA_SWT_COMPONENT)
 endif ()
 
 # Add the option for build the JOGL component to VTK.
-set(JOGL_VERSION "2.3.2")
 option(VTK_JAVA_JOGL_COMPONENT "Need JOGL jar files" OFF)
-
-# TODO: Make FindJava.cmake use imported targets.
-find_package(Java REQUIRED COMPONENTS Development)
+if (VTK_JAVA_JOGL_COMPONENT)
+  find_package(JOGL REQUIRED)
+endif ()
 
 set(java_sources
   vtk/CellType
@@ -90,14 +95,10 @@ if (TARGET VTK::FiltersModeling AND TARGET VTK::IOImage)
     vtk/sample/ImagePlaneWidget)
 endif ()
 
-set(vtk_java_class_output
-  "${CMAKE_CURRENT_BINARY_DIR}/class")
-file(MAKE_DIRECTORY "${vtk_java_class_output}")
-
 set(java_input_files)
 set(java_class_files)
 foreach (java_file IN LISTS java_sources)
-  set(output_file "${CMAKE_CURRENT_BINARY_DIR}/src/${java_file}.java")
+  set(output_file "${CMAKE_CURRENT_BINARY_DIR}/${java_file}.java")
   add_custom_command(
     OUTPUT  "${output_file}"
     DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${java_file}.java"
@@ -108,8 +109,6 @@ foreach (java_file IN LISTS java_sources)
 
   list(APPEND java_input_files
     "${output_file}")
-  list(APPEND java_class_files
-    "${vtk_java_class_output}/${java_file}.class")
 endforeach ()
 
 set(vtk_java_native_libraries)
@@ -124,8 +123,6 @@ foreach (_vtk_java_module IN LISTS vtk_java_wrapped_modules)
     PROPERTY  "_vtk_module_java_files")
   list(APPEND java_input_files
     ${_vtk_module_java_files})
-  #list(APPEND java_class_files
-  #  "${vtk_java_class_output}/${java_file}.class")
 
   string(APPEND vtk_java_native_libraries
     "  ${_vtk_java_library_name}(\"${_vtk_java_library_name}Java\"),\n")
@@ -139,202 +136,92 @@ set(java_configure_sources
   vtk/vtkSettings)
 
 foreach (java_file IN LISTS java_configure_sources)
-  set(output_file "${CMAKE_CURRENT_BINARY_DIR}/src/${java_file}.java")
+  set(output_file "${CMAKE_CURRENT_BINARY_DIR}/${java_file}.java")
   configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/${java_file}.java.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/src/${java_file}.java"
+    "${CMAKE_CURRENT_BINARY_DIR}/${java_file}.java"
     @ONLY)
 
   list(APPEND java_input_files
     "${output_file}")
-  list(APPEND java_class_files
-    "${vtk_java_class_output}/${java_file}.class")
 endforeach ()
 
-set(vtk_java_rsp_file
-  "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/java_files.rsp")
-
-file(GENERATE
-  OUTPUT  "${vtk_java_rsp_file}"
-  CONTENT "\'$<JOIN:${java_input_files},\'\n\'>\'\n")
-
 # Set the javac source version
-set(VTK_JAVA_SOURCE_VERSION "1.6" CACHE STRING "javac source version")
+set(VTK_JAVA_SOURCE_VERSION "<DEFAULT>" CACHE STRING "javac source version")
 mark_as_advanced(VTK_JAVA_SOURCE_VERSION)
-set(VTK_JAVA_TARGET_VERSION "1.6" CACHE STRING "javac target version")
+set(VTK_JAVA_TARGET_VERSION "<DEFAULT>" CACHE STRING "javac target version")
 mark_as_advanced(VTK_JAVA_TARGET_VERSION)
 
-set(vtk_compile_classpath)
-if (VTK_JAVA_SWT_COMPONENT)
-  list(APPEND vtk_compile_classpath
-    ${ECLIPSE_SWT_LIBRARIES})
+if (VTK_JAVA_SOURCE_VERSION STREQUAL "<DEFAULT>")
+  set(VTK_JAVA_SOURCE_VERSION "1.6")
 endif ()
+if (VTK_JAVA_TARGET_VERSION STREQUAL "<DEFAULT>")
+  set(VTK_JAVA_TARGET_VERSION "1.6")
+endif ()
+
+set(CMAKE_INSTALL_JARDIR "<LIBDIR>/java"
+  CACHE STRING "Java jar files (LIBDIR/java)")
+string(REPLACE "<LIBDIR>" "${CMAKE_INSTALL_LIBDIR}" CMAKE_INSTALL_JARDIR "${CMAKE_INSTALL_JARDIR}")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_JARDIR}")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_JARDIR}")
+
+set(classpath_separator ":")
+if (WIN32)
+  set(classpath_separator "\\;")
+endif ()
+set(java_classpath
+  "${CMAKE_CURRENT_BINARY_DIR}")
 if (VTK_JAVA_JOGL_COMPONENT)
-  list(APPEND vtk_compile_classpath
-    ${JOGL_LIB}
-    ${JOGL_GLUE})
+  list(APPEND java_classpath
+    "$<TARGET_PROPERTY:JOGL::glue,LOCATION>"
+    "$<TARGET_PROPERTY:JOGL::JOGL,LOCATION>")
 endif ()
-
-set(vtk_java_classpath_arguments)
-if (vtk_compile_classpath)
-  set(classpath_separator ":")
-  if (WIN32)
-    set(classpath_separator "\\;")
-  endif ()
-
-  string(REPLACE ";" "${classpath_separator}" vtk_compile_classpath "${vtk_compile_classpath}")
-  set(vtk_java_classpath_arguments
-    -classpath "${vtk_compile_classpath}")
+if (VTK_JAVA_SWT_COMPONENT)
+  list(APPEND java_classpath
+    ${SWT_ECLIPSE_LIBRARIES})
 endif ()
+string(REPLACE ";" "${classpath_separator}" java_classpath "${java_classpath}")
 
-add_custom_command(
-  OUTPUT  ${java_class_files}
-  DEPENDS ${java_input_files}
-  COMMAND "${Java_JAVAC_EXECUTABLE}"
-          ${vtk_java_classpath_arguments}
-          -source "${VTK_JAVA_SOURCE_VERSION}"
-          -target "${VTK_JAVA_TARGET_VERSION}"
-          -d "${vtk_java_class_output}"
-          "@${vtk_java_rsp_file}"
-  COMMENT "Compiling Java Classes")
+add_library(vtkjava STATIC
+  ${java_input_files})
+add_library(VTK::vtkjava ALIAS vtkjava)
+set_property(TARGET vtkjava
+  PROPERTY
+    LINKER_LANGUAGE Java)
+set_property(TARGET vtkjava
+  PROPERTY
+    OUTPUT_NAME "vtk")
+target_include_directories(vtkjava
+  PRIVATE
+    "${CMAKE_CURRENT_BINARY_DIR}")
+target_compile_options(vtkjava
+  PRIVATE
+    # TODO(java): Why does adding this to the include directories not work?
+    "SHELL:-classpath ${java_classpath}"
+    "SHELL:-source ${VTK_JAVA_SOURCE_VERSION}"
+    "SHELL:-target ${VTK_JAVA_TARGET_VERSION}")
+target_link_libraries(vtkjava
+  PRIVATE
+    $<$<BOOL:${VTK_JAVA_SWT_COMPONENT}>:${SWT_ECLIPSE_LIBRARIES}>
+    "$<$<BOOL:${VTK_JAVA_JOGL_COMPONENT}>:JOGL::JOGL>")
 
-set(vtk_jar_file
-  "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/vtk.jar")
-
-add_custom_command(
-  OUTPUT  "${vtk_jar_file}"
-  DEPENDS ${java_class_files}
-  COMMAND "${Java_JAR_EXECUTABLE}"
-          -cvf "${vtk_jar_file}"
-          -C "${vtk_java_class_output}"
-          vtk
-  COMMENT "Creating vtk.jar")
-
-add_custom_target(vtkjava ALL
-  DEPENDS
-    "${vtk_jar_file}")
-
-set_directory_properties(PROPERTIES
-  ADDITIONAL_MAKE_CLEAN_FILES
-    "${java_class_files};${vtk_jar_file}")
-#install(
-#  FILES       "${vtk_jar_file}"
-#  DESTINATION "${VTK_INSTALL_JAVA_DIR}"
-#  COMPONENT   "runtime")
+install(
+  TARGETS vtkjava
+  EXPORT VTKJava
+  COMPONENT "jar"
+  ARCHIVE DESTINATION "${CMAKE_INSTALL_JARDIR}"
+  LIBRARY DESTINATION "${CMAKE_INSTALL_JARDIR}")
+export(
+  EXPORT    VTKJava
+  NAMESPACE VTK::
+  FILE      "${CMAKE_BINARY_DIR}/${vtk_cmake_destination}/VTKJava-targets.cmake")
+install(
+  EXPORT    VTKJava
+  NAMESPACE VTK::
+  FILE      "VTKJava-targets.cmake"
+  DESTINATION "${vtk_cmake_destination}"
+  COMPONENT "development")
 
 if (BUILD_TESTING AND TARGET VTK::TestingRendering)
   add_subdirectory(Testing)
 endif ()
-
-return ()
-
-# Add the option to package VTK for custom Java packaging
-option(VTK_JAVA_INSTALL "Use the Java rules to build the native libraries." OFF)
-
-if (VTK_JAVA_INSTALL)
-  # Make sure we embed the runtime libraries when packaging the Java binaries
-  if (WIN32)
-    # install system runtimes.
-    set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION "bin")
-    include(InstallRequiredSystemLibraries)
-  endif ()
-
-  if (APPLE)
-    set(CMAKE_INSTALL_NAME_DIR @loader_path CACHE STRING "" FORCE)
-    mark_as_advanced(CMAKE_INSTALL_NAME_DIR)
-  endif ()
-  if (NOT MAVEN_LOCAL_NATIVE_NAME)
-    set(MAVEN_LOCAL_NATIVE_NAME "${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}" CACHE STRING "")
-  endif ()
-  if (NOT MAVEN_NATIVE_ARTIFACTS)
-    set(MAVEN_NATIVE_ARTIFACTS "${MAVEN_LOCAL_NATIVE_NAME}" CACHE STRING "")
-  endif ()
-  if (NOT MAVEN_LOCAL_REPOSITORY)
-    set(MAVEN_LOCAL_REPOSITORY "\${user.home}/vtk-maven-repos" CACHE STRING "")
-  endif ()
-  if (NOT MAVEN_VTK_GROUP_ID)
-    set(MAVEN_VTK_GROUP_ID "kitware.community" CACHE STRING "")
-  endif ()
-  mark_as_advanced(
-    MAVEN_LOCAL_REPOSITORY
-    MAVEN_NATIVE_ARTIFACTS
-    MAVEN_LOCAL_NATIVE_NAME
-    MAVEN_VTK_GROUP_ID)
-  set(MAVEN_DEPENDENCY_XML)
-endif ()
-
-if (VTK_JAVA_JOGL_COMPONENT OR VTK_JAVA_SWT_COMPONENT)
-  set(MAVEN_REPO "$ENV{HOME}/.m2/repository")
-  find_file(JOGL_LIB jogl-all-${JOGL_VERSION}.jar PATHS ${MAVEN_REPO}/org/jogamp/jogl/jogl-all/${JOGL_VERSION} )
-  find_file(JOGL_GLUE gluegen-rt-${JOGL_VERSION}.jar PATHS ${MAVEN_REPO}/org/jogamp/gluegen/gluegen-rt/${JOGL_VERSION})
-  mark_as_advanced(JOGL_LIB JOGL_GLUE)
-  set(vars)
-  if (VTK_JAVA_JOGL_COMPONENT)
-    list(APPEND vars VTK_JAVA_JOGL_COMPONENT)
-  endif ()
-  if (VTK_JAVA_SWT_COMPONENT)
-    list(APPEND vars VTK_JAVA_SWT_COMPONENT)
-  endif ()
-  string(REPLACE ";" ", " vars "${vars}")
-  if (NOT JOGL_LIB)
-    message(SEND_ERROR
-      "CMake can not build VTK with ${vars} ON if the jar JOGL file is not "
-      "provided. Please set the JOGL_LIB variable.")
-  endif ()
-  if (NOT JOGL_GLUE)
-    message(SEND_ERROR
-      "CMake can not build VTK with ${vars} ON if the jar GLUE file is not "
-      "provided. Please set the JOGL_GLUE variable.")
-  endif ()
-endif ()
-
-# javac runs out memory on Mac so increase heapsize
-if (APPLE)
-  set(JAVAC_OPTIONS -J-Xmx512m)
-endif ()
-
-if (NOT VTK_JAR_PATH)
-  set(VTK_JAR_PATH "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
-endif ()
-
-if (JAVA_AWT_LIBRARY)
-  foreach (__java_library IN LISTS JAVA_AWT_LIBRARY)
-    get_filename_component(JAVA_LIB_DIR ${__java_library} PATH)
-    if (EXISTS ${JAVA_LIB_DIR}/xawt)
-      link_directories(${JAVA_LIB_DIR}/xawt)
-    endif ()
-    if (EXISTS ${JAVA_LIB_DIR}/client)
-      link_directories(${JAVA_LIB_DIR}/client)
-    endif ()
-    if (EXISTS ${JAVA_LIB_DIR}/server)
-      link_directories(${JAVA_LIB_DIR}/server)
-    endif ()
-  endforeach ()
-endif ()
-
-if(WIN32)
-  set(SEPARATOR "\\;")
-else()
-  set(SEPARATOR ":")
-endif()
-
-#-----------------------------------------------------------------------------
-# Post-Install script for Custom Java Packaging
-# This install rule MUST stay at the bottom of that CMakeLists file as
-# it has to be the last install rule that get executed
-if(VTK_JAVA_INSTALL)
-  set(MAVEN_NATIVE_ARTIFACT_XML)
-  foreach(native_name ${MAVEN_NATIVE_ARTIFACTS})
-     set(MAVEN_NATIVE_ARTIFACT_XML "${MAVEN_NATIVE_ARTIFACT_XML}\n                                <artifact><file>vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}-natives-${native_name}.jar</file><classifier>natives-${native_name}</classifier><type>jar</type></artifact>")
-  endforeach()
-  if(VTK_JAVA_JOGL_COMPONENT)
-    set(MAVEN_DEPENDENCY_XML "${MAVEN_DEPENDENCY_XML}\n      <dependency><groupId>org.jogamp.jogl</groupId><artifactId>jogl-all-main</artifactId><version>${JOGL_VERSION}</version></dependency>\n      <dependency><groupId>org.jogamp.gluegen</groupId><artifactId>gluegen-rt-main</artifactId><version>${JOGL_VERSION}</version></dependency>")
-  endif()
-  configure_file(JavaInstall.cmake.in
-               ${VTK_BINARY_DIR}/JavaInstall.cmake @ONLY)
-  configure_file(Maven/pom.xml.in
-               ${VTK_BINARY_DIR}/pom.xml @ONLY)
-  configure_file(Maven/README.txt.in
-               ${VTK_BINARY_DIR}/MAVEN-README.txt @ONLY)
-  install(SCRIPT ${VTK_BINARY_DIR}/JavaInstall.cmake)
-endif()
