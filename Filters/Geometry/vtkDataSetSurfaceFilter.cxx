@@ -1582,7 +1582,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet* dataSetInput, v
   newVerts = vtkCellArray::New();
   newLines = vtkCellArray::New();
 
-  if (handleSubdivision == false)
+  if (this->NonlinearSubdivisionLevel < 2)
   {
     outputPD->CopyGlobalIdsOn();
     outputPD->CopyAllocate(inputPD, numPts, numPts / 2);
