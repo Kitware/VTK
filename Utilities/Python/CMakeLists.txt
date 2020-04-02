@@ -37,7 +37,7 @@ if (VTK_PYTHON_VERSION STREQUAL "2")
   vtk_module_find_package(
     PACKAGE Python2
     VERSION "${vtk_python_min_version}"
-    COMPONENTS Development
+    COMPONENTS Interpreter Development
     FORWARD_VERSION_REQ MINOR)
 elseif (VTK_PYTHON_VERSION STREQUAL "3")
   set(vtk_python_min_version "3.2")
@@ -48,7 +48,7 @@ elseif (VTK_PYTHON_VERSION STREQUAL "3")
   vtk_module_find_package(
     PACKAGE Python3
     VERSION "${vtk_python_min_version}"
-    COMPONENTS Development
+    COMPONENTS Interpreter Development
     FORWARD_VERSION_REQ MINOR)
 else ()
   message(FATAL_ERROR
