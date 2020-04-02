@@ -27,7 +27,7 @@ Bugs:
 """
 
 import gtk, GDK, gtkgl
-from vtkmodules.vtkRenderingCore import vtkGenericRenderWindowInteractor
+from vtkmodules.vtkRenderingUI import vtkGenericRenderWindowInteractor
 import math
 
 
