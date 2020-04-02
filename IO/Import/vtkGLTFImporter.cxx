@@ -217,7 +217,7 @@ void ApplyGLTFMaterialToVTKActor(std::shared_ptr<vtkGLTFDocumentLoader::Model> m
     vtkNew<vtkInformation> info;
     actor->SetPropertyKeys(info);
   }
-  double mat[] = { 1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
+  double mat[] = { 1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1 };
   actor->GetPropertyKeys()->Set(vtkProp::GeneralTextureTransform(), mat, 16);
 
   if (!material.DoubleSided)
