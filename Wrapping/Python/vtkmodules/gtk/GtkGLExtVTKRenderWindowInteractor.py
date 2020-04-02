@@ -29,7 +29,8 @@ pygtk.require('2.0')
 import gtk
 from gtk import gdk
 import gtk.gtkgl
-from vtkmodules.vtkRenderingCore import vtkGenericRenderWindowInteractor, vtkRenderWindow
+from vtkmodules.vtkRenderingCore import vtkRenderWindow
+from vtkmodules.vtkRenderingUI import vtkGenericRenderWindowInteractor
 
 class GtkGLExtVTKRenderWindowInteractor(gtk.gtkgl.DrawingArea):
 
