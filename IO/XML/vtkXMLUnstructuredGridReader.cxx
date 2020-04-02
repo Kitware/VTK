@@ -132,6 +132,7 @@ void vtkXMLUnstructuredGridReader::SetupOutputData()
   // Setup the output's cell arrays.
   vtkNew<vtkUnsignedCharArray> cellTypes;
   cellTypes->SetNumberOfTuples(this->GetNumberOfCells());
+  cellTypes->FillValue(VTK_EMPTY_CELL);
   vtkNew<vtkCellArray> outCells;
 
   output->SetCells(cellTypes, outCells);
