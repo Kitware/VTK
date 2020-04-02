@@ -489,8 +489,8 @@ private:
 #define vtkLogScopeF(verbosity_name, ...)                                                          \
   vtkVLogScopeF(vtkLogger::VERBOSITY_##verbosity_name, __VA_ARGS__)
 
-#define vtkLogScopeFunction(verbosity_name) vtkLogScopeF(verbosity_name, __func__)
-#define vtkVLogScopeFunction(level) vtkVLogScopeF(level, __func__)
+#define vtkLogScopeFunction(verbosity_name) vtkLogScopeF(verbosity_name, "%s", __func__)
+#define vtkVLogScopeFunction(level) vtkVLogScopeF(level, "%s", __func__)
 
 //@{
 /**
