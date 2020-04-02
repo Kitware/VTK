@@ -37,6 +37,16 @@
 class VTKFILTERSCORE_EXPORT vtkMaskPoints : public vtkPolyDataAlgorithm
 {
 public:
+  // Method used to pick points
+  enum DistributionType
+  {
+    RANDOMIZED_ID_STRIDES,
+    RANDOM_SAMPLING,
+    SPATIALLY_STRATIFIED,
+    UNIFORM_SPATIAL_SURFACE,
+    UNIFORM_SPATIAL_VOLUME
+  };
+
   static vtkMaskPoints* New();
   vtkTypeMacro(vtkMaskPoints, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
@@ -70,9 +80,18 @@ public:
   /**
    * Special flag causes randomization of point selection.
    */
-  vtkSetMacro(RandomMode, vtkTypeBool);
-  vtkGetMacro(RandomMode, vtkTypeBool);
-  vtkBooleanMacro(RandomMode, vtkTypeBool);
+  vtkSetMacro(RandomMode, bool);
+  vtkGetMacro(RandomMode, bool);
+  vtkBooleanMacro(RandomMode, bool);
+  //@}
+
+  //@{
+  /**
+   * Set/Get Seed used for generating a spatially uniform distributions.
+   * default is 1.
+   */
+  vtkSetMacro(RandomSeed, int);
+  vtkGetMacro(RandomSeed, int);
   //@}
 
   //@{
@@ -96,8 +115,14 @@ public:
    * Simulation for Interactive Visualization and Analysis",
    * Computer Graphics Forum, 2011 (EuroVis 2011).
    * (OnRatio and Offset are ignored) O(N log N)
+   * 3 - spatially uniform (surface based): points randomly sampled
+   * via an inverse transform on surface area of each cell.
+   * Note that 3D cells are ignored.
+   * 4 - spatially uniform (volume based): points randomly sampled via an
+   * inverse transform on volume area of each cell.
+   * Note that 2D cells are ignored.
    */
-  vtkSetClampMacro(RandomModeType, int, 0, 2);
+  vtkSetClampMacro(RandomModeType, int, RANDOMIZED_ID_STRIDES, UNIFORM_SPATIAL_VOLUME);
   vtkGetMacro(RandomModeType, int);
   //@}
 
@@ -115,9 +140,9 @@ public:
    * number of processors.  In the second case, the total number of
    * points = maximum number of points.
    */
-  vtkSetMacro(ProportionalMaximumNumberOfPoints, vtkTypeBool);
-  vtkGetMacro(ProportionalMaximumNumberOfPoints, vtkTypeBool);
-  vtkBooleanMacro(ProportionalMaximumNumberOfPoints, vtkTypeBool);
+  vtkSetMacro(ProportionalMaximumNumberOfPoints, bool);
+  vtkGetMacro(ProportionalMaximumNumberOfPoints, bool);
+  vtkBooleanMacro(ProportionalMaximumNumberOfPoints, bool);
   //@}
 
   //@{
@@ -126,9 +151,9 @@ public:
    * convenience method because vertices are drawn (they are topology) while
    * points are not (they are geometry). By default this method is off.
    */
-  vtkSetMacro(GenerateVertices, vtkTypeBool);
-  vtkGetMacro(GenerateVertices, vtkTypeBool);
-  vtkBooleanMacro(GenerateVertices, vtkTypeBool);
+  vtkSetMacro(GenerateVertices, bool);
+  vtkGetMacro(GenerateVertices, bool);
+  vtkBooleanMacro(GenerateVertices, bool);
   //@}
 
   //@{
@@ -137,9 +162,9 @@ public:
    * as multi-vertex cells (more than one per cell), if you wish to have
    * a single vertex per cell, enable this flag.
    */
-  vtkSetMacro(SingleVertexPerCell, vtkTypeBool);
-  vtkGetMacro(SingleVertexPerCell, vtkTypeBool);
-  vtkBooleanMacro(SingleVertexPerCell, vtkTypeBool);
+  vtkSetMacro(SingleVertexPerCell, bool);
+  vtkGetMacro(SingleVertexPerCell, bool);
+  vtkBooleanMacro(SingleVertexPerCell, bool);
   //@}
 
   //@{
@@ -154,29 +179,34 @@ public:
 
 protected:
   vtkMaskPoints();
-  ~vtkMaskPoints() override {}
+  ~vtkMaskPoints() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  int OnRatio;      // every OnRatio point is on; all others are off.
-  vtkIdType Offset; // offset (or starting point id)
-  int RandomMode;   // turn on/off randomization
+  int OnRatio = 2;         // every OnRatio point is on; all others are off.
+  vtkIdType Offset = 0;    // or starting point id.
+  bool RandomMode = false; // turn on/off randomization.
+  int RandomSeed = 1;
   vtkIdType MaximumNumberOfPoints;
-  vtkTypeBool GenerateVertices; // generate polydata verts
-  vtkTypeBool SingleVertexPerCell;
-  int RandomModeType; // choose the random sampling mode
-  vtkTypeBool ProportionalMaximumNumberOfPoints;
-  int OutputPointsPrecision;
+  bool GenerateVertices = false; // generate polydata verts
+  bool SingleVertexPerCell = false;
+  int RandomModeType = RANDOMIZED_ID_STRIDES;
+  bool ProportionalMaximumNumberOfPoints = false;
+  int OutputPointsPrecision = DEFAULT_PRECISION;
 
   virtual void InternalScatter(unsigned long*, unsigned long*, int, int) {}
   virtual void InternalGather(unsigned long*, unsigned long*, int, int) {}
+  virtual void InternalBroadcast(double*, int, int) {}
+  virtual void InternalGather(double*, double*, int, int) {}
   virtual int InternalGetNumberOfProcesses() { return 1; }
   virtual int InternalGetLocalProcessId() { return 0; }
   virtual void InternalSplitController(int, int) {}
   virtual void InternalResetController() {}
   virtual void InternalBarrier() {}
+
   unsigned long GetLocalSampleSize(vtkIdType, int);
+  double GetLocalAreaFactor(double, int);
 
 private:
   vtkMaskPoints(const vtkMaskPoints&) = delete;

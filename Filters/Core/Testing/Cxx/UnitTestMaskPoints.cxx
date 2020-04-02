@@ -95,7 +95,7 @@ int UnitTestMaskPoints(int, char*[])
     std::cout << "PASSED" << std::endl;
   }
 
-  std::cout << "Testing RandomModeType(1)...";
+  std::cout << "Testing RandomModeType(2)...";
   mask0->SetRandomModeType(2);
   mask0->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
   mask0->Update();
@@ -134,29 +134,12 @@ int UnitTestMaskPoints(int, char*[])
   // Print an initialized object
   mask0->Print(print0);
 
-  // Error conditions
-  std::cout << "Testing Error conditions...";
-  vtkSmartPointer<vtkTest::ErrorObserver> errorObserver =
-    vtkSmartPointer<vtkTest::ErrorObserver>::New();
-  mask0->AddObserver(vtkCommand::ErrorEvent, errorObserver);
-  mask0->SetInputData(MakePolyData(0));
-  mask0->Update();
-  int status1 = errorObserver->CheckErrorMessage("No points to mask");
-  if (status1)
-  {
-    std::cout << "FAILED" << std::endl;
-  }
-  else
-  {
-    std::cout << "PASSED" << std::endl;
-  }
-
   // Suppress the debug output
   vtkObject::GlobalWarningDisplayOff();
 
   std::cout << "Testing SingleVertexPerCell...";
   mask0->SetInputData(MakePolyData(1000));
-  mask0->SetRandomModeType(3);
+  mask0->SetRandomModeType(2);
   mask0->SetOutputPointsPrecision(vtkAlgorithm::SINGLE_PRECISION);
   mask0->SingleVertexPerCellOn();
   mask0->DebugOn();
