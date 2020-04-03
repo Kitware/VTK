@@ -217,7 +217,7 @@ static double GetNearestPointRadius(double bounds[3], vtkIdType maximumNumberOfP
     assert(maximumNumberOfPoints > 0);
     double volumePerGlyph = volume / maximumNumberOfPoints;
     double delta = std::pow(volumePerGlyph, 1.0 / dim);
-    return delta / 2.0;
+    return delta * 0.5;
   }
   else
   {
@@ -610,7 +610,7 @@ int vtkMaskPoints::RequestData(vtkInformation* vtkNotUsed(request),
       {
         double bounds[6];
         input->GetBounds(bounds);
-        double nearestPointRadius = GetNearestPointRadius(bounds, numNewPts);
+        double nearestPointRadius = ::GetNearestPointRadius(bounds, numNewPts);
 
         vtkNew<vtkOctreePointLocator> pointLocator;
         pointLocator->Initialize();
@@ -627,9 +627,9 @@ int vtkMaskPoints::RequestData(vtkInformation* vtkNotUsed(request),
           // to the global area.
           vtkBoundingBox boundingBox;
           boundingBox.AddBounds(bounds);
-          const double localVolume = boundingBox.GetDiagonalLength();
+          const double localAreaEstimator = boundingBox.GetDiagonalLength();
           const double localAreaFactor =
-            this->GetLocalAreaFactor(localVolume, this->InternalGetNumberOfProcesses());
+            this->GetLocalAreaFactor(localAreaEstimator, this->InternalGetNumberOfProcesses());
           numAddedPts = this->MaximumNumberOfPoints * localAreaFactor;
         }
 
