@@ -296,6 +296,8 @@ void vtkMFCWindow::OnMouseMove(UINT nFlags, CPoint point)
 
 BOOL vtkMFCWindow::OnMouseWheel(UINT nFlags, short zDelta, CPoint point)
 {
+  // Point is in screen space, translate to the client space.
+  ScreenToClient(&point);
   if (zDelta > 0)
     static_cast<vtkWin32RenderWindowInteractor*>(this->GetInteractor())
       ->OnMouseWheelForward(this->GetSafeHwnd(), nFlags, point.x, point.y);
