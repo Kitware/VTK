@@ -1,0 +1,21 @@
+NAME
+  VTK::IOHDF
+LIBRARY_NAME
+  vtkIOHDF
+KIT
+  VTK::IO
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::FiltersCore
+PRIVATE_DEPENDS
+  VTK::CommonSystem
+  VTK::hdf5
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::IOXML
+  VTK::TestingCore
+  VTK::TestingRendering
