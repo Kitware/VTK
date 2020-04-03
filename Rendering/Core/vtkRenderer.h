@@ -350,11 +350,8 @@ public:
   //@{
   /**
    * Reset the camera clipping range based on a bounding box.
-   * This method is called from ResetCameraClippingRange()
-   * If Deering frustrum is used then the bounds get expanded
-   * by the camera's modelview matrix.
    */
-  virtual void ResetCameraClippingRange(double bounds[6]);
+  virtual void ResetCameraClippingRange(const double bounds[6]);
   virtual void ResetCameraClippingRange(
     double xmin, double xmax, double ymin, double ymax, double zmin, double zmax);
   //@}
@@ -392,11 +389,11 @@ public:
    * (xmin,xmax, ymin,ymax, zmin,zmax). Camera will reposition itself so
    * that its focal point is the center of the bounding box, and adjust its
    * distance and position to preserve its initial view plane normal
-   * (i.e., vector defined from camera position to focal point). Note: is
+   * (i.e., vector defined from camera position to focal point). Note: if
    * the view plane is parallel to the view up axis, the view up axis will
    * be reset to one of the three coordinate axes.
    */
-  virtual void ResetCamera(double bounds[6]);
+  virtual void ResetCamera(const double bounds[6]);
 
   /**
    * Alternative version of ResetCamera(bounds[6]);
@@ -792,7 +789,7 @@ protected:
 
   // internal method to expand bounding box to consider model transform
   // matrix or model view transform matrix based on whether or not deering
-  // frustum is used.
+  // frustum is used. 'bounds' buffer is mutated to the expanded box.
   virtual void ExpandBounds(double bounds[6], vtkMatrix4x4* matrix);
 
   vtkCamera* ActiveCamera;
