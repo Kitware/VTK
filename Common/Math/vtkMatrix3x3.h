@@ -174,7 +174,7 @@ public:
   /**
    * Return a pointer to the first element of the matrix (double[9]).
    */
-  double* GetData() { return *this->Element; }
+  double* GetData() VTK_SIZEHINT(9) { return *this->Element; }
 
   /**
    * Return a pointer to the first element of the matrix (double[9]).
