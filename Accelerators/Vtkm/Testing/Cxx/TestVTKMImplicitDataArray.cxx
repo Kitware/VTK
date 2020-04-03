@@ -30,7 +30,8 @@ int TestVTKMImplicitDataArray(int, char*[])
   vtkNew<vtkImageData> imageData;
   {
     std::array<double, 6> boundingBox = { 0, 3, 0, 3, 0, 2 };
-    imageData->SetDimensions(dimension, dimension, dimension);
+    imageData->SetDimensions(
+      static_cast<int>(dimension), static_cast<int>(dimension), static_cast<int>(dimension));
     imageData->SetSpacing((boundingBox[1] - boundingBox[0]) / dimension,
       (boundingBox[3] - boundingBox[2]) / dimension, (boundingBox[5] - boundingBox[4]) / dimension);
     imageData->SetOrigin(boundingBox[0], boundingBox[2], boundingBox[4]);
