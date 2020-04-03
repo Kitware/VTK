@@ -704,7 +704,7 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
       char* data = nullptr;
       Atom actualType;
       int actualFormat;
-      ulong itemCount, bytesAfter;
+      unsigned long itemCount, bytesAfter;
       XGetWindowProperty(this->DisplayId, event->xselection.requestor, event->xselection.property,
         0, LONG_MAX, False, event->xselection.target, &actualType, &actualFormat, &itemCount,
         &bytesAfter, (unsigned char**)&data);
