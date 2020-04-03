@@ -88,7 +88,9 @@ public:
    * The bug is fixed on macOS 10.11 and later, and this method
    * will return false when the OS is new enough.
    */
+#ifndef VTK_LEGACY_REMOVE
   bool HaveApplePrimitiveIdBug();
+#endif
 
   /**
    * Indicate if this system is subject to the apple/NVIDIA bug that causes
