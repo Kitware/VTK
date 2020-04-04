@@ -400,6 +400,21 @@ public:
   bool SetData(vtkDataArray* offsets, vtkDataArray* connectivity);
 
   /**
+   * Sets the internal arrays to the supported connectivity array with an
+   * offsets array automatically generated given the fixed cells size.
+   *
+   * This is a convenience method, and may fail if the following conditions
+   * are not met:
+   *
+   * - The `connectivity` array must be one of the types in InputArrayList.
+   * - The `connectivity` array size must be a multiple of `cellSize`.
+   *
+   * If invalid arrays are passed in, an error is logged and the function
+   * will return false.
+   */
+  bool SetData(vtkIdType cellSize, vtkDataArray* connectivity);
+
+  /**
    * @return True if the internal storage is using 64 bit arrays. If false,
    * the storage is using 32 bit arrays.
    */

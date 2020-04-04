@@ -879,6 +879,22 @@ struct SetDataGenericImpl
   }
 };
 
+struct GenerateOffsetsImpl
+{
+  vtkIdType CellSize;
+  vtkIdType ConnectivityArraySize;
+
+  template <typename ArrayT>
+  void operator()(ArrayT* offsets)
+  {
+    for (vtkIdType cc = 0, max = (offsets->GetNumberOfTuples() - 1); cc < max; ++cc)
+    {
+      offsets->SetTypedComponent(cc, 0, cc * this->CellSize);
+    }
+    offsets->SetTypedComponent(offsets->GetNumberOfTuples() - 1, 0, this->ConnectivityArraySize);
+  }
+};
+
 } // end anon namespace
 
 //------------------------------------------------------------------------------
@@ -902,6 +918,38 @@ bool vtkCellArray::SetData(vtkDataArray* offsets, vtkDataArray* connectivity)
   }
 
   return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkCellArray::SetData(vtkIdType cellSize, vtkDataArray* connectivity)
+{
+  if (connectivity == nullptr || cellSize <= 0)
+  {
+    vtkErrorMacro("Invalid cellSize or connectivity array.");
+    return false;
+  }
+
+  if ((connectivity->GetNumberOfTuples() % cellSize) != 0)
+  {
+    vtkErrorMacro("Connectivity array size is not suitable for chosen cellSize");
+    return false;
+  }
+
+  vtkSmartPointer<vtkDataArray> offsets;
+  offsets.TakeReference(connectivity->NewInstance());
+  offsets->SetNumberOfTuples(1 + connectivity->GetNumberOfTuples() / cellSize);
+
+  GenerateOffsetsImpl worker{ cellSize, connectivity->GetNumberOfTuples() };
+  using SupportedArrays = vtkCellArray::InputArrayList;
+  using Dispatch = vtkArrayDispatch::DispatchByArray<SupportedArrays>;
+  if (!Dispatch::Execute(offsets, worker))
+  {
+    vtkErrorMacro("Invalid array types passed to SetData: "
+      << "connectivity=" << connectivity->GetClassName());
+    return false;
+  }
+
+  return this->SetData(offsets, connectivity);
 }
 
 //------------------------------------------------------------------------------
