@@ -281,16 +281,10 @@ int vtkHigherOrderQuadrilateral::Triangulate(
   pts->Reset();
 
   vtkIdType nquad = vtkHigherOrderInterpolation::NumberOfIntervals<2>(this->GetOrder());
-  vtkVector3i ijk;
   for (int i = 0; i < nquad; ++i)
   {
     vtkQuad* approx = this->GetApproximateQuad(i);
-    if (!this->SubCellCoordinatesFromId(ijk, i))
-    {
-      continue;
-    }
-    if (approx->Triangulate(
-          (ijk[0] + ijk[1] + ijk[2]) % 2, this->TmpIds.GetPointer(), this->TmpPts.GetPointer()))
+    if (approx->Triangulate(1, this->TmpIds.GetPointer(), this->TmpPts.GetPointer()))
     {
       // Sigh. Triangulate methods all reset their points/ids
       // so we must copy them to our output.
