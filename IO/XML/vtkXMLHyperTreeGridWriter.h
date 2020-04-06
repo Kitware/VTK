@@ -168,8 +168,8 @@ protected:
   int NumberOfTrees;
 
   // Default choice
-  int DataSetMajorVersion = 1;
-  int DataSetMinorVersion = 0;
+  int DataSetMajorVersion;
+  int DataSetMinorVersion;
 
 private:
   vtkXMLHyperTreeGridWriter(const vtkXMLHyperTreeGridWriter&) = delete;
