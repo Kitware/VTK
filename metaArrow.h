@@ -39,7 +39,7 @@ namespace METAIO_NAMESPACE {
 #endif
 
 class METAIO_EXPORT MetaArrow : public MetaObject
-  {
+{
 
   /////
   //
@@ -98,7 +98,7 @@ class METAIO_EXPORT MetaArrow : public MetaObject
 
     double M_Direction[10];
 
-  };
+};
 
 #if (METAIO_USE_NAMESPACE)
 };

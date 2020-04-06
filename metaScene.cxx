@@ -53,7 +53,7 @@ MetaScene()
 {
   if(META_DEBUG)
     {
-    METAIO_STREAM::cout << "MetaScene()" << METAIO_STREAM::endl;
+    std::cout << "MetaScene()" << std::endl;
     }
   Clear();
 }
@@ -66,7 +66,7 @@ MetaScene::
 {
   if(META_DEBUG)
     {
-    METAIO_STREAM::cout << "MetaScene()" << METAIO_STREAM::endl;
+    std::cout << "MetaScene()" << std::endl;
     }
   Clear();
   CopyInfo(_scene);
@@ -79,7 +79,7 @@ MetaScene::
 {
   if(META_DEBUG)
     {
-    METAIO_STREAM::cout << "MetaScene()" << METAIO_STREAM::endl;
+    std::cout << "MetaScene()" << std::endl;
     }
   Clear();
 }
@@ -98,7 +98,7 @@ void MetaScene::
 PrintInfo() const
 {
   MetaObject::PrintInfo();
-  METAIO_STREAM::cout << "Number of Objects = " << m_NObjects << METAIO_STREAM::endl;
+  std::cout << "Number of Objects = " << m_NObjects << std::endl;
 }
 
 void MetaScene::
@@ -131,7 +131,7 @@ Read(const char *_headerName)
 {
   if(META_DEBUG)
     {
-    METAIO_STREAM::cout << "MetaScene: Read" << METAIO_STREAM::endl;
+    std::cout << "MetaScene: Read" << std::endl;
     }
 
   int i = 0;
@@ -150,36 +150,36 @@ Read(const char *_headerName)
 
   if(_headerName != nullptr)
     {
-    strcpy(m_FileName, _headerName);
+    m_FileName = _headerName;
     }
 
-  if(META_DEBUG) METAIO_STREAM::cout << "MetaScene: Read: Opening stream" << METAIO_STREAM::endl;
+  if(META_DEBUG) std::cout << "MetaScene: Read: Opening stream" << std::endl;
 
   M_PrepareNewReadStream();
 
 #ifdef __sgi
-  m_ReadStream->open(m_FileName, METAIO_STREAM::ios::in);
+  m_ReadStream->open(m_FileName, std::ios::in);
 #else
-  m_ReadStream->open(m_FileName, METAIO_STREAM::ios::binary
-                                 | METAIO_STREAM::ios::in);
+  m_ReadStream->open(m_FileName, std::ios::binary
+                                 | std::ios::in);
 #endif
 
   if(!m_ReadStream->rdbuf()->is_open())
     {
-    METAIO_STREAM::cout << "MetaScene: Read: Cannot open file" << METAIO_STREAM::endl;
+    std::cout << "MetaScene: Read: Cannot open file" << std::endl;
     return false;
     }
 
   if(!M_Read())
     {
-    METAIO_STREAM::cout << "MetaScene: Read: Cannot parse file" << METAIO_STREAM::endl;
+    std::cout << "MetaScene: Read: Cannot parse file" << std::endl;
     m_ReadStream->close();
     return false;
     }
 
   if(_headerName != nullptr)
     {
-    strcpy(m_FileName, _headerName);
+    m_FileName = _headerName;
     }
 
   if(m_Event)
@@ -192,8 +192,8 @@ Read(const char *_headerName)
     {
     if(META_DEBUG)
       {
-      METAIO_STREAM::cout << MET_ReadType(*m_ReadStream).c_str()
-        << METAIO_STREAM::endl;
+      std::cout << MET_ReadType(*m_ReadStream).c_str()
+        << std::endl;
       }
 
     if(m_Event)
@@ -201,7 +201,7 @@ Read(const char *_headerName)
       m_Event->SetCurrentIteration(i+1);
       }
 
-    const METAIO_STL::string objectType = MET_ReadType(*m_ReadStream);
+    const std::string objectType = MET_ReadType(*m_ReadStream);
     if(!strncmp(objectType.c_str(),"Tube",4) ||
       ((objectType.size()==0) && !strcmp(suf, "tre")))
       {
@@ -374,15 +374,12 @@ Read(const char *_headerName)
 }
 
 
-//
-//
-//
 bool MetaScene::
 Write(const char *_headName)
 {
   if(META_DEBUG)
     {
-    METAIO_STREAM::cout << "MetaScene: Write" << METAIO_STREAM::endl;
+    std::cout << "MetaScene: Write" << std::endl;
     }
 
   if(_headName != nullptr)
@@ -398,19 +395,19 @@ Write(const char *_headName)
 
   if(!m_WriteStream)
     {
-    m_WriteStream = new METAIO_STREAM::ofstream;
+    m_WriteStream = new std::ofstream;
     }
 
 #ifdef __sgi
   // Create the file. This is required on some older sgi's
     {
-    METAIO_STREAM::ofstream tFile(m_FileName, METAIO_STREAM::ios::out);
+    std::ofstream tFile(m_FileName, std::ios::out);
     tFile.close();
     }
-  m_WriteStream->open(m_FileName, METAIO_STREAM::ios::out);
+  m_WriteStream->open(m_FileName, std::ios::out);
 #else
-  m_WriteStream->open(m_FileName, METAIO_STREAM::ios::binary
-    | METAIO_STREAM::ios::out);
+  m_WriteStream->open(m_FileName, std::ios::binary
+    | std::ios::out);
 #endif
 
   if(!m_WriteStream->rdbuf()->is_open())
@@ -444,9 +441,13 @@ Clear()
 {
   if(META_DEBUG)
     {
-    METAIO_STREAM::cout << "MetaScene: Clear" << METAIO_STREAM::endl;
+    std::cout << "MetaScene: Clear" << std::endl;
     }
+
   MetaObject::Clear();
+
+  strcpy(m_ObjectTypeName,"Scene");
+  //
   // Delete the list of pointers to objects in the scene.
   ObjectListType::iterator it = m_ObjectList.begin();
   while(it != m_ObjectList.end())
@@ -473,7 +474,7 @@ M_SetupReadFields()
 {
   if(META_DEBUG)
     {
-    METAIO_STREAM::cout << "MetaScene: M_SetupReadFields" << METAIO_STREAM::endl;
+    std::cout << "MetaScene: M_SetupReadFields" << std::endl;
     }
 
   MetaObject::M_SetupReadFields();
@@ -504,7 +505,6 @@ M_SetupWriteFields()
     m_Fields.push_back(mF);
     }
 
-  strcpy(m_ObjectTypeName,"Scene");
   mF = new MET_FieldRecordType;
   MET_InitWriteField(mF, "ObjectType", MET_STRING, strlen(m_ObjectTypeName),
     m_ObjectTypeName);
@@ -526,10 +526,10 @@ M_Read()
 {
   if(META_DEBUG)
     {
-    METAIO_STREAM::cout<<"MetaScene: M_Read: Loading Header"<<METAIO_STREAM::endl;
+    std::cout<<"MetaScene: M_Read: Loading Header"<<std::endl;
     }
 
-  if(strncmp(MET_ReadType(*m_ReadStream).c_str(),"Scene",5))
+  if(strncmp(MET_ReadType(*m_ReadStream).c_str(),"Scene",5) != 0)
     {
     m_NObjects = 1;
     return true;
@@ -537,13 +537,13 @@ M_Read()
 
   if(!MetaObject::M_Read())
     {
-    METAIO_STREAM::cout << "MetaScene: M_Read: Error parsing file" << METAIO_STREAM::endl;
+    std::cout << "MetaScene: M_Read: Error parsing file" << std::endl;
     return false;
     }
 
   if(META_DEBUG)
     {
-    METAIO_STREAM::cout << "MetaScene: M_Read: Parsing Header" << METAIO_STREAM::endl;
+    std::cout << "MetaScene: M_Read: Parsing Header" << std::endl;
     }
 
   MET_FieldRecordType * mF;
@@ -562,7 +562,7 @@ M_Write()
 {
   if(!MetaObject::M_Write())
     {
-    METAIO_STREAM::cout << "MetaScene: M_Write: Error parsing file" << METAIO_STREAM::endl;
+    std::cout << "MetaScene: M_Write: Error parsing file" << std::endl;
     return false;
     }
 

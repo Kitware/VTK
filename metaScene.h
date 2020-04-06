@@ -40,7 +40,7 @@ namespace METAIO_NAMESPACE {
 #endif
 
 class METAIO_EXPORT MetaScene : public MetaObject
-  {
+{
 
   /////
   //
@@ -49,7 +49,7 @@ class METAIO_EXPORT MetaScene : public MetaObject
   ////
   public:
 
-   typedef METAIO_STL::list<MetaObject*>    ObjectListType;
+   typedef std::list<MetaObject*>    ObjectListType;
 
    ////
     //
@@ -74,11 +74,11 @@ class METAIO_EXPORT MetaScene : public MetaObject
     //
     //
     // This function only reads registered tubes
-    bool Read(const char *_headerName=NULL);
+    bool Read(const char *_headerName=nullptr);
 
-    bool Write(const char *_headName=NULL);
+    bool Write(const char *_headName=nullptr);
 
-    bool Append(const char* =NULL) override {METAIO_STREAM::cout << "Not Implemented !" << METAIO_STREAM::endl;return true;}
+    bool Append(const char* =nullptr) override {std::cout << "Not Implemented !" << std::endl;return true;}
 
     void  Clear(void) override;
 
@@ -115,7 +115,7 @@ class METAIO_EXPORT MetaScene : public MetaObject
 
     ObjectListType    m_ObjectList;
 
-  };
+};
 
 #if (METAIO_USE_NAMESPACE)
 };
