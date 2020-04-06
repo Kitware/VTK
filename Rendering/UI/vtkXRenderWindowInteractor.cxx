@@ -138,8 +138,6 @@ private:
   std::map<int, vtkXRenderWindowInteractorTimer> LocalToTimer;
 };
 
-int vtkXRenderWindowInteractor::BreakLoopFlag = 1;
-
 // for some reason the X11 def of KeySym is getting messed up
 typedef XID vtkKeySym;
 
@@ -172,12 +170,12 @@ vtkXRenderWindowInteractor::~vtkXRenderWindowInteractor()
 // This results in Start() returning to its caller.
 void vtkXRenderWindowInteractor::TerminateApp()
 {
-  if (this->BreakLoopFlag)
+  if (this->Done)
   {
     return;
   }
 
-  this->BreakLoopFlag = 1;
+  this->Done = true;
 
   // Send a VTK_BreakXtLoop ClientMessage event to be sure we pop out of the
   // event loop.  This "wakes up" the event loop.  Otherwise, it might sit idle
@@ -198,34 +196,10 @@ void vtkXRenderWindowInteractor::TerminateApp()
   XFlush(client.display);
 }
 
-void vtkXRenderWindowInteractor::SetBreakLoopFlag(int f)
-{
-  if (f)
-  {
-    this->BreakLoopFlagOn();
-  }
-  else
-  {
-    this->BreakLoopFlagOff();
-  }
-}
-
-void vtkXRenderWindowInteractor::BreakLoopFlagOff()
-{
-  this->BreakLoopFlag = 0;
-  this->Modified();
-}
-
-void vtkXRenderWindowInteractor::BreakLoopFlagOn()
-{
-  this->TerminateApp();
-  this->Modified();
-}
-
 void vtkXRenderWindowInteractor::ProcessEvents()
 {
   XEvent event;
-  while (XPending(this->DisplayId) && this->BreakLoopFlag == 0)
+  while (XPending(this->DisplayId) && !this->Done)
   {
     XNextEvent(this->DisplayId, &event);
     this->DispatchEvent(&event);
@@ -242,7 +216,7 @@ void vtkXRenderWindowInteractor::StartEventLoop()
   fd_set in_fds;
   struct timeval tv;
 
-  this->BreakLoopFlag = 0;
+  this->Done = false;
   do
   {
     if (XPending(this->DisplayId) == 0)
@@ -267,7 +241,7 @@ void vtkXRenderWindowInteractor::StartEventLoop()
       this->DispatchEvent(&event);
     }
     this->FireTimers();
-  } while (this->BreakLoopFlag == 0);
+  } while (!this->Done);
 }
 
 //-------------------------------------------------------------------------
@@ -383,8 +357,6 @@ void vtkXRenderWindowInteractor::Disable()
 void vtkXRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-
-  os << indent << "BreakLoopFlag: " << (this->BreakLoopFlag ? "On\n" : "Off\n");
 }
 
 //-------------------------------------------------------------------------

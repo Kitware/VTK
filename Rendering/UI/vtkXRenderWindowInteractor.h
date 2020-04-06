@@ -67,19 +67,6 @@ public:
 
   //@{
   /**
-   * The BreakLoopFlag is checked in the Start() method.
-   * Setting it to anything other than zero will cause
-   * the interactor loop to terminate and return to the
-   * calling function.
-   */
-  vtkGetMacro(BreakLoopFlag, int);
-  void SetBreakLoopFlag(int);
-  void BreakLoopFlagOff();
-  void BreakLoopFlagOn();
-  //@}
-
-  //@{
-  /**
    * Enable/Disable interactions.  By default interactors are enabled when
    * initialized.  Initialize() must be called prior to enabling/disabling
    * interaction. These methods are used when a window/widget is being
@@ -142,8 +129,6 @@ protected:
   //@}
 
   void FireTimers();
-
-  static int BreakLoopFlag;
 
   /**
    * This will start up the X event loop and never return. If you
