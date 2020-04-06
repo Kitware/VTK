@@ -186,6 +186,7 @@ int vtkNetCDFReader::RequestInformation(vtkInformation* vtkNotUsed(request),
 
   VTK_CREATE(vtkDoubleArray, timeValues);
   VTK_CREATE(vtkIntArray, currentDimensions);
+  this->ComputeArraySelection();
   this->LoadingDimensions->Initialize();
   int numArrays = this->VariableArraySelection->GetNumberOfArrays();
   int numDims = 0;
