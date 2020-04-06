@@ -34,7 +34,8 @@ int TestNrrdReader(int argc, char* argv[])
 {
   char* filename1 = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/beach.nrrd");
   char* filename2 = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/beach.ascii.nhdr");
-  if ((filename1 == nullptr) || (filename2 == nullptr))
+  char* filename3 = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/beach_gzip.nrrd");
+  if ((filename1 == nullptr) || (filename2 == nullptr) || (filename3 == nullptr))
   {
     cerr << "Could not get file names.";
     return 1;
@@ -80,14 +81,37 @@ int TestNrrdReader(int argc, char* argv[])
   vtkNew<vtkRenderer> renderer2;
   renderer2->AddActor(actor2);
 
-  vtkNew<vtkRenderWindow> renderWindow;
-  renderWindow->SetSize(200, 100);
+  vtkNew<vtkNrrdReader> reader3;
+  if (!reader3->CanReadFile(filename3))
+  {
+    cerr << "Reader reports " << filename3 << " cannot be read.";
+    return 1;
+  }
+  reader3->SetFileName(filename3);
+  reader3->Update();
 
-  renderer1->SetViewport(0.0, 0.0, 0.5, 1.0);
+  vtkNew<vtkImageMapper> mapper3;
+  mapper3->SetInputConnection(reader3->GetOutputPort());
+  mapper3->SetColorWindow(256);
+  mapper3->SetColorLevel(127.5);
+
+  vtkNew<vtkActor2D> actor3;
+  actor3->SetMapper(mapper3);
+
+  vtkNew<vtkRenderer> renderer3;
+  renderer3->AddActor(actor3);
+
+  vtkNew<vtkRenderWindow> renderWindow;
+  renderWindow->SetSize(300, 100);
+
+  renderer1->SetViewport(0.0, 0.0, 0.333, 1.0);
   renderWindow->AddRenderer(renderer1);
 
-  renderer2->SetViewport(0.5, 0.0, 1.0, 1.0);
+  renderer2->SetViewport(0.333, 0.0, 0.666, 1.0);
   renderWindow->AddRenderer(renderer2);
+
+  renderer3->SetViewport(0.666, 0.0, 1.0, 1.0);
+  renderWindow->AddRenderer(renderer3);
 
   vtkNew<vtkRenderWindowInteractor> interactor;
   interactor->SetRenderWindow(renderWindow);

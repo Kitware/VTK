@@ -21,10 +21,14 @@
 #include "vtkNrrdReader.h"
 
 #include "vtkCharArray.h"
+#include "vtkErrorCode.h"
 #include "vtkImageData.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
+
+// Header for zlib
+#include "vtk_zlib.h"
 
 #include <algorithm>
 #include <istream>
@@ -230,6 +234,9 @@ void vtkNrrdReader::PrintSelf(ostream& os, vtkIndent indent)
     case ENCODING_ASCII:
       os << "ascii" << endl;
       break;
+    case ENCODING_GZIP:
+      os << "gzip" << endl;
+      break;
     default:
       os << "UNKNOWN!" << endl;
       break;
@@ -321,7 +328,8 @@ int vtkNrrdReader::ReadHeader()
 //-----------------------------------------------------------------------------
 int vtkNrrdReader::ReadHeader(vtkCharArray* headerBuffer)
 {
-  this->HeaderSize = headerBuffer->GetNumberOfTuples();
+  this->HeaderSize = headerBuffer->GetNumberOfTuples() - 1;
+  this->ManualHeaderSize = 1;
 
   std::string headerStringBuffer = headerBuffer->GetPointer(0);
   std::stringstream header(headerStringBuffer);
@@ -389,6 +397,10 @@ int vtkNrrdReader::ReadHeader(vtkCharArray* headerBuffer)
         else if (description == "ascii" || description == "txt" || description == "text")
         {
           this->Encoding = ENCODING_ASCII;
+        }
+        else if (description == "gzip" || description == "gz")
+        {
+          this->Encoding = ENCODING_GZIP;
         }
         else
         {
@@ -621,6 +633,7 @@ int vtkNrrdReader::ReadHeader(vtkCharArray* headerBuffer)
     }
     // Header file pointing to data files.  Data files should have no header.
     this->HeaderSize = 0;
+    this->ManualHeaderSize = 0;
   }
 
   return 1;
@@ -668,6 +681,18 @@ int vtkNrrdReader::RequestData(
     }
 
     result = this->ReadDataAscii(outputData);
+  }
+  else if (this->Encoding == ENCODING_GZIP)
+  {
+    vtkImageData* outputData = vtkImageData::GetData(outputVector);
+    this->AllocateOutputData(outputData, outputVector->GetInformationObject(0));
+    if (outputData == nullptr)
+    {
+      vtkErrorMacro(<< "Data not created correctly?");
+      return 0;
+    }
+
+    result = this->ReadDataGZip(outputData);
   }
   else
   {
@@ -789,6 +814,80 @@ int vtkNrrdReader::ReadDataAscii(vtkImageData* output)
   switch (output->GetScalarType())
   {
     vtkTemplateMacro(vtkNrrdReaderReadDataAsciiTemplate(this, output, (VTK_TT*)(outBuffer)));
+    default:
+      vtkErrorMacro("Unknown data type");
+      return 0;
+  }
+
+  return 1;
+}
+
+//=============================================================================
+template <typename T>
+int vtkNrrdReader::vtkNrrdReaderReadDataGZipTemplate(vtkImageData* output, T* outBuffer)
+{
+  vtkIdType inIncr[3];
+  output->GetIncrements(inIncr);
+
+  vtkStringArray* filenames = this->GetFileNames();
+  vtkStdString filename = this->GetFileName();
+
+  vtksys::ifstream file;
+  if ((this->GetFileDimensionality() == 2) || (this->GetFileDimensionality() == 3))
+  {
+    if (filenames != nullptr)
+    {
+      filename = filenames->GetValue(0);
+    }
+
+    FILE* fp = nullptr;
+    if ((fp = vtksys::SystemTools::Fopen(filename, "rb")) == nullptr)
+    {
+      vtkErrorMacro(<< "Couldn't open nrrd file: " << filename);
+      this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
+      return 0;
+    }
+    else
+    {
+      fseek(fp, this->GetHeaderSize(), SEEK_SET);
+      int fd = fileno(fp);
+      gzFile gf = gzdopen(fd, "r");
+      if (gf == nullptr)
+      {
+        vtkErrorMacro(<< "Couldn't open gzip stream from nrrd file: " << filename);
+        this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
+        fclose(fp);
+        return 0;
+      }
+      size_t numBytes = inIncr[2] * sizeof(T);
+      int rsize = gzread(gf, outBuffer, numBytes);
+      if ((rsize < 0) || (static_cast<size_t>(rsize) != numBytes))
+      {
+        vtkErrorMacro(<< "Couldn't read gzip data from nrrd file: " << filename);
+        this->SetErrorCode(vtkErrorCode::PrematureEndOfFileError);
+        gzclose(gf);
+        return 0;
+      }
+      gzclose(gf);
+    }
+  }
+  else
+  {
+    vtkErrorMacro(<< "Unsupported dimensionality in nrrd file: " << filename);
+    this->SetErrorCode(vtkErrorCode::UnrecognizedFileTypeError);
+    return 0;
+  }
+
+  return 1;
+}
+
+//=============================================================================
+int vtkNrrdReader::ReadDataGZip(vtkImageData* output)
+{
+  void* outBuffer = output->GetScalarPointer();
+  switch (output->GetScalarType())
+  {
+    vtkTemplateMacro(vtkNrrdReaderReadDataGZipTemplate(output, (VTK_TT*)(outBuffer)));
     default:
       vtkErrorMacro("Unknown data type");
       return 0;

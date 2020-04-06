@@ -27,7 +27,7 @@
  *
  * @bug
  * There are several limitations on what type of nrrd files we can read.  This
- * reader only supports nrrd files in raw or ascii format.  Other encodings
+ * reader only supports nrrd files in raw, ascii and gzip format.  Other encodings
  * like hex will result in errors.  When reading in detached headers, this only
  * supports reading one file that is detached.
  *
@@ -66,12 +66,17 @@ protected:
 
   virtual int ReadDataAscii(vtkImageData* output);
 
+  template <typename T>
+  int vtkNrrdReaderReadDataGZipTemplate(vtkImageData* output, T* outBuffer);
+  virtual int ReadDataGZip(vtkImageData* output);
+
   vtkStringArray* DataFiles;
 
   enum
   {
     ENCODING_RAW,
-    ENCODING_ASCII
+    ENCODING_ASCII,
+    ENCODING_GZIP
   };
 
   int Encoding;
