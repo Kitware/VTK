@@ -205,7 +205,7 @@ int vtkXMLHyperTreeGridReader::FillOutputPortInformation(int, vtkInformation* in
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkXMLHyperTreeGridReader::GetNumberOfPoints()
+vtkIdType vtkXMLHyperTreeGridReader::GetNumberOfPoints() const
 {
   return this->NumberOfPoints;
 }
@@ -257,7 +257,7 @@ void vtkXMLHyperTreeGridReader::DestroyPieces()
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkXMLHyperTreeGridReader::GetNumberOfPieces()
+vtkIdType vtkXMLHyperTreeGridReader::GetNumberOfPieces() const
 {
   return this->NumberOfPieces;
 }
@@ -507,7 +507,7 @@ void vtkXMLHyperTreeGridReader::ReadTrees_0(vtkXMLDataElement* elem)
     vtkIdType nCurrentLevel = 0;
     vtkIdType nNextLevel = 1;
     vtkIdType descSize = desc->GetNumberOfTuples();
-    int numberOfChildren = output->GetNumberOfChildren();
+    unsigned int numberOfChildren = output->GetNumberOfChildren();
 
     // Determine position of the start of each level within descriptor
     for (vtkIdType i = 0; i < descSize; ++i)
@@ -593,7 +593,7 @@ void vtkXMLHyperTreeGridReader::ReadTrees_0(vtkXMLDataElement* elem)
 
 //----------------------------------------------------------------------------
 void vtkXMLHyperTreeGridReader::SubdivideFromDescriptor_0(
-  vtkHyperTreeGridNonOrientedCursor* treeCursor, unsigned int level, int numChildren,
+  vtkHyperTreeGridNonOrientedCursor* treeCursor, unsigned int level, unsigned int numChildren,
   vtkBitArray* descriptor, vtkIdTypeArray* posByLevel)
 {
   vtkIdType curOffset = posByLevel->GetValue(level);
@@ -609,7 +609,7 @@ void vtkXMLHyperTreeGridReader::SubdivideFromDescriptor_0(
   // Subdivide hyper tree grid leaf and traverse to children
   treeCursor->SubdivideLeaf();
 
-  for (int child = 0; child < numChildren; ++child)
+  for (unsigned int child = 0; child < numChildren; ++child)
   {
     treeCursor->ToChild(child);
     this->SubdivideFromDescriptor_0(treeCursor, level + 1, numChildren, descriptor, posByLevel);
@@ -721,7 +721,7 @@ void vtkXMLHyperTreeGridReader::ReadTrees_1(vtkXMLDataElement* elem)
     vtkIdType nRefined = 0;
     vtkIdType nCurrentLevel = 0;
     vtkIdType nNextLevel = 1;
-    int numberOfChildren = output->GetNumberOfChildren();
+    unsigned int numberOfChildren = output->GetNumberOfChildren();
 
     // Determine position of the start of each level within descriptor
     for (vtkIdType i = 0; i < descSize; ++i)

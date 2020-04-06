@@ -98,9 +98,9 @@ public:
   //@}
 
   // These defer to the HyperTreeGrid output.
-  vtkIdType GetNumberOfPoints();
+  vtkIdType GetNumberOfPoints() const;
 
-  vtkIdType GetNumberOfPieces();
+  vtkIdType GetNumberOfPieces() const;
 
   void SetupUpdateExtent(int piece, int numberOfPieces);
 
@@ -166,7 +166,7 @@ protected:
 
   // Used by ReadTopology to recursively build the tree
   void SubdivideFromDescriptor_0(vtkHyperTreeGridNonOrientedCursor* treeCursor, unsigned int level,
-    int numChildren, vtkBitArray* desc, vtkIdTypeArray* posByLevel);
+    unsigned int numChildren, vtkBitArray* desc, vtkIdTypeArray* posByLevel);
 
   //---------- Used for other the major version
 
@@ -201,12 +201,12 @@ protected:
   // UINT_MAX, this is FixedLevel that is used.
   std::map<unsigned int, unsigned int> IdsSelected;
 
-  int UpdatedPiece;
-  int UpdateNumberOfPieces;
+  vtkIdType UpdatedPiece;
+  vtkIdType UpdateNumberOfPieces;
 
-  int StartPiece;
-  int EndPiece;
-  int Piece;
+  vtkIdType StartPiece;
+  vtkIdType EndPiece;
+  vtkIdType Piece;
 
 private:
   vtkXMLHyperTreeGridReader(const vtkXMLHyperTreeGridReader&) = delete;
