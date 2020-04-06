@@ -50,6 +50,7 @@ public:
    * with an identifier which timestamps a particular source tree.
    */
   static const char* GetVTKVersion() { return VTK_VERSION; }
+  static const char* GetVTKVersionFull() { return VTK_VERSION_FULL; }
   static int GetVTKMajorVersion() { return VTK_MAJOR_VERSION; }
   static int GetVTKMinorVersion() { return VTK_MINOR_VERSION; }
   static int GetVTKBuildVersion() { return VTK_BUILD_VERSION; }
