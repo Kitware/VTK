@@ -302,8 +302,13 @@ void vtkOSPRayPass::RenderInternal(const vtkRenderState* s)
     else
     {
       // upload to the texture
+#ifdef VTKOSPRAY_ENABLE_DENOISER
+      this->Internal->ColorTexture->Create2DFromRaw(
+        viewportWidth, viewportHeight, 4, VTK_FLOAT, this->SceneGraph->GetBuffer());
+#else
       this->Internal->ColorTexture->Create2DFromRaw(
         viewportWidth, viewportHeight, 4, VTK_UNSIGNED_CHAR, this->SceneGraph->GetBuffer());
+#endif
       this->Internal->DepthTexture->CreateDepthFromRaw(viewportWidth, viewportHeight,
         vtkTextureObject::Float32, VTK_FLOAT, this->SceneGraph->GetZBuffer());
 
