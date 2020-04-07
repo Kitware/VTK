@@ -278,7 +278,7 @@ public:
   /**
    * Get the last rendered ColorBuffer
    */
-  virtual unsigned char* GetBuffer() { return this->Buffer.data(); }
+  virtual void* GetBuffer() { return this->Buffer.data(); }
 
   /**
    * Get the last rendered ZBuffer
@@ -348,7 +348,11 @@ protected:
   void Denoise();
 
   // internal structures
+#ifdef VTKOSPRAY_ENABLE_DENOISER
+  std::vector<float> Buffer;
+#else
   std::vector<unsigned char> Buffer;
+#endif
   std::vector<float> ZBuffer;
 
   int ColorBufferTex;
