@@ -44,20 +44,31 @@ int TestMaskPointsModes(int argc, char* argv[])
   maskPointDefault->SetMaximumNumberOfPoints(100);
   maskPointDefault->GenerateVerticesOn();
 
-  // Uniform: random in space
-  vtkNew<vtkMaskPoints> maskPointUniformSpatial;
-  maskPointUniformSpatial->SetInputConnection(wavelet->GetOutputPort());
-  maskPointUniformSpatial->SetRandomMode(true);
-  maskPointUniformSpatial->SetRandomModeType(vtkMaskPoints::UNIFORM_SPATIAL_VOLUME);
-  maskPointUniformSpatial->SetRandomSeed(12);
-  maskPointUniformSpatial->SetMaximumNumberOfPoints(100);
-  maskPointUniformSpatial->GenerateVerticesOn();
+  // Uniform: random in space (volume based)
+  vtkNew<vtkMaskPoints> maskPointUniformVolume;
+  maskPointUniformVolume->SetInputConnection(wavelet->GetOutputPort());
+  maskPointUniformVolume->SetRandomMode(true);
+  maskPointUniformVolume->SetRandomModeType(vtkMaskPoints::UNIFORM_SPATIAL_VOLUME);
+  maskPointUniformVolume->SetRandomSeed(12);
+  maskPointUniformVolume->SetMaximumNumberOfPoints(100);
+  maskPointUniformVolume->GenerateVerticesOn();
 
-  vtkNew<vtkDataSetMapper> mapper1, mapper2;
+  // Uniform: random in space (bound based)
+  vtkNew<vtkMaskPoints> maskPointUniformBounds;
+  maskPointUniformBounds->SetInputConnection(wavelet->GetOutputPort());
+  maskPointUniformBounds->SetRandomMode(true);
+  maskPointUniformBounds->SetRandomModeType(vtkMaskPoints::UNIFORM_SPATIAL_BOUNDS);
+  maskPointUniformBounds->SetRandomSeed(12);
+  maskPointUniformBounds->SetMaximumNumberOfPoints(100);
+  maskPointUniformBounds->GenerateVerticesOn();
+
+  vtkNew<vtkDataSetMapper> mapper1, mapper2, mapper3;
   mapper1->SetInputConnection(maskPointDefault->GetOutputPort());
   mapper1->ScalarVisibilityOff();
-  mapper2->SetInputConnection(maskPointUniformSpatial->GetOutputPort());
+  mapper2->SetInputConnection(maskPointUniformVolume->GetOutputPort());
   mapper2->ScalarVisibilityOff();
+  mapper3->SetInputConnection(maskPointUniformBounds->GetOutputPort());
+  mapper3->ScalarVisibilityOff();
 
   vtkNew<vtkActor> actor1, actor2, actor3;
   actor1->SetMapper(mapper1);
@@ -67,11 +78,16 @@ int TestMaskPointsModes(int argc, char* argv[])
   actor2->SetMapper(mapper2);
   actor2->GetProperty()->SetOpacity(0.5);
   actor2->GetProperty()->SetPointSize(5);
-  actor2->GetProperty()->SetColor(0, 150, 150);
+  actor2->GetProperty()->SetColor(0, 255, 0);
+  actor3->SetMapper(mapper3);
+  actor3->GetProperty()->SetOpacity(0.5);
+  actor3->GetProperty()->SetPointSize(7);
+  actor3->GetProperty()->SetColor(0, 0, 255);
 
   vtkNew<vtkRenderer> ren;
   ren->AddActor(actor1);
   ren->AddActor(actor2);
+  ren->AddActor(actor3);
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetSize(300, 300);

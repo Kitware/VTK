@@ -14,12 +14,15 @@
 =========================================================================*/
 #include "vtkMaskPoints.h"
 
+#include "vtkBoundingBox.h"
 #include "vtkCellArray.h"
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
+#include "vtkMinimalStandardRandomSequence.h"
 #include "vtkObjectFactory.h"
+#include "vtkOctreePointLocator.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
@@ -193,6 +196,32 @@ static void SortAndSample(vtkPoints* points, vtkPointData* data, vtkPointData* t
   for (vtkIdType i = 0; i < rightsize; i = i + 1)
   {
     SwapPoint(points, data, temp, start + leftsize + i, half + i);
+  }
+}
+
+//-----------------------------------------------------------------------------
+// For UNIFORM_SPATIAL_BOUNDS only,
+// Compute the nearestPointRadius for the point locator
+static double GetNearestPointRadius(double bounds[3], vtkIdType maximumNumberOfPoints)
+{
+  vtkBoundingBox boundingBox;
+  boundingBox.AddBounds(bounds);
+  double l[3];
+  boundingBox.GetLengths(l);
+
+  int dim = (l[0] > 0.0 && l[1] > 0.0 && l[2] > 0.0) ? 3 : 2;
+
+  double volume = std::pow(boundingBox.GetDiagonalLength(), dim);
+  if (volume > 0.0)
+  {
+    assert(maximumNumberOfPoints > 0);
+    double volumePerGlyph = volume / maximumNumberOfPoints;
+    double delta = std::pow(volumePerGlyph, 1.0 / dim);
+    return delta * 0.5;
+  }
+  else
+  {
+    return 0.0001;
   }
 }
 
@@ -565,7 +594,7 @@ int vtkMaskPoints::RequestData(vtkInformation* vtkNotUsed(request),
         SortAndSample(pointCopy, dataCopy, tempData, 0, numPts, numNewPts, 0);
 
         // copy the results back
-        for (vtkIdType i = 0; i < numNewPts; i = i + 1)
+        for (vtkIdType i = 0; i < numNewPts; i++)
         {
           pointCopy->GetPoint(i, x);
           id = newPts->InsertNextPoint(x);
@@ -575,6 +604,54 @@ int vtkMaskPoints::RequestData(vtkInformation* vtkNotUsed(request),
         tempData->Delete();
         dataCopy->Delete();
         pointCopy->Delete();
+        break;
+      }
+      case UNIFORM_SPATIAL_BOUNDS:
+      {
+        double bounds[6];
+        input->GetBounds(bounds);
+        double nearestPointRadius = ::GetNearestPointRadius(bounds, numNewPts);
+
+        vtkNew<vtkOctreePointLocator> pointLocator;
+        pointLocator->Initialize();
+        pointLocator->SetDataSet(input);
+        pointLocator->BuildLocator();
+
+        vtkNew<vtkMinimalStandardRandomSequence> randomGenerator;
+        randomGenerator->SetSeed(this->GetRandomSeed());
+
+        vtkIdType numAddedPts = localMaxPts;
+        if (this->ProportionalMaximumNumberOfPoints)
+        {
+          // How many point to add in each region in function of its contribution
+          // to the global area.
+          vtkBoundingBox boundingBox;
+          boundingBox.AddBounds(bounds);
+          const double localAreaEstimator = boundingBox.GetDiagonalLength();
+          const double localAreaFactor =
+            this->GetLocalAreaFactor(localAreaEstimator, this->InternalGetNumberOfProcesses());
+          numAddedPts = this->MaximumNumberOfPoints * localAreaFactor;
+        }
+
+        for (vtkIdType i = 0; i < numAddedPts; i++)
+        {
+          randomGenerator->Next();
+          double randX = randomGenerator->GetRangeValue(bounds[0], bounds[1]);
+          randomGenerator->Next();
+          double randY = randomGenerator->GetRangeValue(bounds[2], bounds[3]);
+          randomGenerator->Next();
+          double randZ = randomGenerator->GetRangeValue(bounds[4], bounds[5]);
+          double dist2;
+          double pos[3] = { randX, randY, randZ };
+          vtkIdType ptId =
+            pointLocator->FindClosestPointWithinRadius(nearestPointRadius, pos, dist2);
+          if (ptId >= 0)
+          {
+            input->GetPoint(ptId, x);
+            id = newPts->InsertNextPoint(x);
+            outputPD->CopyData(pd, ptId, id);
+          }
+        }
         break;
       }
       case UNIFORM_SPATIAL_SURFACE:
