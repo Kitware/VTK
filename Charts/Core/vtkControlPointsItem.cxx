@@ -203,6 +203,7 @@ void vtkControlPointsItem::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
+  os << indent << "DrawPoints: " << this->DrawPoints << endl;
   os << indent << "EndPointsXMovable: " << this->EndPointsXMovable << endl;
   os << indent << "EndPointsYMovable: " << this->EndPointsYMovable << endl;
   os << indent << "EndPointsRemovable: " << this->EndPointsRemovable << endl;
@@ -282,30 +283,33 @@ void vtkControlPointsItem::ComputeBounds(double* bounds)
 //-----------------------------------------------------------------------------
 bool vtkControlPointsItem::Paint(vtkContext2D* painter)
 {
-  painter->GetDevice()->EnableClipping(false);
-  painter->ApplyPen(this->Pen);
-  painter->ApplyBrush(this->Brush);
-  this->InvertShadow = false;
-  this->DrawUnselectedPoints(painter);
-
-  painter->GetPen()->SetLineType(vtkPen::SOLID_LINE);
-  // painter->GetPen()->SetColorF(0.87, 0.87, 1.);
-  // painter->GetBrush()->SetColorF(0.75, 0.75, 0.95, 0.65);
-  // float oldPenWidth = painter->GetPen()->GetWidth();
-  painter->ApplyPen(this->SelectedPointPen);
-  painter->ApplyBrush(this->SelectedPointBrush);
-  this->InvertShadow = true;
-  float oldScreenPointRadius = this->ScreenPointRadius;
-  if (this->Selection && this->Selection->GetNumberOfTuples())
+  if (this->DrawPoints)
   {
-    // painter->GetPen()->SetWidth(oldPenWidth * 1.4);
-    // this->ScreenPointRadius = oldScreenPointRadius * 1.1;
-    this->DrawSelectedPoints(painter);
-  }
-  this->ScreenPointRadius = oldScreenPointRadius;
-  this->Transform->SetMatrix(painter->GetTransform()->GetMatrix());
+    painter->GetDevice()->EnableClipping(false);
+    painter->ApplyPen(this->Pen);
+    painter->ApplyBrush(this->Brush);
+    this->InvertShadow = false;
 
-  painter->GetDevice()->EnableClipping(true);
+    this->DrawUnselectedPoints(painter);
+
+    painter->GetPen()->SetLineType(vtkPen::SOLID_LINE);
+    // painter->GetPen()->SetColorF(0.87, 0.87, 1.);
+    // painter->GetBrush()->SetColorF(0.75, 0.75, 0.95, 0.65);
+    // float oldPenWidth = painter->GetPen()->GetWidth();
+    painter->ApplyPen(this->SelectedPointPen);
+    painter->ApplyBrush(this->SelectedPointBrush);
+    this->InvertShadow = true;
+    float oldScreenPointRadius = this->ScreenPointRadius;
+    if (this->Selection && this->Selection->GetNumberOfTuples())
+    {
+      // painter->GetPen()->SetWidth(oldPenWidth * 1.4);
+      // this->ScreenPointRadius = oldScreenPointRadius * 1.1;
+      this->DrawSelectedPoints(painter);
+    }
+    this->ScreenPointRadius = oldScreenPointRadius;
+    this->Transform->SetMatrix(painter->GetTransform()->GetMatrix());
+    painter->GetDevice()->EnableClipping(true);
+  }
   this->PaintChildren(painter);
   return true;
 }
