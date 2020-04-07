@@ -3550,8 +3550,8 @@ function (vtk_module_add_module name)
 
   set(_vtk_add_module_autoinit_content)
   if (_vtk_add_module_autoinit_depends_includes)
-    set(_vtk_add_module_autoinit_content
-      "${_vtk_add_module_autoinit_content}/* AutoInit dependencies. */\n${_vtk_add_module_autoinit_depends_includes}\n")
+    string(APPEND _vtk_add_module_autoinit_content
+      "/* AutoInit dependencies. */\n${_vtk_add_module_autoinit_depends_includes}\n")
   endif ()
 
   get_property(_vtk_add_module_implementable GLOBAL
@@ -3572,8 +3572,8 @@ function (vtk_module_add_module name)
       PROPERTY
         "INTERFACE_vtk_module_needs_autoinit" 1)
 
-    set(_vtk_add_module_autoinit_content
-      "${_vtk_add_module_autoinit_content}
+    string(APPEND _vtk_add_module_autoinit_content
+      "
 /* AutoInit implementations. */
 #ifdef ${_vtk_add_module_library_name}_AUTOINIT_INCLUDE
 #include ${_vtk_add_module_library_name}_AUTOINIT_INCLUDE
@@ -3584,8 +3584,8 @@ VTK_MODULE_AUTOINIT(${_vtk_add_module_library_name})
 #endif
 ")
 
-    set(_vtk_add_module_module_content
-      "${_vtk_add_module_module_content}${_vtk_add_module_autoinit_content}")
+    string(APPEND _vtk_add_module_module_content
+      "${_vtk_add_module_autoinit_content}")
   endif ()
 
   if (NOT _vtk_add_module_HEADER_ONLY AND NOT _vtk_add_module_third_party)
