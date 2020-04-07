@@ -299,6 +299,12 @@ vtkIdType vtkCompositeControlPointsItem::RemovePoint(double* currentPoint)
   {
     removedPoint = this->OpacityFunction->RemovePoint(currentPoint[0], currentPoint[1]);
   }
+
+  if (this->CurrentPoint > removedPoint || this->CurrentPoint == this->GetNumberOfPoints() - 1)
+  {
+    this->SetCurrentPoint(this->CurrentPoint - 1);
+  }
+
   this->EndChanges();
   return removedPoint;
 }
