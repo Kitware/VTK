@@ -199,7 +199,7 @@ void vtkInteractorEventRecorder::Play()
     this->State = vtkInteractorEventRecorder::Playing;
 
     // Read events and invoke them on the object in question
-    char event[256], keySym[256];
+    char event[256] = {}, keySym[256] = {};
     int pos[2], ctrlKey, shiftKey, altKey, keyCode, repeatCount;
     float stream_version = 0.0f, tempf;
     std::string line;
