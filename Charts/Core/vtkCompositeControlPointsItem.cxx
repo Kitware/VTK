@@ -39,11 +39,7 @@ vtkStandardNewMacro(vtkCompositeControlPointsItem);
 //-----------------------------------------------------------------------------
 vtkCompositeControlPointsItem::vtkCompositeControlPointsItem()
 {
-  this->PointsFunction = ColorAndOpacityPointsFunction;
-  this->OpacityFunction = nullptr;
-  this->ColorFill = true;
-  this->OpacityPointHandle = nullptr;
-  this->UseOpacityPointHandles = false;
+  this->SetColorFill(true);
 }
 
 //-----------------------------------------------------------------------------

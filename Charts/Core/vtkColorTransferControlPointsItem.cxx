@@ -35,13 +35,6 @@
 vtkStandardNewMacro(vtkColorTransferControlPointsItem);
 
 //-----------------------------------------------------------------------------
-vtkColorTransferControlPointsItem::vtkColorTransferControlPointsItem()
-{
-  this->ColorTransferFunction = nullptr;
-  this->ColorFill = false;
-}
-
-//-----------------------------------------------------------------------------
 vtkColorTransferControlPointsItem::~vtkColorTransferControlPointsItem()
 {
   if (this->ColorTransferFunction)

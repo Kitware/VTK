@@ -66,6 +66,7 @@ public:
     OpacityPointsFunction = 2,
     ColorAndOpacityPointsFunction = 3
   };
+
   //@{
   /**
    * PointsFunction controls whether the points represent the
@@ -157,10 +158,10 @@ protected:
   void MergeTransferFunctions();
   void SilentMergeTransferFunctions();
 
-  int PointsFunction;
-  vtkPiecewiseFunction* OpacityFunction;
-  vtkPiecewisePointHandleItem* OpacityPointHandle;
-  bool UseOpacityPointHandles;
+  int PointsFunction = vtkCompositeControlPointsItem::ColorAndOpacityPointsFunction;
+  vtkPiecewiseFunction* OpacityFunction = nullptr;
+  vtkPiecewisePointHandleItem* OpacityPointHandle = nullptr;
+  bool UseOpacityPointHandles = false;
 
 private:
   vtkCompositeControlPointsItem(const vtkCompositeControlPointsItem&) = delete;
