@@ -61,6 +61,8 @@ class vtkPolyData;
 class vtkProperty;
 class vtkRenderer;
 class vtkRenderWindow;
+class vtkTexture;
+class vtkTransform;
 class vtkViewNode;
 
 class VTKRENDERINGVTKJS_EXPORT vtkVtkJSSceneGraphSerializer : public vtkObject
@@ -136,6 +138,8 @@ protected:
   virtual Json::Value ToJson(Json::Value&, vtkRenderer*);
   virtual Json::Value ToJson(Json::Value&, vtkAlgorithm*, vtkPolyData*);
   virtual Json::Value ToJson(Json::Value&, vtkProperty*);
+  virtual Json::Value ToJson(Json::Value&, vtkTexture*);
+  virtual Json::Value ToJson(Json::Value&, vtkTransform*);
   virtual Json::Value ToJson(vtkRenderWindow*);
   //@}
 

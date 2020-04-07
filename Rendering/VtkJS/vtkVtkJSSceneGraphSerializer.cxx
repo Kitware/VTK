@@ -36,6 +36,8 @@
 #include <vtkProperty.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderer.h>
+#include <vtkTexture.h>
+#include <vtkTransform.h>
 #include <vtkViewNode.h>
 #include <vtkViewNodeCollection.h>
 #include <vtksys/SystemTools.hxx>
@@ -587,6 +589,9 @@ Json::Value vtkVtkJSSceneGraphSerializer::ToJson(
   {
     properties["spacing"][i] = imageData->GetSpacing()[i];
     properties["origin"][i] = imageData->GetOrigin()[i];
+  }
+  for (int i = 0; i < 6; i++)
+  {
     properties["extent"][i] = imageData->GetExtent()[i];
   }
 
@@ -720,6 +725,96 @@ Json::Value vtkVtkJSSceneGraphSerializer::ToJson(Json::Value& parent, vtkPropert
 }
 
 //----------------------------------------------------------------------------
+Json::Value vtkVtkJSSceneGraphSerializer::ToJson(Json::Value& parent, vtkTransform* transform)
+{
+  Json::Value val;
+  val["parent"] = parent["id"];
+  val["id"] = std::to_string(this->UniqueId(transform));
+  val["type"] = "vtkTransform";
+
+  Json::Value properties;
+
+  properties["address"] = ptrToString(transform);
+  std::array<double, 3> scale;
+  transform->GetScale(scale.data());
+  for (int i = 0; i < 3; i++)
+  {
+    properties["scale"][i] = scale[i];
+  }
+  std::array<double, 4> orientation;
+  transform->GetOrientationWXYZ(orientation.data());
+  for (int i = 0; i < 4; i++)
+  {
+    properties["orientationWXYZ"][i] = orientation[i];
+  }
+
+  val["properties"] = properties;
+
+  return val;
+}
+
+//----------------------------------------------------------------------------
+Json::Value vtkVtkJSSceneGraphSerializer::ToJson(Json::Value& parent, vtkTexture* texture)
+{
+  Json::Value val;
+  val["parent"] = parent["id"];
+  val["id"] = std::to_string(this->UniqueId(texture));
+  val["type"] = "vtkTexture";
+
+  Json::Value properties;
+
+  properties["address"] = ptrToString(texture);
+  properties["repeat"] = texture->GetRepeat();
+  properties["edgeClamp"] = texture->GetEdgeClamp();
+  properties["interpolate"] = texture->GetInterpolate();
+  properties["mipmap"] = texture->GetMipmap();
+  properties["maximumAnisotropicFiltering"] = texture->GetMaximumAnisotropicFiltering();
+  properties["quality"] = texture->GetQuality();
+  properties["colorMode"] = texture->GetColorMode();
+  properties["blendingMode"] = texture->GetBlendingMode();
+  properties["premulipliedAlpha"] = texture->GetPremultipliedAlpha();
+  properties["restrictPowerOf2ImageSmaller"] = texture->GetRestrictPowerOf2ImageSmaller();
+  properties["cubeMap"] = texture->GetCubeMap();
+  properties["useSRGBColorSpace"] = texture->GetUseSRGBColorSpace();
+
+  vtkLookupTable* lookupTable = vtkLookupTable::SafeDownCast(texture->GetLookupTable());
+  if (lookupTable != nullptr)
+  {
+    Json::Value lut = this->ToJson(val, lookupTable);
+    std::string lutId = std::to_string(this->UniqueId(lookupTable));
+    lut["id"] = lutId;
+    val["dependencies"].append(lut);
+    Json::Value v = Json::arrayValue;
+    v.append("setLookupTable");
+    Json::Value w = Json::arrayValue;
+    w.append("instance:${" + lutId + "}");
+    v.append(w);
+    val["calls"].append(v);
+  }
+
+  vtkTransform* transform = texture->GetTransform();
+  if (transform != nullptr)
+  {
+    Json::Value trans = this->ToJson(val, transform);
+    std::string transId = std::to_string(this->UniqueId(lookupTable));
+    trans["id"] = transId;
+    val["dependencies"].append(trans);
+    Json::Value v = Json::arrayValue;
+    v.append("setTransform");
+    Json::Value w = Json::arrayValue;
+    w.append("instance:${" + transId + "}");
+    v.append(w);
+    val["calls"].append(v);
+  }
+
+  val["properties"] = properties;
+
+  this->Add(&val, static_cast<vtkAlgorithm*>(texture));
+
+  return val;
+}
+
+//----------------------------------------------------------------------------
 Json::Value vtkVtkJSSceneGraphSerializer::ToJson(
   Json::Value& parent, vtkActor* actor, bool newPropertyId)
 {
@@ -762,6 +857,22 @@ Json::Value vtkVtkJSSceneGraphSerializer::ToJson(
     v.append(w);
     val["calls"].append(v);
   }
+
+  vtkTexture* texture = actor->GetTexture();
+  if (texture != nullptr)
+  {
+    Json::Value tex = this->ToJson(val, texture);
+    std::string textureId = std::to_string(this->UniqueId(texture));
+    tex["id"] = textureId;
+    val["dependencies"].append(tex);
+    Json::Value v = Json::arrayValue;
+    v.append("addTexture");
+    Json::Value w = Json::arrayValue;
+    w.append("instance:${" + textureId + "}");
+    v.append(w);
+    val["calls"].append(v);
+  }
+
   return val;
 }
 
@@ -1016,7 +1127,9 @@ void vtkVtkJSSceneGraphSerializer::extractRequiredFields(
   Json::Value& extractedFields, vtkMapper* mapper, vtkDataSet* dataSet)
 {
   // FIXME should evolve and support funky mapper which leverage many arrays
-  if (mapper->IsA("vtkMapper"))
+  vtkDataArray* pointDataArray = nullptr;
+  vtkDataArray* cellDataArray = nullptr;
+  if (mapper != nullptr && mapper->IsA("vtkMapper"))
   {
     vtkTypeBool scalarVisibility = mapper->GetScalarVisibility();
     int arrayAccessMode = mapper->GetArrayAccessMode();
@@ -1024,12 +1137,13 @@ void vtkVtkJSSceneGraphSerializer::extractRequiredFields(
     int scalarMode = mapper->GetScalarMode();
     if (scalarVisibility && scalarMode == 3)
     {
-      vtkDataArray* array =
+      pointDataArray =
         (arrayAccessMode == 1 ? dataSet->GetPointData()->GetArray(mapper->GetArrayName())
                               : dataSet->GetPointData()->GetArray(mapper->GetArrayId()));
-      if (array != nullptr)
+
+      if (pointDataArray != nullptr)
       {
-        Json::Value arrayMeta = this->ToJson(array);
+        Json::Value arrayMeta = this->ToJson(pointDataArray);
         arrayMeta["location"] = "pointData";
         extractedFields.append(arrayMeta);
       }
@@ -1037,15 +1151,39 @@ void vtkVtkJSSceneGraphSerializer::extractRequiredFields(
 
     if (scalarVisibility && scalarMode == 4)
     {
-      vtkDataArray* array =
+      cellDataArray =
         (arrayAccessMode == 1 ? dataSet->GetCellData()->GetArray(mapper->GetArrayName())
                               : dataSet->GetCellData()->GetArray(mapper->GetArrayId()));
-      if (array != nullptr)
+      if (cellDataArray != nullptr)
       {
-        Json::Value arrayMeta = this->ToJson(array);
+        Json::Value arrayMeta = this->ToJson(cellDataArray);
         arrayMeta["location"] = "cellData";
         extractedFields.append(arrayMeta);
       }
+    }
+  }
+
+  if (pointDataArray == nullptr)
+  {
+    vtkDataArray* array = dataSet->GetPointData()->GetScalars();
+    if (array != nullptr)
+    {
+      Json::Value arrayMeta = this->ToJson(array);
+      arrayMeta["location"] = "pointData";
+      arrayMeta["registration"] = "setScalars";
+      extractedFields.append(arrayMeta);
+    }
+  }
+
+  if (cellDataArray == nullptr)
+  {
+    vtkDataArray* array = dataSet->GetCellData()->GetScalars();
+    if (array != nullptr)
+    {
+      Json::Value arrayMeta = this->ToJson(array);
+      arrayMeta["location"] = "cellData";
+      arrayMeta["registration"] = "setScalars";
+      extractedFields.append(arrayMeta);
     }
   }
 
