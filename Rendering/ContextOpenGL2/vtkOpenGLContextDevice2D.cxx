@@ -1579,7 +1579,10 @@ void vtkOpenGLContextDevice2D::DrawString(float* point, const vtkUnicodeString& 
     {
       case vtkOpenGLGL2PSHelper::Capture:
       {
-        double x[3] = { static_cast<double>(point[0]), static_cast<double>(point[1]), 0. };
+        float tx = point[0];
+        float ty = point[1];
+        this->TransformPoint(tx, ty);
+        double x[3] = { tx, ty, 0. };
         gl2ps->DrawString(string.utf8_str(), this->TextProp, x, 0., this->Renderer);
         return;
       }
@@ -2727,10 +2730,12 @@ void vtkOpenGLContextDevice2D::DrawImageGL2PS(float p[2], vtkImageData* input)
   }
   image->GetPointData()->SetScalars(scalars);
 
-  double pos[3] = { static_cast<double>(p[0]), static_cast<double>(p[1]), 0. };
-
   // Instance always exists when this method is called:
   vtkOpenGLGL2PSHelper* gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
+
+  float tp[2] = { p[0], p[1] };
+  this->TransformPoint(tp[0], tp[1]);
+  double pos[3] = { static_cast<double>(tp[0]), static_cast<double>(tp[1]), 0. };
   gl2ps->DrawImage(image, pos);
 }
 
