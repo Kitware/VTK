@@ -832,7 +832,6 @@ int vtkNrrdReader::vtkNrrdReaderReadDataGZipTemplate(vtkImageData* output, T* ou
   vtkStringArray* filenames = this->GetFileNames();
   vtkStdString filename = this->GetFileName();
 
-  vtksys::ifstream file;
   if ((this->GetFileDimensionality() == 2) || (this->GetFileDimensionality() == 3))
   {
     if (filenames != nullptr)
