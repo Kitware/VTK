@@ -159,7 +159,7 @@ function (vtk_module_graphviz)
   endif ()
 
   if (NOT IS_ABSOLUTE "${_vtk_graphviz_OUTPUT}")
-    set(_vtk_graphviz_OUTPUT "${CMAKE_BINARY_DIR}/${_vtk_graphviz_OUTPUT}")
+    string(PREPEND _vtk_graphviz_OUTPUT "${CMAKE_BINARY_DIR}/")
   endif ()
 
   set(_vtk_graphviz_kits)

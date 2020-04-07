@@ -1016,8 +1016,8 @@ function (vtk_module_add_python_package name)
     else ()
       set(_vtk_add_python_package_name
         "${_vtk_add_python_package_file}")
-      set(_vtk_add_python_package_file
-        "${CMAKE_CURRENT_SOURCE_DIR}/${_vtk_add_python_package_file}")
+      string(PREPEND _vtk_add_python_package_file
+        "${CMAKE_CURRENT_SOURCE_DIR}/")
     endif ()
 
     set(_vtk_add_python_package_file_output
