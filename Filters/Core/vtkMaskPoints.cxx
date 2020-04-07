@@ -365,7 +365,7 @@ int vtkMaskPoints::RequestData(vtkInformation* vtkNotUsed(request),
   vtkPointData* pd = input->GetPointData();
   vtkIdType numNewPts;
   double x[3];
-  vtkIdType ptId, id = 0;
+  vtkIdType id = 0;
   vtkPointData* outputPD = output->GetPointData();
   vtkIdType numPts = input->GetNumberOfPoints();
 
@@ -452,7 +452,7 @@ int vtkMaskPoints::RequestData(vtkInformation* vtkNotUsed(request),
           cap = 2.0 * this->OnRatio - 1;
         }
 
-        for (ptId = this->Offset; (ptId < numPts) && (id < localMaxPts) && !abort;
+        for (vtkIdType ptId = this->Offset; (ptId < numPts) && (id < localMaxPts) && !abort;
              ptId += (1 + static_cast<int>(static_cast<double>(vtkMath::Random()) * cap)))
         {
           input->GetPoint(ptId, x);
@@ -470,7 +470,7 @@ int vtkMaskPoints::RequestData(vtkInformation* vtkNotUsed(request),
       {
         // Vitter's algorithm D (without A)
         // for generating random samples incrementally: O(samplesize)
-        ptId = -1;
+        vtkIdType ptId = -1;
         double vprime = log(d_rand());
         vtkIdType size = numPts;
         vtkIdType samplesize = localMaxPts;
@@ -711,7 +711,7 @@ int vtkMaskPoints::RequestData(vtkInformation* vtkNotUsed(request),
           std::vector<bool> maskedPoints(numPts, false);
           std::mt19937 gen(this->GetRandomSeed());
           std::uniform_real_distribution<> dis(0.0, localArea);
-          for (ptId = 0; ptId < numAddedPts; ptId++)
+          for (vtkIdType ptId = 0; ptId < numAddedPts; ptId++)
           {
             // The sampling vector being sorted, just find the index of the sampled cell
             double sample = dis(gen);
@@ -747,7 +747,7 @@ int vtkMaskPoints::RequestData(vtkInformation* vtkNotUsed(request),
   }
   else // striding mode
   {
-    for (ptId = this->Offset; (ptId < numPts) && (id < localMaxPts) && !abort;
+    for (vtkIdType ptId = this->Offset; (ptId < numPts) && (id < localMaxPts) && !abort;
          ptId += this->OnRatio)
     {
       input->GetPoint(ptId, x);
@@ -774,7 +774,7 @@ int vtkMaskPoints::RequestData(vtkInformation* vtkNotUsed(request),
       verts->AllocateEstimate(1, id + 1);
       verts->InsertNextCell(id + 1);
     }
-    for (ptId = 0; ptId < (id + 1) && !abort; ptId++)
+    for (vtkIdType ptId = 0; ptId < (id + 1) && !abort; ptId++)
     {
       if (!(ptId % progressInterval)) // abort/progress
       {
