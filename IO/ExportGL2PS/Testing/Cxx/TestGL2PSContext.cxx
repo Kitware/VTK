@@ -103,7 +103,14 @@ bool ContextGL2PSTest::Paint(vtkContext2D* painter)
   painter->GetTextProp()->SetFontFamilyToArial();
   painter->GetPen()->SetColor(0, 0, 0, 255);
   painter->GetBrush()->SetColor(0, 0, 0, 255);
-  painter->DrawString(400, 25, "GL2PS is used as a backend to the context.");
+
+  // Ensure transform works
+  vtkNew<vtkTransform2D> tform;
+  tform->Translate(400, 25);
+  painter->PushMatrix();
+  painter->AppendTransform(tform);
+  painter->DrawString(0, 0, "GL2PS is used as a backend to the context.");
+  painter->PopMatrix();
 
   // Draw some individual lines of different thicknesses.
   for (int i = 0; i < 10; ++i)
@@ -262,7 +269,16 @@ bool ContextGL2PSTest::Paint(vtkContext2D* painter)
   }
   image->GetPointData()->SetScalars(scalars);
   scalars->Delete();
-  painter->DrawImage(10, 525, image);
+  painter->PushMatrix();
+
+  // Ensure transform works
+  tform->Identity();
+  tform->Translate(10, 525);
+  painter->PushMatrix();
+  painter->AppendTransform(tform);
+  painter->DrawImage(0, 0, image);
+  painter->PopMatrix();
+
   painter->DrawImage(65, 500, 2.f, image);
   painter->DrawImage(vtkRectf(170, 537.5f, 25, 25), image);
 
