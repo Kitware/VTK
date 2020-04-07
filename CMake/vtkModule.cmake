@@ -3814,7 +3814,7 @@ function to keep the install uniform.
 function (_vtk_module_install target)
   set(_vtk_install_export)
   if (_vtk_build_INSTALL_EXPORT)
-    set(_vtk_install_export
+    list(APPEND _vtk_install_export
       EXPORT "${_vtk_build_INSTALL_EXPORT}")
   endif ()
 

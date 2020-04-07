@@ -484,7 +484,7 @@ extern PyObject* PyInit_${_vtk_python_library_name}();
 
   set(_vtk_python_export)
   if (_vtk_python_INSTALL_EXPORT)
-    set(_vtk_python_export
+    list(APPEND _vtk_python_export
       EXPORT "${_vtk_python_INSTALL_EXPORT}")
   endif ()
 
