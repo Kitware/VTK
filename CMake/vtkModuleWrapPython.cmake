@@ -118,7 +118,7 @@ function (_vtk_module_wrap_python_sources module sources classes)
     PROPERTY  "private_depends"
     VARIABLE  _vtk_python_private_depends)
   list(APPEND _vtk_python_hierarchy_depends ${_vtk_python_private_depends})
-  
+
   set(_vtk_python_command_depends)
   foreach (_vtk_python_hierarchy_depend IN LISTS _vtk_python_hierarchy_depends)
     _vtk_module_get_module_property("${_vtk_python_hierarchy_depend}"
