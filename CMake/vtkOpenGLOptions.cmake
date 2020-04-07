@@ -71,7 +71,7 @@ set(VTK_CAN_DO_HEADLESS FALSE)
 if(WIN32 OR VTK_OPENGL_HAS_OSMESA OR VTK_OPENGL_HAS_EGL)
   set(VTK_CAN_DO_OFFSCREEN TRUE)
 endif()
-if(WIN32 OR VTK_USE_COCOA OR VTK_USE_X)
+if(WIN32 OR VTK_USE_COCOA OR VTK_USE_X) # XXX: See error message below.
   set(VTK_CAN_DO_ONSCREEN TRUE)
 endif()
 
@@ -82,6 +82,15 @@ endif()
 if(APPLE_IOS OR ANDROID OR CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   set(VTK_CAN_DO_HEADLESS FALSE)
 endif()
+
+if (VTK_OPENGL_HAS_OSMESA AND VTK_CAN_DO_ONSCREEN)
+  message(FATAL_ERROR
+    "The `VTK_OPENGL_HAS_OSMESA` is ignored if any of the following is true: "
+    "the target platform is Windows, `VTK_USE_COCOA` is `ON`, or `VTK_USE_X` "
+    "is `ON`. OSMesa does not support on-screen rendering and VTK's OpenGL "
+    "selection is at build time, so the current build configuration is not "
+    "satisfiable.")
+endif ()
 
 cmake_dependent_option(
   VTK_USE_OPENGL_DELAYED_LOAD
