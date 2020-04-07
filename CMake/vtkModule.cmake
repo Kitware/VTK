@@ -1113,11 +1113,11 @@ function (_vtk_module_real_target var module)
       get_property(_vtk_real_target_kit GLOBAL
         PROPERTY "_vtk_module_${module}_kit")
       if (_vtk_real_target_kit)
-        set(_vtk_real_target_res "${_vtk_real_target_res}-objects")
+        string(APPEND _vtk_real_target_res "-objects")
       endif ()
     # A query for after the module is built.
     elseif (TARGET "${_vtk_real_target_res}-objects")
-      set(_vtk_real_target_res "${_vtk_real_target_res}-objects")
+      string(APPEND _vtk_real_target_res "-objects")
     endif ()
   endif ()
 
@@ -2962,7 +2962,7 @@ function (_vtk_module_write_wrap_hierarchy)
 
   set(_vtk_add_module_target_name_iface "${_vtk_add_module_target_name}")
   if (_vtk_add_module_build_with_kit)
-    set(_vtk_add_module_target_name_iface "${_vtk_add_module_target_name}-objects")
+    string(APPEND _vtk_add_module_target_name_iface "-objects")
   endif ()
   set(_vtk_hierarchy_genex_compile_definitions
     "$<TARGET_PROPERTY:${_vtk_add_module_target_name_iface},COMPILE_DEFINITIONS>")
@@ -3291,7 +3291,7 @@ function (vtk_module_add_module name)
       target_compile_definitions("${_vtk_add_module_real_target}-objects"
         PRIVATE
           "${_vtk_add_module_real_target}_EXPORT")
-      set(_vtk_add_module_real_target "${_vtk_add_module_real_target}-objects")
+      string(APPEND _vtk_add_module_real_target "-objects")
     else ()
       add_library("${_vtk_add_module_real_target}" ${_vtk_add_module_type}
         ${_vtk_add_module_SOURCES}
