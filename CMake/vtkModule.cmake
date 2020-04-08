@@ -203,6 +203,9 @@ supported:
     not by those using this module.
   * `OPTIONAL_DEPENDS`: A list of modules which are used by this module if
     enabled; these are treated as `PRIVATE_DEPENDS` if they exist.
+  * `ORDER_DEPENDS`: Dependencies which only matter for ordering. This does not
+    mean that the module will be enabled, just guaranteed to build before this
+    module.
   * `IMPLEMENTS`: A list of modules for which this module needs to register
     with.
   * `TEST_DEPENDS`: Modules required by the test suite for this module.
@@ -261,7 +264,7 @@ macro (_vtk_module_parse_module_args name_output)
   cmake_parse_arguments("${_name_NAME}"
     "IMPLEMENTABLE;EXCLUDE_WRAP;THIRD_PARTY"
     "LIBRARY_NAME;NAME;KIT"
-    "GROUPS;DEPENDS;PRIVATE_DEPENDS;OPTIONAL_DEPENDS;TEST_DEPENDS;TEST_OPTIONAL_DEPENDS;TEST_LABELS;DESCRIPTION;CONDITION;IMPLEMENTS"
+    "GROUPS;DEPENDS;PRIVATE_DEPENDS;OPTIONAL_DEPENDS;ORDER_DEPENDS;TEST_DEPENDS;TEST_OPTIONAL_DEPENDS;TEST_LABELS;DESCRIPTION;CONDITION;IMPLEMENTS"
     ${ARGN})
 
   if (${_name_NAME}_UNPARSED_ARGUMENTS)
@@ -798,6 +801,9 @@ function (vtk_module_scan)
     set_property(GLOBAL
       PROPERTY
         "_vtk_module_${_vtk_scan_module_name}_depends" "${${_vtk_scan_module_name}_DEPENDS}")
+    set_property(GLOBAL
+      PROPERTY
+        "_vtk_module_${_vtk_scan_module_name}_order_depends" "${${_vtk_scan_module_name}_ORDER_DEPENDS}")
     set_property(GLOBAL
       PROPERTY
         "_vtk_module_${_vtk_scan_module_name}_private_depends" "${${_vtk_scan_module_name}_PRIVATE_DEPENDS}")
@@ -2306,10 +2312,13 @@ function (vtk_module_build)
       PROPERTY "_vtk_module_${_vtk_build_module}_private_depends")
     get_property("_vtk_build_${_vtk_build_module}_optional_depends" GLOBAL
       PROPERTY "_vtk_module_${_vtk_build_module}_optional_depends")
+    get_property("_vtk_build_${_vtk_build_module}_order_depends" GLOBAL
+      PROPERTY "_vtk_module_${_vtk_build_module}_order_depends")
     set("_vtk_build_${_vtk_build_module}_all_depends"
       ${_vtk_build_${_vtk_build_module}_depends}
       ${_vtk_build_${_vtk_build_module}_private_depends}
-      ${_vtk_build_${_vtk_build_module}_optional_depends})
+      ${_vtk_build_${_vtk_build_module}_optional_depends}
+      ${_vtk_build_${_vtk_build_module}_order_depends})
   endforeach ()
 
   set(_vtk_build_sorted_modules "${_vtk_build_MODULES}")

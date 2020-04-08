@@ -8,3 +8,5 @@ GROUPS
   Rendering
 DEPENDS
   VTK::RenderingCore
+ORDER_DEPENDS
+  VTK::opengl
