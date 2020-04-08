@@ -461,8 +461,8 @@ int TestOrderStatistics(int, char*[])
     int frequVal = it->second;
     sum12 += frequVal;
 
-    std::string lowerVal = outputQuantiles2->GetValueByName(prevqIdx, "Text").ToString();
-    std::string upperVal = outputQuantiles2->GetValueByName(quantIdx, "Text").ToString();
+    const std::string& lowerVal = outputQuantiles2->GetValueByName(prevqIdx, "Text").ToString();
+    const std::string& upperVal = outputQuantiles2->GetValueByName(quantIdx, "Text").ToString();
     char midVal = (lowerVal[0] + upperVal[0] + 1) / 2;
     histo12Repr[quantIdx] = midVal;
 
@@ -525,13 +525,13 @@ int TestOrderStatistics(int, char*[])
     int frequVal = it->second;
     sum100 += frequVal;
 
-    const char* lowerVal = outputQuantiles2->GetValueByName(prevqIdx, "Text").ToString();
-    const char* upperVal = outputQuantiles2->GetValueByName(quantIdx, "Text").ToString();
-    char midVal = (*lowerVal + *upperVal + 1) / 2;
+    const std::string& lowerVal = outputQuantiles2->GetValueByName(prevqIdx, "Text").ToString();
+    const std::string& upperVal = outputQuantiles2->GetValueByName(quantIdx, "Text").ToString();
+    char midVal = (lowerVal[0] + upperVal[0] + 1) / 2;
     histo100Repr[quantIdx] = midVal;
 
-    cout << "   interval " << quantIdx << (quantIdx > 1 ? ": ]" : ": [") << *lowerVal << " - "
-         << *upperVal << "] represented by " << midVal << " with frequency " << frequVal << "\n";
+    cout << "   interval " << quantIdx << (quantIdx > 1 ? ": ]" : ": [") << lowerVal[0] << " - "
+         << upperVal[0] << "] represented by " << midVal << " with frequency " << frequVal << "\n";
   }
 
   // Verify that we retrieve the total count
