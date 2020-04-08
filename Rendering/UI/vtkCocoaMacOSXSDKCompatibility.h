@@ -56,6 +56,11 @@ PURPOSE.  See the above copyright notice for more information.
 #define NSEventMaskAny NSAnyEventMask
 #endif
 
+// New in the 10.13 SDK.
+#if MAC_OS_X_VERSION_MAX_ALLOWED < 101300
+#define NSPasteboardTypeFileURL (NSString*)kUTTypeFileURL
+#endif
+
 // Create handy #defines that indicate the Objective-C memory management model.
 // Manual Retain Release, Automatic Reference Counting, or Garbage Collection.
 #if defined(__OBJC_GC__)
