@@ -728,8 +728,11 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
         {
           if (protocol == "file" && (hostname.empty() || hostname == "localhost"))
           {
-            // The uris are crlf delimited, remove the ending \r
-            filePath.pop_back();
+            // The uris can be crlf delimited, remove ending \r if any
+            if (filePath.back() == '\r')
+            {
+              filePath.pop_back();
+            }
 
             // The extracted filepath miss the first slash
             filePath.insert(0, "/");
