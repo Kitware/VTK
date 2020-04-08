@@ -848,7 +848,11 @@ int vtkNrrdReader::vtkNrrdReaderReadDataGZipTemplate(vtkImageData* output, T* ou
       filename = filenames->GetValue(0);
     }
 
-    int fd = open(filename.c_str(), O_RDONLY);
+    int flags = O_RDONLY;
+#ifdef _WIN32
+    flags |= O_BINARY;
+#endif
+    int fd = open(filename.c_str(), flags);
     if (fd < 0)
     {
       vtkErrorMacro(<< "Couldn't open nrrd file: " << filename);
