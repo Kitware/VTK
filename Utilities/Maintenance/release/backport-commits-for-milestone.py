@@ -184,21 +184,24 @@ for mr in bar.iter(merged_requests):
         manual_mrs.append((mr, manual))
     else:
         merge_base = repo.merge_base(backport_head, working_branch)
-        repo.index.merge_tree(backport_head, base=merge_base)
-        new_commit = repo.index.commit(
-            f'''Merge topic '{mr["source_branch"]}' into {branch_name}
+        try:
+            repo.index.merge_tree(backport_head, base=merge_base)
+            new_commit = repo.index.commit(
+                f'''Merge topic '{mr["source_branch"]}' into {branch_name}
 
 Merge-request: !{mr["iid"]}
 ''',
-            parent_commits=(working_branch.commit, backport_head.commit))
+                parent_commits=(working_branch.commit, backport_head.commit))
 
-        old_parent = repo.commit(f'{branch_name}~')
-        diff_index = repo.index.diff(old_parent)
-        if len(diff_index) == 0:
-            repo.git.reset(old_parent.hexsha)
-            skipped_mrs.append(mr)
-        else:
-            merged_mrs.append(mr)
+            old_parent = repo.commit(f'{branch_name}~')
+            diff_index = repo.index.diff(old_parent)
+            if len(diff_index) == 0:
+                repo.git.reset(old_parent.hexsha)
+                skipped_mrs.append(mr)
+            else:
+                merged_mrs.append(mr)
+        except git.GitCommandError as e:
+            manual_mrs.append((mr, e))
 
 if skipped_mrs:
     print('Merge requests which appear to have already been backported another way:')
