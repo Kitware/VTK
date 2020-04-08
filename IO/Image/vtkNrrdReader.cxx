@@ -30,6 +30,15 @@
 // Header for zlib
 #include "vtk_zlib.h"
 
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#ifdef _WIN32
+#include <io.h>
+#else
+#include <unistd.h>
+#endif
+
 #include <algorithm>
 #include <istream>
 #include <sstream>
@@ -839,8 +848,8 @@ int vtkNrrdReader::vtkNrrdReaderReadDataGZipTemplate(vtkImageData* output, T* ou
       filename = filenames->GetValue(0);
     }
 
-    FILE* fp = nullptr;
-    if ((fp = vtksys::SystemTools::Fopen(filename, "rb")) == nullptr)
+    int fd = open(filename.c_str(), O_RDONLY);
+    if (fd < 0)
     {
       vtkErrorMacro(<< "Couldn't open nrrd file: " << filename);
       this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
@@ -848,14 +857,13 @@ int vtkNrrdReader::vtkNrrdReaderReadDataGZipTemplate(vtkImageData* output, T* ou
     }
     else
     {
-      fseek(fp, this->GetHeaderSize(), SEEK_SET);
-      int fd = fileno(fp);
+      lseek(fd, this->GetHeaderSize(), SEEK_SET);
       gzFile gf = gzdopen(fd, "r");
       if (gf == nullptr)
       {
         vtkErrorMacro(<< "Couldn't open gzip stream from nrrd file: " << filename);
         this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
-        fclose(fp);
+        close(fd);
         return 0;
       }
       unsigned numBytes = static_cast<unsigned>(inIncr[2]) * sizeof(T);
@@ -863,7 +871,7 @@ int vtkNrrdReader::vtkNrrdReaderReadDataGZipTemplate(vtkImageData* output, T* ou
       if ((rsize < 0) || (static_cast<unsigned>(rsize) != numBytes))
       {
         vtkErrorMacro(<< "Couldn't read gzip data from nrrd file: " << filename << " " << numBytes
-                      << "/" << rsize);
+                      << "/" << rsize << ", GetHeaderSize(): " << this->GetHeaderSize());
         this->SetErrorCode(vtkErrorCode::PrematureEndOfFileError);
         gzclose(gf);
         return 0;
