@@ -257,7 +257,7 @@ void ReferenceCountModel::addObject(vtkObjectBase* obj)
   int row = this->rowCount();
   this->insertRow(row);
   this->setData(this->index(row, 0), this->pointerAsString(obj));
-  this->setData(this->index(row, 0), qVariantFromValue(obj), Qt::UserRole);
+  this->setData(this->index(row, 0), QVariant::fromValue(obj), Qt::UserRole);
   this->setData(this->index(row, 1), obj->GetReferenceCount());
 }
 
