@@ -858,11 +858,12 @@ int vtkNrrdReader::vtkNrrdReaderReadDataGZipTemplate(vtkImageData* output, T* ou
         fclose(fp);
         return 0;
       }
-      size_t numBytes = inIncr[2] * sizeof(T);
+      unsigned numBytes = static_cast<unsigned>(inIncr[2]) * sizeof(T);
       int rsize = gzread(gf, outBuffer, numBytes);
-      if ((rsize < 0) || (static_cast<size_t>(rsize) != numBytes))
+      if ((rsize < 0) || (static_cast<unsigned>(rsize) != numBytes))
       {
-        vtkErrorMacro(<< "Couldn't read gzip data from nrrd file: " << filename);
+        vtkErrorMacro(<< "Couldn't read gzip data from nrrd file: " << filename << " " << numBytes
+                      << "/" << rsize);
         this->SetErrorCode(vtkErrorCode::PrematureEndOfFileError);
         gzclose(gf);
         return 0;
