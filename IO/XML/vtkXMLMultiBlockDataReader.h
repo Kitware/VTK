@@ -67,6 +67,8 @@ protected:
 private:
   vtkXMLMultiBlockDataReader(const vtkXMLMultiBlockDataReader&) = delete;
   void operator=(const vtkXMLMultiBlockDataReader&) = delete;
+
+  bool DistributePiecesInMultiPieces;
 };
 
 #endif
