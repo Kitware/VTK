@@ -60,7 +60,7 @@
       [NSThread detachNewThreadSelector:@selector(emptyMethod:) toTarget:self withObject:nil];
     }
 
-    [self registerForDraggedTypes:@[ NSPasteboardTypeFileURL ]];
+    [self registerForDraggedTypes:@[ (NSString*)kUTTypeFileURL ]];
   }
   return self;
 }
@@ -84,7 +84,7 @@
       [NSThread detachNewThreadSelector:@selector(emptyMethod:) toTarget:self withObject:nil];
     }
 
-    [self registerForDraggedTypes:@[ NSPasteboardTypeFileURL ]];
+    [self registerForDraggedTypes:@[ (NSString*)kUTTypeFileURL ]];
   }
   return self;
 }
@@ -506,7 +506,7 @@ static const char* vtkMacKeyCodeToKeySymTable[128] = { nullptr, nullptr, nullptr
 - (NSDragOperation)draggingEntered:(id<NSDraggingInfo>)sender
 {
   NSArray* types = [[sender draggingPasteboard] types];
-  if ([types containsObject:NSPasteboardTypeFileURL])
+  if ([types containsObject:(NSString*)kUTTypeFileURL])
   {
     return NSDragOperationCopy;
   }
