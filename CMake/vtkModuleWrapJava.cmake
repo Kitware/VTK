@@ -237,6 +237,9 @@ function (_vtk_module_wrap_java_library name)
 
   set(_vtk_java_target "${name}Java")
 
+  # XXX(java): Should this be a `MODULE`? If not, we should probably export
+  # these targets, but then we'll need logic akin to the `vtkModuleWrapPython`
+  # logic for loading wrapped modules from other packages.
   add_library("${_vtk_java_target}" SHARED
     ${_vtk_java_library_sources})
   add_custom_target("${_vtk_java_target}-java-sources"
@@ -249,18 +252,26 @@ function (_vtk_module_wrap_java_library name)
       PROPERTY
         PREFIX "")
   endif ()
+  if (APPLE)
+    set_property(TARGET "${_vtk_java_target}"
+      PROPERTY
+        SUFFIX ".jnilib")
+  endif ()
   set_property(TARGET "${_vtk_java_target}"
     PROPERTY
       "_vtk_module_java_files" "${_vtk_java_library_java_sources}")
 
-  if (APPLE)
-    add_custom_command(
-      TARGET  "${_vtk_java_target}"
-      POST_BUILD
-      COMMAND "${CMAKE_COMMAND}" -E create_symlink
-              "$<TARGET_FILE_NAME:${_vtk_java_target}>"
-              "$<TARGET_FILE_DIR:${_vtk_java_target}>/$<TARGET_PROPERTY:${_vtk_java_target},PREFIX>${_vtk_java_target}.jnilib"
-      WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
+  if (_vtk_java_JNILIB_DESTINATION)
+    install(
+      TARGETS "${_vtk_java_target}"
+      # Windows
+      RUNTIME
+        DESTINATION "${_vtk_java_JNILIB_DESTINATION}"
+        COMPONENT   "${_vtk_java_JNILIB_COMPONENT}"
+      # Other platforms
+      LIBRARY
+        DESTINATION "${_vtk_java_JNILIB_DESTINATION}"
+        COMPONENT   "${_vtk_java_JNILIB_COMPONENT}")
   endif ()
 
   vtk_module_autoinit(
@@ -270,6 +281,7 @@ function (_vtk_module_wrap_java_library name)
   target_link_libraries("${_vtk_java_target}"
     PRIVATE
       ${ARGN}
+      # XXX(java): If we use modules, remove this.
       ${_vtk_java_library_link_depends}
       VTK::Java)
 endfunction ()
@@ -293,6 +305,11 @@ vtk_module_wrap_java(
     `${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/vtkJava`. Java source files are
     written to this directory. After generation, the files may be compiled as
     needed.
+  * `LIBRARY_DESTINATION` (Recommended): If provided, dynamic loader
+    information will be added to modules for loading dependent libraries.
+  * `JNILIB_DESTINATION`: Where to install JNI libraries.
+  * `JNILIB_COMPONENT`: Defaults to `jni`. The install component to use for JNI
+    libraries.
 
 For each wrapped module, a `<module>Java` target will be created. These targets
 will have a `_vtk_module_java_files` property which is the list of generated
@@ -304,7 +321,7 @@ used.
 function (vtk_module_wrap_java)
   cmake_parse_arguments(_vtk_java
     ""
-    "JAVA_OUTPUT;WRAPPED_MODULES"
+    "JAVA_OUTPUT;WRAPPED_MODULES;LIBRARY_DESTINATION;JNILIB_DESTINATION;JNILIB_COMPONENT"
     "MODULES"
     ${ARGN})
 
@@ -316,6 +333,41 @@ function (vtk_module_wrap_java)
 
   if (NOT _vtk_java_JAVA_OUTPUT)
     set(_vtk_java_JAVA_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/vtkJava")
+  endif ()
+
+  if (NOT _vtk_java_JNILIB_COMPONENT)
+    set(_vtk_java_JNILIB_COMPONENT "jni")
+  endif ()
+
+  # Set up rpaths
+  set(CMAKE_BUILD_RPATH_USE_ORIGIN 1)
+  if (UNIX)
+    if (APPLE)
+      set(_vtk_java_origin_rpath_prefix
+        "@loader_path")
+    else ()
+      set(_vtk_java_origin_rpath_prefix
+        "$ORIGIN")
+    endif ()
+
+    list(APPEND CMAKE_INSTALL_RPATH
+      # For sibling wrapped modules.
+      "${_vtk_java_origin_rpath_prefix}")
+
+    if (DEFINED _vtk_java_LIBRARY_DESTINATION AND DEFINED _vtk_java_JNILIB_DESTINATION)
+      file(RELATIVE_PATH _vtk_java_relpath
+        "/prefix/${_vtk_java_JNILIB_DESTINATION}"
+        "/prefix/${_vtk_java_LIBRARY_DESTINATION}")
+
+      list(APPEND CMAKE_INSTALL_RPATH
+        # For libraries.
+        "${_vtk_java_origin_rpath_prefix}/${_vtk_java_relpath}")
+    endif ()
+  endif ()
+
+  if (DEFINED _vtk_java_JNILIB_DESTINATION)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${_vtk_java_JNILIB_DESTINATION}")
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${_vtk_java_JNILIB_DESTINATION}")
   endif ()
 
   if (NOT _vtk_java_MODULES)

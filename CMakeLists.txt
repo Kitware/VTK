@@ -376,6 +376,8 @@ if (VTK_WRAP_PYTHON)
 endif ()
 
 if (VTK_WRAP_JAVA)
+  enable_language(Java)
+
   add_subdirectory(Wrapping/Java)
 endif ()
 
