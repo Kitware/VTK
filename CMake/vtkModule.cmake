@@ -579,7 +579,7 @@ function (vtk_module_scan)
 
   foreach (_vtk_scan_kit_file IN LISTS _vtk_scan_KIT_FILES)
     if (NOT IS_ABSOLUTE "${_vtk_scan_kit_file}")
-      set(_vtk_scan_kit_file "${CMAKE_CURRENT_SOURCE_DIR}/${_vtk_scan_kit_file}")
+      string(PREPEND _vtk_scan_kit_file "${CMAKE_CURRENT_SOURCE_DIR}/")
     endif ()
     set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" APPEND
       PROPERTY
@@ -615,7 +615,7 @@ function (vtk_module_scan)
   # Read all of the module files passed in.
   foreach (_vtk_scan_module_file IN LISTS _vtk_scan_MODULE_FILES)
     if (NOT IS_ABSOLUTE "${_vtk_scan_module_file}")
-      set(_vtk_scan_module_file "${CMAKE_CURRENT_SOURCE_DIR}/${_vtk_scan_module_file}")
+      string(PREPEND _vtk_scan_module_file "${CMAKE_CURRENT_SOURCE_DIR}/")
     endif ()
     set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" APPEND
       PROPERTY
@@ -1113,11 +1113,11 @@ function (_vtk_module_real_target var module)
       get_property(_vtk_real_target_kit GLOBAL
         PROPERTY "_vtk_module_${module}_kit")
       if (_vtk_real_target_kit)
-        set(_vtk_real_target_res "${_vtk_real_target_res}-objects")
+        string(APPEND _vtk_real_target_res "-objects")
       endif ()
     # A query for after the module is built.
     elseif (TARGET "${_vtk_real_target_res}-objects")
-      set(_vtk_real_target_res "${_vtk_real_target_res}-objects")
+      string(APPEND _vtk_real_target_res "-objects")
     endif ()
   endif ()
 
@@ -1532,7 +1532,7 @@ function (vtk_module_link module)
 
   get_property(_vtk_link_kit GLOBAL
     PROPERTY "_vtk_module_${module}_kit")
-  if (_vtk_link_kit AND NOT CMAKE_VERSION VERSION_LESS "3.12")
+  if (_vtk_link_kit)
     foreach (_vtk_link_private IN LISTS _vtk_link_PRIVATE)
       if (NOT TARGET "${_vtk_link_private}")
         continue ()
@@ -2213,12 +2213,6 @@ function (vtk_module_build)
 
   if (NOT DEFINED _vtk_build_BUILD_WITH_KITS)
     set(_vtk_build_BUILD_WITH_KITS OFF)
-  endif ()
-
-  if (_vtk_build_BUILD_WITH_KITS AND CMAKE_VERSION VERSION_LESS "3.12")
-    message(FATAL_ERROR
-      "Building with kits enabled requires CMake 3.12 which introduced "
-      "support for OBJECT libraries to have and utilize usage requirements.")
   endif ()
 
   if (_vtk_build_BUILD_WITH_KITS AND NOT DEFINED _vtk_build_KITS)
@@ -2968,7 +2962,7 @@ function (_vtk_module_write_wrap_hierarchy)
 
   set(_vtk_add_module_target_name_iface "${_vtk_add_module_target_name}")
   if (_vtk_add_module_build_with_kit)
-    set(_vtk_add_module_target_name_iface "${_vtk_add_module_target_name}-objects")
+    string(APPEND _vtk_add_module_target_name_iface "-objects")
   endif ()
   set(_vtk_hierarchy_genex_compile_definitions
     "$<TARGET_PROPERTY:${_vtk_add_module_target_name_iface},COMPILE_DEFINITIONS>")
@@ -3257,8 +3251,6 @@ function (vtk_module_add_module name)
         "belong in kits.")
     endif ()
 
-    # XXX(cmake-3.12.0): This unset is no longer necessary when 3.12.0 is required.
-    unset("${_vtk_build_module}_LIB_DEPENDS" CACHE)
     add_library("${_vtk_add_module_real_target}" INTERFACE)
 
     if (NOT _vtk_build_module STREQUAL _vtk_add_module_real_target)
@@ -3285,8 +3277,6 @@ function (vtk_module_add_module name)
         PROPERTY
           "INTERFACE_vtk_module_library_name" "${_vtk_add_module_library_name}")
 
-      # XXX(cmake-3.12.0): This unset is no longer necessary when 3.12.0 is required.
-      unset("${_vtk_build_module}_LIB_DEPENDS" CACHE)
       add_library("${_vtk_add_module_real_target}-objects" OBJECT
         ${_vtk_add_module_SOURCES}
         ${_vtk_add_module_TEMPLATES}
@@ -3301,7 +3291,7 @@ function (vtk_module_add_module name)
       target_compile_definitions("${_vtk_add_module_real_target}-objects"
         PRIVATE
           "${_vtk_add_module_real_target}_EXPORT")
-      set(_vtk_add_module_real_target "${_vtk_add_module_real_target}-objects")
+      string(APPEND _vtk_add_module_real_target "-objects")
     else ()
       add_library("${_vtk_add_module_real_target}" ${_vtk_add_module_type}
         ${_vtk_add_module_SOURCES}
@@ -3560,8 +3550,8 @@ function (vtk_module_add_module name)
 
   set(_vtk_add_module_autoinit_content)
   if (_vtk_add_module_autoinit_depends_includes)
-    set(_vtk_add_module_autoinit_content
-      "${_vtk_add_module_autoinit_content}/* AutoInit dependencies. */\n${_vtk_add_module_autoinit_depends_includes}\n")
+    string(APPEND _vtk_add_module_autoinit_content
+      "/* AutoInit dependencies. */\n${_vtk_add_module_autoinit_depends_includes}\n")
   endif ()
 
   get_property(_vtk_add_module_implementable GLOBAL
@@ -3582,8 +3572,8 @@ function (vtk_module_add_module name)
       PROPERTY
         "INTERFACE_vtk_module_needs_autoinit" 1)
 
-    set(_vtk_add_module_autoinit_content
-      "${_vtk_add_module_autoinit_content}
+    string(APPEND _vtk_add_module_autoinit_content
+      "
 /* AutoInit implementations. */
 #ifdef ${_vtk_add_module_library_name}_AUTOINIT_INCLUDE
 #include ${_vtk_add_module_library_name}_AUTOINIT_INCLUDE
@@ -3594,8 +3584,8 @@ VTK_MODULE_AUTOINIT(${_vtk_add_module_library_name})
 #endif
 ")
 
-    set(_vtk_add_module_module_content
-      "${_vtk_add_module_module_content}${_vtk_add_module_autoinit_content}")
+    string(APPEND _vtk_add_module_module_content
+      "${_vtk_add_module_autoinit_content}")
   endif ()
 
   if (NOT _vtk_add_module_HEADER_ONLY AND NOT _vtk_add_module_third_party)
@@ -3824,15 +3814,10 @@ function to keep the install uniform.
 function (_vtk_module_install target)
   set(_vtk_install_export)
   if (_vtk_build_INSTALL_EXPORT)
-    set(_vtk_install_export
+    list(APPEND _vtk_install_export
       EXPORT "${_vtk_build_INSTALL_EXPORT}")
   endif ()
 
-  set(_vtk_install_namelink_args)
-  if(NOT CMAKE_VERSION VERSION_LESS 3.12)
-    list(APPEND _vtk_install_namelink_args
-      NAMELINK_COMPONENT "${_vtk_build_HEADERS_COMPONENT}")
-  endif()
   install(
     TARGETS             "${target}"
     ${_vtk_install_export}
@@ -3843,7 +3828,7 @@ function (_vtk_module_install target)
     LIBRARY
       DESTINATION "${_vtk_build_LIBRARY_DESTINATION}"
       COMPONENT   "${_vtk_build_TARGETS_COMPONENT}"
-      ${_vtk_install_namelink_args}
+      NAMELINK_COMPONENT "${_vtk_build_HEADERS_COMPONENT}"
     RUNTIME
       DESTINATION "${_vtk_build_RUNTIME_DESTINATION}"
       COMPONENT   "${_vtk_build_TARGETS_COMPONENT}")
@@ -4503,10 +4488,6 @@ function (vtk_module_third_party)
     PARENT_SCOPE)
 
   if (VTK_MODULE_USE_EXTERNAL_${_vtk_build_module_safe})
-    # XXX(cmake): https://gitlab.kitware.com/cmake/cmake/issues/16364.
-    # Unset a variable which CMake doesn't like when switching between real
-    # libraries (internal) and interface libraries (external).
-    unset("${_vtk_build_module}_LIB_DEPENDS" CACHE)
     vtk_module_third_party_external(${_vtk_third_party_EXTERNAL})
 
     # Bubble up variables again.

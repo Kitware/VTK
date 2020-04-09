@@ -135,20 +135,20 @@ function (vtk_object_factory_configure)
   set(_vtk_object_factory_calls "")
 
   foreach (_vtk_object_factory_extra_include IN LISTS _vtk_object_factory_configure_EXTRA_INCLUDES)
-    set(_vtk_object_factory_includes
-      "${_vtk_object_factory_includes}#include ${_vtk_object_factory_extra_include}\n")
+    string(APPEND _vtk_object_factory_includes
+      "#include ${_vtk_object_factory_extra_include}\n")
   endforeach ()
 
   foreach (_vtk_object_factory_override IN LISTS _vtk_object_factory_overrides)
     get_property(_vtk_object_factory_base
       DIRECTORY
       PROPERTY "_vtk_object_factory_override_${_vtk_object_factory_override}")
-    set(_vtk_object_factory_includes
-      "${_vtk_object_factory_includes}#include \"${_vtk_object_factory_override}.h\"\n")
-    set(_vtk_object_factory_functions
-      "${_vtk_object_factory_functions}VTK_CREATE_CREATE_FUNCTION(${_vtk_object_factory_override})\n")
-    set(_vtk_object_factory_calls
-      "${_vtk_object_factory_calls}this->RegisterOverride(\"${_vtk_object_factory_base}\", \"${_vtk_object_factory_override}\", \"${_vtk_object_factory_doc}\", 1, vtkObjectFactoryCreate${_vtk_object_factory_override});\n")
+    string(APPEND _vtk_object_factory_includes
+      "#include \"${_vtk_object_factory_override}.h\"\n")
+    string(APPEND _vtk_object_factory_functions
+      "VTK_CREATE_CREATE_FUNCTION(${_vtk_object_factory_override})\n")
+    string(APPEND _vtk_object_factory_calls
+      "this->RegisterOverride(\"${_vtk_object_factory_base}\", \"${_vtk_object_factory_override}\", \"${_vtk_object_factory_doc}\", 1, vtkObjectFactoryCreate${_vtk_object_factory_override});\n")
   endforeach ()
 
   get_property(_vtk_object_factory_library_name GLOBAL

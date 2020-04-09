@@ -118,7 +118,7 @@ function (_vtk_module_wrap_python_sources module sources classes)
     PROPERTY  "private_depends"
     VARIABLE  _vtk_python_private_depends)
   list(APPEND _vtk_python_hierarchy_depends ${_vtk_python_private_depends})
-  
+
   set(_vtk_python_command_depends)
   foreach (_vtk_python_hierarchy_depend IN LISTS _vtk_python_hierarchy_depends)
     _vtk_module_get_module_property("${_vtk_python_hierarchy_depend}"
@@ -484,7 +484,7 @@ extern PyObject* PyInit_${_vtk_python_library_name}();
 
   set(_vtk_python_export)
   if (_vtk_python_INSTALL_EXPORT)
-    set(_vtk_python_export
+    list(APPEND _vtk_python_export
       EXPORT "${_vtk_python_INSTALL_EXPORT}")
   endif ()
 
@@ -1016,8 +1016,8 @@ function (vtk_module_add_python_package name)
     else ()
       set(_vtk_add_python_package_name
         "${_vtk_add_python_package_file}")
-      set(_vtk_add_python_package_file
-        "${CMAKE_CURRENT_SOURCE_DIR}/${_vtk_add_python_package_file}")
+      string(PREPEND _vtk_add_python_package_file
+        "${CMAKE_CURRENT_SOURCE_DIR}/")
     endif ()
 
     set(_vtk_add_python_package_file_output

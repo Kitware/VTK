@@ -1,21 +1,4 @@
-cmake_minimum_required(VERSION 3.8...3.12 FATAL_ERROR)
-foreach(policy
-    CMP0083 # CMake 3.14
-    CMP0074 # CMake 3.12
-    CMP0071 # CMake 3.10
-    CMP0068 # CMake 3.9
-    )
-  if(POLICY ${policy})
-    cmake_policy(SET ${policy} NEW)
-  endif()
-endforeach()
-
-if (POLICY CMP0063)
-  cmake_policy(SET CMP0063 NEW)
-endif ()
-if (POLICY CMP0065)
-  cmake_policy(SET CMP0065 NEW)
-endif ()
+cmake_minimum_required(VERSION 3.12...3.16 FATAL_ERROR)
 
 project(VTK)
 

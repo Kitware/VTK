@@ -4,8 +4,6 @@ LIBRARY_NAME
   vtkAcceleratorsVTKm
 DESCRIPTION
   VTKm filters and algorithms
-CONDITION
-  NOT CMAKE_VERSION VERSION_LESS "3.9.0"
 DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
