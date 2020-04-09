@@ -822,6 +822,26 @@ void outputFunction(FILE* fp, ClassInfo* data)
   }
 }
 
+void WriteDummyClass(FILE* fp, ClassInfo* data, const char* filename)
+{
+  char* class_name = NULL;
+  if (data == NULL)
+  {
+    char* last_slash = strrchr(filename, '/');
+    char* first_dot = strchr(last_slash, '.');
+    size_t size = first_dot - last_slash;
+    class_name = malloc(size * sizeof(char));
+    strncpy(class_name, last_slash + 1, size);
+    class_name[size - 1] = '\0';
+  }
+  else
+  {
+    class_name = strdup(data->Name);
+  }
+  fprintf(fp, "package vtk;\n\nclass %s {\n}\n", class_name);
+  free(class_name);
+}
+
 /* print the parsed structures */
 int main(int argc, char* argv[])
 {
@@ -863,12 +883,14 @@ int main(int argc, char* argv[])
   data = file_info->MainClass;
   if (data == NULL || data->IsExcluded)
   {
+    WriteDummyClass(fp, data, options->OutputFileName);
     fclose(fp);
     exit(0);
   }
 
   if (data->Template)
   {
+    WriteDummyClass(fp, data, options->OutputFileName);
     fclose(fp);
     exit(0);
   }
@@ -877,6 +899,7 @@ int main(int argc, char* argv[])
   {
     if (strchr(data->SuperClasses[i], '<'))
     {
+      WriteDummyClass(fp, data, options->OutputFileName);
       fclose(fp);
       exit(0);
     }
@@ -886,6 +909,7 @@ int main(int argc, char* argv[])
   {
     if (!vtkWrap_IsTypeOf(hierarchyInfo, data->Name, "vtkObjectBase"))
     {
+      WriteDummyClass(fp, data, options->OutputFileName);
       fclose(fp);
       exit(0);
     }

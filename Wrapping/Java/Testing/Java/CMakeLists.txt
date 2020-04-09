@@ -10,48 +10,35 @@ set(java_test_names
   Regression
   ${java_simple_test_names})
 
-set(vtk_java_class_output
-  "${CMAKE_CURRENT_BINARY_DIR}/class")
-file(MAKE_DIRECTORY "${vtk_java_class_output}")
-
 set(java_test_files)
-set(java_test_classes)
 foreach (java_test IN LISTS java_test_names)
   list(APPEND java_test_files
     "${CMAKE_CURRENT_SOURCE_DIR}/vtk/test/${java_test}.java")
-  list(APPEND java_test_classes
-    "${vtk_java_class_output}/vtk/test/${java_test}.class")
 endforeach ()
-
-if (CMAKE_GENERATOR MATCHES "Ninja")
-  set(vtk_jar_depends "${vtk_jar_file}")
-else ()
-  set(vtk_jar_depends "vtkjava")
-endif ()
-
-# Compile Java Tests
-add_custom_command(
-  OUTPUT  ${java_test_classes}
-  COMMAND ${Java_JAVAC_EXECUTABLE}
-          -classpath "${vtk_jar_file}"
-          -source "${VTK_JAVA_SOURCE_VERSION}"
-          -target "${VTK_JAVA_TARGET_VERSION}"
-          -d "${vtk_java_class_output}"
-          ${java_test_files}
-  DEPENDS "${vtk_jar_depends}"
-          ${java_test_files}
-  COMMENT "Compiling Java Tests")
-add_custom_target(vtkJavaTests ALL
-  DEPENDS
-    ${java_test_classes})
 
 set(classpath_separator ":")
 if (WIN32)
   set(classpath_separator "\\;")
 endif ()
+set(vtk_test_classpath
+  "$<TARGET_FILE:VTK::vtkjava>")
+string(REPLACE ";" "${classpath_separator}" vtk_test_classpath "${vtk_test_classpath}")
+
+add_library(vtkjava_tests STATIC
+  ${java_test_files})
+target_compile_options(vtkjava_tests
+  PRIVATE
+    "SHELL:-classpath ${vtk_test_classpath}"
+    "SHELL:-source ${VTK_JAVA_SOURCE_VERSION}"
+    "SHELL:-target ${VTK_JAVA_TARGET_VERSION}")
+target_link_libraries(vtkjava_tests
+  PRIVATE
+    VTK::vtkjava)
 
 set(vtk_test_classpath
-  "${vtk_jar_file}${classpath_separator}${vtk_java_class_output}")
+  "$<TARGET_FILE:vtkjava_tests>"
+  "$<TARGET_FILE:VTK::vtkjava>")
+string(REPLACE ";" "${classpath_separator}" vtk_test_classpath "${vtk_test_classpath}")
 
 if (TARGET VTK::RenderingOpenGL2)
   ExternalData_add_test(VTKData
