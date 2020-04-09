@@ -6,6 +6,7 @@ vtk_module_test_data(
   Data/beach.ascii
   Data/beach.ascii.nhdr
   Data/beach.nrrd
+  Data/beach_gzip.nrrd
   Data/dicom/collection/,REGEX:.*
   Data/filtered_func_data.nii.gz
   Data/minimal.hdr.gz
