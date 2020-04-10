@@ -35,6 +35,8 @@ endif ()
 # Per-package variable forwarding goes here.
 set(Boost_find_package_vars
   Boost_INCLUDE_DIR)
+set(MPI_find_package_vars
+  MPI_C_COMPILER)
 set(OSMesa_find_package_vars
   OSMESA_INCLUDE_DIR
   OSMESA_LIBRARY)

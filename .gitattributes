@@ -29,3 +29,4 @@ Utilities/KWIML/**  -format.clang-format
 Utilities/KWSys/**  -format.clang-format
 Utilities/MetaIO/** -format.clang-format
 ThirdParty/**       -format.clang-format
+CMake/patches/**    -format.clang-format

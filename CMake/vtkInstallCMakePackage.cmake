@@ -102,14 +102,14 @@ set(vtk_cmake_module_files
   vtk-use-file-error.cmake)
 set(vtk_cmake_patch_files
   patches/3.13/FindZLIB.cmake
-  patches/3.16/FindMPI/fortranparam_mpi.f90.in
-  patches/3.16/FindMPI/libver_mpi.c
-  patches/3.16/FindMPI/libver_mpi.f90.in
-  patches/3.16/FindMPI/mpiver.f90.in
-  patches/3.16/FindMPI/test_mpi.c
-  patches/3.16/FindMPI/test_mpi.f90.in
-  patches/3.16/FindMPI.cmake
   patches/3.16/FindPostgreSQL.cmake
+  patches/3.17/FindMPI/fortranparam_mpi.f90.in
+  patches/3.17/FindMPI/libver_mpi.c
+  patches/3.17/FindMPI/libver_mpi.f90.in
+  patches/3.17/FindMPI/mpiver.f90.in
+  patches/3.17/FindMPI/test_mpi.c
+  patches/3.17/FindMPI/test_mpi.f90.in
+  patches/3.17/FindMPI.cmake
   patches/3.17/FindPython/Support.cmake
   patches/3.17/FindPython2.cmake
   patches/3.17/FindPython3.cmake
