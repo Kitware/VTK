@@ -6,7 +6,7 @@ mark_as_advanced(VTK_ENABLE_WRAPPING)
 include(CMakeDependentOption)
 cmake_dependent_option(VTK_WRAP_PYTHON "Should VTK Python wrapping be built?" OFF
   "VTK_ENABLE_WRAPPING" OFF)
-set(VTK_PYTHON_VERSION 2 CACHE STRING
+set(VTK_PYTHON_VERSION 3 CACHE STRING
   "Python version to use")
 set_property(CACHE VTK_PYTHON_VERSION
   PROPERTY
