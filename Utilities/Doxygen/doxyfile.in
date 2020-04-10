@@ -4,6 +4,8 @@
 # -------------------------------------------------------------------------
 
 PROJECT_NAME         = VTK
+PROJECT_LOGO         = "@VTK_SOURCE_DIR@/vtkLogo.ico"
+PROJECT_NUMBER       = "@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@.@VTK_BUILD_VERSION@"
 
 FULL_PATH_NAMES      = YES
 STRIP_FROM_PATH      = "@VTK_BINARY_DIR@/Utilities/Doxygen/dox"
@@ -90,6 +92,8 @@ SORT_MEMBER_DOCS     = NO
 DISTRIBUTE_GROUP_DOC = YES
 TAB_SIZE             = 3
 HTML_TIMESTAMP       = YES
+HTML_HEADER          = "@VTK_SOURCE_DIR@/Utilities/Doxygen/dox_header.html"
+HTML_EXTRA_FILES     += "@VTK_SOURCE_DIR@/Utilities/Doxygen/vtk_favicon.png"
 SHORT_NAMES          = @DOXYGEN_SHORT_NAMES@
 # PAPER_TYPE           = letter
 
