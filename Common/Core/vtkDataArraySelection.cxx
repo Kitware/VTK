@@ -368,7 +368,7 @@ void vtkDataArraySelection::CopySelections(vtkDataArraySelection* selections)
 }
 
 //------------------------------------------------------------------------------
-void vtkDataArraySelection::Union(vtkDataArraySelection* other)
+void vtkDataArraySelection::Union(vtkDataArraySelection* other, bool skipModified)
 {
   auto& internal = *this->Internal;
   const auto& ointernal = *other->Internal;
@@ -384,7 +384,7 @@ void vtkDataArraySelection::Union(vtkDataArraySelection* other)
     }
   }
 
-  if (modified)
+  if (modified && !skipModified)
   {
     this->Modified();
   }

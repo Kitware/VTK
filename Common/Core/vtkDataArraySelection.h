@@ -188,15 +188,19 @@ public:
    */
   void CopySelections(vtkDataArraySelection* selections);
 
+  //@{
   /**
    * Update `this` to include values from `other`. For arrays that don't
    * exist in `this` but exist in `other`, they will get added to `this` with
    * the same array setting as in `other`. Array settings for arrays already in
    * `this` are left unchanged.
    *
-   * This method will call `this->Modified()` if the array selections changed.
+   * This method will call `this->Modified()` if the array selections changed
+   * unless @a skipModified is set to true (default is false).
    */
-  void Union(vtkDataArraySelection* other);
+  void Union(vtkDataArraySelection* other) { this->Union(other, false); }
+  void Union(vtkDataArraySelection* other, bool skipModified);
+  //@}
 
   //@{
   /**
