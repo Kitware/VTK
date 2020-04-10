@@ -64,6 +64,7 @@ class vtkMultiProcessStream;
 class vtkOutputWindow;
 class vtkProcessGroup;
 class vtkProcess;
+class vtkDataArraySelection;
 
 // The type of function that gets called when new processes are initiated.
 typedef void (*vtkProcessFunctionType)(vtkMultiProcessController* controller, void* userData);
@@ -1375,6 +1376,15 @@ public:
    */
   int Reduce(const vtkBoundingBox& sendBuffer, vtkBoundingBox& recvBuffer, int destProcessId);
   int AllReduce(const vtkBoundingBox& sendBuffer, vtkBoundingBox& recvBuffer);
+  //@}
+
+  //@{
+  /**
+   * Convenience methods to reduce vtkDataArraySelection.
+   */
+  int Reduce(
+    vtkDataArraySelection* sendBuffer, vtkDataArraySelection* recvBuffer, int destProcessId);
+  int AllReduce(vtkDataArraySelection* sendBuffer, vtkDataArraySelection* recvBuffer);
   //@}
 
   // Internally implemented RMI to break the process loop.

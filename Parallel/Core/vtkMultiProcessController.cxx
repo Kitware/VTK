@@ -19,8 +19,10 @@
 #include "vtkByteSwap.h"
 #include "vtkCollection.h"
 #include "vtkCommand.h"
+#include "vtkDataArraySelection.h"
 #include "vtkDummyController.h"
 #include "vtkEndian.h"
+#include "vtkMultiProcessStream.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOutputWindow.h"
@@ -30,6 +32,7 @@
 #include "vtkToolkits.h"
 #include "vtkWeakPointer.h"
 
+#include <algorithm>
 #include <list>
 #include <unordered_map>
 #include <vector>
@@ -794,6 +797,111 @@ int vtkMultiProcessController::AllReduce(
     const double bds[6] = { recv_min[0], recv_max[0], recv_min[1], recv_max[1], recv_min[2],
       recv_max[2] };
     recvBuffer.SetBounds(bds);
+    return 1;
+  }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+int vtkMultiProcessController::Reduce(
+  vtkDataArraySelection* sendBuffer, vtkDataArraySelection* recvBuffer, int destProcessId)
+{
+  if (!sendBuffer)
+  {
+    return 0;
+  }
+  if (this->GetNumberOfProcesses() <= 1)
+  {
+    if (recvBuffer != nullptr && recvBuffer != sendBuffer)
+    {
+      recvBuffer->RemoveAllArrays();
+      recvBuffer->CopySelections(sendBuffer);
+    }
+    return 1;
+  }
+
+  vtkMultiProcessStream stream;
+  stream << sendBuffer->GetNumberOfArrays();
+  for (int cc = 0, max = sendBuffer->GetNumberOfArrays(); cc < max; ++cc)
+  {
+    stream << std::string(sendBuffer->GetArrayName(cc)) << sendBuffer->GetArraySetting(cc);
+  }
+
+  std::vector<vtkMultiProcessStream> result;
+  if (!this->Gather(stream, result, destProcessId))
+  {
+    return 0;
+  }
+
+  if (this->GetLocalProcessId() != destProcessId)
+  {
+    return 1;
+  }
+
+  if (recvBuffer == nullptr)
+  {
+    return 0;
+  }
+
+  recvBuffer->RemoveAllArrays();
+
+  // there may be difference between array selections across ranks and we want
+  // to resolve conflict as follows:
+  // - lower rank number wins.
+  // - destProcessId rank number wins.
+  std::reverse(result.begin(), result.end());
+  std::swap(result[destProcessId], result.back());
+
+  for (auto& astream : result)
+  {
+    int count;
+    astream >> count;
+    for (int cc = 0; cc < count; ++cc)
+    {
+      std::string arrayname;
+      int setting;
+      astream >> arrayname >> setting;
+      recvBuffer->SetArraySetting(arrayname.c_str(), setting);
+    }
+  }
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkMultiProcessController::AllReduce(
+  vtkDataArraySelection* sendBuffer, vtkDataArraySelection* recvBuffer)
+{
+  if (recvBuffer == nullptr || sendBuffer == nullptr)
+  {
+    return 0;
+  }
+  if (!this->Reduce(sendBuffer, recvBuffer, 0))
+  {
+    return 0;
+  }
+
+  vtkMultiProcessStream stream;
+  if (this->GetLocalProcessId() == 0)
+  {
+    stream << recvBuffer->GetNumberOfArrays();
+    for (int cc = 0, max = recvBuffer->GetNumberOfArrays(); cc < max; ++cc)
+    {
+      stream << std::string(recvBuffer->GetArrayName(cc)) << recvBuffer->GetArraySetting(cc);
+    }
+    return this->Broadcast(stream, 0);
+  }
+  else if (this->Broadcast(stream, 0))
+  {
+    recvBuffer->RemoveAllArrays();
+    int count;
+    stream >> count;
+    for (int cc = 0; cc < count; ++cc)
+    {
+      std::string arrayname;
+      int setting;
+      stream >> arrayname >> setting;
+      recvBuffer->SetArraySetting(arrayname.c_str(), setting);
+    }
     return 1;
   }
   return 0;
