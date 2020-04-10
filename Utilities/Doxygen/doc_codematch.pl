@@ -239,7 +239,7 @@ foreach my $source (@files) {
 
     # Search for the documentation block (@class ...)
 
-    if ($headerfile !~ /(.*\/\*\!\s+)(\@class\s.+?)(\*\/.*)/gms) {
+    if ($headerfile !~ /(.*\*\s+)(\@class\s.+?)(\*\/.*)/gms) {
         carp  "$PROGNAME: no documentation block in $header ! (skipping)\n";
         next;
     }
