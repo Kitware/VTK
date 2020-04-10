@@ -268,6 +268,9 @@ public:
     this->CellDim[1] = vtkMath::Max(1, this->PointDim[1] - 1);
     this->CellDim[2] = vtkMath::Max(1, this->PointDim[2] - 1);
     this->CellSliceSize = this->CellDim[0] * this->CellDim[1];
+    this->Dim[0] = (this->PointDim[0] > 1) ? 1 : 0;
+    this->Dim[1] = (this->PointDim[1] > 1) ? 1 : 0;
+    this->Dim[2] = (this->PointDim[2] > 1) ? 1 : 0;
   }
 
   void operator()(vtkIdType begin, vtkIdType end)
@@ -281,17 +284,12 @@ public:
 
       vtkIdType ptid = ptijk[0] + this->PointDim[0] * ptijk[1] + this->PointSliceSize * ptijk[2];
 
-      int dim[3];
-      dim[0] = (this->PointDim[0] > 1) ? 1 : 0;
-      dim[1] = (this->PointDim[1] > 1) ? 1 : 0;
-      dim[2] = (this->PointDim[2] > 1) ? 1 : 0;
-
       bool validCell = true;
-      for (int k = 0; k <= dim[2]; ++k)
+      for (int k = 0; k <= this->Dim[2]; ++k)
       {
-        for (int j = 0; j <= dim[1]; ++j)
+        for (int j = 0; j <= this->Dim[1]; ++j)
         {
-          for (int i = 0; i <= dim[0]; ++i)
+          for (int i = 0; i <= this->Dim[0]; ++i)
           {
             validCell &= (0 !=
               this->MaskArray[ptid + i + (j * this->PointDim[0]) + (k * this->PointSliceSize)]);
@@ -316,6 +314,7 @@ private:
   vtkIdType PointSliceSize;
   int CellDim[3];
   vtkIdType CellSliceSize;
+  int Dim[3];
 };
 
 } // anonymous namespace
