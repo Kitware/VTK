@@ -29,7 +29,7 @@ MetaTransform::
 MetaTransform()
 :MetaObject()
 {
-  if(META_DEBUG) METAIO_STREAM::cout << "MetaTransform()" << METAIO_STREAM::endl;
+  if(META_DEBUG) std::cout << "MetaTransform()" << std::endl;
   Clear();
 }
 
@@ -38,7 +38,7 @@ MetaTransform::
 MetaTransform(const char *_headerName)
 :MetaObject()
 {
-  if(META_DEBUG)  METAIO_STREAM::cout << "MetaTransform()" << METAIO_STREAM::endl;
+  if(META_DEBUG)  std::cout << "MetaTransform()" << std::endl;
   Clear();
   Read(_headerName);
 }
@@ -48,7 +48,7 @@ MetaTransform::
 MetaTransform(const MetaTransform *_group)
 :MetaObject()
 {
-  if(META_DEBUG)  METAIO_STREAM::cout << "MetaTransform()" << METAIO_STREAM::endl;
+  if(META_DEBUG)  std::cout << "MetaTransform()" << std::endl;
   Clear();
   CopyInfo(_group);
 }
@@ -57,7 +57,7 @@ MetaTransform::
 MetaTransform(unsigned int dim)
 :MetaObject(dim)
 {
-  if(META_DEBUG) METAIO_STREAM::cout << "MetaTransform()" << METAIO_STREAM::endl;
+  if(META_DEBUG) std::cout << "MetaTransform()" << std::endl;
   Clear();
 }
 
@@ -86,8 +86,12 @@ CopyInfo(const MetaObject * _object)
 void MetaTransform::
 Clear()
 {
-  if(META_DEBUG) METAIO_STREAM::cout << "MetaTransform: Clear" << METAIO_STREAM::endl;
+  if(META_DEBUG) std::cout << "MetaTransform: Clear" << std::endl;
+
   MetaObject::Clear();
+
+  strcpy(m_ObjectTypeName,"Transform");
+
   delete parameters;
   parameters = nullptr;
   parametersDimension = 0;
@@ -114,7 +118,7 @@ M_Destroy()
 void MetaTransform::
 M_SetupReadFields()
 {
-  if(META_DEBUG) METAIO_STREAM::cout << "MetaTransform: M_SetupReadFields" << METAIO_STREAM::endl;
+  if(META_DEBUG) std::cout << "MetaTransform: M_SetupReadFields" << std::endl;
   MetaObject::M_SetupReadFields();
 
   int nDimsRecordNumber = MET_GetFieldRecordNumber("NDims", &m_Fields);
@@ -153,7 +157,6 @@ M_SetupReadFields()
 void MetaTransform::
 M_SetupWriteFields()
 {
-  strcpy(m_ObjectTypeName,"Transform");
   MetaObject::M_SetupWriteFields();
 
   // We don't want to write the matrix and the offset
@@ -315,10 +318,10 @@ M_Write()
 {
 
   if(!MetaObject::M_Write())
-  {
-    METAIO_STREAM::cout << "MetaLandmark: M_Read: Error parsing file" << METAIO_STREAM::endl;
+{
+    std::cout << "MetaLandmark: M_Read: Error parsing file" << std::endl;
     return false;
-  }
+}
 
   /** Then copy all points */
   if(m_BinaryData)
@@ -340,7 +343,7 @@ M_Write()
       {
       *m_WriteStream << parameters[i] << " ";
       }
-      *m_WriteStream << METAIO_STREAM::endl;
+      *m_WriteStream << std::endl;
     }
 
   return true;
@@ -430,18 +433,18 @@ M_Read()
 {
   if(META_DEBUG)
     {
-    METAIO_STREAM::cout << "MetaTransform: M_Read: Loading Header" << METAIO_STREAM::endl;
+    std::cout << "MetaTransform: M_Read: Loading Header" << std::endl;
     }
 
   if(!MetaObject::M_Read())
     {
-    METAIO_STREAM::cout << "MetaTransform: M_Read: Error parsing file" << METAIO_STREAM::endl;
+    std::cout << "MetaTransform: M_Read: Error parsing file" << std::endl;
     return false;
     }
 
   if(META_DEBUG)
     {
-    METAIO_STREAM::cout << "MetaTransform: M_Read: Parsing Header" << METAIO_STREAM::endl;
+    std::cout << "MetaTransform: M_Read: Parsing Header" << std::endl;
     }
 
   MET_FieldRecordType * mF;
@@ -508,9 +511,9 @@ M_Read()
     unsigned int gc = static_cast<unsigned int>(m_ReadStream->gcount());
     if(gc != parametersDimension*sizeof(double))
       {
-      METAIO_STREAM::cout << "MetaTransform: m_Read: data not read completely"
-                << METAIO_STREAM::endl;
-      METAIO_STREAM::cout << "   ideal = " << parametersDimension*sizeof(double) << " : actual = " << gc << METAIO_STREAM::endl;
+      std::cout << "MetaTransform: m_Read: data not read completely"
+                << std::endl;
+      std::cout << "   ideal = " << parametersDimension*sizeof(double) << " : actual = " << gc << std::endl;
       delete [] _data;
       return false;
       }
@@ -523,7 +526,7 @@ M_Read()
       k += sizeof(double);
       }
     delete [] _data;
-  }
+}
   else
     {
     for(unsigned int k=0; k<parametersDimension; k++)

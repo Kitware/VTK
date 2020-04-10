@@ -39,7 +39,7 @@ namespace METAIO_NAMESPACE {
 #endif
 
 class METAIO_EXPORT MetaGaussian : public MetaObject
-  {
+{
 
   /////
   //
@@ -108,7 +108,7 @@ class METAIO_EXPORT MetaGaussian : public MetaObject
     /** The standard deviation of the MetaGaussian object. */
     float m_Sigma;
 
-  };
+};
 
 
 #if (METAIO_USE_NAMESPACE)

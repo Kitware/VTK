@@ -56,7 +56,7 @@ public:
 
 
 class METAIO_EXPORT MetaSurface : public MetaObject
-  {
+{
 
   /////
   //
@@ -65,7 +65,7 @@ class METAIO_EXPORT MetaSurface : public MetaObject
   ////
   public:
 
-   typedef METAIO_STL::list<SurfacePnt*> PointListType;
+   typedef std::list<SurfacePnt*> PointListType;
     ////
     //
     // Constructors & Destructor
@@ -133,7 +133,7 @@ class METAIO_EXPORT MetaSurface : public MetaObject
 
     MET_ValueEnumType m_ElementType;
 
-  };
+};
 
 #if (METAIO_USE_NAMESPACE)
 };

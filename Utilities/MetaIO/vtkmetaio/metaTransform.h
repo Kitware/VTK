@@ -40,7 +40,7 @@ namespace METAIO_NAMESPACE {
 
 
 class METAIO_EXPORT MetaTransform : public MetaObject
-  {
+{
 
   /////
   //
@@ -121,7 +121,7 @@ class METAIO_EXPORT MetaTransform : public MetaObject
   double gridRegionSize[100];
   double gridRegionIndex[100];
 
-  };
+};
 
 #if (METAIO_USE_NAMESPACE)
 };

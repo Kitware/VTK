@@ -86,8 +86,8 @@ class METAIO_EXPORT MetaContour : public MetaObject
 
 public:
 
- typedef METAIO_STL::list<ContourControlPnt*> ControlPointListType;
- typedef METAIO_STL::list<ContourInterpolatedPnt*> InterpolatedPointListType;
+ typedef std::list<ContourControlPnt*> ControlPointListType;
+ typedef std::list<ContourInterpolatedPnt*> InterpolatedPointListType;
 
  MetaContour(void);
  MetaContour(const char *_headerName);

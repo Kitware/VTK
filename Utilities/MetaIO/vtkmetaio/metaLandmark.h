@@ -58,7 +58,7 @@ public:
 
 
 class METAIO_EXPORT MetaLandmark : public MetaObject
-  {
+{
 
   /////
   //
@@ -67,7 +67,7 @@ class METAIO_EXPORT MetaLandmark : public MetaObject
   ////
   public:
 
-   typedef METAIO_STL::list<LandmarkPnt*> PointListType;
+   typedef std::list<LandmarkPnt*> PointListType;
     ////
     //
     // Constructors & Destructor
@@ -134,7 +134,7 @@ class METAIO_EXPORT MetaLandmark : public MetaObject
     PointListType m_PointList;
 
     MET_ValueEnumType m_ElementType;
-  };
+};
 
 #if (METAIO_USE_NAMESPACE)
 };

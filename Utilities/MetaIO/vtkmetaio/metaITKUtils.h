@@ -30,7 +30,7 @@ template <class T>
 typename itk::Image<T, 3>::Pointer
 metaITKUtilLoadImage3D(const char *fname, MET_ValueEnumType _toType,
                        double _toMinValue=0, double _toMaxValue=0)
-  {
+{
   MetaImage *imIO = new MetaImage();
   imIO->Read(fname);
   imIO->PrintInfo();
@@ -98,7 +98,7 @@ metaITKUtilLoadImage3D(const char *fname, MET_ValueEnumType _toType,
 
 
   return image;
-  }
+}
 
 template <class imageT>
 bool metaITKUtilSaveImage(const char *fname, const char *dname,
@@ -107,7 +107,7 @@ bool metaITKUtilSaveImage(const char *fname, const char *dname,
                           int _numberOfChannels,
                           MET_ValueEnumType _toType,
                           double _toMinValue=0, double _toMaxValue=0)
-  {
+{
   int i;
   int nd = _im->GetImageDimension();
   int * si = new int[nd];
@@ -128,7 +128,7 @@ bool metaITKUtilSaveImage(const char *fname, const char *dname,
   bool res = imIO.Write(fname, dname);
 
   return res;
-  }
+}
 
 #if (METAIO_USE_NAMESPACE)
 };
