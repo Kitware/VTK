@@ -276,7 +276,7 @@ as it would be normally and then the generated `setup.py` file used to create
 the wheel.
 
 ```sh
-cmake -GNinja -DVTK_WHEEL_BUILD=ON path/to/vtk/source
+cmake -GNinja -DVTK_WHEEL_BUILD=ON -DVTK_PYTHON_VERSION=3 -DVTK_WRAP_PYTHON=ON path/to/vtk/source
 ninja
 python3 setup.py bdist_wheel
 ```
