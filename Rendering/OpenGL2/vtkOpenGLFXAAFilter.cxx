@@ -264,7 +264,7 @@ void vtkOpenGLFXAAFilter::CreateGLObjects()
   vtkOpenGLRenderWindow* renWin =
     static_cast<vtkOpenGLRenderWindow*>(this->Renderer->GetRenderWindow());
   this->Input->SetContext(renWin);
-  this->Input->SetFormat(GL_RGB);
+  this->Input->SetFormat(GL_RGBA);
 
   // we need to get the format of current color buffer in order to allocate the right format
   // for the texture used in FXAA
@@ -279,9 +279,9 @@ void vtkOpenGLFXAAFilter::CreateGLObjects()
     // ES doesn't support GL_RGB8, and OpenGL 3 doesn't support GL_RGB.
     // What a world.
 #ifdef GL_ES_VERSION_3_0
-    this->Input->SetInternalFormat(GL_RGB);
+    this->Input->SetInternalFormat(GL_RGBA);
 #else  // OpenGL ES
-    this->Input->SetInternalFormat(GL_RGB8);
+    this->Input->SetInternalFormat(GL_RGBA8);
 #endif // OpenGL ES
   }
 
