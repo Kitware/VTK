@@ -40,7 +40,7 @@ namespace METAIO_NAMESPACE {
 
 
 class METAIO_EXPORT MetaEllipse : public MetaObject
-  {
+{
 
   /////
   //
@@ -94,7 +94,7 @@ class METAIO_EXPORT MetaEllipse : public MetaObject
 
     float m_Radius[100];  // "Radius = "     0
 
-  };
+};
 
 #if (METAIO_USE_NAMESPACE)
 };

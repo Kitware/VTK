@@ -58,7 +58,7 @@ public:
 
 
 class METAIO_EXPORT MetaBlob : public MetaObject
-  {
+{
 
   /////
   //
@@ -67,7 +67,7 @@ class METAIO_EXPORT MetaBlob : public MetaObject
   ////
   public:
 
-   typedef METAIO_STL::list<BlobPnt*> PointListType;
+   typedef std::list<BlobPnt*> PointListType;
     ////
     //
     // Constructors & Destructor
@@ -134,7 +134,7 @@ class METAIO_EXPORT MetaBlob : public MetaObject
     PointListType m_PointList;
 
     MET_ValueEnumType m_ElementType;
-  };
+};
 
 #if (METAIO_USE_NAMESPACE)
 };

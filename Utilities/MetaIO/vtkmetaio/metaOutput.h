@@ -37,15 +37,15 @@ class MetaOutputStream
     virtual ~MetaOutputStream() {}
 
     void                     SetName(const char* name);
-    METAIO_STL::string       GetName() const;
+    std::string       GetName() const;
 
     void                     Enable();
     bool                     IsEnable() const;
     void                     Disable();
 
-    void                     SetStdStream(METAIO_STREAM::ostream * stream);
+    void                     SetStdStream(std::ostream * stream);
     bool                     IsStdStream();
-    METAIO_STREAM::ostream * GetStdStream();
+    std::ostream * GetStdStream();
 
     virtual bool             Open();
     virtual bool             Close();
@@ -56,11 +56,11 @@ class MetaOutputStream
 
   protected:
 
-    METAIO_STREAM::ostream * m_StdStream;
+    std::ostream * m_StdStream;
     bool                     m_IsStdStream;
     bool                     m_Enable;
     bool                     m_IsOpen;
-    METAIO_STL::string       m_Name;
+    std::string       m_Name;
     void*                    m_MetaOutput;
 
 };
@@ -75,12 +75,12 @@ class MetaFileOutputStream : public MetaOutputStream
     bool Open() override;
     bool Close() override;
 
-    METAIO_STL::string GetFileName();
+    std::string GetFileName();
 
   private:
 
-    METAIO_STL::string      m_FileName;
-    METAIO_STREAM::ofstream m_FileStream;
+    std::string      m_FileName;
+    std::ofstream m_FileStream;
 };
 
 class METAIO_EXPORT MetaOutput
@@ -90,46 +90,46 @@ class METAIO_EXPORT MetaOutput
     typedef enum {INT,FLOAT,CHAR,STRING,LIST,FLAG,BOOL} TypeEnumType;
 
     struct Field{
-      METAIO_STL::string  name;
-      METAIO_STL::string  description;
-      METAIO_STL::vector<METAIO_STL::string>  value;
+      std::string  name;
+      std::string  description;
+      std::vector<std::string>  value;
       TypeEnumType type;
-      METAIO_STL::string  rangeMin;
-      METAIO_STL::string  rangeMax;
+      std::string  rangeMin;
+      std::string  rangeMax;
       };
 
-    typedef METAIO_STL::vector<Field>              FieldVector;
-    typedef METAIO_STL::vector<MetaOutputStream*>  StreamVector;
-    typedef METAIO_STL::list< METAIO_STL::string > ListType;
+    typedef std::vector<Field>              FieldVector;
+    typedef std::vector<MetaOutputStream*>  StreamVector;
+    typedef std::list< std::string > ListType;
 
     MetaOutput();
     ~MetaOutput();
 
     /** Add a field */
-    bool AddField(METAIO_STL::string name,
-                  METAIO_STL::string description,
+    bool AddField(std::string name,
+                  std::string description,
                   TypeEnumType type,
-                  METAIO_STL::string value,
-                  METAIO_STL::string rangeMin = "",
-                  METAIO_STL::string rangeMax = ""
+                  std::string value,
+                  std::string rangeMin = "",
+                  std::string rangeMax = ""
                   );
 
-    bool AddFloatField(METAIO_STL::string name,
-                       METAIO_STL::string description,
+    bool AddFloatField(std::string name,
+                       std::string description,
                        float value,
-                       METAIO_STL::string rangeMin = "",
-                       METAIO_STL::string rangeMax = ""
+                       std::string rangeMin = "",
+                       std::string rangeMax = ""
                        );
 
-    bool AddIntField(METAIO_STL::string name,
-                     METAIO_STL::string description,
+    bool AddIntField(std::string name,
+                     std::string description,
                      int value,
-                     METAIO_STL::string rangeMin = "",
-                     METAIO_STL::string rangeMax = ""
+                     std::string rangeMin = "",
+                     std::string rangeMax = ""
                      );
 
-    bool AddListField(METAIO_STL::string name,
-                      METAIO_STL::string description,
+    bool AddListField(std::string name,
+                      std::string description,
                       ListType list);
 
     /** Set the metaCommand for parsing */
@@ -139,7 +139,7 @@ class METAIO_EXPORT MetaOutput
     void Write();
 
     /** Add a standard stream */
-    void AddStream(const char* name,METAIO_STREAM::ostream & stream);
+    void AddStream(const char* name,std::ostream & stream);
     void AddStream(const char* name,MetaOutputStream * stream);
 
     /** Add a stream file. Helper function */
@@ -149,21 +149,21 @@ class METAIO_EXPORT MetaOutput
     void EnableStream(const char* name);
     void DisableStream(const char* name);
 
-    METAIO_STL::string GetHostname(void);
-    METAIO_STL::string GetHostip(void);
+    std::string GetHostname(void);
+    std::string GetHostip(void);
 
   private:
 
-    METAIO_STL::string TypeToString(TypeEnumType type);
+    std::string TypeToString(TypeEnumType type);
 
     /** Private function to fill in the buffer */
-    METAIO_STL::string GenerateXML(const char* filename=NULL);
-    METAIO_STL::string GetUsername(void);
+    std::string GenerateXML(const char* filename=nullptr);
+    std::string GetUsername(void);
 
     FieldVector   m_FieldVector;
     MetaCommand*  m_MetaCommand;
     StreamVector  m_StreamVector;
-    METAIO_STL::string   m_CurrentVersion;
+    std::string   m_CurrentVersion;
 
 }; // end of class
 

@@ -43,18 +43,18 @@ class TubeGraphPnt
 public:
 
   TubeGraphPnt(int dim)
-  {
+{
     m_Dim = dim;
     m_GraphNode = -1;
     m_R = 0;
     m_P = 0;
     m_T = new float[m_Dim*m_Dim];
-  }
+}
 
   ~TubeGraphPnt()
-  {
+{
     delete [] m_T;
-  }
+}
 
   unsigned int m_Dim;
   int    m_GraphNode;
@@ -67,7 +67,7 @@ public:
 
 
 class METAIO_EXPORT MetaTubeGraph : public MetaObject
-  {
+{
 
   /////
   //
@@ -76,7 +76,7 @@ class METAIO_EXPORT MetaTubeGraph : public MetaObject
   ////
   public:
 
-   typedef METAIO_STL::vector<TubeGraphPnt*> PointListType;
+   typedef std::vector<TubeGraphPnt*> PointListType;
     ////
     //
     // Constructors & Destructor
@@ -149,7 +149,7 @@ class METAIO_EXPORT MetaTubeGraph : public MetaObject
     PointListType m_PointList;
 
     MET_ValueEnumType m_ElementType;
-  };
+};
 
 #if (METAIO_USE_NAMESPACE)
 };

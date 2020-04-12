@@ -82,14 +82,36 @@ set(sources
   )
 
 set(headers
-  metaTypes.h
+  localMetaConfiguration.h
+  metaArray.h
+  metaArrow.h
+  metaBlob.h
   metaCommand.h
   metaContour.h
-  metaMesh.h
-  metaOutput.h
-  metaForm.h
-  metaArray.h
+  metaDTITube.h
+  metaEllipse.h
+  metaEvent.h
   metaFEMObject.h
+  metaForm.h
+  metaGaussian.h
+  metaGroup.h
+  metaImage.h
+  metaImageTypes.h
+  metaImageUtils.h
+  metaITKUtils.h
+  metaLandmark.h
+  metaLine.h
+  metaMesh.h
+  metaObject.h
+  metaOutput.h
+  metaScene.h
+  metaSurface.h
+  metaTransform.h
+  metaTubeGraph.h
+  metaTube.h
+  metaTypes.h
+  metaUtils.h
+  metaVesselTube.h
   "${CMAKE_CURRENT_BINARY_DIR}/metaIOConfig.h"
 )
 
@@ -130,8 +152,9 @@ IF(WIN32)
   ENDIF(BORLAND)
 ENDIF(WIN32)
 
-
-#ADD_SUBDIRECTORY(tests)
+if(BUILD_TESTING)
+  ADD_SUBDIRECTORY(tests)
+endif()
 
 if(NOT METAIO_INSTALL_NO_LIBRARIES)
   install(TARGETS ${METAIO_TARGET}
