@@ -39,7 +39,7 @@ namespace METAIO_NAMESPACE {
 #endif
 
 class METAIO_EXPORT MetaGroup : public MetaObject
-  {
+{
 
   /////
   //
@@ -85,7 +85,7 @@ class METAIO_EXPORT MetaGroup : public MetaObject
 
     bool  M_Read(void) override;
 
-  };
+};
 
 #if (METAIO_USE_NAMESPACE)
 };

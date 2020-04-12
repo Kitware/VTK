@@ -38,9 +38,10 @@
 namespace METAIO_NAMESPACE {
 #endif
 
-class TubePnt
+class METAIO_EXPORT TubePnt
 {
 public:
+
   TubePnt(int dim);
   ~TubePnt();
 
@@ -49,7 +50,18 @@ public:
   float* m_V2;
   float* m_X;
   float* m_T;
+  float m_Alpha1;
+  float m_Alpha2;
+  float m_Alpha3;
   float m_R;
+  float m_Medialness;
+  float m_Ridgeness;
+  float m_Branchness;
+  float m_Curvature;
+  float m_Levelness;
+  float m_Roundness;
+  float m_Intensity;
+  bool  m_Mark;
   float m_Color[4];
   int   m_ID;
 };
@@ -58,7 +70,7 @@ public:
 
 
 class METAIO_EXPORT MetaTube : public MetaObject
-  {
+{
 
   /////
   //
@@ -67,7 +79,7 @@ class METAIO_EXPORT MetaTube : public MetaObject
   ////
   public:
 
-   typedef METAIO_STL::list<TubePnt*> PointListType;
+   typedef std::list<TubePnt*> PointListType;
     ////
     //
     // Constructors & Destructor
@@ -77,7 +89,7 @@ class METAIO_EXPORT MetaTube : public MetaObject
 
     MetaTube(const char *_headerName);
 
-    MetaTube(const MetaTube *_tube);
+    MetaTube(const MetaTube *_Tube);
 
     MetaTube(unsigned int dim);
 
@@ -89,7 +101,7 @@ class METAIO_EXPORT MetaTube : public MetaObject
 
     //    NPoints(...)
     //       Required Field
-    //       Number of points which compose the tube
+    //       Number of points which compose the Tube
     void  NPoints(int npnt);
     int   NPoints(void) const;
 
@@ -101,14 +113,20 @@ class METAIO_EXPORT MetaTube : public MetaObject
 
     //    Root(...)
     //       Optional Field
-    //       Set if this tube is a root
+    //       Set if this Tube is a root
     void  Root(bool root);
-    bool   Root(void) const;
+    bool  Root(void) const;
+
+    //    Artery(...)
+    //       Optional Field
+    //       Set if this Tube is a root
+    void  Artery(bool artery);
+    bool  Artery(void) const;
 
 
     //    ParentPoint(...)
     //       Optional Field
-    //       Set the point number of the parent tube where the branch occurs
+    //       Set the point number of the parent Tube where the branch occurs
     void  ParentPoint(int parentpoint);
     int   ParentPoint(void) const;
 
@@ -139,17 +157,19 @@ class METAIO_EXPORT MetaTube : public MetaObject
 
     bool  M_Write(void) override;
 
-    int m_ParentPoint;  // "ParentPoint = "     -1
+    int   m_ParentPoint;  // "ParentPoint = "     -1
 
-    bool m_Root;         // "Root = "            0
+    bool  m_Root;         // "Root = "            false
 
-    int  m_NPoints;      // "NPoints = "         0
+    bool  m_Artery;         // "Artery = "            true
+
+    int   m_NPoints;      // "NPoints = "         0
 
     char m_PointDim[255]; // "PointDim = "       "x y z r"
 
     PointListType m_PointList;
     MET_ValueEnumType m_ElementType;
-  };
+};
 
 #if (METAIO_USE_NAMESPACE)
 };

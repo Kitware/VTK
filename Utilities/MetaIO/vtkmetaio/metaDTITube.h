@@ -45,8 +45,8 @@ class METAIO_EXPORT DTITubePnt
 {
 public:
 
-  typedef METAIO_STL::pair<METAIO_STL::string,float>  FieldType;
-  typedef METAIO_STL::vector<FieldType>        FieldListType;
+  typedef std::pair<std::string,float>  FieldType;
+  typedef std::vector<FieldType>        FieldListType;
 
   DTITubePnt(int dim);
 
@@ -69,7 +69,7 @@ public:
 
 
 class METAIO_EXPORT MetaDTITube : public MetaObject
-  {
+{
 
   /////
   //
@@ -78,8 +78,8 @@ class METAIO_EXPORT MetaDTITube : public MetaObject
   ////
   public:
 
-   typedef METAIO_STL::list<DTITubePnt*> PointListType;
-   typedef METAIO_STL::pair<METAIO_STL::string,unsigned int> PositionType;
+   typedef std::list<DTITubePnt*> PointListType;
+   typedef std::pair<std::string,unsigned int> PositionType;
 
    ////
     //
@@ -158,14 +158,14 @@ class METAIO_EXPORT MetaDTITube : public MetaObject
 
     int m_NPoints;      // "NPoints = "         0
 
-    METAIO_STL::string m_PointDim; // "PointDim = "       "x y z r"
+    std::string m_PointDim; // "PointDim = "       "x y z r"
 
     PointListType m_PointList;
     MET_ValueEnumType m_ElementType;
-    METAIO_STL::vector<PositionType> m_Positions;
+    std::vector<PositionType> m_Positions;
 
     int GetPosition(const char*) const;
-  };
+};
 
 #if (METAIO_USE_NAMESPACE)
 };

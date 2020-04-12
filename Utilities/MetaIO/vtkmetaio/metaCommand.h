@@ -39,137 +39,137 @@ public:
   typedef enum {INT,FLOAT,CHAR,STRING,LIST,FLAG,BOOL,IMAGE,ENUM,FILE} TypeEnumType;
 
   struct Field{
-    METAIO_STL::string  name;
-    METAIO_STL::string  description;
-    METAIO_STL::string  value;
+    std::string  name;
+    std::string  description;
+    std::string  value;
     TypeEnumType        type;
     DataEnumType        externaldata;
-    METAIO_STL::string  rangeMin;
-    METAIO_STL::string  rangeMax;
+    std::string  rangeMin;
+    std::string  rangeMax;
     bool                required;
     bool                userDefined;
     };
 
   struct Option{
-    METAIO_STL::string        name;
-    METAIO_STL::string        description;
-    METAIO_STL::string        tag;
-    METAIO_STL::string        longtag;
-    METAIO_STL::string        label;
-    METAIO_STL::vector<Field> fields;
+    std::string        name;
+    std::string        description;
+    std::string        tag;
+    std::string        longtag;
+    std::string        label;
+    std::vector<Field> fields;
     bool                      required;
     bool                      userDefined;
     bool                      complete;
-  };
+};
 
   struct ParameterGroup{
-    METAIO_STL::string                     name;
-    METAIO_STL::string                     description;
-    METAIO_STL::vector<METAIO_STL::string> options;
+    std::string                     name;
+    std::string                     description;
+    std::vector<std::string> options;
     bool                                   advanced;
     };
 
-  typedef METAIO_STL::vector<Option>             OptionVector;
-  typedef METAIO_STL::vector<ParameterGroup>     ParameterGroupVector;
+  typedef std::vector<Option>             OptionVector;
+  typedef std::vector<ParameterGroup>     ParameterGroupVector;
 
   MetaCommand();
   ~MetaCommand() {}
 
   bool SetOption(Option option);
-  bool SetOption(METAIO_STL::string name,
-                 METAIO_STL::string tag,
+  bool SetOption(std::string name,
+                 std::string tag,
                  bool required,
-                 METAIO_STL::string description,
-                 METAIO_STL::vector<Field> fields);
-  bool SetOption(METAIO_STL::string name,
-                 METAIO_STL::string tag,
+                 std::string description,
+                 std::vector<Field> fields);
+  bool SetOption(std::string name,
+                 std::string tag,
                  bool required,
-                 METAIO_STL::string description,
+                 std::string description,
                  TypeEnumType type = FLAG,
-                 METAIO_STL::string defVal = "",
+                 std::string defVal = "",
                  DataEnumType externalData = DATA_NONE);
 
   /** Fields are added in order */
-  bool AddField(METAIO_STL::string name,
-                METAIO_STL::string description,
+  bool AddField(std::string name,
+                std::string description,
                 TypeEnumType type,
                 DataEnumType externalData = DATA_NONE,
-                METAIO_STL::string rangeMin = "",
-                METAIO_STL::string rangeMax = ""
+                std::string rangeMin = "",
+                std::string rangeMax = ""
                 );
 
   /** For backward compatibility */
-  bool AddField(METAIO_STL::string name,
-                METAIO_STL::string description,
+  bool AddField(std::string name,
+                std::string description,
                 TypeEnumType type,
                 bool externalData );
 
   /** Add a field to an option */
-  bool AddOptionField(METAIO_STL::string optionName,
-                      METAIO_STL::string name,
+  bool AddOptionField(std::string optionName,
+                      std::string name,
                       TypeEnumType type,
                       bool required=true,
-                      METAIO_STL::string defVal = "",
-                      METAIO_STL::string description = "",
+                      std::string defVal = "",
+                      std::string description = "",
                       DataEnumType externalData = DATA_NONE);
 
   /** Set the range of value as an option */
-  bool SetOptionRange(METAIO_STL::string optionName,
-                      METAIO_STL::string name,
-                      METAIO_STL::string rangeMin,
-                      METAIO_STL::string rangeMax);
+  bool SetOptionRange(std::string optionName,
+                      std::string name,
+                      std::string rangeMin,
+                      std::string rangeMax);
 
   /** Set the list of values that can be used with an option */
-  bool SetOptionEnumerations(METAIO_STL::string optionName,
-                             METAIO_STL::string name,
-                             METAIO_STL::string optionEnums);
+  bool SetOptionEnumerations(std::string optionName,
+                             std::string name,
+                             std::string optionEnums);
 
   /** Set the long tag for the option */
-  bool SetOptionLongTag(METAIO_STL::string optionName,
-                        METAIO_STL::string longTag);
+  bool SetOptionLongTag(std::string optionName,
+                        std::string longTag);
 
   /** Set the label for the option */
-  bool SetOptionLabel(METAIO_STL::string optionName,
-                      METAIO_STL::string label);
+  bool SetOptionLabel(std::string optionName,
+                      std::string label);
 
   /** Set the group for a field or an option
    *  If the group doesn't exist it is automatically created. */
-  bool SetParameterGroup(METAIO_STL::string optionName,
-                         METAIO_STL::string groupName,
-                         METAIO_STL::string groupDescription="",
+  bool SetParameterGroup(std::string optionName,
+                         std::string groupName,
+                         std::string groupDescription="",
                          bool advanced=false);
 
   /** Collect all the information until the next tag
    * \warning this function works only if the field is of type String */
-  void SetOptionComplete(METAIO_STL::string optionName,
+  void SetOptionComplete(std::string optionName,
                          bool complete);
 
   /** Get the values given the option name */
-  bool GetValueAsBool(METAIO_STL::string optionName,
-                      METAIO_STL::string fieldName="");
+  bool GetValueAsBool(std::string optionName,
+                      std::string fieldName="");
   bool GetValueAsBool(Option option,
-                      METAIO_STL::string fieldName="");
+                      std::string fieldName="");
 
-  float GetValueAsFloat(METAIO_STL::string optionName,
-                        METAIO_STL::string fieldName="");
+  float GetValueAsFloat(std::string optionName,
+                        std::string fieldName="");
   float GetValueAsFloat(Option option,
-                        METAIO_STL::string fieldName="");
+                        std::string fieldName="");
 
-  int GetValueAsInt(METAIO_STL::string optionName,
-                    METAIO_STL::string fieldName="");
+  int GetValueAsInt(std::string optionName,
+                    std::string fieldName="");
   int GetValueAsInt(Option option,
-                    METAIO_STL::string fieldName="");
+                    std::string fieldName="");
 
-  METAIO_STL::string GetValueAsString(METAIO_STL::string optionName,
-                                      METAIO_STL::string fieldName="");
-  METAIO_STL::string GetValueAsString(Option option,
-                                      METAIO_STL::string fieldName="");
+  std::string GetValueAsString(std::string optionName,
+                                      std::string fieldName="");
+  std::string GetValueAsString(Option option,
+                                      std::string fieldName="");
 
-  METAIO_STL::list< METAIO_STL::string > GetValueAsList(
-                                            METAIO_STL::string optionName);
-  METAIO_STL::list< METAIO_STL::string > GetValueAsList(Option option);
+  std::list< std::string > GetValueAsList(
+                                            std::string optionName);
+  std::list< std::string > GetValueAsList(Option option);
 
-  bool GetOptionWasSet(METAIO_STL::string optionName);
+  bool GetOptionWasSet(std::string optionName);
   bool GetOptionWasSet(Option option);
 
   /** List the options */
@@ -178,10 +178,10 @@ public:
   void ListOptionsSlicerXML();
   void ListOptionsSimplified(bool extended=true);
 
-  Option * GetOptionByMinusTag(METAIO_STL::string minusTag);
-  Option * GetOptionByTag(METAIO_STL::string minusTag);
+  Option * GetOptionByMinusTag(std::string minusTag);
+  Option * GetOptionByTag(std::string minusTag);
 
-  bool OptionExistsByMinusTag(METAIO_STL::string minusTag);
+  bool OptionExistsByMinusTag(std::string minusTag);
 
   bool Parse(int argc, char* argv[]);
 
@@ -193,26 +193,26 @@ public:
   bool ExportGAD(bool dynamic=false);
 
   /** Extract the date from cvs date */
-  METAIO_STL::string ExtractDateFromCVS(METAIO_STL::string date);
-  void               SetDateFromCVS(METAIO_STL::string date);
+  std::string ExtractDateFromCVS(std::string date);
+  void               SetDateFromCVS(std::string date);
 
   /** Extract the version from cvs date */
-  METAIO_STL::string ExtractVersionFromCVS(METAIO_STL::string version);
-  void               SetVersionFromCVS(METAIO_STL::string version);
+  std::string ExtractVersionFromCVS(std::string version);
+  void               SetVersionFromCVS(std::string version);
 
   /** Set the version of the app */
-  METAIO_STL::string GetVersion()
+  std::string GetVersion()
     { return m_Version; }
 
   void SetVersion(const char* version)
     { m_Version=version; }
 
   /** Get the name of the application */
-  METAIO_STL::string GetApplicationName()
+  std::string GetApplicationName()
     { return m_ExecutableName; }
 
   /** Set the date of the app */
-  METAIO_STL::string GetDate()
+  std::string GetDate()
     { return m_Date; }
 
   void SetDate(const char* date)
@@ -224,25 +224,25 @@ public:
   /** Set the description */
   void SetDescription(const char* description)
     { m_Description=description; }
-  METAIO_STL::string GetDescription() const
+  std::string GetDescription() const
     {return m_Description;}
 
   /** Set the author */
   void SetAuthor(const char* author)
     { m_Author=author; }
-  METAIO_STL::string GetAuthor() const
+  std::string GetAuthor() const
     {return m_Author;}
 
   /** Set the acknowledgments */
   void SetAcknowledgments(const char* acknowledgments)
     { m_Acknowledgments=acknowledgments; }
-  METAIO_STL::string GetAcknowledgments() const
+  std::string GetAcknowledgments() const
     {return m_Acknowledgments;}
 
   /** Set the category */
   void SetCategory(const char* category)
     { m_Category=category; }
-  METAIO_STL::string GetCategory() const
+  std::string GetCategory() const
     {return m_Category;}
 
   long GetOptionId(Option* option);
@@ -258,12 +258,12 @@ public:
   void SetHelpCallBack(void (* newHelpCallBack)(void))
     { m_HelpCallBack = newHelpCallBack; }
 
-  METAIO_STL::string TypeToString(TypeEnumType type);
+  std::string TypeToString(TypeEnumType type);
   TypeEnumType StringToType(const char* type);
 
   void SetVerbose(bool verbose) {m_Verbose = verbose;}
   void SetParseFailureOnUnrecognizedOption(bool fail)
-  { m_FailOnUnrecognizedOption = fail; }
+{ m_FailOnUnrecognizedOption = fail; }
 
   /** Return true if we got the --xml */
   bool GotXMLFlag()
@@ -284,18 +284,18 @@ public:
 protected:
 
   /** Small XML helper */
-  METAIO_STL::string GetXML(const char* buffer,
+  std::string GetXML(const char* buffer,
                             const char* desc,
                             unsigned long pos);
 
-  METAIO_STL::string m_Version;
-  METAIO_STL::string m_Date;
-  METAIO_STL::string m_Name;
-  METAIO_STL::string m_Description;
-  METAIO_STL::string m_Author;
-  METAIO_STL::string m_ExecutableName;
-  METAIO_STL::string m_Acknowledgments;
-  METAIO_STL::string m_Category;
+  std::string m_Version;
+  std::string m_Date;
+  std::string m_Name;
+  std::string m_Description;
+  std::string m_Author;
+  std::string m_ExecutableName;
+  std::string m_Acknowledgments;
+  std::string m_Category;
 
   ParameterGroupVector m_ParameterGroup;
 
@@ -321,7 +321,7 @@ private:
   bool         m_DisableDeprecatedWarnings;
 
   // Use when write --xml
-  void WriteXMLOptionToCout(METAIO_STL::string optionName,unsigned int& index);
+  void WriteXMLOptionToCout(std::string optionName,unsigned int& index);
 
 }; // end of class
 

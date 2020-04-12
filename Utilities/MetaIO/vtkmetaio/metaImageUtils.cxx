@@ -9,6 +9,10 @@
   implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   See the License for more information.
 ============================================================================*/
+
+#include <memory>
+#include <iostream>
+#include <string>
 #include <cstdio>
 
 #ifdef _MSC_VER
@@ -25,13 +29,13 @@ namespace METAIO_NAMESPACE {
 #endif
 
 
-bool MET_StringToImageModality(const char * _str,
+bool MET_StringToImageModality(const std::string _str,
                                MET_ImageModalityEnumType * _type)
-  {
+{
   int i;
 
   for(i=0; i<MET_NUM_IMAGE_MODALITY_TYPES; i++)
-    if(!strcmp(MET_ImageModalityTypeName[i], _str))
+    if(MET_ImageModalityTypeName[i] == _str)
       {
       *_type = (MET_ImageModalityEnumType)i;
       return true;
@@ -40,14 +44,14 @@ bool MET_StringToImageModality(const char * _str,
   *_type = MET_MOD_UNKNOWN;
 
   return false;
-  }
+}
 
 bool MET_ImageModalityToString(MET_ImageModalityEnumType _type,
-                               char * _str)
-  {
-  strcpy(_str, MET_ImageModalityTypeName[(int)_type]);
+                               std::string& _str)
+{
+  _str = MET_ImageModalityTypeName[(int)_type];
   return true;
-  }
+}
 
 #if (METAIO_USE_NAMESPACE)
 };

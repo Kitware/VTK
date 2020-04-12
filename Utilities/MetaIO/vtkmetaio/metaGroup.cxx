@@ -30,7 +30,7 @@ MetaGroup::
 MetaGroup()
 :MetaObject()
 {
-  if(META_DEBUG) METAIO_STREAM::cout << "MetaGroup()" << METAIO_STREAM::endl;
+  if(META_DEBUG) std::cout << "MetaGroup()" << std::endl;
   Clear();
 
 }
@@ -40,7 +40,7 @@ MetaGroup::
 MetaGroup(const char *_headerName)
 :MetaObject()
 {
-  if(META_DEBUG)  METAIO_STREAM::cout << "MetaGroup()" << METAIO_STREAM::endl;
+  if(META_DEBUG)  std::cout << "MetaGroup()" << std::endl;
   Clear();
   Read(_headerName);
 }
@@ -50,7 +50,7 @@ MetaGroup::
 MetaGroup(const MetaGroup *_group)
 :MetaObject()
 {
-  if(META_DEBUG)  METAIO_STREAM::cout << "MetaGroup()" << METAIO_STREAM::endl;
+  if(META_DEBUG)  std::cout << "MetaGroup()" << std::endl;
   Clear();
   CopyInfo(_group);
 }
@@ -59,7 +59,7 @@ MetaGroup::
 MetaGroup(unsigned int dim)
 :MetaObject(dim)
 {
-  if(META_DEBUG) METAIO_STREAM::cout << "MetaGroup()" << METAIO_STREAM::endl;
+  if(META_DEBUG) std::cout << "MetaGroup()" << std::endl;
   Clear();
 }
 
@@ -87,8 +87,11 @@ CopyInfo(const MetaObject * _object)
 void MetaGroup::
 Clear()
 {
-  if(META_DEBUG) METAIO_STREAM::cout << "MetaGroup: Clear" << METAIO_STREAM::endl;
+  if(META_DEBUG) std::cout << "MetaGroup: Clear" << std::endl;
+
   MetaObject::Clear();
+
+  strcpy(m_ObjectTypeName,"Group");
 }
 
 /** Destroy group information */
@@ -102,7 +105,7 @@ M_Destroy()
 void MetaGroup::
 M_SetupReadFields()
 {
-  if(META_DEBUG) METAIO_STREAM::cout << "MetaGroup: M_SetupReadFields" << METAIO_STREAM::endl;
+  if(META_DEBUG) std::cout << "MetaGroup: M_SetupReadFields" << std::endl;
 
   MetaObject::M_SetupReadFields();
 
@@ -118,7 +121,6 @@ M_SetupReadFields()
 void MetaGroup::
 M_SetupWriteFields()
 {
-  strcpy(m_ObjectTypeName,"Group");
   MetaObject::M_SetupWriteFields();
 
   MET_FieldRecordType * mF = new MET_FieldRecordType;
@@ -132,18 +134,18 @@ M_Read()
 {
   if(META_DEBUG)
     {
-    METAIO_STREAM::cout << "MetaGroup: M_Read: Loading Header" << METAIO_STREAM::endl;
+    std::cout << "MetaGroup: M_Read: Loading Header" << std::endl;
     }
 
   if(!MetaObject::M_Read())
     {
-    METAIO_STREAM::cout << "MetaGroup: M_Read: Error parsing file" << METAIO_STREAM::endl;
+    std::cout << "MetaGroup: M_Read: Error parsing file" << std::endl;
     return false;
     }
 
   if(META_DEBUG)
     {
-    METAIO_STREAM::cout << "MetaGroup: M_Read: Parsing Header" << METAIO_STREAM::endl;
+    std::cout << "MetaGroup: M_Read: Parsing Header" << std::endl;
     }
 
   return true;

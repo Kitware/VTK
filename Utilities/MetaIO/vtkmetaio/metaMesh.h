@@ -108,7 +108,7 @@ public:
     }
 
   int m_Id; // id of the cell link
-  METAIO_STL::list<int> m_Links;
+  std::list<int> m_Links;
 };
 
 /** Define a mesh point data */
@@ -124,15 +124,15 @@ public:
     {
     }
 
-  virtual void Write( METAIO_STREAM::ofstream* stream) = 0;
+  virtual void Write( std::ofstream* stream) = 0;
   virtual unsigned int GetSize(void) = 0;
   virtual MET_ValueEnumType GetMetaType() = 0;
   int m_Id;
 
 protected:
 
-  METAIO_STREAM::ifstream* m_ReadStream;
-  METAIO_STREAM::ofstream* m_WriteStream;
+  std::ifstream* m_ReadStream;
+  std::ofstream* m_WriteStream;
 
 };
 
@@ -150,7 +150,7 @@ public:
     return MET_GetPixelType(typeid(TElementType));
     }
 
-  void Write( METAIO_STREAM::ofstream* stream) override
+  void Write( std::ofstream* stream) override
     {
     //char* id = new char[sizeof(int)];
     // The file is written as LSB by default
@@ -179,7 +179,7 @@ public:
 
 
 class METAIO_EXPORT MetaMesh : public MetaObject
-  {
+{
 
   /////
   //
@@ -188,11 +188,11 @@ class METAIO_EXPORT MetaMesh : public MetaObject
   ////
   public:
 
-   typedef METAIO_STL::list<MeshPoint*> PointListType;
-   typedef METAIO_STL::list<MeshCell*>  CellListType;
-   typedef METAIO_STL::list<MeshCellLink*>  CellLinkListType;
-   typedef METAIO_STL::list<MeshDataBase*> PointDataListType;
-   typedef METAIO_STL::list<MeshDataBase*> CellDataListType;
+   typedef std::list<MeshPoint*> PointListType;
+   typedef std::list<MeshCell*>  CellListType;
+   typedef std::list<MeshCellLink*>  CellLinkListType;
+   typedef std::list<MeshDataBase*> PointDataListType;
+   typedef std::list<MeshDataBase*> CellDataListType;
 
     ////
     //
@@ -296,7 +296,7 @@ class METAIO_EXPORT MetaMesh : public MetaObject
     MET_ValueEnumType m_PointDataType;
     MET_ValueEnumType m_CellDataType;
 
-  };
+};
 
 #if (METAIO_USE_NAMESPACE)
 };
