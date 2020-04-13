@@ -44,6 +44,7 @@ vtkJavaScriptDataWriter::vtkJavaScriptDataWriter()
   this->FileName = nullptr;
   this->IncludeFieldNames = true; // Default is to include field names
   this->OutputStream = nullptr;
+  this->OutputFile = nullptr;
   this->SetVariableName("data"); // prepare the default.
 }
 
