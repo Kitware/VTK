@@ -93,7 +93,7 @@ include(CheckTypeSize)
 
 option(VTK_USE_MPI "Support MPI" OFF)
 
-set(VTK_BUILD_TESTING "WANT"
+set(VTK_BUILD_TESTING "OFF"
   CACHE STRING "Build module testing directories")
 set_property(CACHE VTK_BUILD_TESTING
   PROPERTY
