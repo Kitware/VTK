@@ -56,7 +56,7 @@ public:
    * Insert \p data of size \p size into the archive at \p relativePath.
    */
   void InsertIntoArchive(
-    const std::string& relativePath, const char* data, std::streamsize size) override;
+    const std::string& relativePath, const char* data, std::size_t size) override;
   //@}
 
   //@{
