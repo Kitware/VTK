@@ -121,7 +121,7 @@ public:
    * Default is white (1,1,1).
    */
   void SetOutlineColor(double r, double g, double b);
-  double* GetOutlineColor();
+  double* GetOutlineColor() VTK_SIZEHINT(3);
   //@}
 
   //@{

@@ -58,7 +58,7 @@ public:
    */
   void SetExtent(int extent[6]);
   void SetExtent(int iMin, int iMax, int jMin, int jMax, int kMin, int kMax);
-  int* GetExtent() { return this->Extent; }
+  int* GetExtent() VTK_SIZEHINT(6) { return this->Extent; }
   //@}
 
   //@{

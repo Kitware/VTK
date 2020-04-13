@@ -213,14 +213,14 @@ public:
    * \pre not_empty: !IsEmpty()
    * \post valid_result: GetNumberOfAttributesToInterpolate()>0
    */
-  int* GetAttributesToInterpolate();
+  int* GetAttributesToInterpolate() VTK_SIZEHINT(GetNumberOfAttributesToInterpolate());
 
   /**
    * Does the array `attributes' of size `size' have `attribute'?
    * \pre positive_size: size>=0
    * \pre valid_attributes: size>0 implies attributes!=0
    */
-  int HasAttribute(int size, int* attributes, int attribute);
+  int HasAttribute(int size, int* attributes, int attribute) VTK_SIZEHINT(attributes, size);
 
   //@{
   /**
@@ -233,7 +233,7 @@ public:
    * \post is_set: (GetNumberOfAttributesToInterpolate()==size)&&
    * (GetAttributesToInterpolate()==attributes)
    */
-  void SetAttributesToInterpolate(int size, int* attributes);
+  void SetAttributesToInterpolate(int size, int* attributes) VTK_SIZEHINT(attributes, size);
   void SetAttributesToInterpolateToAll();
   //@}
 
