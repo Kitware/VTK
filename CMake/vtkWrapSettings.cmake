@@ -37,7 +37,7 @@ cmake_dependent_option(VTK_USE_TK "Build VTK with Tk support" OFF
   "VTK_WRAP_PYTHON" OFF)
 
 cmake_dependent_option(VTK_WRAP_JAVA "Should VTK Java wrapping be built?" OFF
-  "VTK_ENABLE_WRAPPING" OFF)
+  "VTK_ENABLE_WRAPPING;NOT CMAKE_VERSION VERSION_LESS \"3.12\"" OFF)
 if(VTK_WRAP_JAVA)
   set(VTK_WRAP_JAVA3_INIT_DIR "${VTK_SOURCE_DIR}/Wrapping/Java")
   # Wrapping executables.
