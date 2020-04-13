@@ -306,15 +306,15 @@ void vtkHigherOrderTetra::SubtetraBarycentricPointIndices(
         pointBIndices[1][2] = pointBIndices[0][2];
         pointBIndices[1][3] = pointBIndices[0][3] - 1;
 
-        pointBIndices[2][0] = pointBIndices[0][0] + 1;
-        pointBIndices[2][1] = pointBIndices[0][1];
-        pointBIndices[2][2] = pointBIndices[0][2];
-        pointBIndices[2][3] = pointBIndices[0][3] - 1;
-
-        pointBIndices[3][0] = pointBIndices[0][0];
+        pointBIndices[3][0] = pointBIndices[0][0] + 1;
         pointBIndices[3][1] = pointBIndices[0][1];
-        pointBIndices[3][2] = pointBIndices[0][2] + 1;
+        pointBIndices[3][2] = pointBIndices[0][2];
         pointBIndices[3][3] = pointBIndices[0][3] - 1;
+
+        pointBIndices[2][0] = pointBIndices[0][0];
+        pointBIndices[2][1] = pointBIndices[0][1];
+        pointBIndices[2][2] = pointBIndices[0][2] + 1;
+        pointBIndices[2][3] = pointBIndices[0][3] - 1;
       }
       else if (cellIndex < nRightSideUp + 4 * nOctahedra)
       {
@@ -388,15 +388,15 @@ void vtkHigherOrderTetra::SubtetraBarycentricPointIndices(
         pointBIndices[1][2] = pointBIndices[2][2] + 1;
         pointBIndices[1][3] = pointBIndices[2][3];
 
-        pointBIndices[0][0] = pointBIndices[2][0];
-        pointBIndices[0][1] = pointBIndices[2][1] - 1;
-        pointBIndices[0][2] = pointBIndices[2][2] + 1;
-        pointBIndices[0][3] = pointBIndices[2][3];
-
         pointBIndices[3][0] = pointBIndices[2][0];
-        pointBIndices[3][1] = pointBIndices[2][1];
+        pointBIndices[3][1] = pointBIndices[2][1] - 1;
         pointBIndices[3][2] = pointBIndices[2][2] + 1;
-        pointBIndices[3][3] = pointBIndices[2][3] - 1;
+        pointBIndices[3][3] = pointBIndices[2][3];
+
+        pointBIndices[0][0] = pointBIndices[2][0];
+        pointBIndices[0][1] = pointBIndices[2][1];
+        pointBIndices[0][2] = pointBIndices[2][2] + 1;
+        pointBIndices[0][3] = pointBIndices[2][3] - 1;
       }
     }
 
