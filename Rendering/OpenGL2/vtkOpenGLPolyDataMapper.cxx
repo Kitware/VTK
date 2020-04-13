@@ -2569,6 +2569,13 @@ void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(
     }
   }
 
+  if (program->IsUniformUsed("envMatrix"))
+  {
+    vtkMatrix3x3::Invert(norms, this->TempMatrix3);
+    vtkMatrix3x3::Multiply3x3(this->TempMatrix3, env, this->TempMatrix3);
+    program->SetUniformMatrix("envMatrix", this->TempMatrix3);
+  }
+
   if (program->IsUniformUsed("cameraParallel"))
   {
     program->SetUniformi("cameraParallel", cam->GetParallelProjection());
