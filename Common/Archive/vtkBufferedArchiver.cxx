@@ -76,7 +76,7 @@ void vtkBufferedArchiver::CloseArchive()
 
 //----------------------------------------------------------------------------
 void vtkBufferedArchiver::InsertIntoArchive(
-  const std::string& relativePath, const char* data, std::streamsize size)
+  const std::string& relativePath, const char* data, std::size_t size)
 {
   struct archive_entry* entry;
 

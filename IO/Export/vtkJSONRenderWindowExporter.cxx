@@ -47,7 +47,7 @@ public:
   virtual void OpenArchive() override {}
   virtual void CloseArchive() override {}
   virtual void InsertIntoArchive(
-    const std::string& relativePath, const char* data, std::streamsize size) override
+    const std::string& relativePath, const char* data, std::size_t size) override
   {
     this->RenderWindowArchiver->InsertIntoArchive(this->SubArchiveName(relativePath), data, size);
   }
