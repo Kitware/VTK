@@ -1,4 +1,4 @@
-if (PYTHON_EXECUTABLE AND NOT VTK_BUILD_SHARED_LIBS)
+if (PYTHON_EXECUTABLE AND NOT BUILD_SHARED_LIBS)
   # For now, this test is only added for static builds.
   # In theory, we can make it work in shared builds too, it just needs more work to figure out
   # what variables need to be set on each platform correctly.
