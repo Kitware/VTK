@@ -56,12 +56,7 @@
 #include "vtkLegacy.h"
 
 #include "vtkDebug.h"
-
-/* Debug for-range iterator support.  */
-#cmakedefine VTK_DEBUG_RANGE_ITERATORS
-
-/* Debug for-range iterator support.  */
-#cmakedefine VTK_ALWAYS_OPTIMIZE_ARRAY_ITERATORS
+#include "vtkDebugRangeIterators.h"
 
 /* Should all New methods use the object factory override. */
 #cmakedefine VTK_ALL_NEW_OBJECT_FACTORY

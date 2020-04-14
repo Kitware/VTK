@@ -394,6 +394,7 @@ test_big_endian(VTK_WORDS_BIGENDIAN)
 set(generated_headers
   vtkBuild.h
   vtkDebug.h
+  vtkDebugRangeIterators.h
   vtkEndian.h
   vtkLegacy.h)
 foreach (generated_header IN LISTS generated_headers)
