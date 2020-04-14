@@ -23,6 +23,7 @@
 #include "vtkMultiThreader.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkSMP.h"
 #include "vtkSMPTools.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 

@@ -24,9 +24,7 @@
 
 #include "vtkThreads.h"
 
-/* vtkSMPTools back-end */
-#define VTK_SMP_@VTK_SMP_IMPLEMENTATION_TYPE@
-#define VTK_SMP_BACKEND "@VTK_SMP_IMPLEMENTATION_TYPE@"
+#include "vtkSMP.h"
 
 #include "vtkPlatform.h"
 
