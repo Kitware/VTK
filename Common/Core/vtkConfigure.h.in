@@ -55,11 +55,7 @@
 #include "vtkDebug.h"
 #include "vtkDebugRangeIterators.h"
 
-/* Should all New methods use the object factory override. */
-#cmakedefine VTK_ALL_NEW_OBJECT_FACTORY
-
-/* Whether VTK supports an extended memory space via memkind. */
-#cmakedefine VTK_USE_MEMKIND
+#include "vtkFeatures.h"
 
 /*--------------------------------------------------------------------------*/
 /* Setup VTK based on platform features and configuration.                  */

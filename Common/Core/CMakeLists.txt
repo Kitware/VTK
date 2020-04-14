@@ -396,6 +396,7 @@ set(generated_headers
   vtkDebug.h
   vtkDebugRangeIterators.h
   vtkEndian.h
+  vtkFeatures.h
   vtkLegacy.h
   vtkThreads.h)
 foreach (generated_header IN LISTS generated_headers)

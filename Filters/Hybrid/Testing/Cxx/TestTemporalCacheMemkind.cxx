@@ -17,6 +17,7 @@
 // that is that it can manage cache contents in the extended memory space, works.
 
 #include <vtkCommand.h>
+#include <vtkFeatures.h>
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
 #include <vtkObjectFactory.h>
