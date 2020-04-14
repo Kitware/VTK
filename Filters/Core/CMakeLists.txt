@@ -74,6 +74,7 @@ set(classes
   vtkRearrangeFields
   vtkRectilinearSynchronizedTemplates
   vtkRemoveDuplicatePolys
+  vtkRemoveUnusedPoints
   vtkResampleToImage
   vtkResampleWithDataSet
   vtkReverseSense
