@@ -60,7 +60,31 @@
       [NSThread detachNewThreadSelector:@selector(emptyMethod:) toTarget:self withObject:nil];
     }
 
-    [self registerForDraggedTypes:[NSArray arrayWithObjects:NSURLPboardType, nil]];
+    [self registerForDraggedTypes:@[ (NSString*)kUTTypeFileURL ]];
+  }
+  return self;
+}
+
+//----------------------------------------------------------------------------
+// Overridden (from NSView).
+// designated initializer
+- (/*nullable*/ id)initWithCoder:(NSCoder*)decoder
+{
+  self = [super initWithCoder:decoder];
+  if (self)
+  {
+    // Force Cocoa into "multi threaded mode" because VTK spawns pthreads.
+    // Apple's docs say: "If you intend to use Cocoa calls, you must force
+    // Cocoa into its multithreaded mode before detaching any POSIX threads.
+    // To do this, simply detach an NSThread and have it promptly exit.
+    // This is enough to ensure that the locks needed by the Cocoa
+    // frameworks are put in place"
+    if ([NSThread isMultiThreaded] == NO)
+    {
+      [NSThread detachNewThreadSelector:@selector(emptyMethod:) toTarget:self withObject:nil];
+    }
+
+    [self registerForDraggedTypes:@[ (NSString*)kUTTypeFileURL ]];
   }
   return self;
 }
@@ -478,9 +502,11 @@ static const char* vtkMacKeyCodeToKeySymTable[128] = { nullptr, nullptr, nullptr
 }
 
 //----------------------------------------------------------------------------
+// From NSDraggingDestination protocol.
 - (NSDragOperation)draggingEntered:(id<NSDraggingInfo>)sender
 {
-  if ([[[sender draggingPasteboard] types] containsObject:NSURLPboardType])
+  NSArray* types = [[sender draggingPasteboard] types];
+  if ([types containsObject:(NSString*)kUTTypeFileURL])
   {
     return NSDragOperationCopy;
   }
@@ -488,6 +514,7 @@ static const char* vtkMacKeyCodeToKeySymTable[128] = { nullptr, nullptr, nullptr
 }
 
 //----------------------------------------------------------------------------
+// From NSDraggingDestination protocol.
 - (BOOL)performDragOperation:(id<NSDraggingInfo>)sender
 {
   vtkCocoaRenderWindowInteractor* interactor = [self getInteractor];
@@ -500,22 +527,22 @@ static const char* vtkMacKeyCodeToKeySymTable[128] = { nullptr, nullptr, nullptr
   location[1] = backingLoc.y;
   interactor->InvokeEvent(vtkCommand::UpdateDropLocationEvent, location);
 
-  if ([sender draggingSource] == nil)
+  vtkNew<vtkStringArray> filePaths;
+  NSPasteboard* pboard = [sender draggingPasteboard];
+  NSArray* fileURLs = [pboard readObjectsForClasses:@ [[NSURL class]] options:nil];
+  for (NSURL* fileURL in fileURLs)
   {
-    NSPasteboard* pboard = [sender draggingPasteboard];
-    if ([[pboard types] containsObject:NSURLPboardType])
-    {
-      vtkNew<vtkStringArray> files;
-      for (NSURL* fileURL in [pboard readObjectsForClasses:@ [[NSURL class]] options:nil])
-      {
-        files->InsertNextValue([fileURL fileSystemRepresentation]);
-      }
-
-      interactor->InvokeEvent(vtkCommand::DropFilesEvent, files);
-    }
+    const char* filePath = [fileURL fileSystemRepresentation];
+    filePaths->InsertNextValue(filePath);
   }
 
-  return [super performDragOperation:sender];
+  if (filePaths->GetNumberOfTuples() > 0)
+  {
+    interactor->InvokeEvent(vtkCommand::DropFilesEvent, filePaths);
+    return YES;
+  }
+
+  return NO;
 }
 
 //----------------------------------------------------------------------------
