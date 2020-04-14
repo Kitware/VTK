@@ -188,6 +188,9 @@ set_property(GLOBAL
 option(VTK_BUILD_ALL_MODULES "Build all modules by default" OFF)
 mark_as_advanced(VTK_BUILD_ALL_MODULES)
 
+option(VTK_TARGET_SPECIFIC_COMPONENTS "Install files in target-specific components" OFF)
+mark_as_advanced(VTK_TARGET_SPECIFIC_COMPONENTS)
+
 # Turn on these groups by default.
 set(_vtk_module_group_default_StandAlone "WANT")
 set(_vtk_module_group_default_Rendering "WANT")
@@ -318,6 +321,7 @@ vtk_module_build(
   BUILD_WITH_KITS     "${VTK_ENABLE_KITS}"
   USE_EXTERNAL        "${VTK_USE_EXTERNAL}"
   ENABLE_WRAPPING     "${VTK_ENABLE_WRAPPING}"
+  TARGET_SPECIFIC_COMPONENTS  "${VTK_TARGET_SPECIFIC_COMPONENTS}"
   TEST_INPUT_DATA_DIRECTORY   "${CMAKE_CURRENT_SOURCE_DIR}/Testing"
   TEST_OUTPUT_DATA_DIRECTORY  "${CMAKE_CURRENT_BINARY_DIR}/ExternalData/Testing")
 include(vtkModuleJson)
@@ -352,6 +356,7 @@ if (VTK_WRAP_PYTHON)
     INSTALL_HEADERS     "${VTK_INSTALL_SDK}"
     SOABI               "${vtk_soabi}"
     WRAPPED_MODULES vtk_python_wrapped_modules
+    TARGET_SPECIFIC_COMPONENTS "${VTK_TARGET_SPECIFIC_COMPONENTS}"
     TARGET          VTK::vtkpythonmodules)
 
   add_subdirectory(Wrapping/Python)

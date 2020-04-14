@@ -178,6 +178,10 @@ More advanced options:
     modules not disabled by other features.
   * `VTK_USE_EXTERNAL` (default `OFF`): Whether to prefer external third
     party libraries or the versions VTK's source contains.
+  * `VTK_TARGET_SPECIFIC_COMPONENTS` (default `OFF`): Whether to install
+    files into target-specific components (`<TARGET>-runtime`,
+    `<TARGET>-development`, etc.) or general components (`runtime`,
+    `development`, etc.)
   * `VTK_VERSIONED_INSTALL` (default `ON`): Whether to add version numbers to
     VTK's include directories and library names in the install tree.
   * `VTK_CUSTOM_LIBRARY_SUFFIX` (default depends on `VTK_VERSIONED_INSTALL`):
