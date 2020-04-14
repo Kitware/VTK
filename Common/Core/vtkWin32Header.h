@@ -61,11 +61,6 @@ Do_not_include_vtkWin32Header_directly_vtkSystemIncludes_includes_it;
 
 #endif
 
-// Never include the windows header here when building VTK itself.
-#if defined(VTK_IN_VTK)
-#undef VTK_INCLUDE_WINDOWS_H
-#endif
-
 #if defined(_WIN32)
 // Include the windows header here only if requested by user code.
 #if defined(VTK_INCLUDE_WINDOWS_H)
