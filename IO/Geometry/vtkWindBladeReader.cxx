@@ -19,6 +19,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkCellData.h"
 #include "vtkCellType.h"
 #include "vtkDataArraySelection.h"
+#include "vtkEndian.h"
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"

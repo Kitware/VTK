@@ -16,6 +16,7 @@
 
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
+#include "vtkEndian.h"
 #include "vtkFloatArray.h"
 #include "vtkIncrementalPointLocator.h"
 #include "vtkInformation.h"

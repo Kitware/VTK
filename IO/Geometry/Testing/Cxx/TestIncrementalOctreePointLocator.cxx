@@ -12,6 +12,7 @@
 
 =========================================================================*/
 
+#include "vtkEndian.h"
 #include "vtkIdList.h"
 #include "vtkIncrementalOctreePointLocator.h"
 #include "vtkMath.h"

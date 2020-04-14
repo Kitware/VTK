@@ -15,6 +15,7 @@
 #include "vtkPNGWriter.h"
 
 #include "vtkAlgorithmOutput.h"
+#include "vtkEndian.h"
 #include "vtkErrorCode.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"

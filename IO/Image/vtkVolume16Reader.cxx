@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkVolume16Reader.h"
 
+#include "vtkEndian.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"

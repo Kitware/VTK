@@ -18,6 +18,7 @@
 #include "vtkCellArray.h"
 #include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkEndian.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"

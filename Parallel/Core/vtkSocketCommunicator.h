@@ -35,6 +35,7 @@
 #define vtkSocketCommunicator_h
 
 #include "vtkCommunicator.h"
+#include "vtkEndian.h"             // for VTK_WORDS_BIGENDIAN
 #include "vtkParallelCoreModule.h" // For export macro
 
 #include "vtkByteSwap.h" // Needed for vtkSwap macros

@@ -20,6 +20,7 @@
 #include "vtkCollection.h"
 #include "vtkCommand.h"
 #include "vtkDummyController.h"
+#include "vtkEndian.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOutputWindow.h"
