@@ -57,6 +57,13 @@ vtkOpenGLGlyph3DHelper::vtkOpenGLGlyph3DHelper()
 {
   this->UsingInstancing = false;
   this->PopulateSelectionSettings = 0;
+
+  // Shift and Scale are not used in this mapper producing errors when the Shift Scale
+  // feature was enabled by the superclass.
+  // GCMCMatrix could be modified accordingly but Shift and Scale coefficients are
+  // computed with the glyph source and not the point cloud.
+  // Disabling it for now.
+  this->SetVBOShiftScaleMethod(vtkOpenGLVertexBufferObject::DISABLE_SHIFT_SCALE);
 }
 
 // ---------------------------------------------------------------------------
