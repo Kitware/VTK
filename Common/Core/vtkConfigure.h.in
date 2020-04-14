@@ -40,8 +40,6 @@
 
 @VTK_CONFIG_LEGACY_VERSION@
 
-/* C++ compiler used.  */
-#define VTK_CXX_COMPILER "@CMAKE_CXX_COMPILER@"
 #include "vtkLegacy.h"
 
 #include "vtkDebug.h"

@@ -52,4 +52,11 @@
 #define VTK_USE_EXTERN_TEMPLATE
 #endif
 
+// FIXME: We should really use a better detection mechanism than the *path* to
+// the C++ compiler used. However, this doesn't do what we want anyways since
+// this macro is only set here when VTK is originally built. Any consuming
+// class would need to also define this. A better mechanism is necessary.
+/* C++ compiler used.  */
+#define VTK_CXX_COMPILER "@CMAKE_CXX_COMPILER@"
+
 #endif
