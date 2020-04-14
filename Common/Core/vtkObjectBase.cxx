@@ -14,6 +14,7 @@
 =========================================================================*/
 
 #include "vtkObjectBase.h"
+#include "vtkDebug.h"
 #include "vtkDebugLeaks.h"
 #include "vtkGarbageCollector.h"
 #include "vtkWeakPointerBase.h"

@@ -15,6 +15,7 @@
 // Tests vtkQtDebugLeaksModel and vtkQtDebugLeaksView.
 
 #include "vtkConeSource.h"
+#include "vtkDebug.h"
 #include "vtkDebugLeaks.h"
 #include "vtkQtDebugLeaksModel.h"
 #include "vtkQtDebugLeaksView.h"
