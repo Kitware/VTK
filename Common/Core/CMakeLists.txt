@@ -274,6 +274,7 @@ set(headers
   vtkAutoInit.h
   vtkBuffer.h
   vtkCollectionRange.h
+  vtkCompiler.h
   vtkDataArrayAccessor.h
   vtkDataArrayIteratorMacro.h
   vtkDataArrayMeta.h

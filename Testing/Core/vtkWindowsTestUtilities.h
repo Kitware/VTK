@@ -18,6 +18,8 @@
 #ifndef VTK_WINDOWS_TEST_UTILITIES
 #define VTK_WINDOWS_TEST_UTILITIES
 
+#include "vtkCompiler.h"
+
 #if defined(VTK_COMPILER_MSVC) && defined(_WIN32)
 #include <sstream>
 #include <windows.h>

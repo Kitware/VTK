@@ -28,6 +28,7 @@
 #define vtkSetGet_h
 
 #include "vtkCommonCoreModule.h" // For export macro
+#include "vtkCompiler.h"
 #include "vtkLegacy.h"
 #include "vtkSystemIncludes.h"
 #include <math.h>

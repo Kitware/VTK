@@ -29,6 +29,7 @@
 #include "vtkArrayIterator.h"
 #include "vtkCommonCoreModule.h" // For export macro
 
+#include "vtkCompiler.h"      // for VTK_USE_EXTERN_TEMPLATE
 #include "vtkStdString.h"     // For template instantiation
 #include "vtkUnicodeString.h" // For template instantiation
 #include "vtkVariant.h"       // For template instantiation
