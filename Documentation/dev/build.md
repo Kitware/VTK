@@ -167,8 +167,8 @@ Less common, but variables which may be of interest to some:
     long time to launch due to expensive disk access.
   * `VTK_ENABLE_WRAPPING` (default `ON`): Whether any wrapping support will be
     available or not.
-  * `VTK_WRAP_JAVA` (default `OFF`; requires `VTK_ENABLE_WRAPPING`): Whether
-    Java support will be available or not.
+  * `VTK_WRAP_JAVA` (default `OFF`; requires `VTK_ENABLE_WRAPPING` and CMake >=
+    3.12): Whether Java support will be available or not.
 
 More advanced options:
 
