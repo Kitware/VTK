@@ -28,7 +28,7 @@ add_library(vtkjava_tests STATIC
   ${java_test_files})
 target_compile_options(vtkjava_tests
   PRIVATE
-    "SHELL:-classpath ${vtk_test_classpath}"
+    "SHELL:-classpath \"${vtk_test_classpath}\""
     "SHELL:-source ${VTK_JAVA_SOURCE_VERSION}"
     "SHELL:-target ${VTK_JAVA_TARGET_VERSION}")
 target_link_libraries(vtkjava_tests

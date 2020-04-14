@@ -198,7 +198,7 @@ target_include_directories(vtkjava
 target_compile_options(vtkjava
   PRIVATE
     # TODO(java): Why does adding this to the include directories not work?
-    "SHELL:-classpath ${java_classpath}"
+    "SHELL:-classpath \"${java_classpath}\""
     "SHELL:-source ${VTK_JAVA_SOURCE_VERSION}"
     "SHELL:-target ${VTK_JAVA_TARGET_VERSION}")
 target_link_libraries(vtkjava
