@@ -59,7 +59,7 @@ public:
   /**
    * Get/Set the global origin of the amr data set
    */
-  void SetOrigin(const double*);
+  void SetOrigin(const double origin[3]);
   double* GetOrigin();
   //@}
 
@@ -82,7 +82,7 @@ public:
   /**
    * Returns the bounding information of a data set.
    */
-  void GetBounds(unsigned int level, unsigned int id, double* bb);
+  void GetBounds(unsigned int level, unsigned int id, double bb[6]);
 
   /**
    * Returns the origin of an AMR block
