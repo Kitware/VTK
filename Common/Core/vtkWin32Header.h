@@ -28,8 +28,8 @@ Do_not_include_vtkWin32Header_directly_vtkSystemIncludes_includes_it;
 #endif
 
 #include "vtkABI.h"
-#include "vtkBuild.h" // For VTK_BUILD_SHARED_LIBS
-#include "vtkConfigure.h"
+#include "vtkBuild.h"    // For VTK_BUILD_SHARED_LIBS
+#include "vtkPlatform.h" // for VTK_REQUIRE_LARGE_FILE_SUPPORT
 
 /*
  * This is a support for files on the disk that are larger than 2GB.

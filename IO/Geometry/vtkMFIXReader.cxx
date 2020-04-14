@@ -30,6 +30,7 @@
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkPlatform.h" // for VTK_MAXPATH
 #include "vtkPointData.h"
 #include "vtkQuad.h"
 #include "vtkStreamingDemandDrivenPipeline.h"

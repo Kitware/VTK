@@ -399,6 +399,7 @@ set(generated_headers
   vtkFeatures.h
   vtkLegacy.h
   vtkOptions.h
+  vtkPlatform.h
   vtkThreads.h)
 foreach (generated_header IN LISTS generated_headers)
   configure_file(

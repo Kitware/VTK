@@ -27,6 +27,7 @@
 #include "vtkDataSet.h"
 #include "vtkDataSetReader.h"
 #include "vtkDataSetWriter.h"
+#include "vtkPlatform.h" // for VTK_MAXPATH
 #include "vtkPointData.h"
 #include "vtkTimeSourceExample.h"
 #include "vtkXdmfReader.h"

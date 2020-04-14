@@ -17,6 +17,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkPlatform.h" // for VTK_MAXPATH
 #include "vtksys/FStream.hxx"
 
 #include <string>
