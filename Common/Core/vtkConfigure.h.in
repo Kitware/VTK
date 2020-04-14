@@ -39,17 +39,12 @@
 
 #include "vtkBuild.h"
 
-/* Whether vtkIdType is a 64-bit integer type (or a 32-bit integer type).  */
-#cmakedefine VTK_USE_64BIT_IDS
-
-/* Whether MTime should use a 64-bit integer type on 32 bit builds.  */
-#cmakedefine VTK_USE_64BIT_TIMESTAMPS
+#include "vtkOptions.h"
 
 @VTK_CONFIG_LEGACY_VERSION@
 
 /* C++ compiler used.  */
 #define VTK_CXX_COMPILER "@CMAKE_CXX_COMPILER@"
-
 #include "vtkLegacy.h"
 
 #include "vtkDebug.h"

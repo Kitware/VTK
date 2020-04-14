@@ -17,6 +17,7 @@
 
 #include "vtkCompiler.h" // for VTK_USE_EXTERN_TEMPLATE
 #include "vtkLegacy.h"   // For VTK_LEGACY_REMOVE
+#include "vtkOptions.h"  // for VTK_USE_64BIT_IDS and VTK_USE_64BIT_TIMESTAMPS
 #include "vtk_kwiml.h"
 
 #define VTK_SIZEOF_CHAR KWIML_ABI_SIZEOF_CHAR

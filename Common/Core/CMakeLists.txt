@@ -398,6 +398,7 @@ set(generated_headers
   vtkEndian.h
   vtkFeatures.h
   vtkLegacy.h
+  vtkOptions.h
   vtkThreads.h)
 foreach (generated_header IN LISTS generated_headers)
   configure_file(
