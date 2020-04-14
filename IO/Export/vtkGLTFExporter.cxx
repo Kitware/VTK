@@ -350,9 +350,9 @@ void WriteMesh(Json::Value& accessors, Json::Value& buffers, Json::Value& buffer
     attribs["POSITION"] = pointAccessor;
     int userAccessor = userAccessorsStart;
     for (size_t i = 0; i < arraysToSave.size(); ++i)
-      {
-        attribs[arraysToSave[i]->GetName()] = userAccessor++;
-      }
+    {
+      attribs[arraysToSave[i]->GetName()] = userAccessor++;
+    }
     if (vertColorAccessor >= 0)
     {
       attribs["COLOR_0"] = vertColorAccessor;
@@ -483,7 +483,7 @@ void WriteCamera(Json::Value& cameras, vtkRenderer* ren)
   else
   {
     acamera["type"] = "perspective";
-    camValues["yfov"] = cam->GetViewAngle();
+    camValues["yfov"] = vtkMath::RadiansFromDegrees(cam->GetViewAngle());
     camValues["aspectRatio"] = ren->GetTiledAspectRatio();
     acamera["perspective"] = camValues;
   }
@@ -709,7 +709,7 @@ void vtkGLTFExporter::WriteToStream(ostream& output)
             {
               foundVisibleProp = true;
               WriteMesh(accessors, buffers, bufferViews, meshes, nodes, pd, aPart, this->FileName,
-                  this->InlineData, this->SaveNormal, this->SaveBatchId);
+                this->InlineData, this->SaveNormal, this->SaveBatchId);
               rendererNode["children"].append(nodes.size() - 1);
               unsigned int oldTextureCount = textures.size();
               WriteTexture(buffers, bufferViews, textures, samplers, images, pd, aPart,
