@@ -176,6 +176,16 @@ public:
    */
   void IntersectWith(vtkIdList& otherIds) { this->IntersectWith(&otherIds); }
 
+#ifndef __VTK_WRAP__
+  /**
+   * This releases the ownership of the internal vtkIdType array and returns the
+   * pointer to it. The caller is responsible of calling `delete []` on the
+   * returned value. This vtkIdList will be set to initialized state after this
+   * call.
+   */
+  vtkIdType* Release();
+#endif
+
   //@{
   /**
    * To support range-based `for` loops
