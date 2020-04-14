@@ -311,9 +311,7 @@ set(headers
   ${vtk_smp_headers}
   "${CMAKE_CURRENT_BINARY_DIR}/vtkArrayDispatchArrayList.h"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h"
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkToolkits.h"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkTypeListMacros.h"
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkVTK_USE_SCALED_SOA_ARRAYS.h")
 
 set(templates
@@ -401,7 +399,9 @@ set(generated_headers
   vtkOptions.h
   vtkPlatform.h
   vtkSMP.h
-  vtkThreads.h)
+  vtkThreads.h
+  vtkToolkits.h
+  vtkVersionMacros.h)
 foreach (generated_header IN LISTS generated_headers)
   configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/${generated_header}.in"
@@ -410,15 +410,6 @@ foreach (generated_header IN LISTS generated_headers)
   list(APPEND headers
     "${CMAKE_CURRENT_BINARY_DIR}/${generated_header}")
 endforeach ()
-
-configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/vtkVersionMacros.h.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h"
-  @ONLY)
-configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/vtkToolkits.h.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkToolkits.h"
-  @ONLY)
 
 add_custom_command(
   DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/CaseFolding.txt"
