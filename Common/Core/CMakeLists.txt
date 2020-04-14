@@ -396,7 +396,8 @@ set(generated_headers
   vtkDebug.h
   vtkDebugRangeIterators.h
   vtkEndian.h
-  vtkLegacy.h)
+  vtkLegacy.h
+  vtkThreads.h)
 foreach (generated_header IN LISTS generated_headers)
   configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/${generated_header}.in"

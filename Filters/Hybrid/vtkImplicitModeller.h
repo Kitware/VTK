@@ -89,6 +89,7 @@
 
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
+#include "vtkThreads.h" // for VTK_MAX_THREADS
 
 #define VTK_VOXEL_MODE 0
 #define VTK_CELL_MODE 1

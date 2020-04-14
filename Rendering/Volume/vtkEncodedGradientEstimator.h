@@ -36,6 +36,7 @@
 
 #include "vtkObject.h"
 #include "vtkRenderingVolumeModule.h" // For export macro
+#include "vtkThreads.h"               // for VTK_MAX_THREADS
 
 class vtkImageData;
 class vtkDirectionEncoder;

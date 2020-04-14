@@ -32,6 +32,7 @@
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkThreads.h" // for VTK_USE_PTHREADS and VTK_USE_WIN32_THREADS
 
 #include "vtkMutexLock.h" // Need for friend access to vtkSimpleMutexLock
 

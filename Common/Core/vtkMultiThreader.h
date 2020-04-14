@@ -27,6 +27,7 @@
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkThreads.h" // for VTK_MAX_THREADS
 
 #include <mutex> // For std::mutex
 
@@ -39,14 +40,12 @@
 // If VTK_USE_PTHREADS is defined, then pthread_create() will be
 // used to create multiple threads
 
-// Defined in vtkSystemIncludes.h:
-//   VTK_MAX_THREADS
-
 // If VTK_USE_PTHREADS is defined, then the multithreaded
 // function is of type void *, and returns nullptr
 // Otherwise the type is void which is correct for WIN32
 
-// Defined in vtkSystemIncludes.h:
+// Defined in vtkThreads.h:
+//   VTK_MAX_THREADS
 //   VTK_THREAD_RETURN_VALUE
 //   VTK_THREAD_RETURN_TYPE
 

@@ -38,6 +38,7 @@
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"
+#include "vtkThreads.h" // for VTK_USE_PTHREADS and VTK_USE_WIN32_THREADS
 
 #if defined(VTK_USE_PTHREADS)
 #include <pthread.h> // Needed for pthreads implementation of mutex

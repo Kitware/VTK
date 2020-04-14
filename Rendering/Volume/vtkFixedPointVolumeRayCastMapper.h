@@ -57,6 +57,7 @@
 #define vtkFixedPointVolumeRayCastMapper_h
 
 #include "vtkRenderingVolumeModule.h" // For export macro
+#include "vtkThreads.h"               // for VTK_THREAD_RETURN_TYPE
 #include "vtkVolumeMapper.h"
 
 #define VTKKW_FP_SHIFT 15

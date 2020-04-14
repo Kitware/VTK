@@ -22,10 +22,7 @@
 
 #include "vtkEndian.h"
 
-/* Threading system.  */
-#cmakedefine VTK_USE_PTHREADS
-#cmakedefine VTK_USE_WIN32_THREADS
-# define VTK_MAX_THREADS @VTK_MAX_THREADS@
+#include "vtkThreads.h"
 
 /* vtkSMPTools back-end */
 #define VTK_SMP_@VTK_SMP_IMPLEMENTATION_TYPE@
