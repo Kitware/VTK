@@ -311,6 +311,30 @@ void ApplyGLTFMaterialToVTKActor(std::shared_ptr<vtkGLTFDocumentLoader::Model> m
     }
   }
 };
+
+//----------------------------------------------------------------------------
+void ApplyTransformToCamera(vtkSmartPointer<vtkCamera> cam, vtkSmartPointer<vtkTransform> transform)
+{
+  if (!cam || !transform)
+  {
+    return;
+  }
+
+  double position[3] = { 0.0 };
+  double viewUp[3] = { 0.0 };
+  double focus[3] = { 0.0 };
+
+  transform->TransformPoint(cam->GetPosition(), position);
+  transform->TransformVector(cam->GetViewUp(), viewUp);
+  transform->TransformVector(cam->GetDirectionOfProjection(), focus);
+  focus[0] -= position[0];
+  focus[1] -= position[1];
+  focus[2] -= position[2];
+
+  cam->SetPosition(position);
+  cam->SetFocalPoint(focus);
+  cam->SetViewUp(viewUp);
+}
 }
 
 //----------------------------------------------------------------------------
@@ -464,8 +488,6 @@ void vtkGLTFImporter::ImportCameras(vtkRenderer* renderer)
     nodeIdStack.push(nodeId);
   }
 
-  bool appliedFirstCamera = false;
-
   // Iterate over tree
   while (!nodeIdStack.empty())
   {
@@ -479,11 +501,7 @@ void vtkGLTFImporter::ImportCameras(vtkRenderer* renderer)
     {
       vtkGLTFDocumentLoader::Camera const& camera = model->Cameras[node.Camera];
       auto vtkCam = GLTFCameraToVTKCamera(camera);
-      if (!appliedFirstCamera)
-      {
-        vtkCam->ApplyTransform(node.GlobalTransform);
-        appliedFirstCamera = true;
-      }
+      ApplyTransformToCamera(vtkCam, node.GlobalTransform);
       renderer->SetActiveCamera(vtkCam);
       // Since the same glTF camera object can be used by multiple nodes (so with different
       // transforms), multiple vtkCameras are generated for the same glTF camera object, but with
