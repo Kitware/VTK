@@ -797,6 +797,28 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
       vtkPiecewiseFunction::SafeDownCast(mapInfo->Get(vtkOSPRayActorNode::SCALE_FUNCTION()));
   }
 
+  //
+  // now ask mapper to do most of the work and provide us with
+  // colors per cell and colors or texture coordinates per point
+  vtkUnsignedCharArray* vColors = nullptr;
+  vtkFloatArray* vColorCoordinates = nullptr;
+  vtkImageData* pColorTextureMap = nullptr;
+  int cellFlag = -1; // mapper tells us which
+  if (mapper)
+  {
+    mapper->MapScalars(poly, 1.0, cellFlag);
+    vColors = mapper->GetColorMapColors();
+    vColorCoordinates = mapper->GetColorCoordinates();
+    pColorTextureMap = mapper->GetColorTextureMap();
+  }
+
+  if (vColors || (vColorCoordinates && pColorTextureMap))
+  {
+    // OSPRay scales the color mapping with the solid color but OpenGL backend does not do it.
+    // set back to white to workaround this difference.
+    std::fill(diffuseColor, diffuseColor + 3, 1.0);
+  }
+
   // per actor material
   float specularf[3];
   bool useCustomMaterial = false;
@@ -854,20 +876,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
   osp::vec4f* pointColors = nullptr;
   int numPointValueTextureCoords = 0;
   float* pointValueTextureCoords = nullptr;
-  //
-  // now ask mapper to do most of the work and provide us with
-  // colors per cell and colors or texture coordinates per point
-  vtkUnsignedCharArray* vColors = nullptr;
-  vtkFloatArray* vColorCoordinates = nullptr;
-  vtkImageData* pColorTextureMap = nullptr;
-  int cellFlag = -1; // mapper tells us which
-  if (mapper)
-  {
-    mapper->MapScalars(poly, 1.0, cellFlag);
-    vColors = mapper->GetColorMapColors();
-    vColorCoordinates = mapper->GetColorCoordinates();
-    pColorTextureMap = mapper->GetColorTextureMap();
-  }
+
   if (vColors)
   {
     if (cellFlag == 2 && mapper->GetFieldDataTupleId() > -1)
@@ -1238,8 +1247,12 @@ void vtkOSPRayPolyDataMapperNode::Render(bool prepass)
     if (poly)
     {
       vtkProperty* property = act->GetProperty();
-      this->ORenderPoly(orn->GetORenderer(), aNode, poly, property->GetAmbientColor(),
-        property->GetDiffuseColor(), property->GetOpacity(), "");
+      double ambient[3];
+      double diffuse[3];
+      property->GetAmbientColor(ambient);
+      property->GetDiffuseColor(diffuse);
+      this->ORenderPoly(
+        orn->GetORenderer(), aNode, poly, ambient, diffuse, property->GetOpacity(), "");
     }
     this->PopulateCache();
     this->RenderGeometries();
