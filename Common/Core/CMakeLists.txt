@@ -390,6 +390,17 @@ endif()
 include(TestBigEndian)
 test_big_endian(VTK_WORDS_BIGENDIAN)
 
+set(generated_headers
+  vtkBuild.h)
+foreach (generated_header IN LISTS generated_headers)
+  configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/${generated_header}.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/${generated_header}"
+    @ONLY)
+  list(APPEND headers
+    "${CMAKE_CURRENT_BINARY_DIR}/${generated_header}")
+endforeach ()
+
 # Provide version macros through vtkConfigure.h for compatibility.
 if(VTK_LEGACY_REMOVE)
   set(VTK_CONFIG_LEGACY_VERSION "")

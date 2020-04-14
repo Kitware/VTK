@@ -82,8 +82,7 @@
 /* Whether the target platform supports shared libraries.  */
 #cmakedefine VTK_TARGET_SUPPORTS_SHARED_LIBS
 
-/* Whether we are building shared libraries.  */
-#cmakedefine VTK_BUILD_SHARED_LIBS
+#include "vtkBuild.h"
 
 /* Whether vtkIdType is a 64-bit integer type (or a 32-bit integer type).  */
 #cmakedefine VTK_USE_64BIT_IDS

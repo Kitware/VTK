@@ -21,6 +21,7 @@
 #define QVTKWin32Header_h
 
 #include "vtkABI.h"
+#include "vtkBuild.h"
 #include "vtkSystemIncludes.h"
 
 #if defined(VTK_BUILD_SHARED_LIBS)
