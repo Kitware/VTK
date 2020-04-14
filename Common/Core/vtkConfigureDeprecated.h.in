@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkMFCConfigure.h.in
+  Module:    vtkConfigureDeprecated.h.in
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,10 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#ifndef vtkConfigureDeprecated_h
+#define vtkConfigureDeprecated_h
 
-#ifndef vtkMFCConfigure_h
-#define vtkMFCConfigure_h
-
-#cmakedefine VTK_MFC_STATIC
+/* Whether the target platform supports shared libraries.  */
+#cmakedefine VTK_TARGET_SUPPORTS_SHARED_LIBS
 
 #endif

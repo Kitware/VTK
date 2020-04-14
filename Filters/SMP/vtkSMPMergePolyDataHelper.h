@@ -24,7 +24,6 @@
 #ifndef vtkSMPMergePolyDataHelper_h
 #define vtkSMPMergePolyDataHelper_h
 
-#include "vtkConfigure.h"
 #include "vtkFiltersSMPModule.h"
 
 #include <vector>

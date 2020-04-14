@@ -251,7 +251,6 @@ set(sources
   vtkWindow.cxx
   vtkXMLFileOutputWindow.cxx
   ${vtk_smp_sources}
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h"
   )
@@ -275,6 +274,7 @@ set(headers
   vtkBuffer.h
   vtkCollectionRange.h
   vtkCompiler.h
+  vtkConfigure.h
   vtkDataArrayAccessor.h
   vtkDataArrayIteratorMacro.h
   vtkDataArrayMeta.h
@@ -310,7 +310,6 @@ set(headers
   vtkWrappingHints.h
   ${vtk_smp_headers}
   "${CMAKE_CURRENT_BINARY_DIR}/vtkArrayDispatchArrayList.h"
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkToolkits.h"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkTypeListMacros.h"
@@ -393,6 +392,7 @@ test_big_endian(VTK_WORDS_BIGENDIAN)
 
 set(generated_headers
   vtkBuild.h
+  vtkConfigureDeprecated.h
   vtkDebug.h
   vtkDebugRangeIterators.h
   vtkEndian.h
@@ -411,20 +411,9 @@ foreach (generated_header IN LISTS generated_headers)
     "${CMAKE_CURRENT_BINARY_DIR}/${generated_header}")
 endforeach ()
 
-# Provide version macros through vtkConfigure.h for compatibility.
-if(VTK_LEGACY_REMOVE)
-  set(VTK_CONFIG_LEGACY_VERSION "")
-else()
-  set(VTK_CONFIG_LEGACY_VERSION "#include \"vtkVersionMacros.h\" // removed by VTK_LEGACY_REMOVE")
-endif()
-
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtkVersionMacros.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h"
-  @ONLY)
-configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/vtkConfigure.h.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h"
   @ONLY)
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtkToolkits.h.in"

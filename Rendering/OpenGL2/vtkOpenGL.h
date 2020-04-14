@@ -15,7 +15,6 @@
 #ifndef vtkOpenGL_h
 #define vtkOpenGL_h
 
-#include "vtkConfigure.h"
 #include "vtkRenderingOpenGLConfigure.h" // For VTK_USE_COCOA
 
 // Must be included before `gl.h` due to glew.
