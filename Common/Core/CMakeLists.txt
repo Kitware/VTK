@@ -250,10 +250,7 @@ set(sources
   vtkWeakPointerBase.cxx
   vtkWindow.cxx
   vtkXMLFileOutputWindow.cxx
-  ${vtk_smp_sources}
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h"
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h"
-  )
+  ${vtk_smp_sources})
 
 if (VTK_BUILD_SCALED_SOA_ARRAYS)
   list (APPEND template_classes vtkScaledSOADataArrayTemplate)
