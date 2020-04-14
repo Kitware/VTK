@@ -22,7 +22,6 @@
 #define vtkOpenGLPolyDataMapper_h
 
 #include "vtkNew.h"          // For vtkNew
-#include "vtkNew.h"          // for ivars
 #include "vtkOpenGLHelper.h" // used for ivars
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
