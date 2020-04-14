@@ -148,32 +148,32 @@ void vtkOpenGLSkybox::Render(vtkRenderer* ren, vtkMapper* mapper)
                                 "    dot(diri,floorPlane.xyz),\n"
                                 "    dot(diri,floorFront));\n"
                                 "  float phix = length(vec2(dirv.x, dirv.z));\n"
-                                "  gl_FragData[0] = texture(actortexture, vec2(0.5*atan(dirv.x, "
-                                "dirv.z)/3.1415927 + 0.5, atan(dirv.y,phix)/3.1415927 + 0.5));\n"
+                                "  gl_FragData[0] = textureLod(actortexture, vec2(0.5*atan(dirv.x, "
+                                "dirv.z)/3.1415927 + 0.5, atan(dirv.y,phix)/3.1415927 + 0.5), 0);\n"
                                 "}\n");
     }
     if (this->Projection == vtkSkybox::StereoSphere)
     {
       // Replace VTK fragment shader
-      sp->SetFragmentShaderCode(
-        "//VTK::System::Dec\n" // always start with this line
-        "//VTK::Output::Dec\n" // always have this line in your FS
-        "in vec3 TexCoords;\n"
-        "uniform vec3 cameraPos;\n" // wc camera position
-        "uniform sampler2D actortexture;\n"
-        "uniform vec4 floorPlane;\n" // floor plane eqn
-        "uniform vec3 floorRight;\n" // floor plane right
-        "uniform vec3 floorFront;\n" // floor plane front
-        "uniform float leftEye;\n"   // 1.0 for left, 0.0 for right
-        "void main () {\n"
-        "  vec3 diri = normalize(TexCoords - cameraPos);\n"
-        "  vec3 dirv = vec3(dot(diri,floorRight),\n"
-        "    dot(diri,floorPlane.xyz),\n"
-        "    dot(diri,floorFront));\n"
-        "  float phix = length(vec2(dirv.x, dirv.z));\n"
-        "  gl_FragData[0] = texture(actortexture, vec2(0.5*atan(dirv.x, dirv.z)/3.1415927 + 0.5, "
-        "0.5*atan(dirv.y,phix)/3.1415927 + 0.25 + 0.5*leftEye));\n"
-        "}\n");
+      sp->SetFragmentShaderCode("//VTK::System::Dec\n" // always start with this line
+                                "//VTK::Output::Dec\n" // always have this line in your FS
+                                "in vec3 TexCoords;\n"
+                                "uniform vec3 cameraPos;\n" // wc camera position
+                                "uniform sampler2D actortexture;\n"
+                                "uniform vec4 floorPlane;\n" // floor plane eqn
+                                "uniform vec3 floorRight;\n" // floor plane right
+                                "uniform vec3 floorFront;\n" // floor plane front
+                                "uniform float leftEye;\n"   // 1.0 for left, 0.0 for right
+                                "void main () {\n"
+                                "  vec3 diri = normalize(TexCoords - cameraPos);\n"
+                                "  vec3 dirv = vec3(dot(diri,floorRight),\n"
+                                "    dot(diri,floorPlane.xyz),\n"
+                                "    dot(diri,floorFront));\n"
+                                "  float phix = length(vec2(dirv.x, dirv.z));\n"
+                                "  gl_FragData[0] = textureLod(actortexture, vec2(0.5*atan(dirv.x, "
+                                "dirv.z)/3.1415927 + 0.5, "
+                                "0.5*atan(dirv.y,phix)/3.1415927 + 0.25 + 0.5*leftEye), 0);\n"
+                                "}\n");
     }
     if (this->Projection == vtkSkybox::Floor)
     {

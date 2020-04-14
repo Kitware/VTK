@@ -796,10 +796,6 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
       "{\n"
       "  return F0 + (1.0 - F0) * pow(1.0 - HdV, 5.0);\n"
       "}\n"
-      "vec3 F_SchlickRoughness(float HdV, vec3 F0, float roughness)\n"
-      "{\n"
-      "  return F0 + (1.0 - F0) * (max(vec3(1.0 - roughness), F0) - F0) * pow(1.0 - HdV, 5.0);\n"
-      "}\n"
       "vec3 DiffuseLambert(vec3 albedo)\n"
       "{\n"
       "  return albedo * recPI;\n"
@@ -1154,11 +1150,15 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
   if (actor->GetProperty()->GetInterpolation() == VTK_PBR && lastLightComplexity > 0)
   {
     vtkShaderProgram::Substitute(FSSource, "//VTK::Light::Impl",
-      "  vec3 kS = F_SchlickRoughness(max(NdV, 0.0), F0, roughness);\n"
-      "  vec3 kD = 1.0 - kS;\n"
-      "  kD *= 1.0 - metallic;\n" // no diffuse for metals
-      "  vec3 ambient = (kD * irradiance * albedo + prefilteredColor * (kS * brdf.r + brdf.g));\n"
-      "  vec3 color = ambient + Lo;\n"
+      // specular occlusion, it affects only material with an f0 < 0.02
+      "  float F90 = clamp(dot(F0, vec3(50.0 * 0.33)), 0.0, 1.0);\n"
+      "  // In IBL, we assume that v=n, so the amount of light reflected is\n"
+      "  // the reflectance F0\n"
+      "  vec3 specularBrdf = F0 * brdf.r + F90 * brdf.g;\n"
+      "  vec3 iblSpecular = prefilteredColor * specularBrdf;\n"
+      // no diffuse for metals
+      "  vec3 iblDiffuse = (1.0 - F0) * (1.0 - metallic) * irradiance * albedo;\n"
+      "  vec3 color = iblDiffuse + iblSpecular + Lo;\n"
       "  color = mix(color, color * ao, aoStrengthUniform);\n" // ambient occlusion
       "  color += emissiveColor;\n"                            // emissive
       "  color = pow(color, vec3(1.0/2.2));\n"                 // to sRGB color space
