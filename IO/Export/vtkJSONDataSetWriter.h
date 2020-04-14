@@ -40,6 +40,7 @@
 
 #include "vtkIOExportModule.h" // For export macro
 
+#include "vtkLegacy.h" // For VTK_LEGACY
 #include "vtkWriter.h"
 
 #include <string> // std::string used as parameters in a few methods

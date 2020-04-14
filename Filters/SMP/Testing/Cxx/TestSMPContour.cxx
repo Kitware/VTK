@@ -13,6 +13,7 @@
 
 =========================================================================*/
 #include "vtkDataSetTriangleFilter.h"
+#include "vtkLegacy.h" // For VTK_LEGACY_REMOVE
 #include "vtkNew.h"
 #include "vtkPolyData.h"
 #include "vtkRTAnalyticSource.h"

@@ -28,6 +28,7 @@
 
 #include "vtkContourGrid.h"
 #include "vtkFiltersSMPModule.h" // For export macro
+#include "vtkLegacy.h"           // For VTK_LEGACY_REMOVE
 
 class vtkPolyData;
 

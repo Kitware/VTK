@@ -42,6 +42,7 @@
 #ifndef vtkValuePass_h
 #define vtkValuePass_h
 
+#include "vtkLegacy.h" // For VTK_LEGACY
 #include "vtkOpenGLRenderPass.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkSmartPointer.h"           //for ivar

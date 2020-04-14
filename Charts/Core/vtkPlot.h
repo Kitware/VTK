@@ -30,6 +30,7 @@
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkContextItem.h"
 #include "vtkContextPolygon.h" // For vtkContextPolygon
+#include "vtkLegacy.h"         // For VTK_LEGACY_REMOVE
 #include "vtkRect.h"           // For vtkRectd ivar
 #include "vtkSmartPointer.h"   // Needed to hold SP ivars
 #include "vtkStdString.h"      // Needed to hold TooltipLabelFormat ivar

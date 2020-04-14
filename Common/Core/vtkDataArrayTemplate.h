@@ -22,6 +22,7 @@
 #define vtkDataArrayTemplate_h
 
 #include "vtkAOSDataArrayTemplate.h"
+#include "vtkLegacy.h" // For VTK_LEGACY_REMOVE
 
 #ifndef VTK_LEGACY_REMOVE
 

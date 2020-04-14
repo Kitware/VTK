@@ -47,6 +47,7 @@
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkHyperTreeGridAlgorithm.h"
+#include "vtkLegacy.h" // For VTK_LEGACY
 
 #include <map>    // STL Header
 #include <string> // STL Header

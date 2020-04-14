@@ -31,6 +31,7 @@
 #define vtkAbstractImageInterpolator_h
 
 #include "vtkImagingCoreModule.h" // For export macro
+#include "vtkLegacy.h"            // For VTK_LEGACY
 #include "vtkObject.h"
 
 #define VTK_IMAGE_BORDER_CLAMP 0

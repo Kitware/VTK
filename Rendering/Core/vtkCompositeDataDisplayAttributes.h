@@ -29,7 +29,8 @@
 #include <functional>    // for std::function
 #include <unordered_map> // for std::unordered_map
 
-#include "vtkColor.h" // for vtkColor3d
+#include "vtkColor.h"  // for vtkColor3d
+#include "vtkLegacy.h" // For VTK_LEGACY
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // for export macro
 

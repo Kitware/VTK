@@ -3,6 +3,7 @@
 #include "QVTKOpenGLWindow.h"
 #include "QVTKRenderWidget.h"
 #include "vtkGenericOpenGLRenderWindow.h"
+#include "vtkLegacy.h" // For VTK_LEGACY_REMOVE
 #include "vtkLogger.h"
 
 #ifndef VTK_LEGACY_REMOVE

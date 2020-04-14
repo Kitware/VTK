@@ -63,6 +63,7 @@
 
 #include "vtkDataObject.h"        // For attribute types
 #include "vtkFiltersCoreModule.h" // For export macro
+#include "vtkLegacy.h"            // For VTK_LEGACY_REMOVE
 #include "vtkPassInputTypeAlgorithm.h"
 
 class vtkDataSet;

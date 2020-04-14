@@ -57,6 +57,7 @@
 #ifndef vtkPythonInterpreter_h
 #define vtkPythonInterpreter_h
 
+#include "vtkLegacy.h" // For VTK_LEGACY
 #include "vtkObject.h"
 #include "vtkPythonInterpreterModule.h" // For export macro
 #include "vtkStdString.h"               // needed for vtkStdString.

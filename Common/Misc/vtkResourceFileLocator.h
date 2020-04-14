@@ -33,6 +33,7 @@
 #define vtkResourceFileLocator_h
 
 #include "vtkCommonMiscModule.h" // For export macro
+#include "vtkLegacy.h"           // For VTK_LEGACY
 #include "vtkObject.h"
 
 #include <string> // needed for std::string

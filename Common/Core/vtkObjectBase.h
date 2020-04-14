@@ -50,6 +50,7 @@
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkIndent.h"
+#include "vtkLegacy.h" // For VTK_LEGACY_REMOVE
 #include "vtkSystemIncludes.h"
 #include "vtkType.h"
 

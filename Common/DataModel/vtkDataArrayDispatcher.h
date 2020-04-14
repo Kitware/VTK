@@ -54,7 +54,7 @@
 #ifndef vtkDataArrayDispatcher_h
 #define vtkDataArrayDispatcher_h
 
-#include "vtkConfigure.h"
+#include "vtkLegacy.h" // for VTK_LEGACY_REMOVE
 
 #ifndef VTK_LEGACY_REMOVE
 

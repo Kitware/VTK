@@ -20,6 +20,7 @@
 #include "vtkDataObject.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkInformation.h"
+#include "vtkLegacy.h" // For VTK_LEGACY_SILENT
 #include "vtkObjectFactory.h"
 #include "vtkSMPTools.h"
 #include "vtkSelectionNode.h"

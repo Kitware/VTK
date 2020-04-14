@@ -70,7 +70,7 @@
 #ifndef vtkDoubleDispatcher_h
 #define vtkDoubleDispatcher_h
 
-#include "vtkConfigure.h"
+#include "vtkLegacy.h" // For VTK_LEGACY_REMOVE
 
 #ifndef VTK_LEGACY_REMOVE
 

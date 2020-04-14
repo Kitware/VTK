@@ -41,6 +41,7 @@
 #ifndef vtkRenderWindow_h
 #define vtkRenderWindow_h
 
+#include "vtkLegacy.h"              // For VTK_LEGACY_REMOVE
 #include "vtkNew.h"                 // For vtkNew
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkSmartPointer.h"        // For vtkSmartPointer

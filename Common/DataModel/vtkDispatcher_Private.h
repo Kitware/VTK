@@ -30,7 +30,7 @@
 #ifndef vtkDispatcher_Private_h
 #define vtkDispatcher_Private_h
 
-#include "vtkConfigure.h"
+#include "vtkLegacy.h" // For VTK_LEGACY_REMOVE
 
 #ifndef VTK_LEGACY_REMOVE
 #ifndef __VTK_WRAP__

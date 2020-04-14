@@ -153,6 +153,7 @@
 #define vtkLSDynaReader_h
 
 #include "vtkIOLSDynaModule.h" // For export macro
+#include "vtkLegacy.h"         // For VTK_LEGACY_REMOVE
 #include "vtkMultiBlockDataSetAlgorithm.h"
 #include <string> // for method signature
 

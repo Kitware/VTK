@@ -21,6 +21,8 @@
 #include "QVTKOpenGLWindow.h" // needed for ivar
 #include <QPointer>           // needed for ivar
 
+#include "vtkLegacy.h" // For VTK_LEGACY
+
 // Forward Qt class declarations
 class QSurfaceFormat;
 class QOpenGLContext;

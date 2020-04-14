@@ -16,6 +16,7 @@
 #define vtkType_h
 
 #include "vtkConfigure.h"
+#include "vtkLegacy.h" // For VTK_LEGACY_REMOVE
 #include "vtk_kwiml.h"
 
 #define VTK_SIZEOF_CHAR KWIML_ABI_SIZEOF_CHAR

@@ -73,7 +73,7 @@
 #ifndef vtkDispatcher_h
 #define vtkDispatcher_h
 
-#include "vtkConfigure.h"
+#include "vtkLegacy.h" // For VTK_LEGACY_REMOVE
 
 #ifndef VTK_LEGACY_REMOVE
 

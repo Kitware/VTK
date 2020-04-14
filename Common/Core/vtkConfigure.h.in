@@ -95,9 +95,7 @@
 /* C++ compiler used.  */
 #define VTK_CXX_COMPILER "@CMAKE_CXX_COMPILER@"
 
-/* Compatibility settings.  */
-#cmakedefine VTK_LEGACY_REMOVE
-#cmakedefine VTK_LEGACY_SILENT
+#include "vtkLegacy.h"
 
 /* Debug leaks support.  */
 #cmakedefine VTK_DEBUG_LEAKS
