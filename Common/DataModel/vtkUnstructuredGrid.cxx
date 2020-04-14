@@ -1874,7 +1874,7 @@ void vtkUnstructuredGrid::DeepCopy(vtkDataObject* dataObject)
       this->DistinctCellTypes = nullptr;
     }
 
-    if (this->Faces)
+    if (grid->Faces)
     {
       this->Faces = vtkSmartPointer<vtkIdTypeArray>::New();
       this->Faces->DeepCopy(grid->Faces);
@@ -1884,7 +1884,7 @@ void vtkUnstructuredGrid::DeepCopy(vtkDataObject* dataObject)
       this->Faces = nullptr;
     }
 
-    if (this->FaceLocations)
+    if (grid->FaceLocations)
     {
       this->FaceLocations = vtkSmartPointer<vtkIdTypeArray>::New();
       this->FaceLocations->DeepCopy(grid->FaceLocations);
