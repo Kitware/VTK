@@ -385,6 +385,7 @@ endif()
 include(TestBigEndian)
 test_big_endian(VTK_WORDS_BIGENDIAN)
 
+set(nowrap_headers)
 set(generated_headers
   vtkBuild.h
   vtkConfigureDeprecated.h
@@ -404,7 +405,7 @@ foreach (generated_header IN LISTS generated_headers)
     "${CMAKE_CURRENT_SOURCE_DIR}/${generated_header}.in"
     "${CMAKE_CURRENT_BINARY_DIR}/${generated_header}"
     @ONLY)
-  list(APPEND headers
+  list(APPEND nowrap_headers
     "${CMAKE_CURRENT_BINARY_DIR}/${generated_header}")
 endforeach ()
 
@@ -499,7 +500,8 @@ vtk_module_add_module(VTK::CommonCore
   TEMPLATE_CLASSES  ${template_classes}
   SOURCES           ${sources}
   TEMPLATES         ${templates}
-  HEADERS           ${headers})
+  HEADERS           ${headers}
+  NOWRAP_HEADERS    ${nowrap_headers})
 if (vtk_include_dirs)
   vtk_module_include(VTK::CommonCore
     PRIVATE
