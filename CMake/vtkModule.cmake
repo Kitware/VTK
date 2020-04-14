@@ -3110,6 +3110,7 @@ vtk_module_add_module(<name>
   [TEMPLATE_CLASSES         <template class>...]
   [SOURCES                  <source>...]
   [HEADERS                  <header>...]
+  [NOWRAP_HEADERS           <header>...]
   [TEMPLATES                <template>...]
   [PRIVATE_CLASSES          <class>...]
   [PRIVATE_TEMPLATE_CLASSES <template class>...]
@@ -3139,6 +3140,8 @@ always private, so there is no `PRIVATE_` variant for that argument).
   * `SOURCES`: A list of source files which require compilation.
   * `HEADERS`: A list of header files which will be available for wrapping and
     installed.
+  * `NOWRAP_HEADERS`: A list of header files which will not be available for
+    wrapping but installed.
   * `TEMPLATES`: A list of template files which will be installed.
 #]==]
 function (vtk_module_add_module name)
@@ -3157,7 +3160,7 @@ function (vtk_module_add_module name)
   cmake_parse_arguments(PARSE_ARGV 1 _vtk_add_module
     "FORCE_STATIC;HEADER_ONLY"
     "EXPORT_MACRO_PREFIX;HEADERS_SUBDIR;LIBRARY_NAME_SUFFIX"
-    "${_vtk_add_module_source_keywords};SOURCES")
+    "${_vtk_add_module_source_keywords};SOURCES;NOWRAP_HEADERS")
 
   if (_vtk_add_module_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
@@ -3224,6 +3227,7 @@ function (vtk_module_add_module name)
 
   vtk_module_install_headers(
     FILES   ${_vtk_add_module_HEADERS}
+            ${_vtk_add_module_NOWRAP_HEADERS}
             ${_vtk_add_module_TEMPLATES}
     SUBDIR  "${_vtk_add_module_HEADERS_SUBDIR}")
 
@@ -3282,6 +3286,7 @@ function (vtk_module_add_module name)
         ${_vtk_add_module_TEMPLATES}
         ${_vtk_add_module_PRIVATE_TEMPLATES}
         ${_vtk_add_module_HEADERS}
+        ${_vtk_add_module_NOWRAP_HEADERS}
         ${_vtk_add_module_PRIVATE_HEADERS})
       set_target_properties("${_vtk_add_module_real_target}-objects"
         PROPERTIES
