@@ -16,6 +16,7 @@
 
 #include "vtkDataObjectTreeIterator.h"
 #include "vtkDataSet.h"
+#include "vtkFieldData.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationVector.h"
@@ -197,6 +198,10 @@ bool vtkExtractBlock::Prune(vtkMultiPieceDataSet* mpiece)
 {
   // * Remove any children on mpiece that don't have DONT_PRUNE set.
   vtkMultiPieceDataSet* clone = vtkMultiPieceDataSet::New();
+
+  // Copy global field data, otherwise it will be lost
+  clone->GetFieldData()->ShallowCopy(mpiece->GetFieldData());
+
   unsigned int index = 0;
   unsigned int numChildren = mpiece->GetNumberOfPieces();
   for (unsigned int cc = 0; cc < numChildren; cc++)
@@ -219,6 +224,10 @@ bool vtkExtractBlock::Prune(vtkMultiPieceDataSet* mpiece)
 bool vtkExtractBlock::Prune(vtkMultiBlockDataSet* mblock)
 {
   vtkMultiBlockDataSet* clone = vtkMultiBlockDataSet::New();
+
+  // Copy global field data, otherwise it will be lost
+  clone->GetFieldData()->ShallowCopy(mblock->GetFieldData());
+
   unsigned int index = 0;
   unsigned int numChildren = mblock->GetNumberOfBlocks();
   for (unsigned int cc = 0; cc < numChildren; cc++)
