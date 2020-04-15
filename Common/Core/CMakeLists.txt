@@ -271,7 +271,6 @@ set(headers
   vtkBuffer.h
   vtkCollectionRange.h
   vtkCompiler.h
-  vtkConfigure.h
   vtkDataArrayAccessor.h
   vtkDataArrayIteratorMacro.h
   vtkDataArrayMeta.h
@@ -388,7 +387,6 @@ test_big_endian(VTK_WORDS_BIGENDIAN)
 set(nowrap_headers)
 set(generated_headers
   vtkBuild.h
-  vtkConfigureDeprecated.h
   vtkDebug.h
   vtkDebugRangeIterators.h
   vtkEndian.h
@@ -400,6 +398,10 @@ set(generated_headers
   vtkThreads.h
   vtkToolkits.h
   vtkVersionMacros.h)
+if (NOT VTK_LEGACY_REMOVE)
+  list(APPEND generated_headers
+    vtkConfigureDeprecated.h)
+endif ()
 foreach (generated_header IN LISTS generated_headers)
   configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/${generated_header}.in"
@@ -408,6 +410,11 @@ foreach (generated_header IN LISTS generated_headers)
   list(APPEND nowrap_headers
     "${CMAKE_CURRENT_BINARY_DIR}/${generated_header}")
 endforeach ()
+
+if (NOT VTK_LEGACY_REMOVE)
+  list(APPEND nowrap_headers
+    vtkConfigure.h)
+endif ()
 
 add_custom_command(
   DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/CaseFolding.txt"
