@@ -81,6 +81,7 @@
 
 #include <cassert>
 #include <cmath>
+#include <map>
 #include <sstream>
 
 //----------------------------------------------------------------------------
@@ -316,17 +317,56 @@ bool vtkCellValidator::Convex(vtkCell* cell, double vtkNotUsed(tolerance))
         return polyhedron->IsConvex();
       }
       vtkNew<vtkCellArray> polyhedronFaces;
-      for (vtkIdType i = 0; i < cell->GetNumberOfFaces(); i++)
+      vtkIdType faces_n = cell->GetNumberOfFaces();
+      for (vtkIdType i = 0; i < faces_n; i++)
       {
         polyhedronFaces->InsertNextCell(cell->GetFace(i));
       }
       vtkNew<vtkIdTypeArray> faceBuffer;
       polyhedronFaces->ExportLegacyFormat(faceBuffer);
+
+      // Explanation of the mapping with an example of a cell containing 3 points:
+      // The input is:
+      // input_grid_ids      10      11     12
+      // input_grid_points   (0.0)   (0.1)  (0.2)
+
+      // cell_ids      11      12     10
+      // cell_points   (0.1)  (0.2)   (0.0)
+
+      // The output has to be:
+      // new_grid_ids       0      1     2       ( grid ids cannot be set)
+      // new_grid_points   (0.1)  (0.2)   (0.0)  ( set with cell>GetPoints())
+
+      // polygon_cell_id    0      1      2
+      // So the mapping for the new nodes is such that 11->0, 12->1 and 10->3
+      // This mapping is used to update the node ids of the faces
+
+      vtkIdType points_n = cell->GetNumberOfPoints();
+      std::vector<vtkIdType> polyhedron_pointIds(points_n);
+      std::unordered_map<int, int> node_mapping;
+      for (vtkIdType i = 0; i < points_n; i++)
+      {
+        node_mapping.emplace(cell->PointIds->GetId(i), i);
+        polyhedron_pointIds[i] = i;
+      }
+
+      // udpate the face ids
+      vtkIdType cpt = 0;
+      for (vtkIdType i = 0; i < faces_n; i++)
+      {
+        vtkIdType face_point_n = faceBuffer->GetPointer(0)[cpt];
+        cpt++;
+        for (vtkIdType j = 0; j < face_point_n; j++)
+        {
+          faceBuffer->GetPointer(0)[cpt] = node_mapping.at(faceBuffer->GetPointer(0)[cpt]);
+          cpt++;
+        }
+      }
+
       vtkNew<vtkUnstructuredGrid> ugrid;
       ugrid->SetPoints(cell->GetPoints());
-      ugrid->InsertNextCell(VTK_POLYHEDRON, cell->GetNumberOfPoints(),
-        cell->GetPointIds()->GetPointer(0), polyhedronFaces->GetNumberOfCells(),
-        faceBuffer->GetPointer(0));
+      ugrid->InsertNextCell(
+        VTK_POLYHEDRON, points_n, polyhedron_pointIds.data(), faces_n, faceBuffer->GetPointer(0));
 
       vtkPolyhedron* polyhedron = vtkPolyhedron::SafeDownCast(ugrid->GetCell(0));
       return polyhedron->IsConvex();
