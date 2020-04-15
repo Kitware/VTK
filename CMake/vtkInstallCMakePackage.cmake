@@ -83,7 +83,6 @@ set(vtk_cmake_module_files
   vtkCMakeBackports.cmake
   vtkDetectLibraryType.cmake
   vtkEncodeString.cmake
-  vtkExternalData.cmake
   vtkHashSource.cmake
   vtkModule.cmake
   vtkModuleGraphviz.cmake
