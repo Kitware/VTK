@@ -46,6 +46,9 @@ vtkPIOReader::vtkPIOReader()
   this->SetNumberOfOutputPorts(1);
 
   this->FileName = nullptr;
+  this->HyperTreeGrid = false;
+  this->Tracers = false;
+  this->Float64 = false;
   this->NumberOfVariables = 0;
   this->CurrentTimeStep = -1;
   this->LastTimeStep = -1;
@@ -54,7 +57,7 @@ vtkPIOReader::vtkPIOReader()
 
   // Setup selection callback to modify this object when array selection changes
   this->SelectionObserver = vtkCallbackCommand::New();
-  this->SelectionObserver->SetCallback(&vtkPIOReader::SelectionCallback);
+  this->SelectionObserver->SetCallback(&vtkPIOReader::SelectionModifiedCallback);
   this->SelectionObserver->SetClientData(this);
   this->CellDataArraySelection->AddObserver(vtkCommand::ModifiedEvent, this->SelectionObserver);
   // External PIO_DATA for actually reading files
@@ -79,12 +82,13 @@ vtkPIOReader::vtkPIOReader()
 vtkPIOReader::~vtkPIOReader()
 {
   delete[] this->FileName;
-  this->CellDataArraySelection->Delete();
 
   delete this->pioAdaptor;
   delete[] this->TimeSteps;
 
+  this->CellDataArraySelection->RemoveObserver(this->SelectionObserver);
   this->SelectionObserver->Delete();
+  this->CellDataArraySelection->Delete();
 
   // Do not delete the MPIContoroller which is a singleton
   this->MPIController = nullptr;
@@ -106,9 +110,6 @@ int vtkPIOReader::RequestInformation(vtkInformation* vtkNotUsed(reqInfo),
 
   // Get ParaView information and output pointers
   vtkInformation* outInfo = outVector->GetInformationObject(0);
-  // vtkMultiBlockDataSet* output =
-  //  vtkMultiBlockDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
-
   if (this->pioAdaptor == 0)
   {
 
@@ -116,8 +117,8 @@ int vtkPIOReader::RequestInformation(vtkInformation* vtkNotUsed(reqInfo),
     this->pioAdaptor = new PIOAdaptor(this->Rank, this->TotalRank);
 
     // Initialize sizes and file reads
-    // descriptor.pio file contains information about dump directory and name
-    // and gives the variables of interest along with other options
+    // descriptor.pio file contains information
+    // otherwise a basename-dmp000000 is given and defaults are used
     if (!this->pioAdaptor->initializeGlobal(this->FileName))
     {
       vtkErrorMacro("Error in pio description file");
@@ -127,11 +128,22 @@ int vtkPIOReader::RequestInformation(vtkInformation* vtkNotUsed(reqInfo),
       return 0;
     }
 
+    this->HyperTreeGrid = pioAdaptor->GetHyperTreeGrid();
+    this->Tracers = pioAdaptor->GetTracers();
+    this->Float64 = pioAdaptor->GetFloat64();
+
     // Get the variable names and set in the selection
     int numberOfVariables = this->pioAdaptor->GetNumberOfVariables();
     for (int i = 0; i < numberOfVariables; i++)
     {
       this->CellDataArraySelection->AddArray(this->pioAdaptor->GetVariableName(i));
+    }
+    this->DisableAllCellArrays();
+
+    // Set the variable names loaded by default
+    for (int i = 0; i < this->pioAdaptor->GetNumberOfDefaultVariables(); i++)
+    {
+      this->SetCellArrayStatus(this->pioAdaptor->GetVariableDefault(i), 1);
     }
 
     // Collect temporal information
@@ -221,30 +233,33 @@ int vtkPIOReader::RequestData(vtkInformation* vtkNotUsed(reqInfo),
   }
   output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), dTime);
 
-  // Load new data if time step has changed
-  if (this->CurrentTimeStep != this->LastTimeStep)
+  // Load new geometry and data if time step has changed or selection changed
+  this->LastTimeStep = this->CurrentTimeStep;
+
+  // Initialize the PIOAdaptor for reading the requested dump file
+  if (!this->pioAdaptor->initializeDump(this->CurrentTimeStep))
   {
-    this->LastTimeStep = this->CurrentTimeStep;
-
-    // Initialize the PIOAdaptor for reading the requested dump file
-    if (!this->pioAdaptor->initializeDump(this->CurrentTimeStep))
-    {
-      vtkErrorMacro("PIO dump file cannot be opened");
-      this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
-      return 0;
-    }
-
-    // Create the geometry requested in the pio descriptor file
-    this->pioAdaptor->create_geometry(output);
-
-    // Load the requested data in the correct ordering based on PIO daughters
-    this->pioAdaptor->load_variable_data(output);
+    vtkErrorMacro("PIO dump file cannot be opened");
+    this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
+    return 0;
   }
+
+  // Set parameters for the file read
+  this->pioAdaptor->SetHyperTreeGrid(this->HyperTreeGrid);
+  this->pioAdaptor->SetTracers(this->Tracers);
+  this->pioAdaptor->SetFloat64(this->Float64);
+
+  // Create the geometry requested in the pio descriptor file
+  this->pioAdaptor->create_geometry(output);
+
+  // Load the requested data in the correct ordering based on PIO daughters
+  this->pioAdaptor->load_variable_data(output, this->CellDataArraySelection);
+
   return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkPIOReader::SelectionCallback(
+void vtkPIOReader::SelectionModifiedCallback(
   vtkObject*, unsigned long vtkNotUsed(eventid), void* clientdata, void* vtkNotUsed(calldata))
 {
   static_cast<vtkPIOReader*>(clientdata)->Modified();
@@ -311,5 +326,6 @@ void vtkPIOReader::SetCellArrayStatus(const char* name, int status)
 void vtkPIOReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "FileName: " << (this->FileName != nullptr ? this->FileName : "") << endl;
+  os << indent << "CellDataArraySelection: " << this->CellDataArraySelection << "\n";
   this->Superclass::PrintSelf(os, indent);
 }

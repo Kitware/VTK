@@ -84,6 +84,26 @@ struct FieldMetaData
 
 inline void ExtractFieldMetaData(vtkDataSetAttributes* data, std::vector<FieldMetaData>* metadata)
 {
+  if (data == nullptr || data->GetNumberOfTuples() == 0)
+  {
+    // do not consider arrays from empty vtkDataSetAttributes.
+    // see paraview/paraview#18590
+    metadata->clear();
+    return;
+  }
+
+  if (auto maskArray = data->GetArray("vtkValidPointMask"))
+  {
+    // data may not be valid if the only array is vtkValidPointMask and it's set
+    // to 0.
+    if (data->GetNumberOfArrays() == 1 && maskArray->GetRange(0)[0] < 1.0 &&
+      maskArray->GetRange(0)[1] < 1.0)
+    {
+      metadata->clear();
+      return;
+    }
+  }
+
   std::size_t numFields = static_cast<std::size_t>(data->GetNumberOfArrays());
   metadata->resize(numFields);
 

@@ -139,9 +139,19 @@ protected:
 
   /**
    * Given a data object and selected points, return an array indicating the
-   * insidedness of cells that contain at least one of the selected points.*/
+   * insidedness of cells that contain at least one of the selected points.
+   */
   vtkSmartPointer<vtkSignedCharArray> ComputeCellsContainingSelectedPoints(
     vtkDataObject* data, vtkSignedCharArray* selectedPoints);
+
+  /**
+   * Handle expanding to connected cells or point, if requested. This method is
+   * called in `Execute`. Subclass that override `Execute` should ensure they
+   * call this method to handle expanding to connected elements, as requested.
+   *
+   * Note: this method will modify `output`.
+   */
+  void ExpandToConnectedElements(vtkDataObject* output);
 
 private:
   vtkSelector(const vtkSelector&) = delete;
