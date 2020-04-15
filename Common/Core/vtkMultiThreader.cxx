@@ -55,6 +55,11 @@ int vtkMultiThreader::GetGlobalMaximumNumberOfThreads()
   return vtkMultiThreaderGlobalMaximumNumberOfThreads;
 }
 
+int vtkMultiThreader::GetGlobalStaticMaximumNumberOfThreads()
+{
+  return VTK_MAX_THREADS;
+}
+
 // 0 => Not initialized.
 static int vtkMultiThreaderGlobalDefaultNumberOfThreads = 0;
 
