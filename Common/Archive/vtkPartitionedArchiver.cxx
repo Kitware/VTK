@@ -56,7 +56,7 @@ void vtkPartitionedArchiver::CloseArchive() {}
 
 //----------------------------------------------------------------------------
 void vtkPartitionedArchiver::InsertIntoArchive(
-  const std::string& relativePath, const char* data, std::streamsize size)
+  const std::string& relativePath, const char* data, std::size_t size)
 {
   struct archive* a = archive_write_new();
 

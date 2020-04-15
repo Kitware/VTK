@@ -1,0 +1,14 @@
+NAME
+  VTK::CommonPython
+LIBRARY_NAME
+  vtkCommonPython
+CONDITION
+  VTK_WRAP_PYTHON
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+PRIVATE_DEPENDS
+  VTK::WrappingPythonCore
+TEST_DEPENDS
+  VTK::TestingCore

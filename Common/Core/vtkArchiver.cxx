@@ -56,7 +56,7 @@ void vtkArchiver::CloseArchive() {}
 
 //----------------------------------------------------------------------------
 void vtkArchiver::InsertIntoArchive(
-  const std::string& relativePath, const char* data, std::streamsize size)
+  const std::string& relativePath, const char* data, std::size_t size)
 {
   std::stringstream path;
   path << this->ArchiveName << "/" << relativePath;
@@ -64,7 +64,7 @@ void vtkArchiver::InsertIntoArchive(
   vtksys::SystemTools::MakeDirectory(vtksys::SystemTools::GetFilenamePath(path.str()));
 
   std::ofstream out(path.str().c_str(), std::ios::out | std::ios::binary);
-  out.write(data, size);
+  out.write(data, static_cast<std::streamsize>(size));
   out.close();
 }
 
