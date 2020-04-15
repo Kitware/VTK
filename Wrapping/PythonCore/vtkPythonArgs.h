@@ -903,12 +903,14 @@ inline PyObject* vtkPythonArgs::BuildValue(int a)
 
 inline PyObject* vtkPythonArgs::BuildValue(unsigned int a)
 {
-#if VTK_SIZEOF_INT < VTK_SIZEOF_LONG
+#ifdef VTK_PY3K
+  return PyLong_FromUnsignedLong(a);
+#elif defined(_LP64) || defined(__LP64__)
   return PyInt_FromLong(a);
 #else
-  if ((long)(a) >= 0)
+  if (static_cast<long>(a) >= 0)
   {
-    return PyInt_FromLong((long)(a));
+    return PyInt_FromLong(static_cast<long>(a));
   }
   return PyLong_FromUnsignedLong(a);
 #endif

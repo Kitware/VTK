@@ -122,12 +122,14 @@ void vtkWrapPython_AddConstantHelper(FILE* fp, const char* indent, const char* d
 
       case VTK_PARSE_UNSIGNED_INT:
         fprintf(fp,
-          "#if VTK_SIZEOF_INT < VTK_SIZEOF_LONG\n"
+          "#ifdef VTK_PY3K\n"
+          "%s%s = PyLong_FromUnsignedLong(%s);\n"
+          "#elif defined(_LP64) || defined(__LP64__)\n"
           "%s%s = PyInt_FromLong(%s);\n"
           "#else\n"
           "%s%s = PyLong_FromUnsignedLong(%s);\n"
           "#endif\n",
-          indent, objvar, valstring, indent, objvar, valstring);
+          indent, objvar, valstring, indent, objvar, valstring, indent, objvar, valstring);
         objcreated = 1;
         break;
 
