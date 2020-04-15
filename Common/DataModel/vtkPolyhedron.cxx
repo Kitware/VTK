@@ -802,7 +802,7 @@ int vtkPolyhedron::IsInside(const double x[3], double tolerance)
 bool vtkPolyhedron::IsConvex()
 {
   double x[2][3], n[3], c[3], c0[3], c1[3], c0p[3], c1p[3], n0[3], n1[3];
-  double n0p[3], n1p[3], np[3], tmp0, tmp1;
+  double np[3], tmp0, tmp1;
   vtkIdType i, w[2], edgeId, edgeFaces[2], loc, v, *face, r = 0;
   const double eps = FLT_EPSILON;
 
@@ -875,38 +875,33 @@ bool vtkPolyhedron::IsConvex()
 
     // 2. we need a plane through the seam and through a vector parallel to the
     //    z axis (or, more accurately, we need a vector perpendicular to this
-    //    plane). So, we take a vector pointing from the centroid of the seam
-    //    to the centroid of "higher" plane and remove the seam- and
-    //    z-components from it.
+    //    plane). This vector can be computed using the cross product between
+    //    the a vector along the edge, and the vertical axis.
+    np[0] = +n[1];
+    np[1] = -n[0];
+    np[2] = 0;
+
     for (i = 0; i < 3; i++)
     {
       c[i] = (x[1][i] + x[0][i]) * .5;
-      n0p[i] = c0[i] - c[i];
-      n1p[i] = c1[i] - c[i];
-    }
-    vtkMath::Normalize(n0p);
-    vtkMath::Normalize(n1p);
-
-    memcpy(np, (n0p[2] > n1p[2] ? n0p : n1p), sizeof(np));
-
-    tmp0 = vtkMath::Dot(np, n);
-    np[0] -= n[0] * tmp0;
-    np[1] -= n[1] * tmp0;
-    np[2] = 0.;
-
-    // 3. if np has zero magnitude, then condition 3 is violated. Otherwise,
-    //    we can use it to ensure condition 2.
-    if (std::abs(np[0]) < eps && std::abs(np[1]) < eps)
-    {
-      continue;
+      c0p[i] = c0[i] - c[i];
+      c1p[i] = c1[i] - c[i];
     }
 
     // if the vectors from the seam centroid to the face centroid are in the
     // same direction relative to the plane, then condition 2 is satisfied.
-    tmp0 = vtkMath::Dot(np, n0p);
-    tmp1 = vtkMath::Dot(np, n1p);
+    tmp0 = vtkMath::Dot(np, c0p);
+    tmp1 = vtkMath::Dot(np, c1p);
 
     if ((tmp0 < 0.) != (tmp1 < 0.))
+    {
+      continue;
+    }
+
+    // 3. We get the z component of the normal of the highest face
+    //    If this is null, the face is in the vertical plane
+    tmp0 = c0[2] > c1[2] ? n0[2] : n1[2];
+    if (std::abs(tmp0) < eps)
     {
       continue;
     }

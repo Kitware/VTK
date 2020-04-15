@@ -97,6 +97,7 @@ static vtkSmartPointer<vtkQuad> MakeQuad();
 static vtkSmartPointer<vtkPixel> MakePixel();
 static vtkSmartPointer<vtkVoxel> MakeVoxel();
 static vtkSmartPointer<vtkHexahedron> MakeHexahedron();
+static vtkSmartPointer<vtkHexahedron> MakeHexahedronConvexityNonTrivial();
 static vtkSmartPointer<vtkHexahedron> MakeBrokenHexahedron();
 static vtkSmartPointer<vtkPyramid> MakePyramid();
 static vtkSmartPointer<vtkTetra> MakeTetra();
@@ -154,6 +155,8 @@ int TestCellValidator(int, char*[])
   vtkSmartPointer<vtkPixel> pixel = MakePixel();
   vtkSmartPointer<vtkVoxel> voxel = MakeVoxel();
   vtkSmartPointer<vtkHexahedron> hexahedron = MakeHexahedron();
+  vtkSmartPointer<vtkHexahedron> hexahedronConvexityNonTrivial =
+    MakeHexahedronConvexityNonTrivial();
   vtkSmartPointer<vtkPyramid> pyramid = MakePyramid();
   vtkSmartPointer<vtkTetra> tetra = MakeTetra();
   vtkSmartPointer<vtkWedge> wedge = MakeWedge();
@@ -221,6 +224,7 @@ int TestCellValidator(int, char*[])
   CheckCell(tetra);
   CheckCell(voxel);
   CheckCell(hexahedron);
+  CheckCell(hexahedronConvexityNonTrivial);
   CheckCell(wedge);
   CheckCell(pyramid);
   CheckCell(pentagonalPrism);
@@ -456,6 +460,32 @@ vtkSmartPointer<vtkHexahedron> MakeHexahedron()
   aHexahedron->GetPoints()->SetPoint(5, 12, 10, 12);
   aHexahedron->GetPoints()->SetPoint(6, 12, 12, 12);
   aHexahedron->GetPoints()->SetPoint(7, 10, 12, 12);
+
+  return aHexahedron;
+}
+
+vtkSmartPointer<vtkHexahedron> MakeHexahedronConvexityNonTrivial()
+{
+  // Example that was failing before, if now fixed and tested
+  // https://gitlab.kitware.com/vtk/vtk/-/issues/17673
+  vtkSmartPointer<vtkHexahedron> aHexahedron = vtkSmartPointer<vtkHexahedron>::New();
+  aHexahedron->GetPointIds()->SetId(0, 0);
+  aHexahedron->GetPointIds()->SetId(1, 1);
+  aHexahedron->GetPointIds()->SetId(2, 2);
+  aHexahedron->GetPointIds()->SetId(3, 3);
+  aHexahedron->GetPointIds()->SetId(4, 4);
+  aHexahedron->GetPointIds()->SetId(5, 5);
+  aHexahedron->GetPointIds()->SetId(6, 6);
+  aHexahedron->GetPointIds()->SetId(7, 7);
+
+  aHexahedron->GetPoints()->SetPoint(0, -2.9417226413, -0.92284313965, 4.5809917214);
+  aHexahedron->GetPoints()->SetPoint(1, -3.0207607208, -0.84291999288, 4.357055109);
+  aHexahedron->GetPoints()->SetPoint(2, -3.1077984177, -0.31259201362, 4.8124331347);
+  aHexahedron->GetPoints()->SetPoint(3, -2.9320660211, -0.86238701507, 4.7197960612);
+  aHexahedron->GetPoints()->SetPoint(4, -2.8375199741, -0.57697632408, 3.8069219868);
+  aHexahedron->GetPoints()->SetPoint(5, -3.1669520923, -0.64026224489, 3.8129245089);
+  aHexahedron->GetPoints()->SetPoint(6, -3.1935454463, -0.017891697066, 4.8277744194);
+  aHexahedron->GetPoints()->SetPoint(7, -2.8265109805, -0.51675730395, 3.9006508868);
 
   return aHexahedron;
 }
