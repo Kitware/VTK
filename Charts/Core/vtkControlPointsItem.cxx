@@ -114,6 +114,7 @@ private:
   void operator=(const vtkControlPointsAddPointItem&) = delete;
 };
 
+//-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkControlPointsAddPointItem);
 
 //-----------------------------------------------------------------------------
@@ -124,49 +125,15 @@ vtkControlPointsItem::vtkControlPointsItem()
   this->Pen->SetColor(140, 144, 125, 200);
   this->Brush->SetColor(125, 135, 144, 200);
 
-  this->SelectedPointPen = vtkPen::New();
   this->SelectedPointPen->SetWidth(2.);
-  // 98, 140, 178
   this->SelectedPointPen->SetColor(63, 90, 115, 200);
-  // this->SelectedPointPen->SetColor(98, 140, 178, 200);
-  this->SelectedPointBrush = vtkBrush::New();
   this->SelectedPointBrush->SetColor(58, 121, 178, 200);
 
   this->Selection = vtkIdTypeArray::New();
-  this->CurrentPoint = -1;
 
-  this->BlockUpdates = 0;
-  this->StartedInteractions = 0;
-  this->StartedChanges = 0;
-
-  this->Callback = vtkCallbackCommand::New();
   this->Callback->SetClientData(this);
   this->Callback->SetCallback(vtkControlPointsItem::CallComputePoints);
 
-  this->Bounds[0] = this->Bounds[2] = 0.;
-  this->Bounds[1] = this->Bounds[3] = -1.;
-  this->UserBounds[0] = this->UserBounds[2] = 0.;
-  this->UserBounds[1] = this->UserBounds[3] = -1.;
-  this->ValidBounds[0] = this->ValidBounds[2] = 0.;
-  this->ValidBounds[1] = this->ValidBounds[3] = -1.;
-
-  this->ScreenPointRadius = 6.f;
-  this->Transform = vtkTransform2D::New();
-
-  this->StrokeMode = false;
-  this->SwitchPointsMode = false;
-  this->MouseMoved = false;
-  this->EnforceValidFunction = true;
-  this->PointToDelete = -1;
-  this->PointAboutToBeDeleted = false;
-  this->PointToToggle = -1;
-  this->PointAboutToBeToggled = false;
-  this->InvertShadow = false;
-  this->EndPointsXMovable = true;
-  this->EndPointsYMovable = true;
-  this->EndPointsRemovable = true;
-  this->ShowLabels = false;
-  this->LabelFormat = nullptr;
   this->SetLabelFormat("%.3f, %.3f");
 
   this->AddPointItem->ControlPointsItem = this;
@@ -176,26 +143,6 @@ vtkControlPointsItem::vtkControlPointsItem()
 vtkControlPointsItem::~vtkControlPointsItem()
 {
   this->SetLabelFormat(nullptr);
-  if (this->Callback)
-  {
-    this->Callback->Delete();
-    this->Callback = nullptr;
-  }
-  if (this->SelectedPointPen)
-  {
-    this->SelectedPointPen->Delete();
-    this->SelectedPointPen = nullptr;
-  }
-  if (this->SelectedPointBrush)
-  {
-    this->SelectedPointBrush->Delete();
-    this->SelectedPointBrush = nullptr;
-  }
-  if (this->Transform)
-  {
-    this->Transform->Delete();
-    this->Transform = nullptr;
-  }
 }
 
 //-----------------------------------------------------------------------------
@@ -203,6 +150,7 @@ void vtkControlPointsItem::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
+  os << indent << "DrawPoints: " << this->DrawPoints << endl;
   os << indent << "EndPointsXMovable: " << this->EndPointsXMovable << endl;
   os << indent << "EndPointsYMovable: " << this->EndPointsYMovable << endl;
   os << indent << "EndPointsRemovable: " << this->EndPointsRemovable << endl;
@@ -282,30 +230,28 @@ void vtkControlPointsItem::ComputeBounds(double* bounds)
 //-----------------------------------------------------------------------------
 bool vtkControlPointsItem::Paint(vtkContext2D* painter)
 {
-  painter->GetDevice()->EnableClipping(false);
-  painter->ApplyPen(this->Pen);
-  painter->ApplyBrush(this->Brush);
-  this->InvertShadow = false;
-  this->DrawUnselectedPoints(painter);
-
-  painter->GetPen()->SetLineType(vtkPen::SOLID_LINE);
-  // painter->GetPen()->SetColorF(0.87, 0.87, 1.);
-  // painter->GetBrush()->SetColorF(0.75, 0.75, 0.95, 0.65);
-  // float oldPenWidth = painter->GetPen()->GetWidth();
-  painter->ApplyPen(this->SelectedPointPen);
-  painter->ApplyBrush(this->SelectedPointBrush);
-  this->InvertShadow = true;
-  float oldScreenPointRadius = this->ScreenPointRadius;
-  if (this->Selection && this->Selection->GetNumberOfTuples())
+  if (this->DrawPoints)
   {
-    // painter->GetPen()->SetWidth(oldPenWidth * 1.4);
-    // this->ScreenPointRadius = oldScreenPointRadius * 1.1;
-    this->DrawSelectedPoints(painter);
-  }
-  this->ScreenPointRadius = oldScreenPointRadius;
-  this->Transform->SetMatrix(painter->GetTransform()->GetMatrix());
+    painter->GetDevice()->EnableClipping(false);
+    painter->ApplyPen(this->Pen);
+    painter->ApplyBrush(this->Brush);
+    this->InvertShadow = false;
 
-  painter->GetDevice()->EnableClipping(true);
+    this->DrawUnselectedPoints(painter);
+
+    painter->GetPen()->SetLineType(vtkPen::SOLID_LINE);
+    painter->ApplyPen(this->SelectedPointPen);
+    painter->ApplyBrush(this->SelectedPointBrush);
+    this->InvertShadow = true;
+    float oldScreenPointRadius = this->ScreenPointRadius;
+    if (this->Selection && this->Selection->GetNumberOfTuples())
+    {
+      this->DrawSelectedPoints(painter);
+    }
+    this->ScreenPointRadius = oldScreenPointRadius;
+    this->Transform->SetMatrix(painter->GetTransform()->GetMatrix());
+    painter->GetDevice()->EnableClipping(true);
+  }
   this->PaintChildren(painter);
   return true;
 }
@@ -369,9 +315,6 @@ int vtkControlPointsItem::GetInteractionsCount() const
 {
   return this->StartedInteractions;
 }
-
-//-----------------------------------------------------------------------------
-// void vtkControlPointsItem::emitEvent(unsigned long event, void* params);
 
 //-----------------------------------------------------------------------------
 void vtkControlPointsItem::CallComputePoints(
@@ -541,7 +484,6 @@ void vtkControlPointsItem::DrawPoint(vtkContext2D* painter, vtkIdType index)
   unsigned char penColor[3];
   painter->GetPen()->GetColor(penColor);
   unsigned char penOpacity = painter->GetPen()->GetOpacity();
-  // float width = painter->GetPen()->GetWidth();
 
   float radius = this->ScreenPointRadius;
   bool invertShadow = this->InvertShadow;
@@ -570,7 +512,6 @@ void vtkControlPointsItem::DrawPoint(vtkContext2D* painter, vtkIdType index)
   painter->DrawArc(0.f, 0.f, radius, 0.f, 360.f);
 
   painter->GetBrush()->SetOpacity(0);
-  // painter->GetPen()->SetWidth(2.0f);
 
   unsigned char lightPenColor[4];
   lightPenColor[0] = std::min(color[0] + 100, 255);
@@ -598,10 +539,7 @@ void vtkControlPointsItem::DrawPoint(vtkContext2D* painter, vtkIdType index)
 
   painter->GetPen()->SetColor(penColor);
 
-  if (this->ShowLabels &&
-    (/*index == 0 ||
-     index == this->GetNumberOfPoints()-1 || */
-      this->GetCurrentPoint() == index))
+  if (this->ShowLabels && this->GetCurrentPoint() == index)
   {
     translation->Translate(0, radius + 5);
     painter->SetTransform(translation);
@@ -643,7 +581,6 @@ void vtkControlPointsItem::DrawPoint(vtkContext2D* painter, vtkIdType index)
   }
 
   painter->GetPen()->SetOpacity(penOpacity);
-  // painter->GetPen()->SetWidth(width);
   painter->GetBrush()->SetOpacity(brushOpacity);
 
   painter->PopMatrix();
@@ -702,7 +639,6 @@ void vtkControlPointsItem::DeselectPoint(vtkIdType pointId)
   vtkIdType selectionPointId = this->Selection ? this->Selection->LookupValue(pointId) : -1;
   if (selectionPointId == -1)
   {
-    // vtkErrorMacro(<< "Point:" << pointId << " was not selected");
     return;
   }
   this->Selection->RemoveTuple(selectionPointId);
@@ -779,45 +715,6 @@ vtkIdType vtkControlPointsItem::GetCurrentPoint() const
 {
   return this->CurrentPoint;
 }
-/*
-//-----------------------------------------------------------------------------
-vtkIdType vtkControlPointsItem::FindPoint(double* pos, double tolerance)
-{
-  if (tolerance < std::numeric_limits<float>::epsilon())
-    {
-    tolerance = std::numeric_limits<float>::epsilon();
-    }
-  // make sure the point belongs to the list of points
-  vtkIdType pointId = -1;
-  double minDist = VTK_DOUBLE_MAX;
-  const int numberOfPoints = this->GetNumberOfPoints();
-  for(vtkIdType i = 0; i < numberOfPoints; ++i)
-    {
-    double point[4];
-    this->GetControlPoint(i, point);
-    double distance = (point[0] - pos[0]) * (point[0] - pos[0]) +
-      (point[1] - pos[1]) * (point[1] - pos[1]);
-    if (distance <= tolerance)
-      {
-      if (distance == 0.)
-        {// we found the best match ever
-        return i;
-        }
-      else if (distance < minDist)
-        {// we found something not too bad, we maybe we can find closer
-        pointId = i;
-        minDist = distance;
-        }
-      }
-    // don't search any further if the x is already too large
-    //if (point[0] > pos[0] + this->ItemPointRadius2)
-    //  {
-    //  break;
-    //  }
-    }
-  return pointId;
-}
-*/
 
 //-----------------------------------------------------------------------------
 bool vtkControlPointsItem::IsOverPoint(double* pos, vtkIdType pointId)
@@ -1306,7 +1203,6 @@ void vtkControlPointsItem::MovePoints(const vtkVector2f& translation, vtkIdTypeA
   assert(pointIds);
   this->StartChanges();
   // don't support 'switch' mode yet
-  // vtkIdTypeArray* addedSelection = vtkIdTypeArray::New();
   bool oldSwitchPoints = this->SwitchPointsMode;
   this->SwitchPointsMode = false;
   // end "don't support 'switch' mode yet"
@@ -1322,7 +1218,6 @@ void vtkControlPointsItem::MovePoints(const vtkVector2f& translation, vtkIdTypeA
     double currentPoint[4] = { 0.0, 0.0, 0.0, 0.0 };
     this->GetControlPoint(pointId, currentPoint);
     vtkVector2f newPos(currentPoint[0] + tX, currentPoint[1] + tY);
-    // vtkIdType newIdx =
     this->SetPointPos(pointId, newPos);
     // don't support 'switch' mode yet
     // if (newIdx != point)
@@ -1502,7 +1397,6 @@ void vtkControlPointsItem::Stroke(const vtkVector2f& newPos)
       return;
     }
     assert(lastPoint[0] != pos[0]);
-    // CurrentPoint != -1 && MouseMoved
     // Starting from the last point, we search points (forward or backward) to see
     // if there are points that can be removed.
     int count = this->GetNumberOfPoints();
@@ -1847,4 +1741,16 @@ vtkStdString vtkControlPointsItem::GetControlPointLabel(vtkIdType pointId)
 vtkPlot* vtkControlPointsItem::GetAddPointItem()
 {
   return this->AddPointItem;
+}
+
+//-----------------------------------------------------------------------------
+void vtkControlPointsItem::RemoveCurrentPoint()
+{
+  this->RemovePoint(this->GetCurrentPoint());
+}
+
+//-----------------------------------------------------------------------------
+vtkVector2f vtkControlPointsItem::GetSelectionCenterOfMass() const
+{
+  return this->GetCenterOfMass(this->Selection);
 }

@@ -48,6 +48,7 @@ public:
    * Set the piecewise function to draw its points
    */
   void SetColorTransferFunction(vtkColorTransferFunction* function);
+
   //@{
   /**
    * Get the piecewise function
@@ -101,7 +102,7 @@ public:
   //@}
 
 protected:
-  vtkColorTransferControlPointsItem();
+  vtkColorTransferControlPointsItem() = default;
   ~vtkColorTransferControlPointsItem() override;
 
   void emitEvent(unsigned long event, void* params) override;
@@ -117,9 +118,8 @@ protected:
    */
   void ComputeBounds(double* bounds) override;
 
-  vtkColorTransferFunction* ColorTransferFunction;
-
-  bool ColorFill;
+  vtkColorTransferFunction* ColorTransferFunction = nullptr;
+  bool ColorFill = false;
 
 private:
   vtkColorTransferControlPointsItem(const vtkColorTransferControlPointsItem&) = delete;

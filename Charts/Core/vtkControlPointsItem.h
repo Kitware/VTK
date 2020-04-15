@@ -94,6 +94,16 @@ public:
   vtkSetMacro(ScreenPointRadius, float);
   //@}
 
+  //@{
+  /**
+   * Get/Set the flag to draw points.
+   * Default is true.
+   */
+  vtkGetMacro(DrawPoints, bool);
+  vtkSetMacro(DrawPoints, bool);
+  vtkBooleanMacro(DrawPoints, bool);
+  //@}
+
   /**
    * Paint the points with a fixed size (cosmetic) which doesn't depend
    * on the scene zoom factor. Selected and unselected points are drawn
@@ -265,7 +275,7 @@ public:
   /**
    * Remove the current point.
    */
-  inline void RemoveCurrentPoint();
+  void RemoveCurrentPoint();
 
   /**
    * Returns the total number of points
@@ -439,7 +449,7 @@ protected:
   void MoveCurrentPoint(const vtkVector2f& translation);
   vtkIdType MovePoint(vtkIdType point, const vtkVector2f& translation);
 
-  inline vtkVector2f GetSelectionCenterOfMass() const;
+  vtkVector2f GetSelectionCenterOfMass() const;
   vtkVector2f GetCenterOfMass(vtkIdTypeArray* pointIDs) const;
 
   void Stroke(const vtkVector2f& newPos);
@@ -471,35 +481,36 @@ protected:
    */
   virtual void ComputeBounds(double* bounds);
 
-  vtkCallbackCommand* Callback;
-  vtkPen* SelectedPointPen;
-  vtkBrush* SelectedPointBrush;
-  int BlockUpdates;
-  int StartedInteractions;
-  int StartedChanges;
-  vtkIdType CurrentPoint;
+  vtkNew<vtkCallbackCommand> Callback;
+  vtkNew<vtkPen> SelectedPointPen;
+  vtkNew<vtkBrush> SelectedPointBrush;
+  int BlockUpdates = 0;
+  int StartedInteractions = 0;
+  int StartedChanges = 0;
+  vtkIdType CurrentPoint = -1;
 
-  double Bounds[4];
-  double UserBounds[4];
-  double ValidBounds[4];
+  double Bounds[4] = { 0., -1., 0., -1. };
+  double UserBounds[4] = { 0., -1., 0., -1. };
+  double ValidBounds[4] = { 0., -1., 0., -1. };
 
-  vtkTransform2D* Transform;
-  float ScreenPointRadius;
+  vtkNew<vtkTransform2D> Transform;
+  float ScreenPointRadius = 6.f;
 
-  bool StrokeMode;
-  bool SwitchPointsMode;
-  bool MouseMoved;
-  bool EnforceValidFunction;
-  vtkIdType PointToDelete;
-  bool PointAboutToBeDeleted;
-  vtkIdType PointToToggle;
-  bool PointAboutToBeToggled;
-  bool InvertShadow;
-  bool EndPointsXMovable;
-  bool EndPointsYMovable;
-  bool EndPointsRemovable;
-  bool ShowLabels;
-  char* LabelFormat;
+  bool DrawPoints = true;
+  bool StrokeMode = false;
+  bool SwitchPointsMode = false;
+  bool MouseMoved = false;
+  bool EnforceValidFunction = true;
+  vtkIdType PointToDelete = -1;
+  bool PointAboutToBeDeleted = false;
+  vtkIdType PointToToggle = -1;
+  bool PointAboutToBeToggled = false;
+  bool InvertShadow = false;
+  bool EndPointsXMovable = true;
+  bool EndPointsYMovable = true;
+  bool EndPointsRemovable = true;
+  bool ShowLabels = false;
+  char* LabelFormat = nullptr;
 
 private:
   vtkControlPointsItem(const vtkControlPointsItem&) = delete;
@@ -512,17 +523,4 @@ private:
   bool UseAddPointItem = false;
   vtkNew<vtkControlPointsAddPointItem> AddPointItem;
 };
-
-//-----------------------------------------------------------------------------
-void vtkControlPointsItem::RemoveCurrentPoint()
-{
-  this->RemovePoint(this->GetCurrentPoint());
-}
-
-//-----------------------------------------------------------------------------
-vtkVector2f vtkControlPointsItem::GetSelectionCenterOfMass() const
-{
-  return this->GetCenterOfMass(this->Selection);
-}
-
 #endif

@@ -39,11 +39,7 @@ vtkStandardNewMacro(vtkCompositeControlPointsItem);
 //-----------------------------------------------------------------------------
 vtkCompositeControlPointsItem::vtkCompositeControlPointsItem()
 {
-  this->PointsFunction = ColorAndOpacityPointsFunction;
-  this->OpacityFunction = nullptr;
-  this->ColorFill = true;
-  this->OpacityPointHandle = nullptr;
-  this->UseOpacityPointHandles = false;
+  this->SetColorFill(true);
 }
 
 //-----------------------------------------------------------------------------
@@ -299,6 +295,12 @@ vtkIdType vtkCompositeControlPointsItem::RemovePoint(double* currentPoint)
   {
     removedPoint = this->OpacityFunction->RemovePoint(currentPoint[0], currentPoint[1]);
   }
+
+  if (this->CurrentPoint > removedPoint || this->CurrentPoint == this->GetNumberOfPoints() - 1)
+  {
+    this->SetCurrentPoint(this->CurrentPoint - 1);
+  }
+
   this->EndChanges();
   return removedPoint;
 }
