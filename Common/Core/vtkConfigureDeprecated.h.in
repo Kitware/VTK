@@ -18,4 +18,7 @@
 /* Whether the target platform supports shared libraries.  */
 #cmakedefine VTK_TARGET_SUPPORTS_SHARED_LIBS
 
+/* C++ compiler used.  */
+#define VTK_CXX_COMPILER "@CMAKE_CXX_COMPILER@"
+
 #endif
