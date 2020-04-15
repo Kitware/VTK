@@ -375,7 +375,7 @@ public:
   virtual void OpenArchive() override {}
   virtual void CloseArchive() override {}
   virtual void InsertIntoArchive(
-    const std::string& filePath, const char* data, std::streamsize size) override
+    const std::string& filePath, const char* data, std::size_t size) override
   {
     vtksys::ofstream file;
     file.open(filePath.c_str(), ios::out | ios::binary);
