@@ -172,7 +172,7 @@ check_symbol_exists("sysconf" "unistd.h" HAVE_SYSCONF)
 
 set(HAVE_HDF5_H 1)
 set(H5_USE_16_API 1) # Enable HDF5 1.6.x Compatibility(Required)
-if (VTK_MODULE_USE_EXTERNAL_hdf5)
+if (VTK_MODULE_USE_EXTERNAL_VTK_hdf5)
   set(CMAKE_REQUIRED_INCLUDES_save "${CMAKE_REQUIRED_INCLUDES}")
   list(APPEND CMAKE_REQUIRED_INCLUDES
     "${CMAKE_CURRENT_BINARY_DIR}/../../hdf5")
