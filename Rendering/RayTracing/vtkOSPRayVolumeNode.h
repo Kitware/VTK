@@ -45,7 +45,7 @@ public:
    * Overridden to take into account my renderables time, including
    * mapper and data into mapper inclusive of composite input
    */
-  virtual vtkMTimeType GetMTime() override;
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkOSPRayVolumeNode();

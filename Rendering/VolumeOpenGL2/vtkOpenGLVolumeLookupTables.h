@@ -65,7 +65,7 @@ public:
 
 protected:
   vtkOpenGLVolumeLookupTables() = default;
-  virtual ~vtkOpenGLVolumeLookupTables() override;
+  ~vtkOpenGLVolumeLookupTables() override;
 
   std::vector<T*> Tables;
 

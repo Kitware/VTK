@@ -37,7 +37,7 @@ public:
   /**
    * Build containers for our child nodes.
    */
-  virtual void Build(bool prepass) override;
+  void Build(bool prepass) override;
 
 protected:
   vtkActorNode();

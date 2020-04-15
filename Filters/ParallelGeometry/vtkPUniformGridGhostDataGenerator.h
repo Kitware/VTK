@@ -93,7 +93,7 @@ protected:
   /**
    * Generates ghost-layers
    */
-  virtual void GenerateGhostLayers(vtkMultiBlockDataSet* in, vtkMultiBlockDataSet* out) override;
+  void GenerateGhostLayers(vtkMultiBlockDataSet* in, vtkMultiBlockDataSet* out) override;
 
   double GlobalSpacing[3];
   double GlobalOrigin[3];

@@ -35,7 +35,7 @@ public:
   static MyProcess* New();
   vtkTypeMacro(MyProcess, vtkProcess);
 
-  virtual void Execute() override;
+  void Execute() override;
 
   void SetArgs(int argc, char* argv[], const std::string& ifname, const std::string& ofname)
   {

@@ -254,7 +254,7 @@ public:
   /**
    * Add a renderer to the list of renderers.
    */
-  virtual void AddRenderer(vtkRenderer*) override;
+  void AddRenderer(vtkRenderer*) override;
 
   /**
    * Begin the rendering process.

@@ -42,7 +42,7 @@ public:
 protected:
   vtkPParticleTracer();
   ~vtkPParticleTracer() {}
-  virtual int OutputParticles(vtkPolyData* poly) override;
+  int OutputParticles(vtkPolyData* poly) override;
 
 private:
   vtkPParticleTracer(const vtkPParticleTracer&) = delete;

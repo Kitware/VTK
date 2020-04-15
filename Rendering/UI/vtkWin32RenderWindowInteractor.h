@@ -53,7 +53,7 @@ public:
   /**
    * Initialize the event handler
    */
-  virtual void Initialize() override;
+  void Initialize() override;
 
   //@{
   /**
@@ -65,8 +65,8 @@ public:
    * and all other interactors associated with the widget are disabled
    * when their data is not displayed.
    */
-  virtual void Enable() override;
-  virtual void Disable() override;
+  void Enable() override;
+  void Disable() override;
   //@}
 
   /**

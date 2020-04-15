@@ -56,9 +56,9 @@ protected:
   vtkImageDataToHyperTreeGrid();
   ~vtkImageDataToHyperTreeGrid() override;
 
-  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  virtual int ProcessTrees(vtkHyperTreeGrid*, vtkDataObject*) override;
+  int ProcessTrees(vtkHyperTreeGrid*, vtkDataObject*) override;
 
   void ProcessPixels(vtkIntArray*, vtkHyperTreeGridNonOrientedCursor*);
 

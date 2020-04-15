@@ -67,9 +67,8 @@ protected:
 
   //
 
-  virtual vtkPolyData* Execute(vtkInformationVector** inputVector) override;
-  virtual bool SendParticleToAnotherProcess(
-    vtkParticleTracerBaseNamespace::ParticleInformation& info,
+  vtkPolyData* Execute(vtkInformationVector** inputVector) override;
+  bool SendParticleToAnotherProcess(vtkParticleTracerBaseNamespace::ParticleInformation& info,
     vtkParticleTracerBaseNamespace::ParticleInformation& previous, vtkPointData*) override;
 
   /**
@@ -79,7 +78,7 @@ protected:
    * providing 1) The volumes are static, 2) the seed points are static
    * If either are non static, then this step is skipped.
    */
-  virtual void AssignSeedsToProcessors(double time, vtkDataSet* source, int sourceID, int ptId,
+  void AssignSeedsToProcessors(double time, vtkDataSet* source, int sourceID, int ptId,
     vtkParticleTracerBaseNamespace::ParticleVector& localSeedPoints,
     int& localAssignedCount) override;
 
@@ -87,25 +86,23 @@ protected:
    * give each one a unique ID. We need to use MPI to find out
    * who is using which numbers.
    */
-  virtual void AssignUniqueIds(
-    vtkParticleTracerBaseNamespace::ParticleVector& localSeedPoints) override;
+  void AssignUniqueIds(vtkParticleTracerBaseNamespace::ParticleVector& localSeedPoints) override;
 
   /**
    * this is used during classification of seed points and also between iterations
    * of the main loop as particles leave each processor domain. Returns
    * true if particles were migrated to any new process.
    */
-  virtual bool SendReceiveParticles(
-    RemoteParticleVector& outofdomain, RemoteParticleVector& received);
+  bool SendReceiveParticles(RemoteParticleVector& outofdomain, RemoteParticleVector& received);
 
-  virtual bool UpdateParticleListFromOtherProcesses() override;
+  bool UpdateParticleListFromOtherProcesses() override;
 
   /**
    * Method that checks that the input arrays are ordered the
    * same on all data sets. This needs to be true for all
    * blocks in a composite data set as well as across all processes.
    */
-  virtual bool IsPointDataValid(vtkDataObject* input) override;
+  bool IsPointDataValid(vtkDataObject* input) override;
 
   //
 

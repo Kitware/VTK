@@ -81,7 +81,7 @@ public:
 
 protected:
   vtkOpenGLVolumeLookupTable() = default;
-  virtual ~vtkOpenGLVolumeLookupTable() override;
+  ~vtkOpenGLVolumeLookupTable() override;
 
   double LastRange[2] = { 0.0, 0.0 };
   float* Table = nullptr;

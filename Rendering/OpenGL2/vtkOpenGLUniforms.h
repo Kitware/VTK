@@ -157,7 +157,7 @@ public:
   const char* GetNthUniformName(vtkIdType uniformIndex) override;
 
   /** Get type of scalars stored in uniform @p name */
-  virtual int GetUniformScalarType(const char* name) override;
+  int GetUniformScalarType(const char* name) override;
 
   /** Get the tuple type stored in uniform @p name. This can be a scalar,
    * a vector of a matrix. */

@@ -102,7 +102,7 @@ protected:
    * Get the maximum length name in the input data set. If it is smaller
    * than 32 characters long we just return the ExodusII default of 32.
    */
-  virtual unsigned int GetMaxNameLength() override;
+  unsigned int GetMaxNameLength() override;
 
 private:
   vtkPExodusIIWriter(const vtkPExodusIIWriter&) = delete;

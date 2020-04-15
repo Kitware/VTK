@@ -83,7 +83,7 @@ protected:
   vtkmLevelOfDetail();
   ~vtkmLevelOfDetail() override;
 
-  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   int NumberOfDivisions[3];

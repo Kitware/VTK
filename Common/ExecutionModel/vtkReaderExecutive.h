@@ -43,7 +43,7 @@ public:
    * Overwritten to call the vtkReaderAlgorithm API instead of
    * ProcessRequest().
    */
-  virtual int CallAlgorithm(vtkInformation* request, int direction, vtkInformationVector** inInfo,
+  int CallAlgorithm(vtkInformation* request, int direction, vtkInformationVector** inInfo,
     vtkInformationVector* outInfo) override;
 
 protected:

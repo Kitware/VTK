@@ -180,7 +180,7 @@ public:
 
 protected:
   vtkOSPRayMaterialLibrary();
-  virtual ~vtkOSPRayMaterialLibrary();
+  ~vtkOSPRayMaterialLibrary() override;
 
   bool InternalParse(const char* name, bool IsFile);
   bool InternalParseJSON(const char* name, bool IsFile, std::istream* doc);

@@ -71,9 +71,9 @@ public:
    * usually MPI implementations add their own arguments during
    * startup).
    */
-  virtual void Initialize(int* argc, char*** argv) override { this->Initialize(argc, argv, 0); }
+  void Initialize(int* argc, char*** argv) override { this->Initialize(argc, argv, 0); }
 
-  virtual void Initialize(
+  void Initialize(
     int* vtkNotUsed(argc), char*** vtkNotUsed(argv), int initializedExternally) override;
 
   /**
@@ -86,29 +86,29 @@ public:
    * the end of the program if MPI was initialized with
    * Initialize()
    */
-  virtual void Finalize() override { this->Finalize(0); }
+  void Finalize() override { this->Finalize(0); }
 
-  virtual void Finalize(int finalizedExternally) override;
+  void Finalize(int finalizedExternally) override;
 
   /**
    * Execute the SingleMethod (as define by SetSingleMethod) using
    * this->NumberOfProcesses processes.
    */
-  virtual void SingleMethodExecute() override;
+  void SingleMethodExecute() override;
 
   /**
    * Execute the MultipleMethods (as define by calling SetMultipleMethod
    * for each of the required this->NumberOfProcesses methods) using
    * this->NumberOfProcesses processes.
    */
-  virtual void MultipleMethodExecute() override;
+  void MultipleMethodExecute() override;
 
   /**
    * This method can be used to tell the controller to create
    * a special output window in which all messages are preceded
    * by the process id.
    */
-  virtual void CreateOutputWindow() override;
+  void CreateOutputWindow() override;
 
   /**
    * Given an MPI error code, return a string which contains
@@ -127,9 +127,9 @@ public:
    */
   void SetCommunicator(vtkMPICommunicator* comm);
 
-  virtual vtkMPIController* CreateSubController(vtkProcessGroup* group) override;
+  vtkMPIController* CreateSubController(vtkProcessGroup* group) override;
 
-  virtual vtkMPIController* PartitionController(int localColor, int localKey) override;
+  vtkMPIController* PartitionController(int localColor, int localKey) override;
 
   /**
    * This method sends data to another process (non-blocking).
@@ -357,7 +357,7 @@ protected:
    * modify the behaviour eg. MPIController provides ability to use Ssend
    * instead of Send.
    */
-  virtual void TriggerRMIInternal(
+  void TriggerRMIInternal(
     int remoteProcessId, void* arg, int argLength, int rmiTag, bool propagate) override;
 
   // MPI communicator created when Initialize() called.

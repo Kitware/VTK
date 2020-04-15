@@ -55,16 +55,15 @@ protected:
    */
   bool CanUseMPIIO();
 
-  virtual int OpenFileForDataRead(void*& fp, const char* fname) override;
-  virtual void CloseFile(void* fp) override;
+  int OpenFileForDataRead(void*& fp, const char* fname) override;
+  void CloseFile(void* fp) override;
 
-  virtual int ReadIntScalar(void* vfp, int extent[6], int wextent[6], vtkDataArray* scalar,
+  int ReadIntScalar(void* vfp, int extent[6], int wextent[6], vtkDataArray* scalar,
     vtkTypeUInt64 offset, const vtkMultiBlockPLOT3DReaderRecord& currentRecord) override;
-  virtual int ReadScalar(void* vfp, int extent[6], int wextent[6], vtkDataArray* scalar,
+  int ReadScalar(void* vfp, int extent[6], int wextent[6], vtkDataArray* scalar,
     vtkTypeUInt64 offset, const vtkMultiBlockPLOT3DReaderRecord& currentRecord) override;
-  virtual int ReadVector(void* vfp, int extent[6], int wextent[6], int numDims,
-    vtkDataArray* vector, vtkTypeUInt64 offset,
-    const vtkMultiBlockPLOT3DReaderRecord& currentRecord) override;
+  int ReadVector(void* vfp, int extent[6], int wextent[6], int numDims, vtkDataArray* vector,
+    vtkTypeUInt64 offset, const vtkMultiBlockPLOT3DReaderRecord& currentRecord) override;
   bool UseMPIIO;
 
 private:

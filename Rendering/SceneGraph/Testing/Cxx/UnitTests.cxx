@@ -42,7 +42,7 @@ class vtkMyActorNode : public vtkActorNode
 public:
   static vtkMyActorNode* New();
   vtkTypeMacro(vtkMyActorNode, vtkActorNode);
-  virtual void Render(bool prepass) override
+  void Render(bool prepass) override
   {
     if (prepass)
     {
@@ -62,7 +62,7 @@ class vtkMyCameraNode : public vtkCameraNode
 public:
   static vtkMyCameraNode* New();
   vtkTypeMacro(vtkMyCameraNode, vtkCameraNode);
-  virtual void Render(bool prepass) override
+  void Render(bool prepass) override
   {
     if (prepass)
     {
@@ -82,7 +82,7 @@ class vtkMyLightNode : public vtkLightNode
 public:
   static vtkMyLightNode* New();
   vtkTypeMacro(vtkMyLightNode, vtkLightNode);
-  virtual void Render(bool prepass) override
+  void Render(bool prepass) override
   {
     if (prepass)
     {
@@ -102,7 +102,7 @@ class vtkMyMapperNode : public vtkMapperNode
 public:
   static vtkMyMapperNode* New();
   vtkTypeMacro(vtkMyMapperNode, vtkMapperNode);
-  virtual void Render(bool prepass) override
+  void Render(bool prepass) override
   {
     if (prepass)
     {
@@ -122,7 +122,7 @@ class vtkMyRendererNode : public vtkRendererNode
 public:
   static vtkMyRendererNode* New();
   vtkTypeMacro(vtkMyRendererNode, vtkRendererNode);
-  virtual void Render(bool prepass) override
+  void Render(bool prepass) override
   {
     if (prepass)
     {
@@ -142,7 +142,7 @@ class vtkMyWindowNode : public vtkWindowNode
 public:
   static vtkMyWindowNode* New();
   vtkTypeMacro(vtkMyWindowNode, vtkWindowNode);
-  virtual void Render(bool prepass) override
+  void Render(bool prepass) override
   {
     if (prepass)
     {

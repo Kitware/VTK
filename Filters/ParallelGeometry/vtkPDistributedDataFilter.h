@@ -121,7 +121,7 @@ protected:
    * by all processes, or it will hang.
    */
 
-  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   void SingleProcessExecute(vtkDataSet* input, vtkUnstructuredGrid* output);
 
   /**

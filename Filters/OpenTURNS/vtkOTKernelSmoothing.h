@@ -87,7 +87,7 @@ protected:
   /**
    * Do the actual computation and store it in output
    */
-  virtual int Process(OT::Sample* input) override;
+  int Process(OT::Sample* input) override;
 
   void ComputePDF(OT::Sample* input, OT::KernelSmoothing* ks, double* range, const char* pdfName);
 

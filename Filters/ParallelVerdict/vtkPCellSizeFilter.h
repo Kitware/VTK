@@ -55,7 +55,7 @@ protected:
   /**
    * Method to compute the global sum information.
    */
-  virtual void ComputeGlobalSum(double sum[4]) override;
+  void ComputeGlobalSum(double sum[4]) override;
   //@}
 
 private:

@@ -372,10 +372,9 @@ public:
   static vtkSingleFileArchiver* New();
   vtkTypeMacro(vtkSingleFileArchiver, vtkArchiver);
 
-  virtual void OpenArchive() override {}
-  virtual void CloseArchive() override {}
-  virtual void InsertIntoArchive(
-    const std::string& filePath, const char* data, std::size_t size) override
+  void OpenArchive() override {}
+  void CloseArchive() override {}
+  void InsertIntoArchive(const std::string& filePath, const char* data, std::size_t size) override
   {
     vtksys::ofstream file;
     file.open(filePath.c_str(), ios::out | ios::binary);
@@ -385,7 +384,7 @@ public:
 
 private:
   vtkSingleFileArchiver() = default;
-  virtual ~vtkSingleFileArchiver() override = default;
+  ~vtkSingleFileArchiver() override = default;
 };
 vtkStandardNewMacro(vtkSingleFileArchiver);
 }

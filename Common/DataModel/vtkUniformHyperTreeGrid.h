@@ -58,7 +58,7 @@ public:
    */
   void CopyStructure(vtkDataObject*) override;
 
-  virtual void Initialize() override;
+  void Initialize() override;
 
   //@{
   /**

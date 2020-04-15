@@ -70,7 +70,7 @@ public:
   /**
    * Write scene data.
    */
-  virtual void WriteData() override;
+  void WriteData() override;
   //@}
 
   //@{

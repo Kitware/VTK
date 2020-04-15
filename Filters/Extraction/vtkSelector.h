@@ -78,7 +78,7 @@ public:
   //@}
 protected:
   vtkSelector();
-  virtual ~vtkSelector() override;
+  ~vtkSelector() override;
 
   // Contains the selection criteria.
   vtkSelectionNode* Node = nullptr;

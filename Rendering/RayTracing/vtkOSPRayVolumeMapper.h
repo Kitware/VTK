@@ -43,7 +43,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow*) override;
+  void ReleaseGraphicsResources(vtkWindow*) override;
 
   // Initialize internal constructs
   virtual void Init();
@@ -52,7 +52,7 @@ public:
    * Render the volume onto the screen.
    * Overridden to use OSPRay to do the work.
    */
-  virtual void Render(vtkRenderer*, vtkVolume*) override;
+  void Render(vtkRenderer*, vtkVolume*) override;
 
 protected:
   vtkOSPRayVolumeMapper();

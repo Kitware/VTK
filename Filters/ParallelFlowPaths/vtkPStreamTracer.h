@@ -60,9 +60,8 @@ protected:
   vtkPStreamTracer();
   ~vtkPStreamTracer() override;
 
-  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-  virtual int RequestUpdateExtent(
-    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   vtkMultiProcessController* Controller;
 

@@ -50,41 +50,39 @@ class VTKRENDERINGPARALLELLIC_EXPORT vtkPSurfaceLICComposite : public vtkSurface
 public:
   static vtkPSurfaceLICComposite* New();
   vtkTypeMacro(vtkPSurfaceLICComposite, vtkSurfaceLICComposite);
-  virtual void PrintSelf(ostream& os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set the rendering context. Must set prior to use. Reference is not
    * held, so caller must ensure the renderer is not destroyed during
    * use.
    */
-  virtual void SetContext(vtkOpenGLRenderWindow* rwin) override;
-  virtual vtkOpenGLRenderWindow* GetContext() override { return this->Context; }
+  void SetContext(vtkOpenGLRenderWindow* rwin) override;
+  vtkOpenGLRenderWindow* GetContext() override { return this->Context; }
 
   /**
    * Set the communicator for parallel communication. The Default is
    * COMM_NULL.
    */
-  virtual void SetCommunicator(vtkPainterCommunicator* comm) override;
+  void SetCommunicator(vtkPainterCommunicator* comm) override;
 
   /**
    * Build programs to move data to the new decomp
    * THIS IS A COLLECTIVE OPERATION
    */
-  virtual int BuildProgram(float* vectors) override;
+  int BuildProgram(float* vectors) override;
 
   /**
    * Move a single buffer from the geometry decomp to the LIC decomp.
    * THIS IS A COLLECTIVE OPERATION
    */
-  virtual int Gather(
-    void* pSendPBO, int dataType, int nComps, vtkTextureObject*& newImage) override;
+  int Gather(void* pSendPBO, int dataType, int nComps, vtkTextureObject*& newImage) override;
 
   /**
    * Move a single buffer from the LIC decomp to the geometry decomp
    * THIS IS A COLLECTIVE OPERATION
    */
-  virtual int Scatter(
-    void* pSendPBO, int dataType, int nComps, vtkTextureObject*& newImage) override;
+  int Scatter(void* pSendPBO, int dataType, int nComps, vtkTextureObject*& newImage) override;
 
 protected:
   vtkPSurfaceLICComposite();

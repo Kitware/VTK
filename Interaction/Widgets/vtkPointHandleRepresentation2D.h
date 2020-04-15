@@ -145,7 +145,7 @@ protected:
   double LastEventPosition[2];
 
   // Methods to manipulate the cursor
-  virtual void Translate(const double* eventPos) override;
+  void Translate(const double* eventPos) override;
   void Scale(const double eventPos[2]);
 
   // Properties used to control the appearance of selected objects and

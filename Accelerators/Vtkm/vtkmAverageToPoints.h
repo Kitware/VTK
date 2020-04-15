@@ -41,7 +41,7 @@ protected:
   vtkmAverageToPoints();
   ~vtkmAverageToPoints() override;
 
-  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkmAverageToPoints(const vtkmAverageToPoints&) = delete;

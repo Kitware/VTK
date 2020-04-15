@@ -67,18 +67,18 @@ public:
   static int Tensor3ShapeFunctions(const int order[3], const double* pcoords, double* shape);
   static int Tensor3ShapeDerivatives(const int order[3], const double* pcoords, double* derivs);
 
-  virtual void Tensor3EvaluateDerivative(const int order[3], const double* pcoords,
-    vtkPoints* points, const double* fieldVals, int fieldDim, double* fieldDerivs) override;
+  void Tensor3EvaluateDerivative(const int order[3], const double* pcoords, vtkPoints* points,
+    const double* fieldVals, int fieldDim, double* fieldDerivs) override;
 
   static void WedgeShapeFunctions(
     const int order[3], const vtkIdType numberOfPoints, const double* pcoords, double* shape);
   static void WedgeShapeDerivatives(
     const int order[3], const vtkIdType numberOfPoints, const double* pcoords, double* derivs);
 
-  virtual void WedgeEvaluate(const int order[3], const vtkIdType numberOfPoints,
-    const double* pcoords, double* fieldVals, int fieldDim, double* fieldAtPCoords) override;
+  void WedgeEvaluate(const int order[3], const vtkIdType numberOfPoints, const double* pcoords,
+    double* fieldVals, int fieldDim, double* fieldAtPCoords) override;
 
-  virtual void WedgeEvaluateDerivative(const int order[3], const double* pcoords, vtkPoints* points,
+  void WedgeEvaluateDerivative(const int order[3], const double* pcoords, vtkPoints* points,
     const double* fieldVals, int fieldDim, double* fieldDerivs) override;
 
 protected:

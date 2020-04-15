@@ -128,11 +128,11 @@ protected:
   vtkBoostBreadthFirstSearch();
   ~vtkBoostBreadthFirstSearch() override;
 
-  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  virtual int FillInputPortInformation(int port, vtkInformation* info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  virtual int FillOutputPortInformation(int port, vtkInformation* info) override;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
 private:
   vtkIdType OriginVertexIndex;

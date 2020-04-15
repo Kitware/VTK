@@ -47,7 +47,7 @@ protected:
   vtkmGradient();
   ~vtkmGradient() override;
 
-  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkmGradient(const vtkmGradient&) = delete;

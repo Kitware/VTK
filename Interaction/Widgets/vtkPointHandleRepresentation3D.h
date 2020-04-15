@@ -240,7 +240,7 @@ protected:
 
   // Methods to manipulate the cursor
   int ConstraintAxis;
-  virtual void Translate(const double* p1, const double* p2) override;
+  void Translate(const double* p1, const double* p2) override;
   void Scale(const double* p1, const double* p2, const double eventPos[2]);
   void MoveFocus(const double* p1, const double* p2);
   void SizeBounds();
