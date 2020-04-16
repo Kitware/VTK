@@ -230,6 +230,17 @@ public:
 
   //@{
   /**
+   * Set/Get the edge tint (for metals only).
+   * Set the color at grazing angle (fresnel reflectance).
+   * This parameter is only used by PBR Interpolation.
+   * Default value is [1.0, 1.0, 1.0]
+   */
+  vtkSetVector3Macro(EdgeTint, double);
+  vtkGetVector3Macro(EdgeTint, double);
+  //@}
+
+  //@{
+  /**
    * Set/Get the ambient lighting coefficient.
    */
   vtkSetClampMacro(Ambient, double, 0.0, 1.0);
@@ -582,6 +593,7 @@ protected:
   double Specular;
   double SpecularPower;
   double Opacity;
+  double EdgeTint[3];
   float PointSize;
   float LineWidth;
   int LineStipplePattern;

@@ -47,6 +47,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestOffscreenRenderingResize.cxx
   TestOrderIndependentTranslucentPass.cxx
   TestPanoramicProjectionPass.cxx,NO_DATA
+  TestPBREdgeTint.cxx
   TestPBRHdrEnvironment.cxx
   TestPBRMapping.cxx
   TestPBRMaterials.cxx

@@ -68,6 +68,10 @@ vtkProperty::vtkProperty()
   this->EmissiveFactor[1] = 1.0;
   this->EmissiveFactor[2] = 1.0;
 
+  this->EdgeTint[0] = 1.0;
+  this->EdgeTint[1] = 1.0;
+  this->EdgeTint[2] = 1.0;
+
   this->NormalScale = 1.0;
   this->OcclusionStrength = 1.0;
   this->Metallic = 0.0;
