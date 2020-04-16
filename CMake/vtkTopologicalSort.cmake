@@ -78,10 +78,10 @@ function(vtk_topological_sort LIST PREFIX SUFFIX)
       # Push this vertex onto the stack with all of its outgoing edges
       string(REPLACE ";" " " NEW_ELEMENT
         "${VERTEX};${${PREFIX}${VERTEX}${SUFFIX}}")
-      list(APPEND STACK ${NEW_ELEMENT})
+      list(APPEND STACK "${NEW_ELEMENT}")
 
       # We've now seen this vertex
-      set(FOUND_${VERTEX} TRUE)
+      set("FOUND_${VERTEX}" TRUE)
 
       # While the depth-first search stack is not empty
       while(STACK)
@@ -107,18 +107,18 @@ function(vtk_topological_sort LIST PREFIX SUFFIX)
             # source. This is the key to the depth-first traversal.
 
             # We've now seen this vertex
-            set(FOUND_${TARGET} TRUE)
+            set("FOUND_${TARGET}" TRUE)
 
             # Push the remaining edges for the current vertex onto the
             # stack
             string(REPLACE ";" " " NEW_ELEMENT
               "${SOURCE};${OUT_EDGES}")
-            list(APPEND STACK ${NEW_ELEMENT})
+            list(APPEND STACK "${NEW_ELEMENT}")
 
             # Setup the new source and outgoing edges
-            set(SOURCE ${TARGET})
+            set(SOURCE "${TARGET}")
             set(OUT_EDGES
-              ${${PREFIX}${SOURCE}${SUFFIX}})
+              "${${PREFIX}${SOURCE}${SUFFIX}}")
           endif()
         endwhile ()
 
@@ -129,5 +129,5 @@ function(vtk_topological_sort LIST PREFIX SUFFIX)
     endif ()
   endforeach()
 
-  set(${LIST} ${${LIST}} PARENT_SCOPE)
+  set("${LIST}" "${${LIST}}" PARENT_SCOPE)
 endfunction()
