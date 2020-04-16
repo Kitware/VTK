@@ -28,7 +28,8 @@ Do_not_include_vtkWin32Header_directly_vtkSystemIncludes_includes_it;
 #endif
 
 #include "vtkABI.h"
-#include "vtkConfigure.h"
+#include "vtkBuild.h"    // For VTK_BUILD_SHARED_LIBS
+#include "vtkPlatform.h" // for VTK_REQUIRE_LARGE_FILE_SUPPORT
 
 /*
  * This is a support for files on the disk that are larger than 2GB.
@@ -59,11 +60,6 @@ Do_not_include_vtkWin32Header_directly_vtkSystemIncludes_includes_it;
 #define NOMINMAX
 #endif
 
-#endif
-
-// Never include the windows header here when building VTK itself.
-#if defined(VTK_IN_VTK)
-#undef VTK_INCLUDE_WINDOWS_H
 #endif
 
 #if defined(_WIN32)

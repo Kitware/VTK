@@ -32,8 +32,8 @@
 #ifndef vtkPTemporalStreamTracer_h
 #define vtkPTemporalStreamTracer_h
 
-#include "vtkConfigure.h" // For legacy defines
-#include "vtkSetGet.h"    // For legacy macros
+#include "vtkLegacy.h" // For VTK_LEGACY_REMOVE
+
 #ifndef VTK_LEGACY_REMOVE
 
 #include "vtkFiltersParallelFlowPathsModule.h" // For export macro

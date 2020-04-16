@@ -33,6 +33,7 @@
 
 #include "vtkContourValues.h"    // Passes calls through
 #include "vtkFiltersSMPModule.h" // For export macro
+#include "vtkLegacy.h"           // For VTK_LEGACY_REMOVE
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
 class vtkImageData;

@@ -39,7 +39,9 @@
 #define vtkObjectFactory_h
 
 #include "vtkCommonCoreModule.h"  // For export macro
+#include "vtkCompiler.h"          // For VTK_CXX_COMPILER
 #include "vtkDebugLeaksManager.h" // Must be included before singletons
+#include "vtkFeatures.h"          // For VTK_ALL_NEW_OBJECT_FACTORY
 #include "vtkObject.h"
 
 #include <string> // for std::string

@@ -37,7 +37,7 @@ void vtkTimeStamp::Modified()
   // Solutions and their tradeoffs:
   //
   //  - Schwarz counter: each VTK class now has a static initializer function
-  //    that increments and integer. This cannot be inlined or optimized away.
+  //    that increments an integer. This cannot be inlined or optimized away.
   //    Adds latency to ParaView startup.
   //  - Separate library for this static. This adds another library to VTK
   //    which are already legion. It could not be folded into a kit because

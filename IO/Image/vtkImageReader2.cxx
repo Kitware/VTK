@@ -16,6 +16,7 @@
 
 #include "vtkByteSwap.h"
 #include "vtkDataArray.h"
+#include "vtkEndian.h"
 #include "vtkErrorCode.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"

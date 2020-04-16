@@ -13,6 +13,7 @@
 
 =========================================================================*/
 #include "vtkCommand.h"
+#include "vtkDebug.h"
 #include "vtkDebugLeaks.h"
 
 #ifdef VTK_DEBUG_LEAKS

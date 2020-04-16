@@ -196,7 +196,6 @@
 #define vtkArrayDispatch_h
 
 #include "vtkArrayDispatchArrayList.h"
-#include "vtkConfigure.h"
 #include "vtkType.h"
 #include "vtkTypeList.h"
 

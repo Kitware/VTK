@@ -20,7 +20,7 @@
 #ifndef vtkAssume_h
 #define vtkAssume_h
 
-#include "vtkConfigure.h"
+#include "vtkCompiler.h"
 
 #include <cassert>
 

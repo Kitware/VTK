@@ -37,6 +37,7 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkPlatform.h" // for VTK_MAXPATH
 #include "vtkPointData.h"
 #include "vtkStdString.h"
 #include "vtkStreamingDemandDrivenPipeline.h"

@@ -22,6 +22,7 @@
 #include "vtkAOSDataArrayTemplate.h"
 #include "vtkDataArrayMeta.h"
 #include "vtkDataArrayValueRange_Generic.h"
+#include "vtkDebugRangeIterators.h"
 
 #include <algorithm>
 #include <cassert>

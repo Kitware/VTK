@@ -22,8 +22,6 @@
 #ifndef vtkIOStream_h
 #define vtkIOStream_h
 
-#include "vtkConfigure.h"
-
 #ifdef _MSC_VER
 #pragma warning(push, 3)
 #endif

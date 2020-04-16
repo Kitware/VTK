@@ -15,6 +15,7 @@
 #include "vtkDebugLeaks.h"
 
 #include "vtkCriticalSection.h"
+#include "vtkDebug.h"
 #include "vtkObjectFactory.h"
 #include "vtkWindows.h"
 

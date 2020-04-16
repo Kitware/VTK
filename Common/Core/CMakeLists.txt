@@ -250,11 +250,7 @@ set(sources
   vtkWeakPointerBase.cxx
   vtkWindow.cxx
   vtkXMLFileOutputWindow.cxx
-  ${vtk_smp_sources}
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h"
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h"
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h"
-  )
+  ${vtk_smp_sources})
 
 if (VTK_BUILD_SCALED_SOA_ARRAYS)
   list (APPEND template_classes vtkScaledSOADataArrayTemplate)
@@ -274,6 +270,7 @@ set(headers
   vtkAutoInit.h
   vtkBuffer.h
   vtkCollectionRange.h
+  vtkCompiler.h
   vtkDataArrayAccessor.h
   vtkDataArrayIteratorMacro.h
   vtkDataArrayMeta.h
@@ -309,11 +306,8 @@ set(headers
   vtkWrappingHints.h
   ${vtk_smp_headers}
   "${CMAKE_CURRENT_BINARY_DIR}/vtkArrayDispatchArrayList.h"
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h"
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkToolkits.h"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkTypeListMacros.h"
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkVTK_USE_SCALED_SOA_ARRAYS.h")
 
 set(templates
@@ -390,25 +384,37 @@ endif()
 include(TestBigEndian)
 test_big_endian(VTK_WORDS_BIGENDIAN)
 
-# Provide version macros through vtkConfigure.h for compatibility.
-if(VTK_LEGACY_REMOVE)
-  set(VTK_CONFIG_LEGACY_VERSION "")
-else()
-  set(VTK_CONFIG_LEGACY_VERSION "#include \"vtkVersionMacros.h\" // removed by VTK_LEGACY_REMOVE")
-endif()
+set(nowrap_headers)
+set(generated_headers
+  vtkBuild.h
+  vtkDebug.h
+  vtkDebugRangeIterators.h
+  vtkEndian.h
+  vtkFeatures.h
+  vtkLegacy.h
+  vtkOptions.h
+  vtkPlatform.h
+  vtkSMP.h
+  vtkThreads.h
+  vtkToolkits.h
+  vtkVersionMacros.h)
+if (NOT VTK_LEGACY_REMOVE)
+  list(APPEND generated_headers
+    vtkConfigureDeprecated.h)
+endif ()
+foreach (generated_header IN LISTS generated_headers)
+  configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/${generated_header}.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/${generated_header}"
+    @ONLY)
+  list(APPEND nowrap_headers
+    "${CMAKE_CURRENT_BINARY_DIR}/${generated_header}")
+endforeach ()
 
-configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/vtkVersionMacros.h.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h"
-  @ONLY)
-configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/vtkConfigure.h.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h"
-  @ONLY)
-configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/vtkToolkits.h.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkToolkits.h"
-  @ONLY)
+if (NOT VTK_LEGACY_REMOVE)
+  list(APPEND nowrap_headers
+    vtkConfigure.h)
+endif ()
 
 add_custom_command(
   DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/CaseFolding.txt"
@@ -501,7 +507,8 @@ vtk_module_add_module(VTK::CommonCore
   TEMPLATE_CLASSES  ${template_classes}
   SOURCES           ${sources}
   TEMPLATES         ${templates}
-  HEADERS           ${headers})
+  HEADERS           ${headers}
+  NOWRAP_HEADERS    ${nowrap_headers})
 if (vtk_include_dirs)
   vtk_module_include(VTK::CommonCore
     PRIVATE

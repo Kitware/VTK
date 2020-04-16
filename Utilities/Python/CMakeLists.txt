@@ -101,7 +101,7 @@ endif ()
 # For static builds, since vtkPythonInterpreter cannot work off the library
 # location, but instead has to use the executable location, it needs to know the
 # library dir explicitly.
-if (NOT VTK_BUILD_SHARED_LIBS)
+if (NOT BUILD_SHARED_LIBS)
   set(VTK_PYTHON_SITE_PACKAGES_SUFFIX_FIXED "${VTK_INSTALL_PYTHON_MODULES_DIR}")
 else ()
   set(VTK_PYTHON_SITE_PACKAGES_SUFFIX_FIXED "${VTK_PYTHON_SITE_PACKAGES_SUFFIX}")

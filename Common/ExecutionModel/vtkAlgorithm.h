@@ -33,6 +33,7 @@
 #define vtkAlgorithm_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
+#include "vtkLegacy.h"                     // For VTK_LEGACY
 #include "vtkObject.h"
 
 class vtkAbstractArray;

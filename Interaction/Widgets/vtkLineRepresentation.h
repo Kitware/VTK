@@ -39,6 +39,7 @@
 #define vtkLineRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkLegacy.h"                   // For VTK_LEGACY
 #include "vtkWidgetRepresentation.h"
 
 class vtkActor;

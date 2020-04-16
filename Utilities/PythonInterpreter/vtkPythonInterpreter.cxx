@@ -15,6 +15,7 @@
 #include "vtkPythonInterpreter.h"
 #include "vtkPython.h" // this must be the first include.
 
+#include "vtkBuild.h"
 #include "vtkCommand.h"
 #include "vtkLogger.h"
 #include "vtkNew.h"

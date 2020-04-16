@@ -28,6 +28,7 @@
 #define QVTKOpenGLWidget_h
 
 #include "QVTKOpenGLStereoWidget.h"
+#include "vtkLegacy.h" // For VTK_LEGACY_REMOVE
 
 #ifndef VTK_LEGACY_REMOVE
 typedef QVTKOpenGLStereoWidget VTK_LEGACY(QVTKOpenGLWidget);

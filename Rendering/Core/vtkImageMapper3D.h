@@ -31,6 +31,7 @@
 
 #include "vtkAbstractMapper3D.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkThreads.h"             // for VTK_MAX_THREADS
 
 class vtkRenderer;
 class vtkProp3D;

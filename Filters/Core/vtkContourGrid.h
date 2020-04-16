@@ -54,6 +54,7 @@
 #define vtkContourGrid_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
+#include "vtkLegacy.h"            // For VTK_LEGACY_REMOVE
 #include "vtkPolyDataAlgorithm.h"
 
 #include "vtkContourValues.h" // Needed for inline methods

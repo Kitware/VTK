@@ -18,8 +18,8 @@
 
 #include "vtkArrayDispatch.h"
 
-#include "vtkConfigure.h" // For warning macro settings.
-#include "vtkSetGet.h"    // For warning macros.
+#include "vtkDebug.h"  // For warning macro settings.
+#include "vtkSetGet.h" // For warning macros.
 
 #include <utility> // For std::forward
 

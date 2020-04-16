@@ -34,7 +34,9 @@
 #define vtkScaledSOADataArrayTemplate_h
 
 #include "vtkBuffer.h"
+#include "vtkBuild.h"            // For VTK_BUILD_SHARED_LIBS
 #include "vtkCommonCoreModule.h" // For export macro
+#include "vtkCompiler.h"         // for VTK_USE_EXTERN_TEMPLATE
 #include "vtkGenericDataArray.h"
 
 // The export macro below makes no sense, but is necessary for older compilers

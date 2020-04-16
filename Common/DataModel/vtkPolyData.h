@@ -67,6 +67,7 @@
 
 #include "vtkCellArray.h"         // Needed for inline methods
 #include "vtkCellLinks.h"         // Needed for inline methods
+#include "vtkLegacy.h"            // For VTK_LEGACY_REMOVE
 #include "vtkPolyDataInternals.h" // Needed for inline methods
 
 class vtkVertex;

@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkMultiProcessStream.h"
 
+#include "vtkEndian.h"
 #include "vtkObjectFactory.h"
 #include "vtkSocketCommunicator.h" // for vtkSwap8 and vtkSwap4 macros.
 #include <cassert>

@@ -34,7 +34,6 @@
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkAtomic.h"
-#include "vtkConfigure.h"
 #include "vtkSystemIncludes.h"
 
 #include <omp.h>

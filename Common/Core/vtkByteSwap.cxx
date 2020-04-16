@@ -13,6 +13,7 @@
 
 =========================================================================*/
 #include "vtkByteSwap.h"
+#include "vtkEndian.h"
 #include "vtkObjectFactory.h"
 #include <memory.h>
 

@@ -108,6 +108,7 @@
 
 #include "QVTKInteractor.h"        // needed for QVTKInteractor
 #include "vtkGUISupportQtModule.h" // for export macro
+#include "vtkLegacy.h"             // For VTK_LEGACY
 #include "vtkNew.h"                // needed for vtkNew
 #include "vtkSmartPointer.h"       // needed for vtkSmartPointer
 

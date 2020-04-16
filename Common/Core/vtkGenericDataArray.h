@@ -68,7 +68,7 @@
 
 #include "vtkDataArray.h"
 
-#include "vtkConfigure.h"
+#include "vtkCompiler.h" // for VTK_USE_EXTERN_TEMPLATE
 #include "vtkGenericDataArrayLookupHelper.h"
 #include "vtkSmartPointer.h"
 #include "vtkTypeTraits.h"

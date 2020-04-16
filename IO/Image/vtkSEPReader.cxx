@@ -10,6 +10,7 @@
 =========================================================================*/
 #include "vtkSEPReader.h"
 
+#include "vtkEndian.h"
 #include "vtkInformation.h"
 #include "vtkInformationStringKey.h"
 #include "vtkInformationVector.h"

@@ -18,6 +18,7 @@
 #include "vtkByteSwap.h"
 #include "vtkCommand.h"
 #include "vtkDataCompressor.h"
+#include "vtkEndian.h"
 #include "vtkInputStream.h"
 #include "vtkObjectFactory.h"
 #include "vtkXMLDataElement.h"

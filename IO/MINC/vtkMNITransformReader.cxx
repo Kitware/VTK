@@ -58,6 +58,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMINCImageReader.h"
+#include "vtkPlatform.h" // for VTK_MAXPATH
 #include "vtkPoints.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkThinPlateSplineTransform.h"

@@ -28,6 +28,7 @@
 
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkFiltersExtractionModule.h" // For export macro
+#include "vtkLegacy.h"                  // For VTK_LEGACY_REMOVE
 
 #if !defined(VTK_LEGACY_REMOVE)
 class vtkDataSet;

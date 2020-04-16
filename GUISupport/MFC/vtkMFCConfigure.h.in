@@ -16,8 +16,6 @@
 #ifndef vtkMFCConfigure_h
 #define vtkMFCConfigure_h
 
-#include "vtkConfigure.h"
-
 #cmakedefine VTK_MFC_STATIC
 
 #endif

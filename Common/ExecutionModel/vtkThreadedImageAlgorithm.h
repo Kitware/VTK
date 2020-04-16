@@ -30,6 +30,7 @@
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
+#include "vtkThreads.h" // for VTK_MAX_THREADS
 
 class vtkImageData;
 class vtkMultiThreader;

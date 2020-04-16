@@ -18,8 +18,6 @@
 // Provides a reference for the set of C++ features that can be used
 // by VTK.
 
-#include "vtkConfigure.h"
-
 //----------------------------------------------------------------------------
 
 /* Check for known compilers.  */

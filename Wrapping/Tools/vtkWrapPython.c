@@ -362,7 +362,6 @@ int main(int argc, char* argv[])
   fprintf(fp,
     "#include \"vtkPythonArgs.h\"\n"
     "#include \"vtkPythonOverload.h\"\n"
-    "#include \"vtkConfigure.h\"\n"
     "#include <cstddef>\n"
     "#include <sstream>\n");
 

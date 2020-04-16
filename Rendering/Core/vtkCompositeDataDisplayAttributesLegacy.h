@@ -26,7 +26,8 @@
 #ifndef vtkCompositeDataDisplayAttributesLegacy_h
 #define vtkCompositeDataDisplayAttributesLegacy_h
 
-#include "vtkColor.h" // for vtkColor3d
+#include "vtkColor.h"  // for vtkColor3d
+#include "vtkLegacy.h" // For VTK_LEGACY
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // for export macro
 

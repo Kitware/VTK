@@ -15,6 +15,7 @@
 #include "vtkPNGReader.h"
 
 #include "vtkDataArray.h"
+#include "vtkEndian.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"

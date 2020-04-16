@@ -23,6 +23,7 @@
 #include <vtk_mpi.h>
 #endif // VTK_COMPILED_USING_MPI
 
+#include "vtkBuild.h"
 #include "vtkOutputWindow.h"
 #include "vtkPythonInterpreter.h"
 #include "vtkVersion.h"

@@ -17,8 +17,8 @@
 #define vtkDataArrayMeta_h
 
 #include "vtkAssume.h"
-#include "vtkConfigure.h"
 #include "vtkDataArray.h"
+#include "vtkDebugRangeIterators.h"
 #include "vtkMeta.h"
 #include "vtkSetGet.h"
 #include "vtkType.h"

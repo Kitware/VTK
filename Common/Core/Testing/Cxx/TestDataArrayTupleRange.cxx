@@ -17,6 +17,7 @@
 
 #include "vtkAOSDataArrayTemplate.h"
 #include "vtkDataArray.h"
+#include "vtkDebugRangeIterators.h"
 #include "vtkFloatArray.h"
 #include "vtkSOADataArrayTemplate.h"
 #ifdef VTK_USE_SCALED_SOA_ARRAYS

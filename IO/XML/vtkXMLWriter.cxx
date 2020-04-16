@@ -25,6 +25,7 @@
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
+#include "vtkEndian.h"
 #include "vtkErrorCode.h"
 #include "vtkInformation.h"
 #include "vtkInformationDoubleKey.h"

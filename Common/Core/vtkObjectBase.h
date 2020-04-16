@@ -49,7 +49,9 @@
 #define VTK_HAS_INITIALIZE_OBJECT_BASE
 
 #include "vtkCommonCoreModule.h" // For export macro
+#include "vtkFeatures.h"         // for VTK_USE_MEMKIND
 #include "vtkIndent.h"
+#include "vtkLegacy.h" // For VTK_LEGACY_REMOVE
 #include "vtkSystemIncludes.h"
 #include "vtkType.h"
 

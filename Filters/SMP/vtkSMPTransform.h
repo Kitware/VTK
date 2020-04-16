@@ -28,6 +28,7 @@
 #define vtkSMPTransform_h
 
 #include "vtkFiltersSMPModule.h" // For export macro
+#include "vtkLegacy.h"           // For VTK_LEGACY_REMOVE
 #include "vtkTransform.h"
 
 #if !defined(VTK_LEGACY_REMOVE)

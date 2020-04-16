@@ -31,6 +31,7 @@
 #include "vtkCellArray.h"             //inline GetCellPoints()
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkIdTypeArray.h"           //inline GetCellPoints()
+#include "vtkLegacy.h"                // For VTK_LEGACY_REMOVE
 #include "vtkUnstructuredGridBase.h"
 
 #include "vtkSmartPointer.h" // for smart pointer

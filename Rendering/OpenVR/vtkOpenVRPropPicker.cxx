@@ -19,6 +19,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkBox.h"
 #include "vtkCamera.h"
 #include "vtkCommand.h"
+#include "vtkLegacy.h" // For VTK_LEGACY_SILENT
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"

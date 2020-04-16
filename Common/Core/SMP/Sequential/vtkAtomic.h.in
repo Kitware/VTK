@@ -37,7 +37,6 @@
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkAtomicTypeConcepts.h"
-#include "vtkConfigure.h"
 #include "vtkSystemIncludes.h"
 #include "vtkType.h"
 

@@ -29,6 +29,7 @@
 
 #include "vtkCell.h"
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkLegacy.h"                // For VTK_LEGACY
 
 class vtkOrderedTriangulator;
 class vtkTetra;

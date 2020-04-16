@@ -29,6 +29,7 @@
 #define vtkThreadedSynchronizedTemplatesCutter3D_h
 
 #include "vtkFiltersSMPModule.h" // For export macro
+#include "vtkLegacy.h"           // For VTK_LEGACY_REMOVE
 #include "vtkThreadedSynchronizedTemplates3D.h"
 
 class vtkImplicitFunction;
