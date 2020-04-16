@@ -21,9 +21,9 @@
  * to create vtk objects from the list of registered vtkObjectFactory
  * sub-classes.   The first time CreateInstance is called, all dll's or shared
  * libraries in the environment variable VTK_AUTOLOAD_PATH are loaded into
- * the current process.   The C functions vtkLoad, vtkGetFactoryCompilerUsed,
- * and vtkGetFactoryVersion are called on each dll.  To implement these
- * functions in a shared library or dll, use the macro:
+ * the current process.   The C functions vtkLoad, and vtkGetFactoryVersion are
+ * called on each dll.  To implement these functions in a shared library or
+ * dll, use the macro:
  * VTK_FACTORY_INTERFACE_IMPLEMENT.
  * VTK_AUTOLOAD_PATH is an environment variable
  * containing a colon separated (semi-colon on win32) list of paths.
@@ -39,7 +39,6 @@
 #define vtkObjectFactory_h
 
 #include "vtkCommonCoreModule.h"  // For export macro
-#include "vtkCompiler.h"          // For VTK_CXX_COMPILER
 #include "vtkDebugLeaksManager.h" // Must be included before singletons
 #include "vtkFeatures.h"          // For VTK_ALL_NEW_OBJECT_FACTORY
 #include "vtkObject.h"
@@ -300,10 +299,6 @@ static vtkObjectFactoryRegistryCleanup vtkObjectFactoryRegistryCleanupInstance;
 // and pass in the name of the factory sub-class that you want
 // the dll to create.
 #define VTK_FACTORY_INTERFACE_IMPLEMENT(factoryName)                                               \
-  extern "C" VTK_FACTORY_INTERFACE_EXPORT const char* vtkGetFactoryCompilerUsed()                  \
-  {                                                                                                \
-    return VTK_CXX_COMPILER;                                                                       \
-  }                                                                                                \
   extern "C" VTK_FACTORY_INTERFACE_EXPORT const char* vtkGetFactoryVersion()                       \
   {                                                                                                \
     return VTK_SOURCE_VERSION;                                                                     \
