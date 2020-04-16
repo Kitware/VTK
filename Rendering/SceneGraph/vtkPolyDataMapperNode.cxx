@@ -339,7 +339,7 @@ void CreateStripIndexBuffer(vtkCellArray* cells, std::vector<unsigned int>& inde
   }
   unsigned int cell_id = 0;
 
-  const vtkIdType* pts = 0;
+  const vtkIdType* pts = nullptr;
   vtkIdType npts = 0;
 
   size_t triCount = cells->GetNumberOfConnectivityIds() - 2 * cells->GetNumberOfCells();

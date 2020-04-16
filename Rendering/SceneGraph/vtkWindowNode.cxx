@@ -39,9 +39,9 @@ vtkWindowNode::vtkWindowNode()
 vtkWindowNode::~vtkWindowNode()
 {
   this->ColorBuffer->Delete();
-  this->ColorBuffer = 0;
+  this->ColorBuffer = nullptr;
   this->ZBuffer->Delete();
-  this->ZBuffer = 0;
+  this->ZBuffer = nullptr;
 }
 
 //----------------------------------------------------------------------------

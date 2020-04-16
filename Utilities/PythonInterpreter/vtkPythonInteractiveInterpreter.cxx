@@ -225,7 +225,7 @@ int vtkPythonInteractiveInterpreter::RunStringWithConsoleLocals(const char* scri
 #if PY_VERSION_HEX >= 0x03000000
   // The const_cast can be removed for Python 3.3 or later.
   PyObject* f = PySys_GetObject(const_cast<char*>("stdout"));
-  if (f == 0 || PyFile_WriteString("\n", f) != 0)
+  if (f == nullptr || PyFile_WriteString("\n", f) != 0)
   {
     PyErr_Clear();
   }

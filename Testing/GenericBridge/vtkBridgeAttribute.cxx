@@ -420,7 +420,7 @@ void vtkBridgeAttribute::InitWithPointData(vtkPointData* d, int i)
 {
   assert("pre: d_exists" && d != nullptr);
   assert("pre: valid_range" && (i >= 0) && (i < d->GetNumberOfArrays()));
-  vtkSetObjectBodyMacro(Cd, vtkCellData, 0);
+  vtkSetObjectBodyMacro(Cd, vtkCellData, nullptr);
   vtkSetObjectBodyMacro(Pd, vtkPointData, d);
   this->Data = d;
   this->AttributeNumber = i;
@@ -436,7 +436,7 @@ void vtkBridgeAttribute::InitWithCellData(vtkCellData* d, int i)
 {
   assert("pre: d_exists" && d != nullptr);
   assert("pre: valid_range" && (i >= 0) && (i < d->GetNumberOfArrays()));
-  vtkSetObjectBodyMacro(Pd, vtkPointData, 0);
+  vtkSetObjectBodyMacro(Pd, vtkPointData, nullptr);
   vtkSetObjectBodyMacro(Cd, vtkCellData, d);
   this->Data = d;
   this->AttributeNumber = i;

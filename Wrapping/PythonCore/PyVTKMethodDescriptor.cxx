@@ -172,7 +172,7 @@ PyTypeObject PyVTKMethodDescriptor_Type = {
   sizeof(PyMethodDescrObject),             // tp_basicsize
   0,                                       // tp_itemsize
   PyVTKMethodDescriptor_Delete,            // tp_dealloc
-  0,                                       // tp_vectorcall_offset
+  nullptr,                                       // tp_vectorcall_offset
   nullptr,                                 // tp_getattr
   nullptr,                                 // tp_setattr
   nullptr,                                 // tp_compare

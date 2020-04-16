@@ -169,7 +169,7 @@ void vtkBridgeCellIteratorOne::InitWithOneCell(vtkBridgeDataSet* ds, vtkIdType c
     this->Cell = vtkBridgeCell::New();
   }
 
-  vtkSetObjectBodyMacro(InternalCell, vtkCell, 0);
+  vtkSetObjectBodyMacro(InternalCell, vtkCell, nullptr);
   vtkSetObjectBodyMacro(DataSet, vtkBridgeDataSet, ds);
   this->Id = cellid;
   this->cIsAtEnd = 1;
@@ -189,8 +189,8 @@ void vtkBridgeCellIteratorOne::InitWithOneCell(vtkBridgeCell* c)
     // dataset mode or points mode
     this->Cell->Delete();
   }
-  vtkSetObjectBodyMacro(InternalCell, vtkCell, 0);
-  vtkSetObjectBodyMacro(DataSet, vtkBridgeDataSet, 0);
+  vtkSetObjectBodyMacro(InternalCell, vtkCell, nullptr);
+  vtkSetObjectBodyMacro(DataSet, vtkBridgeDataSet, nullptr);
 
   this->Cell = c; // no register to prevent reference cycle with vtkBridgeCell
   this->Id = c->GetId();
@@ -267,7 +267,7 @@ void vtkBridgeCellIteratorOne::InitWithPoints(
   cell->Points = coords;
   cell->PointIds = pts;
   vtkSetObjectBodyMacro(InternalCell, vtkCell, cell);
-  vtkSetObjectBodyMacro(DataSet, vtkBridgeDataSet, 0);
+  vtkSetObjectBodyMacro(DataSet, vtkBridgeDataSet, nullptr);
   this->Id = cellid;
   this->cIsAtEnd = 1;
   this->Cell->InitWithCell(this->InternalCell, this->Id);

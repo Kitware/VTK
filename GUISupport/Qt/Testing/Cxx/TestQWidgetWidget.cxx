@@ -38,7 +38,7 @@ int TestQWidgetWidget(int argc, char* argv[])
   detail::set_default_format(type);
 
   QApplication app(argc, argv);
-  QPushButton hello("Hello world!", 0);
+  QPushButton hello("Hello world!", nullptr);
 
   vtkNew<vtkTesting> vtktesting;
   vtktesting->AddArguments(argc, argv);

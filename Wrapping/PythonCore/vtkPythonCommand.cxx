@@ -189,7 +189,7 @@ void vtkPythonCommand::Execute(vtkObject* ptr, unsigned long eventtype, void* ca
     else if (PyString_Check(callDataTypeObj))
     {
 #ifdef VTK_PY3K
-      PyObject* bytes = PyUnicode_AsEncodedString(callDataTypeObj, 0, nullptr);
+      PyObject* bytes = PyUnicode_AsEncodedString(callDataTypeObj, nullptr, nullptr);
       const char* callDataTypeString = nullptr;
       if (bytes)
       {
