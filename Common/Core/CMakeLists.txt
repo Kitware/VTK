@@ -279,7 +279,6 @@ set(headers
   vtkDataArrayTupleRange_Generic.h
   vtkDataArrayValueRange_AOS.h
   vtkDataArrayValueRange_Generic.h
-  vtkDataArrayTemplate.h
   vtkEventData.h
   vtkGenericDataArrayLookupHelper.h
   vtkIOStream.h
