@@ -9,3 +9,6 @@ The following APIs have been removed:
   - `vtkArrayCalculator::SetAttributeMode*` and `VTK_ATTRIBUTE_MODE_*` macros
     (deprecated in Jun 2017)
   - `vtkContourGrid::ComputeGradients` (deprecated in Dec 2018)
+  - `vtkSMPContourGridManyPieces`, `vtkSMPTransform`,
+    `vtkThreadedSynchronizedTemplates3D`, and
+    `vtkThreadedSynchronizedTemplatesCutter3D` (deprecated in Sep 2017)
