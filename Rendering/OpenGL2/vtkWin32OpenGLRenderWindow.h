@@ -300,8 +300,6 @@ protected:
   std::stack<HGLRC> ContextStack;
   std::stack<HDC> DCStack;
 
-  int CreatingOffScreenWindow; // to avoid recursion (and memory leaks...)
-
   // message handler
   virtual LRESULT MessageProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 

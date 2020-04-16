@@ -258,8 +258,6 @@ void vtkIOSRenderWindow::SetSize(int* a)
 //----------------------------------------------------------------------------
 void vtkIOSRenderWindow::SetSize(int x, int y)
 {
-  static int resizing = 0;
-
   if ((this->Size[0] != x) || (this->Size[1] != y) || (this->GetParentId()))
   {
     this->Modified();
@@ -283,8 +281,6 @@ void vtkIOSRenderWindow::SetPosition(int* a)
 //----------------------------------------------------------------------------
 void vtkIOSRenderWindow::SetPosition(int x, int y)
 {
-  static int resizing = 0;
-
   if ((this->Position[0] != x) || (this->Position[1] != y) || (this->GetParentId()))
   {
     this->Modified();
@@ -329,8 +325,6 @@ void vtkIOSRenderWindow::SetupPalette(void*)
 // Initialize the window for rendering.
 void vtkIOSRenderWindow::CreateAWindow()
 {
-  static unsigned count = 1;
-
   this->CreateGLContext();
 
   this->MakeCurrent();

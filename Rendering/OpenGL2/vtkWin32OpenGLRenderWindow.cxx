@@ -55,7 +55,6 @@ vtkWin32OpenGLRenderWindow::vtkWin32OpenGLRenderWindow()
   this->StereoType = VTK_STEREO_CRYSTAL_EYES;
   this->CursorHidden = 0;
 
-  this->CreatingOffScreenWindow = 0;
   this->WindowIdReferenceCount = 0;
 }
 
