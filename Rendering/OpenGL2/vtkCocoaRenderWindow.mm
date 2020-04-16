@@ -297,11 +297,11 @@ void vtkCocoaRenderWindow::DestroyWindow()
 void vtkCocoaRenderWindow::SetWindowName(const char* arg)
 {
   vtkWindow::SetWindowName(arg);
-  if (this->GetRootWindow())
+  NSWindow* win = (NSWindow*)this->GetRootWindow();
+  if (win)
   {
-    NSString* winTitleStr = [NSString stringWithUTF8String:arg];
-
-    [(NSWindow*)this->GetRootWindow() setTitle:winTitleStr];
+    NSString* winTitleStr = arg ? [NSString stringWithUTF8String:arg] : @"";
+    [win setTitle:winTitleStr];
   }
 }
 
