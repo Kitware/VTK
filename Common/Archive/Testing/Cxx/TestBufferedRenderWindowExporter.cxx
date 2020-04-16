@@ -32,8 +32,10 @@ PURPOSE.  See the above copyright notice for more information.
 #include <archive_entry.h>
 
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <fstream>
+#include <sstream>
 
 // Construct a render window and write it to disk and to buffer. Decompress the
 // buffer and compare its contents to the files on disk.
@@ -49,7 +51,13 @@ int TestBufferedRenderWindowExporter(int argc, char* argv[])
   std::string testDirectory = tempDir;
   delete[] tempDir;
 
-  std::string directoryName = testDirectory + std::string("/") + std::string("ExportVtkJS");
+  std::srand(std::time(nullptr));
+  std::string directoryName;
+  {
+    std::stringstream s;
+    s << testDirectory << "/ExportVTKJS_" << std::rand();
+    directoryName = s.str();
+  }
 
   vtkNew<vtkSphereSource> sphere;
   vtkNew<vtkPolyDataMapper> pmap;
