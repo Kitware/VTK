@@ -8,7 +8,9 @@
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
+#include "vtkInformation.h"
 #include "vtkIntArray.h"
+#include "vtkMultiPieceDataSet.h"
 #include "vtkNew.h"
 #include "vtkPoints.h"
 #include "vtkStdString.h"
@@ -285,6 +287,12 @@ int PIOAdaptor::initializeGlobal(const char* PIOFileName)
 
     for (int i = 0; i < numberOfFields; i++)
     {
+      // Are tracers available in file
+      char* pioName = pioField[i].pio_name;
+      if (strcmp(pioName, "tracer_num_pnts") == 0)
+      {
+        this->hasTracers = true;
+      }
       if (pioField[i].length == numberOfCells && pioField[i].cdata_len == 0)
       {
         // index = 0 is scalar, index = 1 is vector, index = -1 is request from input deck
@@ -293,14 +301,7 @@ int PIOAdaptor::initializeGlobal(const char* PIOFileName)
         {
           // Discard names used in geometry and variables with too many components
           // which are present for use in tracers
-          char* pioName = pioField[i].pio_name;
           size_t numberOfComponents = this->pioData->VarMMap.count(pioName);
-
-          // Are tracers available in file
-          if (strcmp(pioName, "tracer_num_pnts") == 0)
-          {
-            this->hasTracers = true;
-          }
 
           if ((numberOfComponents <= 9) && (strcmp(pioName, "cell_has_tracers") != 0) &&
             (strcmp(pioName, "cell_level") != 0) && (strcmp(pioName, "cell_mother") != 0) &&
@@ -450,26 +451,44 @@ void PIOAdaptor::create_geometry(vtkMultiBlockDataSet* grid)
   grid->SetNumberOfBlocks(1);
   if (this->useHTG == false)
   {
-    // Create an unstructured grid to hold the dump file data
+    // Create a multipiece dataset and an unstructured grid to hold the dump file data
+    vtkNew<vtkMultiPieceDataSet> multipiece;
+    multipiece->SetNumberOfPieces(this->TotalRank);
+
     vtkNew<vtkUnstructuredGrid> ugrid;
     ugrid->Initialize();
-    grid->SetBlock(0, ugrid);
+
+    multipiece->SetPiece(this->Rank, ugrid);
+    grid->SetBlock(0, multipiece);
+    grid->GetMetaData((unsigned int)0)->Set(vtkCompositeDataSet::NAME(), "AMR Grid");
   }
   else
   {
-    // Create a hypertree grid to hold the dump file data
+    // Create a multipiece dataset and hypertree grid to hold the dump file data
+    vtkNew<vtkMultiPieceDataSet> multipiece;
+    multipiece->SetNumberOfPieces(this->TotalRank);
+
     vtkNew<vtkHyperTreeGrid> htgrid;
     htgrid->Initialize();
-    grid->SetBlock(0, htgrid);
+
+    multipiece->SetPiece(this->Rank, htgrid);
+    grid->SetBlock(0, multipiece);
+    grid->GetMetaData((unsigned int)0)->Set(vtkCompositeDataSet::NAME(), "AMR Grid");
   }
 
   // If tracers are used add a second block of unstructured grid particles
   if (this->hasTracers == true && this->useTracer == true)
   {
-    grid->SetNumberOfBlocks(2);
+    vtkNew<vtkMultiPieceDataSet> multipiece;
+    multipiece->SetNumberOfPieces(this->TotalRank);
+
     vtkNew<vtkUnstructuredGrid> tgrid;
     tgrid->Initialize();
-    grid->SetBlock(1, tgrid);
+
+    multipiece->SetPiece(this->Rank, tgrid);
+    grid->SetNumberOfBlocks(2);
+    grid->SetBlock(1, multipiece);
+    grid->GetMetaData((unsigned int)1)->Set(vtkCompositeDataSet::NAME(), "Tracers");
   }
 
   // Collect geometry information from PIOData files
@@ -581,7 +600,8 @@ void PIOAdaptor::create_geometry(vtkMultiBlockDataSet* grid)
 
 void PIOAdaptor::create_tracer_UG(vtkMultiBlockDataSet* grid)
 {
-  vtkUnstructuredGrid* tgrid = vtkUnstructuredGrid::SafeDownCast(grid->GetBlock(1));
+  vtkMultiPieceDataSet* multipiece = vtkMultiPieceDataSet::SafeDownCast(grid->GetBlock(1));
+  vtkUnstructuredGrid* tgrid = vtkUnstructuredGrid::SafeDownCast(multipiece->GetPiece(this->Rank));
   tgrid->Initialize();
 
   // Get tracer information from PIOData
@@ -755,7 +775,8 @@ void PIOAdaptor::create_amr_UG_1D(vtkMultiBlockDataSet* grid, int startCellIndx,
   int64_t* cell_daughter, // Daughter ID, 0 indicates no daughter
   double* cell_center[1]) // Cell center
 {
-  vtkUnstructuredGrid* ugrid = vtkUnstructuredGrid::SafeDownCast(grid->GetBlock(0));
+  vtkMultiPieceDataSet* multipiece = vtkMultiPieceDataSet::SafeDownCast(grid->GetBlock(0));
+  vtkUnstructuredGrid* ugrid = vtkUnstructuredGrid::SafeDownCast(multipiece->GetPiece(this->Rank));
   ugrid->Initialize();
 
   // Get count of cells which will be created for allocation
@@ -809,7 +830,8 @@ void PIOAdaptor::create_amr_UG_2D(vtkMultiBlockDataSet* grid, int startCellIndx,
   int64_t* cell_daughter, // Daughter ID, 0 indicates no daughter
   double* cell_center[2]) // Cell center
 {
-  vtkUnstructuredGrid* ugrid = vtkUnstructuredGrid::SafeDownCast(grid->GetBlock(0));
+  vtkMultiPieceDataSet* multipiece = vtkMultiPieceDataSet::SafeDownCast(grid->GetBlock(0));
+  vtkUnstructuredGrid* ugrid = vtkUnstructuredGrid::SafeDownCast(multipiece->GetPiece(this->Rank));
   ugrid->Initialize();
 
   // Get count of cells which will be created for allocation
@@ -886,7 +908,8 @@ void PIOAdaptor::create_amr_UG_3D(vtkMultiBlockDataSet* grid, int startCellIndx,
   int64_t* cell_daughter, // Daughter ID, 0 indicates no daughter
   double* cell_center[3]) // Cell center
 {
-  vtkUnstructuredGrid* ugrid = vtkUnstructuredGrid::SafeDownCast(grid->GetBlock(0));
+  vtkMultiPieceDataSet* multipiece = vtkMultiPieceDataSet::SafeDownCast(grid->GetBlock(0));
+  vtkUnstructuredGrid* ugrid = vtkUnstructuredGrid::SafeDownCast(multipiece->GetPiece(this->Rank));
   ugrid->Initialize();
 
   // Get count of cells which will be created for allocation
@@ -1055,7 +1078,10 @@ void PIOAdaptor::create_amr_HTG(vtkMultiBlockDataSet* grid,
   int64_t* cell_daughter, // Daughter
   double* cell_center[3]) // Cell center
 {
-  vtkHyperTreeGrid* htgrid = vtkHyperTreeGrid::SafeDownCast(grid->GetBlock(0));
+  vtkMultiPieceDataSet* multipiece = vtkMultiPieceDataSet::SafeDownCast(grid->GetBlock(0));
+  vtkHyperTreeGrid* htgrid =
+    vtkHyperTreeGrid::SafeDownCast(multipiece->GetPieceAsDataObject(this->Rank));
+
   htgrid->Initialize();
   htgrid->SetDimensions(gridSize[0] + 1, gridSize[1] + 1, gridSize[2] + 1);
   htgrid->SetBranchFactor(2);
@@ -1224,7 +1250,10 @@ void PIOAdaptor::add_amr_HTG_scalar(vtkMultiBlockDataSet* grid, vtkStdString var
   double* data[],         // Data for all cells
   int numberOfComponents) // Number of components
 {
-  vtkHyperTreeGrid* htgrid = vtkHyperTreeGrid::SafeDownCast(grid->GetBlock(0));
+  vtkMultiPieceDataSet* multipiece = vtkMultiPieceDataSet::SafeDownCast(grid->GetBlock(0));
+  vtkHyperTreeGrid* htgrid =
+    vtkHyperTreeGrid::SafeDownCast(multipiece->GetPieceAsDataObject(this->Rank));
+
   int numberOfNodesLeaves = static_cast<int>(this->indexNodeLeaf.size());
 
   // Data array in same order as the geometry cells
@@ -1281,7 +1310,8 @@ void PIOAdaptor::add_amr_UG_scalar(vtkMultiBlockDataSet* grid, vtkStdString varN
   double* data[],         // Data for all cells
   int numberOfComponents) // Number of components
 {
-  vtkUnstructuredGrid* ugrid = vtkUnstructuredGrid::SafeDownCast(grid->GetBlock(0));
+  vtkMultiPieceDataSet* multipiece = vtkMultiPieceDataSet::SafeDownCast(grid->GetBlock(0));
+  vtkUnstructuredGrid* ugrid = vtkUnstructuredGrid::SafeDownCast(multipiece->GetPiece(this->Rank));
 
   int numberOfActiveCells = ugrid->GetNumberOfCells();
 

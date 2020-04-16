@@ -11,8 +11,9 @@ pioreader.Update()
 
 grid = pioreader.GetOutput()
 block = grid.GetBlock(0)
+piece = block.GetPieceAsDataObject(0)
 geometryFilter = vtk.vtkHyperTreeGridGeometry()
-geometryFilter.SetInputData(block)
+geometryFilter.SetInputData(piece)
 geometryFilter.Update()
 
 # ---------------------------------------------------------------------
