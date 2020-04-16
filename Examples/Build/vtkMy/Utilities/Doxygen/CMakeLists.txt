@@ -2,7 +2,7 @@
 # Build the documentation
 #
 
-include(${CMAKE_ROOT}/Modules/Documentation.cmake OPTIONAL)
+include(vtkMyDocumentation)
 
 if(BUILD_DOCUMENTATION)
 
