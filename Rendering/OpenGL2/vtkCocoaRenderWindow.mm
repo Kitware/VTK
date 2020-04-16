@@ -1013,6 +1013,30 @@ void vtkCocoaRenderWindow::CreateGLContext()
 }
 
 //----------------------------------------------------------------------------
+// Initialize the rendering process.
+void vtkCocoaRenderWindow::Start()
+{
+  this->Superclass::Start();
+
+  // make sure the hardware is up to date otherwise
+  // the backing store may not match the current window
+  // no clue what is really going on here but the old code
+  // called Initialize every render to do this
+  if (this->OnScreenInitialized && this->Mapped)
+  {
+    // the error "invalid drawable" in the console from this call can appear
+    // but only early in the app's lifetime (ie sometime during launch)
+    // IMPORTANT: this is necessary to update the context here in case of
+    // onscreen rendering
+    NSOpenGLContext* context = (NSOpenGLContext*)this->GetContextId();
+    [context update];
+  }
+
+  // set the current window
+  this->MakeCurrent();
+}
+
+//----------------------------------------------------------------------------
 // Initialize the rendering window.
 void vtkCocoaRenderWindow::Initialize()
 {
