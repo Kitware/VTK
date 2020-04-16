@@ -32,8 +32,6 @@ vtkGenericOpenGLRenderWindow::vtkGenericOpenGLRenderWindow()
   this->CurrentStatus = false;
   this->SupportsOpenGLStatus = 0;
   this->ForceMaximumHardwareLineWidth = 0;
-  this->ScreenSize[0] = 0;
-  this->ScreenSize[1] = 0;
 }
 
 vtkGenericOpenGLRenderWindow::~vtkGenericOpenGLRenderWindow()

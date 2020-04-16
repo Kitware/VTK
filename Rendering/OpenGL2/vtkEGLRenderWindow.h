@@ -118,6 +118,7 @@ public:
 
   /**
    * Get the current size of the screen in pixels.
+   * An HDTV for example would be 1920 x 1080 pixels.
    */
   virtual int* GetScreenSize() VTK_SIZEHINT(2) override;
 
@@ -200,7 +201,6 @@ protected:
   vtkEGLRenderWindow();
   ~vtkEGLRenderWindow() override;
 
-  int ScreenSize[2];
   vtkTypeBool OwnWindow;
   bool IsPointSpriteBugTested;
   bool IsPointSpriteBugPresent_;

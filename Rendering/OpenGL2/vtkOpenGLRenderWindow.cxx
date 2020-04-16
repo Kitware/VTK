@@ -204,6 +204,9 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   this->NoiseTextureObject = nullptr;
   this->FirstRenderTime = -1;
   this->LastMultiSamples = -1;
+
+  this->ScreenSize[0] = 0;
+  this->ScreenSize[1] = 0;
 }
 
 // free up memory & close the window

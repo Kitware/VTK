@@ -107,6 +107,7 @@ public:
 
   /**
    * Get the current size of the screen in pixels.
+   * An HDTV for example would be 1920 x 1080 pixels.
    */
   int* GetScreenSize() VTK_SIZEHINT(2) override;
 
@@ -295,7 +296,6 @@ protected:
   HWND ParentId;
   HWND NextWindowId;
   vtkTypeBool OwnWindow;
-  int ScreenSize[2];
 
   std::stack<HGLRC> ContextStack;
   std::stack<HDC> DCStack;

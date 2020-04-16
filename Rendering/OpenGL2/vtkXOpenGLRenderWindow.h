@@ -158,6 +158,7 @@ public:
 
   /**
    * Get the current size of the screen in pixels.
+   * An HDTV for example would be 1920 x 1080 pixels.
    */
   int* GetScreenSize() VTK_SIZEHINT(2) override;
 
@@ -320,7 +321,6 @@ protected:
   Colormap ColorMap;
   vtkTypeBool OwnWindow;
   vtkTypeBool OwnDisplay;
-  int ScreenSize[2];
   vtkTypeBool CursorHidden;
   vtkTypeBool ForceMakeCurrent;
   vtkTypeBool UsingHardware;

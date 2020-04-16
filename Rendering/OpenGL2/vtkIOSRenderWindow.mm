@@ -373,7 +373,9 @@ int* vtkIOSRenderWindow::GetSize()
 // Get the current size of the screen in pixels.
 int* vtkIOSRenderWindow::GetScreenSize()
 {
-  return this->Size;
+  // TODO: use UISceen to actually determine screen size.
+
+  return this->ScreenSize;
 }
 
 //----------------------------------------------------------------------------

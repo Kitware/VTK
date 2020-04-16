@@ -264,8 +264,6 @@ XVisualInfo* vtkXOpenGLRenderWindow::GetDesiredVisualInfo()
 vtkXOpenGLRenderWindow::vtkXOpenGLRenderWindow()
 {
   this->ParentId = static_cast<Window>(0);
-  this->ScreenSize[0] = 0;
-  this->ScreenSize[1] = 0;
   this->OwnDisplay = 0;
   this->CursorHidden = 0;
   this->ForceMakeCurrent = 0;

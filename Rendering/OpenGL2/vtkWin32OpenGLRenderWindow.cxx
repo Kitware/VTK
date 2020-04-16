@@ -1080,8 +1080,8 @@ int* vtkWin32OpenGLRenderWindow::GetScreenSize(void)
   {
     // This technique yields the screen size of the primary monitor
     // only in a multi-monitor configuration...
-    this->Size[0] = ::GetDeviceCaps(hDC, HORZRES);
-    this->Size[1] = ::GetDeviceCaps(hDC, VERTRES);
+    this->ScreenSize[0] = ::GetDeviceCaps(hDC, HORZRES);
+    this->ScreenSize[1] = ::GetDeviceCaps(hDC, VERTRES);
     ::ReleaseDC(nullptr, hDC);
   }
   else
@@ -1092,11 +1092,11 @@ int* vtkWin32OpenGLRenderWindow::GetScreenSize(void)
     RECT rect;
     SystemParametersInfo(SPI_GETWORKAREA, 0, &rect, 0);
 
-    this->Size[0] = rect.right - rect.left;
-    this->Size[1] = rect.bottom - rect.top;
+    this->ScreenSize[0] = rect.right - rect.left;
+    this->ScreenSize[1] = rect.bottom - rect.top;
   }
 
-  return this->Size;
+  return this->ScreenSize;
 }
 
 // Get the position in screen coordinates of the window.

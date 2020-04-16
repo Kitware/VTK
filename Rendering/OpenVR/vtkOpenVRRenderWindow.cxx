@@ -366,6 +366,15 @@ void vtkOpenVRRenderWindow::SetSize(int x, int y)
 // Get the size of the whole screen.
 int* vtkOpenVRRenderWindow::GetScreenSize(void)
 {
+  if (this->HMD)
+  {
+    uint32_t renderWidth = 0;
+    uint32_t renderHeight = 0;
+    this->HMD->GetRecommendedRenderTargetSize(&renderWidth, &renderHeight);
+    this->ScreenSize[0] = renderWidth;
+    this->ScreenSize[1] = renderHeight;
+  }
+
   return this->Size;
 }
 

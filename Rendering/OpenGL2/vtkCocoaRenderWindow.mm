@@ -1080,8 +1080,9 @@ int* vtkCocoaRenderWindow::GetSize()
 // Get the current size of the screen in pixels.
 int* vtkCocoaRenderWindow::GetScreenSize()
 {
-  // Get the NSScreen that the NSWindow is mostly on.  Either could be nil.
-  NSWindow* window = (NSWindow*)this->GetRootWindow();
+  // Get the NSScreen that the NSView is mostly on.  Either could be nil.
+  NSView* view = (NSView*)this->GetWindowId();
+  NSWindow* window = [view window];
   NSScreen* screen = [window screen];
 
   // If screen is nil, then fall back to mainScreen, which CreateAWindow()
@@ -1097,10 +1098,10 @@ int* vtkCocoaRenderWindow::GetScreenSize()
   // Convert from points to pixels.
   NSRect backingScreenRect = [screen convertRectToBacking:screenRect];
 
-  this->Size[0] = static_cast<int>(NSWidth(backingScreenRect));
-  this->Size[1] = static_cast<int>(NSHeight(backingScreenRect));
+  this->ScreenSize[0] = static_cast<int>(NSWidth(backingScreenRect));
+  this->ScreenSize[1] = static_cast<int>(NSHeight(backingScreenRect));
 
-  return this->Size;
+  return this->ScreenSize;
 }
 
 //----------------------------------------------------------------------------

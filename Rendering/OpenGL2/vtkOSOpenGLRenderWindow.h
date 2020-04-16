@@ -82,8 +82,9 @@ public:
 
   /**
    * Get the current size of the screen in pixels.
+   * An HDTV for example would be 1920 x 1080 pixels.
    */
-  virtual int* GetScreenSize() VTK_SIZEHINT(2);
+  int* GetScreenSize() VTK_SIZEHINT(2) override;
 
   /**
    * Get the position in screen coordinates (pixels) of the window.
@@ -216,7 +217,6 @@ protected:
 
   vtkTypeBool OwnWindow;
   vtkTypeBool OwnDisplay;
-  int ScreenSize[2];
   vtkTypeBool CursorHidden;
   vtkTypeBool ForceMakeCurrent;
 

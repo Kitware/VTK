@@ -152,6 +152,7 @@ public:
 
   /**
    * Set the size of the screen in pixels.
+   * An HDTV for example would be 1920 x 1080 pixels.
    */
   vtkSetVector2Macro(ScreenSize, int);
 
@@ -192,7 +193,6 @@ protected:
   bool CurrentStatus;
   float ForceMaximumHardwareLineWidth;
   bool ReadyForRendering;
-  int ScreenSize[2];
 
 private:
   vtkGenericOpenGLRenderWindow(const vtkGenericOpenGLRenderWindow&) = delete;

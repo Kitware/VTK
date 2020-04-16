@@ -513,6 +513,8 @@ protected:
   // keep track of in case we need to recreate the framebuffer
   int LastMultiSamples;
 
+  int ScreenSize[2];
+
 private:
   vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&) = delete;
   void operator=(const vtkOpenGLRenderWindow&) = delete;
