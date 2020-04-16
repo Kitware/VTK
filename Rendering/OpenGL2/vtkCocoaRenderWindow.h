@@ -54,6 +54,11 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
+   * Begin the rendering process.
+   */
+  void Start() override;
+
+  /**
    * Finish the rendering process.
    */
   void Frame() override;
