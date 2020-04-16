@@ -13,3 +13,4 @@ The following APIs have been removed:
     `vtkThreadedSynchronizedTemplates3D`, and
     `vtkThreadedSynchronizedTemplatesCutter3D` (deprecated in Sep 2017)
   - `vtkAbstractImageInterpolator::GetWholeExtent` (deprecated in Mar 2016)
+  - `vtkImageStencilData::InsertLine` (an overload) (deprecated in Nov 2014)
