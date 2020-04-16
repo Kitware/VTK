@@ -1221,7 +1221,7 @@ void vtkExodusIIReaderPrivate::InsertBlockCells(
     return;
   }
 
-  vtkIntArray* ent = nullptr;
+  vtkSmartPointer<vtkIntArray> ent;
   if (binfo->PointsPerCell == 0)
   {
     int arrId = (conn_type == vtkExodusIIReader::ELEM_BLOCK_ELEM_CONN ? 0 : 1);
@@ -1234,7 +1234,6 @@ void vtkExodusIIReaderPrivate::InsertBlockCells(
       binfo->Status = 0;
       return;
     }
-    ent->Register(this);
   }
 
   // Handle 3-D polyhedra (not 2-D polygons) separately
@@ -1245,25 +1244,18 @@ void vtkExodusIIReaderPrivate::InsertBlockCells(
   // face).
   if (binfo->CellType == VTK_POLYHEDRON)
   {
-    vtkIdTypeArray* efconn = vtkArrayDownCast<vtkIdTypeArray>(this->GetCacheOrRead(
+    vtkSmartPointer<vtkIdTypeArray> efconn = vtkArrayDownCast<vtkIdTypeArray>(this->GetCacheOrRead(
       vtkExodusIICacheKey(-1, vtkExodusIIReader::ELEM_BLOCK_FACE_CONN, obj, 0)));
-    if (efconn)
-      efconn->Register(this);
     if (!efconn || !ent)
     {
-      vtkWarningMacro(<< "Element block (" << efconn << ") and "
-                      << "number of faces per poly (" << ent << ") arrays are both required. "
+      vtkWarningMacro(<< "Element block (" << efconn.GetPointer() << ") and "
+                      << "number of faces per poly (" << ent.GetPointer()
+                      << ") arrays are both required. "
                       << "Skipping block id " << binfo->Id << "; expect trouble.");
       binfo->Status = 0;
-      if (ent)
-        ent->UnRegister(this);
-      if (efconn)
-        efconn->UnRegister(this);
       return;
     }
     this->InsertBlockPolyhedra(binfo, ent, efconn);
-    efconn->UnRegister(this);
-    ent->UnRegister(this);
     return;
   }
 
@@ -1273,10 +1265,6 @@ void vtkExodusIIReaderPrivate::InsertBlockCells(
   {
     vtkWarningMacro("Block wasn't present in file? Working around it. Expect trouble.");
     binfo->Status = 0;
-    if (ent)
-    {
-      ent->UnRegister(this);
-    }
     return;
   }
 
@@ -1329,10 +1317,6 @@ void vtkExodusIIReaderPrivate::InsertBlockCells(
       // cout << " " << srcIds[k];
       // cout << "\n";
     }
-  }
-  if (ent)
-  {
-    ent->UnRegister(this);
   }
 }
 
@@ -3056,7 +3040,7 @@ vtkIdType vtkExodusIIReaderPrivate::GetSqueezePointId(BlockSetInfoType* bsinfop,
   if (i < 0)
   {
     vtkGenericWarningMacro("Invalid point id: " << i << ". Data file may be incorrect.");
-    i = 0;
+    throw std::runtime_error("invalid point id in `GetSqueezePointId`");
   }
 
   vtkIdType x;
@@ -4533,7 +4517,6 @@ int vtkExodusIIReaderPrivate::RequestData(vtkIdType timeStep, vtkMultiBlockDataS
   // Iterate over all block and set types, creating a
   // multiblock dataset to hold objects of each type.
   int conntypidx;
-  int nbl = 0;
   output->SetNumberOfBlocks(num_conn_types);
   for (conntypidx = 0; conntypidx < num_conn_types; ++conntypidx)
   {
@@ -4576,39 +4559,47 @@ int vtkExodusIIReaderPrivate::RequestData(vtkIdType timeStep, vtkMultiBlockDataS
       ug->FastDelete();
       // cout << " Grid: " << ug << "\n";
 
-      // Connectivity first. Either from the cache in bsinfop or read from disk.
-      // Connectivity isn't allowed to change with time.
-      this->AssembleOutputConnectivity(timeStep, otyp, obj, conntypidx, bsinfop, ug);
+      try
+      {
+        // Connectivity first. Either from the cache in bsinfop or read from disk.
+        // Connectivity isn't allowed to change with time.
+        this->AssembleOutputConnectivity(timeStep, otyp, obj, conntypidx, bsinfop, ug);
 
-      // Now prepare points.
-      // These shouldn't change unless the connectivity has changed.
-      this->AssembleOutputPoints(timeStep, bsinfop, ug);
+        // Now prepare points.
+        // These shouldn't change unless the connectivity has changed.
+        this->AssembleOutputPoints(timeStep, bsinfop, ug);
 
-      // Then, add the desired arrays from cache (or disk)
-      // Point and cell arrays are handled differently because they
-      // have different problems to solve.
-      // Point arrays must use the PointMap index to subset values.
-      // Cell arrays may be used as-is.
-      this->AssembleOutputPointArrays(timeStep, bsinfop, ug);
-      this->AssembleOutputCellArrays(timeStep, otyp, obj, bsinfop, ug);
+        // Then, add the desired arrays from cache (or disk)
+        // Point and cell arrays are handled differently because they
+        // have different problems to solve.
+        // Point arrays must use the PointMap index to subset values.
+        // Cell arrays may be used as-is.
+        this->AssembleOutputPointArrays(timeStep, bsinfop, ug);
+        this->AssembleOutputCellArrays(timeStep, otyp, obj, bsinfop, ug);
 
-      // Some arrays may be procedurally generated (e.g., the ObjectId
-      // array, global element and node number arrays). This constructs
-      // them as required.
-      this->AssembleOutputProceduralArrays(timeStep, otyp, obj, ug);
+        // Some arrays may be procedurally generated (e.g., the ObjectId
+        // array, global element and node number arrays). This constructs
+        // them as required.
+        this->AssembleOutputProceduralArrays(timeStep, otyp, obj, ug);
 
-      // QA and informational records in the ExodusII file are appended
-      // to each and every output unstructured grid.
-      this->AssembleOutputGlobalArrays(timeStep, otyp, obj, bsinfop, ug);
+        // QA and informational records in the ExodusII file are appended
+        // to each and every output unstructured grid.
+        this->AssembleOutputGlobalArrays(timeStep, otyp, obj, bsinfop, ug);
 
-      // Maps (as distinct from the global element and node arrays above)
-      // are per-cell or per-node integers. As with point arrays, the
-      // PointMap is used to subset node maps. Cell arrays are stored in
-      // ExodusII files for all elements (across all blocks of a given type)
-      // and thus must be subset for the unstructured grid of interest.
-      this->AssembleOutputPointMaps(timeStep, bsinfop, ug);
-      this->AssembleOutputCellMaps(timeStep, otyp, obj, bsinfop, ug);
-      ++nbl;
+        // Maps (as distinct from the global element and node arrays above)
+        // are per-cell or per-node integers. As with point arrays, the
+        // PointMap is used to subset node maps. Cell arrays are stored in
+        // ExodusII files for all elements (across all blocks of a given type)
+        // and thus must be subset for the unstructured grid of interest.
+        this->AssembleOutputPointMaps(timeStep, bsinfop, ug);
+        this->AssembleOutputCellMaps(timeStep, otyp, obj, bsinfop, ug);
+      }
+      catch (const std::runtime_error&)
+      {
+        vtkErrorMacro("Error reading block '" << (object_name ? object_name : "(no-name)")
+                                              << "', id=" << bsinfop->Id << ". Skipping.");
+        ug->Initialize();
+      }
     }
   }
 
