@@ -775,6 +775,7 @@ LRESULT vtkWin32OpenGLRenderWindow::MessageProc(
         this->SetSize((int)LOWORD(lParam), (int)HIWORD(lParam));
         return 0;
       }
+      break;
     case WM_PALETTECHANGED:
       /* realize palette if this is *not* the current window */
       if (this->ContextId && this->Palette && (HWND)wParam != hWnd)
