@@ -20,6 +20,9 @@ find_package(VTK REQUIRED NO_MODULE)
 # Tests use some macros only stored in VTK's source tree.
 list(APPEND CMAKE_MODULE_PATH "${VTK_TOP_DIR}/CMake")
 
+# Include VTK's external data settings.
+include(vtkExternalData)
+
 # This is a cross-platform project so we cannot use the MS _s API.
 if(WIN32 AND CMAKE_C_COMPILER_ID STREQUAL "Intel")
   set(_INTEL_WINDOWS 1)
