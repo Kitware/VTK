@@ -29,8 +29,7 @@
 #include <functional>    // for std::function
 #include <unordered_map> // for std::unordered_map
 
-#include "vtkColor.h"  // for vtkColor3d
-#include "vtkLegacy.h" // For VTK_LEGACY
+#include "vtkColor.h" // for vtkColor3d
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // for export macro
 
@@ -73,8 +72,6 @@ public:
    * for all blocks to true.
    */
   void RemoveBlockVisibilities();
-  // This method is deprecated and will be removed in VTK 8.2. It is misspelled.
-  VTK_LEGACY(void RemoveBlockVisibilites());
 
   /**
    * Returns true if any block has any block pickability is set.

@@ -25,7 +25,6 @@
 #ifndef vtkCompositePolyDataMapper2_h
 #define vtkCompositePolyDataMapper2_h
 
-#include "vtkLegacy.h" // For VTK_LEGACY
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkSmartPointer.h"           // for vtkSmartPointer
@@ -72,8 +71,6 @@ public:
   bool GetBlockVisibility(unsigned int index);
   void RemoveBlockVisibility(unsigned int index);
   void RemoveBlockVisibilities();
-  // This method is deprecated and will be removed in VTK 8.2. It is misspelled.
-  VTK_LEGACY(void RemoveBlockVisibilites());
   //@}
 
   //@{

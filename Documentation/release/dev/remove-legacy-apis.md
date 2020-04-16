@@ -14,3 +14,7 @@ The following APIs have been removed:
     `vtkThreadedSynchronizedTemplatesCutter3D` (deprecated in Sep 2017)
   - `vtkAbstractImageInterpolator::GetWholeExtent` (deprecated in Mar 2016)
   - `vtkImageStencilData::InsertLine` (an overload) (deprecated in Nov 2014)
+  - The `RemoveBlockVisibilites` method from
+    `vtkCompositeDataDisplayAttributes`,
+    `vtkCompositeDataDisplayAttributesLegacy`, and
+    `vtkCompositePolyDataMapper2` (deprecated in Jul 2017)
