@@ -1663,7 +1663,7 @@ void vtkCCSMakeHoleyPolys(std::vector<vtkCCSPoly>& newPolys, vtkPoints* points,
     }
 
     // Check if poly is reversed
-    bool sense = 0;
+    bool sense = false;
     if (vtkCCSCheckPolygonSense(newPolys[i], points, normal, sense))
     {
       polyReversed.set(i, !sense);

@@ -487,17 +487,17 @@ public:
     assert("pre: valid_range" && index >= 0 && index < this->Datas->NumberOfVertices);
     if (static_cast<unsigned long>(index) >= this->CompactDatas->ParentToElderChild_stl.size())
     {
-      return 0;
+      return false;
     }
 
     for (unsigned int ichild = 0; ichild < this->NumberOfChildren; ++ichild)
     {
       if (!this->IsChildLeaf(index, ichild))
       {
-        return 0;
+        return false;
       }
     }
-    return 1;
+    return true;
   }
 
   //---------------------------------------------------------------------------
@@ -516,7 +516,7 @@ public:
     if (static_cast<unsigned long>(index_parent) >=
       this->CompactDatas->ParentToElderChild_stl.size())
     {
-      return 0;
+      return false;
     }
     assert("pre: valid_range" && ichild < this->NumberOfChildren);
     vtkIdType index_child = this->CompactDatas->ParentToElderChild_stl[index_parent] + ichild;

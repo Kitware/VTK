@@ -81,7 +81,7 @@ int TestGlyph3DMapperMasking(int argc, char* argv[])
   glypher->SetInputConnection(colors->GetOutputPort());
 #else
   vtkGlyph3DMapper* glypher = vtkGlyph3DMapper::New();
-  glypher->SetMasking(1);
+  glypher->SetMasking(true);
   glypher->SetMaskArray("mask");
   glypher->SetInputConnection(calc->GetOutputPort());
   // glypher->SetInputConnection(colors->GetOutputPort());

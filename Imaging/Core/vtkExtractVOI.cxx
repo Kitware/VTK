@@ -230,7 +230,7 @@ bool vtkExtractVOI::RequestDataImpl(
 
   if (input->GetNumberOfPoints() == 0)
   {
-    return 1;
+    return true;
   }
 
   // compute output spacing
@@ -286,7 +286,7 @@ bool vtkExtractVOI::RequestDataImpl(
   this->Internal->CopyPointsAndPointData(inExt, output->GetExtent(), pd, nullptr, outPD, nullptr);
   this->Internal->CopyCellData(inExt, output->GetExtent(), cd, outCD);
 
-  return 1;
+  return true;
 }
 
 //------------------------------------------------------------------------------

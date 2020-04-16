@@ -200,8 +200,8 @@ TrailPointer vtkTemporalPathLineFilter::GetTrail(vtkIdType i)
     trail->lastpoint = 0;
     trail->firstpoint = 0;
     trail->length = 0;
-    trail->alive = 1;
-    trail->updated = 0;
+    trail->alive = true;
+    trail->updated = false;
     trail->TrailId = i;
 
     trail->Fields.assign(this->Internals->InputFieldArrays.size(), nullptr);
@@ -231,8 +231,8 @@ void vtkTemporalPathLineFilter::IncrementTrail(TrailPointer trail, vtkDataSet* i
   //
   if (id >= input->GetNumberOfPoints())
   {
-    trail->alive = 0;
-    trail->updated = 1;
+    trail->alive = false;
+    trail->updated = true;
     return;
   }
   // if for some reason, two particles have the same ID, only update once
@@ -285,8 +285,8 @@ void vtkTemporalPathLineFilter::IncrementTrail(TrailPointer trail, vtkDataSet* i
     if (distx > this->MaxStepDistance[0] || disty > this->MaxStepDistance[1] ||
       distz > this->MaxStepDistance[2])
     {
-      trail->alive = 0;
-      trail->updated = 1;
+      trail->alive = false;
+      trail->updated = true;
       return;
     }
   }
@@ -303,10 +303,10 @@ void vtkTemporalPathLineFilter::IncrementTrail(TrailPointer trail, vtkDataSet* i
       trail->firstpoint = trail->lastpoint;
       trail->length = this->MaxTrackLength;
     }
-    trail->updated = 1;
+    trail->updated = true;
   }
   trail->FrontPointId = id;
-  trail->alive = 1;
+  trail->alive = true;
 }
 //---------------------------------------------------------------------------
 int vtkTemporalPathLineFilter::RequestData(vtkInformation* vtkNotUsed(information),
@@ -437,8 +437,8 @@ int vtkTemporalPathLineFilter::RequestData(vtkInformation* vtkNotUsed(informatio
   for (vtkTemporalPathLineFilterInternals::TrailIterator t = this->Internals->Trails.begin();
        t != this->Internals->Trails.end(); ++t)
   {
-    t->second->alive = 0;
-    t->second->updated = 0;
+    t->second->alive = false;
+    t->second->updated = false;
   }
 
   //

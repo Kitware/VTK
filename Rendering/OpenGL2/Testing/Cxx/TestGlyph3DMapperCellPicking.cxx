@@ -194,7 +194,7 @@ int TestGlyph3DMapperCellPicking(int argc, char* argv[])
 
   vtkGlyph3DMapper* glypher2 = vtkGlyph3DMapper::New();
   //  glypher->SetNestedDisplayLists(0);
-  glypher2->SetMasking(1);
+  glypher2->SetMasking(true);
   glypher2->SetMaskArray("mask");
 
   glypher2->SetInputData(selection);

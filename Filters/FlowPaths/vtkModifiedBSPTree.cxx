@@ -1451,9 +1451,9 @@ bool BSPNode::Inside(double point[3]) const
   if (point[0] < this->Bounds[0] || point[0] > this->Bounds[1] || point[1] < this->Bounds[2] ||
     point[1] > this->Bounds[3] || point[2] < this->Bounds[4] || point[2] > this->Bounds[5])
   {
-    return 0;
+    return false;
   }
-  return 1;
+  return true;
 }
 //---------------------------------------------------------------------------
 bool vtkModifiedBSPTree_Inside(double bounds[6], double point[3])
@@ -1461,7 +1461,7 @@ bool vtkModifiedBSPTree_Inside(double bounds[6], double point[3])
   if (point[0] < bounds[0] || point[0] > bounds[1] || point[1] < bounds[2] ||
     point[1] > bounds[3] || point[2] < bounds[4] || point[2] > bounds[5])
   {
-    return 0;
+    return false;
   }
-  return 1;
+  return true;
 }

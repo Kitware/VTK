@@ -232,7 +232,7 @@ public:
 // Instantiate object so that cell data is not passed to output.
 vtkCellDataToPointData::vtkCellDataToPointData()
 {
-  this->PassCellData = 0;
+  this->PassCellData = false;
   this->ContributingCellOption = vtkCellDataToPointData::All;
   this->ProcessAllArrays = true;
   this->Implementation = new Internals();

@@ -181,7 +181,7 @@ int vtkVoxelGrid::RequestData(vtkInformation* vtkNotUsed(request),
     return 1;
   }
 
-  bool valid = 1;
+  bool valid = true;
   if (this->LeafSize[0] <= 0.0 || this->LeafSize[1] <= 0.0 || this->LeafSize[2] <= 0.0 ||
     this->Divisions[0] < 1 || this->Divisions[1] < 1 || this->Divisions[2] < 1)
   {

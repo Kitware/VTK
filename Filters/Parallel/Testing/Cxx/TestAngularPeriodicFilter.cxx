@@ -86,7 +86,7 @@ int TestAngularPeriodicFilter(int argc, char* argv[])
   streamTracer->SetMaximumPropagation(28.);
   streamTracer->SetTerminalSpeed(0.000000000001);
   streamTracer->SetMaximumError(0.000001);
-  streamTracer->SetComputeVorticity(1);
+  streamTracer->SetComputeVorticity(true);
 
   streamTracer->SetSourceConnection(seed->GetOutputPort());
   streamTracer->Update();

@@ -343,9 +343,9 @@ bool vtkTemporalInterpolatedVelocityField::GetVorticityData(
     vtkPointData* pd = ds->GetPointData();
     vtkDataArray* da = pd->GetVectors(this->IVF[T]->GetVectorsSelection());
     da->GetTuples(cell->PointIds, cellVectors);
-    return 1;
+    return true;
   }
-  return 0;
+  return false;
 }
 //---------------------------------------------------------------------------
 void vtkTemporalInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent indent)

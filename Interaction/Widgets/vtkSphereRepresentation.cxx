@@ -108,7 +108,7 @@ vtkSphereRepresentation::vtkSphereRepresentation()
   this->RadialLineActor->SetProperty(this->RadialLineProperty);
 
   // Represent the center cursor
-  this->CenterCursor = 0;
+  this->CenterCursor = false;
   this->CenterCursorSource = vtkCursor3D::New();
   this->CenterCursorSource->AllOff();
   this->CenterCursorSource->AxesOn();

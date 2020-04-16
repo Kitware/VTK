@@ -50,9 +50,9 @@ vtkCollapseVerticesByArray::vtkCollapseVerticesByArray()
   : vtkGraphAlgorithm()
   , AllowSelfLoops(false)
   , VertexArray(nullptr)
-  , CountEdgesCollapsed(0)
+  , CountEdgesCollapsed(false)
   , EdgesCollapsedArray(nullptr)
-  , CountVerticesCollapsed(0)
+  , CountVerticesCollapsed(false)
   , VerticesCollapsedArray(nullptr)
 {
   // Setting default names.

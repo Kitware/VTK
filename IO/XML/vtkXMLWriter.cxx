@@ -161,7 +161,7 @@ struct WriteBinaryDataBlockWorker
     {
       if (!vtkXMLWriterHelper::WriteBinaryDataBlock(this->Writer, ptr, wordsLeft, this->WordType))
       {
-        this->Result = 0;
+        this->Result = false;
       }
     }
     vtkXMLWriterHelper::SetProgressPartial(this->Writer, 1);

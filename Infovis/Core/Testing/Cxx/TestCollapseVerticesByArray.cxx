@@ -96,9 +96,9 @@ int TestCollapseVerticesByArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   inGraph->GetEdgeData()->AddArray(avgDataTransfer);
 
   vtkCollapseVerticesByArrayRefPtr cvs(vtkCollapseVerticesByArrayRefPtr::New());
-  cvs->SetCountEdgesCollapsed(1);
+  cvs->SetCountEdgesCollapsed(true);
   cvs->SetEdgesCollapsedArray("weight_edges");
-  cvs->SetCountVerticesCollapsed(1);
+  cvs->SetCountVerticesCollapsed(true);
   cvs->SetVerticesCollapsedArray("weight_vertices");
   cvs->SetVertexArray("owner_company");
   cvs->AddAggregateEdgeArray("data_transfer");

@@ -1019,7 +1019,7 @@ void vtkHyperTreeGridSource::SubdivideFromStringDescriptor(vtkHyperTreeGrid* out
   else if (this->UseMask)
   {
     // Blank leaf if needed
-    bool masked = this->LevelMasks.at(level).at(pointer) == '0' ? 1 : 0;
+    bool masked = this->LevelMasks.at(level).at(pointer) == '0';
     output->GetMask()->InsertTuple1(id, masked);
   } // else if
 }
@@ -1459,7 +1459,7 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric(vtkHyperTreeGrid* output,
   {
     if (this->UseMask)
     {
-      cursor->SetMask((nPos > 0) ? 1 : 0);
+      cursor->SetMask((nPos > 0) ? true : false);
     }
 
     // Cell values

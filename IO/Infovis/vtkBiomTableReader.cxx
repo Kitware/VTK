@@ -353,7 +353,7 @@ void vtkBiomTableReader::ParseSparseData()
     return;
   }
 
-  while (1)
+  while (true)
   {
     // find [ (beginning of triplet)
     pos1 = this->FileContents.find('[', pos_start);

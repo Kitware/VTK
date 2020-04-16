@@ -358,7 +358,7 @@ int vtkNrrdReader::ReadHeader(vtkCharArray* headerBuffer)
   std::vector<double> dimSpacing;
   this->FileLowerLeft = 1;
   this->Encoding = ENCODING_RAW;
-  while (1)
+  while (true)
   {
     getline(header, line);
     if (line.length() < 1)
@@ -427,7 +427,7 @@ int vtkNrrdReader::ReadHeader(vtkCharArray* headerBuffer)
             ((filepatterninfo.size() > 1) ? atoi(filepatterninfo[1].c_str()) : numDimensions);
 
           // In this mode files are listed one per line to the end of the file.
-          while (1)
+          while (true)
           {
             getline(header, line);
             trim(line);

@@ -61,7 +61,7 @@ vtkHyperTreeGridAxisClip::vtkHyperTreeGridAxisClip()
   this->Quadric->SetCoefficients(1., 1., 1., 0., 0., 0., 0., 0., 0., -1.);
 
   // Defaut inside/out flag is false
-  this->InsideOut = 0;
+  this->InsideOut = false;
 
   this->OutMask = nullptr;
 

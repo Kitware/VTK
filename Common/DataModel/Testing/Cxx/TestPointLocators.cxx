@@ -75,10 +75,10 @@ bool DoesListHaveProperPoints(
     }
     if (!found)
     {
-      return 0;
+      return false;
     }
   }
-  return 1;
+  return true;
 }
 
 // This test compares results for different point locators since they should

@@ -224,7 +224,7 @@ bool vtkTemporalDelimitedTextReader::EnforceColumnName()
   {
     // No user specified input, the reader simply output the whole content of
     // the input file.
-    return 1;
+    return true;
   }
 
   // Set TimeColumnName from user input
@@ -238,7 +238,7 @@ bool vtkTemporalDelimitedTextReader::EnforceColumnName()
     else
     {
       vtkErrorMacro("Invalid column id: " << this->TimeColumnId);
-      return 0;
+      return false;
     }
   }
   else if (!this->TimeColumnName.empty())
@@ -248,7 +248,7 @@ bool vtkTemporalDelimitedTextReader::EnforceColumnName()
     if (arr == nullptr)
     {
       vtkErrorMacro("Invalid column name: " << this->TimeColumnName);
-      return 0;
+      return false;
     }
     else
     {
@@ -257,18 +257,18 @@ bool vtkTemporalDelimitedTextReader::EnforceColumnName()
       if (numArr == nullptr)
       {
         vtkErrorMacro("Not a numerical column: " << this->TimeColumnName);
-        return 0;
+        return false;
       }
       else if (numArr->GetNumberOfComponents() != 1)
       {
         vtkErrorMacro("The time column must have only one component: " << this->TimeColumnName);
-        return 0;
+        return false;
       }
     }
     this->InternalColumnName = this->TimeColumnName;
   }
 
-  return 1;
+  return true;
 }
 
 //----------------------------------------------------------------------------

@@ -115,7 +115,7 @@ vtkParticleTracerBase::vtkParticleTracerBase()
   this->AllFixedGeometry = 1;
   this->StaticMesh = 0;
   this->StaticSeeds = 0;
-  this->ComputeVorticity = 1;
+  this->ComputeVorticity = true;
   this->IgnorePipelineTime = 1;
   this->ParticleWriter = nullptr;
   this->ParticleFileName = nullptr;
@@ -1264,7 +1264,7 @@ bool vtkParticleTracerBase::ComputeDomainExitLocation(
   if (cell->IntersectWithLine(pos, p2, 1E-3, t, intersection, pcoords, subId) == 0)
   {
     vtkDebugMacro(<< "No cell/domain exit was found");
-    return 0;
+    return false;
   }
   else
   {
@@ -1277,7 +1277,7 @@ bool vtkParticleTracerBase::ComputeDomainExitLocation(
     }
     // intersection stored, compute T for intersection
     intersection[3] = pos[3] + (t + 0.01) * (p2[3] - pos[3]);
-    return 1;
+    return true;
   }
 }
 
@@ -1504,9 +1504,9 @@ bool vtkParticleTracerBase::RetryWithPush(
   {
     // a push helped the particle get back into a dataset,
     info.ErrorCode = 6;
-    return 1;
+    return true;
   }
-  return 0;
+  return false;
 }
 
 //---------------------------------------------------------------------------

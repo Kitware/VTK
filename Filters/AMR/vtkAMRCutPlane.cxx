@@ -52,7 +52,7 @@ vtkAMRCutPlane::vtkAMRCutPlane()
     this->Normal[i] = 0.0;
   }
   this->Controller = vtkMultiProcessController::GetGlobalController();
-  this->UseNativeCutter = 1;
+  this->UseNativeCutter = true;
 }
 
 //------------------------------------------------------------------------------

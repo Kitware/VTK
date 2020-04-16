@@ -207,7 +207,7 @@ int UnitTestWordCloud(int argc, char* argv[])
   }
   std::cout << "Testing Set..";
   wordCloud->SetBackgroundColorName("banana");
-  wordCloud->SetBWMask(1);
+  wordCloud->SetBWMask(true);
   wordCloud->SetColorSchemeName("foo");
   wordCloud->SetDPI(100);
   wordCloud->SetFontMultiplier(3);
@@ -272,7 +272,7 @@ int UnitTestWordCloud(int argc, char* argv[])
     status4 += TestOneByOne(wc, "MaskFileName", 12, 60, 67);
 
     wc->SetMaskFileName(argv[4]);
-    wc->SetBWMask(1);
+    wc->SetBWMask(true);
     status4 += TestOneByOne(wc, "MaskFileName(8bit)", 12, 60, 67);
 
     wc->SetColorSchemeName("Brewer Qualitative Pastel2");

@@ -454,7 +454,7 @@ void vtkIterativeClosestPointTransform::InternalUpdate()
     a = b;
     b = temp;
 
-  } while (1);
+  } while (true);
 
   // Now recover accumulated result
 

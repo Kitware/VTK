@@ -187,7 +187,7 @@ bool vtkAbstractCellLocator::InsideCellBounds(double x[3], vtkIdType cell_ID)
     this->DataSet->GetCellBounds(cell_ID, cellBounds);
     return vtkMath::PointIsWithinBounds(x, cellBounds, delta) != 0;
   }
-  return 0;
+  return false;
 }
 //----------------------------------------------------------------------------
 void vtkAbstractCellLocator::PrintSelf(ostream& os, vtkIndent indent)

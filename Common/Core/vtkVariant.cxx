@@ -832,7 +832,7 @@ template <typename T>
 T vtkVariantStringToNonFiniteNumeric(vtkStdString vtkNotUsed(str), bool* valid)
 {
   if (valid)
-    *valid = 0;
+    *valid = false;
   return 0;
 }
 

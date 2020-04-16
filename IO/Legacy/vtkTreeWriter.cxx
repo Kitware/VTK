@@ -66,15 +66,15 @@ void vtkTreeWriter::WriteData()
 
   *fp << "DATASET TREE\n";
 
-  bool error_occurred = 0;
+  bool error_occurred = false;
 
   if (!this->WriteFieldData(fp, input->GetFieldData()))
   {
-    error_occurred = 1;
+    error_occurred = true;
   }
   if (!error_occurred && !this->WritePoints(fp, input->GetPoints()))
   {
-    error_occurred = 1;
+    error_occurred = true;
   }
   if (!error_occurred)
   {
@@ -84,11 +84,11 @@ void vtkTreeWriter::WriteData()
   }
   if (!error_occurred && !this->WriteEdgeData(fp, input))
   {
-    error_occurred = 1;
+    error_occurred = true;
   }
   if (!error_occurred && !this->WriteVertexData(fp, input))
   {
-    error_occurred = 1;
+    error_occurred = true;
   }
 
   if (error_occurred)

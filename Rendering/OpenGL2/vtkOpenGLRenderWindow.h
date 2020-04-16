@@ -301,7 +301,7 @@ public:
    * because point sprites don't work correctly (gl_PointCoord is undefined) unless
    * glEnable(GL_POINT_SPRITE)
    */
-  virtual bool IsPointSpriteBugPresent() { return 0; }
+  virtual bool IsPointSpriteBugPresent() { return false; }
 
   /**
    * Get a mapping of vtk data types to native texture formats for this window

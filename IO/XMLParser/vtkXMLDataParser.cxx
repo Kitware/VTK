@@ -1019,7 +1019,7 @@ static float* vtkXMLParseAsciiData(istream& is, int* length, float*, int)
   std::string stringBuffer;
   float element;
 
-  while (1)
+  while (true)
   {
     is >> element;
     if (!is.good())
@@ -1074,7 +1074,7 @@ static double* vtkXMLParseAsciiData(istream& is, int* length, double*, int)
   std::string stringBuffer;
   double element;
 
-  while (1)
+  while (true)
   {
     is >> element;
     if (!is.good())

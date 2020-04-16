@@ -26,8 +26,8 @@ int TestDelimitedTextReader2(int argc, char* argv[])
 
   vtkDelimitedTextReader* reader = vtkDelimitedTextReader::New();
   reader->SetFileName(filename);
-  reader->SetHaveHeaders(1);
-  reader->SetDetectNumericColumns(1);
+  reader->SetHaveHeaders(true);
+  reader->SetDetectNumericColumns(true);
   reader->Update();
   delete[] filename;
 
@@ -54,10 +54,10 @@ int TestDelimitedTextReader2(int argc, char* argv[])
                        "3,UK\r\nDavid,2,100,UK\r\nGrace,4,20,US\r\nIlknur,6,5,Turkey\r\n";
 
   vtkDelimitedTextReader* reader2 = vtkDelimitedTextReader::New();
-  reader2->SetHaveHeaders(1);
+  reader2->SetHaveHeaders(true);
   reader2->SetReadFromInputString(1);
   reader2->SetInputString(inputString);
-  reader2->SetDetectNumericColumns(1);
+  reader2->SetDetectNumericColumns(true);
   reader2->Update();
 
   vtkTable* table2 = reader2->GetOutput();

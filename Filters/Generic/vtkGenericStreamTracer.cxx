@@ -1211,7 +1211,7 @@ void vtkGenericStreamTracer::SimpleIntegrate(
   vtkInitialValueProblemSolver* integrator = this->GetIntegrator()->NewInstance();
   integrator->SetFunctionSet(func);
 
-  while (1)
+  while (true)
   {
 
     if (numSteps++ > maxSteps)

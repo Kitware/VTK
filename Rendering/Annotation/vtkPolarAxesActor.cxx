@@ -236,7 +236,7 @@ vtkPolarAxesActor::vtkPolarAxesActor()
   this->Ratio = 1.0;
 
   // Polar Axis scale type
-  this->Log = 0;
+  this->Log = false;
 
   // Default minimum polar radius size
   this->MinimumRadius = 0.0;
@@ -867,7 +867,7 @@ bool vtkPolarAxesActor::CheckMembersConsistency()
                     << "Range must be > 0.0 for log scale to be enabled"
                     << ".");
 
-    this->Log = 0;
+    this->Log = false;
   }
 
   // Range Step

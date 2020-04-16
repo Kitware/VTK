@@ -36,7 +36,7 @@ vtkTableToPolyData::vtkTableToPolyData()
   this->XComponent = 0;
   this->YComponent = 0;
   this->ZComponent = 0;
-  this->Create2DPoints = 0;
+  this->Create2DPoints = false;
   this->PreserveCoordinateColumnsAsDataArrays = false;
 }
 

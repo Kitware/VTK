@@ -210,7 +210,7 @@ vtkSmartPointer<vtkDataObject> vtkExtractSelectedArraysOverTime::Extract(
   {
     return input;
   }
-  filter->SetPreserveTopology(0);
+  filter->SetPreserveTopology(false);
   filter->SetInputData(0, input);
   filter->SetInputData(1, selInput);
 

@@ -851,7 +851,7 @@ void vtkParallelRenderManager::ComputeVisiblePropBounds(vtkRenderer* ren, double
     vtkCollectionSimpleIterator rsit;
     rens->InitTraversal(rsit);
     int renderId = 0;
-    while (1)
+    while (true)
     {
       vtkRenderer* myren = rens->GetNextRenderer(rsit);
       if (myren == nullptr)

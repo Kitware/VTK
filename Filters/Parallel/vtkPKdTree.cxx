@@ -3166,7 +3166,7 @@ int vtkPKdTree::GetCellArrayGlobalRange(const char* n, double range[2])
   double tmp[2] = { 0, 0 };
   int start = 0;
 
-  while (1)
+  while (true)
   {
     // Cell array name may appear more than once if multiple datasets
     // were processed.
@@ -3219,7 +3219,7 @@ int vtkPKdTree::GetPointArrayGlobalRange(const char* n, double range[2])
   double tmp[2] = { 0, 0 };
   int start = 0;
 
-  while (1)
+  while (true)
   {
     // Point array name may appear more than once if multiple datasets
     // were processed.

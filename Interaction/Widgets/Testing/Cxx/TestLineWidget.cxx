@@ -275,7 +275,7 @@ int TestLineWidget(int argc, char* argv[])
   streamer->SetMaximumPropagation(100);
   streamer->SetInitialIntegrationStep(.2);
   streamer->SetIntegrationDirectionToForward();
-  streamer->SetComputeVorticity(1);
+  streamer->SetComputeVorticity(true);
   streamer->SetIntegrator(rk4);
 
   vtkSmartPointer<vtkRibbonFilter> rf = vtkSmartPointer<vtkRibbonFilter>::New();

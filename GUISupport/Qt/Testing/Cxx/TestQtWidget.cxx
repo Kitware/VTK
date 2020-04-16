@@ -54,7 +54,7 @@ int TestQtWidget(int argc, char* argv[])
   detail::set_render_window(widgetOrWindow, window);
 
   vtkNew<vtkRenderer> ren;
-  ren->SetGradientBackground(1);
+  ren->SetGradientBackground(true);
   ren->SetBackground2(0.7, 0.7, 0.7);
   window->AddRenderer(ren);
 

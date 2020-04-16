@@ -2457,7 +2457,7 @@ void vtkReebGraph::Implementation::Collapse(vtkIdType startingNode, vtkIdType en
   L0 = FindUpLabel(startingNode, startingLabel);
   L1 = FindUpLabel(startingNode, endingLabel);
 
-  while (1)
+  while (true)
   {
     int A0 = this->GetLabel(L0)->ArcId;
     vtkReebArc* a0 = this->GetArc(A0);

@@ -193,7 +193,7 @@ int TestGlyph3DMapperPicking(int argc, char* argv[])
   selectionMask->Delete();
 
   vtkGlyph3DMapper* glypher2 = vtkGlyph3DMapper::New();
-  glypher2->SetMasking(1);
+  glypher2->SetMasking(true);
   glypher2->SetMaskArray("mask");
 
   glypher2->SetInputData(selection);

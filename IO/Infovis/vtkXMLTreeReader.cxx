@@ -45,9 +45,9 @@ vtkXMLTreeReader::vtkXMLTreeReader()
   this->XMLString = nullptr;
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
-  this->ReadCharData = 0;
-  this->ReadTagName = 1;
-  this->MaskArrays = 0;
+  this->ReadCharData = false;
+  this->ReadTagName = true;
+  this->MaskArrays = false;
   this->EdgePedigreeIdArrayName = nullptr;
   this->SetEdgePedigreeIdArrayName("edge id");
   this->VertexPedigreeIdArrayName = nullptr;

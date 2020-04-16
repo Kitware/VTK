@@ -858,7 +858,7 @@ PyObject* vtkPythonOverload::CallMethod(PyMethodDef* methods, PyObject* self, Py
 
     const char* format = nullptr;
     const char* classname = nullptr;
-    bool selfIsClass = 0;
+    bool selfIsClass = false;
     int sig;
 
     // Is self a type object, rather than an instance?  If so, then the
@@ -1001,7 +1001,7 @@ PyMethodDef* vtkPythonOverload::FindConversionMethod(PyMethodDef* methods, PyObj
     if (meth->ml_doc[0] != '-')
     {
       // If meth only takes one arg
-      helper.initialize(0, meth->ml_doc);
+      helper.initialize(false, meth->ml_doc);
       if (helper.next(&format, &classname) && !helper.next(&dummy1, &dummy2))
       {
         // If the constructor accepts the arg without

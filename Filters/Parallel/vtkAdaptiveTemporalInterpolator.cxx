@@ -60,7 +60,7 @@ public:
     pointDataResampler->SetCellLocatorPrototype(pointDataResamplerLocator);
 
     cellCenters->SetInputConnection(stripAllArrays->GetOutputPort());
-    cellCenters->SetVertexCells(1);
+    cellCenters->SetVertexCells(true);
 
     cellDataResampler->SetSourceConnection(keepOnlyCellArrays->GetOutputPort());
     cellDataResampler->SetInputConnection(cellCenters->GetOutputPort());
