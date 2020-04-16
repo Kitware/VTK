@@ -327,7 +327,7 @@ int vtkBarChartActor::BuildPlot(vtkViewport* viewport)
     vtkDebugMacro(<< "Rebuilding plot");
 
     // Build axes
-    int* size = viewport->GetSize();
+    const int* size = viewport->GetSize();
     if (!this->PlaceAxes(viewport, size))
     {
       return 0;
@@ -340,7 +340,7 @@ int vtkBarChartActor::BuildPlot(vtkViewport* viewport)
 }
 
 //----------------------------------------------------------------------------
-int vtkBarChartActor::PlaceAxes(vtkViewport* viewport, int* vtkNotUsed(size))
+int vtkBarChartActor::PlaceAxes(vtkViewport* viewport, const int* vtkNotUsed(size))
 {
   vtkIdType i;
   vtkDataObject* input = this->GetInput();

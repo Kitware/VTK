@@ -193,7 +193,7 @@ void vtkQtTreeRingLabelMapper::RenderOpaqueGeometry(vtkViewport* viewport, vtkAc
   {
     vtkDebugMacro(<< "Rebuilding labels");
 
-    int* size = renderer->GetSize();
+    const int* size = renderer->GetSize();
     this->WindowSize[0] = size[0];
     this->WindowSize[1] = size[1];
 
@@ -518,7 +518,7 @@ bool vtkQtTreeRingLabelMapper::PointInWindow(
 
   // Get the window extents
   vtkWindow* win = viewport->GetVTKWindow();
-  int* winSize = win->GetSize();
+  const int* winSize = win->GetSize();
 
   bool return_value = true;
   if (dc[0] < 0 || dc[0] > winSize[0])
@@ -660,7 +660,7 @@ vtkMTimeType vtkQtTreeRingLabelMapper::GetMTime()
       vtkMTimeType renWindMTime = rw->GetMTime();
       if (renWindMTime > filterMTime)
       {
-        int* rwSize = rw->GetSize();
+        const int* rwSize = rw->GetSize();
         if (rwSize[0] != this->WindowSize[0] || rwSize[1] != this->WindowSize[1])
         {
           return renWindMTime;

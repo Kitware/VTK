@@ -134,7 +134,7 @@
   {
     return;
   }
-  int* wh = self.renderWindow->GetSize();
+  const int* wh = self.renderWindow->GetSize();
   CGFloat scale = super.contentScaleFactor;
   coordinates[0] = scale * touchPoint.x;
   // UIKit => OpenGL == flip Y axis
@@ -147,7 +147,7 @@
   {
     return;
   }
-  int* wh = self.renderWindow->GetSize();
+  const int* wh = self.renderWindow->GetSize();
   int display[2] = { 0 };
   [self displayCoordinates:display ofTouch:touch];
   coordinates[0] = (double)display[0] / wh[0];

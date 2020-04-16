@@ -642,7 +642,7 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport* viewport)
   }
 
   // Check to see whether we have to rebuild everything
-  int* vsize = viewport->GetSize();
+  const int* vsize = viewport->GetSize();
   if (this->GetMTime() > this->BuildTime || this->EntryTextProperty->GetMTime() > this->BuildTime ||
     vsize[0] != this->CachedSize[0] || vsize[1] != this->CachedSize[1])
   {

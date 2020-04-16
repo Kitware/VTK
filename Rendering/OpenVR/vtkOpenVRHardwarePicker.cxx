@@ -81,7 +81,7 @@ int vtkOpenVRHardwarePicker::PickProp(
     p0[0] + dop[0] * distance, p0[1] + dop[1] * distance, p0[2] + dop[2] * distance);
   oldcam->OrthogonalizeViewUp();
 
-  int* size = renderer->GetSize();
+  const int* size = renderer->GetSize();
 
   sel->SetArea(size[0] / 2 - 5, size[1] / 2 - 5, size[0] / 2 + 5, size[1] / 2 + 5);
 

@@ -291,7 +291,7 @@ bool vtkWebApplication::HandleInteractionEvent(vtkRenderWindow* view, vtkWebInte
     return true;
   }
 
-  int* viewSize = view->GetSize();
+  const int* viewSize = view->GetSize();
   int posX = std::floor(viewSize[0] * event->GetX() + 0.5);
   int posY = std::floor(viewSize[1] * event->GetY() + 0.5);
 

@@ -197,7 +197,7 @@ float* vtkSelectVisiblePoints::Initialize(bool getZbuff)
   }
   cam->GetDirectionOfProjection(this->DirectionOfProjection);
 
-  int* size = this->Renderer->GetRenderWindow()->GetSize();
+  const int* size = this->Renderer->GetRenderWindow()->GetSize();
 
   // specify a selection window to avoid querying
   if (this->SelectionWindow)

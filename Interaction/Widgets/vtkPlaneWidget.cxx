@@ -1183,7 +1183,7 @@ void vtkPlaneWidget::Rotate(int X, int Y, double* p1, double* p2, double* vpn)
   {
     return;
   }
-  int* size = this->CurrentRenderer->GetSize();
+  const int* size = this->CurrentRenderer->GetSize();
   double l2 = (X - this->Interactor->GetLastEventPosition()[0]) *
       (X - this->Interactor->GetLastEventPosition()[0]) +
     (Y - this->Interactor->GetLastEventPosition()[1]) *

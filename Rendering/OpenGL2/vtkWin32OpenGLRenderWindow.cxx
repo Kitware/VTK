@@ -1117,8 +1117,6 @@ int* vtkWin32OpenGLRenderWindow::GetPosition(void)
 // Change the window to fill the entire screen.
 void vtkWin32OpenGLRenderWindow::SetFullScreen(vtkTypeBool arg)
 {
-  int* temp;
-
   if (this->FullScreen == arg)
   {
     return;
@@ -1145,7 +1143,7 @@ void vtkWin32OpenGLRenderWindow::SetFullScreen(vtkTypeBool arg)
     // if window already up get its values
     if (this->WindowId)
     {
-      temp = this->GetPosition();
+      const int* temp = this->GetPosition();
       this->OldScreen[0] = temp[0];
       this->OldScreen[1] = temp[1];
 
@@ -1180,7 +1178,7 @@ void vtkWin32OpenGLRenderWindow::SetStereoCapableWindow(vtkTypeBool capable)
 // Set the preferred window size to full screen.
 void vtkWin32OpenGLRenderWindow::PrefFullScreen()
 {
-  int* size = this->GetScreenSize();
+  const int* size = this->GetScreenSize();
 
   // don't show borders
   this->Borders = 0;
@@ -1338,7 +1336,7 @@ void vtkWin32OpenGLRenderWindow::ShowCursor()
 //----------------------------------------------------------------------------
 void vtkWin32OpenGLRenderWindow::SetCursorPosition(int x, int y)
 {
-  int* size = this->GetSize();
+  const int* size = this->GetSize();
 
   POINT point;
   point.x = x;

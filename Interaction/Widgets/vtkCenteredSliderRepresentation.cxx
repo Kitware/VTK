@@ -400,7 +400,7 @@ void vtkCenteredSliderRepresentation::BuildRepresentation()
     return;
   }
 
-  int* size = this->Renderer->GetSize();
+  const int* size = this->Renderer->GetSize();
   if (0 == size[0] || 0 == size[1])
   {
     // Renderer has no size yet: wait until the next

@@ -114,7 +114,7 @@ void vtkInteractorStyleRubberBandZoom::OnMouseMove()
 
   this->EndPosition[0] = this->Interactor->GetEventPosition()[0];
   this->EndPosition[1] = this->Interactor->GetEventPosition()[1];
-  int* size = this->Interactor->GetRenderWindow()->GetSize();
+  const int* size = this->Interactor->GetRenderWindow()->GetSize();
   if (this->EndPosition[0] > (size[0] - 1))
   {
     this->EndPosition[0] = size[0] - 1;
@@ -220,7 +220,7 @@ void vtkInteractorStyleRubberBandZoom::OnLeftButtonDown()
 
   this->PixelArray->Initialize();
   this->PixelArray->SetNumberOfComponents(3);
-  int* size = renWin->GetSize();
+  const int* size = renWin->GetSize();
   this->PixelArray->SetNumberOfTuples(size[0] * size[1]);
 
   renWin->GetPixelData(0, 0, size[0] - 1, size[1] - 1, 1, this->PixelArray);

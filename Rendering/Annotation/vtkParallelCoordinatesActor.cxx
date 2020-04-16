@@ -253,7 +253,7 @@ int vtkParallelCoordinatesActor::RenderOpaqueGeometry(vtkViewport* viewport)
     this->LabelTextProperty->GetMTime() > this->BuildTime ||
     this->TitleTextProperty->GetMTime() > this->BuildTime)
   {
-    int* size = viewport->GetSize();
+    const int* size = viewport->GetSize();
     int stringSize[2];
 
     vtkDebugMacro(<< "Rebuilding plot");
@@ -334,7 +334,7 @@ static inline int vtkParallelCoordinatesActorGetComponent(
 }
 
 //----------------------------------------------------------------------------
-int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport* viewport, int* vtkNotUsed(size))
+int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport* viewport, const int* vtkNotUsed(size))
 {
   vtkIdType i, j, k, ptId;
   vtkDataObject* input = this->GetInput();

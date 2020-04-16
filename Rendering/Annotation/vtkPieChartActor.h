@@ -235,7 +235,7 @@ private:
   double P2[3];
 
   void Initialize();
-  int PlaceAxes(vtkViewport* viewport, int* size);
+  int PlaceAxes(vtkViewport* viewport, const int* size);
   int BuildPlot(vtkViewport*);
 
 private:

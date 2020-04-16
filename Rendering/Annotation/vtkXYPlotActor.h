@@ -943,7 +943,7 @@ protected:
 
   virtual void CreatePlotData(
     int* pos, int* pos2, double xRange[2], double yRange[2], double* norms, int numDS, int numDO);
-  void PlaceAxes(vtkViewport* viewport, int* size, int pos[2], int pos2[2]);
+  void PlaceAxes(vtkViewport* viewport, const int* size, int pos[2], int pos2[2]);
   void GenerateClipPlanes(int* pos, int* pos2);
   double ComputeGlyphScale(int i, int* pos, int* pos2);
   void ClipPlotData(int* pos, int* pos2, vtkPolyData* pd);

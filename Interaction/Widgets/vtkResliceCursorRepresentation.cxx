@@ -621,7 +621,7 @@ void vtkResliceCursorRepresentation::WindowLevel(double X, double Y)
     return;
   }
 
-  int* size = this->Renderer->GetSize();
+  const int* size = this->Renderer->GetSize();
   double window = this->InitialWindow;
   double level = this->InitialLevel;
 

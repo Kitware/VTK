@@ -391,7 +391,7 @@ int vtkCornerAnnotation::RenderOpaqueGeometry(vtkViewport* viewport)
   if (viewport->GetMTime() > this->BuildTime ||
     (viewport->GetVTKWindow() && viewport->GetVTKWindow()->GetMTime() > this->BuildTime))
   {
-    int* vSize = viewport->GetSize();
+    const int* vSize = viewport->GetSize();
     if (this->LastSize[0] != vSize[0] || this->LastSize[1] != vSize[1])
     {
       viewport_size_has_changed = 1;
@@ -430,7 +430,7 @@ int vtkCornerAnnotation::RenderOpaqueGeometry(vtkViewport* viewport)
     (ia && (ia != this->LastImageActor || ia->GetMTime() > this->BuildTime)) ||
     (wl && wl->GetMTime() > this->BuildTime))
   {
-    int* vSize = viewport->GetSize();
+    const int* vSize = viewport->GetSize();
 
     vtkDebugMacro(<< "Rebuilding text");
 
@@ -621,7 +621,7 @@ vtkTypeBool vtkCornerAnnotation::HasTranslucentPolygonalGeometry()
 }
 
 //----------------------------------------------------------------------------
-void vtkCornerAnnotation::SetTextActorsPosition(int vsize[2])
+void vtkCornerAnnotation::SetTextActorsPosition(const int vsize[2])
 {
   this->TextActor[LowerLeft]->SetPosition(5, 5);
   this->TextActor[LowerRight]->SetPosition(vsize[0] - 5, 5);

@@ -611,7 +611,7 @@ bool vtkValuePass::HasWindowSizeChanged(vtkRenderer* ren)
     return true;
   }
 
-  int* size = ren->GetSize();
+  const int* size = ren->GetSize();
   int* fboSize = this->ImplFloat->ValueFBO->GetLastSize();
 
   return (fboSize[0] != size[0] || fboSize[1] != size[1]);
@@ -627,7 +627,7 @@ bool vtkValuePass::InitializeFBO(vtkRenderer* ren)
 
   vtkOpenGLRenderWindow* renWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
 
-  int* size = ren->GetSize();
+  const int* size = ren->GetSize();
   // Allocate FBO's Color attachment target
   this->ImplFloat->ValueRBO = vtkRenderbuffer::New();
   this->ImplFloat->ValueRBO->SetContext(renWin);

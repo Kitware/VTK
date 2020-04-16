@@ -559,7 +559,7 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport* viewport, vtkActor2D* v
   }
 
   // If the renderer size is zero, silently place no labels.
-  int* renSize = ren->GetSize();
+  const int* renSize = ren->GetSize();
   if (renSize[0] == 0 || renSize[1] == 0)
   {
     return;

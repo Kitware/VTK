@@ -233,7 +233,7 @@ protected:
   /**
    * Set text actor positions given a viewport size and justification
    */
-  virtual void SetTextActorsPosition(int vsize[2]);
+  virtual void SetTextActorsPosition(const int vsize[2]);
   virtual void SetTextActorsJustification();
   //@}
 

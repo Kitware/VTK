@@ -893,8 +893,7 @@ void vtkXOpenGLRenderWindow::PrefFullScreen()
   }
   else
   {
-    int* size;
-    size = this->GetScreenSize();
+    const int* size = this->GetScreenSize();
     this->Size[0] = size[0];
     this->Size[1] = size[1];
   }

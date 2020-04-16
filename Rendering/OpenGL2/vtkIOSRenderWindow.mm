@@ -409,7 +409,7 @@ void vtkIOSRenderWindow::SetStereoCapableWindow(vtkTypeBool capable)
 // Set the preferred window size to full screen.
 void vtkIOSRenderWindow::PrefFullScreen()
 {
-  int* size = this->GetScreenSize();
+  const int* size = this->GetScreenSize();
   vtkWarningMacro(<< "Can only set FullScreen before showing window: " << size[0] << 'x' << size[1]
                   << ".");
 }
