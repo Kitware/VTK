@@ -18,6 +18,9 @@ find_package(VTK
     RenderingOpenGL2
     Python)
 
+list(INSERT CMAKE_MODULE_PATH 0
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
 #
 # Check if VTK is shared or static, and default to the same.
 #
