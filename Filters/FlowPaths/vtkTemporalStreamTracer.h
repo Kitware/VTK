@@ -61,11 +61,13 @@ class vtkAbstractParticleWriter;
 
 namespace vtkTemporalStreamTracerNamespace
 {
-typedef struct
+struct Position_t
 {
   double x[4];
-} Position;
-typedef struct
+};
+using Position = struct Position_t;
+
+struct ParticleInformation_t
 {
   // These are used during iteration
   Position CurrentPosition;
@@ -86,7 +88,8 @@ typedef struct
   float angularVel;
   float time;
   float speed;
-} ParticleInformation;
+};
+using ParticleInformation = struct ParticleInformation_t;
 
 typedef std::vector<ParticleInformation> ParticleVector;
 typedef ParticleVector::iterator ParticleIterator;
@@ -441,10 +444,11 @@ protected:
   vtkSmartPointer<vtkDataSet> DataReferenceT[2];
 
   // Cache bounds info for each dataset we will use repeatedly
-  typedef struct
+  struct bounds_t
   {
     double b[6];
-  } bounds;
+  };
+  using bounds = struct bounds_t;
   std::vector<bounds> CachedBounds[2];
 
   // utility function we use to test if a point is inside any of our local datasets

@@ -487,10 +487,11 @@ void vtkPixel::Derivatives(
 //----------------------------------------------------------------------------
 // support pixel clipping
 typedef int PIXEL_EDGE_LIST;
-typedef struct
+struct PIXEL_CASES_t
 {
   PIXEL_EDGE_LIST edges[14];
-} PIXEL_CASES;
+};
+using PIXEL_CASES = struct PIXEL_CASES_t;
 
 static PIXEL_CASES pixelCases[] = {
   { { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },    // 0

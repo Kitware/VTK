@@ -234,14 +234,15 @@ public:
 
   typedef unsigned long long vtkReebLabelTag;
 
-  typedef struct _vtkReebCancellation
+  struct vtkReebCancellation_t
   {
     std::vector<std::pair<int, int> > removedArcs;
     std::vector<std::pair<int, int> > insertedArcs;
-  } vtkReebCancellation;
+  };
+  using vtkReebCancellation = struct vtkReebCancellation_t;
 
   // Node structure
-  typedef struct
+  struct vtkReebNode_t
   {
     vtkIdType VertexId;
     double Value;
@@ -249,24 +250,27 @@ public:
     vtkIdType ArcUpId;
     bool IsFinalized;
     bool IsCritical;
-  } vtkReebNode;
+  };
+  using vtkReebNode = struct vtkReebNode_t;
 
   // Arc structure
-  typedef struct
+  struct vtkReebArc_t
   {
     vtkIdType NodeId0, ArcUpId0, ArcDwId0;
     vtkIdType NodeId1, ArcUpId1, ArcDwId1;
     vtkIdType LabelId0, LabelId1;
-  } vtkReebArc;
+  };
+  using vtkReebArc = struct vtkReebArc_t;
 
   // Label structure
-  typedef struct
+  struct vtkReebLabel_t
   {
     vtkIdType ArcId;
     vtkIdType HPrev, HNext; // "horizontal" (for a single arc)
     vtkReebLabelTag label;
     vtkIdType VPrev, VNext; // "vertical" (for a sequence of arcs)
-  } vtkReebLabel;
+  };
+  using vtkReebLabel = struct vtkReebLabel_t;
 
   struct vtkReebPath
   {

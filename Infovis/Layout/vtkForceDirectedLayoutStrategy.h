@@ -171,19 +171,21 @@ protected:
   vtkTypeBool RandomInitialPoints;    // Boolean for having random points
 private:
   // A vertex contains a position and a displacement.
-  typedef struct
+  struct vtkLayoutVertex_t
   {
     double x[3];
     double d[3];
-  } vtkLayoutVertex;
+  };
+  using vtkLayoutVertex = struct vtkLayoutVertex_t;
 
   // An edge consists of two vertices joined together.
   // This struct acts as a "pointer" to those two vertices.
-  typedef struct
+  struct vtkLayoutEdge_t
   {
     int t;
     int u;
-  } vtkLayoutEdge;
+  };
+  using vtkLayoutEdge = struct vtkLayoutEdge_t;
 
   int RandomSeed;
   int IterationsPerLayout;

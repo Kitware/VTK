@@ -79,10 +79,12 @@ int vtkMCubesReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkFloatArray* newNormals = nullptr;
   double bounds[6];
   int i, j, k, numPts, numTris;
-  typedef struct
+  struct pointType_t
   {
     float x[3], n[3];
-  } pointType;
+  };
+  using pointType = struct pointType_t;
+
   pointType point;
   struct stat buf = {};
   int numDegenerate = 0;

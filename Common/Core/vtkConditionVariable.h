@@ -51,7 +51,7 @@ typedef pthread_cond_t vtkConditionType;
 
 #ifdef VTK_USE_WIN32_THREADS
 #if 1
-typedef struct
+struct pthread_cond_t_t
 {
   // Number of threads waiting on condition.
   int WaitingThreadCount;
@@ -68,11 +68,12 @@ typedef struct
 
   // Was pthread_cond_broadcast called?
   size_t WasBroadcast;
-} pthread_cond_t;
+};
+using pthread_cond_t = struct pthread_cond_t_t;
 
 typedef pthread_cond_t vtkConditionType;
 #else  // 0
-typedef struct
+struct pthread_cond_t_t
 {
   // Number of threads waiting on condition.
   int WaitingThreadCount;
@@ -90,7 +91,8 @@ typedef struct
 
   // A manual-reset event that's used to block and release waiting threads.
   vtkWindowsHANDLE Event;
-} pthread_cond_t;
+};
+using pthread_cond_t = struct pthread_cond_t_t;
 
 typedef pthread_cond_t vtkConditionType;
 #endif // 0

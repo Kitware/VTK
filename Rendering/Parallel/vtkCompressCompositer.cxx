@@ -51,28 +51,31 @@
 vtkStandardNewMacro(vtkCompressCompositer);
 
 // Different pixel types to template.
-typedef struct
+struct vtkCharRGBType_t
 {
   unsigned char r;
   unsigned char g;
   unsigned char b;
-} vtkCharRGBType;
+};
+using vtkCharRGBType = struct vtkCharRGBType_t;
 
-typedef struct
+struct vtkCharRGBAType_t
 {
   unsigned char r;
   unsigned char g;
   unsigned char b;
   unsigned char a;
-} vtkCharRGBAType;
+};
+using vtkCharRGBAType = struct vtkCharRGBAType_t;
 
-typedef struct
+struct vtkFloatRGBAType_t
 {
   float r;
   float g;
   float b;
   float a;
-} vtkFloatRGBAType;
+};
+using vtkFloatRGBAType = struct vtkFloatRGBAType_t;
 
 //-------------------------------------------------------------------------
 vtkCompressCompositer::vtkCompressCompositer()

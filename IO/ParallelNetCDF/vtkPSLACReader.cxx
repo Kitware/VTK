@@ -208,31 +208,35 @@ public:
   }
 };
 
-typedef struct
+struct midpointPositionType_t
 {
   double coord[3];
-} midpointPositionType;
+};
+using midpointPositionType = struct midpointPositionType_t;
 const vtkIdType midpointPositionSize = sizeof(midpointPositionType) / sizeof(double);
 
-typedef struct
+struct midpointTopologyType_t
 {
   vtkIdType minEdgePoint;
   vtkIdType maxEdgePoint;
   vtkIdType globalId;
-} midpointTopologyType;
+};
+using midpointTopologyType = struct midpointTopologyType_t;
 const vtkIdType midpointTopologySize = sizeof(midpointTopologyType) / sizeof(vtkIdType);
 
-typedef struct
+struct midpointListsType_t
 {
   std::vector<midpointPositionType> position;
   std::vector<midpointTopologyType> topology;
-} midpointListsType;
+};
+using midpointListsType = struct midpointListsType_t;
 
-typedef struct
+struct midpointPointersType_t
 {
   midpointPositionType* position;
   midpointTopologyType* topology;
-} midpointPointersType;
+};
+using midpointPointersType = struct midpointPointersType_t;
 typedef std::unordered_map<vtkSLACReader::EdgeEndpoints, midpointPointersType, EdgeEndpointsHash>
   MidpointsAvailableType;
 

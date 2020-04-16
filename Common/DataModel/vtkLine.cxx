@@ -239,10 +239,11 @@ int vtkLine::CellBoundary(int vtkNotUsed(subId), const double pcoords[3], vtkIdL
 //
 typedef int VERT_LIST;
 
-typedef struct
+struct VERT_CASES_t
 {
   VERT_LIST verts[2];
-} VERT_CASES;
+};
+using VERT_CASES = struct VERT_CASES_t;
 
 static VERT_CASES vertCases[4] = {
   { { -1, -1 } },
@@ -741,10 +742,11 @@ void vtkLine::Derivatives(int vtkNotUsed(subId), const double vtkNotUsed(pcoords
 namespace
 { // required so we don't violate ODR
 typedef int LINE_LIST;
-typedef struct
+struct LINE_CASES_t
 {
   LINE_LIST lines[2];
-} LINE_CASES;
+};
+using LINE_CASES = struct LINE_CASES_t;
 
 static LINE_CASES lineCases[] = {
   { { -1, -1 } },   // 0

@@ -456,10 +456,11 @@ int vtkWedge::CellBoundary(int vtkNotUsed(subId), const double pcoords[3], vtkId
 namespace
 { // required so we don't violate ODR
 typedef int EDGE_LIST;
-typedef struct
+struct TRIANGLE_CASES_t
 {
   EDGE_LIST edges[13];
-} TRIANGLE_CASES;
+};
+using TRIANGLE_CASES = struct TRIANGLE_CASES_t;
 
 static TRIANGLE_CASES triCases[] = {
   { { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }, // 0

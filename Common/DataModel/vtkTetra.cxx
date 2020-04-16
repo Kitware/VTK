@@ -342,10 +342,11 @@ static constexpr vtkIdType
   };
 
 typedef int EDGE_LIST;
-typedef struct
+struct TRIANGLE_CASES_t
 {
   EDGE_LIST edges[7];
-} TRIANGLE_CASES;
+};
+using TRIANGLE_CASES = struct TRIANGLE_CASES_t;
 
 static TRIANGLE_CASES triCases[] = {
   { { -1, -1, -1, -1, -1, -1, -1 } },
@@ -1042,10 +1043,11 @@ vtkIdType vtkTetra::GetFacePoints(vtkIdType faceId, const vtkIdType*& pts)
 
 // support tetra clipping
 typedef int TETRA_EDGE_LIST;
-typedef struct
+struct TETRA_CASES_t
 {
   TETRA_EDGE_LIST edges[7];
-} TETRA_CASES;
+};
+using TETRA_CASES = struct TETRA_CASES_t;
 
 static TETRA_CASES tetraCases[] = {
   { { 0, 0, 0, 0, 0, 0, 0 } },        // 0

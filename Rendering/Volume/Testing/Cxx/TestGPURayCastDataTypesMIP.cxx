@@ -41,7 +41,7 @@
 
 namespace
 {
-typedef struct
+struct VTKData_t
 {
   vtkSmartPointer<vtkGPUVolumeRayCastMapper> volumeMapper[4][4];
   vtkSmartPointer<vtkVolumeProperty> volumeProperty[4][4];
@@ -51,7 +51,8 @@ typedef struct
   vtkSmartPointer<vtkAlgorithmOutput> algoOut[4][4];
   vtkSmartPointer<vtkColorTransferFunction> color[4][4];
   vtkSmartPointer<vtkPiecewiseFunction> opacity[4][4];
-} VTKData;
+};
+using VTKData = struct VTKData_t;
 
 void RegisterVolumeToRender(VTKData& data, vtkRenderer* ren1, const int i, const int j)
 {

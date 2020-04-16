@@ -376,10 +376,11 @@ static constexpr vtkIdType edges[4][2] = {
 };
 
 typedef int EDGE_LIST;
-typedef struct
+struct LINE_CASES_t
 {
   EDGE_LIST edges[5];
-} LINE_CASES;
+};
+using LINE_CASES = struct LINE_CASES_t;
 
 static LINE_CASES lineCases[] = {
   { { -1, -1, -1, -1, -1 } },
@@ -755,10 +756,11 @@ void vtkQuad::Derivatives(
 //----------------------------------------------------------------------------
 // support quad clipping
 typedef int QUAD_EDGE_LIST;
-typedef struct
+struct QUAD_CASES_t
 {
   QUAD_EDGE_LIST edges[14];
-} QUAD_CASES;
+};
+using QUAD_CASES = struct QUAD_CASES_t;
 
 static QUAD_CASES quadCases[] = {
   { { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },    // 0

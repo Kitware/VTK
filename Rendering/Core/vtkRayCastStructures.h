@@ -27,7 +27,7 @@
 #ifndef vtkRayCastStructures_h
 #define vtkRayCastStructures_h
 
-typedef struct
+struct vtkRayCastRayInfo_t
 {
   // These are the input values that define the ray. Depending on
   // whether we are casting a WorldRay or a ViewRay, these are in
@@ -75,8 +75,8 @@ typedef struct
   // The number of steps we actually take if this is
   // a ray caster that takes steps
   int NumberOfStepsTaken;
-
-} vtkRayCastRayInfo;
+};
+using vtkRayCastRayInfo = struct vtkRayCastRayInfo_t;
 
 #endif
 // VTK-HeaderTest-Exclude: vtkRayCastStructures.h
