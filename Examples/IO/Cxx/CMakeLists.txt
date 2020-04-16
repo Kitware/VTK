@@ -55,6 +55,15 @@ if (BUILD_TESTING)
   include(CTest)
   if (TARGET VTK::TestingRendering)
     ######## Regression Testing ########
+    set(ExternalData_BINARY_ROOT ${CMAKE_CURRENT_BINARY_DIR}/ExternalData)
+
+    list(APPEND ExternalData_URL_TEMPLATES
+      # Data published by Girder
+      "https://data.kitware.com/api/v1/file/hashsum/%(algo)/%(hash)/download"
+
+      # Data published by developers using git-gitlab-push.
+      "https://www.vtk.org/files/ExternalData/%(algo)/%(hash)"
+    )
     include(ExternalData)
 
     ExternalData_add_test(IOData
