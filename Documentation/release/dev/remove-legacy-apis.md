@@ -18,3 +18,4 @@ The following APIs have been removed:
     `vtkCompositeDataDisplayAttributes`,
     `vtkCompositeDataDisplayAttributesLegacy`, and
     `vtkCompositePolyDataMapper2` (deprecated in Jul 2017)
+  - `vtkOpenVRPropPicker` (deprecated in Apr 2018)
