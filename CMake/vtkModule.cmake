@@ -2088,8 +2088,9 @@ have reasonable defaults if not specified.
     will require distinct `PACKAGE` values.
   * `BUILD_WITH_KITS`: (Defaults to `OFF`) If enabled, kit libraries will be
     built.
-  * `ENABLE_WRAPPING`: (Defaults to `ON`) If enabled, wrapping will be
-    available to the modules built in this call.
+  * `ENABLE_WRAPPING`: (Default depends on the existence of
+    `VTK::WrapHierarchy` or `VTKCompileTools::WrapHierarchy` targets) If
+    enabled, wrapping will be available to the modules built in this call.
   * `USE_EXTERNAL`: (Defaults to `OFF`) Whether third party modules should find
     external copies rather than building their own copy.
   * `INSTALL_HEADERS`: (Defaults to `ON`) Whether or not to install public headers.
@@ -2212,7 +2213,12 @@ function (vtk_module_build)
   endif ()
 
   if (NOT DEFINED _vtk_build_ENABLE_WRAPPING)
-    set(_vtk_build_ENABLE_WRAPPING ON)
+    if (TARGET "VTKCompileTools::WrapHierarchy" OR
+        TARGET "VTK::WrapHierarchy")
+      set(_vtk_build_ENABLE_WRAPPING ON)
+    else ()
+      set(_vtk_build_ENABLE_WRAPPING OFF)
+    endif ()
   endif ()
 
   if (NOT DEFINED _vtk_build_TARGET_NAMESPACE)

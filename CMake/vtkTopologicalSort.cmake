@@ -70,7 +70,7 @@ function(vtk_topological_sort LIST PREFIX SUFFIX)
 
   # Loop over all of the vertices, starting the topological sort from
   # each one.
-  foreach(VERTEX ${VERTICES})
+  foreach(VERTEX IN LISTS VERTICES)
 
     # If we haven't already processed this vertex, start a depth-first
     # search from where.
@@ -78,14 +78,13 @@ function(vtk_topological_sort LIST PREFIX SUFFIX)
       # Push this vertex onto the stack with all of its outgoing edges
       string(REPLACE ";" " " NEW_ELEMENT
         "${VERTEX};${${PREFIX}${VERTEX}${SUFFIX}}")
-      list(APPEND STACK ${NEW_ELEMENT})
+      list(APPEND STACK "${NEW_ELEMENT}")
 
       # We've now seen this vertex
-      set(FOUND_${VERTEX} TRUE)
+      set("FOUND_${VERTEX}" TRUE)
 
       # While the depth-first search stack is not empty
-      list(LENGTH STACK STACK_LENGTH)
-      while(STACK_LENGTH GREATER 0)
+      while(STACK)
         # Remove the vertex and its remaining out-edges from the top
         # of the stack
         list(GET STACK -1 OUT_EDGES)
@@ -97,8 +96,7 @@ function(vtk_topological_sort LIST PREFIX SUFFIX)
         list(REMOVE_AT OUT_EDGES 0)
 
         # While there are still out-edges remaining
-        list(LENGTH OUT_EDGES OUT_DEGREE)
-        while (OUT_DEGREE GREATER 0)
+        while (OUT_EDGES)
           # Pull off the first outgoing edge
           list(GET OUT_EDGES 0 TARGET)
           list(REMOVE_AT OUT_EDGES 0)
@@ -109,32 +107,27 @@ function(vtk_topological_sort LIST PREFIX SUFFIX)
             # source. This is the key to the depth-first traversal.
 
             # We've now seen this vertex
-            set(FOUND_${TARGET} TRUE)
+            set("FOUND_${TARGET}" TRUE)
 
             # Push the remaining edges for the current vertex onto the
             # stack
             string(REPLACE ";" " " NEW_ELEMENT
               "${SOURCE};${OUT_EDGES}")
-            list(APPEND STACK ${NEW_ELEMENT})
+            list(APPEND STACK "${NEW_ELEMENT}")
 
             # Setup the new source and outgoing edges
-            set(SOURCE ${TARGET})
+            set(SOURCE "${TARGET}")
             set(OUT_EDGES
-              ${${PREFIX}${SOURCE}${SUFFIX}})
+              "${${PREFIX}${SOURCE}${SUFFIX}}")
           endif()
-
-          list(LENGTH OUT_EDGES OUT_DEGREE)
         endwhile ()
 
         # We have finished all of the outgoing edges for
         # SOURCE; add it to the resulting list.
         list(APPEND ${LIST} ${SOURCE})
-
-        # Check the length of the stack
-        list(LENGTH STACK STACK_LENGTH)
       endwhile()
     endif ()
   endforeach()
 
-  set(${LIST} ${${LIST}} PARENT_SCOPE)
+  set("${LIST}" "${${LIST}}" PARENT_SCOPE)
 endfunction()
