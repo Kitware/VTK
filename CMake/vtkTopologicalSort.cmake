@@ -70,7 +70,7 @@ function(vtk_topological_sort LIST PREFIX SUFFIX)
 
   # Loop over all of the vertices, starting the topological sort from
   # each one.
-  foreach(VERTEX ${VERTICES})
+  foreach(VERTEX IN LISTS VERTICES)
 
     # If we haven't already processed this vertex, start a depth-first
     # search from where.
@@ -84,8 +84,7 @@ function(vtk_topological_sort LIST PREFIX SUFFIX)
       set(FOUND_${VERTEX} TRUE)
 
       # While the depth-first search stack is not empty
-      list(LENGTH STACK STACK_LENGTH)
-      while(STACK_LENGTH GREATER 0)
+      while(STACK)
         # Remove the vertex and its remaining out-edges from the top
         # of the stack
         list(GET STACK -1 OUT_EDGES)
@@ -97,8 +96,7 @@ function(vtk_topological_sort LIST PREFIX SUFFIX)
         list(REMOVE_AT OUT_EDGES 0)
 
         # While there are still out-edges remaining
-        list(LENGTH OUT_EDGES OUT_DEGREE)
-        while (OUT_DEGREE GREATER 0)
+        while (OUT_EDGES)
           # Pull off the first outgoing edge
           list(GET OUT_EDGES 0 TARGET)
           list(REMOVE_AT OUT_EDGES 0)
@@ -122,16 +120,11 @@ function(vtk_topological_sort LIST PREFIX SUFFIX)
             set(OUT_EDGES
               ${${PREFIX}${SOURCE}${SUFFIX}})
           endif()
-
-          list(LENGTH OUT_EDGES OUT_DEGREE)
         endwhile ()
 
         # We have finished all of the outgoing edges for
         # SOURCE; add it to the resulting list.
         list(APPEND ${LIST} ${SOURCE})
-
-        # Check the length of the stack
-        list(LENGTH STACK STACK_LENGTH)
       endwhile()
     endif ()
   endforeach()
