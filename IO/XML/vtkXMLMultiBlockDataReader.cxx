@@ -27,7 +27,6 @@
 #include "vtkXMLDataElement.h"
 
 vtkStandardNewMacro(vtkXMLMultiBlockDataReader);
-
 //----------------------------------------------------------------------------
 vtkXMLMultiBlockDataReader::vtkXMLMultiBlockDataReader() = default;
 
@@ -111,7 +110,13 @@ void vtkXMLMultiBlockDataReader::ReadComposite(vtkXMLDataElement* element,
     return;
   }
 
-  unsigned int maxElems = element->GetNumberOfNestedElements();
+  // count how may piece in total are there when reading a multi-piece.
+  // This helps with distribution of the pieces.
+  const unsigned int numPieces = (mpiece && this->DistributePiecesInMultiPieces)
+    ? vtkXMLCompositeDataReader::CountNestedElements(element, "DataSet")
+    : 0;
+
+  const unsigned int maxElems = element->GetNumberOfNestedElements();
   for (unsigned int cc = 0; cc < maxElems; ++cc)
   {
     vtkXMLDataElement* childXML = element->GetNestedElement(cc);
@@ -140,7 +145,7 @@ void vtkXMLMultiBlockDataReader::ReadComposite(vtkXMLDataElement* element,
     {
       vtkSmartPointer<vtkDataObject> childDS;
       const char* name = nullptr;
-      if (this->ShouldReadDataSet(dataSetIndex))
+      if (this->ShouldReadDataSet(dataSetIndex, index, numPieces))
       {
         // Read
         childDS.TakeReference(this->ReadDataObject(childXML, filePath));
@@ -228,7 +233,13 @@ int vtkXMLMultiBlockDataReader::FillMetaData(vtkCompositeDataSet* metadata,
   vtkMultiBlockDataSet* mblock = vtkMultiBlockDataSet::SafeDownCast(metadata);
   vtkMultiPieceDataSet* mpiece = vtkMultiPieceDataSet::SafeDownCast(metadata);
 
-  unsigned int maxElems = element->GetNumberOfNestedElements();
+  // count how may piece in total are there when reading a multi-piece.
+  // This helps with distribution of the pieces.
+  const unsigned int numPieces = (mpiece && this->DistributePiecesInMultiPieces)
+    ? vtkXMLCompositeDataReader::CountNestedElements(element, "DataSet")
+    : 0;
+
+  const unsigned int maxElems = element->GetNumberOfNestedElements();
   for (unsigned int cc = 0; cc < maxElems; ++cc)
   {
     vtkXMLDataElement* childXML = element->GetNestedElement(cc);
@@ -272,7 +283,7 @@ int vtkXMLMultiBlockDataReader::FillMetaData(vtkCompositeDataSet* metadata,
           piece_metadata->Set(vtkDataObject::PIECE_EXTENT(), extent, 6);
         }
       }
-      if (this->ShouldReadDataSet(dataSetIndex))
+      if (this->ShouldReadDataSet(dataSetIndex, index, numPieces))
       {
         this->SyncDataArraySelections(this, childXML, filePath);
       }
@@ -341,6 +352,23 @@ int vtkXMLMultiBlockDataReader::RequestInformation(
   {
     return 1;
   }
+
+  // HACK: for now, if this is a multiblock of multipieces alone,
+  // we can use a piece-based strategy for distributing pieces.
+  bool is_multiblock_of_multipieces = true;
+  auto elem = this->GetPrimaryElement();
+  for (unsigned int cc = 0, max = elem->GetNumberOfNestedElements();
+       is_multiblock_of_multipieces && cc < max; ++cc)
+  {
+    auto childXML = elem->GetNestedElement(cc);
+    if (childXML == nullptr || childXML->GetName() == nullptr)
+    {
+      continue;
+    }
+
+    is_multiblock_of_multipieces = (strcmp(childXML->GetName(), "Piece") == 0);
+  }
+  this->DistributePiecesInMultiPieces = is_multiblock_of_multipieces;
 
   const std::string filePath = this->GetFilePath();
   vtkInformation* info = outputVector->GetInformationObject(0);

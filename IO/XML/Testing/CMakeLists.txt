@@ -6,7 +6,11 @@ vtk_module_test_data(
   Data/HyperTreeGrid.1.htg
   Data/ghost_cells.vtu
   Data/many_time_steps.vtu
-  Data/polyhedron2pieces.vtu)
+  Data/polyhedron2pieces.vtu
+  Data/mb-of-mps.vtm
+  Data/mixed-mb.vtm
+  Data/mb-of-mps/,REGEX:.*
+  )
 
 add_subdirectory(Cxx)
 

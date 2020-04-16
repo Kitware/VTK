@@ -35,8 +35,10 @@
 class vtkCompositeDataSet;
 class vtkInformationIntegerKey;
 class vtkInformationIntegerVectorKey;
-
 struct vtkXMLCompositeDataReaderInternals;
+
+#include <set>    // for std::set
+#include <string> // for std::string
 
 class VTKIOXML_EXPORT vtkXMLCompositeDataReader : public vtkXMLReader
 {
@@ -124,21 +126,43 @@ protected:
   // Read the vtkDataObject (a leaf) in the composite dataset.
   virtual vtkDataObject* ReadDataObject(vtkXMLDataElement* xmlElem, const char* filePath);
 
-  // Counts "DataSet" elements in the subtree.
-  unsigned int CountLeaves(vtkXMLDataElement* elem);
-
   /**
    * Given the inorder index for a leaf node, this method tells if the current
    * process should read the dataset.
+   *
+   * For a dataset that is part of a vtkParititionedDataSet or a
+   * vtkMultiPieceDataset, valid `pieceIndex` and `numPieces` should be specified such that
+   * `pieceIndex < numPieces`. When provided, this method can use the
+   * `PieceDistribution` selection to distribute each vtkMultiPieceDataset and
+   * vtkParititionedDataSet across ranks.
+   *
    */
-  int ShouldReadDataSet(unsigned int datasetIndex);
+  int ShouldReadDataSet(
+    unsigned int datasetIndex, unsigned int pieceIndex = 0, unsigned int numPieces = 0);
 
-  bool DataSetIsValidForBlockStrategy(unsigned int datasetIndex);
-  bool DataSetIsValidForInterleaveStrategy(unsigned int datasetIndex);
-
+#ifndef __VTK_WRAP__
+  /**
+   * Convenience method to count all nested elements with the given tag name.
+   * In addition, one can specify a list of tags to skip traversing into.
+   */
+  static unsigned int CountNestedElements(vtkXMLDataElement* element, const std::string& tagName,
+    const std::set<std::string>& exclusions = std::set<std::string>());
+#endif
 private:
   vtkXMLCompositeDataReader(const vtkXMLCompositeDataReader&) = delete;
   void operator=(const vtkXMLCompositeDataReader&) = delete;
+
+  //@{
+  /**
+   * Given the number of datasets (@a numDatasets) and number of pieces (@a numPieces),
+   * return the piece number of a dataset at the chosen index (@a datasetIndex)
+   * based on the assignment strategy.
+   */
+  static int GetPieceAssignmentForBlockStrategy(
+    unsigned int datasetIndex, unsigned int numDatasets, int numPieces);
+  static int GetPieceAssignmentForInterleaveStrategy(
+    unsigned int datasetIndex, unsigned int numDatasets, int numPieces);
+  //@}
 
   int PieceDistribution;
 

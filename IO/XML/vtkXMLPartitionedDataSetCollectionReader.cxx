@@ -65,6 +65,10 @@ void vtkXMLPartitionedDataSetCollectionReader::ReadComposite(vtkXMLDataElement* 
     return;
   }
 
+  // count partitions to guide partition allocation when reading in parallel.
+  const unsigned int numberOfParitions =
+    ds ? vtkXMLCompositeDataReader::CountNestedElements(element, "DataSet") : 0;
+
   unsigned int maxElems = element->GetNumberOfNestedElements();
   for (unsigned int cc = 0; cc < maxElems; ++cc)
   {
@@ -93,7 +97,7 @@ void vtkXMLPartitionedDataSetCollectionReader::ReadComposite(vtkXMLDataElement* 
     if (strcmp(tagName, "DataSet") == 0)
     {
       vtkSmartPointer<vtkDataObject> childDS;
-      if (this->ShouldReadDataSet(dataSetIndex))
+      if (this->ShouldReadDataSet(dataSetIndex, index, numberOfParitions))
       {
         // Read
         childDS.TakeReference(this->ReadDataObject(childXML, filePath));
