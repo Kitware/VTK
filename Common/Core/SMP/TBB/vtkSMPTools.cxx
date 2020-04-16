@@ -16,6 +16,7 @@
 #include "vtkSMPTools.h"
 
 #include "vtkCriticalSection.h"
+#include "vtkSMP.h"
 
 #ifdef _MSC_VER
 #pragma push_macro("__TBB_NO_IMPLICIT_LINKAGE")
@@ -41,6 +42,12 @@ struct vtkSMPToolsInit
 static bool vtkSMPToolsInitialized = 0;
 static int vtkTBBNumSpecifiedThreads = 0;
 static vtkSimpleCriticalSection vtkSMPToolsCS;
+
+//--------------------------------------------------------------------------------
+const char* vtkSMPTools::GetBackend()
+{
+  return VTK_SMP_BACKEND;
+}
 
 //--------------------------------------------------------------------------------
 void vtkSMPTools::Initialize(int numThreads)

@@ -115,6 +115,13 @@ public:
 
   //@{
   /**
+   * Set/Get the maximum number of threads VTK was allocated to support.
+   */
+  static int GetGlobalStaticMaximumNumberOfThreads();
+  //@}
+
+  //@{
+  /**
    * Set/Get the maximum number of threads to use when multithreading.
    * This limits and overrides any other settings for multithreading.
    * A value of zero indicates no limit.

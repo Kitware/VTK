@@ -15,6 +15,8 @@
 
 #include "vtkSMPTools.h"
 
+#include "vtkSMP.h"
+
 #include <omp.h>
 
 #include <algorithm>
@@ -22,6 +24,11 @@
 namespace
 {
 int vtkSMPNumberOfSpecifiedThreads = 0;
+}
+
+const char* vtkSMPTools::GetBackend()
+{
+  return VTK_SMP_BACKEND;
 }
 
 void vtkSMPTools::Initialize(int numThreads)

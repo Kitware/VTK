@@ -220,6 +220,11 @@ public:
   }
 
   /**
+   * Get the backend in use.
+   */
+  static const char* GetBackend();
+
+  /**
    * Initialize the underlying libraries for execution. This is
    * not required as it is automatically called before the first
    * execution of any parallel code. However, it can be used to
