@@ -43,7 +43,7 @@ vtkBridgePointIteratorOne::vtkBridgePointIteratorOne()
 // Destructor.
 vtkBridgePointIteratorOne::~vtkBridgePointIteratorOne()
 {
-  vtkSetObjectBodyMacro(DataSet, vtkBridgeDataSet, nullptr);
+  vtkSetObjectBodyMacro(DataSet, vtkBridgeDataSet, static_cast<vtkBridgeDataSet*>(nullptr));
 }
 
 //-----------------------------------------------------------------------------

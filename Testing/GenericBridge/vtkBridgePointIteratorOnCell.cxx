@@ -47,7 +47,7 @@ vtkBridgePointIteratorOnCell::vtkBridgePointIteratorOnCell()
 // Destructor.
 vtkBridgePointIteratorOnCell::~vtkBridgePointIteratorOnCell()
 {
-  vtkSetObjectBodyMacro(DataSet, vtkBridgeDataSet, nullptr);
+  vtkSetObjectBodyMacro(DataSet, vtkBridgeDataSet, static_cast<vtkBridgeDataSet*>(nullptr));
 }
 
 //-----------------------------------------------------------------------------
