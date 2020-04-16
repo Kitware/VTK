@@ -354,7 +354,7 @@ void* vtkOSOpenGLRenderWindow::GetGenericContext()
   return (void*)this->Internal->OffScreenContextId;
 }
 
-int vtkOSOpenGLRenderWindow::GetEventPending()
+vtkTypeBool vtkOSOpenGLRenderWindow::GetEventPending()
 {
   return 0;
 }
@@ -458,7 +458,7 @@ int vtkOSOpenGLRenderWindow::SupportsOpenGL()
   return 1;
 }
 
-int vtkOSOpenGLRenderWindow::IsDirect()
+vtkTypeBool vtkOSOpenGLRenderWindow::IsDirect()
 {
   MakeCurrent();
   return 0;

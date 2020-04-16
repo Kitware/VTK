@@ -218,7 +218,7 @@ public:
   /**
    * Is this render window using hardware acceleration? 0-false, 1-true
    */
-  int IsDirect() override;
+  vtkTypeBool IsDirect() override;
 
   /**
    * If called, allow MakeCurrent() to skip cache-check when called.
@@ -231,7 +231,7 @@ public:
    * Check to see if an event is pending for this window.
    * This is a useful check to abort a long render.
    */
-  int GetEventPending() override;
+  vtkTypeBool GetEventPending() override;
 
   //@{
   /**
@@ -352,8 +352,8 @@ protected:
   void DestroyWindow() override;
   void DestroyOffScreenWindow();
 
-  int OffScreenInitialized;
-  int OnScreenInitialized;
+  vtkTypeBool OffScreenInitialized;
+  vtkTypeBool OnScreenInitialized;
 
   // IOS seems to have issues with getting RGB data
   int ReadPixels(
@@ -364,11 +364,11 @@ private:
   void operator=(const vtkIOSRenderWindow&) = delete;
 
 private:
-  int WindowCreated;
-  int ViewCreated;
-  int CursorHidden;
+  vtkTypeBool WindowCreated;
+  vtkTypeBool ViewCreated;
+  vtkTypeBool CursorHidden;
 
-  int ForceMakeCurrent;
+  vtkTypeBool ForceMakeCurrent;
 };
 
 #endif

@@ -158,7 +158,7 @@ bool vtkIOSRenderWindow::InitializeFromCurrentContext()
 }
 
 //----------------------------------------------------------------------------
-int vtkIOSRenderWindow::GetEventPending()
+vtkTypeBool vtkIOSRenderWindow::GetEventPending()
 {
   return 0;
 }
@@ -239,7 +239,7 @@ int vtkIOSRenderWindow::SupportsOpenGL()
 }
 
 //----------------------------------------------------------------------------
-int vtkIOSRenderWindow::IsDirect()
+vtkTypeBool vtkIOSRenderWindow::IsDirect()
 {
   this->MakeCurrent();
   if (!this->GetContextId() || !this->GetPixelFormat())

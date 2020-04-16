@@ -143,7 +143,7 @@ public:
   /**
    * Is this render window using hardware acceleration? 0-false, 1-true
    */
-  int IsDirect() override;
+  vtkTypeBool IsDirect() override;
 
   /**
    * Xwindow get set functions
@@ -261,7 +261,7 @@ public:
    * All other events are ignored by this method.
    * This is a useful check to abort a long render.
    */
-  int GetEventPending() override;
+  vtkTypeBool GetEventPending() override;
 
   /**
    * Set this RenderWindow's X window id to a pre-existing window.
@@ -318,12 +318,12 @@ protected:
   Window NextWindowId;
   Display* DisplayId;
   Colormap ColorMap;
-  int OwnWindow;
-  int OwnDisplay;
+  vtkTypeBool OwnWindow;
+  vtkTypeBool OwnDisplay;
   int ScreenSize[2];
-  int CursorHidden;
-  int ForceMakeCurrent;
-  int UsingHardware;
+  vtkTypeBool CursorHidden;
+  vtkTypeBool ForceMakeCurrent;
+  vtkTypeBool UsingHardware;
 
   std::stack<Display*> DisplayStack;
   std::stack<Drawable> DrawableStack;

@@ -216,14 +216,14 @@ public:
   /**
    * Is this render window using hardware acceleration? 0-false, 1-true
    */
-  int IsDirect() override;
+  vtkTypeBool IsDirect() override;
 
   /**
    * Check to see if a mouse button has been pressed or mouse wheel activated.
    * All other events are ignored by this method.
    * This is a useful check to abort a long render.
    */
-  int GetEventPending() override;
+  vtkTypeBool GetEventPending() override;
 
   //@{
   /**
@@ -294,7 +294,7 @@ protected:
   HWND WindowId;
   HWND ParentId;
   HWND NextWindowId;
-  int OwnWindow;
+  vtkTypeBool OwnWindow;
   int ScreenSize[2];
 
   std::stack<HGLRC> ContextStack;
@@ -304,8 +304,8 @@ protected:
   virtual LRESULT MessageProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
   static LRESULT APIENTRY WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-  int CursorHidden;
-  int ForceMakeCurrent;
+  vtkTypeBool CursorHidden;
+  vtkTypeBool ForceMakeCurrent;
 
   int WindowIdReferenceCount;
   void ResizeWhileOffscreen(int xsize, int ysize);

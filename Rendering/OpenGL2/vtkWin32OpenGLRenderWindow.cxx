@@ -148,7 +148,7 @@ void vtkWin32OpenGLRenderWindow::SetWindowName(const char* _arg)
   }
 }
 
-int vtkWin32OpenGLRenderWindow::GetEventPending()
+vtkTypeBool vtkWin32OpenGLRenderWindow::GetEventPending()
 {
   MSG msg;
   if (PeekMessage(&msg, this->WindowId, WM_MOUSEFIRST, WM_MOUSELAST, PM_NOREMOVE))
@@ -401,7 +401,7 @@ void vtkWin32OpenGLRenderWindow::VTKRegisterClass()
   }
 }
 
-int vtkWin32OpenGLRenderWindow::IsDirect()
+vtkTypeBool vtkWin32OpenGLRenderWindow::IsDirect()
 {
   this->MakeCurrent();
   if (!this->DeviceContext)

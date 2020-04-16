@@ -223,7 +223,7 @@ public:
   /**
    * Is this render window using hardware acceleration? 0-false, 1-true
    */
-  int IsDirect() override;
+  vtkTypeBool IsDirect() override;
 
   /**
    * If called, allow MakeCurrent() to skip cache-check when called.
@@ -236,7 +236,7 @@ public:
    * Check to see if an event is pending for this window.
    * This is a useful check to abort a long render.
    */
-  int GetEventPending() override;
+  vtkTypeBool GetEventPending() override;
 
   //@{
   /**
@@ -272,13 +272,13 @@ public:
    * Get the ViewCreated flag. It is 1 if this object created an instance
    * of NSView, 0 otherwise.
    */
-  virtual int GetViewCreated();
+  virtual vtkTypeBool GetViewCreated();
 
   /**
    * Get the WindowCreated flag. It is 1 if this object created an instance
    * of NSWindow, 0 otherwise.
    */
-  virtual int GetWindowCreated();
+  virtual vtkTypeBool GetWindowCreated();
 
   //@{
   /**
@@ -383,7 +383,7 @@ protected:
 
   void CreateAWindow() override;
   void DestroyWindow() override;
-  int OnScreenInitialized;
+  vtkTypeBool OnScreenInitialized;
 
   //@{
   /**
@@ -410,11 +410,11 @@ private:
   // of what would otherwise be Objective-C instance variables.
   void* CocoaManager; // Really an NSMutableDictionary*
 
-  int WindowCreated;
-  int ViewCreated;
-  int CursorHidden;
+  vtkTypeBool WindowCreated;
+  vtkTypeBool ViewCreated;
+  vtkTypeBool CursorHidden;
 
-  int ForceMakeCurrent;
+  vtkTypeBool ForceMakeCurrent;
 
   bool WantsBestResolution;
 };

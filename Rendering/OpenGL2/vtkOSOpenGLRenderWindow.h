@@ -136,7 +136,7 @@ public:
   /**
    * Is this render window using hardware acceleration? 0-false, 1-true
    */
-  int IsDirect();
+  vtkTypeBool IsDirect();
 
   /**
    * Resize the window.
@@ -191,7 +191,7 @@ public:
    * All other events are ignored by this method.
    * This is a useful check to abort a long render.
    */
-  virtual int GetEventPending();
+  virtual vtkTypeBool GetEventPending();
 
   /**
    * Set this RenderWindow's X window id to a pre-existing window.
@@ -214,11 +214,11 @@ protected:
 
   vtkOSOpenGLRenderWindowInternal* Internal;
 
-  int OwnWindow;
-  int OwnDisplay;
+  vtkTypeBool OwnWindow;
+  vtkTypeBool OwnDisplay;
   int ScreenSize[2];
-  int CursorHidden;
-  int ForceMakeCurrent;
+  vtkTypeBool CursorHidden;
+  vtkTypeBool ForceMakeCurrent;
 
   void CreateAWindow() override;
   void DestroyWindow() override;

@@ -312,14 +312,14 @@ public:
   /**
    * Is this render window using hardware acceleration? 0-false, 1-true
    */
-  int IsDirect() { return 1; }
+  vtkTypeBool IsDirect() { return 1; }
 
   /**
    * Check to see if a mouse button has been pressed or mouse wheel activated.
    * All other events are ignored by this method.
    * Maybe should return 1 always?
    */
-  virtual int GetEventPending() { return 0; }
+  virtual vtkTypeBool GetEventPending() { return 0; }
 
   /**
    * Get the current size of the screen in pixels.

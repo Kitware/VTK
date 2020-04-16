@@ -1132,7 +1132,7 @@ void vtkXOpenGLRenderWindow::SetForceMakeCurrent()
   this->ForceMakeCurrent = 1;
 }
 
-int vtkXOpenGLRenderWindowFoundMatch;
+vtkTypeBool vtkXOpenGLRenderWindowFoundMatch;
 
 extern "C"
 {
@@ -1159,7 +1159,7 @@ void* vtkXOpenGLRenderWindow::GetGenericContext()
   return static_cast<void*>(gc);
 }
 
-int vtkXOpenGLRenderWindow::GetEventPending()
+vtkTypeBool vtkXOpenGLRenderWindow::GetEventPending()
 {
   XEvent report;
 
@@ -1438,7 +1438,7 @@ void vtkXOpenGLRenderWindow::CloseDisplay()
   }
 }
 
-int vtkXOpenGLRenderWindow::IsDirect()
+vtkTypeBool vtkXOpenGLRenderWindow::IsDirect()
 {
   this->MakeCurrent();
   this->UsingHardware = 0;

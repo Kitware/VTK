@@ -87,7 +87,7 @@ vtkStandardNewMacro(vtkCocoaRenderWindow);
 {
   assert(_renWin);
 
-  int windowCreated = _renWin->GetWindowCreated();
+  vtkTypeBool windowCreated = _renWin->GetWindowCreated();
   NSWindow* win = reinterpret_cast<NSWindow*>(_renWin->GetRootWindow());
   if (windowCreated && win)
   {
@@ -100,7 +100,7 @@ vtkStandardNewMacro(vtkCocoaRenderWindow);
   }
 
   NSView* view = reinterpret_cast<NSView*>(_renWin->GetWindowId());
-  int viewCreated = _renWin->GetViewCreated();
+  vtkTypeBool viewCreated = _renWin->GetViewCreated();
   if (viewCreated && view)
   {
     // Receive notifications of this, and only this, view's frame changing.
@@ -117,7 +117,7 @@ vtkStandardNewMacro(vtkCocoaRenderWindow);
 {
   assert(_renWin);
 
-  int windowCreated = _renWin->GetWindowCreated();
+  vtkTypeBool windowCreated = _renWin->GetWindowCreated();
   NSWindow* win = reinterpret_cast<NSWindow*>(_renWin->GetRootWindow());
   if (windowCreated && win)
   {
@@ -126,7 +126,7 @@ vtkStandardNewMacro(vtkCocoaRenderWindow);
   }
 
   NSView* view = reinterpret_cast<NSView*>(_renWin->GetWindowId());
-  int viewCreated = _renWin->GetViewCreated();
+  vtkTypeBool viewCreated = _renWin->GetViewCreated();
   if (viewCreated && view)
   {
     NSNotificationCenter* nc = [NSNotificationCenter defaultCenter];
@@ -325,7 +325,7 @@ bool vtkCocoaRenderWindow::InitializeFromCurrentContext()
 }
 
 //----------------------------------------------------------------------------
-int vtkCocoaRenderWindow::GetEventPending()
+vtkTypeBool vtkCocoaRenderWindow::GetEventPending()
 {
   return 0;
 }
@@ -480,7 +480,7 @@ const char* vtkCocoaRenderWindow::ReportCapabilities()
 }
 
 //----------------------------------------------------------------------------
-int vtkCocoaRenderWindow::IsDirect()
+vtkTypeBool vtkCocoaRenderWindow::IsDirect()
 {
   this->MakeCurrent();
   if (!this->GetContextId() || !this->GetPixelFormat())
@@ -1482,13 +1482,13 @@ void vtkCocoaRenderWindow::ShowCursor()
 }
 
 // ---------------------------------------------------------------------------
-int vtkCocoaRenderWindow::GetViewCreated()
+vtkTypeBool vtkCocoaRenderWindow::GetViewCreated()
 {
   return this->ViewCreated;
 }
 
 // ---------------------------------------------------------------------------
-int vtkCocoaRenderWindow::GetWindowCreated()
+vtkTypeBool vtkCocoaRenderWindow::GetWindowCreated()
 {
   return this->WindowCreated;
 }

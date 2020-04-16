@@ -114,7 +114,7 @@ public:
   /**
    * Is this render window using hardware acceleration? 0-false, 1-true
    */
-  int IsDirect() override { return 1; }
+  vtkTypeBool IsDirect() override { return 1; }
 
   /**
    * Get the current size of the screen in pixels.
@@ -175,9 +175,9 @@ public:
    * on any event which causes the DesiredUpdateRate to switch from
    * a high-quality rate to a more interactive rate.
    */
-  virtual int GetEventPending() override { return 0; }
+  virtual vtkTypeBool GetEventPending() override { return 0; }
 
-  int GetOwnWindow() { return this->OwnWindow; }
+  vtkTypeBool GetOwnWindow() { return this->OwnWindow; }
 
   /**
    * Returns the width and height of the allocated EGL surface.
@@ -201,7 +201,7 @@ protected:
   ~vtkEGLRenderWindow() override;
 
   int ScreenSize[2];
-  int OwnWindow;
+  vtkTypeBool OwnWindow;
   bool IsPointSpriteBugTested;
   bool IsPointSpriteBugPresent_;
   class vtkInternals;
