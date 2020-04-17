@@ -534,23 +534,26 @@ int vtkXMLReader::ReadXMLInformation()
         if (name)
         {
           vtkAbstractArray* array = this->CreateArray(eNested);
-          array->SetNumberOfTuples(1);
-          if (!this->ReadArrayValues(eNested, 0, array, 0, 1))
+          if (array->IsNumeric())
           {
-            this->DataError = 1;
-          }
-          vtkDataArray* da = vtkDataArray::SafeDownCast(array);
-          if (da)
-          {
-            this->TimeDataStringArray->InsertNextValue(name);
-            if (this->ActiveTimeDataArrayName && !strcmp(name, this->ActiveTimeDataArrayName))
+            array->SetNumberOfTuples(1);
+            if (!this->ReadArrayValues(eNested, 0, array, 0, 1))
             {
-              double val = da->GetComponent(0, 0);
-              vtkInformation* info = this->GetCurrentOutputInformation();
-              info->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &val, 1);
-              double range[2] = { val, val };
-              info->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), range, 2);
-              foundTimeData = true;
+              this->DataError = 1;
+            }
+            vtkDataArray* da = vtkDataArray::SafeDownCast(array);
+            if (da)
+            {
+              this->TimeDataStringArray->InsertNextValue(name);
+              if (this->ActiveTimeDataArrayName && !strcmp(name, this->ActiveTimeDataArrayName))
+              {
+                double val = da->GetComponent(0, 0);
+                vtkInformation* info = this->GetCurrentOutputInformation();
+                info->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &val, 1);
+                double range[2] = { val, val };
+                info->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), range, 2);
+                foundTimeData = true;
+              }
             }
           }
           array->Delete();
