@@ -533,29 +533,22 @@ int vtkHigherOrderWedge::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vt
   pts->Reset();
 
   vtkIdType nwedge = this->GetNumberOfApproximatingWedges();
-  vtkVector3i ijk;
   for (int i = 0; i < nwedge; ++i)
   {
     vtkWedge* approx = this->GetApproximateWedge(i);
-    if (!this->SubCellCoordinatesFromId(ijk, i))
-    {
-      continue;
-    }
-    if (approx->Triangulate(
-          (ijk[0] + ijk[1] + ijk[2]) % 2, this->TmpIds.GetPointer(), this->TmpPts.GetPointer()))
+    if (approx->Triangulate(1, this->TmpIds.GetPointer(), this->TmpPts.GetPointer()))
     {
       // Sigh. Triangulate methods all reset their points/ids
       // so we must copy them to our output.
       vtkIdType np = this->TmpPts->GetNumberOfPoints();
       vtkIdType ni = this->TmpIds->GetNumberOfIds();
-      vtkIdType offset = pts->GetNumberOfPoints();
       for (vtkIdType ii = 0; ii < np; ++ii)
       {
         pts->InsertNextPoint(this->TmpPts->GetPoint(ii));
       }
       for (vtkIdType ii = 0; ii < ni; ++ii)
       {
-        ptIds->InsertNextId(this->TmpIds->GetId(ii) + offset);
+        ptIds->InsertNextId(this->TmpIds->GetId(ii));
       }
     }
   }
@@ -776,10 +769,10 @@ int vtkHigherOrderWedge::PointIndexFromIJK(int i, int j, int k, const int* order
     offset += nqfdof; // Skip i-normal face
     if (ijbdy)        // on ij-normal face
     {
-      return offset + (rsOrder - i - 1) + rm1 * (k - 1);
+      return offset + (j - 1) + rm1 * (k - 1);
     }
     offset += nqfdof; // Skip ij-normal face
-    return offset + j - 1 + rm1 * (k - 1);
+    return offset + (rsOrder - j - 1) + rm1 * (k - 1);
   }
 
   // Skip all face DOF

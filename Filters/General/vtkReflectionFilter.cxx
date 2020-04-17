@@ -19,6 +19,10 @@
 #include "vtkCellData.h"
 #include "vtkCellType.h"
 #include "vtkCompositeDataIterator.h"
+#include "vtkHigherOrderHexahedron.h"
+#include "vtkHigherOrderQuadrilateral.h"
+#include "vtkHigherOrderTetra.h"
+#include "vtkHigherOrderWedge.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -141,6 +145,8 @@ vtkIdType vtkReflectionFilter::ReflectNon3DCell(
   {
     case VTK_QUADRATIC_EDGE:
     case VTK_CUBIC_LINE:
+    case VTK_BEZIER_CURVE:
+    case VTK_LAGRANGE_CURVE:
     {
       for (int i = 0; i < numCellPts; i++)
       {
@@ -156,6 +162,44 @@ vtkIdType vtkReflectionFilter::ReflectNon3DCell(
       newCellPts[3] = cellPts->GetId(4);
       newCellPts[4] = cellPts->GetId(3);
       newCellPts[5] = cellPts->GetId(5);
+      break;
+    }
+    case VTK_BEZIER_TRIANGLE:
+    case VTK_LAGRANGE_TRIANGLE:
+    {
+      if (numCellPts == 7)
+      {
+        newCellPts[0] = cellPts->GetId(0);
+        newCellPts[1] = cellPts->GetId(2);
+        newCellPts[2] = cellPts->GetId(1);
+        newCellPts[3] = cellPts->GetId(5);
+        newCellPts[4] = cellPts->GetId(4);
+        newCellPts[5] = cellPts->GetId(3);
+        newCellPts[6] = cellPts->GetId(6);
+      }
+      else
+      {
+        int order = (sqrt(8 * numCellPts + 1) - 3) / 2;
+        int offset = 0;
+        while (order > 0)
+        {
+          newCellPts[offset + 0] = cellPts->GetId(offset + 0);
+          newCellPts[offset + 1] = cellPts->GetId(offset + 2);
+          newCellPts[offset + 2] = cellPts->GetId(offset + 1);
+          const int contour_n = 3 * (order - 1);
+          for (int contour = 0; contour < contour_n; contour++)
+          {
+            newCellPts[offset + 3 + contour] = cellPts->GetId(offset + 3 + contour_n - 1 - contour);
+          }
+          if (order == 3) // This is is there is a single point in the middle
+          {
+            newCellPts[offset + 3 + contour_n] = cellPts->GetId(offset + 3 + contour_n);
+          }
+          order -= 3;
+          offset += 3 * order;
+        }
+      }
+
       break;
     }
     case VTK_QUADRATIC_QUAD:
@@ -191,6 +235,34 @@ vtkIdType vtkReflectionFilter::ReflectNon3DCell(
       newCellPts[3] = cellPts->GetId(2);
       newCellPts[4] = cellPts->GetId(4);
       newCellPts[5] = cellPts->GetId(5);
+      break;
+    }
+    case VTK_BEZIER_QUADRILATERAL:
+    case VTK_LAGRANGE_QUADRILATERAL:
+    {
+      vtkCell* cell = input->GetCell(cellId);
+      vtkHigherOrderQuadrilateral* cellQuad = dynamic_cast<vtkHigherOrderQuadrilateral*>(cell);
+      const int* order = cellQuad->GetOrder();
+      const int i_max_half = (order[0] % 2 == 0) ? (order[0] + 2) / 2 : (order[0] + 1) / 2;
+      for (int i = 0; i < i_max_half; i++)
+      {
+        const int i_reversed = order[0] - i;
+        for (int j = 0; j < order[1] + 1; j++)
+        {
+          const int node_id = vtkHigherOrderQuadrilateral::PointIndexFromIJK(i, j, order);
+          if (i != i_reversed)
+          {
+            const int node_id_reversed =
+              vtkHigherOrderQuadrilateral::PointIndexFromIJK(i_reversed, j, order);
+            newCellPts[node_id_reversed] = cellPts->GetId(node_id);
+            newCellPts[node_id] = cellPts->GetId(node_id_reversed);
+          }
+          else
+          {
+            newCellPts[node_id] = cellPts->GetId(node_id);
+          }
+        }
+      }
       break;
     }
     default:
@@ -807,6 +879,151 @@ int vtkReflectionFilter::RequestDataInternal(
           idPtr += npts;
         }
         outputCellId = output->InsertNextCell(cellType, cellPts);
+        break;
+      }
+      case VTK_BEZIER_HEXAHEDRON:
+      case VTK_LAGRANGE_HEXAHEDRON:
+      {
+        input->GetCellPoints(i, cellPts);
+        const int numCellPts = cellPts->GetNumberOfIds();
+        std::vector<vtkIdType> newCellPts(numCellPts);
+
+        vtkCell* cell = input->GetCell(i);
+        vtkHigherOrderHexahedron* cellHex = dynamic_cast<vtkHigherOrderHexahedron*>(cell);
+        const int* order = cellHex->GetOrder();
+        const int k_max_half = (order[2] % 2 == 0) ? (order[2] + 2) / 2 : (order[2] + 1) / 2;
+        for (int ii = 0; ii < order[0] + 1; ii++)
+        {
+          for (int jj = 0; jj < order[1] + 1; jj++)
+          {
+            for (int kk = 0; kk < k_max_half; kk++)
+            {
+              const int kk_reversed = order[2] - kk;
+              const int node_id = vtkHigherOrderHexahedron::PointIndexFromIJK(ii, jj, kk, order);
+              if (kk != kk_reversed)
+              {
+                const int node_id_reversed =
+                  vtkHigherOrderHexahedron::PointIndexFromIJK(ii, jj, kk_reversed, order);
+                newCellPts[node_id_reversed] = cellPts->GetId(node_id);
+                newCellPts[node_id] = cellPts->GetId(node_id_reversed);
+              }
+              else
+              {
+                newCellPts[node_id] = cellPts->GetId(node_id);
+              }
+            }
+          }
+        }
+        if (this->CopyInput)
+        {
+          for (int j = 0; j < numCellPts; j++)
+          {
+            newCellPts[j] += numPts;
+          }
+        }
+        outputCellId = output->InsertNextCell(cellType, numCellPts, &newCellPts[0]);
+        break;
+      }
+      case VTK_BEZIER_WEDGE:
+      case VTK_LAGRANGE_WEDGE:
+      {
+        input->GetCellPoints(i, cellPts);
+        const int numCellPts = cellPts->GetNumberOfIds();
+        std::vector<vtkIdType> newCellPts(numCellPts);
+        if (numCellPts == 21)
+        {
+          newCellPts = { cellPts->GetId(3), cellPts->GetId(4), cellPts->GetId(5), cellPts->GetId(0),
+            cellPts->GetId(1), cellPts->GetId(2), cellPts->GetId(9), cellPts->GetId(10),
+            cellPts->GetId(11), cellPts->GetId(6), cellPts->GetId(7), cellPts->GetId(8),
+            cellPts->GetId(12), cellPts->GetId(13), cellPts->GetId(14), cellPts->GetId(16),
+            cellPts->GetId(15), cellPts->GetId(17), cellPts->GetId(18), cellPts->GetId(19),
+            cellPts->GetId(20) };
+        }
+        else
+        {
+          vtkCell* cell = input->GetCell(i);
+          vtkHigherOrderWedge* cellWedge = dynamic_cast<vtkHigherOrderWedge*>(cell);
+          const int* order = cellWedge->GetOrder();
+          const int k_max_half = (order[2] % 2 == 0) ? (order[2] + 2) / 2 : (order[2] + 1) / 2;
+          for (int ii = 0; ii < order[0] + 1; ii++)
+          {
+            for (int jj = 0; jj < order[0] + 1 - ii; jj++)
+            {
+              for (int kk = 0; kk < k_max_half; kk++)
+              {
+                const int kk_reversed = order[2] - kk;
+                const int node_id = vtkHigherOrderWedge::PointIndexFromIJK(ii, jj, kk, order);
+                if (kk != kk_reversed)
+                {
+                  const int node_id_reversed =
+                    vtkHigherOrderWedge::PointIndexFromIJK(ii, jj, kk_reversed, order);
+                  newCellPts[node_id_reversed] = cellPts->GetId(node_id);
+                  newCellPts[node_id] = cellPts->GetId(node_id_reversed);
+                }
+                else
+                {
+                  newCellPts[node_id] = cellPts->GetId(node_id);
+                }
+              }
+            }
+          }
+        }
+        if (this->CopyInput)
+        {
+          for (int j = 0; j < numCellPts; j++)
+          {
+            newCellPts[j] += numPts;
+          }
+        }
+        outputCellId = output->InsertNextCell(cellType, numCellPts, &newCellPts[0]);
+        break;
+      }
+      case VTK_BEZIER_TETRAHEDRON:
+      case VTK_LAGRANGE_TETRAHEDRON:
+      {
+        input->GetCellPoints(i, cellPts);
+        const int numCellPts = cellPts->GetNumberOfIds();
+        std::vector<vtkIdType> newCellPts(numCellPts);
+        if (numCellPts == 15)
+        {
+          newCellPts = { cellPts->GetId(0), cellPts->GetId(2), cellPts->GetId(1), cellPts->GetId(3),
+            cellPts->GetId(6), cellPts->GetId(5), cellPts->GetId(4), cellPts->GetId(7),
+            cellPts->GetId(9), cellPts->GetId(8), cellPts->GetId(10), cellPts->GetId(13),
+            cellPts->GetId(12), cellPts->GetId(11), cellPts->GetId(14) };
+        }
+        else
+        {
+          const int order = vtkHigherOrderTetra::ComputeOrder(numCellPts);
+          for (int ii = 0; ii < order + 1; ii++)
+          {
+            for (int jj = 0; jj < order + 1 - ii; jj++)
+            {
+              for (int kk = 0; kk < order + 1 - jj; kk++)
+              {
+                for (int ll = 0; ll < order + 1 - kk; ll++)
+                {
+                  if ((ii + jj + kk + ll) == order)
+                  {
+                    const vtkIdType bindex[4]{ ii, jj, kk, ll };
+                    const vtkIdType bindex_reversed[4]{ ii, jj, ll, kk };
+                    const vtkIdType node_id = vtkHigherOrderTetra::Index(bindex, order);
+                    const vtkIdType node_id_reversed =
+                      vtkHigherOrderTetra::Index(bindex_reversed, order);
+                    newCellPts[node_id] = cellPts->GetId(node_id_reversed);
+                  }
+                }
+              }
+            }
+          }
+        }
+        if (this->CopyInput)
+        {
+          for (int j = 0; j < numCellPts; j++)
+          {
+            newCellPts[j] += numPts;
+          }
+        }
+        outputCellId = output->InsertNextCell(cellType, numCellPts, &newCellPts[0]);
         break;
       }
       default:

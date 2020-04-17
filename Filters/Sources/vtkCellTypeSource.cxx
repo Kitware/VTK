@@ -1237,13 +1237,13 @@ void vtkCellTypeSource::GenerateLagrangeCurves(vtkUnstructuredGrid* output, int 
     output->GetPoint(i + 1, p1.GetData());
     dp = p1 - p0;
     conn[0] = i;
-    conn[this->CellOrder] = i + 1;
+    conn[1] = i + 1;
     double denom = static_cast<double>(this->CellOrder);
     for (int j = 1; j < this->CellOrder; ++j)
     {
       pm = p0 + (static_cast<double>(j) / denom) * dp;
       vtkIdType innerPointId = points->InsertNextPoint(pm.GetData());
-      conn[j] = innerPointId;
+      conn[j + 1] = innerPointId;
     }
     output->InsertNextCell(VTK_LAGRANGE_CURVE, this->CellOrder + 1, &conn[0]);
   }
@@ -1387,6 +1387,21 @@ void vtkCellTypeSource::GenerateLagrangeQuads(vtkUnstructuredGrid* output, int e
 //----------------------------------------------------------------------------
 void vtkCellTypeSource::GenerateLagrangeTets(vtkUnstructuredGrid* output, int extent[6])
 {
+  static const int tetsOfHex[12][4] = {
+    { 0, 1, 2, 8 },
+    { 0, 2, 3, 8 },
+    { 6, 5, 4, 8 },
+    { 6, 4, 7, 8 },
+    { 1, 5, 6, 8 },
+    { 1, 6, 2, 8 },
+    { 0, 4, 5, 8 },
+    { 0, 5, 1, 8 },
+    { 0, 3, 7, 8 },
+    { 0, 7, 4, 8 },
+    { 6, 7, 3, 8 },
+    { 6, 3, 2, 8 },
+  };
+
   // cell dimensions
   const int xDim = extent[1] - extent[0];
   const int yDim = extent[3] - extent[2];
@@ -1395,55 +1410,56 @@ void vtkCellTypeSource::GenerateLagrangeTets(vtkUnstructuredGrid* output, int ex
   const int numPtsPerCell = (this->CellOrder == 2 && this->CompleteQuadraticSimplicialElements)
     ? 15
     : (this->CellOrder + 1) * (this->CellOrder + 2) * (this->CellOrder + 3) / 6;
+  const int order[3] = { this->CellOrder, this->CellOrder, this->CellOrder };
+
+  vtkIdType hexIds[9];
+  std::vector<vtkIdType> conn;
+  conn.resize(numPtsPerCell);
 
   // Allocate numCells * (numPtsPerCell + 1) because connectivity array doesn't
   // hold number of pts per cell, but output cell array does:
   output->Allocate(numCells * (numPtsPerCell + 1));
-  vtkIdType corners[8];
-  std::vector<vtkIdType> conn;
-  conn.resize(numPtsPerCell);
-  int cc = 0;
-  const int order[3] = { this->CellOrder, this->CellOrder, this->CellOrder };
-  for (int k = 0; k < zDim; ++k)
+
+  for (int k = 0; k < zDim; k++)
   {
-    for (int j = 0; j < yDim; ++j)
+    for (int j = 0; j < yDim; j++)
     {
-      for (int i = 0; i < xDim; ++i, ++cc)
+      for (int i = 0; i < xDim; i++)
       {
-        corners[0] = i + (j + k * (yDim + 1)) * (xDim + 1);
-        corners[1] = i + 1 + (j + k * (yDim + 1)) * (xDim + 1);
-        corners[2] = i + 1 + ((j + 1) + k * (yDim + 1)) * (xDim + 1);
-        corners[3] = i + ((j + 1) + k * (yDim + 1)) * (xDim + 1);
-        corners[4] = i + (j + (k + 1) * (yDim + 1)) * (xDim + 1);
-        corners[5] = i + 1 + (j + (k + 1) * (yDim + 1)) * (xDim + 1);
-        corners[6] = i + 1 + ((j + 1) + (k + 1) * (yDim + 1)) * (xDim + 1);
-        corners[7] = i + ((j + 1) + (k + 1) * (yDim + 1)) * (xDim + 1);
+        hexIds[0] = i + j * (xDim + 1) + k * (xDim + 1) * (yDim + 1);
+        hexIds[1] = i + 1 + j * (xDim + 1) + k * (xDim + 1) * (yDim + 1);
+        hexIds[2] = i + 1 + (j + 1) * (xDim + 1) + k * (xDim + 1) * (yDim + 1);
+        hexIds[3] = i + (j + 1) * (xDim + 1) + k * (xDim + 1) * (yDim + 1);
+        hexIds[4] = i + j * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1);
+        hexIds[5] = i + 1 + j * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1);
+        hexIds[6] = i + 1 + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1);
+        hexIds[7] = i + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1);
 
-        vtkVector3d pt[8], pm;
-        output->GetPoint(corners[0], pt[0].GetData());
-        output->GetPoint(corners[1], pt[1].GetData());
-        output->GetPoint(corners[2], pt[2].GetData());
-        output->GetPoint(corners[3], pt[3].GetData());
-        output->GetPoint(corners[4], pt[4].GetData());
-        output->GetPoint(corners[5], pt[5].GetData());
-        output->GetPoint(corners[6], pt[6].GetData());
-        output->GetPoint(corners[7], pt[7].GetData());
+        vtkVector3d pt[9], pm;
+        output->GetPoint(hexIds[0], pt[0].GetData());
+        output->GetPoint(hexIds[1], pt[1].GetData());
+        output->GetPoint(hexIds[2], pt[2].GetData());
+        output->GetPoint(hexIds[3], pt[3].GetData());
+        output->GetPoint(hexIds[4], pt[4].GetData());
+        output->GetPoint(hexIds[5], pt[5].GetData());
+        output->GetPoint(hexIds[6], pt[6].GetData());
+        output->GetPoint(hexIds[7], pt[7].GetData());
+        // add in center point
+        for (int l = 0; l < 3; l++)
+        {
+          pt[8][l] = .5 * (pt[0][l] + pt[6][l]);
+        }
+        this->Locator->InsertUniquePoint(pt[8].GetData(), hexIds[8]);
 
-        static const int tetsOfHex[5][4] = {
-          { 0, 1, 3, 4 },
-          { 1, 2, 3, 6 },
-          { 4, 7, 6, 3 },
-          { 4, 6, 5, 1 },
-          { 1, 4, 6, 3 },
-        };
-        for (int te = 0; te < 5; ++te)
+        for (int te = 0; te < 12; ++te)
         {
           vtkVector3d tpts[4];
           vtkIdType innerPointId;
+
           // Get corners
           for (int ii = 0; ii < 4; ++ii)
           {
-            conn[ii] = corners[tetsOfHex[te][ii]];
+            conn[ii] = hexIds[tetsOfHex[te][ii]];
             tpts[ii] = pt[tetsOfHex[te][ii]];
           }
           for (int kk = 0; kk <= order[2]; ++kk)
@@ -1719,13 +1735,13 @@ void vtkCellTypeSource::GenerateBezierCurves(vtkUnstructuredGrid* output, int ex
     output->GetPoint(i + 1, p1.GetData());
     dp = p1 - p0;
     conn[0] = i;
-    conn[this->CellOrder] = i + 1;
+    conn[1] = i + 1;
     double denom = static_cast<double>(this->CellOrder);
     for (int j = 1; j < this->CellOrder; ++j)
     {
       pm = p0 + (static_cast<double>(j) / denom) * dp;
       vtkIdType innerPointId = points->InsertNextPoint(pm.GetData());
-      conn[j] = innerPointId;
+      conn[j + 1] = innerPointId;
     }
     output->InsertNextCell(VTK_BEZIER_CURVE, this->CellOrder + 1, &conn[0]);
   }
@@ -1869,6 +1885,21 @@ void vtkCellTypeSource::GenerateBezierQuads(vtkUnstructuredGrid* output, int ext
 //----------------------------------------------------------------------------
 void vtkCellTypeSource::GenerateBezierTets(vtkUnstructuredGrid* output, int extent[6])
 {
+  static const int tetsOfHex[12][4] = {
+    { 0, 1, 2, 8 },
+    { 0, 2, 3, 8 },
+    { 6, 5, 4, 8 },
+    { 6, 4, 7, 8 },
+    { 1, 5, 6, 8 },
+    { 1, 6, 2, 8 },
+    { 0, 4, 5, 8 },
+    { 0, 5, 1, 8 },
+    { 0, 3, 7, 8 },
+    { 0, 7, 4, 8 },
+    { 6, 7, 3, 8 },
+    { 6, 3, 2, 8 },
+  };
+
   // cell dimensions
   const int xDim = extent[1] - extent[0];
   const int yDim = extent[3] - extent[2];
@@ -1877,55 +1908,56 @@ void vtkCellTypeSource::GenerateBezierTets(vtkUnstructuredGrid* output, int exte
   const int numPtsPerCell = (this->CellOrder == 2 && this->CompleteQuadraticSimplicialElements)
     ? 15
     : (this->CellOrder + 1) * (this->CellOrder + 2) * (this->CellOrder + 3) / 6;
+  const int order[3] = { this->CellOrder, this->CellOrder, this->CellOrder };
+
+  vtkIdType hexIds[9];
+  std::vector<vtkIdType> conn;
+  conn.resize(numPtsPerCell);
 
   // Allocate numCells * (numPtsPerCell + 1) because connectivity array doesn't
   // hold number of pts per cell, but output cell array does:
   output->Allocate(numCells * (numPtsPerCell + 1));
-  vtkIdType corners[8];
-  std::vector<vtkIdType> conn;
-  conn.resize(numPtsPerCell);
-  int cc = 0;
-  const int order[3] = { this->CellOrder, this->CellOrder, this->CellOrder };
-  for (int k = 0; k < zDim; ++k)
+
+  for (int k = 0; k < zDim; k++)
   {
-    for (int j = 0; j < yDim; ++j)
+    for (int j = 0; j < yDim; j++)
     {
-      for (int i = 0; i < xDim; ++i, ++cc)
+      for (int i = 0; i < xDim; i++)
       {
-        corners[0] = i + (j + k * (yDim + 1)) * (xDim + 1);
-        corners[1] = i + 1 + (j + k * (yDim + 1)) * (xDim + 1);
-        corners[2] = i + 1 + ((j + 1) + k * (yDim + 1)) * (xDim + 1);
-        corners[3] = i + ((j + 1) + k * (yDim + 1)) * (xDim + 1);
-        corners[4] = i + (j + (k + 1) * (yDim + 1)) * (xDim + 1);
-        corners[5] = i + 1 + (j + (k + 1) * (yDim + 1)) * (xDim + 1);
-        corners[6] = i + 1 + ((j + 1) + (k + 1) * (yDim + 1)) * (xDim + 1);
-        corners[7] = i + ((j + 1) + (k + 1) * (yDim + 1)) * (xDim + 1);
+        hexIds[0] = i + j * (xDim + 1) + k * (xDim + 1) * (yDim + 1);
+        hexIds[1] = i + 1 + j * (xDim + 1) + k * (xDim + 1) * (yDim + 1);
+        hexIds[2] = i + 1 + (j + 1) * (xDim + 1) + k * (xDim + 1) * (yDim + 1);
+        hexIds[3] = i + (j + 1) * (xDim + 1) + k * (xDim + 1) * (yDim + 1);
+        hexIds[4] = i + j * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1);
+        hexIds[5] = i + 1 + j * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1);
+        hexIds[6] = i + 1 + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1);
+        hexIds[7] = i + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1);
 
-        vtkVector3d pt[8], pm;
-        output->GetPoint(corners[0], pt[0].GetData());
-        output->GetPoint(corners[1], pt[1].GetData());
-        output->GetPoint(corners[2], pt[2].GetData());
-        output->GetPoint(corners[3], pt[3].GetData());
-        output->GetPoint(corners[4], pt[4].GetData());
-        output->GetPoint(corners[5], pt[5].GetData());
-        output->GetPoint(corners[6], pt[6].GetData());
-        output->GetPoint(corners[7], pt[7].GetData());
+        vtkVector3d pt[9], pm;
+        output->GetPoint(hexIds[0], pt[0].GetData());
+        output->GetPoint(hexIds[1], pt[1].GetData());
+        output->GetPoint(hexIds[2], pt[2].GetData());
+        output->GetPoint(hexIds[3], pt[3].GetData());
+        output->GetPoint(hexIds[4], pt[4].GetData());
+        output->GetPoint(hexIds[5], pt[5].GetData());
+        output->GetPoint(hexIds[6], pt[6].GetData());
+        output->GetPoint(hexIds[7], pt[7].GetData());
+        // add in center point
+        for (int l = 0; l < 3; l++)
+        {
+          pt[8][l] = .5 * (pt[0][l] + pt[6][l]);
+        }
+        this->Locator->InsertUniquePoint(pt[8].GetData(), hexIds[8]);
 
-        static const int tetsOfHex[5][4] = {
-          { 0, 1, 3, 4 },
-          { 1, 2, 3, 6 },
-          { 4, 7, 6, 3 },
-          { 4, 6, 5, 1 },
-          { 1, 4, 6, 3 },
-        };
-        for (int te = 0; te < 5; ++te)
+        for (int te = 0; te < 12; ++te)
         {
           vtkVector3d tpts[4];
           vtkIdType innerPointId;
+
           // Get corners
           for (int ii = 0; ii < 4; ++ii)
           {
-            conn[ii] = corners[tetsOfHex[te][ii]];
+            conn[ii] = hexIds[tetsOfHex[te][ii]];
             tpts[ii] = pt[tetsOfHex[te][ii]];
           }
           for (int kk = 0; kk <= order[2]; ++kk)
