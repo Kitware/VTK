@@ -22,6 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkUpdateCellsV8toV9.h"
 #include "vtkXMLDataElement.h"
 
 #include <cassert>
@@ -300,6 +301,14 @@ int vtkXMLUnstructuredGridReader::ReadPieceData()
     // Copy the cell type data.
     memcpy(output->GetCellTypesArray()->GetPointer(this->StartCell), cellTypes->GetPointer(0),
       numberOfCells);
+
+    // Permute node numbering on higher order hexahedra for legacy files (see
+    // https://gitlab.kitware.com/vtk/vtk/-/merge_requests/6678 )
+    if (this->GetFileMajorVersion() < 2 ||
+      (this->GetFileMajorVersion() == 2 && this->GetFileMinorVersion() < 1))
+    {
+      vtkUpdateCellsV8toV9(output);
+    }
 
     cellTypes->Delete();
   }

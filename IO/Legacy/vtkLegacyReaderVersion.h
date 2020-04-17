@@ -21,7 +21,7 @@
 #define vtkLegacyReaderVersion_h
 
 const int vtkLegacyReaderMajorVersion = 5;
-const int vtkLegacyReaderMinorVersion = 0;
+const int vtkLegacyReaderMinorVersion = 1;
 
 #endif // vtkLegacyReaderVersion_h
 // VTK-HeaderTest-Exclude: vtkLegacyReaderVersion.h

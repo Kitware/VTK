@@ -32,6 +32,7 @@
 #include "vtkPolyhedron.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkUpdateCellsV8toV9.h"
 #define vtkXMLOffsetsManager_DoNotInclude
 #include "vtkXMLOffsetsManager.h"
 #undef vtkXMLOffsetsManager_DoNotInclude
@@ -148,12 +149,22 @@ vtkTypeBool vtkXMLUnstructuredDataWriter::ProcessRequest(
         return 0;
       }
 
-      if (this->GetInputAsDataSet() != nullptr &&
-        (this->GetInputAsDataSet()->GetPointGhostArray() != nullptr &&
-          this->GetInputAsDataSet()->GetCellGhostArray() != nullptr))
+      if (vtkDataSet* dataSet = this->GetInputAsDataSet())
       {
-        // use the current version for the file.
-        this->UsePreviousVersion = false;
+        if (dataSet->GetPointGhostArray() != nullptr && dataSet->GetCellGhostArray() != nullptr)
+        {
+          // use the current version for the file.
+          this->UsePreviousVersion = false;
+        }
+        else
+        {
+          vtkNew<vtkCellTypes> cellTypes;
+          dataSet->GetCellTypes(cellTypes);
+          if (vtkNeedsNewFileVersionV8toV9(cellTypes))
+          {
+            this->UsePreviousVersion = false;
+          }
+        }
       }
 
       // Write the file.
