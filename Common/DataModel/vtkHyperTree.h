@@ -470,7 +470,7 @@ public:
 protected:
   vtkHyperTree();
 
-  virtual ~vtkHyperTree() override {}
+  ~vtkHyperTree() override {}
 
   virtual void InitializePrivate() = 0;
   virtual void PrintSelfPrivate(ostream& os, vtkIndent indent) = 0;

@@ -42,11 +42,10 @@ protected:
   vtkPParticlePathFilter();
   ~vtkPParticlePathFilter() override;
 
-  virtual void ResetCache() override;
-  virtual int OutputParticles(vtkPolyData* poly) override;
-  virtual void InitializeExtraPointDataArrays(vtkPointData* outputPD) override;
-  virtual void AppendToExtraPointDataArrays(
-    vtkParticleTracerBaseNamespace::ParticleInformation&) override;
+  void ResetCache() override;
+  int OutputParticles(vtkPolyData* poly) override;
+  void InitializeExtraPointDataArrays(vtkPointData* outputPD) override;
+  void AppendToExtraPointDataArrays(vtkParticleTracerBaseNamespace::ParticleInformation&) override;
   void Finalize() override;
 
   //

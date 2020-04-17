@@ -56,8 +56,8 @@ public:
   void InterpolateFunctions(const double pcoords[3], double* weights) override;
   void InterpolateDerivs(const double pcoords[3], double* derivs) override;
 
-  virtual vtkHigherOrderCurve* getEdgeCell() override;
-  virtual vtkHigherOrderTriangle* getFaceCell() override;
+  vtkHigherOrderCurve* getEdgeCell() override;
+  vtkHigherOrderTriangle* getFaceCell() override;
 
   vtkDoubleArray* GetRationalWeights();
 

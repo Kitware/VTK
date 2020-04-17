@@ -47,7 +47,7 @@ protected:
   vtkmContour();
   ~vtkmContour() override;
 
-  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkmContour(const vtkmContour&) = delete;

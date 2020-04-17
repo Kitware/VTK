@@ -38,12 +38,12 @@ public:
   /**
    * Build containers for our child nodes.
    */
-  virtual void Build(bool prepass) override;
+  void Build(bool prepass) override;
 
   /**
    * Get state of my renderable.
    */
-  virtual void Synchronize(bool prepass) override;
+  void Synchronize(bool prepass) override;
 
   /**
    * Return the size of the last rendered image

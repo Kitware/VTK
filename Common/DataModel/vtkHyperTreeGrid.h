@@ -743,7 +743,7 @@ protected:
   /**
    * Destructor
    */
-  virtual ~vtkHyperTreeGrid() override;
+  ~vtkHyperTreeGrid() override;
 
   /**
    * JB ModeSqueeze

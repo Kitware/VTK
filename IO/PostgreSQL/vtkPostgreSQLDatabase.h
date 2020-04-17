@@ -90,7 +90,7 @@ public:
   /**
    * Did the last operation generate an error
    */
-  virtual bool HasError() override;
+  bool HasError() override;
 
   /**
    * Get the last error text from the database

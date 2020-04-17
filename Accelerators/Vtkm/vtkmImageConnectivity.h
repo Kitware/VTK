@@ -51,7 +51,7 @@ protected:
   vtkmImageConnectivity();
   ~vtkmImageConnectivity() override;
 
-  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkmImageConnectivity(const vtkmImageConnectivity&) = delete;

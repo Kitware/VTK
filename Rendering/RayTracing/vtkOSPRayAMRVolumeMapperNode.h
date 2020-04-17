@@ -38,11 +38,11 @@ public:
   /**
    * Traverse graph in ospray's preferred order and render
    */
-  virtual void Render(bool prepass) override;
+  void Render(bool prepass) override;
 
 protected:
   vtkOSPRayAMRVolumeMapperNode();
-  ~vtkOSPRayAMRVolumeMapperNode() = default;
+  ~vtkOSPRayAMRVolumeMapperNode() override = default;
 
 private:
   vtkOSPRayAMRVolumeMapperNode(const vtkOSPRayAMRVolumeMapperNode&) = delete;

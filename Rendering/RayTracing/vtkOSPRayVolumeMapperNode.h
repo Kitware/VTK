@@ -42,7 +42,7 @@ public:
   /**
    * Make ospray calls to render me.
    */
-  virtual void Render(bool prepass) override;
+  void Render(bool prepass) override;
 
   /**
    * TODO: fix me
@@ -54,7 +54,7 @@ public:
 
 protected:
   vtkOSPRayVolumeMapperNode();
-  ~vtkOSPRayVolumeMapperNode();
+  ~vtkOSPRayVolumeMapperNode() override;
 
   /**
    * updates internal OSPRay transfer function for volume

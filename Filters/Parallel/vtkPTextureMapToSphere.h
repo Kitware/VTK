@@ -46,7 +46,7 @@ protected:
   vtkPTextureMapToSphere();
   ~vtkPTextureMapToSphere() override = default;
 
-  virtual void ComputeCenter(vtkDataSet* dataSet) override;
+  void ComputeCenter(vtkDataSet* dataSet) override;
 
   vtkMultiProcessController* Controller;
 

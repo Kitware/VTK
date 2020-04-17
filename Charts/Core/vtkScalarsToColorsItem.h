@@ -104,8 +104,8 @@ public:
    * If a vtkIdType* is passed, its referent will be set to index of the bar
    * segment with which a point is associated, or -1.
    */
-  virtual vtkIdType GetNearestPoint(const vtkVector2f& point, const vtkVector2f&,
-    vtkVector2f* location, vtkIdType* segmentIndex) override;
+  vtkIdType GetNearestPoint(const vtkVector2f& point, const vtkVector2f&, vtkVector2f* location,
+    vtkIdType* segmentIndex) override;
 #ifndef VTK_LEGACY_REMOVE
   using vtkPlot::GetNearestPoint;
 #endif // VTK_LEGACY_REMOVE

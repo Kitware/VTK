@@ -42,8 +42,7 @@ class vtkOpenGLVertexBufferObjectGroup;
 class vtkPolyData;
 class vtkTextureObject;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLFluidMapper
-  : public vtkAbstractVolumeMapper
+class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLFluidMapper : public vtkAbstractVolumeMapper
 {
 public:
   static vtkOpenGLFluidMapper* New();
@@ -135,10 +134,8 @@ public:
   /**
    * Get/Set the filter method for filtering fluid surface
    */
-  vtkSetMacro(SurfaceFilterMethod,
-              vtkOpenGLFluidMapper::FluidSurfaceFilterMethod);
-  vtkGetMacro(SurfaceFilterMethod,
-              vtkOpenGLFluidMapper::FluidSurfaceFilterMethod);
+  vtkSetMacro(SurfaceFilterMethod, vtkOpenGLFluidMapper::FluidSurfaceFilterMethod);
+  vtkGetMacro(SurfaceFilterMethod, vtkOpenGLFluidMapper::FluidSurfaceFilterMethod);
   //@}
 
   /**
@@ -267,7 +264,7 @@ public:
   /**
    * This calls RenderPiece
    */
-  virtual void Render(vtkRenderer* ren, vtkVolume* vol) override;
+  void Render(vtkRenderer* ren, vtkVolume* vol) override;
 
   /**
    * Release graphics resources and ask components to release their own
@@ -278,21 +275,19 @@ public:
 
 protected:
   vtkOpenGLFluidMapper();
-  virtual ~vtkOpenGLFluidMapper() override;
+  ~vtkOpenGLFluidMapper() override;
 
   /**
    * Perform string replacements on the shader templates
    */
-  void UpdateDepthThicknessColorShaders(vtkOpenGLHelper& glHelper,
-                                        vtkRenderer* renderer,
-                                        vtkVolume* vol);
+  void UpdateDepthThicknessColorShaders(
+    vtkOpenGLHelper& glHelper, vtkRenderer* renderer, vtkVolume* vol);
 
   /**
    * Set the shader parameters related to the actor/mapper/camera
    */
-  void SetDepthThicknessColorShaderParameters(vtkOpenGLHelper& glHelper,
-                                              vtkRenderer* renderer,
-                                              vtkVolume* vol);
+  void SetDepthThicknessColorShaderParameters(
+    vtkOpenGLHelper& glHelper, vtkRenderer* renderer, vtkVolume* vol);
 
   /**
    * Setup the texture buffers
@@ -308,8 +303,7 @@ protected:
   // ======>>>>>
   float ParticleRadius = 1.0f;
 
-  FluidSurfaceFilterMethod SurfaceFilterMethod =
-    FluidSurfaceFilterMethod::NarrowRange;
+  FluidSurfaceFilterMethod SurfaceFilterMethod = FluidSurfaceFilterMethod::NarrowRange;
   uint32_t SurfaceFilterIterations = 3u;
   uint32_t SurfaceFilterRadius = 5u;
   float NRFilterLambda = 10.0f;
@@ -360,8 +354,7 @@ protected:
   vtkSmartPointer<vtkOpenGLFramebufferObject> FBFilterDepth;
 
   // Screen quad render
-  vtkOpenGLQuadHelper* QuadFluidDepthFilter[NumFilterMethods]{ nullptr,
-                                                               nullptr };
+  vtkOpenGLQuadHelper* QuadFluidDepthFilter[NumFilterMethods]{ nullptr, nullptr };
   vtkOpenGLQuadHelper* QuadThicknessFilter = nullptr;
   vtkOpenGLQuadHelper* QuadFluidNormal = nullptr;
   vtkOpenGLQuadHelper* QuadFinalBlend = nullptr;

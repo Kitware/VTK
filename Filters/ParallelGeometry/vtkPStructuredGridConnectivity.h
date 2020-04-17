@@ -115,7 +115,7 @@ public:
    * Creates ghost layers on the grids owned by this process using data from
    * both local and remote block neighbors.
    */
-  virtual void CreateGhostLayers(const int N = 1) override;
+  void CreateGhostLayers(const int N = 1) override;
 
 protected:
   vtkPStructuredGridConnectivity();
@@ -204,7 +204,7 @@ protected:
    * extents from the neighboring grids of the grid corresponding to the given
    * gridID.
    */
-  virtual void TransferGhostDataFromNeighbors(const int gridID) override;
+  void TransferGhostDataFromNeighbors(const int gridID) override;
 
   /**
    * Helper method to pack all the ghost data into send buffers.

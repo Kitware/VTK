@@ -56,9 +56,9 @@ public:
   vtkCell* GetFace(int faceId) override;
   void InterpolateFunctions(const double pcoords[3], double* weights) override;
   void InterpolateDerivs(const double pcoords[3], double* derivs) override;
-  virtual vtkHigherOrderCurve* getEdgeCell() override;
-  virtual vtkHigherOrderQuadrilateral* getFaceCell() override;
-  virtual vtkHigherOrderInterpolation* getInterp() override;
+  vtkHigherOrderCurve* getEdgeCell() override;
+  vtkHigherOrderQuadrilateral* getFaceCell() override;
+  vtkHigherOrderInterpolation* getInterp() override;
 
 protected:
   vtkHexahedron* GetApproximateHex(

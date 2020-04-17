@@ -53,31 +53,28 @@ public:
    */
   void DeepCopy(vtkOpenGLShaderProperty* p);
 
-  virtual void AddVertexShaderReplacement(const std::string& originalValue,
+  void AddVertexShaderReplacement(const std::string& originalValue,
     bool replaceFirst, // do this replacement before the default
     const std::string& replacementValue, bool replaceAll) override;
-  virtual void AddFragmentShaderReplacement(const std::string& originalValue,
+  void AddFragmentShaderReplacement(const std::string& originalValue,
     bool replaceFirst, // do this replacement before the default
     const std::string& replacementValue, bool replaceAll) override;
-  virtual void AddGeometryShaderReplacement(const std::string& originalValue,
+  void AddGeometryShaderReplacement(const std::string& originalValue,
     bool replaceFirst, // do this replacement before the default
     const std::string& replacementValue, bool replaceAll) override;
 
-  virtual int GetNumberOfShaderReplacements() override;
-  virtual std::string GetNthShaderReplacementTypeAsString(vtkIdType index) override;
-  virtual void GetNthShaderReplacement(vtkIdType index, std::string& name, bool& replaceFirst,
+  int GetNumberOfShaderReplacements() override;
+  std::string GetNthShaderReplacementTypeAsString(vtkIdType index) override;
+  void GetNthShaderReplacement(vtkIdType index, std::string& name, bool& replaceFirst,
     std::string& replacementValue, bool& replaceAll) override;
 
-  virtual void ClearVertexShaderReplacement(
-    const std::string& originalValue, bool replaceFirst) override;
-  virtual void ClearFragmentShaderReplacement(
-    const std::string& originalValue, bool replaceFirst) override;
-  virtual void ClearGeometryShaderReplacement(
-    const std::string& originalValue, bool replaceFirst) override;
-  virtual void ClearAllVertexShaderReplacements() override;
-  virtual void ClearAllFragmentShaderReplacements() override;
-  virtual void ClearAllGeometryShaderReplacements() override;
-  virtual void ClearAllShaderReplacements() override;
+  void ClearVertexShaderReplacement(const std::string& originalValue, bool replaceFirst) override;
+  void ClearFragmentShaderReplacement(const std::string& originalValue, bool replaceFirst) override;
+  void ClearGeometryShaderReplacement(const std::string& originalValue, bool replaceFirst) override;
+  void ClearAllVertexShaderReplacements() override;
+  void ClearAllFragmentShaderReplacements() override;
+  void ClearAllGeometryShaderReplacements() override;
+  void ClearAllShaderReplacements() override;
 
   //@{
   /**

@@ -48,16 +48,16 @@ protected:
   vtkPWindBladeReader();
   ~vtkPWindBladeReader() override;
 
-  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  virtual void CalculatePressure(int pressure, int prespre, int tempg, int density) override;
-  virtual void CalculateVorticity(int vort, int uvw, int density) override;
-  virtual void LoadVariableData(int var) override;
-  virtual bool ReadGlobalData() override;
-  virtual bool FindVariableOffsets() override;
-  virtual void CreateZTopography(float* zValues) override;
-  virtual void SetupBladeData() override;
-  virtual void LoadBladeData(int timeStep) override;
+  void CalculatePressure(int pressure, int prespre, int tempg, int density) override;
+  void CalculateVorticity(int vort, int uvw, int density) override;
+  void LoadVariableData(int var) override;
+  bool ReadGlobalData() override;
+  bool FindVariableOffsets() override;
+  void CreateZTopography(float* zValues) override;
+  void SetupBladeData() override;
+  void LoadBladeData(int timeStep) override;
 
 private:
   PWindBladeReaderInternal* PInternal;

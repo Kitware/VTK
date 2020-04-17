@@ -95,9 +95,9 @@ public:
    * Send functions defined in the superclass. Return values are 1 for success
    * and 0 otherwise.
    */
-  virtual int SendVoidArray(
+  int SendVoidArray(
     const void* data, vtkIdType length, int type, int remoteProcessId, int tag) override;
-  virtual int ReceiveVoidArray(
+  int ReceiveVoidArray(
     void* data, vtkIdType length, int type, int remoteProcessId, int tag) override;
   //@}
 
@@ -148,28 +148,28 @@ public:
    * the equivalent MPI commands. Return values are 1 for success
    * and 0 otherwise.
    */
-  virtual void Barrier() override;
-  virtual int BroadcastVoidArray(void* data, vtkIdType length, int type, int srcProcessId) override;
-  virtual int GatherVoidArray(const void* sendBuffer, void* recvBuffer, vtkIdType length, int type,
+  void Barrier() override;
+  int BroadcastVoidArray(void* data, vtkIdType length, int type, int srcProcessId) override;
+  int GatherVoidArray(const void* sendBuffer, void* recvBuffer, vtkIdType length, int type,
     int destProcessId) override;
-  virtual int GatherVVoidArray(const void* sendBuffer, void* recvBuffer, vtkIdType sendLength,
+  int GatherVVoidArray(const void* sendBuffer, void* recvBuffer, vtkIdType sendLength,
     vtkIdType* recvLengths, vtkIdType* offsets, int type, int destProcessId) override;
-  virtual int ScatterVoidArray(const void* sendBuffer, void* recvBuffer, vtkIdType length, int type,
+  int ScatterVoidArray(const void* sendBuffer, void* recvBuffer, vtkIdType length, int type,
     int srcProcessId) override;
-  virtual int ScatterVVoidArray(const void* sendBuffer, void* recvBuffer, vtkIdType* sendLengths,
+  int ScatterVVoidArray(const void* sendBuffer, void* recvBuffer, vtkIdType* sendLengths,
     vtkIdType* offsets, vtkIdType recvLength, int type, int srcProcessId) override;
-  virtual int AllGatherVoidArray(
+  int AllGatherVoidArray(
     const void* sendBuffer, void* recvBuffer, vtkIdType length, int type) override;
-  virtual int AllGatherVVoidArray(const void* sendBuffer, void* recvBuffer, vtkIdType sendLength,
+  int AllGatherVVoidArray(const void* sendBuffer, void* recvBuffer, vtkIdType sendLength,
     vtkIdType* recvLengths, vtkIdType* offsets, int type) override;
-  virtual int ReduceVoidArray(const void* sendBuffer, void* recvBuffer, vtkIdType length, int type,
+  int ReduceVoidArray(const void* sendBuffer, void* recvBuffer, vtkIdType length, int type,
     int operation, int destProcessId) override;
-  virtual int ReduceVoidArray(const void* sendBuffer, void* recvBuffer, vtkIdType length, int type,
+  int ReduceVoidArray(const void* sendBuffer, void* recvBuffer, vtkIdType length, int type,
     Operation* operation, int destProcessId) override;
-  virtual int AllReduceVoidArray(
+  int AllReduceVoidArray(
     const void* sendBuffer, void* recvBuffer, vtkIdType length, int type, int operation) override;
-  virtual int AllReduceVoidArray(const void* sendBuffer, void* recvBuffer, vtkIdType length,
-    int type, Operation* operation) override;
+  int AllReduceVoidArray(const void* sendBuffer, void* recvBuffer, vtkIdType length, int type,
+    Operation* operation) override;
   //@}
 
   //@{

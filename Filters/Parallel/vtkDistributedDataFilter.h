@@ -213,18 +213,16 @@ protected:
   /**
    * Build a vtkUnstructuredGrid to store the input.
    */
-  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-  virtual int RequestInformation(
-    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-  virtual int FillInputPortInformation(int port, vtkInformation* info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   /**
    * Overridden to create the correct type of data output. If input is dataset,
    * output is vtkUnstructuredGrid. If input is composite dataset, output is
    * vtkMultiBlockDataSet.
    */
-  virtual int RequestDataObject(
-    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestDataObject(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   vtkPKdTree* Kdtree;
   vtkMultiProcessController* Controller;

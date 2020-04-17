@@ -52,17 +52,17 @@ public:
   /**
    * Builds myself.
    */
-  virtual void Build(bool prepass) override;
+  void Build(bool prepass) override;
 
   /**
    * Traverse graph in ospray's preferred order and render
    */
-  virtual void Render(bool prepass) override;
+  void Render(bool prepass) override;
 
   /**
    * Invalidates cached rendering data.
    */
-  virtual void Invalidate(bool prepass) override;
+  void Invalidate(bool prepass) override;
 
   /**
    * Put my results into the correct place in the provided pixel buffer.
@@ -293,7 +293,7 @@ public:
 
   // if you want to traverse your children in a specific order
   // or way override this method
-  virtual void Traverse(int operation) override;
+  void Traverse(int operation) override;
 
   /**
    * Convenience method to get and downcast renderable.

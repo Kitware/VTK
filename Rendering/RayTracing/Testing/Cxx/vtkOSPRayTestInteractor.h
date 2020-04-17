@@ -56,7 +56,7 @@ public:
   vtkOSPRayTestInteractor();
   ~vtkOSPRayTestInteractor();
   void SetPipelineControlPoints(vtkRenderer* g, vtkRenderPass* _O, vtkRenderPass* _G);
-  virtual void OnKeyPress() override;
+  void OnKeyPress() override;
 
   static void AddName(const char* name);
 

@@ -70,7 +70,7 @@ class vtkOpenGLGradientCB : public vtkOpenGLImageAlgorithmCallback
 {
 public:
   // initialize the spacing
-  virtual void InitializeShaderUniforms(vtkShaderProgram* program)
+  void InitializeShaderUniforms(vtkShaderProgram* program) override
   {
     float sp[3];
     sp[0] = this->Spacing[0];
@@ -80,11 +80,11 @@ public:
   }
 
   // no uniforms change on a per slice basis so empty
-  virtual void UpdateShaderUniforms(vtkShaderProgram* /* program */, int /* zExtent */) {}
+  void UpdateShaderUniforms(vtkShaderProgram* /* program */, int /* zExtent */) override {}
 
   double* Spacing;
   vtkOpenGLGradientCB() {}
-  virtual ~vtkOpenGLGradientCB() {}
+  ~vtkOpenGLGradientCB() override {}
 
 private:
   vtkOpenGLGradientCB(const vtkOpenGLGradientCB&) = delete;

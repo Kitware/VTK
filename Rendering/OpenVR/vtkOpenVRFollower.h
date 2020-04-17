@@ -31,7 +31,7 @@ public:
   vtkTypeMacro(vtkOpenVRFollower, vtkFollower);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  virtual void Render(vtkRenderer* ren) override;
+  void Render(vtkRenderer* ren) override;
 
   /**
    * Generate the matrix based on ivars. This method overloads its superclasses

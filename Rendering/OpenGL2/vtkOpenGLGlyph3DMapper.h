@@ -60,12 +60,12 @@ public:
    * Get the maximum number of LOD. OpenGL context must be bound.
    * The maximum number of LOD depends on GPU capabilities.
    */
-  virtual vtkIdType GetMaxNumberOfLOD() override;
+  vtkIdType GetMaxNumberOfLOD() override;
 
   /**
    * Set the number of LOD.
    */
-  virtual void SetNumberOfLOD(vtkIdType nb) override;
+  void SetNumberOfLOD(vtkIdType nb) override;
 
   /**
    * Configure LODs. Culling must be enabled.
@@ -75,7 +75,7 @@ public:
    *
    * @sa vtkDecimatePro::SetTargetReduction
    */
-  virtual void SetLODDistanceAndTargetReduction(
+  void SetLODDistanceAndTargetReduction(
     vtkIdType index, float distance, float targetReduction) override;
   //@}
 

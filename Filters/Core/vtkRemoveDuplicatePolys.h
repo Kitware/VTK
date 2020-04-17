@@ -43,7 +43,7 @@ protected:
   ~vtkRemoveDuplicatePolys() override;
 
   // Usual data generation method.
-  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkRemoveDuplicatePolys(const vtkRemoveDuplicatePolys&) = delete;

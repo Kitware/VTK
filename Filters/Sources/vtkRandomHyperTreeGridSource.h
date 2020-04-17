@@ -92,7 +92,7 @@ protected:
     vtkInformation* req, vtkInformationVector** inInfo, vtkInformationVector* outInfo) override;
 
   // We just do the work in RequestData.
-  int ProcessTrees(vtkHyperTreeGrid*, vtkDataObject*) final override { return 1; }
+  int ProcessTrees(vtkHyperTreeGrid*, vtkDataObject*) final { return 1; }
 
   int FillOutputPortInformation(int port, vtkInformation* info) override;
 

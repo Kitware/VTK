@@ -42,7 +42,7 @@ protected:
   vtkmAverageToCells();
   ~vtkmAverageToCells() override;
 
-  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkmAverageToCells(const vtkmAverageToCells&) = delete;

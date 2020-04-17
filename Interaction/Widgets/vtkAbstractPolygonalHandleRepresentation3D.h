@@ -209,7 +209,7 @@ protected:
   vtkTypeBool HandleVisibility;
 
   // Methods to manipulate the cursor
-  virtual void Translate(const double* p1, const double* p2) override;
+  void Translate(const double* p1, const double* p2) override;
   virtual void Scale(const double* p1, const double* p2, const double eventPos[2]);
   virtual void MoveFocus(const double* p1, const double* p2);
 

@@ -51,7 +51,7 @@ public:
    * Overridden to take into account my renderables time, including
    * mapper and data into mapper inclusive of composite input
    */
-  virtual vtkMTimeType GetMTime() override;
+  vtkMTimeType GetMTime() override;
 
   /**
    * When added to the mapper, enables scale array and scale function.
@@ -106,7 +106,7 @@ public:
 
 protected:
   vtkOSPRayActorNode();
-  ~vtkOSPRayActorNode();
+  ~vtkOSPRayActorNode() override;
 
 private:
   vtkOSPRayActorNode(const vtkOSPRayActorNode&) = delete;

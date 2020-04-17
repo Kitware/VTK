@@ -66,10 +66,10 @@ public:
   void InterpolateFunctions(const double pcoords[3], double* weights) override;
   void InterpolateDerivs(const double pcoords[3], double* derivs) override;
 
-  virtual vtkHigherOrderQuadrilateral* getBdyQuad() override;
-  virtual vtkHigherOrderTriangle* getBdyTri() override;
-  virtual vtkHigherOrderCurve* getEdgeCell() override;
-  virtual vtkHigherOrderInterpolation* getInterp() override;
+  vtkHigherOrderQuadrilateral* getBdyQuad() override;
+  vtkHigherOrderTriangle* getBdyTri() override;
+  vtkHigherOrderCurve* getEdgeCell() override;
+  vtkHigherOrderInterpolation* getInterp() override;
 
 protected:
   vtkLagrangeWedge();

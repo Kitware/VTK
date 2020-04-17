@@ -46,7 +46,7 @@ protected:
   vtkmThreshold();
   ~vtkmThreshold() override;
 
-  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkmThreshold(const vtkmThreshold&) = delete;

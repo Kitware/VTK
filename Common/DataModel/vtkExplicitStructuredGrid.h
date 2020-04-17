@@ -307,7 +307,7 @@ protected:
    * Compute the range of the scalars and cache it into ScalarRange
    * only if the cache became invalid (ScalarRangeComputeTime).
    */
-  virtual void ComputeScalarRange() override;
+  void ComputeScalarRange() override;
 
   /**
    * Internal method used by DeepCopy and ShallowCopy.

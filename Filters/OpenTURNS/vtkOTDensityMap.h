@@ -47,7 +47,7 @@ public:
   /**
    * Check contour values to return actual mtime
    */
-  virtual vtkMTimeType GetMTime() override;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**

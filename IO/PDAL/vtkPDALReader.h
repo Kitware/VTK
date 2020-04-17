@@ -45,7 +45,7 @@ public:
   void operator=(const vtkPDALReader&) = delete;
   static vtkPDALReader* New();
   vtkTypeMacro(vtkPDALReader, vtkPolyDataAlgorithm);
-  virtual void PrintSelf(ostream& os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Name of the file that will be opened
