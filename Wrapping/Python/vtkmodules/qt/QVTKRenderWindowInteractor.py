@@ -441,7 +441,7 @@ class QVTKRenderWindowInteractor(QVTKRWIBaseClass):
                 if rect.contains(pos):
                     return screen.devicePixelRatio()
             # Should never happen, but try to find a good fallback.
-            return QApplication.devicePixelRatio()
+            return QApplication.instance().devicePixelRatio()
         else:
             # Qt4 seems not to provide any cross-platform means to get the
             # pixel ratio.
