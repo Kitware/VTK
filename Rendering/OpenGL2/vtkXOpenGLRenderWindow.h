@@ -90,10 +90,16 @@ public:
   virtual void PrefFullScreen();
 
   /**
-   * Specify the size of the rendering window in pixels.
+   * Set the size (width and height) of the rendering window in
+   * screen coordinates (in pixels). This resizes the operating
+   * system's view/window and redraws it.
+   *
+   * If the size has changed, this method will fire
+   * vtkCommand::WindowResizeEvent.
    */
-  void SetSize(int, int) override;
+  void SetSize(int width, int height) override;
   void SetSize(int a[2]) override { this->SetSize(a[0], a[1]); }
+
   /**
    * Specify the size of the rendering window in pixels but do not resize
    * the XWindow. Useful when resizing is done interactively.
@@ -163,7 +169,8 @@ public:
   int* GetScreenSize() VTK_SIZEHINT(2) override;
 
   /**
-   * Get the position in screen coordinates (pixels) of the window.
+   * Get the position (x and y) of the rendering window in
+   * screen coordinates (in pixels).
    */
   int* GetPosition() VTK_SIZEHINT(2) override;
 
@@ -237,9 +244,11 @@ public:
 
   //@{
   /**
-   * Move the window to a new position on the display.
+   * Set the position (x and y) of the rendering window in
+   * screen coordinates (in pixels). This resizes the operating
+   * system's view/window and redraws it.
    */
-  void SetPosition(int, int) override;
+  void SetPosition(int x, int y) override;
   void SetPosition(int a[2]) override { this->SetPosition(a[0], a[1]); }
   //@}
 

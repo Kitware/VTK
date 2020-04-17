@@ -98,23 +98,31 @@ public:
 
   //@{
   /**
-   * Set the size of the window in pixels.
+   * Set the size (width and height) of the rendering window in
+   * screen coordinates (in pixels). This resizes the operating
+   * system's view/window and redraws it.
+   *
+   * If the size has changed, this method will fire
+   * vtkCommand::WindowResizeEvent.
    */
-  void SetSize(int a[2]) override;
-  void SetSize(int, int) override;
+  void SetSize(int width, int height) override;
+  void SetSize(int a[2]) override { this->SetSize(a[0], a[1]); }
   //@}
 
   /**
-   * Get the current size of the window in pixels.
+   * Get the size (width and height) of the rendering window in
+   * screen coordinates (in pixels).
    */
   int* GetSize() VTK_SIZEHINT(2) override;
 
   //@{
   /**
-   * Set the position of the window.
+   * Set the position (x and y) of the rendering window in
+   * screen coordinates (in pixels). This resizes the operating
+   * system's view/window and redraws it.
    */
-  void SetPosition(int a[2]) override;
-  void SetPosition(int, int) override;
+  void SetPosition(int x, int y) override;
+  void SetPosition(int a[2]) override { this->SetPosition(a[0], a[1]); }
   //@}
 
   /**
@@ -124,7 +132,8 @@ public:
   int* GetScreenSize() VTK_SIZEHINT(2) override;
 
   /**
-   * Get the position in screen coordinates of the window.
+   * Get the position (x and y) of the rendering window in
+   * screen coordinates (in pixels).
    */
   int* GetPosition() VTK_SIZEHINT(2) override;
 

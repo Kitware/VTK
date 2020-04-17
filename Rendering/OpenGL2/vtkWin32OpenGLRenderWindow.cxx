@@ -292,16 +292,16 @@ void AdjustWindowRectForBorders(
 }
 
 // ----------------------------------------------------------------------------
-void vtkWin32OpenGLRenderWindow::SetSize(int x, int y)
+void vtkWin32OpenGLRenderWindow::SetSize(int width, int height)
 {
   static bool resizing = false;
-  if ((this->Size[0] != x) || (this->Size[1] != y))
+  if ((this->Size[0] != width) || (this->Size[1] != height))
   {
-    this->Superclass::SetSize(x, y);
+    this->Superclass::SetSize(width, height);
 
     if (this->Interactor)
     {
-      this->Interactor->SetSize(x, y);
+      this->Interactor->SetSize(width, height);
     }
 
     if (!this->UseOffScreenBuffers)
@@ -312,14 +312,14 @@ void vtkWin32OpenGLRenderWindow::SetSize(int x, int y)
 
         if (this->ParentId)
         {
-          SetWindowExtEx(this->DeviceContext, x, y, nullptr);
-          SetViewportExtEx(this->DeviceContext, x, y, nullptr);
-          SetWindowPos(this->WindowId, HWND_TOP, 0, 0, x, y, SWP_NOMOVE | SWP_NOZORDER);
+          SetWindowExtEx(this->DeviceContext, width, height, nullptr);
+          SetViewportExtEx(this->DeviceContext, width, height, nullptr);
+          SetWindowPos(this->WindowId, HWND_TOP, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER);
         }
         else
         {
           RECT r;
-          AdjustWindowRectForBorders(this->WindowId, 0, 0, 0, x, y, r);
+          AdjustWindowRectForBorders(this->WindowId, 0, 0, 0, width, height, r);
           SetWindowPos(this->WindowId, HWND_TOP, 0, 0, r.right - r.left, r.bottom - r.top,
             SWP_NOMOVE | SWP_NOZORDER);
         }
@@ -1051,12 +1051,12 @@ void vtkWin32OpenGLRenderWindow::DestroyWindow()
 // Get the current size of the window.
 int* vtkWin32OpenGLRenderWindow::GetSize(void)
 {
-  // if we aren't mapped then just return the ivar
+  // if we aren't mapped then just call super
   if (this->WindowId && !this->UseOffScreenBuffers)
   {
     RECT rect;
 
-    //  Find the current window size
+    // Find the current window size
     if (GetClientRect(this->WindowId, &rect))
     {
       this->Size[0] = rect.right;
@@ -1069,7 +1069,7 @@ int* vtkWin32OpenGLRenderWindow::GetSize(void)
     }
   }
 
-  return this->vtkOpenGLRenderWindow::GetSize();
+  return this->Superclass::GetSize();
 }
 
 // Get the size of the whole screen.

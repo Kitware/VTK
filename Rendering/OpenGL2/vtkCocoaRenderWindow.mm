@@ -491,19 +491,14 @@ vtkTypeBool vtkCocoaRenderWindow::IsDirect()
 }
 
 //----------------------------------------------------------------------------
-void vtkCocoaRenderWindow::SetSize(int* a)
-{
-  this->SetSize(a[0], a[1]);
-}
-
-//----------------------------------------------------------------------------
-void vtkCocoaRenderWindow::SetSize(int x, int y)
+void vtkCocoaRenderWindow::SetSize(int width, int height)
 {
   static bool resizing = false;
 
-  if ((this->Size[0] != x) || (this->Size[1] != y) || (this->GetParentId()))
+  if ((this->Size[0] != width) || (this->Size[1] != height) || this->GetParentId())
   {
-    this->Superclass::SetSize(x, y);
+    this->Superclass::SetSize(width, height);
+
     if (!this->UseOffScreenBuffers && this->GetParentId() && this->GetWindowId() && this->Mapped)
     {
       // Set the NSView size, not the window size.
@@ -516,7 +511,7 @@ void vtkCocoaRenderWindow::SetSize(int x, int y)
         NSRect viewRect = [theView frame];
 
         // Convert the given new size from pixels to points.
-        NSSize backingNewSize = NSMakeSize((CGFloat)x, (CGFloat)y);
+        NSSize backingNewSize = NSMakeSize((CGFloat)width, (CGFloat)height);
         NSSize newSize = [theView convertSizeFromBacking:backingNewSize];
 
         // Update the view's frame (in points) keeping the bottom-left
@@ -540,7 +535,7 @@ void vtkCocoaRenderWindow::SetSize(int x, int y)
         NSWindow* window = (NSWindow*)this->GetRootWindow();
 
         // Convert the given new size from pixels to points.
-        NSRect backingNewRect = NSMakeRect(0.0, 0.0, (CGFloat)x, (CGFloat)y);
+        NSRect backingNewRect = NSMakeRect(0.0, 0.0, (CGFloat)width, (CGFloat)height);
         NSRect newRect = [window convertRectFromBacking:backingNewRect];
         NSView* theView = (NSView*)this->GetWindowId();
 
@@ -562,17 +557,11 @@ void vtkCocoaRenderWindow::SetForceMakeCurrent()
 }
 
 //----------------------------------------------------------------------------
-void vtkCocoaRenderWindow::SetPosition(int* a)
-{
-  this->SetPosition(a[0], a[1]);
-}
-
-//----------------------------------------------------------------------------
 void vtkCocoaRenderWindow::SetPosition(int x, int y)
 {
   static bool resizing = false;
 
-  if ((this->Position[0] != x) || (this->Position[1] != y) || (this->GetParentId()))
+  if ((this->Position[0] != x) || (this->Position[1] != y) || this->GetParentId())
   {
     this->Modified();
     this->Position[0] = x;

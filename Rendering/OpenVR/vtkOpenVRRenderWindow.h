@@ -328,18 +328,24 @@ public:
 
   //@{
   /**
-   * Set the size of the window in pixels.
+   * Set the size of the window in screen coordinates in pixels.
+   * This resizes the operating system's window and redraws it.
+   *
+   * If the size has changed, this method will fire
+   * vtkCommand::WindowResizeEvent.
    */
-  virtual void SetSize(int, int);
-  virtual void SetSize(int a[2]) { vtkOpenGLRenderWindow::SetSize(a); }
+  void SetSize(int width, int height) override;
+  void SetSize(int a[2]) override { this->SetSize(a[0], a[1]); }
   //@}
 
   //@{
   /**
-   * Set the position of the window.
+   * Set the position (x and y) of the rendering window in
+   * screen coordinates (in pixels). This resizes the operating
+   * system's view/window and redraws it.
    */
-  virtual void SetPosition(int, int);
-  virtual void SetPosition(int a[2]) { vtkOpenGLRenderWindow::SetPosition(a); }
+  void SetPosition(int x, int y) override;
+  void SetPosition(int a[2]) override { this->SetPosition(a[0], a[1]); }
   //@}
 
   // implement required virtual functions

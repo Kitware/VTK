@@ -250,19 +250,13 @@ vtkTypeBool vtkIOSRenderWindow::IsDirect()
 }
 
 //----------------------------------------------------------------------------
-void vtkIOSRenderWindow::SetSize(int* a)
+void vtkIOSRenderWindow::SetSize(int width, int height)
 {
-  this->SetSize(a[0], a[1]);
-}
-
-//----------------------------------------------------------------------------
-void vtkIOSRenderWindow::SetSize(int x, int y)
-{
-  if ((this->Size[0] != x) || (this->Size[1] != y) || (this->GetParentId()))
+  if ((this->Size[0] != width) || (this->Size[1] != height) || this->GetParentId())
   {
     this->Modified();
-    this->Size[0] = x;
-    this->Size[1] = y;
+    this->Size[0] = width;
+    this->Size[1] = height;
   }
 }
 
@@ -273,15 +267,9 @@ void vtkIOSRenderWindow::SetForceMakeCurrent()
 }
 
 //----------------------------------------------------------------------------
-void vtkIOSRenderWindow::SetPosition(int* a)
-{
-  this->SetPosition(a[0], a[1]);
-}
-
-//----------------------------------------------------------------------------
 void vtkIOSRenderWindow::SetPosition(int x, int y)
 {
-  if ((this->Position[0] != x) || (this->Position[1] != y) || (this->GetParentId()))
+  if ((this->Position[0] != x) || (this->Position[1] != y) || this->GetParentId())
   {
     this->Modified();
     this->Position[0] = x;
@@ -360,7 +348,7 @@ void vtkIOSRenderWindow::DestroyOffScreenWindow() {}
 // Get the current size of the window.
 int* vtkIOSRenderWindow::GetSize()
 {
-  // if we aren't mapped then just return the ivar
+  // if we aren't mapped then just return call super
   if (!this->Mapped)
   {
     return this->Superclass::GetSize();

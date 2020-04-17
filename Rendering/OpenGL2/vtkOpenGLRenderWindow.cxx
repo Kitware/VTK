@@ -429,25 +429,20 @@ unsigned int vtkOpenGLRenderWindow::GetFrontBuffer()
   return this->FrontLeftBuffer;
 }
 
-void vtkOpenGLRenderWindow::SetSize(int a[2])
+void vtkOpenGLRenderWindow::SetSize(int width, int height)
 {
-  this->SetSize(a[0], a[1]);
-}
-
-void vtkOpenGLRenderWindow::SetSize(int x, int y)
-{
-  if (this->Size[0] == x && this->Size[1] == y)
+  if (this->Size[0] == width && this->Size[1] == height)
   {
     // Nothing should've happened in the superclass but one never knows...
-    this->Superclass::SetSize(x, y);
+    this->Superclass::SetSize(width, height);
     return;
   }
 
-  this->Superclass::SetSize(x, y);
+  this->Superclass::SetSize(width, height);
   if (this->UseOffScreenBuffers && this->OffScreenFramebuffer)
   {
     // resize the framebuffer
-    this->OffScreenFramebuffer->Resize(x, y);
+    this->OffScreenFramebuffer->Resize(width, height);
   }
 }
 
