@@ -68,6 +68,17 @@ public:
   vtkGetVector3Macro(FloorRight, float);
   //@}
 
+  //@{
+  /**
+   * Define if the colors should be gamma corrected.
+   * This is generally required if the input texture is in linear color space.
+   * Default is off.
+   */
+  vtkGetMacro(GammaCorrect, bool);
+  vtkSetMacro(GammaCorrect, bool);
+  vtkBooleanMacro(GammaCorrect, bool);
+  //@}
+
 protected:
   vtkSkybox();
   ~vtkSkybox() override;
@@ -75,6 +86,8 @@ protected:
   int Projection;
   float FloorPlane[4];
   float FloorRight[3];
+
+  bool GammaCorrect = false;
 
 private:
   vtkSkybox(const vtkSkybox&) = delete;

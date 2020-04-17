@@ -47,6 +47,7 @@ protected:
   ~vtkOpenGLSkybox() override;
 
   int LastProjection;
+  bool LastGammaCorrect;
   float LastCameraPosition[3];
 
   void UpdateUniforms(vtkObject*, unsigned long, void*);
