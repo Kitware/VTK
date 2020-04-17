@@ -1,4 +1,4 @@
-find_package(Python3 COMPONENTS Interpreter Development)
+find_package(Python3 COMPONENTS Interpreter Development.Module)
 set_property(GLOBAL PROPERTY _vtk_python_soabi "${Python3_SOABI}")
 
 execute_process(
