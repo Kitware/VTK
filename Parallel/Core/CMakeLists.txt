@@ -25,6 +25,7 @@ vtk_hash_source(
   HEADER_OUTPUT hash_header)
 
 vtk_module_add_module(VTK::ParallelCore
-  CLASSES ${classes}
+  CLASSES           ${classes}
+  NOWRAP_HEADERS    vtkMultiProcessStreamSerialization.h
   TEMPLATE_CLASSES  ${template_classes}
-  PRIVATE_HEADERS ${hash_header})
+  PRIVATE_HEADERS   ${hash_header})
