@@ -759,7 +759,7 @@ void vtkCocoaRenderWindow::CreateAWindow()
     }
   }
 
-  // create a view if one has not been specified
+  // create an NSView if one has not been specified
   if (!this->GetWindowId())
   {
     // For NSViews that display OpenGL, the OS defaults to drawing magnified,
@@ -768,7 +768,7 @@ void vtkCocoaRenderWindow::CreateAWindow()
     // default and enables best resolution by default. It does so partly because
     // the system python sets NSHighResolutionCapable in this file:
     // /System/Library/Frameworks/Python.framework/Versions/2.7/Resources/Python.app/Contents/Info.plist
-    // If you want magnified drawing instead, call SetWantsBestResolution(true)
+    // If you want magnified drawing instead, call SetWantsBestResolution(false)
     bool wantsBest = this->GetWantsBestResolution();
 
     if (this->GetParentId())

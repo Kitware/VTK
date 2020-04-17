@@ -318,7 +318,7 @@ public:
 
   /**
    * Sets the NSView* associated with this vtkRenderWindow.
-   * This class' default behaviour, that is, if you never call this
+   * This class' default behaviour, that is, if you never call
    * SetWindowId()/SetRootWindow() is to create an NSWindow and a
    * vtkCocoaGLView (NSView subclass) which are used together to draw all
    * vtk stuff into. If you already have an NSWindow and NSView and you
