@@ -326,6 +326,8 @@ else()
           OPENGL_glx_LIBRARY AND
       NOT OPENGL_gl_LIBRARY) OR
      (NOT OPENGL_USE_EGL AND
+      NOT OPENGL_USE_GLES3 AND
+      NOT OPENGL_USE_GLES2 AND
       NOT OPENGL_glx_LIBRARY AND
       NOT OPENGL_gl_LIBRARY) OR
      (NOT OPENGL_USE_EGL AND
@@ -345,9 +347,13 @@ else()
       NOT OPENGL_gl_LIBRARY) OR
      (    OPENGL_USE_GLX AND
       NOT OPENGL_USE_EGL AND
+      NOT OPENGL_USE_GLES3 AND
+      NOT OPENGL_USE_GLES2 AND
       NOT OPENGL_glx_LIBRARY AND
       NOT OPENGL_gl_LIBRARY) OR
      (NOT OPENGL_USE_EGL AND
+      NOT OPENGL_USE_GLES3 AND
+      NOT OPENGL_USE_GLES2 AND
           OPENGL_opengl_LIBRARY AND
           OPENGL_glx_LIBRARY) OR
      (OPENGL_USE_GLX AND OPENGL_USE_EGL))
@@ -499,8 +505,6 @@ if(OPENGL_FOUND)
       set_target_properties(OpenGL::GLES2 PROPERTIES IMPORTED_LIBNAME
                             "${OPENGL_gles2_LIBRARY}")
     endif()
-    set_target_properties(OpenGL::GLES2 PROPERTIES INTERFACE_LINK_LIBRARIES
-                          OpenGL::OpenGL)
     set_target_properties(OpenGL::GLES2 PROPERTIES INTERFACE_INCLUDE_DIRECTORIES
                           "${OPENGL_GLES2_INCLUDE_DIR}")
     if (OPENGL_USE_GLES2)
@@ -520,8 +524,6 @@ if(OPENGL_FOUND)
       set_target_properties(OpenGL::GLES3 PROPERTIES IMPORTED_LIBNAME
                             "${OPENGL_gles3_LIBRARY}")
     endif()
-    set_target_properties(OpenGL::GLES3 PROPERTIES INTERFACE_LINK_LIBRARIES
-                          OpenGL::OpenGL)
     set_target_properties(OpenGL::GLES3 PROPERTIES INTERFACE_INCLUDE_DIRECTORIES
                           "${OPENGL_GLES3_INCLUDE_DIR}")
     if (OPENGL_USE_GLES3)
