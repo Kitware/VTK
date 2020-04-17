@@ -44,6 +44,12 @@ if (VTK_ANDROID_BUILD)
   return()
 endif()
 
+include(vtkCMakeBackports)
+
+if (VTK_WHEEL_BUILD)
+  include(vtkWheelPreparation)
+endif ()
+
 include(vtkCompilerChecks)
 include(vtkCompilerPlatformFlags)
 include(vtkCompilerExtraFlags)
@@ -56,7 +62,6 @@ include(vtkMobileDevices)
 include(vtkWrapSettings)
 include(vtkCrossCompiling)
 include(vtkObjectFactory)
-include(vtkCMakeBackports)
 
 # Setup compiler flags for dynamic analysis
 # Should be included after vtkTesting
@@ -119,10 +124,6 @@ option(VTK_ENABLE_LOGGING "Enable logging support." ON)
 mark_as_advanced(VTK_ENABLE_LOGGING)
 
 include(vtkEncodeString)
-
-if (VTK_WHEEL_BUILD)
-  include(vtkWheelPreparation)
-endif ()
 
 # Set up our directory structure for output libraries and binaries
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${VTK_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}")
