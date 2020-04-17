@@ -179,7 +179,7 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
   if (t == QEvent::TouchBegin || t == QEvent::TouchUpdate || t == QEvent::TouchEnd)
   {
     QTouchEvent* e2 = dynamic_cast<QTouchEvent*>(e);
-    foreach (const QTouchEvent::TouchPoint& point, e2->touchPoints())
+    Q_FOREACH (const QTouchEvent::TouchPoint& point, e2->touchPoints())
     {
       if (point.id() >= VTKI_MAX_POINTERS)
       {
@@ -192,7 +192,7 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
         (e2->modifiers() & Qt::ControlModifier) > 0 ? 1 : 0,
         (e2->modifiers() & Qt::ShiftModifier) > 0 ? 1 : 0, 0, 0, nullptr, point.id());
     }
-    foreach (const QTouchEvent::TouchPoint& point, e2->touchPoints())
+    Q_FOREACH (const QTouchEvent::TouchPoint& point, e2->touchPoints())
     {
       if (point.id() >= VTKI_MAX_POINTERS)
       {

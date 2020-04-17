@@ -33,13 +33,13 @@ public:
   SimpleView();
   ~SimpleView() override;
 
-public slots:
+public Q_SLOTS:
 
   virtual void slotOpenFile();
   virtual void slotExit();
 
 protected:
-protected slots:
+protected Q_SLOTS:
 
 private:
   vtkSmartPointer<vtkQtTableView> TableView;

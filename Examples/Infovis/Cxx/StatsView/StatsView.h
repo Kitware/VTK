@@ -35,12 +35,12 @@ public:
   StatsView();
   ~StatsView() override;
 
-public slots:
+public Q_SLOTS:
 
   virtual void slotOpenSQLiteDB();
 
 protected:
-protected slots:
+protected Q_SLOTS:
 
 private:
   // Methods

@@ -67,7 +67,7 @@ protected:
   virtual void onObjectDoubleClicked(vtkObjectBase* object);
   virtual void onClassNameDoubleClicked(const QString& className);
 
-protected slots:
+protected Q_SLOTS:
 
   void onCurrentRowChanged(const QModelIndex& current);
   void onRowDoubleClicked(const QModelIndex&);

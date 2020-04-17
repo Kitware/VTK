@@ -130,7 +130,7 @@ void vtkQtAnnotationLayersModelAdapter::setAnnotationLayers(vtkAnnotationLayers*
 
     // We will assume the table is totally
     // new and any views should update completely
-    emit this->reset();
+    Q_EMIT this->reset();
   }
 }
 
@@ -317,7 +317,7 @@ bool vtkQtAnnotationLayersModelAdapter::setData(
     if (role == Qt::DecorationRole)
       {
       this->Internal->IndexToDecoration[idx] = value;
-      emit this->dataChanged(idx, idx);
+      Q_EMIT this->dataChanged(idx, idx);
       return true;
       }
    */
@@ -412,24 +412,24 @@ Qt::DropActions vtkQtAnnotationLayersModelAdapter::supportedDragActions() const
 
 bool vtkQtAnnotationLayersModelAdapter::insertRows(int row, int count, const QModelIndex &p)
 {
-  emit this->beginInsertRows(p,row,row+count-1);
+  Q_EMIT this->beginInsertRows(p,row,row+count-1);
   for(int i=0; i<count; ++i)
     {
     this->Annotations->InsertLayer(row);
     }
-  emit this->endInsertRows();
+  Q_EMIT this->endInsertRows();
 
   return true;
 }
 
 bool vtkQtAnnotationLayersModelAdapter::removeRows(int row, int count, const QModelIndex &p)
 {
-  emit this->beginRemoveRows(p,row,row+count-1);
+  Q_EMIT this->beginRemoveRows(p,row,row+count-1);
   for(int i=0; i<count; ++i)
     {
     this->Annotations->RemoveAnnotation(this->Annotations->GetAnnotation(row));
     }
-  emit this->endRemoveRows();
+  Q_EMIT this->endRemoveRows();
 
   return true;
 }
@@ -463,7 +463,7 @@ QMimeData *vtkQtAnnotationLayersModelAdapter::mimeData(const QModelIndexList &in
 
   QDataStream stream(&encodedData, QIODevice::WriteOnly);
 
-  foreach (QModelIndex index, indexes) {
+  Q_FOREACH (QModelIndex index, indexes) {
      if (index.isValid()) {
          stream << data(index, Qt::DisplayRole).toByteArray();
      }

@@ -67,7 +67,7 @@ protected:
   vtkQtAnnotationView();
   ~vtkQtAnnotationView() override;
 
-private slots:
+private Q_SLOTS:
   void slotQtSelectionChanged(const QItemSelection&, const QItemSelection&);
 
 private:

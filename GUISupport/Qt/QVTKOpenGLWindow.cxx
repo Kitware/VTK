@@ -276,7 +276,7 @@ bool QVTKOpenGLWindow::event(QEvent* evt)
   // The containing widget should then forward back only the required events for
   // this window (such as mouse events and resize events).
   // Until this misbehavior is fixed, we have to handle forwarding of events.
-  emit this->windowEvent(evt);
+  Q_EMIT this->windowEvent(evt);
 
   if (this->RenderWindowAdapter)
   {

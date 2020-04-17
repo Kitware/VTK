@@ -54,7 +54,7 @@ bool QVTKApplication::x11EventFilter(XEvent* event)
 void QVTKApplication::setDevice(vtkTDxDevice* device)
 {
 #ifdef Q_WS_X11 || Q_OS_LINUX
-  emit CreateDevice(device);
+  Q_EMIT CreateDevice(device);
 #else
   (void)device; // to avoid warnings.
 #endif

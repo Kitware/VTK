@@ -118,7 +118,7 @@ void vtkQtDebugLeaksModel::addObject(vtkObjectBase* object)
 void vtkQtDebugLeaksModel::processPendingObjects()
 {
   this->Internal->ProcessPending = false;
-  foreach (vtkObjectBase* object, this->Internal->ObjectsToProcess)
+  Q_FOREACH (vtkObjectBase* object, this->Internal->ObjectsToProcess)
   {
     this->registerObject(object);
   }
@@ -211,7 +211,7 @@ QStandardItemModel* vtkQtDebugLeaksModel::referenceCountModel(const QString& cla
   {
     model = new ReferenceCountModel(this);
     this->Internal->ReferenceModels[className] = model;
-    foreach (vtkObjectBase* obj, this->getObjects(className))
+    Q_FOREACH (vtkObjectBase* obj, this->getObjects(className))
     {
       model->addObject(obj);
     }

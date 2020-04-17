@@ -69,11 +69,11 @@ public:
   static void DoCallback(
     vtkObject* vtk_obj, unsigned long event, void* client_data, void* call_data);
 
-signals:
+Q_SIGNALS:
   // the qt signal for moc to take care of
   void EmitExecute(vtkObject*, unsigned long, void* client_data, void* call_data, vtkCommand*);
 
-protected slots:
+protected Q_SLOTS:
   void deleteConnection();
 
 protected:
