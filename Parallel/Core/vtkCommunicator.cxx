@@ -1044,6 +1044,35 @@ int vtkCommunicator::Gather(const vtkMultiProcessStream& sendBuffer,
 }
 
 //------------------------------------------------------------------------------
+int vtkCommunicator::AllGather(
+  const vtkMultiProcessStream& sendBuffer, std::vector<vtkMultiProcessStream>& recvBuffer)
+{
+  vtkNew<vtkUnsignedCharArray> sendArray;
+  auto rawData = sendBuffer.GetRawData();
+  sendArray->SetArray(&rawData[0], static_cast<vtkIdType>(rawData.size()), /*save*/ 1);
+
+  vtkNew<vtkUnsignedCharArray> fullRecvArray;
+  std::vector<vtkSmartPointer<vtkDataArray>> recvArrays(this->NumberOfProcesses);
+  recvBuffer.resize(this->NumberOfProcesses);
+  for (int cc = 0; cc < this->NumberOfProcesses; ++cc)
+  {
+    recvArrays[cc] = vtkSmartPointer<vtkUnsignedCharArray>::New();
+  }
+
+  if (this->AllGatherV(sendArray, fullRecvArray, &recvArrays[0]))
+  {
+    for (int cc = 0; cc < this->NumberOfProcesses; ++cc)
+    {
+      auto array = vtkArrayDownCast<vtkUnsignedCharArray>(recvArrays[cc]);
+      recvBuffer[cc].SetRawData(
+        array->GetPointer(0), static_cast<unsigned int>(array->GetNumberOfValues()));
+    }
+    return 1;
+  }
+  return 0;
+}
+
+//------------------------------------------------------------------------------
 int vtkCommunicator::GatherV(vtkDataArray* sendBuffer, vtkDataArray* recvBuffer,
   vtkSmartPointer<vtkDataArray>* recvBuffers, int destProcessId)
 {
@@ -1060,6 +1089,24 @@ int vtkCommunicator::GatherV(vtkDataArray* sendBuffer, vtkDataArray* recvBuffer,
           offsets->GetValue(i) * recvBuffer->GetElementComponentSize(),
         recvLengths->GetValue(i) * recvBuffer->GetElementComponentSize(), 1);
     }
+  }
+  return retValue;
+}
+
+//------------------------------------------------------------------------------
+int vtkCommunicator::AllGatherV(
+  vtkDataArray* sendBuffer, vtkDataArray* recvBuffer, vtkSmartPointer<vtkDataArray>* recvBuffers)
+{
+  vtkNew<vtkIdTypeArray> recvLengths;
+  vtkNew<vtkIdTypeArray> offsets;
+  int retValue = this->AllGatherV(sendBuffer, recvBuffer, recvLengths, offsets);
+  int numComponents = sendBuffer->GetNumberOfComponents();
+  for (int i = 0; i < this->NumberOfProcesses; ++i)
+  {
+    recvBuffers[i]->SetNumberOfComponents(numComponents);
+    recvBuffers[i]->SetVoidArray(static_cast<unsigned char*>(recvBuffer->GetVoidPointer(0)) +
+        offsets->GetValue(i) * recvBuffer->GetElementComponentSize(),
+      recvLengths->GetValue(i) * recvBuffer->GetElementComponentSize(), 1);
   }
   return retValue;
 }
@@ -1228,6 +1275,33 @@ int vtkCommunicator::GatherV(vtkDataArray* sendBuffer, vtkDataArray* recvBuffer,
     recvBuffer->SetNumberOfTuples(offsets[this->NumberOfProcesses] / numComponents);
   }
   return this->GatherV(sendBuffer, recvBuffer, recvLengths, offsets, destProcessId);
+}
+
+//------------------------------------------------------------------------------
+int vtkCommunicator::AllGatherV(vtkDataArray* sendBuffer, vtkDataArray* recvBuffer,
+  vtkIdTypeArray* recvLengthsArray, vtkIdTypeArray* offsetsArray)
+{
+  vtkIdType* recvLengths = recvLengthsArray->WritePointer(0, this->GetNumberOfProcesses());
+  vtkIdType* offsets = offsetsArray->WritePointer(0, this->GetNumberOfProcesses() + 1);
+  int numComponents = sendBuffer->GetNumberOfComponents();
+  vtkIdType numTuples = sendBuffer->GetNumberOfTuples();
+  vtkIdType sendLength = numComponents * numTuples;
+  if (!this->AllGather(&sendLength, recvLengths, 1))
+  {
+    return 0;
+  }
+  offsets[0] = 0;
+  for (int i = 0; i < this->NumberOfProcesses; i++)
+  {
+    if ((recvLengths[i] % numComponents) != 0)
+    {
+      vtkWarningMacro(<< "Not all send buffers have same tuple size.");
+    }
+    offsets[i + 1] = offsets[i] + recvLengths[i];
+  }
+  recvBuffer->SetNumberOfComponents(numComponents);
+  recvBuffer->SetNumberOfTuples(offsets[this->NumberOfProcesses] / numComponents);
+  return this->AllGatherV(sendBuffer, recvBuffer, recvLengths, offsets);
 }
 
 //------------------------------------------------------------------------------

@@ -990,6 +990,19 @@ public:
   }
   //@}
 
+  /**
+   * Gathers vtkMultiProcessStream (\c sendBuffer) from all ranks to the \c
+   * destProcessId.
+   * @param[in]  sendBuffer - vtkMultiProcessStream to send from local process.
+   * @param[out] recvBuffer - vector of vtkMultiProcessStream instances * received.
+   * @return     1 on success, 0 on failure.
+   */
+  int AllGather(
+    const vtkMultiProcessStream& sendBuffer, std::vector<vtkMultiProcessStream>& recvBuffer)
+  {
+    return this->Communicator->AllGather(sendBuffer, recvBuffer);
+  }
+
   //@{
   /**
    * Same as GatherV except that the result is placed in all processes.
