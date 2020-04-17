@@ -50,7 +50,7 @@ class PIO_DATA
 {
 public:
   PIO_DATA(const char* piofile = 0, const std::list<std::string>* fields_to_read = 0,
-    bool _defer_read_data = false, const std::set<const char*, Cstring_less>* rdata = 0,
+    bool _defer_read_data = true, const std::set<const char*, Cstring_less>* rdata = 0,
     const std::set<const char*, Cstring_less>* cdata = 0);
   ~PIO_DATA();
   bool GetPIOfileTime(const char*, double&);
