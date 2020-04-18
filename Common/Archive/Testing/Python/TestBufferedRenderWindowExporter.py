@@ -21,6 +21,7 @@
 import ctypes
 import io
 import json
+from random import random, seed
 import shutil
 import vtk
 import vtk.test.Testing
@@ -51,7 +52,8 @@ class TestBufferedRenderWindowExporter(vtk.test.Testing.vtkTest):
         ren.ResetCamera()
         renWin.Render()
 
-        archiveName = VTK_TEMP_DIR + '/scene'
+        seed(0)
+        archiveName = VTK_TEMP_DIR + '/scene_' + str(random())
 
         exporter = vtk.vtkJSONRenderWindowExporter()
         exporter.GetArchiver().SetArchiveName(archiveName)
