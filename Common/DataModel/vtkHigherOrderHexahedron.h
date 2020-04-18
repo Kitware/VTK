@@ -103,6 +103,9 @@ public:
   virtual vtkHigherOrderQuadrilateral* getFaceCell() = 0;
   virtual vtkHigherOrderInterpolation* getInterp() = 0;
 
+  static vtkIdType NodeNumberingMappingFromVTK8To9(
+    const vtkIdType order, const vtkIdType node_id_vtk8);
+
 protected:
   vtkHigherOrderHexahedron();
   ~vtkHigherOrderHexahedron() override;

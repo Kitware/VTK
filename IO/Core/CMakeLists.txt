@@ -26,5 +26,9 @@ set(classes
   vtkWriter
   vtkZLibDataCompressor)
 
+set(headers
+  vtkUpdateCellsV8toV9.h)
+
 vtk_module_add_module(VTK::IOCore
-  CLASSES ${classes})
+  CLASSES ${classes}
+  HEADERS ${headers})
