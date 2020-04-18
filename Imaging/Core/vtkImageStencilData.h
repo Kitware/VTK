@@ -29,7 +29,6 @@
 
 #include "vtkDataObject.h"
 #include "vtkImagingCoreModule.h" // For export macro
-#include "vtkLegacy.h"            // For VTK_LEGACY
 
 class VTKIMAGINGCORE_EXPORT vtkImageStencilData : public vtkDataObject
 {
@@ -270,7 +269,6 @@ public:
    * Insert a line into the raster, given the two end points.
    */
   void InsertLine(const double pt1[2], const double pt2[2]);
-  VTK_LEGACY(void InsertLine(const double[2], const double[2], bool, bool));
   //@}
 
   /**

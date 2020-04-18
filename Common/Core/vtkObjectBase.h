@@ -51,7 +51,6 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkFeatures.h"         // for VTK_USE_MEMKIND
 #include "vtkIndent.h"
-#include "vtkLegacy.h" // For VTK_LEGACY_REMOVE
 #include "vtkSystemIncludes.h"
 #include "vtkType.h"
 
@@ -209,13 +208,6 @@ public:
    */
   void SetReferenceCount(int);
 
-/**
- * Legacy.  Do not call.
- */
-#ifndef VTK_LEGACY_REMOVE
-  void PrintRevisions(ostream&) {}
-#endif
-
   /**
    * The name of a directory, ideally mounted -o dax, to memory map an
    * extended memory space within.
@@ -257,10 +249,6 @@ public:
 protected:
   vtkObjectBase();
   virtual ~vtkObjectBase();
-
-#ifndef VTK_LEGACY_REMOVE
-  virtual void CollectRevisions(ostream&) {} // Legacy; do not use!
-#endif
 
   std::atomic<int32_t> ReferenceCount;
   vtkWeakPointerBase** WeakPointers;

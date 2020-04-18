@@ -958,20 +958,3 @@ void vtkAbstractImageInterpolator::FreePrecomputedWeights(vtkInterpolationWeight
 
   weights = nullptr;
 }
-
-//----------------------------------------------------------------------------
-#if !defined(VTK_LEGACY_REMOVE)
-int* vtkAbstractImageInterpolator::GetWholeExtent()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkAbstractImageInterpolator::GetWholeExtent, "VTK 7.1",
-    vtkAbstractImageInterpolator::GetExtent);
-  return this->GetExtent();
-}
-
-void vtkAbstractImageInterpolator::GetWholeExtent(int extent[6])
-{
-  VTK_LEGACY_REPLACED_BODY(vtkAbstractImageInterpolator::GetWholeExtent, "VTK 7.1",
-    vtkAbstractImageInterpolator::GetExtent);
-  this->GetExtent(extent);
-}
-#endif

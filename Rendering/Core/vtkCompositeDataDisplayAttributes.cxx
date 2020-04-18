@@ -77,15 +77,6 @@ void vtkCompositeDataDisplayAttributes::RemoveBlockVisibilities()
   this->BlockVisibilities.clear();
 }
 
-#ifndef VTK_LEGACY_REMOVE
-void vtkCompositeDataDisplayAttributes::RemoveBlockVisibilites()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkCompositeDataDisplayAttributes::RemoveBlockVisibilites, "VTK 8.1",
-    vtkCompositeDataDisplayAttributes::RemoveBlockVisibilities());
-  this->RemoveBlockVisibilities();
-}
-#endif
-
 void vtkCompositeDataDisplayAttributes::SetBlockPickability(
   vtkDataObject* data_object, bool visible)
 {

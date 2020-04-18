@@ -69,8 +69,6 @@
   (((type) == VTK_UNSIGNED_LONG) ? "unsigned long" :                                               \
   (((type) == VTK_LONG_LONG) ? "long long" :                                                       \
   (((type) == VTK_UNSIGNED_LONG_LONG) ? "unsigned long long" :                                     \
-  (((type) == 18 /*VTK___INT64*/) ? "__int64" :                                                    \
-  (((type) == 19 /*VTK_UNSIGNED___INT64*/) ? "unsigned __int64" :                                  \
   (((type) == VTK_FLOAT) ? "float" :                                                               \
   (((type) == VTK_DOUBLE) ? "double" :                                                             \
   (((type) == VTK_ID_TYPE) ? "idtype" :                                                            \
@@ -78,7 +76,7 @@
   (((type) == VTK_UNICODE_STRING) ? "unicode string" :                                             \
   (((type) == VTK_VARIANT) ? "variant" :                                                           \
   (((type) == VTK_OBJECT) ? "object" :                                                             \
-  "Undefined"))))))))))))))))))))))
+  "Undefined"))))))))))))))))))))
 // clang-format on
 
 /* Various compiler-specific performance hints. */

@@ -54,9 +54,6 @@ vtkContourGrid::vtkContourGrid()
   this->ContourValues = vtkContourValues::New();
 
   this->ComputeNormals = 0;
-#ifndef VTK_LEGACY_REMOVE
-  this->ComputeGradients = 0;
-#endif
   this->ComputeScalars = 1;
   this->GenerateTriangles = 1;
 
@@ -521,9 +518,6 @@ void vtkContourGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-#ifndef VTK_LEGACY_REMOVE
-  os << indent << "Compute Gradients: " << (this->ComputeGradients ? "On\n" : "Off\n");
-#endif
   os << indent << "Compute Normals: " << (this->ComputeNormals ? "On\n" : "Off\n");
   os << indent << "Compute Scalars: " << (this->ComputeScalars ? "On\n" : "Off\n");
   os << indent << "Use Scalar Tree: " << (this->UseScalarTree ? "On\n" : "Off\n");

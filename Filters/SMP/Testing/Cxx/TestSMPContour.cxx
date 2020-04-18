@@ -12,24 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkDataSetTriangleFilter.h"
-#include "vtkLegacy.h" // For VTK_LEGACY_REMOVE
-#include "vtkNew.h"
-#include "vtkPolyData.h"
-#include "vtkRTAnalyticSource.h"
-#include "vtkSMPContourGrid.h"
-#if !defined(VTK_LEGACY_REMOVE)
-#include "vtkSMPContourGridManyPieces.h"
-#endif
 #include "vtkCellData.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkContourFilter.h"
 #include "vtkContourGrid.h"
+#include "vtkDataSetTriangleFilter.h"
 #include "vtkElevationFilter.h"
+#include "vtkLegacy.h" // For VTK_LEGACY_REMOVE
+#include "vtkNew.h"
 #include "vtkNonMergingPointLocator.h"
 #include "vtkPointData.h"
 #include "vtkPointDataToCellData.h"
+#include "vtkPolyData.h"
+#include "vtkRTAnalyticSource.h"
+#include "vtkSMPContourGrid.h"
 #include "vtkSMPTools.h"
 #include "vtkTimerLog.h"
 #include "vtkUnstructuredGrid.h"
@@ -162,61 +159,6 @@ int TestSMPContour(int, char*[])
          << endl;
     return EXIT_FAILURE;
   }
-
-#if !defined(VTK_LEGACY_REMOVE)
-  vtkNew<vtkSMPContourGridManyPieces> cg3;
-  cg3->SetInputData(tetraFilter->GetOutput());
-  cg3->SetInputArrayToProcess(0, 0, 0, 0, "RTData");
-  cg3->SetValue(0, 200);
-  cg3->SetValue(1, 220);
-  cout << "SMP Contour grid: " << endl;
-  tl->StartTimer();
-  cg3->Update();
-  tl->StopTimer();
-  cout << "Time: " << tl->GetElapsedTime() << endl;
-
-  numCells = 0;
-
-  cds = vtkCompositeDataSet::SafeDownCast(cg2->GetOutputDataObject(0));
-  if (cds)
-  {
-    vtkCompositeDataIterator* iter = cds->NewIterator();
-    iter->InitTraversal();
-    while (!iter->IsDoneWithTraversal())
-    {
-      vtkPolyData* pd = vtkPolyData::SafeDownCast(iter->GetCurrentDataObject());
-      if (pd)
-      {
-        numCells += pd->GetNumberOfCells();
-      }
-      iter->GoToNextItem();
-    }
-    iter->Delete();
-  }
-
-  if (numCells != baseNumCells)
-  {
-    cout << "Error in vtkSMPContourGridManyPieces output." << endl;
-    cout << "Number of cells does not match expected, " << numCells << " vs. " << baseNumCells
-         << endl;
-    return EXIT_FAILURE;
-  }
-
-#if WRITE_DEBUG
-  vtkNew<vtkXMLMultiBlockDataWriter> writer;
-  writer->SetInputData(cg2->GetOutputDataObject(0));
-  writer->SetFileName("contour1.vtm");
-  writer->SetDataModeToAscii();
-  writer->Write();
-
-  vtkNew<vtkXMLMultiBlockDataWriter> writer2;
-  writer2->SetInputData(cg3->GetOutputDataObject(0));
-  writer2->SetFileName("contour2.vtm");
-  writer2->SetDataModeToAscii();
-  writer2->Write();
-#endif
-
-#endif
 
   return EXIT_SUCCESS;
 }

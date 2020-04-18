@@ -54,7 +54,6 @@
 #define vtkContourGrid_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
-#include "vtkLegacy.h"            // For VTK_LEGACY_REMOVE
 #include "vtkPolyDataAlgorithm.h"
 
 #include "vtkContourValues.h" // Needed for inline methods
@@ -104,24 +103,6 @@ public:
   vtkSetMacro(ComputeNormals, vtkTypeBool);
   vtkGetMacro(ComputeNormals, vtkTypeBool);
   vtkBooleanMacro(ComputeNormals, vtkTypeBool);
-  //@}
-
-  //@{
-  /**
-   * Set/Get the computation of gradients. Gradient computation is
-   * fairly expensive in both time and storage. Note that if
-   * ComputeNormals is on, gradients will have to be calculated, but
-   * will not be stored in the output dataset.  If the output data
-   * will be processed by filters that modify topology or geometry, it
-   * may be wise to turn Normals and Gradients off.  @deprecated
-   * ComputeGradients is not used so these methods don't affect
-   * anything (VTK 6.0).
-   */
-#ifndef VTK_LEGACY_REMOVE
-  vtkSetMacro(ComputeGradients, vtkTypeBool);
-  vtkGetMacro(ComputeGradients, vtkTypeBool);
-  vtkBooleanMacro(ComputeGradients, vtkTypeBool);
-#endif
   //@}
 
   //@{
@@ -198,9 +179,6 @@ protected:
 
   vtkContourValues* ContourValues;
   vtkTypeBool ComputeNormals;
-#ifndef VTK_LEGACY_REMOVE
-  vtkTypeBool ComputeGradients;
-#endif
   vtkTypeBool ComputeScalars;
   vtkTypeBool GenerateTriangles;
 

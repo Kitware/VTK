@@ -68,13 +68,6 @@ void vtkCompositeDataDisplayAttributesLegacy::RemoveBlockVisibilities()
   this->BlockVisibilities.clear();
 }
 
-#ifndef VTK_LEGACY_REMOVE
-void vtkCompositeDataDisplayAttributesLegacy::RemoveBlockVisibilites()
-{
-  this->RemoveBlockVisibilities();
-}
-#endif
-
 void vtkCompositeDataDisplayAttributesLegacy::SetBlockPickability(
   unsigned int flat_index, bool visible)
 {

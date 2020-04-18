@@ -358,14 +358,6 @@ static const char* pythonTypeFormat(int t)
     case VTK_UNSIGNED_LONG_LONG:
       b = "Q";
       break;
-#if !defined(VTK_LEGACY_REMOVE)
-    case VTK___INT64:
-      b = "q";
-      break;
-    case VTK_UNSIGNED___INT64:
-      b = "Q";
-      break;
-#endif
     case VTK_FLOAT:
       b = "f";
       break;

@@ -14,7 +14,6 @@ set(classes
   vtkOpenVROverlay
   vtkOpenVRPanelRepresentation
   vtkOpenVRPanelWidget
-  vtkOpenVRPropPicker
   vtkOpenVRRay
   vtkOpenVRRenderWindow
   vtkOpenVRRenderWindowInteractor

@@ -31,7 +31,6 @@
 #define vtkAbstractImageInterpolator_h
 
 #include "vtkImagingCoreModule.h" // For export macro
-#include "vtkLegacy.h"            // For VTK_LEGACY
 #include "vtkObject.h"
 
 #define VTK_IMAGE_BORDER_CLAMP 0
@@ -255,15 +254,6 @@ public:
    * Get the extent of the data being interpolated.
    */
   vtkGetVector6Macro(Extent, int);
-  //@}
-
-  //@{
-  /**
-   * Get the whole extent of the data being interpolated, including
-   * parts of the data that are not currently in memory.
-   */
-  VTK_LEGACY(int* GetWholeExtent());
-  VTK_LEGACY(void GetWholeExtent(int extent[6]));
   //@}
 
 protected:

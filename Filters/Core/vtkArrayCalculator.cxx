@@ -655,54 +655,6 @@ int vtkArrayCalculator::GetAttributeTypeFromInput(vtkDataObject* input)
   return attribute;
 }
 
-#ifndef VTK_LEGACY_REMOVE
-void vtkArrayCalculator::SetAttributeMode(int mode)
-{
-  VTK_LEGACY_REPLACED_BODY(
-    vtkArrayCalculator::SetAttributeMode, "VTK 8.1", vtkArrayCalculator::SetAttributeType);
-  switch (mode)
-  {
-    default:
-    case VTK_ATTRIBUTE_MODE_DEFAULT:
-      this->SetAttributeType(DEFAULT_ATTRIBUTE_TYPE);
-      break;
-    case VTK_ATTRIBUTE_MODE_USE_POINT_DATA:
-      this->SetAttributeType(vtkDataObject::POINT);
-      break;
-    case VTK_ATTRIBUTE_MODE_USE_CELL_DATA:
-      this->SetAttributeType(vtkDataObject::CELL);
-      break;
-    case VTK_ATTRIBUTE_MODE_USE_VERTEX_DATA:
-      this->SetAttributeType(vtkDataObject::VERTEX);
-      break;
-    case VTK_ATTRIBUTE_MODE_USE_EDGE_DATA:
-      this->SetAttributeType(vtkDataObject::EDGE);
-      break;
-  }
-}
-
-int vtkArrayCalculator::GetAttributeMode()
-{
-  VTK_LEGACY_REPLACED_BODY(
-    vtkArrayCalculator::GetAttributeMode, "VTK 8.1", vtkArrayCalculator::GetAttributeType);
-  switch (this->AttributeType)
-  {
-    default:
-    case vtkDataObject::ROW: // old version didn't handle row data, just return default
-    case DEFAULT_ATTRIBUTE_TYPE:
-      return VTK_ATTRIBUTE_MODE_DEFAULT;
-    case vtkDataObject::POINT:
-      return VTK_ATTRIBUTE_MODE_USE_POINT_DATA;
-    case vtkDataObject::CELL:
-      return VTK_ATTRIBUTE_MODE_USE_CELL_DATA;
-    case vtkDataObject::VERTEX:
-      return VTK_ATTRIBUTE_MODE_USE_VERTEX_DATA;
-    case vtkDataObject::EDGE:
-      return VTK_ATTRIBUTE_MODE_USE_EDGE_DATA;
-  }
-}
-#endif
-
 void vtkArrayCalculator::SetFunction(const char* function)
 {
   if (this->Function && function && strcmp(this->Function, function) == 0)
@@ -1148,35 +1100,6 @@ void vtkArrayCalculator::AddCoordinateVectorVariable(
 
   this->NumberOfCoordinateVectorArrays++;
 }
-
-#ifndef VTK_LEGACY_REMOVE
-const char* vtkArrayCalculator::GetAttributeModeAsString()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkArrayCalculator::GetAttributeModeAsString, "VTK 8.1",
-    vtkArrayCalculator::GetAttributeTypeAsString);
-  int attributeType = this->GetAttributeType();
-  if (attributeType == vtkDataObject::POINT)
-  {
-    return "UsePointData";
-  }
-  else if (attributeType == vtkDataObject::CELL)
-  {
-    return "UseCellData";
-  }
-  else if (attributeType == vtkDataObject::VERTEX)
-  {
-    return "UseVertexData";
-  }
-  else if (attributeType == vtkDataObject::EDGE)
-  {
-    return "UseEdgeData";
-  }
-  else
-  {
-    return "Default";
-  }
-}
-#endif
 
 const char* vtkArrayCalculator::GetAttributeTypeAsString()
 {

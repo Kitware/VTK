@@ -15,16 +15,6 @@ function(add_data_array_test test_name array_header array_valuetype array_type)
   list(APPEND data_array_tests "${VTK_TESTDATAARRAYAPI_TESTNAME},${CMAKE_CURRENT_BINARY_DIR}/${test_source}" PARENT_SCOPE)
 endfunction()
 
-# Legacy -- test that the vtkDataArrayTemplate interface still works:
-if(NOT VTK_LEGACY_REMOVE)
-  add_data_array_test(
-    vtkDataArrayTemplate_LEGACY
-    vtkDataArrayTemplate.h
-    float
-    vtkDataArrayTemplate<float>
-  )
-endif()
-
 # Non-templated classes:
 add_data_array_test(vtkCharArray vtkCharArray.h "char" vtkCharArray)
 add_data_array_test(vtkDoubleArray vtkDoubleArray.h "double" vtkDoubleArray)
