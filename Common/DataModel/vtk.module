@@ -15,6 +15,7 @@ DEPENDS
 PRIVATE_DEPENDS
   VTK::CommonMisc
   VTK::CommonSystem
+  VTK::pugixml
   VTK::vtksys
 TEST_DEPENDS
   VTK::ChartsCore

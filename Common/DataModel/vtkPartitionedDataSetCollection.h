@@ -31,6 +31,7 @@
 #include "vtkDataObjectTree.h"
 
 class vtkPartitionedDataSet;
+class vtkDataAssembly;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkPartitionedDataSetCollection : public vtkDataObjectTree
 {
@@ -88,6 +89,16 @@ public:
 
   //@{
   /**
+   * DataAssembly provides a way to define hierarchical organization of
+   * partitioned-datasets. These methods provide access to the data assembly
+   * instances associated, if any.
+   */
+  vtkGetObjectMacro(DataAssembly, vtkDataAssembly);
+  void SetDataAssembly(vtkDataAssembly* assembly);
+  //@}
+
+  //@{
+  /**
    * Retrieve an instance of this class from an information object.
    */
   static vtkPartitionedDataSetCollection* GetData(vtkInformation* info);
@@ -110,6 +121,20 @@ public:
     return this->Superclass::HasMetaData(iter);
   }
 
+  /**
+   * Overridden to include DataAssembly MTime.
+   */
+  vtkMTimeType GetMTime() override;
+
+  //@{
+  /**
+   * Overridden to handle vtkDataAssembly.
+   */
+  void ShallowCopy(vtkDataObject* src) override;
+  void DeepCopy(vtkDataObject* src) override;
+  void CopyStructure(vtkCompositeDataSet* input) override;
+  void Initialize() override;
+  //@}
 protected:
   vtkPartitionedDataSetCollection();
   ~vtkPartitionedDataSetCollection() override;
@@ -117,6 +142,8 @@ protected:
 private:
   vtkPartitionedDataSetCollection(const vtkPartitionedDataSetCollection&) = delete;
   void operator=(const vtkPartitionedDataSetCollection&) = delete;
+
+  vtkDataAssembly* DataAssembly;
 };
 
 #endif
