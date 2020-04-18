@@ -22,6 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkUpdateCellsV8toV9.h"
 
 #include <vector>
 
@@ -342,6 +343,13 @@ int vtkUnstructuredGridReader::ReadMeshSimple(const std::string& fname, vtkDataO
   else
   {
     vtkErrorMacro(<< "Unrecognized keyword: " << line);
+  }
+
+  // Permute node numbering on higher order hexahedra for legacy files (see
+  // https://gitlab.kitware.com/vtk/vtk/-/merge_requests/6678 )
+  if (this->FileMajorVersion < 5 || (this->FileMajorVersion == 5 && this->FileMinorVersion < 1))
+  {
+    vtkUpdateCellsV8toV9(output);
   }
 
   // Clean-up and get out

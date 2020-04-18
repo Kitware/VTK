@@ -40,7 +40,7 @@ static constexpr int hexEdgeCorners[12][5] = {
   // e0 e1    varying-  fixed- parametric coordinate(s)
   { 0, 1, 0, 1, 2 }, { 1, 2, 1, 0, 2 }, { 3, 2, 0, 1, 2 }, { 0, 3, 1, 0, 2 }, { 4, 5, 0, 1, 2 },
   { 5, 6, 1, 0, 2 }, { 7, 6, 0, 1, 2 }, { 4, 7, 1, 0, 2 }, { 0, 4, 2, 0, 1 }, { 1, 5, 2, 0, 1 },
-  { 3, 7, 2, 0, 1 }, { 2, 6, 2, 0, 1 }
+  { 2, 6, 2, 0, 1 }, { 3, 7, 2, 0, 1 }
 };
 
 static constexpr int hexFaceCorners[6][7] = {
@@ -55,10 +55,10 @@ static constexpr int hexFaceCorners[6][7] = {
 
 static constexpr int hexFaceEdges[6][4] = {
   // e0  e1  e2  e3
-  { 3, 10, 7, 8 },
-  { 1, 11, 5, 9 },
+  { 3, 11, 7, 8 },
+  { 1, 10, 5, 9 },
   { 0, 9, 4, 8 },
-  { 2, 11, 6, 10 },
+  { 2, 10, 6, 11 },
   { 0, 1, 2, 3 },
   { 4, 5, 6, 7 },
 };
@@ -306,8 +306,8 @@ int vtkHigherOrderInterpolation::Tensor3ShapeFunctions(const int order[3], const
     shape[sn++] = ll[0][0] * ll[1][0] * ll[2][i];         // Edge 0-4
     shape[sn1++] = ll[0][order[0]] * ll[1][0] * ll[2][i]; // Edge 1-5
     // Kitware insists on swapping edges 10 and 11 as follows:
-    shape[sn3++] = ll[0][order[0]] * ll[1][order[1]] * ll[2][i]; // Edge 2-6
-    shape[sn2++] = ll[0][0] * ll[1][order[1]] * ll[2][i];        // Edge 3-7
+    shape[sn2++] = ll[0][order[0]] * ll[1][order[1]] * ll[2][i]; // Edge 2-6
+    shape[sn3++] = ll[0][0] * ll[1][order[1]] * ll[2][i];        // Edge 3-7
   }
 
   sn = sn3;
@@ -470,13 +470,13 @@ int vtkHigherOrderInterpolation::Tensor3ShapeDerivatives(const int order[3],
     deriv[sn1++] = ll[0][order[0]] * ll[1][0] * dd[2][i]; // Edge 1-5
 
     // Kitware insists on swapping edges 10 and 11 as follows:
-    deriv[sn3++] = dd[0][order[0]] * ll[1][order[1]] * ll[2][i]; // Edge 2-6
-    deriv[sn3++] = ll[0][order[0]] * dd[1][order[1]] * ll[2][i]; // Edge 2-6
-    deriv[sn3++] = ll[0][order[0]] * ll[1][order[1]] * dd[2][i]; // Edge 2-6
+    deriv[sn2++] = dd[0][order[0]] * ll[1][order[1]] * ll[2][i]; // Edge 2-6
+    deriv[sn2++] = ll[0][order[0]] * dd[1][order[1]] * ll[2][i]; // Edge 2-6
+    deriv[sn2++] = ll[0][order[0]] * ll[1][order[1]] * dd[2][i]; // Edge 2-6
 
-    deriv[sn2++] = dd[0][0] * ll[1][order[1]] * ll[2][i]; // Edge 3-7
-    deriv[sn2++] = ll[0][0] * dd[1][order[1]] * ll[2][i]; // Edge 3-7
-    deriv[sn2++] = ll[0][0] * ll[1][order[1]] * dd[2][i]; // Edge 3-7
+    deriv[sn3++] = dd[0][0] * ll[1][order[1]] * ll[2][i]; // Edge 3-7
+    deriv[sn3++] = ll[0][0] * dd[1][order[1]] * ll[2][i]; // Edge 3-7
+    deriv[sn3++] = ll[0][0] * ll[1][order[1]] * dd[2][i]; // Edge 3-7
   }
 
   sn = sn3;
