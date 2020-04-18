@@ -134,7 +134,7 @@ void vtkQWidgetWidget::SelectAction3D(vtkAbstractWidget* w)
   mouseEvent.setLastScreenPos(ptGlobal);
   mouseEvent.setButtons(button);
   mouseEvent.setButton(button);
-  mouseEvent.setModifiers(0);
+  mouseEvent.setModifiers(nullptr);
   mouseEvent.setAccepted(false);
 
   QApplication::sendEvent(scene, &mouseEvent);
@@ -185,7 +185,7 @@ void vtkQWidgetWidget::MoveAction3D(vtkAbstractWidget* w)
   mouseEvent.setButtons(
     self->WidgetState == vtkQWidgetWidget::Active ? Qt::LeftButton : Qt::NoButton);
   mouseEvent.setButton(Qt::NoButton);
-  mouseEvent.setModifiers(0);
+  mouseEvent.setModifiers(nullptr);
   mouseEvent.setAccepted(false);
 
   QApplication::sendEvent(scene, &mouseEvent);
@@ -238,7 +238,7 @@ void vtkQWidgetWidget::EndSelectAction3D(vtkAbstractWidget* w)
   mouseEvent.setLastScreenPos(ptGlobal);
   mouseEvent.setButtons(Qt::NoButton);
   mouseEvent.setButton(button);
-  mouseEvent.setModifiers(0);
+  mouseEvent.setModifiers(nullptr);
   mouseEvent.setAccepted(false);
 
   QApplication::sendEvent(scene, &mouseEvent);

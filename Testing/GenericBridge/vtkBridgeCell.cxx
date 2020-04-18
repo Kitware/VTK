@@ -921,7 +921,7 @@ void vtkBridgeCell::InitWithCell(vtkCell* c, vtkIdType id)
 {
   assert("pre: c_exists" && c != nullptr);
 
-  vtkSetObjectBodyMacro(DataSet, vtkBridgeDataSet, 0);
+  vtkSetObjectBodyMacro(DataSet, vtkBridgeDataSet, static_cast<vtkBridgeDataSet*>(nullptr));
   this->Id = id;
 
   // warning: do directly vtkSetObjectBodyMacro(Cell,vtkCell,c->NewInstance())
@@ -973,7 +973,7 @@ void vtkBridgeCell::DeepCopy(vtkBridgeCell* other)
   }
   else
   {
-    vtkSetObjectBodyMacro(DataSet, vtkBridgeDataSet, 0);
+    vtkSetObjectBodyMacro(DataSet, vtkBridgeDataSet, static_cast<vtkBridgeDataSet*>(nullptr));
     tmp = other->Cell->NewInstance();
     vtkSetObjectBodyMacro(Cell, vtkCell, tmp);
     this->Cell->Delete(); // because newinstance+macro=2 ref
@@ -1002,9 +1002,10 @@ vtkBridgeCell::vtkBridgeCell()
 //----------------------------------------------------------------------------
 vtkBridgeCell::~vtkBridgeCell()
 {
-  vtkSetObjectBodyMacro(DataSet, vtkBridgeDataSet, 0);
-  vtkSetObjectBodyMacro(InternalIterator, vtkBridgeCellIterator, 0);
-  vtkSetObjectBodyMacro(Cell, vtkCell, 0);
+  vtkSetObjectBodyMacro(DataSet, vtkBridgeDataSet, static_cast<vtkBridgeDataSet*>(nullptr));
+  vtkSetObjectBodyMacro(
+    InternalIterator, vtkBridgeCellIterator, static_cast<vtkBridgeCellIterator*>(nullptr));
+  vtkSetObjectBodyMacro(Cell, vtkCell, static_cast<vtkCell*>(nullptr));
 
   delete[] this->Weights;
 }

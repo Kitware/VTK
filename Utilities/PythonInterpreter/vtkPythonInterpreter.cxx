@@ -351,7 +351,7 @@ void vtkPythonInterpreter::SetProgramName(const char* programname)
 // contents of this storage.
 #if PY_VERSION_HEX >= 0x03000000
     wchar_t* argv0 = vtk_Py_DecodeLocale(programname, nullptr);
-    if (argv0 == 0)
+    if (argv0 == nullptr)
     {
       fprintf(stderr,
         "Fatal vtkpython error: "
@@ -536,7 +536,7 @@ int vtkPythonInterpreter::PyMain(int argc, char** argv)
 
     argvWide[argcWide] = vtk_Py_DecodeLocale(argv[i], nullptr);
     argvWide2[argcWide] = argvWide[argcWide];
-    if (argvWide[argcWide] == 0)
+    if (argvWide[argcWide] == nullptr)
     {
       fprintf(stderr,
         "Fatal vtkpython error: "

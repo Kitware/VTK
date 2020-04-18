@@ -1468,7 +1468,7 @@ bool vtkPythonArgs::RefineArgTypeError(Py_ssize_t i)
     if (val && !PyUnicode_Check(val))
     {
       Py_DECREF(val);
-      val = 0;
+      val = nullptr;
     }
     newval = PyUnicode_FromFormat(
       "%s argument %" PY_FORMAT_SIZE_T "d: %V", this->MethodName, i + 1, val, cp);

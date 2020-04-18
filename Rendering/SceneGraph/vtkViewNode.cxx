@@ -39,7 +39,7 @@ vtkViewNode::vtkViewNode()
 //----------------------------------------------------------------------------
 vtkViewNode::~vtkViewNode()
 {
-  this->Parent = 0;
+  this->Parent = nullptr;
   for (auto val : this->Children)
   {
     val->Delete();
@@ -48,7 +48,7 @@ vtkViewNode::~vtkViewNode()
   if (this->MyFactory)
   {
     this->MyFactory->Delete();
-    this->MyFactory = 0;
+    this->MyFactory = nullptr;
   }
 }
 
