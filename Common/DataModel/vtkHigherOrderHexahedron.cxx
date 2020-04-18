@@ -82,7 +82,7 @@ void vtkHigherOrderHexahedron::GetEdgeWithoutRationalWeights(
   int offset = 8;
   if (oi == 2)
   {
-    offset += 4 * (order[0] - 1 + order[1] - 1);
+    offset += 4 * (order[0] + order[1] - 2);
     offset += (edgeId - 8) * (order[2] - 1);
   }
   else
@@ -145,15 +145,16 @@ void vtkHigherOrderHexahedron::GetFaceWithoutRationalWeights(
     offset = 8;
     if (!flipFace)
     {
-      int pp = vtkHigherOrderInterpolation::GetVaryingParameterOfHexEdge(faceEdges[ii]);
+      const int edgeId = faceEdges[ii];
+      const int pp = vtkHigherOrderInterpolation::GetVaryingParameterOfHexEdge(edgeId);
       if (pp == 2)
       {
-        offset += 4 * (order[0] - 1 + order[1] - 1);
-        offset += (faceEdges[ii] - 8) * (order[2] - 1);
+        offset += 4 * (order[0] + order[1] - 2);
+        offset += (edgeId - 8) * (order[2] - 1);
       }
       else
       {
-        for (int ee = 0; ee < faceEdges[ii]; ++ee)
+        for (int ee = 0; ee < edgeId; ++ee)
         {
           offset += order[ee % 2 == 0 ? 0 : 1] - 1;
         }
@@ -168,15 +169,16 @@ void vtkHigherOrderHexahedron::GetFaceWithoutRationalWeights(
     {
       // Flip both the edge position among edges (ii => (4 - ii) % 4)
       // and the edge's node order (jj => order[pp] - jj - 1).
-      int pp = vtkHigherOrderInterpolation::GetVaryingParameterOfHexEdge(faceEdges[(4 - ii) % 4]);
+      const int edgeId = faceEdges[(4 - ii) % 4];
+      const int pp = vtkHigherOrderInterpolation::GetVaryingParameterOfHexEdge(edgeId);
       if (pp == 2)
       {
-        offset += 4 * (order[0] - 1 + order[1] - 1);
-        offset += (faceEdges[(4 - ii) % 4] - 8) * (order[2] - 1);
+        offset += 4 * (order[0] + order[1] - 2);
+        offset += (edgeId - 8) * (order[2] - 1);
       }
       else
       {
-        for (int ee = 0; ee < faceEdges[(4 - ii) % 4]; ++ee)
+        for (int ee = 0; ee < edgeId; ++ee)
         {
           offset += order[ee % 2 == 0 ? 0 : 1] - 1;
         }
@@ -201,7 +203,7 @@ void vtkHigherOrderHexahedron::GetFaceWithoutRationalWeights(
   }
 
   // Now add face DOF
-  offset = 8 + 4 * (order[0] - 1 + order[1] - 1 + order[2] - 1);
+  offset = 8 + 4 * (order[0] + order[1] + order[2] - 3);
   // skip DOF for other faces of hex before this one
   for (int ff = 0; ff < faceId; ++ff)
   {
@@ -626,20 +628,20 @@ int vtkHigherOrderHexahedron::PointIndexFromIJK(int i, int j, int k, const int* 
   {
     if (!ibdy)
     { // On i axis
-      return (i - 1) + (j ? order[0] - 1 + order[1] - 1 : 0) +
-        (k ? 2 * (order[0] - 1 + order[1] - 1) : 0) + offset;
+      return (i - 1) + (j ? order[0] + order[1] - 2 : 0) + (k ? 2 * (order[0] + order[1] - 2) : 0) +
+        offset;
     }
     if (!jbdy)
     { // On j axis
       return (j - 1) + (i ? order[0] - 1 : 2 * (order[0] - 1) + order[1] - 1) +
-        (k ? 2 * (order[0] - 1 + order[1] - 1) : 0) + offset;
+        (k ? 2 * (order[0] + order[1] - 2) : 0) + offset;
     }
     // !kbdy, On k axis
     offset += 4 * (order[0] - 1) + 4 * (order[1] - 1);
-    return (k - 1) + (order[2] - 1) * (i ? (j ? 3 : 1) : (j ? 2 : 0)) + offset;
+    return (k - 1) + (order[2] - 1) * (i ? (j ? 2 : 1) : (j ? 3 : 0)) + offset;
   }
 
-  offset += 4 * (order[0] - 1 + order[1] - 1 + order[2] - 1);
+  offset += 4 * (order[0] + order[1] + order[2] - 3);
   if (nbdy == 1) // Face DOF
   {
     if (ibdy) // On i-normal face
@@ -664,6 +666,20 @@ int vtkHigherOrderHexahedron::PointIndexFromIJK(int i, int j, int k, const int* 
     ((order[1] - 1) * (order[2] - 1) + (order[2] - 1) * (order[0] - 1) +
       (order[0] - 1) * (order[1] - 1));
   return offset + (i - 1) + (order[0] - 1) * ((j - 1) + (order[1] - 1) * ((k - 1)));
+}
+
+vtkIdType vtkHigherOrderHexahedron::NodeNumberingMappingFromVTK8To9(
+  const vtkIdType order, const vtkIdType node_id_vtk8)
+{
+  const int numPtsPerEdgeWithoutCorners = static_cast<int>(order) - 1;
+
+  int offset = 8 + 10 * numPtsPerEdgeWithoutCorners;
+  if ((node_id_vtk8 < offset) || (node_id_vtk8 >= offset + 2 * numPtsPerEdgeWithoutCorners))
+    return node_id_vtk8;
+  else if (node_id_vtk8 < offset + numPtsPerEdgeWithoutCorners)
+    return node_id_vtk8 + numPtsPerEdgeWithoutCorners;
+  else
+    return node_id_vtk8 - numPtsPerEdgeWithoutCorners;
 }
 
 /**\brief Given the index, \a subCell, of a linear approximating-hex, translate pcoords from that
