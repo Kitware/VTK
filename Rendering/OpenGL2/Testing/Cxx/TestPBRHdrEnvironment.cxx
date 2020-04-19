@@ -51,10 +51,6 @@ int TestPBRHdrEnvironment(int argc, char* argv[])
 
   vtkSmartPointer<vtkPBRIrradianceTexture> irradiance = renderer->GetEnvMapIrradiance();
   irradiance->SetIrradianceStep(0.3);
-  vtkSmartPointer<vtkPBRPrefilterTexture> prefilter = renderer->GetEnvMapPrefiltered();
-  prefilter->SetPrefilterSamples(64);
-  // This size needs to be chosen according to the size of the input texture
-  prefilter->SetPrefilterSize(1024);
 
   vtkNew<vtkHDRReader> reader;
   char* fname =

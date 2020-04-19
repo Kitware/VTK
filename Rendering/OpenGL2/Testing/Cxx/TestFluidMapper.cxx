@@ -101,9 +101,6 @@ int TestFluidMapper(int argc, char* argv[])
   //------------------------------------------------------------
   vtkSmartPointer<vtkPBRIrradianceTexture> irradiance = renderer->GetEnvMapIrradiance();
   irradiance->SetIrradianceStep(0.3);
-  vtkSmartPointer<vtkPBRPrefilterTexture> prefilter = renderer->GetEnvMapPrefiltered();
-  prefilter->SetPrefilterSamples(64);
-  prefilter->SetPrefilterSize(64);
 
   vtkNew<vtkOpenGLTexture> textureCubemap;
   textureCubemap->CubeMapOn();
