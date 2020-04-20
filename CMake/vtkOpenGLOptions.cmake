@@ -19,6 +19,13 @@ endif()
 option(VTK_USE_X "Use X for VTK render windows" ${default_use_x})
 mark_as_advanced(VTK_USE_X)
 
+set(default_use_sdl2 OFF)
+if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+  set(default_use_sdl2 ON)
+endif()
+option(VTK_USE_SDL2 "Add SDL2 classes to VTK" ${default_use_sdl2})
+mark_as_advanced(VTK_USE_SDL2)
+
 # For optional APIs that could be available for the OpenGL implementation
 # being used, we define VTK_OPENGL_HAS_<feature> options. These are not to be
 # treated as mutually exclusive.
@@ -68,10 +75,10 @@ set(VTK_CAN_DO_OFFSCREEN FALSE)
 set(VTK_CAN_DO_ONSCREEN FALSE)
 set(VTK_CAN_DO_HEADLESS FALSE)
 
-if(WIN32 OR VTK_OPENGL_HAS_OSMESA OR VTK_OPENGL_HAS_EGL)
+if(WIN32 OR VTK_OPENGL_HAS_OSMESA OR VTK_OPENGL_HAS_EGL OR VTK_USE_SDL2)
   set(VTK_CAN_DO_OFFSCREEN TRUE)
 endif()
-if(WIN32 OR VTK_USE_COCOA OR VTK_USE_X) # XXX: See error message below.
+if(WIN32 OR VTK_USE_COCOA OR VTK_USE_X OR VTK_USE_SDL2) # XXX: See error message below.
   set(VTK_CAN_DO_ONSCREEN TRUE)
 endif()
 
@@ -87,9 +94,9 @@ if (VTK_OPENGL_HAS_OSMESA AND VTK_CAN_DO_ONSCREEN)
   message(FATAL_ERROR
     "The `VTK_OPENGL_HAS_OSMESA` is ignored if any of the following is true: "
     "the target platform is Windows, `VTK_USE_COCOA` is `ON`, or `VTK_USE_X` "
-    "is `ON`. OSMesa does not support on-screen rendering and VTK's OpenGL "
-    "selection is at build time, so the current build configuration is not "
-    "satisfiable.")
+    "is `ON` or `VTK_USE_SDL2` is `ON`. OSMesa does not support on-screen "
+    "rendering and VTK's OpenGL selection is at build time, so the current "
+    "build configuration is not satisfiable.")
 endif ()
 
 cmake_dependent_option(
