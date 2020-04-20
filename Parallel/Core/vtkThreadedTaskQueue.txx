@@ -67,8 +67,8 @@ public:
   bool Pop(std::uint64_t& task_id, std::function<R()>& task)
   {
     std::unique_lock<std::mutex> lk(this->TasksMutex);
-    this->TasksCV.wait(lk, [this] { return this->Done || this->Tasks.size() > 0; });
-    if (this->Tasks.size() > 0)
+    this->TasksCV.wait(lk, [this] { return this->Done || !this->Tasks.empty(); });
+    if (!this->Tasks.empty())
     {
       auto task_pair = this->Tasks.front();
       // vtkLogF(TRACE, "popping-task %d", (int)task_pair.first);

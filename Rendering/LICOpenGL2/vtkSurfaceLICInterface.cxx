@@ -518,7 +518,7 @@ void vtkSurfaceLICInterface::CombineColorsAndLIC()
 
     vtkSurfaceLICHelper::StreamingFindMinMax(fbo, this->Internals->BlockExts, LMin, LMax);
 
-    if (this->Internals->BlockExts.size() && ((LMax <= LMin) || (LMin < 0.0f) || (LMax > 1.0f)))
+    if (!this->Internals->BlockExts.empty() && ((LMax <= LMin) || (LMin < 0.0f) || (LMax > 1.0f)))
     {
       vtkErrorMacro(<< comm->GetRank() << ": Invalid range " << LMin << ", " << LMax
                     << " for color contrast enhancement");

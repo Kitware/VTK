@@ -754,7 +754,7 @@ private:
       cellIter->Delete();
     }
 
-    if (cacheItem->Lines.size() > 0)
+    if (!cacheItem->Lines.empty())
     {
       this->Device->DrawLines(&cacheItem->Lines[0], static_cast<int>(cacheItem->Lines.size() / 2),
         static_cast<unsigned char*>(cacheItem->LineColors->GetVoidPointer(0)),
@@ -862,7 +862,7 @@ private:
       cellIter->Delete();
     }
 
-    if (cacheItem->PolyTri.size() > 0)
+    if (!cacheItem->PolyTri.empty())
     {
       this->Device->CoreDrawTriangles(cacheItem->PolyTri,
         static_cast<unsigned char*>(cacheItem->PolyColors->GetVoidPointer(0)), 4);

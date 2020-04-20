@@ -73,7 +73,7 @@ void CellMaterials(vtkOSPRayRendererNode* orn, OSPRenderer oRenderer, vtkPolyDat
   if (backend == nullptr)
     return;
   vtkAbstractArray* scalars = nullptr;
-  bool try_mats = s2c->GetIndexedLookup() && s2c->GetNumberOfAnnotatedValues() && mats.size() > 0;
+  bool try_mats = s2c->GetIndexedLookup() && s2c->GetNumberOfAnnotatedValues() && !mats.empty();
   if (try_mats)
   {
     int cflag2 = -1;
@@ -632,7 +632,7 @@ OSPMaterial MakeActorMaterial(vtkOSPRayRendererNode* orn, OSPRenderer oRenderer,
       vtkOSPRayMaterialHelpers::MakeMaterials(
         orn, oRenderer, mats); // todo: do an mtime check to avoid doing this when unchanged
       std::string requested_mat_name = materialName;
-      if (requested_mat_name != "" && requested_mat_name != "Value Indexed")
+      if (!requested_mat_name.empty() && requested_mat_name != "Value Indexed")
       {
         useCustomMaterial = true;
         return vtkOSPRayMaterialHelpers::MakeMaterial(orn, oRenderer, requested_mat_name.c_str());
@@ -885,8 +885,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
       bool use_material = false;
       // check if the field data content says to use a material lookup
       vtkScalarsToColors* s2c = mapper->GetLookupTable();
-      bool try_mats =
-        s2c->GetIndexedLookup() && s2c->GetNumberOfAnnotatedValues() && mats.size() > 0;
+      bool try_mats = s2c->GetIndexedLookup() && s2c->GetNumberOfAnnotatedValues() && !mats.empty();
       if (try_mats)
       {
         int cflag2 = -1;
@@ -971,7 +970,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
   }
 
   // create an ospray mesh for the vertex cells
-  if (conn.vertex_index.size())
+  if (!conn.vertex_index.empty())
   {
     this->Geometries.emplace_back(vtkosp::RenderAsSpheres(vertices, conn.vertex_index,
       conn.vertex_reverse, pointSize, scaleArray, scaleFunction, useCustomMaterial, oMaterial,
@@ -980,7 +979,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
   }
 
   // create an ospray mesh for the line cells
-  if (conn.line_index.size())
+  if (!conn.line_index.empty())
   {
     // format depends on representation style
     if (property->GetRepresentation() == VTK_POINTS)
@@ -1002,7 +1001,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
   }
 
   // create an ospray mesh for the polygon cells
-  if (conn.triangle_index.size())
+  if (!conn.triangle_index.empty())
   {
     // format depends on representation style
     switch (property->GetRepresentation())
@@ -1097,7 +1096,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
     }
   }
 
-  if (conn.strip_index.size())
+  if (!conn.strip_index.empty())
   {
     switch (property->GetRepresentation())
     {

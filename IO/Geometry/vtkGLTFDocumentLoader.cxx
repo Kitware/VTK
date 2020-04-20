@@ -916,7 +916,7 @@ bool vtkGLTFDocumentLoader::LoadModelData(const std::vector<char>& glbBuffer)
   }
 
   // Push optional glB buffer
-  if (glbBuffer.size() > 0)
+  if (!glbBuffer.empty())
   {
     this->InternalModel->Buffers.push_back(glbBuffer);
   }

@@ -122,7 +122,7 @@ int vtkDateToNumeric::RequestData(
           }
 #endif
         }
-        if (useFormat.size())
+        if (!useFormat.empty())
         {
           vtkNew<vtkDoubleArray> newArray;
           std::string newName = inarray->GetName();

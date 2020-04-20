@@ -212,7 +212,7 @@ public:
     {
       // Find last level with cells
       int reduceLevel = maxLevels - 1;
-      for (; descByLevel[reduceLevel].size() == 0; --reduceLevel)
+      for (; descByLevel[reduceLevel].empty(); --reduceLevel)
         ;
       // By definition, all values is false
       for (auto it = descByLevel[reduceLevel].begin(); it != descByLevel[reduceLevel].end(); ++it)
@@ -402,7 +402,7 @@ public:
   //---------------------------------------------------------------------------
   vtkIdType GetGlobalIndexFromLocal(vtkIdType index) const override
   {
-    if (this->CompactDatas->GlobalIndexTable_stl.size() != 0)
+    if (!this->CompactDatas->GlobalIndexTable_stl.empty())
     {
       // Case explicit global node index
       assert("pre: not_valid_index" && index >= 0 &&
@@ -420,7 +420,7 @@ public:
   //---------------------------------------------------------------------------
   vtkIdType GetGlobalNodeIndexMax() const override
   {
-    if (static_cast<vtkIdType>(this->CompactDatas->GlobalIndexTable_stl.size() != 0))
+    if (static_cast<vtkIdType>(!this->CompactDatas->GlobalIndexTable_stl.empty()))
     {
       // Case explicit global node index
       const auto it_end = this->CompactDatas->GlobalIndexTable_stl.end();

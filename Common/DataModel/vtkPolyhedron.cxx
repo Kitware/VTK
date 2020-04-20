@@ -2284,7 +2284,7 @@ void vtkPolyhedron::Clip(double value, vtkDataArray* pointScalars,
       while (it != polygons.end())
       {
         // If there are empty polygons, we erase them
-        while (it != polygons.end() && !it->size())
+        while (it != polygons.end() && it->empty())
         {
           it = polygons.erase(it);
         }
@@ -2293,7 +2293,7 @@ void vtkPolyhedron::Clip(double value, vtkDataArray* pointScalars,
           // All polygons were empty
           break;
         }
-        if (!polyhedralIdSet.size())
+        if (polyhedralIdSet.empty())
         {
           // Insert seed polygon in the polyhedron
           polyhedralIdSet.insert(it->begin(), it->end());
@@ -2330,7 +2330,7 @@ void vtkPolyhedron::Clip(double value, vtkDataArray* pointScalars,
         }
       }
     }
-    if (polyhedralFaceList.size())
+    if (!polyhedralFaceList.empty())
     {
       // next, build the face stream for the polyhedron.
       vtkNew<vtkIdList> polyhedron;

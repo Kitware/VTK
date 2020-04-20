@@ -65,7 +65,7 @@ void vtkOpenGLCellToVTKCellMap::BuildPrimitiveOffsetsIfNeeded(
 {
   // if the users created a full cell cell map AND it is still valid then
   // the values will be computed as part of that and we should use them
-  if (this->CellCellMap.size())
+  if (!this->CellCellMap.empty())
   {
     this->TempState.Clear();
     this->TempState.Append(prims[0]->GetNumberOfCells() ? prims[0]->GetMTime() : 0, "verts");

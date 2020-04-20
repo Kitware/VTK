@@ -135,7 +135,7 @@ void WriteBufferAndView(vtkDataArray* inda, const char* fileName, bool inlineDat
     result = toString.str();
 
     std::string fullPath = vtksys::SystemTools::GetFilenamePath(fileName);
-    if (fullPath.size() > 0)
+    if (!fullPath.empty())
     {
       fullPath += "/";
     }
@@ -745,11 +745,11 @@ void vtkGLTFExporter::WriteToStream(ostream& output)
   root["buffers"] = buffers;
   root["bufferViews"] = bufferViews;
   root["accessors"] = accessors;
-  if (images.size() > 0)
+  if (!images.empty())
     root["images"] = images;
-  if (textures.size() > 0)
+  if (!textures.empty())
     root["textures"] = textures;
-  if (samplers.size() > 0)
+  if (!samplers.empty())
     root["samplers"] = samplers;
   root["materials"] = materials;
 

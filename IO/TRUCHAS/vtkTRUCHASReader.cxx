@@ -550,7 +550,7 @@ public:
   bool MoveVTKBlocks(vtkTRUCHASReader* self, hid_t now_gid)
   {
 
-    if (this->part_to_blocks.size() == 0)
+    if (this->part_to_blocks.empty())
     {
       return true;
     }

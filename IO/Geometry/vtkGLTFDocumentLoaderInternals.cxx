@@ -917,7 +917,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadSampler(
     return false;
   }
 
-  if (root.size() == 0)
+  if (root.empty())
   {
     sampler.MagFilter = Sampler::FilterType::LINEAR_MIPMAP_LINEAR;
     sampler.MinFilter = Sampler::FilterType::LINEAR_MIPMAP_LINEAR;

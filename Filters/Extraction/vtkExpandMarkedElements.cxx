@@ -330,7 +330,7 @@ int vtkExpandMarkedElements::RequestData(
   for (int cc = 0; cc < static_cast<int>(gids.size()); ++cc)
   {
     auto b = master.block<BlockT>(cc);
-    if (b->Neighbors.size() > 0)
+    if (!b->Neighbors.empty())
     {
       auto l = new diy::Link();
       for (const auto& npair : b->Neighbors)

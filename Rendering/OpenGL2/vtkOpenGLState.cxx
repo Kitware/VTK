@@ -1536,7 +1536,7 @@ void vtkOpenGLState::PushReadFramebufferBinding()
 
 void vtkOpenGLState::PopDrawFramebufferBinding()
 {
-  if (this->DrawBindings.size())
+  if (!this->DrawBindings.empty())
   {
     BufferBindingState& bbs = this->DrawBindings.back();
     ::glBindFramebuffer(GL_DRAW_FRAMEBUFFER, bbs.GetBinding());
@@ -1552,7 +1552,7 @@ void vtkOpenGLState::PopDrawFramebufferBinding()
 
 void vtkOpenGLState::PopReadFramebufferBinding()
 {
-  if (this->ReadBindings.size())
+  if (!this->ReadBindings.empty())
   {
     BufferBindingState& bbs = this->ReadBindings.back();
     ::glBindFramebuffer(GL_READ_FRAMEBUFFER, bbs.GetBinding());

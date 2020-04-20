@@ -530,7 +530,7 @@ bool vtkOSPRayMaterialLibrary::InternalParseMTL(
       {
         tfname = trim(tstr.substr(key.size()));
       }
-      if (tfname != "")
+      if (!tfname.empty())
       {
         vtkSmartPointer<vtkTexture> textr = vtkSmartPointer<vtkTexture>::New();
         vtkSmartPointer<vtkJPEGReader> jpgReader = vtkSmartPointer<vtkJPEGReader>::New();
@@ -647,7 +647,7 @@ const char* vtkOSPRayMaterialLibrary::WriteBuffer()
   writer->write(root, &result);
   std::string rstring = result.str();
 
-  if (rstring.size())
+  if (!rstring.empty())
   {
     char* buf = new char[rstring.size() + 1];
     memcpy(buf, rstring.c_str(), rstring.size());

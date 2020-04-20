@@ -288,7 +288,7 @@ int vtkPExodusIIReader::RequestInformation(
       requestInformationRetVal =
         this->Superclass::RequestInformation(request, inputVector, outputVector);
 
-      if (this->Metadata->ArrayInfo.size())
+      if (!this->Metadata->ArrayInfo.empty())
       {
         // We have a file with actual data in it
         break;
@@ -463,11 +463,11 @@ int vtkPExodusIIReader::RequestData(vtkInformation* vtkNotUsed(request),
 
   // If this is the first execution, we need to initialize the arrays
   // that store the number of points/cells output by each reader
-  if (this->NumberOfCellsPerFile.size() == 0)
+  if (this->NumberOfCellsPerFile.empty())
   {
     this->NumberOfCellsPerFile.resize(max - min + 1, 0);
   }
-  if (this->NumberOfPointsPerFile.size() == 0)
+  if (this->NumberOfPointsPerFile.empty())
   {
     this->NumberOfPointsPerFile.resize(max - min + 1, 0);
   }

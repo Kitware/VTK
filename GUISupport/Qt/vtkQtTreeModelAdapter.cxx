@@ -547,7 +547,7 @@ QMimeData* vtkQtTreeModelAdapter::mimeData(const QModelIndexList& indexes) const
 {
   // Only supports dragging single item right now ...
 
-  if (indexes.size() == 0)
+  if (indexes.empty())
   {
     return nullptr;
   }

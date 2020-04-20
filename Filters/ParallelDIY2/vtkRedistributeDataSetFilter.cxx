@@ -241,7 +241,7 @@ void vtkRedistributeDataSetFilter::SetExplicitCuts(const std::vector<vtkBounding
 //----------------------------------------------------------------------------
 void vtkRedistributeDataSetFilter::RemoveAllExplicitCuts()
 {
-  if (this->ExplicitCuts.size() > 0)
+  if (!this->ExplicitCuts.empty())
   {
     this->ExplicitCuts.clear();
     this->Modified();
@@ -475,7 +475,7 @@ bool vtkRedistributeDataSetFilter::Redistribute(vtkDataObject* inputDO,
       input_partitions.resize(allsize, nullptr);
     }
 
-    if (input_partitions.size() == 0)
+    if (input_partitions.empty())
     {
       // all ranks have empty data.
       return true;
@@ -774,7 +774,7 @@ vtkSmartPointer<vtkDataSet> vtkRedistributeDataSetFilter::ClipDataSet(
 vtkSmartPointer<vtkPartitionedDataSet> vtkRedistributeDataSetFilter::SplitDataSet(
   vtkDataSet* dataset, const std::vector<vtkBoundingBox>& cuts)
 {
-  if (!dataset || cuts.size() == 0 || dataset->GetNumberOfCells() == 0)
+  if (!dataset || cuts.empty() || dataset->GetNumberOfCells() == 0)
   //        (dataset->GetNumberOfCells() == 0 && dataset->GetNumberOfPoints() == 0))
   {
     vtkNew<vtkPartitionedDataSet> result;
@@ -853,7 +853,7 @@ vtkSmartPointer<vtkPartitionedDataSet> vtkRedistributeDataSetFilter::SplitDataSe
   for (size_t region_idx = 0; region_idx < region_cell_ids.size(); ++region_idx)
   {
     const auto& cell_ids = region_cell_ids[region_idx];
-    if (cell_ids.size() > 0)
+    if (!cell_ids.empty())
     {
       extractor->SetCellIds(&cell_ids[0], static_cast<vtkIdType>(cell_ids.size()));
       extractor->Update();

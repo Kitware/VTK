@@ -389,7 +389,7 @@ int vtkXdmfReader::RequestInformation(
     time_steps[i] = it->second;
   }
 
-  if (time_steps.size() > 0)
+  if (!time_steps.empty())
   {
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &time_steps[0],
       static_cast<int>(time_steps.size()));

@@ -111,12 +111,12 @@ void BuildGraphMLGraph(vtkMutableDirectedGraph* graph, std::string file)
       points->InsertNextPoint(x, y, 0.0);
     }
     vtkStdString s = sourceArr->GetValue(i);
-    if (s != "")
+    if (!s.empty())
     {
       source = vtkVariant(s).ToInt();
     }
     vtkStdString t = targetArr->GetValue(i);
-    if (t != "")
+    if (!t.empty())
     {
       target = vtkVariant(t).ToInt();
       graph->AddEdge(source, target);

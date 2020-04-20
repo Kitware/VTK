@@ -54,7 +54,7 @@ public:
 //-----------------------------------------------------------------------------
 class vtkDataObjectTreeIndex : public std::vector<unsigned int>
 {
-  int IsValid() { return (this->size() > 0); }
+  int IsValid() { return !this->empty(); }
 };
 
 #endif

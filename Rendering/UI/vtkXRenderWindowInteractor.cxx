@@ -82,7 +82,7 @@ public:
   void GetTimeToNextTimer(timeval& tv)
   {
     uint64_t lowestDelta = 1000000;
-    if (this->LocalToTimer.size())
+    if (!this->LocalToTimer.empty())
     {
       timeval ctv;
       gettimeofday(&ctv, nullptr);
@@ -102,7 +102,7 @@ public:
 
   void FireTimers(vtkXRenderWindowInteractor* rwi)
   {
-    if (this->LocalToTimer.size())
+    if (!this->LocalToTimer.empty())
     {
       timeval ctv;
       gettimeofday(&ctv, nullptr);

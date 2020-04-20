@@ -670,7 +670,7 @@ inline void vtkStructuredGridConnectivity::GetGhostedGridExtent(const int gridID
   assert("pre: gridID out-of-bounds!" &&
     (gridID >= 0 && gridID < static_cast<int>(this->NumberOfGrids)));
 
-  if (this->GhostedExtents.size() == 0)
+  if (this->GhostedExtents.empty())
   {
     ext[0] = ext[2] = ext[4] = -1;
     ext[1] = ext[3] = ext[5] = 0;

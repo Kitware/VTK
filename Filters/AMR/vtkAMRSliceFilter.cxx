@@ -571,7 +571,7 @@ int vtkAMRSliceFilter::RequestUpdateExtent(vtkInformation*, vtkInformationVector
   assert("pre: inInfo is nullptr" && (inInfo != nullptr));
 
   // Send upstream request for higher resolution
-  if (this->BlocksToLoad.size() > 0)
+  if (!this->BlocksToLoad.empty())
   {
     inInfo->Set(vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES(), &this->BlocksToLoad[0],
       static_cast<int>(this->BlocksToLoad.size()));
