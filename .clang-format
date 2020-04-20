@@ -11,4 +11,10 @@ BinPackParameters: true
 ColumnLimit: 100
 SpaceAfterTemplateKeyword: true
 Standard: Cpp03
+StatementMacros:
+  - vtkAbstractTypeMacro
+  - vtkTypeMacro
+  - vtkBaseTypeMacro
+  - vtkAbstractTemplateTypeMacro
+  - vtkAbstractTypeMacroWithNewInstanceType
 ...
