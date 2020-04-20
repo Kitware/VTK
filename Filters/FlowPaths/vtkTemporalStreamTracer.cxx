@@ -99,14 +99,14 @@ vtkTemporalStreamTracer::vtkTemporalStreamTracer()
   this->ActualTimeStep = 0;
   this->NumberOfInputTimeSteps = 0;
   this->ForceReinjectionEveryNSteps = 1;
-  this->ReinjectionFlag = 0;
+  this->ReinjectionFlag = false;
   this->ReinjectionCounter = 0;
   this->UpdatePieceId = 0;
   this->UpdateNumPieces = 0;
   this->AllFixedGeometry = 1;
   this->StaticMesh = 1;
   this->StaticSeeds = 1;
-  this->ComputeVorticity = 1;
+  this->ComputeVorticity = true;
   this->IgnorePipelineTime = 0;
   this->ParticleWriter = nullptr;
   this->ParticleFileName = nullptr;
@@ -734,12 +734,12 @@ int vtkTemporalStreamTracer::GenerateOutput(
   //
   // Make sure the Particle Positions are initialized with Seed particles
   //
-  this->ReinjectionFlag = 0;
+  this->ReinjectionFlag = false;
   if (this->ForceReinjectionEveryNSteps > 0)
   {
     if ((this->ActualTimeStep % this->ForceReinjectionEveryNSteps) == 0)
     {
-      this->ReinjectionFlag = 1;
+      this->ReinjectionFlag = true;
     }
   }
   //
@@ -751,7 +751,7 @@ int vtkTemporalStreamTracer::GenerateOutput(
     this->LocalSeeds.clear();
     this->ParticleHistories.clear();
     this->EarliestTime = -1E6;
-    this->ReinjectionFlag = 1;
+    this->ReinjectionFlag = true;
     this->ReinjectionCounter = 0;
     this->UniqueIdCounter = 0;
     this->UniqueIdCounterMPI = 0;
@@ -1311,9 +1311,9 @@ bool vtkTemporalStreamTracer::RetryWithPush(
     // a push helped the particle get back into a dataset,
     info.age += delT;
     info.ErrorCode = 6;
-    return 1;
+    return true;
   }
-  return 0;
+  return false;
 }
 //---------------------------------------------------------------------------
 bool vtkTemporalStreamTracer::SendParticleToAnotherProcess(
@@ -1360,9 +1360,9 @@ bool vtkTemporalStreamTracer::SendParticleToAnotherProcess(
     this->Interpolator->GetLastGoodVelocity(velocity);
   }
   if (this->RetryWithPush(info, velocity, delT))
-    return 0;
+    return false;
   this->AddParticleToMPISendList(info);
-  return 1;
+  return true;
 }
 //---------------------------------------------------------------------------
 void vtkTemporalStreamTracer::PrintSelf(ostream& os, vtkIndent indent)
@@ -1391,7 +1391,7 @@ bool vtkTemporalStreamTracer::ComputeDomainExitLocation(
   if (cell->IntersectWithLine(pos, p2, 1E-3, t, intersection, pcoords, subId) == 0)
   {
     vtkDebugMacro(<< "No cell/domain exit was found");
-    return 0;
+    return false;
   }
   else
   {
@@ -1402,7 +1402,7 @@ bool vtkTemporalStreamTracer::ComputeDomainExitLocation(
       intersection[i] = pos[i] + (t + 0.01) * (p2[i] - pos[i]);
     // intersection stored, compute T for intersection
     intersection[3] = pos[3] + (t + 0.01) * (p2[3] - pos[3]);
-    return 1;
+    return true;
   }
 }
 //---------------------------------------------------------------------------

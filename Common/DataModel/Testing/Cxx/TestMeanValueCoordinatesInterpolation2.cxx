@@ -91,7 +91,7 @@ int TestMeanValueCoordinatesInterpolation2(int argc, char* argv[])
   polydata->GetPointData()->SetScalars(pointDataArray);
 
   vtkPolygon* polygon = static_cast<vtkPolygon*>(polydata->GetCell(0));
-  polygon->SetUseMVCInterpolation(1);
+  polygon->SetUseMVCInterpolation(true);
 
   // Okay now sample on a plane and see how it interpolates
   vtkSmartPointer<vtkPlaneSource> pSource = vtkSmartPointer<vtkPlaneSource>::New();
@@ -146,7 +146,7 @@ int TestMeanValueCoordinatesInterpolation2(int argc, char* argv[])
   polydata1->GetPointData()->SetScalars(pointDataArray1);
 
   vtkPolygon* polygon1 = static_cast<vtkPolygon*>(polydata1->GetCell(0));
-  polygon1->SetUseMVCInterpolation(1);
+  polygon1->SetUseMVCInterpolation(true);
 
   // Okay now sample on a plane and see how it interpolates
   vtkSmartPointer<vtkPlaneSource> pSource1 = vtkSmartPointer<vtkPlaneSource>::New();

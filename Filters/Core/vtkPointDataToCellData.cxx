@@ -166,8 +166,8 @@ vtkStandardNewMacro(vtkPointDataToCellData);
 // Instantiate object so that point data is not passed to output.
 vtkPointDataToCellData::vtkPointDataToCellData()
 {
-  this->PassPointData = 0;
-  this->CategoricalData = 0;
+  this->PassPointData = false;
+  this->CategoricalData = false;
   this->ProcessAllArrays = true;
   this->Implementation = new Internals();
 }

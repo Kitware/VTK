@@ -513,12 +513,12 @@ bool vtkAbstractInterpolatedVelocityField::InterpolatePoint(vtkPointData* outPD,
 {
   if (!this->LastDataSet)
   {
-    return 0;
+    return false;
   }
 
   outPD->InterpolatePoint(
     this->LastDataSet->GetPointData(), outIndex, this->GenCell->PointIds, this->Weights);
-  return 1;
+  return true;
 }
 
 //----------------------------------------------------------------------------

@@ -2179,7 +2179,7 @@ void vtkCubeAxesActor::BuildLabels(vtkAxisActor* axes[NUMBER_OF_ALIGNED_AXIS])
   double axis[3] = { p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2] };
   double axisLength = vtkMath::Norm(axis);
   double extents = range[1] - range[0];
-  bool mustAdjustValue = 0;
+  bool mustAdjustValue = false;
   int lastPow = 0;
   int axisIndex = 0;
   vtkStringArray* customizedLabels = nullptr;

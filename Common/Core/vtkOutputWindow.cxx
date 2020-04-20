@@ -282,7 +282,7 @@ void vtkOutputWindow::DisplayText(const char* txt)
     }
     if (c == 'q')
     {
-      this->PromptUser = 0;
+      this->PromptUser = false;
     }
   }
 

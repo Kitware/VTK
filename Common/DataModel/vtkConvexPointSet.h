@@ -109,7 +109,7 @@ public:
   bool GetCentroid(double vtkNotUsed(centroid)[3]) const override
   {
     vtkWarningMacro(<< "vtkConvexPointSet::GetCentroid Not Implemented");
-    return 0;
+    return false;
   }
   //@}
 

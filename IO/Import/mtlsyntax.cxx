@@ -158,7 +158,7 @@ _resume:
     const char *_lower = _keys;
     const char *_mid;
     const char *_upper = _keys + _klen - 1;
-    while (1) {
+    while (true) {
       if ( _upper < _lower )
         break;
 
@@ -181,7 +181,7 @@ _resume:
     const char *_lower = _keys;
     const char *_mid;
     const char *_upper = _keys + (_klen<<1) - 2;
-    while (1) {
+    while (true) {
       if ( _upper < _lower )
         break;
 

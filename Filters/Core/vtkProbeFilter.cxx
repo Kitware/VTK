@@ -70,7 +70,7 @@ vtkProbeFilter::vtkProbeFilter()
   this->PassPointArrays = 0;
   this->PassFieldArrays = 1;
   this->Tolerance = 1.0;
-  this->ComputeTolerance = 1;
+  this->ComputeTolerance = true;
 }
 
 //----------------------------------------------------------------------------

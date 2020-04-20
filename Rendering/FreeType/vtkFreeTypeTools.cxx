@@ -791,7 +791,7 @@ bool vtkFreeTypeTools::GetSize(size_t tprop_cache_id, int font_size, FT_Size* si
   if (!size || font_size <= 0)
   {
     vtkErrorMacro(<< "Wrong parameters, size is nullptr or invalid font size");
-    return 0;
+    return false;
   }
 
   // Map the id of a text property in the cache to a FTC_FaceID
@@ -816,14 +816,14 @@ bool vtkFreeTypeTools::GetSize(FTC_Scaler scaler, FT_Size* size)
   if (!size)
   {
     vtkErrorMacro(<< "Size is nullptr.");
-    return 0;
+    return false;
   }
 
   FTC_Manager* manager = this->GetCacheManager();
   if (!manager)
   {
     vtkErrorMacro(<< "Failed querying the cache manager !");
-    return 0;
+    return false;
   }
 
   FT_Error error = FTC_Manager_LookupSize(*manager, scaler, size);
@@ -841,7 +841,7 @@ bool vtkFreeTypeTools::GetSize(vtkTextProperty* tprop, FT_Size* size)
   if (!tprop)
   {
     vtkErrorMacro(<< "Wrong parameters, text property is nullptr");
-    return 0;
+    return false;
   }
 
   // Map the text property to a unique id that will be used as face id
@@ -889,7 +889,7 @@ bool vtkFreeTypeTools::GetFace(vtkTextProperty* tprop, FT_Face* face)
   if (!tprop)
   {
     vtkErrorMacro(<< "Wrong parameters, face is nullptr");
-    return 0;
+    return false;
   }
 
   // Map the text property to a unique id that will be used as face id
@@ -909,14 +909,14 @@ bool vtkFreeTypeTools::GetGlyphIndex(size_t tprop_cache_id, FT_UInt32 c, FT_UInt
   if (!gindex)
   {
     vtkErrorMacro(<< "Wrong parameters, gindex is nullptr");
-    return 0;
+    return false;
   }
 
   FTC_CMapCache* cmap_cache = this->GetCMapCache();
   if (!cmap_cache)
   {
     vtkErrorMacro(<< "Failed querying the charmap cache manager !");
-    return 0;
+    return false;
   }
 
   // Map the id of a text property in the cache to a FTC_FaceID
@@ -934,7 +934,7 @@ bool vtkFreeTypeTools::GetGlyphIndex(vtkTextProperty* tprop, FT_UInt32 c, FT_UIn
   if (!tprop)
   {
     vtkErrorMacro(<< "Wrong parameters, text property is nullptr");
-    return 0;
+    return false;
   }
 
   // Map the text property to a unique id that will be used as face id
@@ -1114,7 +1114,7 @@ bool vtkFreeTypeTools::GetGlyph(vtkTextProperty* tprop, FT_UInt32 c, FT_Glyph* g
   if (!tprop)
   {
     vtkErrorMacro(<< "Wrong parameters, text property is nullptr");
-    return 0;
+    return false;
   }
 
   // Map the text property to a unique id that will be used as face id

@@ -2364,7 +2364,7 @@ int vtkKdTree::FindClosestPointInSphere(
   double minDistance2 = 4 * this->MaxWidth * this->MaxWidth;
   int localCloseId = -1;
 
-  bool recheck = 0; // used to flag that we should recheck the distance
+  bool recheck = false; // used to flag that we should recheck the distance
   for (int reg = 0; reg < nRegions; reg++)
   {
     if (regionIds[reg] == skipRegion)
@@ -2384,7 +2384,7 @@ int vtkKdTree::FindClosestPointInSphere(
       {
         minDistance2 = newDistance2;
         localCloseId = newLocalCloseId;
-        recheck = 1; // changed the minimum distance so mark to check subsequent bins
+        recheck = true; // changed the minimum distance so mark to check subsequent bins
       }
     }
   }

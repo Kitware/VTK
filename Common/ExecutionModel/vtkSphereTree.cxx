@@ -1007,7 +1007,7 @@ vtkSphereTree::vtkSphereTree()
   this->NumberOfLevels = 0;
   this->Tree = nullptr;
   this->Hierarchy = nullptr;
-  this->BuildHierarchy = 1;
+  this->BuildHierarchy = true;
   this->SphereTreeType = VTK_SPHERE_TREE_HIERARCHY_NONE;
   this->AverageRadius = 0.0;
   this->SphereBounds[0] = this->SphereBounds[1] = this->SphereBounds[2] = 0.0;

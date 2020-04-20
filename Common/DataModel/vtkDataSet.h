@@ -423,13 +423,13 @@ public:
    * 0 otherwise. Blanking is supported only for vtkStructuredGrid
    * and vtkUniformGrid
    */
-  virtual bool HasAnyBlankCells() { return 0; }
+  virtual bool HasAnyBlankCells() { return false; }
   /**
    * Returns 1 if there are any blanking points
    * 0 otherwise. Blanking is supported only for vtkStructuredGrid
    * and vtkUniformGrid
    */
-  virtual bool HasAnyBlankPoints() { return 0; }
+  virtual bool HasAnyBlankPoints() { return false; }
 
   /**
    * Gets the array that defines the ghost type of each point.

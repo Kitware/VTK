@@ -149,12 +149,12 @@ public:
       if (!iren->GetPickingManager()->GetOptimizeOnInteractorEvents())
       {
         std::cout << "Optimization on Interactor events ON !" << std::endl;
-        iren->GetPickingManager()->SetOptimizeOnInteractorEvents(1);
+        iren->GetPickingManager()->SetOptimizeOnInteractorEvents(true);
       }
       else
       {
         std::cout << "Optimization on Interactor events OFF !" << std::endl;
-        iren->GetPickingManager()->SetOptimizeOnInteractorEvents(0);
+        iren->GetPickingManager()->SetOptimizeOnInteractorEvents(false);
       }
     }
   }

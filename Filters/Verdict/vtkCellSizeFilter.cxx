@@ -430,7 +430,7 @@ bool vtkCellSizeFilter::ComputeDataSet(vtkDataSet* input, vtkDataSet* output, do
     this->AddSumFieldData(output, sum);
   }
 
-  return 1;
+  return true;
 }
 
 //-----------------------------------------------------------------------------

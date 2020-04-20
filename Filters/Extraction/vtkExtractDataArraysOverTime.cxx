@@ -404,12 +404,12 @@ vtkSmartPointer<vtkDataObject> vtkExtractDataArraysOverTime::vtkInternal::Summar
   vtkNew<vtkSplitColumnComponents> splitColumns;
   auto descrStats = this->Self->NewDescriptiveStatistics();
   auto orderStats = this->Self->NewOrderStatistics();
-  descrStats->SetLearnOption(1);
-  descrStats->SetDeriveOption(1);
-  descrStats->SetAssessOption(0);
-  orderStats->SetLearnOption(1);
-  orderStats->SetDeriveOption(1);
-  orderStats->SetAssessOption(0);
+  descrStats->SetLearnOption(true);
+  descrStats->SetDeriveOption(true);
+  descrStats->SetAssessOption(false);
+  orderStats->SetLearnOption(true);
+  orderStats->SetDeriveOption(true);
+  orderStats->SetAssessOption(false);
 
   vtkDataSetAttributes* statInDSA = statInput->GetRowData();
   statInDSA->ShallowCopy(inFD);
@@ -434,7 +434,7 @@ vtkSmartPointer<vtkDataObject> vtkExtractDataArraysOverTime::vtkInternal::Summar
     vtkExtractArraysAssignUniqueCoordNames(statInDSA, pX[0], pX[1], pX[2]);
   }
   splitColumns->SetInputDataObject(0, statInput);
-  splitColumns->SetCalculateMagnitudes(1);
+  splitColumns->SetCalculateMagnitudes(true);
   splitColumns->Update();
   vtkTable* splits = splitColumns->GetOutput();
   descrStats->SetInputConnection(splitColumns->GetOutputPort());

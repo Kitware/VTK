@@ -628,7 +628,7 @@ void CellProcessor<T>::FindCellsAlongLine(
   // Start walking through the bins, continue until traversed the entire
   // locator. Note that termination of the while(1) loop occurs when the ray
   // passes out of the locator via the break command.
-  while (1)
+  while (true)
   {
     if ((numCellsInBin = this->GetNumberOfIds(idx)) > 0) // there are some cell here
     {

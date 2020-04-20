@@ -117,7 +117,7 @@ public:
     int length = static_cast<int>(value.length());
     if (length <= 8)
     {
-      writer->PutBit(0);
+      writer->PutBit(false);
       writer->PutBits(length - 1, 3);
     }
     else if (length <= 264)
@@ -142,7 +142,7 @@ public:
 
     if (value <= 32) // ITU  C.27.2
     {
-      writer->PutBit(0);
+      writer->PutBit(false);
       writer->PutBits(value - 1, 5);
     }
     else if (value <= 2080) // ITU C.27.3

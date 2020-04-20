@@ -102,7 +102,7 @@ void vtkLinearRayIntegratorTransferFunction::GetTransferFunction(vtkColorTransfe
 
   double* function_range = color->GetRange();
   double* function = color->GetDataPointer();
-  while (1)
+  while (true)
   {
     cpset.insert(function[0]);
     if (function[0] == function_range[1])
@@ -198,7 +198,7 @@ void vtkLinearRayIntegratorTransferFunction::GetTransferFunction(vtkColorTransfe
 
   function_range = opacity->GetRange();
   function = opacity->GetDataPointer();
-  while (1)
+  while (true)
   {
     cpset.insert(function[0]);
     if (function[0] == function_range[0])
@@ -239,7 +239,7 @@ void vtkLinearRayIntegratorTransferFunction::GetTransferFunction(vtkPiecewiseFun
 
   double* function_range = intensity->GetRange();
   double* function = intensity->GetDataPointer();
-  while (1)
+  while (true)
   {
     cpset.insert(function[0]);
     if (function[0] == function_range[1])
@@ -249,7 +249,7 @@ void vtkLinearRayIntegratorTransferFunction::GetTransferFunction(vtkPiecewiseFun
 
   function_range = opacity->GetRange();
   function = opacity->GetDataPointer();
-  while (1)
+  while (true)
   {
     cpset.insert(function[0]);
     if (function[0] == function_range[0])

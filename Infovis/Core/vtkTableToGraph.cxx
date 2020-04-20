@@ -56,7 +56,7 @@ vtkCxxSetObjectMacro(vtkTableToGraph, LinkGraph, vtkMutableDirectedGraph);
 //---------------------------------------------------------------------------
 vtkTableToGraph::vtkTableToGraph()
 {
-  this->Directed = 0;
+  this->Directed = false;
   this->LinkGraph = vtkMutableDirectedGraph::New();
   this->SetNumberOfInputPorts(2);
   this->SetNumberOfOutputPorts(1);

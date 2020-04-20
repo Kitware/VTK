@@ -410,7 +410,7 @@ int TestParticleTracers(int, char*[])
   vtkNew<vtkParticleTracer> filter;
   filter->SetInputConnection(0, imageSource->GetOutputPort());
   filter->SetInputConnection(1, ps->GetOutputPort());
-  filter->SetComputeVorticity(0);
+  filter->SetComputeVorticity(false);
 
   filter->SetStartTime(0.1);
   filter->SetTerminationTime(4.5);

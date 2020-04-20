@@ -45,9 +45,9 @@ vtkRandomGraphSource::vtkRandomGraphSource()
   this->NumberOfEdges = 10;
   this->EdgeProbability = 0.5;
   this->IncludeEdgeWeights = false;
-  this->Directed = 0;
-  this->UseEdgeProbability = 0;
-  this->StartWithTree = 0;
+  this->Directed = false;
+  this->UseEdgeProbability = false;
+  this->StartWithTree = false;
   this->AllowSelfLoops = false;
   this->AllowParallelEdges = false;
   this->GeneratePedigreeIds = true;

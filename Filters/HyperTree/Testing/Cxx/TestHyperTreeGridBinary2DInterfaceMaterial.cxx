@@ -51,7 +51,7 @@ int TestHyperTreeGridBinary2DInterfaceMaterial(int argc, char* argv[])
   vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(htGrid->GetOutput());
   htg->GetCellData()->SetScalars(htg->GetCellData()->GetArray("Depth"));
   vtkHyperTreeGrid* H = htg;
-  H->SetHasInterface(1);
+  H->SetHasInterface(true);
   char normalsName[] = "Normals";
   H->SetInterfaceNormalsName(normalsName);
   char interceptsName[] = "Intercepts";

@@ -1824,10 +1824,10 @@ void vtkImageResliceExecute(vtkImageReslice* self, vtkDataArray* scalars,
   double slabSampleSpacing = self->GetSlabSliceSpacingFraction();
 
   // check for perspective transformation
-  bool perspective = 0;
+  bool perspective = false;
   if (newmat[3][0] != 0 || newmat[3][1] != 0 || newmat[3][2] != 0 || newmat[3][3] != 1)
   {
-    perspective = 1;
+    perspective = true;
   }
 
   // extra scalar info for nearest-neighbor optimization
@@ -1859,13 +1859,13 @@ void vtkImageResliceExecute(vtkImageReslice* self, vtkDataArray* scalars,
   bool rescaleScalars = (scalarShift != 0.0 || scalarScale != 1.0);
 
   // is nearest neighbor optimization possible?
-  bool optimizeNearest = 0;
+  bool optimizeNearest = false;
   if (interpolationMode == VTK_NEAREST_INTERPOLATION && borderMode == VTK_IMAGE_BORDER_CLAMP &&
     !(newtrans || perspective || convertScalars || rescaleScalars) &&
     inputScalarType == outData->GetScalarType() && fullSize == scalars->GetNumberOfTuples() &&
     self->GetBorder() == 1 && nsamples <= 1)
   {
-    optimizeNearest = 1;
+    optimizeNearest = true;
   }
 
   // get pixel information
@@ -1970,8 +1970,8 @@ void vtkImageResliceExecute(vtkImageReslice* self, vtkDataArray* scalars,
 
       if (!optimizeNearest)
       {
-        bool wasInBounds = 1;
-        bool isInBounds = 1;
+        bool wasInBounds = true;
+        bool isInBounds = true;
         int startIdX = idXmin;
         int idX = idXmin;
         F* tmpPtr = floatPtr;
@@ -1988,7 +1988,7 @@ void vtkImageResliceExecute(vtkImageReslice* self, vtkDataArray* scalars,
 
             F inPoint3[4];
             F* inPoint = inPoint2;
-            isInBounds = 0;
+            isInBounds = false;
 
             int sampleCount = 0;
             for (int sample = 0; sample < nsamples; sample++)
@@ -2021,7 +2021,7 @@ void vtkImageResliceExecute(vtkImageReslice* self, vtkDataArray* scalars,
               {
                 // do the interpolation
                 sampleCount++;
-                isInBounds = 1;
+                isInBounds = true;
                 interpolator->InterpolateIJK(inPoint, tmpPtr);
                 tmpPtr += inComponents;
               }

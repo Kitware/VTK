@@ -390,7 +390,7 @@ public:
         return this->InputStructuredGrid->IsCellVisible(id) ? true : false;
       case NONE:
       default:
-        return 1;
+        return true;
     }
   }
 

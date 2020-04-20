@@ -100,7 +100,7 @@ vtkExodusIIWriter::vtkExodusIIWriter()
   this->LocalNodeIdMap = nullptr;
   this->LocalElementIdMap = nullptr;
   this->TopologyChanged = false;
-  this->IgnoreMetaDataWarning = 0;
+  this->IgnoreMetaDataWarning = false;
 }
 
 vtkExodusIIWriter::~vtkExodusIIWriter()

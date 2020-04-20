@@ -198,7 +198,7 @@ bool vtkGlyph3D::Execute(vtkDataSet* input, vtkInformationVector* sourceVector, 
     vtkDebugMacro(<< "No points to glyph!");
     pts->Delete();
     trans->Delete();
-    return 1;
+    return true;
   }
 
   // Check input for consistency

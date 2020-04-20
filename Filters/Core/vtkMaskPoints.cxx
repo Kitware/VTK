@@ -482,9 +482,9 @@ int vtkMaskPoints::RequestData(vtkInformation* vtkNotUsed(request),
           double q3 = log(q2);
           vtkIdType s;
 
-          while (1)
+          while (true)
           {
-            while (1)
+            while (true)
             {
               s = (vtkIdType)(vprime / q3);
               if (s < q1)

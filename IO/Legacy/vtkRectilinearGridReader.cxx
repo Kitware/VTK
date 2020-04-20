@@ -50,7 +50,7 @@ void vtkRectilinearGridReader::SetOutput(vtkRectilinearGrid* output)
 int vtkRectilinearGridReader::ReadMetaDataSimple(const std::string& fname, vtkInformation* outInfo)
 {
   char line[256];
-  bool dimsRead = 0;
+  bool dimsRead = false;
 
   vtkDebugMacro(<< "Reading vtk rectilinear grid file info...");
 
@@ -88,7 +88,7 @@ int vtkRectilinearGridReader::ReadMetaDataSimple(const std::string& fname, vtkIn
 
     // Read keyword and number of points
     //
-    while (1)
+    while (true)
     {
       if (!this->ReadString(line))
       {
@@ -107,7 +107,7 @@ int vtkRectilinearGridReader::ReadMetaDataSimple(const std::string& fname, vtkIn
         }
         outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), 0, dim[0] - 1, 0, dim[1] - 1,
           0, dim[2] - 1);
-        dimsRead = 1;
+        dimsRead = true;
       }
 
       else if (!strncmp(line, "extent", 6) && !dimsRead)
@@ -125,7 +125,7 @@ int vtkRectilinearGridReader::ReadMetaDataSimple(const std::string& fname, vtkIn
         outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent[0], extent[1],
           extent[2], extent[3], extent[4], extent[5]);
 
-        dimsRead = 1;
+        dimsRead = true;
       }
     }
   }

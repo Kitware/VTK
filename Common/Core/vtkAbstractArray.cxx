@@ -152,7 +152,7 @@ const char* vtkAbstractArray::GetComponentName(vtkIdType component) const
 //----------------------------------------------------------------------------
 bool vtkAbstractArray::HasAComponentName() const
 {
-  return (this->ComponentNames) ? (!this->ComponentNames->empty()) : 0;
+  return this->ComponentNames && !this->ComponentNames->empty();
 }
 
 //----------------------------------------------------------------------------

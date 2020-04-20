@@ -503,7 +503,7 @@ int vtkStripper::RequestData(vtkInformation* vtkNotUsed(request),
       bool* used = new bool[newLines->GetNumberOfCells()];
       for (i = 0; i < newLines->GetNumberOfCells(); i++)
       {
-        used[i] = 0;
+        used[i] = false;
       }
 
       bool done = false;
@@ -534,7 +534,7 @@ int vtkStripper::RequestData(vtkInformation* vtkNotUsed(request),
           // Write it into our output line
           memcpy(out_p + out_n, p, n * sizeof(vtkIdType));
           out_n += n;
-          used[id] = 1;
+          used[id] = true;
 
           // Now add any unused lines that adjoin this current line
           bool finished_new_line = false;
@@ -594,7 +594,7 @@ int vtkStripper::RequestData(vtkInformation* vtkNotUsed(request),
                     memcpy(add_to, p, n * sizeof(vtkIdType));
                   }
                   out_n += n;
-                  used[id] = 1;
+                  used[id] = true;
                 }
                 else
                 {

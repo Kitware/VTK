@@ -21,7 +21,7 @@ vtkObjectFactoryNewMacro(vtkHardwareWindow);
 
 vtkHardwareWindow::vtkHardwareWindow()
 {
-  this->Borders = 1;
+  this->Borders = true;
 #ifdef VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN
   this->ShowWindow = false;
   this->UseOffScreenBuffers = true;

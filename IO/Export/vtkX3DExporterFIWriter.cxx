@@ -162,7 +162,7 @@ void vtkX3DExporterFIByteWriter::FillByte()
 {
   while (this->CurrentBytePos != 0)
   {
-    this->PutBit(0);
+    this->PutBit(false);
   }
 }
 
@@ -312,25 +312,25 @@ void vtkX3DExporterFIWriter::StartDocument()
   // ITU 12.7 / 12.9: Version of standard: 1 as 16bit
   this->Writer->PutBits("0000000000000001");
   // ITU 12.8: The bit '0' (padding) shall then be appended to the bit stream
-  this->Writer->PutBit(0);
+  this->Writer->PutBit(false);
   // ITU C.2.3
-  this->Writer->PutBit(0); // additional-data
-  this->Writer->PutBit(1); // initial-vocabulary
-  this->Writer->PutBit(0); // notations
-  this->Writer->PutBit(0); // unparsed-entities
-  this->Writer->PutBit(0); // character-encoding-scheme
-  this->Writer->PutBit(0); // standalone
-  this->Writer->PutBit(0); // and version
+  this->Writer->PutBit(false); // additional-data
+  this->Writer->PutBit(true);  // initial-vocabulary
+  this->Writer->PutBit(false); // notations
+  this->Writer->PutBit(false); // unparsed-entities
+  this->Writer->PutBit(false); // character-encoding-scheme
+  this->Writer->PutBit(false); // standalone
+  this->Writer->PutBit(false); // and version
   // ITU C.2.5: padding '000' for optional component initial-vocabulary
   this->Writer->PutBits("000");
   // ITU C.2.5.1: For each of the thirteen optional components:
   // presence ? 1 : 0
   this->Writer->PutBits("1000000000000"); // 'external-vocabulary'
   // ITU C.2.5.2: external-vocabulary is present
-  this->Writer->PutBit(0);
+  this->Writer->PutBit(false);
   // Write "urn:external-vocabulary"
   // ITU C.22.3.1: Length is < 65
-  this->Writer->PutBit(0);
+  this->Writer->PutBit(false);
   // Writer->PutBits("010110"); // = strlen(external_voc) - 1
   this->Writer->PutBits(static_cast<unsigned int>(strlen(external_voc) - 1), 6);
   this->Writer->PutBytes(external_voc, strlen(external_voc));
@@ -359,7 +359,7 @@ void vtkX3DExporterFIWriter::StartNode(int elementID)
   this->InfoStack->push_back(NodeInfo(elementID));
 
   // ITU C.3.7.2: element is present
-  this->Writer->PutBit(0);
+  this->Writer->PutBit(false);
 }
 
 //----------------------------------------------------------------------------
@@ -390,13 +390,13 @@ void vtkX3DExporterFIWriter::CheckNode(bool callerIsAttribute)
     if (callerIsAttribute) // Element has attributes
     {
       // ITU C.3.3: then the bit '1' (presence) is appended
-      this->Writer->PutBit(1);
+      this->Writer->PutBit(true);
       this->InfoStack->back().attributesTerminated = false;
     }
     else // Element has no attributes
     {
       // ITU C.3.3: otherwise, the bit '0' (absence) is appended
-      this->Writer->PutBit(0);
+      this->Writer->PutBit(false);
     }
     // Write Node name (starting at third bit)
     // ITU: C.18.4 If the alternative name-surrogate-index is present,
@@ -418,7 +418,7 @@ void vtkX3DExporterFIWriter::StartAttribute(int attributeID, bool literal, bool 
 {
   this->CheckNode();
   // ITU C.3.6.1: Start of attribute
-  this->Writer->PutBit(0);
+  this->Writer->PutBit(false);
   // ITU C.4.3 The value of qualified-name is encoded as described in C.17.
   vtkX3DExporterFIWriterHelper::EncodeInteger2(this->Writer, attributeID + 1);
 
@@ -426,7 +426,7 @@ void vtkX3DExporterFIWriter::StartAttribute(int attributeID, bool literal, bool 
   // then the bit '0' (discriminant) is appended
   // ITU C.14.4: If the alternative string-index is present,
   // then the bit '1' (discriminant) is appended
-  this->Writer->PutBit(literal ? 0 : 1);
+  this->Writer->PutBit(literal ? false : true);
   if (literal)
   {
     // ITU C.14.3.1 If the value of the component add-to-table is TRUE,

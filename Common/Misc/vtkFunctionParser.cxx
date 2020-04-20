@@ -1937,7 +1937,7 @@ void vtkFunctionParser::CheckExpression(int& pos, char** error)
     expectTwoCommasOnParenthesisCount[i] = 0;
   }
 
-  while (1)
+  while (true)
   {
     currentChar = this->Function[index];
     bool breakToOuterLoop = false;

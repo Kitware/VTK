@@ -70,7 +70,7 @@ vtkMergeCells::vtkMergeCells()
   this->NumberOfPoints = 0;
 
   this->PointMergeTolerance = 10e-4;
-  this->MergeDuplicatePoints = 1;
+  this->MergeDuplicatePoints = true;
 
   this->InputIsUGrid = false;
   this->InputIsPointSet = false;

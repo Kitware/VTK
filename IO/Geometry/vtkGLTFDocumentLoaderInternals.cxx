@@ -1256,14 +1256,14 @@ bool vtkGLTFDocumentLoaderInternals::LoadModelMetaDataFromFile(
   if (glTFAsset.empty() || !glTFAsset.isObject())
   {
     vtkErrorWithObjectMacro(this->Self, "Invalid asset value");
-    return 0;
+    return false;
   }
 
   // check minversion and version
   if (!vtkGLTFUtils::CheckVersion(glTFAsset))
   {
     vtkErrorWithObjectMacro(this->Self, "Unsupported or invalid glTF version");
-    return 0;
+    return false;
   }
 
   // Check for extensions

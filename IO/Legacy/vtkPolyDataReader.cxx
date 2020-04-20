@@ -78,7 +78,7 @@ int vtkPolyDataReader::ReadMeshSimple(const std::string& fname, vtkDataObject* d
       if (!this->ReadCellsLegacy(size, tempArray.data()))
       {
         this->CloseVTKFile();
-        return 1;
+        return true;
       }
 
       // Convert to id type

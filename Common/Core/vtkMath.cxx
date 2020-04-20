@@ -987,8 +987,8 @@ vtkTypeBool vtkMath::SolveLeastSquares(int numberOfSamples, double** xt, int xOr
 
   int i, j, k;
 
-  bool someHomogeneous = 0;
-  bool allHomogeneous = 1;
+  bool someHomogeneous = false;
+  bool allHomogeneous = true;
   double** hmt = nullptr;
   vtkTypeBool homogRC = 0;
   int* homogenFlags = new int[yOrder];
@@ -1015,7 +1015,7 @@ vtkTypeBool vtkMath::SolveLeastSquares(int numberOfSamples, double** xt, int xOr
       {
         if (fabs(yt[i][j]) > VTK_SMALL_NUMBER)
         {
-          allHomogeneous = 0;
+          allHomogeneous = false;
           homogenFlags[j] = 0;
         }
       }
@@ -1035,7 +1035,7 @@ vtkTypeBool vtkMath::SolveLeastSquares(int numberOfSamples, double** xt, int xOr
     // any of them.
     if (allHomogeneous)
     {
-      someHomogeneous = 1;
+      someHomogeneous = true;
     }
     else
     {
@@ -1043,7 +1043,7 @@ vtkTypeBool vtkMath::SolveLeastSquares(int numberOfSamples, double** xt, int xOr
       {
         if (homogenFlags[j])
         {
-          someHomogeneous = 1;
+          someHomogeneous = true;
         }
       }
     }
@@ -2027,10 +2027,10 @@ inline void vtkOrthogonalize3x3(const T1 A[3][3], T2 B[3][3])
   // A quaternion can only describe a pure rotation, not
   // a rotation with a flip, therefore the flip must be
   // removed before the matrix is converted to a quaternion.
-  bool flip = 0;
+  bool flip = false;
   if (vtkDeterminant3x3(B) < 0)
   {
-    flip = 1;
+    flip = true;
     for (i = 0; i < 3; ++i)
     {
       B[0][i] = -B[0][i];

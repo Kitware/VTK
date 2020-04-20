@@ -421,7 +421,7 @@ int vtkEnSightGoldBinaryReader::ReadGeometryFile(
 int vtkEnSightGoldBinaryReader::CountTimeSteps()
 {
   int count = 0;
-  while (1)
+  while (true)
   {
     int result = this->SkipTimeStep();
     if (result)

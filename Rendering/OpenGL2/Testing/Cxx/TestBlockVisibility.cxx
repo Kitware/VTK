@@ -80,7 +80,7 @@ int TestBlockVisibility(int argc, char* argv[])
   for (int i = 0; i < static_cast<int>(mbds->GetNumberOfBlocks()); ++i)
   {
     vtkDataObject* blk = mbds->GetBlock(i);
-    attrs->SetBlockVisibility(blk, vis.find(i) != vis.end() ? 1 : 0);
+    attrs->SetBlockVisibility(blk, vis.find(i) != vis.end() ? true : false);
   }
 
   int numVisited = 0;

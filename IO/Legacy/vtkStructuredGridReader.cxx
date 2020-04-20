@@ -52,7 +52,7 @@ void vtkStructuredGridReader::SetOutput(vtkStructuredGrid* output)
 int vtkStructuredGridReader::ReadMetaDataSimple(const std::string& fname, vtkInformation* metadata)
 {
   char line[256];
-  bool dimsRead = 0;
+  bool dimsRead = false;
 
   if (!this->OpenVTKFile(fname.c_str()) || !this->ReadHeader(fname.c_str()))
   {
@@ -114,7 +114,7 @@ int vtkStructuredGridReader::ReadMetaDataSimple(const std::string& fname, vtkInf
         }
         metadata->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), 0, dim[0] - 1, 0,
           dim[1] - 1, 0, dim[2] - 1);
-        dimsRead = 1;
+        dimsRead = true;
       }
 
       else if (!strncmp(line, "extent", 6) && !dimsRead)
@@ -132,7 +132,7 @@ int vtkStructuredGridReader::ReadMetaDataSimple(const std::string& fname, vtkInf
         metadata->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent[0], extent[1],
           extent[2], extent[3], extent[4], extent[5]);
 
-        dimsRead = 1;
+        dimsRead = true;
       }
     }
   }
