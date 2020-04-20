@@ -72,7 +72,6 @@ set(vtk_cmake_module_files
   FindNetCDF.cmake
   FindODBC.cmake
   FindOGG.cmake
-  FindOpenMP.cmake
   FindOpenSlide.cmake
   FindOpenVR.cmake
   FindOSMesa.cmake
