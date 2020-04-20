@@ -12,6 +12,7 @@ vtk_module_test_data(
   Data/skybox-py.jpg
   Data/skybox-pz.jpg
   Data/skybox/,REGEX:.*\.jpg
+  Data/spiaggia_di_mondello_1k.hdr
   Data/,REGEX:vtk_.*\.png
   Data/wintersun.jpg)
 

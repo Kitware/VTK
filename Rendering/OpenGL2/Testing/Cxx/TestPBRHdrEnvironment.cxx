@@ -17,8 +17,7 @@
 
 #include "vtkActor.h"
 #include "vtkGenericOpenGLRenderWindow.h"
-#include "vtkImageReader2.h"
-#include "vtkImageReader2Factory.h"
+#include "vtkHDRReader.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkNew.h"
 #include "vtkOpenGLPolyDataMapper.h"
@@ -39,12 +38,6 @@
 //----------------------------------------------------------------------------
 int TestPBRHdrEnvironment(int argc, char* argv[])
 {
-  if (argc <= 1)
-  {
-    cout << "Usage: " << argv[0] << " <hdr file>" << endl;
-    return EXIT_FAILURE;
-  }
-
   vtkNew<vtkOpenGLRenderer> renderer;
 
   vtkNew<vtkRenderWindow> renWin;
@@ -63,15 +56,11 @@ int TestPBRHdrEnvironment(int argc, char* argv[])
   // This size needs to be chosen according to the size of the input texture
   prefilter->SetPrefilterSize(1024);
 
-  auto reader =
-    vtkSmartPointer<vtkImageReader2>::Take(vtkImageReader2Factory::CreateImageReader2(argv[1]));
-  if (!reader)
-  {
-    cout << "Error reading file " << argv[1] << std::endl;
-    return EXIT_FAILURE;
-  }
-
-  reader->SetFileName(argv[1]);
+  vtkNew<vtkHDRReader> reader;
+  char* fname =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/spiaggia_di_mondello_1k.hdr");
+  reader->SetFileName(fname);
+  delete[] fname;
   vtkNew<vtkTexture> texture;
   texture->SetColorModeToDirectScalars();
   texture->MipmapOn();
@@ -103,17 +92,6 @@ int TestPBRHdrEnvironment(int argc, char* argv[])
     actorSphere->SetMapper(pdSphere);
     actorSphere->GetProperty()->SetInterpolationToPBR();
     actorSphere->GetProperty()->SetMetallic(1.0);
-    actorSphere->GetProperty()->SetRoughness(i / 5.0);
-    renderer->AddActor(actorSphere);
-  }
-
-  for (int i = 0; i < 6; i++)
-  {
-    vtkNew<vtkActor> actorSphere;
-    actorSphere->SetPosition(i, 2.0, 0.0);
-    actorSphere->SetMapper(pdSphere);
-    actorSphere->GetProperty()->SetInterpolationToPBR();
-    actorSphere->GetProperty()->SetMetallic(0.0);
     actorSphere->GetProperty()->SetRoughness(i / 5.0);
     renderer->AddActor(actorSphere);
   }
