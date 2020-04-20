@@ -947,7 +947,9 @@ if (NOT EXISTS "${HDF5_GENERATED_SOURCE_DIR}/H5Tinit.c")
   TARGET_C_PROPERTIES (H5detect STATIC)
   target_link_libraries (H5detect
       PRIVATE "$<$<BOOL:${HDF5_ENABLE_PARALLEL}>:${MPI_C_LIBRARIES}>" $<$<OR:$<PLATFORM_ID:Windows>,$<PLATFORM_ID:MinGW>>:ws2_32.lib>
-      PRIVATE $<$<PLATFORM_ID:Emscripten>:"-O0">
+  )
+  target_compile_options (H5detect
+      PRIVATE "$<$<PLATFORM_ID:Emscripten>:-O0>"
   )
   set_target_properties(H5detect
     PROPERTIES
@@ -1040,7 +1042,9 @@ target_compile_definitions(H5make_libsettings PUBLIC ${HDF_EXTRA_C_FLAGS} ${HDF_
 TARGET_C_PROPERTIES (H5make_libsettings STATIC)
 target_link_libraries (H5make_libsettings
     PRIVATE "$<$<BOOL:${HDF5_ENABLE_PARALLEL}>:${MPI_C_LIBRARIES}>" $<$<OR:$<PLATFORM_ID:Windows>,$<PLATFORM_ID:MinGW>>:ws2_32.lib>
-    PRIVATE $<$<PLATFORM_ID:Emscripten>:"-O0">
+)
+target_compile_options (H5make_libsettings
+    PRIVATE "$<$<PLATFORM_ID:Emscripten>:-O0>"
 )
 set_target_properties(H5make_libsettings
   PROPERTIES
