@@ -79,6 +79,7 @@ vtkOpenGLSkybox::vtkOpenGLSkybox()
     vtkCommand::UpdateShaderEvent, this, &vtkOpenGLSkybox::UpdateUniforms);
 
   this->LastProjection = -1;
+  this->LastGammaCorrect = false;
 
   this->GetProperty()->SetDiffuse(0.0);
   this->GetProperty()->SetAmbient(1.0);
@@ -114,104 +115,116 @@ void vtkOpenGLSkybox::Render(vtkRenderer* ren, vtkMapper* mapper)
 {
   vtkOpenGLClearErrorMacro();
 
-  if (this->LastProjection != this->Projection)
+  if (this->LastProjection != this->Projection || this->LastGammaCorrect != this->GammaCorrect)
   {
     vtkOpenGLShaderProperty* sp =
       vtkOpenGLShaderProperty::SafeDownCast(this->OpenGLActor->GetShaderProperty());
+
+    std::string str = "//VTK::System::Dec\n" // always start with this line
+                      "//VTK::Output::Dec\n" // always have this line in your FS
+                      "in vec3 TexCoords;\n"
+                      "uniform vec3 cameraPos;\n" // wc camera position;
+                      "//VTK::Projection::Dec\n"
+                      "void main () {\n"
+                      "//VTK::Projection::Impl\n"
+                      "}\n";
+
     if (this->Projection == vtkSkybox::Cube)
     {
-      // Replace VTK fragment shader
-      sp->SetFragmentShaderCode(
-        "//VTK::System::Dec\n" // always start with this line
-        "//VTK::Output::Dec\n" // always have this line in your FS
-        "in vec3 TexCoords;\n"
-        "uniform vec3 cameraPos;\n" // wc camera position
-        "uniform samplerCube actortexture;\n"
-        "void main () {\n"
-        "  gl_FragData[0] = texture(actortexture, normalize(TexCoords - cameraPos));\n"
-        "}\n");
+      vtkShaderProgram::Substitute(
+        str, "//VTK::Projection::Dec", "uniform samplerCube actortexture;\n");
+
+      vtkShaderProgram::Substitute(str, "//VTK::Projection::Impl",
+        "  vec4 color = texture(actortexture, normalize(TexCoords - cameraPos));\n"
+        "//VTK::Gamma::Impl\n");
     }
     if (this->Projection == vtkSkybox::Sphere)
     {
-      // Replace VTK fragment shader
-      sp->SetFragmentShaderCode("//VTK::System::Dec\n" // always start with this line
-                                "//VTK::Output::Dec\n" // always have this line in your FS
-                                "in vec3 TexCoords;\n"
-                                "uniform vec3 cameraPos;\n" // wc camera position
-                                "uniform sampler2D actortexture;\n"
-                                "uniform vec4 floorPlane;\n" // floor plane eqn
-                                "uniform vec3 floorRight;\n" // floor plane right
-                                "uniform vec3 floorFront;\n" // floor plane front
-                                "void main () {\n"
-                                "  vec3 diri = normalize(TexCoords - cameraPos);\n"
-                                "  vec3 dirv = vec3(dot(diri,floorRight),\n"
-                                "    dot(diri,floorPlane.xyz),\n"
-                                "    dot(diri,floorFront));\n"
-                                "  float phix = length(vec2(dirv.x, dirv.z));\n"
-                                "  gl_FragData[0] = textureLod(actortexture, vec2(0.5*atan(dirv.x, "
-                                "dirv.z)/3.1415927 + 0.5, atan(dirv.y,phix)/3.1415927 + 0.5), 0);\n"
-                                "}\n");
+      vtkShaderProgram::Substitute(str, "//VTK::Projection::Dec",
+        "uniform sampler2D actortexture;\n"
+        "uniform vec4 floorPlane;\n" // floor plane eqn
+        "uniform vec3 floorRight;\n" // floor plane right
+        "uniform vec3 floorFront;\n" // floor plane front
+      );
+
+      vtkShaderProgram::Substitute(str, "//VTK::Projection::Impl",
+        "  vec3 diri = normalize(TexCoords - cameraPos);\n"
+        "  vec3 dirv = vec3(dot(diri,floorRight),\n"
+        "    dot(diri,floorPlane.xyz),\n"
+        "    dot(diri,floorFront));\n"
+        "  float phix = length(vec2(dirv.x, dirv.z));\n"
+        "  vec4 color = textureLod(actortexture, vec2(0.5*atan(dirv.x, "
+        "dirv.z)/3.1415927 + 0.5, atan(dirv.y,phix)/3.1415927 + 0.5), 0);\n"
+        "//VTK::Gamma::Impl\n");
     }
     if (this->Projection == vtkSkybox::StereoSphere)
     {
-      // Replace VTK fragment shader
-      sp->SetFragmentShaderCode("//VTK::System::Dec\n" // always start with this line
-                                "//VTK::Output::Dec\n" // always have this line in your FS
-                                "in vec3 TexCoords;\n"
-                                "uniform vec3 cameraPos;\n" // wc camera position
-                                "uniform sampler2D actortexture;\n"
-                                "uniform vec4 floorPlane;\n" // floor plane eqn
-                                "uniform vec3 floorRight;\n" // floor plane right
-                                "uniform vec3 floorFront;\n" // floor plane front
-                                "uniform float leftEye;\n"   // 1.0 for left, 0.0 for right
-                                "void main () {\n"
-                                "  vec3 diri = normalize(TexCoords - cameraPos);\n"
-                                "  vec3 dirv = vec3(dot(diri,floorRight),\n"
-                                "    dot(diri,floorPlane.xyz),\n"
-                                "    dot(diri,floorFront));\n"
-                                "  float phix = length(vec2(dirv.x, dirv.z));\n"
-                                "  gl_FragData[0] = textureLod(actortexture, vec2(0.5*atan(dirv.x, "
-                                "dirv.z)/3.1415927 + 0.5, "
-                                "0.5*atan(dirv.y,phix)/3.1415927 + 0.25 + 0.5*leftEye), 0);\n"
-                                "}\n");
+      vtkShaderProgram::Substitute(str, "//VTK::Projection::Dec",
+        "uniform sampler2D actortexture;\n"
+        "uniform vec4 floorPlane;\n" // floor plane eqn
+        "uniform vec3 floorRight;\n" // floor plane right
+        "uniform vec3 floorFront;\n" // floor plane front
+        "uniform float leftEye;\n"   // 1.0 for left, 0.0 for right
+      );
+
+      vtkShaderProgram::Substitute(str, "//VTK::Projection::Impl",
+        "  vec3 diri = normalize(TexCoords - cameraPos);\n"
+        "  vec3 dirv = vec3(dot(diri,floorRight),\n"
+        "    dot(diri,floorPlane.xyz),\n"
+        "    dot(diri,floorFront));\n"
+        "  float phix = length(vec2(dirv.x, dirv.z));\n"
+        "  vec4 color = textureLod(actortexture, vec2(0.5*atan(dirv.x, dirv.z)/3.1415927 + "
+        "0.5, 0.5*atan(dirv.y,phix)/3.1415927 + 0.25 + 0.5*leftEye), 0);\n"
+        "//VTK::Gamma::Impl\n");
     }
     if (this->Projection == vtkSkybox::Floor)
     {
-      // Replace VTK fragment shader
-      sp->SetFragmentShaderCode("//VTK::System::Dec\n" // always start with this line
-                                "//VTK::Output::Dec\n" // always have this line in your FS
-                                "in vec3 TexCoords;\n"
-                                "uniform vec3 cameraPos;\n"  // wc camera position
-                                "uniform vec4 floorPlane;\n" // floor plane eqn
-                                "uniform vec3 floorRight;\n" // floor plane right
-                                "uniform vec3 floorFront;\n" // floor plane front
-                                "uniform mat4 MCDCMatrix;\n"
-                                "uniform sampler2D actortexture;\n"
-                                "void main () {\n"
-                                "  vec3 dirv = normalize(TexCoords - cameraPos);\n"
-                                "  float den = dot(floorPlane.xyz, dirv);\n"
-                                "  if (abs(den) < 0.0001 ) { discard; } else {\n"
-                                "    vec3 p0 = -1.0*floorPlane.w*floorPlane.xyz;\n"
-                                "    vec3 p0l0 = p0 - cameraPos;\n"
-                                "    float t = dot(p0l0, floorPlane.xyz) / den;\n"
-                                "    if (t >= 0.0) {\n"
-                                "      vec3 pos = dirv*t - p0l0;\n"
-                                "      gl_FragData[0] = texture(actortexture, "
-                                "vec2(dot(floorRight,pos), dot(floorFront, pos)));\n"
-                                // The discards cause a discontinuity with mipmapping
-                                // on the horizon of the floor. So we fade out the floor
-                                // along the horizon. Specifically starting at when the
-                                // dot product equals .02 which is at 88.85 degrees and
-                                // going to zero at 90 degrees.
-                                "      gl_FragData[0].a *= (50.0*min(0.02, abs(den)));\n"
-                                "      vec4 tpos = MCDCMatrix*vec4(pos.xyz,1.0);\n"
-                                "      gl_FragDepth = clamp(0.5 + 0.5*tpos.z/tpos.w,0.0,1.0);\n"
-                                "    } else { discard; }\n"
-                                "  }\n"
-                                "}\n");
+      vtkShaderProgram::Substitute(str, "//VTK::Projection::Dec",
+        "uniform vec4 floorPlane;\n" // floor plane eqn
+        "uniform vec3 floorRight;\n" // floor plane right
+        "uniform vec3 floorFront;\n" // floor plane front
+        "uniform mat4 MCDCMatrix;\n"
+        "uniform sampler2D actortexture;\n");
+
+      vtkShaderProgram::Substitute(str, "//VTK::Projection::Impl",
+        "  vec3 dirv = normalize(TexCoords - cameraPos);\n"
+        "  float den = dot(floorPlane.xyz, dirv);\n"
+        "  if (abs(den) < 0.0001 ) { discard; } else {\n"
+        "    vec3 p0 = -1.0*floorPlane.w*floorPlane.xyz;\n"
+        "    vec3 p0l0 = p0 - cameraPos;\n"
+        "    float t = dot(p0l0, floorPlane.xyz) / den;\n"
+        "    if (t >= 0.0) {\n"
+        "      vec3 pos = dirv*t - p0l0;\n"
+        "      vec4 color = texture(actortexture, "
+        "vec2(dot(floorRight,pos), dot(floorFront, pos)));\n"
+        "      //VTK::Gamma::Impl\n"
+        // The discards cause a discontinuity with mipmapping
+        // on the horizon of the floor. So we fade out the floor
+        // along the horizon. Specifically starting at when the
+        // dot product equals .02 which is at 88.85 degrees and
+        // going to zero at 90 degrees.
+        "      gl_FragData[0].a *= (50.0*min(0.02, abs(den)));\n"
+        "      vec4 tpos = MCDCMatrix*vec4(pos.xyz,1.0);\n"
+        "      gl_FragDepth = clamp(0.5 + 0.5*tpos.z/tpos.w,0.0,1.0);\n"
+        "    } else { discard; }\n"
+        "  }\n");
     }
+
+    if (this->GammaCorrect)
+    {
+      vtkShaderProgram::Substitute(str, "//VTK::Gamma::Impl",
+        "gl_FragData[0] = vec4(pow(color.rgb, vec3(1.0 / 2.2)), color.a);\n");
+    }
+    else
+    {
+      vtkShaderProgram::Substitute(str, "//VTK::Gamma::Impl", "gl_FragData[0] = color;\n");
+    }
+
+    sp->SetFragmentShaderCode(str.c_str());
+
     this->CubeMapper->Modified();
     this->LastProjection = this->Projection;
+    this->LastGammaCorrect = this->GammaCorrect;
   }
 
   double* pos = ren->GetActiveCamera()->GetPosition();
