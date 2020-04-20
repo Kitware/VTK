@@ -659,6 +659,12 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
     width = winattr.width;
     height = winattr.height;
     this->Mapped = 1;
+
+    if (this->FullScreen)
+    {
+      XGrabKeyboard(
+        this->DisplayId, this->WindowId, False, GrabModeAsync, GrabModeAsync, CurrentTime);
+    }
   }
   // free the visual info
   if (v)
@@ -1206,7 +1212,7 @@ int* vtkXOpenGLRenderWindow::GetPosition(void)
   x = attribs.x;
   y = attribs.y;
 
-  XTranslateCoordinates(this->DisplayId, this->WindowId,
+  XTranslateCoordinates(this->DisplayId, this->ParentId,
     XRootWindowOfScreen(XScreenOfDisplay(this->DisplayId, 0)), x, y, &this->Position[0],
     &this->Position[1], &child);
 
