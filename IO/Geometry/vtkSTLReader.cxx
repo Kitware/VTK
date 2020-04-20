@@ -246,10 +246,11 @@ int vtkSTLReader::RequestData(vtkInformation* vtkNotUsed(request),
 //------------------------------------------------------------------------------
 bool vtkSTLReader::ReadBinarySTL(FILE* fp, vtkPoints* newPts, vtkCellArray* newPolys)
 {
-  typedef struct
+  struct facet_t_t
   {
     float n[3], v1[3], v2[3], v3[3];
-  } facet_t;
+  };
+  using facet_t = struct facet_t_t;
 
   vtkDebugMacro(<< "Reading BINARY STL file");
 

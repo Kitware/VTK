@@ -92,10 +92,11 @@ void vtkMCubesWriter::WriteData()
 void vtkMCubesWriter::WriteMCubes(
   FILE* fp, vtkPoints* pts, vtkDataArray* normals, vtkCellArray* polys)
 {
-  typedef struct
+  struct pointType_t
   {
     float x[3], n[3];
-  } pointType;
+  };
+  using pointType = struct pointType_t;
   pointType point;
   int i;
   vtkIdType npts;

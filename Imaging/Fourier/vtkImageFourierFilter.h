@@ -32,11 +32,12 @@
                         COMPLEX number stuff
 *******************************************************************/
 
-typedef struct
+struct vtkImageComplex_t
 {
   double Real;
   double Imag;
-} vtkImageComplex;
+};
+using vtkImageComplex = struct vtkImageComplex_t;
 
 #define vtkImageComplexEuclidSet(C, R, I)                                                          \
   (C).Real = (R);                                                                                  \
@@ -66,10 +67,10 @@ typedef struct
 
 #define vtkImageComplexMultiply(C1, C2, cOut)                                                      \
   {                                                                                                \
-    vtkImageComplex _vtkImageComplexMultiplyTemp;                                                  \
-    _vtkImageComplexMultiplyTemp.Real = (C1).Real * (C2).Real - (C1).Imag * (C2).Imag;             \
-    _vtkImageComplexMultiplyTemp.Imag = (C1).Real * (C2).Imag + (C1).Imag * (C2).Real;             \
-    cOut = _vtkImageComplexMultiplyTemp;                                                           \
+    vtkImageComplex vtkImageComplex_tMultiplyTemp;                                                 \
+    vtkImageComplex_tMultiplyTemp.Real = (C1).Real * (C2).Real - (C1).Imag * (C2).Imag;            \
+    vtkImageComplex_tMultiplyTemp.Imag = (C1).Real * (C2).Imag + (C1).Imag * (C2).Real;            \
+    cOut = vtkImageComplex_tMultiplyTemp;                                                          \
   }
 
 // This macro calculates exp(cIn) and puts the result in cOut

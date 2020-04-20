@@ -56,11 +56,13 @@ class vtkTemporalInterpolatedVelocityField;
 
 namespace vtkParticleTracerBaseNamespace
 {
-typedef struct
+struct Position_t
 {
   double x[4];
-} Position;
-typedef struct
+};
+using Position = struct Position_t;
+
+struct ParticleInformation_t
 {
   // These are used during iteration
   Position CurrentPosition;
@@ -88,7 +90,8 @@ typedef struct
   // if PointId is negative then in parallel this particle was just
   // received and we need to get the tuple value from vtkPParticleTracerBase::Tail.
   vtkIdType TailPointId;
-} ParticleInformation;
+};
+using ParticleInformation = struct ParticleInformation_t;
 
 typedef std::vector<ParticleInformation> ParticleVector;
 typedef ParticleVector::iterator ParticleIterator;
@@ -535,10 +538,11 @@ private:
   vtkSmartPointer<vtkMultiBlockDataSet> CachedData[2];
 
   // Cache bounds info for each dataset we will use repeatedly
-  typedef struct
+  struct bounds_t
   {
     double b[6];
-  } bounds;
+  };
+  using bounds = struct bounds_t;
   std::vector<bounds> CachedBounds[2];
 
   // temporary variables used by Exeucte(), for convenience only

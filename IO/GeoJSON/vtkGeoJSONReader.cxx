@@ -44,11 +44,12 @@ vtkStandardNewMacro(vtkGeoJSONReader);
 class vtkGeoJSONReader::GeoJSONReaderInternal
 {
 public:
-  typedef struct
+  struct GeoJSONProperty_t
   {
     std::string Name;
     vtkVariant Value;
-  } GeoJSONProperty;
+  };
+  using GeoJSONProperty = struct GeoJSONProperty_t;
 
   // List of property names to read. Property value is used the default
   std::vector<GeoJSONProperty> PropertySpecs;

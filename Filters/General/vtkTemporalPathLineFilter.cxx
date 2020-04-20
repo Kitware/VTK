@@ -35,10 +35,12 @@
 vtkStandardNewMacro(vtkTemporalPathLineFilter);
 //----------------------------------------------------------------------------
 //
-typedef struct
+struct Position_t
 {
   double x[3];
-} Position;
+};
+using Position = struct Position_t;
+
 typedef std::vector<Position> CoordList;
 typedef std::vector<vtkIdType> IdList;
 typedef std::vector<vtkSmartPointer<vtkAbstractArray> > FieldList;

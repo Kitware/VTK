@@ -1,21 +1,27 @@
-typedef struct {
+struct VTK_VECTOR_TEXT_POINT_t 
+{
   float x;
   float y;
-} VTK_VECTOR_TEXT_POINT;
+};
+using VTK_VECTOR_TEXT_POINT = struct VTK_VECTOR_TEXT_POINT_t;
 
-typedef struct {
+struct VTK_VECTOR_TEXT_TRIANGLE_t
+{
   int p1;
   int p2;
   int p3;
-} VTK_VECTOR_TEXT_TRIANGLE;
+};
+using VTK_VECTOR_TEXT_TRIANGLE = struct VTK_VECTOR_TEXT_TRIANGLE_t;
 
-typedef struct {
+struct VTK_VECTOR_TEXT_GLYPH_t
+{
   float width;
   const VTK_VECTOR_TEXT_POINT *points;
   int ptCount;
   const VTK_VECTOR_TEXT_TRIANGLE *triangles;
   int triCount;
-} VTK_VECTOR_TEXT_GLYPH;
+};
+using VTK_VECTOR_TEXT_GLYPH = struct VTK_VECTOR_TEXT_GLYPH_t;
 
 static const VTK_VECTOR_TEXT_POINT VTK_VECTOR_TEXT_POINTS_33 [] = {
 { 0.28000f,-0.07186f}, { 0.43164f,-0.07143f}, { 0.27689f, 0.07714f}, { 0.43472f, 0.07714f}, { 0.32000f, 0.20134f},

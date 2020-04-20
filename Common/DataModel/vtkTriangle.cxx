@@ -394,10 +394,11 @@ int vtkTriangle::CellBoundary(int vtkNotUsed(subId), const double pcoords[3], vt
 namespace
 { // required so we don't violate ODR
 typedef int EDGE_LIST;
-typedef struct
+struct LINE_CASES_t
 {
   EDGE_LIST edges[3];
-} LINE_CASES;
+};
+using LINE_CASES = struct LINE_CASES_t;
 
 static LINE_CASES lineCases[] = {
   { { -1, -1, -1 } },
@@ -887,10 +888,11 @@ int vtkTriangle::ProjectTo2D(const double x1[3], const double x2[3], const doubl
 namespace
 { // required so we don't violate ODR
 typedef int TRIANGLE_EDGE_LIST;
-typedef struct
+struct TRIANGLE_CASES_t
 {
   TRIANGLE_EDGE_LIST edges[7];
-} TRIANGLE_CASES;
+};
+using TRIANGLE_CASES = struct TRIANGLE_CASES_t;
 
 static TRIANGLE_CASES triangleCases[] = {
   { { -1, -1, -1, -1, -1, -1, -1 } },   // 0

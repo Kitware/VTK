@@ -89,7 +89,7 @@ typedef vtkTypeUInt8 uint8_t;
 
 //  dc.h
 
-typedef struct {
+typedef struct _mt_struct {
     uint32_t aaa;
     int mm,nn,rr,ww;
     uint32_t wmask,umask,lmask;
@@ -137,7 +137,7 @@ uint32_t _genrand_dc(_org_state *st);
 #define NONREDU 1
 
 extern _org_state global_mt19937;
-typedef struct {int *x; int deg;} Polynomial;
+typedef struct Polynomial_t {int *x; int deg;} Polynomial;
 
 typedef struct PRESCR_T {
     int sizeofA; /* parameter size */
@@ -199,7 +199,7 @@ void _InitCheck32_dc(check32_t *ck, int r, int w);
 #define WORD_LEN 32
 #define MIN_INFINITE (-2147483647-1)
 
-typedef struct {
+typedef struct Vector_t{
     uint32_t *cf;  /* fraction part */              // status
     int start;     /* beginning of fraction part */ // idx
     int count;           /* maximum (degree) */
@@ -253,12 +253,12 @@ static int push_mask(eqdeg_t * eq, int l, int v,
                      uint32_t b, uint32_t c, uint32_t *bbb, uint32_t *ccc);
 static int pivot_reduction(eqdeg_t *eq, int v);
 static void init_tempering(eqdeg_t *eq, mt_struct *mts);
-static void free_Vector( Vector *v );
+static void freeVector_t( Vector *v );
 static void free_lattice( Vector **lattice, int v);
 static void add(int nnn, Vector *u, Vector *v);
 static void optimize_v(eqdeg_t *eq, uint32_t b, uint32_t c, int v);
 static MaskNode *optimize_v_hard(eqdeg_t *eq, int v, MaskNode *prev);
-static Vector *new_Vector(int nnn);
+static Vector *newVector_t(int nnn);
 static Vector **make_lattice(eqdeg_t *eq, int v);
 static void delete_MaskNodes(MaskNode *head);
 static MaskNode *delete_lower_MaskNodes(MaskNode *head, int l);
@@ -560,19 +560,19 @@ static int pivot_reduction(eqdeg_t *eq, int v)
 /********************************/
 /** allocate momory for Vector **/
 /********************************/
-static Vector *new_Vector(int nnn)
+static Vector *newVector_t(int nnn)
 {
     Vector *v;
 
     v = (Vector *)malloc( sizeof( Vector ) );
     if( v == nullptr ){
-        printf("malloc error in \"new_Vector()\"\n");
+        printf("malloc error in \"newVector_t()\"\n");
         exit(1);
     }
 
     v->cf = (uint32_t *)calloc( nnn, sizeof( uint32_t ) );
     if( v->cf == nullptr ){
-        printf("calloc error in \"new_Vector()\"\n");
+        printf("calloc error in \"newVector_t()\"\n");
         exit(1);
     }
 
@@ -583,9 +583,9 @@ static Vector *new_Vector(int nnn)
 
 
 /************************************************/
-/* frees *v which was allocated by new_Vector() */
+/* frees *v which was allocated by newVector_t() */
 /************************************************/
-static void free_Vector( Vector *v )
+static void freeVector_t( Vector *v )
 {
     if( nullptr != v->cf ) free( v->cf );
     if( nullptr != v ) free( v );
@@ -596,7 +596,7 @@ static void free_lattice( Vector **lattice, int v)
     int i;
 
     for( i=0; i<=v; i++)
-        free_Vector( lattice[i] );
+        freeVector_t( lattice[i] );
     free( lattice );
 }
 
@@ -629,13 +629,13 @@ static Vector **make_lattice(eqdeg_t *eq, int v)
     }
 
     for( i=0; i<v; i++){ /* from 0th row to v-1-th row */
-        lattice[i] = new_Vector(eq->nnn);
+        lattice[i] = newVector_t(eq->nnn);
         lattice[i]->next = eq->bitmask[i];
         lattice[i]->start = 0;
         lattice[i]->count = 0;
     }
 
-    bottom = new_Vector(eq->nnn); /* last row */
+    bottom = newVector_t(eq->nnn); /* last row */
     for(i=0; i< eq->nnn; i++) {
         bottom->cf[i] = 0;
     }

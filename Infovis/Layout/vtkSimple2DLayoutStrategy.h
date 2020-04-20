@@ -160,12 +160,13 @@ protected:
 private:
   // An edge consists of two vertices joined together.
   // This struct acts as a "pointer" to those two vertices.
-  typedef struct
+  struct vtkLayoutEdge_t
   {
     vtkIdType from;
     vtkIdType to;
     float weight;
-  } vtkLayoutEdge;
+  };
+  using vtkLayoutEdge = struct vtkLayoutEdge_t;
 
   // These are for storage of repulsion and attraction
   vtkFloatArray* RepulsionArray;

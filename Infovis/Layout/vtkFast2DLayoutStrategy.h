@@ -151,12 +151,13 @@ protected:
 private:
   // An edge consists of two vertices joined together.
   // This struct acts as a "pointer" to those two vertices.
-  typedef struct
+  struct vtkLayoutEdge_t
   {
     vtkIdType from;
     vtkIdType to;
     float weight;
-  } vtkLayoutEdge;
+  };
+  using vtkLayoutEdge = struct vtkLayoutEdge_t;
 
   // This class 'has a' vtkFastSplatter for the density grid
   vtkSmartPointer<vtkGraphToPolyData> GraphToPoly;

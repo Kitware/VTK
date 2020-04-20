@@ -129,10 +129,11 @@ static constexpr vtkIdType valenceAtPoint[vtkPyramid::NumberOfPoints] = {
 };
 
 typedef int EDGE_LIST;
-typedef struct
+struct TRIANGLE_CASES_t
 {
   EDGE_LIST edges[13];
-} TRIANGLE_CASES;
+};
+using TRIANGLE_CASES = struct TRIANGLE_CASES_t;
 static TRIANGLE_CASES triCases[] = {
   { { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }, // 0
   { { 3, 4, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },    // 1

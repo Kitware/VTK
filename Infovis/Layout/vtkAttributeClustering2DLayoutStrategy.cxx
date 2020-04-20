@@ -48,14 +48,15 @@ class vtkAttributeClustering2DLayoutStrategy::Internals
 public:
   // An edge consists of two vertices joined together.
   // This struct acts as a "pointer" to those two vertices.
-  typedef struct
+  struct vtkLayoutEdge_t
   {
     vtkIdType from;
     vtkIdType to;
     int dead_edge; // I'm making this an int so that the edge array is
                    // word boundary aligned... but I'm not sure what
                    // really happens in these days of magical compilers
-  } vtkLayoutEdge;
+  };
+  using vtkLayoutEdge = struct vtkLayoutEdge_t;
 
   std::vector<vtkLayoutEdge> Edges;
 };

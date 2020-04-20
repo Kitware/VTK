@@ -44,7 +44,7 @@ class vtkImageProperty;
 class vtkTexture;
 class vtkLODProp3DCallback;
 
-typedef struct
+struct vtkLODProp3DEntry_t
 {
   vtkProp3D* Prop3D;
   int Prop3DType;
@@ -52,7 +52,8 @@ typedef struct
   double EstimatedTime;
   int State;
   double Level;
-} vtkLODProp3DEntry;
+};
+using vtkLODProp3DEntry = struct vtkLODProp3DEntry_t;
 
 class VTKRENDERINGCORE_EXPORT vtkLODProp3D : public vtkProp3D
 {
