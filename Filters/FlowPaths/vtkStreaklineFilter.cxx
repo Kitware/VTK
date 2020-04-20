@@ -92,7 +92,7 @@ void StreaklineFilterInternal::Finalize()
       int streakId = seedIds->GetValue(i);
       for (int j = static_cast<int>(streaks.size()); j <= streakId; j++)
       {
-        streaks.push_back(Streak());
+        streaks.emplace_back();
       }
       Streak& streak = streaks[streakId];
       float age = particleAge->GetValue(i);

@@ -148,8 +148,7 @@ int vtkmNDHistogram::RequestData(vtkInformation* vtkNotUsed(request),
       fnArray->SetName(fn.c_str());
       fArrays.push_back(fnArray);
       this->BinDeltas.push_back(filter.GetBinDelta(index));
-      this->DataRanges.push_back(
-        std::make_pair(filter.GetDataRange(index).Min, filter.GetDataRange(index).Max));
+      this->DataRanges.emplace_back(filter.GetDataRange(index).Min, filter.GetDataRange(index).Max);
       index++;
     }
     vtkDataArray* frequencyArray = fromvtkm::Convert(out.GetField("Frequency"));

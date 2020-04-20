@@ -1448,7 +1448,7 @@ bool vtkFreeTypeTools::CalculateBoundingBox(
   typename T::const_iterator endLine = std::find(beginLine, str.end(), newline<T>());
   while (endLine != str.end())
   {
-    metaData.lineMetrics.push_back(MetaData::LineMetrics());
+    metaData.lineMetrics.emplace_back();
     this->GetLineMetrics(beginLine, endLine, metaData, metaData.lineMetrics.back().width,
       &metaData.lineMetrics.back().xmin);
     metaData.maxLineWidth = std::max(metaData.maxLineWidth, metaData.lineMetrics.back().width);
@@ -1457,7 +1457,7 @@ bool vtkFreeTypeTools::CalculateBoundingBox(
     endLine = std::find(beginLine, str.end(), newline<T>());
   }
   // Last line...
-  metaData.lineMetrics.push_back(MetaData::LineMetrics());
+  metaData.lineMetrics.emplace_back();
   this->GetLineMetrics(beginLine, endLine, metaData, metaData.lineMetrics.back().width,
     &metaData.lineMetrics.back().xmin);
   metaData.maxLineWidth = std::max(metaData.maxLineWidth, metaData.lineMetrics.back().width);

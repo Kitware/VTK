@@ -1454,7 +1454,7 @@ int vtkMPASReader::GetNcVars(const char* cellDimName, const char* pointDimName)
         ok = false;
         break;
       }
-      dimNames.push_back(name);
+      dimNames.emplace_back(name);
     }
     if (!ok)
     {

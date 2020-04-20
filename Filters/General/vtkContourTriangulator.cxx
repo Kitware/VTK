@@ -564,7 +564,7 @@ void vtkCCSMakePolysFromLines(vtkPolyData* data, vtkIdType firstLine, vtkIdType 
   {
     // Create a new poly
     size_t polyId = numNewPolys++;
-    newPolys.push_back(vtkCCSPoly());
+    newPolys.emplace_back();
     vtkCCSPoly& poly = newPolys[polyId];
 
     vtkIdType lineId = 0;
@@ -1142,7 +1142,7 @@ void vtkCCSFindTrueEdges(std::vector<vtkCCSPoly>& polys, vtkPoints* points,
   {
     vtkCCSPoly& oldPoly = polys[polyId];
     size_t n = oldPoly.size();
-    polyEdges.push_back(vtkCCSPolyEdges());
+    polyEdges.emplace_back();
 
     // Only useful if poly has more than three sides
     if (n < 4)

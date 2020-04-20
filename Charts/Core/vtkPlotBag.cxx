@@ -136,7 +136,7 @@ void vtkPlotBag::UpdateTableCache(vtkDataArray* density)
   ids.reserve(nbPoints);
   for (int i = 0; i < nbPoints; i++)
   {
-    ids.push_back(DensityVal(d->GetTuple1(i), i));
+    ids.emplace_back(d->GetTuple1(i), i);
   }
   std::sort(ids.begin(), ids.end());
 

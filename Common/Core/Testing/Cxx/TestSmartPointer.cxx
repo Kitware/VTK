@@ -90,7 +90,7 @@ int TestSmartPointer(int, char*[])
   { // local scope for vtkNew object
     vtkNew<vtkIntArray> vtknew;
     vtkSmartPointer<vtkIntArray> aa(vtknew);
-    intarrays.push_back(vtknew);
+    intarrays.emplace_back(vtknew);
   }
   if (intarrays[0]->GetReferenceCount() != 1)
   {

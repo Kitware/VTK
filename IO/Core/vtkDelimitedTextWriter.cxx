@@ -220,7 +220,7 @@ void vtkDelimitedTextWriter::WriteTable(vtkTable* table)
       (*this->Stream) << this->GetString(array_name.str());
     }
     vtkArrayIterator* iter = array->NewIterator();
-    columnsIters.push_back(iter);
+    columnsIters.emplace_back(iter);
     iter->Delete();
   }
   (*this->Stream) << "\n";

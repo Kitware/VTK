@@ -355,7 +355,7 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(vtkInformation* request,
   std::vector<vtkSmartPointer<vtkCompositeDataSet> > compositeOutputs;
   for (int port = 0; port < outInfoVec->GetNumberOfInformationObjects(); ++port)
   {
-    compositeOutputs.push_back(vtkCompositeDataSet::GetData(outInfoVec, port));
+    compositeOutputs.emplace_back(vtkCompositeDataSet::GetData(outInfoVec, port));
     if (compositeOutputs.back())
     {
       compositeOutputFound = true;
@@ -1022,7 +1022,7 @@ std::vector<vtkSmartPointer<vtkDataObject> > vtkCompositeDataPipeline::CreateOut
     {
       for (int i = 0; i < numOutputPorts; ++i)
       {
-        outputVector.push_back(vtkSmartPointer<vtkMultiBlockDataSet>::New());
+        outputVector.emplace_back(vtkSmartPointer<vtkMultiBlockDataSet>::New());
       }
     }
     else
@@ -1063,7 +1063,7 @@ std::vector<vtkSmartPointer<vtkDataObject> > vtkCompositeDataPipeline::CreateOut
         vtkDataObject* curOutput = outInfo->Get(vtkDataObject::DATA_OBJECT());
         if (!curOutput->IsA("vtkUniformGrid"))
         {
-          outputVector.push_back(vtkSmartPointer<vtkMultiBlockDataSet>::New());
+          outputVector.emplace_back(vtkSmartPointer<vtkMultiBlockDataSet>::New());
         }
         else
         {

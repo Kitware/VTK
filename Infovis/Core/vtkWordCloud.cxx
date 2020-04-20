@@ -692,7 +692,7 @@ void ArchimedesSpiral(std::vector<ExtentOffset>& offset, vtkWordCloud::SizesCont
     double angle = deltaAngle * i;
     x = e * angle * std::cos(angle);
     y = e * angle * std::sin(angle);
-    archimedes.push_back(ArchimedesValue(x, y));
+    archimedes.emplace_back(x, y);
     maxX = std::max(maxX, x);
     minX = std::min(minX, x);
     maxY = std::max(maxY, y);
@@ -704,7 +704,7 @@ void ArchimedesSpiral(std::vector<ExtentOffset>& offset, vtkWordCloud::SizesCont
   {
     if (ar.x * scaleX + centerX - 50 < 0 || ar.y * scaleX + centerY < 0)
       continue;
-    offset.push_back(ExtentOffset(ar.x * scaleX + centerX - 50, ar.y * scaleX + centerY));
+    offset.emplace_back(ar.x * scaleX + centerX - 50, ar.y * scaleX + centerY);
   }
 }
 void ReplaceMaskColorWithBackgroundColor(vtkImageData* finalImage, vtkWordCloud* wordCloud)

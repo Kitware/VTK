@@ -741,7 +741,7 @@ void vtkStringArray::UpdateLookup()
     std::vector<std::pair<vtkStdString, vtkIdType> > v;
     for (vtkIdType i = 0; i < numComps * numTuples; i++)
     {
-      v.push_back(std::pair<vtkStdString, vtkIdType>(this->Array[i], i));
+      v.emplace_back(this->Array[i], i);
     }
     std::sort(v.begin(), v.end());
     for (vtkIdType i = 0; i < numComps * numTuples; i++)

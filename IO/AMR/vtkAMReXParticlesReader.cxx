@@ -514,8 +514,8 @@ public:
     }
     else
     {
-      this->int_base_component_names.push_back("id");
-      this->int_base_component_names.push_back("cpu");
+      this->int_base_component_names.emplace_back("id");
+      this->int_base_component_names.emplace_back("cpu");
     }
 
     this->grids_per_level.resize(this->num_levels, 0);

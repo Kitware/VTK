@@ -397,7 +397,7 @@ int TestCell(const VTKCellType cellType, vtkSmartPointer<T> aCell)
     aCell->GetPoints()->GetPoint(i, point);
     testPoints.push_back(point);
     inOuts.push_back(1);
-    typePoint.push_back("cell point");
+    typePoint.emplace_back("cell point");
   }
   // Then test center of cell
   if (aCell->GetNumberOfPoints() > 0)
@@ -406,7 +406,7 @@ int TestCell(const VTKCellType cellType, vtkSmartPointer<T> aCell)
     aCell->EvaluateLocation(subId, pcenter, tCenter, weights);
     testPoints.push_back(tCenter);
     inOuts.push_back(1);
-    typePoint.push_back("cell center");
+    typePoint.emplace_back("cell center");
     // Test a point above the cell
     if (aCell->GetCellDimension() == 2)
     {
@@ -416,7 +416,7 @@ int TestCell(const VTKCellType cellType, vtkSmartPointer<T> aCell)
       above[2] = tCenter[2] + aCell->GetLength2();
       testPoints.push_back(above);
       inOuts.push_back(0);
-      typePoint.push_back("point above cell");
+      typePoint.emplace_back("point above cell");
     }
   }
 
@@ -428,7 +428,7 @@ int TestCell(const VTKCellType cellType, vtkSmartPointer<T> aCell)
     c->GetParametricCenter(pcenter);
     c->EvaluateLocation(subId, pcenter, eCenter, weights);
     testPoints.push_back(eCenter);
-    typePoint.push_back("edge center");
+    typePoint.emplace_back("edge center");
     inOuts.push_back(1);
   }
 
@@ -441,7 +441,7 @@ int TestCell(const VTKCellType cellType, vtkSmartPointer<T> aCell)
     c->EvaluateLocation(subId, pcenter, fCenter, weights);
     testPoints.push_back(fCenter);
     inOuts.push_back(1);
-    typePoint.push_back("face center");
+    typePoint.emplace_back("face center");
   }
 
   // Test a point outside the cell
@@ -451,7 +451,7 @@ int TestCell(const VTKCellType cellType, vtkSmartPointer<T> aCell)
     outside[0] = outside[1] = outside[2] = -12345.0;
     testPoints.push_back(outside);
     inOuts.push_back(0);
-    typePoint.push_back("outside point");
+    typePoint.emplace_back("outside point");
   }
   for (size_t p = 0; p < testPoints.size(); ++p)
   {

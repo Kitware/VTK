@@ -78,11 +78,11 @@ vtkLagrangianBasicIntegrationModel::vtkLagrangianBasicIntegrationModel()
   SurfaceArrayDescription surfaceTypeDescription;
   surfaceTypeDescription.nComp = 1;
   surfaceTypeDescription.type = VTK_INT;
-  surfaceTypeDescription.enumValues.push_back(std::make_pair(SURFACE_TYPE_MODEL, "ModelDefined"));
-  surfaceTypeDescription.enumValues.push_back(std::make_pair(SURFACE_TYPE_TERM, "Terminate"));
-  surfaceTypeDescription.enumValues.push_back(std::make_pair(SURFACE_TYPE_BOUNCE, "Bounce"));
-  surfaceTypeDescription.enumValues.push_back(std::make_pair(SURFACE_TYPE_BREAK, "BreakUp"));
-  surfaceTypeDescription.enumValues.push_back(std::make_pair(SURFACE_TYPE_PASS, "PassThrough"));
+  surfaceTypeDescription.enumValues.emplace_back(SURFACE_TYPE_MODEL, "ModelDefined");
+  surfaceTypeDescription.enumValues.emplace_back(SURFACE_TYPE_TERM, "Terminate");
+  surfaceTypeDescription.enumValues.emplace_back(SURFACE_TYPE_BOUNCE, "Bounce");
+  surfaceTypeDescription.enumValues.emplace_back(SURFACE_TYPE_BREAK, "BreakUp");
+  surfaceTypeDescription.enumValues.emplace_back(SURFACE_TYPE_PASS, "PassThrough");
   this->SurfaceArrayDescriptions["SurfaceType"] = surfaceTypeDescription;
 
   this->SeedArrayNames->InsertNextValue("ParticleInitialVelocity");

@@ -103,14 +103,14 @@ int TestPixelExtent(int argc, char* argv[])
   vtkPixelExtent::Subtract(B, A, tmp4);
 
   deque<vtkPixelExtent> tmp5;
-  tmp5.push_back(vtkPixelExtent(4, 8, 9, 12));
-  tmp5.push_back(vtkPixelExtent(9, 12, 9, 12));
-  tmp5.push_back(vtkPixelExtent(9, 12, 4, 8));
-  tmp5.push_back(vtkPixelExtent(0, 3, 4, 8));
-  tmp5.push_back(vtkPixelExtent(0, 3, 9, 12));
-  tmp5.push_back(vtkPixelExtent(4, 8, 0, 3));
-  tmp5.push_back(vtkPixelExtent(9, 12, 0, 3));
-  tmp5.push_back(vtkPixelExtent(0, 3, 0, 3));
+  tmp5.emplace_back(4, 8, 9, 12);
+  tmp5.emplace_back(9, 12, 9, 12);
+  tmp5.emplace_back(9, 12, 4, 8);
+  tmp5.emplace_back(0, 3, 4, 8);
+  tmp5.emplace_back(0, 3, 9, 12);
+  tmp5.emplace_back(4, 8, 0, 3);
+  tmp5.emplace_back(9, 12, 0, 3);
+  tmp5.emplace_back(0, 3, 0, 3);
 
   size_t n = tmp4.size();
   for (size_t i = 0; i < n; ++i)

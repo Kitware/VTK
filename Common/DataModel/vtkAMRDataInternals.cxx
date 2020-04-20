@@ -52,7 +52,7 @@ void vtkAMRDataInternals::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkAMRDataInternals::Insert(unsigned int index, vtkUniformGrid* grid)
 {
-  this->Blocks.push_back(Block(index, grid));
+  this->Blocks.emplace_back(index, grid);
   int i = static_cast<int>(this->Blocks.size()) - 2;
   while (i >= 0 && this->Blocks[i].Index > this->Blocks[i + 1].Index)
   {

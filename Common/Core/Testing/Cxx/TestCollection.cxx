@@ -116,7 +116,7 @@ bool TestRemoveItem(int index, bool removeIndex)
   {
     vtkNew<vtkIntArray> object;
     collection->AddItem(object);
-    objects.push_back(object.GetPointer());
+    objects.emplace_back(object.GetPointer());
   }
   if (removeIndex)
   {

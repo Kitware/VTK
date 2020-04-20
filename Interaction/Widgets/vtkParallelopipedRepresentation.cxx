@@ -103,7 +103,7 @@ public:
         if (!cells.empty())
         {
           PopulateTopology(cells, neighborCells);
-          lines.push_back(LineType(opposite, nodes[1]));
+          lines.emplace_back(opposite, nodes[1]);
         }
       }
     }

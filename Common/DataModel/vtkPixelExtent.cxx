@@ -125,25 +125,25 @@ void vtkPixelExtent::Split(
   // lower left
   if (ext.Contains(i0, j0))
   {
-    newExts.push_back(vtkPixelExtent(ext[0], i0, ext[2], j0));
+    newExts.emplace_back(ext[0], i0, ext[2], j0);
     outside = 0;
   }
   // lower right
   if (ext.Contains(i1, j0))
   {
-    newExts.push_back(vtkPixelExtent(i1, ext[1], ext[2], j0));
+    newExts.emplace_back(i1, ext[1], ext[2], j0);
     outside = 0;
   }
   // upper left
   if (ext.Contains(i0, j1))
   {
-    newExts.push_back(vtkPixelExtent(ext[0], i0, j1, ext[3]));
+    newExts.emplace_back(ext[0], i0, j1, ext[3]);
     outside = 0;
   }
   // upper right
   if (ext.Contains(i1, j1))
   {
-    newExts.push_back(vtkPixelExtent(i1, ext[1], j1, ext[3]));
+    newExts.emplace_back(i1, ext[1], j1, ext[3]);
     outside = 0;
   }
 

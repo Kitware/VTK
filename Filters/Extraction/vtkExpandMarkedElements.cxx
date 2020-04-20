@@ -320,7 +320,7 @@ int vtkExpandMarkedElements::RequestData(
         if (src.gid != rp.gid() && in_bbx.IsValid() && in_bbx.Intersects(bbox))
         {
           vtkLogF(TRACE, "%d --> %d", rp.gid(), src.gid);
-          b->Neighbors.push_back(std::make_pair(src, in_bbx));
+          b->Neighbors.emplace_back(src, in_bbx);
         }
       }
     }

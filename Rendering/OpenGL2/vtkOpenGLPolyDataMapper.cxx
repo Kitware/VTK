@@ -485,16 +485,16 @@ std::vector<texinfo> vtkOpenGLPolyDataMapper::GetTextures(vtkActor* actor)
 
   if (this->ColorTextureMap)
   {
-    res.push_back(texinfo(this->InternalColorTexture, "colortexture"));
+    res.emplace_back(this->InternalColorTexture, "colortexture");
   }
   if (actor->GetTexture())
   {
-    res.push_back(texinfo(actor->GetTexture(), "actortexture"));
+    res.emplace_back(actor->GetTexture(), "actortexture");
   }
   auto textures = actor->GetProperty()->GetAllTextures();
   for (auto ti : textures)
   {
-    res.push_back(texinfo(ti.second, ti.first));
+    res.emplace_back(ti.second, ti.first);
   }
   return res;
 }

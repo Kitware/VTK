@@ -78,7 +78,7 @@ int TestImageToAMR(int, char*[])
   std::vector<vtkVector3d> samples;
   for (int i = -118; i < 122; i += 10)
   {
-    samples.push_back(vtkVector3d(0.0, (double)i, (double)i));
+    samples.emplace_back(0.0, (double)i, (double)i);
   }
 
   for (unsigned int numLevels = 1; numLevels <= 4; numLevels++)

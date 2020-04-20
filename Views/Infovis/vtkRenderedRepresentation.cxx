@@ -56,12 +56,12 @@ vtkRenderedRepresentation::~vtkRenderedRepresentation()
 
 void vtkRenderedRepresentation::AddPropOnNextRender(vtkProp* p)
 {
-  this->Implementation->PropsToAdd.push_back(p);
+  this->Implementation->PropsToAdd.emplace_back(p);
 }
 
 void vtkRenderedRepresentation::RemovePropOnNextRender(vtkProp* p)
 {
-  this->Implementation->PropsToRemove.push_back(p);
+  this->Implementation->PropsToRemove.emplace_back(p);
 }
 
 void vtkRenderedRepresentation::PrepareForRendering(vtkRenderView* view)

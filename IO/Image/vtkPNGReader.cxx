@@ -108,8 +108,7 @@ public:
       {
         continue;
       }
-      this->TextKeyValue.push_back(
-        std::pair<std::string, std::string>(text_ptr[i].key, text_ptr[i].text));
+      this->TextKeyValue.emplace_back(text_ptr[i].key, text_ptr[i].text);
     }
     std::sort(this->TextKeyValue.begin(), this->TextKeyValue.end(), CompareFirst());
   }

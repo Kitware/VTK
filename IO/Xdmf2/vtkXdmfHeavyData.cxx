@@ -266,7 +266,7 @@ vtkDataObject* vtkXdmfHeavyData::ReadTemporalCollection(
     vtkDataObject* childDO = this->ReadData(*iter, blockId);
     if (childDO)
     {
-      child_data_objects.push_back(childDO);
+      child_data_objects.emplace_back(childDO);
       childDO->Delete();
     }
   }

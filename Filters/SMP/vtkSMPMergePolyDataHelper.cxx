@@ -402,7 +402,7 @@ vtkPolyData* vtkSMPMergePolyDataHelper::MergePolyData(std::vector<InputData>& in
   std::vector<vtkMergePointsData> mpData;
   while (itr != end)
   {
-    mpData.push_back(vtkMergePointsData((*itr).Input, (*itr).Locator));
+    mpData.emplace_back((*itr).Input, (*itr).Locator);
     ++itr;
   }
 
@@ -451,8 +451,8 @@ vtkPolyData* vtkSMPMergePolyDataHelper::MergePolyData(std::vector<InputData>& in
     itr = begin;
     while (itr != end)
     {
-      mcData.push_back(vtkMergeCellsData(
-        (*itr).Input, (*itr).VertCellOffsets, (*itr).VertConnOffsets, (*itr).Input->GetVerts()));
+      mcData.emplace_back(
+        (*itr).Input, (*itr).VertCellOffsets, (*itr).VertConnOffsets, (*itr).Input->GetVerts());
       ++itr;
     }
     MergeCells(mcData, idMaps, 0, outVerts);
@@ -470,8 +470,8 @@ vtkPolyData* vtkSMPMergePolyDataHelper::MergePolyData(std::vector<InputData>& in
     itr = begin;
     while (itr != end)
     {
-      mcData.push_back(vtkMergeCellsData(
-        (*itr).Input, (*itr).LineCellOffsets, (*itr).LineConnOffsets, (*itr).Input->GetLines()));
+      mcData.emplace_back(
+        (*itr).Input, (*itr).LineCellOffsets, (*itr).LineConnOffsets, (*itr).Input->GetLines());
       ++itr;
     }
     MergeCells(mcData, idMaps, vertSize, outLines);
@@ -489,8 +489,8 @@ vtkPolyData* vtkSMPMergePolyDataHelper::MergePolyData(std::vector<InputData>& in
     itr = begin;
     while (itr != end)
     {
-      mcData.push_back(vtkMergeCellsData(
-        (*itr).Input, (*itr).PolyCellOffsets, (*itr).PolyConnOffsets, (*itr).Input->GetPolys()));
+      mcData.emplace_back(
+        (*itr).Input, (*itr).PolyCellOffsets, (*itr).PolyConnOffsets, (*itr).Input->GetPolys());
       ++itr;
     }
     MergeCells(mcData, idMaps, vertSize + lineSize, outPolys);

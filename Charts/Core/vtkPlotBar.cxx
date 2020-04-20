@@ -464,7 +464,7 @@ public:
   {
     vtkNew<vtkPlotBarSegment> segment;
     segment->Configure(this->Bar, xArray, yArray, xAxis, yAxis, prev);
-    this->Segments.push_back(segment.GetPointer());
+    this->Segments.emplace_back(segment.GetPointer());
     return segment.GetPointer();
   }
 

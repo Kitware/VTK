@@ -439,7 +439,7 @@ void vtkCosmicTreeLayoutStrategy::LayoutChildren(vtkTree* tree, vtkPoints* pts,
       for (childIdx = 0; childIdx < numberOfChildren; ++childIdx)
       {
         child = tree->GetChild(root, childIdx);
-        circles.push_back(vtkCosmicTreeEntry(child, childIdx, radii->GetValue(child)));
+        circles.emplace_back(child, childIdx, radii->GetValue(child));
       }
       break;
     case NONE:
@@ -454,7 +454,7 @@ void vtkCosmicTreeLayoutStrategy::LayoutChildren(vtkTree* tree, vtkPoints* pts,
       {
         child = tree->GetChild(root, childIdx);
         this->LayoutChildren(tree, pts, radii, scale, child, depth - 1, mode);
-        circles.push_back(vtkCosmicTreeEntry(child, childIdx, radii->GetValue(child)));
+        circles.emplace_back(child, childIdx, radii->GetValue(child));
       }
       break;
   }

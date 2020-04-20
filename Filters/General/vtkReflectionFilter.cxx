@@ -62,7 +62,7 @@ static void FindFlippableArrays(
       int nComp = array->GetNumberOfComponents();
       if (nComp == 3 || nComp == 6 || nComp == 9)
       {
-        flippableArrays.push_back(std::make_pair(iArr, nComp));
+        flippableArrays.emplace_back(iArr, nComp);
       }
     }
   }
@@ -489,7 +489,7 @@ int vtkReflectionFilter::RequestDataInternal(
       vtkAbstractArray* array = inPD->GetAbstractArray(iArr);
       if (array == vectors || array == normals || array == tensors)
       {
-        flippableArrays.push_back(std::make_pair(iArr, array->GetNumberOfComponents()));
+        flippableArrays.emplace_back(iArr, array->GetNumberOfComponents());
       }
     }
   }
@@ -568,7 +568,7 @@ int vtkReflectionFilter::RequestDataInternal(
       vtkAbstractArray* array = inCD->GetAbstractArray(iArr);
       if (array == vectors || array == normals || array == tensors)
       {
-        flippableArrays.push_back(std::make_pair(iArr, array->GetNumberOfComponents()));
+        flippableArrays.emplace_back(iArr, array->GetNumberOfComponents());
       }
     }
   }

@@ -46,7 +46,7 @@ int vtkExodusIIReaderVariableCheck::Accept(
   for (unsigned int i = 0; i < len; ++i)
   {
     ainfo.OriginalIndices.push_back(startIndex + i + 1 /* FORTRAN. Blech. */);
-    ainfo.OriginalNames.push_back(this->OriginalNames[i]);
+    ainfo.OriginalNames.emplace_back(this->OriginalNames[i]);
   }
   ainfo.GlomType = this->GlomType;
   ainfo.StorageType = VTK_DOUBLE;

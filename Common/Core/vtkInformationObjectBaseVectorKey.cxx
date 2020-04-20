@@ -104,7 +104,7 @@ void vtkInformationObjectBaseVectorKey::Append(vtkInformation* info, vtkObjectBa
     aValue->Register(base);
   }
   //
-  base->GetVector().push_back(aValue);
+  base->GetVector().emplace_back(aValue);
 }
 
 //----------------------------------------------------------------------------

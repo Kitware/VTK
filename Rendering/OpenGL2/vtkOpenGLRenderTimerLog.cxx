@@ -208,12 +208,12 @@ vtkOpenGLRenderTimerLog::OGLEvent& vtkOpenGLRenderTimerLog::NewEvent()
 
   if (openEvent)
   {
-    openEvent->Events.push_back(OGLEvent());
+    openEvent->Events.emplace_back();
     return openEvent->Events.back();
   }
   else
   {
-    this->CurrentFrame.Events.push_back(OGLEvent());
+    this->CurrentFrame.Events.emplace_back();
     return this->CurrentFrame.Events.back();
   }
 }

@@ -129,7 +129,7 @@ double StressInvoke(const int observerCount, const int eventCount, const int inv
     {
       vtkNew<vtkSimpleCommand> observer;
       volcano->AddObserver(event + 1000, observer.GetPointer());
-      observers.push_back(observer.GetPointer());
+      observers.emplace_back(observer.GetPointer());
     }
   }
   addTimer->StopTimer();

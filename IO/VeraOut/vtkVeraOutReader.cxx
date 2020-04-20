@@ -181,7 +181,7 @@ public:
       {
         H5Lget_name_by_idx(groupId, ".", H5_INDEX_NAME, H5_ITER_INC, idx, datasetName,
           DATASET_NAME_MAX_SIZE, H5P_DEFAULT);
-        datasetNames.push_back(datasetName);
+        datasetNames.emplace_back(datasetName);
       }
       H5Gclose(groupId);
 
@@ -514,7 +514,7 @@ public:
     {
       H5Lget_name_by_idx(groupId, ".", H5_INDEX_NAME, H5_ITER_INC, idx, datasetName,
         DATASET_NAME_MAX_SIZE, H5P_DEFAULT);
-      datasetNames.push_back(datasetName);
+      datasetNames.emplace_back(datasetName);
     }
 
     // Start processing datasets
@@ -600,7 +600,7 @@ public:
 
       outputCellArray = this->CreatePinFieldArray(dataSource);
       outputCellArray->SetName(dataSource->GetName());
-      this->CoreCellData.push_back(outputCellArray);
+      this->CoreCellData.emplace_back(outputCellArray);
       outputCellArray->Delete();
       dataSource->Delete();
     }
@@ -661,7 +661,7 @@ public:
         }
       }
     }
-    this->CoreCellData.push_back(outputCellArray);
+    this->CoreCellData.emplace_back(outputCellArray);
     outputCellArray->Delete();
   }
 
@@ -734,7 +734,7 @@ public:
     {
       H5Lget_name_by_idx(groupId, ".", H5_INDEX_NAME, H5_ITER_INC, idx, datasetName,
         DATASET_NAME_MAX_SIZE, H5P_DEFAULT);
-      datasetNames.push_back(datasetName);
+      datasetNames.emplace_back(datasetName);
     }
     H5Gclose(groupId);
 

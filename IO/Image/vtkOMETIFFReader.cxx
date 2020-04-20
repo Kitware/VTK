@@ -110,7 +110,7 @@ void vtkOMETIFFReader::vtkOMEInternals::UpdateCache(vtkImageData* source)
     vtkNew<vtkImageData> img;
     img->SetExtent(ext[0], ext[1], ext[2], ext[3], 0, this->SizeZ - 1);
     img->AllocateScalars(source->GetScalarType(), source->GetNumberOfScalarComponents());
-    this->Cache.push_back(img);
+    this->Cache.emplace_back(img);
 
     auto pd = img->GetPointData();
     std::vector<vtkDataArray*> scalar_arrays;

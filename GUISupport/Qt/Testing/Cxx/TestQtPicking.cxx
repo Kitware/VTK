@@ -112,7 +112,7 @@ int TestQtPicking(int argc, char* argv[])
     {
       actor->GetProperty()->SetColor(0.89, 0.81, 0.67);
     }
-    hits.push_back(actor);
+    hits.emplace_back(actor);
 
     interactor->Render();
     app.processEvents();
@@ -134,7 +134,7 @@ int TestQtPicking(int argc, char* argv[])
     {
       actor->GetProperty()->SetColor(1.0, 0.0, 0.0);
     }
-    misses.push_back(actor);
+    misses.emplace_back(actor);
 
     interactor->Render();
     app.processEvents();
@@ -151,7 +151,7 @@ int TestQtPicking(int argc, char* argv[])
     {
       actor->GetProperty()->SetColor(1.0, 0.0, 0.0);
     }
-    misses.push_back(actor);
+    misses.emplace_back(actor);
 
     interactor->Render();
     app.processEvents();

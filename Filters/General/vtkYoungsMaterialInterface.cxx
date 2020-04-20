@@ -1056,8 +1056,8 @@ int vtkYoungsMaterialInterface::RequestData(vtkInformation* vtkNotUsed(request),
                 {
                   id = -(int)(prevPointsMap.size() + 1);
                   DBG_ASSERT((-id - 1) == prevPointsMap.size());
-                  prevPointsMap.push_back(std::make_pair(
-                    m, Mats[m].pointCount + ni)); // intersection points will be added first
+                  prevPointsMap.emplace_back(
+                    m, Mats[m].pointCount + ni); // intersection points will be added first
                   ni++;
                 }
                 else
@@ -1188,7 +1188,7 @@ int vtkYoungsMaterialInterface::RequestData(vtkInformation* vtkNotUsed(request),
                 vtkIdType id = -(int)(prevPointsMap.size() + 1);
                 DBG_ASSERT((-id - 1) == prevPointsMap.size());
                 // Interpolated points will be added consecutively
-                prevPointsMap.push_back(std::make_pair(m, Mats[m].pointCount + i));
+                prevPointsMap.emplace_back(m, Mats[m].pointCount + i);
                 nextCell.pointIds[i] = id;
               }
               for (int i = 0; i < nOutsidePoints; i++)

@@ -2814,7 +2814,7 @@ int vtkLSDynaReader::ReadNodeStateInfo(vtkIdType step)
         aComponents[nvnum] = 3;
         aNames[nvnum] = LS_ARRAYNAME_VORTICITY;
       }
-      names.push_back(aNames[nvnum]);
+      names.emplace_back(aNames[nvnum]);
       cmps.push_back(aComponents[nvnum] == -1 ? p->Dimensionality : aComponents[nvnum]);
       vppt += cmps.back();
     }

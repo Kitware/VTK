@@ -94,7 +94,7 @@ void vtkTableToSparseArray::AddCoordinateColumn(const char* name)
     return;
   }
 
-  this->Implementation->Coordinates.push_back(name);
+  this->Implementation->Coordinates.emplace_back(name);
   this->Modified();
 }
 

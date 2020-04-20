@@ -519,7 +519,7 @@ int TestPickingManagerSeedWidget(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
         newHandleRep->GetProperty()->SetColor(1, 1, 1);
         newHandleRep->SetWorldPosition(pos);
 
-        seeds.push_back(newHandle);
+        seeds.emplace_back(newHandle);
       }
     }
   }

@@ -575,20 +575,20 @@ void vtkScatterPlotMatrix::UpdateAnimationPath(const vtkVector2i& newActivePos)
       {
         for (int r = this->ActivePlot[0] - 1; r >= newActivePos[0]; r--)
         {
-          this->Private->AnimationPath.push_back(vtkVector2i(r, this->ActivePlot[1]));
+          this->Private->AnimationPath.emplace_back(r, this->ActivePlot[1]);
         }
       }
       else
       {
         for (int r = this->ActivePlot[0] + 1; r <= newActivePos[0]; r++)
         {
-          this->Private->AnimationPath.push_back(vtkVector2i(r, this->ActivePlot[1]));
+          this->Private->AnimationPath.emplace_back(r, this->ActivePlot[1]);
         }
       }
       // then y direction
       for (int c = this->ActivePlot[1] + 1; c <= newActivePos[1]; c++)
       {
-        this->Private->AnimationPath.push_back(vtkVector2i(newActivePos[0], c));
+        this->Private->AnimationPath.emplace_back(newActivePos[0], c);
       }
     }
     else
@@ -596,21 +596,21 @@ void vtkScatterPlotMatrix::UpdateAnimationPath(const vtkVector2i& newActivePos)
       // y direction first
       for (int c = this->ActivePlot[1] - 1; c >= newActivePos[1]; c--)
       {
-        this->Private->AnimationPath.push_back(vtkVector2i(this->ActivePlot[0], c));
+        this->Private->AnimationPath.emplace_back(this->ActivePlot[0], c);
       }
       // then x direction
       if (this->ActivePlot[0] > newActivePos[0])
       {
         for (int r = this->ActivePlot[0] - 1; r >= newActivePos[0]; r--)
         {
-          this->Private->AnimationPath.push_back(vtkVector2i(r, newActivePos[1]));
+          this->Private->AnimationPath.emplace_back(r, newActivePos[1]);
         }
       }
       else
       {
         for (int r = this->ActivePlot[0] + 1; r <= newActivePos[0]; r++)
         {
-          this->Private->AnimationPath.push_back(vtkVector2i(r, newActivePos[1]));
+          this->Private->AnimationPath.emplace_back(r, newActivePos[1]);
         }
       }
     }
@@ -1161,14 +1161,14 @@ bool vtkScatterPlotMatrix::MouseButtonReleaseEvent(const vtkContextMouseEvent& m
     {
       if (pos[0] != this->ActivePlot[0])
       {
-        this->Private->AnimationPath.push_back(vtkVector2i(pos[0], this->ActivePlot[1]));
+        this->Private->AnimationPath.emplace_back(pos[0], this->ActivePlot[1]);
       }
     }
     else
     {
       if (pos[1] != this->ActivePlot[1])
       {
-        this->Private->AnimationPath.push_back(vtkVector2i(this->ActivePlot[0], pos[1]));
+        this->Private->AnimationPath.emplace_back(this->ActivePlot[0], pos[1]);
       }
     }
     if ((this->Private->AnimationPath.size() == 1 && this->Private->AnimationPath.back() != pos) ||

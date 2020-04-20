@@ -787,8 +787,8 @@ void vtkReebGraph::Implementation::FastArcSimplify(
       up = this->GetNode(B->NodeId1)->VertexId;
 
       vtkReebCancellation c;
-      c.removedArcs.push_back(std::pair<int, int>(middle, up));
-      c.insertedArcs.push_back(std::pair<int, int>(down, up));
+      c.removedArcs.emplace_back(middle, up);
+      c.insertedArcs.emplace_back(down, up);
       this->cancellationHistory.push_back(c);
     }
     if (A->ArcDwId1)
@@ -800,8 +800,8 @@ void vtkReebGraph::Implementation::FastArcSimplify(
       up = this->GetNode(A->NodeId1)->VertexId;
 
       vtkReebCancellation c;
-      c.removedArcs.push_back(std::pair<int, int>(middle, up));
-      c.insertedArcs.push_back(std::pair<int, int>(down, up));
+      c.removedArcs.emplace_back(middle, up);
+      c.insertedArcs.emplace_back(down, up);
       this->cancellationHistory.push_back(c);
     }
     if (A->ArcUpId0)
@@ -813,8 +813,8 @@ void vtkReebGraph::Implementation::FastArcSimplify(
       up = this->GetNode(B->NodeId1)->VertexId;
 
       vtkReebCancellation c;
-      c.removedArcs.push_back(std::pair<int, int>(down, middle));
-      c.insertedArcs.push_back(std::pair<int, int>(down, up));
+      c.removedArcs.emplace_back(down, middle);
+      c.insertedArcs.emplace_back(down, up);
       this->cancellationHistory.push_back(c);
     }
     if (A->ArcUpId1)
@@ -826,8 +826,8 @@ void vtkReebGraph::Implementation::FastArcSimplify(
       up = this->GetNode(B->NodeId1)->VertexId;
 
       vtkReebCancellation c;
-      c.removedArcs.push_back(std::pair<int, int>(down, middle));
-      c.insertedArcs.push_back(std::pair<int, int>(down, up));
+      c.removedArcs.emplace_back(down, middle);
+      c.insertedArcs.emplace_back(down, up);
       this->cancellationHistory.push_back(c);
     }
   }
@@ -1219,9 +1219,9 @@ int vtkReebGraph::Implementation::SimplifyLoops(
         up = upN->VertexId;
 
         vtkReebCancellation c;
-        c.removedArcs.push_back(std::pair<int, int>(down, middle));
-        c.removedArcs.push_back(std::pair<int, int>(middle, up));
-        c.insertedArcs.push_back(std::pair<int, int>(down, up));
+        c.removedArcs.emplace_back(down, middle);
+        c.removedArcs.emplace_back(middle, up);
+        c.insertedArcs.emplace_back(down, up);
 
         this->cancellationHistory.push_back(c);
       }
@@ -1956,8 +1956,7 @@ void vtkReebGraph::CloseStream()
             deg2List.push_back(nextIt->first);
             nextIt = localAdjacency.find(nextIt->second.second[0]);
           }
-          globalAdjacency.push_back(std::pair<std::pair<int, int>, std::vector<int> >(
-            std::pair<int, int>(aIt->first, nextIt->first), deg2List));
+          globalAdjacency.emplace_back(std::pair<int, int>(aIt->first, nextIt->first), deg2List);
         }
       }
     }
@@ -2516,9 +2515,9 @@ void vtkReebGraph::Implementation::Collapse(vtkIdType startingNode, vtkIdType en
         downVertex = down0->VertexId;
         middleVertex = up0->VertexId;
         upVertex = up1->VertexId;
-        c.removedArcs.push_back(std::pair<int, int>(downVertex, upVertex));
-        c.insertedArcs.push_back(std::pair<int, int>(downVertex, middleVertex));
-        c.insertedArcs.push_back(std::pair<int, int>(middleVertex, upVertex));
+        c.removedArcs.emplace_back(downVertex, upVertex);
+        c.insertedArcs.emplace_back(downVertex, middleVertex);
+        c.insertedArcs.emplace_back(middleVertex, upVertex);
         this->cancellationHistory.push_back(c);
       }
       // a more complicate situation, collapse reaching the less ending point of
@@ -2593,9 +2592,9 @@ void vtkReebGraph::Implementation::Collapse(vtkIdType startingNode, vtkIdType en
         v2 = this->GetNode(down->NodeId0)->VertexId;
         v3 = this->GetNode(down->NodeId1)->VertexId;
 
-        c.removedArcs.push_back(std::pair<int, int>(v0, v1));
-        c.removedArcs.push_back(std::pair<int, int>(v2, v3));
-        c.insertedArcs.push_back(std::pair<int, int>(v2, v1));
+        c.removedArcs.emplace_back(v0, v1);
+        c.removedArcs.emplace_back(v2, v3);
+        c.insertedArcs.emplace_back(v2, v1);
         this->cancellationHistory.push_back(c);
       }
       this->CollapseVertex(N0, n0);
@@ -2621,9 +2620,9 @@ void vtkReebGraph::Implementation::Collapse(vtkIdType startingNode, vtkIdType en
           v2 = this->GetNode(down->NodeId0)->VertexId;
           v3 = this->GetNode(down->NodeId1)->VertexId;
 
-          c.removedArcs.push_back(std::pair<int, int>(v0, v1));
-          c.removedArcs.push_back(std::pair<int, int>(v2, v3));
-          c.insertedArcs.push_back(std::pair<int, int>(v2, v1));
+          c.removedArcs.emplace_back(v0, v1);
+          c.removedArcs.emplace_back(v2, v3);
+          c.insertedArcs.emplace_back(v2, v1);
           this->cancellationHistory.push_back(c);
         }
         this->CollapseVertex(endingNode, nendNode);

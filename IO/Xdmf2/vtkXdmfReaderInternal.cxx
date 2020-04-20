@@ -142,7 +142,7 @@ void vtkXdmfDocument::UpdateDomains()
     XdmfConstString domainName = this->XMLDOM.Get(domain, "Name");
     if (domainName)
     {
-      this->Domains.push_back(domainName);
+      this->Domains.emplace_back(domainName);
     }
     else
     {

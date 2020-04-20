@@ -963,7 +963,7 @@ void vtkEnzoReaderInternal::GetAttributeNames()
         // it's a particle variable and skip over coordinate arrays
         if (strncmp(tempName, "particle_position_", 18) != 0)
         {
-          this->ParticleAttributeNames.push_back(tempName);
+          this->ParticleAttributeNames.emplace_back(tempName);
         }
       }
       else if ((strlen(tempName) > 16) && (strncmp(tempName, "tracer_particles", 16) == 0))
@@ -971,12 +971,12 @@ void vtkEnzoReaderInternal::GetAttributeNames()
         // it's a tracer_particle variable and skip over coordinate arrays
         if (strncmp(tempName, "tracer_particle_position_", 25) != 0)
         {
-          this->TracerParticleAttributeNames.push_back(tempName);
+          this->TracerParticleAttributeNames.emplace_back(tempName);
         }
       }
       else
       {
-        this->BlockAttributeNames.push_back(tempName);
+        this->BlockAttributeNames.emplace_back(tempName);
       }
     }
   }
