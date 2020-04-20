@@ -12,20 +12,24 @@ this setup.
 Any updates to projects not listed there should first convert over to this
 framework.
 
-# Updating a Project
+# Updating a Project Upstream
 
-Once converted, a project should be updated by applying patches to the
-repository specified in its `update.sh` script. Once the changes are merged,
-pulling the changes involves running the `update.sh` script. This will update
-the local copy of the project to the version specified in `update.sh` (usually
-a `for/foo` branch, like `for/vtk` for example, but may be `master` or any
-other Git reference) and merge it into the main tree.
+Ideally, any code changes to third party code should first be submitted to the upstream
+project using whatever workflow they prefer or require.  Once that is done, the changes
+can next be brought into VTK.
 
-This requires a Git 2.5 or higher due the `worktree` tool being used to
-simplify the availability of the commits to the main checkout.
+# Updating the Import
 
-Here's an example of updating the `twisted` project from tag 17.1.0 to 17.5.0,
-starting with updating the third-party repo
+Examine the project's `update.sh` script and note the value of the `repo=` field.
+
+If it's referring to anything other than [Kitware's GitLab](https://gitlab.kitware.com/third-party),
+then skip to the next section.
+
+Otherwise, you first need to bring in the upstream changes into the `third-party` repo.
+To do that, first fork and clone the repository named in the `repo=` field.
+Then use git commands to bring in a copy of the upstream changes.
+
+Here's an example of updating the `twisted` project from tag 17.1.0 to 17.5.0:
 
 ```sh
 $ cd twisted/
@@ -35,20 +39,39 @@ $ git rebase --onto twisted-17.5.0 twisted-17.1.0
 $ git push
 ```
 
-Now import into VTK
+When deciding what to rebase, you should generally use
+the first commit in the current history that isn't upstream.
+
+# Updating a Project into VTK
+
+Bringing changes into VTK involves first deciding what to bring in. That is specified in the
+`update.sh` script under the `tag=` field. Usually this is a `for/vtk` branch, but may
+be `master`, or a tag, or any other Git reference.
+
+If `update.sh` needs to be edited (the usual case), create a branch in the usual way
+and commit just those changes.
+
+Next, run the `update.sh` script as below. This will update the local copy of the project to
+the version specified within.
 
 ```sh
-$ cd vtk/ThirdParty/twisted
-$ git checkout -b update_twisted
+$ cd vtk/ThirdParty/zlib
+$ git checkout -b update_zlib_YYYY_MM_DD
 $ ./update.sh
 ```
+
+Appending the date to the branch name is not necessary, it just prevents any conflict in the
+event of you doing this procedure multiple times and inadvertently using the same branch name.
+
+(All this requires a Git 2.5 or higher due the `worktree` tool being used to
+simplify the availability of the commits to the main checkout.)
 
 Now you can review the change and make a merge request from the branch as normal.
 
 # Porting a Project
 
 When converting a project, if there are any local patches, a project should be
-created [on GitLab](https://gitlab.kitware.com/third-party) to track it
+created [on Kitware's GitLab](https://gitlab.kitware.com/third-party) to track it
 (requests may be filed on the [repo-requests][] repository). If the upstream
 project does not use Git, it should be imported into Git (there may be existing
 conversions available on Github already). The project's description should
