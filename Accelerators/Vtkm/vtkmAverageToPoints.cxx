@@ -69,12 +69,11 @@ int vtkmAverageToPoints::RequestData(vtkInformation* vtkNotUsed(request),
     auto field = tovtkm::Convert(fieldArray, association);
     in.AddField(field);
 
-    vtkmInputFilterPolicy policy;
     vtkm::filter::PointAverage filter;
     filter.SetActiveField(fieldName, vtkm::cont::Field::Association::CELL_SET);
     filter.SetOutputFieldName(fieldName); // should we expose this control?
 
-    auto result = filter.Execute(in, policy);
+    auto result = filter.Execute(in);
 
     // convert back the dataset to VTK, and add the field as a point field
     vtkDataArray* resultingArray = fromvtkm::Convert(result.GetPointField(fieldName));

@@ -38,6 +38,7 @@ int TestVTKMClipWithImplicitFunction(int argc, char* argv[])
   sphere->SetCenter(0, 0, 0);
   sphere->SetRadius(10);
   vtkNew<vtkmClip> clip;
+  clip->ForceVTKmOn();
   clip->SetInputConnection(wavelet->GetOutputPort());
   clip->SetClipFunction(sphere);
 

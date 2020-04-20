@@ -70,6 +70,18 @@ public:
 
   vtkMTimeType GetMTime() override;
 
+  //@{
+  /**
+   * When this flag is off (the default), then the computation will fall back
+   * to the serial VTK version if VTK-m fails to run. When the flag is on,
+   * the filter will generate an error if VTK-m fails to run. This is mostly
+   * useful in testing to make sure the expected algorithm is run.
+   */
+  vtkGetMacro(ForceVTKm, vtkTypeBool);
+  vtkSetMacro(ForceVTKm, vtkTypeBool);
+  vtkBooleanMacro(ForceVTKm, vtkTypeBool);
+  //@}
+
 protected:
   vtkmClip();
   ~vtkmClip() override;
@@ -83,6 +95,8 @@ protected:
 
   vtkImplicitFunction* ClipFunction;
   std::unique_ptr<tovtkm::ImplicitFunctionConverter> ClipFunctionConverter;
+
+  vtkTypeBool ForceVTKm = false;
 
 private:
   vtkmClip(const vtkmClip&) = delete;

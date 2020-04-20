@@ -64,6 +64,7 @@ int TestVTKMPolyDataNormals(int argc, char* argv[])
   MakeInputDataSet(input);
 
   vtkNew<vtkmPolyDataNormals> normals;
+  normals->ForceVTKmOn();
   normals->SetInputData(input);
   normals->ComputePointNormalsOn();
   normals->ComputeCellNormalsOn();

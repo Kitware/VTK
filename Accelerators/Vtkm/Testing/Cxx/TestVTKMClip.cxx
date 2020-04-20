@@ -71,6 +71,7 @@ int TestVTKMClip(int, char*[])
 
   // Clip at zero:
   vtkNew<vtkmClip> sphereClipper;
+  sphereClipper->ForceVTKmOn();
   sphereClipper->SetInputData(sphere);
   sphereClipper->SetComputeScalars(true);
   sphereClipper->SetClipValue(0.);
@@ -109,6 +110,7 @@ int TestVTKMClip(int, char*[])
 
   // Clip at zero:
   vtkNew<vtkmClip> tetClipper;
+  tetClipper->ForceVTKmOn();
   tetClipper->SetInputData(tets);
   tetClipper->SetComputeScalars(true);
   tetClipper->SetClipValue(0.);
@@ -133,6 +135,7 @@ int TestVTKMClip(int, char*[])
   GenerateScalars(image, false);
 
   vtkNew<vtkmClip> imageClipper;
+  imageClipper->ForceVTKmOn();
   imageClipper->SetInputData(image);
   imageClipper->SetComputeScalars(true);
   imageClipper->SetClipValue(0.);

@@ -113,11 +113,10 @@ int vtkmExternalFaces::RequestData(vtkInformation* vtkNotUsed(request),
     auto in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells);
 
     // apply the filter
-    vtkmInputFilterPolicy policy;
     vtkm::filter::ExternalFaces filter;
     filter.SetCompactPoints(this->CompactPoints);
     filter.SetPassPolyData(true);
-    auto result = filter.Execute(in, policy);
+    auto result = filter.Execute(in);
 
     // convert back to vtkDataSet (vtkUnstructuredGrid)
     if (!fromvtkm::Convert(result, output, input))

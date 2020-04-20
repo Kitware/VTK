@@ -31,6 +31,9 @@ else ()
   set(VTKm_INSTALL_ONLY_LIBRARIES ON)
 endif ()
 
+# Make sure VTK-m is compiled for VTK types.
+set(VTKm_USE_DEFAULT_TYPES_FOR_VTK ON)
+
 set(VTKm_USE_DEFAULT_SYMBOL_VISIBILITY OFF)
 set(VTKm_ENABLE_RENDERING OFF)
 set(VTKm_ENABLE_TESTING OFF)

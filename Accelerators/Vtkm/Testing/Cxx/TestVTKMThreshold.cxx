@@ -64,6 +64,7 @@ int RunVTKPipeline(vtkImageData* grid, int argc, char* argv[])
   producer->SetOutput(grid);
 
   vtkNew<vtkmThreshold> threshold;
+  threshold->ForceVTKmOn();
   threshold->SetInputConnection(producer->GetOutputPort());
   threshold->SetPointsDataTypeToFloat();
   threshold->AllScalarsOn();

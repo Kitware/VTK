@@ -68,12 +68,11 @@ int vtkmAverageToCells::RequestData(vtkInformation* vtkNotUsed(request),
     auto field = tovtkm::Convert(fieldArray, association);
     in.AddField(field);
 
-    vtkmInputFilterPolicy policy;
     vtkm::filter::CellAverage filter;
     filter.SetActiveField(fieldName, vtkm::cont::Field::Association::POINTS);
     filter.SetOutputFieldName(fieldName); // should we expose this control?
 
-    auto result = filter.Execute(in, policy);
+    auto result = filter.Execute(in);
 
     // convert back the dataset to VTK, and add the field as a cell field
     vtkDataArray* resultingArray = fromvtkm::Convert(result.GetCellField(fieldName));

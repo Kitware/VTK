@@ -64,12 +64,11 @@ int vtkmThreshold::RequestData(
     // convert the input dataset to a vtkm::cont::DataSet
     auto in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells);
 
-    vtkmInputFilterPolicy policy;
     vtkm::filter::Threshold filter;
     filter.SetActiveField(inputArray->GetName());
     filter.SetLowerThreshold(this->GetLowerThreshold());
     filter.SetUpperThreshold(this->GetUpperThreshold());
-    auto result = filter.Execute(in, policy);
+    auto result = filter.Execute(in);
 
     // now we are done the algorithm and conversion of arrays so
     // convert back the dataset to VTK
@@ -81,9 +80,17 @@ int vtkmThreshold::RequestData(
   }
   catch (const vtkm::cont::Error& e)
   {
-    vtkWarningMacro(<< "VTK-m error: " << e.GetMessage()
-                    << "Falling back to serial implementation");
-    return this->Superclass::RequestData(request, inputVector, outputVector);
+    if (this->ForceVTKm)
+    {
+      vtkErrorMacro(<< "VTK-m error: " << e.GetMessage());
+      return 0;
+    }
+    else
+    {
+      vtkWarningMacro(<< "VTK-m error: " << e.GetMessage()
+                      << "Falling back to serial implementation");
+      return this->Superclass::RequestData(request, inputVector, outputVector);
+    }
   }
 
   return 1;

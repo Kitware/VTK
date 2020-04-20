@@ -136,7 +136,6 @@ int vtkmClip::RequestData(
 
     // Run filter:
     vtkm::cont::DataSet result;
-    vtkmInputFilterPolicy policy;
     if (this->ClipFunction)
     {
       vtkm::filter::ClipWithImplicitFunction functionFilter;
@@ -144,7 +143,7 @@ int vtkmClip::RequestData(
       if (function.GetValid())
       {
         functionFilter.SetImplicitFunction(function);
-        result = functionFilter.Execute(in, policy);
+        result = functionFilter.Execute(in);
       }
     }
     else
@@ -162,7 +161,7 @@ int vtkmClip::RequestData(
 
       fieldFilter.SetActiveField(scalars->GetName(), vtkm::cont::Field::Association::POINTS);
       fieldFilter.SetClipValue(this->ClipValue);
-      result = fieldFilter.Execute(in, policy);
+      result = fieldFilter.Execute(in);
     }
 
     // Convert result to output:
@@ -181,16 +180,24 @@ int vtkmClip::RequestData(
   }
   catch (const vtkm::cont::Error& e)
   {
-    vtkWarningMacro(<< "VTK-m error: " << e.GetMessage()
-                    << "Falling back to serial implementation.");
+    if (this->ForceVTKm)
+    {
+      vtkErrorMacro(<< "VTK-m error: " << e.GetMessage());
+      return 0;
+    }
+    else
+    {
+      vtkWarningMacro(<< "VTK-m error: " << e.GetMessage()
+                      << "Falling back to serial implementation.");
 
-    vtkNew<vtkTableBasedClipDataSet> filter;
-    filter->SetClipFunction(this->ClipFunction);
-    filter->SetValue(this->ClipValue);
-    filter->SetInputData(input);
-    filter->Update();
-    output->ShallowCopy(filter->GetOutput());
-    return 1;
+      vtkNew<vtkTableBasedClipDataSet> filter;
+      filter->SetClipFunction(this->ClipFunction);
+      filter->SetValue(this->ClipValue);
+      filter->SetInputData(input);
+      filter->Update();
+      output->ShallowCopy(filter->GetOutput());
+      return 1;
+    }
   }
 }
 

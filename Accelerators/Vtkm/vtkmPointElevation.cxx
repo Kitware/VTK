@@ -63,7 +63,6 @@ int vtkmPointElevation::RequestData(
     // Convert the input dataset to a vtkm::cont::DataSet
     auto in = tovtkm::Convert(input, tovtkm::FieldsFlag::Points);
 
-    vtkmInputFilterPolicy policy;
     // Setup input
     vtkm::filter::PointElevation filter;
     filter.SetLowPoint(this->LowPoint[0], this->LowPoint[1], this->LowPoint[2]);
@@ -71,7 +70,7 @@ int vtkmPointElevation::RequestData(
     filter.SetRange(this->ScalarRange[0], this->ScalarRange[1]);
     filter.SetOutputFieldName("elevation");
     filter.SetUseCoordinateSystemAsField(true);
-    auto result = filter.Execute(in, policy);
+    auto result = filter.Execute(in);
 
     // Convert the result back
     vtkDataArray* resultingArray = fromvtkm::Convert(result.GetField("elevation"));
@@ -86,8 +85,17 @@ int vtkmPointElevation::RequestData(
   }
   catch (const vtkm::cont::Error& e)
   {
-    vtkErrorMacro(<< "VTK-m error: " << e.GetMessage() << "Falling back to serial implementation");
-    return this->Superclass::RequestData(request, inputVector, outputVector);
+    if (this->ForceVTKm)
+    {
+      vtkErrorMacro(<< "VTK-m error: " << e.GetMessage());
+      return 0;
+    }
+    else
+    {
+      vtkWarningMacro(<< "VTK-m error: " << e.GetMessage()
+                      << "Falling back to serial implementation");
+      return this->Superclass::RequestData(request, inputVector, outputVector);
+    }
   }
   return 1;
 }

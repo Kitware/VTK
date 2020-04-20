@@ -37,25 +37,6 @@ vtkStandardNewMacro(vtkmGradient);
 
 namespace
 {
-using GradientTypes = vtkm::List<            //
-  vtkm::Float32,                             //
-  vtkm::Float64,                             //
-  vtkm::Vec<vtkm::Float32, 3>,               //
-  vtkm::Vec<vtkm::Float64, 3>,               //
-  vtkm::Vec<vtkm::Vec<vtkm::Float32, 3>, 3>, //
-  vtkm::Vec<vtkm::Vec<vtkm::Float64, 3>, 3>  //
-  >;
-
-//------------------------------------------------------------------------------
-class vtkmGradientFilterPolicy : public vtkm::filter::PolicyBase<vtkmGradientFilterPolicy>
-{
-public:
-  using FieldTypeList = GradientTypes;
-
-  using StructuredCellSetList = tovtkm::CellListStructuredInVTK;
-  using UnstructuredCellSetList = tovtkm::CellListUnstructuredInVTK;
-  using AllCellSetList = tovtkm::CellListAllInVTK;
-};
 
 inline vtkm::cont::DataSet CopyDataSetStructure(const vtkm::cont::DataSet& ds)
 {
@@ -124,7 +105,6 @@ int vtkmGradient::RequestData(
       return this->Superclass::RequestData(request, inputVector, outputVector);
     }
 
-    vtkmGradientFilterPolicy policy;
     auto passNoFields = vtkm::filter::FieldSelection(vtkm::filter::FieldSelection::MODE_NONE);
     vtkm::filter::Gradient filter;
     filter.SetFieldsToPass(passNoFields);
@@ -168,7 +148,7 @@ int vtkmGradient::RequestData(
     {
       filter.SetComputePointGradient(!this->FasterApproximation);
       filter.SetActiveField(field.GetName(), vtkm::cont::Field::Association::POINTS);
-      result = filter.Execute(in, policy);
+      result = filter.Execute(in);
 
       // When we have faster approximation enabled the VTK-m gradient will output
       // a cell field not a point field. So at that point we will need to convert
@@ -185,28 +165,28 @@ int vtkmGradient::RequestData(
         {
           cellToPoint.SetActiveField(
             filter.GetOutputFieldName(), vtkm::cont::Field::Association::CELL_SET);
-          auto ds = cellToPoint.Execute(c2pIn, policy);
+          auto ds = cellToPoint.Execute(c2pIn);
           result.AddField(ds.GetField(0));
         }
         if (this->ComputeDivergence && fieldIsVec)
         {
           cellToPoint.SetActiveField(
             filter.GetDivergenceName(), vtkm::cont::Field::Association::CELL_SET);
-          auto ds = cellToPoint.Execute(c2pIn, policy);
+          auto ds = cellToPoint.Execute(c2pIn);
           result.AddField(ds.GetField(0));
         }
         if (this->ComputeVorticity && fieldIsVec)
         {
           cellToPoint.SetActiveField(
             filter.GetVorticityName(), vtkm::cont::Field::Association::CELL_SET);
-          auto ds = cellToPoint.Execute(c2pIn, policy);
+          auto ds = cellToPoint.Execute(c2pIn);
           result.AddField(ds.GetField(0));
         }
         if (this->ComputeQCriterion && fieldIsVec)
         {
           cellToPoint.SetActiveField(
             filter.GetQCriterionName(), vtkm::cont::Field::Association::CELL_SET);
-          auto ds = cellToPoint.Execute(c2pIn, policy);
+          auto ds = cellToPoint.Execute(c2pIn);
           result.AddField(ds.GetField(0));
         }
       }
@@ -218,11 +198,11 @@ int vtkmGradient::RequestData(
       cellToPoint.SetFieldsToPass(passNoFields);
       cellToPoint.SetActiveField(field.GetName(), field.GetAssociation());
       cellToPoint.SetOutputFieldName(field.GetName());
-      in = cellToPoint.Execute(in, policy);
+      in = cellToPoint.Execute(in);
 
       filter.SetComputePointGradient(false);
       filter.SetActiveField(field.GetName(), vtkm::cont::Field::Association::POINTS);
-      result = filter.Execute(in, policy);
+      result = filter.Execute(in);
     }
 
     // Remove gradient field from result if it was not requested.
@@ -249,9 +229,17 @@ int vtkmGradient::RequestData(
   }
   catch (const vtkm::cont::Error& e)
   {
-    vtkWarningMacro(<< "VTK-m error: " << e.GetMessage()
-                    << "Falling back to serial implementation.");
-    return this->Superclass::RequestData(request, inputVector, outputVector);
+    if (this->ForceVTKm)
+    {
+      vtkErrorMacro(<< "VTK-m error: " << e.GetMessage());
+      return 0;
+    }
+    else
+    {
+      vtkWarningMacro(<< "VTK-m error: " << e.GetMessage()
+                      << "Falling back to serial implementation.");
+      return this->Superclass::RequestData(request, inputVector, outputVector);
+    }
   }
 
   return 1;

@@ -65,6 +65,7 @@ int RunVTKPipeline(vtkPlaneSource* plane, int argc, char* argv[])
   pd->SetPoints(newPts);
 
   vtkNew<vtkmPointElevation> pe;
+  pe->ForceVTKmOn();
   pe->SetInputData(pd);
   pe->SetLowPoint(0, 0, -1.5);
   pe->SetHighPoint(0, 0, 1.5);

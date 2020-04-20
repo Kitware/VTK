@@ -29,17 +29,6 @@
 
 #include "vtkm/filter/SurfaceNormals.h"
 
-namespace
-{
-
-struct InputFilterPolicy : public vtkmInputFilterPolicy
-{
-  using UnstructuredCellSetList =
-    vtkm::List<tovtkm::CellSetSingleType32Bit, tovtkm::CellSetSingleType64Bit>;
-};
-
-}
-
 vtkStandardNewMacro(vtkmTriangleMeshPointNormals);
 
 //------------------------------------------------------------------------------
@@ -78,13 +67,12 @@ int vtkmTriangleMeshPointNormals::RequestData(
     // convert the input dataset to a vtkm::cont::DataSet
     auto in = tovtkm::Convert(input, tovtkm::FieldsFlag::None);
 
-    vtkm::filter::PolicyBase<InputFilterPolicy> policy;
     vtkm::filter::SurfaceNormals filter;
     filter.SetGenerateCellNormals(false);
     filter.SetNormalizeCellNormals(false);
     filter.SetGeneratePointNormals(true);
     filter.SetPointNormalsName("Normals");
-    auto result = filter.Execute(in, policy);
+    auto result = filter.Execute(in);
 
     if (!fromvtkm::Convert(result, output, input))
     {
@@ -94,9 +82,17 @@ int vtkmTriangleMeshPointNormals::RequestData(
   }
   catch (const vtkm::cont::Error& e)
   {
-    vtkWarningMacro(<< "VTK-m error: " << e.GetMessage()
-                    << "Falling back to vtkTriangleMeshPointNormals");
-    return this->Superclass::RequestData(request, inputVector, outputVector);
+    if (this->ForceVTKm)
+    {
+      vtkErrorMacro(<< "VTK-m error: " << e.GetMessage());
+      return 0;
+    }
+    else
+    {
+      vtkWarningMacro(<< "VTK-m error: " << e.GetMessage()
+                      << "Falling back to vtkTriangleMeshPointNormals");
+      return this->Superclass::RequestData(request, inputVector, outputVector);
+    }
   }
 
   vtkSmartPointer<vtkDataArray> pointNormals = output->GetPointData()->GetArray("Normals");
