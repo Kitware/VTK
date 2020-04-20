@@ -24,9 +24,9 @@ endif()
 if (NOT DEFINED _${_PYTHON_PREFIX}_REQUIRED_VERSION_MAJOR)
   message (FATAL_ERROR "FindPython: INTERNAL ERROR")
 endif()
-if (_${_PYTHON_PREFIX}_REQUIRED_VERSION_MAJOR EQUAL 3)
+if (_${_PYTHON_PREFIX}_REQUIRED_VERSION_MAJOR EQUAL "3")
   set(_${_PYTHON_PREFIX}_VERSIONS 3.9 3.8 3.7 3.6 3.5 3.4 3.3 3.2 3.1 3.0)
-elseif (_${_PYTHON_PREFIX}_REQUIRED_VERSION_MAJOR EQUAL 2)
+elseif (_${_PYTHON_PREFIX}_REQUIRED_VERSION_MAJOR EQUAL "2")
   set(_${_PYTHON_PREFIX}_VERSIONS 2.7 2.6 2.5 2.4 2.3 2.2 2.1 2.0)
 else()
   message (FATAL_ERROR "FindPython: INTERNAL ERROR")
@@ -106,7 +106,9 @@ macro (_PYTHON_FIND_FRAMEWORKS)
                     ~/Library/Frameworks
                     /usr/local/Frameworks
                     ${CMAKE_SYSTEM_FRAMEWORK_PATH})
-    list (REMOVE_DUPLICATES _pff_frameworks)
+    if (_pff_frameworks) # XXX(cmake-3.14)
+      list (REMOVE_DUPLICATES _pff_frameworks)
+    endif ()
     foreach (_pff_framework IN LISTS _pff_frameworks)
       if (EXISTS ${_pff_framework}/Python${_${_PYTHON_PREFIX}_REQUIRED_VERSION_MAJOR}.framework)
         list (APPEND ${_PYTHON_PREFIX}_FRAMEWORKS ${_pff_framework}/Python${_${_PYTHON_PREFIX}_REQUIRED_VERSION_MAJOR}.framework)
@@ -316,7 +318,9 @@ function (_PYTHON_GET_CONFIG_VAR _PYTHON_PGCV_VALUE NAME)
         # do some clean-up
         string (REGEX MATCHALL "(-I|-iwithsysroot)[ ]*[^ ]+" _values "${_values}")
         string (REGEX REPLACE "(-I|-iwithsysroot)[ ]*" "" _values "${_values}")
-        list (REMOVE_DUPLICATES _values)
+        if (_values) # XXX(cmake-3.14)
+          list (REMOVE_DUPLICATES _values)
+        endif ()
       elseif (NAME STREQUAL "SOABI")
         # clean-up: remove prefix character and suffix
         string (REGEX REPLACE "^[.-](.+)(${CMAKE_SHARED_LIBRARY_SUFFIX}|\\.(so|pyd))$" "\\1" _values "${_values}")
@@ -326,7 +330,7 @@ function (_PYTHON_GET_CONFIG_VAR _PYTHON_PGCV_VALUE NAME)
 
   if (_${_PYTHON_PREFIX}_EXECUTABLE AND NOT CMAKE_CROSSCOMPILING)
     if (NAME STREQUAL "PREFIX")
-      execute_process (COMMAND "${_${_PYTHON_PREFIX}_EXECUTABLE}" -c "import sys; from distutils import sysconfig; sys.stdout.write(';'.join([sysconfig.PREFIX,sysconfig.EXEC_PREFIX,sysconfig.BASE_EXEC_PREFIX]))"
+      execute_process (COMMAND "${_${_PYTHON_PREFIX}_EXECUTABLE}" -c "import sys\ntry:\n   from distutils import sysconfig\n   sys.stdout.write(';'.join([sysconfig.PREFIX,sysconfig.EXEC_PREFIX,sysconfig.BASE_EXEC_PREFIX]))\nexcept Exception:\n   import sysconfig\n   sys.stdout.write(';'.join([sysconfig.get_config_var('base') or '', sysconfig.get_config_var('installed_base') or '']))"
                        RESULT_VARIABLE _result
                        OUTPUT_VARIABLE _values
                        ERROR_QUIET
@@ -334,19 +338,30 @@ function (_PYTHON_GET_CONFIG_VAR _PYTHON_PGCV_VALUE NAME)
       if (_result)
         unset (_values)
       else()
-        list (REMOVE_DUPLICATES _values)
+        if (_values) # XXX(cmake-3.14)
+          list (REMOVE_DUPLICATES _values)
+        endif ()
       endif()
     elseif (NAME STREQUAL "INCLUDES")
-      execute_process (COMMAND "${_${_PYTHON_PREFIX}_EXECUTABLE}" -c "import sys; from distutils import sysconfig; sys.stdout.write(';'.join([sysconfig.get_python_inc(plat_specific=True),sysconfig.get_python_inc(plat_specific=False)]))"
+      if (WIN32)
+        set (_scheme "nt")
+      else()
+        set (_scheme "posix_prefix")
+      endif()
+      execute_process (COMMAND "${_${_PYTHON_PREFIX}_EXECUTABLE}" -c "import sys\ntry:\n   from distutils import sysconfig\n   sys.stdout.write(';'.join([sysconfig.get_python_inc(plat_specific=True),sysconfig.get_python_inc(plat_specific=False)]))\nexcept Exception:\n   import sysconfig\n   sys.stdout.write(';'.join([sysconfig.get_path('platinclude'),sysconfig.get_path('platinclude','${_scheme}'),sysconfig.get_path('include'),sysconfig.get_path('include','${_scheme}')]))"
                        RESULT_VARIABLE _result
                        OUTPUT_VARIABLE _values
                        ERROR_QUIET
                        OUTPUT_STRIP_TRAILING_WHITESPACE)
       if (_result)
         unset (_values)
+      else()
+        if (_values) # XXX(cmake-3.14)
+          list (REMOVE_DUPLICATES _values)
+        endif ()
       endif()
     elseif (NAME STREQUAL "SOABI")
-      execute_process (COMMAND "${_${_PYTHON_PREFIX}_EXECUTABLE}" -c "import sys; from distutils import sysconfig;sys.stdout.write(';'.join([sysconfig.get_config_var('SOABI') or '',sysconfig.get_config_var('EXT_SUFFIX') or '']))"
+      execute_process (COMMAND "${_${_PYTHON_PREFIX}_EXECUTABLE}" -c "import sys\ntry:\n   from distutils import sysconfig\n   sys.stdout.write(';'.join([sysconfig.get_config_var('SOABI') or '',sysconfig.get_config_var('EXT_SUFFIX') or '']))\nexcept Exception:\n   import sysconfig;sys.stdout.write(';'.join([sysconfig.get_config_var('SOABI') or '',sysconfig.get_config_var('EXT_SUFFIX') or '']))"
                        RESULT_VARIABLE _result
                        OUTPUT_VARIABLE _soabi
                        ERROR_QUIET
@@ -354,14 +369,15 @@ function (_PYTHON_GET_CONFIG_VAR _PYTHON_PGCV_VALUE NAME)
       if (_result)
         unset (_values)
       else()
-        list (GET _soabi 0 _values)
-        if (NOT _values)
-          # try to compute SOABI from EXT_SUFFIX
-          list (GET _soabi 1 _values)
-          if (_values)
-            # clean-up: remove prefix character and suffix
-            string (REGEX REPLACE "^[.-](.+)(${CMAKE_SHARED_LIBRARY_SUFFIX}|\\.(so|pyd))$" "\\1" _values "${_values}")
+        foreach (_item IN LISTS _soabi)
+          if (_item)
+            set (_values "${_item}")
+            break()
           endif()
+        endforeach()
+        if (_values)
+          # clean-up: remove prefix character and suffix
+          string (REGEX REPLACE "^[.-](.+)(${CMAKE_SHARED_LIBRARY_SUFFIX}|\\.(so|pyd))$" "\\1" _values "${_values}")
         endif()
       endif()
     else()
@@ -369,7 +385,7 @@ function (_PYTHON_GET_CONFIG_VAR _PYTHON_PGCV_VALUE NAME)
       if (NAME STREQUAL "CONFIGDIR")
         set (config_flag "LIBPL")
       endif()
-      execute_process (COMMAND "${_${_PYTHON_PREFIX}_EXECUTABLE}" -c "import sys; from distutils import sysconfig; sys.stdout.write(sysconfig.get_config_var('${config_flag}'))"
+      execute_process (COMMAND "${_${_PYTHON_PREFIX}_EXECUTABLE}" -c "import sys\ntry:\n   from distutils import sysconfig\n   sys.stdout.write(sysconfig.get_config_var('${config_flag}'))\nexcept Exception:\n   import sysconfig\n   sys.stdout.write(sysconfig.get_config_var('${config_flag}'))"
                        RESULT_VARIABLE _result
                        OUTPUT_VARIABLE _values
                        ERROR_QUIET
@@ -393,8 +409,14 @@ function (_PYTHON_GET_CONFIG_VAR _PYTHON_PGCV_VALUE NAME)
     # do some clean-up
     string (REGEX MATCHALL "-(l|framework)[ ]*[^ ]+" _values "${_values}")
     # remove elements relative to python library itself
-    list (FILTER _values EXCLUDE REGEX "-lpython")
-    list (REMOVE_DUPLICATES _values)
+    if (_values) # XXX(cmake-3.14)
+      list (FILTER _values EXCLUDE REGEX "-lpython")
+      list (REMOVE_DUPLICATES _values)
+    endif ()
+  endif()
+
+  if (WIN32 AND NAME MATCHES "^(PREFIX|CONFIGDIR|INCLUDES)$")
+    file (TO_CMAKE_PATH "${_values}" _values)
   endif()
 
   set (${_PYTHON_PGCV_VALUE} "${_values}" PARENT_SCOPE)
@@ -443,7 +465,7 @@ function (_PYTHON_GET_VERSION)
       set (${_PGV_PREFIX}VERSION_PATCH ${version_patch} PARENT_SCOPE)
 
       # compute ABI flags
-      if (version_major VERSION_GREATER 2)
+      if (version_major VERSION_GREATER "2")
         file (STRINGS "${_${_PYTHON_PREFIX}_INCLUDE_DIR}/pyconfig.h" config REGEX "(Py_DEBUG|WITH_PYMALLOC|Py_UNICODE_SIZE|MS_WIN32)")
         set (abi)
         if (config MATCHES "#[ ]*define[ ]+MS_WIN32")
@@ -565,7 +587,8 @@ function (_PYTHON_VALIDATE_INTERPRETER)
     endif()
   endif()
 
-  if (CMAKE_SIZEOF_VOID_P AND "Development" IN_LIST ${_PYTHON_PREFIX}_FIND_COMPONENTS
+  if (CMAKE_SIZEOF_VOID_P AND ("Development.Module" IN_LIST ${_PYTHON_PREFIX}_FIND_COMPONENTS
+        OR "Development.Embed" IN_LIST ${_PYTHON_PREFIX}_FIND_COMPONENTS)
       AND NOT CMAKE_CROSSCOMPILING)
     # In this case, interpreter must have same architecture as environment
     execute_process (COMMAND "${_${_PYTHON_PREFIX}_EXECUTABLE}" -c
@@ -644,6 +667,7 @@ endfunction()
 
 function (_PYTHON_VALIDATE_LIBRARY)
   if (NOT _${_PYTHON_PREFIX}_LIBRARY_RELEASE)
+    unset (_${_PYTHON_PREFIX}_LIBRARY_DEBUG)
     return()
   endif()
 
@@ -775,6 +799,25 @@ function (_PYTHON_SET_LIBRARY_DIRS _PYTHON_SLD_RESULT)
 endfunction()
 
 
+function (_PYTHON_SET_DEVELOPMENT_MODULE_FOUND module)
+  if ("Development.${module}" IN_LIST ${_PYTHON_PREFIX}_FIND_COMPONENTS)
+    string(TOUPPER "${module}" id)
+    set (module_found TRUE)
+
+    if ("LIBRARY" IN_LIST _${_PYTHON_PREFIX}_FIND_DEVELOPMENT_${id}_ARTIFACTS
+        AND NOT _${_PYTHON_PREFIX}_LIBRARY_RELEASE)
+      set (module_found FALSE)
+    endif()
+    if ("INCLUDE_DIR" IN_LIST _${_PYTHON_PREFIX}_FIND_DEVELOPMENT_${id}_ARTIFACTS
+        AND NOT _${_PYTHON_PREFIX}_INCLUDE_DIR)
+      set (module_found FALSE)
+    endif()
+
+    set (${_PYTHON_PREFIX}_Development.${module}_FOUND ${module_found} PARENT_SCOPE)
+  endif()
+endfunction()
+
+
 # If major version is specified, it must be the same as internal major version
 if (DEFINED ${_PYTHON_PREFIX}_FIND_VERSION_MAJOR
     AND NOT ${_PYTHON_PREFIX}_FIND_VERSION_MAJOR VERSION_EQUAL _${_PYTHON_PREFIX}_REQUIRED_VERSION_MAJOR)
@@ -788,19 +831,46 @@ if (NOT ${_PYTHON_PREFIX}_FIND_COMPONENTS)
   set (${_PYTHON_PREFIX}_FIND_REQUIRED_Interpreter TRUE)
 endif()
 if ("NumPy" IN_LIST ${_PYTHON_PREFIX}_FIND_COMPONENTS)
-  list (APPEND ${_PYTHON_PREFIX}_FIND_COMPONENTS "Interpreter" "Development")
-  list (REMOVE_DUPLICATES ${_PYTHON_PREFIX}_FIND_COMPONENTS)
+  list (APPEND ${_PYTHON_PREFIX}_FIND_COMPONENTS "Interpreter" "Development.Module")
 endif()
-foreach (_${_PYTHON_PREFIX}_COMPONENT IN ITEMS Interpreter Compiler Development NumPy)
+if ("Development" IN_LIST ${_PYTHON_PREFIX}_FIND_COMPONENTS)
+  list (APPEND ${_PYTHON_PREFIX}_FIND_COMPONENTS "Development.Module" "Development.Embed")
+endif()
+if (${_PYTHON_PREFIX}_FIND_COMPONENTS) # XXX(cmake-3.14)
+  list (REMOVE_DUPLICATES ${_PYTHON_PREFIX}_FIND_COMPONENTS)
+endif ()
+foreach (_${_PYTHON_PREFIX}_COMPONENT IN ITEMS Interpreter Compiler Development Development.Module Development.Embed NumPy)
   set (${_PYTHON_PREFIX}_${_${_PYTHON_PREFIX}_COMPONENT}_FOUND FALSE)
 endforeach()
+if (${_PYTHON_PREFIX}_FIND_REQUIRED_Development)
+  set (${_PYTHON_PREFIX}_FIND_REQUIRED_Development.Module TRUE)
+  set (${_PYTHON_PREFIX}_FIND_REQUIRED_Development.Embed TRUE)
+endif()
+
+unset (_${_PYTHON_PREFIX}_FIND_DEVELOPMENT_ARTIFACTS)
+unset (_${_PYTHON_PREFIX}_FIND_DEVELOPMENT_MODULE_ARTIFACTS)
+unset (_${_PYTHON_PREFIX}_FIND_DEVELOPMENT_EMBED_ARTIFACTS)
+if ("Development.Module" IN_LIST ${_PYTHON_PREFIX}_FIND_COMPONENTS)
+  if (CMAKE_SYSTEM_NAME MATCHES "^(Windows.*|CYGWIN|MSYS)$")
+    list (APPEND _${_PYTHON_PREFIX}_FIND_DEVELOPMENT_MODULE_ARTIFACTS "LIBRARY")
+  endif()
+  list (APPEND _${_PYTHON_PREFIX}_FIND_DEVELOPMENT_MODULE_ARTIFACTS "INCLUDE_DIR")
+endif()
+if ("Development.Embed" IN_LIST ${_PYTHON_PREFIX}_FIND_COMPONENTS)
+  list (APPEND _${_PYTHON_PREFIX}_FIND_DEVELOPMENT_EMBED_ARTIFACTS "LIBRARY" "INCLUDE_DIR")
+endif()
+set (_${_PYTHON_PREFIX}_FIND_DEVELOPMENT_ARTIFACTS ${_${_PYTHON_PREFIX}_FIND_DEVELOPMENT_MODULE_ARTIFACTS} ${_${_PYTHON_PREFIX}_FIND_DEVELOPMENT_EMBED_ARTIFACTS})
+if (_${_PYTHON_PREFIX}_FIND_DEVELOPMENT_ARTIFACTS) # XXX(cmake-3.14)
+  list (REMOVE_DUPLICATES _${_PYTHON_PREFIX}_FIND_DEVELOPMENT_ARTIFACTS)
+endif ()
+
 unset (_${_PYTHON_PREFIX}_FIND_VERSIONS)
 
 # Set versions to search
 ## default: search any version
 set (_${_PYTHON_PREFIX}_FIND_VERSIONS ${_${_PYTHON_PREFIX}_VERSIONS})
 
-if (${_PYTHON_PREFIX}_FIND_VERSION_COUNT GREATER 1)
+if (${_PYTHON_PREFIX}_FIND_VERSION_COUNT GREATER "1")
   if (${_PYTHON_PREFIX}_FIND_VERSION_EXACT)
     set (_${_PYTHON_PREFIX}_FIND_VERSIONS ${${_PYTHON_PREFIX}_FIND_VERSION_MAJOR}.${${_PYTHON_PREFIX}_FIND_VERSION_MINOR})
   else()
@@ -816,7 +886,7 @@ endif()
 
 # Set ABIs to search
 ## default: search any ABI
-if (_${_PYTHON_PREFIX}_REQUIRED_VERSION_MAJOR VERSION_LESS 3)
+if (_${_PYTHON_PREFIX}_REQUIRED_VERSION_MAJOR VERSION_LESS "3")
   # ABI not supported
   unset (_${_PYTHON_PREFIX}_FIND_ABI)
   set (_${_PYTHON_PREFIX}_ABIFLAGS "")
@@ -944,16 +1014,73 @@ endif()
 
 # Compute search signature
 # This signature will be used to check validity of cached variables on new search
-set (_${_PYTHON_PREFIX}_SIGNATURE "${${_PYTHON_PREFIX}_ROOT_DIR}:${${_PYTHON_PREFIX}_FIND_STRATEGY}:${${_PYTHON_PREFIX}_FIND_VIRTUALENV}")
+set (_${_PYTHON_PREFIX}_SIGNATURE "${${_PYTHON_PREFIX}_ROOT_DIR}:${_${_PYTHON_PREFIX}_FIND_STRATEGY}:${${_PYTHON_PREFIX}_FIND_VIRTUALENV}")
 if (NOT WIN32)
   string (APPEND _${_PYTHON_PREFIX}_SIGNATURE ":${${_PYTHON_PREFIX}_USE_STATIC_LIBS}:")
 endif()
 if (CMAKE_HOST_APPLE)
-  string (APPEND _${_PYTHON_PREFIX}_SIGNATURE ":${${_PYTHON_PREFIX}_FIND_FRAMEWORK}")
+  string (APPEND _${_PYTHON_PREFIX}_SIGNATURE ":${_${_PYTHON_PREFIX}_FIND_FRAMEWORK}")
 endif()
 if (CMAKE_HOST_WIN32)
-  string (APPEND _${_PYTHON_PREFIX}_SIGNATURE ":${${_PYTHON_PREFIX}_FIND_REGISTRY}")
+  string (APPEND _${_PYTHON_PREFIX}_SIGNATURE ":${_${_PYTHON_PREFIX}_FIND_REGISTRY}")
 endif()
+
+function (_PYTHON_CHECK_DEVELOPMENT_SIGNATURE module)
+  if ("Development.${module}" IN_LIST ${_PYTHON_PREFIX}_FIND_COMPONENTS)
+    string (TOUPPER "${module}" id)
+    set (signature "${_${_PYTHON_PREFIX}_SIGNATURE}:")
+    if ("LIBRARY" IN_LIST _${_PYTHON_PREFIX}_FIND_DEVELOPMENT_${id}_ARTIFACTS)
+      list (APPEND signature "${_${_PYTHON_PREFIX}_LIBRARY_RELEASE}:")
+    endif()
+    if ("INCLUDE_DIR" IN_LIST _${_PYTHON_PREFIX}_FIND_DEVELOPMENT_${id}_ARTIFACTS)
+      list (APPEND signature "${_${_PYTHON_PREFIX}_INCLUDE_DIR}:")
+    endif()
+    string (MD5 signature "${signature}")
+    if (signature STREQUAL _${_PYTHON_PREFIX}_DEVELOPMENT_${id}_SIGNATURE)
+      if (${_PYTHON_PREFIX}_FIND_VERSION_EXACT)
+        set (exact EXACT)
+      endif()
+      if ("LIBRARY" IN_LIST _${_PYTHON_PREFIX}_FIND_DEVELOPMENT_${id}_ARTIFACTS)
+        _python_validate_library (${${_PYTHON_PREFIX}_FIND_VERSION} ${exact} CHECK_EXISTS)
+      endif()
+      if ("INCLUDE_DIR" IN_LIST _${_PYTHON_PREFIX}_FIND_DEVELOPMENT_${id}_ARTIFACTS)
+        _python_validate_include_dir (${${_PYTHON_PREFIX}_FIND_VERSION} ${exact} CHECK_EXISTS)
+      endif()
+    else()
+      if ("LIBRARY" IN_LIST _${_PYTHON_PREFIX}_FIND_DEVELOPMENT_${id}_ARTIFACTS)
+        unset (_${_PYTHON_PREFIX}_LIBRARY_RELEASE CACHE)
+        unset (_${_PYTHON_PREFIX}_LIBRARY_DEBUG CACHE)
+      endif()
+      if ("INCLUDE_DIR" IN_LIST _${_PYTHON_PREFIX}_FIND_DEVELOPMENT_${id}_ARTIFACTS)
+        unset (_${_PYTHON_PREFIX}_INCLUDE_DIR CACHE)
+      endif()
+    endif()
+    if (("LIBRARY" IN_LIST _${_PYTHON_PREFIX}_FIND_DEVELOPMENT_${id}_ARTIFACTS
+          AND NOT _${_PYTHON_PREFIX}_LIBRARY_RELEASE)
+        OR ("INCLUDE_DIR" IN_LIST _${_PYTHON_PREFIX}_FIND_DEVELOPMENT_${id}_ARTIFACTS
+          AND NOT _${_PYTHON_PREFIX}_INCLUDE_DIR))
+      unset (_${_PYTHON_PREFIX}_CONFIG CACHE)
+      unset (_${_PYTHON_PREFIX}_DEVELOPMENT_${id}_SIGNATURE CACHE)
+    endif()
+  endif()
+endfunction()
+
+function (_PYTHON_COMPUTE_DEVELOPMENT_SIGNATURE module)
+  string (TOUPPER "${module}" id)
+  if (${_PYTHON_PREFIX}_Development.${module}_FOUND)
+    set (signature "${_${_PYTHON_PREFIX}_SIGNATURE}:")
+    if ("LIBRARY" IN_LIST _${_PYTHON_PREFIX}_FIND_DEVELOPMENT_${id}_ARTIFACTS)
+      list (APPEND signature "${_${_PYTHON_PREFIX}_LIBRARY_RELEASE}:")
+    endif()
+    if ("INCLUDE_DIR" IN_LIST _${_PYTHON_PREFIX}_FIND_DEVELOPMENT_${id}_ARTIFACTS)
+      list (APPEND signature "${_${_PYTHON_PREFIX}_INCLUDE_DIR}:")
+    endif()
+    string (MD5 signature "${signature}")
+    set (_${_PYTHON_PREFIX}_DEVELOPMENT_${id}_SIGNATURE "${signature}" CACHE INTERNAL "")
+  else()
+    unset (_${_PYTHON_PREFIX}_DEVELOPMENT_${id}_SIGNATURE CACHE)
+  endif()
+endfunction()
 
 
 unset (_${_PYTHON_PREFIX}_REQUIRED_VARS)
@@ -1039,7 +1166,7 @@ if ("Interpreter" IN_LIST ${_PYTHON_PREFIX}_FIND_COMPONENTS)
           if (_${_PYTHON_PREFIX}_EXECUTABLE)
             break()
           endif()
-          if (NOT _${_PYTHON_PREFIX}_FIND_VIRTUALENV STREQUAL "ONLY")
+          if (_${_PYTHON_PREFIX}_FIND_VIRTUALENV STREQUAL "ONLY")
             break()
           endif()
         endif()
@@ -1302,7 +1429,7 @@ if ("Interpreter" IN_LIST ${_PYTHON_PREFIX}_FIND_COMPONENTS)
 
       list (GET _${_PYTHON_PREFIX}_INTERPRETER_PROPERTIES 1 ${_PYTHON_PREFIX}_VERSION_MAJOR)
       list (GET _${_PYTHON_PREFIX}_INTERPRETER_PROPERTIES 2 ${_PYTHON_PREFIX}_VERSION_MINOR)
-      list (GET _${_PYTHON_PREFIX}_INTERPRETER_PROPERTIES 3 ${_PYTHON_PREFIX}_VERSION_PATH)
+      list (GET _${_PYTHON_PREFIX}_INTERPRETER_PROPERTIES 3 ${_PYTHON_PREFIX}_VERSION_PATCH)
 
       list (GET _${_PYTHON_PREFIX}_INTERPRETER_PROPERTIES 4 _${_PYTHON_PREFIX}_ARCH)
       set (_${_PYTHON_PREFIX}_ARCH2 ${_${_PYTHON_PREFIX}_ARCH})
@@ -1386,7 +1513,7 @@ if ("Interpreter" IN_LIST ${_PYTHON_PREFIX}_FIND_COMPONENTS)
         endif()
 
         # retrieve various package installation directories
-        execute_process (COMMAND "${_${_PYTHON_PREFIX}_EXECUTABLE}" -c "import sys; from distutils import sysconfig;sys.stdout.write(';'.join([sysconfig.get_python_lib(plat_specific=False,standard_lib=True),sysconfig.get_python_lib(plat_specific=True,standard_lib=True),sysconfig.get_python_lib(plat_specific=False,standard_lib=False),sysconfig.get_python_lib(plat_specific=True,standard_lib=False)]))"
+        execute_process (COMMAND "${_${_PYTHON_PREFIX}_EXECUTABLE}" -c "import sys\ntry:\n   from distutils import sysconfig\n   sys.stdout.write(';'.join([sysconfig.get_python_lib(plat_specific=False,standard_lib=True),sysconfig.get_python_lib(plat_specific=True,standard_lib=True),sysconfig.get_python_lib(plat_specific=False,standard_lib=False),sysconfig.get_python_lib(plat_specific=True,standard_lib=False)]))\nexcept Exception:\n   import sysconfig\n   sys.stdout.write(';'.join([sysconfig.get_path('stdlib'),sysconfig.get_path('platstdlib'),sysconfig.get_path('purelib'),sysconfig.get_path('platlib')]))"
                         RESULT_VARIABLE _${_PYTHON_PREFIX}_RESULT
                         OUTPUT_VARIABLE _${_PYTHON_PREFIX}_LIBPATHS
                         ERROR_QUIET)
@@ -1402,7 +1529,7 @@ if ("Interpreter" IN_LIST ${_PYTHON_PREFIX}_FIND_COMPONENTS)
           unset (${_PYTHON_PREFIX}_SITEARCH)
         endif()
 
-        if (_${_PYTHON_PREFIX}_REQUIRED_VERSION_MAJOR VERSION_GREATER_EQUAL 3)
+        if (_${_PYTHON_PREFIX}_REQUIRED_VERSION_MAJOR VERSION_GREATER_EQUAL "3")
           _python_get_config_var (${_PYTHON_PREFIX}_SOABI SOABI)
         endif()
 
@@ -1594,7 +1721,7 @@ if ("Compiler" IN_LIST ${_PYTHON_PREFIX}_FIND_COMPONENTS)
   if (_${_PYTHON_PREFIX}_COMPILER AND _${_PYTHON_PREFIX}_COMPILER_USABLE)
     if (${_PYTHON_PREFIX}_Interpreter_FOUND)
       # Compiler must be compatible with interpreter
-      if (${_${_PYTHON_PREFIX}_VERSION_MAJOR}.${_${_PYTHON_PREFIX}_VERSION_MINOR} VERSION_EQUAL ${${_PYTHON_PREFIX}_VERSION_MAJOR}.${${_PYTHON_PREFIX}_VERSION_MINOR})
+      if ("${_${_PYTHON_PREFIX}_VERSION_MAJOR}.${_${_PYTHON_PREFIX}_VERSION_MINOR}" VERSION_EQUAL "${${_PYTHON_PREFIX}_VERSION_MAJOR}.${${_PYTHON_PREFIX}_VERSION_MINOR}")
         set (${_PYTHON_PREFIX}_Compiler_FOUND TRUE)
       endif()
     elseif (${_PYTHON_PREFIX}_VERSION_MAJOR VERSION_EQUAL _${_PYTHON_PREFIX}_REQUIRED_VERSION_MAJOR)
@@ -1626,46 +1753,40 @@ endif()
 
 # third step, search for the development artifacts
 ## Development environment is not compatible with IronPython interpreter
-if ("Development" IN_LIST ${_PYTHON_PREFIX}_FIND_COMPONENTS
+if (("Development.Module" IN_LIST ${_PYTHON_PREFIX}_FIND_COMPONENTS
+      OR "Development.Embed" IN_LIST ${_PYTHON_PREFIX}_FIND_COMPONENTS)
     AND NOT ${_PYTHON_PREFIX}_INTERPRETER_ID STREQUAL "IronPython")
+  if ("LIBRARY" IN_LIST _${_PYTHON_PREFIX}_FIND_DEVELOPMENT_ARTIFACTS)
   list (APPEND _${_PYTHON_PREFIX}_CACHED_VARS _${_PYTHON_PREFIX}_LIBRARY_RELEASE
                                               _${_PYTHON_PREFIX}_RUNTIME_LIBRARY_RELEASE
                                               _${_PYTHON_PREFIX}_LIBRARY_DEBUG
-                                              _${_PYTHON_PREFIX}_RUNTIME_LIBRARY_DEBUG
-                                              _${_PYTHON_PREFIX}_INCLUDE_DIR)
-  if (${_PYTHON_PREFIX}_FIND_REQUIRED_Development)
-    list (APPEND _${_PYTHON_PREFIX}_REQUIRED_VARS ${_PYTHON_PREFIX}_LIBRARIES
-                                                  ${_PYTHON_PREFIX}_INCLUDE_DIRS)
+                                              _${_PYTHON_PREFIX}_RUNTIME_LIBRARY_DEBUG)
   endif()
+  if ("INCLUDE_DIR" IN_LIST _${_PYTHON_PREFIX}_FIND_DEVELOPMENT_ARTIFACTS)
+    list (APPEND _${_PYTHON_PREFIX}_CACHED_VARS _${_PYTHON_PREFIX}_INCLUDE_DIR)
+  endif()
+  if (${_PYTHON_PREFIX}_FIND_REQUIRED_Development.Module)
+    if ("LIBRARY" IN_LIST _${_PYTHON_PREFIX}_FIND_DEVELOPMENT_MODULE_ARTIFACTS)
+      list (APPEND _${_PYTHON_PREFIX}_REQUIRED_VARS ${_PYTHON_PREFIX}_LIBRARIES)
+    endif()
+    if ("INCLUDE_DIR" IN_LIST _${_PYTHON_PREFIX}_FIND_DEVELOPMENT_MODULE_ARTIFACTS)
+      list (APPEND _${_PYTHON_PREFIX}_REQUIRED_VARS ${_PYTHON_PREFIX}_INCLUDE_DIRS)
+    endif()
+  endif()
+  if (${_PYTHON_PREFIX}_FIND_REQUIRED_Development.Embed)
+    if ("LIBRARY" IN_LIST _${_PYTHON_PREFIX}_FIND_DEVELOPMENT_EMBED_ARTIFACTS)
+      list (APPEND _${_PYTHON_PREFIX}_REQUIRED_VARS ${_PYTHON_PREFIX}_LIBRARIES)
+    endif()
+    if ("INCLUDE_DIR" IN_LIST _${_PYTHON_PREFIX}_FIND_DEVELOPMENT_EMBED_ARTIFACTS)
+      list (APPEND _${_PYTHON_PREFIX}_REQUIRED_VARS ${_PYTHON_PREFIX}_INCLUDE_DIRS)
+    endif()
+  endif()
+  if (_${_PYTHON_PREFIX}_REQUIRED_VARS) # XXX(cmake-3.14)
+    list (REMOVE_DUPLICATES _${_PYTHON_PREFIX}_REQUIRED_VARS)
+  endif ()
 
-  if (DEFINED _${_PYTHON_PREFIX}_LIBRARY_RELEASE OR DEFINED _${_PYTHON_PREFIX}_INCLUDE_DIR)
-    # compute development signature and check validity of definition
-    string (MD5 __${_PYTHON_PREFIX}_DEVELOPMENT_SIGNATURE "${_${_PYTHON_PREFIX}_SIGNATURE}:${_${_PYTHON_PREFIX}_LIBRARY_RELEASE}:${_${_PYTHON_PREFIX}_INCLUDE_DIR}")
-    if (WIN32 AND NOT DEFINED _${_PYTHON_PREFIX}_LIBRARY_DEBUG)
-      set (_${_PYTHON_PREFIX}_LIBRARY_DEBUG "${_PYTHON_PREFIX}_LIBRARY_DEBUG-NOTFOUND" CACHE INTERNAL "")
-    endif()
-    if (NOT DEFINED _${_PYTHON_PREFIX}_INCLUDE_DIR)
-      set (_${_PYTHON_PREFIX}_INCLUDE_DIR "${_PYTHON_PREFIX}_INCLUDE_DIR-NOTFOUND" CACHE INTERNAL "")
-    endif()
-    if (__${_PYTHON_PREFIX}_DEVELOPMENT_SIGNATURE STREQUAL _${_PYTHON_PREFIX}_DEVELOPMENT_SIGNATURE)
-      # check version validity
-      if (${_PYTHON_PREFIX}_FIND_VERSION_EXACT)
-        _python_validate_library (${${_PYTHON_PREFIX}_FIND_VERSION} EXACT CHECK_EXISTS)
-        _python_validate_include_dir (${${_PYTHON_PREFIX}_FIND_VERSION} EXACT CHECK_EXISTS)
-      else()
-        _python_validate_library (${${_PYTHON_PREFIX}_FIND_VERSION} CHECK_EXISTS)
-        _python_validate_include_dir (${${_PYTHON_PREFIX}_FIND_VERSION} CHECK_EXISTS)
-      endif()
-    else()
-      unset (_${_PYTHON_PREFIX}_LIBRARY_RELEASE CACHE)
-      unset (_${_PYTHON_PREFIX}_LIBRARY_DEBUG CACHE)
-      unset (_${_PYTHON_PREFIX}_INCLUDE_DIR CACHE)
-    endif()
-  endif()
-  if (NOT _${_PYTHON_PREFIX}_LIBRARY_RELEASE OR NOT _${_PYTHON_PREFIX}_INCLUDE_DIR)
-    unset (_${_PYTHON_PREFIX}_CONFIG CACHE)
-    unset (_${_PYTHON_PREFIX}_DEVELOPMENT_SIGNATURE CACHE)
-  endif()
+  _python_check_development_signature (Module)
+  _python_check_development_signature (Embed)
 
   if (DEFINED ${_PYTHON_PREFIX}_LIBRARY
       AND IS_ABSOLUTE "${${_PYTHON_PREFIX}_LIBRARY}")
@@ -1685,7 +1806,9 @@ if ("Development" IN_LIST ${_PYTHON_PREFIX}_FIND_COMPONENTS
     if(${_PYTHON_PREFIX}_USE_STATIC_LIBS)
       set (CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_STATIC_LIBRARY_SUFFIX})
     else()
-      list (REMOVE_ITEM CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_STATIC_LIBRARY_SUFFIX})
+      if (CMAKE_FIND_LIBRARY_SUFFIXES) # XXX(cmake-3.14)
+        list (REMOVE_ITEM CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_STATIC_LIBRARY_SUFFIX})
+      endif ()
     endif()
   endif()
 
@@ -1888,6 +2011,7 @@ if ("Development" IN_LIST ${_PYTHON_PREFIX}_FIND_COMPONENTS
     endif()
   endif()
 
+  if ("LIBRARY" IN_LIST _${_PYTHON_PREFIX}_FIND_DEVELOPMENT_ARTIFACTS)
   if (NOT _${_PYTHON_PREFIX}_LIBRARY_RELEASE)
     if ((${_PYTHON_PREFIX}_Interpreter_FOUND AND NOT CMAKE_CROSSCOMPILING) OR _${_PYTHON_PREFIX}_CONFIG)
       # retrieve root install directory
@@ -2132,9 +2256,16 @@ if ("Development" IN_LIST ${_PYTHON_PREFIX}_FIND_COMPONENTS
                                   HINTS "${_${_PYTHON_PREFIX}_PATH}" "${_${_PYTHON_PREFIX}_PATH2}" ${_${_PYTHON_PREFIX}_HINTS}
                                   PATH_SUFFIXES bin)
   endif()
+  endif()
 
+  if ("INCLUDE_DIR" IN_LIST _${_PYTHON_PREFIX}_FIND_DEVELOPMENT_ARTIFACTS)
+    while (NOT _${_PYTHON_PREFIX}_INCLUDE_DIR)
+      if ("LIBRARY" IN_LIST _${_PYTHON_PREFIX}_FIND_DEVELOPMENT_ARTIFACTS
+          AND NOT _${_PYTHON_PREFIX}_LIBRARY_RELEASE)
   # Don't search for include dir if no library was founded
-  if (_${_PYTHON_PREFIX}_LIBRARY_RELEASE AND NOT _${_PYTHON_PREFIX}_INCLUDE_DIR)
+        break()
+      endif()
+
     if ((${_PYTHON_PREFIX}_Interpreter_FOUND AND NOT CMAKE_CROSSCOMPILING) OR _${_PYTHON_PREFIX}_CONFIG)
       _python_get_config_var (_${_PYTHON_PREFIX}_INCLUDE_DIRS INCLUDES)
 
@@ -2153,10 +2284,11 @@ if ("Development" IN_LIST ${_PYTHON_PREFIX}_FIND_COMPONENTS
       endif()
       unset (_${_PYTHON_PREFIX}_INCLUDE_HINTS)
 
+        if (_${_PYTHON_PREFIX}_LIBRARY_RELEASE)
       # Use the library's install prefix as a hint
-      if (${_${_PYTHON_PREFIX}_LIBRARY_RELEASE} MATCHES "^(.+/Frameworks/Python.framework/Versions/[0-9.]+)")
+          if (_${_PYTHON_PREFIX}_LIBRARY_RELEASE MATCHES "^(.+/Frameworks/Python.framework/Versions/[0-9.]+)")
         list (APPEND _${_PYTHON_PREFIX}_INCLUDE_HINTS "${CMAKE_MATCH_1}")
-      elseif (${_${_PYTHON_PREFIX}_LIBRARY_RELEASE} MATCHES "^(.+)/lib(64|32)?/python[0-9.]+/config")
+          elseif (_${_PYTHON_PREFIX}_LIBRARY_RELEASE MATCHES "^(.+)/lib(64|32)?/python[0-9.]+/config")
         list (APPEND _${_PYTHON_PREFIX}_INCLUDE_HINTS "${CMAKE_MATCH_1}")
       elseif (DEFINED CMAKE_LIBRARY_ARCHITECTURE AND ${_${_PYTHON_PREFIX}_LIBRARY_RELEASE} MATCHES "^(.+)/lib/${CMAKE_LIBRARY_ARCHITECTURE}")
         list (APPEND _${_PYTHON_PREFIX}_INCLUDE_HINTS "${CMAKE_MATCH_1}")
@@ -2166,6 +2298,7 @@ if ("Development" IN_LIST ${_PYTHON_PREFIX}_FIND_COMPONENTS
         get_filename_component (_${_PYTHON_PREFIX}_PREFIX "${_${_PYTHON_PREFIX}_PREFIX}" DIRECTORY)
         list (APPEND _${_PYTHON_PREFIX}_INCLUDE_HINTS "${_${_PYTHON_PREFIX}_PREFIX}")
       endif()
+        endif()
 
       _python_get_frameworks (_${_PYTHON_PREFIX}_FRAMEWORK_PATHS ${_${_PYTHON_PREFIX}_VERSION})
       _python_get_registries (_${_PYTHON_PREFIX}_REGISTRY_PATHS ${_${_PYTHON_PREFIX}_VERSION})
@@ -2221,7 +2354,9 @@ if ("Development" IN_LIST ${_PYTHON_PREFIX}_FIND_COMPONENTS
     # search header file in standard locations
     find_path (_${_PYTHON_PREFIX}_INCLUDE_DIR
                NAMES Python.h)
-  endif()
+
+      break()
+    endwhile()
 
   set (${_PYTHON_PREFIX}_INCLUDE_DIRS "${_${_PYTHON_PREFIX}_INCLUDE_DIR}")
 
@@ -2234,10 +2369,18 @@ if ("Development" IN_LIST ${_PYTHON_PREFIX}_FIND_COMPONENTS
     # retrieve version from header file
     _python_get_version (INCLUDE PREFIX _${_PYTHON_PREFIX}_INC_)
 
+      if (_${_PYTHON_PREFIX}_LIBRARY_RELEASE)
     # update versioning
-    if (_${_PYTHON_PREFIX}_INC_VERSION VERSION_EQUAL ${_${_PYTHON_PREFIX}_VERSION})
+    if (_${_PYTHON_PREFIX}_INC_VERSION VERSION_EQUAL _${_PYTHON_PREFIX}_VERSION)
       set (_${_PYTHON_PREFIX}_VERSION_PATCH ${_${_PYTHON_PREFIX}_INC_VERSION_PATCH})
     endif()
+      else()
+        set (_${_PYTHON_PREFIX}_VERSION ${_${_PYTHON_PREFIX}_INC_VERSION})
+        set (_${_PYTHON_PREFIX}_VERSION_MAJOR ${_${_PYTHON_PREFIX}_INC_VERSION_MAJOR})
+        set (_${_PYTHON_PREFIX}_VERSION_MINOR ${_${_PYTHON_PREFIX}_INC_VERSION_MINOR})
+        set (_${_PYTHON_PREFIX}_VERSION_PATCH ${_${_PYTHON_PREFIX}_INC_VERSION_PATCH})
+      endif()
+  endif()
   endif()
 
   if (NOT ${_PYTHON_PREFIX}_Interpreter_FOUND AND NOT ${_PYTHON_PREFIX}_Compiler_FOUND)
@@ -2249,6 +2392,7 @@ if ("Development" IN_LIST ${_PYTHON_PREFIX}_FIND_COMPONENTS
   endif()
 
   # define public variables
+  if ("LIBRARY" IN_LIST _${_PYTHON_PREFIX}_FIND_DEVELOPMENT_ARTIFACTS)
   set (${_PYTHON_PREFIX}_LIBRARY_DEBUG "${_${_PYTHON_PREFIX}_LIBRARY_DEBUG}")
   _python_select_library_configurations (${_PYTHON_PREFIX})
 
@@ -2273,37 +2417,42 @@ if ("Development" IN_LIST ${_PYTHON_PREFIX}_FIND_COMPONENTS
       _python_set_library_dirs (${_PYTHON_PREFIX}_RUNTIME_LIBRARY_DIRS
                                 _${_PYTHON_PREFIX}_RUNTIME_LIBRARY_RELEASE _${_PYTHON_PREFIX}_RUNTIME_LIBRARY_DEBUG)
   endif()
+  endif()
 
-  if (_${_PYTHON_PREFIX}_LIBRARY_RELEASE AND _${_PYTHON_PREFIX}_INCLUDE_DIR)
+  if (_${_PYTHON_PREFIX}_LIBRARY_RELEASE OR _${_PYTHON_PREFIX}_INCLUDE_DIR)
     if (${_PYTHON_PREFIX}_Interpreter_FOUND OR ${_PYTHON_PREFIX}_Compiler_FOUND)
       # development environment must be compatible with interpreter/compiler
-      if (${_${_PYTHON_PREFIX}_VERSION_MAJOR}.${_${_PYTHON_PREFIX}_VERSION_MINOR} VERSION_EQUAL ${${_PYTHON_PREFIX}_VERSION_MAJOR}.${${_PYTHON_PREFIX}_VERSION_MINOR}
-          AND ${_${_PYTHON_PREFIX}_INC_VERSION_MAJOR}.${_${_PYTHON_PREFIX}_INC_VERSION_MINOR} VERSION_EQUAL ${_${_PYTHON_PREFIX}_VERSION_MAJOR}.${_${_PYTHON_PREFIX}_VERSION_MINOR})
-        set (${_PYTHON_PREFIX}_Development_FOUND TRUE)
+      if ("${_${_PYTHON_PREFIX}_VERSION_MAJOR}.${_${_PYTHON_PREFIX}_VERSION_MINOR}" VERSION_EQUAL "${${_PYTHON_PREFIX}_VERSION_MAJOR}.${${_PYTHON_PREFIX}_VERSION_MINOR}"
+          AND "${_${_PYTHON_PREFIX}_INC_VERSION_MAJOR}.${_${_PYTHON_PREFIX}_INC_VERSION_MINOR}" VERSION_EQUAL "${_${_PYTHON_PREFIX}_VERSION_MAJOR}.${_${_PYTHON_PREFIX}_VERSION_MINOR}")
+        _python_set_development_module_found (Module)
+        _python_set_development_module_found (Embed)
       endif()
     elseif (${_PYTHON_PREFIX}_VERSION_MAJOR VERSION_EQUAL _${_PYTHON_PREFIX}_REQUIRED_VERSION_MAJOR
-            AND ${_${_PYTHON_PREFIX}_INC_VERSION_MAJOR}.${_${_PYTHON_PREFIX}_INC_VERSION_MINOR} VERSION_EQUAL ${_${_PYTHON_PREFIX}_VERSION_MAJOR}.${_${_PYTHON_PREFIX}_VERSION_MINOR})
-      set (${_PYTHON_PREFIX}_Development_FOUND TRUE)
+            AND "${_${_PYTHON_PREFIX}_INC_VERSION_MAJOR}.${_${_PYTHON_PREFIX}_INC_VERSION_MINOR}" VERSION_EQUAL "${_${_PYTHON_PREFIX}_VERSION_MAJOR}.${_${_PYTHON_PREFIX}_VERSION_MINOR}")
+        _python_set_development_module_found (Module)
+        _python_set_development_module_found (Embed)
     endif()
     if (DEFINED _${_PYTHON_PREFIX}_FIND_ABI AND
         (NOT _${_PYTHON_PREFIX}_ABI IN_LIST _${_PYTHON_PREFIX}_ABIFLAGS
           OR NOT _${_PYTHON_PREFIX}_INC_ABI IN_LIST _${_PYTHON_PREFIX}_ABIFLAGS))
-      set (${_PYTHON_PREFIX}_Development_FOUND FALSE)
+      set (${_PYTHON_PREFIX}_Development.Module_FOUND FALSE)
+      set (${_PYTHON_PREFIX}_Development.Embed_FOUND FALSE)
     endif()
   endif()
 
-  if (_${_PYTHON_PREFIX}_REQUIRED_VERSION_MAJOR VERSION_GREATER_EQUAL 3
+  if ("Development" IN_LIST ${_PYTHON_PREFIX}_FIND_COMPONENTS
+      AND ${_PYTHON_PREFIX}_Development.Module_FOUND
+      AND ${_PYTHON_PREFIX}_Development.Embed_FOUND)
+    set (${_PYTHON_PREFIX}_Development_FOUND TRUE)
+  endif()
+
+  if (_${_PYTHON_PREFIX}_REQUIRED_VERSION_MAJOR VERSION_GREATER_EQUAL "3"
       AND NOT DEFINED ${_PYTHON_PREFIX}_SOABI)
     _python_get_config_var (${_PYTHON_PREFIX}_SOABI SOABI)
   endif()
 
-  if (${_PYTHON_PREFIX}_Development_FOUND)
-    # compute and save development signature
-    string (MD5 __${_PYTHON_PREFIX}_DEVELOPMENT_SIGNATURE "${_${_PYTHON_PREFIX}_SIGNATURE}:${_${_PYTHON_PREFIX}_LIBRARY_RELEASE}:${_${_PYTHON_PREFIX}_INCLUDE_DIR}")
-    set (_${_PYTHON_PREFIX}_DEVELOPMENT_SIGNATURE "${__${_PYTHON_PREFIX}_DEVELOPMENT_SIGNATURE}" CACHE INTERNAL "")
-  else()
-    unset (_${_PYTHON_PREFIX}_DEVELOPMENT_SIGNATURE CACHE)
-  endif()
+  _python_compute_development_signature (Module)
+  _python_compute_development_signature (Embed)
 
   # Restore the original find library ordering
   if (DEFINED _${_PYTHON_PREFIX}_CMAKE_FIND_LIBRARY_SUFFIXES)
@@ -2311,8 +2460,12 @@ if ("Development" IN_LIST ${_PYTHON_PREFIX}_FIND_COMPONENTS
   endif()
 
   if (${_PYTHON_PREFIX}_ARTIFACTS_INTERACTIVE)
+    if ("LIBRARY" IN_LIST _${_PYTHON_PREFIX}_FIND_DEVELOPMENT_ARTIFACTS)
     set (${_PYTHON_PREFIX}_LIBRARY "${_${_PYTHON_PREFIX}_LIBRARY_RELEASE}" CACHE FILEPATH "${_PYTHON_PREFIX} Library")
+    endif()
+    if ("INCLUDE_DIR" IN_LIST _${_PYTHON_PREFIX}_FIND_DEVELOPMENT_ARTIFACTS)
     set (${_PYTHON_PREFIX}_INCLUDE_DIR "${_${_PYTHON_PREFIX}_INCLUDE_DIR}" CACHE FILEPATH "${_PYTHON_PREFIX} Include Directory")
+  endif()
   endif()
 
   _python_mark_as_internal (_${_PYTHON_PREFIX}_LIBRARY_RELEASE
@@ -2321,7 +2474,8 @@ if ("Development" IN_LIST ${_PYTHON_PREFIX}_FIND_COMPONENTS
                             _${_PYTHON_PREFIX}_RUNTIME_LIBRARY_DEBUG
                             _${_PYTHON_PREFIX}_INCLUDE_DIR
                             _${_PYTHON_PREFIX}_CONFIG
-                            _${_PYTHON_PREFIX}_DEVELOPMENT_SIGNATURE)
+                            _${_PYTHON_PREFIX}_DEVELOPMENT_MODULE_SIGNATURE
+                            _${_PYTHON_PREFIX}_DEVELOPMENT_EMBED_SIGNATURE)
 endif()
 
 if ("NumPy" IN_LIST ${_PYTHON_PREFIX}_FIND_COMPONENTS AND ${_PYTHON_PREFIX}_Interpreter_FOUND)
@@ -2335,7 +2489,7 @@ if ("NumPy" IN_LIST ${_PYTHON_PREFIX}_FIND_COMPONENTS AND ${_PYTHON_PREFIX}_Inte
     set (_${_PYTHON_PREFIX}_NumPy_INCLUDE_DIR "${${_PYTHON_PREFIX}_NumPy_INCLUDE_DIR}" CACHE INTERNAL "")
   elseif (DEFINED _${_PYTHON_PREFIX}_NumPy_INCLUDE_DIR)
     # compute numpy signature. Depends on interpreter and development signatures
-    string (MD5 __${_PYTHON_PREFIX}_NUMPY_SIGNATURE "${_${_PYTHON_PREFIX}_INTERPRETER_SIGNATURE}:${_${_PYTHON_PREFIX}_DEVELOPMENT_SIGNATURE}:${_${_PYTHON_PREFIX}_NumPy_INCLUDE_DIR}")
+    string (MD5 __${_PYTHON_PREFIX}_NUMPY_SIGNATURE "${_${_PYTHON_PREFIX}_INTERPRETER_SIGNATURE}:${_${_PYTHON_PREFIX}_DEVELOPMENT_MODULE_SIGNATURE}:${_${_PYTHON_PREFIX}_NumPy_INCLUDE_DIR}")
     if (NOT __${_PYTHON_PREFIX}_NUMPY_SIGNATURE STREQUAL _${_PYTHON_PREFIX}_NUMPY_SIGNATURE
         OR NOT EXISTS "${_${_PYTHON_PREFIX}_NumPy_INCLUDE_DIR}")
       unset (_${_PYTHON_PREFIX}_NumPy_INCLUDE_DIR CACHE)
@@ -2379,15 +2533,15 @@ if ("NumPy" IN_LIST ${_PYTHON_PREFIX}_FIND_COMPONENTS AND ${_PYTHON_PREFIX}_Inte
       unset (${_PYTHON_PREFIX}_NumPy_VERSION)
     endif()
 
-    # final step: set NumPy founded only if Development component is founded as well
-    set(${_PYTHON_PREFIX}_NumPy_FOUND ${${_PYTHON_PREFIX}_Development_FOUND})
+    # final step: set NumPy founded only if Development.Module component is founded as well
+    set(${_PYTHON_PREFIX}_NumPy_FOUND ${${_PYTHON_PREFIX}_Development.Module_FOUND})
   else()
     set (${_PYTHON_PREFIX}_NumPy_FOUND FALSE)
   endif()
 
   if (${_PYTHON_PREFIX}_NumPy_FOUND)
     # compute and save numpy signature
-    string (MD5 __${_PYTHON_PREFIX}_NUMPY_SIGNATURE "${_${_PYTHON_PREFIX}_INTERPRETER_SIGNATURE}:${_${_PYTHON_PREFIX}_DEVELOPMENT_SIGNATURE}:${${_PYTHON_PREFIX}_NumPyINCLUDE_DIR}")
+    string (MD5 __${_PYTHON_PREFIX}_NUMPY_SIGNATURE "${_${_PYTHON_PREFIX}_INTERPRETER_SIGNATURE}:${_${_PYTHON_PREFIX}_DEVELOPMENT_MODULE_SIGNATURE}:${${_PYTHON_PREFIX}_NumPyINCLUDE_DIR}")
     set (_${_PYTHON_PREFIX}_NUMPY_SIGNATURE "${__${_PYTHON_PREFIX}_NUMPY_SIGNATURE}" CACHE INTERNAL "")
   else()
     unset (_${_PYTHON_PREFIX}_NUMPY_SIGNATURE CACHE)
@@ -2446,8 +2600,10 @@ if(_${_PYTHON_PREFIX}_CMAKE_ROLE STREQUAL "PROJECT")
                   PROPERTY IMPORTED_LOCATION "${${_PYTHON_PREFIX}_COMPILER}")
   endif()
 
-  if ("Development" IN_LIST ${_PYTHON_PREFIX}_FIND_COMPONENTS
-      AND ${_PYTHON_PREFIX}_Development_FOUND)
+  if (("Development.Module" IN_LIST ${_PYTHON_PREFIX}_FIND_COMPONENTS
+        AND ${_PYTHON_PREFIX}_Development.Module_FOUND)
+      OR ("Development.Embed" IN_LIST ${_PYTHON_PREFIX}_FIND_COMPONENTS
+        AND ${_PYTHON_PREFIX}_Development.Embed_FOUND))
 
     macro (__PYTHON_IMPORT_LIBRARY __name)
       if (${_PYTHON_PREFIX}_LIBRARY_RELEASE MATCHES "${CMAKE_SHARED_LIBRARY_SUFFIX}$"
@@ -2508,31 +2664,35 @@ if(_${_PYTHON_PREFIX}_CMAKE_ROLE STREQUAL "PROJECT")
       endif()
     endmacro()
 
+    if (${_PYTHON_PREFIX}_Development.Embed_FOUND)
     __python_import_library (${_PYTHON_PREFIX}::Python)
+    endif()
 
-    if (CMAKE_SYSTEM_NAME MATCHES "^(Windows.*|CYGWIN|MSYS)$")
-      # On Windows/CYGWIN/MSYS, Python::Module is the same as Python::Python
-      # but ALIAS cannot be used because the imported library is not GLOBAL.
-      __python_import_library (${_PYTHON_PREFIX}::Module)
-    else()
-      if (NOT TARGET ${_PYTHON_PREFIX}::Module )
-        add_library (${_PYTHON_PREFIX}::Module INTERFACE IMPORTED)
-      endif()
-      set_property (TARGET ${_PYTHON_PREFIX}::Module
-                    PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${${_PYTHON_PREFIX}_INCLUDE_DIRS}")
+    if (${_PYTHON_PREFIX}_Development.Module_FOUND)
+      if ("LIBRARY" IN_LIST _${_PYTHON_PREFIX}_FIND_DEVELOPMENT_MODULE_ARTIFACTS)
+        # On Windows/CYGWIN/MSYS, Python::Module is the same as Python::Python
+        # but ALIAS cannot be used because the imported library is not GLOBAL.
+        __python_import_library (${_PYTHON_PREFIX}::Module)
+      else()
+        if (NOT TARGET ${_PYTHON_PREFIX}::Module)
+          add_library (${_PYTHON_PREFIX}::Module INTERFACE IMPORTED)
+        endif()
+        set_property (TARGET ${_PYTHON_PREFIX}::Module
+                      PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${${_PYTHON_PREFIX}_INCLUDE_DIRS}")
 
-      # When available, enforce shared library generation with undefined symbols
-      if (APPLE)
-        set_property (TARGET ${_PYTHON_PREFIX}::Module
-                      PROPERTY INTERFACE_LINK_OPTIONS "LINKER:-undefined,dynamic_lookup")
-      endif()
-      if (CMAKE_SYSTEM_NAME STREQUAL "SunOS")
-        set_property (TARGET ${_PYTHON_PREFIX}::Module
-                      PROPERTY INTERFACE_LINK_OPTIONS "LINKER:-z,nodefs")
-      endif()
-      if (CMAKE_SYSTEM_NAME STREQUAL "AIX")
-        set_property (TARGET ${_PYTHON_PREFIX}::Module
-                      PROPERTY INTERFACE_LINK_OPTIONS "LINKER:-b,erok")
+        # When available, enforce shared library generation with undefined symbols
+        if (APPLE)
+          set_property (TARGET ${_PYTHON_PREFIX}::Module
+                        PROPERTY INTERFACE_LINK_OPTIONS "LINKER:-undefined,dynamic_lookup")
+        endif()
+        if (CMAKE_SYSTEM_NAME STREQUAL "SunOS")
+          set_property (TARGET ${_PYTHON_PREFIX}::Module
+                        PROPERTY INTERFACE_LINK_OPTIONS "LINKER:-z,nodefs")
+        endif()
+        if (CMAKE_SYSTEM_NAME STREQUAL "AIX")
+          set_property (TARGET ${_PYTHON_PREFIX}::Module
+                        PROPERTY INTERFACE_LINK_OPTIONS "LINKER:-b,erok")
+        endif()
       endif()
     endif()
 
@@ -2556,6 +2716,16 @@ if(_${_PYTHON_PREFIX}_CMAKE_ROLE STREQUAL "PROJECT")
       else()
         set (type MODULE)
       endif()
+
+      if (type STREQUAL "MODULE" AND NOT TARGET ${prefix}::Module)
+        message (SEND_ERROR "${prefix}_ADD_LIBRARY: dependent target '${prefix}::Module' is not defined.\n   Did you miss to request COMPONENT 'Development.Module'?")
+        return()
+      endif()
+      if (NOT type STREQUAL "MODULE" AND NOT TARGET ${prefix}::Python)
+        message (SEND_ERROR "${prefix}_ADD_LIBRARY: dependent target '${prefix}::Python' is not defined.\n   Did you miss to request COMPONENT 'Development.Embed'?")
+        return()
+      endif()
+
       add_library (${name} ${type} ${PYTHON_ADD_LIBRARY_UNPARSED_ARGUMENTS})
 
       get_property (type TARGET ${name} PROPERTY TYPE)
