@@ -145,6 +145,25 @@ vtkAssemblyPath* vtkWidgetRepresentation::GetAssemblyPath3DPoint(
 }
 
 //----------------------------------------------------------------------
+// Typically implemented by derived classes. Provided here as a convenience.
+void vtkWidgetRepresentation::PlaceWidget(double bds[6])
+{
+  double bounds[6], origin[3];
+  this->AdjustBounds(bds, bounds, origin);
+
+  this->InitialLength = sqrt((bounds[1] - bounds[0]) * (bounds[1] - bounds[0]) +
+    (bounds[3] - bounds[2]) * (bounds[3] - bounds[2]) +
+    (bounds[5] - bounds[4]) * (bounds[5] - bounds[4]));
+
+  for (auto i = 0; i < 6; i++)
+  {
+    this->InitialBounds[i] = bounds[i];
+  }
+
+  this->Placed = 1;
+}
+
+//----------------------------------------------------------------------
 void vtkWidgetRepresentation::AdjustBounds(double bounds[6], double newBounds[6], double center[3])
 {
   center[0] = (bounds[0] + bounds[1]) / 2.0;
