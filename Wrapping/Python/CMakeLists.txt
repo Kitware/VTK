@@ -21,44 +21,47 @@ if (UNIX)
     "${vtkpython_rpath_prefix}/${vtkpython_relpath}")
 endif ()
 
-add_executable(vtkpython
-  vtkpython.rc
-  vtkPythonAppInit.cxx)
-target_link_libraries(vtkpython
-  PRIVATE
-    VTK::WrappingPythonCore
-    VTK::PythonInterpreter
-    VTK::Python
-    VTK::vtkpythonmodules
-    VTK::vtksys)
-add_executable(VTK::vtkpython ALIAS vtkpython)
-if (VTK_INSTALL_PYTHON_EXES)
-  install(
-    TARGETS     vtkpython
-    EXPORT      VTKPython
-    DESTINATION "${CMAKE_INSTALL_BINDIR}")
-endif ()
-
-if (TARGET VTK::ParallelMPI)
-  add_executable(pvtkpython
+# The interpreters are not supported in wheel builds, so skip them.
+if (NOT VTK_WHEEL_BUILD)
+  add_executable(vtkpython
+    vtkpython.rc
     vtkPythonAppInit.cxx)
-  target_compile_definitions(pvtkpython
-    PRIVATE
-      VTK_COMPILED_USING_MPI)
-  target_link_libraries(pvtkpython
+  target_link_libraries(vtkpython
     PRIVATE
       VTK::WrappingPythonCore
       VTK::PythonInterpreter
-      VTK::ParallelMPI
       VTK::Python
-      VTK::mpi
-      VTK::vtkpythonmodules)
-  add_executable(VTK::pvtkpython ALIAS pvtkpython)
+      VTK::vtkpythonmodules
+      VTK::vtksys)
+  add_executable(VTK::vtkpython ALIAS vtkpython)
   if (VTK_INSTALL_PYTHON_EXES)
     install(
-      TARGETS     pvtkpython
+      TARGETS     vtkpython
       EXPORT      VTKPython
       DESTINATION "${CMAKE_INSTALL_BINDIR}")
+  endif ()
+
+  if (TARGET VTK::ParallelMPI)
+    add_executable(pvtkpython
+      vtkPythonAppInit.cxx)
+    target_compile_definitions(pvtkpython
+      PRIVATE
+        VTK_COMPILED_USING_MPI)
+    target_link_libraries(pvtkpython
+      PRIVATE
+        VTK::WrappingPythonCore
+        VTK::PythonInterpreter
+        VTK::ParallelMPI
+        VTK::Python
+        VTK::mpi
+        VTK::vtkpythonmodules)
+    add_executable(VTK::pvtkpython ALIAS pvtkpython)
+    if (VTK_INSTALL_PYTHON_EXES)
+      install(
+        TARGETS     pvtkpython
+        EXPORT      VTKPython
+        DESTINATION "${CMAKE_INSTALL_BINDIR}")
+    endif ()
   endif ()
 endif ()
 

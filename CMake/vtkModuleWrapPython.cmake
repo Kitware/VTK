@@ -72,7 +72,7 @@ function (vtk_module_python_default_destination var)
   else ()
     if (NOT DEFINED "Python${_vtk_module_python_MAJOR_VERSION}_VERSION_MAJOR" OR
         NOT DEFINED "Python${_vtk_module_python_MAJOR_VERSION}_VERSION_MINOR")
-      find_package("Python${_vtk_module_python_MAJOR_VERSION}" QUIET COMPONENTS Development)
+      find_package("Python${_vtk_module_python_MAJOR_VERSION}" QUIET COMPONENTS Development.Module)
     endif ()
 
     if (Python${_vtk_module_python_MAJOR_VERSION}_VERSION_MAJOR AND Python${_vtk_module_python_MAJOR_VERSION}_VERSION_MINOR)
