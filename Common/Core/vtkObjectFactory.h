@@ -262,7 +262,6 @@ private:
   // at load or register time
   void* LibraryHandle;
   char* LibraryVTKVersion;
-  char* LibraryCompilerUsed;
   char* LibraryPath;
 
 private:
