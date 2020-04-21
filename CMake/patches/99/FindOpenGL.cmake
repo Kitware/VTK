@@ -368,12 +368,12 @@ else()
   endif()
 
   # GLVND GLES2 library.
-  if(OPENGL_USE_GLES2)
+  if(OPENGL_USE_GLES2 AND NOT EMSCRIPTEN)
     list(APPEND _OpenGL_REQUIRED_VARS OPENGL_gles2_LIBRARY)
   endif()
 
   # GLVND GLES3 library.
-  if(OPENGL_USE_GLES3)
+  if(OPENGL_USE_GLES3 AND NOT EMSCRIPTEN)
     list(APPEND _OpenGL_REQUIRED_VARS OPENGL_gles3_LIBRARY)
   endif()
 
@@ -442,7 +442,7 @@ else()
   set(OpenGL_GLES2_FOUND FALSE)
 endif()
 
-if(OPENGL_gles3_LIBRARY AND OPENGL_GLES3_INCLUDE_DIR)
+if(OPENGL_gles3_LIBRARY AND OPENGL_GLES3_INCLUDE_DIR OR EMSCRIPTEN)
   set(OpenGL_GLES3_FOUND TRUE)
 else()
   set(OpenGL_GLES3_FOUND FALSE)
@@ -519,15 +519,22 @@ if(OPENGL_FOUND)
   if(OpenGL_GLES3_FOUND AND NOT TARGET OpenGL::GLES3)
     if(IS_ABSOLUTE "${OPENGL_gles3_LIBRARY}")
       add_library(OpenGL::GLES3 UNKNOWN IMPORTED)
-      set_target_properties(OpenGL::GLES3 PROPERTIES IMPORTED_LOCATION
-                            "${OPENGL_gles3_LIBRARY}")
+      if(NOT EMSCRIPTEN)
+        set_target_properties(OpenGL::GLES3 PROPERTIES IMPORTED_LOCATION
+                              "${OPENGL_gles3_LIBRARY}")
+      endif()
     else()
       add_library(OpenGL::GLES3 INTERFACE IMPORTED)
-      set_target_properties(OpenGL::GLES3 PROPERTIES IMPORTED_LIBNAME
-                            "${OPENGL_gles3_LIBRARY}")
+      if(NOT EMSCRIPTEN)
+        set_target_properties(OpenGL::GLES3 PROPERTIES IMPORTED_LIBNAME
+                              "${OPENGL_gles3_LIBRARY}")
+      endif()
     endif()
-    set_target_properties(OpenGL::GLES3 PROPERTIES INTERFACE_INCLUDE_DIRECTORIES
-                          "${OPENGL_GLES3_INCLUDE_DIR}")
+    if(NOT EMSCRIPTEN)
+      set_target_properties(OpenGL::GLES3 PROPERTIES INTERFACE_INCLUDE_DIRECTORIES
+                            "${OPENGL_GLES3_INCLUDE_DIR}")
+    endif()
+
     if (OPENGL_USE_GLES3)
       set(_OpenGL_EGL_IMPL OpenGL::GLES3)
     endif ()
