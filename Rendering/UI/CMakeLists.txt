@@ -74,12 +74,26 @@ vtk_object_factory_configure(
   EXPORT_MACRO "VTKRENDERINGUI_EXPORT"
   )
 
+if (VTK_USE_SDL2)
+  vtk_module_find_package(
+    PACKAGE SDL2)
+  if(SDL2_FOUND)
+    list(APPEND classes vtkSDL2RenderWindowInteractor)
+  endif()
+endif ()
+
 vtk_module_add_module(VTK::RenderingUI
   CLASSES ${classes}
   HEADERS ${headers}
   SOURCES ${sources} ${vtk_object_factory_source}
   PRIVATE_HEADERS ${vtk_object_factory_header}
   )
+
+if (VTK_USE_SDL2)
+  vtk_module_link(VTK::RenderingUI
+    PRIVATE
+      SDL2::SDL2)
+endif ()
 
 if (VTK_USE_X)
   vtk_module_find_package(

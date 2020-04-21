@@ -81,4 +81,8 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   UnitTestOpenGLUniforms.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   )
 
+if (VTK_USE_SDL2)
+  vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests TestSDL2.cxx)
+endif ()
+
 vtk_test_cxx_executable(vtkRenderingOpenGL2CxxTests tests RENDERING_FACTORY)
