@@ -366,9 +366,8 @@ int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request
   output->GetCenter(center);
 
   // Compute areas and volumes in parallel
-  ComputeProperties::Execute(numPolys, output, center, orient,
-                             polyAreas->GetPointer(0),
-                             polyVolumes->GetPointer(0));
+  ComputeProperties::Execute(
+    numPolys, output, center, orient, polyAreas->GetPointer(0), polyVolumes->GetPointer(0));
 
   // Roll up the results into total results on a per object basis.
   this->ObjectAreas = vtkDoubleArray::New();

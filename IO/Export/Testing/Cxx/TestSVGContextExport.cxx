@@ -28,8 +28,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLContextDevice2D.h"
 #include "vtkPen.h"
-#include "vtkPoints.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
 #include "vtkPoints2D.h"
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
@@ -38,10 +38,10 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
-#include "vtkTriangle.h"
 #include "vtkTestingInteractor.h"
 #include "vtkTextProperty.h"
 #include "vtkTransform2D.h"
+#include "vtkTriangle.h"
 #include "vtkUnsignedCharArray.h"
 
 #include <string>
@@ -58,24 +58,20 @@ public:
   bool Paint(vtkContext2D* painter) override;
 };
 
-void drawPolyLinePolyData(vtkContext2D *painter)
+void drawPolyLinePolyData(vtkContext2D* painter)
 {
   // Setup points
-  vtkSmartPointer<vtkPoints> points =
-    vtkSmartPointer<vtkPoints>::New();
+  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
   points->InsertNextPoint(50.0, 0.0, 0.0);
   points->InsertNextPoint(0.0, 0.0, 0.0);
   points->InsertNextPoint(0.0, 50.0, 0.0);
   points->InsertNextPoint(50.0, 0.0, 0.0);
 
-
   // Define some colors
-  unsigned char black[4] = {0, 0, 0, 255};
-
+  unsigned char black[4] = { 0, 0, 0, 255 };
 
   // Setup the colors array
-  vtkSmartPointer<vtkUnsignedCharArray> colors =
-    vtkSmartPointer<vtkUnsignedCharArray>::New();
+  vtkSmartPointer<vtkUnsignedCharArray> colors = vtkSmartPointer<vtkUnsignedCharArray>::New();
   colors->SetNumberOfComponents(4);
   colors->SetName("Colors");
 
@@ -95,14 +91,12 @@ void drawPolyLinePolyData(vtkContext2D *painter)
   polylines->InsertNextCell(polyline);
 
   // Create a polydata object and add everything to it
-  vtkSmartPointer<vtkPolyData> polydata =
-    vtkSmartPointer<vtkPolyData>::New();
+  vtkSmartPointer<vtkPolyData> polydata = vtkSmartPointer<vtkPolyData>::New();
   polydata->SetPoints(points);
   polydata->SetLines(polylines);
   painter->GetPen()->SetWidth(2.0);
-  painter->DrawPolyData(475,  200, polydata, colors, VTK_SCALAR_MODE_USE_POINT_DATA);
+  painter->DrawPolyData(475, 200, polydata, colors, VTK_SCALAR_MODE_USE_POINT_DATA);
 }
-
 
 int TestSVGContextExport(int, char*[])
 {

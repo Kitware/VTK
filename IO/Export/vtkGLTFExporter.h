@@ -94,8 +94,6 @@ public:
   vtkBooleanMacro(SaveBatchId, bool);
   //@}
 
-
-
   /**
    * Write the result to a string instead of a file
    */
@@ -111,7 +109,6 @@ protected:
   ~vtkGLTFExporter() override;
 
   void WriteData() override;
-
 
   char* FileName;
   bool InlineData;
