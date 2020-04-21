@@ -76,6 +76,8 @@ set(classes
   vtkLineWidget2
   vtkLogoRepresentation
   vtkLogoWidget
+  vtkMagnifierRepresentation
+  vtkMagnifierWidget
   vtkMeasurementCubeHandleRepresentation3D
   vtkOrientationMarkerWidget
   vtkOrientedGlyphContourRepresentation
