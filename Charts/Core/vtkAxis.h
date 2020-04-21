@@ -610,12 +610,12 @@ protected:
   /**
    * Calculate and assign nice labels/logical label positions.
    */
-  void GenerateTickLabels(double min, double max);
+  virtual void GenerateTickLabels(double min, double max);
 
   /**
    * Generate tick labels from the supplied double array of tick positions.
    */
-  void GenerateTickLabels();
+  virtual void GenerateTickLabels();
 
   virtual void GenerateLabelFormat(int notation, double n);
 
