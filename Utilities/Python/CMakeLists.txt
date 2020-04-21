@@ -37,7 +37,8 @@ if (VTK_PYTHON_VERSION STREQUAL "2")
   vtk_module_find_package(
     PACKAGE Python2
     VERSION "${vtk_python_min_version}"
-    COMPONENTS Interpreter Development
+    COMPONENTS Interpreter Development.Module
+    OPTIONAL_COMPONENTS Development.Embed
     FORWARD_VERSION_REQ MINOR)
 elseif (VTK_PYTHON_VERSION STREQUAL "3")
   set(vtk_python_min_version "3.2")
@@ -48,14 +49,16 @@ elseif (VTK_PYTHON_VERSION STREQUAL "3")
   vtk_module_find_package(
     PACKAGE Python3
     VERSION "${vtk_python_min_version}"
-    COMPONENTS Interpreter Development
+    COMPONENTS Interpreter Development.Module
+    OPTIONAL_COMPONENTS Development.Embed
     FORWARD_VERSION_REQ MINOR)
 else ()
   message(FATAL_ERROR
     "`VTK_PYTHON_VERSION` must either be 2 or 3.")
 endif ()
 set(vtk_python_includes "${Python${VTK_PYTHON_VERSION}_INCLUDE_DIRS}")
-set(vtk_python_target "Python${VTK_PYTHON_VERSION}::Python")
+set(vtk_python_target "Python${VTK_PYTHON_VERSION}::Module")
+set(vtk_python_embed_target "Python${VTK_PYTHON_VERSION}::Python")
 set(vtk_python_version "${Python${VTK_PYTHON_VERSION}_VERSION}")
 set(vtk_python_version_pair "${Python${VTK_PYTHON_VERSION}_VERSION_MAJOR}.${Python${VTK_PYTHON_VERSION}_VERSION_MINOR}")
 
@@ -126,7 +129,7 @@ cmake_dependent_option(VTK_PYTHON_OPTIONAL_LINK
   # We shouldn't do it for static builds and we can't do it without
   # `target_link_options`. Windows also always needs to link against libpython
   # directly.
-  "NOT WIN32;BUILD_SHARED_LIBS;COMMAND target_link_options" OFF)
+  "NOT WIN32;BUILD_SHARED_LIBS;COMMAND target_link_options;TARGET \"${vtk_python_embed_target}\"" OFF)
 
 add_library(PythonUsed INTERFACE)
 add_library(VTK::PythonUsed ALIAS PythonUsed)
@@ -163,7 +166,7 @@ if (VTK_PYTHON_OPTIONAL_LINK)
   # Only when the actual Python target should be used should it be linked.
   vtk_module_link(VTK::Python
     INTERFACE
-      "$<LINK_ONLY:$<${should_use}:${vtk_python_target}>>")
+      "$<LINK_ONLY:$<${should_use}:${vtk_python_embed_target}>>")
   # Libraries need the platform flags if they are necessary and direct linking
   # is not being performed.
   vtk_module_link_options(VTK::Python
@@ -176,7 +179,7 @@ if (VTK_PYTHON_OPTIONAL_LINK)
   # flags.
   target_link_libraries(PythonUsed
     INTERFACE
-      "$<LINK_ONLY:$<${is_exe}:${vtk_python_target}>>")
+      "$<LINK_ONLY:$<${is_exe}:${vtk_python_embed_target}>>")
   target_link_options(PythonUsed
     INTERFACE
       "$<$<AND:${is_exe},${needs_flags}>:${platform_flags}>")
@@ -184,7 +187,13 @@ if (VTK_PYTHON_OPTIONAL_LINK)
     PROPERTY  "forward_link"
     VALUE     VTK::PythonUsed)
 else ()
-  vtk_module_link(VTK::Python
-    INTERFACE
-      "${vtk_python_target}")
+  if (TARGET "${vtk_python_embed_target}")
+    vtk_module_link(VTK::Python
+      INTERFACE
+        "${vtk_python_embed_target}")
+  else ()
+    vtk_module_link(VTK::Python
+      INTERFACE
+        "${vtk_python_target}")
+  endif ()
 endif ()

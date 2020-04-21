@@ -1,4 +1,11 @@
-find_package(Python3 COMPONENTS Interpreter Development)
+# Force some VTK options for wheels.
+set(VTK_PYTHON_VERSION 3)
+set(VTK_BUILD_TESTING OFF)
+set(VTK_ENABLE_WRAPPING ON)
+set(VTK_WRAP_PYTHON ON)
+set(Python3_ARTIFACTS_INTERACTIVE ON)
+
+find_package(Python3 COMPONENTS Interpreter Development.Module)
 set_property(GLOBAL PROPERTY _vtk_python_soabi "${Python3_SOABI}")
 
 execute_process(

@@ -13,13 +13,24 @@ The following components are supported:
 * ``Interpreter``: search for Python 2 interpreter
 * ``Compiler``: search for Python 2 compiler. Only offered by IronPython.
 * ``Development``: search for development artifacts (include directories and
-  libraries)
+  libraries). This component includes two sub-components which can be specified
+  independently:
+
+  * ``Development.Module``: search for artifacts for Python 2 module
+    developments.
+  * ``Development.Embed``: search for artifacts for Python 2 embedding
+    developments.
+
 * ``NumPy``: search for NumPy include directories.
 
 If no ``COMPONENTS`` are specified, ``Interpreter`` is assumed.
 
+If component ``Development`` is specified, it implies sub-components
+``Development.Module`` and ``Development.Embed``.
+
 To ensure consistent versions between components ``Interpreter``, ``Compiler``,
-``Development`` and ``NumPy``, specify all components at the same time::
+``Development`` (or one of its sub-components) and ``NumPy``, specify all
+components at the same time::
 
   find_package (Python2 COMPONENTS Interpreter Development)
 
@@ -31,10 +42,11 @@ for you.
 
 .. note::
 
-  If components ``Interpreter`` and ``Development`` are both specified, this
-  module search only for interpreter with same platform architecture as the one
-  defined by ``CMake`` configuration. This contraint does not apply if only
-  ``Interpreter`` component is specified.
+  If components ``Interpreter`` and ``Development`` (or one of its
+  sub-components) are both specified, this module search only for interpreter
+  with same platform architecture as the one defined by ``CMake``
+  configuration. This contraint does not apply if only ``Interpreter``
+  component is specified.
 
 Imported Targets
 ^^^^^^^^^^^^^^^^
@@ -46,12 +58,12 @@ This module defines the following :ref:`Imported Targets <Imported Targets>`
   Python 2 interpreter. Target defined if component ``Interpreter`` is found.
 ``Python2::Compiler``
   Python 2 compiler. Target defined if component ``Compiler`` is found.
-``Python2::Python``
-  Python 2 library for Python embedding. Target defined if component
-  ``Development`` is found.
 ``Python2::Module``
   Python 2 library for Python module. Target defined if component
-  ``Development`` is found.
+  ``Development.Module`` is found.
+``Python2::Python``
+  Python 2 library for Python embedding. Target defined if component
+  ``Development.Embed`` is found.
 ``Python2::NumPy``
   NumPy library for Python 2. Target defined if component ``NumPy`` is found.
 
@@ -78,22 +90,26 @@ This module will set the following variables in your project
   Standard platform independent installation directory.
 
   Information returned by
-  ``distutils.sysconfig.get_python_lib(plat_specific=False,standard_lib=True)``.
+  ``distutils.sysconfig.get_python_lib(plat_specific=False,standard_lib=True)``
+  or else ``sysconfig.get_path('stdlib')``.
 ``Python2_STDARCH``
   Standard platform dependent installation directory.
 
   Information returned by
-  ``distutils.sysconfig.get_python_lib(plat_specific=True,standard_lib=True)``.
+  ``distutils.sysconfig.get_python_lib(plat_specific=True,standard_lib=True)``
+  or else ``sysconfig.get_path('platstdlib')``.
 ``Python2_SITELIB``
   Third-party platform independent installation directory.
 
   Information returned by
-  ``distutils.sysconfig.get_python_lib(plat_specific=False,standard_lib=False)``.
+  ``distutils.sysconfig.get_python_lib(plat_specific=False,standard_lib=False)``
+  or else ``sysconfig.get_path('purelib')``.
 ``Python2_SITEARCH``
   Third-party platform dependent installation directory.
 
   Information returned by
-  ``distutils.sysconfig.get_python_lib(plat_specific=True,standard_lib=False)``.
+  ``distutils.sysconfig.get_python_lib(plat_specific=True,standard_lib=False)``
+  or else ``sysconfig.get_path('platlib')``.
 ``Python2_Compiler_FOUND``
   System has the Python 2 compiler.
 ``Python2_COMPILER``
@@ -103,6 +119,10 @@ This module will set the following variables in your project
     * IronPython
 ``Python2_Development_FOUND``
   System has the Python 2 development artifacts.
+``Python2_Development.Module_FOUND``
+  System has the Python 2 development artifacts for Python module.
+``Python2_Development.Embed_FOUND``
+  System has the Python 2 development artifacts for Python embedding.
 ``Python2_INCLUDE_DIRS``
   The Python 2 include directories.
 ``Python2_LIBRARIES``
@@ -140,8 +160,7 @@ Hints
 
 ``Python2_FIND_STRATEGY``
   This variable defines how lookup will be done.
-  The ``Python2_FIND_STRATEGY`` variable can be set to empty or one of the
-  following:
+  The ``Python2_FIND_STRATEGY`` variable can be set to one of the following:
 
   * ``VERSION``: Try to find the most recent version in all specified
     locations.
@@ -154,8 +173,7 @@ Hints
 ``Python2_FIND_REGISTRY``
   On Windows the ``Python2_FIND_REGISTRY`` variable determine the order
   of preference between registry and environment variables.
-  the ``Python2_FIND_REGISTRY`` variable can be set to empty or one of the
-  following:
+  the ``Python2_FIND_REGISTRY`` variable can be set to one of the following:
 
   * ``FIRST``: Try to use registry before environment variables.
     This is the default.
@@ -165,8 +183,8 @@ Hints
 ``Python2_FIND_FRAMEWORK``
   On macOS the ``Python2_FIND_FRAMEWORK`` variable determine the order of
   preference between Apple-style and unix-style package components.
-  This variable can be set to empty or take same values as
-  :variable:`CMAKE_FIND_FRAMEWORK` variable.
+  This variable can take same values as :variable:`CMAKE_FIND_FRAMEWORK`
+  variable.
 
   .. note::
 
@@ -180,16 +198,17 @@ Hints
   ``virtualenv`` or ``conda``. It is meaningful only when a virtual environment
   is active (i.e. the ``activate`` script has been evaluated). In this case, it
   takes precedence over ``Python2_FIND_REGISTRY`` and ``CMAKE_FIND_FRAMEWORK``
-  variables.  The ``Python2_FIND_VIRTUALENV`` variable can be set to empty or
-  one of the following:
+  variables.  The ``Python2_FIND_VIRTUALENV`` variable can be set to one of the
+  following:
 
   * ``FIRST``: The virtual environment is used before any other standard
     paths to look-up for the interpreter. This is the default.
   * ``ONLY``: Only the virtual environment is used to look-up for the
     interpreter.
   * ``STANDARD``: The virtual environment is not used to look-up for the
-    interpreter. In this case, variable ``Python2_FIND_REGISTRY`` (Windows)
-    or ``CMAKE_FIND_FRAMEWORK`` (macOS) can be set with value ``LAST`` or
+    interpreter but environment variable ``PATH`` is always considered.
+    In this case, variable ``Python2_FIND_REGISTRY`` (Windows) or
+    ``CMAKE_FIND_FRAMEWORK`` (macOS) can be set with value ``LAST`` or
     ``NEVER`` to select preferably the interpreter from the virtual
     environment.
 
