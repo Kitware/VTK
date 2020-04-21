@@ -282,13 +282,13 @@ int vtkMergeFields::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-namespace {
+namespace
+{
 
 struct MergeFieldsWorker
 {
   template <typename SrcArrayT, typename DstArrayT>
-  void operator()(SrcArrayT* input, DstArrayT* output,
-                  int inComp, int outComp) const
+  void operator()(SrcArrayT* input, DstArrayT* output, int inComp, int outComp) const
   {
     const auto srcRange = vtk::DataArrayTupleRange(input);
     auto dstRange = vtk::DataArrayTupleRange(output);

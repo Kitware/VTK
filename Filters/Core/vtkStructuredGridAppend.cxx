@@ -154,14 +154,9 @@ namespace
 struct AppendWorker
 {
   template <typename InArrayT, typename OutArrayT>
-  void operator()(InArrayT *inArray,
-                  OutArrayT *outArray,
-                  int inExt[6],
-                  int outExt[6],
-                  vtkStructuredGrid *inData,
-                  std::vector<int> &validValues,
-                  vtkUnsignedCharArray *ghosts,
-                  bool forCells)
+  void operator()(InArrayT* inArray, OutArrayT* outArray, int inExt[6], int outExt[6],
+    vtkStructuredGrid* inData, std::vector<int>& validValues, vtkUnsignedCharArray* ghosts,
+    bool forCells)
   {
     const auto inTuples = vtk::DataArrayTupleRange(inArray);
     auto outTuples = vtk::DataArrayTupleRange(outArray);
@@ -175,37 +170,34 @@ struct AppendWorker
       {
         for (int i = inExt[0]; i < inExt[1] + forPoints; i++)
         {
-          const int ijk[3] = {i, j, k};
-          bool skipValue = forCells
-              ? !inData->IsCellVisible(inCounter)
-              : !inData->IsPointVisible(inCounter);
+          const int ijk[3] = { i, j, k };
+          bool skipValue =
+            forCells ? !inData->IsCellVisible(inCounter) : !inData->IsPointVisible(inCounter);
 
           const vtkIdType outputIndex = forCells
-              ? vtkStructuredData::ComputeCellIdForExtent(outExt, ijk)
-              : vtkStructuredData::ComputePointIdForExtent(outExt, ijk);
+            ? vtkStructuredData::ComputeCellIdForExtent(outExt, ijk)
+            : vtkStructuredData::ComputePointIdForExtent(outExt, ijk);
           assert(static_cast<size_t>(outputIndex) < validValues.size());
-          int &validValue = validValues[static_cast<std::size_t>(outputIndex)];
+          int& validValue = validValues[static_cast<std::size_t>(outputIndex)];
 
           if (skipValue && validValue <= 1)
           { // current output value for this is not set
             skipValue = false;
             validValue = 1; // value is from a blanked entity
           }
-          else if(
-            ghosts &&
-            (ghosts->GetValue(inCounter) & vtkDataSetAttributes::DUPLICATECELL) &&
+          else if (ghosts && (ghosts->GetValue(inCounter) & vtkDataSetAttributes::DUPLICATECELL) &&
             validValue <= 2)
           {
             validValue = 2; // value is a ghost
             skipValue = false;
           }
-          else if(validValue <= 3)
+          else if (validValue <= 3)
           {
             validValue = 3; // value is valid
             skipValue = false;
           }
 
-          if(!skipValue)
+          if (!skipValue)
           {
             outTuples[outputIndex] = inTuples[inCounter];
           }
@@ -307,14 +299,11 @@ int vtkStructuredGridAppend::RequestData(
             return 0;
           }
 
-          if (!Dispatcher::Execute(inArray, outArray,
-                                   worker, inExt, outExt, input,
-                                   validValues, ghosts, false))
+          if (!Dispatcher::Execute(
+                inArray, outArray, worker, inExt, outExt, input, validValues, ghosts, false))
           { // Fallback for unknown array types:
-            worker(inArray, outArray, inExt, outExt, input, validValues,
-                   ghosts, false);
+            worker(inArray, outArray, inExt, outExt, input, validValues, ghosts, false);
           }
-
         }
 
         // do the point locations array
@@ -328,12 +317,10 @@ int vtkStructuredGridAppend::RequestData(
         }
         outArray = output->GetPoints()->GetData();
 
-        if (!Dispatcher::Execute(inArray, outArray,
-                                 worker, inExt, outExt, input,
-                                 validValues, ghosts, false))
+        if (!Dispatcher::Execute(
+              inArray, outArray, worker, inExt, outExt, input, validValues, ghosts, false))
         { // Fallback for unknown array types:
-          worker(inArray, outArray, inExt, outExt, input, validValues,
-                 ghosts, false);
+          worker(inArray, outArray, inExt, outExt, input, validValues, ghosts, false);
         }
 
         // note that we are still using validValues but only for the
@@ -384,12 +371,10 @@ int vtkStructuredGridAppend::RequestData(
             return 0;
           }
 
-          if (!Dispatcher::Execute(inArray, outArray,
-                                   worker, inExt, outExt, input,
-                                   validValues, ghosts, true))
+          if (!Dispatcher::Execute(
+                inArray, outArray, worker, inExt, outExt, input, validValues, ghosts, true))
           { // Fallback for unknown array types:
-            worker(inArray, outArray, inExt, outExt, input, validValues,
-                   ghosts, true);
+            worker(inArray, outArray, inExt, outExt, input, validValues, ghosts, true);
           }
         }
       }

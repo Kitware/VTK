@@ -35,9 +35,7 @@ namespace
 struct ComputeNormalsDirection
 {
   template <typename ArrayT>
-  void operator()(ArrayT *pointArray,
-                  vtkPolyData *mesh,
-                  vtkFloatArray *normalsArray)
+  void operator()(ArrayT* pointArray, vtkPolyData* mesh, vtkFloatArray* normalsArray)
   {
     const auto points = vtk::DataArrayTupleRange<3>(pointArray);
     auto normals = vtk::DataArrayTupleRange<3>(normalsArray);
@@ -45,12 +43,10 @@ struct ComputeNormalsDirection
     float a[3], b[3], tn[3];
 
     auto cellIter = vtk::TakeSmartPointer(mesh->GetPolys()->NewIterator());
-    for (cellIter->GoToFirstCell();
-         !cellIter->IsDoneWithTraversal();
-         cellIter->GoToNextCell())
+    for (cellIter->GoToFirstCell(); !cellIter->IsDoneWithTraversal(); cellIter->GoToNextCell())
     {
       vtkIdType cellSize;
-      const vtkIdType *cell;
+      const vtkIdType* cell;
       cellIter->GetCurrentCell(cellSize, cell);
 
       // First value in cellArray indicates number of points in cell.
@@ -92,17 +88,15 @@ struct ComputeNormalsDirection
       // If degenerate cell
       else if (cellSize < 3)
       {
-        vtkGenericWarningMacro(
-              "Some cells are degenerate (less than 3 points). "
-              "Use vtkCleanPolyData beforehand to correct this.");
+        vtkGenericWarningMacro("Some cells are degenerate (less than 3 points). "
+                               "Use vtkCleanPolyData beforehand to correct this.");
         return;
       }
       // If cell not triangle
       else
       {
-        vtkGenericWarningMacro(
-              "Some cells have too many points (more than 3 points). "
-              "Use vtkTriangulate to correct this.");
+        vtkGenericWarningMacro("Some cells have too many points (more than 3 points). "
+                               "Use vtkTriangulate to correct this.");
         return;
       }
     }
@@ -172,7 +166,7 @@ int vtkTriangleMeshPointNormals::RequestData(vtkInformation* vtkNotUsed(request)
   using Dispatcher = vtkArrayDispatch::DispatchByValueType<Reals>;
   ComputeNormalsDirection worker;
 
-  vtkDataArray *points = output->GetPoints()->GetData();
+  vtkDataArray* points = output->GetPoints()->GetData();
   if (!Dispatcher::Execute(points, worker, output, normals))
   { // fallback for integral point arrays
     worker(points, output, normals);
@@ -183,7 +177,7 @@ int vtkTriangleMeshPointNormals::RequestData(vtkInformation* vtkNotUsed(request)
   // Normalize point normals
   float l;
   unsigned int i3;
-  float *n = normals->GetPointer(0);
+  float* n = normals->GetPointer(0);
   for (vtkIdType i = 0; i < numPts; ++i)
   {
     i3 = i * 3;

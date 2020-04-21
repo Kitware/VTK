@@ -4041,13 +4041,11 @@ int vtkFoamEntryValue::Read(vtkFoamIOobject& io)
     this->IsUniform = false;
     if (io.GetUse64BitFloats())
     {
-      this->ReadNonuniformList<SCALARLIST, listTraits<vtkFloatArray,
-                                                      double> >(io);
+      this->ReadNonuniformList<SCALARLIST, listTraits<vtkFloatArray, double> >(io);
     }
     else
     {
-      this->ReadNonuniformList<SCALARLIST, listTraits<vtkFloatArray,
-                                                      float> >(io);
+      this->ReadNonuniformList<SCALARLIST, listTraits<vtkFloatArray, float> >(io);
     }
   }
   // zones have list without a uniform/nonuniform keyword

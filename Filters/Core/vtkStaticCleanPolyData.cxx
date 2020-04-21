@@ -33,27 +33,24 @@
 
 vtkStandardNewMacro(vtkStaticCleanPolyData);
 
-namespace { //anonymous
+namespace
+{ // anonymous
 
 //----------------------------------------------------------------------------
 // Fast, threaded way to copy new points and attribute data to output.
 template <typename InArrayT, typename OutArrayT>
 struct CopyPointsAlgorithm
 {
-  vtkIdType *PtMap;
-  InArrayT *InPts;
-  OutArrayT *OutPts;
+  vtkIdType* PtMap;
+  InArrayT* InPts;
+  OutArrayT* OutPts;
   ArrayList Arrays;
 
-  CopyPointsAlgorithm(vtkIdType *ptMap,
-                      InArrayT *inPts,
-                      vtkPointData *inPD,
-                      vtkIdType numNewPts,
-                      OutArrayT *outPts,
-                      vtkPointData *outPD)
-    : PtMap(ptMap),
-      InPts(inPts),
-      OutPts(outPts)
+  CopyPointsAlgorithm(vtkIdType* ptMap, InArrayT* inPts, vtkPointData* inPD, vtkIdType numNewPts,
+    OutArrayT* outPts, vtkPointData* outPD)
+    : PtMap(ptMap)
+    , InPts(inPts)
+    , OutPts(outPts)
   {
     this->Arrays.AddArrays(numNewPts, inPD, outPD);
   }
@@ -62,7 +59,7 @@ struct CopyPointsAlgorithm
   {
     using OutValueT = vtk::GetAPIType<OutArrayT>;
 
-    const vtkIdType *ptMap = this->PtMap;
+    const vtkIdType* ptMap = this->PtMap;
 
     const auto inPoints = vtk::DataArrayTupleRange<3>(this->InPts);
     auto outPoints = vtk::DataArrayTupleRange<3>(this->OutPts);
@@ -70,7 +67,7 @@ struct CopyPointsAlgorithm
     for (; ptId < endPtId; ++ptId)
     {
       const vtkIdType outPtId = ptMap[ptId];
-      if ( outPtId != -1 )
+      if (outPtId != -1)
       {
         const auto inP = inPoints[ptId];
         auto outP = outPoints[outPtId];
@@ -86,17 +83,12 @@ struct CopyPointsAlgorithm
 struct CopyPointsLauncher
 {
   template <typename InArrayT, typename OutArrayT>
-  void operator()(InArrayT *inPts,
-                  OutArrayT *outPts,
-                  vtkIdType *ptMap,
-                  vtkPointData *inPD,
-                  vtkIdType numNewPts,
-                  vtkPointData *outPD)
+  void operator()(InArrayT* inPts, OutArrayT* outPts, vtkIdType* ptMap, vtkPointData* inPD,
+    vtkIdType numNewPts, vtkPointData* outPD)
   {
     const vtkIdType numPts = inPts->GetNumberOfTuples();
 
-    CopyPointsAlgorithm<InArrayT, OutArrayT> algo {
-      ptMap, inPts, inPD, numNewPts, outPts, outPD};
+    CopyPointsAlgorithm<InArrayT, OutArrayT> algo{ ptMap, inPts, inPD, numNewPts, outPts, outPD };
 
     vtkSMPTools::For(0, numPts, algo);
   }
@@ -249,17 +241,15 @@ int vtkStaticCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   }
   newPts->SetNumberOfPoints(numNewPts);
 
-  vtkDataArray *inArray = inPts->GetData();
-  vtkDataArray *outArray = newPts->GetData();
+  vtkDataArray* inArray = inPts->GetData();
+  vtkDataArray* outArray = newPts->GetData();
 
   // Use a fast path for when both arrays are some mix of float/double:
   using FastValueTypes = vtkArrayDispatch::Reals;
-  using Dispatcher = vtkArrayDispatch::Dispatch2ByValueType<FastValueTypes,
-                                                            FastValueTypes>;
+  using Dispatcher = vtkArrayDispatch::Dispatch2ByValueType<FastValueTypes, FastValueTypes>;
 
   CopyPointsLauncher launcher;
-  if (!Dispatcher::Execute(inArray, outArray, launcher, pointMap, inPD,
-                           numNewPts, outPD))
+  if (!Dispatcher::Execute(inArray, outArray, launcher, pointMap, inPD, numNewPts, outPD))
   { // Fallback to slow path for unusual types:
     launcher(inArray, outArray, pointMap, inPD, numNewPts, outPD);
   }

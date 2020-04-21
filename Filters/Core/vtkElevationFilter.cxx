@@ -30,7 +30,8 @@
 
 vtkStandardNewMacro(vtkElevationFilter);
 
-namespace {
+namespace
+{
 
 // The heart of the algorithm plus interface to the SMP tools.
 template <class PointArrayT>
@@ -45,16 +46,13 @@ struct vtkElevationAlgorithm
   const double* V;
   double L2;
 
-  vtkElevationAlgorithm(PointArrayT* pointArray,
-                        vtkElevationFilter* filter,
-                        float* scalars,
-                        const double* v,
-                        double l2)
-    : NumPts{pointArray->GetNumberOfTuples()}
-    , PointArray{pointArray}
-    , Scalars{scalars}
-    , V{v}
-    , L2{l2}
+  vtkElevationAlgorithm(
+    PointArrayT* pointArray, vtkElevationFilter* filter, float* scalars, const double* v, double l2)
+    : NumPts{ pointArray->GetNumberOfTuples() }
+    , PointArray{ pointArray }
+    , Scalars{ scalars }
+    , V{ v }
+    , L2{ l2 }
   {
     filter->GetLowPoint(this->LowPoint);
     filter->GetHighPoint(this->HighPoint);
@@ -74,8 +72,7 @@ struct vtkElevationAlgorithm
     float* s = this->Scalars + begin;
 
     // input points:
-    const auto pointRange = vtk::DataArrayTupleRange<3>(this->PointArray,
-                                                        begin, end);
+    const auto pointRange = vtk::DataArrayTupleRange<3>(this->PointArray, begin, end);
 
     for (const auto point : pointRange)
     {
@@ -87,7 +84,7 @@ struct vtkElevationAlgorithm
       const double ns = vtkMath::ClampValue(vtkMath::Dot(vec, v) / l2, 0., 1.);
 
       // Store the resulting scalar value.
-      *s = static_cast<float>(range[0] + ns*diffScalar);
+      *s = static_cast<float>(range[0] + ns * diffScalar);
       ++s;
     }
   }
@@ -98,14 +95,11 @@ struct vtkElevationAlgorithm
 struct Elevate
 {
   template <typename PointArrayT>
-  void operator()(PointArrayT* pointArray,
-                  vtkElevationFilter* filter,
-                  double* v,
-                  double l2,
-                  float* scalars)
+  void operator()(
+    PointArrayT* pointArray, vtkElevationFilter* filter, double* v, double l2, float* scalars)
   {
     // Okay now generate samples using SMP tools
-    vtkElevationAlgorithm<PointArrayT> algo{pointArray, filter, scalars, v, l2};
+    vtkElevationAlgorithm<PointArrayT> algo{ pointArray, filter, scalars, v, l2 };
     vtkSMPTools::For(0, pointArray->GetNumberOfTuples(), algo);
   }
 };
@@ -183,17 +177,16 @@ int vtkElevationFilter::RequestData(
   vtkPointSet* ps = vtkPointSet::SafeDownCast(input);
   if (ps)
   {
-    float *scalars = newScalars->GetPointer(0);
-    vtkPoints *points = ps->GetPoints();
-    vtkDataArray *pointsArray = points->GetData();
+    float* scalars = newScalars->GetPointer(0);
+    vtkPoints* points = ps->GetPoints();
+    vtkDataArray* pointsArray = points->GetData();
 
     Elevate worker; // Entry point to vtkElevationAlgorithm
 
     // Generate an optimized fast-path for float/double
     using FastValueTypes = vtkArrayDispatch::Reals;
     using Dispatcher = vtkArrayDispatch::DispatchByValueType<FastValueTypes>;
-    if (!Dispatcher::Execute(pointsArray, worker, this, diffVector, length2,
-                             scalars))
+    if (!Dispatcher::Execute(pointsArray, worker, this, diffVector, length2, scalars))
     { // fallback for unknown arrays and integral value types:
       worker(pointsArray, this, diffVector, length2, scalars);
     }

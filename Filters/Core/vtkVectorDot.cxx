@@ -30,33 +30,32 @@
 
 vtkStandardNewMacro(vtkVectorDot);
 
-namespace {
+namespace
+{
 
 template <typename NormArrayT, typename VecArrayT>
 struct DotWorker
 {
-  NormArrayT *Normals;
-  VecArrayT *Vectors;
-  vtkFloatArray *Scalars;
+  NormArrayT* Normals;
+  VecArrayT* Vectors;
+  vtkFloatArray* Scalars;
 
   vtkSMPThreadLocal<float> LocalMin;
   vtkSMPThreadLocal<float> LocalMax;
 
-  DotWorker(NormArrayT *normals,
-            VecArrayT *vectors,
-            vtkFloatArray *scalars)
-    : Normals{normals}
-    , Vectors{vectors}
-    , Scalars{scalars}
-    , LocalMin{std::numeric_limits<float>::max()}
-    , LocalMax{std::numeric_limits<float>::lowest()}
+  DotWorker(NormArrayT* normals, VecArrayT* vectors, vtkFloatArray* scalars)
+    : Normals{ normals }
+    , Vectors{ vectors }
+    , Scalars{ scalars }
+    , LocalMin{ std::numeric_limits<float>::max() }
+    , LocalMax{ std::numeric_limits<float>::lowest() }
   {
   }
 
   void operator()(vtkIdType begin, vtkIdType end)
   {
-    float &min = this->LocalMin.Local();
-    float &max = this->LocalMax.Local();
+    float& min = this->LocalMin.Local();
+    float& max = this->LocalMax.Local();
 
     // Restrict the iterator ranges to [begin,end)
     const auto normals = vtk::DataArrayTupleRange<3>(this->Normals, begin, end);
@@ -66,9 +65,8 @@ struct DotWorker
     using NormalConstRef = typename decltype(normals)::ConstTupleReferenceType;
     using VectorConstRef = typename decltype(vectors)::ConstTupleReferenceType;
 
-    auto computeScalars = [&](NormalConstRef n, VectorConstRef v) -> float
-    {
-      const float s = static_cast<float>(n[0]*v[0] + n[1]*v[1] + n[2]*v[2]);
+    auto computeScalars = [&](NormalConstRef n, VectorConstRef v) -> float {
+      const float s = static_cast<float>(n[0] * v[0] + n[1] * v[1] + n[2] * v[2]);
 
       min = std::min(min, s);
       max = std::max(max, s);
@@ -76,10 +74,8 @@ struct DotWorker
       return s;
     };
 
-    std::transform(normals.cbegin(), normals.cend(),
-                   vectors.cbegin(),
-                   scalars.begin(),
-                   computeScalars);
+    std::transform(
+      normals.cbegin(), normals.cend(), vectors.cbegin(), scalars.begin(), computeScalars);
   }
 };
 
@@ -87,21 +83,19 @@ struct DotWorker
 struct LaunchDotWorker
 {
   template <typename NormArrayT, typename VecArrayT>
-  void operator()(NormArrayT *normals, VecArrayT *vectors,
-                  vtkFloatArray *scalars, float scalarRange[2])
+  void operator()(
+    NormArrayT* normals, VecArrayT* vectors, vtkFloatArray* scalars, float scalarRange[2])
   {
     const vtkIdType numPts = normals->GetNumberOfTuples();
 
     using Worker = DotWorker<NormArrayT, VecArrayT>;
-    Worker worker{normals, vectors, scalars};
+    Worker worker{ normals, vectors, scalars };
 
     vtkSMPTools::For(0, numPts, worker);
 
     // Reduce the scalar ranges:
-    auto minElem = std::min_element(worker.LocalMin.begin(),
-                                    worker.LocalMin.end());
-    auto maxElem = std::max_element(worker.LocalMax.begin(),
-                                    worker.LocalMax.end());
+    auto minElem = std::min_element(worker.LocalMin.begin(), worker.LocalMin.end());
+    auto maxElem = std::max_element(worker.LocalMax.begin(), worker.LocalMax.end());
 
     // There should be at least one element in the range from worker
     // initialization:
@@ -115,7 +109,7 @@ struct LaunchDotWorker
 
 struct MapWorker
 {
-  vtkFloatArray *Scalars;
+  vtkFloatArray* Scalars;
   float InMin;
   float InRange;
   float OutMin;
@@ -223,12 +217,9 @@ int vtkVectorDot::RequestData(vtkInformation* vtkNotUsed(request),
   // Map if requested:
   if (this->GetMapScalars())
   {
-    MapWorker mapWorker{newScalars,
-                        aRange[1] - aRange[0],
-                        aRange[0],
-                        static_cast<float>(this->ScalarRange[1] -
-                                           this->ScalarRange[0]),
-                        static_cast<float>(this->ScalarRange[0])};
+    MapWorker mapWorker{ newScalars, aRange[1] - aRange[0], aRange[0],
+      static_cast<float>(this->ScalarRange[1] - this->ScalarRange[0]),
+      static_cast<float>(this->ScalarRange[0]) };
 
     vtkSMPTools::For(0, newScalars->GetNumberOfValues(), mapWorker);
   }

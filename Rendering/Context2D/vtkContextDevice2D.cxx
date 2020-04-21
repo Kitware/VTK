@@ -114,7 +114,7 @@ void vtkContextDevice2D::DrawPolyData(
       }
     }
 
-    if (cellType == VTK_LINE || cellType == VTK_POLY_LINE )
+    if (cellType == VTK_LINE || cellType == VTK_POLY_LINE)
     {
       this->DrawPoly(verts.data(), numPoints, vertColors.data(), 4);
     }
