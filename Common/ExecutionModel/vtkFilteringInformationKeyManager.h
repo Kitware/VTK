@@ -48,8 +48,8 @@ public:
 
 private:
   // Unimplemented
-  vtkFilteringInformationKeyManager(const vtkFilteringInformationKeyManager&);
-  vtkFilteringInformationKeyManager& operator=(const vtkFilteringInformationKeyManager&);
+  vtkFilteringInformationKeyManager(const vtkFilteringInformationKeyManager&) = delete;
+  vtkFilteringInformationKeyManager& operator=(const vtkFilteringInformationKeyManager&) = delete;
 
   static void ClassInitialize();
   static void ClassFinalize();

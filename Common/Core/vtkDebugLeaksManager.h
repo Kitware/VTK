@@ -35,8 +35,8 @@ public:
   ~vtkDebugLeaksManager();
 
 private:
-  vtkDebugLeaksManager(const vtkDebugLeaksManager&);
-  vtkDebugLeaksManager& operator=(const vtkDebugLeaksManager&);
+  vtkDebugLeaksManager(const vtkDebugLeaksManager&) = delete;
+  vtkDebugLeaksManager& operator=(const vtkDebugLeaksManager&) = delete;
 };
 
 // This instance will show up in any translation unit that uses

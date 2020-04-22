@@ -64,7 +64,7 @@ public:
   ResultType operator()(BaseLhs& lhs) { return fun_(CastLhs::Cast(lhs)); }
 
 private:
-  FunctorRefDispatcherHelper& operator=(const FunctorRefDispatcherHelper& b);
+  FunctorRefDispatcherHelper& operator=(const FunctorRefDispatcherHelper& b) = delete;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -223,7 +223,7 @@ public:
   }
 
 private:
-  FunctorRefDispatcherHelper& operator=(const FunctorRefDispatcherHelper& b);
+  FunctorRefDispatcherHelper& operator=(const FunctorRefDispatcherHelper& b) = delete;
 };
 
 template <class BaseLhs, class BaseRhs, class SomeLhs, class SomeRhs, typename RT, class CastLhs,

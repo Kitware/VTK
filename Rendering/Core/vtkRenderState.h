@@ -155,7 +155,7 @@ protected:
   vtkInformation* RequiredKeys;
 
 private:
-  vtkRenderState(); // no default constructor.
+  vtkRenderState() = delete; // no default constructor.
   vtkRenderState(const vtkRenderState&) = delete;
   void operator=(const vtkRenderState&) = delete;
 };
