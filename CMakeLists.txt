@@ -33,6 +33,8 @@ endif()
 
 include(vtkCMakeBackports)
 
+option(VTK_WHEEL_BUILD "Build in such a way that Python wheels are supported" OFF)
+mark_as_advanced(VTK_WHEEL_BUILD)
 if (VTK_WHEEL_BUILD)
   include(vtkWheelPreparation)
 endif ()
