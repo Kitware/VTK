@@ -54,7 +54,7 @@ public:
       return *this;
     }
 
-    ~PriorityComparator() {}
+    ~PriorityComparator() = default;
 
     bool operator()(const vtkIdType& a, const vtkIdType& b) const
     {

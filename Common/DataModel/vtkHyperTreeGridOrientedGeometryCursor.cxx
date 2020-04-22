@@ -242,6 +242,6 @@ vtkHyperTreeGridOrientedGeometryCursor::vtkHyperTreeGridOrientedGeometryCursor()
 }
 
 //-----------------------------------------------------------------------------
-vtkHyperTreeGridOrientedGeometryCursor::~vtkHyperTreeGridOrientedGeometryCursor() {}
+vtkHyperTreeGridOrientedGeometryCursor::~vtkHyperTreeGridOrientedGeometryCursor() = default;
 
 //-----------------------------------------------------------------------------

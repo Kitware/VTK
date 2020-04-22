@@ -65,8 +65,8 @@ public:
   //@}
 
 protected:
-  vtkButterflySubdivisionFilter() {}
-  ~vtkButterflySubdivisionFilter() override {}
+  vtkButterflySubdivisionFilter() = default;
+  ~vtkButterflySubdivisionFilter() override = default;
 
 private:
   int GenerateSubdivisionPoints(vtkPolyData* inputDS, vtkIntArray* edgeData, vtkPoints* outputPts,

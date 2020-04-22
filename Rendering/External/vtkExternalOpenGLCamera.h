@@ -47,7 +47,7 @@ public:
 
 protected:
   vtkExternalOpenGLCamera();
-  ~vtkExternalOpenGLCamera() override {}
+  ~vtkExternalOpenGLCamera() override = default;
 
   /**
    * These methods should only be used within vtkCamera.cxx.

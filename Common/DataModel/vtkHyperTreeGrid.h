@@ -650,7 +650,7 @@ public:
   class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGridIterator
   {
   public:
-    vtkHyperTreeGridIterator() {}
+    vtkHyperTreeGridIterator() = default;
 
     /**
      * Initialize the iterator on the tree set of the given grid.

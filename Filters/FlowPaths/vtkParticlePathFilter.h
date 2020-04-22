@@ -39,7 +39,7 @@ public:
   {
   }
   void Initialize(vtkParticleTracerBase* filter);
-  virtual ~ParticlePathFilterInternal() {}
+  virtual ~ParticlePathFilterInternal() = default;
   virtual int OutputParticles(vtkPolyData* particles);
   void SetClearCache(bool clearCache) { this->ClearCache = clearCache; }
   bool GetClearCache() { return this->ClearCache; }

@@ -56,7 +56,7 @@ public:
     CONTROL_MODIFIER = 4
   };
 
-  vtkContextMouseEvent() {}
+  vtkContextMouseEvent() = default;
 
   /**
    * Set the interactor for the mouse event.

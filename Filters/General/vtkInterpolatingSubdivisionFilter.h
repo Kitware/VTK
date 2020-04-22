@@ -49,7 +49,7 @@ public:
 
 protected:
   vtkInterpolatingSubdivisionFilter();
-  ~vtkInterpolatingSubdivisionFilter() override {}
+  ~vtkInterpolatingSubdivisionFilter() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   virtual int GenerateSubdivisionPoints(

@@ -134,7 +134,7 @@ struct Point
 class Partition
 {
 public:
-  virtual ~Partition() {}
+  virtual ~Partition() = default;
   virtual void CreatePartition(const std::vector<vtkDataSet*>& blocks) = 0;
   virtual void FindPointsInBounds(const double bounds[6], std::vector<Point>& points) const = 0;
 };

@@ -33,10 +33,10 @@
 vtkStandardNewMacro(vtkRemoveDuplicatePolys);
 
 //----------------------------------------------------------------------------
-vtkRemoveDuplicatePolys::vtkRemoveDuplicatePolys() {}
+vtkRemoveDuplicatePolys::vtkRemoveDuplicatePolys() = default;
 
 //----------------------------------------------------------------------------
-vtkRemoveDuplicatePolys::~vtkRemoveDuplicatePolys() {}
+vtkRemoveDuplicatePolys::~vtkRemoveDuplicatePolys() = default;
 
 //----------------------------------------------------------------------------
 void vtkRemoveDuplicatePolys::PrintSelf(ostream& os, vtkIndent indent)

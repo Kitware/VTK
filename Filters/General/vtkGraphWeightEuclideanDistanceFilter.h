@@ -37,8 +37,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
-  vtkGraphWeightEuclideanDistanceFilter() {}
-  ~vtkGraphWeightEuclideanDistanceFilter() override {}
+  vtkGraphWeightEuclideanDistanceFilter() = default;
+  ~vtkGraphWeightEuclideanDistanceFilter() override = default;
 
   /**
    * Compute the Euclidean distance between the Points defined for the

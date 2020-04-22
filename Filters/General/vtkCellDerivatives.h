@@ -110,7 +110,7 @@ public:
 
 protected:
   vtkCellDerivatives();
-  ~vtkCellDerivatives() override {}
+  ~vtkCellDerivatives() override = default;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   int VectorMode;

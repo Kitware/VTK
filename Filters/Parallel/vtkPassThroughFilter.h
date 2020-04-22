@@ -41,8 +41,8 @@ public:
   static vtkPassThroughFilter* New();
 
 protected:
-  vtkPassThroughFilter() {}
-  ~vtkPassThroughFilter() override {}
+  vtkPassThroughFilter() = default;
+  ~vtkPassThroughFilter() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

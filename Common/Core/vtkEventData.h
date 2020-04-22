@@ -80,8 +80,8 @@ public:
   virtual vtkEventDataDevice3D* GetAsEventDataDevice3D() { return nullptr; }
 
 protected:
-  vtkEventData() {}
-  ~vtkEventData() override {}
+  vtkEventData() = default;
+  ~vtkEventData() override = default;
 
   // subclasses override this to define their
   // definition of equivalent
@@ -133,7 +133,7 @@ protected:
     this->Input = vtkEventDataDeviceInput::Unknown;
     this->Action = vtkEventDataAction::Unknown;
   }
-  ~vtkEventDataForDevice() override {}
+  ~vtkEventDataForDevice() override = default;
 
 private:
   vtkEventDataForDevice(const vtkEventData& c) = delete;
@@ -216,8 +216,8 @@ protected:
   double WorldDirection[3];
   double TrackPadPosition[2];
 
-  vtkEventDataDevice3D() {}
-  ~vtkEventDataDevice3D() override {}
+  vtkEventDataDevice3D() = default;
+  ~vtkEventDataDevice3D() override = default;
 
 private:
   vtkEventDataDevice3D(const vtkEventDataDevice3D& c) = delete;
@@ -238,7 +238,7 @@ public:
 
 protected:
   vtkEventDataButton3D() { this->Type = vtkCommand::Button3DEvent; }
-  ~vtkEventDataButton3D() override {}
+  ~vtkEventDataButton3D() override = default;
 
 private:
   vtkEventDataButton3D(const vtkEventDataButton3D& c) = delete;
@@ -259,7 +259,7 @@ public:
 
 protected:
   vtkEventDataMove3D() { this->Type = vtkCommand::Move3DEvent; }
-  ~vtkEventDataMove3D() override {}
+  ~vtkEventDataMove3D() override = default;
 
 private:
   vtkEventDataMove3D(const vtkEventDataMove3D& c) = delete;

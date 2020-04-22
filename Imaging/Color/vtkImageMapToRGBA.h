@@ -36,8 +36,8 @@ public:
   vtkTypeMacro(vtkImageMapToRGBA, vtkImageMapToColors);
 
 protected:
-  vtkImageMapToRGBA() {}
-  ~vtkImageMapToRGBA() override {}
+  vtkImageMapToRGBA() = default;
+  ~vtkImageMapToRGBA() override = default;
 
 private:
   vtkImageMapToRGBA(const vtkImageMapToRGBA&) = delete;

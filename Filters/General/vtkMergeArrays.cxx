@@ -29,10 +29,10 @@
 vtkStandardNewMacro(vtkMergeArrays);
 
 //----------------------------------------------------------------------------
-vtkMergeArrays::vtkMergeArrays() {}
+vtkMergeArrays::vtkMergeArrays() = default;
 
 //----------------------------------------------------------------------------
-vtkMergeArrays::~vtkMergeArrays() {}
+vtkMergeArrays::~vtkMergeArrays() = default;
 
 //----------------------------------------------------------------------------
 bool vtkMergeArrays::GetOutputArrayName(

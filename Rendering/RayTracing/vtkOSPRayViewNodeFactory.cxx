@@ -122,7 +122,7 @@ vtkOSPRayViewNodeFactory::vtkOSPRayViewNodeFactory()
 }
 
 //----------------------------------------------------------------------------
-vtkOSPRayViewNodeFactory::~vtkOSPRayViewNodeFactory() {}
+vtkOSPRayViewNodeFactory::~vtkOSPRayViewNodeFactory() = default;
 
 //----------------------------------------------------------------------------
 void vtkOSPRayViewNodeFactory::PrintSelf(ostream& os, vtkIndent indent)

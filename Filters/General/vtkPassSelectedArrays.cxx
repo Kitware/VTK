@@ -41,7 +41,7 @@ vtkPassSelectedArrays::vtkPassSelectedArrays()
 }
 
 //----------------------------------------------------------------------------
-vtkPassSelectedArrays::~vtkPassSelectedArrays() {}
+vtkPassSelectedArrays::~vtkPassSelectedArrays() = default;
 
 //----------------------------------------------------------------------------
 vtkDataArraySelection* vtkPassSelectedArrays::GetArraySelection(int association)

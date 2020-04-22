@@ -39,8 +39,8 @@ public:
   VTK_LEGACY(void NullPoint(vtkIdType ptId));
 
 protected:
-  vtkPointData() {}
-  ~vtkPointData() override {}
+  vtkPointData() = default;
+  ~vtkPointData() override = default;
 
 private:
   vtkPointData(const vtkPointData&) = delete;

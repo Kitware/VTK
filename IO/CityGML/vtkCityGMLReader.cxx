@@ -994,7 +994,7 @@ public:
 private:
   struct TextureInfo
   {
-    TextureInfo() {}
+    TextureInfo() = default;
     pugi::xml_node ImageURI;
     pugi::xml_node TextureCoordinates;
   };

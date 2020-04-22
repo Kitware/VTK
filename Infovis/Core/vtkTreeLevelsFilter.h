@@ -47,7 +47,7 @@ public:
 
 protected:
   vtkTreeLevelsFilter();
-  ~vtkTreeLevelsFilter() override {}
+  ~vtkTreeLevelsFilter() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

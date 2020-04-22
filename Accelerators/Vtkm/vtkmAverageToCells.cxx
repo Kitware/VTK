@@ -32,10 +32,10 @@
 vtkStandardNewMacro(vtkmAverageToCells);
 
 //------------------------------------------------------------------------------
-vtkmAverageToCells::vtkmAverageToCells() {}
+vtkmAverageToCells::vtkmAverageToCells() = default;
 
 //------------------------------------------------------------------------------
-vtkmAverageToCells::~vtkmAverageToCells() {}
+vtkmAverageToCells::~vtkmAverageToCells() = default;
 
 //------------------------------------------------------------------------------
 int vtkmAverageToCells::RequestData(vtkInformation* vtkNotUsed(request),

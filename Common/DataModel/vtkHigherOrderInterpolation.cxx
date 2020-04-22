@@ -100,7 +100,7 @@ static constexpr int wedgeFaceEdges[5][5] = {
 };
 // -----------------------------------------------------------------------------
 
-vtkHigherOrderInterpolation::vtkHigherOrderInterpolation() {}
+vtkHigherOrderInterpolation::vtkHigherOrderInterpolation() = default;
 
 vtkHigherOrderInterpolation::~vtkHigherOrderInterpolation() = default;
 

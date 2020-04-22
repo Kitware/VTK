@@ -92,7 +92,7 @@ public:
   }
 
 protected:
-  vtkActor2DCollection() {}
+  vtkActor2DCollection() = default;
   ~vtkActor2DCollection() override;
 
   void DeleteElement(vtkCollectionElement*) override;

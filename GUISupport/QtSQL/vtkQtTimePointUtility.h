@@ -43,8 +43,8 @@ public:
   static vtkTypeUInt64 QTimeToTimePoint(QTime time);
 
 protected:
-  vtkQtTimePointUtility() {}
-  ~vtkQtTimePointUtility() override {}
+  vtkQtTimePointUtility() = default;
+  ~vtkQtTimePointUtility() override = default;
 
 private:
   vtkQtTimePointUtility(const vtkQtTimePointUtility&) = delete;

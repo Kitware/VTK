@@ -109,7 +109,7 @@ public:
 
 protected:
   vtkSphere();
-  ~vtkSphere() override {}
+  ~vtkSphere() override = default;
 
   double Radius;
   double Center[3];

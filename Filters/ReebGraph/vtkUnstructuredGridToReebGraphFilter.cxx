@@ -32,7 +32,7 @@ vtkUnstructuredGridToReebGraphFilter::vtkUnstructuredGridToReebGraphFilter()
 }
 
 //----------------------------------------------------------------------------
-vtkUnstructuredGridToReebGraphFilter::~vtkUnstructuredGridToReebGraphFilter() {}
+vtkUnstructuredGridToReebGraphFilter::~vtkUnstructuredGridToReebGraphFilter() = default;
 
 //----------------------------------------------------------------------------
 int vtkUnstructuredGridToReebGraphFilter::FillInputPortInformation(

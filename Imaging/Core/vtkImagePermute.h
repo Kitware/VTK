@@ -48,7 +48,7 @@ public:
 
 protected:
   vtkImagePermute();
-  ~vtkImagePermute() override {}
+  ~vtkImagePermute() override = default;
 
   int FilteredAxes[3];
 

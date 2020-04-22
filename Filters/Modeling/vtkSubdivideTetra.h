@@ -34,7 +34,7 @@ public:
 
 protected:
   vtkSubdivideTetra();
-  ~vtkSubdivideTetra() override {}
+  ~vtkSubdivideTetra() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

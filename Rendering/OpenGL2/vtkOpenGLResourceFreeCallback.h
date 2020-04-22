@@ -30,7 +30,7 @@ public:
     this->VTKWindow = nullptr;
     this->Releasing = false;
   }
-  virtual ~vtkGenericOpenGLResourceFreeCallback() {}
+  virtual ~vtkGenericOpenGLResourceFreeCallback() = default;
 
   // Called when the event is invoked
   virtual void Release() = 0;
@@ -56,7 +56,7 @@ public:
     this->Method = method;
   }
 
-  ~vtkOpenGLResourceFreeCallback() override {}
+  ~vtkOpenGLResourceFreeCallback() override = default;
 
   void RegisterGraphicsResources(vtkOpenGLRenderWindow* rw) override
   {

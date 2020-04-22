@@ -46,7 +46,7 @@ public:
 
 protected:
   vtkExtractUnstructuredGridPiece();
-  ~vtkExtractUnstructuredGridPiece() override {}
+  ~vtkExtractUnstructuredGridPiece() override = default;
 
   // Usual data generation method
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

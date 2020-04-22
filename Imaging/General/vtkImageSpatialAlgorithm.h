@@ -53,7 +53,7 @@ public:
 
 protected:
   vtkImageSpatialAlgorithm();
-  ~vtkImageSpatialAlgorithm() override {}
+  ~vtkImageSpatialAlgorithm() override = default;
 
   int KernelSize[3];
   int KernelMiddle[3];  // Index of kernel origin

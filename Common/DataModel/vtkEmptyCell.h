@@ -62,8 +62,8 @@ public:
     int subId, const double pcoords[3], const double* values, int dim, double* derivs) override;
 
 protected:
-  vtkEmptyCell() {}
-  ~vtkEmptyCell() override {}
+  vtkEmptyCell() = default;
+  ~vtkEmptyCell() override = default;
 
 private:
   vtkEmptyCell(const vtkEmptyCell&) = delete;

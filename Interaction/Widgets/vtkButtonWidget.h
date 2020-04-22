@@ -110,7 +110,7 @@ public:
 
 protected:
   vtkButtonWidget();
-  ~vtkButtonWidget() override {}
+  ~vtkButtonWidget() override = default;
 
   // These are the events that are handled
   static void SelectAction(vtkAbstractWidget*);

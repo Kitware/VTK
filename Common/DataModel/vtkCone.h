@@ -68,7 +68,7 @@ public:
 
 protected:
   vtkCone();
-  ~vtkCone() override {}
+  ~vtkCone() override = default;
 
   double Angle;
 

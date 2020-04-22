@@ -51,8 +51,8 @@ public:
   vtkGenericAdaptorCell* NewCell() override;
 
 protected:
-  vtkBridgeCellIteratorStrategy() {}
-  ~vtkBridgeCellIteratorStrategy() override {}
+  vtkBridgeCellIteratorStrategy() = default;
+  ~vtkBridgeCellIteratorStrategy() override = default;
 
 private:
   vtkBridgeCellIteratorStrategy(const vtkBridgeCellIteratorStrategy&) = delete;

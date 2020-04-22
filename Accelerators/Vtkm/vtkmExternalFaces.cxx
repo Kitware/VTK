@@ -46,7 +46,7 @@ vtkmExternalFaces::vtkmExternalFaces()
 }
 
 //------------------------------------------------------------------------------
-vtkmExternalFaces::~vtkmExternalFaces() {}
+vtkmExternalFaces::~vtkmExternalFaces() = default;
 
 //------------------------------------------------------------------------------
 void vtkmExternalFaces::PrintSelf(ostream& os, vtkIndent indent)

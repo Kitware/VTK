@@ -52,8 +52,8 @@ public:
   //@}
 
 protected:
-  vtkLinearSubdivisionFilter() {}
-  ~vtkLinearSubdivisionFilter() override {}
+  vtkLinearSubdivisionFilter() = default;
+  ~vtkLinearSubdivisionFilter() override = default;
 
   int GenerateSubdivisionPoints(vtkPolyData* inputDS, vtkIntArray* edgeData, vtkPoints* outputPts,
     vtkPointData* outputPD) override;

@@ -164,7 +164,7 @@ public:
 
 protected:
   vtkShepardMethod();
-  ~vtkShepardMethod() override {}
+  ~vtkShepardMethod() override = default;
 
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

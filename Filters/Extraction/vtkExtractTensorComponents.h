@@ -180,7 +180,7 @@ public:
 
 protected:
   vtkExtractTensorComponents();
-  ~vtkExtractTensorComponents() override {}
+  ~vtkExtractTensorComponents() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

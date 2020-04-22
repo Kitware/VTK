@@ -129,7 +129,7 @@ public:
 
 protected:
   vtkEllipseArcSource();
-  ~vtkEllipseArcSource() override {}
+  ~vtkEllipseArcSource() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

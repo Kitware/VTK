@@ -108,7 +108,7 @@ public:
 
 protected:
   vtkRegularPolygonSource();
-  ~vtkRegularPolygonSource() override {}
+  ~vtkRegularPolygonSource() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

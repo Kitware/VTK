@@ -313,7 +313,7 @@ class vtkMapMaskTextureId
 {
 public:
   std::map<vtkImageData*, vtkVolumeMask*> Map;
-  vtkMapMaskTextureId() {}
+  vtkMapMaskTextureId() = default;
 
 private:
   vtkMapMaskTextureId(const vtkMapMaskTextureId& other) = delete;

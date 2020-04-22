@@ -227,7 +227,7 @@ public:
 
 protected:
   vtkTubeFilter();
-  ~vtkTubeFilter() override {}
+  ~vtkTubeFilter() override = default;
 
   // Usual data generation method
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

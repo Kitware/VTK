@@ -45,7 +45,7 @@ public:
 
 protected:
   vtkImageEuclideanToPolar();
-  ~vtkImageEuclideanToPolar() override {}
+  ~vtkImageEuclideanToPolar() override = default;
 
   double ThetaMaximum;
 

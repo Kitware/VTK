@@ -60,7 +60,7 @@ public:
 
 protected:
   vtkImageDecomposeFilter();
-  ~vtkImageDecomposeFilter() override {}
+  ~vtkImageDecomposeFilter() override = default;
 
   int Dimensionality;
 

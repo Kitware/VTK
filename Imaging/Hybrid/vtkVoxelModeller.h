@@ -121,7 +121,7 @@ public:
 
 protected:
   vtkVoxelModeller();
-  ~vtkVoxelModeller() override {}
+  ~vtkVoxelModeller() override = default;
 
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

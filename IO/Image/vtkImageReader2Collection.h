@@ -54,8 +54,8 @@ public:
   vtkImageReader2* GetNextImageReader2(vtkCollectionSimpleIterator& cookie);
 
 protected:
-  vtkImageReader2Collection() {}
-  ~vtkImageReader2Collection() override {}
+  vtkImageReader2Collection() = default;
+  ~vtkImageReader2Collection() override = default;
 
 private:
   // hide the standard AddItem from the user and the compiler.

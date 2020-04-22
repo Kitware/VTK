@@ -30,10 +30,10 @@
 vtkStandardNewMacro(vtkVolumeNode);
 
 //----------------------------------------------------------------------------
-vtkVolumeNode::vtkVolumeNode() {}
+vtkVolumeNode::vtkVolumeNode() = default;
 
 //----------------------------------------------------------------------------
-vtkVolumeNode::~vtkVolumeNode() {}
+vtkVolumeNode::~vtkVolumeNode() = default;
 
 //----------------------------------------------------------------------------
 void vtkVolumeNode::Build(bool prepass)

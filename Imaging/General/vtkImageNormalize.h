@@ -35,7 +35,7 @@ public:
 
 protected:
   vtkImageNormalize();
-  ~vtkImageNormalize() override {}
+  ~vtkImageNormalize() override = default;
 
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

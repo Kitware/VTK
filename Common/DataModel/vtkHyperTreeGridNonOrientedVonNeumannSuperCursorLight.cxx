@@ -310,8 +310,6 @@ void vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight::PrintSelf(ostream& o
 
 //-----------------------------------------------------------------------------
 vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight::
-  ~vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight()
-{
-}
+  ~vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight() = default;
 
 //-----------------------------------------------------------------------------

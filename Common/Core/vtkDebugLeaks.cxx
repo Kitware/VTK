@@ -52,8 +52,8 @@ vtkStandardNewMacro(vtkDebugLeaks);
 class vtkDebugLeaksHashTable
 {
 public:
-  vtkDebugLeaksHashTable() {}
-  ~vtkDebugLeaksHashTable() {}
+  vtkDebugLeaksHashTable() = default;
+  ~vtkDebugLeaksHashTable() = default;
   void IncrementCount(const char* name);
   vtkTypeBool DecrementCount(const char* name);
   void PrintTable(std::string& os);
@@ -127,7 +127,7 @@ public:
       this->ClassesToTrace.insert(classes.begin(), classes.end());
     }
   }
-  ~vtkDebugLeaksTraceManager() {}
+  ~vtkDebugLeaksTraceManager() = default;
 
   void RegisterObject(vtkObjectBase* obj);
   void UnRegisterObject(vtkObjectBase* obj);

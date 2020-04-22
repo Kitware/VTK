@@ -182,6 +182,6 @@ vtkHyperTreeGridOrientedCursor::vtkHyperTreeGridOrientedCursor()
 }
 
 //-----------------------------------------------------------------------------
-vtkHyperTreeGridOrientedCursor::~vtkHyperTreeGridOrientedCursor() {}
+vtkHyperTreeGridOrientedCursor::~vtkHyperTreeGridOrientedCursor() = default;
 
 //-----------------------------------------------------------------------------

@@ -370,8 +370,6 @@ void vtkHyperTreeGridNonOrientedMooreSuperCursorLight::PrintSelf(ostream& os, vt
 
 //-----------------------------------------------------------------------------
 vtkHyperTreeGridNonOrientedMooreSuperCursorLight::
-  ~vtkHyperTreeGridNonOrientedMooreSuperCursorLight()
-{
-}
+  ~vtkHyperTreeGridNonOrientedMooreSuperCursorLight() = default;
 
 //-----------------------------------------------------------------------------

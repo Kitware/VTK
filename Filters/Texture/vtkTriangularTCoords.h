@@ -43,8 +43,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
-  vtkTriangularTCoords() {}
-  ~vtkTriangularTCoords() override {}
+  vtkTriangularTCoords() = default;
+  ~vtkTriangularTCoords() override = default;
 
   // Usual data generation method
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

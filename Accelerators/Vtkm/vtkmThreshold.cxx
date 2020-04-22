@@ -36,10 +36,10 @@
 vtkStandardNewMacro(vtkmThreshold);
 
 //------------------------------------------------------------------------------
-vtkmThreshold::vtkmThreshold() {}
+vtkmThreshold::vtkmThreshold() = default;
 
 //------------------------------------------------------------------------------
-vtkmThreshold::~vtkmThreshold() {}
+vtkmThreshold::~vtkmThreshold() = default;
 
 //------------------------------------------------------------------------------
 int vtkmThreshold::RequestData(

@@ -57,8 +57,8 @@ public:
   static const char* GetVTKSourceVersion() { return VTK_SOURCE_VERSION; }
 
 protected:
-  vtkVersion() {} // insure constructor/destructor protected
-  ~vtkVersion() override {}
+  vtkVersion() = default; // insure constructor/destructor protected
+  ~vtkVersion() override = default;
 
 private:
   vtkVersion(const vtkVersion&) = delete;

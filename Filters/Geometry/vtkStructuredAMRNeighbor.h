@@ -78,7 +78,7 @@ public:
   /**
    * Destructor.
    */
-  ~vtkStructuredAMRNeighbor() override {}
+  ~vtkStructuredAMRNeighbor() override = default;
 
   /**
    * Overload assignment operator.

@@ -121,7 +121,7 @@ public:
 
 protected:
   vtkLinearExtrusionFilter();
-  ~vtkLinearExtrusionFilter() override {}
+  ~vtkLinearExtrusionFilter() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int ExtrusionType;

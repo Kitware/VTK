@@ -134,7 +134,7 @@ public:
 
 protected:
   vtkEllipticalButtonSource();
-  ~vtkEllipticalButtonSource() override {}
+  ~vtkEllipticalButtonSource() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

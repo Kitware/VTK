@@ -54,8 +54,8 @@ public:
   virtual vtkUnstructuredGridVolumeRayCastIterator* NewIterator() = 0;
 
 protected:
-  vtkUnstructuredGridVolumeRayCastFunction() {}
-  ~vtkUnstructuredGridVolumeRayCastFunction() override {}
+  vtkUnstructuredGridVolumeRayCastFunction() = default;
+  ~vtkUnstructuredGridVolumeRayCastFunction() override = default;
 
 private:
   vtkUnstructuredGridVolumeRayCastFunction(

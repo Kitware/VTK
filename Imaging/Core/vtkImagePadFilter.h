@@ -55,7 +55,7 @@ public:
 
 protected:
   vtkImagePadFilter();
-  ~vtkImagePadFilter() override {}
+  ~vtkImagePadFilter() override = default;
 
   int OutputWholeExtent[6];
   int OutputNumberOfScalarComponents;

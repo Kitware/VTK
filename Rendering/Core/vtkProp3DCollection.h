@@ -63,8 +63,8 @@ public:
   }
 
 protected:
-  vtkProp3DCollection() {}
-  ~vtkProp3DCollection() override {}
+  vtkProp3DCollection() = default;
+  ~vtkProp3DCollection() override = default;
 
 private:
   // hide the standard AddItem from the user and the compiler.

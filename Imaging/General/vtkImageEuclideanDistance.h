@@ -106,7 +106,7 @@ public:
 
 protected:
   vtkImageEuclideanDistance();
-  ~vtkImageEuclideanDistance() override {}
+  ~vtkImageEuclideanDistance() override = default;
 
   double MaximumDistance;
   vtkTypeBool Initialize;

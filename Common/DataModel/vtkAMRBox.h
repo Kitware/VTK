@@ -67,7 +67,7 @@ public:
    */
   vtkAMRBox& operator=(const vtkAMRBox& other);
 
-  virtual ~vtkAMRBox() {}
+  virtual ~vtkAMRBox() = default;
 
   //@{
   /**

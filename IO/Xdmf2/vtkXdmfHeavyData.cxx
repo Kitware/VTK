@@ -93,7 +93,7 @@ vtkXdmfHeavyData::vtkXdmfHeavyData(vtkXdmfDomain* domain, vtkAlgorithm* reader)
 }
 
 //----------------------------------------------------------------------------
-vtkXdmfHeavyData::~vtkXdmfHeavyData() {}
+vtkXdmfHeavyData::~vtkXdmfHeavyData() = default;
 
 //----------------------------------------------------------------------------
 vtkDataObject* vtkXdmfHeavyData::ReadData()

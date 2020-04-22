@@ -68,7 +68,7 @@ public:
 
 protected:
   vtkEarthSource();
-  ~vtkEarthSource() override {}
+  ~vtkEarthSource() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

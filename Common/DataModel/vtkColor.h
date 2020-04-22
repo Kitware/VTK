@@ -34,7 +34,7 @@ template <typename T>
 class vtkColor3 : public vtkTuple<T, 3>
 {
 public:
-  vtkColor3() {}
+  vtkColor3() = default;
 
   explicit vtkColor3(const T& scalar)
     : vtkTuple<T, 3>(scalar)
@@ -102,7 +102,7 @@ template <typename T>
 class vtkColor4 : public vtkTuple<T, 4>
 {
 public:
-  vtkColor4() {}
+  vtkColor4() = default;
 
   explicit vtkColor4(const T& scalar)
     : vtkTuple<T, 4>(scalar)
@@ -194,7 +194,7 @@ public:
 class vtkColor3ub : public vtkColor3<unsigned char>
 {
 public:
-  vtkColor3ub() {}
+  vtkColor3ub() = default;
   explicit vtkColor3ub(unsigned char scalar)
     : vtkColor3<unsigned char>(scalar)
   {
@@ -228,7 +228,7 @@ public:
 class vtkColor3f : public vtkColor3<float>
 {
 public:
-  vtkColor3f() {}
+  vtkColor3f() = default;
   explicit vtkColor3f(float scalar)
     : vtkColor3<float>(scalar)
   {
@@ -246,7 +246,7 @@ public:
 class vtkColor3d : public vtkColor3<double>
 {
 public:
-  vtkColor3d() {}
+  vtkColor3d() = default;
   explicit vtkColor3d(double scalar)
     : vtkColor3<double>(scalar)
   {
@@ -264,7 +264,7 @@ public:
 class vtkColor4ub : public vtkColor4<unsigned char>
 {
 public:
-  vtkColor4ub() {}
+  vtkColor4ub() = default;
   explicit vtkColor4ub(unsigned char scalar)
     : vtkColor4<unsigned char>(scalar)
   {
@@ -305,7 +305,7 @@ public:
 class vtkColor4f : public vtkColor4<float>
 {
 public:
-  vtkColor4f() {}
+  vtkColor4f() = default;
   explicit vtkColor4f(float scalar)
     : vtkColor4<float>(scalar)
   {
@@ -323,7 +323,7 @@ public:
 class vtkColor4d : public vtkColor4<double>
 {
 public:
-  vtkColor4d() {}
+  vtkColor4d() = default;
   explicit vtkColor4d(double scalar)
     : vtkColor4<double>(scalar)
   {

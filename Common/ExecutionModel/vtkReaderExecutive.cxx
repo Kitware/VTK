@@ -24,10 +24,10 @@ PURPOSE.  See the above copyright notice for more information.
 vtkStandardNewMacro(vtkReaderExecutive);
 
 //----------------------------------------------------------------------------
-vtkReaderExecutive::vtkReaderExecutive() {}
+vtkReaderExecutive::vtkReaderExecutive() = default;
 
 //----------------------------------------------------------------------------
-vtkReaderExecutive::~vtkReaderExecutive() {}
+vtkReaderExecutive::~vtkReaderExecutive() = default;
 
 //----------------------------------------------------------------------------
 void vtkReaderExecutive::PrintSelf(ostream& os, vtkIndent indent)

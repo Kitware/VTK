@@ -572,7 +572,7 @@ public:
 
 protected:
   vtkWordCloud();
-  ~vtkWordCloud() override {}
+  ~vtkWordCloud() override = default;
 
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

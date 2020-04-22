@@ -46,8 +46,8 @@ public:
   //@}
 
 protected:
-  vtkPolyDataWriter() {}
-  ~vtkPolyDataWriter() override {}
+  vtkPolyDataWriter() = default;
+  ~vtkPolyDataWriter() override = default;
 
   void WriteData() override;
 

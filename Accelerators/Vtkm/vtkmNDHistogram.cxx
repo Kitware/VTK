@@ -68,10 +68,10 @@ void vtkmNDHistogram::PrintSelf(std::ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-vtkmNDHistogram::vtkmNDHistogram() {}
+vtkmNDHistogram::vtkmNDHistogram() = default;
 
 //------------------------------------------------------------------------------
-vtkmNDHistogram::~vtkmNDHistogram() {}
+vtkmNDHistogram::~vtkmNDHistogram() = default;
 
 //------------------------------------------------------------------------------
 void vtkmNDHistogram::AddFieldAndBin(const std::string& fieldName, const vtkIdType& numberOfBins)

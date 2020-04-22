@@ -133,7 +133,7 @@ public:
 
 protected:
   vtkCellTypeSource();
-  ~vtkCellTypeSource() override {}
+  ~vtkCellTypeSource() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

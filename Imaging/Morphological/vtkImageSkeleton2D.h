@@ -56,7 +56,7 @@ public:
 
 protected:
   vtkImageSkeleton2D();
-  ~vtkImageSkeleton2D() override {}
+  ~vtkImageSkeleton2D() override = default;
 
   vtkTypeBool Prune;
 

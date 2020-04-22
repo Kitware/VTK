@@ -243,7 +243,7 @@ class vtk_in_edge_pointer_iterator;
 // Edge structures.
 struct vtkEdgeBase
 {
-  vtkEdgeBase() {}
+  vtkEdgeBase() = default;
   vtkEdgeBase(vtkIdType id)
     : Id(id)
   {
@@ -253,7 +253,7 @@ struct vtkEdgeBase
 
 struct vtkOutEdgeType : vtkEdgeBase
 {
-  vtkOutEdgeType() {}
+  vtkOutEdgeType() = default;
   vtkOutEdgeType(vtkIdType t, vtkIdType id)
     : vtkEdgeBase(id)
     , Target(t)
@@ -264,7 +264,7 @@ struct vtkOutEdgeType : vtkEdgeBase
 
 struct vtkInEdgeType : vtkEdgeBase
 {
-  vtkInEdgeType() {}
+  vtkInEdgeType() = default;
   vtkInEdgeType(vtkIdType s, vtkIdType id)
     : vtkEdgeBase(id)
     , Source(s)
@@ -275,7 +275,7 @@ struct vtkInEdgeType : vtkEdgeBase
 
 struct vtkEdgeType : vtkEdgeBase
 {
-  vtkEdgeType() {}
+  vtkEdgeType() = default;
   vtkEdgeType(vtkIdType s, vtkIdType t, vtkIdType id)
     : vtkEdgeBase(id)
     , Source(s)

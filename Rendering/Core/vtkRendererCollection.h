@@ -70,8 +70,8 @@ public:
   }
 
 protected:
-  vtkRendererCollection() {}
-  ~vtkRendererCollection() override {}
+  vtkRendererCollection() = default;
+  ~vtkRendererCollection() override = default;
 
 private:
   // hide the standard AddItem from the user and the compiler.

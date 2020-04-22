@@ -323,7 +323,7 @@ public:
     /// be output.
     Set() { this->OutputId = -1; }
     /// Virtual destructor since we have virtual members.
-    virtual ~Set() {}
+    virtual ~Set() = default;
     /// Print a graphviz node label statement (with fancy node name and shape).
     virtual void PrintNodeName(ostream& os);
     /// Print a graphviz node name for use in an edge statement.
@@ -351,7 +351,7 @@ public:
      */
     int Match(double cellNorm[2]);
 
-    ~Interval() override {}
+    ~Interval() override = default;
     void PrintNode(ostream& os) override;
     Interval* GetIntervalPointer() override;
   };
@@ -372,7 +372,7 @@ public:
       this->Id = sId;
       this->Operator = op;
     }
-    ~BooleanSet() override {}
+    ~BooleanSet() override = default;
     void PrintNode(ostream& os) override;
     BooleanSet* GetBooleanSetPointer() override;
   };

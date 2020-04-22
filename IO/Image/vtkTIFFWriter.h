@@ -67,7 +67,7 @@ public:
 
 protected:
   vtkTIFFWriter();
-  ~vtkTIFFWriter() override {}
+  ~vtkTIFFWriter() override = default;
 
   void WriteFile(ostream* file, vtkImageData* data, int ext[6], int wExt[6]) override;
   void WriteFileHeader(ostream*, vtkImageData*, int wExt[6]) override;

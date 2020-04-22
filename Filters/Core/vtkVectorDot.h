@@ -81,7 +81,7 @@ public:
 
 protected:
   vtkVectorDot();
-  ~vtkVectorDot() override {}
+  ~vtkVectorDot() override = default;
 
   vtkTypeBool MapScalars;
   double ScalarRange[2];

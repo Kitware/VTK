@@ -49,10 +49,10 @@
 vtkStandardNewMacro(vtkTreeCompositer);
 
 //-------------------------------------------------------------------------
-vtkTreeCompositer::vtkTreeCompositer() {}
+vtkTreeCompositer::vtkTreeCompositer() = default;
 
 //-------------------------------------------------------------------------
-vtkTreeCompositer::~vtkTreeCompositer() {}
+vtkTreeCompositer::~vtkTreeCompositer() = default;
 
 //-------------------------------------------------------------------------
 // Jim's composite stuff

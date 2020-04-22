@@ -68,7 +68,7 @@ public:
 
 protected:
   vtkAttributeDataToFieldDataFilter();
-  ~vtkAttributeDataToFieldDataFilter() override {}
+  ~vtkAttributeDataToFieldDataFilter() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**,
     vtkInformationVector*) override; // generate output data

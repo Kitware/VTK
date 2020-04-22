@@ -42,7 +42,7 @@ public:
 
 protected:
   vtkImageRGBToHSV();
-  ~vtkImageRGBToHSV() override {}
+  ~vtkImageRGBToHSV() override = default;
 
   double Maximum;
 

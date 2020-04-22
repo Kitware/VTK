@@ -135,7 +135,7 @@ protected:
   /**
    * Destructor.
    */
-  ~vtkRTAnalyticSource() override {}
+  ~vtkRTAnalyticSource() override = default;
 
   double XFreq;
   double YFreq;

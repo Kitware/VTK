@@ -39,7 +39,7 @@ public:
 
 protected:
   vtkStructuredPointsGeometryFilter();
-  ~vtkStructuredPointsGeometryFilter() override {}
+  ~vtkStructuredPointsGeometryFilter() override = default;
 
 private:
   vtkStructuredPointsGeometryFilter(const vtkStructuredPointsGeometryFilter&) = delete;

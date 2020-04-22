@@ -35,7 +35,7 @@ template <typename T>
 class vtkRect : public vtkVector<T, 4>
 {
 public:
-  vtkRect() {}
+  vtkRect() = default;
 
   vtkRect(const T& x, const T& y, const T& width, const T& height)
   {
@@ -312,7 +312,7 @@ public:
 class vtkRecti : public vtkRect<int>
 {
 public:
-  vtkRecti() {}
+  vtkRecti() = default;
   vtkRecti(int x, int y, int width, int height)
     : vtkRect<int>(x, y, width, height)
   {
@@ -326,7 +326,7 @@ public:
 class vtkRectf : public vtkRect<float>
 {
 public:
-  vtkRectf() {}
+  vtkRectf() = default;
   vtkRectf(float x, float y, float width, float height)
     : vtkRect<float>(x, y, width, height)
   {
@@ -340,7 +340,7 @@ public:
 class vtkRectd : public vtkRect<double>
 {
 public:
-  vtkRectd() {}
+  vtkRectd() = default;
   vtkRectd(double x, double y, double width, double height)
     : vtkRect<double>(x, y, width, height)
   {

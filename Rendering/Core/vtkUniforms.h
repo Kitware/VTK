@@ -182,8 +182,8 @@ public:
   virtual int GetUniformNumberOfTuples(const char* name) = 0;
 
 protected:
-  vtkUniforms() {}
-  ~vtkUniforms() override {}
+  vtkUniforms() = default;
+  ~vtkUniforms() override = default;
 
 private:
   vtkUniforms(const vtkUniforms&) = delete;

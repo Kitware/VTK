@@ -64,7 +64,7 @@ protected:
     : WriteExtent(false)
   {
   }
-  ~vtkRectilinearGridWriter() override {}
+  ~vtkRectilinearGridWriter() override = default;
 
   void WriteData() override;
 

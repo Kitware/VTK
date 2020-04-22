@@ -109,8 +109,8 @@ public:
   void SetLastCellId(vtkIdType c) override { this->Superclass::SetLastCellId(c); }
 
 protected:
-  vtkInterpolatedVelocityField() {}
-  ~vtkInterpolatedVelocityField() override {}
+  vtkInterpolatedVelocityField() = default;
+  ~vtkInterpolatedVelocityField() override = default;
 
   /**
    * Evaluate the velocity field f at point (x, y, z) in a specified dataset

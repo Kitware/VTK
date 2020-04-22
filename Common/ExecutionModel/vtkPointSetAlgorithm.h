@@ -106,7 +106,7 @@ public:
 
 protected:
   vtkPointSetAlgorithm();
-  ~vtkPointSetAlgorithm() override {}
+  ~vtkPointSetAlgorithm() override = default;
 
   /**
    * This is called by the superclass.

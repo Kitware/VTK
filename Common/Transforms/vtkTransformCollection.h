@@ -59,8 +59,8 @@ public:
   }
 
 protected:
-  vtkTransformCollection() {}
-  ~vtkTransformCollection() override {}
+  vtkTransformCollection() = default;
+  ~vtkTransformCollection() override = default;
 
 private:
   // hide the standard AddItem from the user and the compiler.

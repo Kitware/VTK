@@ -31,7 +31,7 @@ vtkPolyLineSource::vtkPolyLineSource()
 }
 
 //----------------------------------------------------------------------------
-vtkPolyLineSource::~vtkPolyLineSource() {}
+vtkPolyLineSource::~vtkPolyLineSource() = default;
 
 //----------------------------------------------------------------------------
 int vtkPolyLineSource::RequestData(vtkInformation* vtkNotUsed(request),

@@ -59,8 +59,8 @@ public:
   }
 
 protected:
-  vtkStructuredPointsCollection() {}
-  ~vtkStructuredPointsCollection() override {}
+  vtkStructuredPointsCollection() = default;
+  ~vtkStructuredPointsCollection() override = default;
 
 private:
   // hide the standard AddItem from the user and the compiler.

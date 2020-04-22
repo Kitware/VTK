@@ -58,8 +58,8 @@ public:
   //@}
 
 protected:
-  vtkImplicitFunctionCollection() {}
-  ~vtkImplicitFunctionCollection() override {}
+  vtkImplicitFunctionCollection() = default;
+  ~vtkImplicitFunctionCollection() override = default;
 
 private:
   // hide the standard AddItem from the user and the compiler.

@@ -63,7 +63,7 @@ protected:
     : WriteExtent(false)
   {
   }
-  ~vtkStructuredPointsWriter() override {}
+  ~vtkStructuredPointsWriter() override = default;
 
   void WriteData() override;
 

@@ -46,7 +46,7 @@ public:
 
 protected:
   vtkQImageToImageSource();
-  ~vtkQImageToImageSource() override {}
+  ~vtkQImageToImageSource() override = default;
 
   const QImage* QtImage;
   int DataExtent[6];

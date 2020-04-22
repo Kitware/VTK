@@ -114,7 +114,7 @@ public:
 
 protected:
   vtkCompassWidget();
-  ~vtkCompassWidget() override {}
+  ~vtkCompassWidget() override = default;
 
   // These are the events that are handled
   static void SelectAction(vtkAbstractWidget*);

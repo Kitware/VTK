@@ -33,10 +33,10 @@
 vtkStandardNewMacro(vtkmAverageToPoints);
 
 //------------------------------------------------------------------------------
-vtkmAverageToPoints::vtkmAverageToPoints() {}
+vtkmAverageToPoints::vtkmAverageToPoints() = default;
 
 //------------------------------------------------------------------------------
-vtkmAverageToPoints::~vtkmAverageToPoints() {}
+vtkmAverageToPoints::~vtkmAverageToPoints() = default;
 
 //------------------------------------------------------------------------------
 int vtkmAverageToPoints::RequestData(vtkInformation* vtkNotUsed(request),

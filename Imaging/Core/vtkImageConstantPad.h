@@ -48,7 +48,7 @@ public:
 
 protected:
   vtkImageConstantPad();
-  ~vtkImageConstantPad() override {}
+  ~vtkImageConstantPad() override = default;
 
   double Constant;
 

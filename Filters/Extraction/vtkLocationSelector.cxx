@@ -36,7 +36,7 @@ public:
   {
   }
 
-  virtual ~vtkInternals() {}
+  virtual ~vtkInternals() = default;
   virtual bool Execute(vtkDataSet* dataset, vtkSignedCharArray* insidednessArray) = 0;
 
 protected:
@@ -153,7 +153,7 @@ vtkLocationSelector::vtkLocationSelector()
 }
 
 //----------------------------------------------------------------------------
-vtkLocationSelector::~vtkLocationSelector() {}
+vtkLocationSelector::~vtkLocationSelector() = default;
 
 //----------------------------------------------------------------------------
 void vtkLocationSelector::Initialize(vtkSelectionNode* node)

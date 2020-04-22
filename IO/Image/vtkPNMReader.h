@@ -57,8 +57,8 @@ public:
   const char* GetDescriptiveName() override { return "PNM"; }
 
 protected:
-  vtkPNMReader() {}
-  ~vtkPNMReader() override {}
+  vtkPNMReader() = default;
+  ~vtkPNMReader() override = default;
   void ExecuteInformation() override;
 
 private:

@@ -46,7 +46,7 @@ public:
 protected:
   vtkMultiTimeStepAlgorithm();
 
-  ~vtkMultiTimeStepAlgorithm() override {}
+  ~vtkMultiTimeStepAlgorithm() override = default;
 
   /**
    * This is filled by the child class to request multiple time steps

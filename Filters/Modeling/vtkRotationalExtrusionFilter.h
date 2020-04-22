@@ -118,7 +118,7 @@ public:
 
 protected:
   vtkRotationalExtrusionFilter();
-  ~vtkRotationalExtrusionFilter() override {}
+  ~vtkRotationalExtrusionFilter() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int Resolution;

@@ -98,7 +98,7 @@ public:
 
 protected:
   vtkThresholdTextureCoords();
-  ~vtkThresholdTextureCoords() override {}
+  ~vtkThresholdTextureCoords() override = default;
 
   // Usual data generation method
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

@@ -34,7 +34,7 @@ vtkClosestNPointsStrategy::vtkClosestNPointsStrategy()
 }
 
 //----------------------------------------------------------------------------
-vtkClosestNPointsStrategy::~vtkClosestNPointsStrategy() {}
+vtkClosestNPointsStrategy::~vtkClosestNPointsStrategy() = default;
 
 //-----------------------------------------------------------------------------
 vtkIdType vtkClosestNPointsStrategy::FindCell(double x[3], vtkCell* cell, vtkGenericCell* gencell,

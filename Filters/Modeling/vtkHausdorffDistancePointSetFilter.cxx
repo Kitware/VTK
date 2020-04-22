@@ -69,7 +69,7 @@ vtkHausdorffDistancePointSetFilter::vtkHausdorffDistancePointSetFilter()
   this->TargetDistanceMethod = POINT_TO_POINT;
 }
 
-vtkHausdorffDistancePointSetFilter::~vtkHausdorffDistancePointSetFilter() {}
+vtkHausdorffDistancePointSetFilter::~vtkHausdorffDistancePointSetFilter() = default;
 
 int vtkHausdorffDistancePointSetFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)

@@ -102,7 +102,7 @@ public:
 
 protected:
   vtkTextureMapToCylinder();
-  ~vtkTextureMapToCylinder() override {}
+  ~vtkTextureMapToCylinder() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

@@ -242,7 +242,7 @@ bool vtkOpenGLPointGaussianMapperHelper::GetNeedToRebuildShaders(
 }
 
 //-----------------------------------------------------------------------------
-vtkOpenGLPointGaussianMapperHelper::~vtkOpenGLPointGaussianMapperHelper() {}
+vtkOpenGLPointGaussianMapperHelper::~vtkOpenGLPointGaussianMapperHelper() = default;
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLPointGaussianMapperHelper::SetCameraShaderParameters(

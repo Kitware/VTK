@@ -39,7 +39,7 @@ public:
 
 protected:
   vtkImageYIQToRGB();
-  ~vtkImageYIQToRGB() override {}
+  ~vtkImageYIQToRGB() override = default;
 
   double Maximum; // Maximum value of pixel intensity allowed
 

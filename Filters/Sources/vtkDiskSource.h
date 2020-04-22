@@ -81,7 +81,7 @@ public:
 
 protected:
   vtkDiskSource();
-  ~vtkDiskSource() override {}
+  ~vtkDiskSource() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   double InnerRadius;

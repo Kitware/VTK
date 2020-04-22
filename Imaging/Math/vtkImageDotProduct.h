@@ -40,7 +40,7 @@ public:
 
 protected:
   vtkImageDotProduct();
-  ~vtkImageDotProduct() override {}
+  ~vtkImageDotProduct() override = default;
 
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

@@ -41,7 +41,7 @@ int TestVTKMImplicitDataArray(int, char*[])
 
   struct Shim
   {
-    Shim() {}
+    Shim() = default;
     Shim(const ScalarFunction& f, vtkImageData* i)
       : function(f)
       , imageDataPtr(i)

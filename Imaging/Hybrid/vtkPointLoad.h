@@ -96,7 +96,7 @@ public:
 
 protected:
   vtkPointLoad();
-  ~vtkPointLoad() override {}
+  ~vtkPointLoad() override = default;
 
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   void ExecuteDataWithInformation(vtkDataObject*, vtkInformation*) override;

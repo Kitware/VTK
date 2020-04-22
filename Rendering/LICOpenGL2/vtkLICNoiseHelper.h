@@ -72,7 +72,7 @@ desired frequency (f < 1 is impulse noise).
 class vtkLICRandomNoise2D
 {
 public:
-  vtkLICRandomNoise2D() {}
+  vtkLICRandomNoise2D() = default;
 
   //@{
   /**

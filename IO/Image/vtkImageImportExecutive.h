@@ -37,8 +37,8 @@ public:
     vtkInformation* request, vtkInformationVector** inInfo, vtkInformationVector* outInfo) override;
 
 protected:
-  vtkImageImportExecutive() {}
-  ~vtkImageImportExecutive() override {}
+  vtkImageImportExecutive() = default;
+  ~vtkImageImportExecutive() override = default;
 
 private:
   vtkImageImportExecutive(const vtkImageImportExecutive&) = delete;

@@ -145,7 +145,7 @@ public:
 
 protected:
   vtkCursor2D();
-  ~vtkCursor2D() override {}
+  ~vtkCursor2D() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

@@ -64,7 +64,7 @@ public:
 
 protected:
   vtkPointPicker();
-  ~vtkPointPicker() override {}
+  ~vtkPointPicker() override = default;
 
   vtkIdType PointId;    // picked point
   vtkTypeBool UseCells; // Use cell points vs. points directly

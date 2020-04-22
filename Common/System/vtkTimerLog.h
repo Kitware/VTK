@@ -210,7 +210,7 @@ protected:
     this->StartTime = 0;
     this->EndTime = 0;
   } // insure constructor/destructor protected
-  ~vtkTimerLog() override {}
+  ~vtkTimerLog() override = default;
 
   static int Logging;
   static int Indent;

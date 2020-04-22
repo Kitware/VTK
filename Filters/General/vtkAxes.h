@@ -72,7 +72,7 @@ public:
 
 protected:
   vtkAxes();
-  ~vtkAxes() override {}
+  ~vtkAxes() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   // This source does not know how to generate pieces yet.

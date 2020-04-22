@@ -186,7 +186,7 @@ public:
   {
   public:
     virtual void operator()(vtkDoubleArray*, vtkIdType) = 0;
-    virtual ~AssessFunctor() {}
+    virtual ~AssessFunctor() = default;
   };
   //@}
 

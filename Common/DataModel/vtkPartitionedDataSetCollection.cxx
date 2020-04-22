@@ -22,10 +22,10 @@
 
 vtkStandardNewMacro(vtkPartitionedDataSetCollection);
 //----------------------------------------------------------------------------
-vtkPartitionedDataSetCollection::vtkPartitionedDataSetCollection() {}
+vtkPartitionedDataSetCollection::vtkPartitionedDataSetCollection() = default;
 
 //----------------------------------------------------------------------------
-vtkPartitionedDataSetCollection::~vtkPartitionedDataSetCollection() {}
+vtkPartitionedDataSetCollection::~vtkPartitionedDataSetCollection() = default;
 
 //----------------------------------------------------------------------------
 vtkPartitionedDataSetCollection* vtkPartitionedDataSetCollection::GetData(vtkInformation* info)

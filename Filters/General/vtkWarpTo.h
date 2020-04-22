@@ -63,7 +63,7 @@ public:
 
 protected:
   vtkWarpTo();
-  ~vtkWarpTo() override {}
+  ~vtkWarpTo() override = default;
 
   int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;

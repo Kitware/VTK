@@ -156,7 +156,7 @@ public:
 
 protected:
   vtkPolyDataMapper();
-  ~vtkPolyDataMapper() override {}
+  ~vtkPolyDataMapper() override = default;
 
   /**
    * Called in GetBounds(). When this method is called, the consider the input

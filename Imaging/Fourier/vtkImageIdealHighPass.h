@@ -60,7 +60,7 @@ public:
 
 protected:
   vtkImageIdealHighPass();
-  ~vtkImageIdealHighPass() override {}
+  ~vtkImageIdealHighPass() override = default;
 
   double CutOff[3];
 

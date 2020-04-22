@@ -101,7 +101,7 @@ vtkCompositeLICHelper::vtkCompositeLICHelper()
 }
 
 //----------------------------------------------------------------------------
-vtkCompositeLICHelper::~vtkCompositeLICHelper() {}
+vtkCompositeLICHelper::~vtkCompositeLICHelper() = default;
 
 void vtkCompositeLICHelper::ReplaceShaderValues(
   std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* actor)
@@ -181,10 +181,10 @@ void vtkCompositeLICHelper::AppendOneBufferObject(vtkRenderer* ren, vtkActor* ac
 
 vtkStandardNewMacro(vtkCompositeSurfaceLICMapper);
 //----------------------------------------------------------------------------
-vtkCompositeSurfaceLICMapper::vtkCompositeSurfaceLICMapper() {}
+vtkCompositeSurfaceLICMapper::vtkCompositeSurfaceLICMapper() = default;
 
 //----------------------------------------------------------------------------
-vtkCompositeSurfaceLICMapper::~vtkCompositeSurfaceLICMapper() {}
+vtkCompositeSurfaceLICMapper::~vtkCompositeSurfaceLICMapper() = default;
 
 vtkCompositeMapperHelper2* vtkCompositeSurfaceLICMapper::CreateHelper()
 {

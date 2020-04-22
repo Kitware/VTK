@@ -68,8 +68,8 @@ public:
   //@}
 
 protected:
-  vtkDIMACSGraphWriter() {}
-  ~vtkDIMACSGraphWriter() override {}
+  vtkDIMACSGraphWriter() = default;
+  ~vtkDIMACSGraphWriter() override = default;
 
   void WriteData() override;
 

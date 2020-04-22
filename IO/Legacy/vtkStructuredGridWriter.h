@@ -64,7 +64,7 @@ protected:
     : WriteExtent(false)
   {
   }
-  ~vtkStructuredGridWriter() override {}
+  ~vtkStructuredGridWriter() override = default;
 
   void WriteData() override;
 

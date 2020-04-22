@@ -61,7 +61,7 @@ protected:
   /**
    * Constructor
    */
-  vtkHyperTreeGridNonOrientedVonNeumannSuperCursor() {}
+  vtkHyperTreeGridNonOrientedVonNeumannSuperCursor() = default;
 
   /**
    * Destructor

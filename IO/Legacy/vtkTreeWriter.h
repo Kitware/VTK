@@ -46,8 +46,8 @@ public:
   //@}
 
 protected:
-  vtkTreeWriter() {}
-  ~vtkTreeWriter() override {}
+  vtkTreeWriter() = default;
+  ~vtkTreeWriter() override = default;
 
   void WriteData() override;
 

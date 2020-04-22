@@ -37,7 +37,7 @@ public:
 
 protected:
   vtkImageFourierCenter();
-  ~vtkImageFourierCenter() override {}
+  ~vtkImageFourierCenter() override = default;
 
   int IterativeRequestUpdateExtent(vtkInformation* in, vtkInformation* out) override;
 

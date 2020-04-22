@@ -61,8 +61,8 @@ public:
   int InsertUniquePoint(const double x[3], vtkIdType& ptId) override;
 
 protected:
-  vtkMergePoints() {}
-  ~vtkMergePoints() override {}
+  vtkMergePoints() = default;
+  ~vtkMergePoints() override = default;
 
 private:
   vtkMergePoints(const vtkMergePoints&) = delete;

@@ -33,10 +33,10 @@
 vtkStandardNewMacro(vtkmPointElevation);
 
 //------------------------------------------------------------------------------
-vtkmPointElevation::vtkmPointElevation() {}
+vtkmPointElevation::vtkmPointElevation() = default;
 
 //------------------------------------------------------------------------------
-vtkmPointElevation::~vtkmPointElevation() {}
+vtkmPointElevation::~vtkmPointElevation() = default;
 
 //------------------------------------------------------------------------------
 int vtkmPointElevation::RequestData(

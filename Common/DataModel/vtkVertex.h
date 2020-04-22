@@ -121,7 +121,7 @@ public:
 
 protected:
   vtkVertex();
-  ~vtkVertex() override {}
+  ~vtkVertex() override = default;
 
 private:
   vtkVertex(const vtkVertex&) = delete;

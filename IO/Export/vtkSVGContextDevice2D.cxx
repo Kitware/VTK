@@ -131,10 +131,7 @@ struct FontKey
     this->TextProperty->SetOrientation(0.);
   }
 
-  FontKey(const FontKey& o)
-    : TextProperty(o.TextProperty)
-  {
-  }
+  FontKey(const FontKey& o) = default;
 
   bool operator<(const FontKey& other) const
   {

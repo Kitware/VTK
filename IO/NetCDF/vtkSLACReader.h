@@ -205,7 +205,7 @@ public:
   class VTKIONETCDF_EXPORT MidpointCoordinates
   {
   public:
-    MidpointCoordinates() {}
+    MidpointCoordinates() = default;
     MidpointCoordinates(const double coord[3], vtkIdType id)
     {
       this->Coordinate[0] = coord[0];

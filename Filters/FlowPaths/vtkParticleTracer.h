@@ -40,7 +40,7 @@ public:
 
 protected:
   vtkParticleTracer();
-  ~vtkParticleTracer() override {}
+  ~vtkParticleTracer() override = default;
   vtkParticleTracer(const vtkParticleTracer&) = delete;
   void operator=(const vtkParticleTracer&) = delete;
   int OutputParticles(vtkPolyData* poly) override;

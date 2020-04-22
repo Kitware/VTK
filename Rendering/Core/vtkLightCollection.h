@@ -57,8 +57,8 @@ public:
   vtkLight* GetNextLight(vtkCollectionSimpleIterator& cookie);
 
 protected:
-  vtkLightCollection() {}
-  ~vtkLightCollection() override {}
+  vtkLightCollection() = default;
+  ~vtkLightCollection() override = default;
 
 private:
   // hide the standard AddItem from the user and the compiler.

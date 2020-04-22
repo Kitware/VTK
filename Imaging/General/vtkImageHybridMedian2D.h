@@ -38,7 +38,7 @@ public:
 
 protected:
   vtkImageHybridMedian2D();
-  ~vtkImageHybridMedian2D() override {}
+  ~vtkImageHybridMedian2D() override = default;
 
   void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,

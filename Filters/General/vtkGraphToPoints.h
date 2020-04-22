@@ -43,7 +43,7 @@ public:
 
 protected:
   vtkGraphToPoints();
-  ~vtkGraphToPoints() override {}
+  ~vtkGraphToPoints() override = default;
 
   /**
    * Convert the vtkGraph into vtkPolyData.

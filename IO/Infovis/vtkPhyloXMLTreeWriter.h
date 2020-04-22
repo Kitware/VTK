@@ -85,7 +85,7 @@ public:
 
 protected:
   vtkPhyloXMLTreeWriter();
-  ~vtkPhyloXMLTreeWriter() override {}
+  ~vtkPhyloXMLTreeWriter() override = default;
 
   int WriteData() override;
 

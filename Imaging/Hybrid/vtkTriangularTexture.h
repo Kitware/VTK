@@ -83,7 +83,7 @@ public:
 
 protected:
   vtkTriangularTexture();
-  ~vtkTriangularTexture() override {}
+  ~vtkTriangularTexture() override = default;
 
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   void ExecuteDataWithInformation(vtkDataObject* data, vtkInformation* outInfo) override;

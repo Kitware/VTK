@@ -40,7 +40,7 @@ public:
 
 protected:
   vtkLSDynaSummaryParser();
-  ~vtkLSDynaSummaryParser() override {}
+  ~vtkLSDynaSummaryParser() override = default;
 
   void StartElement(const char* name, const char** atts) override;
   void EndElement(const char* name) override;

@@ -38,7 +38,7 @@ public:
 
 protected:
   vtkImageDivergence();
-  ~vtkImageDivergence() override {}
+  ~vtkImageDivergence() override = default;
 
   int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

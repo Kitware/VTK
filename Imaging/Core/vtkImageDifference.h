@@ -109,7 +109,7 @@ public:
 
 protected:
   vtkImageDifference();
-  ~vtkImageDifference() override {}
+  ~vtkImageDifference() override = default;
 
   // Parameters
   vtkTypeBool AllowShift;

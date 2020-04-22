@@ -62,8 +62,8 @@ public:
   }
 
 protected:
-  vtkRenderWindowCollection() {}
-  ~vtkRenderWindowCollection() override {}
+  vtkRenderWindowCollection() = default;
+  ~vtkRenderWindowCollection() override = default;
 
 private:
   // hide the standard AddItem from the user and the compiler.

@@ -119,8 +119,8 @@ public:
   virtual void SetValueN(const SizeT n, const T& value) = 0;
 
 protected:
-  vtkTypedArray() {}
-  ~vtkTypedArray() override {}
+  vtkTypedArray() = default;
+  ~vtkTypedArray() override = default;
 
 private:
   vtkTypedArray(const vtkTypedArray&) = delete;

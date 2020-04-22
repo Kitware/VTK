@@ -36,10 +36,10 @@
 vtkStandardNewMacro(vtkOSPRayVolumeNode);
 
 //----------------------------------------------------------------------------
-vtkOSPRayVolumeNode::vtkOSPRayVolumeNode() {}
+vtkOSPRayVolumeNode::vtkOSPRayVolumeNode() = default;
 
 //----------------------------------------------------------------------------
-vtkOSPRayVolumeNode::~vtkOSPRayVolumeNode() {}
+vtkOSPRayVolumeNode::~vtkOSPRayVolumeNode() = default;
 
 //----------------------------------------------------------------------------
 void vtkOSPRayVolumeNode::PrintSelf(ostream& os, vtkIndent indent)

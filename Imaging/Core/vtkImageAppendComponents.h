@@ -71,8 +71,8 @@ public:
   int GetNumberOfInputs() { return this->GetNumberOfInputConnections(0); }
 
 protected:
-  vtkImageAppendComponents() {}
-  ~vtkImageAppendComponents() override {}
+  vtkImageAppendComponents() = default;
+  ~vtkImageAppendComponents() override = default;
 
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

@@ -36,8 +36,8 @@ public:
   vtkTypeMacro(vtkSimpleImageFilterExample, vtkSimpleImageToImageFilter);
 
 protected:
-  vtkSimpleImageFilterExample() {}
-  ~vtkSimpleImageFilterExample() override {}
+  vtkSimpleImageFilterExample() = default;
+  ~vtkSimpleImageFilterExample() override = default;
 
   void SimpleExecute(vtkImageData* input, vtkImageData* output) override;
 

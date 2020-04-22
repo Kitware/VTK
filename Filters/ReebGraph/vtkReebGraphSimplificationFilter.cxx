@@ -30,7 +30,7 @@ vtkReebGraphSimplificationFilter::vtkReebGraphSimplificationFilter()
 }
 
 //----------------------------------------------------------------------------
-vtkReebGraphSimplificationFilter::~vtkReebGraphSimplificationFilter() {}
+vtkReebGraphSimplificationFilter::~vtkReebGraphSimplificationFilter() = default;
 
 //----------------------------------------------------------------------------
 void vtkReebGraphSimplificationFilter::SetSimplificationMetric(

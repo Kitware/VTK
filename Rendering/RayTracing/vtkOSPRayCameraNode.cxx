@@ -30,10 +30,10 @@
 vtkStandardNewMacro(vtkOSPRayCameraNode);
 
 //----------------------------------------------------------------------------
-vtkOSPRayCameraNode::vtkOSPRayCameraNode() {}
+vtkOSPRayCameraNode::vtkOSPRayCameraNode() = default;
 
 //----------------------------------------------------------------------------
-vtkOSPRayCameraNode::~vtkOSPRayCameraNode() {}
+vtkOSPRayCameraNode::~vtkOSPRayCameraNode() = default;
 
 //----------------------------------------------------------------------------
 void vtkOSPRayCameraNode::PrintSelf(ostream& os, vtkIndent indent)

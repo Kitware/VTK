@@ -49,7 +49,7 @@ public:
     unsigned long memoryLimit, vtkAlgorithm* mapper, int piece, int numPieces);
 
 protected:
-  vtkPipelineSize() {}
+  vtkPipelineSize() = default;
   void GenericComputeSourcePipelineSize(vtkAlgorithm* src, int outputPort, unsigned long size[3]);
   void ComputeSourcePipelineSize(vtkAlgorithm* src, int outputPort, unsigned long size[3]);
   void ComputeOutputMemorySize(

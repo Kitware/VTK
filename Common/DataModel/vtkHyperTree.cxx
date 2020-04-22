@@ -367,7 +367,7 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  ~vtkCompactHyperTree() override {}
+  ~vtkCompactHyperTree() override = default;
 
   //---------------------------------------------------------------------------
   bool IsGlobalIndexImplicit() override { return this->Datas->GlobalIndexStart == -1; }

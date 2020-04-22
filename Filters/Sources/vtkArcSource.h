@@ -154,7 +154,7 @@ public:
 
 protected:
   vtkArcSource(int res = 1);
-  ~vtkArcSource() override {}
+  ~vtkArcSource() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

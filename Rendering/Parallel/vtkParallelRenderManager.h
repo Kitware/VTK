@@ -626,7 +626,7 @@ protected:
     double TileViewport[4];
 
     // Initialize members
-    RenderWindowInfo() {}
+    RenderWindowInfo() = default;
 
     // Save/restore the struct to/from a stream.
     void Save(vtkMultiProcessStream& stream);
@@ -651,7 +651,7 @@ protected:
     double ParallelScale;
 
     // Initialize members
-    RendererInfo() {}
+    RendererInfo() = default;
 
     // Save/restore the struct to/from a stream.
     void Save(vtkMultiProcessStream& stream);
@@ -665,7 +665,7 @@ protected:
     double Type;
 
     // Initialize members
-    LightInfo() {}
+    LightInfo() = default;
 
     // Save/restore the struct to/from a stream.
     void Save(vtkMultiProcessStream& stream);

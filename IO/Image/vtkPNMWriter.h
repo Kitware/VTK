@@ -34,8 +34,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
-  vtkPNMWriter() {}
-  ~vtkPNMWriter() override {}
+  vtkPNMWriter() = default;
+  ~vtkPNMWriter() override = default;
 
   void WriteFile(ostream* file, vtkImageData* data, int extent[6], int wExt[6]) override;
   void WriteFileHeader(ostream*, vtkImageData*, int wExt[6]) override;

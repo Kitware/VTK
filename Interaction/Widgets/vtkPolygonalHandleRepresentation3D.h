@@ -64,7 +64,7 @@ public:
 
 protected:
   vtkPolygonalHandleRepresentation3D();
-  ~vtkPolygonalHandleRepresentation3D() override {}
+  ~vtkPolygonalHandleRepresentation3D() override = default;
 
   double Offset[3];
 

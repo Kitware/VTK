@@ -33,10 +33,10 @@
 vtkStandardNewMacro(vtkMapperNode);
 
 //----------------------------------------------------------------------------
-vtkMapperNode::vtkMapperNode() {}
+vtkMapperNode::vtkMapperNode() = default;
 
 //----------------------------------------------------------------------------
-vtkMapperNode::~vtkMapperNode() {}
+vtkMapperNode::~vtkMapperNode() = default;
 
 //----------------------------------------------------------------------------
 void vtkMapperNode::PrintSelf(ostream& os, vtkIndent indent)

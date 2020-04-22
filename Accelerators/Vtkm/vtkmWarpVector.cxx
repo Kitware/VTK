@@ -44,7 +44,7 @@ vtkmWarpVector::vtkmWarpVector()
 }
 
 //------------------------------------------------------------------------------
-vtkmWarpVector::~vtkmWarpVector() {}
+vtkmWarpVector::~vtkmWarpVector() = default;
 
 //------------------------------------------------------------------------------
 int vtkmWarpVector::RequestData(vtkInformation* vtkNotUsed(request),

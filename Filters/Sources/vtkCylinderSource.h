@@ -93,7 +93,7 @@ public:
 
 protected:
   vtkCylinderSource(int res = 6);
-  ~vtkCylinderSource() override {}
+  ~vtkCylinderSource() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   double Height;

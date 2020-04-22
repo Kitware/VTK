@@ -572,7 +572,7 @@ vtkCookieCutterHelper::vtkCookieCutterHelper(vtkIncrementalPointLocator* locator
 {
 }
 
-vtkCookieCutterHelper::~vtkCookieCutterHelper() {}
+vtkCookieCutterHelper::~vtkCookieCutterHelper() = default;
 
 void vtkCookieCutterHelper::InsertPoint(double x[3], vtkCellArray* ca)
 {

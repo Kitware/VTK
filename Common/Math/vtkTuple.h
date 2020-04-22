@@ -40,7 +40,7 @@ public:
    * desired, this should be done explicitly using the constructors for scalar
    * initialization, or other suitable constructors taking arguments.
    */
-  vtkTuple() {}
+  vtkTuple() = default;
 
   /**
    * Initialize all of the tuple's elements with the supplied scalar.

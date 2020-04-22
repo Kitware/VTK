@@ -95,7 +95,7 @@ public:
 
 protected:
   vtkSectorSource();
-  ~vtkSectorSource() override {}
+  ~vtkSectorSource() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   double InnerRadius;

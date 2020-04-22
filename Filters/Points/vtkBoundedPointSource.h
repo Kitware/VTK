@@ -103,7 +103,7 @@ public:
 
 protected:
   vtkBoundedPointSource();
-  ~vtkBoundedPointSource() override {}
+  ~vtkBoundedPointSource() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

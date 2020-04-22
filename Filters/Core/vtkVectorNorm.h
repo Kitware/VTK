@@ -82,7 +82,7 @@ public:
 
 protected:
   vtkVectorNorm();
-  ~vtkVectorNorm() override {}
+  ~vtkVectorNorm() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

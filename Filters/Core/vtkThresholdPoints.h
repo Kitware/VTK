@@ -82,7 +82,7 @@ public:
 
 protected:
   vtkThresholdPoints();
-  ~vtkThresholdPoints() override {}
+  ~vtkThresholdPoints() override = default;
 
   // Usual data generation method
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

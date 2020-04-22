@@ -44,7 +44,7 @@ vtkmCoordinateSystemTransform::vtkmCoordinateSystemTransform()
 }
 
 //------------------------------------------------------------------------------
-vtkmCoordinateSystemTransform::~vtkmCoordinateSystemTransform() {}
+vtkmCoordinateSystemTransform::~vtkmCoordinateSystemTransform() = default;
 
 //------------------------------------------------------------------------------
 void vtkmCoordinateSystemTransform::SetCartesianToCylindrical()

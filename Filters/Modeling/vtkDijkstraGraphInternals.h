@@ -34,7 +34,7 @@ class vtkDijkstraGraphInternals
 public:
   vtkDijkstraGraphInternals() { this->HeapSize = 0; }
 
-  ~vtkDijkstraGraphInternals() {}
+  ~vtkDijkstraGraphInternals() = default;
 
   // CumulativeWeights(v) current summed weight for path to vertex v.
   std::vector<double> CumulativeWeights;

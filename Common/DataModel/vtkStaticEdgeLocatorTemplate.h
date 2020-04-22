@@ -78,7 +78,7 @@ struct EdgeTuple
   TED T;
 
   // Default constructor - nothing needs to be done
-  EdgeTuple() {}
+  EdgeTuple() = default;
 
   // Construct an edge and ensure that the edge tuple (vo,v1) is
   // specified such that (v0<v1).
@@ -139,7 +139,7 @@ struct MergeTuple
   TED T;
 
   // Default constructor - nothing needs to be done
-  MergeTuple() {}
+  MergeTuple() = default;
 
   // Construct an edge and ensure that the edge tuple (vo,v1) is
   // specified such that (v0<v1).

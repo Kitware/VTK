@@ -112,7 +112,7 @@ public:
 
 protected:
   vtkImageAnisotropicDiffusion3D();
-  ~vtkImageAnisotropicDiffusion3D() override {}
+  ~vtkImageAnisotropicDiffusion3D() override = default;
 
   int NumberOfIterations;
   double DiffusionThreshold;

@@ -77,8 +77,8 @@ public:
     virtual OutputIterator& operator=(const vtkUnicodeString::value_type value) = 0;
     //@}
 
-    OutputIterator() {}
-    virtual ~OutputIterator() {}
+    OutputIterator() = default;
+    virtual ~OutputIterator() = default;
 
   private:
     OutputIterator(const OutputIterator&) = delete;

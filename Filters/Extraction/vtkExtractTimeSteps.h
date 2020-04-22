@@ -134,7 +134,7 @@ public:
 
 protected:
   vtkExtractTimeSteps();
-  ~vtkExtractTimeSteps() override {}
+  ~vtkExtractTimeSteps() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

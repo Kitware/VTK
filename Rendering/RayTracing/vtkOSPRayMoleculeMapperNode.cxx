@@ -38,7 +38,7 @@
 vtkStandardNewMacro(vtkOSPRayMoleculeMapperNode);
 
 //----------------------------------------------------------------------------
-vtkOSPRayMoleculeMapperNode::vtkOSPRayMoleculeMapperNode() {}
+vtkOSPRayMoleculeMapperNode::vtkOSPRayMoleculeMapperNode() = default;
 
 //----------------------------------------------------------------------------
 vtkOSPRayMoleculeMapperNode::~vtkOSPRayMoleculeMapperNode()

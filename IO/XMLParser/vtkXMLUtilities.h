@@ -126,8 +126,8 @@ public:
   //@}
 
 protected:
-  vtkXMLUtilities() {}
-  ~vtkXMLUtilities() override {}
+  vtkXMLUtilities() = default;
+  ~vtkXMLUtilities() override = default;
 
   static int FactorElementsInternal(
     vtkXMLDataElement* tree, vtkXMLDataElement* root, vtkXMLDataElement* pool);

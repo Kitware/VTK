@@ -77,7 +77,7 @@ public:
 
 protected:
   vtkImageLogic();
-  ~vtkImageLogic() override {}
+  ~vtkImageLogic() override = default;
 
   int Operation;
   double OutputTrueValue;

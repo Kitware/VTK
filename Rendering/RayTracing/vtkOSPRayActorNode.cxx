@@ -48,7 +48,7 @@ vtkOSPRayActorNode::vtkOSPRayActorNode()
 }
 
 //----------------------------------------------------------------------------
-vtkOSPRayActorNode::~vtkOSPRayActorNode() {}
+vtkOSPRayActorNode::~vtkOSPRayActorNode() = default;
 
 //----------------------------------------------------------------------------
 void vtkOSPRayActorNode::PrintSelf(ostream& os, vtkIndent indent)

@@ -104,8 +104,8 @@ public:
   static std::string GetProgramPath(const std::string&);
 
 protected:
-  vtkPSystemTools() {}
-  ~vtkPSystemTools() override {}
+  vtkPSystemTools() = default;
+  ~vtkPSystemTools() override = default;
 
 private:
   vtkPSystemTools(const vtkPSystemTools&) = delete;

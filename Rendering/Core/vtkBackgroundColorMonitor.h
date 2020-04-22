@@ -61,7 +61,7 @@ public:
 
 protected:
   vtkBackgroundColorMonitor();
-  ~vtkBackgroundColorMonitor() override {}
+  ~vtkBackgroundColorMonitor() override = default;
 
 private:
   unsigned int UpTime;

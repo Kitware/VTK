@@ -58,7 +58,7 @@ vtkRandomHyperTreeGridSource::vtkRandomHyperTreeGridSource()
 }
 
 //------------------------------------------------------------------------------
-vtkRandomHyperTreeGridSource::~vtkRandomHyperTreeGridSource() {}
+vtkRandomHyperTreeGridSource::~vtkRandomHyperTreeGridSource() = default;
 
 //------------------------------------------------------------------------------
 int vtkRandomHyperTreeGridSource::RequestInformation(

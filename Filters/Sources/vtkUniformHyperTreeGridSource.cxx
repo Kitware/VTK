@@ -24,10 +24,10 @@ PURPOSE.  See the above copyright notice for more information.
 vtkStandardNewMacro(vtkUniformHyperTreeGridSource);
 
 //----------------------------------------------------------------------------
-vtkUniformHyperTreeGridSource::vtkUniformHyperTreeGridSource() {}
+vtkUniformHyperTreeGridSource::vtkUniformHyperTreeGridSource() = default;
 
 //----------------------------------------------------------------------------
-vtkUniformHyperTreeGridSource::~vtkUniformHyperTreeGridSource() {}
+vtkUniformHyperTreeGridSource::~vtkUniformHyperTreeGridSource() = default;
 
 //-----------------------------------------------------------------------------
 void vtkUniformHyperTreeGridSource::PrintSelf(ostream& os, vtkIndent indent)

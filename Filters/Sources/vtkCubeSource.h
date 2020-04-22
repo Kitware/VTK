@@ -87,7 +87,7 @@ public:
 
 protected:
   vtkCubeSource(double xL = 1.0, double yL = 1.0, double zL = 1.0);
-  ~vtkCubeSource() override {}
+  ~vtkCubeSource() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   double XLength;

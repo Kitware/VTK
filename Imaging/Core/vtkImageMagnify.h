@@ -57,7 +57,7 @@ public:
 
 protected:
   vtkImageMagnify();
-  ~vtkImageMagnify() override {}
+  ~vtkImageMagnify() override = default;
 
   int MagnificationFactors[3];
   vtkTypeBool Interpolate;

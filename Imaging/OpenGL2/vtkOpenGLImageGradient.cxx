@@ -83,8 +83,8 @@ public:
   void UpdateShaderUniforms(vtkShaderProgram* /* program */, int /* zExtent */) override {}
 
   double* Spacing;
-  vtkOpenGLGradientCB() {}
-  ~vtkOpenGLGradientCB() override {}
+  vtkOpenGLGradientCB() = default;
+  ~vtkOpenGLGradientCB() override = default;
 
 private:
   vtkOpenGLGradientCB(const vtkOpenGLGradientCB&) = delete;

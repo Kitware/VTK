@@ -68,8 +68,8 @@ public:
   static void BlankCells(vtkOverlappingAMR* amr);
 
 protected:
-  vtkAMRUtilities() {}
-  ~vtkAMRUtilities() override {}
+  vtkAMRUtilities() = default;
+  ~vtkAMRUtilities() override = default;
 
   /**
    * Given the real-extent w.r.t. the ghosted grid, this method copies the

@@ -63,7 +63,7 @@ public:
 
 protected:
   vtkQuadric();
-  ~vtkQuadric() override {}
+  ~vtkQuadric() override = default;
 
   double Coefficients[10];
 

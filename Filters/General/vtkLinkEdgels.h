@@ -94,7 +94,7 @@ public:
 
 protected:
   vtkLinkEdgels();
-  ~vtkLinkEdgels() override {}
+  ~vtkLinkEdgels() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;

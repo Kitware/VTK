@@ -134,7 +134,7 @@ protected:
   class vtkDimensionInfo
   {
   public:
-    vtkDimensionInfo() {}
+    vtkDimensionInfo() = default;
     vtkDimensionInfo(int ncFD, int id);
     const char* GetName() const { return this->Name.c_str(); }
     enum UnitsEnum

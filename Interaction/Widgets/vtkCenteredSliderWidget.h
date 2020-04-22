@@ -122,7 +122,7 @@ public:
 
 protected:
   vtkCenteredSliderWidget();
-  ~vtkCenteredSliderWidget() override {}
+  ~vtkCenteredSliderWidget() override = default;
 
   // These are the events that are handled
   static void SelectAction(vtkAbstractWidget*);

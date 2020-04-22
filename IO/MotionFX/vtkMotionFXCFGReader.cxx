@@ -156,7 +156,7 @@ struct Motion
     set(this->t_damping, "t_damping", params, 0.0);
     set(this->stl, "stl", params);
   }
-  virtual ~Motion() {}
+  virtual ~Motion() = default;
 
   virtual bool Move(vtkPoints* pts, double time) const = 0;
 
@@ -885,7 +885,7 @@ struct ActiveState
     : Motions(motions)
   {
   }
-  ~ActiveState() {}
+  ~ActiveState() = default;
 
 private:
   ActiveState(const ActiveState&) = delete;
@@ -1042,7 +1042,7 @@ public:
     , Geometries()
   {
   }
-  ~vtkInternals() {}
+  ~vtkInternals() = default;
 
   const vtkVector2d& GetTimeRange() const { return this->TimeRange; }
 

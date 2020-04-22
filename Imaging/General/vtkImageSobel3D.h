@@ -37,7 +37,7 @@ public:
 
 protected:
   vtkImageSobel3D();
-  ~vtkImageSobel3D() override {}
+  ~vtkImageSobel3D() override = default;
 
   void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,

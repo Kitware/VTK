@@ -178,7 +178,7 @@ public:
   int Wait(vtkMutexLock* mutex);
 
 protected:
-  vtkConditionVariable() {}
+  vtkConditionVariable() = default;
 
   vtkSimpleConditionVariable SimpleConditionVariable;
 

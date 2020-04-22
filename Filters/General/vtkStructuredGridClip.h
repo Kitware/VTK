@@ -66,7 +66,7 @@ public:
 
 protected:
   vtkStructuredGridClip();
-  ~vtkStructuredGridClip() override {}
+  ~vtkStructuredGridClip() override = default;
 
   // Time when OutputImageExtent was computed.
   vtkTimeStamp CTime;

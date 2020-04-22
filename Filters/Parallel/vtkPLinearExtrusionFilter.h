@@ -51,7 +51,7 @@ public:
 
 protected:
   vtkPLinearExtrusionFilter();
-  ~vtkPLinearExtrusionFilter() override {}
+  ~vtkPLinearExtrusionFilter() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

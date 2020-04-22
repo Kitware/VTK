@@ -58,7 +58,7 @@ public:
 
 protected:
   vtkImageGradient();
-  ~vtkImageGradient() override {}
+  ~vtkImageGradient() override = default;
 
   vtkTypeBool HandleBoundaries;
   int Dimensionality;

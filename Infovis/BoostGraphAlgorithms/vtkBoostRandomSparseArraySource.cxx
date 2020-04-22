@@ -48,7 +48,7 @@ vtkBoostRandomSparseArraySource::vtkBoostRandomSparseArraySource()
 
 // ----------------------------------------------------------------------
 
-vtkBoostRandomSparseArraySource::~vtkBoostRandomSparseArraySource() {}
+vtkBoostRandomSparseArraySource::~vtkBoostRandomSparseArraySource() = default;
 
 // ----------------------------------------------------------------------
 

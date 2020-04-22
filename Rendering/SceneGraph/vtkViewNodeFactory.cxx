@@ -25,7 +25,7 @@ class vtkViewNodeFactory::vtkInternals
 public:
   std::map<std::string, vtkViewNode* (*)()> Overrides;
 
-  vtkInternals() {}
+  vtkInternals() = default;
 
   ~vtkInternals() { this->Overrides.clear(); }
 };

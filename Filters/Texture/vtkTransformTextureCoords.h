@@ -120,7 +120,7 @@ public:
 
 protected:
   vtkTransformTextureCoords();
-  ~vtkTransformTextureCoords() override {}
+  ~vtkTransformTextureCoords() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

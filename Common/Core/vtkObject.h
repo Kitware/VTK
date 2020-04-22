@@ -274,7 +274,7 @@ private:
      * Called when the event is invoked
      */
     virtual bool operator()(vtkObject*, unsigned long, void*) = 0;
-    virtual ~vtkClassMemberCallbackBase() {}
+    virtual ~vtkClassMemberCallbackBase() = default;
     //@}
   };
 
@@ -357,7 +357,7 @@ private:
       this->Method2 = nullptr;
       this->Method3 = method;
     }
-    ~vtkClassMemberCallback() override {}
+    ~vtkClassMemberCallback() override = default;
 
     // Called when the event is invoked
     bool operator()(vtkObject* caller, unsigned long event, void* calldata) override

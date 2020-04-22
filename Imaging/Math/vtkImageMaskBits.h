@@ -67,7 +67,7 @@ public:
 
 protected:
   vtkImageMaskBits();
-  ~vtkImageMaskBits() override {}
+  ~vtkImageMaskBits() override = default;
 
   void ThreadedExecute(vtkImageData* inData, vtkImageData* outData, int ext[6], int id) override;
 

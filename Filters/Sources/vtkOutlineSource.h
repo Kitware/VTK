@@ -97,7 +97,7 @@ public:
 
 protected:
   vtkOutlineSource();
-  ~vtkOutlineSource() override {}
+  ~vtkOutlineSource() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int BoxType;

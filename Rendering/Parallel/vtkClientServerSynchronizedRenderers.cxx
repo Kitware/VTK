@@ -21,10 +21,10 @@
 
 vtkStandardNewMacro(vtkClientServerSynchronizedRenderers);
 //----------------------------------------------------------------------------
-vtkClientServerSynchronizedRenderers::vtkClientServerSynchronizedRenderers() {}
+vtkClientServerSynchronizedRenderers::vtkClientServerSynchronizedRenderers() = default;
 
 //----------------------------------------------------------------------------
-vtkClientServerSynchronizedRenderers::~vtkClientServerSynchronizedRenderers() {}
+vtkClientServerSynchronizedRenderers::~vtkClientServerSynchronizedRenderers() = default;
 
 //----------------------------------------------------------------------------
 void vtkClientServerSynchronizedRenderers::MasterEndRender()

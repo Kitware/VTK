@@ -62,7 +62,7 @@ public:
 
 protected:
   vtkMultiBlockDataSetAlgorithm();
-  ~vtkMultiBlockDataSetAlgorithm() override {}
+  ~vtkMultiBlockDataSetAlgorithm() override = default;
 
   /**
    * This is called by the superclass.

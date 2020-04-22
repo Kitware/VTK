@@ -56,7 +56,7 @@ public:
 
 protected:
   vtkImageExtractComponents();
-  ~vtkImageExtractComponents() override {}
+  ~vtkImageExtractComponents() override = default;
 
   int NumberOfComponents;
   int Components[3];

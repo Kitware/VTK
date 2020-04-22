@@ -74,7 +74,7 @@ public:
 
 protected:
   vtkImageSinusoidSource();
-  ~vtkImageSinusoidSource() override {}
+  ~vtkImageSinusoidSource() override = default;
 
   int WholeExtent[6];
   double Direction[3];

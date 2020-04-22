@@ -1259,8 +1259,8 @@ public:
   static int QuadraticRoot(double a, double b, double c, double min, double max, double* u);
 
 protected:
-  vtkMath() {}
-  ~vtkMath() override {}
+  vtkMath() = default;
+  ~vtkMath() override = default;
 
   static vtkSmartPointer<vtkMathInternal> Internal;
 

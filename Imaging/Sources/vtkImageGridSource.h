@@ -111,7 +111,7 @@ public:
 
 protected:
   vtkImageGridSource();
-  ~vtkImageGridSource() override {}
+  ~vtkImageGridSource() override = default;
 
   int GridSpacing[3];
   int GridOrigin[3];

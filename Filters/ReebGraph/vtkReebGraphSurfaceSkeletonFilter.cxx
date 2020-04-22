@@ -40,7 +40,7 @@ vtkReebGraphSurfaceSkeletonFilter::vtkReebGraphSurfaceSkeletonFilter()
 }
 
 //----------------------------------------------------------------------------
-vtkReebGraphSurfaceSkeletonFilter::~vtkReebGraphSurfaceSkeletonFilter() {}
+vtkReebGraphSurfaceSkeletonFilter::~vtkReebGraphSurfaceSkeletonFilter() = default;
 
 //----------------------------------------------------------------------------
 int vtkReebGraphSurfaceSkeletonFilter::FillInputPortInformation(

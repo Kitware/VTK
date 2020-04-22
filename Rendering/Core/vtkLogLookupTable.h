@@ -39,7 +39,7 @@ public:
 
 protected:
   vtkLogLookupTable(int sze = 256, int ext = 256);
-  ~vtkLogLookupTable() override {}
+  ~vtkLogLookupTable() override = default;
 
 private:
   vtkLogLookupTable(const vtkLogLookupTable&) = delete;

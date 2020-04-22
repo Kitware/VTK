@@ -46,7 +46,7 @@ public:
 
 protected:
   vtkImageRGBToHSI();
-  ~vtkImageRGBToHSI() override {}
+  ~vtkImageRGBToHSI() override = default;
 
   double Maximum;
 

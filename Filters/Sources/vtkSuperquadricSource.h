@@ -175,7 +175,7 @@ public:
 
 protected:
   vtkSuperquadricSource(int res = 16);
-  ~vtkSuperquadricSource() override {}
+  ~vtkSuperquadricSource() override = default;
 
   vtkTypeBool Toroidal;
   int AxisOfSymmetry;

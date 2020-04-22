@@ -9,7 +9,7 @@ class vtkKMeansAssessFunctor : public vtkStatisticsAlgorithm::AssessFunctor
 
 public:
   static vtkKMeansAssessFunctor* New();
-  vtkKMeansAssessFunctor() {}
+  vtkKMeansAssessFunctor() = default;
   ~vtkKMeansAssessFunctor() override;
   void operator()(vtkDoubleArray* result, vtkIdType row) override;
   bool Initialize(vtkTable* inData, vtkTable* reqModel, vtkKMeansDistanceFunctor* distFunc);

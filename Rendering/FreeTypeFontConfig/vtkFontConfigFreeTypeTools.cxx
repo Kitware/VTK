@@ -78,9 +78,9 @@ void vtkFontConfigFreeTypeTools::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
-vtkFontConfigFreeTypeTools::vtkFontConfigFreeTypeTools() {}
+vtkFontConfigFreeTypeTools::vtkFontConfigFreeTypeTools() = default;
 
-vtkFontConfigFreeTypeTools::~vtkFontConfigFreeTypeTools() {}
+vtkFontConfigFreeTypeTools::~vtkFontConfigFreeTypeTools() = default;
 
 FT_Error vtkFontConfigFreeTypeTools::CreateFTCManager()
 {

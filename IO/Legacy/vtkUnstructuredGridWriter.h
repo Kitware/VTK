@@ -45,8 +45,8 @@ public:
   //@}
 
 protected:
-  vtkUnstructuredGridWriter() {}
-  ~vtkUnstructuredGridWriter() override {}
+  vtkUnstructuredGridWriter() = default;
+  ~vtkUnstructuredGridWriter() override = default;
 
   void WriteData() override;
 

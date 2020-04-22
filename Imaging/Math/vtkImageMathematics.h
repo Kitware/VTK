@@ -214,7 +214,7 @@ public:
 
 protected:
   vtkImageMathematics();
-  ~vtkImageMathematics() override {}
+  ~vtkImageMathematics() override = default;
 
   int Operation;
   double ConstantK;

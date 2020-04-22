@@ -105,8 +105,8 @@ public:
   void ExecuteRfft(vtkImageComplex* in, vtkImageComplex* out, int N);
 
 protected:
-  vtkImageFourierFilter() {}
-  ~vtkImageFourierFilter() override {}
+  vtkImageFourierFilter() = default;
+  ~vtkImageFourierFilter() override = default;
 
   void ExecuteFftStep2(vtkImageComplex* p_in, vtkImageComplex* p_out, int N, int bsize, int fb);
   void ExecuteFftStepN(

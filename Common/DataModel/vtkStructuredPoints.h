@@ -45,7 +45,7 @@ public:
 
 protected:
   vtkStructuredPoints();
-  ~vtkStructuredPoints() override {}
+  ~vtkStructuredPoints() override = default;
 
 private:
   vtkStructuredPoints(const vtkStructuredPoints&) = delete;

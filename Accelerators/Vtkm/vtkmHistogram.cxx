@@ -48,7 +48,7 @@ vtkmHistogram::vtkmHistogram()
 }
 
 //------------------------------------------------------------------------------
-vtkmHistogram::~vtkmHistogram() {}
+vtkmHistogram::~vtkmHistogram() = default;
 
 //-----------------------------------------------------------------------------
 int vtkmHistogram::FillInputPortInformation(int port, vtkInformation* info)
