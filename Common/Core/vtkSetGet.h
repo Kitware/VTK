@@ -791,14 +791,14 @@ public:                                                                         
 
 // Same as vtkTypeMacro, but adapted for cases where thisClass is abstract.
 #define vtkAbstractTypeMacro(thisClass, superclass)                                                \
-  vtkAbstractTypeMacroWithNewInstanceType(thisClass, superclass, thisClass, #thisClass);           \
+  vtkAbstractTypeMacroWithNewInstanceType(thisClass, superclass, thisClass, #thisClass)            \
                                                                                                    \
 public:
 
 // Macro used to determine whether a class is the same class or
 // a subclass of the named class.
 #define vtkTypeMacro(thisClass, superclass)                                                        \
-  vtkAbstractTypeMacro(thisClass, superclass);                                                     \
+  vtkAbstractTypeMacro(thisClass, superclass)                                                      \
                                                                                                    \
 protected:                                                                                         \
   vtkObjectBase* NewInstanceInternal() const override { return thisClass::New(); }                 \
@@ -812,7 +812,7 @@ public:
 // of the named class.
 
 #define vtkBaseTypeMacro(thisClass, superclass)                                                    \
-  vtkAbstractTypeMacro(thisClass, superclass);                                                     \
+  vtkAbstractTypeMacro(thisClass, superclass)                                                      \
                                                                                                    \
 protected:                                                                                         \
   virtual vtkObjectBase* NewInstanceInternal() const { return thisClass::New(); }                  \
@@ -832,7 +832,7 @@ public:
 // template class and pass that into the macro instead.
 #define vtkAbstractTemplateTypeMacro(thisClass, superclass)                                        \
   vtkAbstractTypeMacroWithNewInstanceType(                                                         \
-    thisClass, superclass, thisClass, typeid(thisClass).name());                                   \
+    thisClass, superclass, thisClass, typeid(thisClass).name())                                    \
                                                                                                    \
 public:
 
