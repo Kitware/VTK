@@ -65,6 +65,7 @@ set(classes
   vtkImageTracerWidget
   vtkImplicitCylinderRepresentation
   vtkImplicitCylinderWidget
+  vtkImplicitImageRepresentation
   vtkImplicitPlaneRepresentation
   vtkImplicitPlaneWidget
   vtkImplicitPlaneWidget2
