@@ -98,6 +98,7 @@ vtkImplicitPlaneRepresentation::vtkImplicitPlaneRepresentation()
   this->Cutter->SetCutFunction(this->Plane);
   this->PlaneSource = vtkPlaneSource::New();
   this->PlaneSource->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
+  this->PlaneSource->SetResolution(128, 128);
   this->CutMapper = vtkPolyDataMapper::New();
   this->CutMapper->SetInputConnection(this->Cutter->GetOutputPort());
   this->CutActor = vtkActor::New();
@@ -297,6 +298,7 @@ void vtkImplicitPlaneRepresentation::SetLockNormalToCamera(vtkTypeBool lock)
   this->Modified();
 }
 
+//----------------------------------------------------------------------------
 void vtkImplicitPlaneRepresentation::SetCropPlaneToBoundingBox(bool val)
 {
   if (this->CropPlaneToBoundingBox == val)
@@ -387,6 +389,7 @@ int vtkImplicitPlaneRepresentation::ComputeInteractionState(int X, int Y, int vt
   return this->InteractionState;
 }
 
+//----------------------------------------------------------------------------
 int vtkImplicitPlaneRepresentation::ComputeComplexInteractionState(
   vtkRenderWindowInteractor*, vtkAbstractWidget*, unsigned long, void* calldata, int)
 {
@@ -535,6 +538,7 @@ void vtkImplicitPlaneRepresentation::StartWidgetInteraction(double e[2])
   this->LastEventPosition[2] = 0.0;
 }
 
+//----------------------------------------------------------------------------
 void vtkImplicitPlaneRepresentation::StartComplexInteraction(
   vtkRenderWindowInteractor*, vtkAbstractWidget*, unsigned long, void* calldata)
 {
@@ -613,6 +617,7 @@ void vtkImplicitPlaneRepresentation::WidgetInteraction(double e[2])
   this->LastEventPosition[2] = 0.0;
 }
 
+//----------------------------------------------------------------------------
 void vtkImplicitPlaneRepresentation::ComplexInteraction(
   vtkRenderWindowInteractor*, vtkAbstractWidget*, unsigned long, void* calldata)
 {
@@ -670,6 +675,7 @@ void vtkImplicitPlaneRepresentation::EndWidgetInteraction(double vtkNotUsed(e)[2
   this->SetRepresentationState(vtkImplicitPlaneRepresentation::Outside);
 }
 
+//----------------------------------------------------------------------------
 void vtkImplicitPlaneRepresentation::EndComplexInteraction(
   vtkRenderWindowInteractor*, vtkAbstractWidget*, unsigned long, void*)
 {
@@ -1561,7 +1567,6 @@ void vtkImplicitPlaneRepresentation::SetNormalToZAxis(vtkTypeBool var)
 //----------------------------------------------------------------------------
 void vtkImplicitPlaneRepresentation::GetPolyData(vtkPolyData* pd)
 {
-  this->Cutter->Update();
   pd->ShallowCopy(this->Cutter->GetOutput());
 }
 
@@ -1796,19 +1801,4 @@ void vtkImplicitPlaneRepresentation::RegisterPickers()
     return;
   }
   pm->AddPicker(this->Picker, this);
-}
-
-//----------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::SetVisibility(vtkTypeBool nv)
-{
-  this->Superclass::SetVisibility(nv);
-
-  this->OutlineActor->SetVisibility(nv);
-  this->CutActor->SetVisibility(nv);
-  this->EdgesActor->SetVisibility(nv);
-  this->ConeActor->SetVisibility(nv);
-  this->LineActor->SetVisibility(nv);
-  this->ConeActor2->SetVisibility(nv);
-  this->LineActor2->SetVisibility(nv);
-  this->SphereActor->SetVisibility(nv);
 }

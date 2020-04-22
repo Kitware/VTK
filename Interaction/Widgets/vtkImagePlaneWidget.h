@@ -88,6 +88,10 @@
  * one can specify the degree of interpolation (vtkImageReslice): nearest
  * neighbour, linear, and cubic.
  *
+ * A simpler version of this widget is the combination of
+ * vtkImplicitPlaneWidget2 combined with the representation
+ * vtkImplicitImageRepresentation.
+ *
  * @par Thanks:
  * Thanks to Dean Inglis for developing and contributing this class.
  * Based on the Python SlicePlaneFactory from Atamai, Inc.
@@ -95,6 +99,7 @@
  * @sa
  * vtk3DWidget vtkBoxWidget vtkLineWidget  vtkPlaneWidget vtkPointWidget
  * vtkPolyDataSourceWidget vtkSphereWidget vtkImplicitPlaneWidget
+ * vtkImplicitPlaneWidget2 vtkImplicitImageRepresentation
  */
 
 #ifndef vtkImagePlaneWidget_h

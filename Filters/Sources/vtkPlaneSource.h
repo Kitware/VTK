@@ -119,6 +119,16 @@ public:
 
   //@{
   /**
+   * Convenience methods to retrieve the axes of the plane; that is
+   * axis a1 is the vector (Point1-Origin), and axis a2 is the vector
+   * (Point2-Origin).
+   */
+  void GetAxis1(double a1[3]);
+  void GetAxis2(double a2[3]);
+  //@}
+
+  //@{
+  /**
    * Set/Get the center of the plane. Works in conjunction with the plane
    * normal to position the plane. Don't use this method to define the plane.
    * Instead, use it to move the plane to a new center point.

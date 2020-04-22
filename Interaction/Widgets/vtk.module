@@ -21,6 +21,7 @@ PRIVATE_DEPENDS
   VTK::FiltersCore
   VTK::FiltersHybrid
   VTK::FiltersModeling
+  VTK::FiltersTexture
   VTK::ImagingColor
   VTK::ImagingCore
   VTK::ImagingGeneral
