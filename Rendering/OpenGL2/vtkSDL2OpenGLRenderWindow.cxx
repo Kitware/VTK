@@ -40,6 +40,7 @@ vtkSDL2OpenGLRenderWindow::vtkSDL2OpenGLRenderWindow()
   , ContextId(nullptr)
 {
   this->SetWindowName(DEFAULT_BASE_WINDOW_NAME.c_str());
+  this->SetStencilCapable(1);
 
   // set position to -1 to let SDL place the window
   // SetPosition will still work. Defaults of 0,0 result
@@ -128,7 +129,7 @@ void vtkSDL2OpenGLRenderWindow::PopContext()
 // Tells if this window is the current OpenGL context for the calling thread.
 bool vtkSDL2OpenGLRenderWindow::IsCurrent()
 {
-  return this->ContextId != 0 && this->ContextId == wglGetCurrentContext();
+  return this->ContextId != 0 && this->ContextId == SDL_GL_GetCurrentContext();
 }
 
 bool vtkSDL2OpenGLRenderWindow::SetSwapControl(int i)
@@ -169,16 +170,26 @@ void vtkSDL2OpenGLRenderWindow::SetPosition(int x, int y)
   }
 }
 
-// End the rendering process and display the image.
-void vtkSDL2OpenGLRenderWindow::Frame(void)
+void vtkSDL2OpenGLRenderWindow::Frame()
 {
-  this->MakeCurrent();
   this->Superclass::Frame();
-
   if (!this->AbortRender && this->DoubleBuffer && this->SwapBuffers)
   {
     SDL_GL_SwapWindow(this->WindowId);
   }
+}
+
+int vtkSDL2OpenGLRenderWindow::GetColorBufferSizes(int* rgba)
+{
+  if (rgba == nullptr)
+  {
+    return 0;
+  }
+  rgba[0] = 8;
+  rgba[1] = 8;
+  rgba[2] = 8;
+  rgba[3] = 8;
+  return 1;
 }
 
 void vtkSDL2OpenGLRenderWindow::SetShowWindow(bool val)
@@ -205,6 +216,13 @@ void vtkSDL2OpenGLRenderWindow::SetShowWindow(bool val)
 
 void vtkSDL2OpenGLRenderWindow::CreateAWindow()
 {
+  int res = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER);
+
+  if (res)
+  {
+    vtkErrorMacro("Error initializing SDL " << SDL_GetError());
+  }
+
   int x = ((this->Position[0] >= 0) ? this->Position[0] : SDL_WINDOWPOS_UNDEFINED);
   int y = ((this->Position[1] >= 0) ? this->Position[1] : SDL_WINDOWPOS_UNDEFINED);
   int height = ((this->Size[1] > 0) ? this->Size[1] : 300);
@@ -214,13 +232,6 @@ void vtkSDL2OpenGLRenderWindow::CreateAWindow()
 #if __EMSCRIPTEN__
   SDL_SetHint(SDL_HINT_EMSCRIPTEN_KEYBOARD_ELEMENT, "#canvas");
 #endif
-
-  int res = SDL_Init(SDL_INIT_VIDEO);
-
-  if (res)
-  {
-    vtkErrorMacro("Error creating window " << SDL_GetError());
-  }
 
   this->WindowId = SDL_CreateWindow(
     this->WindowName, x, y, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
@@ -241,6 +252,8 @@ void vtkSDL2OpenGLRenderWindow::Initialize()
   {
     this->CreateAWindow();
   }
+
+  SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
 
   if (!this->ContextId)
   {
@@ -297,26 +310,10 @@ int* vtkSDL2OpenGLRenderWindow::GetSize(void)
 // Get the size of the whole screen.
 int* vtkSDL2OpenGLRenderWindow::GetScreenSize(void)
 {
-  HDC hDC = ::GetDC(nullptr);
-  if (hDC)
-  {
-    // This technique yields the screen size of the primary monitor
-    // only in a multi-monitor configuration...
-    this->Size[0] = ::GetDeviceCaps(hDC, HORZRES);
-    this->Size[1] = ::GetDeviceCaps(hDC, VERTRES);
-    ::ReleaseDC(nullptr, hDC);
-  }
-  else
-  {
-    // This technique gets the "work area" (the whole screen except
-    // for the bit covered by the Windows task bar) -- use it as a
-    // fallback if there's an error calling GetDC.
-    RECT rect;
-    SystemParametersInfo(SPI_GETWORKAREA, 0, &rect, 0);
-
-    this->Size[0] = rect.right - rect.left;
-    this->Size[1] = rect.bottom - rect.top;
-  }
+  SDL_Rect rect;
+  SDL_GetDisplayBounds(0, &rect);
+  this->Size[0] = rect.w;
+  this->Size[1] = rect.h;
 
   return this->Size;
 }

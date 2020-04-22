@@ -20,8 +20,11 @@
 #include "vtkHardwareWindow.h"
 #include "vtkRenderWindow.h"
 #include "vtkSDL2RenderWindowInteractor.h"
-
 #include <SDL.h>
+
+#if __EMSCRIPTEN__
+#include "emscripten.h"
+#endif
 
 #include "vtkStringArray.h"
 
@@ -68,7 +71,7 @@ void vtkSDL2RenderWindowInteractor::ProcessEvents()
     }
   }
 
-  for (SDL_Event& ev : events)
+  for (SDL_Event ev : events)
   {
     if (this->ProcessEvent(&ev))
     {
@@ -232,9 +235,8 @@ void vtkSDL2RenderWindowInteractor::StartEventLoop()
   }
 
   this->StartedMessageLoop = 1;
-  this->Done = false;
 #if __EMSCRIPTEN__
-  emscripten_set_main_loop_arg(&mainLoopCallback, (void*)this, 0, 0);
+  emscripten_set_main_loop_arg(&mainLoopCallback, (void*)this, 0, 1);
 #else
   while (!this->Done)
   {
@@ -286,13 +288,6 @@ void vtkSDL2RenderWindowInteractor::TerminateApp(void)
   }
 #endif
 }
-
-// int timerId = rwi->GetVTKTimerId(timer.first);
-// rwi->InvokeEvent(vtkCommand::TimerEvent, &timerId);
-// if (rwi->IsOneShotTimer(timerId))
-// {
-//   expired.push_back(timer.first);
-// }
 
 namespace
 {
