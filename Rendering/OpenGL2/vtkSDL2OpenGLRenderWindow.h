@@ -37,11 +37,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * End the rendering process and display the image.
-   */
-  void Frame(void) override;
-
-  /**
    * Initialize the rendering window.  This will setup all system-specific
    * resources.  This method and Finalize() must be symmetric and it
    * should be possible to call them multiple times, even changing WindowId
@@ -122,6 +117,12 @@ public:
    */
   void Clean();
 
+  /**
+   * A termination method performed at the end of the rendering process
+   * to do things like swapping buffers (if necessary) or similar actions.
+   */
+  void Frame() override;
+
   //@{
   /**
    * Ability to push and pop this window's context
@@ -144,6 +145,12 @@ public:
    * succeeded.
    */
   bool SetSwapControl(int i) override;
+
+  /**
+   * Get the size of the color buffer.
+   * Returns 0 if not able to determine otherwise sets R G B and A into buffer.
+   */
+  int GetColorBufferSizes(int* rgba) override;
 
   //@{
   /**
