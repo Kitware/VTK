@@ -824,7 +824,11 @@ void vtkXOpenGLRenderWindow::SetFullScreen(vtkTypeBool arg)
   }
 
   if (this->FullScreen == arg)
+  {
     return;
+  }
+
+  this->FullScreen = arg;
 
   if (!this->Mapped)
   {
@@ -833,7 +837,6 @@ void vtkXOpenGLRenderWindow::SetFullScreen(vtkTypeBool arg)
   }
 
   // set the mode
-  this->FullScreen = arg;
   if (this->FullScreen <= 0)
   {
     this->Position[0] = this->OldScreen[0];
