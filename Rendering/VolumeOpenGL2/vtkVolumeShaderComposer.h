@@ -397,7 +397,7 @@ std::string BaseInit(vtkRenderer* vtkNotUsed(ren), vtkVolumeMapper* mapper,
     shaderStr += std::string("\
         \n  if (in_useJittering)\
         \n  {\
-        \n    float jitterValue = texture2D(in_noiseSampler, gl_FragCoord.xy / textureSize(in_noiseSampler, 0)).x;\
+        \n    float jitterValue = texture2D(in_noiseSampler, gl_FragCoord.xy / vec2(textureSize(in_noiseSampler, 0))).x;\
         \n    g_rayJitter = g_dirStep * jitterValue;\
         \n  }\
         \n  else\
@@ -940,7 +940,7 @@ std::string ComputeColorDeclaration(vtkRenderer* vtkNotUsed(ren),
           \n  {\
           \n  return computeLighting(vec4(texture2D(" +
       colorTableMap[0] + ",\
-          \n                         vec2(scalar.w, 0.0)).xyz, opacity), 0, 0);\
+          \n                         vec2(scalar.w, 0.0)).xyz, opacity), 0, 0.0);\
           \n  }");
     return shaderStr;
   }
@@ -968,7 +968,7 @@ std::string ComputeColorDeclaration(vtkRenderer* vtkNotUsed(ren),
             \n      scalar[" +
         toString.str() + "],0.0)).xyz,\
             \n      opacity)," +
-        toString.str() + ", 0);\
+        toString.str() + ", 0.0);\
             \n    }");
 
       // Reset
@@ -987,7 +987,7 @@ std::string ComputeColorDeclaration(vtkRenderer* vtkNotUsed(ren),
           \n  return computeLighting(vec4(texture2D(" +
       colorTableMap[0] + ",\
           \n                                        vec2(scalar.x, 0.0)).xyz,\
-          \n                              opacity), 0, 0);\
+          \n                              opacity), 0, 0.0);\
           \n  }");
     return shaderStr;
   }
@@ -996,7 +996,7 @@ std::string ComputeColorDeclaration(vtkRenderer* vtkNotUsed(ren),
     shaderStr += std::string("\
           \nvec4 computeColor(vec4 scalar, float opacity)\
           \n  {\
-          \n  return computeLighting(vec4(scalar.xyz, opacity), 0, 0);\
+          \n  return computeLighting(vec4(scalar.xyz, opacity), 0, 0.0);\
           \n  }");
     return shaderStr;
   }
@@ -1148,7 +1148,7 @@ std::string ComputeColor2DDeclaration(vtkRenderer* vtkNotUsed(ren),
       colorTableMap[0] +
       ",\n"
       "    vec2(scalar.w, g_gradients_0[0].w));\n"
-      "  return computeLighting(color, 0, 0);\n"
+      "  return computeLighting(color, 0, 0.0);\n"
       "}\n");
   }
   else if (noOfComponents > 1 && independentComponents)
@@ -1174,7 +1174,7 @@ std::string ComputeColor2DDeclaration(vtkRenderer* vtkNotUsed(ren),
         "].w));\n"
         "    return computeLighting(color, " +
         num +
-        ", 0);\n"
+        ", 0.0);\n"
         "  }\n");
     }
     shaderStr += std::string("}\n");
@@ -1190,14 +1190,14 @@ std::string ComputeColor2DDeclaration(vtkRenderer* vtkNotUsed(ren),
       colorTableMap[0] +
       ",\n"
       "    vec2(scalar.x, g_gradients_0[0].w));\n"
-      "  return computeLighting(color, 0, 0);\n"
+      "  return computeLighting(color, 0, 0.0);\n"
       "}\n");
   }
   else
   {
     return std::string("vec4 computeColor(vec4 scalar, float opacity)\n"
                        "{\n"
-                       "  return computeLighting(vec4(scalar.xyz, opacity), 0, 0);\n"
+                       "  return computeLighting(vec4(scalar.xyz, opacity), 0, 0.0);\n"
                        "}\n");
   }
 }
@@ -2408,7 +2408,7 @@ std::string ClippingDeclarationFragment(
       \n    }\
       \n\
       \n    float rayDotNormal = dot(clip_rayDirObj, planeNormal);\
-      \n    bool frontFace = rayDotNormal > 0;\
+      \n    bool frontFace = rayDotNormal > 0.0;\
       \n\
       \n    // Move the start position further from the eye if needed:\
       \n    if (frontFace && // Observing from the clipped side (plane's front face)\
