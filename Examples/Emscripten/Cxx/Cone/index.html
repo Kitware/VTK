@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+  <body>
+    <canvas id="canvas" width="800" height="600" style="background: red"></canvas>
+    <script type="text/javascript" src="Cone.js"></script>
+    <script type='text/javascript'>
+      console.log('Start ASM module loading');
+      var Module = {
+        canvas: (function() {
+          var canvas = document.getElementById('canvas');
+          // As a default initial behavior, pop up an alert when webgl context is lost. To make your
+          // application robust, you may want to override this behavior before shipping!
+          // See http://www.khronos.org/registry/webgl/specs/latest/1.0/#5.15.2
+          canvas.addEventListener(
+            "webglcontextlost",
+            function(e) {
+              alert('WebGL context lost. You will need to reload the page.');
+              e.preventDefault();
+            },
+            false
+          );
+          return canvas;
+        })(),
+        onRuntimeInitialized:  function() {
+          console.log('Initialized...');
+        },
+      };
+
+      // Use the export name to instantiate the app
+      var app = vtkApp(Module);
+    </script>
+  </body>
+</html>
