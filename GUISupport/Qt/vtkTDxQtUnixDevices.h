@@ -47,7 +47,7 @@ public:
    */
   void ProcessEvent(vtkTDxUnixDeviceXEvent* e);
 
-signals:
+Q_SIGNALS:
   /**
    * This signal should be connected to a slot in the QApplication.
    * The slot in the QApplication is supposed to remit this signal.

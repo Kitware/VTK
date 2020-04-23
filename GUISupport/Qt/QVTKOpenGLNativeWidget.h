@@ -217,7 +217,7 @@ public:
    */
   VTK_LEGACY(void setDefaultQVTKCursor(const QCursor& cursor));
 
-protected slots:
+protected Q_SLOTS:
   /**
    * Called as a response to `QOpenGLContext::aboutToBeDestroyed`. This may be
    * called anytime during the widget lifecycle. We need to release any OpenGL

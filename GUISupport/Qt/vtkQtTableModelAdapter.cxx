@@ -115,7 +115,7 @@ void vtkQtTableModelAdapter::SetColorColumnName(const char* name)
   {
     this->ColorColumn = -1;
     int color_index = 0;
-    foreach (QString columnname, this->Internal->ModelColumnNames)
+    Q_FOREACH (QString columnname, this->Internal->ModelColumnNames)
     {
       if (columnname == name)
       {
@@ -139,7 +139,7 @@ void vtkQtTableModelAdapter::SetColorColumnName(const char* name)
   }
   if (this->ColorColumn != color_column)
   {
-    emit this->reset();
+    Q_EMIT this->reset();
   }
 }
 
@@ -155,7 +155,7 @@ void vtkQtTableModelAdapter::SetIconIndexColumnName(const char* name)
   {
     this->IconIndexColumn = -1;
     int color_index = 0;
-    foreach (QString columnname, this->Internal->ModelColumnNames)
+    Q_FOREACH (QString columnname, this->Internal->ModelColumnNames)
     {
       if (columnname == name)
       {
@@ -179,7 +179,7 @@ void vtkQtTableModelAdapter::SetIconIndexColumnName(const char* name)
   }
   if (this->IconIndexColumn != color_column)
   {
-    emit this->reset();
+    Q_EMIT this->reset();
   }
 }
 
@@ -195,7 +195,7 @@ void vtkQtTableModelAdapter::SetKeyColumnName(const char* name)
   {
     this->KeyColumn = -1;
     int key_index = 0;
-    foreach (QString columnname, this->Internal->ModelColumnNames)
+    Q_FOREACH (QString columnname, this->Internal->ModelColumnNames)
     {
       if (columnname == name)
       {
@@ -219,7 +219,7 @@ void vtkQtTableModelAdapter::SetKeyColumnName(const char* name)
   }
   if (this->KeyColumn != key_column)
   {
-    emit this->reset();
+    Q_EMIT this->reset();
   }
 }
 
@@ -347,7 +347,7 @@ void vtkQtTableModelAdapter::setTable(vtkTable* t)
 
     // We will assume the table is totally
     // new and any views should update completely
-    emit this->reset();
+    Q_EMIT this->reset();
   }
 }
 
@@ -522,7 +522,7 @@ bool vtkQtTableModelAdapter::setData(const QModelIndex& idx, const QVariant& val
   if (role == Qt::DecorationRole)
   {
     this->Internal->IndexToDecoration[idx] = value;
-    emit this->dataChanged(idx, idx);
+    Q_EMIT this->dataChanged(idx, idx);
     return true;
   }
   return false;
@@ -736,7 +736,7 @@ bool vtkQtTableModelAdapter::dropMimeData(const QMimeData* d, Qt::DropAction act
   buffer >> temp;
   vtkSelection* s = reinterpret_cast<vtkSelection*>(temp);
 
-  emit this->selectionDropped(s);
+  Q_EMIT this->selectionDropped(s);
 
   return true;
 }

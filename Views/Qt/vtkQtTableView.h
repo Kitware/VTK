@@ -219,7 +219,7 @@ protected:
   void AddRepresentationInternal(vtkDataRepresentation* rep) override;
   void RemoveRepresentationInternal(vtkDataRepresentation* rep) override;
 
-private slots:
+private Q_SLOTS:
   void slotQtSelectionChanged(const QItemSelection&, const QItemSelection&);
 
 private:

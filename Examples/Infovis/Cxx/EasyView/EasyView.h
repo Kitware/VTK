@@ -51,13 +51,13 @@ public:
   EasyView();
   ~EasyView() override;
 
-public slots:
+public Q_SLOTS:
 
   virtual void slotOpenXMLFile();
   virtual void slotExit();
 
 protected:
-protected slots:
+protected Q_SLOTS:
 
 private:
   // Methods

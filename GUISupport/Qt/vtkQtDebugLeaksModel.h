@@ -50,7 +50,7 @@ public:
    */
   QStandardItemModel* referenceCountModel(const QString& className);
 
-protected slots:
+protected Q_SLOTS:
 
   void addObject(vtkObjectBase* object);
   void removeObject(vtkObjectBase* object);
@@ -87,7 +87,7 @@ public:
   // Inherited method from QAbstractItemModel
   Qt::ItemFlags flags(const QModelIndex& index) const override;
 
-protected slots:
+protected Q_SLOTS:
   void updateReferenceCounts();
 };
 

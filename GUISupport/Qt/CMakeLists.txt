@@ -47,4 +47,5 @@ vtk_module_add_module(VTK::GUISupportQt
   HEADERS ${headers}
   PRIVATE_HEADERS ${private_headers})
 
+vtk_module_definitions(VTK::GUISupportQt PRIVATE QT_NO_KEYWORDS)
 vtk_module_link(VTK::GUISupportQt PUBLIC Qt5::Widgets)

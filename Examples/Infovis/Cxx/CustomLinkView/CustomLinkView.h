@@ -54,15 +54,15 @@ public:
   CustomLinkView();
   ~CustomLinkView() override;
 
-public slots:
+public Q_SLOTS:
 
   virtual void slotOpenXMLFile();
   virtual void slotExit();
 
 protected:
-protected slots:
+protected Q_SLOTS:
 
-public slots:
+public Q_SLOTS:
   // Qt signal (produced by vtkEventQtSlotConnect) will be connected to
   // this slot.
   // Full signature of the slot could be:

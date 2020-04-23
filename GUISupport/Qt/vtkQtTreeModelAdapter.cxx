@@ -151,7 +151,7 @@ void vtkQtTreeModelAdapter::setTree(vtkTree* t)
     {
       tempSGMacroVar->UnRegister(nullptr);
     }
-    emit reset();
+    Q_EMIT reset();
   }
 
   // Okay it's the same pointer but the contents
@@ -173,7 +173,7 @@ void vtkQtTreeModelAdapter::treeModified()
     this->GenerateVTKIndexToQtModelIndex(root, this->createIndex(0, 0, static_cast<int>(root)));
   }
   this->TreeMTime = this->Tree->GetMTime();
-  emit reset();
+  Q_EMIT reset();
 }
 
 // Description:
@@ -362,7 +362,7 @@ bool vtkQtTreeModelAdapter::setData(const QModelIndex& idx, const QVariant& valu
   if (role == Qt::DecorationRole)
   {
     this->IndexToDecoration[idx] = value;
-    emit this->dataChanged(idx, idx);
+    Q_EMIT this->dataChanged(idx, idx);
     return true;
   }
   return false;

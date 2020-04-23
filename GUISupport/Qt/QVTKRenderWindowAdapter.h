@@ -171,7 +171,7 @@ public:
   void setUnscaledDPI(int value);
   //@}
 
-private slots:
+private Q_SLOTS:
   void contextAboutToBeDestroyed();
 
 private:

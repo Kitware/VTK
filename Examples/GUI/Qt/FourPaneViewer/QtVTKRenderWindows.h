@@ -19,7 +19,7 @@ public:
   QtVTKRenderWindows(int argc, char* argv[]);
   ~QtVTKRenderWindows() override {}
 
-public slots:
+public Q_SLOTS:
 
   virtual void slotExit();
   virtual void resliceMode(int);
@@ -39,7 +39,7 @@ protected:
   vtkSmartPointer<vtkDistanceWidget> DistanceWidget[3];
   vtkSmartPointer<vtkResliceImageViewerMeasurements> ResliceMeasurements;
 
-protected slots:
+protected Q_SLOTS:
 
 private:
   // Designer form

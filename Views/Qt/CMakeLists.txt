@@ -17,4 +17,5 @@ set(CMAKE_AUTOMOC 1)
 vtk_module_add_module(VTK::ViewsQt
   CLASSES ${classes})
 
+vtk_module_definitions(VTK::ViewsQt PRIVATE QT_NO_KEYWORDS)
 vtk_module_link(VTK::ViewsQt PRIVATE Qt5::Widgets)

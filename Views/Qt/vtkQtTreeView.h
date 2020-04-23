@@ -55,7 +55,7 @@ class VTKVIEWSQT_EXPORT vtkQtTreeView : public vtkQtView
 {
   Q_OBJECT
 
-signals:
+Q_SIGNALS:
   void expanded(const QModelIndex&);
   void collapsed(const QModelIndex&);
   void updatePreviewWidget(const QModelIndex&);
@@ -196,7 +196,7 @@ protected:
   void AddRepresentationInternal(vtkDataRepresentation* rep) override;
   void RemoveRepresentationInternal(vtkDataRepresentation* rep) override;
 
-private slots:
+private Q_SLOTS:
   void slotQtSelectionChanged(const QItemSelection&, const QItemSelection&);
 
 private:

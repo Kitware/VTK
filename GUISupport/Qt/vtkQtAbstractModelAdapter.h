@@ -139,7 +139,7 @@ public:
   void beginResetModel() { QAbstractItemModel::beginResetModel(); }
   void endResetModel() { QAbstractItemModel::endResetModel(); }
 
-signals:
+Q_SIGNALS:
   void modelChanged();
 
 protected:

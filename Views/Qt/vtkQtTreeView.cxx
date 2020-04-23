@@ -459,7 +459,7 @@ void vtkQtTreeView::Update()
 
   // Re-hide the hidden columns
   int col = 0;
-  foreach (col, this->HiddenColumns)
+  Q_FOREACH (col, this->HiddenColumns)
   {
     this->TreeView->hideColumn(col);
   }
