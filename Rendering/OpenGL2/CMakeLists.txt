@@ -325,11 +325,7 @@ configure_file(
   "${CMAKE_CURRENT_BINARY_DIR}/vtkRenderingOpenGLConfigure.h")
 
 if (VTK_USE_SDL2)
-  vtk_module_find_package(
-    PACKAGE SDL2)
-  if(SDL2_FOUND)
-    list(APPEND classes vtkSDL2OpenGLRenderWindow)
-  endif()
+  list(APPEND classes vtkSDL2OpenGLRenderWindow)
 endif ()
 
 vtk_module_add_module(VTK::RenderingOpenGL2
@@ -339,9 +335,9 @@ vtk_module_add_module(VTK::RenderingOpenGL2
   PRIVATE_HEADERS ${private_headers} ${vtk_object_factory_header})
 
 if (VTK_USE_SDL2)
-  vtk_module_link(VTK::RenderingOpenGL2
-    PUBLIC
-      SDL2::SDL2)
+vtk_module_find_package(PACKAGE SDL2)
+vtk_module_link(VTK::RenderingOpenGL2
+    PUBLIC SDL2::SDL2)
 endif ()
 
 if (VTK_USE_X)

@@ -75,11 +75,7 @@ vtk_object_factory_configure(
   )
 
 if (VTK_USE_SDL2)
-  vtk_module_find_package(
-    PACKAGE SDL2)
-  if(SDL2_FOUND)
-    list(APPEND classes vtkSDL2RenderWindowInteractor)
-  endif()
+  list(APPEND classes vtkSDL2RenderWindowInteractor)
 endif ()
 
 vtk_module_add_module(VTK::RenderingUI
@@ -90,9 +86,9 @@ vtk_module_add_module(VTK::RenderingUI
   )
 
 if (VTK_USE_SDL2)
+  vtk_module_find_package(PACKAGE SDL2)
   vtk_module_link(VTK::RenderingUI
-    PRIVATE
-      SDL2::SDL2)
+      PRIVATE SDL2::SDL2)
 endif ()
 
 if (VTK_USE_X)

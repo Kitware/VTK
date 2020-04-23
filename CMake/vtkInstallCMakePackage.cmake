@@ -76,6 +76,7 @@ set(vtk_cmake_module_files
   FindOpenVR.cmake
   FindOSMesa.cmake
   FindPEGTL.cmake
+  FindSDL2.cmake
   FindTBB.cmake
   FindTHEORA.cmake
   Findutf8cpp.cmake
