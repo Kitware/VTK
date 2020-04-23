@@ -4142,6 +4142,14 @@ macro (vtk_module_find_package)
     return ()
   endif ()
 
+  set(_vtk_find_package_optional_components_found)
+  foreach (_vtk_find_package_optional_component IN LISTS _vtk_find_package_OPTIONAL_COMPONENTS)
+    if (${_vtk_find_package_PACKAGE}_${_vtk_find_package_optional_component}_FOUND)
+      list(APPEND _vtk_find_package_optional_components_found
+        "${_vtk_find_package_optional_component}")
+    endif ()
+  endforeach ()
+
   if (NOT _vtk_find_package_PRIVATE)
     set_property(GLOBAL APPEND
       PROPERTY
@@ -4163,6 +4171,9 @@ macro (vtk_module_find_package)
     set_property(GLOBAL APPEND
       PROPERTY
         "${_vtk_find_package_base_package}_optional_components" "${_vtk_find_package_OPTIONAL_COMPONENTS}")
+    set_property(GLOBAL APPEND
+      PROPERTY
+        "${_vtk_find_package_base_package}_optional_components_found" "${_vtk_find_package_optional_components_found}")
     set_property(GLOBAL
       PROPERTY
         "${_vtk_find_package_base_package}_exact" "0")
@@ -4411,6 +4422,16 @@ if (_vtk_module_find_package_enabled)
         PROPERTY "${_vtk_export_base_package}_components")
       get_property(_vtk_export_optional_components GLOBAL
         PROPERTY "${_vtk_export_base_package}_optional_components")
+      get_property(_vtk_export_optional_components_found GLOBAL
+        PROPERTY "${_vtk_export_base_package}_optional_components_found")
+
+      # Assume that any found optional components end up being required.
+      if (${_vtk_export_base_package}_optional_components_found)
+        list(REMOVE_ITEM _vtk_export_optional_components
+          ${_vtk_export_optional_components_found})
+        list(APPEND _vtk_export_components
+          ${_vtk_export_optional_components_found})
+      endif ()
 
       set(_vtk_export_config_arg)
       if (_vtk_export_config)
