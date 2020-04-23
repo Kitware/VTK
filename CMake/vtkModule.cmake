@@ -4346,6 +4346,12 @@ while (_vtk_module_find_package_components_to_check)
         \"\${_vtk_module_find_package_depend}\")
     endif ()
   endforeach ()
+  get_property(_vtk_module_find_package_depends
+    TARGET    \"\${_vtk_module_find_package_component_target}\"
+    PROPERTY  \"INTERFACE_vtk_module_forward_link\")
+  string(REPLACE \"\${CMAKE_FIND_PACKAGE_NAME}::\" \"\" _vtk_module_find_package_depends \"\${_vtk_module_find_package_depends}\")
+  list(APPEND _vtk_module_find_package_components_to_check
+    \${_vtk_module_find_package_depends})
 
   get_property(_vtk_module_find_package_kit
     TARGET    \"\${_vtk_module_find_package_component_target}\"
