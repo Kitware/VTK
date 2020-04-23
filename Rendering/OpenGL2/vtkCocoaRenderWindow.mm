@@ -692,6 +692,9 @@ void vtkCocoaRenderWindow::CreateAWindow()
   // where vtkRenderWindows are created but never shown.
   NSApplication* app = [NSApplication sharedApplication];
 
+  // Create the NSOpenGLPixelFormat and NSOpenGLContext.
+  this->CreateGLContext();
+
   // create an NSWindow only if neither an NSView nor an NSWindow have
   // been specified already.  This is the case for a 'pure vtk application'.
   // If you are using vtk in a 'regular Mac application' you should call
@@ -772,6 +775,10 @@ void vtkCocoaRenderWindow::CreateAWindow()
 
     this->SetRootWindow(theWindow);
     this->WindowCreated = 1;
+
+    // Since we created the NSWindow, give it a title.
+    NSString* winName = [NSString stringWithFormat:@"Visualization Toolkit - Cocoa #%u", count++];
+    this->SetWindowName([winName UTF8String]);
 
     // makeKeyAndOrderFront: will show the window
     if (this->ShowWindow)
@@ -876,15 +883,6 @@ void vtkCocoaRenderWindow::CreateAWindow()
       [glView release];
 #endif
     }
-  }
-
-  this->CreateGLContext();
-
-  // Change the window title, but only if it was created by vtk
-  if (this->WindowCreated)
-  {
-    NSString* winName = [NSString stringWithFormat:@"Visualization Toolkit - Cocoa #%u", count++];
-    this->SetWindowName([winName cStringUsingEncoding:NSASCIIStringEncoding]);
   }
 
   // the error "invalid drawable" in the console from this call can appear
