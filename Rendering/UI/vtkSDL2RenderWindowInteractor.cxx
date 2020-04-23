@@ -22,7 +22,7 @@
 #include "vtkSDL2RenderWindowInteractor.h"
 #include <SDL.h>
 
-#if __EMSCRIPTEN__
+#ifdef __EMSCRIPTEN__
 #include "emscripten.h"
 #endif
 
@@ -235,7 +235,7 @@ void vtkSDL2RenderWindowInteractor::StartEventLoop()
   }
 
   this->StartedMessageLoop = 1;
-#if __EMSCRIPTEN__
+#ifdef __EMSCRIPTEN__
   emscripten_set_main_loop_arg(&mainLoopCallback, (void*)this, 0, 1);
 #else
   while (!this->Done)
@@ -280,7 +280,7 @@ void vtkSDL2RenderWindowInteractor::TerminateApp(void)
 {
   this->Done = true;
 
-#if __EMSCRIPTEN__
+#ifdef __EMSCRIPTEN__
   // Only post a quit message if Start was called...
   if (this->StartedMessageLoop)
   {

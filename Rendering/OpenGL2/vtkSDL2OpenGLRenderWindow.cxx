@@ -229,7 +229,7 @@ void vtkSDL2OpenGLRenderWindow::CreateAWindow()
   int width = ((this->Size[0] > 0) ? this->Size[0] : 300);
   this->SetSize(width, height);
 
-#if __EMSCRIPTEN__
+#ifdef __EMSCRIPTEN__
   SDL_SetHint(SDL_HINT_EMSCRIPTEN_KEYBOARD_ELEMENT, "#canvas");
 #endif
 
