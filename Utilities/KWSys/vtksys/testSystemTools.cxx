@@ -328,7 +328,14 @@ static bool CheckFileOperations()
   }
 
   // While we're at it, check proper TestFileAccess functionality.
-  if (kwsys::SystemTools::TestFileAccess(testNewFile,
+  bool do_write_test = true;
+#if defined(__linux__)
+  // If we are running as root on linux ignore this check, as
+  // root can always write to files
+  do_write_test = (getuid() != 0);
+#endif
+  if (do_write_test &&
+      kwsys::SystemTools::TestFileAccess(testNewFile,
                                          kwsys::TEST_FILE_WRITE)) {
     std::cerr
       << "TestFileAccess incorrectly indicated that this is a writable file:"
@@ -1113,6 +1120,42 @@ static bool CheckURLParsing()
   return ret;
 }
 
+static bool CheckSplitString()
+{
+  bool ret = true;
+
+  auto check_split = [](std::string const& input,
+                        std::initializer_list<const char*> expected) -> bool {
+    auto const components = kwsys::SystemTools::SplitString(input, '/');
+    if (components.size() != expected.size()) {
+      std::cerr << "Incorrect split count for " << input << ": "
+                << components.size() << std::endl;
+      return false;
+    }
+    size_t i = 0;
+    for (auto& part : expected) {
+      if (components[i] != part) {
+        std::cerr << "Incorrect split component " << i << " for " << input
+                  << ": " << components[i] << std::endl;
+        return false;
+      }
+      ++i;
+    }
+    return true;
+  };
+
+  // No separators
+  ret &= check_split("nosep", { "nosep" });
+  // Simple
+  ret &= check_split("first/second", { "first", "second" });
+  // Separator at beginning
+  ret &= check_split("/starts/sep", { "", "starts", "sep" });
+  // Separator at end
+  ret &= check_split("ends/sep/", { "ends", "sep", "" });
+
+  return ret;
+}
+
 int testSystemTools(int, char* [])
 {
   bool res = true;
@@ -1161,6 +1204,8 @@ int testSystemTools(int, char* [])
   res &= CheckCopyFileIfDifferent();
 
   res &= CheckURLParsing();
+
+  res &= CheckSplitString();
 
   return res ? 0 : 1;
 }
