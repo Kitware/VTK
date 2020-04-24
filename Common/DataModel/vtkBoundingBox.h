@@ -73,12 +73,26 @@ public:
 
   //@{
   /**
-   * Compute the bounding box from an array of vtkPoints. It uses a fast
-   * path when possible. The second signature (with point uses) only considers
-   * points with ptUses[i] != 0 in the bounds calculation.
+   * Compute the bounding box from an array of vtkPoints. It uses a fast path
+   * when possible. The second signature (with point uses) only considers
+   * points with ptUses[i] != 0 in the bounds calculation. The non-static
+   * ComputeBounds() methods update the current bounds of an instance of this
+   * class.
    */
   static void ComputeBounds(vtkPoints* pts, double bounds[6]);
   static void ComputeBounds(vtkPoints* pts, const unsigned char* ptUses, double bounds[6]);
+  void ComputeBounds(vtkPoints* pts) { this->ComputeBounds(pts, (unsigned char*)nullptr); }
+  void ComputeBounds(vtkPoints* pts, unsigned char* ptUses)
+  {
+    double bds[6];
+    vtkBoundingBox::ComputeBounds(pts, ptUses, bds);
+    this->MinPnt[0] = bds[0];
+    this->MinPnt[1] = bds[2];
+    this->MinPnt[2] = bds[4];
+    this->MaxPnt[0] = bds[1];
+    this->MaxPnt[1] = bds[3];
+    this->MaxPnt[2] = bds[5];
+  }
   //@}
 
   //@{
@@ -206,7 +220,7 @@ public:
   void GetCenter(double center[3]) const;
 
   /**
-   * Get the length of each sode of the box.
+   * Get the length of each side of the box.
    */
   void GetLengths(double lengths[3]) const;
 

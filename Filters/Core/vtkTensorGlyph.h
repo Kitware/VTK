@@ -50,7 +50,7 @@
  * e.g. glyphs that do not touch or that overlap.
  *
  * Please note that when Symmetric is false it will generally be better
- * to place the source glyph from (-0.5,0,0) to (0.5,0,0), i.e. centred
+ * to place the source glyph from (-0.5,0,0) to (0.5,0,0), i.e. centered
  * at the origin. When symmetric is true the placement from (0,0,0) to
  * (1,0,0) will generally be more convenient.
  *
@@ -90,17 +90,18 @@
 class VTKFILTERSCORE_EXPORT vtkTensorGlyph : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkTensorGlyph, vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) override;
-
+  //@{
   /**
-   * Construct object with scaling on and scale factor 1.0. Eigenvalues are
-   * extracted, glyphs are colored with input scalar data, and logarithmic
-   * scaling is turned off.
+   * Standard methods for instantiation, obtaining type information, and
+   * printing.Construct object with scaling on and scale factor
+   * 1.0. Eigenvalues are extracted, glyphs are colored with input scalar
+   * data, and logarithmic scaling is turned off.
    */
   static vtkTensorGlyph* New();
+  vtkTypeMacro(vtkTensorGlyph, vtkPolyDataAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  //@}
 
-  //@{
   /**
    * Specify the geometry to copy to each point.
    * Note that this method does not connect the pipeline. The algorithm will

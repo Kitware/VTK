@@ -24,7 +24,7 @@
  * in the text.
  *
  * @sa
- * vtkTensorGlyph, vtkHyperStreamline
+ * vtkTensorGlyph vtkHyperStreamline vtkGlyphPackingFilter
  */
 
 #ifndef vtkPointLoad_h
@@ -36,8 +36,13 @@
 class VTKIMAGINGHYBRID_EXPORT vtkPointLoad : public vtkImageAlgorithm
 {
 public:
+  //@{
+  /**
+   * Standard methods for obtaining type information and printing.
+   */
   vtkTypeMacro(vtkPointLoad, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+  //@}
 
   /**
    * Construct with ModelBounds=(-1,1,-1,1,-1,1), SampleDimensions=(50,50,50),
@@ -53,18 +58,13 @@ public:
   vtkGetMacro(LoadValue, double);
   //@}
 
-  /**
-   * Specify the dimensions of the volume. A stress tensor will be computed for
-   * each point in the volume.
-   */
-  void SetSampleDimensions(int i, int j, int k);
-
   //@{
   /**
    * Specify the dimensions of the volume. A stress tensor will be computed for
    * each point in the volume.
    */
   void SetSampleDimensions(int dim[3]);
+  void SetSampleDimensions(int i, int j, int k);
   vtkGetVectorMacro(SampleDimensions, int, 3);
   //@}
 
@@ -85,6 +85,7 @@ public:
   vtkGetMacro(PoissonsRatio, double);
   //@}
 
+  //@{
   /**
    * Turn on/off computation of effective stress scalar. These methods do
    * nothing. The effective stress is always computed.
@@ -93,6 +94,7 @@ public:
   int GetComputeEffectiveStress() { return 1; }
   void ComputeEffectiveStressOn() {}
   void ComputeEffectiveStressOff() {}
+  //@}
 
 protected:
   vtkPointLoad();

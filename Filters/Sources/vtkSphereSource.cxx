@@ -32,6 +32,7 @@ vtkStandardNewMacro(vtkSphereSource);
 //----------------------------------------------------------------------------
 // Construct sphere with radius=0.5 and default resolution 8 in both Phi
 // and Theta directions. Theta ranges from (0,360) and phi (0,180) degrees.
+// Normals are generated.
 vtkSphereSource::vtkSphereSource(int res)
 {
   res = res < 4 ? 4 : res;
@@ -50,6 +51,8 @@ vtkSphereSource::vtkSphereSource(int res)
 
   this->OutputPointsPrecision = vtkAlgorithm::SINGLE_PRECISION;
 
+  this->GenerateNormals = true;
+
   this->SetNumberOfInputPorts(0);
 }
 
@@ -67,7 +70,7 @@ int vtkSphereSource::RequestData(vtkInformation* vtkNotUsed(request),
   int jStart, jEnd, numOffset;
   int numPts, numPolys;
   vtkPoints* newPoints;
-  vtkFloatArray* newNormals;
+  vtkFloatArray* newNormals = nullptr;
   vtkCellArray* newPolys;
   double x[3], n[3], deltaPhi, deltaTheta, phi, theta, radius, norm;
   double startTheta, endTheta, startPhi, endPhi;
@@ -128,12 +131,15 @@ int vtkSphereSource::RequestData(vtkInformation* vtkNotUsed(request),
   {
     newPoints->SetDataType(VTK_FLOAT);
   }
-
   newPoints->Allocate(numPts);
-  newNormals = vtkFloatArray::New();
-  newNormals->SetNumberOfComponents(3);
-  newNormals->Allocate(3 * numPts);
-  newNormals->SetName("Normals");
+
+  if (this->GenerateNormals)
+  {
+    newNormals = vtkFloatArray::New();
+    newNormals->SetNumberOfComponents(3);
+    newNormals->Allocate(3 * numPts);
+    newNormals->SetName("Normals");
+  }
 
   newPolys = vtkCellArray::New();
   newPolys->AllocateEstimate(numPolys, 3);
@@ -148,9 +154,12 @@ int vtkSphereSource::RequestData(vtkInformation* vtkNotUsed(request),
     x[2] = this->Center[2] + this->Radius;
     newPoints->InsertPoint(numPoles, x);
 
-    x[0] = x[1] = 0.0;
-    x[2] = 1.0;
-    newNormals->InsertTuple(numPoles, x);
+    if (newNormals)
+    {
+      x[0] = x[1] = 0.0;
+      x[2] = 1.0;
+      newNormals->InsertTuple(numPoles, x);
+    }
     numPoles++;
   }
 
@@ -162,9 +171,12 @@ int vtkSphereSource::RequestData(vtkInformation* vtkNotUsed(request),
     x[2] = this->Center[2] - this->Radius;
     newPoints->InsertPoint(numPoles, x);
 
-    x[0] = x[1] = 0.0;
-    x[2] = -1.0;
-    newNormals->InsertTuple(numPoles, x);
+    if (newNormals)
+    {
+      x[0] = x[1] = 0.0;
+      x[2] = -1.0;
+      newNormals->InsertTuple(numPoles, x);
+    }
     numPoles++;
   }
 
@@ -210,14 +222,17 @@ int vtkSphereSource::RequestData(vtkInformation* vtkNotUsed(request),
       x[2] = n[2] + this->Center[2];
       newPoints->InsertNextPoint(x);
 
-      if ((norm = vtkMath::Norm(n)) == 0.0)
+      if (newNormals)
       {
-        norm = 1.0;
+        if ((norm = vtkMath::Norm(n)) == 0.0)
+        {
+          norm = 1.0;
+        }
+        n[0] /= norm;
+        n[1] /= norm;
+        n[2] /= norm;
+        newNormals->InsertNextTuple(n);
       }
-      n[0] /= norm;
-      n[1] /= norm;
-      n[2] /= norm;
-      newNormals->InsertNextTuple(n);
     }
     this->UpdateProgress(0.10 + 0.50 * i / static_cast<float>(localThetaResolution));
   }
@@ -285,9 +300,12 @@ int vtkSphereSource::RequestData(vtkInformation* vtkNotUsed(request),
   output->SetPoints(newPoints);
   newPoints->Delete();
 
-  newNormals->Squeeze();
-  output->GetPointData()->SetNormals(newNormals);
-  newNormals->Delete();
+  if (newNormals)
+  {
+    newNormals->Squeeze();
+    output->GetPointData()->SetNormals(newNormals);
+    newNormals->Delete();
+  }
 
   newPolys->Squeeze();
   output->SetPolys(newPolys);
@@ -312,6 +330,7 @@ void vtkSphereSource::PrintSelf(ostream& os, vtkIndent indent)
      << this->Center[2] << ")\n";
   os << indent << "LatLong Tessellation: " << this->LatLongTessellation << "\n";
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
+  os << indent << "Generate Normals: " << this->GenerateNormals << "\n";
 }
 
 //----------------------------------------------------------------------------

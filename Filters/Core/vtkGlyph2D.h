@@ -23,8 +23,11 @@
  * z-axis. (See vtkGlyph3D for documentation on the interface to this
  * class.)
  *
+ * Frequently this class is used in combination with vtkGlyphSource.
+ * vtkGlyphSource2D can produce a family of 2D glyphs.
+ *
  * @sa
- * vtkTensorGlyph vtkGlyph3D vtkProgrammableGlyphFilter
+ * vtkTensorGlyph vtkGlyph3D vtkProgrammableGlyphFilter vtkGlyphSource2D
  */
 
 #ifndef vtkGlyph2D_h
@@ -36,8 +39,13 @@
 class VTKFILTERSCORE_EXPORT vtkGlyph2D : public vtkGlyph3D
 {
 public:
+  //@{
+  /**
+   * Standard methods for obtaining type information and printing.
+   */
   vtkTypeMacro(vtkGlyph2D, vtkGlyph3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+  //@}
 
   /**
    * Construct object with scaling on, scaling mode is by scalar value,
