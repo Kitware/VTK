@@ -2859,6 +2859,9 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateInputs(vtkRenderer* ren
       // Update vtkVolumeTexture
       it->second.Texture->UpdateVolume(property);
     }
+
+    // Volume may have changed, so make sure the helper updates its reference to it.
+    it->second.Volume = vol;
   }
 
   if (orderChanged)
