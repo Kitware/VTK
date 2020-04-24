@@ -230,6 +230,8 @@ void vtkSSAOPass::RenderDelegate(const vtkRenderState* s, int w, int h)
   this->DelegatePass->Render(s);
   this->NumberOfRenderedProps += this->DelegatePass->GetNumberOfRenderedProps();
 
+  this->FrameBufferObject->RemoveColorAttachments(3);
+
   this->FrameBufferObject->GetContext()->GetState()->PopFramebufferBindings();
 
   this->PostRender(s);
@@ -349,6 +351,8 @@ void vtkSSAOPass::RenderSSAO(vtkOpenGLRenderWindow* renWin, vtkMatrix4x4* projec
 
   this->SSAOQuadHelper->Render();
 
+  this->FrameBufferObject->RemoveColorAttachments(1);
+
   this->FrameBufferObject->GetContext()->GetState()->PopFramebufferBindings();
 
   this->DepthTexture->Deactivate();
@@ -458,8 +462,16 @@ void vtkSSAOPass::Render(const vtkRenderState* s)
   }
 
   // create FBO and texture
-  int x, y, w, h;
-  r->GetTiledSizeAndOrigin(&w, &h, &x, &y);
+  int x = 0, y = 0, w, h;
+  vtkFrameBufferObjectBase* fbo = s->GetFrameBuffer();
+  if (fbo)
+  {
+    fbo->GetLastSize(w, h);
+  }
+  else
+  {
+    r->GetTiledSizeAndOrigin(&w, &h, &x, &y);
+  }
 
   this->InitializeGraphicsResources(renWin, w, h);
 
