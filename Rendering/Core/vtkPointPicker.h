@@ -23,11 +23,11 @@
  * returns the id of the point projecting closest onto the ray (within the
  * specified tolerance).  Ties are broken (i.e., multiple points all
  * projecting within the tolerance along the pick ray) by choosing the point
- * closest to the ray.
+ * closest to the ray origin (i.e., closest to the eye).
  *
  *
  * @sa
- * vtkPicker vtkCellPicker.
+ * vtkPicker vtkCellPicker
  */
 
 #ifndef vtkPointPicker_h
@@ -41,9 +41,14 @@ class vtkDataSet;
 class VTKRENDERINGCORE_EXPORT vtkPointPicker : public vtkPicker
 {
 public:
+  //@{
+  /**
+   * Standard methods for instantiation, type information, and printing.
+   */
   static vtkPointPicker* New();
   vtkTypeMacro(vtkPointPicker, vtkPicker);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+  //@}
 
   //@{
   /**
@@ -75,8 +80,6 @@ protected:
 
   vtkIdType IntersectDataSetWithLine(const double p1[3], double ray[3], double rayFactor,
     double tol, vtkDataSet* dataSet, double& tMin, double minXYZ[3]);
-  bool UpdateClosestPoint(double x[3], const double p1[3], double ray[3], double rayFactor,
-    double tol, double& tMin, double& distMin);
 
 private:
   vtkPointPicker(const vtkPointPicker&) = delete;

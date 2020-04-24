@@ -89,6 +89,8 @@ set(classes
   vtkPlaneWidget
   vtkPlaybackRepresentation
   vtkPlaybackWidget
+  vtkPointCloudRepresentation
+  vtkPointCloudWidget
   vtkPointHandleRepresentation2D
   vtkPointHandleRepresentation3D
   vtkPointPlacer

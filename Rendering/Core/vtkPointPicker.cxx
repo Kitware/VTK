@@ -27,7 +27,163 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkProp3D.h"
+#include "vtkSMPThreadLocal.h"
+#include "vtkSMPTools.h"
 
+vtkStandardNewMacro(vtkPointPicker);
+
+//----------------------------------------------------------------------
+// Accelerated methods for picking points
+namespace
+{ // anonymous
+
+bool UpdateClosestPoint(double x[3], const double p1[3], double ray[3], double rayFactor,
+  double tol, double& tMin, double& distMin)
+{
+  double t =
+    (ray[0] * (x[0] - p1[0]) + ray[1] * (x[1] - p1[1]) + ray[2] * (x[2] - p1[2])) / rayFactor;
+
+  // If we find a point closer than we currently have, see whether it
+  // lies within the pick tolerance and clipping planes. We keep track
+  // of the point closest to the line (use a fudge factor for points
+  // nearly the same distance away.)
+
+  if (t < 0. || t > 1. || t > (tMin + tol))
+  {
+    return false;
+  }
+
+  double maxDist = 0.0;
+  double projXYZ[3];
+  for (int i = 0; i < 3; i++)
+  {
+    projXYZ[i] = p1[i] + t * ray[i];
+    double dist = fabs(x[i] - projXYZ[i]);
+    if (dist > maxDist)
+    {
+      maxDist = dist;
+    }
+  }
+
+  if (maxDist <= tol && maxDist < distMin)
+  {
+    distMin = maxDist;
+    tMin = t;
+    return true;
+  }
+  return false;
+}
+
+// Threaded dataset picking
+struct PickPoints
+{
+  vtkDataSet* DataSet;
+  double P1[3];
+  double Ray[3];
+  double RayFactor;
+  double Tol;
+
+  vtkIdType MinPtId;
+  double MinT;
+  double MinDist;
+  double MinXYZ[3];
+
+  struct vtkLocalData
+  {
+    vtkIdType MinPtId;
+    double MinT;
+    double MinDist;
+    double MinXYZ[3];
+    vtkLocalData()
+      : MinPtId(-1)
+      , MinT(VTK_DOUBLE_MAX)
+      , MinDist(VTK_DOUBLE_MAX)
+    {
+    }
+  };
+  vtkSMPThreadLocal<vtkLocalData> LocalData;
+
+  PickPoints(vtkDataSet* ds, const double p1[3], double ray[3], double rayFactor, double tol)
+    : DataSet(ds)
+    , RayFactor(rayFactor)
+    , Tol(tol)
+    , MinPtId(-1)
+    , MinT(VTK_DOUBLE_MAX)
+    , MinDist(VTK_DOUBLE_MAX)
+  {
+    this->P1[0] = p1[0];
+    this->P1[1] = p1[1];
+    this->P1[2] = p1[2];
+    this->Ray[0] = ray[0];
+    this->Ray[1] = ray[1];
+    this->Ray[2] = ray[2];
+  }
+
+  void Initialize()
+  {
+    this->LocalData.Local().MinPtId = -1;
+    this->LocalData.Local().MinT = VTK_DOUBLE_MAX;
+    this->LocalData.Local().MinDist = VTK_DOUBLE_MAX;
+    this->LocalData.Local().MinXYZ[0] = 0.0;
+    this->LocalData.Local().MinXYZ[1] = 0.0;
+    this->LocalData.Local().MinXYZ[2] = 0.0;
+  }
+
+  void operator()(vtkIdType ptId, vtkIdType endPtId)
+  {
+    double x[3];
+    auto& localData = this->LocalData.Local();
+    vtkIdType& minPtId = localData.MinPtId;
+    double& tMin = localData.MinT;
+    double& minPtDist = localData.MinDist;
+    double* minXYZ = localData.MinXYZ;
+
+    for (; ptId < endPtId; ++ptId)
+    {
+      this->DataSet->GetPoint(ptId, x);
+      if (UpdateClosestPoint(x, this->P1, this->Ray, this->RayFactor, this->Tol, tMin, minPtDist))
+      {
+        minPtId = ptId;
+        minXYZ[0] = x[0];
+        minXYZ[1] = x[1];
+        minXYZ[2] = x[2];
+      }
+    }
+  }
+
+  // Composite the selected point
+  void Reduce()
+  {
+    for (auto iter = this->LocalData.begin(); iter != this->LocalData.end(); ++iter)
+    {
+      if ((*iter).MinT < this->MinT)
+      {
+        this->MinPtId = (*iter).MinPtId;
+        this->MinT = (*iter).MinT;
+        this->MinDist = (*iter).MinDist;
+        this->MinXYZ[0] = (*iter).MinXYZ[0];
+        this->MinXYZ[1] = (*iter).MinXYZ[1];
+        this->MinXYZ[2] = (*iter).MinXYZ[2];
+      }
+    }
+  }
+
+  static vtkIdType Execute(vtkIdType numPts, vtkDataSet* ds, const double p1[3], double ray[3],
+    double rayFactor, double tol, double& tMin, double minXYZ[3])
+  {
+    PickPoints pick(ds, p1, ray, rayFactor, tol);
+    vtkSMPTools::For(0, numPts, pick);
+    tMin = pick.MinT;
+    minXYZ[0] = pick.MinXYZ[0];
+    minXYZ[1] = pick.MinXYZ[1];
+    minXYZ[2] = pick.MinXYZ[2];
+    return pick.MinPtId;
+  }
+};
+
+} // anonymous namespace
+
+//----------------------------------------------------------------------
 inline vtkCellArray* GET_CELLS(int cell_type, vtkPolyData* poly_input)
 {
   switch (cell_type)
@@ -44,14 +200,14 @@ inline vtkCellArray* GET_CELLS(int cell_type, vtkPolyData* poly_input)
   return nullptr;
 }
 
-vtkStandardNewMacro(vtkPointPicker);
-
+//----------------------------------------------------------------------
 vtkPointPicker::vtkPointPicker()
 {
   this->PointId = -1;
   this->UseCells = 0;
 }
 
+//----------------------------------------------------------------------
 double vtkPointPicker::IntersectWithLine(const double p1[3], const double p2[3], double tol,
   vtkAssemblyPath* path, vtkProp3D* p, vtkAbstractMapper3D* m)
 {
@@ -121,7 +277,7 @@ double vtkPointPicker::IntersectWithLine(const double p1[3], const double p2[3],
     {
       input->GetPoint(minPtId, minXYZ);
       double distMin = VTK_DOUBLE_MAX;
-      this->UpdateClosestPoint(minXYZ, p1, ray, rayFactor, tol, tMin, distMin);
+      UpdateClosestPoint(minXYZ, p1, ray, rayFactor, tol, tMin, distMin);
 
       //  Now compare this against other actors.
       //
@@ -207,6 +363,7 @@ double vtkPointPicker::IntersectWithLine(const double p1[3], const double p2[3],
   return tMin;
 }
 
+//----------------------------------------------------------------------
 vtkIdType vtkPointPicker::IntersectDataSetWithLine(const double p1[3], double ray[3],
   double rayFactor, double tol, vtkDataSet* dataSet, double& tMin, double minXYZ[3])
 {
@@ -217,6 +374,7 @@ vtkIdType vtkPointPicker::IntersectDataSetWithLine(const double p1[3], double ra
   }
   vtkIdType minPtId = -1;
   vtkPolyData* poly_input = vtkPolyData::SafeDownCast(dataSet);
+
   if (this->UseCells && (poly_input != nullptr))
   {
     double minPtDist = VTK_DOUBLE_MAX;
@@ -237,7 +395,7 @@ vtkIdType vtkPointPicker::IntersectDataSetWithLine(const double p1[3], double ra
             double x[3];
             dataSet->GetPoint(ptId, x);
 
-            if (this->UpdateClosestPoint(x, p1, ray, rayFactor, tol, tMin, minPtDist))
+            if (UpdateClosestPoint(x, p1, ray, rayFactor, tol, tMin, minPtDist))
             {
               minPtId = ptId;
               minXYZ[0] = x[0];
@@ -249,70 +407,48 @@ vtkIdType vtkPointPicker::IntersectDataSetWithLine(const double p1[3], double ra
       }
     }
   }
-  else
+  else // fallback to generic dataset
   {
+    // Depending on the number of points, different approaches to intersecting the
+    // points are used. For small number of points, a linear visit to each point is
+    // used. For larger numbers, threading and/or locators may be used. The cutoff
+    // thresholds for the scale of the work is arbitrary.
     vtkIdType numPts = dataSet->GetNumberOfPoints();
-    double minPtDist = VTK_DOUBLE_MAX;
-
-    for (vtkIdType ptId = 0; ptId < numPts; ptId++)
+    if (numPts < 1000) // small number of points, just visit them all
     {
-      double x[3];
-      dataSet->GetPoint(ptId, x);
-      if (this->UpdateClosestPoint(x, p1, ray, rayFactor, tol, tMin, minPtDist))
+      double minPtDist = VTK_DOUBLE_MAX;
+
+      for (vtkIdType ptId = 0; ptId < numPts; ptId++)
       {
-        minPtId = ptId;
-        minXYZ[0] = x[0];
-        minXYZ[1] = x[1];
-        minXYZ[2] = x[2];
+        double x[3];
+        dataSet->GetPoint(ptId, x);
+        if (UpdateClosestPoint(x, p1, ray, rayFactor, tol, tMin, minPtDist))
+        {
+          minPtId = ptId;
+          minXYZ[0] = x[0];
+          minXYZ[1] = x[1];
+          minXYZ[2] = x[2];
+        }
       }
     }
+    else // medium scale, threaded picking operation
+    {
+      minPtId = PickPoints::Execute(numPts, dataSet, p1, ray, rayFactor, tol, tMin, minXYZ);
+    }
+    // TODO: Use static point locator for huge number of points
   }
+
   return minPtId;
 }
 
-bool vtkPointPicker::UpdateClosestPoint(double x[3], const double p1[3], double ray[3],
-  double rayFactor, double tol, double& tMin, double& distMin)
-{
-  double t =
-    (ray[0] * (x[0] - p1[0]) + ray[1] * (x[1] - p1[1]) + ray[2] * (x[2] - p1[2])) / rayFactor;
-
-  // If we find a point closer than we currently have, see whether it
-  // lies within the pick tolerance and clipping planes. We keep track
-  // of the point closest to the line (use a fudge factor for points
-  // nearly the same distance away.)
-
-  if (t < 0. || t > 1. || t > tMin + this->Tolerance)
-  {
-    return false;
-  }
-
-  double maxDist = 0.0;
-  double projXYZ[3];
-  for (int i = 0; i < 3; i++)
-  {
-    projXYZ[i] = p1[i] + t * ray[i];
-    double dist = fabs(x[i] - projXYZ[i]);
-    if (dist > maxDist)
-    {
-      maxDist = dist;
-    }
-  }
-
-  if (maxDist <= tol && maxDist < distMin)
-  {
-    distMin = maxDist;
-    tMin = t;
-    return true;
-  }
-  return false;
-}
-
+//----------------------------------------------------------------------
 void vtkPointPicker::Initialize()
 {
   this->PointId = (-1);
   this->vtkPicker::Initialize();
 }
 
+//----------------------------------------------------------------------
 void vtkPointPicker::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
