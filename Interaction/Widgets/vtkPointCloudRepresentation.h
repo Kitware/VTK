@@ -16,11 +16,12 @@
  * @class   vtkPointCloudRepresentation
  * @brief   represent the vtkPointCloudWidget
  *
- * This class provides support for interactively selecting a point from a
- * point cloud. It is a representation for a vtkPointCloudWidget.
+ * This class provides support for interactively querying and selecting
+ * points from a point cloud. It is a representation for the
+ * vtkPointCloudWidget.
  *
  * @sa
- * vtkPointCloudWidget
+ * vtkPointCloudWidget vtkHardwareSelection vtkPointPicker
  */
 
 #ifndef vtkPointCloudRepresentation_h
@@ -41,9 +42,12 @@ class vtkPicker;
 class vtkPointPicker;
 class vtkPointSet;
 class vtkGlyphSource2D;
+struct vtkPointCloudPicker;
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkPointCloudRepresentation : public vtkWidgetRepresentation
 {
+  friend struct vtkPointCloudPicker;
+
 public:
   /**
    * Instantiate this class.
@@ -63,7 +67,7 @@ public:
    * Specify and place either an actor (vtkActor) or a point set
    * (vtkPointSet) that represents the point cloud. If placing with an
    * actor, then the actor must refer to a mapper which in turn refers to a
-   * point set, with the actor being used to render the point cloud. If
+   * vtkPointSet, with the actor being used to render the point cloud. If
    * placing with a vtkPointSet, then an internal vtkActor (and associated
    * vtkPointGaussianMapper) is created to render the point cloud.
    */
@@ -102,7 +106,7 @@ public:
   //@{
   /**
    * Flag controls whether highlighting of points occurs as the mouse
-   * over them. This can cause extra rendering operations.
+   * moves over them. This can cause extra rendering operations.
    */
   vtkSetMacro(Highlighting, bool);
   vtkGetMacro(Highlighting, bool);
@@ -111,8 +115,7 @@ public:
 
   // Enums define the state of the representation relative to the mouse pointer
   // position. Used by ComputeInteractionState() to communicate with the
-  // widget. Note that ComputeInteractionState() and several other methods
-  // must be implemented by subclasses.
+  // widget.
   enum _InteractionState
   {
     Outside = 0, // no points nor outline selected
@@ -123,22 +126,19 @@ public:
 
   //@{
   /**
-   * The interaction state may be set from a widget (e.g., HandleWidget) or
-   * other object. This controls how the interaction with the widget
-   * proceeds. Normally this method is used as part of a handshaking
-   * process with the widget: First ComputeInteractionState() is invoked that
-   * returns a state based on geometric considerations (i.e., cursor near a
-   * widget feature), then based on events, the widget may modify this
-   * further.
+   * The interaction state may be set from a widget (e.g., PointCloudWidget)
+   * or other object. This controls how the interaction with the widget
+   * proceeds. Normally this method is used as part of a handshaking process
+   * with the widget: First ComputeInteractionState() is invoked that returns
+   * a state based on geometric considerations (i.e., cursor near a widget
+   * feature), then based on events, the widget may modify this further.
    */
   vtkSetClampMacro(InteractionState, int, Outside, Selecting);
   //@}
 
   //@{
   /**
-   * Subclasses of vtkPointHandleRepresentation2D must implement these
-   * methods. These are the methods that the widget and its representation
-   * use to communicate with each other.
+   * Some methods required to satisfy the vtkWidgetRepresentation API.
    */
   double* GetBounds() VTK_SIZEHINT(6) override;
   void BuildRepresentation() override {}
@@ -160,6 +160,51 @@ public:
 
   //@{
   /**
+   * Because point clouds can be very large, alternative point picking
+   * approaches can be used to select points: either hardware picking (via
+   * rendering) or software rendering (via CPU ray cast). In summary,
+   * hardware picking (via vtkHardwareSelector) is preferred, with an
+   * optional software picker (via vtkPointPicker) available. Each approach
+   * has potential advantages and disadvantages - mainly, vtkHardwareSelector
+   * is faster but only selects opaque geometry and what is visible on the
+   * screen, does not work with anti-aliasing, cannot handle assemblies, and
+   * may not work on some systems. vtkPointPicker avoids extra renders, and
+   * can handle translucent geometry, can select points "behind" other
+   * objects, will work on all systems, but is scalable to only a few tens of
+   * thousands of points. (See vtkHardwareSelector and vtkPointPicker for
+   * further information.) The choice of picker also has implications on the
+   * type of tolerancing used (as described in the following documentation).
+   * (Note also that the pickers may return slighty different results, this
+   * is expected due to the different way tolerancing works.)
+   */
+  enum _Picking_Mode
+  {
+    HARDWARE_PICKING = 0,
+    SOFTWARE_PICKING
+  };
+  vtkSetClampMacro(PickingMode, int, HARDWARE_PICKING, SOFTWARE_PICKING);
+  vtkGetMacro(PickingMode, int);
+  void SetPickingModeToHardware() { this->SetPickingMode(HARDWARE_PICKING); }
+  void SetPickingModeToSoftware() { this->SetPickingMode(SOFTWARE_PICKING); }
+  //@}
+
+  //@{
+  /**
+   * The tolerance representing the distance to a point expressed in pixels.
+   * A tolerance of 0 selects from the pixel precisely under the cursor. A
+   * tolerance of 1 results in a 3x3 pixel square under the cursor (padded
+   * out by 1 in each direction); a tolerance of N results in a (2N+1)**2
+   * selection rectangle. The point in the selection rectangle which is
+   * closest in z-buffer to the pick position is selected. Note that this can
+   * sometimes return points further away from the cursor (which can be
+   * unexpected - use the tolerance carefully).
+   */
+  vtkSetMacro(HardwarePickingTolerance, unsigned int);
+  vtkGetMacro(HardwarePickingTolerance, unsigned int);
+  //@}
+
+  //@{
+  /**
    * The tolerance representing the distance to a point (as a fraction of the
    * bounding box of the point cloud). This specifies when the cursor is
    * considered near enough to the point to highlight it. Note that this is
@@ -167,8 +212,8 @@ public:
    * large and points close to the eye can be picked in preference to points
    * further away which are closer to the pick ray.
    */
-  vtkSetClampMacro(Tolerance, double, 0.0, 100.0);
-  vtkGetMacro(Tolerance, double);
+  vtkSetClampMacro(SoftwarePickingTolerance, double, 0.0, 100.0);
+  vtkGetMacro(SoftwarePickingTolerance, double);
   //@}
 
   /*
@@ -191,9 +236,11 @@ protected:
 
   // Data members to manage state
   bool Highlighting;
-  double Tolerance;
+  int PickingMode;
+  unsigned int HardwarePickingTolerance;
+  double SoftwarePickingTolerance;
   vtkPicker* OutlinePicker;
-  vtkPointPicker* PointPicker;
+  vtkPointCloudPicker* PointCloudPicker;
 
   // Draw an outline around the point cloud
   vtkActor* OutlineActor;
