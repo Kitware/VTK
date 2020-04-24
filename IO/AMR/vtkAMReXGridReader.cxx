@@ -65,20 +65,30 @@ vtkAMReXGridReader::~vtkAMReXGridReader()
 void vtkAMReXGridReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "FileName: " << this->FileName << endl;
-  if (this->Internal)
+
+  if (this->FileName)
   {
-    os << indent << "Header: " << endl;
-    this->Internal->Header->PrintSelf(os, indent.GetNextIndent());
-    os << indent << "LevelHeader(s): " << endl;
-    for (int cc = 0; cc < GetNumberOfLevels() + 1; ++cc)
-    {
-      this->Internal->LevelHeader[cc]->PrintSelfLevelHeader(os, indent.GetNextIndent());
-    }
+    os << indent << "FileName: " << this->FileName << endl;
   }
   else
   {
-    os << indent << "Internal: nullptr" << endl;
+    os << indent << "FileName: (none)" << endl;
+  }
+
+  if (this->Internal->Header)
+  {
+    os << indent << "Header: " << endl;
+    this->Internal->Header->PrintSelf(os, indent.GetNextIndent());
+  }
+  else
+  {
+    os << indent << "Header: (none)" << endl;
+  }
+
+  os << indent << "LevelHeader(s): " << (this->GetNumberOfLevels() >= 0 ? "" : "(none)") << endl;
+  for (int cc = 0; cc < GetNumberOfLevels() + 1; ++cc)
+  {
+    this->Internal->LevelHeader[cc]->PrintSelfLevelHeader(os, indent.GetNextIndent());
   }
 }
 

@@ -67,5 +67,13 @@ void vtkPTextureMapToSphere::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Controller: " << *this->Controller << std::endl;
+  if (this->Controller)
+  {
+    os << indent << "Controller:\n";
+    this->Controller->PrintSelf(os, indent.GetNextIndent());
+  }
+  else
+  {
+    os << indent << "Controller: (none)" << endl;
+  }
 }
