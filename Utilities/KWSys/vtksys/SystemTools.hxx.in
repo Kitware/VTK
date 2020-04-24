@@ -411,11 +411,11 @@ public:
    * (which defaults to the current working directory).  The full path
    * is returned.
    */
-  static std::string CollapseFullPath(const std::string& in_relative);
-  static std::string CollapseFullPath(const std::string& in_relative,
+  static std::string CollapseFullPath(std::string const& in_path);
+  static std::string CollapseFullPath(std::string const& in_path,
                                       const char* in_base);
-  static std::string CollapseFullPath(const std::string& in_relative,
-                                      const std::string& in_base);
+  static std::string CollapseFullPath(std::string const& in_path,
+                                      std::string const& in_base);
 
   /**
    * Get the real path for a given path, removing all symlinks.  In
@@ -549,7 +549,8 @@ public:
    */
 
   /**
-   * Open a file considering unicode.
+   * Open a file considering unicode. On Windows, if 'e' is present in
+   * mode it is first discarded.
    */
   static FILE* Fopen(const std::string& file, const char* mode);
 
@@ -675,6 +676,11 @@ public:
    * Return true if the file is a directory
    */
   static bool FileIsDirectory(const std::string& name);
+
+  /**
+   * Return true if the file is an executable
+   */
+  static bool FileIsExecutable(const std::string& name);
 
   /**
    * Return true if the file is a symlink
@@ -869,7 +875,7 @@ public:
   /**
    * Get current working directory CWD
    */
-  static std::string GetCurrentWorkingDirectory(bool collapse = true);
+  static std::string GetCurrentWorkingDirectory();
 
   /**
    * Change directory to the directory specified
@@ -981,7 +987,6 @@ private:
     return &SystemToolsManagerInstance;
   }
 
-  static SystemToolsStatic* Statics;
   friend class SystemToolsStatic;
   friend class SystemToolsManager;
 };
