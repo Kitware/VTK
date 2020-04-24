@@ -498,46 +498,113 @@ if(OPENGL_FOUND)
   # ::GLES2 is a GLVND library, and thus Linux-only: we don't bother checking
   # for a framework version of this library.
   if(OpenGL_GLES2_FOUND AND NOT TARGET OpenGL::GLES2)
-    if(IS_ABSOLUTE "${OPENGL_gles2_LIBRARY}")
-      add_library(OpenGL::GLES2 UNKNOWN IMPORTED)
-      set_target_properties(OpenGL::GLES2 PROPERTIES IMPORTED_LOCATION
-                            "${OPENGL_gles2_LIBRARY}")
-    else()
-      add_library(OpenGL::GLES2 INTERFACE IMPORTED)
-      set_target_properties(OpenGL::GLES2 PROPERTIES IMPORTED_LIBNAME
-                            "${OPENGL_gles2_LIBRARY}")
+    set(_opengl_gles_cxx_flags)
+
+    # Configure compile options
+    if(EMSCRIPTEN)
+      # For GLES2 we do not make any decision for which WebGL version should
+      # be used (1 or 2). For old version of EMSCRIPTEN < 1.39.5 the user will
+      # have to register its own "-s USE_WEBGL1=1 or -s USE_WEBGL2=1"
+      list(APPEND _opengl_gles_cxx_flags
+        "SHELL:-s FULL_ES2=1"
+      )
+      if(EMSCRIPTEN_VERSION VERSION_GREATER_EQUAL "1.39.5")
+        list(APPEND _opengl_gles_cxx_flags
+          "SHELL:-s MIN_WEBGL_VERSION=1"
+          "SHELL:-s MAX_WEBGL_VERSION=2"
+        )
+      endif()
     endif()
-    set_target_properties(OpenGL::GLES2 PROPERTIES INTERFACE_INCLUDE_DIRECTORIES
-                          "${OPENGL_GLES2_INCLUDE_DIR}")
+
+    # Initialize target
+    if(NOT OPENGL_gles2_LIBRARY)
+      add_library(OpenGL::GLES2 INTERFACE IMPORTED)
+    else()
+      if(IS_ABSOLUTE "${OPENGL_gles2_LIBRARY}")
+        add_library(OpenGL::GLES2 UNKNOWN IMPORTED)
+        set_target_properties(OpenGL::GLES2 PROPERTIES
+          IMPORTED_LOCATION "${OPENGL_gles2_LIBRARY}"
+        )
+      else()
+        add_library(OpenGL::GLES2 INTERFACE IMPORTED)
+        set_target_properties(OpenGL::GLES2 PROPERTIES
+          IMPORTED_LIBNAME "${OPENGL_gles2_LIBRARY}"
+        )
+      endif()
+    endif()
+
+    # Attach target properties
+    set_target_properties(OpenGL::GLES2
+      PROPERTIES
+        INTERFACE_INCLUDE_DIRECTORIES
+          "${OPENGL_GLES2_INCLUDE_DIR}"
+        INTERFACE_COMPILE_OPTIONS
+          "${_opengl_gles_cxx_flags}"
+        INTERFACE_LINK_OPTIONS
+          "${_opengl_gles_cxx_flags}"
+    )
+
     if (OPENGL_USE_GLES2)
       set(_OpenGL_EGL_IMPL OpenGL::GLES2)
     endif ()
+
+    unset(_opengl_gles_cxx_flags)
   endif()
 
   # ::GLES3 is a GLVND library, and thus Linux-only: we don't bother checking
   # for a framework version of this library.
   if(OpenGL_GLES3_FOUND AND NOT TARGET OpenGL::GLES3)
-    if(IS_ABSOLUTE "${OPENGL_gles3_LIBRARY}")
-      add_library(OpenGL::GLES3 UNKNOWN IMPORTED)
-      if(NOT EMSCRIPTEN)
-        set_target_properties(OpenGL::GLES3 PROPERTIES IMPORTED_LOCATION
-                              "${OPENGL_gles3_LIBRARY}")
+    set(_opengl_gles_cxx_flags)
+
+    if(EMSCRIPTEN)
+      # For GLES3 we force EMSCRIPTEN to use WebGL 2
+      list(APPEND _opengl_gles_cxx_flags
+        "SHELL:-s FULL_ES3=1"
+      )
+      if(EMSCRIPTEN_VERSION VERSION_GREATER_EQUAL "1.39.5")
+        list(APPEND _opengl_gles_cxx_flags
+          "SHELL:-s MIN_WEBGL_VERSION=2"
+          "SHELL:-s MAX_WEBGL_VERSION=2"
+        )
+      else()
+        list(APPEND _opengl_gles_cxx_flags
+          "SHELL:-s USE_WEBGL2=1"
+        )
       endif()
-    else()
+    endif()
+
+    # Initialize target
+    if(NOT OPENGL_gles3_LIBRARY)
       add_library(OpenGL::GLES3 INTERFACE IMPORTED)
-      if(NOT EMSCRIPTEN)
-        set_target_properties(OpenGL::GLES3 PROPERTIES IMPORTED_LIBNAME
-                              "${OPENGL_gles3_LIBRARY}")
+    else()
+      if(IS_ABSOLUTE "${OPENGL_gles3_LIBRARY}")
+        add_library(OpenGL::GLES3 UNKNOWN IMPORTED)
+        set_target_properties(OpenGL::GLES3 PROPERTIES
+          IMPORTED_LOCATION "${OPENGL_gles3_LIBRARY}"
+        )
+      else()
+        add_library(OpenGL::GLES3 INTERFACE IMPORTED)
+        set_target_properties(OpenGL::GLES3 PROPERTIES
+          IMPORTED_LIBNAME "${OPENGL_gles3_LIBRARY}"
+        )
       endif()
     endif()
-    if(NOT EMSCRIPTEN)
-      set_target_properties(OpenGL::GLES3 PROPERTIES INTERFACE_INCLUDE_DIRECTORIES
-                            "${OPENGL_GLES3_INCLUDE_DIR}")
-    endif()
+
+    # Attach target properties
+    set_target_properties(OpenGL::GLES3 PROPERTIES
+      INTERFACE_INCLUDE_DIRECTORIES
+        "${OPENGL_GLES3_INCLUDE_DIR}"
+      INTERFACE_COMPILE_OPTIONS
+        "${_opengl_gles_cxx_flags}"
+      INTERFACE_LINK_OPTIONS
+        "${_opengl_gles_cxx_flags}"
+    )
 
     if (OPENGL_USE_GLES3)
       set(_OpenGL_EGL_IMPL OpenGL::GLES3)
     endif ()
+
+    unset(_opengl_gles_cxx_flags)
   endif()
 
   if(OPENGL_gl_LIBRARY AND NOT TARGET OpenGL::GL)
