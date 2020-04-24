@@ -2,15 +2,18 @@
 <html>
   <body>
     <canvas id="canvas" style="position: absolute; left: 0; top: 0;"></canvas>
-    <script type="text/javascript" src="Cone.js"></script>
+    <script type="text/javascript" src="ConeFullScreen.js"></script>
     <script type='text/javascript'>
       var Module = {
         canvas: (function() {
           var canvas = document.getElementById('canvas');
+          // As a default initial behavior, pop up an alert when webgl context is lost. To make your
+          // application robust, you may want to override this behavior before shipping!
+          // See http://www.khronos.org/registry/webgl/specs/latest/1.0/#5.15.2
           canvas.addEventListener(
             "webglcontextlost",
             function(e) {
-              console.error('WebGL context lost. You will need to reload the page.');
+              alert('WebGL context lost. You will need to reload the page.');
               e.preventDefault();
             },
             false
@@ -19,12 +22,14 @@
         })(),
         onRuntimeInitialized:  function() {
           console.log('initialized');
+          setTimeout(() => {
+            window.dispatchEvent(new Event('resize'));
+          }, 0);
         },
       };
 
       // Use the export name to instantiate the app
       var app = vtkApp(Module);
-      console.log('App created');
     </script>
   </body>
 </html>
