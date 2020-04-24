@@ -129,13 +129,15 @@ cmake_dependent_option(VTK_PYTHON_OPTIONAL_LINK
   # We shouldn't do it for static builds and we can't do it without
   # `target_link_options`. Windows also always needs to link against libpython
   # directly.
-  "NOT WIN32;BUILD_SHARED_LIBS;COMMAND target_link_options;TARGET \"${vtk_python_embed_target}\"" OFF)
+  "NOT WIN32;BUILD_SHARED_LIBS;COMMAND target_link_options" OFF)
 
 add_library(PythonUsed INTERFACE)
 add_library(VTK::PythonUsed ALIAS PythonUsed)
 _vtk_module_install(PythonUsed)
 
-if (VTK_PYTHON_OPTIONAL_LINK)
+# If we want optional linking and we have a real libpython, set up the forward
+# linking.
+if (VTK_PYTHON_OPTIONAL_LINK AND TARGET "${vtk_python_embed_target}")
   # It has been observed that Ubuntu's GCC toolchain defaults require flags,
   # but are not detected here due to the confluence of the flags (basically,
   # the errors only show up in an executable that links to Python-using code,
@@ -186,14 +188,15 @@ if (VTK_PYTHON_OPTIONAL_LINK)
   _vtk_module_set_module_property(VTK::Python APPEND
     PROPERTY  "forward_link"
     VALUE     VTK::PythonUsed)
+# Otherwise, if we have the libpython and aren't doing optional linking, just
+# use libpython.
+elseif (NOT VTK_PYTHON_OPTIONAL_LINK AND TARGET "${vtk_python_embed_target}")
+  vtk_module_link(VTK::Python
+    INTERFACE
+      "${vtk_python_embed_target}")
+# Do the optional linking support.
 else ()
-  if (TARGET "${vtk_python_embed_target}")
-    vtk_module_link(VTK::Python
-      INTERFACE
-        "${vtk_python_embed_target}")
-  else ()
-    vtk_module_link(VTK::Python
-      INTERFACE
-        "${vtk_python_target}")
-  endif ()
+  vtk_module_link(VTK::Python
+    INTERFACE
+      "${vtk_python_target}")
 endif ()
