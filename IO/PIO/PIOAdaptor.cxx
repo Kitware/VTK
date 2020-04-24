@@ -108,16 +108,20 @@ int PIOAdaptor::initializeGlobal(const char* PIOFileName)
     return 0;
   }
 
-  // Get the directory name from the full path of the .pio file
+  // Get the directory name from the full path of the .pio file in GUI
+  // or simple name from python script
   string::size_type dirPos = this->descFileName.find_last_of(Slash);
   string dirName;
   if (dirPos == string::npos)
   {
-    vtkGenericWarningMacro("Bad input file name: " << PIOFileName);
-    return 0;
+    // No directory name included
+    ostringstream tempStr;
+    tempStr << "." << Slash;
+    dirName = tempStr.str();
   }
   else
   {
+    // Directory name before final slash
     dirName = this->descFileName.substr(0, dirPos);
   }
 
@@ -534,7 +538,10 @@ void PIOAdaptor::create_geometry(vtkMultiBlockDataSet* grid)
   {
     if (this->hasTracers == true)
     {
-      create_tracer_UG(grid);
+      if (this->Rank == 0)
+      {
+        create_tracer_UG(grid);
+      }
     }
     else
     {
@@ -716,13 +723,31 @@ void PIOAdaptor::create_amr_UG(vtkMultiBlockDataSet* grid,
   int64_t* cell_daughter, // Daughter ID, 0 indicates no daughter
   double** cell_center)   // Cell center
 {
-  // Count the number of cells for load balancing between xrage procs and paraview procs
+  // Distribute xrage data over paraview processors if possible
+  // Can't just distribute cells because xrage processor is on daughter boundary
   std::vector<int> countPerRank(this->TotalRank);
-  for (int rank = 0; rank < this->TotalRank; rank++)
+
+  // More PIO processors than paraview processors
+  if (numberOfGlobal > this->TotalRank)
   {
-    countPerRank[rank] = numberOfGlobal / this->TotalRank;
+    for (int rank = 0; rank < this->TotalRank; rank++)
+    {
+      countPerRank[rank] = numberOfGlobal / this->TotalRank;
+    }
+    countPerRank[0] += (numberOfGlobal % this->TotalRank);
   }
-  countPerRank[this->TotalRank - 1] += (numberOfGlobal % this->TotalRank);
+  else
+  // Fewer PIO processors than paraview processors so one or none per
+  {
+    for (int rank = 0; rank < numberOfGlobal; rank++)
+    {
+      countPerRank[rank] = 1;
+    }
+    for (int rank = numberOfGlobal; rank < this->TotalRank; rank++)
+    {
+      countPerRank[rank] = 0;
+    }
+  }
 
   std::vector<int> startCell(this->TotalRank);
   std::vector<int> endCell(this->TotalRank);
@@ -813,7 +838,6 @@ void PIOAdaptor::create_amr_UG_1D(vtkMultiBlockDataSet* grid, int startCellIndx,
       ugrid->InsertNextCell(VTK_LINE, numberOfDaughters, cell);
     }
   }
-
   delete[] cell;
 }
 
