@@ -156,7 +156,7 @@ public:
 
 protected:
   vtkPlane();
-  ~vtkPlane() override {}
+  ~vtkPlane() override = default;
 
   double Normal[3];
   double Origin[3];

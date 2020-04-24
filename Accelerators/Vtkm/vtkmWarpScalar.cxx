@@ -44,7 +44,7 @@ vtkmWarpScalar::vtkmWarpScalar()
 }
 
 //------------------------------------------------------------------------------
-vtkmWarpScalar::~vtkmWarpScalar() {}
+vtkmWarpScalar::~vtkmWarpScalar() = default;
 
 //------------------------------------------------------------------------------
 int vtkmWarpScalar::RequestData(vtkInformation* vtkNotUsed(request),

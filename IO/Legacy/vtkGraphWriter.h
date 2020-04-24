@@ -47,8 +47,8 @@ public:
   //@}
 
 protected:
-  vtkGraphWriter() {}
-  ~vtkGraphWriter() override {}
+  vtkGraphWriter() = default;
+  ~vtkGraphWriter() override = default;
 
   void WriteData() override;
 

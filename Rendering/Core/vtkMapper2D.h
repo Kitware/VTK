@@ -44,8 +44,8 @@ public:
   virtual vtkTypeBool HasTranslucentPolygonalGeometry() { return 0; }
 
 protected:
-  vtkMapper2D() {}
-  ~vtkMapper2D() override {}
+  vtkMapper2D() = default;
+  ~vtkMapper2D() override = default;
 
 private:
   vtkMapper2D(const vtkMapper2D&) = delete;

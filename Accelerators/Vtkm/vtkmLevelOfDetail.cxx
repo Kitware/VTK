@@ -46,7 +46,7 @@ vtkmLevelOfDetail::vtkmLevelOfDetail()
 }
 
 //------------------------------------------------------------------------------
-vtkmLevelOfDetail::~vtkmLevelOfDetail() {}
+vtkmLevelOfDetail::~vtkmLevelOfDetail() = default;
 
 //------------------------------------------------------------------------------
 void vtkmLevelOfDetail::SetNumberOfXDivisions(int num)

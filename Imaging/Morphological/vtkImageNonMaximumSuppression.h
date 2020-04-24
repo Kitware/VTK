@@ -70,7 +70,7 @@ public:
 
 protected:
   vtkImageNonMaximumSuppression();
-  ~vtkImageNonMaximumSuppression() override {}
+  ~vtkImageNonMaximumSuppression() override = default;
 
   vtkTypeBool HandleBoundaries;
   int Dimensionality;

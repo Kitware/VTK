@@ -64,7 +64,7 @@ public:
 
 protected:
   vtkImageGaussianSource();
-  ~vtkImageGaussianSource() override {}
+  ~vtkImageGaussianSource() override = default;
 
   double StandardDeviation;
   int WholeExtent[6];

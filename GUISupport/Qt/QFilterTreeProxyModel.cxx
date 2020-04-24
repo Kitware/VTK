@@ -26,7 +26,7 @@ QFilterTreeProxyModel::QFilterTreeProxyModel(QObject* p)
   this->TreeLevel = 0;
 }
 
-QFilterTreeProxyModel::~QFilterTreeProxyModel() {}
+QFilterTreeProxyModel::~QFilterTreeProxyModel() = default;
 
 void QFilterTreeProxyModel::setFilterTreeLevel(int level)
 {

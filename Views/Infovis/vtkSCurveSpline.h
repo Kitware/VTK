@@ -64,7 +64,7 @@ public:
 
 protected:
   vtkSCurveSpline();
-  ~vtkSCurveSpline() override {}
+  ~vtkSCurveSpline() override = default;
 
   double NodeWeight;
 

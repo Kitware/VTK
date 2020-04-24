@@ -49,9 +49,9 @@ vtkStandardNewMacro(vtkPExodusIIWriter);
 
 //----------------------------------------------------------------------------
 
-vtkPExodusIIWriter::vtkPExodusIIWriter() {}
+vtkPExodusIIWriter::vtkPExodusIIWriter() = default;
 
-vtkPExodusIIWriter::~vtkPExodusIIWriter() {}
+vtkPExodusIIWriter::~vtkPExodusIIWriter() = default;
 
 void vtkPExodusIIWriter::PrintSelf(ostream& os, vtkIndent indent)
 {

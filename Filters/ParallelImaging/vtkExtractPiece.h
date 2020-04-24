@@ -43,8 +43,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
-  vtkExtractPiece() {}
-  ~vtkExtractPiece() override {}
+  vtkExtractPiece() = default;
+  ~vtkExtractPiece() override = default;
 
   int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;

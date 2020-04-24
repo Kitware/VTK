@@ -46,7 +46,7 @@ std::string ReadFile(const std::string& filename)
 }
 }
 
-RealDescriptor::RealDescriptor() {}
+RealDescriptor::RealDescriptor() = default;
 
 RealDescriptor::RealDescriptor(const long* fr_, const int* ord_, int ordl_)
   : fr(fr_, fr_ + 8)

@@ -64,7 +64,7 @@ public:
   ResultType operator()(BaseLhs& lhs) { return fun_(CastLhs::Cast(lhs)); }
 
 private:
-  FunctorRefDispatcherHelper& operator=(const FunctorRefDispatcherHelper& b);
+  FunctorRefDispatcherHelper& operator=(const FunctorRefDispatcherHelper& b) = delete;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -100,7 +100,7 @@ public:
   typedef R ResultType;
   typedef P1 Parm1;
 
-  virtual ~FunctorImpl() {}
+  virtual ~FunctorImpl() = default;
   virtual R operator()(P1&) = 0;
   virtual FunctorImpl* DoClone() const = 0;
 
@@ -115,8 +115,8 @@ public:
   }
 
 protected:
-  FunctorImpl() {}
-  FunctorImpl(const FunctorImpl&) {}
+  FunctorImpl() = default;
+  FunctorImpl(const FunctorImpl&) = default;
 
 private:
   FunctorImpl& operator=(const FunctorImpl&) = delete;
@@ -138,7 +138,7 @@ public:
     : f_(fun)
   {
   }
-  ~FunctorHandler() override {}
+  ~FunctorHandler() override = default;
 
   ResultType operator()(Parm1& p1) override { return f_(p1); }
   FunctorHandler* DoClone() const override { return new FunctorHandler(*this); }
@@ -223,7 +223,7 @@ public:
   }
 
 private:
-  FunctorRefDispatcherHelper& operator=(const FunctorRefDispatcherHelper& b);
+  FunctorRefDispatcherHelper& operator=(const FunctorRefDispatcherHelper& b) = delete;
 };
 
 template <class BaseLhs, class BaseRhs, class SomeLhs, class SomeRhs, typename RT, class CastLhs,
@@ -260,7 +260,7 @@ public:
   typedef P1 Parm1;
   typedef P2 Parm2;
 
-  virtual ~FunctorImpl() {}
+  virtual ~FunctorImpl() = default;
   virtual R operator()(P1&, P2&) = 0;
   virtual FunctorImpl* DoClone() const = 0;
 
@@ -275,8 +275,8 @@ public:
   }
 
 protected:
-  FunctorImpl() {}
-  FunctorImpl(const FunctorImpl&) {}
+  FunctorImpl() = default;
+  FunctorImpl(const FunctorImpl&) = default;
 
 private:
   FunctorImpl& operator=(const FunctorImpl&) = delete;
@@ -299,7 +299,7 @@ public:
     : f_(fun)
   {
   }
-  ~FunctorHandler() override {}
+  ~FunctorHandler() override = default;
 
   ResultType operator()(Parm1& p1, Parm2& p2) override { return f_(p1, p2); }
 

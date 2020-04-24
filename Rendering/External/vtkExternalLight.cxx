@@ -43,7 +43,7 @@ vtkExternalLight::vtkExternalLight()
 }
 
 //-----------------------------------------------------------------------------
-vtkExternalLight::~vtkExternalLight() {}
+vtkExternalLight::~vtkExternalLight() = default;
 
 //-----------------------------------------------------------------------------
 void vtkExternalLight::SetPosition(double position1, double position2, double position3)

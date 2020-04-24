@@ -62,7 +62,7 @@ public:
 
 protected:
   vtkCompositeDataSetAlgorithm();
-  ~vtkCompositeDataSetAlgorithm() override {}
+  ~vtkCompositeDataSetAlgorithm() override = default;
 
   /**
    * This is called by the superclass.

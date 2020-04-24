@@ -49,7 +49,7 @@ vtkSurfaceLICComposite::vtkSurfaceLICComposite()
 }
 
 // ----------------------------------------------------------------------------
-vtkSurfaceLICComposite::~vtkSurfaceLICComposite() {}
+vtkSurfaceLICComposite::~vtkSurfaceLICComposite() = default;
 
 // ----------------------------------------------------------------------------
 void vtkSurfaceLICComposite::Initialize(const vtkPixelExtent& winExt,

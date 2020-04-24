@@ -48,10 +48,10 @@ inline vtkm::cont::DataSet CopyDataSetStructure(const vtkm::cont::DataSet& ds)
 } // anonymous namespace
 
 //------------------------------------------------------------------------------
-vtkmGradient::vtkmGradient() {}
+vtkmGradient::vtkmGradient() = default;
 
 //------------------------------------------------------------------------------
-vtkmGradient::~vtkmGradient() {}
+vtkmGradient::~vtkmGradient() = default;
 
 //------------------------------------------------------------------------------
 void vtkmGradient::PrintSelf(ostream& os, vtkIndent indent)

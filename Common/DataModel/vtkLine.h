@@ -160,7 +160,7 @@ public:
 
 protected:
   vtkLine();
-  ~vtkLine() override {}
+  ~vtkLine() override = default;
 
 private:
   vtkLine(const vtkLine&) = delete;

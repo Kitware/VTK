@@ -405,7 +405,7 @@ public:
 class vtkQuaternionf : public vtkQuaternion<float>
 {
 public:
-  vtkQuaternionf() {}
+  vtkQuaternionf() = default;
   explicit vtkQuaternionf(float w, float x, float y, float z)
     : vtkQuaternion<float>(w, x, y, z)
   {
@@ -430,7 +430,7 @@ public:
 class vtkQuaterniond : public vtkQuaternion<double>
 {
 public:
-  vtkQuaterniond() {}
+  vtkQuaterniond() = default;
   explicit vtkQuaterniond(double w, double x, double y, double z)
     : vtkQuaternion<double>(w, x, y, z)
   {

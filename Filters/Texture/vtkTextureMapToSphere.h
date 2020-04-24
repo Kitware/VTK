@@ -98,7 +98,7 @@ public:
 
 protected:
   vtkTextureMapToSphere();
-  ~vtkTextureMapToSphere() override {}
+  ~vtkTextureMapToSphere() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

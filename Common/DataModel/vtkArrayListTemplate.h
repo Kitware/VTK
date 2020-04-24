@@ -62,7 +62,7 @@ struct BaseArrayPair
     , OutputArray(outArray)
   {
   }
-  virtual ~BaseArrayPair() {}
+  virtual ~BaseArrayPair() = default;
 
   virtual void Copy(vtkIdType inId, vtkIdType outId) = 0;
   virtual void Interpolate(
@@ -87,9 +87,7 @@ struct ArrayPair : public BaseArrayPair
     , NullValue(null)
   {
   }
-  ~ArrayPair() override // calm down some finicky compilers
-  {
-  }
+  ~ArrayPair() override = default; // calm down some finicky compilers
 
   void Copy(vtkIdType inId, vtkIdType outId) override
   {
@@ -157,9 +155,7 @@ struct RealArrayPair : public BaseArrayPair
     , NullValue(null)
   {
   }
-  ~RealArrayPair() override // calm down some finicky compilers
-  {
-  }
+  ~RealArrayPair() override = default; // calm down some finicky compilers
 
   void Copy(vtkIdType inId, vtkIdType outId) override
   {

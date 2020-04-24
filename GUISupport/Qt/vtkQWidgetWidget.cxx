@@ -70,7 +70,7 @@ vtkQWidgetWidget::vtkQWidgetWidget()
 }
 
 //----------------------------------------------------------------------------
-vtkQWidgetWidget::~vtkQWidgetWidget() {}
+vtkQWidgetWidget::~vtkQWidgetWidget() = default;
 
 vtkQWidgetRepresentation* vtkQWidgetWidget::GetQWidgetRepresentation()
 {

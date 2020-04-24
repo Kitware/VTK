@@ -65,10 +65,10 @@ vtkDIYUtilitiesCleanup::~vtkDIYUtilitiesCleanup()
 }
 
 //----------------------------------------------------------------------------
-vtkDIYUtilities::vtkDIYUtilities() {}
+vtkDIYUtilities::vtkDIYUtilities() = default;
 
 //----------------------------------------------------------------------------
-vtkDIYUtilities::~vtkDIYUtilities() {}
+vtkDIYUtilities::~vtkDIYUtilities() = default;
 
 //----------------------------------------------------------------------------
 void vtkDIYUtilities::InitializeEnvironmentForDIY()

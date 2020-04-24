@@ -128,7 +128,7 @@ void vtkUnstructuredGridCellIterator::IncrementToNextCell()
 }
 
 //------------------------------------------------------------------------------
-vtkUnstructuredGridCellIterator::vtkUnstructuredGridCellIterator() {}
+vtkUnstructuredGridCellIterator::vtkUnstructuredGridCellIterator() = default;
 
 //------------------------------------------------------------------------------
 vtkUnstructuredGridCellIterator::~vtkUnstructuredGridCellIterator() = default;

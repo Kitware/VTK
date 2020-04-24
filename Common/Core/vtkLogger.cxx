@@ -111,10 +111,10 @@ static void pop_scope(const char* id)
 
 //=============================================================================
 //----------------------------------------------------------------------------
-vtkLogger::vtkLogger() {}
+vtkLogger::vtkLogger() = default;
 
 //----------------------------------------------------------------------------
-vtkLogger::~vtkLogger() {}
+vtkLogger::~vtkLogger() = default;
 
 //----------------------------------------------------------------------------
 void vtkLogger::Init(int& argc, char* argv[], const char* verbosity_flag /*= "-v"*/)

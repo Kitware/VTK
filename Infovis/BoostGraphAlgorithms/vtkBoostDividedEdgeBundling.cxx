@@ -37,7 +37,7 @@
 
 vtkStandardNewMacro(vtkBoostDividedEdgeBundling);
 
-vtkBoostDividedEdgeBundling::vtkBoostDividedEdgeBundling() {}
+vtkBoostDividedEdgeBundling::vtkBoostDividedEdgeBundling() = default;
 
 class vtkBundlingMetadata
 {

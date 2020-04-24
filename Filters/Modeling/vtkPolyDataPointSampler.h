@@ -184,7 +184,7 @@ public:
 
 protected:
   vtkPolyDataPointSampler();
-  ~vtkPolyDataPointSampler() override {}
+  ~vtkPolyDataPointSampler() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

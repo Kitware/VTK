@@ -50,8 +50,8 @@
 class vtkQtTableModelAdapter::vtkInternal
 {
 public:
-  vtkInternal() {}
-  ~vtkInternal() {}
+  vtkInternal() = default;
+  ~vtkInternal() = default;
 
   QHash<QModelIndex, QVariant> IndexToDecoration;
   QHash<int, QPair<vtkIdType, int> > ModelColumnToTableColumn;

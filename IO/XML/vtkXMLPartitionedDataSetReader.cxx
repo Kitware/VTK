@@ -27,10 +27,10 @@
 vtkStandardNewMacro(vtkXMLPartitionedDataSetReader);
 
 //----------------------------------------------------------------------------
-vtkXMLPartitionedDataSetReader::vtkXMLPartitionedDataSetReader() {}
+vtkXMLPartitionedDataSetReader::vtkXMLPartitionedDataSetReader() = default;
 
 //----------------------------------------------------------------------------
-vtkXMLPartitionedDataSetReader::~vtkXMLPartitionedDataSetReader() {}
+vtkXMLPartitionedDataSetReader::~vtkXMLPartitionedDataSetReader() = default;
 
 //----------------------------------------------------------------------------
 void vtkXMLPartitionedDataSetReader::PrintSelf(ostream& os, vtkIndent indent)

@@ -85,8 +85,8 @@ public:
     const unsigned char* input, size_t inputLen, unsigned char* output, size_t outputLen);
 
 protected:
-  vtkBase64Utilities() {}
-  ~vtkBase64Utilities() override {}
+  vtkBase64Utilities() = default;
+  ~vtkBase64Utilities() override = default;
 
 private:
   vtkBase64Utilities(const vtkBase64Utilities&) = delete;

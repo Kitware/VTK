@@ -31,7 +31,7 @@ vtkHardwareWindow::vtkHardwareWindow()
 }
 
 //----------------------------------------------------------------------------
-vtkHardwareWindow::~vtkHardwareWindow() {}
+vtkHardwareWindow::~vtkHardwareWindow() = default;
 
 //-----------------------------------------------------------------------------
 void vtkHardwareWindow::PrintSelf(ostream& os, vtkIndent indent)

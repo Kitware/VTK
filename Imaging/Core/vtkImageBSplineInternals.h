@@ -76,8 +76,8 @@ public:
   //@}
 
 protected:
-  vtkImageBSplineInternals() {}
-  ~vtkImageBSplineInternals() {}
+  vtkImageBSplineInternals() = default;
+  ~vtkImageBSplineInternals() = default;
 
   static double InitialCausalCoefficient(
     double data[], long size, long border, double pole, double tol);

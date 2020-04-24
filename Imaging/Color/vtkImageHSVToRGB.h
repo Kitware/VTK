@@ -51,7 +51,7 @@ public:
 
 protected:
   vtkImageHSVToRGB();
-  ~vtkImageHSVToRGB() override {}
+  ~vtkImageHSVToRGB() override = default;
 
   double Maximum;
 

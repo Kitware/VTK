@@ -345,7 +345,7 @@ public:
 
 protected:
   vtkRandomAttributeGenerator();
-  ~vtkRandomAttributeGenerator() override {}
+  ~vtkRandomAttributeGenerator() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;

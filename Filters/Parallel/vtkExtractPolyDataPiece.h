@@ -45,7 +45,7 @@ public:
 
 protected:
   vtkExtractPolyDataPiece();
-  ~vtkExtractPolyDataPiece() override {}
+  ~vtkExtractPolyDataPiece() override = default;
 
   // Usual data generation method
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

@@ -56,7 +56,7 @@ vtkUniformHyperTreeGrid::vtkUniformHyperTreeGrid()
 }
 
 //-----------------------------------------------------------------------------
-vtkUniformHyperTreeGrid::~vtkUniformHyperTreeGrid() {}
+vtkUniformHyperTreeGrid::~vtkUniformHyperTreeGrid() = default;
 
 //-----------------------------------------------------------------------------
 vtkHyperTree* vtkUniformHyperTreeGrid::GetTree(vtkIdType index, bool create)

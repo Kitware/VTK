@@ -168,7 +168,7 @@ public:
 
 protected:
   vtkPlaneSource();
-  ~vtkPlaneSource() override {}
+  ~vtkPlaneSource() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

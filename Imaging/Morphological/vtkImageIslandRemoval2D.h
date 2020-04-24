@@ -84,7 +84,7 @@ public:
 
 protected:
   vtkImageIslandRemoval2D();
-  ~vtkImageIslandRemoval2D() override {}
+  ~vtkImageIslandRemoval2D() override = default;
 
   int AreaThreshold;
   vtkTypeBool SquareNeighborhood;

@@ -43,8 +43,8 @@ public:
   //@}
 
 protected:
-  vtkDataSetWriter() {}
-  ~vtkDataSetWriter() override {}
+  vtkDataSetWriter() = default;
+  ~vtkDataSetWriter() override = default;
 
   void WriteData() override;
 

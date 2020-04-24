@@ -131,7 +131,7 @@ inline void vtkStateStorage::Append(const T& value, const char* name)
 class VTKRENDERINGOPENGL2_EXPORT vtkStateStorage
 {
 public:
-  vtkStateStorage() {}
+  vtkStateStorage() = default;
 
   // clear the storage
   void Clear() { this->Storage.clear(); }
@@ -142,11 +142,7 @@ public:
 
   bool operator!=(const vtkStateStorage& b) const { return this->Storage != b.Storage; }
 
-  vtkStateStorage& operator=(const vtkStateStorage& b)
-  {
-    this->Storage = b.Storage;
-    return *this;
-  }
+  vtkStateStorage& operator=(const vtkStateStorage& b) = default;
 
 protected:
   std::vector<unsigned char> Storage;

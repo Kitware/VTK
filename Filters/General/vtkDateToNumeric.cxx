@@ -43,7 +43,7 @@ vtkDateToNumeric::vtkDateToNumeric()
 }
 
 //----------------------------------------------------------------------------
-vtkDateToNumeric::~vtkDateToNumeric() {}
+vtkDateToNumeric::~vtkDateToNumeric() = default;
 
 //----------------------------------------------------------------------------
 int vtkDateToNumeric::FillInputPortInformation(int, vtkInformation* info)

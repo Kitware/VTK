@@ -142,7 +142,7 @@ public:
 
 protected:
   vtkSphereSource(int res = 8);
-  ~vtkSphereSource() override {}
+  ~vtkSphereSource() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

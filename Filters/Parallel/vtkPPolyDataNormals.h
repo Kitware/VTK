@@ -44,7 +44,7 @@ public:
 
 protected:
   vtkPPolyDataNormals();
-  ~vtkPPolyDataNormals() override {}
+  ~vtkPPolyDataNormals() override = default;
 
   // Usual data generation method
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

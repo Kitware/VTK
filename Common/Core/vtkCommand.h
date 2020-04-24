@@ -450,7 +450,7 @@ protected:
   int PassiveObserver;
 
   vtkCommand();
-  ~vtkCommand() override {}
+  ~vtkCommand() override = default;
 
   friend class vtkSubjectHelper;
 

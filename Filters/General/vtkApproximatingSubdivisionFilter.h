@@ -45,7 +45,7 @@ public:
 
 protected:
   vtkApproximatingSubdivisionFilter();
-  ~vtkApproximatingSubdivisionFilter() override {}
+  ~vtkApproximatingSubdivisionFilter() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   virtual int GenerateSubdivisionPoints(

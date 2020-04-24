@@ -71,7 +71,7 @@ protected:
   /**
    * Constructor
    */
-  vtkHyperTreeGridNonOrientedMooreSuperCursor() {}
+  vtkHyperTreeGridNonOrientedMooreSuperCursor() = default;
 
   /**
    * Destructor

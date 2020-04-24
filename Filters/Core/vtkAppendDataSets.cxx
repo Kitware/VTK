@@ -48,7 +48,7 @@ vtkAppendDataSets::vtkAppendDataSets()
 }
 
 //----------------------------------------------------------------------------
-vtkAppendDataSets::~vtkAppendDataSets() {}
+vtkAppendDataSets::~vtkAppendDataSets() = default;
 
 //----------------------------------------------------------------------------
 vtkTypeBool vtkAppendDataSets::ProcessRequest(

@@ -61,8 +61,8 @@ public:
   }
 
 protected:
-  vtkObjectFactoryCollection() {}
-  ~vtkObjectFactoryCollection() override {}
+  vtkObjectFactoryCollection() = default;
+  ~vtkObjectFactoryCollection() override = default;
 
 private:
   // hide the standard AddItem from the user and the compiler.

@@ -29,10 +29,10 @@
 vtkStandardNewMacro(vtkActorNode);
 
 //----------------------------------------------------------------------------
-vtkActorNode::vtkActorNode() {}
+vtkActorNode::vtkActorNode() = default;
 
 //----------------------------------------------------------------------------
-vtkActorNode::~vtkActorNode() {}
+vtkActorNode::~vtkActorNode() = default;
 
 //----------------------------------------------------------------------------
 void vtkActorNode::Build(bool prepass)

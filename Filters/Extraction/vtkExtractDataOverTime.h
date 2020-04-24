@@ -55,7 +55,7 @@ public:
 
 protected:
   vtkExtractDataOverTime();
-  ~vtkExtractDataOverTime() override {}
+  ~vtkExtractDataOverTime() override = default;
 
   int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector);

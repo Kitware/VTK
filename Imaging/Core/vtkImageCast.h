@@ -77,7 +77,7 @@ public:
 
 protected:
   vtkImageCast();
-  ~vtkImageCast() override {}
+  ~vtkImageCast() override = default;
 
   vtkTypeBool ClampOverflow;
   int OutputScalarType;

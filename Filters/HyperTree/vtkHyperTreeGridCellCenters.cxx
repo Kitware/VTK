@@ -44,7 +44,7 @@ vtkHyperTreeGridCellCenters::vtkHyperTreeGridCellCenters()
 }
 
 //-----------------------------------------------------------------------------
-vtkHyperTreeGridCellCenters::~vtkHyperTreeGridCellCenters() {}
+vtkHyperTreeGridCellCenters::~vtkHyperTreeGridCellCenters() = default;
 
 //----------------------------------------------------------------------------
 vtkTypeBool vtkHyperTreeGridCellCenters::ProcessRequest(

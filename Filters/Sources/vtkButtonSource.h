@@ -107,7 +107,7 @@ public:
 
 protected:
   vtkButtonSource();
-  ~vtkButtonSource() override {}
+  ~vtkButtonSource() override = default;
 
   double Center[3];
   double ShoulderTextureCoordinate[2];

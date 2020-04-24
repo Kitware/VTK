@@ -49,7 +49,7 @@ vtkReebGraphToJoinSplitTreeFilter::vtkReebGraphToJoinSplitTreeFilter()
 }
 
 //----------------------------------------------------------------------------
-vtkReebGraphToJoinSplitTreeFilter::~vtkReebGraphToJoinSplitTreeFilter() {}
+vtkReebGraphToJoinSplitTreeFilter::~vtkReebGraphToJoinSplitTreeFilter() = default;
 
 //----------------------------------------------------------------------------
 int vtkReebGraphToJoinSplitTreeFilter::FillInputPortInformation(

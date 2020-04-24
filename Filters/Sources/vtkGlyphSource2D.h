@@ -183,7 +183,7 @@ public:
 
 protected:
   vtkGlyphSource2D();
-  ~vtkGlyphSource2D() override {}
+  ~vtkGlyphSource2D() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

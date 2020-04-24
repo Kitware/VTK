@@ -38,8 +38,8 @@ public:
   ~vtkGarbageCollectorManager();
 
 private:
-  vtkGarbageCollectorManager(const vtkGarbageCollectorManager&);
-  vtkGarbageCollectorManager& operator=(const vtkGarbageCollectorManager&);
+  vtkGarbageCollectorManager(const vtkGarbageCollectorManager&) = delete;
+  vtkGarbageCollectorManager& operator=(const vtkGarbageCollectorManager&) = delete;
 };
 
 // This instance will show up in any translation unit that uses

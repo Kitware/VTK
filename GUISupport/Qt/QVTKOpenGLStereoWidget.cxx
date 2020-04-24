@@ -88,7 +88,7 @@ QVTKOpenGLStereoWidget::QVTKOpenGLStereoWidget(
 }
 
 //-----------------------------------------------------------------------------
-QVTKOpenGLStereoWidget::~QVTKOpenGLStereoWidget() {}
+QVTKOpenGLStereoWidget::~QVTKOpenGLStereoWidget() = default;
 
 //-----------------------------------------------------------------------------
 QImage QVTKOpenGLStereoWidget::grabFramebuffer()

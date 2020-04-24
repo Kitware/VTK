@@ -70,7 +70,7 @@ public:
 
 protected:
   vtkNewickTreeWriter();
-  ~vtkNewickTreeWriter() override {}
+  ~vtkNewickTreeWriter() override = default;
 
   void WriteData() override;
 

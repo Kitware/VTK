@@ -62,7 +62,7 @@ public:
   //@}
 
 protected:
-  vtkGraphicsFactory() {}
+  vtkGraphicsFactory() = default;
 
   static int UseMesaClasses;
   static int OffScreenOnlyMode;

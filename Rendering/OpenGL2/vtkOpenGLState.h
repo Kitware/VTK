@@ -395,7 +395,7 @@ protected:
     int MinorVersion;
     BufferBindingState DrawBinding;
     BufferBindingState ReadBinding;
-    GLState() {}
+    GLState() = default;
   };
 
   GLState CurrentState;

@@ -41,7 +41,7 @@ vtkmCleanGrid::vtkmCleanGrid()
 }
 
 //------------------------------------------------------------------------------
-vtkmCleanGrid::~vtkmCleanGrid() {}
+vtkmCleanGrid::~vtkmCleanGrid() = default;
 
 //------------------------------------------------------------------------------
 void vtkmCleanGrid::PrintSelf(ostream& os, vtkIndent indent)

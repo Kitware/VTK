@@ -252,7 +252,7 @@ public:
 
 protected:
   vtkWindowedSincPolyDataFilter();
-  ~vtkWindowedSincPolyDataFilter() override {}
+  ~vtkWindowedSincPolyDataFilter() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

@@ -92,7 +92,7 @@ public:
 
 protected:
   vtkCylinder();
-  ~vtkCylinder() override {}
+  ~vtkCylinder() override = default;
 
   double Radius;
   double Center[3];

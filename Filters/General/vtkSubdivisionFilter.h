@@ -62,7 +62,7 @@ public:
 
 protected:
   vtkSubdivisionFilter();
-  ~vtkSubdivisionFilter() override {}
+  ~vtkSubdivisionFilter() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

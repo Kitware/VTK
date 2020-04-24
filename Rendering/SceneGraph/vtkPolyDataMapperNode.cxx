@@ -29,10 +29,10 @@
 vtkStandardNewMacro(vtkPolyDataMapperNode);
 
 //----------------------------------------------------------------------------
-vtkPolyDataMapperNode::vtkPolyDataMapperNode() {}
+vtkPolyDataMapperNode::vtkPolyDataMapperNode() = default;
 
 //----------------------------------------------------------------------------
-vtkPolyDataMapperNode::~vtkPolyDataMapperNode() {}
+vtkPolyDataMapperNode::~vtkPolyDataMapperNode() = default;
 
 //----------------------------------------------------------------------------
 void vtkPolyDataMapperNode::PrintSelf(ostream& os, vtkIndent indent)

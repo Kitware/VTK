@@ -73,7 +73,7 @@ public:
 
 protected:
   vtkGraphToPolyData();
-  ~vtkGraphToPolyData() override {}
+  ~vtkGraphToPolyData() override = default;
 
   bool EdgeGlyphOutput;
   double EdgeGlyphPosition;

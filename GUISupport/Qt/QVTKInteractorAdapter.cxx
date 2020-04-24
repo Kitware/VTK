@@ -59,7 +59,7 @@ QVTKInteractorAdapter::QVTKInteractorAdapter(QObject* parentObject)
 {
 }
 
-QVTKInteractorAdapter::~QVTKInteractorAdapter() {}
+QVTKInteractorAdapter::~QVTKInteractorAdapter() = default;
 
 void QVTKInteractorAdapter::SetDevicePixelRatio(float ratio, vtkRenderWindowInteractor* iren)
 {

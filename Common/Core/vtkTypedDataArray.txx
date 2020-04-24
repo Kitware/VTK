@@ -20,15 +20,11 @@
 
 //------------------------------------------------------------------------------
 template <typename Scalar>
-vtkTypedDataArray<Scalar>::vtkTypedDataArray()
-{
-}
+vtkTypedDataArray<Scalar>::vtkTypedDataArray() = default;
 
 //------------------------------------------------------------------------------
 template <typename Scalar>
-vtkTypedDataArray<Scalar>::~vtkTypedDataArray()
-{
-}
+vtkTypedDataArray<Scalar>::~vtkTypedDataArray() = default;
 
 //------------------------------------------------------------------------------
 template <typename Scalar>

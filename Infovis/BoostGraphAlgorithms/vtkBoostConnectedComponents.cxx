@@ -38,9 +38,9 @@ using namespace boost;
 
 vtkStandardNewMacro(vtkBoostConnectedComponents);
 
-vtkBoostConnectedComponents::vtkBoostConnectedComponents() {}
+vtkBoostConnectedComponents::vtkBoostConnectedComponents() = default;
 
-vtkBoostConnectedComponents::~vtkBoostConnectedComponents() {}
+vtkBoostConnectedComponents::~vtkBoostConnectedComponents() = default;
 
 int vtkBoostConnectedComponents::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)

@@ -47,8 +47,8 @@ vtkObjectFactoryNewMacro(vtkXdmf3Writer);
 class vtkXdmf3Writer::Internals
 {
 public:
-  Internals() {}
-  ~Internals() {}
+  Internals() = default;
+  ~Internals() = default;
   void Init()
   {
     this->NumberOfTimeSteps = 1;

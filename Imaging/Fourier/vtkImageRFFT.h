@@ -45,8 +45,8 @@ public:
   vtkTypeMacro(vtkImageRFFT, vtkImageFourierFilter);
 
 protected:
-  vtkImageRFFT() {}
-  ~vtkImageRFFT() override {}
+  vtkImageRFFT() = default;
+  ~vtkImageRFFT() override = default;
 
   int IterativeRequestInformation(vtkInformation* in, vtkInformation* out) override;
   int IterativeRequestUpdateExtent(vtkInformation* in, vtkInformation* out) override;

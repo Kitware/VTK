@@ -30,10 +30,10 @@
 vtkStandardNewMacro(vtkOSPRayCompositePolyDataMapper2Node);
 
 //----------------------------------------------------------------------------
-vtkOSPRayCompositePolyDataMapper2Node::vtkOSPRayCompositePolyDataMapper2Node() {}
+vtkOSPRayCompositePolyDataMapper2Node::vtkOSPRayCompositePolyDataMapper2Node() = default;
 
 //----------------------------------------------------------------------------
-vtkOSPRayCompositePolyDataMapper2Node::~vtkOSPRayCompositePolyDataMapper2Node() {}
+vtkOSPRayCompositePolyDataMapper2Node::~vtkOSPRayCompositePolyDataMapper2Node() = default;
 
 //----------------------------------------------------------------------------
 void vtkOSPRayCompositePolyDataMapper2Node::PrintSelf(ostream& os, vtkIndent indent)

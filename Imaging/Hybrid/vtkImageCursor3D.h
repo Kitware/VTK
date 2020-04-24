@@ -59,7 +59,7 @@ public:
 
 protected:
   vtkImageCursor3D();
-  ~vtkImageCursor3D() override {}
+  ~vtkImageCursor3D() override = default;
 
   double CursorPosition[3];
   double CursorValue;

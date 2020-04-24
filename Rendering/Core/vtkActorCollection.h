@@ -80,8 +80,8 @@ public:
   }
 
 protected:
-  vtkActorCollection() {}
-  ~vtkActorCollection() override {}
+  vtkActorCollection() = default;
+  ~vtkActorCollection() override = default;
 
 private:
   // hide the standard AddItem from the user and the compiler.

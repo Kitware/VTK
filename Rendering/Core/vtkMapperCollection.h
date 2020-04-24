@@ -67,8 +67,8 @@ public:
   }
 
 protected:
-  vtkMapperCollection() {}
-  ~vtkMapperCollection() override {}
+  vtkMapperCollection() = default;
+  ~vtkMapperCollection() override = default;
 
 private:
   // hide the standard AddItem from the user and the compiler.

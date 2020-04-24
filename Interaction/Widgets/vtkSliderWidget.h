@@ -136,7 +136,7 @@ public:
 
 protected:
   vtkSliderWidget();
-  ~vtkSliderWidget() override {}
+  ~vtkSliderWidget() override = default;
 
   // These are the events that are handled
   static void SelectAction(vtkAbstractWidget*);

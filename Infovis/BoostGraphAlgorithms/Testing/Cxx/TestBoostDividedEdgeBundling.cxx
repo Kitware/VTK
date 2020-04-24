@@ -132,8 +132,8 @@ public:
   vtkTypeMacro(vtkBundledGraphItem, vtkGraphItem);
 
 protected:
-  vtkBundledGraphItem() {}
-  ~vtkBundledGraphItem() override {}
+  vtkBundledGraphItem() = default;
+  ~vtkBundledGraphItem() override = default;
 
   vtkColor4ub EdgeColor(vtkIdType line, vtkIdType point) override;
   float EdgeWidth(vtkIdType line, vtkIdType point) override;

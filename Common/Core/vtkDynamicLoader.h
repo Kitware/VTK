@@ -73,8 +73,8 @@ public:
   static const char* LastError();
 
 protected:
-  vtkDynamicLoader() {}
-  ~vtkDynamicLoader() override {}
+  vtkDynamicLoader() = default;
+  ~vtkDynamicLoader() override = default;
 
 private:
   vtkDynamicLoader(const vtkDynamicLoader&) = delete;

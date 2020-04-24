@@ -159,8 +159,8 @@ public:
   static const char* TimePointToISO8601(vtkTypeUInt64, int format = ISO8601_DATETIME_MILLIS);
 
 protected:
-  vtkTimePointUtility() {}
-  ~vtkTimePointUtility() override {}
+  vtkTimePointUtility() = default;
+  ~vtkTimePointUtility() override = default;
 
 private:
   vtkTimePointUtility(const vtkTimePointUtility&) = delete;

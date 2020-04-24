@@ -205,7 +205,7 @@ public:
   class VTKIONETCDF_EXPORT MidpointCoordinates
   {
   public:
-    MidpointCoordinates() {}
+    MidpointCoordinates() = default;
     MidpointCoordinates(const double coord[3], vtkIdType id)
     {
       this->Coordinate[0] = coord[0];
@@ -341,8 +341,8 @@ protected:
 
   private:
     // Too lazy to implement these.
-    MidpointCoordinateMap(const MidpointCoordinateMap&);
-    void operator=(const MidpointCoordinateMap&);
+    MidpointCoordinateMap(const MidpointCoordinateMap&) = delete;
+    void operator=(const MidpointCoordinateMap&) = delete;
   };
 
   //@{
@@ -381,8 +381,8 @@ protected:
 
   private:
     // Too lazy to implement these.
-    MidpointIdMap(const MidpointIdMap&);
-    void operator=(const MidpointIdMap&);
+    MidpointIdMap(const MidpointIdMap&) = delete;
+    void operator=(const MidpointIdMap&) = delete;
   };
 
   /**

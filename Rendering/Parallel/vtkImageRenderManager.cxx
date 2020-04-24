@@ -25,10 +25,10 @@
 vtkStandardNewMacro(vtkImageRenderManager);
 
 //----------------------------------------------------------------------------
-vtkImageRenderManager::vtkImageRenderManager() {}
+vtkImageRenderManager::vtkImageRenderManager() = default;
 
 //----------------------------------------------------------------------------
-vtkImageRenderManager::~vtkImageRenderManager() {}
+vtkImageRenderManager::~vtkImageRenderManager() = default;
 
 //----------------------------------------------------------------------------
 void vtkImageRenderManager::PrintSelf(ostream& os, vtkIndent indent)

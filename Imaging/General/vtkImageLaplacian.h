@@ -47,7 +47,7 @@ public:
 
 protected:
   vtkImageLaplacian();
-  ~vtkImageLaplacian() override {}
+  ~vtkImageLaplacian() override = default;
 
   int Dimensionality;
 

@@ -94,7 +94,7 @@ public:
 
 protected:
   vtkFrustumCoverageCuller();
-  ~vtkFrustumCoverageCuller() override {}
+  ~vtkFrustumCoverageCuller() override = default;
 
   double MinimumCoverage;
   double MaximumCoverage;

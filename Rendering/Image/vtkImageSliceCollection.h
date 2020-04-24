@@ -70,7 +70,7 @@ public:
   vtkImageSlice* GetNextItem() { return this->GetNextImage(); }
 
 protected:
-  vtkImageSliceCollection() {}
+  vtkImageSliceCollection() = default;
   ~vtkImageSliceCollection() override;
 
   void DeleteElement(vtkCollectionElement*) override;

@@ -58,8 +58,8 @@ public:
   vtkPlane* GetNextPlane(vtkCollectionSimpleIterator& cookie);
 
 protected:
-  vtkPlaneCollection() {}
-  ~vtkPlaneCollection() override {}
+  vtkPlaneCollection() = default;
+  ~vtkPlaneCollection() override = default;
 
 private:
   // hide the standard AddItem from the user and the compiler.

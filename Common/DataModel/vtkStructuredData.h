@@ -227,8 +227,8 @@ public:
     const vtkIdType ptId, const int dim[3], int ijk[3], int dataDescription = VTK_EMPTY);
 
 protected:
-  vtkStructuredData() {}
-  ~vtkStructuredData() override {}
+  vtkStructuredData() = default;
+  ~vtkStructuredData() override = default;
 
   /**
    * Computes the linear index for the given i-j-k structured of a grid with

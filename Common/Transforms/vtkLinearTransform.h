@@ -251,8 +251,8 @@ public:
   //@}
 
 protected:
-  vtkLinearTransform() {}
-  ~vtkLinearTransform() override {}
+  vtkLinearTransform() = default;
+  ~vtkLinearTransform() override = default;
 
 private:
   vtkLinearTransform(const vtkLinearTransform&) = delete;

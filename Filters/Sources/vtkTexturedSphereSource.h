@@ -95,7 +95,7 @@ public:
 
 protected:
   vtkTexturedSphereSource(int res = 8);
-  ~vtkTexturedSphereSource() override {}
+  ~vtkTexturedSphereSource() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   double Radius;

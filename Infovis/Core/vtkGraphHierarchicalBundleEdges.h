@@ -96,7 +96,7 @@ public:
 
 protected:
   vtkGraphHierarchicalBundleEdges();
-  ~vtkGraphHierarchicalBundleEdges() override {}
+  ~vtkGraphHierarchicalBundleEdges() override = default;
 
   double BundlingStrength;
   bool DirectMapping;

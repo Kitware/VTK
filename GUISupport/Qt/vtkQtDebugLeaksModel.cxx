@@ -240,7 +240,7 @@ ReferenceCountModel::ReferenceCountModel(QObject* p)
 }
 
 //-----------------------------------------------------------------------------
-ReferenceCountModel::~ReferenceCountModel() {}
+ReferenceCountModel::~ReferenceCountModel() = default;
 
 //-----------------------------------------------------------------------------
 QString ReferenceCountModel::pointerAsString(void* ptr)

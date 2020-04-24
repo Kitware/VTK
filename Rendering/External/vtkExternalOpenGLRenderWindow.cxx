@@ -32,7 +32,7 @@ vtkExternalOpenGLRenderWindow::vtkExternalOpenGLRenderWindow()
 }
 
 //----------------------------------------------------------------------------
-vtkExternalOpenGLRenderWindow::~vtkExternalOpenGLRenderWindow() {}
+vtkExternalOpenGLRenderWindow::~vtkExternalOpenGLRenderWindow() = default;
 
 //----------------------------------------------------------------------------
 void vtkExternalOpenGLRenderWindow::Start(void)

@@ -33,8 +33,8 @@ public:
   vtkTypeMacro(vtkImageMirrorPad, vtkImagePadFilter);
 
 protected:
-  vtkImageMirrorPad() {}
-  ~vtkImageMirrorPad() override {}
+  vtkImageMirrorPad() = default;
+  ~vtkImageMirrorPad() override = default;
 
   void ComputeInputUpdateExtent(int inExt[6], int outExt[6], int wExt[6]) override;
   void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,

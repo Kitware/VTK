@@ -305,7 +305,7 @@ vtkHyperTreeGridNonOrientedGeometryCursor::vtkHyperTreeGridNonOrientedGeometryCu
 }
 
 //-----------------------------------------------------------------------------
-vtkHyperTreeGridNonOrientedGeometryCursor::~vtkHyperTreeGridNonOrientedGeometryCursor() {}
+vtkHyperTreeGridNonOrientedGeometryCursor::~vtkHyperTreeGridNonOrientedGeometryCursor() = default;
 
 //-----------------------------------------------------------------------------
 vtkSmartPointer<vtkHyperTreeGridOrientedGeometryCursor>

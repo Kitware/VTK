@@ -66,7 +66,7 @@ class vtkXRenderWindowInteractorInternals
 {
 public:
   vtkXRenderWindowInteractorInternals() { this->TimerIdCount = 1; }
-  ~vtkXRenderWindowInteractorInternals() {}
+  ~vtkXRenderWindowInteractorInternals() = default;
 
   // duration is in milliseconds
   int CreateLocalTimer(unsigned long duration)

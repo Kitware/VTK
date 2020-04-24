@@ -42,7 +42,7 @@ vtkReebGraphVolumeSkeletonFilter::vtkReebGraphVolumeSkeletonFilter()
 }
 
 //----------------------------------------------------------------------------
-vtkReebGraphVolumeSkeletonFilter::~vtkReebGraphVolumeSkeletonFilter() {}
+vtkReebGraphVolumeSkeletonFilter::~vtkReebGraphVolumeSkeletonFilter() = default;
 
 //----------------------------------------------------------------------------
 int vtkReebGraphVolumeSkeletonFilter::FillInputPortInformation(int portNumber, vtkInformation* info)

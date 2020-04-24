@@ -55,7 +55,7 @@ vtkExtractSelection::vtkExtractSelection()
 }
 
 //----------------------------------------------------------------------------
-vtkExtractSelection::~vtkExtractSelection() {}
+vtkExtractSelection::~vtkExtractSelection() = default;
 
 //----------------------------------------------------------------------------
 int vtkExtractSelection::FillInputPortInformation(int port, vtkInformation* info)

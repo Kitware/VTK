@@ -110,7 +110,7 @@ public:
 
 protected:
   vtkRectilinearGridToTetrahedra();
-  ~vtkRectilinearGridToTetrahedra() override {}
+  ~vtkRectilinearGridToTetrahedra() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

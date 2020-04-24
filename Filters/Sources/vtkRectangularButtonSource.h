@@ -134,7 +134,7 @@ public:
 
 protected:
   vtkRectangularButtonSource();
-  ~vtkRectangularButtonSource() override {}
+  ~vtkRectangularButtonSource() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

@@ -201,7 +201,7 @@ public:
   vtkOSPRayRendererNodeInternals(vtkOSPRayRendererNode* _owner)
     : Owner(_owner){};
 
-  ~vtkOSPRayRendererNodeInternals() {}
+  ~vtkOSPRayRendererNodeInternals() = default;
 
   bool CanReuseBG(bool forbackplate)
   {

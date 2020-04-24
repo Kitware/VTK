@@ -310,7 +310,7 @@ public:
 
 protected:
   vtkCheckerboardSplatter();
-  ~vtkCheckerboardSplatter() override {}
+  ~vtkCheckerboardSplatter() override = default;
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

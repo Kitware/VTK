@@ -369,6 +369,7 @@ void vtkHyperTreeGridNonOrientedMooreSuperCursor::PrintSelf(ostream& os, vtkInde
 }
 
 //-----------------------------------------------------------------------------
-vtkHyperTreeGridNonOrientedMooreSuperCursor::~vtkHyperTreeGridNonOrientedMooreSuperCursor() {}
+vtkHyperTreeGridNonOrientedMooreSuperCursor::~vtkHyperTreeGridNonOrientedMooreSuperCursor() =
+  default;
 
 //-----------------------------------------------------------------------------

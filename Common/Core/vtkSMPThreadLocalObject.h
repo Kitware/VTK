@@ -84,8 +84,8 @@ class vtkSMPThreadLocalObject
 
   // Hide the copy constructor for now and assignment
   // operator for now.
-  vtkSMPThreadLocalObject(const vtkSMPThreadLocalObject&);
-  void operator=(const vtkSMPThreadLocalObject&);
+  vtkSMPThreadLocalObject(const vtkSMPThreadLocalObject&) = delete;
+  void operator=(const vtkSMPThreadLocalObject&) = delete;
 
 public:
   /**

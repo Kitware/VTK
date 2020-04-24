@@ -63,7 +63,7 @@ QVTKInteractorInternal::QVTKInteractorInternal(QVTKInteractor* p)
   QObject::connect(this->SignalMapper, SIGNAL(mapped(int)), this, SLOT(TimerEvent(int)));
 }
 
-QVTKInteractorInternal::~QVTKInteractorInternal() {}
+QVTKInteractorInternal::~QVTKInteractorInternal() = default;
 
 void QVTKInteractorInternal::TimerEvent(int id)
 {

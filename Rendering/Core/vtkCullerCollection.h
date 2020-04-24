@@ -63,8 +63,8 @@ public:
   }
 
 protected:
-  vtkCullerCollection() {}
-  ~vtkCullerCollection() override {}
+  vtkCullerCollection() = default;
+  ~vtkCullerCollection() override = default;
 
 private:
   // hide the standard AddItem from the user and the compiler.

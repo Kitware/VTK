@@ -51,8 +51,8 @@ public:
   static vtkOBBDicer* New();
 
 protected:
-  vtkOBBDicer() {}
-  ~vtkOBBDicer() override {}
+  vtkOBBDicer() = default;
+  ~vtkOBBDicer() override = default;
 
   // Usual data generation method
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

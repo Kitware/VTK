@@ -77,8 +77,8 @@ public:
   static vtkTriangleMeshPointNormals* New();
 
 protected:
-  vtkTriangleMeshPointNormals() {}
-  ~vtkTriangleMeshPointNormals() override {}
+  vtkTriangleMeshPointNormals() = default;
+  ~vtkTriangleMeshPointNormals() override = default;
 
   // Usual data generation method
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

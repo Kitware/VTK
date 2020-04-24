@@ -73,7 +73,8 @@ protected:
   /**
    * Constructor
    */
-  vtkHyperTreeGridNonOrientedMooreSuperCursorLight(){};
+  vtkHyperTreeGridNonOrientedMooreSuperCursorLight() = default;
+  ;
 
   /**
    * Destructor

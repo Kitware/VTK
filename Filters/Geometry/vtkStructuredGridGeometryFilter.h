@@ -74,7 +74,7 @@ public:
 
 protected:
   vtkStructuredGridGeometryFilter();
-  ~vtkStructuredGridGeometryFilter() override {}
+  ~vtkStructuredGridGeometryFilter() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

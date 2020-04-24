@@ -71,8 +71,8 @@ public:
   virtual float* GetDecodedGradientTable(void) = 0;
 
 protected:
-  vtkDirectionEncoder() {}
-  ~vtkDirectionEncoder() override {}
+  vtkDirectionEncoder() = default;
+  ~vtkDirectionEncoder() override = default;
 
 private:
   vtkDirectionEncoder(const vtkDirectionEncoder&) = delete;

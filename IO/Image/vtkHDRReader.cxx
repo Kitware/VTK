@@ -42,7 +42,7 @@ vtkHDRReader::vtkHDRReader()
 }
 
 //----------------------------------------------------------------------------
-vtkHDRReader::~vtkHDRReader() {}
+vtkHDRReader::~vtkHDRReader() = default;
 
 //----------------------------------------------------------------------------
 void vtkHDRReader::PrintSelf(ostream& os, vtkIndent indent)

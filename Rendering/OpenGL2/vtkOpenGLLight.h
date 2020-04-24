@@ -40,8 +40,8 @@ public:
   void Render(vtkRenderer* ren, int light_index) override;
 
 protected:
-  vtkOpenGLLight() {}
-  ~vtkOpenGLLight() override {}
+  vtkOpenGLLight() = default;
+  ~vtkOpenGLLight() override = default;
 
 private:
   vtkOpenGLLight(const vtkOpenGLLight&) = delete;

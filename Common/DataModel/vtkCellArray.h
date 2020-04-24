@@ -1149,8 +1149,8 @@ protected:
   {
     // Union type that switches 32 and 64 bit array storage
     union ArraySwitch {
-      ArraySwitch() {}  // handled by Storage
-      ~ArraySwitch() {} // handle by Storage
+      ArraySwitch() = default;  // handled by Storage
+      ~ArraySwitch() = default; // handle by Storage
       VisitState<ArrayType32>* Int32;
       VisitState<ArrayType64>* Int64;
     };

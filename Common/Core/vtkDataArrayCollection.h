@@ -59,8 +59,8 @@ public:
   }
 
 protected:
-  vtkDataArrayCollection() {}
-  ~vtkDataArrayCollection() override {}
+  vtkDataArrayCollection() = default;
+  ~vtkDataArrayCollection() override = default;
 
 private:
   // hide the standard AddItem from the user and the compiler.

@@ -175,7 +175,7 @@ public:
 
 protected:
   vtkPolyDataNormals();
-  ~vtkPolyDataNormals() override {}
+  ~vtkPolyDataNormals() override = default;
 
   // Usual data generation method
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

@@ -153,7 +153,7 @@ public:
 
 protected:
   vtkQuadRotationalExtrusionFilter();
-  ~vtkQuadRotationalExtrusionFilter() override {}
+  ~vtkQuadRotationalExtrusionFilter() override = default;
 
   int FillInputPortInformation(int, vtkInformation*) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

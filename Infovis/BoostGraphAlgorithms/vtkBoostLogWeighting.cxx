@@ -48,7 +48,7 @@ vtkBoostLogWeighting::vtkBoostLogWeighting()
 {
 }
 
-vtkBoostLogWeighting::~vtkBoostLogWeighting() {}
+vtkBoostLogWeighting::~vtkBoostLogWeighting() = default;
 
 void vtkBoostLogWeighting::PrintSelf(ostream& os, vtkIndent indent)
 {

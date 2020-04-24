@@ -590,9 +590,7 @@ vtkSparseArray<T>::vtkSparseArray()
 }
 
 template <typename T>
-vtkSparseArray<T>::~vtkSparseArray()
-{
-}
+vtkSparseArray<T>::~vtkSparseArray() = default;
 
 template <typename T>
 void vtkSparseArray<T>::InternalResize(const vtkArrayExtents& extents)

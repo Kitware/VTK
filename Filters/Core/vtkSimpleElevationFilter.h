@@ -64,7 +64,7 @@ public:
 
 protected:
   vtkSimpleElevationFilter();
-  ~vtkSimpleElevationFilter() override {}
+  ~vtkSimpleElevationFilter() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   double Vector[3];

@@ -66,7 +66,7 @@ public:
 
 protected:
   vtkReverseSense();
-  ~vtkReverseSense() override {}
+  ~vtkReverseSense() override = default;
 
   // Usual data generation method
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

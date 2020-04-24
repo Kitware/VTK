@@ -25,7 +25,7 @@ std::string to_string(const T& n)
 class Uniform
 {
 public:
-  virtual ~Uniform() {}
+  virtual ~Uniform() = default;
   virtual int GetScalarType() = 0;
   virtual vtkIdType GetNumberOfTuples() = 0;
   virtual vtkUniforms::TupleType GetTupleType() = 0;
@@ -41,7 +41,7 @@ template <typename scalarType, vtkUniforms::TupleType tupleType, int nbComponent
 class UniformT : public Uniform
 {
 public:
-  UniformT() {}
+  UniformT() = default;
   vtkIdType GetNumberOfTuples() override
   {
     return static_cast<vtkIdType>(values.size() / nbComponents);
@@ -539,7 +539,7 @@ public:
   }
 
 protected:
-  vtkUniformInternals() {}
+  vtkUniformInternals() = default;
   ~vtkUniformInternals() override { RemoveAllUniforms(); }
 
 private:

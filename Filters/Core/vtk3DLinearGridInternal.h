@@ -75,7 +75,7 @@ struct BaseCell
     , Cases(nullptr)
   {
   }
-  virtual ~BaseCell() {}
+  virtual ~BaseCell() = default;
 
   // Set up the case table. This is done by accessing standard VTK cells and
   // repackaging the case table for efficiency. The format of the case table
@@ -132,7 +132,7 @@ struct TetraCell : public BaseCell
     this->BuildCases();
     this->Cases = this->TetraCases;
   }
-  ~TetraCell() override {}
+  ~TetraCell() override = default;
   void BuildCases() override;
 };
 // Dummy initialization filled in later at initialization. The lengtth of the
@@ -173,7 +173,7 @@ struct HexahedronCell : public BaseCell
     this->BuildCases();
     this->Cases = this->HexahedronCases;
   }
-  ~HexahedronCell() override {}
+  ~HexahedronCell() override = default;
   void BuildCases() override;
 };
 // Dummy initialization filled in later at instantiation
@@ -213,7 +213,7 @@ struct WedgeCell : public BaseCell
     this->BuildCases();
     this->Cases = this->WedgeCases;
   }
-  ~WedgeCell() override {}
+  ~WedgeCell() override = default;
   void BuildCases() override;
 };
 // Dummy initialization filled in later at instantiation
@@ -253,7 +253,7 @@ struct PyramidCell : public BaseCell
     this->BuildCases();
     this->Cases = this->PyramidCases;
   }
-  ~PyramidCell() override {}
+  ~PyramidCell() override = default;
   void BuildCases() override;
 };
 // Dummy initialization filled in later at instantiation
@@ -293,7 +293,7 @@ struct VoxelCell : public BaseCell
     this->BuildCases();
     this->Cases = this->VoxCases;
   }
-  ~VoxelCell() override {}
+  ~VoxelCell() override = default;
   void BuildCases() override;
 };
 // Dummy initialization filled in later at instantiation
@@ -351,7 +351,7 @@ struct EmptyCell : public BaseCell
     this->NumEdges = 0;
     this->Cases = this->EmptyCases;
   }
-  ~EmptyCell() override {}
+  ~EmptyCell() override = default;
   void BuildCases() override {}
 };
 // No triangles generated

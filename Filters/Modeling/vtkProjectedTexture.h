@@ -130,7 +130,7 @@ public:
 
 protected:
   vtkProjectedTexture();
-  ~vtkProjectedTexture() override {}
+  ~vtkProjectedTexture() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   void ComputeNormal();

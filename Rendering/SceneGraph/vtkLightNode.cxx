@@ -21,10 +21,10 @@
 vtkStandardNewMacro(vtkLightNode);
 
 //----------------------------------------------------------------------------
-vtkLightNode::vtkLightNode() {}
+vtkLightNode::vtkLightNode() = default;
 
 //----------------------------------------------------------------------------
-vtkLightNode::~vtkLightNode() {}
+vtkLightNode::~vtkLightNode() = default;
 
 //----------------------------------------------------------------------------
 void vtkLightNode::PrintSelf(ostream& os, vtkIndent indent)

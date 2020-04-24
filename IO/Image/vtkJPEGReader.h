@@ -56,8 +56,8 @@ public:
   const char* GetDescriptiveName() override { return "JPEG"; }
 
 protected:
-  vtkJPEGReader() {}
-  ~vtkJPEGReader() override {}
+  vtkJPEGReader() = default;
+  ~vtkJPEGReader() override = default;
 
   void ExecuteInformation() override;
   void ExecuteDataWithInformation(vtkDataObject* out, vtkInformation* outInfo) override;

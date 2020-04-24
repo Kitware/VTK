@@ -49,7 +49,7 @@ public:
 
 protected:
   vtkPCellDataToPointData();
-  ~vtkPCellDataToPointData() override {}
+  ~vtkPCellDataToPointData() override = default;
 
   // Usual data generation method
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,

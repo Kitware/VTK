@@ -48,7 +48,7 @@ public:
 
 protected:
   vtkMemoryLimitImageDataStreamer();
-  ~vtkMemoryLimitImageDataStreamer() override {}
+  ~vtkMemoryLimitImageDataStreamer() override = default;
 
   unsigned long MemoryLimit;
 

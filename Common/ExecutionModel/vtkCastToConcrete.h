@@ -53,8 +53,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
-  vtkCastToConcrete() {}
-  ~vtkCastToConcrete() override {}
+  vtkCastToConcrete() = default;
+  ~vtkCastToConcrete() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**,
     vtkInformationVector*) override; // insures compatibility; satisfies abstract api in vtkFilter

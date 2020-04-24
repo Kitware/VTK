@@ -213,7 +213,7 @@ public:
       this->Reference = 0;
       this->CellId = -1;
     }
-    ~EdgeEntry() {}
+    ~EdgeEntry() = default;
 
     EdgeEntry(const EdgeEntry& copy)
     {

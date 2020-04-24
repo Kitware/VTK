@@ -19,7 +19,7 @@
 
 #include <cassert>
 
-vtkContextKeyEvent::vtkContextKeyEvent() {}
+vtkContextKeyEvent::vtkContextKeyEvent() = default;
 
 void vtkContextKeyEvent::SetInteractor(vtkRenderWindowInteractor* interactor)
 {

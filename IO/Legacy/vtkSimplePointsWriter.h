@@ -40,7 +40,7 @@ public:
 
 protected:
   vtkSimplePointsWriter();
-  ~vtkSimplePointsWriter() override {}
+  ~vtkSimplePointsWriter() override = default;
 
   void WriteData() override;
 

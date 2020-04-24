@@ -28,9 +28,7 @@
 // vtkDenseArray::MemoryBlock
 
 template <typename T>
-vtkDenseArray<T>::MemoryBlock::~MemoryBlock()
-{
-}
+vtkDenseArray<T>::MemoryBlock::~MemoryBlock() = default;
 
 ///////////////////////////////////////////////////////////////////////////////
 // vtkDenseArray::HeapMemoryBlock

@@ -18,10 +18,10 @@
 #include <QWidget>
 
 //----------------------------------------------------------------------------
-vtkQtView::vtkQtView() {}
+vtkQtView::vtkQtView() = default;
 
 //----------------------------------------------------------------------------
-vtkQtView::~vtkQtView() {}
+vtkQtView::~vtkQtView() = default;
 
 //----------------------------------------------------------------------------
 void vtkQtView::PrintSelf(ostream& os, vtkIndent indent)

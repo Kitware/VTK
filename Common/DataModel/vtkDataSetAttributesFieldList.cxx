@@ -377,7 +377,7 @@ vtkDataSetAttributesFieldList::vtkDataSetAttributesFieldList(int vtkNotUsed(numb
 }
 
 //----------------------------------------------------------------------------
-vtkDataSetAttributesFieldList::~vtkDataSetAttributesFieldList() {}
+vtkDataSetAttributesFieldList::~vtkDataSetAttributesFieldList() = default;
 
 //----------------------------------------------------------------------------
 void vtkDataSetAttributesFieldList::Reset()

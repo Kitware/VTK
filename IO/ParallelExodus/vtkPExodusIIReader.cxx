@@ -73,11 +73,8 @@ vtkStandardNewMacro(vtkPExodusIIReader);
 class vtkPExodusIIReaderUpdateProgress : public vtkCommand
 {
 public:
-  vtkTypeMacro(
-    vtkPExodusIIReaderUpdateProgress, vtkCommand) static vtkPExodusIIReaderUpdateProgress* New()
-  {
-    return new vtkPExodusIIReaderUpdateProgress;
-  }
+  vtkTypeMacro(vtkPExodusIIReaderUpdateProgress, vtkCommand)
+  static vtkPExodusIIReaderUpdateProgress* New() { return new vtkPExodusIIReaderUpdateProgress; }
   void SetReader(vtkPExodusIIReader* r) { Reader = r; }
   void SetIndex(int i) { Index = i; }
 
@@ -87,7 +84,7 @@ protected:
     Reader = nullptr;
     Index = 0;
   }
-  ~vtkPExodusIIReaderUpdateProgress() override {}
+  ~vtkPExodusIIReaderUpdateProgress() override = default;
 
   void Execute(vtkObject*, unsigned long event, void* callData) override
   {

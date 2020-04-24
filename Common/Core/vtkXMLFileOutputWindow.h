@@ -66,8 +66,8 @@ public:
   virtual void DisplayTag(const char*);
 
 protected:
-  vtkXMLFileOutputWindow() {}
-  ~vtkXMLFileOutputWindow() override {}
+  vtkXMLFileOutputWindow() = default;
+  ~vtkXMLFileOutputWindow() override = default;
 
   void Initialize();
   virtual void DisplayXML(const char*, const char*);

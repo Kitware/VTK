@@ -126,7 +126,7 @@ public:
 
 protected:
   vtkSuperquadric();
-  ~vtkSuperquadric() override {}
+  ~vtkSuperquadric() override = default;
 
   vtkTypeBool Toroidal;
   double Thickness;

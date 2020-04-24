@@ -66,7 +66,7 @@ public:
 
 protected:
   vtkImageClip();
-  ~vtkImageClip() override {}
+  ~vtkImageClip() override = default;
 
   // Time when OutputImageExtent was computed.
   vtkTimeStamp CTime;

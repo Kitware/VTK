@@ -36,7 +36,7 @@ public:
   virtual size_t WordCount() const = 0;
   virtual unsigned char* Data() = 0;
   size_t DataSize() const { return this->WordCount() * this->WordSize(); }
-  virtual ~vtkXMLDataHeader() {}
+  virtual ~vtkXMLDataHeader() = default;
   static inline vtkXMLDataHeader* New(int width, size_t count);
 };
 

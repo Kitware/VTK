@@ -215,8 +215,8 @@ public:
   void SetJacobianDataArray(vtkSmartPointer<vtkDataArray>& jacobian) { this->Jacobian = jacobian; }
 
 protected:
-  vtkParallelVectorsForVortexCore() {}
-  ~vtkParallelVectorsForVortexCore() override {}
+  vtkParallelVectorsForVortexCore() = default;
+  ~vtkParallelVectorsForVortexCore() override = default;
 
   void Prefilter(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   void Postfilter(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
@@ -329,7 +329,7 @@ vtkVortexCore::vtkVortexCore()
 }
 
 //----------------------------------------------------------------------------
-vtkVortexCore::~vtkVortexCore() {}
+vtkVortexCore::~vtkVortexCore() = default;
 
 //----------------------------------------------------------------------------
 int vtkVortexCore::RequestData(

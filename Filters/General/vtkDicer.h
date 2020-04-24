@@ -127,7 +127,7 @@ public:
 
 protected:
   vtkDicer();
-  ~vtkDicer() override {}
+  ~vtkDicer() override = default;
 
   virtual void UpdatePieceMeasures(vtkDataSet* input);
 

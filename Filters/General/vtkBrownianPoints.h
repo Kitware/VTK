@@ -59,7 +59,7 @@ public:
 
 protected:
   vtkBrownianPoints();
-  ~vtkBrownianPoints() override {}
+  ~vtkBrownianPoints() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   double MinimumSpeed;

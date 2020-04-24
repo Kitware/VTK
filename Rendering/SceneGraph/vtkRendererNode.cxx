@@ -44,7 +44,7 @@ vtkRendererNode::vtkRendererNode()
 }
 
 //----------------------------------------------------------------------------
-vtkRendererNode::~vtkRendererNode() {}
+vtkRendererNode::~vtkRendererNode() = default;
 
 //----------------------------------------------------------------------------
 void vtkRendererNode::PrintSelf(ostream& os, vtkIndent indent)

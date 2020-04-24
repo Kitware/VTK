@@ -58,7 +58,7 @@ public:
 
 protected:
   vtkImageCorrelation();
-  ~vtkImageCorrelation() override {}
+  ~vtkImageCorrelation() override = default;
 
   int Dimensionality;
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

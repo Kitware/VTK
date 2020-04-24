@@ -112,7 +112,7 @@ public:
 
 protected:
   vtkPassInputTypeAlgorithm();
-  ~vtkPassInputTypeAlgorithm() override {}
+  ~vtkPassInputTypeAlgorithm() override = default;
 
   /**
    * This is called within ProcessRequest when a request asks for

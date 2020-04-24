@@ -55,7 +55,7 @@ public:
 
 protected:
   vtkWorldPointPicker();
-  ~vtkWorldPointPicker() override {}
+  ~vtkWorldPointPicker() override = default;
 
 private:
   vtkWorldPointPicker(const vtkWorldPointPicker&) = delete;

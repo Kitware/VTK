@@ -60,8 +60,8 @@ public:
 
 protected:
   vtkSimpleCriticalSection SimpleCriticalSection;
-  vtkCriticalSection() {}
-  ~vtkCriticalSection() override {}
+  vtkCriticalSection() = default;
+  ~vtkCriticalSection() override = default;
 
 private:
   vtkCriticalSection(const vtkCriticalSection&) = delete;

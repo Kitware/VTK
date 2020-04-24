@@ -39,7 +39,7 @@ public:
 
 protected:
   vtkPMergeArrays();
-  ~vtkPMergeArrays() override {}
+  ~vtkPMergeArrays() override = default;
 
   int MergeDataObjectFields(vtkDataObject* input, int idx, vtkDataObject* output) override;
 

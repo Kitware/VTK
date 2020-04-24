@@ -20,7 +20,7 @@
 vtkStandardNewMacro(vtkPMergeArrays);
 
 //----------------------------------------------------------------------------
-vtkPMergeArrays::vtkPMergeArrays() {}
+vtkPMergeArrays::vtkPMergeArrays() = default;
 
 //----------------------------------------------------------------------------
 void vtkPMergeArrays::PrintSelf(ostream& os, vtkIndent indent)

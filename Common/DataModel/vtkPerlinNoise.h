@@ -94,7 +94,7 @@ public:
 
 protected:
   vtkPerlinNoise();
-  ~vtkPerlinNoise() override {}
+  ~vtkPerlinNoise() override = default;
 
   double Frequency[3];
   double Phase[3];

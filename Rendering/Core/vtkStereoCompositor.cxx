@@ -23,10 +23,10 @@
 
 vtkStandardNewMacro(vtkStereoCompositor);
 //----------------------------------------------------------------------------
-vtkStereoCompositor::vtkStereoCompositor() {}
+vtkStereoCompositor::vtkStereoCompositor() = default;
 
 //----------------------------------------------------------------------------
-vtkStereoCompositor::~vtkStereoCompositor() {}
+vtkStereoCompositor::~vtkStereoCompositor() = default;
 
 //----------------------------------------------------------------------------
 bool vtkStereoCompositor::Validate(vtkUnsignedCharArray* rgbLeftNResult,

@@ -126,7 +126,7 @@ public:
 
 protected:
   vtkConeSource(int res = 6);
-  ~vtkConeSource() override {}
+  ~vtkConeSource() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

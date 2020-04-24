@@ -58,8 +58,8 @@ public:
   const char* GetDescriptiveName() override { return "GESigna"; }
 
 protected:
-  vtkGESignaReader() {}
-  ~vtkGESignaReader() override {}
+  vtkGESignaReader() = default;
+  ~vtkGESignaReader() override = default;
 
   void ExecuteInformation() override;
   void ExecuteDataWithInformation(vtkDataObject* out, vtkInformation* outInfo) override;

@@ -67,7 +67,7 @@ public:
 
 protected:
   vtkPlatonicSolidSource();
-  ~vtkPlatonicSolidSource() override {}
+  ~vtkPlatonicSolidSource() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int SolidType;

@@ -80,7 +80,7 @@ public:
 
 protected:
   vtkImageShrink3D();
-  ~vtkImageShrink3D() override {}
+  ~vtkImageShrink3D() override = default;
 
   int ShrinkFactors[3];
   int Shift[3];

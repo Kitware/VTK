@@ -75,7 +75,7 @@ public:
 
 protected:
   vtkPieceRequestFilter();
-  ~vtkPieceRequestFilter() override {}
+  ~vtkPieceRequestFilter() override = default;
 
   virtual int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector);

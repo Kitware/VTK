@@ -48,8 +48,8 @@ public:
   static vtkGlyph2D* New();
 
 protected:
-  vtkGlyph2D() {}
-  ~vtkGlyph2D() override {}
+  vtkGlyph2D() = default;
+  ~vtkGlyph2D() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

@@ -96,7 +96,7 @@ protected:
   friend class vtkConditionVariable; // needs to get at SimpleMutexLock.
 
   vtkSimpleMutexLock SimpleMutexLock;
-  vtkMutexLock() {}
+  vtkMutexLock() = default;
 
 private:
   vtkMutexLock(const vtkMutexLock&) = delete;

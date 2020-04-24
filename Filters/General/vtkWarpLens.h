@@ -103,7 +103,7 @@ public:
 
 protected:
   vtkWarpLens();
-  ~vtkWarpLens() override {}
+  ~vtkWarpLens() override = default;
 
   int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;

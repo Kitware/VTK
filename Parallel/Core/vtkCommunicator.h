@@ -121,7 +121,7 @@ public:
      */
     virtual int Commutative() = 0;
 
-    virtual ~Operation() {}
+    virtual ~Operation() = default;
   };
 
   /**

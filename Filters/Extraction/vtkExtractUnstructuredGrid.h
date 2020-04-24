@@ -159,7 +159,7 @@ public:
 
 protected:
   vtkExtractUnstructuredGrid();
-  ~vtkExtractUnstructuredGrid() override {}
+  ~vtkExtractUnstructuredGrid() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

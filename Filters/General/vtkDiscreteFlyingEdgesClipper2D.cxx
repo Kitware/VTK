@@ -55,7 +55,7 @@ struct ContourMap
     this->CachedOutValue = static_cast<T>(values[0]);
     this->CachedOutValueInitialized = false;
   }
-  virtual ~ContourMap() {}
+  virtual ~ContourMap() = default;
   virtual bool IsContourValue(T label) = 0;
   bool IsContourValueInCache(T label, bool& inContourSet)
   {

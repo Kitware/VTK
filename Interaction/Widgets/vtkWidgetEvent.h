@@ -87,8 +87,8 @@ public:
   //@}
 
 protected:
-  vtkWidgetEvent() {}
-  ~vtkWidgetEvent() override {}
+  vtkWidgetEvent() = default;
+  ~vtkWidgetEvent() override = default;
 
 private:
   vtkWidgetEvent(const vtkWidgetEvent&) = delete;

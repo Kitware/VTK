@@ -68,7 +68,7 @@ public:
 
 protected:
   vtkFunctionSet();
-  ~vtkFunctionSet() override {}
+  ~vtkFunctionSet() override = default;
 
   int NumFuncs;
   int NumIndepVars;

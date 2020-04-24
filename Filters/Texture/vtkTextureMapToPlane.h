@@ -116,7 +116,7 @@ public:
 
 protected:
   vtkTextureMapToPlane();
-  ~vtkTextureMapToPlane() override {}
+  ~vtkTextureMapToPlane() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   void ComputeNormal(vtkDataSet* output);

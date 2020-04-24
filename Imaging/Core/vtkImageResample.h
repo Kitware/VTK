@@ -81,7 +81,7 @@ public:
 
 protected:
   vtkImageResample();
-  ~vtkImageResample() override {}
+  ~vtkImageResample() override = default;
 
   double MagnificationFactors[3];
   int Dimensionality;

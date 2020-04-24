@@ -55,7 +55,7 @@ public:
 
 protected:
   vtkExtractPointCloudPiece();
-  ~vtkExtractPointCloudPiece() override {}
+  ~vtkExtractPointCloudPiece() override = default;
 
   // Usual data generation method
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

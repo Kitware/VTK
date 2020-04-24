@@ -128,7 +128,7 @@ public:
 
 protected:
   vtkDataSetAlgorithm();
-  ~vtkDataSetAlgorithm() override {}
+  ~vtkDataSetAlgorithm() override = default;
 
   /**
    * This is called within ProcessRequest when a request asks for

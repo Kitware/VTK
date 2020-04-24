@@ -112,7 +112,7 @@ public:
 
 protected:
   vtkImageThreshold();
-  ~vtkImageThreshold() override {}
+  ~vtkImageThreshold() override = default;
 
   double UpperThreshold;
   double LowerThreshold;

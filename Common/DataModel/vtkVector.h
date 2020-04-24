@@ -37,7 +37,7 @@ template <typename T, int Size>
 class vtkVector : public vtkTuple<T, Size>
 {
 public:
-  vtkVector() {}
+  vtkVector() = default;
 
   /**
    * Initialize all of the vector's elements with the supplied scalar.
@@ -149,7 +149,7 @@ template <typename T>
 class vtkVector2 : public vtkVector<T, 2>
 {
 public:
-  vtkVector2() {}
+  vtkVector2() = default;
 
   explicit vtkVector2(const T& scalar)
     : vtkVector<T, 2>(scalar)
@@ -215,7 +215,7 @@ template <typename T>
 class vtkVector3 : public vtkVector<T, 3>
 {
 public:
-  vtkVector3() {}
+  vtkVector3() = default;
 
   explicit vtkVector3(const T& scalar)
     : vtkVector<T, 3>(scalar)
@@ -309,7 +309,7 @@ template <typename T>
 class vtkVector4 : public vtkVector<T, 4>
 {
 public:
-  vtkVector4() {}
+  vtkVector4() = default;
 
   explicit vtkVector4(const T& scalar)
     : vtkVector<T, 4>(scalar)
@@ -420,7 +420,7 @@ class vtkVector2i : public vtkVector2<int>
 {
 public:
   typedef vtkVector2<int> Superclass;
-  vtkVector2i() {}
+  vtkVector2i() = default;
   vtkVector2i(int x, int y)
     : vtkVector2<int>(x, y)
   {
@@ -433,7 +433,7 @@ class vtkVector2f : public vtkVector2<float>
 {
 public:
   typedef vtkVector2<float> Superclass;
-  vtkVector2f() {}
+  vtkVector2f() = default;
   vtkVector2f(float x, float y)
     : vtkVector2<float>(x, y)
   {
@@ -445,7 +445,7 @@ class vtkVector2d : public vtkVector2<double>
 {
 public:
   typedef vtkVector2<double> Superclass;
-  vtkVector2d() {}
+  vtkVector2d() = default;
   vtkVector2d(double x, double y)
     : vtkVector2<double>(x, y)
   {
@@ -463,7 +463,7 @@ class vtkVector3i : public vtkVector3<int>
 {
 public:
   typedef vtkVector3<int> Superclass;
-  vtkVector3i() {}
+  vtkVector3i() = default;
   vtkVector3i(int x, int y, int z)
     : vtkVector3<int>(x, y, z)
   {
@@ -476,7 +476,7 @@ class vtkVector3f : public vtkVector3<float>
 {
 public:
   typedef vtkVector3<float> Superclass;
-  vtkVector3f() {}
+  vtkVector3f() = default;
   vtkVector3f(float x, float y, float z)
     : vtkVector3<float>(x, y, z)
   {
@@ -489,7 +489,7 @@ class vtkVector3d : public vtkVector3<double>
 {
 public:
   typedef vtkVector3<double> Superclass;
-  vtkVector3d() {}
+  vtkVector3d() = default;
   vtkVector3d(double x, double y, double z)
     : vtkVector3<double>(x, y, z)
   {
@@ -502,7 +502,7 @@ class vtkVector4d : public vtkVector4<double>
 {
 public:
   using Superclass = vtkVector4<double>;
-  vtkVector4d() {}
+  vtkVector4d() = default;
   vtkVector4d(double x, double y, double z, double w)
     : vtkVector4<double>(x, y, z, w){};
   vtkVectorDerivedMacro(vtkVector4d, double, 4);

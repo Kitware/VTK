@@ -127,7 +127,7 @@ public:
 
 protected:
   vtkStripper();
-  ~vtkStripper() override {}
+  ~vtkStripper() override = default;
 
   // Usual data generation method
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

@@ -153,7 +153,7 @@ public:
 
 protected:
   vtkBooleanTexture();
-  ~vtkBooleanTexture() override {}
+  ~vtkBooleanTexture() override = default;
 
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   void ExecuteDataWithInformation(vtkDataObject* data, vtkInformation* outInfo) override;

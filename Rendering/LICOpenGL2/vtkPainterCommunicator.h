@@ -30,8 +30,8 @@
 class VTKRENDERINGLICOPENGL2_EXPORT vtkPainterCommunicator
 {
 public:
-  vtkPainterCommunicator() {}
-  virtual ~vtkPainterCommunicator() {}
+  vtkPainterCommunicator() = default;
+  virtual ~vtkPainterCommunicator() = default;
 
   /**
    * Copy and assignment operators. Both use Copy internally

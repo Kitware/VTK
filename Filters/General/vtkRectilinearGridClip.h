@@ -66,7 +66,7 @@ public:
 
 protected:
   vtkRectilinearGridClip();
-  ~vtkRectilinearGridClip() override {}
+  ~vtkRectilinearGridClip() override = default;
 
   // Time when OutputImageExtent was computed.
   vtkTimeStamp CTime;

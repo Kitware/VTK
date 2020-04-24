@@ -48,8 +48,8 @@ public:
 
 private:
   // Unimplemented
-  vtkCommonInformationKeyManager(const vtkCommonInformationKeyManager&);
-  vtkCommonInformationKeyManager& operator=(const vtkCommonInformationKeyManager&);
+  vtkCommonInformationKeyManager(const vtkCommonInformationKeyManager&) = delete;
+  vtkCommonInformationKeyManager& operator=(const vtkCommonInformationKeyManager&) = delete;
 
   static void ClassInitialize();
   static void ClassFinalize();

@@ -45,8 +45,8 @@ public:
   //@}
 
 protected:
-  vtkTableWriter() {}
-  ~vtkTableWriter() override {}
+  vtkTableWriter() = default;
+  ~vtkTableWriter() override = default;
 
   void WriteData() override;
 

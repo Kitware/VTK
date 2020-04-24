@@ -919,9 +919,7 @@ vtkGenericDataArray<DerivedT, ValueTypeT>::vtkGenericDataArray()
 
 //-----------------------------------------------------------------------------
 template <class DerivedT, class ValueTypeT>
-vtkGenericDataArray<DerivedT, ValueTypeT>::~vtkGenericDataArray()
-{
-}
+vtkGenericDataArray<DerivedT, ValueTypeT>::~vtkGenericDataArray() = default;
 
 //-----------------------------------------------------------------------------
 template <class DerivedT, class ValueTypeT>

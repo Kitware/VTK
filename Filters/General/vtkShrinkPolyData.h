@@ -65,7 +65,7 @@ public:
 
 protected:
   vtkShrinkPolyData(double sf = 0.5);
-  ~vtkShrinkPolyData() override {}
+  ~vtkShrinkPolyData() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   double ShrinkFactor;

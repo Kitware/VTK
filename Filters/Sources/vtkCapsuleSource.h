@@ -132,7 +132,7 @@ public:
 
 protected:
   vtkCapsuleSource(int res = 8);
-  ~vtkCapsuleSource() override {}
+  ~vtkCapsuleSource() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

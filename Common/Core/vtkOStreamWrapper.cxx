@@ -44,10 +44,7 @@ vtkOStreamWrapper::vtkOStreamWrapper(ostream& os)
 }
 
 //----------------------------------------------------------------------------
-vtkOStreamWrapper::vtkOStreamWrapper(vtkOStreamWrapper& r)
-  : ostr(r.ostr)
-{
-}
+vtkOStreamWrapper::vtkOStreamWrapper(vtkOStreamWrapper& r) = default;
 
 //----------------------------------------------------------------------------
 vtkOStreamWrapper::~vtkOStreamWrapper() = default;

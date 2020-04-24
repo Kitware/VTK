@@ -36,7 +36,7 @@ public:
 
 protected:
   vtkImageSobel2D();
-  ~vtkImageSobel2D() override {}
+  ~vtkImageSobel2D() override = default;
 
   void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,

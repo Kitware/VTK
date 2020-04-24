@@ -39,7 +39,7 @@ public:
 
 protected:
   vtkImageRGBToYIQ();
-  ~vtkImageRGBToYIQ() override {}
+  ~vtkImageRGBToYIQ() override = default;
 
   double Maximum; // Maximum value of pixel intensity allowed
 

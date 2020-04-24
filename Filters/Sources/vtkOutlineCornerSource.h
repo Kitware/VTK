@@ -48,7 +48,7 @@ public:
 
 protected:
   vtkOutlineCornerSource();
-  ~vtkOutlineCornerSource() override {}
+  ~vtkOutlineCornerSource() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

@@ -57,14 +57,7 @@ public:
     ObjectId = src.ObjectId;
     ArrayId = src.ArrayId;
   }
-  vtkExodusIICacheKey& operator=(const vtkExodusIICacheKey& src)
-  {
-    Time = src.Time;
-    ObjectType = src.ObjectType;
-    ObjectId = src.ObjectId;
-    ArrayId = src.ArrayId;
-    return *this;
-  }
+  vtkExodusIICacheKey& operator=(const vtkExodusIICacheKey& src) = default;
   bool match(const vtkExodusIICacheKey& other, const vtkExodusIICacheKey& pattern) const
   {
     if (pattern.Time && this->Time != other.Time)

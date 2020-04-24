@@ -66,7 +66,7 @@ public:
 
 protected:
   vtkSurfaceReconstructionFilter();
-  ~vtkSurfaceReconstructionFilter() override {}
+  ~vtkSurfaceReconstructionFilter() override = default;
 
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

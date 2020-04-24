@@ -52,7 +52,7 @@ public:
 
 protected:
   vtkImageCheckerboard();
-  ~vtkImageCheckerboard() override {}
+  ~vtkImageCheckerboard() override = default;
 
   void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,

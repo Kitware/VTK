@@ -44,7 +44,7 @@ public:
 
 protected:
   vtkImageLogarithmicScale();
-  ~vtkImageLogarithmicScale() override {}
+  ~vtkImageLogarithmicScale() override = default;
 
   double Constant;
 

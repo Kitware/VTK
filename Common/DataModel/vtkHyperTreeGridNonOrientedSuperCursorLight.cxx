@@ -458,6 +458,7 @@ vtkHyperTreeGridNonOrientedSuperCursorLight::vtkHyperTreeGridNonOrientedSuperCur
 }
 
 //-----------------------------------------------------------------------------
-vtkHyperTreeGridNonOrientedSuperCursorLight::~vtkHyperTreeGridNonOrientedSuperCursorLight() {}
+vtkHyperTreeGridNonOrientedSuperCursorLight::~vtkHyperTreeGridNonOrientedSuperCursorLight() =
+  default;
 
 //-----------------------------------------------------------------------------

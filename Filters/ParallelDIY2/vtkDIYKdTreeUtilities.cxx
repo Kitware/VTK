@@ -87,10 +87,10 @@ struct BlockT
 }
 
 //----------------------------------------------------------------------------
-vtkDIYKdTreeUtilities::vtkDIYKdTreeUtilities() {}
+vtkDIYKdTreeUtilities::vtkDIYKdTreeUtilities() = default;
 
 //----------------------------------------------------------------------------
-vtkDIYKdTreeUtilities::~vtkDIYKdTreeUtilities() {}
+vtkDIYKdTreeUtilities::~vtkDIYKdTreeUtilities() = default;
 
 //----------------------------------------------------------------------------
 void vtkDIYKdTreeUtilities::PrintSelf(ostream& os, vtkIndent indent)

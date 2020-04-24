@@ -78,7 +78,7 @@ public:
 
 protected:
   vtkGeoEdgeStrategy();
-  ~vtkGeoEdgeStrategy() override {}
+  ~vtkGeoEdgeStrategy() override = default;
 
   double GlobeRadius;
   double ExplodeFactor;

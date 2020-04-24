@@ -96,7 +96,7 @@ public:
 
 protected:
   vtkAbstractMapper3D();
-  ~vtkAbstractMapper3D() override {}
+  ~vtkAbstractMapper3D() override = default;
 
   double Bounds[6];
   double Center[3];

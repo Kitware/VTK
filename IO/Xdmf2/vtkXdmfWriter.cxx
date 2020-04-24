@@ -124,11 +124,8 @@ struct vtkXdmfWriterInternal
       , NumPoints(0)
     {
     }
-    CellType(const CellType& ct)
-      : VTKType(ct.VTKType)
-      , NumPoints(ct.NumPoints)
-    {
-    }
+    CellType(const CellType& ct) = default;
+
     vtkIdType VTKType;
     vtkIdType NumPoints;
     bool operator<(const CellType& ct) const
@@ -140,12 +137,7 @@ struct vtkXdmfWriterInternal
     {
       return this->VTKType == ct.VTKType && this->NumPoints == ct.NumPoints;
     }
-    CellType& operator=(const CellType& ct)
-    {
-      this->VTKType = ct.VTKType;
-      this->NumPoints = ct.NumPoints;
-      return *this;
-    }
+    CellType& operator=(const CellType& ct) = default;
   };
   typedef std::map<CellType, vtkSmartPointer<vtkIdList> > MapOfCellTypes;
   static void DetermineCellTypes(vtkPointSet* t, MapOfCellTypes& vec);

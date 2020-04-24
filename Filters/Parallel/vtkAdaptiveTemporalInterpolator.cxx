@@ -75,7 +75,7 @@ public:
     appendAttributes->AddInputConnection(pointToCell->GetOutputPort());
   }
 
-  ~ResamplingHelperImpl() {}
+  ~ResamplingHelperImpl() = default;
 
   vtkPointSet* GetResampledDataObject(vtkPointSet* t0, vtkPointSet* t1)
   {

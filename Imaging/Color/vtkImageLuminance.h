@@ -33,7 +33,7 @@ public:
 
 protected:
   vtkImageLuminance();
-  ~vtkImageLuminance() override {}
+  ~vtkImageLuminance() override = default;
 
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

@@ -43,7 +43,7 @@ public:
 
 protected:
   vtkImageTranslateExtent();
-  ~vtkImageTranslateExtent() override {}
+  ~vtkImageTranslateExtent() override = default;
 
   int Translation[3];
 

@@ -32,10 +32,10 @@
 vtkStandardNewMacro(vtkmImageConnectivity);
 
 //------------------------------------------------------------------------------
-vtkmImageConnectivity::vtkmImageConnectivity() {}
+vtkmImageConnectivity::vtkmImageConnectivity() = default;
 
 //------------------------------------------------------------------------------
-vtkmImageConnectivity::~vtkmImageConnectivity() {}
+vtkmImageConnectivity::~vtkmImageConnectivity() = default;
 
 //------------------------------------------------------------------------------
 void vtkmImageConnectivity::PrintSelf(ostream& os, vtkIndent indent)

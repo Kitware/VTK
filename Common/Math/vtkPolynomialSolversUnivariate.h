@@ -278,8 +278,8 @@ public:
   //@}
 
 protected:
-  vtkPolynomialSolversUnivariate() {}
-  ~vtkPolynomialSolversUnivariate() override {}
+  vtkPolynomialSolversUnivariate() = default;
+  ~vtkPolynomialSolversUnivariate() override = default;
 
   static double DivisionTolerance;
 

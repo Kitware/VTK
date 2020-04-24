@@ -77,8 +77,8 @@ public:
   }
 
 protected:
-  vtkAssemblyPaths() {}
-  ~vtkAssemblyPaths() override {}
+  vtkAssemblyPaths() = default;
+  ~vtkAssemblyPaths() override = default;
 
 private:
   // hide the standard AddItem from the user and the compiler.

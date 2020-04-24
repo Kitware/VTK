@@ -72,7 +72,7 @@ public:
 
 protected:
   vtkQuantizePolyDataPoints();
-  ~vtkQuantizePolyDataPoints() override {}
+  ~vtkQuantizePolyDataPoints() override = default;
 
   double QFactor;
 

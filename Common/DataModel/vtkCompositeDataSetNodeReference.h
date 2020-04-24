@@ -49,7 +49,7 @@ struct MTimeWatcher
 {
   vtkMTimeType MTime{ 0 };
 
-  MTimeWatcher() {}
+  MTimeWatcher() = default;
   explicit MTimeWatcher(vtkObject* o)
     : MTime{ o->GetMTime() }
   {
@@ -62,7 +62,7 @@ struct MTimeWatcher
 // empty, transparent, does nothing. operator() always returns true.
 struct NoOpMTimeWatcher
 {
-  NoOpMTimeWatcher() {}
+  NoOpMTimeWatcher() = default;
   explicit NoOpMTimeWatcher(vtkObject*) {}
   bool operator()(vtkObject*) const { return true; }
   void Reset(vtkObject*) {}

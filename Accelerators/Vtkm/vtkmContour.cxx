@@ -38,10 +38,10 @@
 vtkStandardNewMacro(vtkmContour);
 
 //------------------------------------------------------------------------------
-vtkmContour::vtkmContour() {}
+vtkmContour::vtkmContour() = default;
 
 //------------------------------------------------------------------------------
-vtkmContour::~vtkmContour() {}
+vtkmContour::~vtkmContour() = default;
 
 //------------------------------------------------------------------------------
 void vtkmContour::PrintSelf(ostream& os, vtkIndent indent)

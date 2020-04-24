@@ -33,7 +33,7 @@ public:
 
 protected:
   vtkImageMagnitude();
-  ~vtkImageMagnitude() override {}
+  ~vtkImageMagnitude() override = default;
 
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

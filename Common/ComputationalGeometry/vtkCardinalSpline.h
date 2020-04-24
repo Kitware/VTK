@@ -56,7 +56,7 @@ public:
 
 protected:
   vtkCardinalSpline();
-  ~vtkCardinalSpline() override {}
+  ~vtkCardinalSpline() override = default;
 
   void Fit1D(int size, double* x, double* y, double* w, double coefficients[][4],
     int leftConstraint, double leftValue, int rightConstraint, double rightValue);

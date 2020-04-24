@@ -114,7 +114,7 @@ public:
 
 protected:
   vtkWindowLevelLookupTable(int sze = 256, int ext = 256);
-  ~vtkWindowLevelLookupTable() override {}
+  ~vtkWindowLevelLookupTable() override = default;
 
   double Window;
   double Level;

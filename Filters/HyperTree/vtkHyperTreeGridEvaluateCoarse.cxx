@@ -46,7 +46,7 @@ vtkHyperTreeGridEvaluateCoarse::vtkHyperTreeGridEvaluateCoarse()
 }
 
 //-----------------------------------------------------------------------------
-vtkHyperTreeGridEvaluateCoarse::~vtkHyperTreeGridEvaluateCoarse() {}
+vtkHyperTreeGridEvaluateCoarse::~vtkHyperTreeGridEvaluateCoarse() = default;
 
 //----------------------------------------------------------------------------
 void vtkHyperTreeGridEvaluateCoarse::PrintSelf(ostream& os, vtkIndent indent)

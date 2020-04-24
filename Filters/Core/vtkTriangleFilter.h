@@ -65,7 +65,7 @@ protected:
     , PassLines(1)
   {
   }
-  ~vtkTriangleFilter() override {}
+  ~vtkTriangleFilter() override = default;
 
   // Usual data generation method
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

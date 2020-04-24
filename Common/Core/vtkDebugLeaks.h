@@ -105,8 +105,8 @@ public:
   static vtkDebugLeaksObserver* GetDebugLeaksObserver();
 
 protected:
-  vtkDebugLeaks() {}
-  ~vtkDebugLeaks() override {}
+  vtkDebugLeaks() = default;
+  ~vtkDebugLeaks() override = default;
 
   static int DisplayMessageBox(const char*);
 
@@ -136,7 +136,7 @@ private:
 class VTKCOMMONCORE_EXPORT vtkDebugLeaksObserver
 {
 public:
-  virtual ~vtkDebugLeaksObserver() {}
+  virtual ~vtkDebugLeaksObserver() = default;
   virtual void ConstructingObject(vtkObjectBase*) = 0;
   virtual void DestructingObject(vtkObjectBase*) = 0;
 };

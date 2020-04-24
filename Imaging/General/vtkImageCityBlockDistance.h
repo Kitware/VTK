@@ -43,7 +43,7 @@ public:
 
 protected:
   vtkImageCityBlockDistance();
-  ~vtkImageCityBlockDistance() override {}
+  ~vtkImageCityBlockDistance() override = default;
 
   int IterativeRequestUpdateExtent(vtkInformation* in, vtkInformation* out) override;
   int IterativeRequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

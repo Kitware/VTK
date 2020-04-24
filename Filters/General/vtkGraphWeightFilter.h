@@ -43,8 +43,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
-  vtkGraphWeightFilter() {}
-  ~vtkGraphWeightFilter() override {}
+  vtkGraphWeightFilter() = default;
+  ~vtkGraphWeightFilter() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

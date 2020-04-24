@@ -80,9 +80,8 @@ vtkMappedUnstructuredGridCellIterator<Implementation>::vtkMappedUnstructuredGrid
 
 //------------------------------------------------------------------------------
 template <class Implementation>
-vtkMappedUnstructuredGridCellIterator<Implementation>::~vtkMappedUnstructuredGridCellIterator()
-{
-}
+vtkMappedUnstructuredGridCellIterator<Implementation>::~vtkMappedUnstructuredGridCellIterator() =
+  default;
 
 //------------------------------------------------------------------------------
 template <class Implementation>

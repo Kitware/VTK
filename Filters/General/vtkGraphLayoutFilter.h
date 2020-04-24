@@ -95,7 +95,7 @@ public:
 
 protected:
   vtkGraphLayoutFilter();
-  ~vtkGraphLayoutFilter() override {}
+  ~vtkGraphLayoutFilter() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

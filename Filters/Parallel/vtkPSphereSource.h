@@ -43,8 +43,8 @@ public:
   unsigned long GetEstimatedMemorySize();
 
 protected:
-  vtkPSphereSource() {}
-  ~vtkPSphereSource() override {}
+  vtkPSphereSource() = default;
+  ~vtkPSphereSource() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

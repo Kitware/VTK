@@ -23,10 +23,10 @@
 
 vtkStandardNewMacro(vtkXMLPartitionedDataSetWriter);
 //----------------------------------------------------------------------------
-vtkXMLPartitionedDataSetWriter::vtkXMLPartitionedDataSetWriter() {}
+vtkXMLPartitionedDataSetWriter::vtkXMLPartitionedDataSetWriter() = default;
 
 //----------------------------------------------------------------------------
-vtkXMLPartitionedDataSetWriter::~vtkXMLPartitionedDataSetWriter() {}
+vtkXMLPartitionedDataSetWriter::~vtkXMLPartitionedDataSetWriter() = default;
 
 //----------------------------------------------------------------------------
 int vtkXMLPartitionedDataSetWriter::FillInputPortInformation(

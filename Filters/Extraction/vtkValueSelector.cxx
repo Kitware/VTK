@@ -493,7 +493,7 @@ vtkValueSelector::vtkValueSelector()
 }
 
 //----------------------------------------------------------------------------
-vtkValueSelector::~vtkValueSelector() {}
+vtkValueSelector::~vtkValueSelector() = default;
 
 //----------------------------------------------------------------------------
 void vtkValueSelector::Initialize(vtkSelectionNode* node)

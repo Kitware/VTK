@@ -36,8 +36,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
-  vtkRectilinearGridOutlineFilter() {}
-  ~vtkRectilinearGridOutlineFilter() override {}
+  vtkRectilinearGridOutlineFilter() = default;
+  ~vtkRectilinearGridOutlineFilter() override = default;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
 

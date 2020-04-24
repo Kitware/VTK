@@ -19,8 +19,8 @@ class vtkMultiCorrelativeAssessFunctor : public vtkStatisticsAlgorithm::AssessFu
 public:
   static vtkMultiCorrelativeAssessFunctor* New();
 
-  vtkMultiCorrelativeAssessFunctor() {}
-  ~vtkMultiCorrelativeAssessFunctor() override {}
+  vtkMultiCorrelativeAssessFunctor() = default;
+  ~vtkMultiCorrelativeAssessFunctor() override = default;
   virtual bool Initialize(vtkTable* inData, vtkTable* reqModel, bool cholesky = true);
 
   void operator()(vtkDoubleArray* result, vtkIdType row) override;

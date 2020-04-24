@@ -58,7 +58,7 @@ public:
   static std::string DataDirectory; // Location of VTKData
 
 protected:
-  vtkTestingInteractor() {}
+  vtkTestingInteractor() = default;
 
 private:
   vtkTestingInteractor(const vtkTestingInteractor&) = delete;

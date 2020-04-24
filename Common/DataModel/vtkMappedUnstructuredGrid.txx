@@ -198,9 +198,7 @@ vtkMappedUnstructuredGrid<Implementation, CellIterator>::vtkMappedUnstructuredGr
 
 //------------------------------------------------------------------------------
 template <class Implementation, class CellIterator>
-vtkMappedUnstructuredGrid<Implementation, CellIterator>::~vtkMappedUnstructuredGrid()
-{
-}
+vtkMappedUnstructuredGrid<Implementation, CellIterator>::~vtkMappedUnstructuredGrid() = default;
 
 //------------------------------------------------------------------------------
 template <class Implementation, class CellIterator>

@@ -52,8 +52,8 @@ public:
       resultS += "\n";
     }
   }
-  vtkMyActorNode() {}
-  ~vtkMyActorNode() override {}
+  vtkMyActorNode() = default;
+  ~vtkMyActorNode() override = default;
 };
 vtkStandardNewMacro(vtkMyActorNode);
 
@@ -72,8 +72,8 @@ public:
       resultS += "\n";
     }
   }
-  vtkMyCameraNode() {}
-  ~vtkMyCameraNode() override {}
+  vtkMyCameraNode() = default;
+  ~vtkMyCameraNode() override = default;
 };
 vtkStandardNewMacro(vtkMyCameraNode);
 
@@ -92,8 +92,8 @@ public:
       resultS += "\n";
     }
   }
-  vtkMyLightNode() {}
-  ~vtkMyLightNode() override {}
+  vtkMyLightNode() = default;
+  ~vtkMyLightNode() override = default;
 };
 vtkStandardNewMacro(vtkMyLightNode);
 
@@ -112,8 +112,10 @@ public:
       resultS += "\n";
     }
   }
-  vtkMyMapperNode(){};
-  ~vtkMyMapperNode() override{};
+  vtkMyMapperNode() = default;
+  ;
+  ~vtkMyMapperNode() override = default;
+  ;
 };
 vtkStandardNewMacro(vtkMyMapperNode);
 
@@ -132,8 +134,8 @@ public:
       resultS += "\n";
     }
   }
-  vtkMyRendererNode() {}
-  ~vtkMyRendererNode() override {}
+  vtkMyRendererNode() = default;
+  ~vtkMyRendererNode() override = default;
 };
 vtkStandardNewMacro(vtkMyRendererNode);
 
@@ -152,8 +154,8 @@ public:
       resultS += "\n";
     }
   }
-  vtkMyWindowNode() {}
-  ~vtkMyWindowNode() override {}
+  vtkMyWindowNode() = default;
+  ~vtkMyWindowNode() override = default;
 };
 vtkStandardNewMacro(vtkMyWindowNode);
 

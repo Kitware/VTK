@@ -183,7 +183,7 @@ vtkExtractExodusGlobalTemporalVariables::vtkExtractExodusGlobalTemporalVariables
 }
 
 //----------------------------------------------------------------------------
-vtkExtractExodusGlobalTemporalVariables::~vtkExtractExodusGlobalTemporalVariables() {}
+vtkExtractExodusGlobalTemporalVariables::~vtkExtractExodusGlobalTemporalVariables() = default;
 
 //----------------------------------------------------------------------------
 void vtkExtractExodusGlobalTemporalVariables::GetContinuationState(

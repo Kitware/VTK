@@ -73,8 +73,8 @@ typedef std::map<std::string, vtkSmartPointer<vtkTexture> > NamedTextures;
 class vtkOSPRayMaterialLibraryInternals
 {
 public:
-  vtkOSPRayMaterialLibraryInternals() {}
-  ~vtkOSPRayMaterialLibraryInternals() {}
+  vtkOSPRayMaterialLibraryInternals() = default;
+  ~vtkOSPRayMaterialLibraryInternals() = default;
 
   std::set<std::string> NickNames;
   std::map<std::string, std::string> ImplNames;

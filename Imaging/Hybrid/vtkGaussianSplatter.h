@@ -281,7 +281,7 @@ public:
 
 protected:
   vtkGaussianSplatter();
-  ~vtkGaussianSplatter() override {}
+  ~vtkGaussianSplatter() override = default;
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

@@ -121,7 +121,7 @@ public:
 
 protected:
   vtkImageRectilinearWipe();
-  ~vtkImageRectilinearWipe() override {}
+  ~vtkImageRectilinearWipe() override = default;
 
   void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,

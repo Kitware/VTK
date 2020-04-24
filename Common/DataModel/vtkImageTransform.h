@@ -102,8 +102,8 @@ public:
   static void TransformVectors(vtkMatrix3x3* m3, double spacing[3], vtkDataArray* da);
 
 protected:
-  vtkImageTransform() {}
-  ~vtkImageTransform() override {}
+  vtkImageTransform() = default;
+  ~vtkImageTransform() override = default;
 
 private:
   vtkImageTransform(const vtkImageTransform&) = delete;

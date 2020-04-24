@@ -60,7 +60,7 @@ public:
 
 protected:
   vtkImageNoiseSource();
-  ~vtkImageNoiseSource() override {}
+  ~vtkImageNoiseSource() override = default;
 
   double Minimum;
   double Maximum;

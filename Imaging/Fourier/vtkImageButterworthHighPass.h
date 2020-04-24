@@ -68,7 +68,7 @@ public:
 
 protected:
   vtkImageButterworthHighPass();
-  ~vtkImageButterworthHighPass() override {}
+  ~vtkImageButterworthHighPass() override = default;
 
   int Order;
   double CutOff[3];
