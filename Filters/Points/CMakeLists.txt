@@ -23,6 +23,7 @@ set(classes
   vtkPointInterpolator
   vtkPointInterpolator2D
   vtkPointOccupancyFilter
+  vtkPointSmoothingFilter
   vtkProbabilisticVoronoiKernel
   vtkRadiusOutlierRemoval
   vtkSPHCubicKernel
