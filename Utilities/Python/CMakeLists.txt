@@ -161,23 +161,14 @@ if (VTK_PYTHON_OPTIONAL_LINK AND TARGET "${vtk_python_embed_target}")
     # unresolved symbols in the shared libraries that are being linked to.
     "$<$<AND:${is_exe},$<PLATFORM_ID:Linux>>:LINKER:--unresolved-symbols=ignore-in-shared-libs>")
 
-  # Compilation should work with this target, so add the include interface.
-  vtk_module_include(VTK::Python SYSTEM
-    INTERFACE
-      "${vtk_python_includes}")
-  # Only when the actual Python target should be used should it be linked.
+  # Use the `PythonX::Module` target from FindPython.
   vtk_module_link(VTK::Python
     INTERFACE
-      "$<LINK_ONLY:$<${should_use}:${vtk_python_embed_target}>>")
-  # Libraries need the platform flags if they are necessary and direct linking
-  # is not being performed.
-  vtk_module_link_options(VTK::Python
-    INTERFACE
-      "$<$<AND:${needs_flags},$<NOT:${direct_link}>>:${platform_flags}>")
+      "${vtk_python_target}")
 
   # This target is intended for use by the end-result executable with a
   # `VTK::Python` link in its total library closure. This exposes the
-  # `VTK::Python` link at the executable level with the required platform
+  # `PythonX::Python` link at the executable level with the required platform
   # flags.
   target_link_libraries(PythonUsed
     INTERFACE
