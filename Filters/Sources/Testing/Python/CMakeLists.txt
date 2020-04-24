@@ -11,7 +11,7 @@ vtk_add_test_python(
   TestGlyphScaling.py
   TestEllipseArcSourceResolution.py
   )
-if(Module_vtkRenderingTk)
+if(TARGET VTK::RenderingTk)
   vtk_add_test_python(
     squadViewer.py,NO_RT
     )
