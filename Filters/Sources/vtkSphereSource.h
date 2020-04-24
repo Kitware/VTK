@@ -23,6 +23,7 @@
  * maximum phi and theta angles. By default, the surface tessellation of
  * the sphere uses triangles; however you can set LatLongTessellation to
  * produce a tessellation using quadrilaterals.
+ *
  * @warning
  * Resolution means the number of latitude or longitude lines for a complete
  * sphere. If you create partial spheres the number of latitude/longitude
@@ -40,8 +41,13 @@
 class VTKFILTERSSOURCES_EXPORT vtkSphereSource : public vtkPolyDataAlgorithm
 {
 public:
+  //@{
+  /**
+   * Standard methods for obtaining type information, and printing.
+   */
   vtkTypeMacro(vtkSphereSource, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+  //@}
 
   /**
    * Construct sphere with radius=0.5 and default resolution 8 in both Phi
@@ -51,7 +57,7 @@ public:
 
   //@{
   /**
-   * Set radius of sphere. Default is .5.
+   * Set the radius of sphere. Default is 0.5.
    */
   vtkSetClampMacro(Radius, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(Radius, double);
@@ -59,7 +65,7 @@ public:
 
   //@{
   /**
-   * Set the center of the sphere. Default is 0,0,0.
+   * Set the center of the sphere. Default is (0,0,0).
    */
   vtkSetVector3Macro(Center, double);
   vtkGetVectorMacro(Center, double, 3);
@@ -140,6 +146,16 @@ public:
   vtkGetMacro(OutputPointsPrecision, int);
   //@}
 
+  //@{
+  /**
+   * Specify whether to generate output point normals. By default this is
+   * enabled.
+   */
+  vtkSetMacro(GenerateNormals, vtkTypeBool);
+  vtkGetMacro(GenerateNormals, vtkTypeBool);
+  vtkBooleanMacro(GenerateNormals, vtkTypeBool);
+  //@}
+
 protected:
   vtkSphereSource(int res = 8);
   ~vtkSphereSource() override = default;
@@ -157,6 +173,7 @@ protected:
   double EndPhi;
   vtkTypeBool LatLongTessellation;
   int OutputPointsPrecision;
+  vtkTypeBool GenerateNormals;
 
 private:
   vtkSphereSource(const vtkSphereSource&) = delete;

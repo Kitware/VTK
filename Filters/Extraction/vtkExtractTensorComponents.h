@@ -16,11 +16,11 @@
  * @class   vtkExtractTensorComponents
  * @brief   extract parts of tensor and create a scalar, vector, normal, or texture coordinates.
  *
- * vtkExtractTensorComponents is a filter that extracts components of
- * a tensor to create a scalar, vector, normal, or texture coords. For
- * example, if the tensor contains components of stress, then you
- * could extract the normal stress in the x-direction as a scalar
- * (i.e., tensor component (0,0).
+ * vtkExtractTensorComponents is a filter that extracts components of a
+ * tensor to create a scalar, vector, normal, and/or texture coords. For
+ * example, if the tensor contains components of stress, then you could
+ * extract the normal stress in the x-direction as a scalar (i.e., tensor
+ * component (0,0)).
  *
  * To use this filter, you must set some boolean flags to control
  * which data is extracted from the tensors, and whether you want to
@@ -30,7 +30,7 @@
  * into a 3x3 matrix. That is, use the (row,column) address to specify
  * a particular tensor component; and if the data you are extracting
  * requires more than one component, use a list of addresses. (Note
- * that the addresses are 0-offset -> (0,0) specifies upper left
+ * that the addresses are 0-offset -> (0,0) specifies the upper left
  * corner of the tensor.)
  *
  * There are two optional methods to extract scalar data. You can
@@ -38,6 +38,15 @@
  * effective stress of the tensor. These require that the ivar
  * ExtractScalars is on, and the appropriate scalar extraction mode is
  * set.
+ *
+ * @warning
+ * This class has been threaded with vtkSMPTools. Using TBB or other
+ * non-sequential type (set in the CMake variable
+ * VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
+ *
+ * @sa
+ * vtkTensorWidget vtkTensorGlyph vtkPointSmoothingFilter
+ * vtkHyperStreamline
  */
 
 #ifndef vtkExtractTensorComponents_h
@@ -49,12 +58,19 @@
 #define VTK_EXTRACT_COMPONENT 0
 #define VTK_EXTRACT_EFFECTIVE_STRESS 1
 #define VTK_EXTRACT_DETERMINANT 2
+#define VTK_EXTRACT_NONNEGATIVE_DETERMINANT 3
+#define VTK_EXTRACT_TRACE 4
 
 class VTKFILTERSEXTRACTION_EXPORT vtkExtractTensorComponents : public vtkDataSetAlgorithm
 {
 public:
+  //@{
+  /**
+   * Standard methods for obtaining type information, and printing.
+   */
   vtkTypeMacro(vtkExtractTensorComponents, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+  //@}
 
   /**
    * Construct object to extract nothing and to not pass tensor data
@@ -64,7 +80,7 @@ public:
 
   //@{
   /**
-   * Boolean controls whether tensor data is passed through to output.
+   * Boolean controls whether tensor data is passed through to the output.
    */
   vtkSetMacro(PassTensorsToOutput, vtkTypeBool);
   vtkGetMacro(PassTensorsToOutput, vtkTypeBool);
@@ -73,7 +89,7 @@ public:
 
   //@{
   /**
-   * Boolean controls whether scalar data is extracted from tensor.
+   * Boolean controls whether scalar data is extracted from the tensors.
    */
   vtkSetMacro(ExtractScalars, vtkTypeBool);
   vtkGetMacro(ExtractScalars, vtkTypeBool);
@@ -90,19 +106,30 @@ public:
 
   //@{
   /**
-   * Specify how to extract the scalar. You can extract it as one of
-   * the components of the tensor, as effective stress, or as the
-   * determinant of the tensor. If you extract a component make sure
-   * that you set the ScalarComponents ivar.
+   * Specify how to extract the scalar. You can extract it as one of the
+   * components of the tensor, as effective stress, as the determinant of the
+   * tensor, a non-negative determinant, or the trace of the tensor
+   * matrix. If you extract a component make sure that you set the
+   * ScalarComponents ivar.
    */
   vtkSetMacro(ScalarMode, int);
   vtkGetMacro(ScalarMode, int);
   void SetScalarModeToComponent() { this->SetScalarMode(VTK_EXTRACT_COMPONENT); }
   void SetScalarModeToEffectiveStress() { this->SetScalarMode(VTK_EXTRACT_EFFECTIVE_STRESS); }
   void SetScalarModeToDeterminant() { this->SetScalarMode(VTK_EXTRACT_DETERMINANT); }
+  void SetScalarModeToNonNegativeDeterminant()
+  {
+    this->SetScalarMode(VTK_EXTRACT_NONNEGATIVE_DETERMINANT);
+  }
+  void SetScalarModeToTrace() { this->SetScalarMode(VTK_EXTRACT_TRACE); }
   void ScalarIsComponent() { this->SetScalarMode(VTK_EXTRACT_COMPONENT); }
   void ScalarIsEffectiveStress() { this->SetScalarMode(VTK_EXTRACT_EFFECTIVE_STRESS); }
   void ScalarIsDeterminant() { this->SetScalarMode(VTK_EXTRACT_DETERMINANT); }
+  void ScalarIsNonNegativeDeterminant()
+  {
+    this->SetScalarMode(VTK_EXTRACT_NONNEGATIVE_DETERMINANT);
+  }
+  void ScalarIsTrace() { this->SetScalarMode(VTK_EXTRACT_TRACE); }
   //@}
 
   //@{
@@ -178,6 +205,19 @@ public:
   vtkGetVectorMacro(TCoordComponents, int, 6);
   //@}
 
+  //@{
+  /**
+   * Set/get the desired precision for the output types. See the
+   * documentation for the vtkAlgorithm::DesiredOutputPrecision enum for an
+   * explanation of the available precision settings. Note that any data that
+   * is simply passed through the filter to its output retains its input
+   * type, only newly created data added to the output is affected by this
+   * flag. By default the output type is the same as the input tensor type.
+   */
+  vtkSetMacro(OutputPrecision, int);
+  vtkGetMacro(OutputPrecision, int);
+  //@}
+
 protected:
   vtkExtractTensorComponents();
   ~vtkExtractTensorComponents() override = default;
@@ -201,6 +241,8 @@ protected:
 
   int NumberOfTCoords;
   int TCoordComponents[6];
+
+  int OutputPrecision;
 
 private:
   vtkExtractTensorComponents(const vtkExtractTensorComponents&) = delete;
