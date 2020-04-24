@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
-project(Cone)
+project(ConeFullScreen)
 
 # -----------------------------------------------------------------------------
 # EMSCRIPTEN only
@@ -112,9 +112,9 @@ endif()
 # Compile example code
 # -----------------------------------------------------------------------------
 
-add_executable(Cone Cone.cxx)
+add_executable(ConeFullScreen ConeFullScreen.cxx)
 
-target_link_libraries(Cone
+target_link_libraries(ConeFullScreen
   PRIVATE
     VTK::FiltersSources
     VTK::InteractionStyle
@@ -122,12 +122,12 @@ target_link_libraries(Cone
     VTK::RenderingUI
 )
 
-target_compile_options(Cone
+target_compile_options(ConeFullScreen
   PUBLIC
     ${emscripten_options}
 )
 
-target_link_options(Cone
+target_link_options(ConeFullScreen
   PUBLIC
     ${emscripten_options}
 )
@@ -137,7 +137,7 @@ target_link_options(Cone
 # -----------------------------------------------------------------------------
 
 vtk_module_autoinit(
-  TARGETS  Cone
+  TARGETS  ConeFullScreen
   MODULES  ${VTK_LIBRARIES}
 )
 
@@ -146,10 +146,10 @@ vtk_module_autoinit(
 # -----------------------------------------------------------------------------
 
 add_custom_command(
-  TARGET Cone
+  TARGET ConeFullScreen
   POST_BUILD
   COMMAND
     ${CMAKE_COMMAND} -E copy_if_different
       "${CMAKE_CURRENT_SOURCE_DIR}/index.html"
-      $<TARGET_FILE_DIR:Cone>
+      $<TARGET_FILE_DIR:ConeFullScreen>
 )
