@@ -33,20 +33,55 @@ void vtkUnstructuredGridCellIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Cells:\n";
-  this->Cells->PrintSelf(os, indent.GetNextIndent());
+  if (this->Cells)
+  {
+    os << indent << "Cells:\n";
+    this->Cells->PrintSelf(os, indent.GetNextIndent());
+  }
+  else
+  {
+    os << indent << "Cells: (none)" << endl;
+  }
 
-  os << indent << "Types:\n";
-  this->Types->PrintSelf(os, indent.GetNextIndent());
+  if (this->Types)
+  {
+    os << indent << "Types:\n";
+    this->Types->PrintSelf(os, indent.GetNextIndent());
+  }
+  else
+  {
+    os << indent << "Types: (none)" << endl;
+  }
 
-  os << indent << "FaceConn:\n";
-  this->FaceConn->PrintSelf(os, indent.GetNextIndent());
+  if (this->FaceConn)
+  {
+    os << indent << "FaceConn:\n";
+    this->FaceConn->PrintSelf(os, indent.GetNextIndent());
+  }
+  else
+  {
+    os << indent << "FaceConn: (none)" << endl;
+  }
 
-  os << indent << "FaceLocs:\n";
-  this->FaceLocs->PrintSelf(os, indent.GetNextIndent());
+  if (this->FaceLocs)
+  {
+    os << indent << "FaceLocs:\n";
+    this->FaceLocs->PrintSelf(os, indent.GetNextIndent());
+  }
+  else
+  {
+    os << indent << "FaceLocs: (none)" << endl;
+  }
 
-  os << indent << "Coords:\n";
-  this->Coords->PrintSelf(os, indent.GetNextIndent());
+  if (this->Coords)
+  {
+    os << indent << "Coords:\n";
+    this->Coords->PrintSelf(os, indent.GetNextIndent());
+  }
+  else
+  {
+    os << indent << "Coords: (none)" << endl;
+  }
 }
 
 //------------------------------------------------------------------------------

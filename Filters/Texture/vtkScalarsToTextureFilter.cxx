@@ -41,9 +41,17 @@ void vtkScalarsToTextureFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Texture dimensions: " << this->TextureDimensions[0] << "x"
-     << this->TextureDimensions[1] << '\n'
-     << indent << "Transfer function:\n";
-  this->TransferFunction->PrintSelf(os, indent.GetNextIndent());
+     << this->TextureDimensions[1] << '\n';
+
+  if (this->TransferFunction)
+  {
+    os << indent << "Transfer function:\n";
+    this->TransferFunction->PrintSelf(os, indent.GetNextIndent());
+  }
+  else
+  {
+    os << indent << "Transfer function: (none)" << endl;
+  }
 }
 
 //-----------------------------------------------------------------------------
