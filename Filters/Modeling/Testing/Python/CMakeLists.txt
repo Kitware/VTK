@@ -20,6 +20,7 @@ vtk_add_test_python(
   TestImageMarchingCubes.py
   TestOutlineFilter.py
   TestPointSampler.py
+  TestPointSampler2.py
   TestRibbonAndTube.py
   TestRuledSurface.py
   TestRuledSurface2.py
