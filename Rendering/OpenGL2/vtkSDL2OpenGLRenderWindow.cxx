@@ -216,13 +216,6 @@ void vtkSDL2OpenGLRenderWindow::SetShowWindow(bool val)
 
 void vtkSDL2OpenGLRenderWindow::CreateAWindow()
 {
-  int res = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER);
-
-  if (res)
-  {
-    vtkErrorMacro("Error initializing SDL " << SDL_GetError());
-  }
-
   int x = ((this->Position[0] >= 0) ? this->Position[0] : SDL_WINDOWPOS_UNDEFINED);
   int y = ((this->Position[1] >= 0) ? this->Position[1] : SDL_WINDOWPOS_UNDEFINED);
   int height = ((this->Size[1] > 0) ? this->Size[1] : 300);
@@ -248,24 +241,32 @@ void vtkSDL2OpenGLRenderWindow::CreateAWindow()
 // Initialize the rendering window.
 void vtkSDL2OpenGLRenderWindow::Initialize()
 {
+  int res = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER);
+
+  if (res)
+  {
+    vtkErrorMacro("Error initializing SDL " << SDL_GetError());
+  }
+
+  SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
+
+#ifdef GL_ES_VERSION_3_0
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+#else
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+#endif
+
   if (!this->WindowId)
   {
     this->CreateAWindow();
   }
 
-  SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
-
   if (!this->ContextId)
   {
-#ifdef GL_ES_VERSION_3_0
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-#else
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-#endif
     this->ContextId = SDL_GL_CreateContext(this->WindowId);
   }
   if (!this->ContextId)

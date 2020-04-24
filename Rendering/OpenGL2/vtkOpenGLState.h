@@ -326,6 +326,9 @@ public:
   int GetDefaultTextureInternalFormat(
     int vtktype, int numComponents, bool needInteger, bool needFloat, bool needSRGB);
 
+  // Get the current stored state of the draw buffer and binding
+  void GetCurrentDrawFramebufferState(unsigned int& drawBinding, unsigned int& drawBuffer);
+
 protected:
   vtkOpenGLState(); // set initial values
   ~vtkOpenGLState() override;
