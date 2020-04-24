@@ -141,7 +141,7 @@ int vtkReebGraphToJoinSplitTreeFilter::RequestData(vtkInformation* vtkNotUsed(re
       {
         int vertexId = (int)*(vertexInfo->GetTuple(i));
         double scalarValue = scalarField->GetComponent(vertexId, 0);
-        vertexList.push_back(std::pair<int, double>(vertexId, scalarValue));
+        vertexList.emplace_back(vertexId, scalarValue);
       }
 
       vtkEdgeListIterator* eIt = vtkEdgeListIterator::New();
@@ -154,7 +154,7 @@ int vtkReebGraphToJoinSplitTreeFilter::RequestData(vtkInformation* vtkNotUsed(re
         {
           int vertexId = deg2NodeList->GetVariantValue(i).ToInt();
           double scalarValue = scalarField->GetComponent(vertexId, 0);
-          vertexList.push_back(std::pair<int, double>(vertexId, scalarValue));
+          vertexList.emplace_back(vertexId, scalarValue);
         }
       } while (eIt->HasNext());
       eIt->Delete();

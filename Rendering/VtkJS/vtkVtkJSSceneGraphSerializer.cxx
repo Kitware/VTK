@@ -305,7 +305,7 @@ void vtkVtkJSSceneGraphSerializer::Add(Json::Value* self, vtkAlgorithm* algorith
     static const int connection = 0;
     vtkDataObject* dataObject = algorithm->GetInputDataObject(inputPort, connection);
     Json::ArrayIndex dataId = this->UniqueId(dataObject);
-    this->Internals->DataObjects.push_back(std::make_pair(dataId, dataObject));
+    this->Internals->DataObjects.emplace_back(dataId, dataObject);
 
     (*self)["dependencies"].append(this->ToJson((*self), algorithm, dataObject));
     Json::Value v = Json::arrayValue;
@@ -424,7 +424,7 @@ void vtkVtkJSSceneGraphSerializer::Add(
     {
       // Assign the data object a unique id and record it
       Json::ArrayIndex dataId = this->UniqueId(dataObject);
-      this->Internals->DataObjects.push_back(std::make_pair(dataId, dataObject));
+      this->Internals->DataObjects.emplace_back(dataId, dataObject);
 
       (*parent)["dependencies"].append(
         this->ToJson(*parent, static_cast<vtkMapper*>(mapper), dataObject));
@@ -606,7 +606,7 @@ Json::Value vtkVtkJSSceneGraphSerializer::ToJson(vtkDataArray* array)
     int size = array->GetNumberOfValues() * array->GetDataTypeSize();
     computeMD5(content, size, hash);
   }
-  this->Internals->DataArrays.push_back(std::make_pair(hash, array));
+  this->Internals->DataArrays.emplace_back(hash, array);
   val["hash"] = hash;
   val["vtkClass"] = "vtkDataArray";
   val["name"] = array->GetName() ? array->GetName() : Json::Value();

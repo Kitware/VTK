@@ -261,7 +261,7 @@ public:
             parts.push_back(accumated_text);
             accumated_text.clear();
           }
-          parts.push_back(std::string(1, ch));
+          parts.emplace_back(1, ch);
           break;
 
         default:

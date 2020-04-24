@@ -416,7 +416,7 @@ void vtkXdmf3Reader::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkXdmf3Reader::AddFileName(const char* filename)
 {
-  this->Internal->FileNames.push_back(filename);
+  this->Internal->FileNames.emplace_back(filename);
   if (this->Internal->FileNames.size() == 1)
   {
     this->SetFileNameInternal(filename);
@@ -429,7 +429,7 @@ void vtkXdmf3Reader::SetFileName(const char* filename)
   this->RemoveAllFileNames();
   if (filename)
   {
-    this->Internal->FileNames.push_back(filename);
+    this->Internal->FileNames.emplace_back(filename);
   }
   this->SetFileNameInternal(filename);
 }

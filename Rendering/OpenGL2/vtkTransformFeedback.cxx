@@ -54,7 +54,7 @@ void vtkTransformFeedback::ClearVaryings()
 //------------------------------------------------------------------------------
 void vtkTransformFeedback::AddVarying(VaryingRole role, const std::string& var)
 {
-  this->Varyings.push_back(VaryingMetaData(role, var));
+  this->Varyings.emplace_back(role, var);
   this->VaryingsBound = false;
 }
 

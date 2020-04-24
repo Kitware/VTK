@@ -312,7 +312,7 @@ int PIOAdaptor::initializeGlobal(const char* PIOFileName)
             (strcmp(pioName, "cell_daughter") != 0) && (strcmp(pioName, "cell_center") != 0) &&
             (strcmp(pioName, "cell_active") != 0) && (strcmp(pioName, "amr_tag") != 0))
           {
-            this->variableName.push_back(pioName);
+            this->variableName.emplace_back(pioName);
           }
         }
       }
@@ -320,43 +320,43 @@ int PIOAdaptor::initializeGlobal(const char* PIOFileName)
     sort(this->variableName.begin(), this->variableName.end());
 
     // Default variable names that are initially enabled for loading
-    this->variableDefault.push_back("tev");
-    this->variableDefault.push_back("prs");
-    this->variableDefault.push_back("rho");
-    this->variableDefault.push_back("rade");
-    this->variableDefault.push_back("cell_energy");
-    this->variableDefault.push_back("kemax");
-    this->variableDefault.push_back("vel");
-    this->variableDefault.push_back("eng");
+    this->variableDefault.emplace_back("tev");
+    this->variableDefault.emplace_back("prs");
+    this->variableDefault.emplace_back("rho");
+    this->variableDefault.emplace_back("rade");
+    this->variableDefault.emplace_back("cell_energy");
+    this->variableDefault.emplace_back("kemax");
+    this->variableDefault.emplace_back("vel");
+    this->variableDefault.emplace_back("eng");
   }
 
   /////////////////////////////////////////////////////////////////////////////
   //
   // List of all data fields to read from dump files
   //
-  this->fieldsToRead.push_back("amhc_i");
-  this->fieldsToRead.push_back("amhc_r8");
-  this->fieldsToRead.push_back("amhc_l");
-  this->fieldsToRead.push_back("cell_center");
-  this->fieldsToRead.push_back("cell_daughter");
-  this->fieldsToRead.push_back("cell_level");
-  this->fieldsToRead.push_back("global_numcell");
-  this->fieldsToRead.push_back("hist_cycle");
-  this->fieldsToRead.push_back("hist_time");
-  this->fieldsToRead.push_back("hist_size");
-  this->fieldsToRead.push_back("l_eap_version");
-  this->fieldsToRead.push_back("hist_usernm");
-  this->fieldsToRead.push_back("hist_prbnm");
+  this->fieldsToRead.emplace_back("amhc_i");
+  this->fieldsToRead.emplace_back("amhc_r8");
+  this->fieldsToRead.emplace_back("amhc_l");
+  this->fieldsToRead.emplace_back("cell_center");
+  this->fieldsToRead.emplace_back("cell_daughter");
+  this->fieldsToRead.emplace_back("cell_level");
+  this->fieldsToRead.emplace_back("global_numcell");
+  this->fieldsToRead.emplace_back("hist_cycle");
+  this->fieldsToRead.emplace_back("hist_time");
+  this->fieldsToRead.emplace_back("hist_size");
+  this->fieldsToRead.emplace_back("l_eap_version");
+  this->fieldsToRead.emplace_back("hist_usernm");
+  this->fieldsToRead.emplace_back("hist_prbnm");
 
   // If tracers are contained in the file
   if (this->hasTracers == true)
   {
-    this->fieldsToRead.push_back("tracer_num_pnts");
-    this->fieldsToRead.push_back("tracer_num_vars");
-    this->fieldsToRead.push_back("tracer_record_count");
-    this->fieldsToRead.push_back("tracer_type");
-    this->fieldsToRead.push_back("tracer_position");
-    this->fieldsToRead.push_back("tracer_data");
+    this->fieldsToRead.emplace_back("tracer_num_pnts");
+    this->fieldsToRead.emplace_back("tracer_num_vars");
+    this->fieldsToRead.emplace_back("tracer_record_count");
+    this->fieldsToRead.emplace_back("tracer_type");
+    this->fieldsToRead.emplace_back("tracer_position");
+    this->fieldsToRead.emplace_back("tracer_data");
   }
 
   // Requested variable fields from pio meta file
@@ -1161,7 +1161,7 @@ void PIOAdaptor::create_amr_HTG(vtkMultiBlockDataSet* grid,
       // Collect the count per tree for load balancing
       int whichTree = (gridIndx[2] * planeSize) + (gridIndx[1] * rowSize) + gridIndx[0];
       int gridCount = count_hypertree(i, cell_daughter);
-      treeCount.push_back(std::make_pair(gridCount, whichTree));
+      treeCount.emplace_back(gridCount, whichTree);
 
       // Save the xrage cell which corresponds to a level 1 cell
       level1_index[whichTree] = i;

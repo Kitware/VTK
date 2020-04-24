@@ -534,7 +534,7 @@ void vtkTimerLog::DumpLogWithIndentsAndPercentages(std::ostream* os)
     // Add our parent info if this was time with a START and END event:
     if (logEntryType == vtkTimerLogEntry::START)
     {
-      parentInfo.push_back(IndentTime(curIndent, elapsedTime));
+      parentInfo.emplace_back(curIndent, elapsedTime);
     }
   }
 }

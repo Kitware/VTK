@@ -597,7 +597,7 @@ bool vtkLabeledContourMapper::PrepareRender(vtkRenderer* ren, vtkActor* act)
   const vtkIdType* ids;
   for (lines->InitTraversal(); lines->GetNextCell(numPts, ids);)
   {
-    this->Internal->LabelMetrics.push_back(LabelMetric());
+    this->Internal->LabelMetrics.emplace_back();
     LabelMetric& metric = this->Internal->LabelMetrics.back();
     if (!(metric.Valid = (numPts > 0)))
     {
@@ -692,7 +692,7 @@ bool vtkLabeledContourMapper::PlaceLabels()
   {
     assert(metric != this->Internal->LabelMetrics.end());
 
-    this->Internal->LabelInfos.push_back(std::vector<LabelInfo>());
+    this->Internal->LabelInfos.emplace_back();
 
     // Test if it is possible to place a label (e.g. the line is big enough
     // to not be completely obscured)

@@ -1113,7 +1113,7 @@ int TestOneCell(const VTKCellType cellType, vtkSmartPointer<T> aCell, int linear
     aCell->GetPoints()->GetPoint(i, &(*point.begin()));
     testPoints.push_back(point);
     inOuts.push_back(1);
-    typePoint.push_back("cell point");
+    typePoint.emplace_back("cell point");
   }
   // Then test center of cell
   if (aCell->GetNumberOfPoints() > 0)
@@ -1122,7 +1122,7 @@ int TestOneCell(const VTKCellType cellType, vtkSmartPointer<T> aCell, int linear
     aCell->EvaluateLocation(subId, pcenter, &(*tCenter.begin()), &(*weights.begin()));
     testPoints.push_back(tCenter);
     inOuts.push_back(1);
-    typePoint.push_back("cell center");
+    typePoint.emplace_back("cell center");
     // Test a point above the cell
     if (aCell->GetCellDimension() == 2)
     {
@@ -1132,7 +1132,7 @@ int TestOneCell(const VTKCellType cellType, vtkSmartPointer<T> aCell, int linear
       above[2] = tCenter[2] + aCell->GetLength2();
       testPoints.push_back(above);
       inOuts.push_back(0);
-      typePoint.push_back("point above cell");
+      typePoint.emplace_back("point above cell");
     }
   }
 
@@ -1144,7 +1144,7 @@ int TestOneCell(const VTKCellType cellType, vtkSmartPointer<T> aCell, int linear
     c->GetParametricCenter(pcenter);
     c->EvaluateLocation(subId, pcenter, &(*eCenter.begin()), &(*weights.begin()));
     testPoints.push_back(eCenter);
-    typePoint.push_back("edge center");
+    typePoint.emplace_back("edge center");
     inOuts.push_back(1);
   }
 
@@ -1157,7 +1157,7 @@ int TestOneCell(const VTKCellType cellType, vtkSmartPointer<T> aCell, int linear
     c->EvaluateLocation(subId, pcenter, &(*fCenter.begin()), &(*weights.begin()));
     testPoints.push_back(fCenter);
     inOuts.push_back(1);
-    typePoint.push_back("face center");
+    typePoint.emplace_back("face center");
   }
 
   // Test a point outside the cell
@@ -1166,7 +1166,7 @@ int TestOneCell(const VTKCellType cellType, vtkSmartPointer<T> aCell, int linear
     std::vector<double> outside(3, -12345.0);
     testPoints.push_back(outside);
     inOuts.push_back(0);
-    typePoint.push_back("outside point");
+    typePoint.emplace_back("outside point");
   }
   for (size_t p = 0; p < testPoints.size(); ++p)
   {

@@ -488,7 +488,7 @@ bool vtkLabeledContourPolyDataItem::PrepareRender()
   const vtkIdType* ids;
   for (lines->InitTraversal(); lines->GetNextCell(numPts, ids);)
   {
-    this->Internal->LabelMetrics.push_back(PDILabelMetric());
+    this->Internal->LabelMetrics.emplace_back();
     PDILabelMetric& metric = this->Internal->LabelMetrics.back();
     if (!(metric.Valid = (numPts > 0)))
     {
@@ -583,7 +583,7 @@ bool vtkLabeledContourPolyDataItem::PlaceLabels()
   {
     assert(metric != this->Internal->LabelMetrics.end());
 
-    this->Internal->LabelInfos.push_back(std::vector<PDILabelInfo>());
+    this->Internal->LabelInfos.emplace_back();
 
     // Test if it is possible to place a label (e.g. the line is big enough
     // to not be completely obscured)

@@ -840,12 +840,12 @@ int TestMiscFunctions()
 
   // test functions that can use ReplaceInvalidValue
   std::vector<std::string> testFuncs;
-  testFuncs.push_back("sqrt(s)");
-  testFuncs.push_back("ln(s)");
-  testFuncs.push_back("log10(s)");
-  testFuncs.push_back("asin(s)");
-  testFuncs.push_back("acos(s)");
-  testFuncs.push_back("s/zero");
+  testFuncs.emplace_back("sqrt(s)");
+  testFuncs.emplace_back("ln(s)");
+  testFuncs.emplace_back("log10(s)");
+  testFuncs.emplace_back("asin(s)");
+  testFuncs.emplace_back("acos(s)");
+  testFuncs.emplace_back("s/zero");
 
   parser->ReplaceInvalidValuesOn();
   parser->SetReplacementValue(1234.5);

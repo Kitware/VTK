@@ -189,7 +189,7 @@ void vtkView::AddRepresentation(vtkDataRepresentation* rep)
     // preserves the order for representations in which AddRepresentation() was
     // called.
     size_t index = this->Implementation->Representations.size();
-    this->Implementation->Representations.push_back(rep);
+    this->Implementation->Representations.emplace_back(rep);
     if (rep->AddToView(this))
     {
       rep->AddObserver(vtkCommand::SelectionChangedEvent, this->GetObserver());

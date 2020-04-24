@@ -231,7 +231,7 @@ int vtkGroupLeafVertices::RequestData(
   // Make a map of (parent id, group-by string) -> group vertex id.
   std::map<std::pair<vtkIdType, vtkVariant>, vtkIdType, vtkGroupLeafVerticesCompare> group_vertices;
   std::vector<std::pair<vtkIdType, vtkIdType> > vertStack;
-  vertStack.push_back(std::make_pair(input->GetRoot(), builder->AddVertex()));
+  vertStack.emplace_back(input->GetRoot(), builder->AddVertex());
   vtkSmartPointer<vtkOutEdgeIterator> it = vtkSmartPointer<vtkOutEdgeIterator>::New();
 
   while (!vertStack.empty())
@@ -260,7 +260,7 @@ int vtkGroupLeafVertices::RequestData(
         // and recurse.
         vtkEdgeType e = builder->AddEdge(v, child);
         builderEdgeData->CopyData(inputEdgeData, tree_e.Id, e.Id);
-        vertStack.push_back(std::make_pair(tree_child, child));
+        vertStack.emplace_back(tree_child, child);
       }
       else
       {
@@ -360,7 +360,7 @@ int vtkGroupLeafVertices::RequestData(
         }
         vtkEdgeType e = builder->AddEdge(group_vertex, child);
         builderEdgeData->CopyData(inputEdgeData, tree_e.Id, e.Id);
-        vertStack.push_back(std::make_pair(tree_child, child));
+        vertStack.emplace_back(tree_child, child);
       }
     }
   }
@@ -453,7 +453,7 @@ static int splitString(const vtkStdString& input, std::vector<vtkStdString>& res
         // which case it's normal text and we won't even get here.
         if (!currentField.empty())
         {
-          results.push_back(currentField);
+          results.emplace_back(currentField);
         }
         currentField = vtkStdString();
       }
@@ -467,6 +467,6 @@ static int splitString(const vtkStdString& input, std::vector<vtkStdString>& res
     }
   }
 
-  results.push_back(currentField);
+  results.emplace_back(currentField);
   return static_cast<int>(results.size());
 }

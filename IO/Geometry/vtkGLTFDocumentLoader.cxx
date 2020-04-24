@@ -876,7 +876,7 @@ bool vtkGLTFDocumentLoader::LoadSkinMatrixData()
       // Default is an identity matrix
       vtkNew<vtkMatrix4x4> id;
       id->Identity();
-      skin.InverseBindMatrices.push_back(id);
+      skin.InverseBindMatrices.emplace_back(id);
       continue;
     }
     vtkNew<vtkFloatArray> matrixValues;
@@ -897,7 +897,7 @@ bool vtkGLTFDocumentLoader::LoadSkinMatrixData()
       vtkNew<vtkMatrix4x4> matrix;
       matrix->DeepCopy(matrixValues->GetTuple(matrixId));
       matrix->Transpose();
-      skin.InverseBindMatrices.push_back(matrix);
+      skin.InverseBindMatrices.emplace_back(matrix);
     }
   }
   return true;

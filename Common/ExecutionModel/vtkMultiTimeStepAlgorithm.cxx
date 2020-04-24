@@ -136,7 +136,7 @@ vtkTypeBool vtkMultiTimeStepAlgorithm::ProcessRequest(
     size_t idx;
     if (!this->IsInCache(this->UpdateTimeSteps[this->RequestUpdateIndex], idx))
     {
-      this->Cache.push_back(TimeCache(this->UpdateTimeSteps[this->RequestUpdateIndex], inDataCopy));
+      this->Cache.emplace_back(this->UpdateTimeSteps[this->RequestUpdateIndex], inDataCopy);
     }
 
     this->RequestUpdateIndex++;

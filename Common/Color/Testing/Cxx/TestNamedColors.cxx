@@ -631,14 +631,14 @@ std::vector<vtkStdString> ParseColorNames(const vtkStdString& colorNames)
   size_t end = colorNames.find(colorDelimiter);
   while (end != std::string::npos)
   {
-    cn.push_back(colorNames.substr(start, end - start));
+    cn.emplace_back(colorNames.substr(start, end - start));
     start = end + 1;
     end = colorNames.find(colorDelimiter, start);
   }
   // Get the last color.
   if (!colorNames.empty())
   {
-    cn.push_back(colorNames.substr(start, colorNames.size() - start));
+    cn.emplace_back(colorNames.substr(start, colorNames.size() - start));
   }
   return cn;
 }

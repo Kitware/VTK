@@ -53,7 +53,7 @@ void vtkInformationStringVectorKey::Append(vtkInformation* info, const char* val
     static_cast<vtkInformationStringVectorValue*>(this->GetAsObjectBase(info));
   if (v)
   {
-    v->Value.push_back(value);
+    v->Value.emplace_back(value);
   }
   else
   {
@@ -72,7 +72,7 @@ void vtkInformationStringVectorKey::Set(vtkInformation* info, const char* value,
     {
       while (static_cast<int>(oldv->Value.size()) <= index)
       {
-        oldv->Value.push_back("");
+        oldv->Value.emplace_back("");
       }
       oldv->Value[index] = value;
       // Since this sets a value without call SetAsObjectBase(),
@@ -87,7 +87,7 @@ void vtkInformationStringVectorKey::Set(vtkInformation* info, const char* value,
     v->InitializeObjectBase();
     while (static_cast<int>(v->Value.size()) <= index)
     {
-      v->Value.push_back("");
+      v->Value.emplace_back("");
     }
     v->Value[index] = value;
     this->SetAsObjectBase(info, v);

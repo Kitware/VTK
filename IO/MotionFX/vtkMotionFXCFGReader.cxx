@@ -1082,8 +1082,7 @@ public:
         vtkPolyData* pd = reader->GetOutput();
         if (pd->GetNumberOfPoints() > 0)
         {
-          this->Geometries.push_back(
-            std::pair<std::string, vtkSmartPointer<vtkPolyData> >(iter->first, pd));
+          this->Geometries.emplace_back(iter->first, pd);
           ++iter;
           continue;
         }

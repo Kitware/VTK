@@ -114,7 +114,7 @@ void Split(const vtkAMRBox& rootBox, int numLevels, int refinementRatio, int max
   int level = 1;
   for (; level < numLevels - numTreeLevels; level++)
   {
-    out.push_back(std::vector<vtkAMRBox>());
+    out.emplace_back();
     const std::vector<vtkAMRBox>& parentBoxes = out[level - 1];
     std::vector<vtkAMRBox>& childBoxes = out[level];
     vtkAMRBox child = parentBoxes.back();
@@ -124,7 +124,7 @@ void Split(const vtkAMRBox& rootBox, int numLevels, int refinementRatio, int max
 
   for (; level < numLevels; level++)
   {
-    out.push_back(std::vector<vtkAMRBox>());
+    out.emplace_back();
     const std::vector<vtkAMRBox>& parentBoxes = out[level - 1];
     std::vector<vtkAMRBox>& childBoxes = out[level];
     for (size_t i = 0; i < parentBoxes.size(); i++)

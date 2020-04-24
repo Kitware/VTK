@@ -144,7 +144,7 @@ int TestTable(int, char*[])
   {
     noColumns = false;
 
-    stdTable.push_back(vector<double>());
+    stdTable.emplace_back();
 
     double r = vtkMath::Random();
     vtkVariant name(columnId);

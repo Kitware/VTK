@@ -581,7 +581,7 @@ int vtkSLACReader::CanReadFile(const char* filename)
 //-----------------------------------------------------------------------------
 void vtkSLACReader::AddModeFileName(const char* fname)
 {
-  this->Internal->ModeFileNames.push_back(fname);
+  this->Internal->ModeFileNames.emplace_back(fname);
   this->Modified();
 }
 

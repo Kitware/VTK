@@ -112,7 +112,7 @@ int vtkRTXMLPolyDataReader::NewDataAvailable()
       char* file = this->GetDataFileFullPathName(dataDir->GetFile(i));
       if (!IsProcessed(file))
       {
-        this->Internal->AvailableDataFileList.push_back(file);
+        this->Internal->AvailableDataFileList.emplace_back(file);
       }
       else
       {
@@ -194,7 +194,8 @@ void vtkRTXMLPolyDataReader::ResetReader()
   dataDir->Open(this->DataLocation);
   for (int i = 0; i < dataDir->GetNumberOfFiles(); i++)
   {
-    this->Internal->ProcessedFileList.push_back(this->GetDataFileFullPathName(dataDir->GetFile(i)));
+    this->Internal->ProcessedFileList.emplace_back(
+      this->GetDataFileFullPathName(dataDir->GetFile(i)));
   }
   // initialize with an empty filename if filename is not set
   if (!this->GetFileName())

@@ -293,24 +293,24 @@ std::vector<vtkSmartPointer<vtkPoints> > vtkDIYUtilities::ExtractPoints(
     }
     if (auto ps = vtkPointSet::SafeDownCast(ds))
     {
-      all_points.push_back(ps->GetPoints());
+      all_points.emplace_back(ps->GetPoints());
     }
     else if (auto rg = vtkRectilinearGrid::SafeDownCast(ds))
     {
       convertorRG->SetInputDataObject(rg);
       convertorRG->Update();
-      all_points.push_back(convertorRG->GetOutput()->GetPoints());
+      all_points.emplace_back(convertorRG->GetOutput()->GetPoints());
     }
     else if (auto id = vtkImageData::SafeDownCast(ds))
     {
       convertorID->SetInputDataObject(id);
       convertorID->Update();
-      all_points.push_back(convertorID->GetOutput()->GetPoints());
+      all_points.emplace_back(convertorID->GetOutput()->GetPoints());
     }
     else
     {
       // need a placeholder for dataset.
-      all_points.push_back(nullptr);
+      all_points.emplace_back(nullptr);
     }
   }
   return all_points;

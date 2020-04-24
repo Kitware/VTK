@@ -150,7 +150,7 @@ vtkTesting::~vtkTesting()
 //-----------------------------------------------------------------------------
 void vtkTesting::AddArgument(const char* arg)
 {
-  this->Args.push_back(arg);
+  this->Args.emplace_back(arg);
 }
 
 //-----------------------------------------------------------------------------
@@ -158,7 +158,7 @@ void vtkTesting::AddArguments(int argc, const char** argv)
 {
   for (int i = 0; i < argc; ++i)
   {
-    this->Args.push_back(argv[i]);
+    this->Args.emplace_back(argv[i]);
   }
 }
 
@@ -167,7 +167,7 @@ void vtkTesting::AddArguments(int argc, char** argv)
 {
   for (int i = 0; i < argc; ++i)
   {
-    this->Args.push_back(argv[i]);
+    this->Args.emplace_back(argv[i]);
   }
 }
 

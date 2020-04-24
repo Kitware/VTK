@@ -177,7 +177,7 @@ int TestCompositePolyDataMapper2Picking(int argc, char* argv[])
   vtkNew<vtkMultiBlockDataSet> data;
   int blocksPerLevel[3] = { 1, 8, 16 };
   std::vector<vtkSmartPointer<vtkMultiBlockDataSet> > blocks;
-  blocks.push_back(data.GetPointer());
+  blocks.emplace_back(data.GetPointer());
   unsigned levelStart = 0;
   unsigned levelEnd = 1;
   int numLevels = sizeof(blocksPerLevel) / sizeof(blocksPerLevel[0]);
@@ -247,7 +247,7 @@ int TestCompositePolyDataMapper2Picking(int argc, char* argv[])
         {
           vtkNew<vtkMultiBlockDataSet> child;
           blocks[parent]->SetBlock(block, child.GetPointer());
-          blocks.push_back(child.GetPointer());
+          blocks.emplace_back(child.GetPointer());
         }
       }
     }

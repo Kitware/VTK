@@ -212,8 +212,8 @@ int vtkProteinRibbonFilter::RequestData(
       hasPrevCO = true;
       prevCO = p;
       bool isSheet = (ss == 's');
-      borderPoints[0].push_back(std::pair<vtkVector3f, bool>(currentCA - prevCO, isSheet));
-      borderPoints[1].push_back(std::pair<vtkVector3f, bool>(currentCA + prevCO, isSheet));
+      borderPoints[0].emplace_back(currentCA - prevCO, isSheet);
+      borderPoints[1].emplace_back(currentCA + prevCO, isSheet);
     }
   }
 

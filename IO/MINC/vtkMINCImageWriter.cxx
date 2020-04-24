@@ -571,7 +571,7 @@ int vtkMINCImageWriter::CreateMINCDimensions(vtkImageData* input, int numTimeSte
     }
 
     // Add the dimension
-    dimensions.push_back(dimname);
+    dimensions.emplace_back(dimname);
   }
 
   // Make sure number of dimensions matches the dimensionality
@@ -611,7 +611,7 @@ int vtkMINCImageWriter::CreateMINCDimensions(vtkImageData* input, int numTimeSte
   // Check for vector_dimension
   if (numComponents > 1)
   {
-    dimensions.push_back(MIvector_dimension);
+    dimensions.emplace_back(MIvector_dimension);
   }
 
   // ------------------------
@@ -682,8 +682,8 @@ int vtkMINCImageWriter::CreateMINCVariables(
   // Reset ndim so that it only includes dimensions with variables
   ndim = static_cast<int>(variables.size());
 
-  variables.push_back(MIimage);
-  variables.push_back(MIrootvariable);
+  variables.emplace_back(MIimage);
+  variables.emplace_back(MIrootvariable);
 
   // Not all MINC images need image-min and image-max.
   this->MINCImageMinMaxDims = 0;
@@ -695,8 +695,8 @@ int vtkMINCImageWriter::CreateMINCVariables(
     {
       this->MINCImageMinMaxDims = ndim - 2;
     }
-    variables.push_back(MIimagemin);
-    variables.push_back(MIimagemax);
+    variables.emplace_back(MIimagemin);
+    variables.emplace_back(MIimagemax);
   }
 
   // Add user-defined variables
@@ -731,7 +731,7 @@ int vtkMINCImageWriter::CreateMINCVariables(
           return 0;
         }
       }
-      variables.push_back(varname);
+      variables.emplace_back(varname);
     }
   }
 

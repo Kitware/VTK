@@ -962,7 +962,7 @@ void vtkFunctionParser::SetScalarVariableValue(const char* inVariableName, doubl
     }
   }
   this->ScalarVariableValues.push_back(value);
-  this->ScalarVariableNames.push_back(variableName);
+  this->ScalarVariableNames.emplace_back(variableName);
   this->VariableMTime.Modified();
   this->Modified();
   delete[] variableName;
@@ -1037,7 +1037,7 @@ void vtkFunctionParser::SetVectorVariableValue(
     }
   }
 
-  this->VectorVariableNames.push_back(variableName);
+  this->VectorVariableNames.emplace_back(variableName);
   vtkTuple<double, 3> val;
   val[0] = xValue;
   val[1] = yValue;

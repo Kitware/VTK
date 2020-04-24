@@ -235,7 +235,7 @@ void vtkDSPFilterGroup::AddInputVariableInstance(
   // This assumes that the instance is not already cached! perhaps should check anyway?
 
   this->CachedInputTimesteps->m_vector.push_back(a_timestep);
-  this->CachedInputNames->m_vector.push_back(a_name);
+  this->CachedInputNames->m_vector.emplace_back(a_name);
 
   vtkFloatArray* l_array = vtkFloatArray::New();
   l_array->DeepCopy(a_data);

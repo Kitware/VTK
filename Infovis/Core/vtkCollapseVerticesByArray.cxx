@@ -92,7 +92,7 @@ void vtkCollapseVerticesByArray::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 void vtkCollapseVerticesByArray::AddAggregateEdgeArray(const char* arrName)
 {
-  this->Internal->AggregateEdgeArrays.push_back(std::string(arrName));
+  this->Internal->AggregateEdgeArrays.emplace_back(arrName);
 }
 
 //------------------------------------------------------------------------------

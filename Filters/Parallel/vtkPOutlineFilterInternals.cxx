@@ -150,7 +150,7 @@ void vtkPOutlineFilterInternals::CollectCompositeBounds(vtkDataObject* input)
   {
     double bounds[6];
     ds->GetBounds(bounds);
-    this->BoundsList.push_back(vtkBoundingBox(bounds));
+    this->BoundsList.emplace_back(bounds);
   }
   else if (compInput != nullptr)
   {
@@ -167,7 +167,7 @@ void vtkPOutlineFilterInternals::CollectCompositeBounds(vtkDataObject* input)
   {
     double bounds[6];
     vtkMath::UninitializeBounds(bounds);
-    this->BoundsList.push_back(bounds);
+    this->BoundsList.emplace_back(bounds);
   }
 }
 

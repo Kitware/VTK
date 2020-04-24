@@ -240,7 +240,7 @@ void vtkPerturbCoincidentVertices::SimpleSpiralPerturbation(
     // Just grabbing the first vertex of each coincident foci
     vtkIdType vertexIndex = coincidentPointsList->GetId(0);
     points->GetPoint(vertexIndex, currentPoint);
-    coincidentFoci.push_back(currentPoint);
+    coincidentFoci.emplace_back(currentPoint);
 
     // Get next coincident point list
     coincidentPointsList = coincidentPoints->GetNextCoincidentPointIds();

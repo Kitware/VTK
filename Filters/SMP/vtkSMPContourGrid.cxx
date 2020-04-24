@@ -521,9 +521,9 @@ void DoContour(vtkSMPContourGrid* filter, vtkUnstructuredGrid* input, vtkIdType 
     std::vector<vtkSMPMergePolyDataHelper::InputData> mpData;
     while (itr != end)
     {
-      mpData.push_back(vtkSMPMergePolyDataHelper::InputData((*itr).Output, (*itr).Locator,
-        (*itr).VertCellOffsets, (*itr).VertConnOffsets, (*itr).LineCellOffsets,
-        (*itr).LineConnOffsets, (*itr).PolyCellOffsets, (*itr).PolyConnOffsets));
+      mpData.emplace_back((*itr).Output, (*itr).Locator, (*itr).VertCellOffsets,
+        (*itr).VertConnOffsets, (*itr).LineCellOffsets, (*itr).LineConnOffsets,
+        (*itr).PolyCellOffsets, (*itr).PolyConnOffsets);
       ++itr;
     }
 

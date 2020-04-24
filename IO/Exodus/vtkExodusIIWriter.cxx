@@ -521,7 +521,7 @@ int vtkExodusIIWriter::FlattenHierarchy(vtkDataObject* input, const char* name, 
       // Setting an arbitrary name for datasets that have not been assigned one.
       name = "block";
     }
-    this->NewFlattenedNames.push_back(name);
+    this->NewFlattenedNames.emplace_back(name);
   }
   else
   {

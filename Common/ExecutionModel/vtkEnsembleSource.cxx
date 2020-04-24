@@ -124,7 +124,7 @@ vtkTypeBool vtkEnsembleSource::ProcessRequest(
 
 void vtkEnsembleSource::AddMember(vtkAlgorithm* alg)
 {
-  this->Internal->Algorithms.push_back(alg);
+  this->Internal->Algorithms.emplace_back(alg);
 }
 
 void vtkEnsembleSource::RemoveAllMembers()

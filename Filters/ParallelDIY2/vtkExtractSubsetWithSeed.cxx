@@ -121,7 +121,7 @@ void BlockT::GenerateExtracts()
 
     vtkStructuredGrid* clone = vtkStructuredGrid::New();
     clone->ShallowCopy(extractor->GetOutputDataObject(0));
-    this->Extracts.push_back(clone);
+    this->Extracts.emplace_back(clone);
     clone->FastDelete();
   }
 }
@@ -291,7 +291,7 @@ std::vector<SeedT> ExtractSliceFromSeed(const vtkVector3d& seed,
             {
               const auto new_seed = ::GetFaceCenter(cell, 2 * axis + iter);
               const auto pvecs = ::GetPropagationVectors(cell, propagation_mask);
-              next_seeds.push_back(std::make_tuple(new_seed, pvecs.first, pvecs.second));
+              next_seeds.emplace_back(new_seed, pvecs.first, pvecs.second);
             }
             break;
 
@@ -613,8 +613,7 @@ int vtkExtractSubsetWithSeed::RequestData(
         if (cellid >= 0)
         {
           auto p_vecs = ::GetPropagationVectors(b->Input->GetCell(cellid), propagation_mask);
-          seeds.push_back(
-            std::make_tuple(vtkVector3d(this->GetSeed()), p_vecs.first, p_vecs.second));
+          seeds.emplace_back(vtkVector3d(this->GetSeed()), p_vecs.first, p_vecs.second);
         }
       }
       else

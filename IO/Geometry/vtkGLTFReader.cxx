@@ -527,7 +527,7 @@ void ComputeJointMatrices(const vtkGLTFDocumentLoader::Model& m,
     jointTransform->Concatenate(jointGlobalTransform);
     jointTransform->Concatenate(inverseMeshGlobalTransform);
 
-    jointMats.push_back(jointTransform);
+    jointMats.emplace_back(jointTransform);
   }
 }
 

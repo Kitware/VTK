@@ -525,14 +525,14 @@ vtkMultiBlockPLOT3DReaderRecord::GetChunksToRead(
     if (start < markers[cc])
     {
       vtkTypeUInt64 chunksize = (markers[cc] - start);
-      chunks.push_back(std::pair<vtkTypeUInt64, vtkTypeUInt64>(start, chunksize));
+      chunks.emplace_back(start, chunksize);
       length -= chunksize;
     }
     start = markers[cc] + vtkMultiBlockPLOT3DReaderRecord::SubRecordSeparatorWidth;
   }
   if (length > 0)
   {
-    chunks.push_back(std::pair<vtkTypeUInt64, vtkTypeUInt64>(start, length));
+    chunks.emplace_back(start, length);
   }
   return chunks;
 }

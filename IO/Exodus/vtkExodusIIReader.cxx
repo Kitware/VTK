@@ -3956,19 +3956,19 @@ void vtkExodusIIReaderPrivate::BuildSIL()
 
   // Now build the hierarchy.
   vtkIdType rootId = this->SIL->AddVertex();
-  names.push_back("SIL");
+  names.emplace_back("SIL");
 
   // Add the ELEM_BLOCK subtree.
   vtkIdType blocksRoot = this->SIL->AddChild(rootId, childEdge);
-  names.push_back("Blocks");
+  names.emplace_back("Blocks");
 
   // Add the assembly subtree
   this->SIL->AddChild(rootId, childEdge);
-  names.push_back("Assemblies");
+  names.emplace_back("Assemblies");
 
   // Add the materials subtree
   this->SIL->AddChild(rootId, childEdge);
-  names.push_back("Materials");
+  names.emplace_back("Materials");
 
   // This is the map of block names to node ids.
   std::map<std::string, vtkIdType> blockids;
@@ -4205,7 +4205,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
 
           for (j = 0; j < binfo.AttributesPerEntry; ++j)
           {
-            binfo.AttributeNames.push_back(attr_names[j]);
+            binfo.AttributeNames.emplace_back(attr_names[j]);
             binfo.AttributeStatus.push_back(0); // don't load attributes by default
           }
 

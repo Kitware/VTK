@@ -317,7 +317,7 @@ bool vtkGLTFUtils::ExtractGLBFileInformation(const std::string& fileName, std::s
     char chunkTypeBuffer[vtkGLTFUtils::GLBWordSize];
     fin.read(chunkTypeBuffer, vtkGLTFUtils::GLBWordSize);
     std::string chunkType(chunkTypeBuffer, chunkTypeBuffer + vtkGLTFUtils::GLBWordSize);
-    chunkInfo.push_back(vtkGLTFUtils::ChunkInfoType(chunkType, chunkDataSize));
+    chunkInfo.emplace_back(chunkType, chunkDataSize);
     // Jump to next chunk
     fin.seekg(chunkDataSize, std::ios::cur);
   }

@@ -128,7 +128,7 @@ int vtkFixedWidthTextReader::RequestData(
     {
       char fieldName[64];
       snprintf(fieldName, sizeof(fieldName), "Field %u", i);
-      headers.push_back(fieldName);
+      headers.emplace_back(fieldName);
     }
   }
 

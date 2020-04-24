@@ -69,11 +69,11 @@ int vtkDateToNumeric::RequestData(
   std::vector<std::string> formats;
   if (this->DateFormat)
   {
-    formats.push_back(this->DateFormat);
+    formats.emplace_back(this->DateFormat);
   }
   // default formats
-  formats.push_back("%Y-%m-%d %H:%M:%S");
-  formats.push_back("%d/%m/%Y %H:%M:%S");
+  formats.emplace_back("%Y-%m-%d %H:%M:%S");
+  formats.emplace_back("%d/%m/%Y %H:%M:%S");
 
   // now filter arrays for each of the associations.
   for (int association = 0; association < vtkDataObject::NUMBER_OF_ASSOCIATIONS; ++association)

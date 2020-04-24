@@ -277,7 +277,7 @@ void vtkIncrementalForceLayout::UpdatePositions()
     vtkArrayDownCast<vtkFloatArray>(this->Graph->GetPoints()->GetData())->GetPointer(0);
   while (numVerts >= static_cast<vtkIdType>(this->Impl->LastPosition.size()))
   {
-    this->Impl->LastPosition.push_back(vtkVector2f(0.0f, 0.0f));
+    this->Impl->LastPosition.emplace_back(0.0f, 0.0f);
   }
 
   // Swap pos and lastpos for fixed node

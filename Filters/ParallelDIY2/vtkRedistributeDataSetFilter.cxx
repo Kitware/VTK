@@ -488,7 +488,7 @@ bool vtkRedistributeDataSetFilter::Redistribute(vtkDataObject* inputDO,
       if (this->RedistributeDataSet(ds, curOutput, cuts))
       {
         assert(curOutput->GetNumberOfPartitions() == static_cast<unsigned int>(cuts.size()));
-        results.push_back(curOutput);
+        results.emplace_back(curOutput);
       }
     }
 

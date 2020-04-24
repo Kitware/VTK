@@ -744,7 +744,7 @@ vtkTypeBool vtkBox::IntersectWithPlane(
 
   // Now run around point computing angle [0,360) and then sort.
   std::vector<IntPoint> IntPoints;
-  IntPoints.push_back(IntPoint(0, 0.0));
+  IntPoints.emplace_back(0, 0.0);
 
   for (i = 1; i < numInts; ++i)
   {
@@ -757,7 +757,7 @@ vtkTypeBool vtkBox::IntersectWithPlane(
     dy = vtkMath::Dot(v, Vy);
     t = atan2(dy, dx);
     t = (t >= 0 ? t : (2.0 * vtkMath::Pi() + t));
-    IntPoints.push_back(IntPoint(i, t));
+    IntPoints.emplace_back(i, t);
   }
 
   std::sort(IntPoints.begin(), IntPoints.end(), IntPointCompare);

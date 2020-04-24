@@ -960,7 +960,7 @@ int vtkModifiedBSPTree::IntersectWithLine(
           {
             tempIds->InsertNextId(cell_ID);
           }
-          t_list.push_back(Intersection(t_hit, icount++));
+          t_list.emplace_back(t_hit, icount++);
           HIT = true;
         }
       }

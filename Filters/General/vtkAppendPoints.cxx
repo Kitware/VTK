@@ -113,7 +113,7 @@ int vtkAppendPoints::RequestData(vtkInformation* vtkNotUsed(request),
     }
     else
     {
-      inputs.push_back(nullptr);
+      inputs.emplace_back(nullptr);
     }
   }
 

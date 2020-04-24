@@ -1214,7 +1214,7 @@ void vtkGraph::AddVertexInternal(vtkVariantArray* propertyArr, vtkIdType* vertex
         return;
       }
 
-      this->Internals->Adjacency.push_back(vtkVertexAdjacencyList()); // Add a new (local) vertex
+      this->Internals->Adjacency.emplace_back(); // Add a new (local) vertex
       vtkIdType index = static_cast<vtkIdType>(this->Internals->Adjacency.size() - 1);
 
       vtkDataSetAttributes* vertexData = this->GetVertexData();
@@ -1229,7 +1229,7 @@ void vtkGraph::AddVertexInternal(vtkVariantArray* propertyArr, vtkIdType* vertex
     //----------------------------------------------------------------
     else // We have propArr, but not pedIds - just add the propArr
     {
-      this->Internals->Adjacency.push_back(vtkVertexAdjacencyList());
+      this->Internals->Adjacency.emplace_back();
       vtkIdType index = static_cast<vtkIdType>(this->Internals->Adjacency.size() - 1);
 
       vtkDataSetAttributes* vertexData = this->GetVertexData();
@@ -1244,7 +1244,7 @@ void vtkGraph::AddVertexInternal(vtkVariantArray* propertyArr, vtkIdType* vertex
   }
   else // No properties, just add a new vertex
   {
-    this->Internals->Adjacency.push_back(vtkVertexAdjacencyList());
+    this->Internals->Adjacency.emplace_back();
   }
 
   if (vertex)
@@ -1342,15 +1342,15 @@ void vtkGraph::AddEdgeInternal(
   vtkIdType edgeId = this->Internals->NumberOfEdges;
   vtkIdType edgeIndex = edgeId;
   this->Internals->NumberOfEdges++;
-  this->Internals->Adjacency[u].OutEdges.push_back(vtkOutEdgeType(v, edgeId));
+  this->Internals->Adjacency[u].OutEdges.emplace_back(v, edgeId);
   if (directed)
   {
-    this->Internals->Adjacency[v].InEdges.push_back(vtkInEdgeType(u, edgeId));
+    this->Internals->Adjacency[v].InEdges.emplace_back(u, edgeId);
   }
   else if (u != v)
   {
     // Avoid storing self-loops twice in undirected graphs.
-    this->Internals->Adjacency[v].OutEdges.push_back(vtkOutEdgeType(u, edgeId));
+    this->Internals->Adjacency[v].OutEdges.emplace_back(u, edgeId);
   }
 
   if (this->EdgeList)

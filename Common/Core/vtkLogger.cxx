@@ -85,7 +85,7 @@ static std::vector<scope_pair>& get_vector()
 
 static void push_scope(const char* id, std::shared_ptr<loguru::LogScopeRAII> ptr)
 {
-  get_vector().push_back(std::make_pair(std::string(id), ptr));
+  get_vector().emplace_back(std::string(id), ptr);
 }
 
 static void pop_scope(const char* id)

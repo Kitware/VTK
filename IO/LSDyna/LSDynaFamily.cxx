@@ -150,7 +150,7 @@ LSDynaFamily::LSDynaFamily()
   this->TimeStep = 0;  // Initial time step
   this->StateSize = 0; // Time steps take up no room on disk
 
-  this->AdaptationsMarkers.push_back(LSDynaFamilyAdaptLevel());
+  this->AdaptationsMarkers.emplace_back();
   this->Chunk = nullptr;
   this->ChunkWord = 0;
   this->ChunkAlloc = 0;
@@ -613,7 +613,7 @@ void LSDynaFamily::MarkSectionStart(int adaptLevel, SectionType m)
   mark.Offset = myWord;
   while (adaptLevel >= (int)this->AdaptationsMarkers.size())
   {
-    this->AdaptationsMarkers.push_back(LSDynaFamilyAdaptLevel());
+    this->AdaptationsMarkers.emplace_back();
   }
   this->AdaptationsMarkers[adaptLevel].Marks[m] = mark;
 

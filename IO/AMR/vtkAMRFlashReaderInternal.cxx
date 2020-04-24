@@ -1282,13 +1282,13 @@ void vtkFlashReaderInternal::ReadParticleAttributes()
       if (H5Tequal(member_type, H5T_NATIVE_DOUBLE) > 0)
       {
         this->ParticleAttributeTypes.push_back(H5T_NATIVE_DOUBLE);
-        this->ParticleAttributeNames.push_back(member_name);
+        this->ParticleAttributeNames.emplace_back(member_name);
         this->ParticleAttributeNamesToIds[nice_name] = index;
       }
       else if (H5Tequal(member_type, H5T_NATIVE_INT) > 0)
       {
         this->ParticleAttributeTypes.push_back(H5T_NATIVE_INT);
-        this->ParticleAttributeNames.push_back(member_name);
+        this->ParticleAttributeNames.emplace_back(member_name);
         this->ParticleAttributeNamesToIds[nice_name] = index;
       }
       else

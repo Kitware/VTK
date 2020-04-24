@@ -394,10 +394,8 @@ void vtkRenderLargeImage::Rescale2DActors()
           d2[0] = p2[0] * this->Magnification;
           d2[1] = p2[1] * this->Magnification;
           d2[2] = 0.0;
-          this->StoredData->Coords1.push_back(
-            std::pair<int, int>(static_cast<int>(d1[0]), static_cast<int>(d1[1])));
-          this->StoredData->Coords2.push_back(
-            std::pair<int, int>(static_cast<int>(d2[0]), static_cast<int>(d2[1])));
+          this->StoredData->Coords1.emplace_back(static_cast<int>(d1[0]), static_cast<int>(d1[1]));
+          this->StoredData->Coords2.emplace_back(static_cast<int>(d2[0]), static_cast<int>(d2[1]));
           // Make sure they have no dodgy offsets
           n1->SetCoordinateSystemToDisplay();
           n2->SetCoordinateSystemToDisplay();
