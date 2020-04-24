@@ -710,7 +710,10 @@ void vtkOpenGLRenderer::ReleaseGraphicsResources(vtkWindow* w)
   {
     this->EnvMapIrradiance->ReleaseGraphicsResources(w);
   }
-
+  if (w && this->EnvMapLookupTable)
+  {
+    this->EnvMapLookupTable->ReleaseGraphicsResources(w);
+  }
   if (w && this->EnvMapPrefiltered)
   {
     this->EnvMapPrefiltered->ReleaseGraphicsResources(w);
