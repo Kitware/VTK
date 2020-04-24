@@ -27,7 +27,6 @@ cmake \
   -G Ninja \
   -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} \
   -DVTK_DIR=/work/build-vtk \
-  -DOPTIMIZE=BEST \
   /work/src/Examples/Emscripten/Cxx/ConeFullScreen
 
 cmake --build .

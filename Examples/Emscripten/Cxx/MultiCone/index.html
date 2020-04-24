@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+  </head>
+  <body style="padding: 0; margin: 0;">
+    <div style="padding: 5px 10px; display: flex; align-items: center;">
+      <button onclick="createCone()" style="padding: 5px; margin-right: 20px;">
+        Add Cone
+      </button>
+      <button onclick="deleteActive()"  style="padding: 5px; margin-right: 20px;">
+        Delete active
+      </button>
+      Resolution
+      <input
+        style="padding: 5px; margin-left: 20px;"
+        class="resolution"
+        type="range"
+        min="3" max="64" step="1"
+      />
+    </div>
+    <div
+      class="appLists"
+      style="display: flex; flex-wrap: wrap; align-items: center;">
+    </div>
+    <script type="text/javascript" src="MultiCone.js">
+    </script>
+    <script type='text/javascript'>
+      // ----------------------------------------------------------------------
+      // Multi app management
+      // ----------------------------------------------------------------------
+
+      const coneApps = {};
+      let activeApp = '';
+      let nextAppID = 1;
+
+      // ----------------------------------------------------------------------
+
+      function getNextAppId() {
+        return `vtk-app-${nextAppID++}`;
+      }
+
+      // ----------------------------------------------------------------------
+
+      function activate(canvas) {
+        activeApp = '';
+        if (canvas) {
+          canvas.id = 'canvas';
+          canvas.style.outline = '2px solid #BF360C';
+        }
+        Object.values(coneApps).forEach(({ appId, el }) => {
+          if (canvas === el) {
+            activeApp = appId;
+          } else {
+            el.id = '';
+            el.style.outline = '2px solid black';;
+          }
+        });
+
+        const app = coneApps[activeApp];
+        updateSlider(app && app.api.getResolution());
+      }
+
+      // ----------------------------------------------------------------------
+
+      function createCone() {
+        const appId = getNextAppId();
+        const el = document.createElement('canvas');
+        el.addEventListener("webglcontextlost", (e) => e.preventDefault(), false);
+        el.addEventListener('mouseenter', () => activate(el));
+        el.classList.add('vtk-app');
+        el.classList.add(appId);
+        el.style.width = '300px';
+        el.style.height = '300px';
+        el.style.margin = '30px';
+        document.querySelector('.appLists').appendChild(el);
+
+        const context = {
+          appId,
+          canvas: el,
+          onRuntimeInitialized() {
+            console.log('new cone init:', appId);
+          },
+        };
+
+        activate(el);
+        vtkCone(context).then((runtime) => {
+          const api = {
+            stopInteractor: runtime.cwrap('stop','void',[]),
+            getResolution: runtime.cwrap('getConeResolution','int',[]),
+            setResolution: runtime.cwrap('setConeResolution','void',['int']),
+          };
+
+          coneApps[appId] = {
+            appId,
+            el,
+            api,
+            runtime,
+          }
+        });
+      }
+
+      // ----------------------------------------------------------------------
+
+      function deleteActive() {
+        const app = coneApps[activeApp];
+        if (app) {
+          delete coneApps[activeApp];
+          app.api.stopInteractor();
+          const el = document.querySelector(`.${activeApp}`);
+          document.querySelector('.appLists').removeChild(el);
+        }
+      }
+
+      // ----------------------------------------------------------------------
+      // Slider handling
+      // ----------------------------------------------------------------------
+
+      function onSliderChange(e) {
+        const app = coneApps[activeApp];
+        if (app) {
+          app.api.setResolution(Number(e.currentTarget.value));
+        }
+      }
+
+      // ----------------------------------------------------------------------
+
+      function updateSlider(value) {
+        if (value) {
+          document.querySelector('.resolution').value = Number(value);
+        }
+      }
+
+      // ----------------------------------------------------------------------
+
+      document.querySelector('.resolution').addEventListener('input', onSliderChange);
+
+      // ----------------------------------------------------------------------
+    </script>
+  </body>
+</html>

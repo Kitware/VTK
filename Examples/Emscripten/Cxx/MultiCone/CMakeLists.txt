@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
-project(ConeFullScreen)
+project(MultiCone)
 
 # -----------------------------------------------------------------------------
 # EMSCRIPTEN only
@@ -29,6 +29,7 @@ endif ()
 
 # -----------------------------------------------------------------------------
 # WebAssembly build options
+# (-s) https://github.com/emscripten-core/emscripten/blob/master/src/settings.js
 # -----------------------------------------------------------------------------
 
 set(emscripten_options)
@@ -36,23 +37,26 @@ list(APPEND emscripten_options
   "--bind"
   "-g3"
   "-O3"
-  "SHELL:-s EXPORT_NAME=vtkApp"
+  "SHELL:-s EXPORT_NAME=vtkCone"
+  "SHELL:-s MODULARIZE=1"
   "SHELL:-s ALLOW_MEMORY_GROWTH=1"
   "SHELL:-s DEMANGLE_SUPPORT=1"
   "SHELL:-s EMULATE_FUNCTION_POINTER_CASTS=0"
   "SHELL:-s ERROR_ON_UNDEFINED_SYMBOLS=0"
-  "SHELL:-s MODULARIZE=1"
   "SHELL:-s USE_PTHREADS=0"
   "SHELL:-s WASM=1"
+  "SHELL:-s EXPORTED_FUNCTIONS=\"['_main', '_stop', '_getConeResolution', '_setConeResolution']\""
+  "SHELL:-s EXTRA_EXPORTED_RUNTIME_METHODS=\"['ccall', 'cwrap']\""
+  "SHELL:-s ENVIRONMENT=web"
 )
 
 # -----------------------------------------------------------------------------
 # Compile example code
 # -----------------------------------------------------------------------------
 
-add_executable(ConeFullScreen ConeFullScreen.cxx)
+add_executable(MultiCone MultiCone.cxx)
 
-target_link_libraries(ConeFullScreen
+target_link_libraries(MultiCone
   PRIVATE
     VTK::FiltersSources
     VTK::InteractionStyle
@@ -60,12 +64,12 @@ target_link_libraries(ConeFullScreen
     VTK::RenderingUI
 )
 
-target_compile_options(ConeFullScreen
+target_compile_options(MultiCone
   PUBLIC
     ${emscripten_options}
 )
 
-target_link_options(ConeFullScreen
+target_link_options(MultiCone
   PUBLIC
     ${emscripten_options}
 )
@@ -75,7 +79,7 @@ target_link_options(ConeFullScreen
 # -----------------------------------------------------------------------------
 
 vtk_module_autoinit(
-  TARGETS  ConeFullScreen
+  TARGETS  MultiCone
   MODULES  ${VTK_LIBRARIES}
 )
 
@@ -84,10 +88,9 @@ vtk_module_autoinit(
 # -----------------------------------------------------------------------------
 
 add_custom_command(
-  TARGET ConeFullScreen
-  POST_BUILD
+  TARGET MultiCone
   COMMAND
     ${CMAKE_COMMAND} -E copy_if_different
       "${CMAKE_CURRENT_SOURCE_DIR}/index.html"
-      $<TARGET_FILE_DIR:ConeFullScreen>
+      $<TARGET_FILE_DIR:MultiCone>
 )
