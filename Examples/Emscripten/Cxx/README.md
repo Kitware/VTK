@@ -9,7 +9,7 @@ https://about.dicehub.com/.
 ## Compiling VTK for Emscripten
 
 ```
-mkdir -p work/build-vtk work/build-example
+mkdir -p work/build-vtk
 cd work
 
 git clone https://gitlab.kitware.com/vtk/vtk.git src
