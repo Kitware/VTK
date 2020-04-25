@@ -1004,6 +1004,7 @@ void vtkOpenGLRenderWindow::Frame()
   {
     this->GetState()->PushFramebufferBindings();
     this->OffScreenFramebuffer->Bind(GL_READ_FRAMEBUFFER);
+
     this->GetState()->vtkglBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->DefaultFrameBufferId);
     if (this->StereoRender && this->StereoType == VTK_STEREO_CRYSTAL_EYES)
     {
@@ -1048,6 +1049,10 @@ void vtkOpenGLRenderWindow::Start()
   this->Size[0] = (this->Size[0] > 0 ? this->Size[0] : 300);
   this->Size[1] = (this->Size[1] > 0 ? this->Size[1] : 300);
   this->CreateOffScreenFramebuffer(this->Size[0], this->Size[1]);
+
+  // set non stereo framebuffer ivars to the current state
+  this->GetState()->GetCurrentDrawFramebufferState(
+    this->DefaultFrameBufferId, this->BackLeftBuffer);
 
   // push and bind
   this->GetState()->PushFramebufferBindings();

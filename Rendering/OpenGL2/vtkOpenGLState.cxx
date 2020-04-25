@@ -1217,16 +1217,14 @@ void vtkOpenGLState::Initialize(vtkOpenGLRenderWindow*)
   ::glGetIntegerv(GL_MAJOR_VERSION, &this->CurrentState.MajorVersion);
   ::glGetIntegerv(GL_MINOR_VERSION, &this->CurrentState.MinorVersion);
 
-  ::glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->CurrentState.DrawBinding.GetBinding());
-  ::glBindFramebuffer(GL_READ_FRAMEBUFFER, this->CurrentState.ReadBinding.GetBinding());
-  unsigned int vals[1];
-  vals[0] = this->CurrentState.DrawBinding.GetDrawBuffer(0);
-  ::glDrawBuffers(1, vals);
-#ifdef GL_DRAW_BUFFER
-  ::glGetIntegerv(GL_DRAW_BUFFER, (int*)&this->CurrentState.DrawBinding.DrawBuffers[0]);
-#endif
-  ::glReadBuffer(this->CurrentState.ReadBinding.GetReadBuffer());
-  ::glGetIntegerv(GL_READ_BUFFER, (int*)&this->CurrentState.ReadBinding.ReadBuffer);
+  this->ResetFramebufferBindings();
+}
+
+void vtkOpenGLState::GetCurrentDrawFramebufferState(
+  unsigned int& drawBinding, unsigned int& drawBuffer)
+{
+  drawBinding = this->CurrentState.DrawBinding.Binding;
+  drawBuffer = this->CurrentState.DrawBinding.DrawBuffers[0];
 }
 
 void vtkOpenGLState::ResetFramebufferBindings()
@@ -1437,7 +1435,7 @@ vtkCxxSetObjectMacro(vtkOpenGLState, VBOCache, vtkOpenGLVertexBufferObjectCache)
 // ::Initialize we can just set the state to the current
 // values (knowing that they are set). The reason we want
 // Initialize to set to the current values is to reduce
-// OpenGL churn in cases where application call Initialize
+// OpenGL churn in cases where applications call Initialize
 // often without really changing many of the values. For example
 //
 // viewport(0,0,100,100);
