@@ -14,12 +14,16 @@
 =========================================================================*/
 #include "vtkXMLPartitionedDataSetCollectionWriter.h"
 
+#include "vtkBase64Utilities.h"
+#include "vtkDataAssembly.h"
 #include "vtkDataObjectTreeRange.h"
 #include "vtkInformation.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
+#include "vtkPartitionedDataSetCollection.h"
 #include "vtkSmartPointer.h"
 #include "vtkXMLDataElement.h"
+#include "vtkXMLDataParser.h"
 
 vtkStandardNewMacro(vtkXMLPartitionedDataSetCollectionWriter);
 //----------------------------------------------------------------------------
@@ -96,6 +100,32 @@ int vtkXMLPartitionedDataSetCollectionWriter::WriteComposite(
     }
 
     index++;
+  }
+
+  // Add DataAssembly
+  if (auto pdc = vtkPartitionedDataSetCollection::SafeDownCast(compositeData))
+  {
+    if (auto da = pdc->GetDataAssembly())
+    {
+      vtkXMLDataElement* tag = vtkXMLDataElement::New();
+      tag->SetName("DataAssembly");
+      tag->SetAttribute("encoding", "base64");
+
+      // As a first pass, we'll encode the XML and add it as char data. In
+      // reality, we should be able to add the XML simply as a nested element,
+      // however `vtkXMLDataParser`'s inability to read from a string makes it
+      // unnecessarily hard and hence we leave that for now.
+      auto xml = da->SerializeToXML(vtkIndent().GetNextIndent());
+      unsigned char* encoded_buffer = new unsigned char[xml.size() * 2];
+      auto encoded_buffer_size =
+        vtkBase64Utilities::Encode(reinterpret_cast<const unsigned char*>(xml.c_str()),
+          static_cast<unsigned long>(xml.size()), encoded_buffer);
+      tag->SetCharacterData(
+        reinterpret_cast<char*>(encoded_buffer), static_cast<int>(encoded_buffer_size));
+      delete[] encoded_buffer;
+      parent->AddNestedElement(tag);
+      tag->Delete();
+    }
   }
 
   return RetVal;

@@ -3,6 +3,7 @@ set(classes
   vtkConvertSelection
   vtkExpandMarkedElements
   vtkExtractBlock
+  vtkExtractBlockUsingDataAssembly
   vtkExtractCells
   vtkExtractCellsByType
   vtkExtractDataArraysOverTime

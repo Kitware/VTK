@@ -39,6 +39,7 @@ set(classes
   vtkConvexPointSet
   vtkCubicLine
   vtkCylinder
+  vtkDataAssembly
   vtkDataObject
   vtkDataObjectCollection
   vtkDataObjectTree
@@ -255,6 +256,7 @@ set(headers
   vtkColor.h
   vtkCompositeDataSetRange.h
   vtkDataArrayDispatcher.h
+  vtkDataAssemblyVisitor.h
   vtkDataObjectTreeRange.h
   vtkDispatcher.h
   vtkDispatcher_Private.h

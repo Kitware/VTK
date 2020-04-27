@@ -32,6 +32,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   TestCompositeDataSets.cxx
   TestCompositeDataSetRange.cxx
   TestComputeBoundingSphere.cxx
+  TestDataAssembly.cxx
   TestDataObject.cxx
   TestDataObjectTreeRange.cxx
   TestFieldList.cxx

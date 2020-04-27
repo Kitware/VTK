@@ -14,8 +14,10 @@
 =========================================================================*/
 #include "vtkXMLPartitionedDataSetCollectionReader.h"
 
+#include "vtkBase64Utilities.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkCompositeDataSet.h"
+#include "vtkDataAssembly.h"
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -24,6 +26,31 @@
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkSmartPointer.h"
 #include "vtkXMLDataElement.h"
+
+namespace
+{
+vtkSmartPointer<vtkDataAssembly> ReadDataAssembly(
+  vtkXMLDataElement* elem, vtkXMLPartitionedDataSetCollectionReader* self)
+{
+  if (elem->GetAttribute("encoding") == nullptr ||
+    strcmp(elem->GetAttribute("encoding"), "base64") != 0 || elem->GetCharacterData() == nullptr)
+  {
+    vtkWarningWithObjectMacro(self, "Unsupported DataAssembly encoding. Ignoring.");
+    return nullptr;
+  }
+
+  vtkNew<vtkDataAssembly> assembly;
+  size_t len_encoded_data = strlen(elem->GetCharacterData());
+  char* decoded_buffer = new char[len_encoded_data];
+  auto decoded_buffer_len = vtkBase64Utilities::DecodeSafely(
+    reinterpret_cast<const unsigned char*>(elem->GetCharacterData()), len_encoded_data,
+    reinterpret_cast<unsigned char*>(decoded_buffer), len_encoded_data);
+  decoded_buffer[decoded_buffer_len] = '\0';
+  assembly->InitializeFromXML(decoded_buffer);
+  delete[] decoded_buffer;
+  return assembly;
+}
+}
 
 vtkStandardNewMacro(vtkXMLPartitionedDataSetCollectionReader);
 
@@ -112,6 +139,11 @@ void vtkXMLPartitionedDataSetCollectionReader::ReadComposite(vtkXMLDataElement* 
       this->ReadComposite(childXML, childDS, filePath, dataSetIndex);
       col->SetPartitionedDataSet(index, childDS);
       childDS->Delete();
+    }
+    else if (col != nullptr && strcmp(tagName, "DataAssembly") == 0)
+    {
+      auto assembly = ::ReadDataAssembly(childXML, this);
+      col->SetDataAssembly(assembly);
     }
     else
     {
