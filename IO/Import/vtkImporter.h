@@ -50,7 +50,7 @@
 
 #include <string>
 
-class vtkDataArray;
+class vtkAbstractArray;
 class vtkDataSet;
 class vtkDoubleArray;
 class vtkRenderWindow;
@@ -144,7 +144,7 @@ protected:
   virtual void ImportProperties(vtkRenderer*) {}
 
   static std::string GetDataSetDescription(vtkDataSet* ds, vtkIndent indent);
-  static std::string GetArrayDescription(vtkDataArray* array, vtkIndent indent);
+  static std::string GetArrayDescription(vtkAbstractArray* array, vtkIndent indent);
 
   vtkRenderer* Renderer;
   vtkRenderWindow* RenderWindow;
