@@ -1,5 +1,5 @@
 ---
-# This configuration requires clang-format 4.0 or higher.
+# This configuration requires clang-format 8.0 or higher.
 BasedOnStyle: Mozilla
 AlignAfterOpenBracket: DontAlign
 AlignOperands: false
@@ -11,4 +11,10 @@ BinPackParameters: true
 ColumnLimit: 100
 SpaceAfterTemplateKeyword: true
 Standard: Cpp03
+StatementMacros:
+- vtkAbstractTypeMacro
+- vtkTypeMacro
+- vtkBaseTypeMacro
+- vtkAbstractTemplateTypeMacro
+- vtkAbstractTypeMacroWithNewInstanceType
 ...
