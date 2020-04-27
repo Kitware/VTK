@@ -103,7 +103,7 @@ setup(
             # macOS shared libraries.
             'lib*.dylib*',
             # Windows modules.
-            '*Python.pyd',
+            '*.pyd',
             # Windows shared libraries.
             '*.dll',
         ],
