@@ -1,6 +1,8 @@
 from setuptools import Extension, setup
 from setuptools.command.build_ext import build_ext
+from io import open as io_open
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -49,6 +51,13 @@ with open(vtk_reqs_path, 'r') as fin:
         if not line.startswith('#')
     ]
 
+vtk_readme_path = os.path.join(BUILD_DIR, 'README.md')
+with io_open(vtk_readme_path, encoding='utf-8') as fin:
+    readme = fin.read()
+    # Convert all local references to global references to master
+    readme = re.sub(r'\[(.*?)\]: ((?!https://).*)$',
+                    r'[\1]: https://gitlab.kitware.com/vtk/vtk/-/raw/master/\2',
+                    readme, flags=re.MULTILINE)
 
 python_code_features = {
     'gtk': [],
@@ -103,9 +112,34 @@ setup(
         'build_ext': CMakeBuildExt,
     },
     url='https://vtk.org',
-    license_file='@license_file@',
-    description='',
-    long_description='',
+    download_url='https://vtk.org/download/',
+    license='BSD',
+    classifiers=[
+        "License :: OSI Approved :: BSD License",
+        "Programming Language :: Python",
+        "Programming Language :: C++",
+        "Intended Audience :: Developers",
+        "Intended Audience :: Education",
+        "Intended Audience :: Healthcare Industry",
+        "Intended Audience :: Science/Research",
+        "Topic :: Multimedia",
+        "Topic :: Multimedia :: 3D Modeling",
+        "Topic :: Multimedia :: 3D Rendering",
+        "Topic :: Scientific/Engineering",
+        "Topic :: Scientific/Engineering :: Chemistry",
+        "Topic :: Scientific/Engineering :: Information Analysis",
+        "Topic :: Scientific/Engineering :: Medical Science Apps.",
+        "Topic :: Scientific/Engineering :: Physics",
+        "Topic :: Scientific/Engineering :: Visualization",
+        "Topic :: Software Development :: Libraries",
+        "Operating System :: Microsoft :: Windows",
+        "Operating System :: POSIX",
+        "Operating System :: Unix",
+        "Operating System :: MacOS"
+    ],
+    description='VTK is an open-source toolkit for 3D computer graphics, image processing, and visualization',
+    long_description=readme,
+    long_description_content_type='text/markdown',
     install_requires=reqs,
     extras_require=features,
     include_package_data=True,

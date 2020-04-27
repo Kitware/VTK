@@ -67,8 +67,6 @@ elseif (UNIX)
 endif ()
 set(VTK_PYTHON_OPTIONAL_LINK ON)
 
-set(license_file
-  "${CMAKE_SOURCE_DIR}/Copyright.txt")
 configure_file(
   "${CMAKE_CURRENT_LIST_DIR}/setup.py.in"
   "${CMAKE_BINARY_DIR}/setup.py"
@@ -77,6 +75,10 @@ configure_file(
   "${CMAKE_CURRENT_LIST_DIR}/MANIFEST.in.in"
   "${CMAKE_BINARY_DIR}/MANIFEST.in"
   @ONLY)
+configure_file(
+  "${CMAKE_SOURCE_DIR}/Copyright.txt"
+  "${CMAKE_BINARY_DIR}/LICENSE"
+  COPYONLY)
 configure_file(
   "${CMAKE_SOURCE_DIR}/README.md"
   "${CMAKE_BINARY_DIR}/README.md"

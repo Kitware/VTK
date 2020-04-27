@@ -1,4 +1,6 @@
-![VTK - The Visualization Toolkit](vtkBanner.gif)
+![VTK - The Visualization Toolkit][VTK Banner]
+
+[VTK Banner]: vtkBanner.gif
 
 Introduction
 ============
