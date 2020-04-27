@@ -318,7 +318,7 @@ vtkIdType IntersectWithCell(unsigned nTest, vtkMinimalStandardRandomSequence* se
 
 #ifdef DEBUG_POINTS
   {
-    vtkSmartPointer<vtkLagrangeWedge> wed = CreateWedge(10);
+    vtkSmartPointer<vtkLagrangeWedge> wed = CreateWedge(18);
     vtkNew<vtkPolyData> pts;
     pts->SetPoints(points);
     pts->SetVerts(vertices);
