@@ -292,7 +292,7 @@ VTK_THREAD_RETURN_TYPE vtkFPVRCMSwitchOnDataType(void* arg)
   thread_count = ((vtkMultiThreader::ThreadInfo*)(arg))->NumberOfThreads;
   mapper = (vtkFixedPointVolumeRayCastMapper*)(((vtkMultiThreader::ThreadInfo*)(arg))->UserData);
 
-  vtkImageData* input = mapper->GetInput();
+  vtkImageData* input = vtkImageData::SafeDownCast(mapper->GetInput());
 
   void* dataPtr = mapper->GetCurrentScalars()->GetVoidPointer(0);
   int scalarType = mapper->GetCurrentScalars()->GetDataType();
@@ -932,7 +932,7 @@ void vtkFixedPointVolumeRayCastMapper::UpdateMinMaxVolume(vtkVolume* vol)
   int needToUpdate = 0;
 
   // Get the image data
-  vtkImageData* input = this->GetInput();
+  vtkImageData* input = vtkImageData::SafeDownCast(this->GetInput());
 
   // We'll need this info later
   int dim[3];
@@ -1098,7 +1098,7 @@ int vtkFixedPointVolumeRayCastMapper::PerImageInitialization(vtkRenderer* ren, v
 void vtkFixedPointVolumeRayCastMapper::PerVolumeInitialization(vtkRenderer* ren, vtkVolume* vol)
 {
   // This is the input of this mapper
-  vtkImageData* input = this->GetInput();
+  vtkImageData* input = vtkImageData::SafeDownCast(this->GetInput());
   this->PreviousScalars = this->CurrentScalars;
 
   // make sure that we have scalar input and update the scalar input
@@ -1182,7 +1182,7 @@ void vtkFixedPointVolumeRayCastMapper::PerSubVolumeInitialization(
   // required. If no rays need to be cast, restore the old image sample
   // distance and return
   int inputExtent[6];
-  vtkImageData* input = this->GetInput();
+  vtkImageData* input = vtkImageData::SafeDownCast(this->GetInput());
   input->GetExtent(inputExtent);
 
   // If this is part of a multirender (AMR volume rendering) then
@@ -1806,7 +1806,7 @@ void vtkFixedPointVolumeRayCastMapper::InitializeRayInfo(vtkVolume* vol)
   }
 
   int dim[3];
-  this->GetInput()->GetDimensions(dim);
+  vtkImageData::SafeDownCast(this->GetInput())->GetDimensions(dim);
   this->CroppingBounds[0] = this->CroppingBounds[2] = this->CroppingBounds[4] = 0.0;
   this->CroppingBounds[1] = dim[0] - 1;
   this->CroppingBounds[3] = dim[1] - 1;
@@ -1884,7 +1884,7 @@ void vtkFixedPointVolumeRayCastMapper::InitializeRayInfo(vtkVolume* vol)
     (this->CroppingBounds[5] > dim[2] - 1) ? (dim[2] - 1) : (this->CroppingBounds[5]);
 
   // Save spacing because for some reason this call is really really slow!
-  this->GetInput()->GetSpacing(this->SavedSpacing);
+  vtkImageData::SafeDownCast(this->GetInput())->GetSpacing(this->SavedSpacing);
 }
 
 // Return 0 if our volume is outside the view frustum, 1 if it
@@ -2549,7 +2549,7 @@ int vtkFixedPointVolumeRayCastMapper::ClipRayAgainstVolume(
 
 void vtkFixedPointVolumeRayCastMapper::ComputeGradients(vtkVolume* vol)
 {
-  vtkImageData* input = this->GetInput();
+  vtkImageData* input = vtkImageData::SafeDownCast(this->GetInput());
 
   void* dataPtr = this->CurrentScalars->GetVoidPointer(0);
 
@@ -2766,7 +2766,7 @@ int vtkFixedPointVolumeRayCastMapper::UpdateGradients(vtkVolume* vol)
   this->ShadingRequired = 0;
 
   // Get the image data
-  vtkImageData* input = this->GetInput();
+  vtkImageData* input = vtkImageData::SafeDownCast(this->GetInput());
 
   if (vol->GetProperty()->GetShade())
   {
@@ -2799,7 +2799,7 @@ int vtkFixedPointVolumeRayCastMapper::UpdateGradients(vtkVolume* vol)
   this->ComputeGradients(vol);
 
   // Time to save the input used to update the tabes
-  this->SavedGradientsInput = this->GetInput();
+  this->SavedGradientsInput = vtkImageData::SafeDownCast(this->GetInput());
   this->SavedGradientsMTime.Modified();
 
   return 1;
@@ -2810,7 +2810,7 @@ int vtkFixedPointVolumeRayCastMapper::UpdateColorTable(vtkVolume* vol)
   int needToUpdate = 0;
 
   // Get the image data
-  vtkImageData* input = this->GetInput();
+  vtkImageData* input = vtkImageData::SafeDownCast(this->GetInput());
 
   // Has the data itself changed?
   if (input != this->SavedParametersInput || this->CurrentScalars != this->PreviousScalars ||
