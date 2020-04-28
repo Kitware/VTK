@@ -49,7 +49,7 @@ list(APPEND emscripten_options
 # Build options
 # -----------------------------------------------------------------------------
 
-set(OPTIMIZE "NO_OPTIMIZATION" CACHE STRING "Emscripten optimization")
+set(OPTIMIZE "BEST" CACHE STRING "Emscripten optimization")
 set_property(CACHE OPTIMIZE PROPERTY
   STRINGS
     NO_OPTIMIZATION       # -O0
