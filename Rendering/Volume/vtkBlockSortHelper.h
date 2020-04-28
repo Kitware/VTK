@@ -21,7 +21,7 @@
 #define vtkBlockSortHelper_h
 
 #include "vtkCamera.h"
-#include "vtkImageData.h"
+#include "vtkDataSet.h"
 #include "vtkMatrix4x4.h"
 #include "vtkNew.h"
 #include "vtkRenderer.h"
@@ -40,7 +40,7 @@ inline void GetBounds(T a, double bds[6])
 }
 
 template <>
-inline void GetBounds(vtkImageData* first, double bds[6])
+inline void GetBounds(vtkDataSet* first, double bds[6])
 {
   first->GetBounds(bds);
 }
@@ -255,8 +255,8 @@ bool operator==(gnode<RandomIt> const& lhs, gnode<RandomIt> const& rhs)
 }
 
 template <class RandomIt>
-bool findCycle(gnode<RandomIt>& start, std::vector<gnode<RandomIt> >& graph,
-  std::vector<gnode<RandomIt> >& active, std::vector<gnode<RandomIt> >& loop)
+bool findCycle(gnode<RandomIt>& start, std::vector<gnode<RandomIt>>& graph,
+  std::vector<gnode<RandomIt>>& active, std::vector<gnode<RandomIt>>& loop)
 {
   if (start.Visited)
   {
@@ -329,7 +329,7 @@ inline void Sort(RandomIt bitr, RandomIt eitr, BackToFront<T>& me)
   }
 
   // build the graph
-  std::vector<gnode<RandomIt> > graph;
+  std::vector<gnode<RandomIt>> graph;
   for (auto it = working.begin(); it != working.end(); ++it)
   {
     gnode<RandomIt> anode;
@@ -348,8 +348,8 @@ inline void Sort(RandomIt bitr, RandomIt eitr, BackToFront<T>& me)
   }
 
   // graph constructed, now look for a loop
-  std::vector<gnode<RandomIt> > active;
-  std::vector<gnode<RandomIt> > loop;
+  std::vector<gnode<RandomIt>> active;
+  std::vector<gnode<RandomIt>> loop;
   for (auto& gval : graph)
   {
     loop.clear();

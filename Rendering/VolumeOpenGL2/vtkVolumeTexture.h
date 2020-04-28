@@ -92,10 +92,10 @@ public:
 
   struct VolumeBlock
   {
-    VolumeBlock(vtkImageData* imData, vtkTextureObject* tex, Size3 const& texSize)
+    VolumeBlock(vtkDataSet* dataset, vtkTextureObject* tex, Size3 const& texSize)
     {
       // Block extent is stored in vtkImageData
-      ImageData = imData;
+      DataSet = dataset;
       TextureObject = tex;
       TextureSize = texSize;
       TupleIndex = 0;
@@ -108,7 +108,7 @@ public:
       this->Extents[5] = VTK_INT_MIN;
     }
 
-    vtkImageData* ImageData;
+    vtkDataSet* DataSet;
     vtkTextureObject* TextureObject;
     Size3 TextureSize;
     vtkIdType TupleIndex;
@@ -143,7 +143,7 @@ public:
    * (in which case they will be loaded into GPU memory by GetNextBlock()).
    * Requires an active OpenGL context.
    */
-  bool LoadVolume(vtkRenderer* ren, vtkImageData* data, vtkDataArray* scalars, int const isCell,
+  bool LoadVolume(vtkRenderer* ren, vtkDataSet* data, vtkDataArray* scalars, int const isCell,
     int const interpolation);
 
   /**
@@ -281,8 +281,8 @@ private:
   vtkTimeStamp UpdateTime;
 
   vtkSmartPointer<vtkTextureObject> Texture;
-  std::vector<vtkImageData*> ImageDataBlocks;
-  std::map<vtkImageData*, VolumeBlock*> ImageDataBlockMap;
+  std::vector<vtkDataSet*> ImageDataBlocks;
+  std::map<vtkDataSet*, VolumeBlock*> ImageDataBlockMap;
   std::vector<VolumeBlock*> SortedVolumeBlocks;
   size_t CurrentBlockIdx;
   bool StreamBlocks;
