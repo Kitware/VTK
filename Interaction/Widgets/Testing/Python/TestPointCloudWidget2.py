@@ -244,7 +244,7 @@ def ReportCoords(widget, event_string):
 rep = vtk.vtkPointCloudRepresentation()
 rep.SetPlaceFactor(1.0);
 rep.PlacePointCloud(pc.GetOutput());
-rep.SetPickingModeToSoftware()
+rep.SetPickingModeToHardware()
 
 pcWidget = vtk.vtkPointCloudWidget()
 pcWidget.SetInteractor(iRen)
