@@ -246,6 +246,22 @@ void vtkSDL2RenderWindowInteractor::StartEventLoop()
 }
 
 //----------------------------------------------------------------------------
+void vtkSDL2RenderWindowInteractor::AddEventHandler()
+{
+  // No need to do anything if this is a 'mapped' interactor
+  if (!this->Enabled)
+  {
+    return;
+  }
+
+  this->StartedMessageLoop = 1;
+  this->Done = false;
+#ifdef __EMSCRIPTEN__
+  emscripten_set_main_loop_arg(&mainLoopCallback, (void*)this, 0, 0);
+#endif
+}
+
+//----------------------------------------------------------------------------
 // Begin processing keyboard strokes.
 void vtkSDL2RenderWindowInteractor::Initialize()
 {

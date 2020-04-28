@@ -70,3 +70,4 @@ Open your browser to:
 - http://localhost:8000/Cone
 - http://localhost:8000/ConeFullScreen
 - http://localhost:8000/MultiCone
+- http://localhost:8000/WrappedMace
