@@ -30,6 +30,7 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
 #include "vtkPointDataToCellData.h"
+#include "vtkRectilinearGrid.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkSmartVolumeMapper.h"
@@ -253,7 +254,7 @@ void vtkSmartVolumeMapper::Render(vtkRenderer* ren, vtkVolume* vol)
 // ----------------------------------------------------------------------------
 void vtkSmartVolumeMapper::Initialize(vtkRenderer* ren, vtkVolume* vol)
 {
-  vtkImageData* input = this->GetInput();
+  vtkDataSet* input = this->GetInput();
   if (!input)
   {
     this->Initialized = 0;
@@ -323,7 +324,22 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer* ren, vtkVolume* vol)
 
   double scale[3];
   double spacing[3];
-  this->GetInput()->GetSpacing(spacing);
+  if (auto imData = vtkImageData::SafeDownCast(this->GetInput()))
+  {
+    imData->GetSpacing(spacing);
+  }
+  else if (auto rectGrid = vtkRectilinearGrid::SafeDownCast(this->GetInput()))
+  {
+    // compute average spacing along each dimension
+    double bounds[6];
+    rectGrid->GetBounds(bounds);
+    int dims[3];
+    rectGrid->GetDimensions(dims);
+    for (int i = 0; i < 3; ++i)
+    {
+      spacing[i] = (bounds[2 * i + 1] - bounds[2 * i]) / dims[i];
+    }
+  }
 
   // Compute the sample distance based on dataset spacing.
   // It is assumed that a negative SampleDistance means the user would like to
@@ -495,10 +511,17 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer* ren, vtkVolume* vol)
 }
 
 // ----------------------------------------------------------------------------
-void vtkSmartVolumeMapper::ComputeMagnitudeCellData(vtkImageData* input, vtkDataArray* arr)
+void vtkSmartVolumeMapper::ComputeMagnitudeCellData(vtkDataSet* input, vtkDataArray* arr)
 {
+  vtkImageData* imData = vtkImageData::SafeDownCast(input);
+  if (!imData)
+  {
+    // TODO: Support image magnitude calculation for rectilinear grids
+    return;
+  }
+
   vtkNew<vtkImageData> tempInput;
-  tempInput->ShallowCopy(input);
+  tempInput->ShallowCopy(imData);
 
   tempInput->GetCellData()->SetActiveAttribute(arr->GetName(), vtkDataSetAttributes::SCALARS);
 
@@ -528,10 +551,16 @@ void vtkSmartVolumeMapper::ComputeMagnitudeCellData(vtkImageData* input, vtkData
 }
 
 // ----------------------------------------------------------------------------
-void vtkSmartVolumeMapper::ComputeMagnitudePointData(vtkImageData* input, vtkDataArray* arr)
+void vtkSmartVolumeMapper::ComputeMagnitudePointData(vtkDataSet* input, vtkDataArray* arr)
 {
+  vtkImageData* imData = vtkImageData::SafeDownCast(input);
+  if (!imData)
+  {
+    // TODO: Support image magnitude calculation for rectilinear grids
+    return;
+  }
   vtkNew<vtkImageData> tempInput;
-  tempInput->ShallowCopy(input);
+  tempInput->ShallowCopy(imData);
 
   const int id =
     tempInput->GetPointData()->SetActiveAttribute(arr->GetName(), vtkDataSetAttributes::SCALARS);
@@ -549,7 +578,7 @@ void vtkSmartVolumeMapper::ComputeMagnitudePointData(vtkImageData* input, vtkDat
 // ----------------------------------------------------------------------------
 void vtkSmartVolumeMapper::SetupVectorMode(vtkVolume* vol)
 {
-  vtkImageData* input = this->GetInput();
+  vtkDataSet* input = this->GetInput();
   if (!input)
   {
     vtkErrorMacro("Failed to setup vector rendering mode! No input.");
@@ -669,25 +698,25 @@ void vtkSmartVolumeMapper::ConnectMapperInput(vtkVolumeMapper* m)
   assert("pre: m_exists" && m != nullptr);
 
   bool needShallowCopy = false;
-  vtkImageData* imData = m->GetInput();
+  vtkDataSet* data = m->GetInput();
 
-  if (imData == nullptr || imData == this->InputDataMagnitude)
+  if (data == nullptr || data == this->InputDataMagnitude)
   {
-    imData = vtkImageData::New();
-    m->SetInputDataObject(imData);
+    data = vtkImageData::New();
+    m->SetInputDataObject(data);
     needShallowCopy = true;
-    imData->Delete();
+    data->Delete();
   }
   else
   {
-    needShallowCopy = imData->GetMTime() < this->GetInput()->GetMTime();
+    needShallowCopy = data->GetMTime() < this->GetInput()->GetMTime();
 
-    m->SetInputDataObject(imData);
+    m->SetInputDataObject(data);
   }
 
   if (needShallowCopy)
   {
-    imData->ShallowCopy(this->GetInput());
+    data->ShallowCopy(this->GetInput());
   }
 }
 
