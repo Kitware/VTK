@@ -21,10 +21,7 @@ and assumes that the main VTK repository is using the "origin" remote.
 import argparse
 import git
 import gitlabapi
-import json
-import os
 import shutil
-import sys
 
 try:
     from progress.bar import Bar
@@ -104,14 +101,14 @@ gl = gitlabapi.Gitlab('gitlab.kitware.com', token=args.token)
 
 # Grab the merged mrs with the milestone of interest.
 merged_requests = gl.getmergerequests('vtk%2fvtk',
-    milestone=args.milestone,
-    sort='asc',
-    state='merged')
+                                      milestone=args.milestone,
+                                      sort='asc',
+                                      state='merged')
 
 branch_name = f'backport-missed-mrs-{args.milestone}'
 try:
     shutil.rmtree('workdir')
-except:
+except Exception:
     pass
 main_repo.git.worktree('add', '-f', 'workdir', 'origin/release')
 repo = git.Repo('workdir')
