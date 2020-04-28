@@ -19,6 +19,7 @@
 #include "vtkGarbageCollector.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
+#include "vtkRectilinearGrid.h"
 
 // Construct a vtkVolumeMapper with empty scalar input and clipping off.
 vtkVolumeMapper::vtkVolumeMapper()
@@ -44,41 +45,58 @@ vtkVolumeMapper::~vtkVolumeMapper() = default;
 
 void vtkVolumeMapper::ConvertCroppingRegionPlanesToVoxels()
 {
-  double* spacing = this->GetInput()->GetSpacing();
-  int dimensions[3];
-  this->GetInput()->GetDimensions(dimensions);
-  double origin[3];
-  const double* bds = this->GetInput()->GetBounds();
-  origin[0] = bds[0];
-  origin[1] = bds[2];
-  origin[2] = bds[4];
-
-  for (int i = 0; i < 6; i++)
+  vtkDataSet* input = this->GetInput();
+  if (vtkImageData* imageData = vtkImageData::SafeDownCast(input))
   {
-    this->VoxelCroppingRegionPlanes[i] =
-      (this->CroppingRegionPlanes[i] - origin[i / 2]) / spacing[i / 2];
+    double* spacing = imageData->GetSpacing();
+    int dimensions[3];
+    imageData->GetDimensions(dimensions);
+    double origin[3];
+    const double* bds = this->GetInput()->GetBounds();
+    origin[0] = bds[0];
+    origin[1] = bds[2];
+    origin[2] = bds[4];
 
-    this->VoxelCroppingRegionPlanes[i] =
-      (this->VoxelCroppingRegionPlanes[i] < 0) ? (0) : (this->VoxelCroppingRegionPlanes[i]);
+    for (int i = 0; i < 6; i++)
+    {
+      this->VoxelCroppingRegionPlanes[i] =
+        (this->CroppingRegionPlanes[i] - origin[i / 2]) / spacing[i / 2];
 
-    this->VoxelCroppingRegionPlanes[i] =
-      (this->VoxelCroppingRegionPlanes[i] > dimensions[i / 2] - 1)
-      ? (dimensions[i / 2] - 1)
-      : (this->VoxelCroppingRegionPlanes[i]);
+      this->VoxelCroppingRegionPlanes[i] =
+        (this->VoxelCroppingRegionPlanes[i] < 0) ? (0) : (this->VoxelCroppingRegionPlanes[i]);
+
+      this->VoxelCroppingRegionPlanes[i] =
+        (this->VoxelCroppingRegionPlanes[i] > dimensions[i / 2] - 1)
+        ? (dimensions[i / 2] - 1)
+        : (this->VoxelCroppingRegionPlanes[i]);
+    }
+  }
+  else if (vtkRectilinearGrid* rectGrid = vtkRectilinearGrid::SafeDownCast(input))
+  {
+    // TODO
+    // double bounds[6];
+    // rectGrid->GetBounds(bounds);
+    // double x[3];
+    // for (int i = 0; i < 6; i++)
+    // {
+    // }
   }
 }
 
 void vtkVolumeMapper::SetInputData(vtkDataSet* genericInput)
 {
-  vtkImageData* input = vtkImageData::SafeDownCast(genericInput);
-
-  if (input)
+  if (vtkImageData* imageData = vtkImageData::SafeDownCast(genericInput))
   {
-    this->SetInputData(input);
+    this->SetInputData(imageData);
+  }
+  else if (vtkRectilinearGrid* rectGrid = vtkRectilinearGrid::SafeDownCast(genericInput))
+  {
+    this->SetInputData(rectGrid);
   }
   else
   {
-    vtkErrorMacro("The SetInput method of this mapper requires vtkImageData as input");
+    vtkErrorMacro("The SetInput method of this mapper requires either"
+      << " a vtkImageData or a vtkRectilinearGrid as input");
   }
 }
 
@@ -87,23 +105,28 @@ void vtkVolumeMapper::SetInputData(vtkImageData* input)
   this->SetInputDataInternal(0, input);
 }
 
-vtkImageData* vtkVolumeMapper::GetInput()
+void vtkVolumeMapper::SetInputData(vtkRectilinearGrid* input)
 {
-  if (this->GetNumberOfInputConnections(0) < 1)
-  {
-    return nullptr;
-  }
-  return vtkImageData::SafeDownCast(this->GetExecutive()->GetInputData(0, 0));
+  this->SetInputDataInternal(0, input);
 }
 
-vtkImageData* vtkVolumeMapper::GetInput(const int port)
+vtkDataSet* vtkVolumeMapper::GetInput()
+{
+  if (this->GetNumberOfInputConnections(0) < 1)
+  {
+    return nullptr;
+  }
+  return vtkDataSet::SafeDownCast(this->GetExecutive()->GetInputData(0, 0));
+}
+
+vtkDataSet* vtkVolumeMapper::GetInput(const int port)
 {
   if (this->GetNumberOfInputConnections(0) < 1)
   {
     return nullptr;
   }
 
-  return vtkImageData::SafeDownCast(this->GetExecutive()->GetInputData(port, 0));
+  return vtkDataSet::SafeDownCast(this->GetExecutive()->GetInputData(port, 0));
 }
 
 // Print the vtkVolumeMapper
@@ -135,7 +158,7 @@ int vtkVolumeMapper::FillInputPortInformation(int port, vtkInformation* info)
   {
     return 0;
   }
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 

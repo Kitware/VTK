@@ -28,9 +28,10 @@
 #include "vtkAbstractVolumeMapper.h"
 #include "vtkRenderingVolumeModule.h" // For export macro
 
+class vtkImageData;
+class vtkRectilinearGrid;
 class vtkRenderer;
 class vtkVolume;
-class vtkImageData;
 
 #define VTK_CROP_SUBVOLUME 0x0002000
 #define VTK_CROP_FENCE 0x2ebfeba
@@ -52,8 +53,9 @@ public:
    */
   virtual void SetInputData(vtkImageData*);
   virtual void SetInputData(vtkDataSet*);
-  virtual vtkImageData* GetInput();
-  virtual vtkImageData* GetInput(const int port);
+  virtual void SetInputData(vtkRectilinearGrid*);
+  virtual vtkDataSet* GetInput();
+  virtual vtkDataSet* GetInput(const int port);
   //@}
 
   //@{
