@@ -808,14 +808,31 @@
   mapper->GetRayCastImage()->GetImageMemorySize(imageMemorySize);                                  \
   mapper->GetRayCastImage()->GetImageViewportSize(imageViewportSize);                              \
   mapper->GetRayCastImage()->GetImageOrigin(imageOrigin);                                          \
-  mapper->GetInput()->GetDimensions(dim);                                                          \
+  vtkImageData* imData = vtkImageData::SafeDownCast(mapper->GetInput());                           \
+  vtkRectilinearGrid* rGrid = vtkRectilinearGrid::SafeDownCast(mapper->GetInput());                \
+  if (imData)                                                                                      \
+  {                                                                                                \
+    imData->GetDimensions(dim);                                                                    \
+  }                                                                                                \
+  else if (rGrid)                                                                                  \
+  {                                                                                                \
+    rGrid->GetDimensions(dim);                                                                     \
+  }                                                                                                \
   mapper->GetTableShift(shift);                                                                    \
   mapper->GetTableScale(scale);                                                                    \
                                                                                                    \
   int* rowBounds = mapper->GetRowBounds();                                                         \
   unsigned short* image = mapper->GetRayCastImage()->GetImage();                                   \
   vtkRenderWindow* renWin = mapper->GetRenderWindow();                                             \
-  int components = mapper->GetInput()->GetNumberOfScalarComponents();                              \
+  int components = 1;                                                                              \
+  if (imData)                                                                                      \
+  {                                                                                                \
+    components = imData->GetNumberOfScalarComponents();                                            \
+  }                                                                                                \
+  else if (rGrid)                                                                                  \
+  {                                                                                                \
+    components = rGrid->GetNumberOfScalarComponents();                                             \
+  }                                                                                                \
   int cropping = (mapper->GetCropping() && mapper->GetCroppingRegionFlags() != 0x2000);            \
                                                                                                    \
   components = (components < 4) ? components : 4;                                                  \

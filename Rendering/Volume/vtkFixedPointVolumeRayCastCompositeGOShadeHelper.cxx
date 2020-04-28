@@ -21,6 +21,7 @@
 #include "vtkFixedPointVolumeRayCastMapper.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
+#include "vtkRectilinearGrid.h"
 #include "vtkRenderWindow.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
