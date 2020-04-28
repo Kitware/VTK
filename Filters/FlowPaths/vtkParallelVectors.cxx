@@ -138,7 +138,7 @@ bool fieldAlignmentPointForTriangle(const double v0[3], const double v1[3], cons
       continue;
     }
 
-    std::array<double, 3> eigenvector = { col[0].real(), col[1].real(), col[2].real() };
+    std::array<double, 3> eigenvector = { { col[0].real(), col[1].real(), col[2].real() } };
 
     for (double& component : eigenvector)
     {
@@ -359,25 +359,25 @@ bool surfaceTessellationForCell(vtkCell3D* cell, std::vector<std::array<vtkIdTyp
         return false;
       case 3:
       {
-        triangles[t++] = { cell->GetPointIds()->GetId(localPointIds[0]),
+        triangles[t++] = { { cell->GetPointIds()->GetId(localPointIds[0]),
           cell->GetPointIds()->GetId(localPointIds[1]),
-          cell->GetPointIds()->GetId(localPointIds[2]) };
+          cell->GetPointIds()->GetId(localPointIds[2]) } };
         break;
       }
       case 4:
       {
-        std::array<vtkIdType, 4> perimeter = { cell->GetPointIds()->GetId(localPointIds[0]),
+        std::array<vtkIdType, 4> perimeter = { { cell->GetPointIds()->GetId(localPointIds[0]),
           cell->GetPointIds()->GetId(localPointIds[1]),
           cell->GetPointIds()->GetId(localPointIds[2]),
-          cell->GetPointIds()->GetId(localPointIds[3]) };
+          cell->GetPointIds()->GetId(localPointIds[3]) } };
 
         std::rotate(
           perimeter.begin(), std::min_element(perimeter.begin(), perimeter.end()), perimeter.end());
 
         // This ordering ensures that the same two triangles are recovered if
         // the order of the perimeter points are reversed.
-        triangles[t++] = { perimeter[0], perimeter[1], perimeter[2] };
-        triangles[t++] = { perimeter[0], perimeter[3], perimeter[2] };
+        triangles[t++] = { { perimeter[0], perimeter[1], perimeter[2] } };
+        triangles[t++] = { { perimeter[0], perimeter[3], perimeter[2] } };
         break;
       }
       default:
@@ -398,9 +398,9 @@ bool surfaceTessellationForCell(vtkCell3D* cell, std::vector<std::array<vtkIdTyp
 
         for (vtkIdType i = 0; i < nPoints - 2; ++i)
         {
-          triangles[t++] = { cell->GetPointIds()->GetId(localPointIds[outTris->GetId(3 * i)]),
+          triangles[t++] = { { cell->GetPointIds()->GetId(localPointIds[outTris->GetId(3 * i)]),
             cell->GetPointIds()->GetId(localPointIds[outTris->GetId(3 * i + 1)]),
-            cell->GetPointIds()->GetId(localPointIds[outTris->GetId(3 * i + 2)]) };
+            cell->GetPointIds()->GetId(localPointIds[outTris->GetId(3 * i + 2)]) } };
         }
       }
     }
