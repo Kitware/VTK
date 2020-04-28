@@ -30,6 +30,7 @@
 #include <vtkMultiVolume.h>
 #include <vtkObjectFactory.h>
 #include <vtkPointData.h>
+#include <vtkRectilinearGrid.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderer.h>
 #include <vtkRendererCollection.h>
@@ -255,7 +256,7 @@ int vtkGPUVolumeRayCastMapper::ValidateRender(vtkRenderer* ren, vtkVolume* vol)
   return (success ? 1 : 0);
 }
 
-vtkImageData* vtkGPUVolumeRayCastMapper::FindData(int port, DataMap& container)
+vtkDataSet* vtkGPUVolumeRayCastMapper::FindData(int port, DataMap& container)
 {
   const auto it = container.find(port);
   if (it == container.cend())
@@ -269,19 +270,26 @@ void vtkGPUVolumeRayCastMapper::CloneInputs()
 {
   for (const auto& port : this->Ports)
   {
-    vtkImageData* input = this->GetInput(port);
+    vtkDataSet* input = this->GetInput(port);
     this->CloneInput(input, port);
   }
 }
 
-void vtkGPUVolumeRayCastMapper::CloneInput(vtkImageData* input, const int port)
+void vtkGPUVolumeRayCastMapper::CloneInput(vtkDataSet* input, const int port)
 {
   // Clone input into a transformed input
-  vtkImageData* clone;
-  vtkImageData* currentData = this->FindData(port, this->TransformedInputs);
+  vtkDataSet* clone;
+  vtkDataSet* currentData = this->FindData(port, this->TransformedInputs);
   if (!currentData)
   {
-    clone = vtkImageData::New();
+    if (vtkImageData::SafeDownCast(input))
+    {
+      clone = vtkImageData::New();
+    }
+    else if (vtkRectilinearGrid::SafeDownCast(input))
+    {
+      clone = vtkRectilinearGrid::New();
+    }
     clone->Register(this);
     this->TransformedInputs[port] = clone;
     clone->Delete();
@@ -303,7 +311,7 @@ void vtkGPUVolumeRayCastMapper::CloneInput(vtkImageData* input, const int port)
 
 int vtkGPUVolumeRayCastMapper::ValidateInput(vtkVolumeProperty* property, const int port)
 {
-  vtkImageData* input = this->GetInput(port);
+  vtkDataSet* input = this->GetInput(port);
 
   vtkTypeBool goodSoFar = 1;
   if (input == nullptr)
@@ -706,47 +714,65 @@ int vtkGPUVolumeRayCastMapper::FillInputPortInformation(int port, vtkInformation
 }
 
 //----------------------------------------------------------------------------
-vtkImageData* vtkGPUVolumeRayCastMapper::GetInput(const int port)
+vtkDataSet* vtkGPUVolumeRayCastMapper::GetInput(const int port)
 {
-  return static_cast<vtkImageData*>(this->GetInputDataObject(port, 0));
+  return static_cast<vtkDataSet*>(this->GetInputDataObject(port, 0));
 }
 
 //----------------------------------------------------------------------------
 void vtkGPUVolumeRayCastMapper::TransformInput(const int port)
 {
-  vtkImageData* clone = this->TransformedInputs[port];
-  clone->ShallowCopy(this->GetInput(port));
-
-  // Get the current extents.
-  int extents[6], real_extents[6];
-  clone->GetExtent(extents);
-  clone->GetExtent(real_extents);
-
-  // Get the current origin and spacing.
-  double origin[3], spacing[3];
-  clone->GetOrigin(origin);
-  clone->GetSpacing(spacing);
-  double* direction = clone->GetDirectionMatrix()->GetData();
-
-  // find the location of the min extent
-  double blockOrigin[3];
-  vtkImageData::TransformContinuousIndexToPhysicalPoint(
-    extents[0], extents[2], extents[4], origin, spacing, direction, blockOrigin);
-
-  // make it so that the clone starts with extent 0,0,0
-  for (int cc = 0; cc < 3; cc++)
+  vtkDataSet* dataset = this->TransformedInputs[port];
+  if (vtkImageData* clone = vtkImageData::SafeDownCast(dataset))
   {
-    // Transform the origin and the extents.
-    origin[cc] = blockOrigin[cc];
-    extents[2 * cc + 1] -= extents[2 * cc];
-    extents[2 * cc] = 0;
-  }
+    clone->ShallowCopy(this->GetInput(port));
 
-  clone->SetOrigin(origin);
-  clone->SetExtent(extents);
+    // Get the current extents.
+    int extents[6];
+    clone->GetExtent(extents);
+
+    // Get the current origin and spacing.
+    double origin[3], spacing[3];
+    clone->GetOrigin(origin);
+    clone->GetSpacing(spacing);
+    double* direction = clone->GetDirectionMatrix()->GetData();
+
+    // find the location of the min extent
+    double blockOrigin[3];
+    vtkImageData::TransformContinuousIndexToPhysicalPoint(
+      extents[0], extents[2], extents[4], origin, spacing, direction, blockOrigin);
+
+    // make it so that the clone starts with extent 0,0,0
+    for (int cc = 0; cc < 3; cc++)
+    {
+      // Transform the origin and the extents.
+      origin[cc] = blockOrigin[cc];
+      extents[2 * cc + 1] -= extents[2 * cc];
+      extents[2 * cc] = 0;
+    }
+
+    clone->SetOrigin(origin);
+    clone->SetExtent(extents);
+  }
+  else if (vtkRectilinearGrid* clone = vtkRectilinearGrid::SafeDownCast(dataset))
+  {
+    clone->ShallowCopy(this->GetInput(port));
+
+    // Get the current extents.
+    int extents[6];
+    clone->GetExtent(extents);
+
+    // Transform the current extent so that it starts at 0, 0, 0
+    for (int cc = 0; cc < 3; cc++)
+    {
+      extents[2 * cc + 1] -= extents[2 * cc];
+      extents[2 * cc] = 0;
+    }
+    clone->SetExtent(extents);
+  }
 }
 
-vtkImageData* vtkGPUVolumeRayCastMapper::GetTransformedInput(const int port)
+vtkDataSet* vtkGPUVolumeRayCastMapper::GetTransformedInput(const int port)
 {
   const auto data = this->FindData(port, this->TransformedInputs);
   return data;
