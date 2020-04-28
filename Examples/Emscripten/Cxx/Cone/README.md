@@ -6,7 +6,7 @@ WebAssembly.
 ## Compiling example against VTK
 
 We assume inside the `work/` directory to find the source of VTK under `src/`
-and its build tree under `build-vtk`.
+and its build tree under `build-vtk-wasm`.
 
 If VTK is not built yet, please follow the guide `../README.md`.
 
@@ -26,7 +26,7 @@ cd /work/build-cone
 cmake \
   -G Ninja \
   -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} \
-  -DVTK_DIR=/work/build-vtk \
+  -DVTK_DIR=/work/build-vtk-wasm \
   -DOPTIMIZE=BEST \
   /work/src/Examples/Emscripten/Cxx/Cone
 
