@@ -73,6 +73,7 @@ void vtkVolumeMapper::ConvertCroppingRegionPlanesToVoxels()
   }
   else if (vtkRectilinearGrid* rectGrid = vtkRectilinearGrid::SafeDownCast(input))
   {
+    vtkNotUsed(rectGrid);
     // TODO
     // double bounds[6];
     // rectGrid->GetBounds(bounds);

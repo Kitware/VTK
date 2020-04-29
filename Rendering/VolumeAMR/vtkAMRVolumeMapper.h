@@ -50,6 +50,7 @@ public:
    */
   void SetInputData(vtkImageData*) override;
   void SetInputData(vtkDataSet*) override;
+  void SetInputData(vtkRectilinearGrid*) override;
   virtual void SetInputData(vtkOverlappingAMR*);
   void SetInputConnection(int port, vtkAlgorithmOutput* input) override;
   void SetInputConnection(vtkAlgorithmOutput* input) override

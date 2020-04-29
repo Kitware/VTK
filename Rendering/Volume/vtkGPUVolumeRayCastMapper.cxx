@@ -290,6 +290,10 @@ void vtkGPUVolumeRayCastMapper::CloneInput(vtkDataSet* input, const int port)
     {
       clone = vtkRectilinearGrid::New();
     }
+    else
+    {
+      clone = nullptr;
+    }
     clone->Register(this);
     this->TransformedInputs[port] = clone;
     clone->Delete();
@@ -754,13 +758,13 @@ void vtkGPUVolumeRayCastMapper::TransformInput(const int port)
     clone->SetOrigin(origin);
     clone->SetExtent(extents);
   }
-  else if (vtkRectilinearGrid* clone = vtkRectilinearGrid::SafeDownCast(dataset))
+  else if (vtkRectilinearGrid* cloneRGrid = vtkRectilinearGrid::SafeDownCast(dataset))
   {
-    clone->ShallowCopy(this->GetInput(port));
+    cloneRGrid->ShallowCopy(this->GetInput(port));
 
     // Get the current extents.
     int extents[6];
-    clone->GetExtent(extents);
+    cloneRGrid->GetExtent(extents);
 
     // Transform the current extent so that it starts at 0, 0, 0
     for (int cc = 0; cc < 3; cc++)
@@ -768,7 +772,7 @@ void vtkGPUVolumeRayCastMapper::TransformInput(const int port)
       extents[2 * cc + 1] -= extents[2 * cc];
       extents[2 * cc] = 0;
     }
-    clone->SetExtent(extents);
+    cloneRGrid->SetExtent(extents);
   }
 }
 
