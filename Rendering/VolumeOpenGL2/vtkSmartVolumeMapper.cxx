@@ -702,7 +702,14 @@ void vtkSmartVolumeMapper::ConnectMapperInput(vtkVolumeMapper* m)
 
   if (data == nullptr || data == this->InputDataMagnitude)
   {
-    data = vtkImageData::New();
+    if (vtkImageData::SafeDownCast(this->GetInput()))
+    {
+      data = vtkImageData::New();
+    }
+    else if (vtkRectilinearGrid::SafeDownCast(this->GetInput()))
+    {
+      data = vtkRectilinearGrid::New();
+    }
     m->SetInputDataObject(data);
     needShallowCopy = true;
     data->Delete();
