@@ -655,6 +655,10 @@ OSPMaterial MakeActorMaterial(vtkOSPRayRendererNode* orn, OSPRenderer oRenderer,
     ospSet1f(oMaterial, "roughness", static_cast<float>(property->GetRoughness()));
     ospSet1f(oMaterial, "opacity", static_cast<float>(opacity));
     ospSet1f(oMaterial, "ior", 1.5);
+    float edgeColor[3] = { static_cast<float>(property->GetEdgeTint()[0]),
+      static_cast<float>(property->GetEdgeTint()[1]),
+      static_cast<float>(property->GetEdgeTint()[2]) };
+    ospSet3fv(oMaterial, "edgeColor", edgeColor);
   }
   else
   {

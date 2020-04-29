@@ -777,7 +777,8 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
       "uniform float metallicUniform;\n"
       "uniform float roughnessUniform;\n"
       "uniform vec3 emissiveFactorUniform;\n"
-      "uniform float aoStrengthUniform;\n\n"
+      "uniform float aoStrengthUniform;\n"
+      "uniform vec3 edgeTintUniform;\n"
       "float D_GGX(float NdH, float roughness)\n"
       "{\n"
       "  float a = roughness * roughness;\n"
@@ -792,9 +793,9 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
       "  float ggxL = NdV * sqrt(a2 + NdL * (NdL - a2 * NdL));\n"
       "  return 0.5 / (ggxV + ggxL);\n"
       "}\n"
-      "vec3 F_Schlick(float HdV, vec3 F0)\n"
+      "vec3 F_Schlick(vec3 F0, vec3 F90, float HdV)\n"
       "{\n"
-      "  return F0 + (1.0 - F0) * pow(1.0 - HdV, 5.0);\n"
+      "  return F0 + (F90 - F0) * pow(1.0 - HdV, 5.0);\n"
       "}\n"
       "vec3 DiffuseLambert(vec3 albedo)\n"
       "{\n"
@@ -893,6 +894,10 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
     if (lastLightComplexity != 0)
     {
       toString << "  vec3 F0 = mix(vec3(0.04), albedo, metallic);\n"
+                  // specular occlusion, it affects only material with an f0 < 0.02,
+                  // else f90 is 1.0
+                  "  float f90 = clamp(dot(F0, vec3(50.0 * 0.33)), 0.0, 1.0);\n"
+                  "  vec3 F90 = mix(vec3(f90), edgeTintUniform, metallic);\n"
                   "  vec3 L, H, radiance, F, specular, diffuse;\n"
                   "  float NdL, NdH, HdV, distanceVC, attenuation, D, Vis;\n\n";
     }
@@ -935,7 +940,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
         toString << "  NdV = clamp(dot(N, V), 1e-5, 1.0);\n"
                     "  D = D_GGX(NdV, roughness);\n"
                     "  Vis = V_SmithCorrelated(NdV, NdV, roughness);\n"
-                    "  F = F_Schlick(1.0, F0);\n"
+                    "  F = F_Schlick(F0, F90, 1.0);\n"
                     "  specular = D * Vis * F;\n"
                     "  diffuse = (1.0 - metallic) * (1.0 - F) * DiffuseLambert(albedo);\n"
                     "  Lo += (diffuse + specular) * lightColor0 * NdV;\n\n"
@@ -973,7 +978,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
                    << ";\n"
                       "  D = D_GGX(NdH, roughness);\n"
                       "  Vis = V_SmithCorrelated(NdV, NdL, roughness);\n"
-                      "  F = F_Schlick(HdV, F0);\n"
+                      "  F = F_Schlick(F0, F90, HdV);\n"
                       "  specular = D * Vis * F;\n"
                       "  diffuse = (1.0 - metallic) * (1.0 - F) * DiffuseLambert(albedo);\n"
                       "  Lo += (diffuse + specular) * radiance * NdL;\n";
@@ -1068,7 +1073,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
                    << " * attenuation;\n"
                       "  D = D_GGX(NdH, roughness);\n"
                       "  Vis = V_SmithCorrelated(NdV, NdL, roughness);\n"
-                      "  F = F_Schlick(HdV, F0);\n"
+                      "  F = F_Schlick(F0, F90, HdV);\n"
                       "  specular = D * Vis * F;\n"
                       "  diffuse = (1.0 - metallic) * (1.0 - F) * DiffuseLambert(albedo);\n"
                       "  Lo += (diffuse + specular) * radiance * NdL;\n\n";
@@ -1150,8 +1155,6 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
   if (actor->GetProperty()->GetInterpolation() == VTK_PBR && lastLightComplexity > 0)
   {
     vtkShaderProgram::Substitute(FSSource, "//VTK::Light::Impl",
-      // specular occlusion, it affects only material with an f0 < 0.02
-      "  float F90 = clamp(dot(F0, vec3(50.0 * 0.33)), 0.0, 1.0);\n"
       "  // In IBL, we assume that v=n, so the amount of light reflected is\n"
       "  // the reflectance F0\n"
       "  vec3 specularBrdf = F0 * brdf.r + F90 * brdf.g;\n"
@@ -2632,6 +2635,7 @@ void vtkOpenGLPolyDataMapper::SetPropertyShaderParameters(
       program->SetUniformf("roughnessUniform", static_cast<float>(ppty->GetRoughness()));
       program->SetUniformf("aoStrengthUniform", static_cast<float>(ppty->GetOcclusionStrength()));
       program->SetUniform3f("emissiveFactorUniform", ppty->GetEmissiveFactor());
+      program->SetUniform3f("edgeTintUniform", ppty->GetEdgeTint());
     }
 
     // handle specular
