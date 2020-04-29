@@ -51,8 +51,8 @@ vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 //----------------------------------------------------------------------------
 // This is a private class and an implementation detail, do not use it.
-// It manages the NSWindow of a "pure VTK application",
-// as opposed to a regular Mac app that happens to use VTK.
+// It manages the NSView/NSWindow. It observes for the NSView's frame changing
+// position or size. It observes for the NSWindow closing.
 //----------------------------------------------------------------------------
 @interface vtkCocoaServer : NSObject
 {
@@ -100,8 +100,7 @@ vtkStandardNewMacro(vtkCocoaRenderWindow);
   }
 
   NSView* view = reinterpret_cast<NSView*>(_renWin->GetWindowId());
-  vtkTypeBool viewCreated = _renWin->GetViewCreated();
-  if (viewCreated && view)
+  if (view)
   {
     // Receive notifications of this, and only this, view's frame changing.
     NSNotificationCenter* nc = [NSNotificationCenter defaultCenter];
@@ -126,8 +125,7 @@ vtkStandardNewMacro(vtkCocoaRenderWindow);
   }
 
   NSView* view = reinterpret_cast<NSView*>(_renWin->GetWindowId());
-  vtkTypeBool viewCreated = _renWin->GetViewCreated();
-  if (viewCreated && view)
+  if (view)
   {
     NSNotificationCenter* nc = [NSNotificationCenter defaultCenter];
     [nc removeObserver:self name:NSViewFrameDidChangeNotification object:view];
@@ -163,11 +161,8 @@ vtkStandardNewMacro(vtkCocoaRenderWindow);
 //----------------------------------------------------------------------------
 - (void)viewFrameDidChange:(NSNotification*)aNotification
 {
-  // We should only get here if it was us that created the NSView.
-  assert(_renWin);
-  assert(_renWin->GetViewCreated());
-
   // We should only have observed our own NSView.
+  assert(_renWin);
   assert([aNotification object] == _renWin->GetWindowId());
   (void)aNotification;
 
@@ -502,7 +497,8 @@ void vtkCocoaRenderWindow::SetSize(int width, int height)
   {
     this->Superclass::SetSize(width, height);
 
-    if (this->Mapped && !this->UseOffScreenBuffers && this->GetParentId() && this->GetWindowId())
+    if (this->Mapped && !this->UseOffScreenBuffers && this->GetParentId() && this->GetWindowId() &&
+      this->GetViewCreated())
     {
       // Set the NSView size, not the window size.
       if (!resizing)
@@ -533,7 +529,8 @@ void vtkCocoaRenderWindow::SetSize(int width, int height)
         resizing = false;
       }
     }
-    else if (this->Mapped && !this->UseOffScreenBuffers && this->GetRootWindow())
+    else if (this->Mapped && !this->UseOffScreenBuffers && this->GetRootWindow() &&
+      this->GetWindowCreated())
     {
       if (!resizing)
       {
@@ -577,7 +574,7 @@ void vtkCocoaRenderWindow::SetPosition(int x, int y)
     this->Modified();
     this->Position[0] = x;
     this->Position[1] = y;
-    if (this->Mapped && this->GetParentId() && this->GetWindowId())
+    if (this->Mapped && this->GetParentId() && this->GetWindowId() && this->GetViewCreated())
     {
       // Set the NSView position relative to the parent
       if (!resizing)
@@ -613,7 +610,7 @@ void vtkCocoaRenderWindow::SetPosition(int x, int y)
         resizing = false;
       }
     }
-    else if (this->Mapped && this->GetRootWindow())
+    else if (this->Mapped && this->GetRootWindow() && this->GetWindowCreated())
     {
       if (!resizing)
       {
