@@ -76,10 +76,11 @@
 #include "vtkTuple.h"                        // For Size6 and Size3
 
 class vtkDataArray;
+class vtkDataSet;
 class vtkImageData;
-class vtkVolumeProperty;
 class vtkRenderer;
 class vtkTextureObject;
+class vtkVolumeProperty;
 class vtkWindow;
 
 class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkVolumeTexture : public vtkObject
@@ -94,7 +95,7 @@ public:
   {
     VolumeBlock(vtkDataSet* dataset, vtkTextureObject* tex, Size3 const& texSize)
     {
-      // Block extent is stored in vtkImageData
+      // Block extent is stored in vtkDataSet
       DataSet = dataset;
       TextureObject = tex;
       TextureSize = texSize;
@@ -120,7 +121,7 @@ public:
 
     /**
      * LoadedBounds are corrected for cell-data (if that is the case). So they
-     * are not equivalent to vtkImageData::GetBounds().
+     * are not equivalent to vtkDataSet::GetBounds().
      */
     double LoadedBounds[6];
     double LoadedBoundsAA[6];
