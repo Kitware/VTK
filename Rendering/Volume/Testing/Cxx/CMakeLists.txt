@@ -40,6 +40,7 @@ set (VolumeCxxTests
   TestGPURayCastMIPBinaryMask.cxx
   TestGPURayCastMIPToComposite.cxx
   TestGPURayCastMapperBenchmark.cxx
+  TestGPURayCastMapperRectilinearGrid.cxx
   TestGPURayCastMapperSampleDistance.cxx
   TestGPURayCastMultiVolumeAddRemove.cxx
   TestGPURayCastMultiVolumeCellData.cxx
