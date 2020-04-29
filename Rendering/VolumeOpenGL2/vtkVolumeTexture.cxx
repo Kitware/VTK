@@ -211,7 +211,7 @@ void vtkVolumeTexture::CreateBlocks(
     block->TupleIndex =
       ext[4] * this->FullSize[0] * this->FullSize[1] + ext[2] * this->FullSize[0] + ext[0];
 
-    this->ImageDataBlockMap[imData] = block;
+    this->ImageDataBlockMap[dataset] = block;
     this->ComputeBounds(block);
     this->UpdateTextureToDataMatrix(block);
   }
