@@ -903,11 +903,91 @@ int vtkPentagonalPrism::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtk
 {
   ptIds->Reset();
   pts->Reset();
+  int i, p[4];
 
-  for (int i = 0; i < 4; i++)
+  // Create 8 tetrahedron. This might not be the minimum, but it is a simple solution.
+  // The Pentagonal Prism is divided in one hexa and one wedge.
+
+  // The first five tetra are for the hexahedron
+  p[0] = 0;
+  p[1] = 1;
+  p[2] = 3;
+  p[3] = 5;
+  for (i = 0; i < 4; i++)
   {
-    ptIds->InsertId(i, this->PointIds->GetId(i));
-    pts->InsertPoint(i, this->Points->GetPoint(i));
+    ptIds->InsertNextId(this->PointIds->GetId(p[i]));
+    pts->InsertNextPoint(this->Points->GetPoint(p[i]));
+  }
+
+  p[0] = 1;
+  p[1] = 5;
+  p[2] = 6;
+  p[3] = 7;
+  for (i = 0; i < 4; i++)
+  {
+    ptIds->InsertNextId(this->PointIds->GetId(p[i]));
+    pts->InsertNextPoint(this->Points->GetPoint(p[i]));
+  }
+
+  p[0] = 1;
+  p[1] = 5;
+  p[2] = 7;
+  p[3] = 3;
+  for (i = 0; i < 4; i++)
+  {
+    ptIds->InsertNextId(this->PointIds->GetId(p[i]));
+    pts->InsertNextPoint(this->Points->GetPoint(p[i]));
+  }
+
+  p[0] = 1;
+  p[1] = 3;
+  p[2] = 7;
+  p[3] = 2;
+  for (i = 0; i < 4; i++)
+  {
+    ptIds->InsertNextId(this->PointIds->GetId(p[i]));
+    pts->InsertNextPoint(this->Points->GetPoint(p[i]));
+  }
+
+  p[0] = 3;
+  p[1] = 7;
+  p[2] = 8;
+  p[3] = 5;
+  for (i = 0; i < 4; i++)
+  {
+    ptIds->InsertNextId(this->PointIds->GetId(p[i]));
+    pts->InsertNextPoint(this->Points->GetPoint(p[i]));
+  }
+
+  // The last three tetra are for the wedge
+  p[0] = 0;
+  p[1] = 4;
+  p[3] = 3;
+  p[2] = 5;
+  for (i = 0; i < 4; i++)
+  {
+    ptIds->InsertNextId(this->PointIds->GetId(p[i]));
+    pts->InsertNextPoint(this->Points->GetPoint(p[i]));
+  }
+
+  p[0] = 3;
+  p[1] = 5;
+  p[3] = 9;
+  p[2] = 8;
+  for (i = 0; i < 4; i++)
+  {
+    ptIds->InsertNextId(this->PointIds->GetId(p[i]));
+    pts->InsertNextPoint(this->Points->GetPoint(p[i]));
+  }
+
+  p[0] = 3;
+  p[1] = 4;
+  p[3] = 9;
+  p[2] = 5;
+  for (i = 0; i < 4; i++)
+  {
+    ptIds->InsertNextId(this->PointIds->GetId(p[i]));
+    pts->InsertNextPoint(this->Points->GetPoint(p[i]));
   }
 
   return 1;

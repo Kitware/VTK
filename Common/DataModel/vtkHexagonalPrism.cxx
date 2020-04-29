@@ -866,11 +866,110 @@ int vtkHexagonalPrism::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkP
 {
   ptIds->Reset();
   pts->Reset();
+  int i, p[4];
 
-  for (int i = 0; i < 4; i++)
+  // Create 10 tetrahedron. This might not be the minimum, but it is a simple solution.
+  // The Hexagonal Prism is divided here in two mirrored hexaedra. For the second hexaedron,
+  // 2 points of each tetra are swapped in ordered to get a positive Jacobian.
+
+  p[0] = 0;
+  p[1] = 1;
+  p[2] = 3;
+  p[3] = 6;
+  for (i = 0; i < 4; i++)
   {
-    ptIds->InsertId(i, this->PointIds->GetId(i));
-    pts->InsertPoint(i, this->Points->GetPoint(i));
+    ptIds->InsertNextId(this->PointIds->GetId(p[i]));
+    pts->InsertNextPoint(this->Points->GetPoint(p[i]));
+  }
+
+  p[0] = 1;
+  p[1] = 6;
+  p[2] = 7;
+  p[3] = 8;
+  for (i = 0; i < 4; i++)
+  {
+    ptIds->InsertNextId(this->PointIds->GetId(p[i]));
+    pts->InsertNextPoint(this->Points->GetPoint(p[i]));
+  }
+
+  p[0] = 1;
+  p[1] = 6;
+  p[2] = 8;
+  p[3] = 3;
+  for (i = 0; i < 4; i++)
+  {
+    ptIds->InsertNextId(this->PointIds->GetId(p[i]));
+    pts->InsertNextPoint(this->Points->GetPoint(p[i]));
+  }
+
+  p[0] = 1;
+  p[1] = 3;
+  p[2] = 8;
+  p[3] = 2;
+  for (i = 0; i < 4; i++)
+  {
+    ptIds->InsertNextId(this->PointIds->GetId(p[i]));
+    pts->InsertNextPoint(this->Points->GetPoint(p[i]));
+  }
+
+  p[0] = 3;
+  p[1] = 8;
+  p[2] = 9;
+  p[3] = 6;
+  for (i = 0; i < 4; i++)
+  {
+    ptIds->InsertNextId(this->PointIds->GetId(p[i]));
+    pts->InsertNextPoint(this->Points->GetPoint(p[i]));
+  }
+
+  p[0] = 0;
+  p[1] = 5;
+  p[3] = 3;
+  p[2] = 6;
+  for (i = 0; i < 4; i++)
+  {
+    ptIds->InsertNextId(this->PointIds->GetId(p[i]));
+    pts->InsertNextPoint(this->Points->GetPoint(p[i]));
+  }
+
+  p[0] = 5;
+  p[1] = 6;
+  p[3] = 11;
+  p[2] = 10;
+  for (i = 0; i < 4; i++)
+  {
+    ptIds->InsertNextId(this->PointIds->GetId(p[i]));
+    pts->InsertNextPoint(this->Points->GetPoint(p[i]));
+  }
+
+  p[0] = 5;
+  p[1] = 6;
+  p[3] = 10;
+  p[2] = 3;
+  for (i = 0; i < 4; i++)
+  {
+    ptIds->InsertNextId(this->PointIds->GetId(p[i]));
+    pts->InsertNextPoint(this->Points->GetPoint(p[i]));
+  }
+
+  p[0] = 5;
+  p[1] = 3;
+  p[3] = 10;
+  p[2] = 4;
+  for (i = 0; i < 4; i++)
+  {
+    ptIds->InsertNextId(this->PointIds->GetId(p[i]));
+    pts->InsertNextPoint(this->Points->GetPoint(p[i]));
+  }
+
+  p[0] = 3;
+  p[1] = 10;
+  p[3] = 9;
+  p[2] = 6;
+  for (i = 0; i < 4; i++)
+  {
+    ptIds->InsertNextId(this->PointIds->GetId(p[i]));
+    pts->InsertNextPoint(this->Points->GetPoint(p[i]));
   }
 
   return 1;
