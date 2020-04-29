@@ -814,15 +814,15 @@ void vtkVolumeTexture::ComputeBounds(VolumeBlock* block)
   }
   else if (rGrid)
   {
-    // double bounds[6];
-    // int dims[3];
-    // rGrid->GetBounds(bounds);
-    // rGrid->GetDimensions(dims);
-    // for (int cc = 0; cc < 3; ++cc)
-    // {
-    //   spacing[cc] = (bounds[2 * cc + 1] - bounds[2 * cc]) / dims[cc];
-    //   origin[cc] = bounds[2 * cc];
-    // }
+    double bounds[6];
+    int dims[3];
+    rGrid->GetBounds(bounds);
+    rGrid->GetDimensions(dims);
+    for (int cc = 0; cc < 3; ++cc)
+    {
+      spacing[cc] = (bounds[2 * cc + 1] - bounds[2 * cc]) / dims[cc];
+      origin[cc] = bounds[2 * cc];
+    }
     rGrid->GetExtent(block->Extents);
   }
 
@@ -965,7 +965,7 @@ void vtkVolumeTexture::UpdateTextureToDataMatrix(VolumeBlock* block)
 
   double origin[3];
   double spacing[3];
-  vtkMatrix4x4* directionMat = vtkMatrix4x4::New();
+  vtkMatrix3x3* directionMat = vtkMatrix3x3::New();
   directionMat->Identity();
   if (imData)
   {
