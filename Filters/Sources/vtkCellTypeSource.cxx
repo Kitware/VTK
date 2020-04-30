@@ -56,11 +56,12 @@ const int NumberOf2DCellTypes = 8;
 const int TwoDCellTypes[NumberOf2DCellTypes] = { VTK_TRIANGLE, VTK_QUAD, VTK_QUADRATIC_TRIANGLE,
   VTK_QUADRATIC_QUAD, VTK_LAGRANGE_TRIANGLE, VTK_LAGRANGE_QUADRILATERAL, VTK_BEZIER_TRIANGLE,
   VTK_BEZIER_QUADRILATERAL };
-const int NumberOf3DCellTypes = 14;
+const int NumberOf3DCellTypes = 16;
 const int ThreeDCellTypes[NumberOf3DCellTypes] = { VTK_TETRA, VTK_HEXAHEDRON, VTK_WEDGE,
-  VTK_PYRAMID, VTK_QUADRATIC_TETRA, VTK_QUADRATIC_HEXAHEDRON, VTK_QUADRATIC_WEDGE,
-  VTK_QUADRATIC_PYRAMID, VTK_LAGRANGE_TETRAHEDRON, VTK_LAGRANGE_HEXAHEDRON, VTK_LAGRANGE_WEDGE,
-  VTK_BEZIER_TETRAHEDRON, VTK_BEZIER_HEXAHEDRON, VTK_BEZIER_WEDGE };
+  VTK_PYRAMID, VTK_PENTAGONAL_PRISM, VTK_HEXAGONAL_PRISM, VTK_QUADRATIC_TETRA,
+  VTK_QUADRATIC_HEXAHEDRON, VTK_QUADRATIC_WEDGE, VTK_QUADRATIC_PYRAMID, VTK_LAGRANGE_TETRAHEDRON,
+  VTK_LAGRANGE_HEXAHEDRON, VTK_LAGRANGE_WEDGE, VTK_BEZIER_TETRAHEDRON, VTK_BEZIER_HEXAHEDRON,
+  VTK_BEZIER_WEDGE };
 }
 
 // ----------------------------------------------------------------------------
@@ -320,6 +321,16 @@ int vtkCellTypeSource::RequestData(vtkInformation* vtkNotUsed(request),
     case VTK_PYRAMID:
     {
       this->GeneratePyramids(output, extent);
+      break;
+    }
+    case VTK_PENTAGONAL_PRISM:
+    {
+      this->GeneratePentagonalPrism(output, extent);
+      break;
+    }
+    case VTK_HEXAGONAL_PRISM:
+    {
+      this->GenerateHexagonalPrism(output, extent);
       break;
     }
     case VTK_QUADRATIC_TETRA:
@@ -848,6 +859,115 @@ void vtkCellTypeSource::GeneratePyramids(vtkUnstructuredGrid* output, int extent
         output->InsertNextCell(VTK_PYRAMID, 5, pointIds5);
         vtkIdType pointIds6[5] = { hexIds[6], hexIds[7], hexIds[3], hexIds[2], middlePoint };
         output->InsertNextCell(VTK_PYRAMID, 5, pointIds6);
+      }
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkCellTypeSource::GeneratePentagonalPrism(vtkUnstructuredGrid* output, int extent[6])
+{
+  // cell dimensions
+  const int xDim = extent[1] - extent[0];
+  const int yDim = extent[3] - extent[2];
+  const int zDim = extent[5] - extent[4];
+  output->Allocate(xDim * yDim * zDim);
+
+  EdgeToPointMap edgeToPointId;
+  // pairs go from lower to higher point id
+  const vtkIdType edgePairs[2][2] = { { 0, 2 }, { 5, 7 } };
+
+  for (int k = 0; k < zDim; k++)
+  {
+    for (int j = 0; j < yDim; j++)
+    {
+      for (int i = 0; i < xDim; i++)
+      {
+        vtkIdType hexIds[10] = {
+          i + j * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          -1,
+          i + 1 + j * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + 1 + (j + 1) * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + (j + 1) * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + j * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          -1,
+          i + 1 + j * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + 1 + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+        };
+        int cpt = 0;
+        for (int e = 0; e < 10; e++)
+        {
+          if (hexIds[e] == -1)
+          {
+            double point1[3], point2[3];
+            output->GetPoint(hexIds[edgePairs[cpt][0]], point1);
+            output->GetPoint(hexIds[edgePairs[cpt][1]], point2);
+            for (int l = 0; l < 3; l++)
+            {
+              point1[l] = (point1[l] + point2[l]) * .5;
+            }
+            vtkIdType mid = output->GetPoints()->InsertNextPoint(point1);
+            hexIds[e] = mid;
+            cpt++;
+          }
+        }
+        output->InsertNextCell(VTK_PENTAGONAL_PRISM, 10, hexIds);
+      }
+    }
+  }
+}
+
+void vtkCellTypeSource::GenerateHexagonalPrism(vtkUnstructuredGrid* output, int extent[6])
+{
+  // cell dimensions
+  const int xDim = extent[1] - extent[0];
+  const int yDim = extent[3] - extent[2];
+  const int zDim = extent[5] - extent[4];
+  output->Allocate(xDim * yDim * zDim);
+
+  EdgeToPointMap edgeToPointId;
+  // pairs go from lower to higher point id
+  const vtkIdType edgePairs[4][2] = { { 0, 2 }, { 3, 5 }, { 6, 8 }, { 9, 11 } };
+
+  for (int k = 0; k < zDim; k++)
+  {
+    for (int j = 0; j < yDim; j++)
+    {
+      for (int i = 0; i < xDim; i++)
+      {
+        vtkIdType hexIds[12] = {
+          i + j * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          -1,
+          i + 1 + j * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + 1 + (j + 1) * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          -1,
+          i + (j + 1) * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + j * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          -1,
+          i + 1 + j * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + 1 + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          -1,
+          i + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+        };
+        int cpt = 0;
+        for (int e = 0; e < 12; e++)
+        {
+          if (hexIds[e] == -1)
+          {
+            double point1[3], point2[3];
+            output->GetPoint(hexIds[edgePairs[cpt][0]], point1);
+            output->GetPoint(hexIds[edgePairs[cpt][1]], point2);
+            for (int l = 0; l < 3; l++)
+            {
+              point1[l] = (point1[l] + point2[l]) * .5;
+            }
+            vtkIdType mid = output->GetPoints()->InsertNextPoint(point1);
+            hexIds[e] = mid;
+            cpt++;
+          }
+        }
+        output->InsertNextCell(VTK_HEXAGONAL_PRISM, 12, hexIds);
       }
     }
   }
