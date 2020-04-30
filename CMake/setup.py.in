@@ -123,8 +123,6 @@ setup(
         "Intended Audience :: Healthcare Industry",
         "Intended Audience :: Science/Research",
         "Topic :: Multimedia",
-        "Topic :: Multimedia :: 3D Modeling",
-        "Topic :: Multimedia :: 3D Rendering",
         "Topic :: Scientific/Engineering",
         "Topic :: Scientific/Engineering :: Chemistry",
         "Topic :: Scientific/Engineering :: Information Analysis",
