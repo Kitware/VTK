@@ -58,6 +58,7 @@ with io_open(vtk_readme_path, encoding='utf-8') as fin:
     readme = re.sub(r'\[(.*?)\]: ((?!https://).*)$',
                     r'[\1]: https://gitlab.kitware.com/vtk/vtk/-/raw/master/\2',
                     readme, flags=re.MULTILINE)
+    readme = re.sub(r'raw/master/(.*).md', r'blob/master/\1.md', readme, flags=re.MULTILINE)
 
 python_code_features = {
     'gtk': [],
