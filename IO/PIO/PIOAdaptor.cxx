@@ -247,7 +247,7 @@ int PIOAdaptor::initializeGlobal(const char* PIOFileName)
       std::size_t pos2 = fileCandidate[i].size();
       std::string timeStr = fileCandidate[i].substr(pos1, pos2);
       double time = 0.0;
-      if (timeStr.size() > 0)
+      if (!timeStr.empty())
       {
         char* p;
         std::strtol(timeStr.c_str(), &p, 10);
@@ -269,7 +269,7 @@ int PIOAdaptor::initializeGlobal(const char* PIOFileName)
     vtkGenericWarningMacro("Dump directory does not exist: " << this->dumpDirectory);
     return 0;
   }
-  if (this->dumpFileName.size() == 0)
+  if (this->dumpFileName.empty())
   {
     vtkGenericWarningMacro("No files exist with the base name :" << this->dumpBaseName);
     return 0;

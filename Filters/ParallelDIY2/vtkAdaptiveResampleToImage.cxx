@@ -105,7 +105,7 @@ vtkSmartPointer<vtkIdList> get_ids(vtkDataSetAttributes* source, unsigned char g
 
 bool merge(vtkImageData* target, std::vector<vtkSmartPointer<vtkImageData> >& sources)
 {
-  if (sources.size() == 0)
+  if (sources.empty())
   {
     return false;
   }
@@ -249,7 +249,7 @@ int vtkAdaptiveResampleToImage::RequestData(
         // resample input to image.
         const auto target = out_link.target(cc);
         auto& image_vector = resamples[target.gid];
-        if (image_vector.size() > 0 && target.proc != comm.rank())
+        if (!image_vector.empty() && target.proc != comm.rank())
         {
           // send non-empty data to non-local block only.
           assert(image_vector.size() == 1);
@@ -267,7 +267,7 @@ int vtkAdaptiveResampleToImage::RequestData(
       for (int cc = 0, max = in_link.size(); cc < max; ++cc)
       {
         const auto source = in_link.target(cc);
-        if (rp.incoming(source.gid).size() == 0)
+        if (rp.incoming(source.gid).empty())
         {
           continue;
         }

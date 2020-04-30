@@ -342,7 +342,7 @@ inline void GetGlobalFieldMetaData(
 
   // find a process that has field meta data information (choose the process with
   // minimum rank)
-  int rank = local.size() ? comm.rank() : comm.size();
+  int rank = !local.empty() ? comm.rank() : comm.size();
   int source;
   diy::mpi::all_reduce(comm, rank, source, diy::mpi::minimum<int>());
 

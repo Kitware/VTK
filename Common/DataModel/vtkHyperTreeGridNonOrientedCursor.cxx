@@ -210,7 +210,7 @@ void vtkHyperTreeGridNonOrientedCursor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "--vtkHyperTreeGridNonOrientedCursor--" << endl;
   os << indent << "Level: " << this->GetLevel() << endl;
   this->Tree->PrintSelf(os, indent);
-  if (this->Entries.size())
+  if (!this->Entries.empty())
   {
     os << indent << "LastValidEntry: " << this->LastValidEntry << endl;
     this->Entries[this->LastValidEntry].PrintSelf(os, indent);

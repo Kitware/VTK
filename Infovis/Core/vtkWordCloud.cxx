@@ -167,7 +167,7 @@ int vtkWordCloud::RequestData(vtkInformation* vtkNotUsed(request),
   vtkImageData* output = vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Check some parameters before we start
-  if (this->FileName.size() == 0)
+  if (this->FileName.empty())
   {
     vtkErrorMacro(<< "No FileName is set. Use SetFileName to set a file.");
     return 0;
@@ -177,17 +177,17 @@ int vtkWordCloud::RequestData(vtkInformation* vtkNotUsed(request),
     vtkErrorMacro(<< "FileName " << this->FileName << " does not exist");
     return 0;
   }
-  if (this->FontFileName.size() > 0 && !vtksys::SystemTools::FileExists(this->FontFileName, true))
+  if (!this->FontFileName.empty() && !vtksys::SystemTools::FileExists(this->FontFileName, true))
   {
     vtkErrorMacro(<< "FontFileName " << this->FontFileName << " does not exist");
     return 0;
   }
-  if (this->MaskFileName.size() > 0 && !vtksys::SystemTools::FileExists(this->MaskFileName, true))
+  if (!this->MaskFileName.empty() && !vtksys::SystemTools::FileExists(this->MaskFileName, true))
   {
     vtkErrorMacro(<< "MaskFileName " << this->MaskFileName << " does not exist");
     return 0;
   }
-  if (this->StopListFileName.size() > 0 &&
+  if (!this->StopListFileName.empty() &&
     !vtksys::SystemTools::FileExists(this->StopListFileName, true))
   {
     vtkErrorMacro(<< "StopListFileName " << this->StopListFileName << " does not exist");
@@ -218,7 +218,7 @@ int vtkWordCloud::RequestData(vtkInformation* vtkNotUsed(request),
   auto maskImage = vtkSmartPointer<vtkImageData>::New();
 
   // If a mask file is not defined, create a rectangular
-  if (this->MaskFileName == "")
+  if (this->MaskFileName.empty())
   {
     auto defaultMask = vtkSmartPointer<vtkImageCanvasSource2D>::New();
     defaultMask->SetScalarTypeToUnsignedChar();
@@ -292,7 +292,7 @@ int vtkWordCloud::RequestData(vtkInformation* vtkNotUsed(request),
     std::vector<double> orientations;
     // If discrete orientations are present use them, otherwise
     // generate random orientations
-    if (this->Orientations.size() != 0)
+    if (!this->Orientations.empty())
     {
       orientations = this->Orientations;
     }
@@ -307,7 +307,7 @@ int vtkWordCloud::RequestData(vtkInformation* vtkNotUsed(request),
     {
       added =
         ::AddWordToFinal(this, element.first, element.second, mt, o, offset, final, errorMessage);
-      if (errorMessage.size() != 0)
+      if (!errorMessage.empty())
       {
         vtkErrorMacro(<< errorMessage);
         return 0;
@@ -406,7 +406,7 @@ std::multiset<std::pair<std::string, int>, Comparator> FindWordsSortedByFrequenc
 
   // If a StopListFileName is defined, use it, otherwise use the
   // built-in StopList.
-  if (wordCloud->GetStopListFileName().size() > 0)
+  if (!wordCloud->GetStopListFileName().empty())
   {
     CreateStopListFromFile(wordCloud->GetStopListFileName(), stopList);
   }
@@ -544,7 +544,7 @@ bool AddWordToFinal(vtkWordCloud* wordCloud, const std::string word, const int f
     colorScheme->SetColorSchemeByName(wordCloud->GetColorSchemeName());
     vtkColor3ub color =
       colorScheme->GetColorRepeating(static_cast<int>(wordCloud->GetKeptWords().size()));
-    if (color.Compare(colors->GetColor3ub("black"), 1) && wordCloud->GetKeptWords().size() == 0)
+    if (color.Compare(colors->GetColor3ub("black"), 1) && wordCloud->GetKeptWords().empty())
     {
       std::ostringstream validNames;
       ShowColorSeriesNames(validNames);

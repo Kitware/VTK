@@ -91,7 +91,7 @@ static void push_scope(const char* id, std::shared_ptr<loguru::LogScopeRAII> ptr
 static void pop_scope(const char* id)
 {
   auto& vector = get_vector();
-  if (vector.size() > 0 && vector.back().first == id)
+  if (!vector.empty() && vector.back().first == id)
   {
     vector.pop_back();
 

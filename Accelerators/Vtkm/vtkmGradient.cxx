@@ -96,7 +96,7 @@ int vtkmGradient::RequestData(
     const bool fieldIsScalar =
       inputArray->GetDataType() == VTK_FLOAT || inputArray->GetDataType() == VTK_DOUBLE;
     const bool fieldValid =
-      (fieldIsPoint || fieldIsCell) && fieldIsScalar && (field.GetName() != std::string());
+      (fieldIsPoint || fieldIsCell) && fieldIsScalar && !field.GetName().empty();
 
     if (!fieldValid)
     {

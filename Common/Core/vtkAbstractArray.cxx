@@ -738,7 +738,7 @@ void vtkAbstractArray::UpdateDiscreteValueSet(double uncertainty, double minimum
   vtkInformationVector* iv;
   for (c = 0; c < nc; ++c)
   {
-    if (uniques[c].size() && uniques[c].size() <= this->MaxDiscreteValues)
+    if (!uniques[c].empty() && uniques[c].size() <= this->MaxDiscreteValues)
     {
       ++numberOfComponentsWithProminentValues;
       iv = this->GetInformation()->Get(PER_COMPONENT());

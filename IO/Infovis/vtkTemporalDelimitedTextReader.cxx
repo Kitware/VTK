@@ -185,7 +185,7 @@ int vtkTemporalDelimitedTextReader::RequestData(vtkInformation* vtkNotUsed(reque
 
   this->UpdateProgress(0.5);
 
-  if (this->TimeMap.size())
+  if (!this->TimeMap.empty())
   {
     // Generate an empty output with the same structure
     vtkTable* outputTable = vtkTable::GetData(outputVector, 0);

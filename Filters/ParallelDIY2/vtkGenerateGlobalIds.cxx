@@ -320,7 +320,7 @@ struct PointTT
   static std::vector<vtkIdType> GenerateMergeMap(const std::vector<PointTT>& points)
   {
     std::vector<vtkIdType> mergemap(points.size(), -1);
-    if (points.size() == 0)
+    if (points.empty())
     {
       return mergemap;
     }
@@ -410,7 +410,7 @@ struct CellTT
   static std::vector<vtkIdType> GenerateMergeMap(const std::vector<CellTT>& cells)
   {
     std::vector<vtkIdType> mergemap(cells.size(), -1);
-    if (cells.size() == 0)
+    if (cells.empty())
     {
       return mergemap;
     }

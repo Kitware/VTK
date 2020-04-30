@@ -181,7 +181,7 @@ int vtkSurfaceLICTestDriver(int argc, char** argv, vtkDataObject* dataObj, int n
   cerr << details << endl;
 
   // If user chose a vector field, select it.
-  if (vectors != "")
+  if (!vectors.empty())
   {
     mapper->SetInputArrayToProcess(
       0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS, vectors.c_str());

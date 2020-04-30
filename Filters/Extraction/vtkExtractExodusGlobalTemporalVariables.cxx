@@ -91,7 +91,7 @@ public:
         if (key && key->GetName() && strcmp(key->GetName(), "GLOBAL_TEMPORAL_VARIABLE") == 0 &&
           arr->GetName())
         {
-          if (arrays.size() == 0 ||
+          if (arrays.empty() ||
             arrays.begin()->second->GetNumberOfTuples() == arr->GetNumberOfTuples())
           {
             arrays[arr->GetName()] = arr;
@@ -100,7 +100,7 @@ public:
       }
     }
 
-    if (arrays.size() == 0)
+    if (arrays.empty())
     {
       return false;
     }
@@ -253,7 +253,7 @@ int vtkExtractExodusGlobalTemporalVariables::RequestUpdateExtent(vtkInformation*
   // restarts. In case of restarts, have to start from the first timestep since
   // it's unclear how to know which set of timesteps are provided by the current
   // dataset.
-  if (internals.InContinueExecuting && internals.TimeSteps.size() > 0 &&
+  if (internals.InContinueExecuting && !internals.TimeSteps.empty() &&
     internals.Offset < internals.TimeSteps.size())
   {
     const double timeReq = internals.TimeSteps[internals.Offset];
@@ -277,7 +277,7 @@ int vtkExtractExodusGlobalTemporalVariables::RequestData(
 
   auto& internals = (*this->Internals);
   internals.InContinueExecuting = false;
-  if (internals.TimeSteps.size() == 0)
+  if (internals.TimeSteps.empty())
   {
     // nothing to do when data is not temporal.
     vtkLogF(TRACE, "rd: no ts, nothing to do");

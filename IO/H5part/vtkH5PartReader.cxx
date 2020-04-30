@@ -510,7 +510,7 @@ int vtkH5PartReader::RequestData(vtkInformation* vtkNotUsed(request),
   typedef std::map<std::string, std::vector<std::string> > FieldMap;
   FieldMap scalarFields;
   //
-  if (this->TimeStepValues.size() == 0)
+  if (this->TimeStepValues.empty())
   {
     return 0;
   }

@@ -105,7 +105,7 @@ OSPTexture vtkOSPRayMaterialHelpers::VTKToOSPTexture(
     }
 
     t2d = vtkOSPRayMaterialHelpers::NewTexture2D(backend, osp::vec2i{ xsize + 1, ysize + 1 },
-      format[comps - 1], chars.size() > 0 ? chars.data() : vColorTextureMap->GetScalarPointer(),
+      format[comps - 1], chars.empty() ? vColorTextureMap->GetScalarPointer() : chars.data(),
       OSP_TEXTURE_FILTER_NEAREST, sizeof(char) * comps);
   }
   else if (scalartype == VTK_FLOAT)
@@ -132,7 +132,7 @@ OSPTexture vtkOSPRayMaterialHelpers::VTKToOSPTexture(
       comps = 3;
     }
     t2d = vtkOSPRayMaterialHelpers::NewTexture2D(backend, osp::vec2i{ xsize + 1, ysize + 1 },
-      format[comps - 1], floats.size() > 0 ? floats.data() : vColorTextureMap->GetScalarPointer(),
+      format[comps - 1], floats.empty() ? vColorTextureMap->GetScalarPointer() : floats.data(),
       OSP_TEXTURE_FILTER_NEAREST, sizeof(float) * comps);
   }
   else
@@ -258,7 +258,7 @@ OSPMaterial vtkOSPRayMaterialHelpers::MakeMaterial(
         case vtkOSPRayMaterialLibrary::ParameterType::FLOAT_DATA:
         {
           auto values = ml->GetDoubleShaderVariable(nickname, param.first);
-          if (values.size() > 0)
+          if (!values.empty())
           {
             std::vector<float> fvalues(values.begin(), values.end());
             OSPData data = ospNewData(fvalues.size() / 3, OSP_FLOAT3, fvalues.data());

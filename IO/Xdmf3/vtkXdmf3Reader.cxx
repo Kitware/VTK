@@ -354,7 +354,7 @@ private:
         this->PointArrays, this->GridsCache, this->SetsCache, updatePiece, updateNumPieces);
     visitor->InspectXDMF(this->Domain, -1);
     visitor->ClearGridsIfNeeded(this->Domain);
-    if (this->TimeSteps.size())
+    if (!this->TimeSteps.empty())
     {
       this->TimeSteps.erase(this->TimeSteps.begin());
     }
@@ -536,7 +536,7 @@ int vtkXdmf3Reader::RequestInformation(
   outInfo->Set(vtkDataObject::SIL(), this->Internal->GetSIL());
 
   // Publish the times that we have data for
-  if (this->Internal->TimeSteps.size() > 0)
+  if (!this->Internal->TimeSteps.empty())
   {
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &this->Internal->TimeSteps[0],
       static_cast<int>(this->Internal->TimeSteps.size()));
@@ -658,7 +658,7 @@ int vtkXdmf3Reader::RequestData(
   double time = 0.0;
   bool doTime = false;
   if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()) &&
-    this->Internal->TimeSteps.size())
+    !this->Internal->TimeSteps.empty())
   {
     doTime = true;
     time = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());

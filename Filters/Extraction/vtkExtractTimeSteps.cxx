@@ -191,7 +191,7 @@ int vtkExtractTimeSteps::RequestUpdateExtent(vtkInformation* vtkNotUsed(request)
     getTimeSteps(
       inInfo, this->TimeStepIndices, this->UseRange, this->Range, this->TimeStepInterval, outTimes);
 
-    if (outTimes.size() == 0)
+    if (outTimes.empty())
     {
       vtkErrorMacro("Input has no time steps.");
       return 0;

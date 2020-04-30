@@ -487,7 +487,7 @@ int vtkExtractSubsetWithSeed::RequestData(
 
   // since we're using collectives, if a rank has no blocks this can fall part
   // very quickly (see paraview/paraview#19391); hence we add a single block.
-  if (datasets.size() == 0)
+  if (datasets.empty())
   {
     datasets.push_back(nullptr);
   }
@@ -623,7 +623,7 @@ int vtkExtractSubsetWithSeed::RequestData(
         cp.incoming(incoming);
         for (const int& gid : incoming)
         {
-          if (cp.incoming(gid).size() > 0)
+          if (!cp.incoming(gid).empty())
           {
             assert(b->Input != nullptr); // we should not be getting messages if we don't have data!
             std::vector<SeedT> next_seeds;
@@ -649,7 +649,7 @@ int vtkExtractSubsetWithSeed::RequestData(
         next_seeds.insert(next_seeds.end(), new_seeds.begin(), new_seeds.end());
       }
 
-      if (next_seeds.size() > 0)
+      if (!next_seeds.empty())
       {
         // enqueue
         for (const auto& neighbor : cp.link()->neighbors())
@@ -662,7 +662,7 @@ int vtkExtractSubsetWithSeed::RequestData(
 
       cp.collectives()->clear();
 
-      const int has_seeds = (next_seeds.size() > 0) ? 1 : 0;
+      const int has_seeds = static_cast<int>(!next_seeds.empty());
       cp.all_reduce(has_seeds, std::logical_or<int>());
     });
     vtkLogF(TRACE, "r=%d, exchange", round);

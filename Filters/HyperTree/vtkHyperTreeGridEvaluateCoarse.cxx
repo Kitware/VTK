@@ -215,7 +215,7 @@ double vtkHyperTreeGridEvaluateCoarse::EvalCoarse(const std::vector<double>& arr
 //----------------------------------------------------------------------------
 double vtkHyperTreeGridEvaluateCoarse::Min(const std::vector<double>& array)
 {
-  if (array.size() == 0)
+  if (array.empty())
   {
     return NAN;
   }
@@ -233,7 +233,7 @@ double vtkHyperTreeGridEvaluateCoarse::Min(const std::vector<double>& array)
 //----------------------------------------------------------------------------
 double vtkHyperTreeGridEvaluateCoarse::Max(const std::vector<double>& array)
 {
-  if (array.size() == 0)
+  if (array.empty())
   {
     return NAN;
   }
@@ -262,7 +262,7 @@ double vtkHyperTreeGridEvaluateCoarse::Sum(const std::vector<double>& array)
 //----------------------------------------------------------------------------
 double vtkHyperTreeGridEvaluateCoarse::Average(const std::vector<double>& array)
 {
-  if (array.size() == 0)
+  if (array.empty())
   {
     return this->Default;
   }
@@ -277,7 +277,7 @@ double vtkHyperTreeGridEvaluateCoarse::Average(const std::vector<double>& array)
 //----------------------------------------------------------------------------
 double vtkHyperTreeGridEvaluateCoarse::UnmaskedAverage(const std::vector<double>& array)
 {
-  if (array.size() == 0)
+  if (array.empty())
   {
     return NAN;
   }
@@ -287,7 +287,7 @@ double vtkHyperTreeGridEvaluateCoarse::UnmaskedAverage(const std::vector<double>
 //----------------------------------------------------------------------------
 double vtkHyperTreeGridEvaluateCoarse::ElderChild(const std::vector<double>& array)
 {
-  if (array.size() == 0)
+  if (array.empty())
   {
     return NAN;
   }
@@ -297,7 +297,7 @@ double vtkHyperTreeGridEvaluateCoarse::ElderChild(const std::vector<double>& arr
 //----------------------------------------------------------------------------
 double vtkHyperTreeGridEvaluateCoarse::SplattingAverage(const std::vector<double>& array)
 {
-  if (array.size() == 0)
+  if (array.empty())
   {
     return this->Default;
   }

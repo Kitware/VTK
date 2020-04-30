@@ -907,7 +907,7 @@ struct action<MotionFX::CFG::Value>
   {
     auto content = in.string();
     // the value can have trailing spaces; remove them.
-    while (content.size() > 0 && std::isspace(content.back()))
+    while (!content.empty() && std::isspace(content.back()))
     {
       content.pop_back();
     }
@@ -1051,7 +1051,7 @@ public:
     tao::pegtl::read_input<> in(filename);
     Actions::CFG::ActiveState state(this->Motions);
     tao::pegtl::parse<MotionFX::CFG::Grammar, Actions::CFG::action>(in, state);
-    if (this->Motions.size() == 0)
+    if (this->Motions.empty())
     {
       vtkGenericWarningMacro(
         "No valid 'motions' were parsed from the CFG file. "
@@ -1092,7 +1092,7 @@ public:
       iter = this->Motions.erase(iter);
     }
 
-    if (this->Motions.size() == 0)
+    if (this->Motions.empty())
     {
       vtkGenericWarningMacro("All parsed `motion`s were skipped!");
       return false;

@@ -158,7 +158,7 @@ public:
   // 2. offset is same as the start offset for this record.
   bool AtStart(vtkTypeUInt64 offset)
   {
-    return (this->SubRecords.size() == 0 || this->SubRecords.front().HeaderOffset == offset);
+    return (this->SubRecords.empty() || this->SubRecords.front().HeaderOffset == offset);
   }
 
   // Description:
@@ -167,8 +167,8 @@ public:
   // 2. offset is at the end of this record i.e. the start of the next record.
   bool AtEnd(vtkTypeUInt64 offset)
   {
-    return (this->SubRecords.size() == 0 ||
-      (this->SubRecords.back().FooterOffset + sizeof(int) == offset));
+    return (
+      this->SubRecords.empty() || (this->SubRecords.back().FooterOffset + sizeof(int) == offset));
   }
 
   // Description:

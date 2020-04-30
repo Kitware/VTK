@@ -147,14 +147,14 @@ int TestSurfaceLIC(int argc, char* argv[])
   arg.AddArgument("--camera-config", argT::EQUAL_ARGUMENT, &camera_config,
     "(optional: default 1) use a preset camera configuration");
 
-  if (!arg.Parse() || filename == "")
+  if (!arg.Parse() || filename.empty())
   {
     cerr << "Usage: " << endl;
     cerr << arg.GetHelp() << endl;
     return 1;
   }
 
-  if (mask_color_rgb.size() == 0)
+  if (mask_color_rgb.empty())
   {
     // something bright for the default.
     mask_color_rgb.resize(3);

@@ -1557,7 +1557,8 @@ vtkTextureObject* vtkLineIntegralConvolution2D::Execute(
       FindMinMax(licTex, computeExtents2, grayMin, grayMax);
 #endif
 
-      if (computeExtents2.size() && ((grayMax <= grayMin) || (grayMax > 1.0f) || (grayMin < 0.0f)))
+      if (!computeExtents2.empty() &&
+        ((grayMax <= grayMin) || (grayMax > 1.0f) || (grayMin < 0.0f)))
       {
         vtkErrorMacro(<< comm->GetRank() << " : Invalid color range " << grayMin << ", " << grayMax
                       << ". Normlaization pass skipped");
@@ -1846,7 +1847,7 @@ vtkTextureObject* vtkLineIntegralConvolution2D::Execute(
     FindMinMax(licTex, computeExtents2, grayMin, grayMax);
 #endif
 
-    if (computeExtents2.size() && ((grayMax <= grayMin) || (grayMax > 1.0f) || (grayMin < 0.0f)))
+    if (!computeExtents2.empty() && ((grayMax <= grayMin) || (grayMax > 1.0f) || (grayMin < 0.0f)))
     {
       vtkErrorMacro(<< comm->GetRank() << " : Invalid intensity range " << grayMin << ", "
                     << grayMax << "for contrast enhancement");

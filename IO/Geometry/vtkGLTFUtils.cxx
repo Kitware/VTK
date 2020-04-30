@@ -86,7 +86,7 @@ bool vtkGLTFUtils::GetIntArray(const Json::Value& root, std::vector<int>& value)
     }
     value.push_back(intValue.asInt());
   }
-  if (value.size() == 0)
+  if (value.empty())
   {
     value.clear();
     return false;
@@ -111,7 +111,7 @@ bool vtkGLTFUtils::GetUIntArray(const Json::Value& root, std::vector<unsigned in
     }
     value.push_back(uIntValue.asUInt());
   }
-  if (value.size() == 0)
+  if (value.empty())
   {
     value.clear();
     return false;
@@ -136,7 +136,7 @@ bool vtkGLTFUtils::GetFloatArray(const Json::Value& root, std::vector<float>& va
     }
     value.push_back(floatValue.asDouble());
   }
-  if (value.size() == 0)
+  if (value.empty())
   {
     value.clear();
     return false;
@@ -161,7 +161,7 @@ bool vtkGLTFUtils::GetDoubleArray(const Json::Value& root, std::vector<double>& 
     }
     value.push_back(doubleValue.asDouble());
   }
-  if (value.size() == 0)
+  if (value.empty())
   {
     value.clear();
     return false;
@@ -333,7 +333,7 @@ bool vtkGLTFUtils::ValidateGLBFile(const std::string& magic, uint32_t version, u
   {
     return false;
   }
-  if (chunkInfo.size() == 0)
+  if (chunkInfo.empty())
   {
     return false;
   }

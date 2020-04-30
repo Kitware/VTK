@@ -110,7 +110,7 @@ int ImageDataLIC2D(int argc, char* argv[])
   arg.AddArgument("--noise", argT::EQUAL_ARGUMENT, &noise_filename,
     "(optional) Specify the filename to a png image file to use as the noise texture.");
 
-  if (!arg.Parse() || filename == "")
+  if (!arg.Parse() || filename.empty())
   {
     cerr << "Problem parsing arguments." << endl;
     cerr << arg.GetHelp() << endl;
@@ -144,7 +144,7 @@ int ImageDataLIC2D(int argc, char* argv[])
 
   // load noise
   vtkSmartPointer<vtkImageData> noise;
-  if (noise_filename != "")
+  if (!noise_filename.empty())
   {
     vtkSmartPointer<vtkPNGReader> pngReader = vtkSmartPointer<vtkPNGReader>::New();
 
@@ -351,7 +351,7 @@ int ImageDataLIC2D(int argc, char* argv[])
   licPng = nullptr;
 
   // save a png
-  if (outputpath != "")
+  if (!outputpath.empty())
   {
     vtkSmartPointer<vtkPNGWriter> writer = vtkSmartPointer<vtkPNGWriter>::New();
 

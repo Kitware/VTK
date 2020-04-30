@@ -1029,7 +1029,7 @@ void vtkOSPRayRendererNode::Traverse(int operation)
   bool bgreused = envreused && bpreused;
   ospRelease(this->OLightArray);
   this->OLightArray = ospNewData(
-    this->Lights.size(), OSP_OBJECT, (this->Lights.size() ? &this->Lights[0] : nullptr), 0);
+    this->Lights.size(), OSP_OBJECT, (this->Lights.empty() ? nullptr : &this->Lights[0]), 0);
   ospSetData(oRenderer, "lights", this->OLightArray);
 
   // actors
