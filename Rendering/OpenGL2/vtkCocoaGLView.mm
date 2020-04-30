@@ -543,19 +543,31 @@ static const char* vtkMacKeyCodeToKeySymTable[128] = { nullptr, nullptr, nullptr
 // Private
 - (void)modifyDPIForBackingScaleFactorOfWindow:(/*nullable*/ NSWindow*)window
 {
-  if (window)
+  // Convert from points to pixels.
+  NSRect viewRect = [self frame];
+  NSRect backingViewRect = [self convertRectToBacking:viewRect];
+  CGFloat viewHeight = NSHeight(viewRect);
+  CGFloat backingViewHeight = NSHeight(backingViewRect);
+  CGFloat backingScaleFactor = 1.0;
+  if (viewHeight > 0.0 && backingViewHeight > 0.0)
   {
-    CGFloat backingScaleFactor = [window backingScaleFactor];
-    assert(backingScaleFactor >= 1.0);
+    // the scale factor based on convertRectToBacking
+    backingScaleFactor = backingViewHeight / viewHeight;
+  }
+  else if (window)
+  {
+    // fall back to less reliable method
+    backingScaleFactor = [window backingScaleFactor];
+  }
+  assert(backingScaleFactor >= 1.0);
 
-    vtkCocoaRenderWindow* renderWindow = [self getVTKRenderWindow];
-    if (renderWindow)
-    {
-      // Ordinarily, DPI is hardcoded to 72, but in order for vtkTextActors
-      // to have the correct apparent size, we adjust it per the NSWindow's
-      // scaling factor.
-      renderWindow->SetDPI(lround(72.0 * backingScaleFactor));
-    }
+  vtkCocoaRenderWindow* renderWindow = [self getVTKRenderWindow];
+  if (renderWindow)
+  {
+    // Ordinarily, DPI is hardcoded to 72, but in order for vtkTextActors
+    // to have the correct apparent size, we adjust it per the NSWindow's
+    // scaling factor.
+    renderWindow->SetDPI(lround(72.0 * backingScaleFactor));
   }
 }
 
