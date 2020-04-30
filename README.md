@@ -1,6 +1,4 @@
-![VTK - The Visualization Toolkit][VTK Banner]
-
-[VTK Banner]: vtkBanner.gif
+![VTK - The Visualization Toolkit][vtk-banner]
 
 Introduction
 ============
@@ -26,38 +24,29 @@ communities.
 Learning Resources
 ==================
 
-* General information is available at the [VTK Homepage][].
+* General information is available at the [VTK Homepage][vtk-homepage].
 
-* Community discussion takes place on the [VTK Discourse][] forum.
+* Community discussion takes place on the [VTK Discourse][vtk-discourse] forum.
 
-* Commercial [support][Kitware Support] and [training][Kitware Training]
-  are available from [Kitware][].
+* Commercial [support][kitware-support] and [training][kitware-training]
+  are available from [Kitware][kitware].
 
 * Doxygen-generated nightly reference documentation is
-  available [online][Doxygen].
-
-[VTK Homepage]: https://www.vtk.org/
-[Doxygen]: https://www.vtk.org/doc/nightly/html
-[VTK Discourse]: https://discourse.vtk.org/
-[Kitware]: https://www.kitware.com/
-[Kitware Support]: https://www.kitware.com/what-we-offer/#support
-[Kitware Training]: https://www.kitware.com/what-we-offer/#training
+  available [online][vtk-doxygen].
 
 Reporting Bugs
 ==============
 
 If you have found a bug:
 
-1. If you have a patch, please read the [CONTRIBUTING.md][] document.
+1. If you have a patch, please read the [CONTRIBUTING.md][vtk-contributing] document.
 
-2. Otherwise, please join the [VTK Discourse][] forum and ask
+2. Otherwise, please join the [VTK Discourse][vtk-discourse] forum and ask
    about the expected and observed behaviors to determine if it is
    really a bug.
 
 3. Finally, if the issue is not resolved by the above steps, open
-   an entry in the [VTK Issue Tracker][].
-
-[VTK Issue Tracker]: https://gitlab.kitware.com/vtk/vtk/issues
+   an entry in the [VTK Issue Tracker][vtk-issues].
 
 Requirements
 ============
@@ -79,14 +68,22 @@ VTK supports the following operating systems:
 Contributing
 ============
 
-See [CONTRIBUTING.md][] for instructions to contribute.
-
-[CONTRIBUTING.md]: CONTRIBUTING.md
+See [CONTRIBUTING.md][vtk-contributing] for instructions to contribute.
 
 License
 =======
 
 VTK is distributed under the OSI-approved BSD 3-clause License.
-See [Copyright.txt][] for details.
+See [Copyright.txt][vtk-copyright] for details.
 
-[Copyright.txt]: Copyright.txt
+
+[kitware]: https://www.kitware.com/
+[kitware-support]: https://www.kitware.com/what-we-offer/#support
+[kitware-training]: https://www.kitware.com/what-we-offer/#training
+[vtk-banner]: vtkBanner.gif
+[vtk-contributing]: CONTRIBUTING.md#contributing-to-vtk
+[vtk-copyright]: Copyright.txt
+[vtk-discourse]: https://discourse.vtk.org/
+[vtk-doxygen]: https://www.vtk.org/doc/nightly/html
+[vtk-homepage]: https://www.vtk.org/
+[vtk-issues]: https://gitlab.kitware.com/vtk/vtk/issues
