@@ -2496,13 +2496,6 @@ void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(
         vtkMatrix3x3::Multiply3x3(anorms, norms, this->TempMatrix3);
         program->SetUniformMatrix("normalMatrix", this->TempMatrix3);
       }
-      if (program->IsUniformUsed("envMatrix"))
-      {
-        vtkMatrix3x3::Multiply3x3(anorms, norms, this->TempMatrix3);
-        this->TempMatrix3->Invert();
-        vtkMatrix3x3::Multiply3x3(this->TempMatrix3, env, this->TempMatrix3);
-        program->SetUniformMatrix("envMatrix", this->TempMatrix3);
-      }
     }
     else
     {
@@ -2516,12 +2509,6 @@ void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(
       if (program->IsUniformUsed("normalMatrix"))
       {
         program->SetUniformMatrix("normalMatrix", norms);
-      }
-      if (program->IsUniformUsed("envMatrix"))
-      {
-        vtkMatrix3x3::Invert(norms, this->TempMatrix3);
-        vtkMatrix3x3::Multiply3x3(this->TempMatrix3, env, this->TempMatrix3);
-        program->SetUniformMatrix("envMatrix", this->TempMatrix3);
       }
     }
   }
@@ -2544,13 +2531,6 @@ void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(
         vtkMatrix3x3::Multiply3x3(anorms, norms, this->TempMatrix3);
         program->SetUniformMatrix("normalMatrix", this->TempMatrix3);
       }
-      if (program->IsUniformUsed("envMatrix"))
-      {
-        vtkMatrix3x3::Multiply3x3(anorms, norms, this->TempMatrix3);
-        this->TempMatrix3->Invert();
-        vtkMatrix3x3::Multiply3x3(this->TempMatrix3, env, this->TempMatrix3);
-        program->SetUniformMatrix("envMatrix", this->TempMatrix3);
-      }
     }
     else
     {
@@ -2562,12 +2542,6 @@ void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(
       if (program->IsUniformUsed("normalMatrix"))
       {
         program->SetUniformMatrix("normalMatrix", norms);
-      }
-      if (program->IsUniformUsed("envMatrix"))
-      {
-        vtkMatrix3x3::Invert(norms, this->TempMatrix3);
-        vtkMatrix3x3::Multiply3x3(this->TempMatrix3, env, this->TempMatrix3);
-        program->SetUniformMatrix("envMatrix", this->TempMatrix3);
       }
     }
   }
