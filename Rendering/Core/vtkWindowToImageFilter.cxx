@@ -208,7 +208,7 @@ void vtkWindowToImageFilter::RequestInformation(vtkInformation* vtkNotUsed(reque
   }
 
   // set the extent
-  int* size = this->Input->GetSize();
+  const int* size = this->Input->GetSize();
   int wExtent[6];
   wExtent[0] = 0;
   wExtent[1] =

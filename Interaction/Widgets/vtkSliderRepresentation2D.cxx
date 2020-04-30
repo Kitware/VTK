@@ -362,7 +362,7 @@ void vtkSliderRepresentation2D::BuildRepresentation()
     (this->Renderer && this->Renderer->GetVTKWindow() &&
       this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime))
   {
-    int* size = this->Renderer->GetSize();
+    const int* size = this->Renderer->GetSize();
     if (0 == size[0] || 0 == size[1])
     {
       // Renderer has no size yet: wait until the next

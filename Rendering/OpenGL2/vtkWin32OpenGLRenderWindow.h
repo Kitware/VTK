@@ -86,32 +86,42 @@ public:
 
   //@{
   /**
-   * Set the size of the window in pixels.
+   * Set the size (width and height) of the rendering window in
+   * screen coordinates (in pixels). This resizes the operating
+   * system's view/window and redraws it.
+   *
+   * If the size has changed, this method will fire
+   * vtkCommand::WindowResizeEvent.
    */
-  void SetSize(int, int) override;
-  void SetSize(int a[2]) override { vtkOpenGLRenderWindow::SetSize(a); }
+  void SetSize(int width, int height) override;
+  void SetSize(int a[2]) override { this->SetSize(a[0], a[1]); }
   //@}
 
   /**
-   * Get the current size of the window in pixels.
+   * Get the size (width and height) of the rendering window in
+   * screen coordinates (in pixels).
    */
   int* GetSize() VTK_SIZEHINT(2) override;
 
   //@{
   /**
-   * Set the position of the window.
+   * Set the position (x and y) of the rendering window in
+   * screen coordinates (in pixels). This resizes the operating
+   * system's view/window and redraws it.
    */
-  void SetPosition(int, int) override;
-  void SetPosition(int a[2]) override { vtkOpenGLRenderWindow::SetPosition(a); }
+  void SetPosition(int x, int y) override;
+  void SetPosition(int a[2]) override { this->SetPosition(a[0], a[1]); }
   //@}
 
   /**
    * Get the current size of the screen in pixels.
+   * An HDTV for example would be 1920 x 1080 pixels.
    */
   int* GetScreenSize() VTK_SIZEHINT(2) override;
 
   /**
-   * Get the position in screen coordinates of the window.
+   * Get the position (x and y) of the rendering window in
+   * screen coordinates (in pixels).
    */
   int* GetPosition() VTK_SIZEHINT(2) override;
 
@@ -216,14 +226,14 @@ public:
   /**
    * Is this render window using hardware acceleration? 0-false, 1-true
    */
-  int IsDirect() override;
+  vtkTypeBool IsDirect() override;
 
   /**
    * Check to see if a mouse button has been pressed or mouse wheel activated.
    * All other events are ignored by this method.
    * This is a useful check to abort a long render.
    */
-  int GetEventPending() override;
+  vtkTypeBool GetEventPending() override;
 
   //@{
   /**
@@ -294,21 +304,18 @@ protected:
   HWND WindowId;
   HWND ParentId;
   HWND NextWindowId;
-  int OwnWindow;
-  int ScreenSize[2];
+  vtkTypeBool OwnWindow;
   static const std::string DEFAULT_BASE_WINDOW_NAME;
 
   std::stack<HGLRC> ContextStack;
   std::stack<HDC> DCStack;
 
-  int CreatingOffScreenWindow; // to avoid recursion (and memory leaks...)
-
   // message handler
   virtual LRESULT MessageProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
   static LRESULT APIENTRY WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-  int CursorHidden;
-  int ForceMakeCurrent;
+  vtkTypeBool CursorHidden;
+  vtkTypeBool ForceMakeCurrent;
 
   int WindowIdReferenceCount;
   void ResizeWhileOffscreen(int xsize, int ysize);

@@ -180,7 +180,7 @@ bool vtkOpenGLProjectedTetrahedraMapper::AllocateFOResources(vtkRenderer* r)
   vtkOpenGLClearErrorMacro();
   scoped_annotate annotator("PTM::AllocateFOResources");
 
-  int* size = r->GetSize();
+  const int* size = r->GetSize();
 
   if (this->UseFloatingPointFrameBuffer && this->CanDoFloatingPointFrameBuffer &&
     (!this->FloatingPointFrameBufferResourcesAllocated || (size[0] != this->CurrentFBOWidth) ||

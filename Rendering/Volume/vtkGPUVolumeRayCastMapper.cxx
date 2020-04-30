@@ -449,7 +449,7 @@ void vtkGPUVolumeRayCastMapper::CreateCanonicalView(vtkRenderer* ren, vtkVolume*
 
   int dim[3];
   image->GetDimensions(dim);
-  int* size = ren->GetRenderWindow()->GetSize();
+  const int* size = ren->GetRenderWindow()->GetSize();
 
   vtkImageData* bigImage = vtkImageData::New();
   bigImage->SetDimensions(size[0], size[1], 1);

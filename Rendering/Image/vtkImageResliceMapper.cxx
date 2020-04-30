@@ -197,7 +197,7 @@ void vtkImageResliceMapper::Update(int port)
     ren = this->GetCurrentRenderer();
     if (ren && prop)
     {
-      int* rsize = ren->GetSize();
+      const int* rsize = ren->GetSize();
       int maxrsize = (rsize[0] > rsize[1] ? rsize[0] : rsize[1]);
       int* isize = this->GetInput()->GetDimensions();
       int maxisize = (isize[0] > isize[1] ? isize[0] : isize[1]);
@@ -227,7 +227,7 @@ void vtkImageResliceMapper::Update(int port)
       if (ren)
       {
         int* extent = this->ImageReslice->GetOutputExtent();
-        int* size = ren->GetSize();
+        const int* size = ren->GetSize();
         if (size[0] != (extent[1] - extent[0] + 1) || size[1] != (extent[3] - extent[2] + 1))
         {
           this->Modified();
@@ -852,7 +852,7 @@ void vtkImageResliceMapper::UpdateResliceInformation(vtkRenderer* ren)
     // The ResliceExtent is always set to the renderer size,
     // this is the maximum size ever required and sticking to
     // this size avoids any memory reallocation on GPU or CPU
-    int* size = ren->GetSize();
+    const int* size = ren->GetSize();
     int xsize = ((size[0] <= 0) ? 1 : size[0]);
     int ysize = ((size[1] <= 0) ? 1 : size[1]);
 

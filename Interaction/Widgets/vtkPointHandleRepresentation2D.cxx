@@ -260,7 +260,7 @@ void vtkPointHandleRepresentation2D::Scale(const double eventPos[2])
   double sf = this->Glypher->GetScaleFactor();
 
   // Compute the scale factor
-  int* size = this->Renderer->GetSize();
+  const int* size = this->Renderer->GetSize();
   double dPos = static_cast<double>(eventPos[1] - this->LastEventPosition[1]);
   sf *= (1.0 + 2.0 * (dPos / size[1])); // scale factor of 2.0 is arbitrary
 

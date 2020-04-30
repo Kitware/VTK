@@ -45,7 +45,7 @@ int TestRenderToImage(int argc, char* argv[])
   glRenderWindow->SetUseOffScreenBuffers(true);
   renderWindow->Render();
   // Create an (empty) image at the window size
-  int* size = renderWindow->GetSize();
+  const int* size = renderWindow->GetSize();
   vtkNew<vtkImageData> image;
   image->SetDimensions(size[0], size[1], 1);
   image->AllocateScalars(VTK_UNSIGNED_CHAR, 3);

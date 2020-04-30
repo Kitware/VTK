@@ -226,7 +226,7 @@ void vtkInteractorStyleJoystickCamera::Rotate()
   double dy = rwi->GetEventPosition()[1] - center[1];
 
   double* vp = this->CurrentRenderer->GetViewport();
-  int* size = rwi->GetSize();
+  const int* size = rwi->GetSize();
 
   double delta_elevation = -20.0 / ((vp[3] - vp[1]) * size[1]);
   double delta_azimuth = -20.0 / ((vp[2] - vp[0]) * size[0]);

@@ -394,7 +394,7 @@ void vtkOpenGLPolyDataMapper2D::SetCameraShaderParameters(
   size[0] = static_cast<int>(std::round(size[0] * (visVP[2] - visVP[0]) / (vport[2] - vport[0])));
   size[1] = static_cast<int>(std::round(size[1] * (visVP[3] - visVP[1]) / (vport[3] - vport[1])));
 
-  int* winSize = viewport->GetVTKWindow()->GetSize();
+  const int* winSize = viewport->GetVTKWindow()->GetSize();
 
   int xoff = static_cast<int>(actorPos[0] - (visVP[0] - vport[0]) * winSize[0]);
   int yoff = static_cast<int>(actorPos[1] - (visVP[1] - vport[1]) * winSize[1]);

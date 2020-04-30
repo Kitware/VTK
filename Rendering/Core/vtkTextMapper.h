@@ -114,7 +114,7 @@ public:
    * methods are static so that external classes (e.g., widgets) can easily use them.
    */
   static int SetRelativeFontSize(
-    vtkTextMapper*, vtkViewport*, int* winSize, int* stringSize, float sizeFactor = 0.0);
+    vtkTextMapper*, vtkViewport*, const int* winSize, int* stringSize, float sizeFactor = 0.0);
   static int SetMultipleRelativeFontSize(vtkViewport* viewport, vtkTextMapper** textMappers,
     int nbOfMappers, int* winSize, int* stringSize, float sizeFactor);
   //@}

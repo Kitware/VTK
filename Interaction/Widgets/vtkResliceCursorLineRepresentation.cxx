@@ -188,7 +188,7 @@ void vtkResliceCursorLineRepresentation::WidgetInteraction(double e[2])
     double sf = 1.0;
 
     // Compute the scale factor
-    int* size = this->Renderer->GetSize();
+    const int* size = this->Renderer->GetSize();
     double dPos = e[1] - this->LastEventPosition[1];
     sf *= (1.0 + 2.0 * (dPos / size[1])); // scale factor of 2.0 is arbitrary
 

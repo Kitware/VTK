@@ -291,7 +291,7 @@ void vtkLegendScaleActor::BuildRepresentation(vtkViewport* viewport)
   //         this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
   {
     // Specify the locations of the axes.
-    int* size = viewport->GetSize();
+    const int* size = viewport->GetSize();
 
     this->RightAxis->GetPositionCoordinate()->SetValue(
       size[0] - this->RightBorderOffset, this->CornerOffsetFactor * this->BottomBorderOffset, 0.0);

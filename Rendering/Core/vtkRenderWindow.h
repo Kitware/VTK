@@ -545,7 +545,7 @@ public:
    * on any event which causes the DesiredUpdateRate to switch from
    * a high-quality rate to a more interactive rate.
    */
-  virtual int GetEventPending() { return 0; }
+  virtual vtkTypeBool GetEventPending() { return 0; }
 
   /**
    * Are we rendering at the moment
@@ -676,7 +676,7 @@ public:
   /**
    * Is this render window using hardware acceleration? 0-false, 1-true
    */
-  virtual int IsDirect() { return 0; }
+  virtual vtkTypeBool IsDirect() { return 0; }
 
   /**
    * This method should be defined by the subclass. How many bits of

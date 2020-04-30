@@ -412,7 +412,7 @@ int vtkWin32RenderWindowInteractor::OnNCMouseMove(HWND, UINT nFlags, int X, int 
     return 0;
   }
 
-  int* pos = this->RenderWindow->GetPosition();
+  const int* pos = this->RenderWindow->GetPosition();
   this->SetEventInformationFlipY(X - pos[0], Y - pos[1], nFlags & MK_CONTROL, nFlags & MK_SHIFT);
   this->SetAltKey(GetKeyState(VK_MENU) & (~1));
   const int ret = this->InvokeEvent(vtkCommand::LeaveEvent, nullptr);

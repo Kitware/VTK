@@ -194,7 +194,7 @@ void vtkInteractorStyleTerrain::Rotate()
   int dx = -(rwi->GetEventPosition()[0] - rwi->GetLastEventPosition()[0]);
   int dy = -(rwi->GetEventPosition()[1] - rwi->GetLastEventPosition()[1]);
 
-  int* size = this->CurrentRenderer->GetRenderWindow()->GetSize();
+  const int* size = this->CurrentRenderer->GetRenderWindow()->GetSize();
 
   double a = dx / static_cast<double>(size[0]) * 180.0;
   double e = dy / static_cast<double>(size[1]) * 180.0;

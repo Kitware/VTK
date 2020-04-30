@@ -88,9 +88,14 @@ public:
   virtual void PrefFullScreen(void);
 
   /**
-   * Specify the size of the rendering window in pixels.
+   * Set the size (width and height) of the rendering window in
+   * screen coordinates (in pixels). This resizes the operating
+   * system's view/window and redraws it.
+   *
+   * If the size has changed, this method will fire
+   * vtkCommand::WindowResizeEvent.
    */
-  void SetSize(int, int) override;
+  void SetSize(int width, int height) override;
   void SetSize(int a[2]) override { this->SetSize(a[0], a[1]); }
 
   /**
@@ -114,15 +119,17 @@ public:
   /**
    * Is this render window using hardware acceleration? 0-false, 1-true
    */
-  int IsDirect() override { return 1; }
+  vtkTypeBool IsDirect() override { return 1; }
 
   /**
    * Get the current size of the screen in pixels.
+   * An HDTV for example would be 1920 x 1080 pixels.
    */
   int* GetScreenSize() VTK_SIZEHINT(2) override;
 
   /**
-   * Get the position in screen coordinates (pixels) of the window.
+   * Get the position (x and y) of the rendering window in
+   * screen coordinates (in pixels).
    */
   int* GetPosition() VTK_SIZEHINT(2) override;
 
@@ -148,9 +155,11 @@ public:
 
   //@{
   /**
-   * Move the window to a new position on the display.
+   * Set the position (x and y) of the rendering window in
+   * screen coordinates (in pixels). This resizes the operating
+   * system's view/window and redraws it.
    */
-  void SetPosition(int, int) override;
+  void SetPosition(int x, int y) override;
   void SetPosition(int a[2]) override { this->SetPosition(a[0], a[1]); }
   //@}
 
@@ -175,9 +184,9 @@ public:
    * on any event which causes the DesiredUpdateRate to switch from
    * a high-quality rate to a more interactive rate.
    */
-  int GetEventPending() override { return 0; }
+  vtkTypeBool GetEventPending() override { return 0; }
 
-  int GetOwnWindow() { return this->OwnWindow; }
+  vtkTypeBool GetOwnWindow() { return this->OwnWindow; }
 
   /**
    * Returns the width and height of the allocated EGL surface.
@@ -200,8 +209,7 @@ protected:
   vtkEGLRenderWindow();
   ~vtkEGLRenderWindow() override;
 
-  int ScreenSize[2];
-  int OwnWindow;
+  vtkTypeBool OwnWindow;
   bool IsPointSpriteBugTested;
   bool IsPointSpriteBugPresent_;
   class vtkInternals;
