@@ -184,7 +184,7 @@ void vtkOpenGLGL2PSHelperImpl::ProcessTransformFeedback(
   // Info to transform clip --> display coords
   double renVp[4];
   ren->GetViewport(renVp);
-  int* winSize = ren->GetRenderWindow()->GetSize();
+  const int* winSize = ren->GetRenderWindow()->GetSize();
   int vp[4] = { static_cast<int>(renVp[0] * winSize[0]), static_cast<int>(renVp[1] * winSize[1]),
     static_cast<int>(renVp[2] * winSize[0]), static_cast<int>(renVp[3] * winSize[1]) };
   float halfW = (vp[2] - vp[0]) * 0.5f;

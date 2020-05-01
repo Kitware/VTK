@@ -468,7 +468,7 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport* viewport)
     return 0;
   }
 
-  int* vSize = viewport->GetSize();
+  const int* vSize = viewport->GetSize();
   // vSize == (0,0) means that we're not ready to render yet
   if (vSize[0] == 0 && vSize[1] == 0)
   {
@@ -600,7 +600,7 @@ void vtkTextActor::SetAlignmentPoint(int val)
 //-----------------------------------------------------------------------------
 float vtkTextActor::GetFontScale(vtkViewport* viewport)
 {
-  int* viewportSize = viewport->GetSize();
+  const int* viewportSize = viewport->GetSize();
 
   // Pretend the long dimension is the "width"
   int viewportWidth = (viewportSize[0] > viewportSize[1]) ? viewportSize[0] : viewportSize[1];

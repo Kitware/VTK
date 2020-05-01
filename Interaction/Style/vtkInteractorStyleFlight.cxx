@@ -520,7 +520,7 @@ void vtkInteractorStyleFlight::UpdateMouseSteering(vtkCamera* cam)
   //
   // we want to steer by an amount proportional to window viewangle and size
   // compute dx and dy increments relative to last mouse click
-  int* size = this->Interactor->GetSize();
+  const int* size = this->Interactor->GetSize();
   double scalefactor = 5 * cam->GetViewAngle() / size[0];
   double dx = -(thispos[0] - lastpos[0]) * scalefactor * aspeed;
   double dy = (thispos[1] - lastpos[1]) * scalefactor * aspeed;

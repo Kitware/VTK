@@ -549,7 +549,7 @@ void vtkOrientedGlyphContourRepresentation::Scale(double eventPos[2])
   double sf = this->Glypher->GetScaleFactor();
 
   // Compute the scale factor
-  int* size = this->Renderer->GetSize();
+  const int* size = this->Renderer->GetSize();
   double dPos = static_cast<double>(eventPos[1] - this->LastEventPosition[1]);
   sf *= (1.0 + 2.0 * (dPos / size[1])); // scale factor of 2.0 is arbitrary
 
@@ -720,7 +720,7 @@ void vtkOrientedGlyphContourRepresentation::BuildRepresentation()
 
   double distance = sqrt(vtkMath::Distance2BetweenPoints(p1, p2));
 
-  int* size = this->Renderer->GetRenderWindow()->GetSize();
+  const int* size = this->Renderer->GetRenderWindow()->GetSize();
   double viewport[4];
   this->Renderer->GetViewport(viewport);
 

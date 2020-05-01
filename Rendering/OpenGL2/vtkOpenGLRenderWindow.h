@@ -164,10 +164,15 @@ public:
 
   //@{
   /**
-   * Set the size of the window in screen coordinates in pixels.
+   * Set the size (width and height) of the rendering window in
+   * screen coordinates (in pixels). This resizes the operating
+   * system's view/window and redraws it.
+   *
+   * If the size has changed, this method will fire
+   * vtkCommand::WindowResizeEvent.
    */
-  void SetSize(int a[2]) override;
-  void SetSize(int, int) override;
+  void SetSize(int width, int height) override;
+  void SetSize(int a[2]) override { this->SetSize(a[0], a[1]); }
   //@}
 
   /**
@@ -512,6 +517,8 @@ protected:
 
   // keep track of in case we need to recreate the framebuffer
   int LastMultiSamples;
+
+  int ScreenSize[2];
 
 private:
   vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&) = delete;

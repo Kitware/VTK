@@ -1304,7 +1304,7 @@ void vtkFixedPointVolumeRayCastMapper::CaptureZBuffer(vtkRenderer* ren)
 {
   // How big is the viewport in pixels?
   double* viewport = ren->GetViewport();
-  int* renWinSize = ren->GetRenderWindow()->GetSize();
+  const int* renWinSize = ren->GetRenderWindow()->GetSize();
 
   // Do we need to capture the z buffer to intermix intersecting
   // geometry? If so, do it here

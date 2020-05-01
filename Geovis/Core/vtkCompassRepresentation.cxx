@@ -353,7 +353,7 @@ void vtkCompassRepresentation::BuildRepresentation()
     return;
   }
 
-  int* size = this->Renderer->GetSize();
+  const int* size = this->Renderer->GetSize();
   if (0 == size[0] || 0 == size[1])
   {
     // Renderer has no size yet: wait until the next
@@ -438,7 +438,7 @@ void vtkCompassRepresentation::BuildRepresentation()
   this->DistanceRepresentation->Modified();
   this->DistanceRepresentation->BuildRepresentation();
 
-  int* renSize = this->Renderer->GetSize();
+  const int* renSize = this->Renderer->GetSize();
   vtkUnsignedCharArray* colors = vtkArrayDownCast<vtkUnsignedCharArray>(
     this->BackdropMapper->GetInput()->GetPointData()->GetScalars());
   unsigned char color[4];
@@ -699,7 +699,7 @@ void vtkCompassRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------
 int vtkCompassRepresentation::ComputeInteractionState(int x, int y, int modify)
 {
-  int* size = this->Renderer->GetSize();
+  const int* size = this->Renderer->GetSize();
   if (0 == size[0] || 0 == size[1])
   {
     // Renderer has no size yet

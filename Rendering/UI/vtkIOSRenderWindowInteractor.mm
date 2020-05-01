@@ -55,7 +55,7 @@ void vtkIOSRenderWindowInteractor::Initialize()
   // get the info we need from the RenderingWindow
   vtkRenderWindow* renWin = this->RenderWindow;
   renWin->Start();
-  int* size = renWin->GetSize();
+  const int* size = renWin->GetSize();
 
   renWin->GetPosition(); // update values of this->Position[2]
 

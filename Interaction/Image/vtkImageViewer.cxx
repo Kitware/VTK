@@ -126,7 +126,7 @@ public:
 
     vtkInteractorStyleImage* isi = static_cast<vtkInteractorStyleImage*>(caller);
 
-    int* size = this->IV->GetRenderWindow()->GetSize();
+    const int* size = this->IV->GetRenderWindow()->GetSize();
     double window = this->InitialWindow;
     double level = this->InitialLevel;
 

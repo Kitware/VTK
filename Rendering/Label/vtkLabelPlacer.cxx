@@ -318,7 +318,7 @@ vtkMTimeType vtkLabelPlacer::GetMTime()
   // Check for minimal changes
   if (this->Renderer)
   {
-    int* sz = this->Renderer->GetSize();
+    const int* sz = this->Renderer->GetSize();
     if (this->LastRendererSize[0] != sz[0] || this->LastRendererSize[1] != sz[1])
     {
       this->LastRendererSize[0] = sz[0];
@@ -470,7 +470,7 @@ int vtkLabelPlacer::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   // If the renderer size is zero, silently place no labels.
-  int* renSize = this->Renderer->GetSize();
+  const int* renSize = this->Renderer->GetSize();
   if (renSize[0] == 0 || renSize[1] == 0)
   {
     return 1;

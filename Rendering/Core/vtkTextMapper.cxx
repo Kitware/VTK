@@ -301,8 +301,8 @@ int vtkTextMapper::SetMultipleConstrainedFontSize(vtkViewport* viewport, int tar
 }
 
 //----------------------------------------------------------------------------
-int vtkTextMapper::SetRelativeFontSize(
-  vtkTextMapper* tmapper, vtkViewport* viewport, int* targetSize, int* stringSize, float sizeFactor)
+int vtkTextMapper::SetRelativeFontSize(vtkTextMapper* tmapper, vtkViewport* viewport,
+  const int* targetSize, int* stringSize, float sizeFactor)
 {
   sizeFactor = (sizeFactor <= 0.0f ? 0.015f : sizeFactor);
 

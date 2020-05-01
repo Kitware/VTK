@@ -98,7 +98,7 @@ FastDepthAwareCoordinateConverter::FastDepthAwareCoordinateConverter(vtkRenderer
   vtkMatrix4x4::Invert(this->MVP, this->InvMVP);
 
   // Various other bits needed for conversion
-  int* size = ren->GetSize();
+  const int* size = ren->GetSize();
   this->ViewportSize[0] = size[0];
   this->ViewportSize[1] = size[1];
 

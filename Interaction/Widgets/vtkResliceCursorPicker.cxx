@@ -178,7 +178,7 @@ int vtkResliceCursorPicker::Pick(
   viewport = renderer->GetViewport();
   if (renderer->GetRenderWindow())
   {
-    int* winSizePtr = renderer->GetRenderWindow()->GetSize();
+    const int* winSizePtr = renderer->GetRenderWindow()->GetSize();
     if (winSizePtr)
     {
       winSize[0] = winSizePtr[0];

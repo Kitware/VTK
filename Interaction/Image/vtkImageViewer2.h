@@ -180,19 +180,36 @@ public:
 
   //@{
   /**
-   * Set/Get the position in screen coordinates of the rendering window.
+   * Get the position (x and y) of the rendering window in
+   * screen coordinates (in pixels).
    */
   virtual int* GetPosition() VTK_SIZEHINT(2);
-  virtual void SetPosition(int a, int b);
+
+  /**
+   * Set the position (x and y) of the rendering window in
+   * screen coordinates (in pixels). This resizes the operating
+   * system's view/window and redraws it.
+   */
+  virtual void SetPosition(int x, int y);
   virtual void SetPosition(int a[2]) { this->SetPosition(a[0], a[1]); }
   //@}
 
   //@{
   /**
-   * Set/Get the size of the window in screen coordinates in pixels.
+   * Get the size (width and height) of the rendering window in
+   * screen coordinates (in pixels).
    */
   virtual int* GetSize() VTK_SIZEHINT(2);
-  virtual void SetSize(int a, int b);
+
+  /**
+   * Set the size (width and height) of the rendering window in
+   * screen coordinates (in pixels). This resizes the operating
+   * system's view/window and redraws it.
+   *
+   * If the size has changed, this method will fire
+   * vtkCommand::WindowResizeEvent.
+   */
+  virtual void SetSize(int width, int height);
   virtual void SetSize(int a[2]) { this->SetSize(a[0], a[1]); }
   //@}
 

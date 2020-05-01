@@ -257,7 +257,7 @@ void vtkInteractorStyleTrackballCamera::Rotate()
   int dx = rwi->GetEventPosition()[0] - rwi->GetLastEventPosition()[0];
   int dy = rwi->GetEventPosition()[1] - rwi->GetLastEventPosition()[1];
 
-  int* size = this->CurrentRenderer->GetRenderWindow()->GetSize();
+  const int* size = this->CurrentRenderer->GetRenderWindow()->GetSize();
 
   double delta_elevation = -20.0 / size[1];
   double delta_azimuth = -20.0 / size[0];

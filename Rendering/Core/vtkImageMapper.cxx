@@ -149,7 +149,7 @@ void vtkImageMapper::RenderStart(vtkViewport* viewport, vtkActor2D* actor)
     vCoords[3] = 1.0;
     viewport->NormalizedViewportToViewport(vCoords[0], vCoords[1]);
     viewport->NormalizedViewportToViewport(vCoords[2], vCoords[3]);
-    int* vSize = viewport->GetSize();
+    const int* vSize = viewport->GetSize();
 
     // the basic formula is that the draw pos equals
     // the pos + extentPos + clippedAmount

@@ -345,7 +345,7 @@ void vtkUnstructuredGridVolumeRayCastMapper::Render(vtkRenderer* ren, vtkVolume*
   {
     int x1, x2, y1, y2;
     double* viewport = ren->GetViewport();
-    int* renWinSize = ren->GetRenderWindow()->GetSize();
+    const int* renWinSize = ren->GetRenderWindow()->GetSize();
 
     // turn this->ImageOrigin into (x1,y1) in window (not viewport!)
     // coordinates.

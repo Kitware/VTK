@@ -66,7 +66,7 @@ public:
   //! Returns if the context is direct.  It is the class user's
   //! responsibility to watch for WindowIsDirectEvent and set the int* flag
   //! passed through the call data parameter.
-  int IsDirect() override;
+  vtkTypeBool IsDirect() override;
 
   // {@
   //! set the drawing buffers to use
@@ -101,7 +101,7 @@ public:
   void ShowCursor() override;
   void SetFullScreen(vtkTypeBool) override;
   void WindowRemap() override;
-  int GetEventPending() override;
+  vtkTypeBool GetEventPending() override;
   void SetNextWindowId(void*) override;
   void SetNextWindowInfo(const char*) override;
   void CreateAWindow() override;
@@ -113,7 +113,7 @@ public:
    * Allow to update state within observer callback without changing
    * data argument and MTime.
    */
-  void SetIsDirect(int newValue);
+  void SetIsDirect(vtkTypeBool newValue);
   void SetSupportsOpenGL(int newValue);
   void SetIsCurrent(bool newValue);
   //@}
@@ -152,6 +152,7 @@ public:
 
   /**
    * Set the size of the screen in pixels.
+   * An HDTV for example would be 1920 x 1080 pixels.
    */
   vtkSetVector2Macro(ScreenSize, int);
 
@@ -192,7 +193,6 @@ protected:
   bool CurrentStatus;
   float ForceMaximumHardwareLineWidth;
   bool ReadyForRendering;
-  int ScreenSize[2];
 
 private:
   vtkGenericOpenGLRenderWindow(const vtkGenericOpenGLRenderWindow&) = delete;

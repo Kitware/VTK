@@ -73,7 +73,7 @@ void vtkOpenGLGL2PSExporter::WriteData()
   GLint options = static_cast<GLint>(this->GetGL2PSOptions());
   GLint sort = static_cast<GLint>(this->GetGL2PSSort());
   GLint format = static_cast<GLint>(this->GetGL2PSFormat());
-  int* winsize = this->RenderWindow->GetSize();
+  const int* winsize = this->RenderWindow->GetSize();
   GLint viewport[4] = { 0, 0, static_cast<GLint>(winsize[0]), static_cast<GLint>(winsize[1]) };
 
   // Setup helper class:

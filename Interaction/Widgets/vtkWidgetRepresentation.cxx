@@ -235,7 +235,7 @@ double vtkWidgetRepresentation::SizeHandlesRelativeToViewport(double factor, dou
     double radius, z;
     double windowLowerLeft[4], windowUpperRight[4];
     double* viewport = renderer->GetViewport();
-    int* winSize = renderer->GetRenderWindow()->GetSize();
+    const int* winSize = renderer->GetRenderWindow()->GetSize();
     double focalPoint[4];
 
     vtkInteractorObserver::ComputeWorldToDisplay(

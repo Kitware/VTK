@@ -379,7 +379,7 @@ void vtkFinitePlaneRepresentation::Rotate(int X, int Y, double* p1, double* p2, 
   {
     return;
   }
-  int* size = this->Renderer->GetSize();
+  const int* size = this->Renderer->GetSize();
   double l2 = (X - this->LastEventPosition[0]) * (X - this->LastEventPosition[0]) +
     (Y - this->LastEventPosition[1]) * (Y - this->LastEventPosition[1]);
   double theta = 360.0 * sqrt(l2 / (size[0] * size[0] + size[1] * size[1]));

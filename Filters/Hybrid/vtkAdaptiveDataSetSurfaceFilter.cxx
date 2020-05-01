@@ -740,7 +740,7 @@ vtkMTimeType vtkAdaptiveDataSetSurfaceFilter::GetMTime()
       }
 
       // Check & Update renderer size
-      int* sz = this->Renderer->GetSize();
+      const int* sz = this->Renderer->GetSize();
       if (this->LastRendererSize[0] != sz[0] || this->LastRendererSize[1] != sz[1])
       {
         this->LastRendererSize[0] = sz[0];

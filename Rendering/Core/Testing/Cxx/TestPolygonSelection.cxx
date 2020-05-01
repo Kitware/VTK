@@ -129,8 +129,8 @@ int TestPolygonSelection(int argc, char* argv[])
     vtkNew<vtkHardwareSelector> hardSel;
     hardSel->SetRenderer(ren);
 
-    int* wsize = ren->GetSize();
-    int* origin = ren->GetOrigin();
+    const int* wsize = ren->GetSize();
+    const int* origin = ren->GetOrigin();
     hardSel->SetArea(origin[0], origin[1], origin[0] + wsize[0] - 1, origin[1] + wsize[1] - 1);
     hardSel->SetFieldAssociation(vtkDataObject::FIELD_ASSOCIATION_CELLS);
 

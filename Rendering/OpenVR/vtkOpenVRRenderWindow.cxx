@@ -72,6 +72,7 @@ vtkStandardNewMacro(vtkOpenVRRenderWindow);
 
 vtkCxxSetObjectMacro(vtkOpenVRRenderWindow, DashboardOverlay, vtkOpenVROverlay);
 
+//------------------------------------------------------------------------------
 vtkOpenVRRenderWindow::vtkOpenVRRenderWindow()
 {
   this->SetPhysicalViewDirection(0.0, 0.0, -1.0);
@@ -106,6 +107,7 @@ vtkOpenVRRenderWindow::vtkOpenVRRenderWindow()
   this->DashboardOverlay = vtkOpenVRDefaultOverlay::New();
 }
 
+//------------------------------------------------------------------------------
 vtkOpenVRRenderWindow::~vtkOpenVRRenderWindow()
 {
   if (this->DashboardOverlay)
@@ -144,6 +146,7 @@ void vtkOpenVRRenderWindow::ReleaseGraphicsResources(vtkWindow* renWin)
   }
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenVRRenderWindow::SetHelperWindow(vtkOpenGLRenderWindow* win)
 {
   if (this->HelperWindow == win)
@@ -176,6 +179,7 @@ vtkRenderWindowInteractor* vtkOpenVRRenderWindow::MakeRenderWindowInteractor()
   return this->Interactor;
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenVRRenderWindow::InitializeViewFromCamera(vtkCamera* srccam)
 {
   vtkRenderer* ren = static_cast<vtkRenderer*>(this->GetRenderers()->GetItemAsObject(0));
@@ -227,6 +231,7 @@ void vtkOpenVRRenderWindow::InitializeViewFromCamera(vtkCamera* srccam)
   ren->ResetCameraClippingRange();
 }
 
+//------------------------------------------------------------------------------
 // Purpose: Helper to get a string from a tracked device property and turn it
 //      into a std::string
 std::string vtkOpenVRRenderWindow::GetTrackedDeviceString(vr::IVRSystem* pHmd,
@@ -248,6 +253,7 @@ std::string vtkOpenVRRenderWindow::GetTrackedDeviceString(vr::IVRSystem* pHmd,
   return sResult;
 }
 
+//------------------------------------------------------------------------------
 // Purpose: Finds a render model we've already loaded or loads a new one
 vtkOpenVRModel* vtkOpenVRRenderWindow::FindOrLoadRenderModel(const char* pchRenderModelName)
 {
@@ -280,6 +286,7 @@ vtkOpenVRModel* vtkOpenVRRenderWindow::FindOrLoadRenderModel(const char* pchRend
   return pRenderModel;
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenVRRenderWindow::RenderModels()
 {
   vtkOpenGLState* ostate = this->GetState();
@@ -332,6 +339,7 @@ void vtkOpenVRRenderWindow::MakeCurrent()
   }
 }
 
+//------------------------------------------------------------------------------
 vtkOpenGLState* vtkOpenVRRenderWindow::GetState()
 {
   if (this->HelperWindow)
@@ -350,25 +358,36 @@ bool vtkOpenVRRenderWindow::IsCurrent()
 }
 
 // ----------------------------------------------------------------------------
-void vtkOpenVRRenderWindow::SetSize(int x, int y)
+void vtkOpenVRRenderWindow::SetSize(int width, int height)
 {
-  if ((this->Size[0] != x) || (this->Size[1] != y))
+  if ((this->Size[0] != width) || (this->Size[1] != height))
   {
-    this->Superclass::SetSize(x, y);
+    this->Superclass::SetSize(width, height);
 
     if (this->Interactor)
     {
-      this->Interactor->SetSize(x, y);
+      this->Interactor->SetSize(width, height);
     }
   }
 }
 
+//------------------------------------------------------------------------------
 // Get the size of the whole screen.
 int* vtkOpenVRRenderWindow::GetScreenSize(void)
 {
+  if (this->HMD)
+  {
+    uint32_t renderWidth = 0;
+    uint32_t renderHeight = 0;
+    this->HMD->GetRecommendedRenderTargetSize(&renderWidth, &renderHeight);
+    this->ScreenSize[0] = renderWidth;
+    this->ScreenSize[1] = renderHeight;
+  }
+
   return this->Size;
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenVRRenderWindow::SetPosition(int x, int y)
 {
   if ((this->Position[0] != x) || (this->Position[1] != y))
@@ -379,6 +398,7 @@ void vtkOpenVRRenderWindow::SetPosition(int x, int y)
   }
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenVRRenderWindow::UpdateHMDMatrixPose()
 {
   if (!this->HMD)
@@ -478,6 +498,7 @@ void vtkOpenVRRenderWindow::UpdateHMDMatrixPose()
   }
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenVRRenderWindow::Render()
 {
   if (this->TrackHMD)
@@ -495,8 +516,10 @@ void vtkOpenVRRenderWindow::Render()
   this->Superclass::Render();
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenVRRenderWindow::StereoUpdate() {}
 
+//------------------------------------------------------------------------------
 void vtkOpenVRRenderWindow::StereoMidpoint()
 {
   // render the left eye models
@@ -520,6 +543,7 @@ void vtkOpenVRRenderWindow::StereoMidpoint()
   }
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenVRRenderWindow::StereoRenderComplete()
 {
   // render the right eye models
@@ -552,6 +576,7 @@ void vtkOpenVRRenderWindow::StereoRenderComplete()
   }
 }
 
+//------------------------------------------------------------------------------
 bool vtkOpenVRRenderWindow::CreateFrameBuffer(
   int nWidth, int nHeight, FramebufferDesc& framebufferDesc)
 {
@@ -578,6 +603,7 @@ bool vtkOpenVRRenderWindow::CreateFrameBuffer(
   return true;
 }
 
+//------------------------------------------------------------------------------
 // Initialize the rendering window.
 void vtkOpenVRRenderWindow::Initialize(void)
 {
@@ -655,6 +681,7 @@ void vtkOpenVRRenderWindow::Initialize(void)
   this->DashboardOverlay->Create(this);
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenVRRenderWindow::Finalize(void)
 {
   this->ReleaseGraphicsResources(this);
@@ -677,6 +704,7 @@ void vtkOpenVRRenderWindow::Finalize(void)
   }
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenVRRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -685,6 +713,7 @@ void vtkOpenVRRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Window Id: " << this->HelperWindow->GetGenericWindowId() << "\n";
 }
 
+//------------------------------------------------------------------------------
 // Add a renderer to the list of renderers.
 void vtkOpenVRRenderWindow::AddRenderer(vtkRenderer* ren)
 {
@@ -697,6 +726,7 @@ void vtkOpenVRRenderWindow::AddRenderer(vtkRenderer* ren)
   this->Superclass::AddRenderer(ren);
 }
 
+//------------------------------------------------------------------------------
 // Begin the rendering process.
 void vtkOpenVRRenderWindow::Start(void)
 {
@@ -709,11 +739,13 @@ void vtkOpenVRRenderWindow::Start(void)
   this->Superclass::Start();
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenVRRenderWindow::RenderOverlay()
 {
   this->DashboardOverlay->Render();
 }
 
+//------------------------------------------------------------------------------
 vr::TrackedDeviceIndex_t vtkOpenVRRenderWindow::GetTrackedDeviceIndexForDevice(
   vtkEventDataDevice dev, uint32_t index)
 {
@@ -765,6 +797,7 @@ vr::TrackedDeviceIndex_t vtkOpenVRRenderWindow::GetTrackedDeviceIndexForDevice(
   return vr::k_unTrackedDeviceIndexInvalid;
 }
 
+//------------------------------------------------------------------------------
 uint32_t vtkOpenVRRenderWindow::GetNumberOfTrackedDevicesForDevice(vtkEventDataDevice)
 {
   vr::TrackedDeviceIndex_t devices[1];
@@ -772,6 +805,7 @@ uint32_t vtkOpenVRRenderWindow::GetNumberOfTrackedDevicesForDevice(vtkEventDataD
     vr::TrackedDeviceClass_GenericTracker, devices, 1);
 }
 
+//------------------------------------------------------------------------------
 vtkOpenVRModel* vtkOpenVRRenderWindow::GetTrackedDeviceModel(vtkEventDataDevice dev, uint32_t index)
 {
   vr::TrackedDeviceIndex_t idx = this->GetTrackedDeviceIndexForDevice(dev, index);
@@ -782,6 +816,7 @@ vtkOpenVRModel* vtkOpenVRRenderWindow::GetTrackedDeviceModel(vtkEventDataDevice 
   return nullptr;
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenVRRenderWindow::GetTrackedDevicePose(
   vtkEventDataDevice dev, uint32_t index, vr::TrackedDevicePose_t** pose)
 {
@@ -793,6 +828,7 @@ void vtkOpenVRRenderWindow::GetTrackedDevicePose(
   }
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenVRRenderWindow::SetPhysicalViewDirection(double x, double y, double z)
 {
   if (this->PhysicalViewDirection[0] != x || this->PhysicalViewDirection[1] != y ||
@@ -806,11 +842,13 @@ void vtkOpenVRRenderWindow::SetPhysicalViewDirection(double x, double y, double 
   }
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenVRRenderWindow::SetPhysicalViewDirection(double dir[3])
 {
   this->SetPhysicalViewDirection(dir[0], dir[1], dir[2]);
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenVRRenderWindow::SetPhysicalViewUp(double x, double y, double z)
 {
   if (this->PhysicalViewUp[0] != x || this->PhysicalViewUp[1] != y || this->PhysicalViewUp[2] != z)
@@ -823,11 +861,13 @@ void vtkOpenVRRenderWindow::SetPhysicalViewUp(double x, double y, double z)
   }
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenVRRenderWindow::SetPhysicalViewUp(double dir[3])
 {
   this->SetPhysicalViewUp(dir[0], dir[1], dir[2]);
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenVRRenderWindow::SetPhysicalTranslation(double x, double y, double z)
 {
   if (this->PhysicalTranslation[0] != x || this->PhysicalTranslation[1] != y ||
@@ -841,11 +881,13 @@ void vtkOpenVRRenderWindow::SetPhysicalTranslation(double x, double y, double z)
   }
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenVRRenderWindow::SetPhysicalTranslation(double trans[3])
 {
   this->SetPhysicalTranslation(trans[0], trans[1], trans[2]);
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenVRRenderWindow::SetPhysicalScale(double scale)
 {
   if (this->PhysicalScale != scale)
@@ -856,6 +898,7 @@ void vtkOpenVRRenderWindow::SetPhysicalScale(double scale)
   }
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenVRRenderWindow::SetPhysicalToWorldMatrix(vtkMatrix4x4* matrix)
 {
   if (!matrix)
@@ -907,6 +950,7 @@ void vtkOpenVRRenderWindow::SetPhysicalToWorldMatrix(vtkMatrix4x4* matrix)
   this->Modified();
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenVRRenderWindow::GetPhysicalToWorldMatrix(vtkMatrix4x4* physicalToWorldMatrix)
 {
   if (!physicalToWorldMatrix)

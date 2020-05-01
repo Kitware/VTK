@@ -144,7 +144,7 @@ void vtkQtLabelRenderStrategy::StartFrame()
     return;
   }
 
-  int* size = this->Renderer->GetRenderWindow()->GetSize();
+  const int* size = this->Renderer->GetRenderWindow()->GetSize();
   int width = size[0];
   int height = size[1];
   // If the render window is not antialiased then the text should not be
@@ -316,7 +316,7 @@ void vtkQtLabelRenderStrategy::RenderLabel(
   double rotation = -tprop->GetOrientation();
   QColor textColor =
     this->Implementation->TextPropertyToColor(tprop->GetColor(), tprop->GetOpacity());
-  int* size = this->Renderer->GetRenderWindow()->GetSize();
+  const int* size = this->Renderer->GetRenderWindow()->GetSize();
   double h = size[1] - 1;
   double line_offset = tprop->GetLineOffset();
   int shOff[2];
@@ -499,7 +499,7 @@ void vtkQtLabelRenderStrategy::RenderLabel(int x[2], vtkTextProperty* tprop, vtk
       break;
   }
 
-  int* size = this->Renderer->GetRenderWindow()->GetSize();
+  const int* size = this->Renderer->GetRenderWindow()->GetSize();
   double h = size[1] - 1;
   double line_offset = tprop->GetLineOffset();
 

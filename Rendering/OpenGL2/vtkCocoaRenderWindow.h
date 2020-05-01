@@ -99,32 +99,42 @@ public:
 
   //@{
   /**
-   * Set the size of the window in pixels.
+   * Set the size (width and height) of the rendering window in
+   * screen coordinates (in pixels). This resizes the operating
+   * system's view/window and redraws it.
+   *
+   * If the size has changed, this method will fire
+   * vtkCommand::WindowResizeEvent.
    */
-  void SetSize(int a[2]) override;
-  void SetSize(int, int) override;
+  void SetSize(int width, int height) override;
+  void SetSize(int a[2]) override { this->SetSize(a[0], a[1]); }
   //@}
 
   /**
-   * Get the current size of the window in pixels.
+   * Get the size (width and height) of the rendering window in
+   * screen coordinates (in pixels).
    */
   int* GetSize() VTK_SIZEHINT(2) override;
 
   //@{
   /**
-   * Set the position of the window.
+   * Set the position (x and y) of the rendering window in
+   * screen coordinates (in pixels). This resizes the operating
+   * system's view/window and redraws it.
    */
-  void SetPosition(int a[2]) override;
-  void SetPosition(int, int) override;
+  void SetPosition(int x, int y) override;
+  void SetPosition(int a[2]) override { this->SetPosition(a[0], a[1]); }
   //@}
 
   /**
    * Get the current size of the screen in pixels.
+   * An HDTV for example would be 1920 x 1080 pixels.
    */
   int* GetScreenSize() VTK_SIZEHINT(2) override;
 
   /**
-   * Get the position in screen coordinates of the window.
+   * Get the position (x and y) of the rendering window in
+   * screen coordinates (in pixels).
    */
   int* GetPosition() VTK_SIZEHINT(2) override;
 
@@ -223,7 +233,7 @@ public:
   /**
    * Is this render window using hardware acceleration? 0-false, 1-true
    */
-  int IsDirect() override;
+  vtkTypeBool IsDirect() override;
 
   /**
    * If called, allow MakeCurrent() to skip cache-check when called.
@@ -236,7 +246,7 @@ public:
    * Check to see if an event is pending for this window.
    * This is a useful check to abort a long render.
    */
-  int GetEventPending() override;
+  vtkTypeBool GetEventPending() override;
 
   //@{
   /**
@@ -272,13 +282,13 @@ public:
    * Get the ViewCreated flag. It is 1 if this object created an instance
    * of NSView, 0 otherwise.
    */
-  virtual int GetViewCreated();
+  virtual vtkTypeBool GetViewCreated();
 
   /**
    * Get the WindowCreated flag. It is 1 if this object created an instance
    * of NSWindow, 0 otherwise.
    */
-  virtual int GetWindowCreated();
+  virtual vtkTypeBool GetWindowCreated();
 
   //@{
   /**
@@ -308,7 +318,7 @@ public:
 
   /**
    * Sets the NSView* associated with this vtkRenderWindow.
-   * This class' default behaviour, that is, if you never call this
+   * This class' default behaviour, that is, if you never call
    * SetWindowId()/SetRootWindow() is to create an NSWindow and a
    * vtkCocoaGLView (NSView subclass) which are used together to draw all
    * vtk stuff into. If you already have an NSWindow and NSView and you
@@ -383,7 +393,7 @@ protected:
 
   void CreateAWindow() override;
   void DestroyWindow() override;
-  int OnScreenInitialized;
+  vtkTypeBool OnScreenInitialized;
 
   //@{
   /**
@@ -410,11 +420,11 @@ private:
   // of what would otherwise be Objective-C instance variables.
   void* CocoaManager; // Really an NSMutableDictionary*
 
-  int WindowCreated;
-  int ViewCreated;
-  int CursorHidden;
+  vtkTypeBool WindowCreated;
+  vtkTypeBool ViewCreated;
+  vtkTypeBool CursorHidden;
 
-  int ForceMakeCurrent;
+  vtkTypeBool ForceMakeCurrent;
 
   bool WantsBestResolution;
 };

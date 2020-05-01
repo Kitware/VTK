@@ -84,7 +84,7 @@ int TestOSPRayWindow(int argc, char* argv[])
   owindow->TraverseAllPasses();
 
   // now get the result and display it
-  int* size = owindow->GetSize();
+  const int* size = owindow->GetSize();
   vtkNew<vtkImageData> image;
   image->SetDimensions(size[0], size[1], 1);
   image->GetPointData()->SetScalars(owindow->GetColorBuffer());

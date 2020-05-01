@@ -224,10 +224,10 @@ int vtkLabeledTreeMapDataMapper::UpdateWindowInfo(vtkViewport* viewport)
 
   // Get the window extents
   vtkWindow* win = viewport->GetVTKWindow();
-  int* winPos = win->GetPosition();
+  const int* winPos = win->GetPosition();
   this->WindowLimits[0][0] = winPos[0];
   this->WindowLimits[1][0] = winPos[1];
-  int* winSize = win->GetSize();
+  const int* winSize = win->GetSize();
   this->WindowLimits[0][1] = this->WindowLimits[0][0] + winSize[0];
   this->WindowLimits[1][1] = this->WindowLimits[1][0] + winSize[1];
 

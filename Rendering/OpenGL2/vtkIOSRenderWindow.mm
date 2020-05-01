@@ -158,7 +158,7 @@ bool vtkIOSRenderWindow::InitializeFromCurrentContext()
 }
 
 //----------------------------------------------------------------------------
-int vtkIOSRenderWindow::GetEventPending()
+vtkTypeBool vtkIOSRenderWindow::GetEventPending()
 {
   return 0;
 }
@@ -239,7 +239,7 @@ int vtkIOSRenderWindow::SupportsOpenGL()
 }
 
 //----------------------------------------------------------------------------
-int vtkIOSRenderWindow::IsDirect()
+vtkTypeBool vtkIOSRenderWindow::IsDirect()
 {
   this->MakeCurrent();
   if (!this->GetContextId() || !this->GetPixelFormat())
@@ -250,21 +250,13 @@ int vtkIOSRenderWindow::IsDirect()
 }
 
 //----------------------------------------------------------------------------
-void vtkIOSRenderWindow::SetSize(int* a)
+void vtkIOSRenderWindow::SetSize(int width, int height)
 {
-  this->SetSize(a[0], a[1]);
-}
-
-//----------------------------------------------------------------------------
-void vtkIOSRenderWindow::SetSize(int x, int y)
-{
-  static int resizing = 0;
-
-  if ((this->Size[0] != x) || (this->Size[1] != y) || (this->GetParentId()))
+  if ((this->Size[0] != width) || (this->Size[1] != height) || this->GetParentId())
   {
     this->Modified();
-    this->Size[0] = x;
-    this->Size[1] = y;
+    this->Size[0] = width;
+    this->Size[1] = height;
   }
 }
 
@@ -275,17 +267,9 @@ void vtkIOSRenderWindow::SetForceMakeCurrent()
 }
 
 //----------------------------------------------------------------------------
-void vtkIOSRenderWindow::SetPosition(int* a)
-{
-  this->SetPosition(a[0], a[1]);
-}
-
-//----------------------------------------------------------------------------
 void vtkIOSRenderWindow::SetPosition(int x, int y)
 {
-  static int resizing = 0;
-
-  if ((this->Position[0] != x) || (this->Position[1] != y) || (this->GetParentId()))
+  if ((this->Position[0] != x) || (this->Position[1] != y) || this->GetParentId())
   {
     this->Modified();
     this->Position[0] = x;
@@ -329,8 +313,6 @@ void vtkIOSRenderWindow::SetupPalette(void*)
 // Initialize the window for rendering.
 void vtkIOSRenderWindow::CreateAWindow()
 {
-  static unsigned count = 1;
-
   this->CreateGLContext();
 
   this->MakeCurrent();
@@ -366,7 +348,7 @@ void vtkIOSRenderWindow::DestroyOffScreenWindow() {}
 // Get the current size of the window.
 int* vtkIOSRenderWindow::GetSize()
 {
-  // if we aren't mapped then just return the ivar
+  // if we aren't mapped then just return call super
   if (!this->Mapped)
   {
     return this->Superclass::GetSize();
@@ -379,7 +361,9 @@ int* vtkIOSRenderWindow::GetSize()
 // Get the current size of the screen in pixels.
 int* vtkIOSRenderWindow::GetScreenSize()
 {
-  return this->Size;
+  // TODO: use UISceen to actually determine screen size.
+
+  return this->ScreenSize;
 }
 
 //----------------------------------------------------------------------------
@@ -415,7 +399,7 @@ void vtkIOSRenderWindow::SetStereoCapableWindow(vtkTypeBool capable)
 // Set the preferred window size to full screen.
 void vtkIOSRenderWindow::PrefFullScreen()
 {
-  int* size = this->GetScreenSize();
+  const int* size = this->GetScreenSize();
   vtkWarningMacro(<< "Can only set FullScreen before showing window: " << size[0] << 'x' << size[1]
                   << ".");
 }

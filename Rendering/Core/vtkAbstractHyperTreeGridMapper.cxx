@@ -310,7 +310,7 @@ vtkMTimeType vtkAbstractHyperTreeGridMapper::GetMTime()
       }
 
       // Update renderer size if needed
-      int* s = this->Renderer->GetSize();
+      const int* s = this->Renderer->GetSize();
       if (this->LastRendererSize[0] != s[0] || this->LastRendererSize[1] != s[1])
       {
         this->LastRendererSize[0] = s[0];
