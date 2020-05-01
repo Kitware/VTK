@@ -2695,7 +2695,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren)
     vtkErrorMacro("Shader failed to compile");
   }
 
-  // std::cout << fragmentShader->GetSource() << std::endl;
   vertexShader->Delete();
   fragmentShader->Delete();
   geometryShader->Delete();
@@ -3206,16 +3205,17 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::BindTransformations(
         coordUnits[1] = volTex->YCoordsTex->GetTextureUnit();
         coordUnits[2] = volTex->ZCoordsTex->GetTextureUnit();
         prog->SetUniform1iv("in_coordTexs", 3, reinterpret_cast<const int(*)>(coordUnits));
-        // prog->SetUniformi("in_xCoordsTexture", volTex->XCoordsTex->GetTextureUnit());
-        // volTex->YCoordsTex->Activate();
-        // prog->SetUniformi("in_yCoordsTexture", volTex->YCoordsTex->GetTextureUnit());
-        // volTex->ZCoordsTex->Activate();
-        // prog->SetUniformi("in_zCoordsTexture", volTex->ZCoordsTex->GetTextureUnit());
-        prog->SetUniformi("in_samplePositionsTexture", true);
+        float fvalue3[3];
+        vtkInternal::ToFloat(volTex->CoordsTexSizes, fvalue3, 3);
+        prog->SetUniform3fv("in_coordTexSizes", 1, &fvalue3);
+        prog->SetUniform3fv("in_coordsScale", 1, volTex->CoordsScale);
+        prog->SetUniform3fv("in_coordsBias", 1, volTex->CoordsBias);
+        prog->SetUniform2fv("in_coordsRange", 3, volTex->CoordsRange);
+        prog->SetUniformi("in_nonLinear_vertices", true);
       }
       else
       {
-        prog->SetUniformi("in_samplePositionsTexture", false);
+        prog->SetUniformi("in_nonLinear_vertices", false);
       }
     }
 

@@ -200,6 +200,11 @@ public:
   vtkSmartPointer<vtkTextureObject> YCoordsTex;
   vtkSmartPointer<vtkTextureObject> ZCoordsTex;
 
+  int CoordsTexSizes[3];
+  float CoordsScale[3];
+  float CoordsBias[3];
+  float CoordsRange[3][2];
+
 protected:
   vtkVolumeTexture();
   ~vtkVolumeTexture() override;

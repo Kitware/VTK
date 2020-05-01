@@ -337,35 +337,79 @@ bool vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBloc
     if (rgBlock)
     {
       vtkDataArray* xCoords = rgBlock->GetXCoordinates();
-      void* xcoordsPtr = xCoords->GetVoidPointer(0);
       int xCoordsWidth = xCoords->GetNumberOfTuples();
-      this->XCoordsTex->Create1DFromRaw(xCoordsWidth, 1, VTK_FLOAT, xcoordsPtr);
+      this->CoordsTexSizes[0] = xCoordsWidth;
+      float range[2];
+      double* r = xCoords->GetFiniteRange(0);
+      for (int i = 0; i < 2; ++i)
+      {
+        range[i] = static_cast<float>(r[i]);
+        this->CoordsRange[0][i] = range[i];
+      }
+      this->GetScaleAndBias(VTK_FLOAT, range, this->CoordsScale[0], this->CoordsBias[0]);
+      float* xcoordsPtrF = new float[xCoordsWidth];
+      for (int i = 0; i < xCoordsWidth; ++i)
+      {
+        xcoordsPtrF[i] =
+          static_cast<float>(xCoords->GetTuple1(i) * this->CoordsScale[0] + this->CoordsBias[0]);
+      }
+
+      this->XCoordsTex->Create1DFromRaw(xCoordsWidth, 1, VTK_FLOAT, xcoordsPtrF);
       this->XCoordsTex->SetWrapR(vtkTextureObject::ClampToEdge);
       this->XCoordsTex->SetWrapS(vtkTextureObject::ClampToEdge);
       this->XCoordsTex->SetWrapT(vtkTextureObject::ClampToEdge);
-      this->XCoordsTex->SetMagnificationFilter(interpolation);
-      this->XCoordsTex->SetMinificationFilter(interpolation);
+      this->XCoordsTex->SetMagnificationFilter(vtkTextureObject::Nearest);
+      this->XCoordsTex->SetMinificationFilter(vtkTextureObject::Nearest);
       this->XCoordsTex->SetBorderColor(0.0f, 0.0f, 0.0f, 0.0f);
+      delete[] xcoordsPtrF;
       vtkDataArray* yCoords = rgBlock->GetYCoordinates();
-      void* ycoordsPtr = yCoords->GetVoidPointer(0);
       int yCoordsWidth = yCoords->GetNumberOfTuples();
-      this->YCoordsTex->Create1DFromRaw(yCoordsWidth, 1, VTK_FLOAT, ycoordsPtr);
+      this->CoordsTexSizes[1] = yCoordsWidth;
+      float* ycoordsPtrF = new float[yCoordsWidth];
+      r = yCoords->GetFiniteRange(0);
+      for (int i = 0; i < 2; ++i)
+      {
+        range[i] = static_cast<float>(r[i]);
+        this->CoordsRange[1][i] = range[i];
+      }
+      this->GetScaleAndBias(VTK_FLOAT, range, this->CoordsScale[1], this->CoordsBias[1]);
+      for (int i = 0; i < yCoordsWidth; ++i)
+      {
+        ycoordsPtrF[i] =
+          static_cast<float>(yCoords->GetTuple1(i) * this->CoordsScale[1] + this->CoordsBias[1]);
+      }
+      this->YCoordsTex->Create1DFromRaw(yCoordsWidth, 1, VTK_FLOAT, ycoordsPtrF);
       this->YCoordsTex->SetWrapR(vtkTextureObject::ClampToEdge);
       this->YCoordsTex->SetWrapS(vtkTextureObject::ClampToEdge);
       this->YCoordsTex->SetWrapT(vtkTextureObject::ClampToEdge);
-      this->YCoordsTex->SetMagnificationFilter(interpolation);
-      this->YCoordsTex->SetMinificationFilter(interpolation);
+      this->YCoordsTex->SetMagnificationFilter(vtkTextureObject::Nearest);
+      this->YCoordsTex->SetMinificationFilter(vtkTextureObject::Nearest);
       this->YCoordsTex->SetBorderColor(0.0f, 0.0f, 0.0f, 0.0f);
+      delete[] ycoordsPtrF;
       vtkDataArray* zCoords = rgBlock->GetZCoordinates();
-      void* zcoordsPtr = zCoords->GetVoidPointer(0);
       int zCoordsWidth = zCoords->GetNumberOfTuples();
-      this->ZCoordsTex->Create1DFromRaw(zCoordsWidth, 1, VTK_FLOAT, zcoordsPtr);
+      this->CoordsTexSizes[2] = zCoordsWidth;
+      float* zcoordsPtrF = new float[zCoordsWidth];
+      r = zCoords->GetFiniteRange(0);
+      for (int i = 0; i < 2; ++i)
+      {
+        range[i] = static_cast<float>(r[i]);
+        this->CoordsRange[2][i] = range[i];
+      }
+      this->GetScaleAndBias(VTK_FLOAT, range, this->CoordsScale[2], this->CoordsBias[2]);
+      for (int i = 0; i < zCoordsWidth; ++i)
+      {
+        zcoordsPtrF[i] =
+          static_cast<float>(zCoords->GetTuple1(i) * this->CoordsScale[2] + this->CoordsBias[2]);
+      }
+      this->ZCoordsTex->Create1DFromRaw(zCoordsWidth, 1, VTK_FLOAT, zcoordsPtrF);
       this->ZCoordsTex->SetWrapR(vtkTextureObject::ClampToEdge);
       this->ZCoordsTex->SetWrapS(vtkTextureObject::ClampToEdge);
       this->ZCoordsTex->SetWrapT(vtkTextureObject::ClampToEdge);
-      this->ZCoordsTex->SetMagnificationFilter(interpolation);
-      this->ZCoordsTex->SetMinificationFilter(interpolation);
+      this->ZCoordsTex->SetMagnificationFilter(vtkTextureObject::Nearest);
+      this->ZCoordsTex->SetMinificationFilter(vtkTextureObject::Nearest);
       this->ZCoordsTex->SetBorderColor(0.0f, 0.0f, 0.0f, 0.0f);
+      delete[] zcoordsPtrF;
     }
 
     if (useXStride)

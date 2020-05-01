@@ -160,11 +160,12 @@ std::string BaseDeclarationFragment(vtkRenderer* vtkNotUsed(ren), vtkVolumeMappe
                  "uniform vec4 in_volume_bias["
               << numInputs << "];\n";
 
-  // toShaderStr << "uniform sampler1D in_xCoordsTexture;\n";
-  // toShaderStr << "uniform sampler1D in_yCoordsTexture;\n";
-  // toShaderStr << "uniform sampler1D in_zCoordsTexture;\n";
   toShaderStr << "uniform sampler1D in_coordTexs[3];\n";
-  toShaderStr << "uniform bool in_samplePositionsTexture;\n";
+  toShaderStr << "uniform bool in_nonLinear_vertices;\n";
+  toShaderStr << "uniform vec3 in_coordTexSizes;\n";
+  toShaderStr << "uniform vec3 in_coordsScale;\n";
+  toShaderStr << "uniform vec3 in_coordsBias;\n";
+  toShaderStr << "uniform vec2 in_coordsRange[3];\n";
 
   toShaderStr << "uniform int in_noOfComponents;\n"
                  "uniform int in_independentComponents;\n"
@@ -1544,21 +1545,21 @@ std::string ShadingSingleInput(vtkRenderer* vtkNotUsed(ren), vtkVolumeMapper* ma
       \n    if (!g_skip)\
       \n      {\
       \n      vec4 scalar;\
-      \n      if (in_samplePositionsTexture)\
+      \n      if (in_nonLinear_vertices)\
       \n        {\
+      \n        // Compute IJK vertex position for current sample in the rectilinear grid\
       \n        vec4 dataPosWorld = in_volumeMatrix[0] * in_textureDatasetMatrix[0] * vec4(g_dataPos, 1.0);\
       \n        dataPosWorld = dataPosWorld / dataPosWorld.w;\
       \n        dataPosWorld.w = 1.0;\
-      \n        ivec3 ijk, sz;\
+      \n        ivec3 ijk = ivec3(0);\
+      \n        vec3 ijkTexCoord = vec3(0.0);\
+      \n        vec3 pCoords = vec3(0.0);\
       \n        float xPrev, xNext, tmp;\
-      \n        //coordTexs.x = in_xCoordsTexture;\
-      \n        //coordTexs.y = in_yCoordsTexture;\
-      \n        //coordTexs.z = in_zCoordsTexture;\
+      \n        vec4 dataPosWorldScaled = dataPosWorld * vec4(in_coordsScale, 1.0) + vec4(in_coordsBias, 1.0);\
       \n        for (int j = 0; j < 3; ++j)\
       \n          {\
-      \n          sz[j] = textureSize(in_coordTexs[j], 0);\
-      \n          xPrev = (texelFetch(in_coordTexs[j], 0, 0)).x;\
-      \n          xNext = (texelFetch(in_coordTexs[j], sz[j]-1, 0)).x;\
+      \n          xPrev = texture1D(in_coordTexs[j], 0.0).r;\
+      \n          xNext = texture1D(in_coordTexs[j], (in_coordTexSizes[j] - 1) / in_coordTexSizes[j]).r;\
       \n          float tmp;\
       \n          if (xNext < xPrev)\
       \n            {\
@@ -1566,25 +1567,26 @@ std::string ShadingSingleInput(vtkRenderer* vtkNotUsed(ren), vtkVolumeMapper* ma
       \n            xNext = xPrev;\
       \n            xPrev = tmp;\
       \n            }\
-      \n          for (int i = 0; i < sz[j]; i++)\
+      \n          for (int i = 0; i < int(in_coordTexSizes[j]); i++)\
       \n            {\
-      \n            xNext = (texelFetch(in_coordTexs[j], i, 0)).x;\
-      \n            if (g_dataPos[j] >= xPrev && g_dataPos[j] < xNext)\
+      \n            xNext = texture1D(in_coordTexs[j], (i + 0.5) / in_coordTexSizes[j]).r;\
+      \n            if (dataPosWorldScaled[j] >= xPrev && dataPosWorldScaled[j] < xNext)\
       \n              {\
       \n              ijk[j] = i - 1;\
+      \n              pCoords[j] = (dataPosWorldScaled[j] - xPrev) / (xNext - xPrev);\
       \n              break;\
       \n              }\
-      \n            else if (g_dataPos[j] == xNext)\
+      \n            else if (dataPosWorldScaled[j] == xNext)\
       \n              {\
       \n              ijk[j] = i - 1;\
+      \n              pCoords[j] = 1.0;\
       \n              break;\
       \n              }\
       \n            xPrev = xNext;\
       \n            }\
+      \n          ijkTexCoord[j] = (ijk[j] + pCoords[j]) / in_coordTexSizes[j];\
       \n          }\
-      \n        vec4 dataPosTex = ip_inverseTextureDataAdjusted * vec4(ijk, 1);\
-      \n        dataPosTex /= dataPosTex.w;\
-      \n        scalar = texture3D(in_volume[0], dataPosTex.xyz);\
+      \n        scalar = texture3D(in_volume[0], sign(in_cellSpacing[0]) * ijkTexCoord);\
       \n        }\
       \n      else\
       \n        {\
