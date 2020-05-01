@@ -160,6 +160,12 @@ std::string BaseDeclarationFragment(vtkRenderer* vtkNotUsed(ren), vtkVolumeMappe
                  "uniform vec4 in_volume_bias["
               << numInputs << "];\n";
 
+  // toShaderStr << "uniform sampler1D in_xCoordsTexture;\n";
+  // toShaderStr << "uniform sampler1D in_yCoordsTexture;\n";
+  // toShaderStr << "uniform sampler1D in_zCoordsTexture;\n";
+  toShaderStr << "uniform sampler1D in_coordTexs[3];\n";
+  toShaderStr << "uniform bool in_samplePositionsTexture;\n";
+
   toShaderStr << "uniform int in_noOfComponents;\n"
                  "uniform int in_independentComponents;\n"
                  "\n"
@@ -1537,7 +1543,54 @@ std::string ShadingSingleInput(vtkRenderer* vtkNotUsed(ren), vtkVolumeMapper* ma
   shaderStr += std::string("\
       \n    if (!g_skip)\
       \n      {\
-      \n      vec4 scalar = texture3D(in_volume[0], g_dataPos);");
+      \n      vec4 scalar;\
+      \n      if (in_samplePositionsTexture)\
+      \n        {\
+      \n        vec4 dataPosWorld = in_volumeMatrix[0] * in_textureDatasetMatrix[0] * vec4(g_dataPos, 1.0);\
+      \n        dataPosWorld = dataPosWorld / dataPosWorld.w;\
+      \n        dataPosWorld.w = 1.0;\
+      \n        ivec3 ijk, sz;\
+      \n        float xPrev, xNext, tmp;\
+      \n        //coordTexs.x = in_xCoordsTexture;\
+      \n        //coordTexs.y = in_yCoordsTexture;\
+      \n        //coordTexs.z = in_zCoordsTexture;\
+      \n        for (int j = 0; j < 3; ++j)\
+      \n          {\
+      \n          sz[j] = textureSize(in_coordTexs[j], 0);\
+      \n          xPrev = (texelFetch(in_coordTexs[j], 0, 0)).x;\
+      \n          xNext = (texelFetch(in_coordTexs[j], sz[j]-1, 0)).x;\
+      \n          float tmp;\
+      \n          if (xNext < xPrev)\
+      \n            {\
+      \n            tmp = xNext;\
+      \n            xNext = xPrev;\
+      \n            xPrev = tmp;\
+      \n            }\
+      \n          for (int i = 0; i < sz[j]; i++)\
+      \n            {\
+      \n            xNext = (texelFetch(in_coordTexs[j], i, 0)).x;\
+      \n            if (g_dataPos[j] >= xPrev && g_dataPos[j] < xNext)\
+      \n              {\
+      \n              ijk[j] = i - 1;\
+      \n              break;\
+      \n              }\
+      \n            else if (g_dataPos[j] == xNext)\
+      \n              {\
+      \n              ijk[j] = i - 1;\
+      \n              break;\
+      \n              }\
+      \n            xPrev = xNext;\
+      \n            }\
+      \n          }\
+      \n        vec4 dataPosTex = ip_inverseTextureDataAdjusted * vec4(ijk, 1);\
+      \n        dataPosTex /= dataPosTex.w;\
+      \n        scalar = texture3D(in_volume[0], dataPosTex.xyz);\
+      \n        }\
+      \n      else\
+      \n        {\
+      \n        scalar = texture3D(in_volume[0], g_dataPos);\
+      \n        }\
+      \n");
 
   // simulate old intensity textures
   if (noOfComponents == 1)

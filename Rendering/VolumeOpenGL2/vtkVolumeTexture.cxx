@@ -115,6 +115,24 @@ bool vtkVolumeTexture::LoadVolume(vtkRenderer* ren, vtkDataSet* data, vtkDataArr
     this->Texture = vtkSmartPointer<vtkTextureObject>::New();
     this->Texture->SetContext(vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
   }
+  if (rGrid)
+  {
+    if (!this->XCoordsTex)
+    {
+      this->XCoordsTex = vtkSmartPointer<vtkTextureObject>::New();
+      this->XCoordsTex->SetContext(vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
+    }
+    if (!this->YCoordsTex)
+    {
+      this->YCoordsTex = vtkSmartPointer<vtkTextureObject>::New();
+      this->YCoordsTex->SetContext(vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
+    }
+    if (!this->ZCoordsTex)
+    {
+      this->ZCoordsTex = vtkSmartPointer<vtkTextureObject>::New();
+      this->ZCoordsTex->SetContext(vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
+    }
+  }
 
   int scalarType = this->Scalars->GetDataType();
   int noOfComponents = this->Scalars->GetNumberOfComponents();
@@ -315,6 +333,40 @@ bool vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBloc
     texture->SetMagnificationFilter(interpolation);
     texture->SetMinificationFilter(interpolation);
     texture->SetBorderColor(0.0f, 0.0f, 0.0f, 0.0f);
+
+    if (rgBlock)
+    {
+      vtkDataArray* xCoords = rgBlock->GetXCoordinates();
+      void* xcoordsPtr = xCoords->GetVoidPointer(0);
+      int xCoordsWidth = xCoords->GetNumberOfTuples();
+      this->XCoordsTex->Create1DFromRaw(xCoordsWidth, 1, VTK_FLOAT, xcoordsPtr);
+      this->XCoordsTex->SetWrapR(vtkTextureObject::ClampToEdge);
+      this->XCoordsTex->SetWrapS(vtkTextureObject::ClampToEdge);
+      this->XCoordsTex->SetWrapT(vtkTextureObject::ClampToEdge);
+      this->XCoordsTex->SetMagnificationFilter(interpolation);
+      this->XCoordsTex->SetMinificationFilter(interpolation);
+      this->XCoordsTex->SetBorderColor(0.0f, 0.0f, 0.0f, 0.0f);
+      vtkDataArray* yCoords = rgBlock->GetYCoordinates();
+      void* ycoordsPtr = yCoords->GetVoidPointer(0);
+      int yCoordsWidth = yCoords->GetNumberOfTuples();
+      this->YCoordsTex->Create1DFromRaw(yCoordsWidth, 1, VTK_FLOAT, ycoordsPtr);
+      this->YCoordsTex->SetWrapR(vtkTextureObject::ClampToEdge);
+      this->YCoordsTex->SetWrapS(vtkTextureObject::ClampToEdge);
+      this->YCoordsTex->SetWrapT(vtkTextureObject::ClampToEdge);
+      this->YCoordsTex->SetMagnificationFilter(interpolation);
+      this->YCoordsTex->SetMinificationFilter(interpolation);
+      this->YCoordsTex->SetBorderColor(0.0f, 0.0f, 0.0f, 0.0f);
+      vtkDataArray* zCoords = rgBlock->GetZCoordinates();
+      void* zcoordsPtr = zCoords->GetVoidPointer(0);
+      int zCoordsWidth = zCoords->GetNumberOfTuples();
+      this->ZCoordsTex->Create1DFromRaw(zCoordsWidth, 1, VTK_FLOAT, zcoordsPtr);
+      this->ZCoordsTex->SetWrapR(vtkTextureObject::ClampToEdge);
+      this->ZCoordsTex->SetWrapS(vtkTextureObject::ClampToEdge);
+      this->ZCoordsTex->SetWrapT(vtkTextureObject::ClampToEdge);
+      this->ZCoordsTex->SetMagnificationFilter(interpolation);
+      this->ZCoordsTex->SetMinificationFilter(interpolation);
+      this->ZCoordsTex->SetBorderColor(0.0f, 0.0f, 0.0f, 0.0f);
+    }
 
     if (useXStride)
     {

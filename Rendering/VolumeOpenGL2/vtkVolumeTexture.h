@@ -196,6 +196,10 @@ public:
   float AdjustedTexMin[4];
   float AdjustedTexMax[4];
 
+  vtkSmartPointer<vtkTextureObject> XCoordsTex;
+  vtkSmartPointer<vtkTextureObject> YCoordsTex;
+  vtkSmartPointer<vtkTextureObject> ZCoordsTex;
+
 protected:
   vtkVolumeTexture();
   ~vtkVolumeTexture() override;

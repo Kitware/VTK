@@ -2695,6 +2695,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren)
     vtkErrorMacro("Shader failed to compile");
   }
 
+  // std::cout << fragmentShader->GetSource() << std::endl;
   vertexShader->Delete();
   fragmentShader->Delete();
   geometryShader->Delete();
@@ -3195,6 +3196,27 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::BindTransformations(
       cellToPointMat->DeepCopy(volTex->CellToPointMatrix.GetPointer());
       texMin = volTex->AdjustedTexMin;
       texMax = volTex->AdjustedTexMax;
+      if (volTex->XCoordsTex)
+      {
+        volTex->XCoordsTex->Activate();
+        volTex->YCoordsTex->Activate();
+        volTex->ZCoordsTex->Activate();
+        int coordUnits[3];
+        coordUnits[0] = volTex->XCoordsTex->GetTextureUnit();
+        coordUnits[1] = volTex->YCoordsTex->GetTextureUnit();
+        coordUnits[2] = volTex->ZCoordsTex->GetTextureUnit();
+        prog->SetUniform1iv("in_coordTexs", 3, reinterpret_cast<const int(*)>(coordUnits));
+        // prog->SetUniformi("in_xCoordsTexture", volTex->XCoordsTex->GetTextureUnit());
+        // volTex->YCoordsTex->Activate();
+        // prog->SetUniformi("in_yCoordsTexture", volTex->YCoordsTex->GetTextureUnit());
+        // volTex->ZCoordsTex->Activate();
+        // prog->SetUniformi("in_zCoordsTexture", volTex->ZCoordsTex->GetTextureUnit());
+        prog->SetUniformi("in_samplePositionsTexture", true);
+      }
+      else
+      {
+        prog->SetUniformi("in_samplePositionsTexture", false);
+      }
     }
 
     // Volume matrices (dataset to world)
