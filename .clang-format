@@ -10,7 +10,7 @@ BinPackArguments: true
 BinPackParameters: true
 ColumnLimit: 100
 SpaceAfterTemplateKeyword: true
-Standard: Cpp03
+Standard: Cpp11
 StatementMacros:
 - vtkAbstractTypeMacro
 - vtkTypeMacro
