@@ -176,7 +176,7 @@ void vtkMFCWindow::DrawDC(CDC* pDC)
   int cyPage = pDC->GetDeviceCaps(VERTRES);
 
   // Get the size of the window in pixels.
-  int* size = this->pvtkWin32OpenGLRW->GetSize();
+  const int* size = this->pvtkWin32OpenGLRW->GetSize();
   int cxWindow = size[0];
   int cyWindow = size[1];
   float fx = float(cxPage) / float(cxWindow);

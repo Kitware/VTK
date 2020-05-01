@@ -443,7 +443,7 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport* viewport)
 
     // compute the scale
     double length = this->GetLeaderGlyph()->GetLength();
-    int* sze = viewport->GetSize();
+    const int* sze = viewport->GetSize();
     int numPixels = static_cast<int>(
       this->LeaderGlyphSize * sqrt(static_cast<double>(sze[0] * sze[0] + sze[1] * sze[1])));
     numPixels =

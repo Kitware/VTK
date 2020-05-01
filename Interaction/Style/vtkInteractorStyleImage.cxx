@@ -478,7 +478,7 @@ void vtkInteractorStyleImage::WindowLevel()
   }
   else if (this->CurrentImageProperty)
   {
-    int* size = this->CurrentRenderer->GetSize();
+    const int* size = this->CurrentRenderer->GetSize();
 
     double window = this->WindowLevelInitial[0];
     double level = this->WindowLevelInitial[1];
@@ -570,7 +570,7 @@ void vtkInteractorStyleImage::Slice()
     viewportHeight = 2.0 * distance * tan(0.5 * angle);
   }
 
-  int* size = this->CurrentRenderer->GetSize();
+  const int* size = this->CurrentRenderer->GetSize();
   double delta = dy * viewportHeight / size[1];
   distance += delta;
 

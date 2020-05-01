@@ -231,7 +231,7 @@ void vtkPOVExporter::WriteHeader(vtkRenderer* renderer)
 
   // width and height of output image,
   // and other default command line args to POVRay
-  int* size = renderer->GetSize();
+  const int* size = renderer->GetSize();
   fprintf(this->FilePtr, "// +W%d +H%d\n\n", size[0], size[1]);
 
   // global settings

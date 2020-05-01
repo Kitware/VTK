@@ -382,7 +382,7 @@ void vtkParallelCoordinatesInteractorStyle::PrintSelf(ostream& os, vtkIndent ind
 void vtkParallelCoordinatesInteractorStyle::GetCursorStartPosition(
   vtkViewport* viewport, double pos[2])
 {
-  int* size = viewport->GetSize();
+  const int* size = viewport->GetSize();
   pos[0] = static_cast<double>(this->CursorStartPosition[0]) / size[0];
   pos[1] = static_cast<double>(this->CursorStartPosition[1]) / size[1];
 }
@@ -390,7 +390,7 @@ void vtkParallelCoordinatesInteractorStyle::GetCursorStartPosition(
 void vtkParallelCoordinatesInteractorStyle::GetCursorCurrentPosition(
   vtkViewport* viewport, double pos[2])
 {
-  int* size = viewport->GetSize();
+  const int* size = viewport->GetSize();
   pos[0] = static_cast<double>(this->CursorCurrentPosition[0]) / size[0];
   pos[1] = static_cast<double>(this->CursorCurrentPosition[1]) / size[1];
 }
@@ -398,7 +398,7 @@ void vtkParallelCoordinatesInteractorStyle::GetCursorCurrentPosition(
 void vtkParallelCoordinatesInteractorStyle::GetCursorLastPosition(
   vtkViewport* viewport, double pos[2])
 {
-  int* size = viewport->GetSize();
+  const int* size = viewport->GetSize();
   pos[0] = static_cast<double>(this->CursorLastPosition[0]) / size[0];
   pos[1] = static_cast<double>(this->CursorLastPosition[1]) / size[1];
 }

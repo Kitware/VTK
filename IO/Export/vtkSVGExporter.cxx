@@ -146,7 +146,7 @@ void vtkSVGExporter::WriteSVG()
 //------------------------------------------------------------------------------
 void vtkSVGExporter::PrepareDocument()
 {
-  int* size = this->RenderWindow->GetSize();
+  const int* size = this->RenderWindow->GetSize();
 
   this->RootNode = vtkXMLDataElement::New();
   this->RootNode->SetName("svg");
@@ -247,7 +247,7 @@ void vtkSVGExporter::RenderBackground(vtkRenderer* ren)
   }
 
   int* renOrigin = ren->GetOrigin();
-  int* renSize = ren->GetSize();
+  const int* renSize = ren->GetSize();
   vtkRectf renRect(renOrigin[0], renOrigin[1], renSize[0], renSize[1]);
 
   vtkNew<vtkContext2D> ctx;

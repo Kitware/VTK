@@ -354,7 +354,7 @@ void* vtkOSOpenGLRenderWindow::GetGenericContext()
   return (void*)this->Internal->OffScreenContextId;
 }
 
-int vtkOSOpenGLRenderWindow::GetEventPending()
+vtkTypeBool vtkOSOpenGLRenderWindow::GetEventPending()
 {
   return 0;
 }
@@ -362,7 +362,6 @@ int vtkOSOpenGLRenderWindow::GetEventPending()
 // Get the size of the screen in pixels
 int* vtkOSOpenGLRenderWindow::GetScreenSize()
 {
-
   this->ScreenSize[0] = 1280;
   this->ScreenSize[1] = 1024;
   return this->ScreenSize;
@@ -458,7 +457,7 @@ int vtkOSOpenGLRenderWindow::SupportsOpenGL()
   return 1;
 }
 
-int vtkOSOpenGLRenderWindow::IsDirect()
+vtkTypeBool vtkOSOpenGLRenderWindow::IsDirect()
 {
   MakeCurrent();
   return 0;

@@ -157,7 +157,7 @@ int vtkPicker::Pick3DPoint(double pos[3], vtkRenderer* renderer)
   viewport = renderer->GetViewport();
   if (renderer->GetRenderWindow())
   {
-    int* winSizePtr = renderer->GetRenderWindow()->GetSize();
+    const int* winSizePtr = renderer->GetRenderWindow()->GetSize();
     if (winSizePtr)
     {
       winSize[0] = winSizePtr[0];
@@ -514,7 +514,7 @@ int vtkPicker::Pick3DInternal(vtkRenderer* renderer, double p1World[4], double p
   viewport = renderer->GetViewport();
   if (renderer->GetRenderWindow())
   {
-    int* winSizePtr = renderer->GetRenderWindow()->GetSize();
+    const int* winSizePtr = renderer->GetRenderWindow()->GetSize();
     if (winSizePtr)
     {
       winSize[0] = winSizePtr[0];

@@ -904,7 +904,7 @@ bool vtkLabeledContourPolyDataItem::Private::SetViewInfo(
 
   if (vtkWindow* win = ren->GetVTKWindow())
   {
-    int* size = win->GetSize();
+    const int* size = win->GetSize();
     this->WindowSize[0] = size[0];
     this->WindowSize[1] = size[1];
 

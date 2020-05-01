@@ -726,7 +726,7 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport* viewport)
   // Check modified time to see whether we have to rebuild.
   // Pay attention that GetMTime() has been redefined ( see below )
 
-  int* size = viewport->GetSize();
+  const int* size = viewport->GetSize();
   if (mtime > this->BuildTime || size[0] != this->CachedSize[0] || size[1] != this->CachedSize[1] ||
     this->GetMTime() > this->BuildTime ||
     (this->Title && this->Title[0] && this->TitleTextProperty->GetMTime() > this->BuildTime) ||
@@ -2140,7 +2140,7 @@ void vtkXYPlotActor::CreatePlotData(
 // knows something about how the vtkAxisActor2D functions, so it may have
 // to change if that class changes dramatically.
 //
-void vtkXYPlotActor::PlaceAxes(vtkViewport* viewport, int* size, int pos[2], int pos2[2])
+void vtkXYPlotActor::PlaceAxes(vtkViewport* viewport, const int* size, int pos[2], int pos2[2])
 {
   int titleSizeX[2], titleSizeY[2], labelSizeX[2], labelSizeY[2];
   double labelFactorX, labelFactorY;

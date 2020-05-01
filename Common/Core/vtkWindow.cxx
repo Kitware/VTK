@@ -75,12 +75,12 @@ void vtkWindow::SetSize(int a[2])
 }
 
 //-----------------------------------------------------------------------------
-void vtkWindow::SetSize(int x, int y)
+void vtkWindow::SetSize(int width, int height)
 {
-  if (this->Size[0] != x || this->Size[1] != y)
+  if (this->Size[0] != width || this->Size[1] != height)
   {
-    this->Size[0] = x;
-    this->Size[1] = y;
+    this->Size[0] = width;
+    this->Size[1] = height;
     this->Modified();
     this->InvokeEvent(vtkCommand::WindowResizeEvent, nullptr);
   }

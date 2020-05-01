@@ -583,6 +583,8 @@ bool vtkEGLRenderWindow::IsCurrent()
 // Get the size of the screen in pixels
 int* vtkEGLRenderWindow::GetScreenSize()
 {
+  // TODO: actually determine screensize.
+
   return this->ScreenSize;
 }
 

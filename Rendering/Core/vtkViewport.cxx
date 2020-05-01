@@ -312,7 +312,7 @@ int* vtkViewport::GetOrigin()
 {
   if (this->VTKWindow)
   {
-    int* winSize = this->VTKWindow->GetSize();
+    const int* winSize = this->VTKWindow->GetSize();
 
     // Round the origin up a pixel
     this->Origin[0] = static_cast<int>(this->Viewport[0] * static_cast<double>(winSize[0]) + 0.5);

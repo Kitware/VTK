@@ -1089,7 +1089,7 @@ void vtkParallelRenderManager::SetRenderWindowSize()
   if (!this->RenderWindow->GetOffScreenRendering())
   {
     // Make sure we can support the requested image size.
-    int* screensize = this->RenderWindow->GetScreenSize();
+    const int* screensize = this->RenderWindow->GetScreenSize();
     if (this->FullImageSize[0] > screensize[0])
     {
       // Reduce both dimensions to preserve aspect ratio.

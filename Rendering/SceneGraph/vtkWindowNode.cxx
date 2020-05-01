@@ -97,7 +97,7 @@ void vtkWindowNode::Synchronize(bool prepass)
       GetPosition()   vtkWindow       virtual
       GetScreenSize()=0       vtkWindow       pure virtual
     */
-    int* sz = mine->GetSize();
+    const int* sz = mine->GetSize();
     this->Size[0] = sz[0];
     this->Size[1] = sz[1];
     /*

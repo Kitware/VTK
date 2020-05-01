@@ -179,9 +179,9 @@ void vtkImageViewer2::SetRenderer(vtkRenderer* arg)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageViewer2::SetSize(int a, int b)
+void vtkImageViewer2::SetSize(int width, int height)
 {
-  this->RenderWindow->SetSize(a, b);
+  this->RenderWindow->SetSize(width, height);
 }
 
 //----------------------------------------------------------------------------
@@ -405,9 +405,9 @@ void vtkImageViewer2::UpdateDisplayExtent()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageViewer2::SetPosition(int a, int b)
+void vtkImageViewer2::SetPosition(int x, int y)
 {
-  this->RenderWindow->SetPosition(a, b);
+  this->RenderWindow->SetPosition(x, y);
 }
 
 //----------------------------------------------------------------------------
@@ -496,7 +496,7 @@ public:
 
     vtkInteractorStyleImage* isi = static_cast<vtkInteractorStyleImage*>(caller);
 
-    int* size = this->IV->GetRenderWindow()->GetSize();
+    const int* size = this->IV->GetRenderWindow()->GetSize();
     double window = this->InitialWindow;
     double level = this->InitialLevel;
 

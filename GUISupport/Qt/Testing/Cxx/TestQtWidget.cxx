@@ -68,8 +68,8 @@ int TestQtWidget(int argc, char* argv[])
   detail::show(widgetOrWindow, QSize(300, 300));
   detail::process_events_and_wait(1000); // let's wait a little longer for the resize
 
-  int* windowSize = window->GetSize();
-  int* screenSize = window->GetScreenSize();
+  const int* windowSize = window->GetSize();
+  const int* screenSize = window->GetScreenSize();
   if (screenSize[0] < windowSize[0] || screenSize[1] < windowSize[1])
   {
     std::cout << "Expected vtkGenericOpenGLRenderWindow::GetScreenSize() "

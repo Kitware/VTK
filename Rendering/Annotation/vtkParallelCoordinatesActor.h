@@ -216,7 +216,7 @@ private:
   int LastPosition2[2];
 
   void Initialize();
-  int PlaceAxes(vtkViewport* viewport, int* size);
+  int PlaceAxes(vtkViewport* viewport, const int* size);
 
 private:
   vtkParallelCoordinatesActor(const vtkParallelCoordinatesActor&) = delete;

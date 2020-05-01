@@ -32,8 +32,6 @@ vtkGenericOpenGLRenderWindow::vtkGenericOpenGLRenderWindow()
   this->CurrentStatus = false;
   this->SupportsOpenGLStatus = 0;
   this->ForceMaximumHardwareLineWidth = 0;
-  this->ScreenSize[0] = 0;
-  this->ScreenSize[1] = 0;
 }
 
 vtkGenericOpenGLRenderWindow::~vtkGenericOpenGLRenderWindow()
@@ -122,7 +120,7 @@ int vtkGenericOpenGLRenderWindow::SupportsOpenGL()
   return this->SupportsOpenGLStatus;
 }
 
-int vtkGenericOpenGLRenderWindow::IsDirect()
+vtkTypeBool vtkGenericOpenGLRenderWindow::IsDirect()
 {
   this->InvokeEvent(vtkCommand::WindowIsDirectEvent, &this->DirectStatus);
   return this->DirectStatus;
@@ -176,7 +174,7 @@ void vtkGenericOpenGLRenderWindow::SetFullScreen(vtkTypeBool) {}
 
 void vtkGenericOpenGLRenderWindow::WindowRemap() {}
 
-int vtkGenericOpenGLRenderWindow::GetEventPending()
+vtkTypeBool vtkGenericOpenGLRenderWindow::GetEventPending()
 {
   return 0;
 }
@@ -189,7 +187,7 @@ void vtkGenericOpenGLRenderWindow::CreateAWindow() {}
 
 void vtkGenericOpenGLRenderWindow::DestroyWindow() {}
 
-void vtkGenericOpenGLRenderWindow::SetIsDirect(int newValue)
+void vtkGenericOpenGLRenderWindow::SetIsDirect(vtkTypeBool newValue)
 {
   this->DirectStatus = newValue;
 }

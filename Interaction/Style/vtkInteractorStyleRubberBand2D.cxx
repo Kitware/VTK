@@ -70,7 +70,7 @@ void vtkInteractorStyleRubberBand2D::OnLeftButtonDown()
 
       this->PixelArray->Initialize();
       this->PixelArray->SetNumberOfComponents(4);
-      int* size = renWin->GetSize();
+      const int* size = renWin->GetSize();
       this->PixelArray->SetNumberOfTuples(size[0] * size[1]);
 
       renWin->GetRGBACharPixelData(0, 0, size[0] - 1, size[1] - 1, 1, this->PixelArray);
@@ -88,7 +88,7 @@ void vtkInteractorStyleRubberBand2D::OnLeftButtonUp()
     this->Interaction = NONE;
 
     // Clear the rubber band
-    int* size = this->Interactor->GetRenderWindow()->GetSize();
+    const int* size = this->Interactor->GetRenderWindow()->GetSize();
     unsigned char* pixels = this->PixelArray->GetPointer(0);
     this->Interactor->GetRenderWindow()->SetRGBACharPixelData(
       0, 0, size[0] - 1, size[1] - 1, pixels, 0);
@@ -205,7 +205,7 @@ void vtkInteractorStyleRubberBand2D::OnMouseMove()
   {
     this->EndPosition[0] = this->Interactor->GetEventPosition()[0];
     this->EndPosition[1] = this->Interactor->GetEventPosition()[1];
-    int* size = this->Interactor->GetRenderWindow()->GetSize();
+    const int* size = this->Interactor->GetRenderWindow()->GetSize();
     if (this->EndPosition[0] > (size[0] - 1))
     {
       this->EndPosition[0] = size[0] - 1;
@@ -275,7 +275,7 @@ void vtkInteractorStyleRubberBand2D::OnMouseWheelBackward()
 void vtkInteractorStyleRubberBand2D::RedrawRubberBand()
 {
   // Update the rubber band on the screen
-  int* size = this->Interactor->GetRenderWindow()->GetSize();
+  const int* size = this->Interactor->GetRenderWindow()->GetSize();
 
   vtkUnsignedCharArray* tmpPixelArray = vtkUnsignedCharArray::New();
   tmpPixelArray->DeepCopy(this->PixelArray);

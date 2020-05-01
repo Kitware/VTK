@@ -1086,7 +1086,7 @@ void vtkImagePlaneWidget::OnMouseMove()
 //----------------------------------------------------------------------------
 void vtkImagePlaneWidget::WindowLevel(int X, int Y)
 {
-  int* size = this->CurrentRenderer->GetSize();
+  const int* size = this->CurrentRenderer->GetSize();
   double window = this->InitialWindow;
   double level = this->InitialLevel;
 

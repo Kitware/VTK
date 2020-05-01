@@ -386,7 +386,7 @@ int vtkSpiderPlotActor::BuildPlot(vtkViewport* viewport)
     vtkDebugMacro(<< "Rebuilding plot");
 
     // Build axes
-    int* size = viewport->GetSize();
+    const int* size = viewport->GetSize();
     if (!this->PlaceAxes(viewport, size))
     {
       return 0;
@@ -420,7 +420,7 @@ static inline int vtkSpiderPlotActorGetComponent(
 
 #define VTK_RING_PTS 64
 //----------------------------------------------------------------------------
-int vtkSpiderPlotActor::PlaceAxes(vtkViewport* viewport, int* vtkNotUsed(size))
+int vtkSpiderPlotActor::PlaceAxes(vtkViewport* viewport, const int* vtkNotUsed(size))
 {
   vtkIdType i, j, k;
   vtkDataObject* input = this->GetInput();

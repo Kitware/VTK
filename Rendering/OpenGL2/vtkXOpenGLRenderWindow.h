@@ -90,10 +90,16 @@ public:
   virtual void PrefFullScreen();
 
   /**
-   * Specify the size of the rendering window in pixels.
+   * Set the size (width and height) of the rendering window in
+   * screen coordinates (in pixels). This resizes the operating
+   * system's view/window and redraws it.
+   *
+   * If the size has changed, this method will fire
+   * vtkCommand::WindowResizeEvent.
    */
-  void SetSize(int, int) override;
+  void SetSize(int width, int height) override;
   void SetSize(int a[2]) override { this->SetSize(a[0], a[1]); }
+
   /**
    * Specify the size of the rendering window in pixels but do not resize
    * the XWindow. Useful when resizing is done interactively.
@@ -143,7 +149,7 @@ public:
   /**
    * Is this render window using hardware acceleration? 0-false, 1-true
    */
-  int IsDirect() override;
+  vtkTypeBool IsDirect() override;
 
   /**
    * Xwindow get set functions
@@ -158,11 +164,13 @@ public:
 
   /**
    * Get the current size of the screen in pixels.
+   * An HDTV for example would be 1920 x 1080 pixels.
    */
   int* GetScreenSize() VTK_SIZEHINT(2) override;
 
   /**
-   * Get the position in screen coordinates (pixels) of the window.
+   * Get the position (x and y) of the rendering window in
+   * screen coordinates (in pixels).
    */
   int* GetPosition() VTK_SIZEHINT(2) override;
 
@@ -236,9 +244,11 @@ public:
 
   //@{
   /**
-   * Move the window to a new position on the display.
+   * Set the position (x and y) of the rendering window in
+   * screen coordinates (in pixels). This resizes the operating
+   * system's view/window and redraws it.
    */
-  void SetPosition(int, int) override;
+  void SetPosition(int x, int y) override;
   void SetPosition(int a[2]) override { this->SetPosition(a[0], a[1]); }
   //@}
 
@@ -261,7 +271,7 @@ public:
    * All other events are ignored by this method.
    * This is a useful check to abort a long render.
    */
-  int GetEventPending() override;
+  vtkTypeBool GetEventPending() override;
 
   /**
    * Set this RenderWindow's X window id to a pre-existing window.
@@ -318,12 +328,11 @@ protected:
   Window NextWindowId;
   Display* DisplayId;
   Colormap ColorMap;
-  int OwnWindow;
-  int OwnDisplay;
-  int ScreenSize[2];
-  int CursorHidden;
-  int ForceMakeCurrent;
-  int UsingHardware;
+  vtkTypeBool OwnWindow;
+  vtkTypeBool OwnDisplay;
+  vtkTypeBool CursorHidden;
+  vtkTypeBool ForceMakeCurrent;
+  vtkTypeBool UsingHardware;
 
   std::stack<Display*> DisplayStack;
   std::stack<Drawable> DrawableStack;

@@ -225,8 +225,8 @@ protected:
 
   // Internal helper methods
   virtual void BuildLeader(vtkViewport* viewport);
-  int SetFontSize(vtkViewport* viewport, vtkTextMapper* textMapper, int* targetSize, double factor,
-    int* stringSize);
+  int SetFontSize(vtkViewport* viewport, vtkTextMapper* textMapper, const int* targetSize,
+    double factor, int* stringSize);
   int ClipLeader(
     double xL[3], int stringSize[2], double p1[3], double ray[3], double c1[3], double c2[3]);
   void BuildCurvedLeader(double p1[3], double p2[3], double ray[3], double rayLength, double theta,

@@ -132,7 +132,7 @@ void vtkLeaderActor2D::BuildLeader(vtkViewport* viewport)
     }
   }
 
-  int* size = viewport->GetSize();
+  const int* size = viewport->GetSize();
   int viewportSizeHasChanged = 0;
   // See whether fonts have to be rebuilt (font size depends on viewport size)
   if (this->LastSize[0] != size[0] || this->LastSize[1] != size[1])
@@ -398,8 +398,8 @@ void vtkLeaderActor2D::BuildLeader(vtkViewport* viewport)
 
 //----------------------------------------------------------------------------
 #define VTK_LA2D_FACTOR 0.015
-int vtkLeaderActor2D::SetFontSize(
-  vtkViewport* viewport, vtkTextMapper* textMapper, int* targetSize, double factor, int* stringSize)
+int vtkLeaderActor2D::SetFontSize(vtkViewport* viewport, vtkTextMapper* textMapper,
+  const int* targetSize, double factor, int* stringSize)
 {
   int fontSize, targetWidth, targetHeight;
 
@@ -546,7 +546,7 @@ void vtkLeaderActor2D::BuildCurvedLeader(double p1[3], double p2[3], double ray[
 
     if (viewportChanged || this->LabelTextProperty->GetMTime() > this->BuildTime)
     {
-      int* size = viewport->GetSize();
+      const int* size = viewport->GetSize();
       this->SetFontSize(viewport, this->LabelMapper, size, this->LabelFactor, stringSize);
     }
     else
