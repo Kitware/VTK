@@ -238,7 +238,7 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
     if (auto anOperator = this->NewSelectionOperator(
           static_cast<vtkSelectionNode::SelectionContent>(node->GetContentType())))
     {
-      anOperator->SetInsidednessArrayName(name.c_str());
+      anOperator->SetInsidednessArrayName(name);
       anOperator->Initialize(node);
       selectors[name] = anOperator;
     }
@@ -262,7 +262,7 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
     {
       auto name = nodeIter->first;
       auto insidednessArray = vtkSignedCharArray::SafeDownCast(fieldData->GetArray(name.c_str()));
-      auto node = selection->GetNode(name.c_str());
+      auto node = selection->GetNode(name);
       if (insidednessArray != nullptr && node->GetProperties()->Has(vtkSelectionNode::INVERSE()) &&
         node->GetProperties()->Get(vtkSelectionNode::INVERSE()))
       {

@@ -123,7 +123,7 @@ FILE* vtkProStarReader::OpenFile(const char* ext)
   }
 
   fullName += ext;
-  FILE* in = vtksys::SystemTools::Fopen(fullName.c_str(), "r");
+  FILE* in = vtksys::SystemTools::Fopen(fullName, "r");
   if (in == nullptr)
   {
     vtkErrorMacro(<< "Error opening file: " << fullName);

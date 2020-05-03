@@ -62,7 +62,7 @@ int TestJSONRenderWindowExporter(int argc, char* argv[])
   exporter->SetRenderWindow(rwin);
   exporter->Write();
 
-  vtksys::SystemTools::RemoveADirectory(filename.c_str());
+  vtksys::SystemTools::RemoveADirectory(filename);
 
   return EXIT_SUCCESS;
 }
