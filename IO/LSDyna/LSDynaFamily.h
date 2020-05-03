@@ -171,7 +171,7 @@ public:
   // Not needed (yet):
   // void GetCurrentWord( SectionType& stype, vtkIdType& sId, vtkIdType& wN );
   int AdvanceFile();
-  void MarkSectionStart(int adapteLevel, SectionType m);
+  void MarkSectionStart(int adaptLevel, SectionType m);
 
   int JumpToMark(SectionType m);
   int DetermineStorageModel();

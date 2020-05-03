@@ -160,7 +160,7 @@ public:
    * Set/Get the normal to the plane.
    */
   void SetNormal(double x, double y, double z);
-  void SetNormal(double x[3]);
+  void SetNormal(double n[3]);
   vtkGetVector3Macro(Normal, double);
   //@}
 

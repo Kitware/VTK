@@ -101,7 +101,7 @@ public:
    * Variable array selection.
    */
   virtual int GetNumberOfVariableArrays();
-  virtual const char* GetVariableArrayName(int idx);
+  virtual const char* GetVariableArrayName(int index);
   virtual int GetVariableArrayStatus(const char* name);
   virtual void SetVariableArrayStatus(const char* name, int status);
   //@}
@@ -404,7 +404,8 @@ protected:
    * 0 on failure.  Also fills a midpoint id map that will be passed into
    * InterpolateMidpointFieldData.
    */
-  virtual int ReadMidpointData(int meshFD, vtkMultiBlockDataSet* output, MidpointIdMap& map);
+  virtual int ReadMidpointData(
+    int meshFD, vtkMultiBlockDataSet* output, MidpointIdMap& midpointIds);
 
   /**
    * Instead of reading data from the mesh file, restore the data from the

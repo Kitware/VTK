@@ -202,7 +202,7 @@ protected:
    * to handle distributed datasets).
    */
   virtual void UpdateClusterCenters(vtkTable* newClusterElements, vtkTable* curClusterElements,
-    vtkIdTypeArray* numMembershipChanges, vtkIdTypeArray* numElementsInCluster,
+    vtkIdTypeArray* numMembershipChanges, vtkIdTypeArray* numDataElementsInCluster,
     vtkDoubleArray* error, vtkIdTypeArray* startRunID, vtkIdTypeArray* endRunID,
     vtkIntArray* computeRun);
 

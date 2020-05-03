@@ -220,17 +220,17 @@ int* vtkMath::BeginCombination(int m, int n)
 // If the \a combination is the last item in the sequence on input,
 // then \a combination is unaltered and 0 is returned.
 // Otherwise, 1 is returned and \a combination is updated.
-int vtkMath::NextCombination(int m, int n, int* r)
+int vtkMath::NextCombination(int m, int n, int* combination)
 {
   int status = 0;
   for (int i = n - 1; i >= 0; --i)
   {
-    if (r[i] < m - n + i)
+    if (combination[i] < m - n + i)
     {
-      int j = r[i] + 1;
+      int j = combination[i] + 1;
       while (i < n)
       {
-        r[i++] = j++;
+        combination[i++] = j++;
       }
       status = 1;
       break;
@@ -242,9 +242,9 @@ int vtkMath::NextCombination(int m, int n, int* r)
 //------------------------------------------------------------------------------
 // Free the "iterator" array created by vtkMath::BeginCombination.
 //
-void vtkMath::FreeCombination(int* r)
+void vtkMath::FreeCombination(int* combination)
 {
-  delete[] r;
+  delete[] combination;
 }
 
 //------------------------------------------------------------------------------

@@ -336,7 +336,7 @@ public:
    * Per input data/ per component parameters.
    */
   void SetVolumeShaderParameters(
-    vtkShaderProgram* prog, int independent, int numComponents, vtkMatrix4x4* modelViewMat);
+    vtkShaderProgram* prog, int independent, int noOfComponents, vtkMatrix4x4* modelViewMat);
   void BindTransformations(vtkShaderProgram* prog, vtkMatrix4x4* modelViewMat);
 
   /**

@@ -523,7 +523,7 @@ template <class F, class T>
 struct vtkSlidingWindow
 {
   static void InterpolateRow(
-    vtkInterpolationWeights* weights, int idX, int idY, int idZ, F* outPtr, int n);
+    vtkInterpolationWeights* weights, int idX, int idY, int idZ, F* outPtr, int pixelCount);
 };
 
 //------------------------------------------------------------------------------

@@ -155,8 +155,8 @@ public:
    * Get the matrix from the position, origin, scale and orientation This
    * matrix is cached, so multiple GetMatrix() calls will be efficient.
    */
-  virtual void GetMatrix(vtkMatrix4x4* m);
-  virtual void GetMatrix(double m[16]);
+  virtual void GetMatrix(vtkMatrix4x4* result);
+  virtual void GetMatrix(double result[16]);
   //@}
 
   /**

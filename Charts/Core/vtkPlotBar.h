@@ -246,9 +246,9 @@ public:
    */
   vtkIdType GetNearestPoint(const vtkVector2f& point, const vtkVector2f&, vtkVector2f* location,
 #ifndef VTK_LEGACY_REMOVE
-    vtkIdType* segmentId) override;
+    vtkIdType* segmentIndex) override;
 #else
-    vtkIdType* segmentId = nullptr) override;
+    vtkIdType* segmentIndex = nullptr) override;
 #endif // VTK_LEGACY_REMOVE
 
 #ifndef VTK_LEGACY_REMOVE

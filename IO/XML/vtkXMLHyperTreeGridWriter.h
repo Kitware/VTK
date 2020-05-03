@@ -156,8 +156,8 @@ protected:
   // Helper to simplify writing appended array data
   void WriteAppendedArrayDataHelper(vtkAbstractArray* array, OffsetsManager& offsets);
 
-  void WriteCellDataAppendedArrayDataHelper(
-    vtkAbstractArray* array, vtkIdType treeCount, OffsetsManager& offsets, vtkHyperTree* tree);
+  void WriteCellDataAppendedArrayDataHelper(vtkAbstractArray* array, vtkIdType numberOfVertices,
+    OffsetsManager& offsets, vtkHyperTree* tree);
 
   OffsetsManagerGroup* CoordsOMG;
   OffsetsManagerGroup* DescriptorOMG;

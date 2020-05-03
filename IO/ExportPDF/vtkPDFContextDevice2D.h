@@ -150,7 +150,7 @@ protected:
   // | c d y |
   // | 0 0 1 |
   static void Matrix4ToHPDFTransform(const double mat4[16], float hpdfMat[6]);
-  static void Matrix3ToHPDFTransform(const double mat4[9], float hpdfMat[6]);
+  static void Matrix3ToHPDFTransform(const double mat3[9], float hpdfMat[6]);
   static void HPDFTransformToMatrix3(
     float a, float b, float c, float d, float x, float y, double mat3[9]);
 

@@ -71,7 +71,7 @@
 // myself.
 // This function is also defined in Infovis/vtkDelimitedTextReader.cxx,
 // so it would be nice to put this in a common file.
-static int my_getline(istream& stream, vtkStdString& output, char delim = '\n');
+static int my_getline(istream& in, vtkStdString& output, char delim = '\n');
 
 vtkStandardNewMacro(vtkDataReader);
 
@@ -3915,23 +3915,23 @@ static int my_getline(istream& in, vtkStdString& out, char delimiter)
 }
 
 //------------------------------------------------------------------------------
-void vtkDataReader::SetScalarLut(const char* sl)
+void vtkDataReader::SetScalarLut(const char* lut)
 {
-  if (!this->ScalarLut && !sl)
+  if (!this->ScalarLut && !lut)
   {
     return;
   }
-  if (this->ScalarLut && sl && (strcmp(this->ScalarLut, sl)) == 0)
+  if (this->ScalarLut && lut && (strcmp(this->ScalarLut, lut)) == 0)
   {
     return;
   }
   delete[] this->ScalarLut;
   this->ScalarLut = nullptr;
-  if (sl)
+  if (lut)
   {
-    size_t n = strlen(sl) + 1;
+    size_t n = strlen(lut) + 1;
     char* cp1 = new char[n];
-    const char* cp2 = sl;
+    const char* cp2 = lut;
     this->ScalarLut = cp1;
     do
     {

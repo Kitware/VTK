@@ -135,7 +135,7 @@ protected:
   void AppendData(vtkDataArray* dest, vtkDataArray* src, vtkIdType offset);
 
   // An efficient way to append cells.
-  void AppendCells(vtkCellArray* dest, vtkCellArray* src, vtkIdType offset);
+  void AppendCells(vtkCellArray* dst, vtkCellArray* src, vtkIdType offset);
 
 private:
   // hide the superclass' AddInput() from the user and the compiler

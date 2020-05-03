@@ -238,7 +238,7 @@ protected:
    */
   void ClipAndContourPolys(vtkPoints* points, vtkDoubleArray* pointScalars, vtkPointData* pointData,
     vtkCCSEdgeLocator* edgeLocator, int triangulate, vtkCellArray* inputCells,
-    vtkCellArray* outputPolys, vtkCellArray* outputLines, vtkCellData* inPolyData,
+    vtkCellArray* outputPolys, vtkCellArray* outputLines, vtkCellData* inCellData,
     vtkCellData* outPolyData, vtkCellData* outLineData);
 
   /**

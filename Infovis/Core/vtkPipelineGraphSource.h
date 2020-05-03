@@ -35,8 +35,8 @@ public:
   vtkTypeMacro(vtkPipelineGraphSource, vtkDirectedGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  void AddSink(vtkObject* object);
-  void RemoveSink(vtkObject* object);
+  void AddSink(vtkObject* sink);
+  void RemoveSink(vtkObject* sink);
 
   /**
    * Generates a GraphViz DOT file that describes the VTK pipeline

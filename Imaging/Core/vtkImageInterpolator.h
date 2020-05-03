@@ -57,7 +57,7 @@ public:
    * structured coordinate transformation between the output and the input.
    * Otherwise, pass nullptr as the matrix to retrieve the full kernel size.
    */
-  void ComputeSupportSize(const double matrix[16], int support[3]) override;
+  void ComputeSupportSize(const double matrix[16], int size[3]) override;
 
   /**
    * Returns true if the interpolator supports weight precomputation.

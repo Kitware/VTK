@@ -590,13 +590,13 @@ void vtkInteractorStyleImage::Slice()
 
 //------------------------------------------------------------------------------
 void vtkInteractorStyleImage::SetImageOrientation(
-  const double leftToRight[3], const double viewUp[3])
+  const double leftToRight[3], const double bottomToTop[3])
 {
   if (this->CurrentRenderer)
   {
     // the cross product points out of the screen
     double vector[3];
-    vtkMath::Cross(leftToRight, viewUp, vector);
+    vtkMath::Cross(leftToRight, bottomToTop, vector);
     double focus[3];
     vtkCamera* camera = this->CurrentRenderer->GetActiveCamera();
     camera->GetFocalPoint(focus);
@@ -604,7 +604,7 @@ void vtkInteractorStyleImage::SetImageOrientation(
     camera->SetPosition(
       focus[0] + d * vector[0], focus[1] + d * vector[1], focus[2] + d * vector[2]);
     camera->SetFocalPoint(focus);
-    camera->SetViewUp(viewUp);
+    camera->SetViewUp(bottomToTop);
   }
 }
 

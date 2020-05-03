@@ -58,7 +58,7 @@ protected:
    * if the name is a new name and false if not.
    */
   virtual bool GetOutputArrayName(
-    vtkFieldData* arrays, const char* inArrayName, int inputIndex, std::string& outArrayName);
+    vtkFieldData* arrays, const char* inArrayName, int inputIndex, std::string& outputArrayName);
   //@}
 
   //@{

@@ -211,7 +211,7 @@ public:
    * (this includes instances of vtkPoints) Compare the result of
    * each L2 comutation to "tol".
    */
-  int CompareAverageOfL2Norm(vtkDataSet* pdA, vtkDataSet* pdB, double tol);
+  int CompareAverageOfL2Norm(vtkDataSet* dsA, vtkDataSet* dsB, double tol);
 
   /**
    * Compute the average L2 norm between two data arrays "daA" and "daB"

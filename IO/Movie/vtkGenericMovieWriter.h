@@ -67,7 +67,7 @@ public:
   /**
    * Converts vtkErrorCodes and vtkGenericMovieWriter errors to strings.
    */
-  static const char* GetStringFromErrorCode(unsigned long event);
+  static const char* GetStringFromErrorCode(unsigned long error);
 
   enum MovieWriterErrorIds
   {

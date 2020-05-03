@@ -674,8 +674,8 @@ public:
   /**
    * Multiply a vector by a 3x3 matrix.  The result is placed in out.
    */
-  static void Multiply3x3(const float A[3][3], const float in[3], float out[3]);
-  static void Multiply3x3(const double A[3][3], const double in[3], double out[3]);
+  static void Multiply3x3(const float A[3][3], const float v[3], float u[3]);
+  static void Multiply3x3(const double A[3][3], const double v[3], double u[3]);
   //@}
 
   //@{

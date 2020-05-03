@@ -134,7 +134,7 @@ public:
   /**
    *  Set a number of blocks per axis.
    */
-  void SetPartitions(int const i, int const j, int const k);
+  void SetPartitions(int const x, int const y, int const z);
   const Size3& GetPartitions();
 
   /**

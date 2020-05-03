@@ -123,7 +123,7 @@ public:
    * Get the normal to the plane.
    */
   void SetNormal(double x, double y, double z);
-  void SetNormal(double x[3]);
+  void SetNormal(double n[3]);
   double* GetNormal() VTK_SIZEHINT(3);
   void GetNormal(double xyz[3]);
   //@}

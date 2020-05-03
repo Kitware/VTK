@@ -281,9 +281,9 @@ int vtkParallelCoordinatesView::SetAxisHighlightPosition(
 }
 
 int vtkParallelCoordinatesView::SetAxisHighlightPosition(
-  vtkParallelCoordinatesRepresentation* rep, double xpos)
+  vtkParallelCoordinatesRepresentation* rep, double position)
 {
-  int nearestPosition = rep->GetPositionNearXCoordinate(xpos);
+  int nearestPosition = rep->GetPositionNearXCoordinate(position);
 
   return this->SetAxisHighlightPosition(rep, nearestPosition);
 }

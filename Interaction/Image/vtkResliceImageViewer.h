@@ -166,9 +166,9 @@ public:
   //@}
 
   /**
-   * Increment/Decrement slice by 'n' slices
+   * Increment/Decrement slice by 'inc' slices
    */
-  virtual void IncrementSlice(int n);
+  virtual void IncrementSlice(int inc);
 
   enum
   {

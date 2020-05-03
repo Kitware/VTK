@@ -283,7 +283,7 @@ private:
   void GetVariableAtTimestep(int vari, int tstep, vtkFloatArray* v);
   void CreateVariableNames();
   void GetTimeSteps();
-  void MakeTimeStepTable(int nvars);
+  void MakeTimeStepTable(int numberOfVariables);
   void SetProjectName(const char* infile);
   void MakeSPXTimeStepIndexTable(int nvars);
   void CalculateMaxTimeStep();

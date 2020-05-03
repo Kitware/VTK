@@ -92,7 +92,7 @@ protected:
    * Set the shader parameteres related to the mapper/input data, called by UpdateShader
    */
   virtual void SetMapperShaderParameters(
-    vtkOpenGLHelper& cellBO, vtkViewport* ren, vtkActor2D* act);
+    vtkOpenGLHelper& cellBO, vtkViewport* viewport, vtkActor2D* act);
 
   /**
    * Set the shader parameteres related to the Camera

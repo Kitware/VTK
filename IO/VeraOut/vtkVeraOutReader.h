@@ -57,7 +57,7 @@ protected:
 
   // Trigger the real data access
   int RequestData(
-    vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector) override;
+    vtkInformation*, vtkInformationVector**, vtkInformationVector* outVector) override;
 
   char* FileName;
   int NumberOfTimeSteps;

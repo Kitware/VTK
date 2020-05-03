@@ -42,7 +42,7 @@ public:
    * Passes the progress event to a thread local ProgressObserver
    * instance.
    */
-  void UpdateProgress(double amount) override;
+  void UpdateProgress(double progress) override;
 
   /**
    * Returns the progress observer local to the thread it was

@@ -248,10 +248,10 @@ void vtkDIYUtilities::Broadcast(
 }
 
 //------------------------------------------------------------------------------
-std::vector<vtkDataSet*> vtkDIYUtilities::GetDataSets(vtkDataObject* input)
+std::vector<vtkDataSet*> vtkDIYUtilities::GetDataSets(vtkDataObject* dobj)
 {
   std::vector<vtkDataSet*> datasets;
-  if (auto cd = vtkCompositeDataSet::SafeDownCast(input))
+  if (auto cd = vtkCompositeDataSet::SafeDownCast(dobj))
   {
     auto iter = cd->NewIterator();
     for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
@@ -263,7 +263,7 @@ std::vector<vtkDataSet*> vtkDIYUtilities::GetDataSets(vtkDataObject* input)
     }
     iter->Delete();
   }
-  else if (auto ds = vtkDataSet::SafeDownCast(input))
+  else if (auto ds = vtkDataSet::SafeDownCast(dobj))
   {
     datasets.push_back(ds);
   }

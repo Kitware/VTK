@@ -45,7 +45,7 @@ public:
   /**
    * Sets whether the stacks go from top to bottom or bottom to top.
    */
-  virtual void SetTopToBottom(bool value);
+  virtual void SetTopToBottom(bool reversed);
   virtual bool GetTopToBottom();
   vtkBooleanMacro(TopToBottom, bool);
   //@}
