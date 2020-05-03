@@ -78,7 +78,7 @@ struct GeneratePoints
       this->EdgeTable->InitEdgeInsertion(this->NumPts);
     }
   }
-  virtual ~GeneratePoints() {}
+  virtual ~GeneratePoints() = default;
 
   // Driver function
   int operator()()

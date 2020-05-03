@@ -45,7 +45,7 @@ vtkPointCloudWidget::vtkPointCloudWidget()
 }
 
 //------------------------------------------------------------------------------
-vtkPointCloudWidget::~vtkPointCloudWidget() {}
+vtkPointCloudWidget::~vtkPointCloudWidget() = default;
 
 //------------------------------------------------------------------------------
 void vtkPointCloudWidget::SetEnabled(int enabling)
