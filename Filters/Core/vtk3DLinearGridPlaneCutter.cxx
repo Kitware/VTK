@@ -950,10 +950,7 @@ int vtk3DLinearGridPlaneCutter::ProcessPiece(
                 << " triangles");
 
   // Clean up
-  if (inout != nullptr)
-  {
-    delete[] inout;
-  }
+  delete[] inout;
   delete cellIter;
   output->SetPoints(outPts);
   outPts->Delete();

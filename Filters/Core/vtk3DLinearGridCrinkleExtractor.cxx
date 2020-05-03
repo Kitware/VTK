@@ -799,10 +799,7 @@ int vtk3DLinearGridCrinkleExtractor::ProcessPiece(
                   << " cells");
 
   // Clean up
-  if (inout != nullptr)
-  {
-    delete[] inout;
-  }
+  delete[] inout;
   delete cellIter;
   newCells->Delete();
 
