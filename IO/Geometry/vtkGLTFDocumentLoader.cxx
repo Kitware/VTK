@@ -1129,7 +1129,7 @@ bool vtkGLTFDocumentLoader::BuildPolyDataFromPrimitive(Primitive& primitive)
   int targetId = 0;
   for (auto& target : primitive.Targets)
   {
-    std::string name = "";
+    std::string name;
     if (target.AttributeValues.count("POSITION"))
     {
       name = "target" + value_to_string(targetId) + "_position";

@@ -42,7 +42,7 @@ int TestImportExportOBJ(int argc, char* argv[])
   auto renderer = vtkSmartPointer<vtkRenderer>::New();
 
   std::string fileName = argv[1];
-  std::string extension = "";
+  std::string extension;
   // Make the extension lowercase
   std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
   if (fileName.find_last_of(".") != std::string::npos)

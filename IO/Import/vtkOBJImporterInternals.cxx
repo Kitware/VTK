@@ -127,7 +127,7 @@ public:
 
   TokenType Type;
   double NumberValue = 0.0;
-  std::string StringValue = "";
+  std::string StringValue;
 };
 
 bool tokenGetString(size_t& t, std::vector<Token>& tokens, std::string& result)
