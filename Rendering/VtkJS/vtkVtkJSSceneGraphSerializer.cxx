@@ -75,12 +75,12 @@ static const std::unordered_map<char, std::string> javascriptMapping = { { 'b', 
   { 'I', "Uint32Array" }, { 'l', "Int32Array" }, { 'L', "Uint32Array" }, { 'f', "Float32Array" },
   { 'd', "Float64Array" } };
 
-static const std::string getJSArrayType(vtkDataArray* array)
+static std::string getJSArrayType(vtkDataArray* array)
 {
   return javascriptMapping.at(arrayTypes.at(array->GetDataType()));
 }
 
-static const Json::Value getRangeInfo(vtkDataArray* array, vtkIdType component)
+static Json::Value getRangeInfo(vtkDataArray* array, vtkIdType component)
 {
   double r[2];
   array->GetRange(r, component);
