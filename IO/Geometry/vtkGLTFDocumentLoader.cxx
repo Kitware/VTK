@@ -1071,7 +1071,7 @@ bool vtkGLTFDocumentLoader::BuildPolyDataFromPrimitive(Primitive& primitive)
   // Other attributes
 
   // Set array names
-  for (auto it : primitive.AttributeValues)
+  for (const auto& it : primitive.AttributeValues)
   {
     it.second->SetName(it.first.c_str());
   }

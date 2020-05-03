@@ -331,7 +331,7 @@ void vtkOpenGLPolyDataMapper::BuildShaders(
   // user specified pre replacements
   vtkOpenGLShaderProperty* sp = vtkOpenGLShaderProperty::SafeDownCast(actor->GetShaderProperty());
   vtkOpenGLShaderProperty::ReplacementMap repMap = sp->GetAllShaderReplacements();
-  for (auto i : repMap)
+  for (const auto& i : repMap)
   {
     if (i.first.ReplaceFirst)
     {
@@ -345,7 +345,7 @@ void vtkOpenGLPolyDataMapper::BuildShaders(
   this->ReplaceShaderValues(shaders, ren, actor);
 
   // user specified post replacements
-  for (auto i : repMap)
+  for (const auto& i : repMap)
   {
     if (!i.first.ReplaceFirst)
     {
@@ -444,7 +444,7 @@ vtkMTimeType vtkOpenGLPolyDataMapper::GetRenderPassStageMTime(vtkActor* actor)
 
 std::string vtkOpenGLPolyDataMapper::GetTextureCoordinateName(const char* tname)
 {
-  for (auto it : this->ExtraAttributes)
+  for (const auto& it : this->ExtraAttributes)
   {
     if (it.second.TextureName == tname)
     {
@@ -492,7 +492,7 @@ std::vector<texinfo> vtkOpenGLPolyDataMapper::GetTextures(vtkActor* actor)
     res.emplace_back(actor->GetTexture(), "actortexture");
   }
   auto textures = actor->GetProperty()->GetAllTextures();
-  for (auto ti : textures)
+  for (const auto& ti : textures)
   {
     res.emplace_back(ti.second, ti.first);
   }
@@ -1228,7 +1228,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
 
   // now handle each texture coordinate
   std::set<std::string> tcoordnames;
-  for (auto it : textures)
+  for (const auto& it : textures)
   {
     // do we have special tcoords for this texture?
     std::string tcoordname = this->GetTextureCoordinateName(it.second.c_str());

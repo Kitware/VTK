@@ -135,7 +135,7 @@ int vtkTemporalDelimitedTextReader::RequestInformation(
   // Get the discrete time steps from the TimeMap keys
   std::vector<double> timeStepsArray;
   timeStepsArray.reserve(this->TimeMap.size());
-  for (auto mapEl : this->TimeMap)
+  for (const auto& mapEl : this->TimeMap)
   {
     timeStepsArray.emplace_back(mapEl.first);
   }

@@ -2630,7 +2630,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren)
 
   // user specified pre replacements
   vtkOpenGLShaderProperty::ReplacementMap repMap = sp->GetAllShaderReplacements();
-  for (auto i : repMap)
+  for (const auto& i : repMap)
   {
     if (i.first.ReplaceFirst)
     {
@@ -2645,7 +2645,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren)
   this->ReplaceShaderValues(shaders, ren, vol, numComp);
 
   // user specified post replacements
-  for (auto i : repMap)
+  for (const auto& i : repMap)
   {
     if (!i.first.ReplaceFirst)
     {
