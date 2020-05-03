@@ -37,7 +37,6 @@
 #define _USE_MATH_DEFINES
 #include <cstdlib>
 
-using std::cout;
 using std::endl;
 
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
