@@ -90,7 +90,7 @@ inline int vtkOpenGLVolumeLookupTable::GetMaximumSupportedTextureWidth(
 }
 
 //------------------------------------------------------------------------------
-int vtkOpenGLVolumeLookupTable::GetTextureUnit(void)
+int vtkOpenGLVolumeLookupTable::GetTextureUnit()
 {
   if (!this->TextureObject)
   {

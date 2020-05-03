@@ -231,7 +231,7 @@ void vtkMagnifierRepresentation::RemoveViewProp(vtkProp* prop)
 }
 
 //------------------------------------------------------------------------------
-void vtkMagnifierRepresentation::RemoveAllViewProps(void)
+void vtkMagnifierRepresentation::RemoveAllViewProps()
 {
   return this->Props->RemoveAllItems();
 }

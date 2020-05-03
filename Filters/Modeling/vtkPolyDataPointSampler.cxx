@@ -81,7 +81,7 @@ struct GeneratePoints
   virtual ~GeneratePoints() {}
 
   // Driver function
-  int operator()(void)
+  int operator()()
   {
     vtkIdType npts;
     const vtkIdType* pts;
