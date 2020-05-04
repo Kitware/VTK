@@ -321,7 +321,7 @@ int vtkBezierInterpolation::Tensor2ShapeFunctions(
 
 // Quadrilateral shape-function derivatives
 int vtkBezierInterpolation::Tensor2ShapeDerivatives(
-  const int order[2], const double pcoords[2], double* derivs)
+  const int order[2], const double pcoords[3], double* derivs)
 {
   return vtkHigherOrderInterpolation::Tensor2ShapeDerivatives(
     order, pcoords, derivs, vtkBezierInterpolation::EvaluateShapeAndGradient);
