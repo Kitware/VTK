@@ -1145,7 +1145,7 @@ int vtkDataReader::ReadVertexData(vtkGraph* g, vtkIdType numVertices)
     //
     // maybe bumped into edge data
     //
-    else if (!strncmp(line, "edge_data", 10))
+    else if (!strncmp(line, "edge_data", 9))
     {
       vtkIdType npts;
       if (!this->Read(&npts))
