@@ -101,7 +101,7 @@ int TestCompositePolyDataMapper2MixedGeometryEdges(int argc, char* argv[])
     blocksPerLevel[1] = 64;
     blocksPerLevel[2] = 256;
   }
-  std::vector<vtkSmartPointer<vtkMultiBlockDataSet> > blocks;
+  std::vector<vtkSmartPointer<vtkMultiBlockDataSet>> blocks;
   blocks.emplace_back(data.GetPointer());
   unsigned levelStart = 0;
   unsigned levelEnd = 1;

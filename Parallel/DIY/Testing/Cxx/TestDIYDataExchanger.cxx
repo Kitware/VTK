@@ -26,12 +26,12 @@ static vtkSmartPointer<vtkDataSet> GetDataSet(int sourceId)
 }
 
 static bool DoTest(
-  vtkMultiProcessController* controller, const std::map<int, std::vector<int> >& communication)
+  vtkMultiProcessController* controller, const std::map<int, std::vector<int>>& communication)
 {
   const int nranks = controller->GetNumberOfProcesses();
   const int rank = controller->GetLocalProcessId();
 
-  std::vector<vtkSmartPointer<vtkDataSet> > sendBuffer;
+  std::vector<vtkSmartPointer<vtkDataSet>> sendBuffer;
   std::vector<int> sendCounts(nranks);
 
   auto iter = communication.find(rank);
@@ -48,7 +48,7 @@ static bool DoTest(
     }
   }
 
-  std::vector<vtkSmartPointer<vtkDataSet> > recvBuffer;
+  std::vector<vtkSmartPointer<vtkDataSet>> recvBuffer;
   std::vector<int> recvCounts;
   vtkNew<vtkDIYDataExchanger> exchanger;
   exchanger->SetController(controller);

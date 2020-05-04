@@ -69,7 +69,7 @@ vtkBoundingBox GetBounds(vtkDataObject* dobj, diy::mpi::communicator& comm)
  * `true`, the for boundary cells, there will be multiple cut-indexes that the
  * cell may belong to. Otherwise, a cell can belong to at most 1 region.
  */
-std::vector<std::vector<int> > GenerateCellRegions(
+std::vector<std::vector<int>> GenerateCellRegions(
   vtkDataSet* dataset, const std::vector<vtkBoundingBox>& cuts, bool duplicate_boundary_cells)
 {
   assert(dataset != nullptr && cuts.size() > 0 && dataset->GetNumberOfCells() > 0);
@@ -77,7 +77,7 @@ std::vector<std::vector<int> > GenerateCellRegions(
   auto ghostCells = vtkUnsignedCharArray::SafeDownCast(
     dataset->GetCellData()->GetArray(vtkDataSetAttributes::GhostArrayName()));
 
-  std::vector<std::vector<int> > cellRegions(dataset->GetNumberOfCells());
+  std::vector<std::vector<int>> cellRegions(dataset->GetNumberOfCells());
 
   // call GetCell/GetCellBounds once to make it thread safe (see vtkDataSet::GetCell).
   vtkNew<vtkGenericCell> acell;
@@ -90,7 +90,7 @@ std::vector<std::vector<int> > GenerateCellRegions(
   {
     // vtkKdNode helps us do fast cell/cut intersections. So convert each cut to a
     // vtkKdNode.
-    std::vector<vtkSmartPointer<vtkKdNode> > kdnodes;
+    std::vector<vtkSmartPointer<vtkKdNode>> kdnodes;
     for (const auto& bbox : cuts)
     {
       auto kdnode = vtkSmartPointer<vtkKdNode>::New();
@@ -481,7 +481,7 @@ bool vtkRedistributeDataSetFilter::Redistribute(vtkDataObject* inputDO,
       return true;
     }
 
-    std::vector<vtkSmartPointer<vtkPartitionedDataSet> > results;
+    std::vector<vtkSmartPointer<vtkPartitionedDataSet>> results;
     for (auto& ds : input_partitions)
     {
       vtkNew<vtkPartitionedDataSet> curOutput;
@@ -807,7 +807,7 @@ vtkSmartPointer<vtkPartitionedDataSet> vtkRedistributeDataSetFilter::SplitDataSe
 
   // convert cell_regions to a collection of cell-ids for each region so that we
   // can use `vtkExtractCells` to extract cells for each region.
-  std::vector<std::vector<vtkIdType> > region_cell_ids(cuts.size());
+  std::vector<std::vector<vtkIdType>> region_cell_ids(cuts.size());
   vtkSMPTools::For(0, static_cast<int>(cuts.size()),
     [&region_cell_ids, &cell_regions, &numCells, &cell_ownership](int first, int last) {
       for (int cutId = first; cutId < last; ++cutId)

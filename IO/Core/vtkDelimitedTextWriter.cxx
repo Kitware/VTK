@@ -194,7 +194,7 @@ void vtkDelimitedTextWriter::WriteTable(vtkTable* table)
     return;
   }
 
-  std::vector<vtkSmartPointer<vtkArrayIterator> > columnsIters;
+  std::vector<vtkSmartPointer<vtkArrayIterator>> columnsIters;
 
   int cc;
   int numArrays = dsa->GetNumberOfArrays();
@@ -228,7 +228,7 @@ void vtkDelimitedTextWriter::WriteTable(vtkTable* table)
   for (vtkIdType index = 0; index < numRows; index++)
   {
     first = true;
-    std::vector<vtkSmartPointer<vtkArrayIterator> >::iterator iter;
+    std::vector<vtkSmartPointer<vtkArrayIterator>>::iterator iter;
     for (iter = columnsIters.begin(); iter != columnsIters.end(); ++iter)
     {
       switch ((*iter)->GetDataType())

@@ -17,7 +17,10 @@
 #include "vtkGarbageCollector.h"
 
 //----------------------------------------------------------------------------
-vtkSmartPointerBase::vtkSmartPointerBase() noexcept : Object(nullptr) {}
+vtkSmartPointerBase::vtkSmartPointerBase() noexcept
+  : Object(nullptr)
+{
+}
 
 //----------------------------------------------------------------------------
 vtkSmartPointerBase::vtkSmartPointerBase(vtkObjectBase* r)

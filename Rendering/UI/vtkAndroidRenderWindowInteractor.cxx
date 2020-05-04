@@ -33,10 +33,10 @@
 
 vtkStandardNewMacro(vtkAndroidRenderWindowInteractor);
 
-void (*vtkAndroidRenderWindowInteractor::ClassExitMethod)(void*) = (void (*)(void*))nullptr;
+void (*vtkAndroidRenderWindowInteractor::ClassExitMethod)(void*) = (void (*)(void*)) nullptr;
 void* vtkAndroidRenderWindowInteractor::ClassExitMethodArg = (void*)nullptr;
 void (*vtkAndroidRenderWindowInteractor::ClassExitMethodArgDelete)(
-  void*) = (void (*)(void*))nullptr;
+  void*) = (void (*)(void*)) nullptr;
 
 //----------------------------------------------------------------------------
 // Construct object so that light follows camera motion.

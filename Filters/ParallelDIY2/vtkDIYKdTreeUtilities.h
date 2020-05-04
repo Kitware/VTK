@@ -86,7 +86,7 @@ public:
    * to the `number_of_partitions`.
    */
   static std::vector<vtkBoundingBox> GenerateCuts(
-    const std::vector<vtkSmartPointer<vtkPoints> >& points, int number_of_partitions,
+    const std::vector<vtkSmartPointer<vtkPoints>>& points, int number_of_partitions,
     vtkMultiProcessController* controller = nullptr, const double* local_bounds = nullptr);
 
   /**

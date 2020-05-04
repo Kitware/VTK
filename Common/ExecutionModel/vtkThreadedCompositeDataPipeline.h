@@ -54,7 +54,7 @@ protected:
   ~vtkThreadedCompositeDataPipeline() override;
   void ExecuteEach(vtkCompositeDataIterator* iter, vtkInformationVector** inInfoVec,
     vtkInformationVector* outInfoVec, int compositePort, int connection, vtkInformation* request,
-    std::vector<vtkSmartPointer<vtkCompositeDataSet> >& compositeOutput) override;
+    std::vector<vtkSmartPointer<vtkCompositeDataSet>>& compositeOutput) override;
 
 private:
   vtkThreadedCompositeDataPipeline(const vtkThreadedCompositeDataPipeline&) = delete;

@@ -39,7 +39,7 @@
 
 class vtkExtractExodusGlobalTemporalVariables::vtkInternals
 {
-  std::map<std::string, vtkSmartPointer<vtkAbstractArray> > Arrays;
+  std::map<std::string, vtkSmartPointer<vtkAbstractArray>> Arrays;
 
 public:
   bool InContinueExecuting = false;
@@ -77,7 +77,7 @@ public:
 
   bool Accumulate(vtkFieldData* fd)
   {
-    std::map<std::string, vtkSmartPointer<vtkAbstractArray> > arrays;
+    std::map<std::string, vtkSmartPointer<vtkAbstractArray>> arrays;
 
     for (int cc = 0, max = (fd ? fd->GetNumberOfArrays() : 0); cc < max; ++cc)
     {

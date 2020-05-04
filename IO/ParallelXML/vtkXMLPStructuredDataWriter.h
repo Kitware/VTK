@@ -55,7 +55,7 @@ private:
   vtkXMLPStructuredDataWriter(const vtkXMLPStructuredDataWriter&) = delete;
   void operator=(const vtkXMLPStructuredDataWriter&) = delete;
 
-  typedef std::map<int, std::vector<int> > ExtentsType;
+  typedef std::map<int, std::vector<int>> ExtentsType;
   ExtentsType Extents;
 };
 

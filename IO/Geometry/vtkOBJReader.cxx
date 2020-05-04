@@ -135,7 +135,7 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
   // initialize some structures to store the file contents in
   vtkPoints* points = vtkPoints::New();
   std::unordered_map<std::string, vtkFloatArray*> tcoords_map;
-  std::vector<std::pair<float, float> > verticesTextureList;
+  std::vector<std::pair<float, float>> verticesTextureList;
   vtkFloatArray* normals = vtkFloatArray::New();
   normals->SetNumberOfComponents(3);
   normals->SetName("Normals");

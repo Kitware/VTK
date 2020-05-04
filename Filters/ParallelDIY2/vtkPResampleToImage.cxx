@@ -553,7 +553,7 @@ namespace detail
 {
 
 template <class T, std::size_t Len>
-struct mpi_datatype<Array<T, Len> >
+struct mpi_datatype<Array<T, Len>>
 {
   typedef Array<T, Len> ArrayType;
 

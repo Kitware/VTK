@@ -168,7 +168,7 @@ void vtkmDataSet::GetCellBounds(vtkIdType cellId, double bounds[6])
 {
   if (this->Internals->Coordinates.GetData()
         .IsType<vtkm::cont::ArrayHandleUniformPointCoordinates>() &&
-    this->Internals->CellSet.IsType<vtkm::cont::CellSetStructured<3> >())
+    this->Internals->CellSet.IsType<vtkm::cont::CellSetStructured<3>>())
   {
     auto portal = this->Internals->Coordinates.GetData()
                     .Cast<vtkm::cont::ArrayHandleUniformPointCoordinates>()

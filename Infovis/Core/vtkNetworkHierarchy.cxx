@@ -122,7 +122,7 @@ int vtkNetworkHierarchy::RequestData(
   }
 
   // Build subnet map
-  typedef std::vector<std::pair<unsigned int, vtkIdType> > subnet_map_type;
+  typedef std::vector<std::pair<unsigned int, vtkIdType>> subnet_map_type;
   subnet_map_type SubnetMap;
   for (vtkIdType i = 0; i < ipArray->GetNumberOfTuples(); ++i)
   {

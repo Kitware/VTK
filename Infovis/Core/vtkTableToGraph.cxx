@@ -698,8 +698,8 @@ int vtkTableToGraph::RequestData(
   VTK_CREATE(vtkDataSetAttributes, edgeTableData);
   edgeTableData->ShallowCopy(edgeTable->GetRowData());
   builder->GetEdgeData()->CopyAllocate(edgeTableData);
-  std::map<vtkIdType, std::vector<std::pair<vtkIdType, vtkIdType> > > hiddenInEdges;
-  std::map<vtkIdType, std::vector<vtkIdType> > hiddenOutEdges;
+  std::map<vtkIdType, std::vector<std::pair<vtkIdType, vtkIdType>>> hiddenInEdges;
+  std::map<vtkIdType, std::vector<vtkIdType>> hiddenOutEdges;
   int numHiddenToHiddenEdges = 0;
   VTK_CREATE(vtkEdgeListIterator, edges);
   for (vtkIdType r = 0; r < edgeTable->GetNumberOfRows(); r++)
@@ -815,7 +815,7 @@ int vtkTableToGraph::RequestData(
   }
 
   // Now add hidden edges.
-  std::map<vtkIdType, std::vector<vtkIdType> >::iterator out, outEnd;
+  std::map<vtkIdType, std::vector<vtkIdType>>::iterator out, outEnd;
   out = hiddenOutEdges.begin();
   outEnd = hiddenOutEdges.end();
   vtkIdType curHidden = 0;
@@ -823,7 +823,7 @@ int vtkTableToGraph::RequestData(
   for (; out != outEnd; ++out)
   {
     std::vector<vtkIdType> outVerts = out->second;
-    std::vector<std::pair<vtkIdType, vtkIdType> > inVerts = hiddenInEdges[out->first];
+    std::vector<std::pair<vtkIdType, vtkIdType>> inVerts = hiddenInEdges[out->first];
     std::vector<vtkIdType>::size_type i, j;
     for (i = 0; i < inVerts.size(); ++i)
     {

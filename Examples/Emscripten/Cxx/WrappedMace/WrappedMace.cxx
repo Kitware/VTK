@@ -58,7 +58,7 @@ vtkAddDestructor(vtkViewport);
 EMSCRIPTEN_BINDINGS(webtest)
 {
   // vtkActor ---------------------------------------------------------
-  emscripten::class_<vtkActor, emscripten::base<vtkProp> >("vtkActor")
+  emscripten::class_<vtkActor, emscripten::base<vtkProp>>("vtkActor")
     .constructor(&vtkActor::New, emscripten::allow_raw_pointers())
     .function("SetMapper", &vtkActor::SetMapper, emscripten::allow_raw_pointers());
 
@@ -79,12 +79,12 @@ EMSCRIPTEN_BINDINGS(webtest)
   emscripten::class_<vtkAlgorithmOutput>("vtkAlgorithmOutput");
 
   // vtkConeSource ----------------------------------------------------
-  emscripten::class_<vtkConeSource, emscripten::base<vtkAlgorithm> >("vtkConeSource")
+  emscripten::class_<vtkConeSource, emscripten::base<vtkAlgorithm>>("vtkConeSource")
     .constructor(&vtkConeSource::New, emscripten::allow_raw_pointers())
     .function("SetResolution", &vtkConeSource::SetResolution);
 
   // vtkGlyph3D -------------------------------------------------------
-  emscripten::class_<vtkGlyph3D, emscripten::base<vtkAlgorithm> >("vtkGlyph3D")
+  emscripten::class_<vtkGlyph3D, emscripten::base<vtkAlgorithm>>("vtkGlyph3D")
     .constructor(&vtkGlyph3D::New, emscripten::allow_raw_pointers())
     .function("SetVectorModeToUseNormal", &vtkGlyph3D::SetVectorModeToUseNormal)
     .function("SetScaleModeToScaleByVector", &vtkGlyph3D::SetScaleModeToScaleByVector)
@@ -97,17 +97,17 @@ EMSCRIPTEN_BINDINGS(webtest)
       emscripten::allow_raw_pointers());
 
   // vtkMapper --------------------------------------------------------
-  emscripten::class_<vtkMapper, emscripten::base<vtkAlgorithm> >("vtkMapper");
+  emscripten::class_<vtkMapper, emscripten::base<vtkAlgorithm>>("vtkMapper");
 
   // vtkPolyDataMapper ------------------------------------------------
-  emscripten::class_<vtkPolyDataMapper, emscripten::base<vtkMapper> >("vtkPolyDataMapper")
+  emscripten::class_<vtkPolyDataMapper, emscripten::base<vtkMapper>>("vtkPolyDataMapper")
     .constructor(&vtkPolyDataMapper::New, emscripten::allow_raw_pointers());
 
   // vtkProp ----------------------------------------------------------
   emscripten::class_<vtkProp>("vtkProp");
 
   // vtkRenderer ------------------------------------------------------
-  emscripten::class_<vtkRenderer, emscripten::base<vtkViewport> >("vtkRenderer")
+  emscripten::class_<vtkRenderer, emscripten::base<vtkViewport>>("vtkRenderer")
     .constructor(&vtkRenderer::New, emscripten::allow_raw_pointers())
     .function("AddActor", &vtkRenderer::AddActor, emscripten::allow_raw_pointers());
 
@@ -125,7 +125,7 @@ EMSCRIPTEN_BINDINGS(webtest)
       emscripten::allow_raw_pointers());
 
   // vtkSDL2OpenGLRenderWindow ----------------------------------------
-  emscripten::class_<vtkSDL2OpenGLRenderWindow, emscripten::base<vtkRenderWindow> >(
+  emscripten::class_<vtkSDL2OpenGLRenderWindow, emscripten::base<vtkRenderWindow>>(
     "vtkSDL2OpenGLRenderWindow")
     .constructor(&vtkSDL2OpenGLRenderWindow::New, emscripten::allow_raw_pointers())
     .function("Frame", &vtkSDL2OpenGLRenderWindow::Frame)
@@ -136,13 +136,13 @@ EMSCRIPTEN_BINDINGS(webtest)
         }));
 
   // vtkSDL2RenderWindowInteractor ------------------------------------
-  emscripten::class_<vtkSDL2RenderWindowInteractor, emscripten::base<vtkRenderWindowInteractor> >(
+  emscripten::class_<vtkSDL2RenderWindowInteractor, emscripten::base<vtkRenderWindowInteractor>>(
     "vtkSDL2RenderWindowInteractor")
     .constructor(&vtkSDL2RenderWindowInteractor::New, emscripten::allow_raw_pointers())
     .function("AddEventHandler", &vtkSDL2RenderWindowInteractor::AddEventHandler);
 
   // vtkSphereSource -------------------------------------------------
-  emscripten::class_<vtkSphereSource, emscripten::base<vtkAlgorithm> >("vtkSphereSource")
+  emscripten::class_<vtkSphereSource, emscripten::base<vtkAlgorithm>>("vtkSphereSource")
     .constructor(&vtkSphereSource::New, emscripten::allow_raw_pointers())
     .function("SetThetaResolution", &vtkSphereSource::SetThetaResolution)
     .function("SetPhiResolution", &vtkSphereSource::SetPhiResolution);

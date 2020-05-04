@@ -263,8 +263,8 @@ int vtkWeightedTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
     return 1;
   }
 
-  std::vector<double*> linearPtMtx(this->NumberOfTransforms, nullptr);       // non-owning ptr
-  std::vector<std::vector<double> > linearNormMtx(this->NumberOfTransforms); // owns data
+  std::vector<double*> linearPtMtx(this->NumberOfTransforms, nullptr);      // non-owning ptr
+  std::vector<std::vector<double>> linearNormMtx(this->NumberOfTransforms); // owns data
   allLinear = 1;
   for (c = 0; c < this->NumberOfTransforms; c++)
   {

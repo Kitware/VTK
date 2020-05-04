@@ -106,7 +106,7 @@ void WriteBP(const std::string& fileName)
   fs.write("vertices", vertices.data(), {}, {}, { 6, 2 });
   fs.write("sol", sol.data(), {}, {}, { 6 });
 
-    const std::string vtuXML = R"(
+  const std::string vtuXML = R"(
   <VTKFile type="UnstructuredGrid">
     <UnstructuredGrid>
       <Piece>
@@ -124,8 +124,8 @@ void WriteBP(const std::string& fileName)
     </UnstructuredGrid>
   </VTKFile>)";
 
-    fs.write_attribute("vtk.xml", vtuXML);
-    fs.close();
+  fs.write_attribute("vtk.xml", vtuXML);
+  fs.close();
 }
 
 } // end empty namespace

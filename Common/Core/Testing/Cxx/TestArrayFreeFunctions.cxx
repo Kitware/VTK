@@ -119,7 +119,7 @@ int assign_void_array(
 {
   int errors = 0;
   if (vtkSOADataArrayTemplate<double>* is_soa =
-        vtkArrayDownCast<vtkSOADataArrayTemplate<double> >(array))
+        vtkArrayDownCast<vtkSOADataArrayTemplate<double>>(array))
   {
     is_soa->SetNumberOfComponents(1);
     is_soa->SetArray(0, reinterpret_cast<double*>(ptr), static_cast<vtkIdType>(size), false,
@@ -127,7 +127,7 @@ int assign_void_array(
   }
 #ifdef VTK_USE_SCALED_SOA_ARRAYS
   else if (vtkScaledSOADataArrayTemplate<double>* is_scale_soa =
-             vtkArrayDownCast<vtkScaledSOADataArrayTemplate<double> >(array))
+             vtkArrayDownCast<vtkScaledSOADataArrayTemplate<double>>(array))
   {
     is_scale_soa->SetNumberOfComponents(1);
     is_scale_soa->SetArray(0, reinterpret_cast<double*>(ptr), static_cast<vtkIdType>(size), false,

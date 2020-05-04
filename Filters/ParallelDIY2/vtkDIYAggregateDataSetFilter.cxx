@@ -419,7 +419,7 @@ int vtkDIYAggregateDataSetFilter::MoveData(int inputExtent[6], int wholeExtent[6
   // now it's not too bad though in that it really only has 2 copies of the sent data
   // to a single process since it clears out the string after it copies it over
   // to sendData.
-  std::vector<std::vector<unsigned char> > sendData(serializedDataSets.size());
+  std::vector<std::vector<unsigned char>> sendData(serializedDataSets.size());
   for (auto it : serializedDataSets)
   {
     int size = static_cast<int>(it.second.size());

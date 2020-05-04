@@ -163,9 +163,9 @@ void vtkParallelCoordinatesRepresentationBuildLinePoints(iterT* it, vtkIdTypeArr
 class vtkParallelCoordinatesRepresentation::Internals
 {
 public:
-  std::vector<vtkSmartPointer<vtkPolyData> > SelectionData;
-  std::vector<vtkSmartPointer<vtkPolyDataMapper2D> > SelectionMappers;
-  std::vector<vtkSmartPointer<vtkActor2D> > SelectionActors;
+  std::vector<vtkSmartPointer<vtkPolyData>> SelectionData;
+  std::vector<vtkSmartPointer<vtkPolyDataMapper2D>> SelectionMappers;
+  std::vector<vtkSmartPointer<vtkActor2D>> SelectionActors;
   static const double Colors[10][3];
   static const unsigned int NumberOfColors = 10;
   double* GetColor(unsigned int idx)

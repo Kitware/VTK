@@ -129,7 +129,8 @@ vtkWeakPointerBase::vtkWeakPointerBase(const vtkWeakPointerBase& r)
 }
 
 //----------------------------------------------------------------------------
-vtkWeakPointerBase::vtkWeakPointerBase(vtkWeakPointerBase&& r) noexcept : Object(r.Object)
+vtkWeakPointerBase::vtkWeakPointerBase(vtkWeakPointerBase&& r) noexcept
+  : Object(r.Object)
 {
   r.Object = nullptr;
   vtkWeakPointerBaseToObjectBaseFriendship::ReplaceWeakPointer(this->Object, &r, this);

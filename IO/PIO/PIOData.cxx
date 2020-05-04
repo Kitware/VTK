@@ -382,7 +382,7 @@ bool PIO_DATA::set_scalar_field(std::valarray<double>& v, const char* fieldname)
   return false;
 } // End PIO_DATA::set_scalar_field
 
-bool PIO_DATA::set_vector_field(std::valarray<std::valarray<double> >& v, const char* fieldname)
+bool PIO_DATA::set_vector_field(std::valarray<std::valarray<double>>& v, const char* fieldname)
 {
   uint32_t numdim = static_cast<uint32_t>(VarMMap.count(fieldname));
   if (numdim <= 0)

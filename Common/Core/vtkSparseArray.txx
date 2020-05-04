@@ -325,7 +325,7 @@ void vtkSparseArray<T>::Clear()
 /// inputs.
 struct SortCoordinates
 {
-  SortCoordinates(const vtkArraySort& sort, const std::vector<std::vector<vtkIdType> >& coordinates)
+  SortCoordinates(const vtkArraySort& sort, const std::vector<std::vector<vtkIdType>>& coordinates)
     : Sort(&sort)
     , Coordinates(&coordinates)
   {
@@ -334,7 +334,7 @@ struct SortCoordinates
   bool operator()(const vtkIdType lhs, const vtkIdType rhs) const
   {
     const vtkArraySort& sort = *this->Sort;
-    const std::vector<std::vector<vtkIdType> >& coordinates = *this->Coordinates;
+    const std::vector<std::vector<vtkIdType>>& coordinates = *this->Coordinates;
 
     for (vtkIdType i = 0; i != sort.GetDimensions(); ++i)
     {
@@ -348,7 +348,7 @@ struct SortCoordinates
   }
 
   const vtkArraySort* Sort;
-  const std::vector<std::vector<vtkIdType> >* Coordinates;
+  const std::vector<std::vector<vtkIdType>>* Coordinates;
 };
 
 template <typename T>

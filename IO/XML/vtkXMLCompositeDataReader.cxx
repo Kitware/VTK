@@ -63,7 +63,7 @@ struct vtkXMLCompositeDataReaderInternals
   }
 
   vtkSmartPointer<vtkXMLDataElement> Root;
-  typedef std::map<std::string, vtkSmartPointer<vtkXMLReader> > ReadersType;
+  typedef std::map<std::string, vtkSmartPointer<vtkXMLReader>> ReadersType;
   ReadersType Readers;
   static const vtkXMLCompositeDataReaderEntry ReaderList[];
   int UpdatePiece;

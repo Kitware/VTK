@@ -231,7 +231,7 @@ int vtkOTDensityMap::RequestData(vtkInformation* vtkNotUsed(request),
   vtkPolyData* contourPd = contour->GetOutput();
 
   // A map to temporarily store the output
-  std::multimap<double, vtkSmartPointer<vtkTable> > contoursMap;
+  std::multimap<double, vtkSmartPointer<vtkTable>> contoursMap;
 
   // Build contours tables
   this->BuildContours(contourPd, numContours, contourValues, densityPDFContourValues.data(),
@@ -241,20 +241,20 @@ int vtkOTDensityMap::RequestData(vtkInformation* vtkNotUsed(request),
   // Initialize to maximum number of blocks
   output->SetNumberOfBlocks(contoursMap.size());
   int nBlock = 0;
-  for (std::multimap<double, vtkSmartPointer<vtkTable> >::iterator it =
+  for (std::multimap<double, vtkSmartPointer<vtkTable>>::iterator it =
          contoursMap.begin(); // Iterate over multimap keys
        it != contoursMap.end(); it = contoursMap.upper_bound(it->first))
   {
     // For each key recover range of tables
-    std::pair<std::multimap<double, vtkSmartPointer<vtkTable> >::iterator,
-      std::multimap<double, vtkSmartPointer<vtkTable> >::iterator>
+    std::pair<std::multimap<double, vtkSmartPointer<vtkTable>>::iterator,
+      std::multimap<double, vtkSmartPointer<vtkTable>>::iterator>
       range;
     range = contoursMap.equal_range(it->first);
     vtkNew<vtkMultiBlockDataSet> block;
     block->SetNumberOfBlocks(contoursMap.size());
     int nChildBlock = 0;
     // Put table for the same density in the some block
-    for (std::multimap<double, vtkSmartPointer<vtkTable> >::iterator it2 = range.first;
+    for (std::multimap<double, vtkSmartPointer<vtkTable>>::iterator it2 = range.first;
          it2 != range.second; ++it2)
     {
       block->SetBlock(nChildBlock, it2->second);
@@ -299,7 +299,7 @@ int vtkOTDensityMap::FillOutputPortInformation(int port, vtkInformation* info)
 //----------------------------------------------------------------------------
 void vtkOTDensityMap::BuildContours(vtkPolyData* contourPd, int numContours,
   const double* contourValues, const double* densityPDFContourValues, const char* xArrayName,
-  const char* yArrayName, std::multimap<double, vtkSmartPointer<vtkTable> >& contoursMap)
+  const char* yArrayName, std::multimap<double, vtkSmartPointer<vtkTable>>& contoursMap)
 {
   std::set<vtkIdType> treatedCells;
   vtkNew<vtkIdList> pointIndices;

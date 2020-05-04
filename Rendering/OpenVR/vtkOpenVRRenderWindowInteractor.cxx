@@ -37,9 +37,10 @@
 
 vtkStandardNewMacro(vtkOpenVRRenderWindowInteractor);
 
-void (*vtkOpenVRRenderWindowInteractor::ClassExitMethod)(void*) = (void (*)(void*))nullptr;
+void (*vtkOpenVRRenderWindowInteractor::ClassExitMethod)(void*) = (void (*)(void*)) nullptr;
 void* vtkOpenVRRenderWindowInteractor::ClassExitMethodArg = (void*)nullptr;
-void (*vtkOpenVRRenderWindowInteractor::ClassExitMethodArgDelete)(void*) = (void (*)(void*))nullptr;
+void (*vtkOpenVRRenderWindowInteractor::ClassExitMethodArgDelete)(
+  void*) = (void (*)(void*)) nullptr;
 
 //----------------------------------------------------------------------------
 // Construct object so that light follows camera motion.

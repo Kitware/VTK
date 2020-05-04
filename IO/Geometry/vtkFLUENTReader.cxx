@@ -146,7 +146,7 @@ struct vtkFLUENTReader::vectorDataVector
 };
 struct vtkFLUENTReader::intVectorVector
 {
-  std::vector<std::vector<int> > value;
+  std::vector<std::vector<int>> value;
 };
 
 //----------------------------------------------------------------------------

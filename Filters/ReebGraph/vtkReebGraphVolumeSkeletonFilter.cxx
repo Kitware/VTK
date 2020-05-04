@@ -134,7 +134,7 @@ int vtkReebGraphVolumeSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(req
       inputGraph->GetEdges(eIt);
       std::pair<int, int> criticalNodeIds;
 
-      std::vector<std::vector<std::vector<double> > > skeleton;
+      std::vector<std::vector<std::vector<double>>> skeleton;
 
       vtkContourFilter* contourFilter = vtkContourFilter::New();
       vtkIdList* starTetList = vtkIdList::New();
@@ -240,7 +240,7 @@ int vtkReebGraphVolumeSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(req
         double minValue = scalarField->GetComponent(criticalNodeIds.first, 0),
                maxValue = scalarField->GetComponent(criticalNodeIds.second, 0);
 
-        std::vector<std::vector<double> > arcSkeleton;
+        std::vector<std::vector<double>> arcSkeleton;
 
         // add the first critical point at the origin of the arc skeleton
         double criticalPoint[3];
@@ -311,7 +311,7 @@ int vtkReebGraphVolumeSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(req
         }
 
         // now do the smoothing of the arc skeleton
-        std::vector<std::vector<double> > smoothedArc;
+        std::vector<std::vector<double>> smoothedArc;
         for (int i = 0; i < NumberOfSmoothingIterations; i++)
         {
           smoothedArc.push_back(arcSkeleton[0]);

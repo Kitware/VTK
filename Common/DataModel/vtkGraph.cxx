@@ -59,7 +59,7 @@ class vtkGraphEdgePoints : public vtkObject
 public:
   static vtkGraphEdgePoints* New();
   vtkTypeMacro(vtkGraphEdgePoints, vtkObject);
-  std::vector<std::vector<double> > Storage;
+  std::vector<std::vector<double>> Storage;
 
 protected:
   vtkGraphEdgePoints() = default;
@@ -890,7 +890,7 @@ void vtkGraph::SetEdgePoints(vtkIdType e, vtkIdType npts, const double pts[])
   {
     this->EdgePoints = vtkGraphEdgePoints::New();
   }
-  std::vector<std::vector<double> >::size_type numEdges = this->Internals->NumberOfEdges;
+  std::vector<std::vector<double>>::size_type numEdges = this->Internals->NumberOfEdges;
   if (this->EdgePoints->Storage.size() < numEdges)
   {
     this->EdgePoints->Storage.resize(numEdges);
@@ -928,7 +928,7 @@ void vtkGraph::GetEdgePoints(vtkIdType e, vtkIdType& npts, double*& pts)
     pts = nullptr;
     return;
   }
-  std::vector<std::vector<double> >::size_type numEdges = this->Internals->NumberOfEdges;
+  std::vector<std::vector<double>>::size_type numEdges = this->Internals->NumberOfEdges;
   if (this->EdgePoints->Storage.size() < numEdges)
   {
     this->EdgePoints->Storage.resize(numEdges);
@@ -968,7 +968,7 @@ vtkIdType vtkGraph::GetNumberOfEdgePoints(vtkIdType e)
   {
     return 0;
   }
-  std::vector<std::vector<double> >::size_type numEdges = this->Internals->NumberOfEdges;
+  std::vector<std::vector<double>>::size_type numEdges = this->Internals->NumberOfEdges;
   if (this->EdgePoints->Storage.size() < numEdges)
   {
     this->EdgePoints->Storage.resize(numEdges);
@@ -1000,7 +1000,7 @@ double* vtkGraph::GetEdgePoint(vtkIdType e, vtkIdType i)
   {
     this->EdgePoints = vtkGraphEdgePoints::New();
   }
-  std::vector<std::vector<double> >::size_type numEdges = this->Internals->NumberOfEdges;
+  std::vector<std::vector<double>>::size_type numEdges = this->Internals->NumberOfEdges;
   if (this->EdgePoints->Storage.size() < numEdges)
   {
     this->EdgePoints->Storage.resize(numEdges);
@@ -1038,7 +1038,7 @@ void vtkGraph::SetEdgePoint(vtkIdType e, vtkIdType i, const double x[3])
   {
     this->EdgePoints = vtkGraphEdgePoints::New();
   }
-  std::vector<std::vector<double> >::size_type numEdges = this->Internals->NumberOfEdges;
+  std::vector<std::vector<double>>::size_type numEdges = this->Internals->NumberOfEdges;
   if (this->EdgePoints->Storage.size() < numEdges)
   {
     this->EdgePoints->Storage.resize(numEdges);
@@ -1079,7 +1079,7 @@ void vtkGraph::ClearEdgePoints(vtkIdType e)
   {
     this->EdgePoints = vtkGraphEdgePoints::New();
   }
-  std::vector<std::vector<double> >::size_type numEdges = this->Internals->NumberOfEdges;
+  std::vector<std::vector<double>>::size_type numEdges = this->Internals->NumberOfEdges;
   if (this->EdgePoints->Storage.size() < numEdges)
   {
     this->EdgePoints->Storage.resize(numEdges);
@@ -1110,7 +1110,7 @@ void vtkGraph::AddEdgePoint(vtkIdType e, const double x[3])
   {
     this->EdgePoints = vtkGraphEdgePoints::New();
   }
-  std::vector<std::vector<double> >::size_type numEdges = this->Internals->NumberOfEdges;
+  std::vector<std::vector<double>>::size_type numEdges = this->Internals->NumberOfEdges;
   if (this->EdgePoints->Storage.size() < numEdges)
   {
     this->EdgePoints->Storage.resize(numEdges);

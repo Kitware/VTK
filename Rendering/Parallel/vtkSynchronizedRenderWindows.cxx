@@ -61,7 +61,7 @@ public:
 //----------------------------------------------------------------------------
 namespace
 {
-typedef std::map<unsigned int, vtkWeakPointer<vtkSynchronizedRenderWindows> >
+typedef std::map<unsigned int, vtkWeakPointer<vtkSynchronizedRenderWindows>>
   GlobalSynRenderWindowsMapType;
 GlobalSynRenderWindowsMapType GlobalSynRenderWindowsMap;
 

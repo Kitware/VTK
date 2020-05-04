@@ -109,7 +109,7 @@ protected:
   void ComputeBounds() override;
 
   // used by the hardware selector
-  std::vector<std::vector<unsigned int> > PickPixels;
+  std::vector<std::vector<unsigned int>> PickPixels;
 
 private:
   vtkOpenGLPointGaussianMapper(const vtkOpenGLPointGaussianMapper&) = delete;

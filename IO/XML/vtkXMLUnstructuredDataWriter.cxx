@@ -930,8 +930,8 @@ void vtkXMLUnstructuredDataWriter::WriteCellsAppendedDataWorker(
 void vtkXMLUnstructuredDataWriter::ConvertCells(
   vtkCellIterator* cellIter, vtkIdType numCells, vtkIdType cellSizeEstimate)
 {
-  vtkNew<vtkAOSDataArrayTemplate<vtkIdType> > conn;
-  vtkNew<vtkAOSDataArrayTemplate<vtkIdType> > offsets;
+  vtkNew<vtkAOSDataArrayTemplate<vtkIdType>> conn;
+  vtkNew<vtkAOSDataArrayTemplate<vtkIdType>> offsets;
 
   conn->SetName("connectivity");
   offsets->SetName("offsets");

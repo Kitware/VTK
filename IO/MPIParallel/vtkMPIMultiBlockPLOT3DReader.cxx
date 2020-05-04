@@ -80,7 +80,7 @@ public:
 
     // Let's see if we encounter markers while reading the data from current
     // position.
-    std::vector<std::pair<vtkTypeUInt64, vtkTypeUInt64> > chunks =
+    std::vector<std::pair<vtkTypeUInt64, vtkTypeUInt64>> chunks =
       record.GetChunksToRead(offset, sizeof(DataType) * n);
 
     const int dummy_INT_MAX = 2e9; /// XXX: arbitrary limit that seems

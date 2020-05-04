@@ -156,7 +156,7 @@ protected:
 
   vtkIdType IndexColumn;
   std::set<vtkVariant> IndexValues;
-  std::map<vtkVariant, std::vector<vtkIdType> > NewRowToOldRowsMap;
+  std::map<vtkVariant, std::vector<vtkIdType>> NewRowToOldRowsMap;
   std::map<vtkIdType, int> ColumnReductionMethods;
 
   int NumericalReductionMethod;

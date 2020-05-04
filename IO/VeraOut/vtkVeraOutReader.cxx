@@ -810,7 +810,7 @@ private:
   vtkSmartPointer<vtkDataArray> ZCoordinates;
   vtkSmartPointer<vtkDataArray> CoreMap;
 
-  std::vector<vtkSmartPointer<vtkDataArray> > CoreCellData;
+  std::vector<vtkSmartPointer<vtkDataArray>> CoreCellData;
 };
 //*****************************************************************************
 

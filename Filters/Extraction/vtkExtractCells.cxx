@@ -302,7 +302,7 @@ static std::vector<vtkIdType> FlagChosenPoints(
   auto cellArray = input->GetCells();
 
   // flag each point used by all of the selected cells.
-  vtkSMPThreadLocal<vtkSmartPointer<vtkCellArrayIterator> > storage;
+  vtkSMPThreadLocal<vtkSmartPointer<vtkCellArrayIterator>> storage;
 
   vtkSMPTools::For(0, num_cells, [&](vtkIdType first, vtkIdType last) {
     auto celliditer = std::next(start, first);

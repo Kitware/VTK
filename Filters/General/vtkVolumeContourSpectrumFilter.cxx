@@ -229,7 +229,7 @@ int vtkVolumeContourSpectrumFilter::RequestData(vtkInformation* vtkNotUsed(reque
       }
 
       // now adjust to the desired sampling
-      std::vector<std::pair<int, double> > samples(NumberOfSamples);
+      std::vector<std::pair<int, double>> samples(NumberOfSamples);
       unsigned int pos = 0;
       for (int i = 0; i < NumberOfSamples; i++)
       {

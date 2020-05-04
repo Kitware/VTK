@@ -60,7 +60,7 @@ public:
     if (dist2 <= this->LargestDist2 || this->NumberPoints < this->NumRequested)
     {
       this->NumberPoints++;
-      std::map<double, std::list<vtkIdType> >::iterator it = this->dist2ToIds.find(dist2);
+      std::map<double, std::list<vtkIdType>>::iterator it = this->dist2ToIds.find(dist2);
 
       if (it == this->dist2ToIds.end())
       {
@@ -89,7 +89,7 @@ public:
         if (this->NumberPoints - it->second.size() > this->NumRequested)
         {
           this->NumberPoints -= it->second.size();
-          std::map<double, std::list<vtkIdType> >::iterator it2 = it;
+          std::map<double, std::list<vtkIdType>>::iterator it2 = it;
           --it2;
           this->LargestDist2 = it2->first;
           this->dist2ToIds.erase(it);
@@ -109,7 +109,7 @@ public:
 
     // clear the counter and go to the very first entry
     vtkIdType counter = 0;
-    std::map<double, std::list<vtkIdType> >::iterator it = this->dist2ToIds.begin();
+    std::map<double, std::list<vtkIdType>>::iterator it = this->dist2ToIds.begin();
 
     // export the point indices
     while (counter < numIds && it != this->dist2ToIds.end())
@@ -133,7 +133,7 @@ private:
   size_t NumRequested;
   size_t NumberPoints;
   double LargestDist2;
-  std::map<double, std::list<vtkIdType> > dist2ToIds;
+  std::map<double, std::list<vtkIdType>> dist2ToIds;
 };
 }
 
@@ -285,7 +285,7 @@ void vtkIncrementalOctreePointLocator::GenerateRepresentation(int nodeLevel, vtk
   vtkCellArray* nodeQuads = nullptr;
   vtkIncrementalOctreeNode* pTempNode = nullptr;
   std::list<vtkIncrementalOctreeNode*> nodesList;
-  std::queue<std::pair<vtkIncrementalOctreeNode*, int> > pairQueue;
+  std::queue<std::pair<vtkIncrementalOctreeNode*, int>> pairQueue;
 
   // recursively process the nodes in the octree
   pairQueue.push(std::make_pair(this->OctreeRootNode, 0));

@@ -738,7 +738,7 @@ void vtkStringArray::UpdateLookup()
     this->Lookup->SortedArray->SetNumberOfComponents(numComps);
     this->Lookup->SortedArray->SetNumberOfTuples(numTuples);
     this->Lookup->IndexArray->SetNumberOfIds(numComps * numTuples);
-    std::vector<std::pair<vtkStdString, vtkIdType> > v;
+    std::vector<std::pair<vtkStdString, vtkIdType>> v;
     for (vtkIdType i = 0; i < numComps * numTuples; i++)
     {
       v.emplace_back(this->Array[i], i);

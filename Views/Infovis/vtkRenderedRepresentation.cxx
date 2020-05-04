@@ -39,8 +39,8 @@ class vtkRenderedRepresentation::Internals
 public:
   // Convenience vectors for storing props to add/remove until the next render,
   // where they are added/removed by PrepareForRendering().
-  std::vector<vtkSmartPointer<vtkProp> > PropsToAdd;
-  std::vector<vtkSmartPointer<vtkProp> > PropsToRemove;
+  std::vector<vtkSmartPointer<vtkProp>> PropsToAdd;
+  std::vector<vtkSmartPointer<vtkProp>> PropsToRemove;
 };
 
 vtkRenderedRepresentation::vtkRenderedRepresentation()

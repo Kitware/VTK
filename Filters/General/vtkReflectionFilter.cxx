@@ -41,7 +41,7 @@ namespace
  * Only 3/6/9 component signed data array are considered flippable.
  */
 static void FindFlippableArrays(
-  vtkFieldData* fd, std::vector<std::pair<vtkIdType, int> >& flippableArrays)
+  vtkFieldData* fd, std::vector<std::pair<vtkIdType, int>>& flippableArrays)
 {
   // Find all flippable arrays
   for (int iArr = 0; iArr < fd->GetNumberOfArrays(); iArr++)
@@ -473,7 +473,7 @@ int vtkReflectionFilter::RequestDataInternal(
   vtkMath::TensorFromSymmetricTensor(mirrorSymmetricTensorDir, mirrorTensorDir);
 
   // Find all flippable arrays
-  std::vector<std::pair<vtkIdType, int> > flippableArrays;
+  std::vector<std::pair<vtkIdType, int>> flippableArrays;
   if (this->FlipAllInputArrays)
   {
     FindFlippableArrays(inPD, flippableArrays);

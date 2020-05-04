@@ -181,7 +181,7 @@ protected:
   bool BuildHierarchy;
 
   // Helpers
-  std::vector<vtkSmartPointer<vtkSphereTree> > SphereTrees;
+  std::vector<vtkSmartPointer<vtkSphereTree>> SphereTrees;
 
   // Pipeline-related methods
   int RequestDataObject(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

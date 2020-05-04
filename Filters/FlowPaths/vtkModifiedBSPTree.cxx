@@ -541,7 +541,7 @@ public:
 };
 
 typedef std::vector<_box> boxlist;
-typedef std::stack<BSPNode*, std::vector<BSPNode*> > nodestack;
+typedef std::stack<BSPNode*, std::vector<BSPNode*>> nodestack;
 
 //---------------------------------------------------------------------------
 void vtkModifiedBSPTree::GenerateRepresentation(int level, vtkPolyData* pd)

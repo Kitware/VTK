@@ -430,7 +430,7 @@ int TestEigen()
     }
   }
 
-  std::vector<std::vector<double> > eigenvectorsGroundTruth;
+  std::vector<std::vector<double>> eigenvectorsGroundTruth;
   std::vector<double> e0(3);
   e0[0] = -.707107;
   e0[1] = .707107;

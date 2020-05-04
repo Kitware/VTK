@@ -110,7 +110,7 @@ public:
 
   // Accept std::string without a declaration.
   template <template <typename, typename, typename> class S>
-  vtkOStreamWrapper& operator<<(const S<char, std::char_traits<char>, std::allocator<char> >& s)
+  vtkOStreamWrapper& operator<<(const S<char, std::char_traits<char>, std::allocator<char>>& s)
   {
     return *this << reinterpret_cast<std_string const&>(s);
   }

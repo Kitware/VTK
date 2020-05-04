@@ -40,8 +40,8 @@ int TestArrayAPIConvenience(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   try
   {
-    vtkSmartPointer<vtkDenseArray<double> > a = vtkSmartPointer<vtkDenseArray<double> >::New();
-    vtkSmartPointer<vtkDenseArray<double> > b = vtkSmartPointer<vtkDenseArray<double> >::New();
+    vtkSmartPointer<vtkDenseArray<double>> a = vtkSmartPointer<vtkDenseArray<double>>::New();
+    vtkSmartPointer<vtkDenseArray<double>> b = vtkSmartPointer<vtkDenseArray<double>>::New();
 
     a->Resize(5);
     b->Resize(vtkArrayExtents(5));

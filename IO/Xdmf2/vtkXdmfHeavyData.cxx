@@ -259,7 +259,7 @@ vtkDataObject* vtkXdmfHeavyData::ReadTemporalCollection(
     return 0;
   }
 
-  std::deque<vtkSmartPointer<vtkDataObject> > child_data_objects;
+  std::deque<vtkSmartPointer<vtkDataObject>> child_data_objects;
   std::deque<XdmfGrid*>::iterator iter;
   for (iter = valid_children.begin(); iter != valid_children.end(); ++iter)
   {

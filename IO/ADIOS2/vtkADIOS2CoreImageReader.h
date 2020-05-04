@@ -64,7 +64,7 @@ public:
   };
   using Params = std::map<std::string, std::string>;
   using StringToParams = std::map<std::string, Params>;
-  using InquireVariablesType = std::vector<std::pair<std::string, VarType> >;
+  using InquireVariablesType = std::vector<std::pair<std::string, VarType>>;
   static vtkADIOS2CoreImageReader* New(void);
   vtkTypeMacro(vtkADIOS2CoreImageReader, vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;

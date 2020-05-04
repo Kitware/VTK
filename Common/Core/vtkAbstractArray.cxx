@@ -562,13 +562,13 @@ namespace
 {
 template <typename T>
 bool AccumulateSampleValues(T* array, int nc, vtkIdType begin, vtkIdType end,
-  std::vector<std::set<T> >& uniques, std::set<std::vector<T> >& tupleUniques,
+  std::vector<std::set<T>>& uniques, std::set<std::vector<T>>& tupleUniques,
   unsigned int maxDiscreteValues)
 {
   // number of discrete components remaining (tracked during iteration):
   int ndc = nc;
   std::pair<typename std::set<T>::iterator, bool> result;
-  std::pair<typename std::set<std::vector<T> >::iterator, bool> tresult;
+  std::pair<typename std::set<std::vector<T>>::iterator, bool> tresult;
   std::vector<T> tuple;
   tuple.resize(nc);
   // Here we iterate over the components and add to their respective lists
@@ -607,11 +607,11 @@ bool AccumulateSampleValues(T* array, int nc, vtkIdType begin, vtkIdType end,
 
 //-----------------------------------------------------------------------------
 template <typename U>
-void SampleProminentValues(std::vector<std::vector<vtkVariant> >& uniques, vtkIdType maxId, int nc,
+void SampleProminentValues(std::vector<std::vector<vtkVariant>>& uniques, vtkIdType maxId, int nc,
   vtkIdType nt, int blockSize, vtkIdType numberOfBlocks, U* ptr, unsigned int maxDiscreteValues)
 {
-  std::vector<std::set<U> > typeSpecificUniques;
-  std::set<std::vector<U> > typeSpecificUniqueTuples;
+  std::vector<std::set<U>> typeSpecificUniques;
+  std::set<std::vector<U>> typeSpecificUniqueTuples;
   typeSpecificUniques.resize(nc);
   // I. Accumulate samples for all components plus the tuple,
   //    either for the full array or a random subset.
@@ -653,16 +653,16 @@ void SampleProminentValues(std::vector<std::vector<vtkVariant> >& uniques, vtkId
   // Handle per-component uniques first
   for (int i = 0; i < nc; ++i)
   {
-    std::back_insert_iterator<std::vector<vtkVariant> > bi(uniques[i]);
+    std::back_insert_iterator<std::vector<vtkVariant>> bi(uniques[i]);
     std::copy(typeSpecificUniques[i].begin(), typeSpecificUniques[i].end(), bi);
   }
 
   // Now squash any tuple-wide uniques into
   // the final entry of the outer vector.
-  typename std::set<std::vector<U> >::iterator si;
+  typename std::set<std::vector<U>>::iterator si;
   for (si = typeSpecificUniqueTuples.begin(); si != typeSpecificUniqueTuples.end(); ++si)
   {
-    std::back_insert_iterator<std::vector<vtkVariant> > bi(uniques[nc]);
+    std::back_insert_iterator<std::vector<vtkVariant>> bi(uniques[nc]);
     std::copy(si->begin(), si->end(), bi);
   }
 }
@@ -722,7 +722,7 @@ void vtkAbstractArray::UpdateDiscreteValueSet(double uncertainty, double minimum
       2 * this->MaxDiscreteValues / blockSize + (2 * this->MaxDiscreteValues % blockSize ? 1 : 0);
   }
   // II. Sample the array.
-  std::vector<std::vector<vtkVariant> > uniques(nc > 1 ? nc + 1 : nc);
+  std::vector<std::vector<vtkVariant>> uniques(nc > 1 ? nc + 1 : nc);
   switch (this->GetDataType())
   {
     vtkSuperExtraExtendedTemplateMacro(

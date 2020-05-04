@@ -42,7 +42,7 @@
 #include <algorithm>
 #include <vector>
 
-class vtkPlotBox::Private : public std::vector<std::vector<double> >
+class vtkPlotBox::Private : public std::vector<std::vector<double>>
 {
 public:
   Private() = default;

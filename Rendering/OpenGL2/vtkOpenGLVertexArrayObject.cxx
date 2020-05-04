@@ -128,7 +128,7 @@ public:
   bool Supported;
   bool ForceEmulation;
 
-  typedef std::map<GLuint, std::vector<VertexAttributes> > AttributeMap;
+  typedef std::map<GLuint, std::vector<VertexAttributes>> AttributeMap;
   AttributeMap Attributes;
 };
 

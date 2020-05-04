@@ -29,7 +29,7 @@ template <typename T>
 void VerifyType(const T& DefaultNull, const T& AlternateNull)
 {
   // Create a sparse array ...
-  vtkSmartPointer<vtkSparseArray<T> > array = vtkSmartPointer<vtkSparseArray<T> >::New();
+  vtkSmartPointer<vtkSparseArray<T>> array = vtkSmartPointer<vtkSparseArray<T>>::New();
   array->Resize(2);
 
   // Verify that the default nullptr value is iniitialized correctly ...

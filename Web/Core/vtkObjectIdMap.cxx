@@ -24,9 +24,9 @@
 
 struct vtkObjectIdMap::vtkInternals
 {
-  std::map<vtkTypeUInt32, vtkSmartPointer<vtkObject> > Object;
+  std::map<vtkTypeUInt32, vtkSmartPointer<vtkObject>> Object;
   std::map<vtkSmartPointer<vtkObject>, vtkTypeUInt32> GlobalId;
-  std::map<std::string, vtkWeakPointer<vtkObject> > ActiveObjects;
+  std::map<std::string, vtkWeakPointer<vtkObject>> ActiveObjects;
   vtkTypeUInt32 NextAvailableId;
 
   vtkInternals()

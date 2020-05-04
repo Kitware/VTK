@@ -1582,7 +1582,7 @@ bool CheckNonManifoldTriangulation(EdgeFaceSetMap& edgeFaceMap)
 bool GetContourPoints(double value, vtkPolyhedron* cell,
   vtkPointIdMap* pointIdMap, // from global id to local cell id
   FaceEdgesVector& faceEdgesVector, EdgeFaceSetMap& edgeFaceMap, EdgeSet& originalEdges,
-  vector<vector<vtkIdType> >& oririginalFaceTriFaceMap,
+  vector<vector<vtkIdType>>& oririginalFaceTriFaceMap,
   PointIndexEdgeMultiMap& contourPointEdgeMultiMap, EdgePointIndexMap& edgeContourPointMap,
   vtkIncrementalPointLocator* locator, vtkDataArray* pointScalars, vtkPointData* inPd,
   vtkPointData* outPd)
@@ -1841,7 +1841,7 @@ void vtkPolyhedron::Contour(double value, vtkDataArray* pointScalars,
   PointIndexEdgeMultiMap contourPointEdgeMultiMap;
   EdgePointIndexMap edgeContourPointMap;
   EdgeSet originalEdges;
-  vector<vector<vtkIdType> > oririginalFaceTriFaceMap;
+  vector<vector<vtkIdType>> oririginalFaceTriFaceMap;
 
   if (!GetContourPoints(value, this, this->PointIdMap, faceEdgesVector, edgeFaceMap, originalEdges,
         oririginalFaceTriFaceMap, contourPointEdgeMultiMap, edgeContourPointMap, locator,
@@ -1924,7 +1924,7 @@ bool FindNext(
   return false;
 }
 
-bool OrderEdgePolygon(vector<Edge>& unordered, vector<vector<Edge> >& ordered)
+bool OrderEdgePolygon(vector<Edge>& unordered, vector<vector<Edge>>& ordered)
 {
   if (unordered.empty())
   {
@@ -1979,7 +1979,7 @@ void EdgesToPolygon(vector<Edge>& edges, vector<vtkIdType>& polygon)
   }
 }
 
-void EdgesToPolygons(vector<vector<Edge> >& edgePolygons, vector<vector<vtkIdType> >& polygons)
+void EdgesToPolygons(vector<vector<Edge>>& edgePolygons, vector<vector<vtkIdType>>& polygons)
 {
   for (auto it = edgePolygons.begin(); it != edgePolygons.end(); ++it)
   {
@@ -1990,7 +1990,7 @@ void EdgesToPolygons(vector<vector<Edge> >& edgePolygons, vector<vector<vtkIdTyp
   }
 }
 
-void PruneContourPoints(vector<vector<vtkIdType> >& merged, EdgeSet& originalEdges,
+void PruneContourPoints(vector<vector<vtkIdType>>& merged, EdgeSet& originalEdges,
   PointIndexEdgeMultiMap& contourPointEdgeMultiMap)
 {
   for (auto it = merged.begin(); it != merged.end(); ++it)
@@ -2026,7 +2026,7 @@ void PruneContourPoints(vector<vector<vtkIdType> >& merged, EdgeSet& originalEdg
   }
 }
 
-void MergeTriFacePolygons(vector<vector<vtkIdType> >& toMerge, vector<vector<vtkIdType> >& merged,
+void MergeTriFacePolygons(vector<vector<vtkIdType>>& toMerge, vector<vector<vtkIdType>>& merged,
   EdgeSet& originalEdges, PointIndexEdgeMultiMap& contourPointEdgeMultiMap)
 {
   // this is a five-step procedure:
@@ -2038,7 +2038,7 @@ void MergeTriFacePolygons(vector<vector<vtkIdType> >& toMerge, vector<vector<vtk
   // 5) prune contour points that are not on original edges.
 
   // step 1: convert from vector<vtkIdType> to vector<Edge>
-  vector<vector<Edge> > polygonsAsEdges;
+  vector<vector<Edge>> polygonsAsEdges;
   unordered_map<Edge, int, hash_fn, equal_fn> edgeCount;
   for (auto it = toMerge.begin(); it != toMerge.end(); ++it)
   {
@@ -2076,7 +2076,7 @@ void MergeTriFacePolygons(vector<vector<vtkIdType> >& toMerge, vector<vector<vtk
   }
 
   // step 3: and merge them
-  vector<vector<Edge> > result;
+  vector<vector<Edge>> result;
   OrderEdgePolygon(withoutDuplicates, result);
 
   // step 4: convert back to vector<vtkIdType> polygons
@@ -2087,10 +2087,10 @@ void MergeTriFacePolygons(vector<vector<vtkIdType> >& toMerge, vector<vector<vtk
 }
 
 void MergeTriFacePolygons(vtkPolyhedron* cell,
-  unordered_map<vtkIdType, vector<vtkIdType> >& triFacePolygonMap,
-  vector<vector<vtkIdType> >& oririginalFaceTriFaceMap,
+  unordered_map<vtkIdType, vector<vtkIdType>>& triFacePolygonMap,
+  vector<vector<vtkIdType>>& oririginalFaceTriFaceMap,
   PointIndexEdgeMultiMap& contourPointEdgeMultiMap, EdgeSet& originalEdges,
-  vector<vector<vtkIdType> >& polygons)
+  vector<vector<vtkIdType>>& polygons)
 {
   // for each *original* face, find the list of triangulated faces
   // and use these to get the list of polygons on the original face
@@ -2099,7 +2099,7 @@ void MergeTriFacePolygons(vtkPolyhedron* cell,
   {
     const vector<vtkIdType>& triFacesOfOriginalFace = oririginalFaceTriFaceMap[i];
 
-    vector<vector<vtkIdType> > facePolygons;
+    vector<vector<vtkIdType>> facePolygons;
     for (auto it = triFacesOfOriginalFace.begin(); it != triFacesOfOriginalFace.end(); ++it)
     {
       vtkIdType triFace = *it;
@@ -2110,7 +2110,7 @@ void MergeTriFacePolygons(vtkPolyhedron* cell,
 
     if (!facePolygons.empty())
     {
-      vector<vector<vtkIdType> > mergedPolygons;
+      vector<vector<vtkIdType>> mergedPolygons;
       MergeTriFacePolygons(facePolygons, mergedPolygons, originalEdges, contourPointEdgeMultiMap);
       for (auto it = mergedPolygons.begin(); it != mergedPolygons.end(); ++it)
       {
@@ -2171,7 +2171,7 @@ void vtkPolyhedron::Clip(double value, vtkDataArray* pointScalars,
   PointIndexEdgeMultiMap contourPointEdgeMultiMap;
   EdgePointIndexMap edgeContourPointMap;
   EdgeSet originalEdges;
-  vector<vector<vtkIdType> > oririginalFaceTriFaceMap;
+  vector<vector<vtkIdType>> oririginalFaceTriFaceMap;
 
   if (!GetContourPoints(value, this, this->PointIdMap, faceEdgesVector, edgeFaceMap, originalEdges,
         oririginalFaceTriFaceMap, contourPointEdgeMultiMap, edgeContourPointMap, locator,
@@ -2185,7 +2185,7 @@ void vtkPolyhedron::Clip(double value, vtkDataArray* pointScalars,
     return;
   }
 
-  unordered_map<vtkIdType, vector<vtkIdType> > triFacePolygonMap;
+  unordered_map<vtkIdType, vector<vtkIdType>> triFacePolygonMap;
 
   vtkPoints* cellPoints = this->GetPoints();
 
@@ -2235,7 +2235,7 @@ void vtkPolyhedron::Clip(double value, vtkDataArray* pointScalars,
     }
   }
 
-  std::vector<std::vector<vtkIdType> > polygons;
+  std::vector<std::vector<vtkIdType>> polygons;
   MergeTriFacePolygons(this, triFacePolygonMap, oririginalFaceTriFaceMap, contourPointEdgeMultiMap,
     originalEdges, polygons);
 
@@ -2243,7 +2243,7 @@ void vtkPolyhedron::Clip(double value, vtkDataArray* pointScalars,
 
   // inside the callback lambda function defined below, we can only use pointers to capture
   // variables
-  std::vector<std::vector<vtkIdType> >* pPolygons = &polygons;
+  std::vector<std::vector<vtkIdType>>* pPolygons = &polygons;
 
   function<void(vtkIdList*)> cb = [=](vtkIdList* poly) {
     vtkIdType nIds = poly->GetNumberOfIds();
@@ -2270,7 +2270,7 @@ void vtkPolyhedron::Clip(double value, vtkDataArray* pointScalars,
     // this list holds the polygons by moving references
     // in the polygons list of polyhedral faces that
     // belong to the polyhedron being built.
-    std::vector<std::vector<vtkIdType> > polyhedralFaceList;
+    std::vector<std::vector<vtkIdType>> polyhedralFaceList;
 
     // while one face is added, keep looping all faces that
     // were not yet added. The face last added can make faces that were

@@ -95,7 +95,7 @@ public:
     void Reset() { this->Labels.clear(); }
     void Insert(const LabelRect& rect) { this->Labels.push_back(rect); }
   };
-  std::vector<std::vector<ScreenTile> > Tiles;
+  std::vector<std::vector<ScreenTile>> Tiles;
   float ScreenOrigin[2];
   float TileSize[2];
   int NumTiles[2];

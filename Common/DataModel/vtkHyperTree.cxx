@@ -151,8 +151,8 @@ public:
 
   //---------------------------------------------------------------------------
   void RecursiveGetByLevelForWriter(vtkBitArray* inIsMasked, int level, vtkIdType index,
-    std::vector<std::vector<bool> >& descByLevel, std::vector<std::vector<bool> >& maskByLevel,
-    std::vector<std::vector<uint64_t> >& globalIdByLevel)
+    std::vector<std::vector<bool>>& descByLevel, std::vector<std::vector<bool>>& maskByLevel,
+    std::vector<std::vector<uint64_t>>& globalIdByLevel)
   {
     vtkIdType idg = this->GetGlobalIndexFromLocal(index);
     bool mask = (inIsMasked != nullptr) && (inIsMasked->GetNumberOfValues() > 0) &&
@@ -179,9 +179,9 @@ public:
     vtkBitArray* isParent, vtkBitArray* isMasked, vtkIdList* ids) override
   {
     int maxLevels = this->GetNumberOfLevels();
-    std::vector<std::vector<bool> > descByLevel(maxLevels);
-    std::vector<std::vector<bool> > maskByLevel(maxLevels);
-    std::vector<std::vector<uint64_t> > globalIdByLevel(maxLevels);
+    std::vector<std::vector<bool>> descByLevel(maxLevels);
+    std::vector<std::vector<bool>> maskByLevel(maxLevels);
+    std::vector<std::vector<uint64_t>> globalIdByLevel(maxLevels);
     // Build information by levels
     RecursiveGetByLevelForWriter(inIsMasked, 0, 0, descByLevel, maskByLevel, globalIdByLevel);
     // nbVerticesByLevel

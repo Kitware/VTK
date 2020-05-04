@@ -362,12 +362,12 @@ protected:
   // AllPoints[i][j] is the point for point j on the streamlines that
   // falls over cell id i in SuperposedGrid. AllPoint[i].size() tell
   // us how many points fall over cell id i.
-  std::vector<std::vector<std::array<double, 3> > > AllPoints;
+  std::vector<std::vector<std::array<double, 3>>> AllPoints;
 
   // CurrentPoints[i][j] is the point id for point j on the current streamline that
   // falls over cell id i in SuperposedGrid. CurrentPoints[i].size() tell us
   // how many points fall over cell id i.
-  std::vector<std::vector<vtkIdType> > CurrentPoints;
+  std::vector<std::vector<vtkIdType>> CurrentPoints;
   // Min and Max point ids stored in a cell of SuperposedGrid
   std::vector<vtkIdType> MinPointIds;
   // The index of the first point for the current

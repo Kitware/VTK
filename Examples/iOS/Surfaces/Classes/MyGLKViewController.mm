@@ -51,7 +51,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 @interface MyGLKViewController ()
 {
-  std::deque<vtkSmartPointer<vtkParametricFunction> > parametricObjects;
+  std::deque<vtkSmartPointer<vtkParametricFunction>> parametricObjects;
 }
 
 @property (strong, nonatomic) EAGLContext* context;
@@ -150,10 +150,10 @@ PURPOSE.  See the above copyright notice for more information.
   //
   [self initializeParametricObjects];
 
-  std::vector<vtkSmartPointer<vtkParametricFunctionSource> > parametricFunctionSources;
-  std::vector<vtkSmartPointer<vtkRenderer> > renderers;
-  std::vector<vtkSmartPointer<vtkPolyDataMapper> > mappers;
-  std::vector<vtkSmartPointer<vtkActor> > actors;
+  std::vector<vtkSmartPointer<vtkParametricFunctionSource>> parametricFunctionSources;
+  std::vector<vtkSmartPointer<vtkRenderer>> renderers;
+  std::vector<vtkSmartPointer<vtkPolyDataMapper>> mappers;
+  std::vector<vtkSmartPointer<vtkActor>> actors;
 
   // No text mappers/actors in VTK GL2 yet
 #if 0

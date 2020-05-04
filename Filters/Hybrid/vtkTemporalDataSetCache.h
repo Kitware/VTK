@@ -79,7 +79,7 @@ protected:
 
   int CacheSize;
 
-  typedef std::map<double, std::pair<unsigned long, vtkDataObject*> > CacheType;
+  typedef std::map<double, std::pair<unsigned long, vtkDataObject*>> CacheType;
   CacheType Cache;
   std::vector<double> TimeStepValues;
   /**

@@ -38,7 +38,7 @@
 
 namespace
 {
-const std::map<std::string, std::map<std::string, std::string> > Aliases = {
+const std::map<std::string, std::map<std::string, std::string>> Aliases = {
   { "OBJMaterial",
     { { "colorMap", "map_Kd" }, { "map_kd", "map_Kd" }, { "map_ks", "map_Ks" },
       { "map_ns", "map_Ns" }, { "map_bump", "map_Bump" }, { "normalMap", "map_Bump" },
@@ -67,8 +67,8 @@ std::string FindRealName(const std::string& materialType, const std::string& ali
 }
 }
 
-typedef std::map<std::string, std::vector<double> > NamedVariables;
-typedef std::map<std::string, vtkSmartPointer<vtkTexture> > NamedTextures;
+typedef std::map<std::string, std::vector<double>> NamedVariables;
+typedef std::map<std::string, vtkSmartPointer<vtkTexture>> NamedTextures;
 
 class vtkOSPRayMaterialLibraryInternals
 {

@@ -78,7 +78,7 @@ void vtkTDxQtUnixDevices::ProcessEvent(vtkTDxUnixDeviceXEvent* e)
       // not yet created.
       device = vtkSmartPointer<vtkTDxUnixDevice>::New();
       this->Private->Map.insert(
-        std::pair<const vtkTDxUnixDeviceWindow, vtkSmartPointer<vtkTDxUnixDevice> >(winId, device));
+        std::pair<const vtkTDxUnixDeviceWindow, vtkSmartPointer<vtkTDxUnixDevice>>(winId, device));
 
       device->SetDisplayId(event->xany.display);
       device->SetWindowId(winId);

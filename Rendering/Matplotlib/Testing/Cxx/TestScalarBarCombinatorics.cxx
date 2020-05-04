@@ -114,7 +114,7 @@ int TestScalarBarCombinatorics(int argc, char* argv[])
   vtkNew<vtkLookupTable> lutB;
   // Create a grid of scalar bars
   int numBars = static_cast<int>(sizeof(conditions) / sizeof(conditions[0]));
-  std::vector<vtkSmartPointer<vtkScalarBarActor> > actors;
+  std::vector<vtkSmartPointer<vtkScalarBarActor>> actors;
   actors.reserve(numBars);
   for (int c = 0; c < numBars; ++c)
   {

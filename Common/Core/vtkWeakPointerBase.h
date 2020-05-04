@@ -36,7 +36,10 @@ public:
   /**
    * Initialize smart pointer to nullptr.
    */
-  vtkWeakPointerBase() noexcept : Object(nullptr) {}
+  vtkWeakPointerBase() noexcept
+    : Object(nullptr)
+  {
+  }
 
   /**
    * Initialize smart pointer to given object.

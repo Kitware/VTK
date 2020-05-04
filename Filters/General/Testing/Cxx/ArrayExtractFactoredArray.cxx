@@ -38,8 +38,8 @@ int ArrayExtractFactoredArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   try
   {
-    vtkSmartPointer<vtkSparseArray<double> > a = vtkSmartPointer<vtkSparseArray<double> >::New();
-    vtkSmartPointer<vtkSparseArray<double> > b = vtkSmartPointer<vtkSparseArray<double> >::New();
+    vtkSmartPointer<vtkSparseArray<double>> a = vtkSmartPointer<vtkSparseArray<double>>::New();
+    vtkSmartPointer<vtkSparseArray<double>> b = vtkSmartPointer<vtkSparseArray<double>>::New();
 
     vtkSmartPointer<vtkArrayData> factored = vtkSmartPointer<vtkArrayData>::New();
     factored->AddArray(a);

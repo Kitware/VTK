@@ -73,7 +73,7 @@ private:
   std::vector<std::string> FieldNames;
   std::vector<vtkIdType> NumberOfBins;
   std::vector<double> BinDeltas;
-  std::vector<std::pair<double, double> > DataRanges;
+  std::vector<std::pair<double, double>> DataRanges;
 };
 
 #endif // vtkmNDHistogram_h

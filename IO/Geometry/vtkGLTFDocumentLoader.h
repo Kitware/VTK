@@ -171,7 +171,7 @@ public:
     // accessor indices from the .gltf file, the map's keys correspond to attribute names
     std::map<std::string, int> AttributeIndices;
     // attribute values
-    std::map<std::string, vtkSmartPointer<vtkFloatArray> > AttributeValues;
+    std::map<std::string, vtkSmartPointer<vtkFloatArray>> AttributeValues;
   };
 
   /**
@@ -189,7 +189,7 @@ public:
     vtkSmartPointer<vtkCellArray> Indices;
 
     // attribute values from buffer data
-    std::map<std::string, vtkSmartPointer<vtkDataArray> > AttributeValues;
+    std::map<std::string, vtkSmartPointer<vtkDataArray>> AttributeValues;
 
     vtkSmartPointer<vtkPolyData> Geometry;
 
@@ -382,7 +382,7 @@ public:
    */
   struct Skin
   {
-    std::vector<vtkSmartPointer<vtkMatrix4x4> > InverseBindMatrices;
+    std::vector<vtkSmartPointer<vtkMatrix4x4>> InverseBindMatrices;
     std::vector<int> Joints;
     int InverseBindMatricesAccessorId;
     int Skeleton;
@@ -503,7 +503,7 @@ public:
   {
     std::vector<Accessor> Accessors;
     std::vector<Animation> Animations;
-    std::vector<std::vector<char> > Buffers;
+    std::vector<std::vector<char>> Buffers;
     std::vector<BufferView> BufferViews;
     std::vector<Camera> Cameras;
     std::vector<Image> Images;

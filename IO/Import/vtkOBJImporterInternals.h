@@ -121,9 +121,9 @@ public:
   std::vector<vtkOBJImportedPolyDataWithMaterial*> poly_list;
 
   // what gets returned to client code via GetOutput()
-  std::vector<vtkSmartPointer<vtkPolyData> > outVector_of_vtkPolyData;
+  std::vector<vtkSmartPointer<vtkPolyData>> outVector_of_vtkPolyData;
 
-  std::vector<vtkSmartPointer<vtkActor> > actor_list;
+  std::vector<vtkSmartPointer<vtkActor>> actor_list;
   /////////////////////
 
   std::vector<vtkOBJImportedMaterial*> ParseOBJandMTL(std::string filename, int& result_code);

@@ -188,7 +188,7 @@ void AddMaterialToFieldData(int materialId, vtkSmartPointer<vtkFieldData> fieldD
 
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkDataArray> ApplyMorphingToDataArray(vtkSmartPointer<vtkDataArray> origin,
-  const std::vector<float>& weights, const std::vector<vtkSmartPointer<vtkFloatArray> >& targets)
+  const std::vector<float>& weights, const std::vector<vtkSmartPointer<vtkFloatArray>>& targets)
 {
   if (origin == nullptr)
   {
@@ -223,7 +223,7 @@ vtkSmartPointer<vtkDataArray> ApplyMorphingToDataArray(vtkSmartPointer<vtkDataAr
 
 //----------------------------------------------------------------------------
 void SetupWeightedTransformFilterForGLTFSkinning(vtkSmartPointer<vtkWeightedTransformFilter> filter,
-  const std::vector<vtkSmartPointer<vtkTransform> >& jointMats,
+  const std::vector<vtkSmartPointer<vtkTransform>>& jointMats,
   const vtkSmartPointer<vtkPolyData> poly)
 {
   filter->SetInputData(poly);
@@ -274,7 +274,7 @@ void AddTransformToFieldData(const vtkSmartPointer<vtkTransform> transform,
 }
 
 //----------------------------------------------------------------------------
-void AddJointMatricesToFieldData(const std::vector<vtkSmartPointer<vtkTransform> >& jointMats,
+void AddJointMatricesToFieldData(const std::vector<vtkSmartPointer<vtkTransform>>& jointMats,
   vtkSmartPointer<vtkFieldData> fieldData)
 {
   for (unsigned int matId = 0; matId < jointMats.size(); matId++)
@@ -307,7 +307,7 @@ void AddMorphingWeightsToFieldData(
 
 //----------------------------------------------------------------------------
 void AddInfoToFieldData(const std::vector<float>* morphingWeights,
-  const std::vector<vtkSmartPointer<vtkTransform> >& jointMats,
+  const std::vector<vtkSmartPointer<vtkTransform>>& jointMats,
   vtkSmartPointer<vtkTransform> globalTransform, vtkSmartPointer<vtkFieldData> fieldData)
 {
   if (morphingWeights != nullptr && !morphingWeights->empty())
@@ -324,9 +324,9 @@ void AddInfoToFieldData(const std::vector<float>* morphingWeights,
 }
 
 //----------------------------------------------------------------------------
-void PrepareMorphingTargetArrays(std::vector<vtkSmartPointer<vtkFloatArray> >& positionArrays,
-  std::vector<vtkSmartPointer<vtkFloatArray> >& normalArrays,
-  std::vector<vtkSmartPointer<vtkFloatArray> >& tangentArrays,
+void PrepareMorphingTargetArrays(std::vector<vtkSmartPointer<vtkFloatArray>>& positionArrays,
+  std::vector<vtkSmartPointer<vtkFloatArray>>& normalArrays,
+  std::vector<vtkSmartPointer<vtkFloatArray>>& tangentArrays,
   std::vector<vtkGLTFDocumentLoader::MorphTarget>& targets)
 {
   for (auto& target : targets)
@@ -352,9 +352,9 @@ void ApplyMorphingToPolyData(std::vector<vtkGLTFDocumentLoader::MorphTarget>& ta
   vtkSmartPointer<vtkPolyData> outputPolyData)
 {
   // Prepare target arrays
-  std::vector<vtkSmartPointer<vtkFloatArray> > positionArrays;
-  std::vector<vtkSmartPointer<vtkFloatArray> > normalArrays;
-  std::vector<vtkSmartPointer<vtkFloatArray> > tangentArrays;
+  std::vector<vtkSmartPointer<vtkFloatArray>> positionArrays;
+  std::vector<vtkSmartPointer<vtkFloatArray>> normalArrays;
+  std::vector<vtkSmartPointer<vtkFloatArray>> tangentArrays;
   PrepareMorphingTargetArrays(positionArrays, normalArrays, tangentArrays, targets);
 
   // Apply morphing with all targets
@@ -386,7 +386,7 @@ bool BuildMultiBlockDatasetFromMesh(vtkGLTFDocumentLoader::Model& m, unsigned in
   vtkSmartPointer<vtkMultiBlockDataSet> parentDataSet,
   vtkSmartPointer<vtkMultiBlockDataSet> meshDataSet, std::string& dataSetName,
   vtkSmartPointer<vtkTransform> globalTransform,
-  const std::vector<vtkSmartPointer<vtkTransform> >& jointMats, bool applyDeformations,
+  const std::vector<vtkSmartPointer<vtkTransform>>& jointMats, bool applyDeformations,
   std::vector<float>* morphingWeights)
 {
   if (meshId >= m.Meshes.size())
@@ -491,7 +491,7 @@ bool BuildMultiBlockDatasetFromMesh(vtkGLTFDocumentLoader::Model& m, unsigned in
 //----------------------------------------------------------------------------
 void ComputeJointMatrices(const vtkGLTFDocumentLoader::Model& m,
   const vtkGLTFDocumentLoader::Skin& skin, vtkGLTFDocumentLoader::Node& node,
-  std::vector<vtkSmartPointer<vtkTransform> >& jointMats)
+  std::vector<vtkSmartPointer<vtkTransform>>& jointMats)
 {
   jointMats.clear();
   jointMats.reserve(skin.Joints.size());
@@ -556,7 +556,7 @@ bool BuildMultiBlockDataSetFromNode(vtkGLTFDocumentLoader::Model& m, unsigned in
   int blockId = 0;
   if (node.Mesh >= 0)
   {
-    std::vector<vtkSmartPointer<vtkTransform> > jointMats;
+    std::vector<vtkSmartPointer<vtkTransform>> jointMats;
 
     if (node.Skin >= 0)
     {

@@ -574,7 +574,7 @@ void CopyDataSetStructure(vtkDataObject* input, vtkDataObject* output)
 // Find all the neighbors that this rank will need to send to and recv from.
 // Based on the intersection of this rank's input bounds with remote's source
 // bounds.
-void FindNeighbors(diy::mpi::communicator comm, std::vector<std::vector<double> >& sourceBounds,
+void FindNeighbors(diy::mpi::communicator comm, std::vector<std::vector<double>>& sourceBounds,
   std::vector<vtkDataSet*>& inputBlocks, std::vector<int>& neighbors)
 {
   for (int gid = 0; gid < comm.size(); ++gid)
@@ -609,7 +609,7 @@ void FindNeighbors(diy::mpi::communicator comm, std::vector<std::vector<double> 
     }
   }
 
-  std::vector<std::vector<int> > allNbrs;
+  std::vector<std::vector<int>> allNbrs;
   diy::mpi::all_gather(comm, neighbors, allNbrs);
   for (int gid = 0; gid < comm.size(); ++gid)
   {
@@ -630,7 +630,7 @@ void FindNeighbors(diy::mpi::communicator comm, std::vector<std::vector<double> 
 //----------------------------------------------------------------------------
 struct DiyBlock
 {
-  std::vector<std::vector<double> > SourceBlocksBounds;
+  std::vector<std::vector<double>> SourceBlocksBounds;
   std::vector<vtkDataSet*> InputBlocks;
   std::vector<vtkDataSet*> OutputBlocks;
   Partition* PointsLookup;
@@ -987,7 +987,7 @@ void ReceiveResampledPoints(
   DiyBlock* block, const diy::Master::ProxyWithLink& cp, const char* maskArrayName)
 {
   int numBlocks = static_cast<int>(block->InputBlocks.size());
-  std::vector<std::map<std::string, int> > arrayReceiveCounts(numBlocks);
+  std::vector<std::map<std::string, int>> arrayReceiveCounts(numBlocks);
 
   diy::Master::IncomingQueues& in = *cp.incoming();
   for (diy::Master::IncomingQueues::iterator i = in.begin(); i != in.end(); ++i)

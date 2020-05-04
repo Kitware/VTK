@@ -45,7 +45,7 @@ public:
 class vtkDSPFilterGroupVectorVectorIntSTLCloak
 {
 public:
-  std::vector<std::vector<int> > m_vector;
+  std::vector<std::vector<int>> m_vector;
 };
 
 class vtkDSPFilterGroupVectorArraySTLCloak
@@ -56,7 +56,7 @@ public:
 class vtkDSPFilterGroupVectorVectorArraySTLCloak
 {
 public:
-  std::vector<std::vector<vtkFloatArray*> > m_vector;
+  std::vector<std::vector<vtkFloatArray*>> m_vector;
 };
 class vtkDSPFilterGroupVectorStringSTLCloak
 {
@@ -146,9 +146,9 @@ void vtkDSPFilterGroup::AddFilter(vtkDSPFilterDefinition* filter)
 void vtkDSPFilterGroup::RemoveFilter(const char* a_outputVariableName)
 {
   std::vector<vtkDSPFilterDefinition*>::iterator l_iter;
-  std::vector<std::vector<vtkFloatArray*> >::iterator l_cachedOutputsIter =
+  std::vector<std::vector<vtkFloatArray*>>::iterator l_cachedOutputsIter =
     this->CachedOutputs->m_vector.begin();
-  std::vector<std::vector<int> >::iterator l_cachedOutputTimesIter =
+  std::vector<std::vector<int>>::iterator l_cachedOutputTimesIter =
     this->CachedOutputTimesteps->m_vector.begin();
 
   for (l_iter = this->FilterDefinitions->m_vector.begin();

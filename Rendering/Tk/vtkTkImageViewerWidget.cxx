@@ -241,7 +241,7 @@ extern "C"
     // ...
     // Create command event handler
     Tcl_CreateCommand(interp, Tk_PathName(tkwin), vtkTkImageViewerWidget_Widget, (ClientData)self,
-      (void (*)(ClientData))nullptr);
+      (void (*)(ClientData)) nullptr);
     Tk_CreateEventHandler(tkwin, ExposureMask | StructureNotifyMask,
       vtkTkImageViewerWidget_EventProc, (ClientData)self);
 
@@ -857,7 +857,7 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget*
   // get the window
   imgWindow = static_cast<vtkXOpenGLRenderWindow*>(imgViewer->GetRenderWindow());
   // If the imageviewer has already created it's window, throw up our hands and quit...
-  if (imgWindow->GetWindowId() != (Window)nullptr)
+  if (imgWindow->GetWindowId() != (Window) nullptr)
   {
     return TCL_ERROR;
   }

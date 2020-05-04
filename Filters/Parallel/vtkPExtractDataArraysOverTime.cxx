@@ -131,7 +131,7 @@ void vtkPExtractDataArraysOverTime::ReorganizeData(vtkMultiBlockDataSet* dataset
   const int numRanks = this->Controller->GetNumberOfProcesses();
   if (myRank != 0)
   {
-    std::vector<vtkSmartPointer<vtkDataObject> > recvBuffer;
+    std::vector<vtkSmartPointer<vtkDataObject>> recvBuffer;
     this->Controller->Gather(dataset, recvBuffer, 0);
 
     vtkMultiProcessStream stream;
@@ -150,14 +150,14 @@ void vtkPExtractDataArraysOverTime::ReorganizeData(vtkMultiBlockDataSet* dataset
   }
   else
   {
-    std::vector<vtkSmartPointer<vtkDataObject> > recvBuffer;
+    std::vector<vtkSmartPointer<vtkDataObject>> recvBuffer;
     this->Controller->Gather(dataset, recvBuffer, 0);
 
     assert(static_cast<int>(recvBuffer.size()) == numRanks);
 
     recvBuffer[myRank] = dataset;
 
-    std::map<std::string, std::map<int, vtkSmartPointer<vtkTable> > > collection;
+    std::map<std::string, std::map<int, vtkSmartPointer<vtkTable>>> collection;
     for (int rank = 0; rank < numRanks; ++rank)
     {
       if (auto mb = vtkMultiBlockDataSet::SafeDownCast(recvBuffer[rank]))

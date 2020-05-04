@@ -127,7 +127,7 @@ void GenerateElevationArray(vtkSmartPointer<vtkPolyDataAlgorithm> source)
 };
 
 //------------------------------------------------------------------------------
-void RenderComponentImages(std::vector<vtkSmartPointer<vtkImageData> >& colorImOut,
+void RenderComponentImages(std::vector<vtkSmartPointer<vtkImageData>>& colorImOut,
   vtkRenderWindow* window, vtkRenderer* renderer, vtkValuePass* valuePass, int dataMode,
   char const* name)
 {
@@ -226,12 +226,12 @@ int TestValuePassFloatingPoint(int argc, char* argv[])
   window->Render();
 
   // Render point data images
-  std::vector<vtkSmartPointer<vtkImageData> > colorImagesPoint;
+  std::vector<vtkSmartPointer<vtkImageData>> colorImagesPoint;
   RenderComponentImages(colorImagesPoint, window, renderer, valuePass,
     VTK_SCALAR_MODE_USE_POINT_FIELD_DATA, "elevationVector");
 
   // Render cell data images
-  std::vector<vtkSmartPointer<vtkImageData> > colorImagesCell;
+  std::vector<vtkSmartPointer<vtkImageData>> colorImagesCell;
   RenderComponentImages(colorImagesCell, window, renderer, valuePass,
     VTK_SCALAR_MODE_USE_CELL_FIELD_DATA, "elevationVector");
 

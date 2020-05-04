@@ -238,7 +238,7 @@ private:
    * Stores the coordinates of each non-null element within the array,
    * using one contiguous array to store the coordinates for each dimension.
    */
-  std::vector<std::vector<CoordinateT> > Coordinates;
+  std::vector<std::vector<CoordinateT>> Coordinates;
 
   /**
    * Stores the value of each non-null element within the array

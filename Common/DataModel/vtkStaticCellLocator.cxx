@@ -965,7 +965,7 @@ vtkIdType CellProcessor<T>::FindClosestPointWithinRadius(const double x[3], doub
   vtkIdType retVal = 0;
 
   using node = std::pair<double, vtkIdType>;
-  std::priority_queue<node, std::vector<node>, std::greater<node> > queue;
+  std::priority_queue<node, std::vector<node>, std::greater<node>> queue;
 
   // first get ijk containing point
   vtkIdType binId = this->Binner->GetBinIndex(x);

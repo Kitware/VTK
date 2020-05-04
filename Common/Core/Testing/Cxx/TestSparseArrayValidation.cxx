@@ -38,8 +38,7 @@ int TestSparseArrayValidation(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   try
   {
     // Create an array ...
-    vtkSmartPointer<vtkSparseArray<double> > array =
-      vtkSmartPointer<vtkSparseArray<double> >::New();
+    vtkSmartPointer<vtkSparseArray<double>> array = vtkSmartPointer<vtkSparseArray<double>>::New();
     test_expression(array->Validate());
 
     array->Resize(vtkArrayExtents::Uniform(2, 3));

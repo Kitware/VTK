@@ -78,7 +78,7 @@ struct BlockT
   vtkSmartPointer<vtkStaticPointLocator> Locator;
   vtkNew<vtkSignedCharArray> MarkedArray;
   vtkNew<vtkIntArray> UpdateFlags;
-  std::vector<std::pair<diy::BlockID, vtkBoundingBox> > Neighbors;
+  std::vector<std::pair<diy::BlockID, vtkBoundingBox>> Neighbors;
 
   void BuildLocator();
   void EnqueueAndExpand(int assoc, int round, const diy::Master::ProxyWithLink& cp);

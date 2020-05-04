@@ -1142,7 +1142,7 @@ void vtkTecplotReader::GetPolyhedralGridCells(
     nodeCountPerFace.push_back(static_cast<size_t>(atoi(tok.c_str())));
   }
 
-  std::vector<std::vector<vtkIdType> > faces;
+  std::vector<std::vector<vtkIdType>> faces;
   for (vtkIdType i = 0; i < numFaces; ++i)
   {
     const size_t nodeCount = nodeCountPerFace[i];
@@ -1163,7 +1163,7 @@ void vtkTecplotReader::GetPolyhedralGridCells(
     faces.push_back(face);
   }
 
-  std::map<vtkIdType, std::vector<vtkIdType> > polyhedra;
+  std::map<vtkIdType, std::vector<vtkIdType>> polyhedra;
 
   for (vtkIdType i = 0; i < numFaces; ++i)
   {
@@ -1219,7 +1219,7 @@ void vtkTecplotReader::GetPolyhedralGridCells(
 }
 
 void OrderEdges(const std::vector<vtkIdType>& faceEdges,
-  const std::vector<std::pair<vtkIdType, vtkIdType> >& allEdges, vtkIdList* face)
+  const std::vector<std::pair<vtkIdType, vtkIdType>>& allEdges, vtkIdList* face)
 {
   face->Reset();
   if (faceEdges.empty())
@@ -1269,7 +1269,7 @@ void OrderEdges(const std::vector<vtkIdType>& faceEdges,
 void vtkTecplotReader::GetPolygonalGridCells(
   int numFaces, int numEdges, vtkUnstructuredGrid* unstruct) const
 {
-  std::vector<std::pair<vtkIdType, vtkIdType> > edges;
+  std::vector<std::pair<vtkIdType, vtkIdType>> edges;
 
   for (int i = 0; i < numEdges; ++i)
   {
@@ -1289,7 +1289,7 @@ void vtkTecplotReader::GetPolygonalGridCells(
     edges.emplace_back(e1 - 1, e2 - 1); // convert from FORTRAN to C-indexing
   }
 
-  std::map<vtkIdType, std::vector<vtkIdType> > faceEdges;
+  std::map<vtkIdType, std::vector<vtkIdType>> faceEdges;
 
   for (int i = 0; i < numEdges; ++i)
   {

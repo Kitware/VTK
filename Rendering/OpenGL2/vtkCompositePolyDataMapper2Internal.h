@@ -120,7 +120,7 @@ protected:
   std::vector<vtkPolyData*> RenderedList;
 
   // used by the hardware selector
-  std::vector<std::vector<unsigned int> > PickPixels;
+  std::vector<std::vector<unsigned int>> PickPixels;
 
   std::map<vtkAbstractArray*, vtkDataArray*> ColorArrayMap;
 

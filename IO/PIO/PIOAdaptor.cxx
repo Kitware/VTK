@@ -501,7 +501,7 @@ void PIOAdaptor::create_geometry(vtkMultiBlockDataSet* grid)
   std::valarray<int> numcell;
   std::valarray<double> simCycle;
   std::valarray<double> simTime;
-  std::valarray<std::valarray<double> > center;
+  std::valarray<std::valarray<double>> center;
 
   this->pioData->set_scalar_field(histsize, "hist_size");
   this->pioData->set_scalar_field(daughter, "cell_daughter");
@@ -615,8 +615,8 @@ void PIOAdaptor::create_tracer_UG(vtkMultiBlockDataSet* grid)
   std::valarray<int> tracer_num_pnts;
   std::valarray<int> tracer_num_vars;
   std::valarray<int> tracer_record_count;
-  std::valarray<std::valarray<double> > tracer_position;
-  std::valarray<std::valarray<double> > tracer_data;
+  std::valarray<std::valarray<double>> tracer_position;
+  std::valarray<std::valarray<double>> tracer_data;
 
   this->pioData->set_scalar_field(tracer_num_pnts, "tracer_num_pnts");
   this->pioData->set_scalar_field(tracer_num_vars, "tracer_num_vars");
@@ -1140,7 +1140,7 @@ void PIOAdaptor::create_amr_HTG(vtkMultiBlockDataSet* grid,
   // Locate the level 1 cells which are the top level AMR for a grid position
   // Count the number of nodes and leaves in each level 1 cell for load balance
   int64_t* level1_index = new int64_t[numberOfTrees];
-  std::vector<std::pair<int, int> > treeCount;
+  std::vector<std::pair<int, int>> treeCount;
   std::vector<int> _myHyperTree;
 
   int planeSize = gridSize[1] * gridSize[0];
@@ -1231,7 +1231,7 @@ void PIOAdaptor::load_variable_data(
         static_cast<int>(this->pioData->VarMMap.count(this->variableName[var].c_str()));
       double** dataVector = new double*[numberOfComponents];
       std::valarray<double> scalarArray;
-      std::valarray<std::valarray<double> > vectorArray;
+      std::valarray<std::valarray<double>> vectorArray;
 
       if (numberOfComponents == 1)
       {

@@ -131,7 +131,7 @@ public:
 
    * Give access to the baked shadow maps.
    */
-  std::vector<vtkSmartPointer<vtkTextureObject> >* GetShadowMaps();
+  std::vector<vtkSmartPointer<vtkTextureObject>>* GetShadowMaps();
 
   /**
    * INTERNAL USE ONLY.
@@ -139,7 +139,7 @@ public:
 
    * Give access the cameras builds from the ligths.
    */
-  std::vector<vtkSmartPointer<vtkCamera> >* GetLightCameras();
+  std::vector<vtkSmartPointer<vtkCamera>>* GetLightCameras();
 
   /**
    * INTERNAL USE ONLY.
@@ -219,8 +219,8 @@ protected:
    */
   vtkOpenGLFramebufferObject* FrameBufferObject;
 
-  std::vector<vtkSmartPointer<vtkTextureObject> >* ShadowMaps;
-  std::vector<vtkSmartPointer<vtkCamera> >* LightCameras;
+  std::vector<vtkSmartPointer<vtkTextureObject>>* ShadowMaps;
+  std::vector<vtkSmartPointer<vtkCamera>>* LightCameras;
 
   vtkTimeStamp LastRenderTime;
   bool NeedUpdate;

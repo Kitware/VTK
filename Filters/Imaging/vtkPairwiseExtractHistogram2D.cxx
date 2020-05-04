@@ -50,9 +50,9 @@ vtkStandardNewMacro(vtkPairwiseExtractHistogram2D);
 class vtkPairwiseExtractHistogram2D::Internals
 {
 public:
-  std::vector<std::pair<vtkStdString, vtkStdString> > ColumnPairs;
+  std::vector<std::pair<vtkStdString, vtkStdString>> ColumnPairs;
   std::map<std::string, bool> ColumnUsesCustomExtents;
-  std::map<std::string, std::vector<double> > ColumnExtents;
+  std::map<std::string, std::vector<double>> ColumnExtents;
 };
 //------------------------------------------------------------------------------
 vtkPairwiseExtractHistogram2D::vtkPairwiseExtractHistogram2D()

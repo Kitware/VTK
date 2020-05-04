@@ -144,11 +144,17 @@ public:
 protected:
   // Note: This takes ownership of iter and manages its lifetime.
   // Iter should not be used past this point by the caller.
-  CompositeDataSetIterator(SmartIterator&& iter) noexcept : Iterator(std::move(iter)) {}
+  CompositeDataSetIterator(SmartIterator&& iter) noexcept
+    : Iterator(std::move(iter))
+  {
+  }
 
   // Note: Iterators constructed using this ctor will be considered
   // 'end' iterators via a sentinal pattern.
-  CompositeDataSetIterator() noexcept : Iterator(nullptr) {}
+  CompositeDataSetIterator() noexcept
+    : Iterator(nullptr)
+  {
+  }
 
 private:
   void CopyState(InternalIterator* source)

@@ -50,13 +50,12 @@ public:
   // It is a map from (port index, connection index) to (original input data port, shallow copy
   // port). NOTE: The original input data port pointer is not reference counted, so it should not be
   // assumed to be a valid pointer. It is only used for pointer comparison.
-  std::map<std::pair<int, int>,
-    std::pair<vtkAlgorithmOutput*, vtkSmartPointer<vtkTrivialProducer> > >
+  std::map<std::pair<int, int>, std::pair<vtkAlgorithmOutput*, vtkSmartPointer<vtkTrivialProducer>>>
     InputInternal;
 
   // This is a cache of vtkConvertSelectionDomain filters provided for convenience.
   // It is a map from (port index, connection index) to convert selection domain filter.
-  std::map<std::pair<int, int>, vtkSmartPointer<vtkConvertSelectionDomain> > ConvertDomainInternal;
+  std::map<std::pair<int, int>, vtkSmartPointer<vtkConvertSelectionDomain>> ConvertDomainInternal;
 };
 
 //---------------------------------------------------------------------------
@@ -99,7 +98,7 @@ vtkTrivialProducer* vtkDataRepresentation::GetInternalInput(int port, int conn)
 void vtkDataRepresentation::SetInternalInput(int port, int conn, vtkTrivialProducer* producer)
 {
   this->Implementation->InputInternal[std::pair<int, int>(port, conn)] =
-    std::pair<vtkAlgorithmOutput*, vtkSmartPointer<vtkTrivialProducer> >(
+    std::pair<vtkAlgorithmOutput*, vtkSmartPointer<vtkTrivialProducer>>(
       this->GetInputConnection(port, conn), producer);
 }
 

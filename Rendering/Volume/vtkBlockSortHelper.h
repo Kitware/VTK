@@ -255,8 +255,8 @@ bool operator==(gnode<RandomIt> const& lhs, gnode<RandomIt> const& rhs)
 }
 
 template <class RandomIt>
-bool findCycle(gnode<RandomIt>& start, std::vector<gnode<RandomIt> >& graph,
-  std::vector<gnode<RandomIt> >& active, std::vector<gnode<RandomIt> >& loop)
+bool findCycle(gnode<RandomIt>& start, std::vector<gnode<RandomIt>>& graph,
+  std::vector<gnode<RandomIt>>& active, std::vector<gnode<RandomIt>>& loop)
 {
   if (start.Visited)
   {
@@ -329,7 +329,7 @@ inline void Sort(RandomIt bitr, RandomIt eitr, BackToFront<T>& me)
   }
 
   // build the graph
-  std::vector<gnode<RandomIt> > graph;
+  std::vector<gnode<RandomIt>> graph;
   for (auto it = working.begin(); it != working.end(); ++it)
   {
     gnode<RandomIt> anode;
@@ -348,8 +348,8 @@ inline void Sort(RandomIt bitr, RandomIt eitr, BackToFront<T>& me)
   }
 
   // graph constructed, now look for a loop
-  std::vector<gnode<RandomIt> > active;
-  std::vector<gnode<RandomIt> > loop;
+  std::vector<gnode<RandomIt>> active;
+  std::vector<gnode<RandomIt>> loop;
   for (auto& gval : graph)
   {
     loop.clear();

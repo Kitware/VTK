@@ -46,7 +46,7 @@ public:
     std::vector<float>& normalMatrices, std::vector<vtkIdType>& pickIds, vtkMTimeType pointMTime,
     bool culling);
 
-  void SetLODs(std::vector<std::pair<float, float> >& lods);
+  void SetLODs(std::vector<std::pair<float, float>>& lods);
 
   void SetLODColoring(bool val);
 
@@ -103,7 +103,7 @@ protected:
   vtkTimeStamp InstanceBuffersBuildTime;
   vtkTimeStamp InstanceBuffersLoadTime;
 
-  std::vector<std::pair<float, float> > LODs;
+  std::vector<std::pair<float, float>> LODs;
   vtkNew<vtkOpenGLInstanceCulling> InstanceCulling;
 
 private:

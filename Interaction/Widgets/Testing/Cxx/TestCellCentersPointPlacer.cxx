@@ -1045,7 +1045,7 @@ void CreateWedgeActor(vtkActor* actor);
 //---------------------------------------------------------------------------
 int TestCellCentersPointPlacer(int argc, char* argv[])
 {
-  std::vector<vtkSmartPointer<vtkActor> > actors;
+  std::vector<vtkSmartPointer<vtkActor>> actors;
 
   vtkSmartPointer<vtkActor> hexahedronActor = vtkSmartPointer<vtkActor>::New();
   CreateHexahedronActor(hexahedronActor);

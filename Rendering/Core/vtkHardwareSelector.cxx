@@ -72,8 +72,8 @@ class vtkHardwareSelector::vtkInternals
 public:
   // Ids for props that were hit.
   std::set<int> HitProps;
-  std::map<int, vtkSmartPointer<vtkProp> > Props;
-  std::map<int, std::vector<unsigned int> > PropPixels;
+  std::map<int, vtkSmartPointer<vtkProp>> Props;
+  std::map<int, std::vector<unsigned int>> PropPixels;
   std::map<int, double> ZValues;
 
   // state that's managed through the renderer
@@ -609,7 +609,7 @@ int vtkHardwareSelector::Render(vtkRenderer* renderer, vtkProp** propArray, int 
 //----------------------------------------------------------------------------
 vtkProp* vtkHardwareSelector::GetPropFromID(int id)
 {
-  std::map<int, vtkSmartPointer<vtkProp> >::iterator iter = this->Internals->Props.find(id);
+  std::map<int, vtkSmartPointer<vtkProp>>::iterator iter = this->Internals->Props.find(id);
   if (iter != this->Internals->Props.end())
   {
     return iter->second;

@@ -68,7 +68,7 @@ public:
 // of the vtk/python garbage collection system, because it contains
 // exactly one pointer reference for each VTK object known to python)
 class vtkPythonObjectMap
-  : public std::map<vtkObjectBase*, std::pair<PyObject*, std::atomic<int32_t> > >
+  : public std::map<vtkObjectBase*, std::pair<PyObject*, std::atomic<int32_t>>>
 {
 public:
   ~vtkPythonObjectMap();
@@ -163,7 +163,7 @@ class vtkPythonModuleList : public std::vector<std::string>
 };
 
 // Keep track of all vtkPythonCommand instances.
-class vtkPythonCommandList : public std::vector<vtkWeakPointer<vtkPythonCommand> >
+class vtkPythonCommandList : public std::vector<vtkWeakPointer<vtkPythonCommand>>
 {
 public:
   ~vtkPythonCommandList()

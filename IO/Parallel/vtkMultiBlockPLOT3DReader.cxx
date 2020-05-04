@@ -1268,7 +1268,7 @@ public:
     {
       // need to read in chunks to skip separators.
       vtkTypeUInt64 pos = vtk_ftell(fp);
-      std::vector<std::pair<vtkTypeUInt64, vtkTypeUInt64> > chunks =
+      std::vector<std::pair<vtkTypeUInt64, vtkTypeUInt64>> chunks =
         record.GetChunksToRead(pos, sizeof(DataType) * n, separators);
 
       vtkTypeUInt64 bytesread = 0;

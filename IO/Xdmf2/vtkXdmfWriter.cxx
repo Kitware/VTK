@@ -139,7 +139,7 @@ struct vtkXdmfWriterInternal
     }
     CellType& operator=(const CellType& ct) = default;
   };
-  typedef std::map<CellType, vtkSmartPointer<vtkIdList> > MapOfCellTypes;
+  typedef std::map<CellType, vtkSmartPointer<vtkIdList>> MapOfCellTypes;
   static void DetermineCellTypes(vtkPointSet* t, MapOfCellTypes& vec);
 };
 
@@ -1165,7 +1165,7 @@ int vtkXdmfWriter::WriteArrays(vtkFieldData* fd, xdmf2::XdmfGrid* grid, int asso
   // Sort alphabetically to avoid potential bad ordering problems
   //
   int nbOfArrays = fd->GetNumberOfArrays();
-  std::vector<std::pair<int, std::string> > attributeNames;
+  std::vector<std::pair<int, std::string>> attributeNames;
   attributeNames.reserve(nbOfArrays);
   for (int i = 0; i < nbOfArrays; i++)
   {

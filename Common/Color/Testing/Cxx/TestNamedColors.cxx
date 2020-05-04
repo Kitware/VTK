@@ -67,7 +67,7 @@ std::vector<vtkStdString> ParseColorNames(const vtkStdString& colorNames);
 // Parse the synonyms returning a std::vector<std::vector<std::string> >
 // synonyms is a string of synonyms separated by a double linefeed where
 // each synonym is two or more color names separated by a linefeed
-std::vector<std::vector<vtkStdString> > ParseSynonyms(const vtkStdString& synonyms);
+std::vector<std::vector<vtkStdString>> ParseSynonyms(const vtkStdString& synonyms);
 
 //  A test to see if searching for synonyms works.
 bool TestSearchForSynonyms();
@@ -644,14 +644,14 @@ std::vector<vtkStdString> ParseColorNames(const vtkStdString& colorNames)
 }
 
 //-----------------------------------------------------------------------------
-std::vector<std::vector<vtkStdString> > ParseSynonyms(const vtkStdString& synonyms)
+std::vector<std::vector<vtkStdString>> ParseSynonyms(const vtkStdString& synonyms)
 {
   // The delimiter for a string of synonyms.
   const std::string synonymDelimiter = "\n\n";
   size_t start = 0;
   size_t end = synonyms.find("\n\n"); // The delimiter for a string of synonyms.
   std::vector<vtkStdString> cn;
-  std::vector<std::vector<vtkStdString> > syn;
+  std::vector<std::vector<vtkStdString>> syn;
   vtkStdString str;
   while (end != std::string::npos)
   {
@@ -686,7 +686,7 @@ std::vector<std::vector<vtkStdString> > ParseSynonyms(const vtkStdString& synony
 bool TestSearchForSynonyms()
 {
   vtkSmartPointer<vtkNamedColors> nc = vtkSmartPointer<vtkNamedColors>::New();
-  std::vector<std::vector<vtkStdString> > synonyms = ParseSynonyms(nc->GetSynonyms());
+  std::vector<std::vector<vtkStdString>> synonyms = ParseSynonyms(nc->GetSynonyms());
   return static_cast<int>(synonyms.size()) == NUMBER_OF_SYNONYMS;
 }
 

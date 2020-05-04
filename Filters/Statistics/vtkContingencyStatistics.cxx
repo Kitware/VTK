@@ -137,7 +137,7 @@ public:
 
 // Count is separated from the class so that it can be properly specialized
 template <typename TypeSpec>
-void Count(std::map<std::vector<TypeSpec>, std::map<std::vector<TypeSpec>, vtkIdType> >& table,
+void Count(std::map<std::vector<TypeSpec>, std::map<std::vector<TypeSpec>, vtkIdType>>& table,
   vtkAbstractArray* valsX, vtkAbstractArray* valsY)
 {
   vtkDataArray* dataX = vtkArrayDownCast<vtkDataArray>(valsX);
@@ -163,7 +163,7 @@ void Count(std::map<std::vector<TypeSpec>, std::map<std::vector<TypeSpec>, vtkId
   }
 }
 
-void Count(std::map<vtkStdString, std::map<vtkStdString, vtkIdType> >& table,
+void Count(std::map<vtkStdString, std::map<vtkStdString, vtkIdType>>& table,
   vtkAbstractArray* valsX, vtkAbstractArray* valsY)
 {
   vtkIdType nRow = valsX->GetNumberOfTuples();
@@ -246,7 +246,7 @@ public:
 
     // Calculate marginal counts (marginal PDFs are calculated at storage time to avoid redundant
     // summations)
-    std::map<vtkStdString, std::pair<vtkStdString, vtkStdString> > marginalToPair;
+    std::map<vtkStdString, std::pair<vtkStdString, vtkStdString>> marginalToPair;
 
     marginalCounts.clear();
 
@@ -625,7 +625,7 @@ public:
 
     // Calculate marginal counts (marginal PDFs are calculated at storage time to avoid redundant
     // summations)
-    std::map<vtkStdString, std::pair<vtkStdString, vtkStdString> > marginalToPair;
+    std::map<vtkStdString, std::pair<vtkStdString, vtkStdString>> marginalToPair;
 
     marginalCounts.clear();
 
@@ -951,7 +951,7 @@ void vtkContingencyStatistics::Learn(
   } Specialization;
 
   Specialization specialization = Integer;
-  for (std::set<std::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
+  for (std::set<std::set<vtkStdString>>::const_iterator rit = this->Internals->Requests.begin();
        rit != this->Internals->Requests.end(); ++rit)
   {
     std::set<vtkStdString>::const_iterator it = rit->begin();
@@ -1068,7 +1068,7 @@ void vtkContingencyStatistics::Learn(
   contingencyTab->SetValue(0, 3, -1);
 
   // Loop over requests
-  for (std::set<std::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
+  for (std::set<std::set<vtkStdString>>::const_iterator rit = this->Internals->Requests.begin();
        rit != this->Internals->Requests.end(); ++rit)
   {
     // Each request contains only one pair of column of interest (if there are others, they are
@@ -1293,7 +1293,7 @@ void vtkContingencyStatistics::Assess(
   // Loop over requests
   vtkIdType nRowSumm = summaryTab->GetNumberOfRows();
   vtkIdType nRowData = inData->GetNumberOfRows();
-  for (std::set<std::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
+  for (std::set<std::set<vtkStdString>>::const_iterator rit = this->Internals->Requests.begin();
        rit != this->Internals->Requests.end(); ++rit)
   {
     // Each request contains only one pair of column of interest (if there are others, they are
@@ -1484,7 +1484,7 @@ void vtkContingencyStatistics::Test(
   // Loop over requests
   vtkIdType nRowSumm = summaryTab->GetNumberOfRows();
   vtkIdType nRowCont = contingencyTab->GetNumberOfRows();
-  for (std::set<std::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
+  for (std::set<std::set<vtkStdString>>::const_iterator rit = this->Internals->Requests.begin();
        rit != this->Internals->Requests.end(); ++rit)
   {
     // Each request contains only one pair of column of interest (if there are others, they are

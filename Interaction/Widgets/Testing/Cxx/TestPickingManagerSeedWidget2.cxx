@@ -132,7 +132,7 @@ public:
     if (vtkStdString(iren->GetKeySym()) == "space")
     {
       const int baseCube = static_cast<int>(pow(this->Seeds.size(), 1. / 3.) / 2 + 0.5);
-      std::list<vtkSmartPointer<vtkHandleWidget> >::iterator it = this->Seeds.begin();
+      std::list<vtkSmartPointer<vtkHandleWidget>>::iterator it = this->Seeds.begin();
 
       for (int i = -baseCube; i < baseCube; ++i)
       {
@@ -176,7 +176,7 @@ public:
     }
   }
 
-  std::list<vtkSmartPointer<vtkHandleWidget> > Seeds;
+  std::list<vtkSmartPointer<vtkHandleWidget>> Seeds;
   vtkSeedWidget* Widget;
 };
 
@@ -223,7 +223,7 @@ int TestPickingManagerSeedWidget2(int vtkNotUsed(argc), char* vtkNotUsed(argv)[]
   // Create a cube full of seeds
   // base correspond to the side of the cube --> (2*base)^3 seeds
   const int baseCube = 2;
-  std::list<vtkSmartPointer<vtkHandleWidget> > seeds;
+  std::list<vtkSmartPointer<vtkHandleWidget>> seeds;
   for (int i = -baseCube; i < baseCube; ++i)
   {
     for (int j = -baseCube; j < baseCube; ++j)

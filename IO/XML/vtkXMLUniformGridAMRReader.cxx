@@ -53,7 +53,7 @@ typedef vtkTuple<double, 3> vtkSpacingType;
 
 // Helper routine to parse the XML to collect information about the AMR.
 bool vtkReadMetaData(vtkXMLDataElement* ePrimary, std::vector<unsigned int>& blocks_per_level,
-  std::vector<vtkSpacingType>& level_spacing, std::vector<std::vector<vtkAMRBox> >& amr_boxes)
+  std::vector<vtkSpacingType>& level_spacing, std::vector<std::vector<vtkAMRBox>>& amr_boxes)
 {
   unsigned int numElems = ePrimary->GetNumberOfNestedElements();
   for (unsigned int cc = 0; cc < numElems; cc++)
@@ -131,7 +131,7 @@ bool vtkReadMetaData(vtkXMLDataElement* ePrimary, std::vector<unsigned int>& blo
 bool vtkReadMetaData(vtkXMLDataElement* ePrimary, std::vector<unsigned int>& blocks_per_level)
 {
   std::vector<vtkSpacingType> spacings;
-  std::vector<std::vector<vtkAMRBox> > amr_boxes;
+  std::vector<std::vector<vtkAMRBox>> amr_boxes;
   return vtkReadMetaData(ePrimary, blocks_per_level, spacings, amr_boxes);
 }
 }
@@ -231,7 +231,7 @@ int vtkXMLUniformGridAMRReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
   // iterate over the XML to fill up the AMRInformation with meta-data.
   std::vector<unsigned int> blocks_per_level;
   std::vector<vtkSpacingType> level_spacing;
-  std::vector<std::vector<vtkAMRBox> > amr_boxes;
+  std::vector<std::vector<vtkAMRBox>> amr_boxes;
   vtkReadMetaData(ePrimary, blocks_per_level, level_spacing, amr_boxes);
 
   if (!blocks_per_level.empty())

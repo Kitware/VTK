@@ -397,7 +397,7 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
   vtkSmartPointer<vtkFloatArray> shared_normals = vtkSmartPointer<vtkFloatArray>::New();
   shared_normals->SetNumberOfComponents(3);
 
-  std::map<std::string, std::vector<vtkOBJImportedPolyDataWithMaterial*> > mtlName_to_Actors;
+  std::map<std::string, std::vector<vtkOBJImportedPolyDataWithMaterial*>> mtlName_to_Actors;
 
   {
     // always have at least one output

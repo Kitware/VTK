@@ -1085,7 +1085,7 @@ int vtkDelaunay2D::RecoverEdge(vtkPolyData* source, vtkIdType p1, vtkIdType p2)
   leftTriPts->Allocate(64);
 
   // Container for the edges (2 ids in a set, the order does not matter) we won't check
-  std::set<std::set<vtkIdType> > polysEdges;
+  std::set<std::set<vtkIdType>> polysEdges;
   // Container for the cells & point ids for the edge that need to be checked
   std::vector<vtkIdType> newEdges;
 

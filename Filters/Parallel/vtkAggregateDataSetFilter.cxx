@@ -144,7 +144,7 @@ int vtkAggregateDataSetFilter::RequestData(
     }
   }
 
-  std::vector<vtkSmartPointer<vtkDataObject> > recvBuffer;
+  std::vector<vtkSmartPointer<vtkDataObject>> recvBuffer;
   subController->Gather(input, recvBuffer, receiveProc);
   if (subRank == receiveProc)
   {
@@ -155,7 +155,7 @@ int vtkAggregateDataSetFilter::RequestData(
     else if (input->IsA("vtkPolyData"))
     {
       vtkNew<vtkAppendPolyData> appendFilter;
-      for (std::vector<vtkSmartPointer<vtkDataObject> >::iterator it = recvBuffer.begin();
+      for (std::vector<vtkSmartPointer<vtkDataObject>>::iterator it = recvBuffer.begin();
            it != recvBuffer.end(); ++it)
       {
         appendFilter->AddInputData(vtkPolyData::SafeDownCast(*it));
@@ -167,7 +167,7 @@ int vtkAggregateDataSetFilter::RequestData(
     {
       vtkNew<vtkAppendFilter> appendFilter;
       appendFilter->MergePointsOn();
-      for (std::vector<vtkSmartPointer<vtkDataObject> >::iterator it = recvBuffer.begin();
+      for (std::vector<vtkSmartPointer<vtkDataObject>>::iterator it = recvBuffer.begin();
            it != recvBuffer.end(); ++it)
       {
         appendFilter->AddInputData(*it);

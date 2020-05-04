@@ -713,7 +713,7 @@ public:
   std::map<std::string, bool> array_isFloat;
   vtkPointData* PointData;
 
-  std::map<int, std::vector<int> > part_to_blocks; // part id to list of blocks
+  std::map<int, std::vector<int>> part_to_blocks; // part id to list of blocks
 
 private:
   hid_t FileIndx;

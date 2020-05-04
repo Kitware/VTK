@@ -467,10 +467,10 @@ int TestVTKMLevelOfDetail(int argc, char* argv[])
   // levels of subdivision to make sure it is working properly
   //---------------------------------------------------
 
-  std::vector<vtkNew<vtkmLevelOfDetail> > levelOfDetails(4);
-  std::vector<vtkNew<vtkDataSetSurfaceFilter> > surfaces(4);
-  std::vector<vtkNew<vtkPolyDataMapper> > mappers(4);
-  std::vector<vtkNew<vtkActor> > actors(4);
+  std::vector<vtkNew<vtkmLevelOfDetail>> levelOfDetails(4);
+  std::vector<vtkNew<vtkDataSetSurfaceFilter>> surfaces(4);
+  std::vector<vtkNew<vtkPolyDataMapper>> mappers(4);
+  std::vector<vtkNew<vtkActor>> actors(4);
 
   for (int i = 0; i < 4; ++i)
   {

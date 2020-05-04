@@ -242,7 +242,7 @@ public:
    */
   const std::vector<int>& GetNumBlocks() const { return this->NumBlocks; }
 
-  std::vector<std::vector<unsigned int> >& GetChildrenAtLevel(unsigned int i)
+  std::vector<std::vector<unsigned int>>& GetChildrenAtLevel(unsigned int i)
   {
     return this->AllChildren[i];
   }
@@ -261,8 +261,8 @@ private:
   void AllocateBoxes(unsigned int n);
   void GenerateBlockLevel();
   void CalculateParentChildRelationShip(unsigned int level,
-    std::vector<std::vector<unsigned int> >& children,
-    std::vector<std::vector<unsigned int> >& parents);
+    std::vector<std::vector<unsigned int>>& children,
+    std::vector<std::vector<unsigned int>>& parents);
 
   //-------------------------------------------------------------------------
   // Essential information that determines an AMR structure. Must be copied
@@ -286,8 +286,8 @@ private:
                                                    // ComputeIndexPair
 
   // parent child information
-  std::vector<std::vector<std::vector<unsigned int> > > AllChildren;
-  std::vector<std::vector<std::vector<unsigned int> > > AllParents;
+  std::vector<std::vector<std::vector<unsigned int>>> AllChildren;
+  std::vector<std::vector<std::vector<unsigned int>>> AllParents;
 };
 
 #endif

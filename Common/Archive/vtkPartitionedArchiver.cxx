@@ -25,7 +25,7 @@
 
 struct vtkPartitionedArchiver::Internal
 {
-  std::map<std::string, std::pair<size_t, char*> > Buffers;
+  std::map<std::string, std::pair<size_t, char*>> Buffers;
 };
 
 //----------------------------------------------------------------------------

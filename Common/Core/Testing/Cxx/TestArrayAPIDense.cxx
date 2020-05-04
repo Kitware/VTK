@@ -41,7 +41,7 @@ int TestArrayAPIDense(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   try
   {
     // Create an array ...
-    vtkSmartPointer<vtkDenseArray<double> > array = vtkSmartPointer<vtkDenseArray<double> >::New();
+    vtkSmartPointer<vtkDenseArray<double>> array = vtkSmartPointer<vtkDenseArray<double>>::New();
     array->Resize(vtkArrayExtents::Uniform(3, 0));
     test_expression(array);
 
@@ -128,7 +128,7 @@ int TestArrayAPIDense(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
       test_expression(array->GetValueN(n) == 19700827);
 
     // Verify that deep-copy works correctly ...
-    vtkSmartPointer<vtkDenseArray<double> > deep_copy;
+    vtkSmartPointer<vtkDenseArray<double>> deep_copy;
     deep_copy.TakeReference(vtkDenseArray<double>::SafeDownCast(array->DeepCopy()));
     test_expression(deep_copy->GetDimensions() == array->GetDimensions());
     test_expression(deep_copy->GetSize() == array->GetSize());

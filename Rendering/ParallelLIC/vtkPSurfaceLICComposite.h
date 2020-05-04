@@ -104,22 +104,22 @@ private:
    * is given by the ratio of pixels to send off rank to the total
    * number of source pixels.
    */
-  double EstimateCommunicationCost(const std::deque<std::deque<vtkPixelExtent> >& srcExts,
-    const std::deque<std::deque<vtkPixelExtent> >& destExts);
+  double EstimateCommunicationCost(const std::deque<std::deque<vtkPixelExtent>>& srcExts,
+    const std::deque<std::deque<vtkPixelExtent>>& destExts);
 
   /**
    * The efficiency of a decomposition is the ratio of useful pixels
    * to guard pixels. If this factor shrinks below 1 there may be
    * an issue.
    */
-  double EstimateDecompEfficiency(const std::deque<std::deque<vtkPixelExtent> >& exts,
-    const std::deque<std::deque<vtkPixelExtent> >& guardExts);
+  double EstimateDecompEfficiency(const std::deque<std::deque<vtkPixelExtent>>& exts,
+    const std::deque<std::deque<vtkPixelExtent>>& guardExts);
 
   /**
    * Given a window extent, decompose into the requested number of
    * pieces.
    */
-  int DecomposeScreenExtent(std::deque<std::deque<vtkPixelExtent> >& newExts, float* vectors);
+  int DecomposeScreenExtent(std::deque<std::deque<vtkPixelExtent>>& newExts, float* vectors);
 
   /**
    * Given an extent, decompose into the requested number of
@@ -135,12 +135,12 @@ private:
    * extents with empty vectors are removed. This is a global operation
    * as the vector field is distributed and has not been composited yet.
    */
-  int MakeDecompDisjoint(const std::deque<std::deque<vtkPixelExtent> >& in,
-    std::deque<std::deque<vtkPixelExtent> >& out, float* vectors);
+  int MakeDecompDisjoint(const std::deque<std::deque<vtkPixelExtent>>& in,
+    std::deque<std::deque<vtkPixelExtent>>& out, float* vectors);
 
   // decomp set of extents
-  int MakeDecompLocallyDisjoint(const std::deque<std::deque<vtkPixelExtent> >& in,
-    std::deque<std::deque<vtkPixelExtent> >& out);
+  int MakeDecompLocallyDisjoint(
+    const std::deque<std::deque<vtkPixelExtent>>& in, std::deque<std::deque<vtkPixelExtent>>& out);
 
   using vtkSurfaceLICComposite::MakeDecompDisjoint;
 
@@ -150,21 +150,21 @@ private:
    * along with the dataset extent.
    */
   int AllGatherExtents(const std::deque<vtkPixelExtent>& localExts,
-    std::deque<std::deque<vtkPixelExtent> >& remoteExts, vtkPixelExtent& dataSetExt);
+    std::deque<std::deque<vtkPixelExtent>>& remoteExts, vtkPixelExtent& dataSetExt);
 
   /**
    * All reduce max(|V|) on the new decomposition.
    */
   int AllReduceVectorMax(const std::deque<vtkPixelExtent>& originalExts,
-    const std::deque<std::deque<vtkPixelExtent> >& newExts, float* vectors,
-    std::vector<std::vector<float> >& vectorMax);
+    const std::deque<std::deque<vtkPixelExtent>>& newExts, float* vectors,
+    std::vector<std::vector<float>>& vectorMax);
 
   /**
    * Add guard pixels (Parallel run)
    */
-  int AddGuardPixels(const std::deque<std::deque<vtkPixelExtent> >& exts,
-    std::deque<std::deque<vtkPixelExtent> >& guardExts,
-    std::deque<std::deque<vtkPixelExtent> >& disjointGuardExts, float* vectors);
+  int AddGuardPixels(const std::deque<std::deque<vtkPixelExtent>>& exts,
+    std::deque<std::deque<vtkPixelExtent>>& guardExts,
+    std::deque<std::deque<vtkPixelExtent>>& disjointGuardExts, float* vectors);
 
 private:
   vtkPPainterCommunicator* PainterComm; // mpi state

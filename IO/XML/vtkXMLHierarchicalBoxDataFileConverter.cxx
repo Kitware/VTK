@@ -200,7 +200,7 @@ int vtkXMLHierarchicalBoxDataFileConverter::GetOriginAndSpacing(
   vtkXMLDataElement* ePrimary, double origin[3], double*& spacing)
 {
   // Build list of filenames for all levels.
-  std::map<int, std::set<std::string> > filenames;
+  std::map<int, std::set<std::string>> filenames;
 
   for (int cc = 0; cc < ePrimary->GetNumberOfNestedElements(); cc++)
   {
@@ -267,7 +267,7 @@ int vtkXMLHierarchicalBoxDataFileConverter::GetOriginAndSpacing(
   }
 
   // Read 1 dataset from each level to get information about spacing.
-  for (std::map<int, std::set<std::string> >::iterator iter = filenames.begin();
+  for (std::map<int, std::set<std::string>>::iterator iter = filenames.begin();
        iter != filenames.end(); ++iter)
   {
     if (iter->second.empty())

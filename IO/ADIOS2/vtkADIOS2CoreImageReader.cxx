@@ -109,7 +109,7 @@ struct vtkADIOS2CoreImageReader::vtkADIOS2CoreImageReaderImpl
 
   size_t BlockStart{ 0 };
   size_t BlockCount{ 0 };
-  std::vector<std::array<int, 6> > BlockExtents;
+  std::vector<std::array<int, 6>> BlockExtents;
 
   // VTK variables
   bool HasReadMetaData{ false };
@@ -602,11 +602,11 @@ bool vtkADIOS2CoreImageReader::InitWorkDistribution()
     }
     else if (typeStr == "float complex")
     {
-      this->CalculateWorkDistribution<std::complex<float> >(varName);
+      this->CalculateWorkDistribution<std::complex<float>>(varName);
     }
     else if (typeStr == "double complex")
     {
-      this->CalculateWorkDistribution<std::complex<double> >(varName);
+      this->CalculateWorkDistribution<std::complex<double>>(varName);
     }
   }
   catch (std::exception& e)

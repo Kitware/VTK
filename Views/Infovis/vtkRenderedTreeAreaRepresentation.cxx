@@ -80,7 +80,7 @@
 class vtkRenderedTreeAreaRepresentation::Internals
 {
 public:
-  std::vector<vtkSmartPointer<vtkHierarchicalGraphPipeline> > Graphs;
+  std::vector<vtkSmartPointer<vtkHierarchicalGraphPipeline>> Graphs;
 };
 
 vtkStandardNewMacro(vtkRenderedTreeAreaRepresentation);

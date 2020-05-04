@@ -47,7 +47,7 @@ public:
 
   // This functor is only needed for vtkArrayDispatch to correctly fill it up.
   // otherwise, it'd simply be a set.
-  class AMRIdsT : public std::set<std::pair<unsigned int, unsigned int> >
+  class AMRIdsT : public std::set<std::pair<unsigned int, unsigned int>>
   {
   public:
     template <typename ArrayType>

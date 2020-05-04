@@ -48,7 +48,7 @@ vtkInformationKeySubclassMacro(
 
 struct vtkEnsembleSourceInternal
 {
-  std::vector<vtkSmartPointer<vtkAlgorithm> > Algorithms;
+  std::vector<vtkSmartPointer<vtkAlgorithm>> Algorithms;
 };
 
 vtkEnsembleSource::vtkEnsembleSource()
@@ -103,9 +103,9 @@ vtkTypeBool vtkEnsembleSource::ProcessRequest(
       // data structures there. Note that this has to be done here
       // because current reader can be changed with a pipeline request
       // which does not cause REQUEST_INFORMATION to happen again.
-      std::vector<vtkSmartPointer<vtkAlgorithm> >::iterator iter =
+      std::vector<vtkSmartPointer<vtkAlgorithm>>::iterator iter =
         this->Internal->Algorithms.begin();
-      std::vector<vtkSmartPointer<vtkAlgorithm> >::iterator end = this->Internal->Algorithms.end();
+      std::vector<vtkSmartPointer<vtkAlgorithm>>::iterator end = this->Internal->Algorithms.end();
       for (; iter != end; ++iter)
       {
         int retVal = (*iter)->ProcessRequest(request, inputVector, outputVector);

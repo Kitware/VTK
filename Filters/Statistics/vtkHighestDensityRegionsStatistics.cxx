@@ -102,7 +102,7 @@ void vtkHighestDensityRegionsStatistics::Learn(
 
   vtkNew<vtkTable> outputColumns;
 
-  std::set<std::set<vtkStdString> >::const_iterator reqIt;
+  std::set<std::set<vtkStdString>>::const_iterator reqIt;
 
   // Make sure the number of requested pairs of columns is 0
   // before the computation.

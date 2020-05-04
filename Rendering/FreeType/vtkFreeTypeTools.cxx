@@ -55,7 +55,7 @@ void rotateVector2i(vtkVector2i& vec, float sinTheta, float cosTheta)
 
 } // end anon namespace
 
-class vtkTextPropertyLookup : public std::map<size_t, vtkSmartPointer<vtkTextProperty> >
+class vtkTextPropertyLookup : public std::map<size_t, vtkSmartPointer<vtkTextProperty>>
 {
 public:
   bool contains(const size_t id) { return this->find(id) != this->end(); }

@@ -128,9 +128,9 @@ extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT
 extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT
   vtkPointsPortal<vtkm::Vec<vtkm::Float64, 3> const>;
 extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT
-  vtkPointsPortal<vtkm::Vec<vtkm::Float32, 3> >;
+  vtkPointsPortal<vtkm::Vec<vtkm::Float32, 3>>;
 extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT
-  vtkPointsPortal<vtkm::Vec<vtkm::Float64, 3> >;
+  vtkPointsPortal<vtkm::Vec<vtkm::Float64, 3>>;
 }
 
 #endif // defined vtkmlib_Portals_cxx

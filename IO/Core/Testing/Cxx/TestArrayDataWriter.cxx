@@ -13,10 +13,10 @@ int TestArrayDataWriter(int, char*[])
 {
   std::cerr << "Testing dense first..." << std::endl;
 
-  vtkNew<vtkDenseArray<double> > da;
+  vtkNew<vtkDenseArray<double>> da;
   da->Resize(10, 10);
   da->SetName("dense");
-  vtkNew<vtkSparseArray<double> > sa;
+  vtkNew<vtkSparseArray<double>> sa;
   sa->Resize(10, 10);
   sa->SetName("sparse");
   for (int i = 0; i < 10; ++i)

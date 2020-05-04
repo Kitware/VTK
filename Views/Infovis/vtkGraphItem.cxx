@@ -43,8 +43,8 @@ struct vtkGraphItem::Internals
   std::vector<vtkColor4ub> VertexColors;
   std::vector<int> VertexMarkers;
 
-  std::vector<std::vector<vtkVector2f> > EdgePositions;
-  std::vector<std::vector<vtkColor4ub> > EdgeColors;
+  std::vector<std::vector<vtkVector2f>> EdgePositions;
+  std::vector<std::vector<vtkColor4ub>> EdgeColors;
   std::vector<float> EdgeWidths;
 
   bool Animating;
@@ -163,8 +163,8 @@ float vtkGraphItem::EdgeWidth(vtkIdType vtkNotUsed(line), vtkIdType vtkNotUsed(p
 void vtkGraphItem::RebuildBuffers()
 {
   vtkIdType numEdges = this->NumberOfEdges();
-  this->Internal->EdgePositions = std::vector<std::vector<vtkVector2f> >(numEdges);
-  this->Internal->EdgeColors = std::vector<std::vector<vtkColor4ub> >(numEdges);
+  this->Internal->EdgePositions = std::vector<std::vector<vtkVector2f>>(numEdges);
+  this->Internal->EdgeColors = std::vector<std::vector<vtkColor4ub>>(numEdges);
   this->Internal->EdgeWidths = std::vector<float>(numEdges);
   for (vtkIdType edgeIdx = 0; edgeIdx < numEdges; ++edgeIdx)
   {

@@ -72,7 +72,7 @@ class vtkAlgorithmInternals
 public:
   // Proxy object instances for use in establishing connections from
   // the output ports to other algorithms.
-  std::vector<vtkSmartPointer<vtkAlgorithmOutput> > Outputs;
+  std::vector<vtkSmartPointer<vtkAlgorithmOutput>> Outputs;
 };
 
 //----------------------------------------------------------------------------

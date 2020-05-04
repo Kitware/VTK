@@ -433,7 +433,7 @@ private:
   int GridId;
 };
 
-typedef std::vector<vtkSmartPointer<PStreamTracerPoint> > PStreamTracerPointArray;
+typedef std::vector<vtkSmartPointer<PStreamTracerPoint>> PStreamTracerPointArray;
 
 vtkStandardNewMacro(AMRPStreamTracerPoint);
 
@@ -1189,8 +1189,8 @@ private:
   ProcessLocator* Locator;
   vtkSmartPointer<PStreamTracerPoint> Proto;
   vtkMPIController* Controller;
-  std::vector<vtkSmartPointer<Task> > NTasks;
-  std::vector<vtkSmartPointer<Task> > PTasks;
+  std::vector<vtkSmartPointer<Task>> NTasks;
+  std::vector<vtkSmartPointer<Task>> PTasks;
   std::vector<Message> Msgs;
   int NumProcs;
   int Rank;
@@ -1488,7 +1488,7 @@ int vtkPStreamTracer::RequestData(
   }
   this->Utils->Initialize(this);
   ALLPRINT("Vec Name: " << this->Utils->GetVecName());
-  typedef std::vector<vtkSmartPointer<vtkPolyData> > traceOutputsType;
+  typedef std::vector<vtkSmartPointer<vtkPolyData>> traceOutputsType;
   traceOutputsType traceOutputs;
 
   TaskManager taskManager(this->Utils->GetProcessLocator(), this->Utils->GetProto());

@@ -272,7 +272,7 @@ std::vector<vtkDataSet*> vtkDIYUtilities::GetDataSets(vtkDataObject* input)
 }
 
 //----------------------------------------------------------------------------
-std::vector<vtkSmartPointer<vtkPoints> > vtkDIYUtilities::ExtractPoints(
+std::vector<vtkSmartPointer<vtkPoints>> vtkDIYUtilities::ExtractPoints(
   const std::vector<vtkDataSet*>& datasets, bool use_cell_centers)
 {
   vtkNew<vtkCellCenters> cellCenterFilter;
@@ -282,7 +282,7 @@ std::vector<vtkSmartPointer<vtkPoints> > vtkDIYUtilities::ExtractPoints(
   vtkNew<vtkRectilinearGridToPointSet> convertorRG;
   vtkNew<vtkImageDataToPointSet> convertorID;
 
-  std::vector<vtkSmartPointer<vtkPoints> > all_points;
+  std::vector<vtkSmartPointer<vtkPoints>> all_points;
   for (auto ds : datasets)
   {
     if (use_cell_centers)

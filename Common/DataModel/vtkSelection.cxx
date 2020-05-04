@@ -165,7 +165,7 @@ class vtkSelection::vtkInternals
   // applies the operator on the "top" (aka back) of the op_stack to the
   // variables on the var_stack and pushes the result on the var_stack.
   bool ApplyBack(
-    std::vector<char>& op_stack, std::vector<std::shared_ptr<parser::Node> >& var_stack) const
+    std::vector<char>& op_stack, std::vector<std::shared_ptr<parser::Node>>& var_stack) const
   {
     assert(!op_stack.empty());
 
@@ -230,7 +230,7 @@ class vtkSelection::vtkInternals
   }
 
 public:
-  std::map<std::string, vtkSmartPointer<vtkSelectionNode> > Items;
+  std::map<std::string, vtkSmartPointer<vtkSelectionNode>> Items;
   vtksys::RegularExpression RegExID;
 
   vtkInternals()
@@ -277,7 +277,7 @@ public:
       parts.push_back(accumated_text);
     }
 
-    std::vector<std::shared_ptr<parser::Node> > var_stack;
+    std::vector<std::shared_ptr<parser::Node>> var_stack;
     std::vector<char> op_stack;
     for (const auto& term : parts)
     {

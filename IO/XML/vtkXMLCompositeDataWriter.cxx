@@ -51,10 +51,10 @@ class vtkXMLCompositeDataWriterInternals
 {
   // These are used to by GetDefaultFileExtension(). This helps us avoid
   // creating new instances repeatedly for the same dataset type.
-  std::map<int, vtkSmartPointer<vtkXMLWriter> > TmpWriters;
+  std::map<int, vtkSmartPointer<vtkXMLWriter>> TmpWriters;
 
 public:
-  std::vector<vtkSmartPointer<vtkXMLWriter> > Writers;
+  std::vector<vtkSmartPointer<vtkXMLWriter>> Writers;
   std::string FilePath;
   std::string FilePrefix;
   vtkSmartPointer<vtkXMLDataElement> Root;
@@ -64,7 +64,7 @@ public:
   // extension cannot be determined.
   const char* GetDefaultFileExtensionForDataSet(int dataset_type)
   {
-    std::map<int, vtkSmartPointer<vtkXMLWriter> >::iterator iter =
+    std::map<int, vtkSmartPointer<vtkXMLWriter>>::iterator iter =
       this->TmpWriters.find(dataset_type);
     if (iter == this->TmpWriters.end())
     {
@@ -72,7 +72,7 @@ public:
       writer.TakeReference(vtkXMLDataObjectWriter::NewWriter(dataset_type));
       if (writer)
       {
-        std::pair<int, vtkSmartPointer<vtkXMLWriter> > pair(dataset_type, writer);
+        std::pair<int, vtkSmartPointer<vtkXMLWriter>> pair(dataset_type, writer);
         iter = this->TmpWriters.insert(pair).first;
       }
     }

@@ -116,7 +116,7 @@ double StressInvoke(const int observerCount, const int eventCount, const int inv
               << " observers each." << std::endl;
   }
   vtkObject* volcano = vtkObject::New();
-  std::vector<vtkSmartPointer<vtkSimpleCommand> > observers;
+  std::vector<vtkSmartPointer<vtkSimpleCommand>> observers;
   vtkNew<vtkTimerLog> totalTimer;
   vtkNew<vtkTimerLog> addTimer;
   vtkNew<vtkTimerLog> invokeTimer;

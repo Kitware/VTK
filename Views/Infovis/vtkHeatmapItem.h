@@ -294,7 +294,7 @@ private:
   double CellWidth;
   double CellHeight;
 
-  std::map<vtkIdType, std::pair<double, double> > ColumnRanges;
+  std::map<vtkIdType, std::pair<double, double>> ColumnRanges;
   std::vector<vtkIdType> SceneRowToTableRowMap;
   std::vector<vtkIdType> SceneColumnToTableColumnMap;
   std::set<std::string> BlankRows;

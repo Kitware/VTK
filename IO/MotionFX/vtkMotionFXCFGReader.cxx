@@ -51,7 +51,7 @@ namespace impl
 struct Motion;
 
 using MapOfVectorOfMotions =
-  std::map<std::string, std::vector<std::shared_ptr<const impl::Motion> > >;
+  std::map<std::string, std::vector<std::shared_ptr<const impl::Motion>>>;
 
 //-----------------------------------------------------------------------------
 // this exception is fired to indicate that a required parameter is missing for
@@ -1164,7 +1164,7 @@ private:
 
   impl::MapOfVectorOfMotions Motions;
   vtkVector2d TimeRange;
-  std::vector<std::pair<std::string, vtkSmartPointer<vtkPolyData> > > Geometries;
+  std::vector<std::pair<std::string, vtkSmartPointer<vtkPolyData>>> Geometries;
 };
 
 vtkStandardNewMacro(vtkMotionFXCFGReader);

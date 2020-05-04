@@ -670,7 +670,7 @@ public:
     vtkHyperTree* GetNextTree();
 
   protected:
-    std::map<vtkIdType, vtkSmartPointer<vtkHyperTree> >::iterator Iterator;
+    std::map<vtkIdType, vtkSmartPointer<vtkHyperTree>>::iterator Iterator;
     vtkHyperTreeGrid* Grid;
   };
 
@@ -797,7 +797,7 @@ protected:
   char* InterfaceNormalsName;
   char* InterfaceInterceptsName;
 
-  std::map<vtkIdType, vtkSmartPointer<vtkHyperTree> > HyperTrees;
+  std::map<vtkIdType, vtkSmartPointer<vtkHyperTree>> HyperTrees;
 
   vtkNew<vtkCellData> CellData; // Scalars, vectors, etc. associated w/ each point
 

@@ -396,7 +396,7 @@ void populateAttributes(vtkDataSet* ref, vtkDataSet* test)
     ref->GetPoint(pointId, point);
     refScalars->InsertNextTuple1((sin(point[0] * point[1]) + cos(point[2])));
   }
-  vtkNew<vtkCPExodusIIResultsArrayTemplate<double> > testScalars;
+  vtkNew<vtkCPExodusIIResultsArrayTemplate<double>> testScalars;
   testScalars->SetName("test-scalars");
   double* testScalarArray = new double[numPoints];
   memcpy(testScalarArray, refScalars->GetVoidPointer(0), numPoints * sizeof(double));
@@ -433,7 +433,7 @@ void populateAttributes(vtkDataSet* ref, vtkDataSet* test)
     }
     refNormals->SetTuple(pointId, normal);
   }
-  vtkNew<vtkCPExodusIIResultsArrayTemplate<double> > testNormals;
+  vtkNew<vtkCPExodusIIResultsArrayTemplate<double>> testNormals;
   testNormals->SetName("test-normals");
   std::vector<double*> testNormalVector;
   testNormalVector.push_back(testNormalArrayX);
@@ -872,7 +872,7 @@ bool testCopies(vtkUnstructuredGridBase* test)
 void testSaveArrays()
 {
   vtkIdType numPoints = 1000;
-  vtkNew<vtkCPExodusIIResultsArrayTemplate<double> > testScalars;
+  vtkNew<vtkCPExodusIIResultsArrayTemplate<double>> testScalars;
   testScalars->SetName("test-scalars");
   double* testScalarArray = new double[numPoints];
   for (int i = 0; i < numPoints; i++)

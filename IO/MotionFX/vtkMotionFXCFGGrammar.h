@@ -34,22 +34,22 @@ using namespace tao::pegtl;
 // lets define some common rules here.
 namespace Common
 {
-struct Sign : sor<one<'+'>, one<'-'> >
+struct Sign : sor<one<'+'>, one<'-'>>
 {
 };
-struct Exponent : seq<sor<one<'e'>, one<'E'> >, opt<Sign>, plus<digit> >
+struct Exponent : seq<sor<one<'e'>, one<'E'>>, opt<Sign>, plus<digit>>
 {
 };
 struct Number
   : seq<opt<Sign>,
-      sor<seq<plus<digit>, one<'.'>, star<digit> >, seq<one<'.'>, plus<digit> >, plus<digit> >,
-      opt<Exponent> >
+      sor<seq<plus<digit>, one<'.'>, star<digit>>, seq<one<'.'>, plus<digit>>, plus<digit>>,
+      opt<Exponent>>
 {
 };
 
 // delimiter for columns in files such as the position files
 // this can be ',' separated by optional spaces or just spaces
-struct Delimiter : sor<seq<star<space>, one<','>, star<space> >, plus<space> >
+struct Delimiter : sor<seq<star<space>, one<','>, star<space>>, plus<space>>
 {
 };
 } // namespace Common
@@ -64,7 +64,7 @@ using namespace Common;
 // format: time CoMx CoMy CoMz Fx Fy Fz
 struct Row
   : seq<star<space>, Number, Delimiter, Number, Delimiter, Number, Delimiter, Number, Delimiter,
-      Number, Delimiter, Number, Delimiter, Number, star<space> >
+      Number, Delimiter, Number, Delimiter, Number, star<space>>
 {
 };
 
@@ -82,7 +82,7 @@ using namespace Common;
 // format: time CoMx CoMy CoMz cosX cosY cosZ Orientation (radians)
 struct Row
   : seq<star<space>, Number, Delimiter, Number, Delimiter, Number, Delimiter, Number, Delimiter,
-      Number, Delimiter, Number, Delimiter, Number, Delimiter, Number, star<space> >
+      Number, Delimiter, Number, Delimiter, Number, Delimiter, Number, star<space>>
 {
 };
 
@@ -98,18 +98,18 @@ namespace CFG
 using namespace Common;
 
 // Rule that matches a Comment. Consume everything on the line following a ';'
-struct Comment : seq<string<';'>, until<eolf> >
+struct Comment : seq<string<';'>, until<eolf>>
 {
 };
 
-struct WS_Required : sor<Comment, eol, plus<space> >
+struct WS_Required : sor<Comment, eol, plus<space>>
 {
 };
 struct WS : star<WS_Required>
 {
 };
 
-struct Value : plus<not_one<';', '}', '\r', '\n'> >
+struct Value : plus<not_one<';', '}', '\r', '\n'>>
 {
 };
 
@@ -119,24 +119,23 @@ struct ParameterName : identifier
 struct Statement : seq<ParameterName, WS_Required, Value>
 {
 };
-struct StatementOther : seq<ParameterName, WS_Required, plus<not_one<'}', '{', ';'> > >
+struct StatementOther : seq<ParameterName, WS_Required, plus<not_one<'}', '{', ';'>>>
 {
 };
 
-struct Motion
-  : seq<TAO_PEGTL_STRING("motion"), WS, one<'{'>, WS, list<Statement, WS>, WS, one<'}'> >
+struct Motion : seq<TAO_PEGTL_STRING("motion"), WS, one<'{'>, WS, list<Statement, WS>, WS, one<'}'>>
 {
 };
-struct Motions : seq<TAO_PEGTL_STRING("motions"), WS, one<'{'>, WS, list<Motion, WS>, WS, one<'}'> >
+struct Motions : seq<TAO_PEGTL_STRING("motions"), WS, one<'{'>, WS, list<Motion, WS>, WS, one<'}'>>
 {
 };
 
-struct OtherNonNested : seq<identifier, WS, one<'{'>, WS, list<StatementOther, WS>, WS, one<'}'> >
+struct OtherNonNested : seq<identifier, WS, one<'{'>, WS, list<StatementOther, WS>, WS, one<'}'>>
 {
 };
 
 struct OtherNested
-  : seq<identifier, WS, one<'{'>, WS, list<sor<OtherNonNested, StatementOther>, WS>, WS, one<'}'> >
+  : seq<identifier, WS, one<'{'>, WS, list<sor<OtherNonNested, StatementOther>, WS>, WS, one<'}'>>
 {
 };
 

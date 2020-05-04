@@ -79,7 +79,7 @@ void CreateDataset(vtkStructuredGrid* dataset, int extent[6])
 // Returns 1 on success, 0 otherwise
 //////////////////////////////////////////////////////////////////////////////
 int AppendDatasetsAndCheck(
-  const std::vector<vtkSmartPointer<vtkStructuredGrid> >& inputs, int outputExtent[6])
+  const std::vector<vtkSmartPointer<vtkStructuredGrid>>& inputs, int outputExtent[6])
 {
   vtkNew<vtkStructuredGridAppend> append;
   for (size_t inputIndex = 0; inputIndex < inputs.size(); ++inputIndex)
@@ -166,7 +166,7 @@ int AppendDatasetsAndCheck(
 //////////////////////////////////////////////////////////////////////////////
 int TestStructuredGridAppend(int, char*[])
 {
-  std::vector<vtkSmartPointer<vtkStructuredGrid> > inputs;
+  std::vector<vtkSmartPointer<vtkStructuredGrid>> inputs;
   int outputExtent[6] = { -1, 19, 0, 4, 0, 5 };
   for (int i = 0; i < 3; i++)
   {

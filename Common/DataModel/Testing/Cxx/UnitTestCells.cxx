@@ -1102,7 +1102,7 @@ int TestOneCell(const VTKCellType cellType, vtkSmartPointer<T> aCell, int linear
   std::cout << "  Testing EvaluatePosition in/out test...";
 
   int status2 = 0;
-  std::vector<std::vector<double> > testPoints;
+  std::vector<std::vector<double>> testPoints;
   std::vector<int> inOuts;
   std::vector<std::string> typePoint;
 

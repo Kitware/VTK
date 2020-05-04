@@ -277,7 +277,7 @@ double GetColorPath(
   // deleting the old entry and re-inserting the new entry.
   // The set is sorted first by the distance from the seed node, so that the
   // first entry always is the node that can be reached shortest.
-  std::set<std::pair<Distance, Position> > front;
+  std::set<std::pair<Distance, Position>> front;
 
   // Start backwards and use the second color as seed
   distances[getIndex(pos2)] = static_cast<Distance>(0);

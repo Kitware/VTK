@@ -149,7 +149,7 @@ public:
   boost::shared_ptr<XdmfWriter> Writer;
   boost::shared_ptr<XdmfDomain> AggregateDomain;
   boost::shared_ptr<XdmfWriter> AggregateWriter;
-  std::stack<boost::shared_ptr<XdmfDomain> > DestinationGroups;
+  std::stack<boost::shared_ptr<XdmfDomain>> DestinationGroups;
 
   int NumberOfTimeSteps;
   int CurrentTimeIndex;

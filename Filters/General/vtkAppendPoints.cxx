@@ -94,7 +94,7 @@ int vtkAppendPoints::RequestData(vtkInformation* vtkNotUsed(request),
     }
   }
 
-  std::vector<vtkSmartPointer<vtkPolyData> > inputs;
+  std::vector<vtkSmartPointer<vtkPolyData>> inputs;
   for (int idx = 0; idx < numInputs; ++idx)
   {
     vtkInformation* inInfo = inputVector[0]->GetInformationObject(idx);

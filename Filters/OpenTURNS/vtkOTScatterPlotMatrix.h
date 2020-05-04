@@ -88,7 +88,7 @@ private:
 
   class DensityMapSettings;
   std::map<int, DensityMapSettings*> DensityMapsSettings;
-  typedef std::map<std::pair<vtkStdString, vtkStdString>, vtkSmartPointer<vtkOTDensityMap> >
+  typedef std::map<std::pair<vtkStdString, vtkStdString>, vtkSmartPointer<vtkOTDensityMap>>
     DensityMapCacheMap;
   DensityMapCacheMap DensityMapCache;
 

@@ -77,7 +77,7 @@ vtkUnstructuredGrid& operator<<(vtkUnstructuredGrid& data, const vtkPixelExtent&
 
 // ----------------------------------------------------------------------------
 void vtkPixelExtentIO::Write(
-  int commRank, const char* fileName, const deque<deque<vtkPixelExtent> >& exts)
+  int commRank, const char* fileName, const deque<deque<vtkPixelExtent>>& exts)
 {
   if (commRank != 0)
   {

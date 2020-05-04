@@ -81,8 +81,8 @@ public:
    *
    * @returns true on success, else false
    */
-  bool AllToAll(const std::vector<vtkSmartPointer<vtkDataSet> >& sendBuffer,
-    const std::vector<int>& sendCounts, std::vector<vtkSmartPointer<vtkDataSet> >& recvBuffer,
+  bool AllToAll(const std::vector<vtkSmartPointer<vtkDataSet>>& sendBuffer,
+    const std::vector<int>& sendCounts, std::vector<vtkSmartPointer<vtkDataSet>>& recvBuffer,
     std::vector<int>& recvCounts);
 
 protected:

@@ -136,7 +136,7 @@ int vtkReebGraphToJoinSplitTreeFilter::RequestData(vtkInformation* vtkNotUsed(re
 
       // first, uncompress the input Reeb graph.
       vtkMutableDirectedGraph* unCompressedGraph = vtkMutableDirectedGraph::New();
-      std::vector<std::pair<int, double> > vertexList;
+      std::vector<std::pair<int, double>> vertexList;
       for (int i = 0; i < vertexInfo->GetNumberOfTuples(); i++)
       {
         int vertexId = (int)*(vertexInfo->GetTuple(i));
@@ -221,7 +221,7 @@ int vtkReebGraphToJoinSplitTreeFilter::RequestData(vtkInformation* vtkNotUsed(re
       if (IsSplitTree)
       {
         // reverse the list of vertices
-        std::vector<std::pair<int, double> > tmpVector(vertexList);
+        std::vector<std::pair<int, double>> tmpVector(vertexList);
         for (int i = static_cast<int>(tmpVector.size()) - 1; i >= 0; i--)
         {
           vertexList[vertexList.size() - i - 1] = tmpVector[i];
@@ -229,7 +229,7 @@ int vtkReebGraphToJoinSplitTreeFilter::RequestData(vtkInformation* vtkNotUsed(re
       }
 
       // then, prepare the necessary adjacency information
-      std::vector<std::vector<int> > halfStars(vertexList.size());
+      std::vector<std::vector<int>> halfStars(vertexList.size());
 
       vertexInfo = vtkArrayDownCast<vtkDataArray>(
         unCompressedGraph->GetVertexData()->GetAbstractArray("Vertex Ids"));
@@ -254,7 +254,7 @@ int vtkReebGraphToJoinSplitTreeFilter::RequestData(vtkInformation* vtkNotUsed(re
       unCompressedGraph->Delete();
 
       // prepare the intermediate data-structure
-      std::vector<std::pair<std::pair<int, int>, std::vector<int> > > edgeList(vertexList.size());
+      std::vector<std::pair<std::pair<int, int>, std::vector<int>>> edgeList(vertexList.size());
       for (unsigned int i = 0; i < edgeList.size(); i++)
       {
         edgeList[i].first.first = -1;

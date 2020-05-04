@@ -607,7 +607,7 @@ protected:
   {
     int nComp;
     int type;
-    std::vector<std::pair<int, std::string> > enumValues;
+    std::vector<std::pair<int, std::string>> enumValues;
   } SurfaceArrayDescription;
   std::map<std::string, SurfaceArrayDescription> SurfaceArrayDescriptions;
 
