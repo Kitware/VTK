@@ -1,0 +1,7 @@
+NAME
+  VTK::ioss
+LIBRARY_NAME
+  vtkioss
+PRIVATE_DEPENDS
+  VTK::exodusII
+THIRD_PARTY
