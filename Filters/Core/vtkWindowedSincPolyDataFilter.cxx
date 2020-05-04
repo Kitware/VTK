@@ -58,7 +58,7 @@ vtkWindowedSincPolyDataFilter::vtkWindowedSincPolyDataFilter()
 #define VTK_BOUNDARY_EDGE_VERTEX 3
 
 // Special structure for marking vertices
-typedef struct _vtkMeshVertex
+typedef struct
 {
   char type;
   vtkIdList* edges; // connected edges (list of connected point ids)

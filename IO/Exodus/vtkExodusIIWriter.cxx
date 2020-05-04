@@ -689,7 +689,7 @@ void vtkExodusIIWriter::RemoveGhostCells()
 }
 
 //------------------------------------------------------------------------------
-int vtkExodusIIWriter::CheckParametersInternal(int _NumberOfProcesses, int _MyRank)
+int vtkExodusIIWriter::CheckParametersInternal(int numberOfProcesses, int myRank)
 {
   if (!this->FileName)
   {
@@ -712,8 +712,8 @@ int vtkExodusIIWriter::CheckParametersInternal(int _NumberOfProcesses, int _MyRa
     this->StoreDoubles = this->PassDoubles;
   }
 
-  this->NumberOfProcesses = _NumberOfProcesses;
-  this->MyRank = _MyRank;
+  this->NumberOfProcesses = numberOfProcesses;
+  this->MyRank = myRank;
 
   if (!this->CheckInputArrays())
   {

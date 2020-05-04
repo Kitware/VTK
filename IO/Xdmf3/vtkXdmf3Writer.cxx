@@ -487,7 +487,7 @@ void vtkXdmf3Writer::WriteDataInternal(vtkInformation* request)
 }
 
 //------------------------------------------------------------------------------
-int vtkXdmf3Writer::CheckParametersInternal(int _NumberOfProcesses, int _MyRank)
+int vtkXdmf3Writer::CheckParametersInternal(int numberOfProcesses, int myRank)
 {
   if (!this->FileName)
   {
@@ -495,8 +495,8 @@ int vtkXdmf3Writer::CheckParametersInternal(int _NumberOfProcesses, int _MyRank)
     return 0;
   }
 
-  this->NumberOfProcesses = _NumberOfProcesses;
-  this->MyRank = _MyRank;
+  this->NumberOfProcesses = numberOfProcesses;
+  this->MyRank = myRank;
 
   return 1;
 }

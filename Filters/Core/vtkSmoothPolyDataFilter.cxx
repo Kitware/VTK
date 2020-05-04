@@ -34,7 +34,7 @@ vtkStandardNewMacro(vtkSmoothPolyDataFilter);
 
 // The following code defines a helper class for performing mesh smoothing
 // across the surface of another mesh.
-typedef struct _vtkSmoothPoint
+typedef struct
 {
   vtkIdType cellId; // cell
   int subId;        // cell sub id

@@ -45,12 +45,12 @@ namespace
 class Neighbors
 {
 public:
-  Neighbors(bool _UseInDegreeNeighbors, bool _UseOutDegreeNeighbors)
+  Neighbors(bool useInDegreeNeighbors, bool useOutDegreeNeighbors)
   {
     this->iti = vtkInEdgeIterator::New();
     this->ito = vtkOutEdgeIterator::New();
-    this->UseInDegreeNeighbors = _UseInDegreeNeighbors;
-    this->UseOutDegreeNeighbors = _UseOutDegreeNeighbors;
+    this->UseInDegreeNeighbors = useInDegreeNeighbors;
+    this->UseOutDegreeNeighbors = useOutDegreeNeighbors;
   }
 
   ~Neighbors()

@@ -40,7 +40,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTrivialProducer.h"
 #include "vtkViewport.h"
 
-struct _xmlNode;
 #define VTK_MAX_PLOTS 50
 
 vtkStandardNewMacro(vtkXYPlotActor);

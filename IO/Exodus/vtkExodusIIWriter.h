@@ -306,7 +306,7 @@ protected:
 
   int IsDouble();
   void RemoveGhostCells();
-  int CheckParametersInternal(int NumberOfProcesses, int MyRank);
+  int CheckParametersInternal(int numberOfProcesses, int myRank);
   virtual int CheckParameters();
   // If writing in parallel multiple time steps exchange after each time step
   // if we should continue the execution. Pass local continueExecution as a

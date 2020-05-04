@@ -13,10 +13,12 @@
 
 =========================================================================*/
 
+#if defined(_MSC_VER)
 #ifdef _INTEGRAL_MAX_BITS
 #undef _INTEGRAL_MAX_BITS
 #endif
 #define _INTEGRAL_MAX_BITS 64
+#endif
 
 #include "vtkDebugLeaks.h"
 #include "vtkObject.h"

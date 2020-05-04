@@ -22,7 +22,7 @@
 #include "vtkUnstructuredGridReader.h"
 #include <vtksys/SystemTools.hxx>
 
-#define _BRUTE_FORCE_VERIFICATION_
+#define VTK_BRUTE_FORCE_VERIFICATION
 
 // The following epsilon value is needed to address numerical inaccuracy /
 // precision issues on some platforms: Fast-Release-g++, Win32-cygwin344,
@@ -149,7 +149,7 @@ int TestIncrementalOctreePointLocator(int argc, char* argv[])
 
   // open a file for reading or writing the ground truth data
   fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/IncOctPntLocResult.dat");
-#ifndef _BRUTE_FORCE_VERIFICATION_
+#ifndef VTK_BRUTE_FORCE_VERIFICATION
   diskFile = vtksys::SystemTools::Fopen(fileName, "rb");
   truthIds = (vtkIdType*)realloc(truthIds, sizeof(vtkIdType) * numbPnts);
 #endif
@@ -251,7 +251,7 @@ int TestIncrementalOctreePointLocator(int argc, char* argv[])
         }
         // -------------------------------------------------------------------//
 
-#ifdef _BRUTE_FORCE_VERIFICATION_
+#ifdef VTK_BRUTE_FORCE_VERIFICATION
         // ---------------------------------------------------------------------
         // verify the point insertion result in brute force mode
 
@@ -451,7 +451,7 @@ int TestIncrementalOctreePointLocator(int argc, char* argv[])
 
     // memory allocation
     resltIds = (vtkIdType*)realloc(resltIds, sizeof(vtkIdType) * nLocPnts);
-#ifndef _BRUTE_FORCE_VERIFICATION_
+#ifndef VTK_BRUTE_FORCE_VERIFICATION
     truthIds = (vtkIdType*)realloc(truthIds, sizeof(vtkIdType) * nLocPnts);
 #endif
 
@@ -465,7 +465,7 @@ int TestIncrementalOctreePointLocator(int argc, char* argv[])
       resltIds[i] = octLocat->FindClosestPoint(pLocPnts + (i << 1) + i, minDist2 + i);
     }
 
-#ifdef _BRUTE_FORCE_VERIFICATION_
+#ifdef VTK_BRUTE_FORCE_VERIFICATION
     // -----------------------------------------------------------------------
     // verify the result in brute force mode
     for (j = 0; (j < nLocPnts) && (retValue == 0); j++)
@@ -519,7 +519,7 @@ int TestIncrementalOctreePointLocator(int argc, char* argv[])
     // memory allocation
     ptIdList->SetNumberOfIds(nClzNpts * 10); // to claim part of the memory
     resltIds = (vtkIdType*)realloc(resltIds, sizeof(vtkIdType) * nClzNpts * nLocPnts);
-#ifndef _BRUTE_FORCE_VERIFICATION_
+#ifndef VTK_BRUTE_FORCE_VERIFICATION
     truthIds = (vtkIdType*)realloc(truthIds, sizeof(vtkIdType) * nClzNpts * nLocPnts);
     n = fread(&numInsrt, sizeof(int), 1, diskFile);
     if (n != 1)
@@ -552,7 +552,7 @@ int TestIncrementalOctreePointLocator(int argc, char* argv[])
 
 //------------------------------------------------------------------------------
 // verify the result in brute force mode
-#ifdef _BRUTE_FORCE_VERIFICATION_
+#ifdef VTK_BRUTE_FORCE_VERIFICATION
 
       // check the order of the closest points
       for (j = 0; j < nClzNpts; j++)
@@ -597,7 +597,7 @@ int TestIncrementalOctreePointLocator(int argc, char* argv[])
 
 //------------------------------------------------------------------------------
 // rapid point index-based verification
-#ifndef _BRUTE_FORCE_VERIFICATION_
+#ifndef VTK_BRUTE_FORCE_VERIFICATION
     numInsrt = nClzNpts * nLocPnts; // data has been read at the beginning
     for (i = 0; (i < numInsrt) && (retValue == 0); i++)
     {
@@ -638,7 +638,7 @@ int TestIncrementalOctreePointLocator(int argc, char* argv[])
 
 //------------------------------------------------------------------------------
 // verify the result in brute force mode
-#ifdef _BRUTE_FORCE_VERIFICATION_
+#ifdef VTK_BRUTE_FORCE_VERIFICATION
       if (((minDist2[i] > INC_OCT_PNT_LOC_TESTS_ZERO) && (resltIds[j] != -1)) ||
         ((minDist2[i] <= INC_OCT_PNT_LOC_TESTS_ZERO) && (resltIds[j] != pointIdx)) ||
         (resltIds[j + 1] != pointIdx) || (resltIds[j + 2] != pointIdx))
@@ -652,7 +652,7 @@ int TestIncrementalOctreePointLocator(int argc, char* argv[])
 
 //------------------------------------------------------------------------------
 // rapid point index-based verification
-#ifndef _BRUTE_FORCE_VERIFICATION_
+#ifndef VTK_BRUTE_FORCE_VERIFICATION
     n = fread(&numInsrt, sizeof(int), 1, diskFile);
     if (n != 1)
     {
@@ -729,7 +729,7 @@ int TestIncrementalOctreePointLocator(int argc, char* argv[])
 
 //------------------------------------------------------------------------------
 // verify the result in brute force mode
-#ifdef _BRUTE_FORCE_VERIFICATION_
+#ifdef VTK_BRUTE_FORCE_VERIFICATION
 
       // check if the monotonical property holds among the 3 point-index lists
       if (minDist2[i] <= INC_OCT_PNT_LOC_TESTS_ZERO)
@@ -810,7 +810,7 @@ int TestIncrementalOctreePointLocator(int argc, char* argv[])
 
 //------------------------------------------------------------------------------
 // rapid point index-based verification
-#ifndef _BRUTE_FORCE_VERIFICATION_
+#ifndef VTK_BRUTE_FORCE_VERIFICATION
     n = fread(&numInsrt, sizeof(int), 1, diskFile);
     if (n != 1)
     {

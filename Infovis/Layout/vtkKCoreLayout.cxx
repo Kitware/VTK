@@ -34,7 +34,9 @@
 
 #include <iostream>
 
+#if defined(_MSC_VER)
 #define _USE_MATH_DEFINES
+#endif
 #include <cstdlib>
 
 using std::endl;

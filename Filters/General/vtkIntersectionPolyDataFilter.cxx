@@ -65,7 +65,7 @@ struct simPolygon
 typedef std::multimap<vtkIdType, vtkIdType> IntersectionMapType;
 typedef IntersectionMapType::iterator IntersectionMapIteratorType;
 
-typedef struct _CellEdgeLine
+typedef struct
 {
   vtkIdType CellId;
   vtkIdType EdgeId;
