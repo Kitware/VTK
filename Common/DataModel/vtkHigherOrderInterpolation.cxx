@@ -184,7 +184,7 @@ int vtkHigherOrderInterpolation::Tensor2ShapeFunctions(const int order[2], const
 
 // Quadrilateral shape-function derivatives
 int vtkHigherOrderInterpolation::Tensor2ShapeDerivatives(const int order[2],
-  const double pcoords[2], double* deriv,
+  const double pcoords[3], double* deriv,
   void (*function_evaluate_shape_and_gradient)(int, double, double*, double*))
 {
   std::array<std::vector<double>, 2> ll;
