@@ -16,11 +16,16 @@
 // Description
 // This is a basic test that renders a rectilinear grid dataset with the GPU ray cast volume mapper.
 
+#include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
+#include "vtkDataSetMapper.h"
+#include "vtkDoubleArray.h"
 #include "vtkGPUVolumeRayCastMapper.h"
+#include "vtkMinimalStandardRandomSequence.h"
 #include "vtkNew.h"
 #include "vtkPiecewiseFunction.h"
+#include "vtkProperty.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkRectilinearGridReader.h"
 #include "vtkRenderWindow.h"
@@ -31,6 +36,57 @@
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
+namespace TestGPURayCastMapperRectilinearGridNS
+{
+//----------------------------------------------------------------------------
+vtkSmartPointer<vtkRectilinearGrid> ModifyGridSpacing(
+  vtkSmartPointer<vtkRectilinearGrid> input, int direction)
+{
+  if (!input)
+  {
+    return nullptr;
+  }
+
+  vtkNew<vtkRectilinearGrid> output;
+  output->DeepCopy(input);
+
+  vtkNew<vtkDoubleArray> newCoords;
+  newCoords->SetNumberOfComponents(1);
+
+  vtkSmartPointer<vtkDataArray> coords = nullptr;
+  switch (direction)
+  {
+    case 0:
+      coords = input->GetXCoordinates();
+      output->SetXCoordinates(newCoords);
+      break;
+    case 1:
+      coords = input->GetYCoordinates();
+      output->SetYCoordinates(newCoords);
+      break;
+    case 2:
+    default:
+      coords = input->GetZCoordinates();
+      output->SetZCoordinates(newCoords);
+      break;
+  }
+
+  vtkNew<vtkMinimalStandardRandomSequence> seq;
+  seq->SetSeed(203542);
+  newCoords->InsertNextTuple1(coords->GetTuple1(0));
+  int i = 1;
+  for (; i < coords->GetNumberOfTuples() - 1; i++)
+  {
+    seq->Next();
+    // double val = newCoords->GetTuple1(i - 1);
+    double val = i * 0.08 * seq->GetValue() * coords->GetTuple1(i);
+    newCoords->InsertNextTuple1(val);
+  }
+  newCoords->InsertNextTuple1(i * 0.08 * coords->GetTuple1(i));
+  return output;
+}
+} // end namespace TestGPURayCastMapperRectilinearGridNS
+
 //----------------------------------------------------------------------------
 int TestGPURayCastMapperRectilinearGrid(int argc, char* argv[])
 {
@@ -40,6 +96,13 @@ int TestGPURayCastMapperRectilinearGrid(int argc, char* argv[])
 
   vtkNew<vtkRectilinearGridReader> reader;
   reader->SetFileName(fname);
+  reader->Update();
+
+  vtkSmartPointer<vtkRectilinearGrid> rGrid = reader->GetOutput();
+
+  vtkNew<vtkRenderWindow> renWin;
+  renWin->SetMultiSamples(0);
+  renWin->SetSize(301, 300); // Intentional NPOT size
 
   vtkNew<vtkColorTransferFunction> ctf;
   ctf->AddRGBPoint(0, 0.53, 0.53, 0.83);
@@ -51,46 +114,59 @@ int TestGPURayCastMapperRectilinearGrid(int argc, char* argv[])
   ctf->AddRGBPoint(10.39, 0.88, 0, 1);
 
   vtkNew<vtkPiecewiseFunction> pf;
-  pf->AddPoint(0, 0.7);
-  pf->AddPoint(0.35, 0.5);
+  pf->AddPoint(0, 0);
+  pf->AddPoint(0.2, 1);
+  pf->AddPoint(3, 0.5);
   pf->AddPoint(10.39, 1);
-
-  vtkNew<vtkPiecewiseFunction> gf;
-  gf->AddPoint(0, 0);
-  gf->AddPoint(0.075, 0);
-  gf->AddPoint(0.15, 1);
 
   vtkNew<vtkVolumeProperty> volumeProperty;
   volumeProperty->SetInterpolationTypeToLinear();
-  vtkNew<vtkVolume> volume;
-  vtkNew<vtkGPUVolumeRayCastMapper> mapper;
-  mapper->UseJitteringOn();
-
-  mapper->SetInputConnection(reader->GetOutputPort());
-
   volumeProperty->SetColor(ctf);
   volumeProperty->SetScalarOpacity(pf);
-  volumeProperty->SetGradientOpacity(gf);
-  volume->SetProperty(volumeProperty);
-  volume->SetMapper(mapper);
 
-  vtkNew<vtkRenderWindow> renWin;
-  renWin->SetMultiSamples(0);
-  renWin->SetSize(301, 300); // Intentional NPOT size
+  vtkNew<vtkGPUVolumeRayCastMapper> mapper[4];
+  vtkNew<vtkVolume> volume[4];
+  vtkNew<vtkRenderer> ren[4];
+  ren[0]->SetViewport(0, 0, 0.5, 0.5);
+  ren[1]->SetViewport(0.5, 0, 1, 0.5);
+  ren[2]->SetViewport(0, 0.5, 0.5, 1);
+  ren[3]->SetViewport(0.5, 0.5, 1, 1);
+  vtkNew<vtkDataSetMapper> dsMapper[4];
+  vtkNew<vtkActor> dsActor[4];
 
-  vtkNew<vtkRenderer> ren;
-  renWin->AddRenderer(ren.GetPointer());
+  for (int i = 0; i < 4; ++i)
+  {
+    mapper[i]->UseJitteringOn();
+    if (i == 0)
+    {
+      mapper[i]->SetInputData(rGrid);
+      dsMapper[i]->SetInputData(rGrid);
+    }
+    else
+    {
+      vtkSmartPointer<vtkRectilinearGrid> newGrid =
+        TestGPURayCastMapperRectilinearGridNS::ModifyGridSpacing(rGrid, i - 1);
+      mapper[i]->SetInputData(newGrid);
+      dsMapper[i]->SetInputData(newGrid);
+    }
+    volume[i]->SetProperty(volumeProperty);
+    volume[i]->SetMapper(mapper[i]);
+    renWin->AddRenderer(ren[i]);
+    dsMapper[i]->SetScalarVisibility(0);
+    dsActor[i]->SetMapper(dsMapper[i]);
+    dsActor[i]->GetProperty()->SetRepresentationToWireframe();
+    dsActor[i]->GetProperty()->SetOpacity(0.5);
+    ren[i]->AddActor(dsActor[i]);
+    ren[i]->AddViewProp(volume[i]);
+    ren[i]->ResetCamera();
+
+    auto camera = ren[i]->GetActiveCamera();
+    camera->Pitch(30);
+    ren[i]->ResetCamera();
+  }
 
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin.GetPointer());
-
-  ren->AddViewProp(volume);
-  ren->ResetCamera();
-
-  auto camera = ren->GetActiveCamera();
-  camera->Pitch(30);
-  ren->ResetCamera();
-  camera->Zoom(2);
 
   renWin->Render();
   delete[] fname;
