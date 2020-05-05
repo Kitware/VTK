@@ -40,8 +40,7 @@ int TestArrayAPISparse(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   try
   {
     // Create an 3D array ...
-    vtkSmartPointer<vtkSparseArray<double> > array =
-      vtkSmartPointer<vtkSparseArray<double> >::New();
+    vtkSmartPointer<vtkSparseArray<double>> array = vtkSmartPointer<vtkSparseArray<double>>::New();
     array->Resize(vtkArrayExtents::Uniform(3, 0));
     test_expression(array);
 
@@ -132,7 +131,7 @@ int TestArrayAPISparse(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     // Verify that deep-copy works correctly ...
     array->SetNullValue(1.0);
 
-    vtkSmartPointer<vtkSparseArray<double> > deep_copy;
+    vtkSmartPointer<vtkSparseArray<double>> deep_copy;
     deep_copy.TakeReference(vtkSparseArray<double>::SafeDownCast(array->DeepCopy()));
     test_expression(deep_copy->GetDimensions() == array->GetDimensions());
     test_expression(deep_copy->GetSize() == array->GetSize());
@@ -197,8 +196,8 @@ int TestArrayAPISparse(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     // ------------------------------------------------------------
     // Verify Set/Add/GetValue and SetExtentsFromContents for 0, 1, 2
     // dimension API's
-    vtkSmartPointer<vtkSparseArray<double> > array1D =
-      vtkSmartPointer<vtkSparseArray<double> >::New();
+    vtkSmartPointer<vtkSparseArray<double>> array1D =
+      vtkSmartPointer<vtkSparseArray<double>>::New();
     array1D->Resize(vtkArrayExtents::Uniform(1, 0));
     array1D->SetValue(0, 1.0);
     array1D->AddValue(0, 2.0);
@@ -236,8 +235,8 @@ int TestArrayAPISparse(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     array1D->ReserveStorage(1000);
     test_expression(array1D->GetNonNullSize() == 1000);
 
-    vtkSmartPointer<vtkSparseArray<double> > array2D =
-      vtkSmartPointer<vtkSparseArray<double> >::New();
+    vtkSmartPointer<vtkSparseArray<double>> array2D =
+      vtkSmartPointer<vtkSparseArray<double>>::New();
     array2D->Resize(vtkArrayExtents::Uniform(2, 0));
     array2D->SetValue(0, 0, 2.0);
     array2D->AddValue(0, 0, 2.0);
@@ -254,8 +253,8 @@ int TestArrayAPISparse(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     array2D->SetExtentsFromContents();
     test_expression(array2D->GetExtents() == vtkArrayExtents(10, 9));
 
-    vtkSmartPointer<vtkSparseArray<double> > array3D =
-      vtkSmartPointer<vtkSparseArray<double> >::New();
+    vtkSmartPointer<vtkSparseArray<double>> array3D =
+      vtkSmartPointer<vtkSparseArray<double>>::New();
     array3D->Resize(vtkArrayExtents::Uniform(3, 0));
     array3D->SetValue(0, 0, 0, 0.0);
     array3D->AddValue(0, 0, 0, 3.0);

@@ -1,3 +1,7 @@
+# Note: if you change any of the settings here, please reformat the entire
+# codebase as part of the same commit, that will prevent subsequent commits
+# from being flagged as being improperly formatted.
+
 ---
 # This configuration requires clang-format 8.0 or higher.
 BasedOnStyle: Mozilla
