@@ -96,10 +96,15 @@ public:
    * reference. The argument is reset to nullptr.
    * @{
    */
-  vtkNew(vtkNew&& o) noexcept : Object(o.Object) { o.Object = nullptr; }
+  vtkNew(vtkNew&& o) noexcept
+    : Object(o.Object)
+  {
+    o.Object = nullptr;
+  }
 
   template <typename U>
-  vtkNew(vtkNew<U>&& o) noexcept : Object(o.Object)
+  vtkNew(vtkNew<U>&& o) noexcept
+    : Object(o.Object)
   {
     vtkNew::CheckTypes<U>();
 

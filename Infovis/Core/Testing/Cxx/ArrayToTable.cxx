@@ -40,8 +40,8 @@ int ArrayToTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   try
   {
-    vtkSmartPointer<vtkDenseArray<vtkStdString> > a =
-      vtkSmartPointer<vtkDenseArray<vtkStdString> >::New();
+    vtkSmartPointer<vtkDenseArray<vtkStdString>> a =
+      vtkSmartPointer<vtkDenseArray<vtkStdString>>::New();
     a->Resize(2);
     a->SetValue(0, "Howdy");
     a->SetValue(1, "World!");
@@ -59,7 +59,7 @@ int ArrayToTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     test_expression(c->GetOutput()->GetValue(0, 0).ToString() == "Howdy");
     test_expression(c->GetOutput()->GetValue(1, 0).ToString() == "World!");
 
-    vtkSmartPointer<vtkSparseArray<double> > d = vtkSmartPointer<vtkSparseArray<double> >::New();
+    vtkSmartPointer<vtkSparseArray<double>> d = vtkSmartPointer<vtkSparseArray<double>>::New();
     d->Resize(2, 2);
     d->SetValue(0, 0, 1.0);
     d->SetValue(1, 1, 2.0);

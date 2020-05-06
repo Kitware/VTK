@@ -131,7 +131,7 @@ protected:
   std::string InternalColumnName = "";
   vtkIdType TimeColumnId = -1;
   bool RemoveTimeStepColumn = true;
-  std::map<double, std::vector<vtkIdType> > TimeMap;
+  std::map<double, std::vector<vtkIdType>> TimeMap;
 
   // Input file content and update
   vtkNew<vtkTable> ReadTable;

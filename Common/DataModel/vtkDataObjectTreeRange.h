@@ -144,11 +144,17 @@ public:
 protected:
   // Note: This takes ownership of iter and manages its lifetime.
   // Iter should not be used past this point by the caller.
-  DataObjectTreeIterator(SmartIterator&& iter) noexcept : Iterator(std::move(iter)) {}
+  DataObjectTreeIterator(SmartIterator&& iter) noexcept
+    : Iterator(std::move(iter))
+  {
+  }
 
   // Note: Iterators constructed using this ctor will be considered
   // 'end' iterators via a sentinal pattern.
-  DataObjectTreeIterator() noexcept : Iterator{ nullptr } {}
+  DataObjectTreeIterator() noexcept
+    : Iterator{ nullptr }
+  {
+  }
 
 private:
   void CopyState(InternalIterator* source)

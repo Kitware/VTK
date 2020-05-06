@@ -265,7 +265,7 @@ bool vtkCompositeDataPipeline::ShouldIterateOverInput(
 void vtkCompositeDataPipeline::ExecuteEach(vtkCompositeDataIterator* iter,
   vtkInformationVector** inInfoVec, vtkInformationVector* outInfoVec, int compositePort,
   int connection, vtkInformation* request,
-  std::vector<vtkSmartPointer<vtkCompositeDataSet> >& compositeOutputs)
+  std::vector<vtkSmartPointer<vtkCompositeDataSet>>& compositeOutputs)
 {
   vtkInformation* inInfo = inInfoVec[compositePort]->GetInformationObject(connection);
 
@@ -352,7 +352,7 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(vtkInformation* request,
     vtkCompositeDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   bool compositeOutputFound = false;
-  std::vector<vtkSmartPointer<vtkCompositeDataSet> > compositeOutputs;
+  std::vector<vtkSmartPointer<vtkCompositeDataSet>> compositeOutputs;
   for (int port = 0; port < outInfoVec->GetNumberOfInformationObjects(); ++port)
   {
     compositeOutputs.emplace_back(vtkCompositeDataSet::GetData(outInfoVec, port));
@@ -930,7 +930,7 @@ int vtkCompositeDataPipeline::CheckCompositeData(
     if (needsToCreateCompositeOutput)
     {
       // Create the output objects
-      std::vector<vtkSmartPointer<vtkDataObject> > output = this->CreateOutputCompositeDataSet(
+      std::vector<vtkSmartPointer<vtkDataObject>> output = this->CreateOutputCompositeDataSet(
         vtkCompositeDataSet::SafeDownCast(this->GetInputData(compositePort, 0, inInfoVec)),
         compositePort, outInfoVec->GetNumberOfInformationObjects());
 
@@ -1002,13 +1002,13 @@ vtkDataObject* vtkCompositeDataPipeline::GetCompositeOutputData(int port)
 }
 
 //----------------------------------------------------------------------------
-std::vector<vtkSmartPointer<vtkDataObject> > vtkCompositeDataPipeline::CreateOutputCompositeDataSet(
+std::vector<vtkSmartPointer<vtkDataObject>> vtkCompositeDataPipeline::CreateOutputCompositeDataSet(
   vtkCompositeDataSet* input, int compositePort, int numOutputPorts)
 {
   // pre: the algorithm is a non-composite algorithm.
   // pre: the question is
   //      whether to create vtkHierarchicalBoxDataSet or vtkMultiBlockDataSet.
-  std::vector<vtkSmartPointer<vtkDataObject> > outputVector;
+  std::vector<vtkSmartPointer<vtkDataObject>> outputVector;
 
   if (input->IsA("vtkHierarchicalBoxDataSet") || input->IsA("vtkOverlappingAMR") ||
     input->IsA("vtkNonOverlappingAMR"))

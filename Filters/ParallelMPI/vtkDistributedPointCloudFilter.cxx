@@ -432,7 +432,7 @@ void vtkDistributedPointCloudFilter::GetPointsInsideBounds(vtkMPIController* con
 
   // array of point ids
   vtkNew<vtkIdTypeArray> idArray;
-  std::vector<vtkSmartPointer<vtkCharArray> > dataToSend;
+  std::vector<vtkSmartPointer<vtkCharArray>> dataToSend;
   dataToSend.resize(np);
 
   // we will need a locator to search points inside each processor assigned regions
@@ -482,7 +482,7 @@ void vtkDistributedPointCloudFilter::GetPointsInsideBounds(vtkMPIController* con
     messagesSize[partner] = dataToSend[partner]->GetNumberOfValues();
   }
 
-  std::vector<vtkSmartPointer<vtkCharArray> > dataToReceive(np);
+  std::vector<vtkSmartPointer<vtkCharArray>> dataToReceive(np);
   std::vector<vtkMPICommunicator::Request> receiveRequests(np);
 
   // Calculate size of messages to receive

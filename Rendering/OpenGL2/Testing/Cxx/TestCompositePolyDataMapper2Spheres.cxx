@@ -74,7 +74,7 @@ int TestCompositePolyDataMapper2Spheres(int argc, char* argv[])
     blocksPerLevel[1] = 32;
     blocksPerLevel[2] = 64;
   }
-  std::vector<vtkSmartPointer<vtkMultiBlockDataSet> > blocks;
+  std::vector<vtkSmartPointer<vtkMultiBlockDataSet>> blocks;
   blocks.emplace_back(data.GetPointer());
   unsigned levelStart = 0;
   unsigned levelEnd = 1;

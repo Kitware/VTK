@@ -33,7 +33,7 @@ namespace
 {
 static const std::vector<std::string> arrayNames = { "temperature0", "temperature1", "temperature2",
   "temperature3" };
-static const std::vector<std::vector<size_t> > resultBins = {
+static const std::vector<std::vector<size_t>> resultBins = {
   { 0, 0, 1, 1, 2, 2, 3, 3 },
   { 0, 1, 1, 2, 2, 3, 3, 4 },
   { 0, 1, 2, 2, 3, 4, 4, 5 },

@@ -34,7 +34,7 @@
  * The octree_iterator class simply traverses the tree in depth-first order
  * and can be configured to visit only leaf nodes or to include all nodes.
  */
-template <typename T_, int d_ = 3, typename A_ = std::allocator<T_> >
+template <typename T_, int d_ = 3, typename A_ = std::allocator<T_>>
 class octree
 {
 public:

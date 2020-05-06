@@ -74,9 +74,9 @@ vtkLogger::LogScopeRAII::~LogScopeRAII()
 namespace detail
 {
 #if VTK_MODULE_ENABLE_VTK_loguru
-using scope_pair = std::pair<std::string, std::shared_ptr<loguru::LogScopeRAII> >;
+using scope_pair = std::pair<std::string, std::shared_ptr<loguru::LogScopeRAII>>;
 static std::mutex g_mutex;
-static std::unordered_map<std::thread::id, std::vector<scope_pair> > g_vectors;
+static std::unordered_map<std::thread::id, std::vector<scope_pair>> g_vectors;
 static std::vector<scope_pair>& get_vector()
 {
   std::lock_guard<std::mutex> guard(g_mutex);

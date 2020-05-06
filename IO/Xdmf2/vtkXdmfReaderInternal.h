@@ -193,7 +193,7 @@ private:
   // these are node indices used when building the SIL.
   vtkIdType SILBlocksRoot;
   std::map<std::string, vtkIdType> GridCenteredAttrbuteRoots;
-  std::map<vtkIdType, std::map<XdmfInt64, vtkIdType> > GridCenteredAttrbuteValues;
+  std::map<vtkIdType, std::map<XdmfInt64, vtkIdType>> GridCenteredAttrbuteValues;
 
   vtkSILBuilder* SILBuilder;
   vtkMutableDirectedGraph* SIL;

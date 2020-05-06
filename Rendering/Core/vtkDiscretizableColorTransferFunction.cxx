@@ -27,7 +27,7 @@
 class vtkDiscretizableColorTransferFunction::vtkInternals
 {
 public:
-  std::vector<vtkTuple<double, 4> > IndexedColors;
+  std::vector<vtkTuple<double, 4>> IndexedColors;
 };
 
 vtkStandardNewMacro(vtkDiscretizableColorTransferFunction);

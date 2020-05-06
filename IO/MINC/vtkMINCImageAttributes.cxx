@@ -76,7 +76,7 @@ POSSIBILITY OF SUCH DAMAGES.
 class vtkMINCImageAttributeMap
 {
 public:
-  typedef std::map<std::string, vtkSmartPointer<vtkObject> > MapType;
+  typedef std::map<std::string, vtkSmartPointer<vtkObject>> MapType;
 
   static vtkMINCImageAttributeMap* New() { return new vtkMINCImageAttributeMap; }
 

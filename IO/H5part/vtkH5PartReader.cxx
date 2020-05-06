@@ -507,7 +507,7 @@ int vtkH5PartReader::RequestData(vtkInformation* vtkNotUsed(request),
     ? outInfo->Get(SDDP::UPDATE_NUMBER_OF_PIECES())
     : 1;
 
-  typedef std::map<std::string, std::vector<std::string> > FieldMap;
+  typedef std::map<std::string, std::vector<std::string>> FieldMap;
   FieldMap scalarFields;
   //
   if (this->TimeStepValues.empty())

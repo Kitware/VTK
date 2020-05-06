@@ -97,9 +97,9 @@ public:
   std::vector<int> PointArrayComponents;
   std::vector<int> PointArrayStatus;
 
-  std::map<int, std::vector<std::string> > CellArrayNames;
-  std::map<int, std::vector<int> > CellArrayComponents;
-  std::map<int, std::vector<int> > CellArrayStatus;
+  std::map<int, std::vector<std::string>> CellArrayNames;
+  std::map<int, std::vector<int>> CellArrayComponents;
+  std::map<int, std::vector<int>> CellArrayStatus;
 
   std::vector<std::string> PartNames;
   std::vector<int> PartIds;

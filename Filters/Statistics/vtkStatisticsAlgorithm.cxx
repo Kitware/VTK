@@ -298,7 +298,7 @@ void vtkStatisticsAlgorithm::Assess(
   }
 
   // Loop over requests
-  for (std::set<std::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
+  for (std::set<std::set<vtkStdString>>::const_iterator rit = this->Internals->Requests.begin();
        rit != this->Internals->Requests.end(); ++rit)
   {
     // Storage for variable names of the request (smart pointer because of several exit points)

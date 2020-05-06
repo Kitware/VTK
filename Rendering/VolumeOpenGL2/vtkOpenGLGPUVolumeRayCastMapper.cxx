@@ -483,7 +483,7 @@ public:
   vtkTextureObject* DPColorTextureObject;
 
   vtkOpenGLFramebufferObject* ImageSampleFBO = nullptr;
-  std::vector<vtkSmartPointer<vtkTextureObject> > ImageSampleTexture;
+  std::vector<vtkSmartPointer<vtkTextureObject>> ImageSampleTexture;
   std::vector<std::string> ImageSampleTexNames;
   vtkShaderProgram* ImageSampleProg = nullptr;
   vtkOpenGLVertexArrayObject* ImageSampleVAO = nullptr;

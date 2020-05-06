@@ -45,7 +45,7 @@ struct vtkPortalTraits
 };
 
 template <typename T, int N>
-struct vtkPortalTraits<vtkm::Vec<T, N> >
+struct vtkPortalTraits<vtkm::Vec<T, N>>
 {
   using TagType = vtkPortalOfVecOfValues;
   using ComponentType = typename std::remove_const<T>::type;
@@ -66,7 +66,7 @@ struct vtkPortalTraits<vtkm::Vec<T, N> >
 };
 
 template <typename T, int N>
-struct vtkPortalTraits<const vtkm::Vec<T, N> >
+struct vtkPortalTraits<const vtkm::Vec<T, N>>
 {
   using TagType = vtkPortalOfVecOfValues;
   using ComponentType = typename std::remove_const<T>::type;
@@ -87,7 +87,7 @@ struct vtkPortalTraits<const vtkm::Vec<T, N> >
 };
 
 template <typename T, int N, int M>
-struct vtkPortalTraits<vtkm::Vec<vtkm::Vec<T, N>, M> >
+struct vtkPortalTraits<vtkm::Vec<vtkm::Vec<T, N>, M>>
 {
   using TagType = vtkPortalOfVecOfVecValues;
   using ComponentType = typename std::remove_const<T>::type;
@@ -115,7 +115,7 @@ struct vtkPortalTraits<vtkm::Vec<vtkm::Vec<T, N>, M> >
 };
 
 template <typename T, int N, int M>
-struct vtkPortalTraits<const vtkm::Vec<vtkm::Vec<T, N>, M> >
+struct vtkPortalTraits<const vtkm::Vec<vtkm::Vec<T, N>, M>>
 {
   using TagType = vtkPortalOfVecOfVecValues;
   using ComponentType = typename std::remove_const<T>::type;

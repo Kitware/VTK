@@ -38,7 +38,7 @@ vtkStandardNewMacro(vtkPassArrays);
 namespace
 {
 // returns true if modified
-typedef std::vector<std::pair<int, std::string> > ArraysType;
+typedef std::vector<std::pair<int, std::string>> ArraysType;
 bool ClearArraysOfType(int type, ArraysType& arrays)
 {
   bool retVal = false;

@@ -375,7 +375,7 @@ void vtkAMRUtilities::BlankCells(vtkOverlappingAMR* amr)
 
 //------------------------------------------------------------------------------
 void vtkAMRUtilities::BlankGridsAtLevel(vtkOverlappingAMR* amr, int levelIdx,
-  std::vector<std::vector<unsigned int> >& children, const std::vector<int>& processMap)
+  std::vector<std::vector<unsigned int>>& children, const std::vector<int>& processMap)
 {
   unsigned int numDataSets = amr->GetNumberOfDataSets(levelIdx);
   int N;

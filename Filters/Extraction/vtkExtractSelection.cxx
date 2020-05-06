@@ -229,7 +229,7 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   // Create operators for each of vtkSelectionNode instances and initialize them.
-  std::map<std::string, vtkSmartPointer<vtkSelector> > selectors;
+  std::map<std::string, vtkSmartPointer<vtkSelector>> selectors;
   for (unsigned int cc = 0, max = selection->GetNumberOfNodes(); cc < max; ++cc)
   {
     auto node = selection->GetNode(cc);

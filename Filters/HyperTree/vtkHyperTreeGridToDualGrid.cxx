@@ -454,7 +454,7 @@ void vtkHyperTreeGridToDualGrid::GenerateDualCornerFromLeaf3D(
   //   (d-2)-faces are corners, neighbor cursors are 0, 2, 6, 8, 18, 20, 24, 26
 
   // Retrieve cursors
-  std::vector<vtkSmartPointer<vtkHyperTreeGridOrientedGeometryCursor> > cursors;
+  std::vector<vtkSmartPointer<vtkHyperTreeGridOrientedGeometryCursor>> cursors;
   cursors.resize(27);
   for (unsigned int c = 0; c < 27; ++c)
   {

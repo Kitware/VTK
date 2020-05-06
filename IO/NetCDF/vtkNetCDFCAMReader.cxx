@@ -397,7 +397,7 @@ int vtkNetCDFCAMReader::RequestInformation(vtkInformation* vtkNotUsed(reqInfo),
 //----------------------------------------------------------------------------
 void vtkNetCDFCAMReader::BuildVarArray()
 {
-  std::vector<std::set<std::string> > varsnames(VERTICAL_DIMENSION_COUNT);
+  std::vector<std::set<std::string>> varsnames(VERTICAL_DIMENSION_COUNT);
   int nvars;
   int vars[NC_MAX_VARS];
   if (this->Internals->nc_err(nc_inq_varids(this->Internals->nc_points, &nvars, vars)))

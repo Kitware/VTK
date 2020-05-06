@@ -515,11 +515,11 @@ vtkMultiBlockPLOT3DReaderRecord::GetSubRecordSeparators(
 }
 
 //-----------------------------------------------------------------------------
-std::vector<std::pair<vtkTypeUInt64, vtkTypeUInt64> >
+std::vector<std::pair<vtkTypeUInt64, vtkTypeUInt64>>
 vtkMultiBlockPLOT3DReaderRecord::GetChunksToRead(
   vtkTypeUInt64 start, vtkTypeUInt64 length, const std::vector<vtkTypeUInt64>& markers)
 {
-  std::vector<std::pair<vtkTypeUInt64, vtkTypeUInt64> > chunks;
+  std::vector<std::pair<vtkTypeUInt64, vtkTypeUInt64>> chunks;
   for (size_t cc = 0; cc < markers.size(); ++cc)
   {
     if (start < markers[cc])

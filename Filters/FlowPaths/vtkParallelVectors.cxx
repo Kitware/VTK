@@ -117,7 +117,7 @@ bool fieldAlignmentPointForTriangle(const double v0[3], const double v1[3], cons
     return false;
   }
 
-  Eigen::EigenSolver<Eigen::Matrix<double, 3, 3> > eigensolver(M);
+  Eigen::EigenSolver<Eigen::Matrix<double, 3, 3>> eigensolver(M);
   Eigen::Matrix<std::complex<double>, 3, 3> eigenvectors = eigensolver.eigenvectors();
 
   for (int i = 0; i < 3; ++i)
@@ -331,7 +331,7 @@ struct PolyLineBuilder
   std::size_t MergeLimit;
 };
 
-bool surfaceTessellationForCell(vtkCell3D* cell, std::vector<std::array<vtkIdType, 3> >& triangles)
+bool surfaceTessellationForCell(vtkCell3D* cell, std::vector<std::array<vtkIdType, 3>>& triangles)
 {
   const vtkIdType* localPointIds;
 
@@ -538,7 +538,7 @@ int vtkParallelVectors::RequestData(
     polyLineBuilder.MergeLimit = static_cast<std::size_t>(std::cbrt(input->GetNumberOfCells()));
   }
 
-  std::vector<std::array<vtkIdType, 3> > surfaceTriangles;
+  std::vector<std::array<vtkIdType, 3>> surfaceTriangles;
 
   for (vtkIdType cellId = 0; cellId < input->GetNumberOfCells(); ++cellId)
   {

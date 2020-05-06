@@ -738,7 +738,7 @@ int vtkPSLACReader::ReadConnectivity(
     this->PInternal->EdgesToSendToProcessesOffsets = vtkSmartPointer<vtkIdTypeArray>::New();
     this->PInternal->EdgesToSendToProcessesOffsets->SetNumberOfTuples(this->NumberOfPieces);
 
-    std::vector<vtkSmartPointer<vtkIdTypeArray> > edgeLists(this->NumberOfPieces);
+    std::vector<vtkSmartPointer<vtkIdTypeArray>> edgeLists(this->NumberOfPieces);
     for (int process = 0; process < this->NumberOfPieces; process++)
     {
       edgeLists[process] = vtkSmartPointer<vtkIdTypeArray>::New();

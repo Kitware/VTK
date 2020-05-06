@@ -39,8 +39,7 @@ int ArraySparseArrayToTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   try
   {
-    vtkSmartPointer<vtkSparseArray<double> > array =
-      vtkSmartPointer<vtkSparseArray<double> >::New();
+    vtkSmartPointer<vtkSparseArray<double>> array = vtkSmartPointer<vtkSparseArray<double>>::New();
     array->Resize(10, 10, 10);
     array->SetDimensionLabel(0, "i");
     array->SetDimensionLabel(1, "j");

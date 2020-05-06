@@ -42,7 +42,7 @@ int TestCollection(int, char*[])
 }
 
 static bool IsEqualRange(
-  vtkCollection* collection, const std::vector<vtkSmartPointer<vtkIntArray> >& v)
+  vtkCollection* collection, const std::vector<vtkSmartPointer<vtkIntArray>>& v)
 {
   const auto range = vtk::Range(collection);
   if (range.size() != static_cast<int>(v.size()))
@@ -66,7 +66,7 @@ static bool IsEqualRange(
   return true;
 }
 
-static bool IsEqual(vtkCollection* collection, const std::vector<vtkSmartPointer<vtkIntArray> >& v)
+static bool IsEqual(vtkCollection* collection, const std::vector<vtkSmartPointer<vtkIntArray>>& v)
 {
   if (collection->GetNumberOfItems() != static_cast<int>(v.size()))
   {
@@ -111,7 +111,7 @@ bool TestRegister()
 bool TestRemoveItem(int index, bool removeIndex)
 {
   vtkNew<vtkCollection> collection;
-  std::vector<vtkSmartPointer<vtkIntArray> > objects;
+  std::vector<vtkSmartPointer<vtkIntArray>> objects;
   for (int i = 0; i < 10; ++i)
   {
     vtkNew<vtkIntArray> object;

@@ -228,13 +228,13 @@ bool vtkShadowMapBakerPass::LightCreatesShadow(vtkLight* l)
 }
 
 // ----------------------------------------------------------------------------
-std::vector<vtkSmartPointer<vtkTextureObject> >* vtkShadowMapBakerPass::GetShadowMaps()
+std::vector<vtkSmartPointer<vtkTextureObject>>* vtkShadowMapBakerPass::GetShadowMaps()
 {
   return this->ShadowMaps;
 }
 
 // ----------------------------------------------------------------------------
-std::vector<vtkSmartPointer<vtkCamera> >* vtkShadowMapBakerPass::GetLightCameras()
+std::vector<vtkSmartPointer<vtkCamera>>* vtkShadowMapBakerPass::GetLightCameras()
 {
   return this->LightCameras;
 }
@@ -411,7 +411,7 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState* s)
 
       if (this->ShadowMaps == nullptr)
       {
-        this->ShadowMaps = new std::vector<vtkSmartPointer<vtkTextureObject> >();
+        this->ShadowMaps = new std::vector<vtkSmartPointer<vtkTextureObject>>();
         this->ShadowMaps->resize(numberOfShadowLights);
       }
 
@@ -423,7 +423,7 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState* s)
 
       if (this->LightCameras == nullptr)
       {
-        this->LightCameras = new std::vector<vtkSmartPointer<vtkCamera> >();
+        this->LightCameras = new std::vector<vtkSmartPointer<vtkCamera>>();
         this->LightCameras->resize(numberOfShadowLights);
       }
 

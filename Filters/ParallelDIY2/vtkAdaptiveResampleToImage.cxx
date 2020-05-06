@@ -103,7 +103,7 @@ vtkSmartPointer<vtkIdList> get_ids(vtkDataSetAttributes* source, unsigned char g
   return ids->GetNumberOfIds() > 0 ? ids.GetPointer() : nullptr;
 }
 
-bool merge(vtkImageData* target, std::vector<vtkSmartPointer<vtkImageData> >& sources)
+bool merge(vtkImageData* target, std::vector<vtkSmartPointer<vtkImageData>>& sources)
 {
   if (sources.empty())
   {
@@ -221,13 +221,13 @@ int vtkAdaptiveResampleToImage::RequestData(
     /*dim*/ 1, diy::interval(0, assigner.nblocks() - 1), assigner.nblocks());
   decomposer.decompose(comm.rank(), assigner, master);
 
-  std::vector<std::vector<vtkSmartPointer<vtkImageData> > > resamples(boxes.size());
+  std::vector<std::vector<vtkSmartPointer<vtkImageData>>> resamples(boxes.size());
   vtkLogStartScope(TRACE, "local resample");
 
   const auto localBounds = vtkDIYUtilities::GetLocalBounds(inputDO);
   std::transform(boxes.begin(), boxes.end(), resamples.begin(),
     [&inputDO, &localBounds, this](const vtkBoundingBox& bbox) {
-      std::vector<vtkSmartPointer<vtkImageData> > retval;
+      std::vector<vtkSmartPointer<vtkImageData>> retval;
       vtkSmartPointer<vtkImageData> img =
         localBounds.Intersects(bbox) ? impl::resample(bbox, inputDO, this) : nullptr;
       if (img)

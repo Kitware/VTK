@@ -40,7 +40,7 @@ public:
    * ranks thus only rank 0 writes the data to disk.
    */
   static void Write(
-    int commRank, const char* fileName, const std::deque<std::deque<vtkPixelExtent> >& exts);
+    int commRank, const char* fileName, const std::deque<std::deque<vtkPixelExtent>>& exts);
 
   /**
    * Writes an extent for each MPI rank to disk as an

@@ -540,7 +540,7 @@ extern "C"
     // ...
     // Create command event handler
     Tcl_CreateCommand(interp, Tk_PathName(tkwin), vtkTkRenderWidget_Widget, (ClientData)self,
-      (void (*)(ClientData))nullptr);
+      (void (*)(ClientData)) nullptr);
     Tk_CreateEventHandler(
       tkwin, ExposureMask | StructureNotifyMask, vtkTkRenderWidget_EventProc, (ClientData)self);
 
@@ -1227,7 +1227,7 @@ static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget* self)
   }
 
   // If window already exists, return an error
-  if (renderWindow->GetWindowId() != (Window)nullptr)
+  if (renderWindow->GetWindowId() != (Window) nullptr)
   {
     return TCL_ERROR;
   }

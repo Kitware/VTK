@@ -60,7 +60,7 @@ protected:
   vtkRenderer* Renderer;
   vtkAreaPicker* Picker;
   vtkPolyDataMapper* Mapper;
-  std::map<int, std::vector<int> > BlockPrims;
+  std::map<int, std::vector<int>> BlockPrims;
 
 public:
   static PointPickCommand* New() { return new PointPickCommand; }
@@ -101,7 +101,7 @@ public:
     }
   }
 
-  std::map<int, std::vector<int> >& GetBlockPrims() { return this->BlockPrims; }
+  std::map<int, std::vector<int>>& GetBlockPrims() { return this->BlockPrims; }
 
   void SetMapper(vtkPolyDataMapper* m) { this->Mapper = m; }
 
@@ -176,7 +176,7 @@ int TestCompositePolyDataMapper2Picking(int argc, char* argv[])
   // build a composite dataset
   vtkNew<vtkMultiBlockDataSet> data;
   int blocksPerLevel[3] = { 1, 8, 16 };
-  std::vector<vtkSmartPointer<vtkMultiBlockDataSet> > blocks;
+  std::vector<vtkSmartPointer<vtkMultiBlockDataSet>> blocks;
   blocks.emplace_back(data.GetPointer());
   unsigned levelStart = 0;
   unsigned levelEnd = 1;
@@ -306,7 +306,7 @@ int TestCompositePolyDataMapper2Picking(int argc, char* argv[])
   }
 
   // Verify pick
-  std::map<int, std::vector<int> >& bPrims = com->GetBlockPrims();
+  std::map<int, std::vector<int>>& bPrims = com->GetBlockPrims();
   if (bPrims.find(48) == bPrims.end() ||
     std::find(bPrims[48].begin(), bPrims[48].end(), 14) == bPrims[48].end() ||
     bPrims.find(82) == bPrims.end() ||

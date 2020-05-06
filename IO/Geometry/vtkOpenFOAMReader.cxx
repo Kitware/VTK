@@ -2841,11 +2841,11 @@ public:
         assert("Label type not set!" && this->GetLabelType() != NO_LABEL_TYPE);
         if (this->LabelType == INT64)
         {
-          this->ReadNonuniformList<LABELLIST, listTraits<vtkTypeInt64Array, vtkTypeInt64> >(io);
+          this->ReadNonuniformList<LABELLIST, listTraits<vtkTypeInt64Array, vtkTypeInt64>>(io);
         }
         else
         {
-          this->ReadNonuniformList<LABELLIST, listTraits<vtkTypeInt32Array, vtkTypeInt32> >(io);
+          this->ReadNonuniformList<LABELLIST, listTraits<vtkTypeInt32Array, vtkTypeInt32>>(io);
         }
       }
       // lagrangian scalars
@@ -2854,23 +2854,23 @@ public:
       {
         if (io.GetUse64BitFloats())
         {
-          this->ReadNonuniformList<SCALARLIST, listTraits<vtkFloatArray, double> >(io);
+          this->ReadNonuniformList<SCALARLIST, listTraits<vtkFloatArray, double>>(io);
         }
         else
         {
-          this->ReadNonuniformList<SCALARLIST, listTraits<vtkFloatArray, float> >(io);
+          this->ReadNonuniformList<SCALARLIST, listTraits<vtkFloatArray, float>>(io);
         }
       }
       else if (io.GetClassName() == "sphericalTensorField")
       {
         if (io.GetUse64BitFloats())
         {
-          this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 1, false> >(
+          this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 1, false>>(
             io);
         }
         else
         {
-          this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, float, 1, false> >(
+          this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, float, 1, false>>(
             io);
         }
       }
@@ -2880,12 +2880,12 @@ public:
       {
         if (io.GetUse64BitFloats())
         {
-          this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 3, false> >(
+          this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 3, false>>(
             io);
         }
         else
         {
-          this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, float, 3, false> >(
+          this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, float, 3, false>>(
             io);
         }
       }
@@ -2893,12 +2893,12 @@ public:
       {
         if (io.GetUse64BitFloats())
         {
-          this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 6, false> >(
+          this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 6, false>>(
             io);
         }
         else
         {
-          this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, float, 6, false> >(
+          this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, float, 6, false>>(
             io);
         }
       }
@@ -2906,12 +2906,12 @@ public:
       {
         if (io.GetUse64BitFloats())
         {
-          this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 9, false> >(
+          this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 9, false>>(
             io);
         }
         else
         {
-          this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, float, 9, false> >(
+          this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, float, 9, false>>(
             io);
         }
       }
@@ -3945,59 +3945,55 @@ int vtkFoamEntryValue::Read(vtkFoamIOobject& io)
     {
       if (io.GetUse64BitFloats())
       {
-        this->ReadNonuniformList<SCALARLIST, listTraits<vtkFloatArray, double> >(io);
+        this->ReadNonuniformList<SCALARLIST, listTraits<vtkFloatArray, double>>(io);
       }
       else
       {
-        this->ReadNonuniformList<SCALARLIST, listTraits<vtkFloatArray, float> >(io);
+        this->ReadNonuniformList<SCALARLIST, listTraits<vtkFloatArray, float>>(io);
       }
     }
     else if (currToken == "List<sphericalTensor>")
     {
       if (io.GetUse64BitFloats())
       {
-        this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 1, false> >(
-          io);
+        this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 1, false>>(io);
       }
       else
       {
-        this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, float, 1, false> >(io);
+        this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, float, 1, false>>(io);
       }
     }
     else if (currToken == "List<vector>")
     {
       if (io.GetUse64BitFloats())
       {
-        this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 3, false> >(
-          io);
+        this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 3, false>>(io);
       }
       else
       {
-        this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, float, 3, false> >(io);
+        this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, float, 3, false>>(io);
       }
     }
     else if (currToken == "List<symmTensor>")
     {
       if (io.GetUse64BitFloats())
       {
-        this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 6, false> >(
-          io);
+        this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 6, false>>(io);
       }
       else
       {
-        this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, float, 6, false> >(io);
+        this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, float, 6, false>>(io);
       }
     }
     else if (currToken == "List<tensor>")
     {
       if (io.GetUse64BitFloats())
       {
-        this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 9, false> >(
-          io);
+        this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 9, false>>(io);
       }
       else
       {
-        this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, float, 9, false> >(io);
+        this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, float, 9, false>>(io);
       }
     }
     // List<bool> may or may not be read as List<label>,
@@ -4007,11 +4003,11 @@ int vtkFoamEntryValue::Read(vtkFoamIOobject& io)
       assert("Label type not set!" && this->GetLabelType() != NO_LABEL_TYPE);
       if (this->LabelType == INT64)
       {
-        this->ReadNonuniformList<LABELLIST, listTraits<vtkTypeInt64Array, vtkTypeInt64> >(io);
+        this->ReadNonuniformList<LABELLIST, listTraits<vtkTypeInt64Array, vtkTypeInt64>>(io);
       }
       else
       {
-        this->ReadNonuniformList<LABELLIST, listTraits<vtkTypeInt32Array, vtkTypeInt32> >(io);
+        this->ReadNonuniformList<LABELLIST, listTraits<vtkTypeInt32Array, vtkTypeInt32>>(io);
       }
     }
     // an empty list doesn't have a list type specifier
@@ -4041,11 +4037,11 @@ int vtkFoamEntryValue::Read(vtkFoamIOobject& io)
     this->IsUniform = false;
     if (io.GetUse64BitFloats())
     {
-      this->ReadNonuniformList<SCALARLIST, listTraits<vtkFloatArray, double> >(io);
+      this->ReadNonuniformList<SCALARLIST, listTraits<vtkFloatArray, double>>(io);
     }
     else
     {
-      this->ReadNonuniformList<SCALARLIST, listTraits<vtkFloatArray, float> >(io);
+      this->ReadNonuniformList<SCALARLIST, listTraits<vtkFloatArray, float>>(io);
     }
   }
   // zones have list without a uniform/nonuniform keyword
@@ -4055,11 +4051,11 @@ int vtkFoamEntryValue::Read(vtkFoamIOobject& io)
     assert("Label type not set!" && this->GetLabelType() != NO_LABEL_TYPE);
     if (this->LabelType == INT64)
     {
-      this->ReadNonuniformList<LABELLIST, listTraits<vtkTypeInt64Array, vtkTypeInt64> >(io);
+      this->ReadNonuniformList<LABELLIST, listTraits<vtkTypeInt64Array, vtkTypeInt64>>(io);
     }
     else
     {
-      this->ReadNonuniformList<LABELLIST, listTraits<vtkTypeInt32Array, vtkTypeInt32> >(io);
+      this->ReadNonuniformList<LABELLIST, listTraits<vtkTypeInt32Array, vtkTypeInt32>>(io);
     }
   }
   else if (currToken == "List<bool>")
@@ -4067,7 +4063,7 @@ int vtkFoamEntryValue::Read(vtkFoamIOobject& io)
     // List<bool> is read as a list of bytes (binary) or ints (ascii)
     // - primary location is the flipMap entry in faceZones
     this->IsUniform = false;
-    this->ReadNonuniformList<BOOLLIST, listTraits<vtkCharArray, char> >(io);
+    this->ReadNonuniformList<BOOLLIST, listTraits<vtkCharArray, char>>(io);
   }
   else if (currToken.GetType() == this->Superclass::PUNCTUATION ||
     currToken.GetType() == this->Superclass::LABEL ||
@@ -5133,12 +5129,12 @@ vtkFloatArray* vtkOpenFOAMReaderPrivate::ReadPointsFile()
     if (io.GetUse64BitFloats())
     {
       dict.ReadNonuniformList<vtkFoamToken::VECTORLIST,
-        vtkFoamEntryValue::vectorListTraits<vtkFloatArray, double, 3, false> >(io);
+        vtkFoamEntryValue::vectorListTraits<vtkFloatArray, double, 3, false>>(io);
     }
     else
     {
       dict.ReadNonuniformList<vtkFoamToken::VECTORLIST,
-        vtkFoamEntryValue::vectorListTraits<vtkFloatArray, float, 3, false> >(io);
+        vtkFoamEntryValue::vectorListTraits<vtkFloatArray, float, 3, false>>(io);
     }
 
     pointArray = static_cast<vtkFloatArray*>(dict.Ptr());
@@ -5214,12 +5210,12 @@ vtkFoamLabelVectorVector* vtkOpenFOAMReaderPrivate::ReadOwnerNeighborFiles(
       if (use64BitLabels)
       {
         ownerDict.ReadNonuniformList<vtkFoamEntryValue::LABELLIST,
-          vtkFoamEntryValue::listTraits<vtkTypeInt64Array, vtkTypeInt64> >(io);
+          vtkFoamEntryValue::listTraits<vtkTypeInt64Array, vtkTypeInt64>>(io);
       }
       else
       {
         ownerDict.ReadNonuniformList<vtkFoamEntryValue::LABELLIST,
-          vtkFoamEntryValue::listTraits<vtkTypeInt32Array, vtkTypeInt32> >(io);
+          vtkFoamEntryValue::listTraits<vtkTypeInt32Array, vtkTypeInt32>>(io);
       }
     }
     catch (vtkFoamError& e)
@@ -5246,12 +5242,12 @@ vtkFoamLabelVectorVector* vtkOpenFOAMReaderPrivate::ReadOwnerNeighborFiles(
       if (use64BitLabels)
       {
         neighborDict.ReadNonuniformList<vtkFoamEntryValue::LABELLIST,
-          vtkFoamEntryValue::listTraits<vtkTypeInt64Array, vtkTypeInt64> >(io);
+          vtkFoamEntryValue::listTraits<vtkTypeInt64Array, vtkTypeInt64>>(io);
       }
       else
       {
         neighborDict.ReadNonuniformList<vtkFoamEntryValue::LABELLIST,
-          vtkFoamEntryValue::listTraits<vtkTypeInt32Array, vtkTypeInt32> >(io);
+          vtkFoamEntryValue::listTraits<vtkTypeInt32Array, vtkTypeInt32>>(io);
       }
     }
     catch (vtkFoamError& e)
@@ -6639,7 +6635,7 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
   }
 
   vtkTypeInt64 nAllBoundaryPoints = 0;
-  std::vector<std::vector<vtkIdType> > procCellList;
+  std::vector<std::vector<vtkIdType>> procCellList;
   vtkIntArray* pointTypes = nullptr;
 
   if (this->Parent->GetCreateCellToPoint())
@@ -7891,12 +7887,12 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeLagrangianMesh()
       if (io.GetUse64BitFloats())
       {
         dict.ReadNonuniformList<vtkFoamToken::VECTORLIST,
-          vtkFoamEntryValue::vectorListTraits<vtkFloatArray, double, 3, true> >(io);
+          vtkFoamEntryValue::vectorListTraits<vtkFloatArray, double, 3, true>>(io);
       }
       else
       {
         dict.ReadNonuniformList<vtkFoamToken::VECTORLIST,
-          vtkFoamEntryValue::vectorListTraits<vtkFloatArray, float, 3, true> >(io);
+          vtkFoamEntryValue::vectorListTraits<vtkFloatArray, float, 3, true>>(io);
       }
     }
     catch (vtkFoamError& e)

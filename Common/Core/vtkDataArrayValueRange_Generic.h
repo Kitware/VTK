@@ -83,7 +83,7 @@ struct IdStorage
 
   VTK_ITER_INLINE
   IdStorage(TupleIdType tupleId, ComponentIdType comp, NumCompsType numComps) noexcept
-    : ValueId(tupleId* numComps.value + comp)
+    : ValueId(tupleId * numComps.value + comp)
     , TupleId(tupleId)
     , ComponentId(comp)
     , NumComps(numComps)
@@ -467,8 +467,8 @@ public:
     lhs = newVal;                                                                                  \
     return lhs;                                                                                    \
   }                                                                                                \
-  friend VTK_ITER_INLINE ValueReference operator Op(ValueReference lhs, ValueReference val)        \
-    noexcept                                                                                       \
+  friend VTK_ITER_INLINE ValueReference operator Op(                                               \
+    ValueReference lhs, ValueReference val) noexcept                                               \
   {                                                                                                \
     const APIType newVal = lhs ImplOp val;                                                         \
     lhs = newVal;                                                                                  \
@@ -508,7 +508,7 @@ template <typename ArrayType, ComponentIdType TupleSize>
 struct ConstValueIterator
   : public std::iterator<std::random_access_iterator_tag, GetAPIType<ArrayType>, ValueIdType,
       // expected types don't have members, no op->().
-      void, ConstValueReference<ArrayType, TupleSize> >
+      void, ConstValueReference<ArrayType, TupleSize>>
 {
 private:
   static_assert(IsValidTupleSize<TupleSize>::value, "Invalid tuple size.");
@@ -517,7 +517,7 @@ private:
   using APIType = GetAPIType<ArrayType>;
   using IdStorageType = IdStorage<TupleSize>;
   using Superclass = std::iterator<std::random_access_iterator_tag, APIType, ValueIdType, void,
-    ConstValueReference<ArrayType, TupleSize> >;
+    ConstValueReference<ArrayType, TupleSize>>;
 
 public:
   using iterator_category = typename Superclass::iterator_category;
@@ -673,7 +673,7 @@ private:
 template <typename ArrayType, ComponentIdType TupleSize>
 struct ValueIterator
   : public std::iterator<std::random_access_iterator_tag, vtk::GetAPIType<ArrayType>, ValueIdType,
-      ValueReference<ArrayType, TupleSize>, ValueReference<ArrayType, TupleSize> >
+      ValueReference<ArrayType, TupleSize>, ValueReference<ArrayType, TupleSize>>
 {
 private:
   static_assert(IsValidTupleSize<TupleSize>::value, "Invalid tuple size.");
@@ -682,7 +682,7 @@ private:
   using APIType = GetAPIType<ArrayType>;
   using IdStorageType = IdStorage<TupleSize>;
   using Superclass = std::iterator<std::random_access_iterator_tag, GetAPIType<ArrayType>,
-    ValueIdType, ValueReference<ArrayType, TupleSize>, ValueReference<ArrayType, TupleSize> >;
+    ValueIdType, ValueReference<ArrayType, TupleSize>, ValueReference<ArrayType, TupleSize>>;
 
 public:
   using iterator_category = typename Superclass::iterator_category;
@@ -695,7 +695,8 @@ public:
   ValueIterator() noexcept = default;
 
   VTK_ITER_INLINE
-  ValueIterator(ArrayType* array, IdStorageType id) noexcept : Ref{ array, id }
+  ValueIterator(ArrayType* array, IdStorageType id) noexcept
+    : Ref{ array, id }
   {
     this->DebugIdAsserts();
   }
@@ -756,8 +757,8 @@ public:
   const pointer& operator->() const noexcept { return this->Ref; }
 
 #define VTK_TMP_MAKE_OPERATOR(OP)                                                                  \
-  friend VTK_ITER_INLINE bool operator OP(const ValueIterator& lhs, const ValueIterator& rhs)      \
-    noexcept                                                                                       \
+  friend VTK_ITER_INLINE bool operator OP(                                                         \
+    const ValueIterator& lhs, const ValueIterator& rhs) noexcept                                   \
   {                                                                                                \
     VTK_ITER_ASSERT(                                                                               \
       lhs.GetArray() == rhs.GetArray(), "Mismatched arrays in iterator comparison.");              \

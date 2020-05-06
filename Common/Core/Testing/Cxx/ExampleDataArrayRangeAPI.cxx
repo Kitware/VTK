@@ -572,7 +572,7 @@ int ExampleDataArrayRangeAPI(int, char*[])
     std::iota(range.begin(), range.end(), 0.f);
   }
 
-  vtkNew<vtkSOADataArrayTemplate<float> > soaArray;
+  vtkNew<vtkSOADataArrayTemplate<float>> soaArray;
   soaArray->DeepCopy(aosArray);
 
   // Some vtkDataArray pointers to show that these ranges work with the generic

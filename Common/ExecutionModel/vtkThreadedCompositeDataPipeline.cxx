@@ -214,7 +214,7 @@ void vtkThreadedCompositeDataPipeline::PrintSelf(ostream& os, vtkIndent indent)
 void vtkThreadedCompositeDataPipeline::ExecuteEach(vtkCompositeDataIterator* iter,
   vtkInformationVector** inInfoVec, vtkInformationVector* outInfoVec, int compositePort,
   int connection, vtkInformation* request,
-  std::vector<vtkSmartPointer<vtkCompositeDataSet> >& compositeOutput)
+  std::vector<vtkSmartPointer<vtkCompositeDataSet>>& compositeOutput)
 {
   // from input data objects  itr -> (inObjs, indices)
   // inObjs are the non-null objects that we will loop over.

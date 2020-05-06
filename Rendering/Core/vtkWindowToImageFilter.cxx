@@ -44,8 +44,8 @@ public:
   vtkCollection* Coord1s;
   vtkCollection* Coord2s;
   // Store the display coords for adjustment during tiling
-  std::vector<std::pair<int, int> > Coords1;
-  std::vector<std::pair<int, int> > Coords2;
+  std::vector<std::pair<int, int>> Coords1;
+  std::vector<std::pair<int, int>> Coords2;
   //
   vtkWTI2DHelperClass()
   {

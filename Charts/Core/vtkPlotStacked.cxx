@@ -472,7 +472,7 @@ public:
   {
     int colorInSeries = 0;
     bool useColorSeries = this->Segments.size() > 1;
-    for (std::vector<vtkSmartPointer<vtkPlotStackedSegment> >::iterator it = this->Segments.begin();
+    for (std::vector<vtkSmartPointer<vtkPlotStackedSegment>>::iterator it = this->Segments.begin();
          it != this->Segments.end(); ++it)
     {
       if (useColorSeries && colorSeries)
@@ -486,7 +486,7 @@ public:
     // Depends on the fact that we check the segments in order. Each
     // Segment only worrys about its own total extent from the base.
     int index = 0;
-    for (std::vector<vtkSmartPointer<vtkPlotStackedSegment> >::iterator it = this->Segments.begin();
+    for (std::vector<vtkSmartPointer<vtkPlotStackedSegment>>::iterator it = this->Segments.begin();
          it != this->Segments.end(); ++it)
     {
       if ((*it)->GetNearestPoint(point, tol, location))
@@ -503,7 +503,7 @@ public:
     // Depends on the fact that we check the segments in order. Each
     // Segment only worrys about its own total extent from the base.
     double segment_bounds[4];
-    for (std::vector<vtkSmartPointer<vtkPlotStackedSegment> >::iterator it = this->Segments.begin();
+    for (std::vector<vtkSmartPointer<vtkPlotStackedSegment>>::iterator it = this->Segments.begin();
          it != this->Segments.end(); ++it)
     {
       (*it)->GetBounds(segment_bounds);
@@ -528,14 +528,14 @@ public:
 
   void SelectPoints(const vtkVector2f& min, const vtkVector2f& max, vtkIdTypeArray* selection)
   {
-    for (std::vector<vtkSmartPointer<vtkPlotStackedSegment> >::iterator it = this->Segments.begin();
+    for (std::vector<vtkSmartPointer<vtkPlotStackedSegment>>::iterator it = this->Segments.begin();
          it != this->Segments.end(); ++it)
     {
       (*it)->SelectPoints(min, max, selection);
     }
   }
 
-  std::vector<vtkSmartPointer<vtkPlotStackedSegment> > Segments;
+  std::vector<vtkSmartPointer<vtkPlotStackedSegment>> Segments;
   vtkPlotStacked* Stacked;
   std::map<int, std::string> AdditionalSeries;
   double UnscaledInputBounds[4];

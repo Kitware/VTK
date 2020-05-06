@@ -43,7 +43,7 @@ using Position = struct Position_t;
 
 typedef std::vector<Position> CoordList;
 typedef std::vector<vtkIdType> IdList;
-typedef std::vector<vtkSmartPointer<vtkAbstractArray> > FieldList;
+typedef std::vector<vtkSmartPointer<vtkAbstractArray>> FieldList;
 
 class ParticleTrail : public vtkObject
 {

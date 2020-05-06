@@ -199,7 +199,7 @@ void vtkDICOMImageReader::ExecuteInformation()
       vtkDebugMacro(<< "Slice number : " << this->AppHelper->GetSliceNumber());
     }
 
-    std::vector<std::pair<float, std::string> > sortedFiles;
+    std::vector<std::pair<float, std::string>> sortedFiles;
 
     this->AppHelper->GetImagePositionPatientFilenamePairs(sortedFiles, false);
     this->SetupOutputInformation(static_cast<int>(sortedFiles.size()));
@@ -209,7 +209,7 @@ void vtkDICOMImageReader::ExecuteInformation()
     if (!sortedFiles.empty())
     {
       this->DICOMFileNames->clear();
-      std::vector<std::pair<float, std::string> >::iterator siter;
+      std::vector<std::pair<float, std::string>>::iterator siter;
       for (siter = sortedFiles.begin(); siter != sortedFiles.end(); ++siter)
       {
         vtkDebugMacro(<< "Sorted filename : " << (*siter).second.c_str());
@@ -429,7 +429,7 @@ void vtkDICOMImageReader::SetDirectoryName(const char* dn)
 //----------------------------------------------------------------------------
 double* vtkDICOMImageReader::GetPixelSpacing()
 {
-  std::vector<std::pair<float, std::string> > sortedFiles;
+  std::vector<std::pair<float, std::string>> sortedFiles;
 
   this->AppHelper->GetImagePositionPatientFilenamePairs(sortedFiles, false);
 

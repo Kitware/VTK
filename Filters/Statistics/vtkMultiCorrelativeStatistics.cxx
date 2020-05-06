@@ -300,9 +300,9 @@ void vtkMultiCorrelativeStatistics::Learn(
   sparseCov->AddColumn(col3);
   col3->Delete();
 
-  std::set<std::set<vtkStdString> >::const_iterator reqIt;
+  std::set<std::set<vtkStdString>>::const_iterator reqIt;
   std::set<vtkStdString>::const_iterator colIt;
-  std::set<std::pair<vtkStdString, vtkDataArray*> > allColumns;
+  std::set<std::pair<vtkStdString, vtkDataArray*>> allColumns;
   std::map<std::pair<vtkIdType, vtkIdType>, vtkIdType> colPairs;
   std::map<std::pair<vtkIdType, vtkIdType>, vtkIdType>::iterator cpIt;
   std::map<vtkStdString, vtkIdType> colNameToIdx;
@@ -327,7 +327,7 @@ void vtkMultiCorrelativeStatistics::Learn(
   // Now make a map from input column name to output column index (colNameToIdx):
   vtkIdType i = 0;
   vtkIdType m = static_cast<vtkIdType>(allColumns.size());
-  std::set<std::pair<vtkStdString, vtkDataArray*> >::const_iterator acIt;
+  std::set<std::pair<vtkStdString, vtkDataArray*>>::const_iterator acIt;
   vtkStdString empty;
   col1->InsertNextValue("Cardinality");
   col2->InsertNextValue(empty);
@@ -538,7 +538,7 @@ void vtkMultiCorrelativeStatistics::Derive(vtkMultiBlockDataSet* outMeta)
     return;
   }
 
-  std::set<std::set<vtkStdString> >::const_iterator reqIt;
+  std::set<std::set<vtkStdString>>::const_iterator reqIt;
   std::set<vtkStdString>::const_iterator colIt;
   std::map<std::pair<vtkIdType, vtkIdType>, vtkIdType> colPairs;
   std::map<vtkStdString, vtkIdType> colNameToIdx;

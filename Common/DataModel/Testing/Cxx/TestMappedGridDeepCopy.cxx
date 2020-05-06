@@ -271,10 +271,10 @@ void MappedGridImpl::ReplaceCell(
 }
 
 class MappedGrid
-  : public vtkMappedUnstructuredGrid<MappedGridImpl, MappedCellIterator<MappedGridImpl> >
+  : public vtkMappedUnstructuredGrid<MappedGridImpl, MappedCellIterator<MappedGridImpl>>
 {
 public:
-  typedef vtkMappedUnstructuredGrid<MappedGridImpl, MappedCellIterator<MappedGridImpl> > _myBase;
+  typedef vtkMappedUnstructuredGrid<MappedGridImpl, MappedCellIterator<MappedGridImpl>> _myBase;
 
   int GetDataObjectType() override { return VTK_UNSTRUCTURED_GRID_BASE; }
 

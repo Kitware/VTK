@@ -90,8 +90,8 @@ void PNGReadCallback(png_structp pngPtr, png_bytep output, png_size_t length)
 class vtkPNGReader::vtkInternals
 {
 public:
-  std::vector<std::pair<std::string, std::string> > TextKeyValue;
-  typedef std::vector<std::pair<std::string, std::string> >::iterator TextKeyValueIterator;
+  std::vector<std::pair<std::string, std::string>> TextKeyValue;
+  typedef std::vector<std::pair<std::string, std::string>>::iterator TextKeyValueIterator;
   void ReadTextChunks(png_structp png_ptr, png_infop info_ptr)
   {
     png_textp text_ptr;
@@ -162,7 +162,7 @@ public:
 
   bool CreateLibPngStructs(png_structp& pngPtr, png_infop& infoPtr, png_infop& endInfo)
   {
-    pngPtr = png_create_read_struct(PNG_LIBPNG_VER_STRING, (png_voidp)nullptr, nullptr, nullptr);
+    pngPtr = png_create_read_struct(PNG_LIBPNG_VER_STRING, (png_voidp) nullptr, nullptr, nullptr);
     if (!pngPtr)
     {
       vtkErrorWithObjectMacro(nullptr, "Out of memory.");
@@ -171,14 +171,14 @@ public:
     infoPtr = png_create_info_struct(pngPtr);
     if (!infoPtr)
     {
-      png_destroy_read_struct(&pngPtr, (png_infopp)nullptr, (png_infopp)nullptr);
+      png_destroy_read_struct(&pngPtr, (png_infopp) nullptr, (png_infopp) nullptr);
       vtkErrorWithObjectMacro(nullptr, "Out of memory.");
       return false;
     }
     endInfo = png_create_info_struct(pngPtr);
     if (!endInfo)
     {
-      png_destroy_read_struct(&pngPtr, &infoPtr, (png_infopp)nullptr);
+      png_destroy_read_struct(&pngPtr, &infoPtr, (png_infopp) nullptr);
       vtkErrorWithObjectMacro(nullptr, "Unable to read PNG file!");
       return false;
     }
@@ -210,7 +210,7 @@ public:
   {
     if (setjmp(png_jmpbuf(pngPtr)))
     {
-      png_destroy_read_struct(&pngPtr, &infoPtr, (png_infopp)nullptr);
+      png_destroy_read_struct(&pngPtr, &infoPtr, (png_infopp) nullptr);
       if (fp)
       {
         fclose(fp);
@@ -563,7 +563,7 @@ int vtkPNGReader::CanReadFile(const char* fname)
     return 0;
   }
   png_structp png_ptr =
-    png_create_read_struct(PNG_LIBPNG_VER_STRING, (png_voidp)nullptr, nullptr, nullptr);
+    png_create_read_struct(PNG_LIBPNG_VER_STRING, (png_voidp) nullptr, nullptr, nullptr);
   if (!png_ptr)
   {
     fclose(fp);
@@ -573,7 +573,7 @@ int vtkPNGReader::CanReadFile(const char* fname)
   png_infop info_ptr = png_create_info_struct(png_ptr);
   if (!info_ptr)
   {
-    png_destroy_read_struct(&png_ptr, (png_infopp)nullptr, (png_infopp)nullptr);
+    png_destroy_read_struct(&png_ptr, (png_infopp) nullptr, (png_infopp) nullptr);
     fclose(fp);
     return 0;
   }
@@ -581,7 +581,7 @@ int vtkPNGReader::CanReadFile(const char* fname)
   png_infop end_info = png_create_info_struct(png_ptr);
   if (!end_info)
   {
-    png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)nullptr);
+    png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp) nullptr);
     fclose(fp);
     return 0;
   }

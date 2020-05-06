@@ -499,8 +499,8 @@ void ProcessFastPath(vtkIdType numCells, vtkPoints* inPts, CellIter* cellIter, T
 template <typename IDType, typename TS>
 struct ExtractEdgesBase
 {
-  typedef std::vector<EdgeTuple<IDType, float> > EdgeVectorType;
-  typedef std::vector<MergeTuple<IDType, float> > MergeVectorType;
+  typedef std::vector<EdgeTuple<IDType, float>> EdgeVectorType;
+  typedef std::vector<MergeTuple<IDType, float>> MergeVectorType;
 
   // Track local data on a per-thread basis. In the Reduce() method this
   // information will be used to composite the data from each thread.

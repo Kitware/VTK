@@ -127,7 +127,7 @@ int vtkSplitByCellScalarFilter::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   vtkSmartPointer<vtkIdList> newCellPts = vtkSmartPointer<vtkIdList>::New();
-  std::vector<std::map<vtkIdType, vtkIdType> > pointMaps(nbBlocks);
+  std::vector<std::map<vtkIdType, vtkIdType>> pointMaps(nbBlocks);
 
   int abortExecute = this->GetAbortExecute();
   vtkIdType progressInterval = nbCells / 100;

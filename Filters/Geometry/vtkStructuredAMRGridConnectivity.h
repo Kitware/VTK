@@ -506,19 +506,19 @@ protected:
                            // level.
 
   // AMRHierarchy stores the set of grid Ids in [0,N] for each level
-  std::map<int, std::set<int> > AMRHierarchy;
+  std::map<int, std::set<int>> AMRHierarchy;
 
   // For each grid, [0,N] store the grid extents,level, and list of neighbors
   std::vector<int> GridExtents;             // size of this vector is 6*N
   std::vector<int> GhostedExtents;          // size of this vector is 6*N
   std::vector<unsigned char> BlockTopology; // size of this vector is N
   std::vector<int> GridLevels;              // size of this vector is N
-  std::vector<std::vector<vtkStructuredAMRNeighbor> > Neighbors;
+  std::vector<std::vector<vtkStructuredAMRNeighbor>> Neighbors;
 
   // For each grid, [0,N], store the donor level,grid and cell information, a
   // DonorLevel of -1 indicates that the cell is not receiving any information
   // from a donor.
-  std::vector<std::vector<int> > CellCenteredDonorLevel;
+  std::vector<std::vector<int>> CellCenteredDonorLevel;
 
   // RefinementRatios stores the refinement ratio at each level, this vector
   // is used only when the refinement ratio varies across levels

@@ -157,7 +157,7 @@ protected:
 
   virtual void ExecuteEach(vtkCompositeDataIterator* iter, vtkInformationVector** inInfoVec,
     vtkInformationVector* outInfoVec, int compositePort, int connection, vtkInformation* request,
-    std::vector<vtkSmartPointer<vtkCompositeDataSet> >& compositeOutput);
+    std::vector<vtkSmartPointer<vtkCompositeDataSet>>& compositeOutput);
 
   std::vector<vtkDataObject*> ExecuteSimpleAlgorithmForBlock(vtkInformationVector** inInfoVec,
     vtkInformationVector* outInfoVec, vtkInformation* inInfo, vtkInformation* request,
@@ -183,7 +183,7 @@ protected:
    * vtkUniformGrid given vtkUniformGrid inputs) or if it should be downgraded
    * to a vtkMultiBlockDataSet.
    */
-  std::vector<vtkSmartPointer<vtkDataObject> > CreateOutputCompositeDataSet(
+  std::vector<vtkSmartPointer<vtkDataObject>> CreateOutputCompositeDataSet(
     vtkCompositeDataSet* input, int compositePort, int numOutputPorts);
 
   // Override this to handle UPDATE_COMPOSITE_INDICES().

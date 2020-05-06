@@ -73,7 +73,7 @@ public:
   QList<VTKClassInfo> ClassInfo;
   QList<vtkObjectBase*> ObjectsToProcess;
   QHash<vtkObjectBase*, VTKClassInfo*> ObjectMap;
-  QHash<QString, QPointer<ReferenceCountModel> > ReferenceModels;
+  QHash<QString, QPointer<ReferenceCountModel>> ReferenceModels;
 };
 
 //-----------------------------------------------------------------------------

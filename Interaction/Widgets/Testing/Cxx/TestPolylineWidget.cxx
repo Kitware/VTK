@@ -168,7 +168,7 @@ MouseMoveEvent 205 8 4 0 0 Alt_L
 KeyReleaseEvent 205 8 4 0 1 Alt_L
 )";
 
-int TestPolylineWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestPolylineWidget(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   vtkNew<vtkRenderer> renderer;
   renderer->ResetCamera(0.0, 1.0, 0.0, 1.0, 0.0, 0.0);

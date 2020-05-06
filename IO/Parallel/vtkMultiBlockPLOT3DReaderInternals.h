@@ -47,7 +47,7 @@ struct vtkMultiBlockPLOT3DReaderInternals
   };
 
   std::vector<Dims> Dimensions;
-  std::vector<vtkSmartPointer<vtkStructuredGrid> > Blocks;
+  std::vector<vtkSmartPointer<vtkStructuredGrid>> Blocks;
 
   struct InternalSettings
   {
@@ -180,7 +180,7 @@ public:
   // When reading between file offsets \c start and  \c (start + length) from the file, if it has
   // any sub-record separators, this method splits the read into chunks so that it skips the
   // sub-record separators. The returned value is a vector of pairs (offset, length-in-bytes).
-  static std::vector<std::pair<vtkTypeUInt64, vtkTypeUInt64> > GetChunksToRead(
+  static std::vector<std::pair<vtkTypeUInt64, vtkTypeUInt64>> GetChunksToRead(
     vtkTypeUInt64 start, vtkTypeUInt64 length, const std::vector<vtkTypeUInt64>& markers);
 
   // Description:
@@ -190,7 +190,7 @@ public:
   // length.
   vtkTypeUInt64 GetLengthWithSeparators(vtkTypeUInt64 start, vtkTypeUInt64 length) const;
 
-  std::vector<std::pair<vtkTypeUInt64, vtkTypeUInt64> > GetChunksToRead(
+  std::vector<std::pair<vtkTypeUInt64, vtkTypeUInt64>> GetChunksToRead(
     vtkTypeUInt64 start, vtkTypeUInt64 length) const
   {
     return this->GetChunksToRead(start, length, this->GetSubRecordSeparators(start, length));

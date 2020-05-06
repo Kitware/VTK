@@ -73,7 +73,7 @@ int TestOSPRayCompositePolyDataMapper2(int argc, char* argv[])
   vtkNew<vtkMultiBlockDataSet> data;
   //  int blocksPerLevel[3] = {1,64,256};
   int blocksPerLevel[3] = { 1, 16, 32 };
-  std::vector<vtkSmartPointer<vtkMultiBlockDataSet> > blocks;
+  std::vector<vtkSmartPointer<vtkMultiBlockDataSet>> blocks;
   blocks.push_back(data);
   unsigned levelStart = 0;
   unsigned levelEnd = 1;

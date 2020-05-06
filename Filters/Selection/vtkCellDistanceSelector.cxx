@@ -116,7 +116,7 @@ int vtkCellDistanceSelector::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
-  std::map<int, std::vector<vtkSelectionNode*> > partSelections;
+  std::map<int, std::vector<vtkSelectionNode*>> partSelections;
   int nSelNodes = inputSelection->GetNumberOfNodes();
   for (int i = 0; i < nSelNodes; ++i)
   {

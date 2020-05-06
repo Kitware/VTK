@@ -109,7 +109,7 @@ private:
 
   size_t Size;
 
-  std::map<double, std::shared_ptr<T> > Contents;
+  std::map<double, std::shared_ptr<T>> Contents;
 };
 
 class vtkOSPRayCacheItemObject

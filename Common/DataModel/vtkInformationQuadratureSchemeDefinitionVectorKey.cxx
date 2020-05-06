@@ -32,10 +32,10 @@ public:
     this->Vector.resize(VTK_NUMBER_OF_CELL_TYPES);
   }
   // Accessor.
-  std::vector<vtkSmartPointer<vtkQuadratureSchemeDefinition> >& GetVector() { return this->Vector; }
+  std::vector<vtkSmartPointer<vtkQuadratureSchemeDefinition>>& GetVector() { return this->Vector; }
 
 private:
-  std::vector<vtkSmartPointer<vtkQuadratureSchemeDefinition> > Vector;
+  std::vector<vtkSmartPointer<vtkQuadratureSchemeDefinition>> Vector;
 };
 
 //============================================================================

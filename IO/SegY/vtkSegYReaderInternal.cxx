@@ -150,7 +150,7 @@ bool vtkSegYReaderInternal::Is3DComputeParameters(
   // look at all the traces and compute the set of inline
   // and crossline indicies
   std::set<int> crossLines;
-  std::map<int, std::array<double, 3> > crossCoordinates;
+  std::map<int, std::array<double, 3>> crossCoordinates;
   std::set<int> inLines;
   int basisPointCount = 0;
   double basisCoords[3][3];

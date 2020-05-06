@@ -41,10 +41,10 @@ vtkCxxSetObjectMacro(vtkTexturedButtonRepresentation, HoveringProperty, vtkPrope
 vtkCxxSetObjectMacro(vtkTexturedButtonRepresentation, SelectingProperty, vtkProperty);
 
 // Map of textures
-class vtkTextureArray : public std::map<int, vtkSmartPointer<vtkImageData> >
+class vtkTextureArray : public std::map<int, vtkSmartPointer<vtkImageData>>
 {
 };
-typedef std::map<int, vtkSmartPointer<vtkImageData> >::iterator vtkTextureArrayIterator;
+typedef std::map<int, vtkSmartPointer<vtkImageData>>::iterator vtkTextureArrayIterator;
 
 //----------------------------------------------------------------------
 vtkTexturedButtonRepresentation::vtkTexturedButtonRepresentation()

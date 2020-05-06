@@ -81,7 +81,7 @@ void betweenness_centrality_clustering(MutableGraph& g, Done done,
     return;
 
   // Function object that compares the centrality of edges
-  indirect_cmp<EdgeCentralityMap, std::less<centrality_type> > cmp(edge_centrality);
+  indirect_cmp<EdgeCentralityMap, std::less<centrality_type>> cmp(edge_centrality);
 
   bool is_done;
   do

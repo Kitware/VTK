@@ -29,7 +29,7 @@ vtkCxxSetObjectMacro(
   vtkCellLocatorInterpolatedVelocityField, CellLocatorPrototype, vtkAbstractCellLocator);
 
 //----------------------------------------------------------------------------
-typedef std::vector<vtkSmartPointer<vtkAbstractCellLocator> > CellLocatorsTypeBase;
+typedef std::vector<vtkSmartPointer<vtkAbstractCellLocator>> CellLocatorsTypeBase;
 class vtkCellLocatorInterpolatedVelocityFieldCellLocatorsType : public CellLocatorsTypeBase
 {
 };

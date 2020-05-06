@@ -67,7 +67,7 @@ public:
 class vtkView::vtkImplementation
 {
 public:
-  std::vector<vtkSmartPointer<vtkDataRepresentation> > Representations;
+  std::vector<vtkSmartPointer<vtkDataRepresentation>> Representations;
 };
 
 vtkStandardNewMacro(vtkView);
@@ -224,7 +224,7 @@ void vtkView::RemoveRepresentation(vtkDataRepresentation* rep)
     rep->RemoveFromView(this);
     rep->RemoveObserver(this->GetObserver());
     this->RemoveRepresentationInternal(rep);
-    std::vector<vtkSmartPointer<vtkDataRepresentation> >::iterator it, itEnd;
+    std::vector<vtkSmartPointer<vtkDataRepresentation>>::iterator it, itEnd;
     it = this->Implementation->Representations.begin();
     itEnd = this->Implementation->Representations.end();
     for (; it != itEnd; ++it)

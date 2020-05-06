@@ -132,7 +132,7 @@ int vtkReebGraphSurfaceSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(re
       inputGraph->GetEdges(eIt);
       std::pair<int, int> criticalNodeIds;
 
-      std::vector<std::vector<std::vector<double> > > skeleton;
+      std::vector<std::vector<std::vector<double>>> skeleton;
 
       do
       {
@@ -235,7 +235,7 @@ int vtkReebGraphSurfaceSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(re
         double minValue = scalarField->GetComponent(criticalNodeIds.first, 0),
                maxValue = scalarField->GetComponent(criticalNodeIds.second, 0);
 
-        std::vector<std::vector<double> > arcSkeleton;
+        std::vector<std::vector<double>> arcSkeleton;
 
         // add the first critical point at the origin of the arc skeleton
         double* criticalPoint = (double*)malloc(sizeof(double) * 3);
@@ -311,7 +311,7 @@ int vtkReebGraphSurfaceSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(re
         }
 
         // now do the smoothing of the arc skeleton
-        std::vector<std::vector<double> > smoothedArc;
+        std::vector<std::vector<double>> smoothedArc;
         for (int i = 0; i < NumberOfSmoothingIterations; i++)
         {
           smoothedArc.push_back(arcSkeleton[0]);

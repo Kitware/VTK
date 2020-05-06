@@ -102,7 +102,7 @@ public:
 };
 
 const std::string EventStream =
-R"eventStream(
+  R"eventStream(
 #StreamVersion 1.1
 LeftButtonPressEvent 198 296 0 0 0 0
 RenderEvent 198 296 0 0 0 0
@@ -294,9 +294,9 @@ RenderEvent 266 134 0 0 0 0
 MouseMoveEvent 265 135 0 0 0 0
 RenderEvent 265 135 0 0 0 0
 )eventStream"
-    // We have to break this string up, otherwise MSVC whines about it being
-    // too long (error C2026)
-R"eventStream(
+  // We have to break this string up, otherwise MSVC whines about it being
+  // too long (error C2026)
+  R"eventStream(
 MouseMoveEvent 262 137 0 0 0 0
 RenderEvent 262 137 0 0 0 0
 MouseMoveEvent 260 138 0 0 0 0
@@ -630,9 +630,9 @@ RenderEvent 325 100 0 0 0 0
 InteractionEvent 325 100 0 0 0 0
 MouseMoveEvent 325 101 0 0 0 0
 )eventStream"
-    // We have to break this string up, otherwise MSVC whines about it being
-    // too long (error C2026)
-R"eventStream(
+  // We have to break this string up, otherwise MSVC whines about it being
+  // too long (error C2026)
+  R"eventStream(
 RenderEvent 325 101 0 0 0 0
 InteractionEvent 325 101 0 0 0 0
 MouseMoveEvent 325 102 0 0 0 0
@@ -918,9 +918,9 @@ MouseMoveEvent 379 42 0 0 0 0
 MouseMoveEvent 381 40 0 0 0 0
 MouseMoveEvent 382 40 0 0 0 0
 )eventStream"
-    // We have to break this string up, otherwise MSVC whines about it being
-    // too long (error C2026)
-R"eventStream(
+  // We have to break this string up, otherwise MSVC whines about it being
+  // too long (error C2026)
+  R"eventStream(
 MouseMoveEvent 383 39 0 0 0 0
 MouseMoveEvent 384 39 0 0 0 0
 MouseMoveEvent 385 38 0 0 0 0

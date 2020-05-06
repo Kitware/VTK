@@ -153,7 +153,7 @@ private:
   }
 
   ArrayTypeT* AssociatedArray{ nullptr };
-  std::unordered_map<ValueType, std::vector<vtkIdType> > ValueMap;
+  std::unordered_map<ValueType, std::vector<vtkIdType>> ValueMap;
   std::vector<vtkIdType> NanIndices;
 };
 

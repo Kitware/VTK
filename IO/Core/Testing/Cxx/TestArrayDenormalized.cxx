@@ -46,7 +46,7 @@ int TestArrayDenormalized(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   try
   {
-    vtkSmartPointer<vtkDenseArray<double> > a1 = vtkSmartPointer<vtkDenseArray<double> >::New();
+    vtkSmartPointer<vtkDenseArray<double>> a1 = vtkSmartPointer<vtkDenseArray<double>>::New();
     a1->Resize(3);
     a1->SetValue(0, 1.0);
     a1->SetValue(1, 2.221997902944077e-314);

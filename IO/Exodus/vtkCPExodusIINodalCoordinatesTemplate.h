@@ -38,8 +38,8 @@ class vtkCPExodusIINodalCoordinatesTemplate : public vtkMappedDataArray<Scalar>
 public:
   vtkAbstractTemplateTypeMacro(
     vtkCPExodusIINodalCoordinatesTemplate<Scalar>, vtkMappedDataArray<Scalar>)
-    vtkMappedDataArrayNewInstanceMacro(vtkCPExodusIINodalCoordinatesTemplate<
-      Scalar>) static vtkCPExodusIINodalCoordinatesTemplate* New();
+  vtkMappedDataArrayNewInstanceMacro(vtkCPExodusIINodalCoordinatesTemplate<
+    Scalar>) static vtkCPExodusIINodalCoordinatesTemplate* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   typedef typename Superclass::ValueType ValueType;

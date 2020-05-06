@@ -1707,7 +1707,7 @@ int vtkExodusIIWriter::WriteInformationRecords()
 
 template <typename T>
 int vtkExodusIIWriterWritePoints(
-  std::vector<vtkSmartPointer<vtkUnstructuredGrid> > input, int numPoints, int fid)
+  std::vector<vtkSmartPointer<vtkUnstructuredGrid>> input, int numPoints, int fid)
 {
   T* px = new T[numPoints];
   T* py = new T[numPoints];

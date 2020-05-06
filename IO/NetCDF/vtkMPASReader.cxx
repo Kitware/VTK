@@ -200,7 +200,7 @@ class vtkMPASReader::Internal
 {
 public:
   // variableIndex --> vtkDataArray
-  typedef std::map<int, vtkSmartPointer<vtkDataArray> > ArrayMap;
+  typedef std::map<int, vtkSmartPointer<vtkDataArray>> ArrayMap;
   typedef std::map<std::string, DimMetaData> DimMetaDataMap;
   Internal(vtkMPASReader* r)
     : ncFile(-1)

@@ -972,7 +972,7 @@ int vtkCommunicator::Gather(vtkDataArray* sendBuffer, vtkDataArray* recvBuffer, 
 
 //-----------------------------------------------------------------------------
 int vtkCommunicator::Gather(vtkDataObject* sendBuffer,
-  std::vector<vtkSmartPointer<vtkDataObject> >& recvBuffer, int destProcessId)
+  std::vector<vtkSmartPointer<vtkDataObject>>& recvBuffer, int destProcessId)
 {
   vtkNew<vtkCharArray> sendArray;
   if (vtkCommunicator::MarshalDataObject(sendBuffer, sendArray) == 0)
@@ -982,7 +982,7 @@ int vtkCommunicator::Gather(vtkDataObject* sendBuffer,
   }
 
   vtkNew<vtkCharArray> fullRecvArray;
-  std::vector<vtkSmartPointer<vtkDataArray> > recvArrays(this->NumberOfProcesses);
+  std::vector<vtkSmartPointer<vtkDataArray>> recvArrays(this->NumberOfProcesses);
   if (this->LocalProcessId == destProcessId)
   {
     recvBuffer.resize(this->NumberOfProcesses);
@@ -1017,7 +1017,7 @@ int vtkCommunicator::Gather(const vtkMultiProcessStream& sendBuffer,
   sendArray->SetArray(&rawData[0], static_cast<vtkIdType>(rawData.size()), /*save*/ 1);
 
   vtkNew<vtkUnsignedCharArray> fullRecvArray;
-  std::vector<vtkSmartPointer<vtkDataArray> > recvArrays(this->NumberOfProcesses);
+  std::vector<vtkSmartPointer<vtkDataArray>> recvArrays(this->NumberOfProcesses);
   if (this->LocalProcessId == destProcessId)
   {
     recvBuffer.resize(this->NumberOfProcesses);
@@ -1070,7 +1070,7 @@ int vtkCommunicator::GatherVElementalDataObject(
 {
   vtkNew<vtkCharArray> sendBuffer;
   vtkNew<vtkCharArray> recvBuffer;
-  std::vector<vtkSmartPointer<vtkDataArray> > recvBuffers(this->NumberOfProcesses);
+  std::vector<vtkSmartPointer<vtkDataArray>> recvBuffers(this->NumberOfProcesses);
 
   vtkCommunicator::MarshalDataObject(sendData, sendBuffer);
   if (this->LocalProcessId == destProcessId)

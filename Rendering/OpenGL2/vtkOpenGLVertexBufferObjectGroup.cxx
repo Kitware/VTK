@@ -34,7 +34,7 @@ vtkStandardNewMacro(vtkOpenGLVertexBufferObjectGroup);
 typedef std::map<std::string, vtkOpenGLVertexBufferObject*>::iterator vboIter;
 
 // typedef std::map<const std::string, vtkDataArray *>::iterator arrayIter;
-typedef std::map<std::string, std::vector<vtkDataArray*> >::iterator arrayIter;
+typedef std::map<std::string, std::vector<vtkDataArray*>>::iterator arrayIter;
 
 // ----------------------------------------------------------------------------
 vtkOpenGLVertexBufferObjectGroup::vtkOpenGLVertexBufferObjectGroup() = default;

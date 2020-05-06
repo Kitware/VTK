@@ -88,7 +88,7 @@ int vtkBoostBiconnectedComponents::RequestData(vtkInformation* vtkNotUsed(reques
   // Create vector of articulation points and set it up for insertion
   // by the algorithm.
   std::vector<vtkIdType> artPoints;
-  std::pair<size_t, std::back_insert_iterator<std::vector<vtkIdType> > > res(
+  std::pair<size_t, std::back_insert_iterator<std::vector<vtkIdType>>> res(
     0, std::back_inserter(artPoints));
 
   // Call BGL biconnected_components.

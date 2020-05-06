@@ -430,7 +430,7 @@ int vtkPLYReader::RequestData(vtkInformation* vtkNotUsed(request),
       vtkNew<vtkPoints> texCoords;
       // We store a list of pointIds (that have the same texture coordinates)
       // at the texture index returned by texLocator
-      std::vector<std::vector<vtkIdType> > pointIds;
+      std::vector<std::vector<vtkIdType>> pointIds;
       pointIds.resize(output->GetNumberOfPoints());
       // Used to detect different texture values at a vertex.
       vtkNew<vtkIncrementalOctreePointLocator> texLocator;

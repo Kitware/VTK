@@ -133,7 +133,7 @@ void vtkHyperTreeGridEvaluateCoarse::ProcessNode(vtkHyperTreeGridNonOrientedCurs
   //
   int nbArray = this->InData->GetNumberOfArrays();
   //
-  std::vector<std::vector<std::vector<double> > > values(nbArray);
+  std::vector<std::vector<std::vector<double>>> values(nbArray);
   // Coarse
   for (int ichild = 0; ichild < this->NbChilds; ++ichild)
   {

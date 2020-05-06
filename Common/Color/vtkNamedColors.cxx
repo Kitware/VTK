@@ -215,10 +215,10 @@ public:
   // Return a vector where each element of the vector is a vector of
   // synonyms such as cyan/aqua and magenta/fuchsia
   // Warning this could take a long time for very large color maps.
-  std::vector<std::vector<vtkStdString> > GetSynonyms()
+  std::vector<std::vector<vtkStdString>> GetSynonyms()
   {
     std::vector<vtkStdString> cn = this->GetColorNames();
-    std::map<vtkStdString, std::vector<vtkStdString> > synonyms;
+    std::map<vtkStdString, std::vector<vtkStdString>> synonyms;
     for (std::vector<vtkStdString>::const_iterator p = cn.begin(); p != cn.end(); ++p)
     {
       vtkColor4ub vu;
@@ -250,8 +250,8 @@ public:
         }
       }
     }
-    std::vector<std::vector<vtkStdString> > retVec;
-    for (std::map<vtkStdString, std::vector<vtkStdString> >::const_iterator p = synonyms.begin();
+    std::vector<std::vector<vtkStdString>> retVec;
+    for (std::map<vtkStdString, std::vector<vtkStdString>>::const_iterator p = synonyms.begin();
          p != synonyms.end(); ++p)
     {
       std::vector<vtkStdString> vstr;
@@ -1005,10 +1005,10 @@ void vtkNamedColors::GetColorNames(vtkStringArray* colorNames)
 vtkStdString vtkNamedColors::GetSynonyms()
 {
   vtkStdString synonyms;
-  std::vector<std::vector<vtkStdString> > syn = this->Colors->GetSynonyms();
-  std::vector<std::vector<vtkStdString> >::const_iterator synLast = syn.end();
+  std::vector<std::vector<vtkStdString>> syn = this->Colors->GetSynonyms();
+  std::vector<std::vector<vtkStdString>>::const_iterator synLast = syn.end();
   --synLast;
-  for (std::vector<std::vector<vtkStdString> >::const_iterator p = syn.begin(); p != syn.end(); ++p)
+  for (std::vector<std::vector<vtkStdString>>::const_iterator p = syn.begin(); p != syn.end(); ++p)
   {
     // Get the last element in the vector.
     std::vector<vtkStdString>::const_iterator strLast = p->end();

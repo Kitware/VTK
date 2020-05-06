@@ -835,7 +835,7 @@ int vtkConvertSelection::Convert(vtkSelection* input, vtkDataObject* data, vtkSe
         }
       }
 
-      std::map<vtkStdString, vtkSmartPointer<vtkAbstractArray> > domainArrays;
+      std::map<vtkStdString, vtkSmartPointer<vtkAbstractArray>> domainArrays;
       vtkIdType numTuples = outputDataArr->GetNumberOfTuples();
       vtkIdType numIndices = indices->GetNumberOfTuples();
       for (vtkIdType i = 0; i < numIndices; ++i)
@@ -860,7 +860,7 @@ int vtkConvertSelection::Convert(vtkSelection* input, vtkDataObject* data, vtkSe
           this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
         }
       }
-      std::map<vtkStdString, vtkSmartPointer<vtkAbstractArray> >::iterator it, itEnd;
+      std::map<vtkStdString, vtkSmartPointer<vtkAbstractArray>>::iterator it, itEnd;
       it = domainArrays.begin();
       itEnd = domainArrays.end();
       for (; it != itEnd; ++it)

@@ -261,7 +261,7 @@ void vtkCorrelativeStatistics::Learn(
 
   // Loop over requests
   vtkIdType nRow = inData->GetNumberOfRows();
-  for (std::set<std::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
+  for (std::set<std::set<vtkStdString>>::const_iterator rit = this->Internals->Requests.begin();
        rit != this->Internals->Requests.end(); ++rit)
   {
     // Each request contains only one pair of column of interest (if there are others, they are
@@ -543,7 +543,7 @@ void vtkCorrelativeStatistics::Test(
 
   // Loop over requests
   vtkIdType nRowData = inData->GetNumberOfRows();
-  for (std::set<std::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
+  for (std::set<std::set<vtkStdString>>::const_iterator rit = this->Internals->Requests.begin();
        rit != this->Internals->Requests.end(); ++rit)
   {
     // Each request contains only one pair of column of interest (if there are others, they are

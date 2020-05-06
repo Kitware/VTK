@@ -78,11 +78,11 @@ public:
   int TotalNumberOfDatasets;
 };
 
-class vtkExtractCTHPart::VectorOfFragments : public std::vector<vtkSmartPointer<vtkPolyData> >
+class vtkExtractCTHPart::VectorOfFragments : public std::vector<vtkSmartPointer<vtkPolyData>>
 {
 };
 
-class vtkExtractCTHPart::VectorOfSolids : public std::vector<vtkSmartPointer<vtkUnstructuredGrid> >
+class vtkExtractCTHPart::VectorOfSolids : public std::vector<vtkSmartPointer<vtkUnstructuredGrid>>
 {
 };
 

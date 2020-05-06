@@ -638,7 +638,7 @@ struct FastBounds
   PointsT* Points;
   const unsigned char* PointUses;
   double* Bounds;
-  vtkSMPThreadLocal<std::array<double, 6> > LocalBounds;
+  vtkSMPThreadLocal<std::array<double, 6>> LocalBounds;
 
   FastBounds(PointsT* pts, const unsigned char* ptUses, double* bds)
     : Points(pts)

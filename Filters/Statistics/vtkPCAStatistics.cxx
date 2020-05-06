@@ -192,7 +192,7 @@ public:
   void operator()(vtkDoubleArray* result, vtkIdType row) override;
 
   std::vector<double> EigenValues;
-  std::vector<std::vector<double> > EigenVectors;
+  std::vector<std::vector<double>> EigenVectors;
   vtkIdType BasisSize;
 };
 
@@ -319,7 +319,7 @@ void vtkPCAAssessFunctor::operator()(vtkDoubleArray* result, vtkIdType row)
 {
   vtkIdType i;
   result->SetNumberOfValues(this->BasisSize);
-  std::vector<std::vector<double> >::iterator it;
+  std::vector<std::vector<double>>::iterator it;
   vtkIdType m = this->GetNumberOfColumns();
   for (i = 0; i < m; ++i)
   {

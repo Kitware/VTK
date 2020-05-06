@@ -1485,7 +1485,7 @@ public:
   std::set<unsigned char> DistinctCellTypes;
 
   // Thread-local storage
-  vtkSMPThreadLocal<std::set<unsigned char> > LocalDistinctCellTypes;
+  vtkSMPThreadLocal<std::set<unsigned char>> LocalDistinctCellTypes;
 
   void Initialize() {}
 
@@ -1506,7 +1506,7 @@ public:
   void Reduce()
   {
     this->DistinctCellTypes.clear();
-    for (vtkSMPThreadLocal<std::set<unsigned char> >::iterator iter =
+    for (vtkSMPThreadLocal<std::set<unsigned char>>::iterator iter =
            this->LocalDistinctCellTypes.begin();
          iter != this->LocalDistinctCellTypes.end(); ++iter)
     {

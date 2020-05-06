@@ -48,17 +48,17 @@
 #define USER_SURFACE_TYPE 100 // Minimal value for user defined surface type
 
 //----------------------------------------------------------------------------
-typedef std::vector<vtkSmartPointer<vtkAbstractCellLocator> > LocatorsTypeBase;
+typedef std::vector<vtkSmartPointer<vtkAbstractCellLocator>> LocatorsTypeBase;
 class vtkLocatorsType : public LocatorsTypeBase
 {
 };
 
-typedef std::vector<vtkSmartPointer<vtkDataSet> > DataSetsTypeBase;
+typedef std::vector<vtkSmartPointer<vtkDataSet>> DataSetsTypeBase;
 class vtkDataSetsType : public DataSetsTypeBase
 {
 };
 
-typedef std::pair<unsigned int, vtkSmartPointer<vtkDataSet> > SurfaceItem;
+typedef std::pair<unsigned int, vtkSmartPointer<vtkDataSet>> SurfaceItem;
 typedef std::vector<SurfaceItem> SurfaceTypeBase;
 class vtkSurfaceType : public SurfaceTypeBase
 {

@@ -79,8 +79,8 @@ struct ArrayValueMatchFunctor
   template <typename InputArrayType, typename SelectionListArrayType>
   void operator()(InputArrayType* fArray, SelectionListArrayType* selList)
   {
-    static_assert(std::is_same<vtk::GetAPIType<InputArrayType>,
-                    vtk::GetAPIType<SelectionListArrayType> >::value,
+    static_assert(
+      std::is_same<vtk::GetAPIType<InputArrayType>, vtk::GetAPIType<SelectionListArrayType>>::value,
       "value types mismatched!");
     VTK_ASSUME(selList->GetNumberOfComponents() == 1);
     VTK_ASSUME(fArray->GetNumberOfComponents() > this->ComponentNo);
@@ -166,8 +166,8 @@ struct ArrayValueRangeFunctor
   template <typename InputArrayType, typename SelectionListArrayType>
   void operator()(InputArrayType* fArray, SelectionListArrayType* selList)
   {
-    static_assert(std::is_same<vtk::GetAPIType<InputArrayType>,
-                    vtk::GetAPIType<SelectionListArrayType> >::value,
+    static_assert(
+      std::is_same<vtk::GetAPIType<InputArrayType>, vtk::GetAPIType<SelectionListArrayType>>::value,
       "value types mismatched!");
 
     using ValueType = vtk::GetAPIType<SelectionListArrayType>;

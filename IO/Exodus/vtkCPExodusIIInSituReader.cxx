@@ -284,7 +284,7 @@ bool vtkCPExodusIIInSituReader::ExGetMetaData()
 bool vtkCPExodusIIInSituReader::ExGetCoords()
 {
   this->Points->Reset();
-  vtkNew<vtkCPExodusIINodalCoordinatesTemplate<double> > nodeCoords;
+  vtkNew<vtkCPExodusIINodalCoordinatesTemplate<double>> nodeCoords;
 
   // Get coordinates
   double* x(new double[this->NumberOfNodes]);
@@ -319,7 +319,7 @@ bool vtkCPExodusIIInSituReader::ExGetNodalVars()
     int error = ex_get_nodal_var(
       this->FileId, this->CurrentTimeStep + 1, nodalVarIndex + 1, this->NumberOfNodes, nodalVars);
     std::vector<double*> varsVector(1, nodalVars);
-    vtkNew<vtkCPExodusIIResultsArrayTemplate<double> > nodalVarArray;
+    vtkNew<vtkCPExodusIIResultsArrayTemplate<double>> nodalVarArray;
     nodalVarArray->SetExodusScalarArrays(varsVector, this->NumberOfNodes);
     nodalVarArray->SetName(this->NodalVariableNames[nodalVarIndex].c_str());
 
@@ -391,7 +391,7 @@ bool vtkCPExodusIIInSituReader::ExGetElemBlocks()
       error = ex_get_elem_var(this->FileId, this->CurrentTimeStep + 1, elemVarIndex + 1,
         this->ElementBlockIds[blockInd], numElem, elemVars);
       std::vector<double*> varsVector(1, elemVars);
-      vtkNew<vtkCPExodusIIResultsArrayTemplate<double> > elemVarArray;
+      vtkNew<vtkCPExodusIIResultsArrayTemplate<double>> elemVarArray;
       elemVarArray->SetExodusScalarArrays(varsVector, numElem);
       elemVarArray->SetName(this->ElementVariableNames[elemVarIndex].c_str());
 

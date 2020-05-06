@@ -78,11 +78,11 @@ public:
     }
   };
 
-  typedef std::map<Coord, vtkSmartPointer<vtkIdList> >::iterator MapCoordIter;
+  typedef std::map<Coord, vtkSmartPointer<vtkIdList>>::iterator MapCoordIter;
 
   vtkCoincidentPoints* Self;
 
-  std::map<Coord, vtkSmartPointer<vtkIdList> > CoordMap;
+  std::map<Coord, vtkSmartPointer<vtkIdList>> CoordMap;
   std::map<vtkIdType, vtkIdType> CoincidenceMap;
   MapCoordIter TraversalIterator;
 };

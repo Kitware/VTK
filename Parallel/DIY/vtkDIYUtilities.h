@@ -109,7 +109,7 @@ public:
    * true, cell-centers will be computed and extracted instead of the dataset
    * points.
    */
-  static std::vector<vtkSmartPointer<vtkPoints> > ExtractPoints(
+  static std::vector<vtkSmartPointer<vtkPoints>> ExtractPoints(
     const std::vector<vtkDataSet*>& datasets, bool use_cell_centers);
   //@}
 

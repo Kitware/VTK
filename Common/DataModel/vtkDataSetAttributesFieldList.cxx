@@ -61,7 +61,7 @@ struct FieldInfo
    * An array where `AttributeTypes[j][i]==true` if this field is marked
    * as the i'th attribute type on the j'th input idx.
    */
-  std::vector<std::array<bool, vtkDataSetAttributes::NUM_ATTRIBUTES> > AttributeTypes;
+  std::vector<std::array<bool, vtkDataSetAttributes::NUM_ATTRIBUTES>> AttributeTypes;
 
   /**
    * Location of this field in the input vtkDataSetAttributes instance at the

@@ -50,7 +50,7 @@ private:
   vtkParticleTracerBase* Filter;
   // Paths doesn't seem to work properly. it is meant to make connecting lines
   // for the particles
-  std::vector<vtkSmartPointer<vtkIdList> > Paths;
+  std::vector<vtkSmartPointer<vtkIdList>> Paths;
   bool ClearCache; // false by default
 };
 

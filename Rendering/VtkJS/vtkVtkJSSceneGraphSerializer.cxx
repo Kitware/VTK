@@ -127,8 +127,8 @@ struct vtkVtkJSSceneGraphSerializer::Internal
   Json::Value Root;
   std::unordered_map<void*, Json::ArrayIndex> UniqueIds;
   std::size_t UniqueIdCount;
-  std::vector<std::pair<Json::ArrayIndex, vtkDataObject*> > DataObjects;
-  std::vector<std::pair<std::string, vtkDataArray*> > DataArrays;
+  std::vector<std::pair<Json::ArrayIndex, vtkDataObject*>> DataObjects;
+  std::vector<std::pair<std::string, vtkDataArray*>> DataArrays;
 
   Json::Value* entry(const std::string& index, Json::Value* node);
   Json::Value* entry(const Json::ArrayIndex index) { return entry(std::to_string(index), &Root); }

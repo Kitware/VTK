@@ -205,7 +205,7 @@ int vtkWordCloud::RequestData(vtkInformation* vtkNotUsed(request),
   this->SkippedWords.resize(0);
 
   // Generate a path for placement of words
-  std::vector< ::ExtentOffset> offset;
+  std::vector<::ExtentOffset> offset;
   ::ArchimedesSpiral(offset, this->Sizes);
 
   // Sort the word by frequency

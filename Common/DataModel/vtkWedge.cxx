@@ -78,41 +78,41 @@ static constexpr vtkIdType edgeToAdjacentFaces[vtkWedge::NumberOfEdges][2] = {
   { 2, 3 }, // 7
   { 3, 4 }, // 8
 };
-static constexpr vtkIdType
-  faceToAdjacentFaces[vtkWedge::NumberOfFaces][vtkWedge::MaximumFaceSize] = {
-    { 4, 3, 2, -1 }, // 0
-    { 2, 3, 4, -1 }, // 1
-    { 0, 3, 1, 4 },  // 2
-    { 0, 4, 1, 2 },  // 3
-    { 0, 2, 1, 3 },  // 4
-  };
-static constexpr vtkIdType
-  pointToIncidentEdges[vtkWedge::NumberOfPoints][vtkWedge::MaximumValence] = {
-    { 0, 6, 2 }, // 0
-    { 0, 1, 7 }, // 1
-    { 1, 2, 8 }, // 2
-    { 3, 5, 6 }, // 3
-    { 3, 7, 4 }, // 4
-    { 4, 8, 5 }, // 5
-  };
-static constexpr vtkIdType
-  pointToIncidentFaces[vtkWedge::NumberOfPoints][vtkWedge::MaximumValence] = {
-    { 2, 4, 0 }, // 0
-    { 0, 3, 2 }, // 1
-    { 0, 4, 3 }, // 2
-    { 1, 4, 2 }, // 3
-    { 2, 3, 1 }, // 4
-    { 3, 4, 1 }, // 5
-  };
-static constexpr vtkIdType
-  pointToOneRingPoints[vtkWedge::NumberOfPoints][vtkWedge::MaximumValence] = {
-    { 1, 3, 2 }, // 0
-    { 0, 2, 4 }, // 1
-    { 1, 0, 5 }, // 2
-    { 4, 5, 0 }, // 3
-    { 3, 1, 5 }, // 4
-    { 4, 2, 3 }, // 5
-  };
+static constexpr vtkIdType faceToAdjacentFaces[vtkWedge::NumberOfFaces]
+                                              [vtkWedge::MaximumFaceSize] = {
+                                                { 4, 3, 2, -1 }, // 0
+                                                { 2, 3, 4, -1 }, // 1
+                                                { 0, 3, 1, 4 },  // 2
+                                                { 0, 4, 1, 2 },  // 3
+                                                { 0, 2, 1, 3 },  // 4
+                                              };
+static constexpr vtkIdType pointToIncidentEdges[vtkWedge::NumberOfPoints]
+                                               [vtkWedge::MaximumValence] = {
+                                                 { 0, 6, 2 }, // 0
+                                                 { 0, 1, 7 }, // 1
+                                                 { 1, 2, 8 }, // 2
+                                                 { 3, 5, 6 }, // 3
+                                                 { 3, 7, 4 }, // 4
+                                                 { 4, 8, 5 }, // 5
+                                               };
+static constexpr vtkIdType pointToIncidentFaces[vtkWedge::NumberOfPoints]
+                                               [vtkWedge::MaximumValence] = {
+                                                 { 2, 4, 0 }, // 0
+                                                 { 0, 3, 2 }, // 1
+                                                 { 0, 4, 3 }, // 2
+                                                 { 1, 4, 2 }, // 3
+                                                 { 2, 3, 1 }, // 4
+                                                 { 3, 4, 1 }, // 5
+                                               };
+static constexpr vtkIdType pointToOneRingPoints[vtkWedge::NumberOfPoints]
+                                               [vtkWedge::MaximumValence] = {
+                                                 { 1, 3, 2 }, // 0
+                                                 { 0, 2, 4 }, // 1
+                                                 { 1, 0, 5 }, // 2
+                                                 { 4, 5, 0 }, // 3
+                                                 { 3, 1, 5 }, // 4
+                                                 { 4, 2, 3 }, // 5
+                                               };
 static constexpr vtkIdType numberOfPointsInFace[vtkWedge::NumberOfFaces] = {
   3, // 0
   3, // 1

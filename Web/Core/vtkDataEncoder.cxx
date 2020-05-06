@@ -373,7 +373,7 @@ VTK_THREAD_RETURN_TYPE Worker(void* calldata)
 class vtkDataEncoder::vtkInternals
 {
 private:
-  std::map<vtkTypeUInt32, vtkSmartPointer<vtkUnsignedCharArray> > ClonedOutputs;
+  std::map<vtkTypeUInt32, vtkSmartPointer<vtkUnsignedCharArray>> ClonedOutputs;
   std::vector<int> RunningThreadIds;
 
 public:

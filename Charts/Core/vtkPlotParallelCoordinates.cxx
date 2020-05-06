@@ -43,7 +43,7 @@
 #include <algorithm>
 #include <vector>
 
-class vtkPlotParallelCoordinates::Private : public std::vector<std::vector<float> >
+class vtkPlotParallelCoordinates::Private : public std::vector<std::vector<float>>
 {
 public:
   Private() { this->SelectionInitialized = false; }

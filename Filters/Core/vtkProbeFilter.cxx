@@ -741,7 +741,7 @@ private:
   char* MaskArray;
   int MaxCellSize;
 
-  vtkSMPThreadLocal<std::vector<double> > WeightsBuffer;
+  vtkSMPThreadLocal<std::vector<double>> WeightsBuffer;
   vtkSMPThreadLocal<CellStorage> Cells;
 };
 

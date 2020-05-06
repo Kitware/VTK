@@ -98,8 +98,8 @@ public:
   vtkSmartPointer<vtkMinimalStandardRandomSequence> Random;
   vtkGraphItem* Item;
 
-  std::vector<std::pair<float, float> > Position;
-  std::vector<std::pair<float, float> > Velocity;
+  std::vector<std::pair<float, float>> Position;
+  std::vector<std::pair<float, float>> Velocity;
 };
 
 //-----------------------------------------------------------------------------

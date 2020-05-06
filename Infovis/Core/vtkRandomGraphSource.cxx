@@ -163,7 +163,7 @@ int vtkRandomGraphSource::RequestData(
   else
   {
     // Don't duplicate edges.
-    std::set<std::pair<vtkIdType, vtkIdType> > existingEdges;
+    std::set<std::pair<vtkIdType, vtkIdType>> existingEdges;
 
     vtkIdType MaxEdges;
     if (this->AllowParallelEdges)

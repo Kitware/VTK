@@ -230,7 +230,7 @@ int vtkGroupLeafVertices::RequestData(
   // Copy everything into the new tree, adding group nodes.
   // Make a map of (parent id, group-by string) -> group vertex id.
   std::map<std::pair<vtkIdType, vtkVariant>, vtkIdType, vtkGroupLeafVerticesCompare> group_vertices;
-  std::vector<std::pair<vtkIdType, vtkIdType> > vertStack;
+  std::vector<std::pair<vtkIdType, vtkIdType>> vertStack;
   vertStack.emplace_back(input->GetRoot(), builder->AddVertex());
   vtkSmartPointer<vtkOutEdgeIterator> it = vtkSmartPointer<vtkOutEdgeIterator>::New();
 

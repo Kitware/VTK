@@ -172,7 +172,7 @@ struct ClassifyPoints : public Classify
 template <typename IDType, typename TIP>
 struct ExtractEdgesBase
 {
-  typedef std::vector<EdgeTuple<IDType, float> > EdgeVectorType;
+  typedef std::vector<EdgeTuple<IDType, float>> EdgeVectorType;
 
   // Track local data on a per-thread basis. In the Reduce() method this
   // information will be used to composite the data from each thread.

@@ -339,7 +339,7 @@ private:
   vtkPointData* SeedData;
   ParticleStreamManager(const ParticleStreamManager&) {}
   std::vector<vtkBoundingBox> Boxes;
-  std::vector<std::pair<vtkMPICommunicator::Request*, MessageStream*> > SendRequests;
+  std::vector<std::pair<vtkMPICommunicator::Request*, MessageStream*>> SendRequests;
 };
 
 // A singleton class used by each rank to send particle id to each other
@@ -442,7 +442,7 @@ private:
   int StreamSize;
   MessageStream* ReceiveStream;
   ParticleIdManager(const ParticleIdManager&) {}
-  std::vector<std::pair<vtkMPICommunicator::Request*, MessageStream*> > SendRequests;
+  std::vector<std::pair<vtkMPICommunicator::Request*, MessageStream*>> SendRequests;
 };
 
 // Class used by the master rank to receive and send flag
@@ -1203,7 +1203,7 @@ bool vtkPLagrangianParticleTracker::UpdateSurfaceCacheIfNeeded(vtkDataObject*& s
     // In Parallel, reduce surfaces on rank 0, which then broadcast them to all ranks.
 
     // Recover all surfaces on rank 0
-    std::vector<vtkSmartPointer<vtkDataObject> > allSurfaces;
+    std::vector<vtkSmartPointer<vtkDataObject>> allSurfaces;
     this->Controller->Gather(surfaces, allSurfaces, 0);
 
     // Manager dataset case

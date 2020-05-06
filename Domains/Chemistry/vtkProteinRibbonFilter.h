@@ -90,14 +90,13 @@ protected:
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   void CreateThinStrip(vtkPolyData* poly, vtkUnsignedCharArray* pointsColors, vtkPoints* p,
-    std::vector<std::pair<vtkVector3f, bool> >& p1, std::vector<std::pair<vtkVector3f, bool> >& p2,
+    std::vector<std::pair<vtkVector3f, bool>>& p1, std::vector<std::pair<vtkVector3f, bool>>& p2,
     std::vector<vtkColor3ub>& colors);
 
   void CreateAtomAsSphere(vtkPolyData* poly, vtkUnsignedCharArray* pointsColors, double* pos,
     const vtkColor3ub& color, float radius, float scale);
 
-  static std::vector<vtkVector3f>* Subdivide(
-    std::vector<std::pair<vtkVector3f, bool> >& p, int div);
+  static std::vector<vtkVector3f>* Subdivide(std::vector<std::pair<vtkVector3f, bool>>& p, int div);
 
   void SetColorByAtom(std::vector<vtkColor3ub>& colors, vtkStringArray* atomTypes);
 

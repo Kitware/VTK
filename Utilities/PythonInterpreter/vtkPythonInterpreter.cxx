@@ -130,12 +130,12 @@ char* vtk_Py_EncodeLocale(const wchar_t* arg, size_t* size)
 }
 #endif
 
-static std::vector<vtkWeakPointer<vtkPythonInterpreter> >* GlobalInterpreters;
+static std::vector<vtkWeakPointer<vtkPythonInterpreter>>* GlobalInterpreters;
 static std::vector<std::string> PythonPaths;
 
 void NotifyInterpreters(unsigned long eventid, void* calldata = nullptr)
 {
-  std::vector<vtkWeakPointer<vtkPythonInterpreter> >::iterator iter;
+  std::vector<vtkWeakPointer<vtkPythonInterpreter>>::iterator iter;
   for (iter = GlobalInterpreters->begin(); iter != GlobalInterpreters->end(); ++iter)
   {
     if (iter->GetPointer())
@@ -172,7 +172,7 @@ vtkPythonGlobalInterpreters::vtkPythonGlobalInterpreters()
 {
   if (vtkPythonInterpretersCounter++ == 0)
   {
-    GlobalInterpreters = new std::vector<vtkWeakPointer<vtkPythonInterpreter> >();
+    GlobalInterpreters = new std::vector<vtkWeakPointer<vtkPythonInterpreter>>();
   };
 }
 
@@ -211,7 +211,7 @@ vtkPythonInterpreter::~vtkPythonInterpreter()
   {
     return;
   }
-  std::vector<vtkWeakPointer<vtkPythonInterpreter> >::iterator iter;
+  std::vector<vtkWeakPointer<vtkPythonInterpreter>>::iterator iter;
   for (iter = GlobalInterpreters->begin(); iter != GlobalInterpreters->end(); ++iter)
   {
     if (*iter == this)

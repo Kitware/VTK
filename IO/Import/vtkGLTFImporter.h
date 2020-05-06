@@ -113,8 +113,8 @@ protected:
 
   char* FileName = nullptr;
 
-  std::vector<vtkSmartPointer<vtkCamera> > Cameras;
-  std::map<int, vtkSmartPointer<vtkTexture> > Textures;
+  std::vector<vtkSmartPointer<vtkCamera>> Cameras;
+  std::map<int, vtkSmartPointer<vtkTexture>> Textures;
   vtkSmartPointer<vtkGLTFDocumentLoader> Loader;
   std::string OutputsDescription;
 

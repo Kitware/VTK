@@ -22,13 +22,13 @@
 class vtkInformationObjectBaseVectorValue : public vtkObjectBase
 {
 public:
-  typedef std::vector<vtkSmartPointer<vtkObjectBase> > VectorType;
+  typedef std::vector<vtkSmartPointer<vtkObjectBase>> VectorType;
 
   vtkBaseTypeMacro(vtkInformationObjectBaseVectorValue, vtkObjectBase);
-  std::vector<vtkSmartPointer<vtkObjectBase> >& GetVector() { return this->Vector; }
+  std::vector<vtkSmartPointer<vtkObjectBase>>& GetVector() { return this->Vector; }
 
 private:
-  std::vector<vtkSmartPointer<vtkObjectBase> > Vector;
+  std::vector<vtkSmartPointer<vtkObjectBase>> Vector;
 };
 
 //============================================================================

@@ -59,7 +59,7 @@ public:
   {
     if (dist2 <= this->LargestDist2 || this->NumPoints < this->NumDesiredPoints)
     {
-      std::map<float, std::list<vtkIdType> >::iterator it = this->dist2ToIds.find(dist2);
+      std::map<float, std::list<vtkIdType>>::iterator it = this->dist2ToIds.find(dist2);
       this->NumPoints++;
       if (it == this->dist2ToIds.end())
       {
@@ -78,7 +78,7 @@ public:
         if ((this->NumPoints - it->second.size()) > this->NumDesiredPoints)
         {
           this->NumPoints -= it->second.size();
-          std::map<float, std::list<vtkIdType> >::iterator it2 = it;
+          std::map<float, std::list<vtkIdType>>::iterator it2 = it;
           --it2;
           this->LargestDist2 = it2->first;
           this->dist2ToIds.erase(it);
@@ -93,7 +93,7 @@ public:
       (this->NumDesiredPoints < this->NumPoints) ? this->NumDesiredPoints : this->NumPoints);
     ids->SetNumberOfIds(numIds);
     vtkIdType counter = 0;
-    std::map<float, std::list<vtkIdType> >::iterator it = this->dist2ToIds.begin();
+    std::map<float, std::list<vtkIdType>>::iterator it = this->dist2ToIds.begin();
     while (counter < numIds && it != this->dist2ToIds.end())
     {
       std::list<vtkIdType>::iterator lit = it->second.begin();
@@ -113,7 +113,7 @@ private:
   size_t NumDesiredPoints, NumPoints;
   float LargestDist2;
   // map from dist^2 to a list of ids
-  std::map<float, std::list<vtkIdType> > dist2ToIds;
+  std::map<float, std::list<vtkIdType>> dist2ToIds;
 };
 }
 
@@ -1017,7 +1017,7 @@ void vtkOctreePointLocator::GenerateRepresentation(int level, vtkPolyData* pd)
 
   std::list<vtkOctreePointLocatorNode*> nodesAtLevel;
   // queue of nodes to be examined and what level each one is at
-  std::queue<std::pair<vtkOctreePointLocatorNode*, int> > testNodes;
+  std::queue<std::pair<vtkOctreePointLocatorNode*, int>> testNodes;
   testNodes.push(std::make_pair(this->Top, 0));
   while (!testNodes.empty())
   {

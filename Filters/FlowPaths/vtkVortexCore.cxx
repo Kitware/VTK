@@ -141,7 +141,7 @@ bool computeVortexCriteria(const double s[9], const double omega[9], double vort
   // eigenvalues of the complex conjugate pair of eigenvalues of J
   double& lambda_ci = vortexCriteria[3];
   {
-    Eigen::EigenSolver<Eigen::Matrix<double, 3, 3> > eigensolver(J);
+    Eigen::EigenSolver<Eigen::Matrix<double, 3, 3>> eigensolver(J);
     auto eigenvalues = eigensolver.eigenvalues();
 
     if (fabs(eigenvalues[0].imag()) > VTK_DBL_EPSILON)

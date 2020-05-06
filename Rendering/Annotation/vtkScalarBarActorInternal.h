@@ -22,7 +22,7 @@ class vtkViewport;
 
 /// A vector of smart pointers.
 template <class T>
-class VTKRENDERINGANNOTATION_EXPORT vtkSmartVector : public std::vector<vtkSmartPointer<T> >
+class VTKRENDERINGANNOTATION_EXPORT vtkSmartVector : public std::vector<vtkSmartPointer<T>>
 {
 public:
   /**\brief Convert to an array of "dumb" pointers for functions

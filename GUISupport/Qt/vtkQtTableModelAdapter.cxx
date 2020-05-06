@@ -54,9 +54,9 @@ public:
   ~vtkInternal() = default;
 
   QHash<QModelIndex, QVariant> IndexToDecoration;
-  QHash<int, QPair<vtkIdType, int> > ModelColumnToTableColumn;
+  QHash<int, QPair<vtkIdType, int>> ModelColumnToTableColumn;
   QHash<int, QString> ModelColumnNames;
-  QHash<vtkIdType, vtkSmartPointer<vtkDoubleArray> > MagnitudeColumns;
+  QHash<vtkIdType, vtkSmartPointer<vtkDoubleArray>> MagnitudeColumns;
 };
 
 //----------------------------------------------------------------------------

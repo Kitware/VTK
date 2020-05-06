@@ -46,7 +46,7 @@ int TestXMLWriterWithDataArrayFallback(int argc, char* argv[])
     vtkNew<vtkImageData> imageData;
     imageData->SetDimensions(2, 3, 1);
 
-    vtkNew<vtkTestDataArray<vtkIntArray> > data;
+    vtkNew<vtkTestDataArray<vtkIntArray>> data;
     data->SetName("test_data");
     data->SetNumberOfTuples(6);
     for (vtkIdType i = 0; i < 6; i++)

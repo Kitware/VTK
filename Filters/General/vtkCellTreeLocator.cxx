@@ -530,7 +530,7 @@ public:
 //----------------------------------------------------------------------------
 
 typedef std::stack<vtkCellTreeLocator::vtkCellTreeNode*,
-  std::vector<vtkCellTreeLocator::vtkCellTreeNode*> >
+  std::vector<vtkCellTreeLocator::vtkCellTreeNode*>>
   nodeStack;
 
 vtkCellTreeLocator::vtkCellTreeLocator()
@@ -1238,7 +1238,7 @@ typedef std::pair<vtkBoundingBox, int> boxLevel;
 typedef std::vector<boxLevel> boxlist;
 // For testing bounds of the tree we need node/box
 typedef std::pair<vtkCellTreeLocator::vtkCellTreeNode*, boxLevel> nodeBoxLevel;
-typedef std::stack<nodeBoxLevel, std::vector<nodeBoxLevel> > nodeinfostack;
+typedef std::stack<nodeBoxLevel, std::vector<nodeBoxLevel>> nodeinfostack;
 //---------------------------------------------------------------------------
 static void SplitNodeBox(
   vtkCellTreeLocator::vtkCellTreeNode* n, vtkBoundingBox& b, vtkBoundingBox& l, vtkBoundingBox& r)

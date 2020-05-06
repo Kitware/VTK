@@ -39,7 +39,7 @@ vtkCxxSetObjectMacro(vtkAnnotationLayers, CurrentAnnotation, vtkAnnotation);
 class vtkAnnotationLayers::Internals
 {
 public:
-  std::vector<vtkSmartPointer<vtkAnnotation> > Annotations;
+  std::vector<vtkSmartPointer<vtkAnnotation>> Annotations;
 };
 
 vtkAnnotationLayers::vtkAnnotationLayers()

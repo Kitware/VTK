@@ -158,7 +158,7 @@ int vtkProteinRibbonFilter::RequestData(
     atomsColors, atomTypes, atom_ss, ToColor3ubFromHex3(0xFF0080), ToColor3ubFromHex3(0xFFC800));
 
   std::vector<vtkColor3ub> colors;
-  std::vector<std::pair<vtkVector3f, bool> > borderPoints[2];
+  std::vector<std::pair<vtkVector3f, bool>> borderPoints[2];
 
   // Need this for radius / color lookups
   vtkNew<vtkPeriodicTable> pTab;
@@ -321,8 +321,8 @@ void vtkProteinRibbonFilter::CreateAtomAsSphere(vtkPolyData* poly,
 }
 
 void vtkProteinRibbonFilter::CreateThinStrip(vtkPolyData* poly, vtkUnsignedCharArray* pointsColors,
-  vtkPoints* p, std::vector<std::pair<vtkVector3f, bool> >& p1,
-  std::vector<std::pair<vtkVector3f, bool> >& p2, std::vector<vtkColor3ub>& colors)
+  vtkPoints* p, std::vector<std::pair<vtkVector3f, bool>>& p1,
+  std::vector<std::pair<vtkVector3f, bool>>& p2, std::vector<vtkColor3ub>& colors)
 {
   if (p1.size() < 2 || p2.size() < 2)
   {
@@ -370,7 +370,7 @@ void vtkProteinRibbonFilter::CreateThinStrip(vtkPolyData* poly, vtkUnsignedCharA
 }
 
 std::vector<vtkVector3f>* vtkProteinRibbonFilter::Subdivide(
-  std::vector<std::pair<vtkVector3f, bool> >& p, int div)
+  std::vector<std::pair<vtkVector3f, bool>>& p, int div)
 {
   std::vector<vtkVector3f>* ret = new std::vector<vtkVector3f>;
   std::vector<vtkVector3f> points;

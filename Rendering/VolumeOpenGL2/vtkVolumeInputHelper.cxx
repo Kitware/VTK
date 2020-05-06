@@ -340,13 +340,13 @@ void vtkVolumeInputHelper::CreateTransferFunction1D(vtkRenderer* ren, const int 
 
   // Create RGB and opacity (scalar and gradient) lookup tables. Up to four
   // components are supported in single-input independentComponents mode.
-  this->RGBTables = vtkSmartPointer<vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeRGBTable> >::New();
+  this->RGBTables = vtkSmartPointer<vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeRGBTable>>::New();
   this->RGBTables->Create(numActiveLuts);
   this->OpacityTables =
-    vtkSmartPointer<vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeOpacityTable> >::New();
+    vtkSmartPointer<vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeOpacityTable>>::New();
   this->OpacityTables->Create(numActiveLuts);
   this->GradientOpacityTables =
-    vtkSmartPointer<vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeGradientOpacityTable> >::New();
+    vtkSmartPointer<vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeGradientOpacityTable>>::New();
   this->GradientOpacityTables->Create(numActiveLuts);
 
   this->OpacityTablesMap.clear();
@@ -385,7 +385,7 @@ void vtkVolumeInputHelper::CreateTransferFunction2D(vtkRenderer* ren, const int 
     this->ComponentMode == INDEPENDENT ? Texture->GetLoadedScalars()->GetNumberOfComponents() : 1;
 
   this->TransferFunctions2D =
-    vtkSmartPointer<vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeTransferFunction2D> >::New();
+    vtkSmartPointer<vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeTransferFunction2D>>::New();
   this->TransferFunctions2D->Create(num);
 
   std::ostringstream idx;

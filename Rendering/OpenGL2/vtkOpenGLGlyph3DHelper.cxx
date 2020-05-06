@@ -604,7 +604,7 @@ void vtkOpenGLGlyph3DHelper::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLGlyph3DHelper::SetLODs(std::vector<std::pair<float, float> >& lods)
+void vtkOpenGLGlyph3DHelper::SetLODs(std::vector<std::pair<float, float>>& lods)
 {
   this->LODs = lods;
 }

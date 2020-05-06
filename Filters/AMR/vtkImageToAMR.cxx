@@ -100,7 +100,7 @@ int ComputeTreeHeight(int maxNumNodes, int degree)
 // than turn a full tree. This shape is designed so that numLevels and maxNumBlocks
 // constraint can be satisfied
 void Split(const vtkAMRBox& rootBox, int numLevels, int refinementRatio, int maxNumBlocks,
-  std::vector<std::vector<vtkAMRBox> >& out)
+  std::vector<std::vector<vtkAMRBox>>& out)
 {
   out.clear();
   out.resize(1);
@@ -291,7 +291,7 @@ int vtkImageToAMR::RequestData(vtkInformation* vtkNotUsed(request),
 
   vtkAMRBox rootBox(inputOrigin, dims0, spacing0, inputOrigin, gridDescription);
 
-  std::vector<std::vector<vtkAMRBox> > amrBoxes;
+  std::vector<std::vector<vtkAMRBox>> amrBoxes;
   Split(
     rootBox, this->NumberOfLevels, this->RefinementRatio, this->MaximumNumberOfBlocks, amrBoxes);
 

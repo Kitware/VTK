@@ -385,7 +385,7 @@ int vtkCCSTriangulate(const vtkCCSPoly& poly, vtkPoints* points, const vtkCCSPol
   {
     double ppoint[3], point[3], npoint[3];
     size_t i, j, k;
-    std::vector<std::pair<size_t, double> > verts(n);
+    std::vector<std::pair<size_t, double>> verts(n);
 
     for (i = 0; i < n; i++)
     {
@@ -2345,7 +2345,7 @@ int vtkCCSCutHoleyPolys(std::vector<vtkCCSPoly>& polys, vtkPoints* points,
       size_t innerPolyId = polyGroup[1];
 
       // Sort the group by size, do largest holes first
-      std::vector<std::pair<size_t, size_t> > innerBySize(polyGroup.size());
+      std::vector<std::pair<size_t, size_t>> innerBySize(polyGroup.size());
 
       for (size_t i = 1; i < polyGroup.size(); i++)
       {

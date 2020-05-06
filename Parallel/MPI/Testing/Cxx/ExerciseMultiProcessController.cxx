@@ -351,7 +351,7 @@ void ExerciseType(vtkMultiProcessController* controller)
   // Fill up some random arrays.  Note that here and elsewhere we are careful to
   // have each process request the same random numbers.  The pseudorandomness
   // gives us the same values on all processes.
-  std::vector<vtkSmartPointer<arrayType> > sourceArrays;
+  std::vector<vtkSmartPointer<arrayType>> sourceArrays;
   sourceArrays.resize(numProc);
   for (i = 0; i < numProc; i++)
   {

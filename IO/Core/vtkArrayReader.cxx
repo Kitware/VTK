@@ -134,7 +134,7 @@ template <typename ValueT>
 vtkSparseArray<ValueT>* ReadSparseArrayBinary(istream& stream)
 {
   // Create the array ...
-  vtkSmartPointer<vtkSparseArray<ValueT> > array = vtkSmartPointer<vtkSparseArray<ValueT> >::New();
+  vtkSmartPointer<vtkSparseArray<ValueT>> array = vtkSmartPointer<vtkSparseArray<ValueT>>::New();
 
   // Read the file header ...
   vtkArrayExtents extents;
@@ -168,8 +168,8 @@ template <>
 vtkSparseArray<vtkStdString>* ReadSparseArrayBinary<vtkStdString>(istream& stream)
 {
   // Create the array ...
-  vtkSmartPointer<vtkSparseArray<vtkStdString> > array =
-    vtkSmartPointer<vtkSparseArray<vtkStdString> >::New();
+  vtkSmartPointer<vtkSparseArray<vtkStdString>> array =
+    vtkSmartPointer<vtkSparseArray<vtkStdString>>::New();
 
   // Read the file header ...
   vtkArrayExtents extents;
@@ -226,8 +226,8 @@ template <>
 vtkSparseArray<vtkUnicodeString>* ReadSparseArrayBinary<vtkUnicodeString>(istream& stream)
 {
   // Create the array ...
-  vtkSmartPointer<vtkSparseArray<vtkUnicodeString> > array =
-    vtkSmartPointer<vtkSparseArray<vtkUnicodeString> >::New();
+  vtkSmartPointer<vtkSparseArray<vtkUnicodeString>> array =
+    vtkSmartPointer<vtkSparseArray<vtkUnicodeString>>::New();
 
   // Read the file header ...
   vtkArrayExtents extents;
@@ -284,7 +284,7 @@ template <typename ValueT>
 vtkDenseArray<ValueT>* ReadDenseArrayBinary(istream& stream)
 {
   // Create the array ...
-  vtkSmartPointer<vtkDenseArray<ValueT> > array = vtkSmartPointer<vtkDenseArray<ValueT> >::New();
+  vtkSmartPointer<vtkDenseArray<ValueT>> array = vtkSmartPointer<vtkDenseArray<ValueT>>::New();
 
   // Read the file header ...
   vtkArrayExtents extents;
@@ -309,8 +309,8 @@ template <>
 vtkDenseArray<vtkStdString>* ReadDenseArrayBinary<vtkStdString>(istream& stream)
 {
   // Create the array ...
-  vtkSmartPointer<vtkDenseArray<vtkStdString> > array =
-    vtkSmartPointer<vtkDenseArray<vtkStdString> >::New();
+  vtkSmartPointer<vtkDenseArray<vtkStdString>> array =
+    vtkSmartPointer<vtkDenseArray<vtkStdString>>::New();
 
   // Read the file header ...
   vtkArrayExtents extents;
@@ -343,8 +343,8 @@ template <>
 vtkDenseArray<vtkUnicodeString>* ReadDenseArrayBinary<vtkUnicodeString>(istream& stream)
 {
   // Create the array ...
-  vtkSmartPointer<vtkDenseArray<vtkUnicodeString> > array =
-    vtkSmartPointer<vtkDenseArray<vtkUnicodeString> >::New();
+  vtkSmartPointer<vtkDenseArray<vtkUnicodeString>> array =
+    vtkSmartPointer<vtkDenseArray<vtkUnicodeString>>::New();
 
   // Read the file header ...
   vtkArrayExtents extents;
@@ -377,7 +377,7 @@ template <typename ValueT>
 vtkSparseArray<ValueT>* ReadSparseArrayAscii(istream& stream)
 {
   // Create the array ...
-  vtkSmartPointer<vtkSparseArray<ValueT> > array = vtkSmartPointer<vtkSparseArray<ValueT> >::New();
+  vtkSmartPointer<vtkSparseArray<ValueT>> array = vtkSmartPointer<vtkSparseArray<ValueT>>::New();
 
   // Read the stream header ...
   vtkArrayExtents extents;
@@ -445,7 +445,7 @@ template <typename ValueT>
 vtkDenseArray<ValueT>* ReadDenseArrayAscii(istream& stream)
 {
   // Create the array ...
-  vtkSmartPointer<vtkDenseArray<ValueT> > array = vtkSmartPointer<vtkDenseArray<ValueT> >::New();
+  vtkSmartPointer<vtkDenseArray<ValueT>> array = vtkSmartPointer<vtkDenseArray<ValueT>>::New();
 
   // Read the file header ...
   vtkArrayExtents extents;

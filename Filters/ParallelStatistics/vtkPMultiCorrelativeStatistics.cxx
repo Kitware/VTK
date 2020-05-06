@@ -134,7 +134,7 @@ void vtkPMultiCorrelativeStatistics::GatherStatistics(
   vtkIdType nMeans = static_cast<vtkIdType>(meanIndex.size());
 
   // Second, load all MXYs and create an index-to-index-pair lookup table
-  std::map<vtkIdType, std::pair<vtkIdType, vtkIdType> > covToMeans;
+  std::map<vtkIdType, std::pair<vtkIdType, vtkIdType>> covToMeans;
   for (vtkIdType r = 1; r < nRow; ++r)
   {
     vtkStdString col2 = sparseCov->GetValueByName(r, "Column2").ToString();

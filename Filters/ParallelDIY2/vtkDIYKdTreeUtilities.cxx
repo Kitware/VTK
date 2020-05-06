@@ -127,7 +127,7 @@ std::vector<vtkBoundingBox> vtkDIYKdTreeUtilities::GenerateCuts(
   const std::vector<vtkDataObject*>& dobjs, int number_of_partitions, bool use_cell_centers,
   vtkMultiProcessController* controller, const double* local_bounds)
 {
-  std::vector<vtkSmartPointer<vtkPoints> > points;
+  std::vector<vtkSmartPointer<vtkPoints>> points;
 
   vtkBoundingBox bbox;
   if (local_bounds != nullptr)
@@ -156,7 +156,7 @@ std::vector<vtkBoundingBox> vtkDIYKdTreeUtilities::GenerateCuts(
 
 //----------------------------------------------------------------------------
 std::vector<vtkBoundingBox> vtkDIYKdTreeUtilities::GenerateCuts(
-  const std::vector<vtkSmartPointer<vtkPoints> >& points, int number_of_partitions,
+  const std::vector<vtkSmartPointer<vtkPoints>>& points, int number_of_partitions,
   vtkMultiProcessController* controller, const double* local_bounds /*=nullptr*/)
 {
   if (number_of_partitions == 0)
@@ -306,7 +306,7 @@ vtkSmartPointer<vtkPartitionedDataSet> vtkDIYKdTreeUtilities::Exchange(
     block_assigner = std::make_shared<diy::ContiguousAssigner>(comm.size(), nblocks);
   }
 
-  using VectorOfUG = std::vector<vtkSmartPointer<vtkUnstructuredGrid> >;
+  using VectorOfUG = std::vector<vtkSmartPointer<vtkUnstructuredGrid>>;
   using VectorOfVectorOfUG = std::vector<VectorOfUG>;
 
   diy::Master master(

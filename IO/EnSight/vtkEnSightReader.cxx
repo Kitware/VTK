@@ -35,7 +35,7 @@
 #include <vector>
 
 //----------------------------------------------------------------------------
-typedef std::vector<vtkSmartPointer<vtkIdList> > vtkEnSightReaderCellIdsTypeBase;
+typedef std::vector<vtkSmartPointer<vtkIdList>> vtkEnSightReaderCellIdsTypeBase;
 class vtkEnSightReaderCellIdsType : public vtkEnSightReaderCellIdsTypeBase
 {
 };

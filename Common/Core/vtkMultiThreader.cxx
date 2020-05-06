@@ -341,7 +341,7 @@ void vtkMultiThreader::MultipleMethodExecute()
 
   for (thread_loop = 0; thread_loop < this->NumberOfThreads; thread_loop++)
   {
-    if (this->MultipleMethod[thread_loop] == (vtkThreadFunctionType)nullptr)
+    if (this->MultipleMethod[thread_loop] == (vtkThreadFunctionType) nullptr)
     {
       vtkErrorMacro(<< "No multiple method set for: " << thread_loop);
       return;

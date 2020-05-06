@@ -1524,7 +1524,7 @@ protected:
   vtkLabelHierarchy::Implementation::LabelSet::iterator LabelIterator;
   vtkLabelHierarchy::Implementation::HierarchyCursor3 Cursor;
   std::vector<int> Path;
-  std::vector<std::vector<int> >
+  std::vector<std::vector<int>>
     Order;             // visibility sorted order of children at each level of the tree.
   float BucketSize[2]; // size of label placer buckets in pixels
   double SizeLimit;    // square of smallest allowable distance-normalized octree node size.

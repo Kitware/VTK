@@ -24,7 +24,7 @@
 #include <vector>
 
 // PIMPL'd std::vector
-class StdVectorOfImageDataPointers : public std::vector<vtkSmartPointer<vtkImageData> >
+class StdVectorOfImageDataPointers : public std::vector<vtkSmartPointer<vtkImageData>>
 {
 };
 

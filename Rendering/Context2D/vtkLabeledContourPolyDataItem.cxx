@@ -145,7 +145,7 @@ struct vtkLabeledContourPolyDataItem::Private
   std::vector<PDILabelMetric> LabelMetrics;
 
   // One PDILabelInfo per label groups by isoline.
-  std::vector<std::vector<PDILabelInfo> > LabelInfos;
+  std::vector<std::vector<PDILabelInfo>> LabelInfos;
 
   // Info for calculating display coordinates:
   vtkTuple<double, 16> AMVP;               // actor-model-view-projection matrix
@@ -612,7 +612,7 @@ bool vtkLabeledContourPolyDataItem::PlaceLabels()
 bool vtkLabeledContourPolyDataItem::ResolveLabels()
 {
   typedef std::vector<PDILabelInfo>::iterator InnerIterator;
-  typedef std::vector<std::vector<PDILabelInfo> >::iterator OuterIterator;
+  typedef std::vector<std::vector<PDILabelInfo>>::iterator OuterIterator;
 
   bool removedA = false;
   bool removedB = false;

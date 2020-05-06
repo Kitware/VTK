@@ -39,7 +39,7 @@ vtkStandardNewMacro(vtkEnSightGoldReader);
 class vtkEnSightGoldReader::FileOffsetMapInternal
 {
 public:
-  std::map<std::string, std::map<int, long> > Map;
+  std::map<std::string, std::map<int, long>> Map;
 };
 class vtkEnSightGoldReader::UndefPartialInternal
 {

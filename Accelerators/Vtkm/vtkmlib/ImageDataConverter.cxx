@@ -65,7 +65,7 @@ struct SetGlobalPointIndexStart
         vtkm::VecTraits<decltype(extStart)>::SetComponent(extStart, ii++, extent[2 * i]);
       }
     }
-    vtkm::cont::Cast<vtkm::cont::CellSetStructured<Dim> >(dcs).SetGlobalPointIndexStart(extStart);
+    vtkm::cont::Cast<vtkm::cont::CellSetStructured<Dim>>(dcs).SetGlobalPointIndexStart(extStart);
   }
 };
 
@@ -98,7 +98,7 @@ vtkm::cont::DataSet Convert(vtkImageData* input, FieldsFlag fields)
   vtkm::cont::DataSet dataset = vtkm::cont::DataSetBuilderUniform::Create(dims, origin, spacing);
 
   using ListCellSetStructured = vtkm::List<vtkm::cont::CellSetStructured<1>,
-    vtkm::cont::CellSetStructured<2>, vtkm::cont::CellSetStructured<3> >;
+    vtkm::cont::CellSetStructured<2>, vtkm::cont::CellSetStructured<3>>;
   auto cellSet = dataset.GetCellSet().ResetCellSetList(ListCellSetStructured{});
   vtkm::cont::CastAndCall(cellSet, SetGlobalPointIndexStart{}, dims, extent, dataset.GetCellSet());
 
@@ -162,7 +162,7 @@ bool Convert(const vtkm::cont::DataSet& voutput, vtkImageData* output, vtkDataSe
   auto dim = portal.GetDimensions();
   int extents[6];
   using ListCellSetStructured = vtkm::List<vtkm::cont::CellSetStructured<1>,
-    vtkm::cont::CellSetStructured<2>, vtkm::cont::CellSetStructured<3> >;
+    vtkm::cont::CellSetStructured<2>, vtkm::cont::CellSetStructured<3>>;
   auto cellSet = voutput.GetCellSet().ResetCellSetList(ListCellSetStructured{});
   vtkm::cont::CastAndCall(cellSet, ComputeExtents{}, dim, extents);
 

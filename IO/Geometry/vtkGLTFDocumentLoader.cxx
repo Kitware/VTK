@@ -287,7 +287,7 @@ struct vtkGLTFDocumentLoader::AccessorLoadingWorker
 {
   const std::vector<Accessor>* Accessors;
   const std::vector<BufferView>* BufferViews;
-  const std::vector<std::vector<char> >* Buffers;
+  const std::vector<std::vector<char>>* Buffers;
   int AccessorId;
   AccessorType ExpectedType;
   bool NormalizeTuples = false;

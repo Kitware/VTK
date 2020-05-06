@@ -473,7 +473,7 @@ public:
   {
     int colorInSeries = 0;
     bool useColorSeries = this->Segments.size() > 1;
-    for (std::vector<vtkSmartPointer<vtkPlotBarSegment> >::iterator it = this->Segments.begin();
+    for (std::vector<vtkSmartPointer<vtkPlotBarSegment>>::iterator it = this->Segments.begin();
          it != this->Segments.end(); ++it)
     {
       if (useColorSeries && colorSeries)
@@ -488,7 +488,7 @@ public:
     float offset, int orientation, vtkIdType* segmentIndex)
   {
     vtkIdType segmentIndexCtr = 0;
-    for (std::vector<vtkSmartPointer<vtkPlotBarSegment> >::iterator it = this->Segments.begin();
+    for (std::vector<vtkSmartPointer<vtkPlotBarSegment>>::iterator it = this->Segments.begin();
          it != this->Segments.end(); ++it)
     {
       int barIndex = (*it)->GetNearestPoint(point, location, width, offset, orientation);
@@ -521,7 +521,7 @@ public:
     return this->Segments[0]->SelectPoints(min, max, width, offset, orientation);
   }
 
-  std::vector<vtkSmartPointer<vtkPlotBarSegment> > Segments;
+  std::vector<vtkSmartPointer<vtkPlotBarSegment>> Segments;
   vtkPlotBar* Bar;
   std::map<int, std::string> AdditionalSeries;
   vtkStdString GroupName;

@@ -33,7 +33,7 @@ vtkStandardNewMacro(vtkLassoStencilSource);
 vtkCxxSetObjectMacro(vtkLassoStencilSource, Points, vtkPoints);
 
 //----------------------------------------------------------------------------
-class vtkLSSPointMap : public std::map<int, vtkSmartPointer<vtkPoints> >
+class vtkLSSPointMap : public std::map<int, vtkSmartPointer<vtkPoints>>
 {
 };
 

@@ -57,7 +57,7 @@ int TestCompositeDataPointGaussianSelection(int argc, char* argv[])
   // build a composite dataset
   vtkNew<vtkMultiBlockDataSet> data;
   int blocksPerLevel[3] = { 1, 16, 32 };
-  std::vector<vtkSmartPointer<vtkMultiBlockDataSet> > blocks;
+  std::vector<vtkSmartPointer<vtkMultiBlockDataSet>> blocks;
   blocks.emplace_back(data.GetPointer());
   unsigned levelStart = 0;
   unsigned levelEnd = 1;

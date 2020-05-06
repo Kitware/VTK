@@ -72,7 +72,7 @@ int vtkMoleculeAppend::RequestData(
   vtkNew<vtkPoints> uniquePointsList;
   double bounds[6] = { 0., 0., 0., 0., 0., 0. };
   uniquePoints->InitPointInsertion(uniquePointsList, bounds, 0);
-  std::set<std::pair<vtkIdType, vtkIdType> > uniqueBonds;
+  std::set<std::pair<vtkIdType, vtkIdType>> uniqueBonds;
 
   // ********************
   // Process each input

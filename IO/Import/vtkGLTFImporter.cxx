@@ -75,7 +75,7 @@ vtkSmartPointer<vtkCamera> GLTFCameraToVTKCamera(const vtkGLTFDocumentLoader::Ca
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkTexture> CreateVTKTextureFromGLTFTexture(
   std::shared_ptr<vtkGLTFDocumentLoader::Model> model, int textureIndex,
-  std::map<int, vtkSmartPointer<vtkTexture> >& existingTextures)
+  std::map<int, vtkSmartPointer<vtkTexture>>& existingTextures)
 {
 
   if (existingTextures.count(textureIndex))
@@ -185,7 +185,7 @@ bool PrimitiveNeedsTangents(const std::shared_ptr<vtkGLTFDocumentLoader::Model> 
 //----------------------------------------------------------------------------
 void ApplyGLTFMaterialToVTKActor(std::shared_ptr<vtkGLTFDocumentLoader::Model> model,
   vtkGLTFDocumentLoader::Primitive& primitive, vtkSmartPointer<vtkActor> actor,
-  std::map<int, vtkSmartPointer<vtkTexture> >& existingTextures)
+  std::map<int, vtkSmartPointer<vtkTexture>>& existingTextures)
 {
   vtkGLTFDocumentLoader::Material& material = model->Materials[primitive.Material];
 

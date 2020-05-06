@@ -344,39 +344,35 @@ public:
   inline quaternionType operator+(const quaternionType& q) const                                   \
   {                                                                                                \
     return quaternionType(                                                                         \
-      (static_cast<vtkQuaternion<type> >(*this) + static_cast<vtkQuaternion<type> >(q))            \
-        .GetData());                                                                               \
+      (static_cast<vtkQuaternion<type>>(*this) + static_cast<vtkQuaternion<type>>(q)).GetData());  \
   }
 #define vtkQuaternionOperatorMinus(quaternionType, type)                                           \
   inline quaternionType operator-(const quaternionType& q) const                                   \
   {                                                                                                \
     return quaternionType(                                                                         \
-      (static_cast<vtkQuaternion<type> >(*this) - static_cast<vtkQuaternion<type> >(q))            \
-        .GetData());                                                                               \
+      (static_cast<vtkQuaternion<type>>(*this) - static_cast<vtkQuaternion<type>>(q)).GetData());  \
   }
 #define vtkQuaternionOperatorMultiply(quaternionType, type)                                        \
   inline quaternionType operator*(const quaternionType& q) const                                   \
   {                                                                                                \
     return quaternionType(                                                                         \
-      (static_cast<vtkQuaternion<type> >(*this) * static_cast<vtkQuaternion<type> >(q))            \
-        .GetData());                                                                               \
+      (static_cast<vtkQuaternion<type>>(*this) * static_cast<vtkQuaternion<type>>(q)).GetData());  \
   }
 #define vtkQuaternionOperatorMultiplyScalar(quaternionType, type)                                  \
   inline quaternionType operator*(const type& scalar) const                                        \
   {                                                                                                \
-    return quaternionType((static_cast<vtkQuaternion<type> >(*this) * scalar).GetData());          \
+    return quaternionType((static_cast<vtkQuaternion<type>>(*this) * scalar).GetData());           \
   }
 #define vtkQuaternionOperatorDivide(quaternionType, type)                                          \
   inline quaternionType operator/(const quaternionType& q) const                                   \
   {                                                                                                \
     return quaternionType(                                                                         \
-      (static_cast<vtkQuaternion<type> >(*this) / static_cast<vtkQuaternion<type> >(q))            \
-        .GetData());                                                                               \
+      (static_cast<vtkQuaternion<type>>(*this) / static_cast<vtkQuaternion<type>>(q)).GetData());  \
   }
 #define vtkQuaternionOperatorDivideScalar(quaternionType, type)                                    \
   inline quaternionType operator/(const type& scalar) const                                        \
   {                                                                                                \
-    return quaternionType((static_cast<vtkQuaternion<type> >(*this) / scalar).GetData());          \
+    return quaternionType((static_cast<vtkQuaternion<type>>(*this) / scalar).GetData());           \
   }
 
 #define vtkQuaternionOperatorMacro(quaternionType, type)                                           \

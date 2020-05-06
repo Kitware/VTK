@@ -51,7 +51,7 @@ const EGLenum EGL_PLATFORM_DEVICE_EXT = 0x313F;
  */
 class vtkEGLDisplayInitializationHelper
 {
-  static std::map<EGLDisplay, std::atomic<int64_t> > DisplayUsageCounts;
+  static std::map<EGLDisplay, std::atomic<int64_t>> DisplayUsageCounts;
 
 public:
   static EGLBoolean Initialize(EGLDisplay dpy, EGLint* major, EGLint* minor)
@@ -71,7 +71,7 @@ public:
   }
 };
 
-std::map<EGLDisplay, std::atomic<int64_t> > vtkEGLDisplayInitializationHelper::DisplayUsageCounts;
+std::map<EGLDisplay, std::atomic<int64_t>> vtkEGLDisplayInitializationHelper::DisplayUsageCounts;
 
 struct vtkEGLDeviceExtensions
 {

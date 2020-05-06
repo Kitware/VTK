@@ -384,7 +384,7 @@ void bindTexturedPolydataToRenderWindow(
   // keep track of textures used and if multiple parts use the same
   // texture, then have the actors use the same texture. This saves memory
   // etc and makes exporting more efficient.
-  std::map<std::string, vtkSmartPointer<vtkTexture> > knownTextures;
+  std::map<std::string, vtkSmartPointer<vtkTexture>> knownTextures;
 
   for (int port_idx = 0; port_idx < reader->GetNumberOfOutputPorts(); port_idx++)
   {

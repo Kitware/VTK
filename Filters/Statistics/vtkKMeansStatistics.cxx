@@ -59,7 +59,7 @@ int vtkKMeansStatistics::InitializeDataAndClusterCenters(vtkTable* inParameters,
   vtkTable* dataElements, vtkIdTypeArray* numberOfClusters, vtkTable* curClusterElements,
   vtkTable* newClusterElements, vtkIdTypeArray* startRunID, vtkIdTypeArray* endRunID)
 {
-  std::set<std::set<vtkStdString> >::const_iterator reqIt;
+  std::set<std::set<vtkStdString>>::const_iterator reqIt;
   if (this->Internals->Requests.size() > 1)
   {
     static int num = 0;
@@ -176,7 +176,7 @@ void vtkKMeansStatistics::CreateInitialClusterCenters(vtkIdType numToAllocate,
   vtkIdTypeArray* numberOfClusters, vtkTable* inData, vtkTable* curClusterElements,
   vtkTable* newClusterElements)
 {
-  std::set<std::set<vtkStdString> >::const_iterator reqIt;
+  std::set<std::set<vtkStdString>>::const_iterator reqIt;
   if (this->Internals->Requests.size() > 1)
   {
     static int num = 0;
@@ -533,7 +533,7 @@ void vtkKMeansStatistics::Derive(vtkMultiBlockDataSet* outMeta)
   localRank->SetName("Local Rank");
 
   std::multimap<double, vtkIdType> globalErrorMap;
-  std::map<vtkIdType, std::multimap<double, vtkIdType> > localErrorMap;
+  std::map<vtkIdType, std::multimap<double, vtkIdType>> localErrorMap;
 
   vtkIdType curRow = 0;
   while (curRow < outTable->GetNumberOfRows())
@@ -563,7 +563,7 @@ void vtkKMeansStatistics::Derive(vtkMultiBlockDataSet* outMeta)
   {
     globalRank->SetValue(itr->second, rankID++);
   }
-  for (std::map<vtkIdType, std::multimap<double, vtkIdType> >::iterator itr = localErrorMap.begin();
+  for (std::map<vtkIdType, std::multimap<double, vtkIdType>>::iterator itr = localErrorMap.begin();
        itr != localErrorMap.end(); ++itr)
   {
     rankID = 1;

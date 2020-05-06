@@ -60,7 +60,7 @@ public:
   vtkSmartPointer<vtkPlotParallelCoordinates> Plot;
   vtkSmartPointer<vtkTransform2D> Transform;
   std::vector<vtkAxis*> Axes;
-  std::vector<vtkVector<float, 2> > AxesSelections;
+  std::vector<vtkVector<float, 2>> AxesSelections;
   int CurrentAxis;
   int AxisResize;
   bool InteractiveSelection;

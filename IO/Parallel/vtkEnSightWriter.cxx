@@ -311,7 +311,7 @@ void vtkEnSightWriter::WriteData()
 
   // data structure to get all the cells for a certain part
   // basically sort by part# and cell type
-  std::map<int, std::vector<int> > CellsByPart;
+  std::map<int, std::vector<int>> CellsByPart;
 
   // just a list of part numbers
   std::list<int> partNumbers;
@@ -441,7 +441,7 @@ void vtkEnSightWriter::WriteData()
 
     // now we need to sort the cell list by element type
     // map is indexed by cell type has a vector of cell ID's
-    std::map<int, std::vector<int> > CellsByElement;
+    std::map<int, std::vector<int>> CellsByElement;
     for (j = 0; j < CellsByPart[part].size(); j++)
     {
       int CellType = input->GetCell(CellsByPart[part][j])->GetCellType();

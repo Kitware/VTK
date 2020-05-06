@@ -236,8 +236,8 @@ public:
 
   struct vtkReebCancellation_t
   {
-    std::vector<std::pair<int, int> > removedArcs;
-    std::vector<std::pair<int, int> > insertedArcs;
+    std::vector<std::pair<int, int>> removedArcs;
+    std::vector<std::pair<int, int>> insertedArcs;
   };
   using vtkReebCancellation = struct vtkReebCancellation_t;
 
@@ -1568,7 +1568,7 @@ void vtkReebGraph::Implementation::ResizeMainNodeTable(int newSize)
 int vtkReebGraph::Implementation::CommitSimplification()
 {
   // now re-construct the graph with projected deg-2 nodes.
-  std::vector<std::pair<std::pair<int, int>, std::vector<int> > > before, after;
+  std::vector<std::pair<std::pair<int, int>, std::vector<int>>> before, after;
 
   vtkEdgeListIterator* eIt = vtkEdgeListIterator::New();
   this->Parent->GetEdges(eIt);
@@ -1582,7 +1582,7 @@ int vtkReebGraph::Implementation::CommitSimplification()
 
   do
   {
-    std::pair<std::pair<int, int>, std::vector<int> > superArc;
+    std::pair<std::pair<int, int>, std::vector<int>> superArc;
 
     vtkEdgeType e = eIt->Next();
     vtkAbstractArray* vertexList = edgeInfo->GetPointer(e.Id)->ToArray();
@@ -1618,7 +1618,7 @@ int vtkReebGraph::Implementation::CommitSimplification()
       down = this->GetNode((this->GetArc(arcId))->NodeId0)->VertexId;
       up = this->GetNode((this->GetArc(arcId))->NodeId1)->VertexId;
 
-      std::pair<std::pair<int, int>, std::vector<int> > superArc;
+      std::pair<std::pair<int, int>, std::vector<int>> superArc;
 
       superArc.first.first = down;
       superArc.first.second = up;
@@ -1723,7 +1723,7 @@ int vtkReebGraph::Implementation::CommitSimplification()
   // ensure the sorting on the arcs
   for (unsigned int i = 0; i < after.size(); i++)
   {
-    std::vector<std::pair<int, double> > scalarValues;
+    std::vector<std::pair<int, double>> scalarValues;
     for (unsigned int j = 0; j < after[i].second.size(); j++)
     {
       std::pair<int, double> scalarVertex;
@@ -1891,20 +1891,20 @@ void vtkReebGraph::CloseStream()
   // loop over the arcs and build the local adjacency map
 
   // vertex -> (down vertices, up vertices)
-  std::map<int, std::pair<std::vector<int>, std::vector<int> > > localAdjacency;
+  std::map<int, std::pair<std::vector<int>, std::vector<int>>> localAdjacency;
   while (prevArcId != arcId)
   {
     vtkIdType downVertexId, upVertexId;
     downVertexId = this->Storage->GetNode((this->Storage->GetArc(arcId))->NodeId0)->VertexId;
     upVertexId = this->Storage->GetNode((this->Storage->GetArc(arcId))->NodeId1)->VertexId;
 
-    std::map<int, std::pair<std::vector<int>, std::vector<int> > >::iterator aIt;
+    std::map<int, std::pair<std::vector<int>, std::vector<int>>>::iterator aIt;
 
     // lookUp for the down vertex
     aIt = localAdjacency.find(downVertexId);
     if (aIt == localAdjacency.end())
     {
-      std::pair<std::vector<int>, std::vector<int> > adjacencyItem;
+      std::pair<std::vector<int>, std::vector<int>> adjacencyItem;
       adjacencyItem.second.push_back(upVertexId);
       localAdjacency[downVertexId] = adjacencyItem;
     }
@@ -1917,7 +1917,7 @@ void vtkReebGraph::CloseStream()
     aIt = localAdjacency.find(upVertexId);
     if (aIt == localAdjacency.end())
     {
-      std::pair<std::vector<int>, std::vector<int> > adjacencyItem;
+      std::pair<std::vector<int>, std::vector<int>> adjacencyItem;
       adjacencyItem.first.push_back(downVertexId);
       localAdjacency[upVertexId] = adjacencyItem;
     }
@@ -1933,9 +1933,9 @@ void vtkReebGraph::CloseStream()
   // now build the super-arcs with deg-2 nodes
 
   // <vertex,vertex>,<vertex list> (arc, deg2 node list)
-  std::vector<std::pair<std::pair<int, int>, std::vector<int> > > globalAdjacency;
+  std::vector<std::pair<std::pair<int, int>, std::vector<int>>> globalAdjacency;
 
-  std::map<int, std::pair<std::vector<int>, std::vector<int> > >::iterator aIt;
+  std::map<int, std::pair<std::vector<int>, std::vector<int>>>::iterator aIt;
   aIt = localAdjacency.begin();
   do
   {
@@ -1948,7 +1948,7 @@ void vtkReebGraph::CloseStream()
         for (unsigned int i = 0; i < aIt->second.second.size(); i++)
         {
           std::vector<int> deg2List;
-          std::map<int, std::pair<std::vector<int>, std::vector<int> > >::iterator nextIt;
+          std::map<int, std::pair<std::vector<int>, std::vector<int>>>::iterator nextIt;
 
           nextIt = localAdjacency.find(aIt->second.second[i]);
           while ((nextIt->second.first.size() == 1) && (nextIt->second.second.size() == 1))

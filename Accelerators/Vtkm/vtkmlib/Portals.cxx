@@ -24,6 +24,6 @@ namespace tovtkm
 // T extern template instantiations
 template class VTKACCELERATORSVTKM_EXPORT vtkPointsPortal<vtkm::Vec<vtkm::Float32, 3> const>;
 template class VTKACCELERATORSVTKM_EXPORT vtkPointsPortal<vtkm::Vec<vtkm::Float64, 3> const>;
-template class VTKACCELERATORSVTKM_EXPORT vtkPointsPortal<vtkm::Vec<vtkm::Float32, 3> >;
-template class VTKACCELERATORSVTKM_EXPORT vtkPointsPortal<vtkm::Vec<vtkm::Float64, 3> >;
+template class VTKACCELERATORSVTKM_EXPORT vtkPointsPortal<vtkm::Vec<vtkm::Float32, 3>>;
+template class VTKACCELERATORSVTKM_EXPORT vtkPointsPortal<vtkm::Vec<vtkm::Float64, 3>>;
 }

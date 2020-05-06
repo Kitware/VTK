@@ -103,7 +103,7 @@ class MinAndMax
 {
 protected:
   APIType ReducedRange[2 * NumComps];
-  vtkSMPThreadLocal<std::array<APIType, 2 * NumComps> > TLRange;
+  vtkSMPThreadLocal<std::array<APIType, 2 * NumComps>> TLRange;
 
 public:
   void Initialize()
@@ -140,7 +140,7 @@ public:
   }
 };
 
-template <int NumComps, typename ArrayT, typename APIType = typename vtk::GetAPIType<ArrayT> >
+template <int NumComps, typename ArrayT, typename APIType = typename vtk::GetAPIType<ArrayT>>
 class AllValuesMinAndMax : public MinAndMax<APIType, NumComps>
 {
 private:
@@ -173,7 +173,7 @@ public:
   }
 };
 
-template <int NumComps, typename ArrayT, typename APIType = typename vtk::GetAPIType<ArrayT> >
+template <int NumComps, typename ArrayT, typename APIType = typename vtk::GetAPIType<ArrayT>>
 class FiniteMinAndMax : public MinAndMax<APIType, NumComps>
 {
 private:
@@ -209,7 +209,7 @@ public:
   }
 };
 
-template <typename ArrayT, typename APIType = typename vtk::GetAPIType<ArrayT> >
+template <typename ArrayT, typename APIType = typename vtk::GetAPIType<ArrayT>>
 class MagnitudeAllValuesMinAndMax : public MinAndMax<APIType, 1>
 {
 private:
@@ -251,7 +251,7 @@ public:
   }
 };
 
-template <typename ArrayT, typename APIType = typename vtk::GetAPIType<ArrayT> >
+template <typename ArrayT, typename APIType = typename vtk::GetAPIType<ArrayT>>
 class MagnitudeFiniteMinAndMax : public MinAndMax<APIType, 1>
 {
 private:
@@ -324,7 +324,7 @@ class GenericMinAndMax
 protected:
   ArrayT* Array;
   vtkIdType NumComps;
-  vtkSMPThreadLocal<std::vector<APIType> > TLRange;
+  vtkSMPThreadLocal<std::vector<APIType>> TLRange;
   std::vector<APIType> ReducedRange;
 
 public:
@@ -369,7 +369,7 @@ public:
   }
 };
 
-template <typename ArrayT, typename APIType = typename vtk::GetAPIType<ArrayT> >
+template <typename ArrayT, typename APIType = typename vtk::GetAPIType<ArrayT>>
 class AllValuesGenericMinAndMax : public GenericMinAndMax<ArrayT, APIType>
 {
 private:
@@ -400,7 +400,7 @@ public:
   }
 };
 
-template <typename ArrayT, typename APIType = typename vtk::GetAPIType<ArrayT> >
+template <typename ArrayT, typename APIType = typename vtk::GetAPIType<ArrayT>>
 class FiniteGenericMinAndMax : public GenericMinAndMax<ArrayT, APIType>
 {
 private:

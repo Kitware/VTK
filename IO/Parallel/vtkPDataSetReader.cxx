@@ -1009,7 +1009,7 @@ int vtkPDataSetReader::StructuredGridExecute(
   this->CoverExtent(uExt, pieceMask.data());
 
   // Now read the pieces.
-  std::vector<vtkSmartPointer<vtkStructuredGrid> > pieces;
+  std::vector<vtkSmartPointer<vtkStructuredGrid>> pieces;
   reader = vtkStructuredGridReader::New();
   reader->ReadAllScalarsOn();
   reader->ReadAllVectorsOn();

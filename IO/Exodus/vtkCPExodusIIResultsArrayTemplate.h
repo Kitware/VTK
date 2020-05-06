@@ -37,8 +37,8 @@ class vtkCPExodusIIResultsArrayTemplate : public vtkMappedDataArray<Scalar>
 public:
   vtkAbstractTemplateTypeMacro(
     vtkCPExodusIIResultsArrayTemplate<Scalar>, vtkMappedDataArray<Scalar>)
-    vtkMappedDataArrayNewInstanceMacro(
-      vtkCPExodusIIResultsArrayTemplate<Scalar>) static vtkCPExodusIIResultsArrayTemplate* New();
+  vtkMappedDataArrayNewInstanceMacro(
+    vtkCPExodusIIResultsArrayTemplate<Scalar>) static vtkCPExodusIIResultsArrayTemplate* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   typedef typename Superclass::ValueType ValueType;

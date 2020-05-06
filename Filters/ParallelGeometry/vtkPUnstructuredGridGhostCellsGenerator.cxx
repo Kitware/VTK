@@ -95,17 +95,17 @@ struct vtkPUnstructuredGridGhostCellsGenerator::vtkInternals
 
   // For global ids
   std::map<vtkIdType, vtkIdType> GlobalToLocalPointIdMap;
-  std::map<int, std::vector<vtkIdType> > ProcessIdToSurfacePointIds;
+  std::map<int, std::vector<vtkIdType>> ProcessIdToSurfacePointIds;
   // Ids to send to a specific process. Only the ids of points in the
   // receive process's bounding box are sent.
-  std::map<int, std::vector<vtkIdType> > SendIds;
+  std::map<int, std::vector<vtkIdType>> SendIds;
 
   // For point coordinates
-  std::map<int, std::vector<double> > ProcessIdToSurfacePoints;
+  std::map<int, std::vector<double>> ProcessIdToSurfacePoints;
   vtkSmartPointer<vtkIdTypeArray> LocalPointsMap; // from surface id to 3d grid id
   // Points to send to a specific process. Only the points in the
   // receive process's bounding box are sent.
-  std::map<int, std::vector<double> > SendPoints;
+  std::map<int, std::vector<double>> SendPoints;
   vtkSmartPointer<vtkDataArray> MyPoints;
 
   std::map<int, CommDataInfo> CommData;
@@ -116,16 +116,16 @@ struct vtkPUnstructuredGridGhostCellsGenerator::vtkInternals
   bool UseGlobalPointIds;
 
   // cells that need to be sent to a given proc
-  std::map<int, std::set<vtkIdType> > CellsToSend;
+  std::map<int, std::set<vtkIdType>> CellsToSend;
 
   // cells that have been sent to a given proc over the entire time.
   // used to make sure we only send a cell once to a destination process.
-  std::map<int, std::set<vtkIdType> > SentCells;
+  std::map<int, std::set<vtkIdType>> SentCells;
 
   // cells that have been received from a given proc over the entire time.
   // stores global cell id. used this to make sure that we don't send
   // a cell back to a process that already sent it to this rank
-  std::map<int, std::set<vtkIdType> > ReceivedCells;
+  std::map<int, std::set<vtkIdType>> ReceivedCells;
 
   // mapping from global cell id to local cell id.
   // only stores cells which have been received (aka are ghost cells)
@@ -133,7 +133,7 @@ struct vtkPUnstructuredGridGhostCellsGenerator::vtkInternals
 
   // cells that were sent to a proc during the last round,
   // a "round" is receiving one layer of ghost cells
-  std::map<int, std::set<vtkIdType> > SentCellsLastRound;
+  std::map<int, std::set<vtkIdType>> SentCellsLastRound;
 
   // list of processes which are probably my neighbors. this
   // is based on overlapping local bounding boxes so it is
@@ -796,7 +796,7 @@ void vtkPUnstructuredGridGhostCellsGenerator::ComputeSharedPoints()
         (bounds[3] - bounds[2]) * (bounds[3] - bounds[2]) +
         (bounds[5] - bounds[4]) * (bounds[5] - bounds[4]));
 
-    for (std::map<int, std::vector<double> >::iterator iter =
+    for (std::map<int, std::vector<double>>::iterator iter =
            this->Internals->ProcessIdToSurfacePoints.begin();
          iter != this->Internals->ProcessIdToSurfacePoints.end(); ++iter)
     {
@@ -850,7 +850,7 @@ void vtkPUnstructuredGridGhostCellsGenerator::ExtractAndSendGhostCells(
   {
     int toRank = *iter;
     CommDataInfo& c = this->Internals->CommData[toRank];
-    std::map<int, std::set<vtkIdType> >::iterator miter = this->Internals->CellsToSend.find(toRank);
+    std::map<int, std::set<vtkIdType>>::iterator miter = this->Internals->CellsToSend.find(toRank);
     if (miter == this->Internals->CellsToSend.end())
     { // no data to send
       c.SendLen = 0;
@@ -1094,7 +1094,7 @@ void vtkPUnstructuredGridGhostCellsGenerator::ReceiveAndMergeGhostCells(int ghos
     {
       int toRank = *iter;
       CommDataInfo& c = this->Internals->CommData[toRank];
-      std::map<int, std::set<vtkIdType> >::iterator miter =
+      std::map<int, std::set<vtkIdType>>::iterator miter =
         this->Internals->CellsToSend.find(toRank);
       if (miter == this->Internals->CellsToSend.end())
       {
@@ -1155,7 +1155,7 @@ void vtkPUnstructuredGridGhostCellsGenerator::FindGhostCells()
   vtkNew<vtkIdList> pointId;
   pointId->SetNumberOfIds(1);
 
-  std::map<int, std::set<vtkIdType> >::iterator iter = this->Internals->SentCellsLastRound.begin();
+  std::map<int, std::set<vtkIdType>>::iterator iter = this->Internals->SentCellsLastRound.begin();
   for (; iter != this->Internals->SentCellsLastRound.end(); ++iter)
   {
     // keep track of points which we've already visited for this proc

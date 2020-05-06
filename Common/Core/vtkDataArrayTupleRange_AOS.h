@@ -72,7 +72,10 @@ public:
   using const_iterator = const ValueType*;
 
   VTK_ITER_INLINE
-  ConstTupleReference() noexcept : Tuple{ nullptr } {}
+  ConstTupleReference() noexcept
+    : Tuple{ nullptr }
+  {
+  }
 
   VTK_ITER_INLINE
   ConstTupleReference(const ValueType* tuple, NumCompsType numComps) noexcept
@@ -254,7 +257,10 @@ public:
   using const_reference = ValueType const&;
 
   VTK_ITER_INLINE
-  TupleReference() noexcept : Tuple{ nullptr } {}
+  TupleReference() noexcept
+    : Tuple{ nullptr }
+  {
+  }
 
   VTK_ITER_INLINE
   TupleReference(ValueType* tuple, NumCompsType numComps) noexcept
@@ -546,14 +552,14 @@ struct ConstTupleIterator<vtkAOSDataArrayTemplate<ValueType>, TupleSize>
   : public std::iterator<std::random_access_iterator_tag,
       ConstTupleReference<vtkAOSDataArrayTemplate<ValueType>, TupleSize>, TupleIdType,
       ConstTupleReference<vtkAOSDataArrayTemplate<ValueType>, TupleSize>,
-      ConstTupleReference<vtkAOSDataArrayTemplate<ValueType>, TupleSize> >
+      ConstTupleReference<vtkAOSDataArrayTemplate<ValueType>, TupleSize>>
 {
 private:
   using ArrayType = vtkAOSDataArrayTemplate<ValueType>;
   using NumCompsType = GenericTupleSize<TupleSize>;
   using Superclass = std::iterator<std::random_access_iterator_tag,
     ConstTupleReference<ArrayType, TupleSize>, TupleIdType,
-    ConstTupleReference<ArrayType, TupleSize>, ConstTupleReference<ArrayType, TupleSize> >;
+    ConstTupleReference<ArrayType, TupleSize>, ConstTupleReference<ArrayType, TupleSize>>;
 
 public:
   using iterator_category = typename Superclass::iterator_category;
@@ -566,12 +572,16 @@ public:
   ConstTupleIterator() noexcept = default;
 
   VTK_ITER_INLINE
-  ConstTupleIterator(const ValueType* tuple, NumCompsType numComps) noexcept : Ref(tuple, numComps)
+  ConstTupleIterator(const ValueType* tuple, NumCompsType numComps) noexcept
+    : Ref(tuple, numComps)
   {
   }
 
   VTK_ITER_INLINE
-  ConstTupleIterator(const TupleIterator<ArrayType, TupleSize>& o) noexcept : Ref{ o.Ref } {}
+  ConstTupleIterator(const TupleIterator<ArrayType, TupleSize>& o) noexcept
+    : Ref{ o.Ref }
+  {
+  }
 
   VTK_ITER_INLINE
   ConstTupleIterator(const ConstTupleIterator& o) noexcept = default;
@@ -702,14 +712,14 @@ struct TupleIterator<vtkAOSDataArrayTemplate<ValueType>, TupleSize>
   : public std::iterator<std::random_access_iterator_tag,
       TupleReference<vtkAOSDataArrayTemplate<ValueType>, TupleSize>, TupleIdType,
       TupleReference<vtkAOSDataArrayTemplate<ValueType>, TupleSize>,
-      TupleReference<vtkAOSDataArrayTemplate<ValueType>, TupleSize> >
+      TupleReference<vtkAOSDataArrayTemplate<ValueType>, TupleSize>>
 {
 private:
   using ArrayType = vtkAOSDataArrayTemplate<ValueType>;
   using NumCompsType = GenericTupleSize<TupleSize>;
   using Superclass =
     std::iterator<std::random_access_iterator_tag, TupleReference<ArrayType, TupleSize>,
-      TupleIdType, TupleReference<ArrayType, TupleSize>, TupleReference<ArrayType, TupleSize> >;
+      TupleIdType, TupleReference<ArrayType, TupleSize>, TupleReference<ArrayType, TupleSize>>;
 
 public:
   using iterator_category = typename Superclass::iterator_category;
@@ -722,7 +732,10 @@ public:
   TupleIterator() noexcept = default;
 
   VTK_ITER_INLINE
-  TupleIterator(ValueType* tuple, NumCompsType numComps) noexcept : Ref(tuple, numComps) {}
+  TupleIterator(ValueType* tuple, NumCompsType numComps) noexcept
+    : Ref(tuple, numComps)
+  {
+  }
 
   VTK_ITER_INLINE
   TupleIterator(const TupleIterator& o) noexcept = default;
@@ -775,8 +788,8 @@ public:
   pointer& operator->() noexcept { return this->Ref; }
 
 #define VTK_TMP_MAKE_OPERATOR(OP)                                                                  \
-  friend VTK_ITER_INLINE bool operator OP(const TupleIterator& lhs, const TupleIterator& rhs)      \
-    noexcept                                                                                       \
+  friend VTK_ITER_INLINE bool operator OP(                                                         \
+    const TupleIterator& lhs, const TupleIterator& rhs) noexcept                                   \
   {                                                                                                \
     return lhs.GetTuple() OP rhs.GetTuple();                                                       \
   }

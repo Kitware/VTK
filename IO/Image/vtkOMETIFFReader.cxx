@@ -56,9 +56,9 @@ public:
 
   // key = vtkVector3i(C, T, Z)
   std::map<vtkVector3i, int> IFDMap;
-  std::vector<vtkSmartPointer<vtkImageData> > Cache;
+  std::vector<vtkSmartPointer<vtkImageData>> Cache;
   vtkSmartPointer<vtkStringArray> PhysicalSizeUnitArray;
-  std::vector<vtkSmartPointer<vtkDoubleArray> > RangeArrays;
+  std::vector<vtkSmartPointer<vtkDoubleArray>> RangeArrays;
   vtkTimeStamp CacheMTime;
 
   void UpdateCache(vtkImageData* output);
