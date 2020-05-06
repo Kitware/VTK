@@ -967,6 +967,9 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
 
         vtkNew<vtkIdList> tmpCell;
 
+        vtkIdType n_tcoords_tuples = tcoords->GetNumberOfTuples();
+        vtkIdType n_normals_tuples = normals->GetNumberOfTuples();
+
         for (int i = 0; i < polys->GetNumberOfCells(); ++i)
         {
           polys->GetNextCell(n_pts, pts);
@@ -993,12 +996,22 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
               // copy the tcoord for this point across (if there is one)
               if (n_tcoord_pts > 0 && hasPolysWithTextureIndices)
               {
-                new_tcoords->InsertNextTuple(tcoords->GetTuple(tcoord_pts[j]));
+                float uv[2] = { 0.f, 0.f };
+                if (tcoord_pts[j] < n_tcoords_tuples)
+                {
+                  tcoords->GetTypedTuple(tcoord_pts[j], uv);
+                }
+                new_tcoords->InsertNextTuple(uv);
               }
               // copy the normal for this point across (if there is one)
               if (n_normal_pts > 0)
               {
-                new_normals->InsertNextTuple(normals->GetTuple(normal_pts[j]));
+                float n[3] = { 0.f, 0.f, 1.f };
+                if (normal_pts[j] < n_normals_tuples)
+                {
+                  normals->GetTypedTuple(normal_pts[j], n);
+                }
+                new_normals->InsertNextTuple(n);
               }
               // copy the vertex into the new structure and update
               // the vertex index in the polys structure (pts is a pointer into it)
