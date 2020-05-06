@@ -21,17 +21,17 @@ VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATE(signed char);
 
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkSignedCharArray);
 vtkStandardExtendedNewMacro(vtkSignedCharArray);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSignedCharArray::vtkSignedCharArray() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSignedCharArray::~vtkSignedCharArray() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSignedCharArray::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->RealSuperclass::PrintSelf(os, indent);

@@ -36,7 +36,7 @@ vtkStandardNewMacro(vtkISIReader);
 // we have to provide our own
 static istream& my_getline(istream& input, std::string& output, char delimiter = '\n');
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkISIReader::vtkISIReader()
   : FileName(nullptr)
@@ -49,7 +49,7 @@ vtkISIReader::vtkISIReader()
   this->SetNumberOfOutputPorts(1);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkISIReader::~vtkISIReader()
 {
@@ -57,7 +57,7 @@ vtkISIReader::~vtkISIReader()
   this->SetFileName(nullptr);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkISIReader::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -67,7 +67,7 @@ void vtkISIReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MaxRecords: " << this->MaxRecords << endl;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkISIReader::RequestData(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
@@ -182,7 +182,7 @@ int vtkISIReader::RequestData(
   return 1;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 static istream& my_getline(istream& input, std::string& output, char delimiter)
 {

@@ -22,7 +22,7 @@
 
 vtkStandardNewMacro(vtkImageCheckerboard);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageCheckerboard::vtkImageCheckerboard()
 {
   this->NumberOfDivisions[0] = 2;
@@ -32,7 +32,7 @@ vtkImageCheckerboard::vtkImageCheckerboard()
   this->SetNumberOfInputPorts(2);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 // Handles the two input operations
 template <class T>
@@ -148,7 +148,7 @@ void vtkImageCheckerboardExecute2(vtkImageCheckerboard* self, vtkImageData* in1D
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method is passed a input and output regions, and executes the filter
 // algorithm to fill the output from the inputs.
 void vtkImageCheckerboard::ThreadedRequestData(vtkInformation* vtkNotUsed(request),

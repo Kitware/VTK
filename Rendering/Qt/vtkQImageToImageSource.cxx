@@ -31,7 +31,7 @@
 
 vtkStandardNewMacro(vtkQImageToImageSource);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkQImageToImageSource::vtkQImageToImageSource()
 {
   this->QtImage = nullptr;
@@ -44,7 +44,7 @@ vtkQImageToImageSource::vtkQImageToImageSource()
   this->DataExtent[5] = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkQImageToImageSource::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -119,7 +119,7 @@ int vtkQImageToImageSource::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkQImageToImageSource::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -139,7 +139,7 @@ int vtkQImageToImageSource::RequestInformation(vtkInformation* vtkNotUsed(reques
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQImageToImageSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

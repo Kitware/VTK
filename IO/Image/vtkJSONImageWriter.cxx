@@ -31,7 +31,7 @@
 
 vtkStandardNewMacro(vtkJSONImageWriter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkJSONImageWriter::vtkJSONImageWriter()
 {
   this->FileName = nullptr;
@@ -40,20 +40,20 @@ vtkJSONImageWriter::vtkJSONImageWriter()
   this->SetNumberOfOutputPorts(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkJSONImageWriter::~vtkJSONImageWriter()
 {
   this->SetFileName(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkJSONImageWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "FileName: " << (this->FileName ? this->FileName : "(none)") << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkJSONImageWriter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
@@ -151,7 +151,7 @@ int vtkJSONImageWriter::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkJSONImageWriter::Write()
 {
   this->Modified();

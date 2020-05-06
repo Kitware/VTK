@@ -423,7 +423,7 @@ void vtkMultiBlockVolumeMapper::SetArrayAccessMode(int accessMode)
   Superclass::SetArrayAccessMode(accessMode);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiBlockVolumeMapper::SetBlendMode(int mode)
 {
   MapperVec::const_iterator end = this->Mappers.end();
@@ -434,7 +434,7 @@ void vtkMultiBlockVolumeMapper::SetBlendMode(int mode)
   Superclass::SetBlendMode(mode);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiBlockVolumeMapper::SetCropping(vtkTypeBool mode)
 {
   MapperVec::const_iterator end = this->Mappers.end();
@@ -445,7 +445,7 @@ void vtkMultiBlockVolumeMapper::SetCropping(vtkTypeBool mode)
   Superclass::SetCropping(mode);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiBlockVolumeMapper::SetCroppingRegionFlags(int mode)
 {
   MapperVec::const_iterator end = this->Mappers.end();
@@ -456,7 +456,7 @@ void vtkMultiBlockVolumeMapper::SetCroppingRegionFlags(int mode)
   Superclass::SetCroppingRegionFlags(mode);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiBlockVolumeMapper::SetCroppingRegionPlanes(const double* planes)
 {
   MapperVec::const_iterator end = this->Mappers.end();
@@ -468,7 +468,7 @@ void vtkMultiBlockVolumeMapper::SetCroppingRegionPlanes(const double* planes)
   Superclass::SetCroppingRegionPlanes(planes);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiBlockVolumeMapper::SetCroppingRegionPlanes(
   double arg1, double arg2, double arg3, double arg4, double arg5, double arg6)
 {
@@ -480,7 +480,7 @@ void vtkMultiBlockVolumeMapper::SetCroppingRegionPlanes(
   Superclass::SetCroppingRegionPlanes(arg1, arg2, arg3, arg4, arg5, arg6);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiBlockVolumeMapper::SetVectorMode(int mode)
 {
   if (this->VectorMode != mode)
@@ -495,7 +495,7 @@ void vtkMultiBlockVolumeMapper::SetVectorMode(int mode)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiBlockVolumeMapper::SetVectorComponent(int component)
 {
   if (this->VectorComponent != component)
@@ -510,7 +510,7 @@ void vtkMultiBlockVolumeMapper::SetVectorComponent(int component)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiBlockVolumeMapper::SetRequestedRenderMode(int mode)
 {
   if (this->RequestedRenderMode != mode)

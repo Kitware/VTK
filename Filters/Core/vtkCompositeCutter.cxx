@@ -84,7 +84,7 @@ vtkCompositeCutter::vtkCompositeCutter(vtkImplicitFunction* cf)
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCompositeCutter::~vtkCompositeCutter() = default;
 
 int vtkCompositeCutter::FillInputPortInformation(int, vtkInformation* info)

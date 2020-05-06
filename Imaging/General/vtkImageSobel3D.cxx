@@ -24,7 +24,7 @@
 
 vtkStandardNewMacro(vtkImageSobel3D);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct an instance of vtkImageSobel3D filter.
 vtkImageSobel3D::vtkImageSobel3D()
 {
@@ -37,13 +37,13 @@ vtkImageSobel3D::vtkImageSobel3D()
   this->HandleBoundaries = 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSobel3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageSobel3D::RequestInformation(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -53,7 +53,7 @@ int vtkImageSobel3D::RequestInformation(
   return retval;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This execute method handles boundaries.
 // it handles boundaries. Pixels are just replicated to get values
 // out of extent.
@@ -204,7 +204,7 @@ void vtkImageSobel3DExecute(vtkImageSobel3D* self, vtkImageData* inData, T* inPt
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method contains a switch statement that calls the correct
 // templated function for the input Data type.  The output Data
 // must be of type double.  This method does handle boundary conditions.

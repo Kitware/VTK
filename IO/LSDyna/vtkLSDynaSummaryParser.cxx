@@ -44,7 +44,7 @@ static void vtkLSTrimWhitespace(std::string& line)
 
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLSDynaSummaryParser::vtkLSDynaSummaryParser()
   : MetaData(nullptr)
   , PartId(-1)
@@ -56,7 +56,7 @@ vtkLSDynaSummaryParser::vtkLSDynaSummaryParser()
 {
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaSummaryParser::StartElement(const char* name, const char** atts)
 {
   int i;
@@ -164,7 +164,7 @@ void vtkLSDynaSummaryParser::StartElement(const char* name, const char** atts)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaSummaryParser::EndElement(const char* name)
 {
   if (!strcmp(name, "part"))
@@ -193,7 +193,7 @@ void vtkLSDynaSummaryParser::EndElement(const char* name)
     this->InDyna = this->InPart = this->InName = 0;
   }
 }
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaSummaryParser::CharacterDataHandler(const char* data, int length)
 {
   if (!this->InName)
@@ -209,7 +209,7 @@ void vtkLSDynaSummaryParser::CharacterDataHandler(const char* data, int length)
     this->PartName.append(data + i, length - i);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaSummaryParser::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

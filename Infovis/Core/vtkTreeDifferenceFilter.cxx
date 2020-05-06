@@ -27,7 +27,7 @@
 
 vtkStandardNewMacro(vtkTreeDifferenceFilter);
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTreeDifferenceFilter::vtkTreeDifferenceFilter()
 {
   this->SetNumberOfInputPorts(2);
@@ -39,7 +39,7 @@ vtkTreeDifferenceFilter::vtkTreeDifferenceFilter()
   this->ComparisonArrayIsVertexData = false;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTreeDifferenceFilter::~vtkTreeDifferenceFilter()
 {
   // release memory
@@ -48,7 +48,7 @@ vtkTreeDifferenceFilter::~vtkTreeDifferenceFilter()
   this->SetOutputArrayName(nullptr);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTreeDifferenceFilter::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
@@ -64,7 +64,7 @@ int vtkTreeDifferenceFilter::FillInputPortInformation(int port, vtkInformation* 
   return 1;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTreeDifferenceFilter::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -126,7 +126,7 @@ int vtkTreeDifferenceFilter::RequestData(
   return 1;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkTreeDifferenceFilter::GenerateMapping(vtkTree* tree1, vtkTree* tree2)
 {
   this->VertexMap.clear();
@@ -208,7 +208,7 @@ bool vtkTreeDifferenceFilter::GenerateMapping(vtkTree* tree1, vtkTree* tree2)
   return true;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSmartPointer<vtkDoubleArray> vtkTreeDifferenceFilter::ComputeDifference(
   vtkTree* tree1, vtkTree* tree2)
 {
@@ -280,7 +280,7 @@ vtkSmartPointer<vtkDoubleArray> vtkTreeDifferenceFilter::ComputeDifference(
   return resultArray;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeDifferenceFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

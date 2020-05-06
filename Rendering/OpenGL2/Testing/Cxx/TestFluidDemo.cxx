@@ -18,7 +18,7 @@
 // Define this to add particle color to particles
 // #define VERTEX_COLOR
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Global variables for animation pause/resume
 static bool g_Animation = true;
 constexpr static float g_Spacing = 2.0f * g_ParticleRadius;

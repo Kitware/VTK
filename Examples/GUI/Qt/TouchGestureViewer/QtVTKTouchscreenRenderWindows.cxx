@@ -176,7 +176,7 @@ public:
 };
 vtkStandardNewMacro(vtkInteractorStyleMultiTouchCameraExample);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 QtVTKTouchscreenRenderWindows::QtVTKTouchscreenRenderWindows(int vtkNotUsed(argc), char* argv[])
 {
   this->ui = new Ui_QtVTKTouchscreenRenderWindows;

@@ -47,7 +47,7 @@
 
 vtkStandardNewMacro(vtkCompassRepresentation);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCompassRepresentation::vtkCompassRepresentation()
 {
   // The coordinates defining the compass
@@ -232,7 +232,7 @@ void vtkCompassRepresentation::BuildRing()
   this->Points->SetPoint(72, this->OuterRadius + 0.1, 0.0, 0.0);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCompassRepresentation::~vtkCompassRepresentation()
 {
   this->Backdrop->Delete();
@@ -258,31 +258,31 @@ vtkCompassRepresentation::~vtkCompassRepresentation()
   this->StatusActor->Delete();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCoordinate* vtkCompassRepresentation::GetPoint1Coordinate()
 {
   return this->Point1Coordinate;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompassRepresentation ::StartWidgetInteraction(double eventPos[2])
 {
   this->ComputeInteractionState(static_cast<int>(eventPos[0]), static_cast<int>(eventPos[1]));
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompassRepresentation::TiltWidgetInteraction(double eventPos[2])
 {
   this->TiltRepresentation->WidgetInteraction(eventPos);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompassRepresentation::DistanceWidgetInteraction(double eventPos[2])
 {
   this->DistanceRepresentation->WidgetInteraction(eventPos);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompassRepresentation::WidgetInteraction(double eventPos[2])
 {
   // adjust the value
@@ -310,20 +310,20 @@ void vtkCompassRepresentation::WidgetInteraction(double eventPos[2])
   this->BuildRepresentation();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCoordinate* vtkCompassRepresentation::GetPoint2Coordinate()
 {
   return this->Point2Coordinate;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompassRepresentation::PlaceWidget(double* vtkNotUsed(bds[6]))
 {
   // Position the handles at the end of the lines
   this->BuildRepresentation();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompassRepresentation::Highlight(int highlight)
 {
   if (highlight == this->HighlightState)
@@ -343,7 +343,7 @@ void vtkCompassRepresentation::Highlight(int highlight)
   this->DistanceRepresentation->Highlight(highlight);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompassRepresentation::BuildRepresentation()
 {
   if (this->GetMTime() <= this->BuildTime &&
@@ -471,7 +471,7 @@ void vtkCompassRepresentation::BuildRepresentation()
   this->BuildTime.Modified();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompassRepresentation::GetActors(vtkPropCollection* pc)
 {
   pc->AddItem(this->Backdrop);
@@ -482,7 +482,7 @@ void vtkCompassRepresentation::GetActors(vtkPropCollection* pc)
   this->DistanceRepresentation->GetActors(pc);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompassRepresentation::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->Backdrop->ReleaseGraphicsResources(w);
@@ -493,7 +493,7 @@ void vtkCompassRepresentation::ReleaseGraphicsResources(vtkWindow* w)
   this->DistanceRepresentation->ReleaseGraphicsResources(w);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCompassRepresentation ::RenderOpaqueGeometry(vtkViewport* viewport)
 {
   this->BuildRepresentation();
@@ -513,7 +513,7 @@ int vtkCompassRepresentation ::RenderOpaqueGeometry(vtkViewport* viewport)
   return count;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCompassRepresentation::RenderOverlay(vtkViewport* viewport)
 {
   this->BuildRepresentation();
@@ -639,7 +639,7 @@ void vtkCompassRepresentation::GetCenterAndUnitRadius(int center[2], double& rad
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompassRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
@@ -696,7 +696,7 @@ void vtkCompassRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCompassRepresentation::ComputeInteractionState(int x, int y, int modify)
 {
   const int* size = this->Renderer->GetSize();
@@ -768,7 +768,7 @@ int vtkCompassRepresentation::ComputeInteractionState(int x, int y, int modify)
   return this->InteractionState;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompassRepresentation::SetRenderer(vtkRenderer* ren)
 {
   this->Superclass::SetRenderer(ren);

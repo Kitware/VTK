@@ -49,7 +49,7 @@ static const unsigned int* MooreCursors[3] = {
 
 vtkStandardNewMacro(vtkHyperTreeGridContour);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHyperTreeGridContour::vtkHyperTreeGridContour()
 {
   // Initialize storage for contour values
@@ -83,7 +83,7 @@ vtkHyperTreeGridContour::vtkHyperTreeGridContour()
   this->InScalars = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHyperTreeGridContour::~vtkHyperTreeGridContour()
 {
   if (this->ContourValues)
@@ -123,7 +123,7 @@ vtkHyperTreeGridContour::~vtkHyperTreeGridContour()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridContour::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -188,14 +188,14 @@ void vtkHyperTreeGridContour::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkHyperTreeGridContour::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData");
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridContour::SetLocator(vtkIncrementalPointLocator* locator)
 {
   // Check if proposed locator is identical to existing one
@@ -222,7 +222,7 @@ void vtkHyperTreeGridContour::SetLocator(vtkIncrementalPointLocator* locator)
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridContour::CreateDefaultLocator()
 {
   // If no locator instance variable create a merge point one
@@ -234,7 +234,7 @@ void vtkHyperTreeGridContour::CreateDefaultLocator()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkHyperTreeGridContour::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
@@ -254,7 +254,7 @@ vtkMTimeType vtkHyperTreeGridContour::GetMTime()
   return mTime;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkHyperTreeGridContour::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObject* outputDO)
 {
   // Downcast output data object to polygonal data set
@@ -410,7 +410,7 @@ int vtkHyperTreeGridContour::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObject
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkHyperTreeGridContour::RecursivelyPreProcessTree(vtkHyperTreeGridNonOrientedCursor* cursor)
 {
   // Retrieve global index of input cursor
@@ -497,7 +497,7 @@ bool vtkHyperTreeGridContour::RecursivelyPreProcessTree(vtkHyperTreeGridNonOrien
   return selected;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridContour::RecursivelyProcessTree(
   vtkHyperTreeGridNonOrientedMooreSuperCursor* supercursor)
 {

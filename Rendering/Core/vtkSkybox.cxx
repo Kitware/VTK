@@ -26,7 +26,7 @@ void vtkSkybox::PrintSelf(std::ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Always return uninitialized
 double* vtkSkybox::GetBounds()
 {

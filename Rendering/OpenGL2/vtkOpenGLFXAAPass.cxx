@@ -9,7 +9,7 @@
 
 vtkStandardNewMacro(vtkOpenGLFXAAPass);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLFXAAPass::Render(const vtkRenderState* s)
 {
   vtkOpenGLRenderer* r = vtkOpenGLRenderer::SafeDownCast(s->GetRenderer());
@@ -41,7 +41,7 @@ void vtkOpenGLFXAAPass::Render(const vtkRenderState* s)
   this->FXAAFilter->Execute(r);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLFXAAPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

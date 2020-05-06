@@ -32,7 +32,7 @@
 
 vtkStandardNewMacro(vtkXMLPTableReader);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLPTableReader::vtkXMLPTableReader()
 {
   this->PieceReaders = nullptr;
@@ -43,7 +43,7 @@ vtkXMLPTableReader::vtkXMLPTableReader()
   this->ColumnSelection->AddObserver(vtkCommand::ModifiedEvent, this->SelectionObserver);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLPTableReader::~vtkXMLPTableReader()
 {
   if (this->NumberOfPieces)
@@ -55,7 +55,7 @@ vtkXMLPTableReader::~vtkXMLPTableReader()
   this->ColumnSelection->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPTableReader::CopyOutputInformation(vtkInformation* outInfo, int port)
 {
   vtkInformation* localInfo = this->GetExecutive()->GetOutputInformation(port);
@@ -66,7 +66,7 @@ void vtkXMLPTableReader::CopyOutputInformation(vtkInformation* outInfo, int port
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPTableReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -75,25 +75,25 @@ void vtkXMLPTableReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Total Number Of Rows: " << this->TotalNumberOfRows << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTable* vtkXMLPTableReader::GetOutput()
 {
   return this->GetOutput(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTable* vtkXMLPTableReader::GetOutput(int idx)
 {
   return vtkTable::SafeDownCast(this->GetOutputDataObject(idx));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXMLPTableReader::GetDataSetName()
 {
   return "PTable";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPTableReader::GetOutputUpdateExtent(int& piece, int& numberOfPieces)
 {
   vtkInformation* outInfo = this->GetCurrentOutputInformation();
@@ -101,7 +101,7 @@ void vtkXMLPTableReader::GetOutputUpdateExtent(int& piece, int& numberOfPieces)
   numberOfPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPTableReader::SetupOutputTotals()
 {
   this->TotalNumberOfRows = 0;
@@ -115,7 +115,7 @@ void vtkXMLPTableReader::SetupOutputTotals()
   this->StartRow = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPTableReader::SetupOutputData()
 {
   this->Superclass::SetupOutputData();
@@ -154,7 +154,7 @@ void vtkXMLPTableReader::SetupOutputData()
   this->ReadAttributeIndices(this->PRowElement, rowData);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPTableReader::ReadPieceData(int index)
 {
   this->Piece = index;
@@ -172,7 +172,7 @@ int vtkXMLPTableReader::ReadPieceData(int index)
   return this->ReadPieceData();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPTableReader::CanReadPiece(int index)
 {
   // If necessary, test whether the piece can be read.
@@ -197,7 +197,7 @@ int vtkXMLPTableReader::CanReadPiece(int index)
   return (this->PieceReaders[index] ? 1 : 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPTableReader::PieceProgressCallback()
 {
   float width = this->ProgressRange[1] - this->ProgressRange[0];
@@ -210,7 +210,7 @@ void vtkXMLPTableReader::PieceProgressCallback()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPTableReader::SetupNextPiece()
 {
   if (this->PieceReaders[this->Piece])
@@ -219,7 +219,7 @@ void vtkXMLPTableReader::SetupNextPiece()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPTableReader::ReadPieceData()
 {
   // Use the internal reader to read the piece.
@@ -272,20 +272,20 @@ int vtkXMLPTableReader::ReadPieceData()
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLTableReader* vtkXMLPTableReader::CreatePieceReader()
 {
   return vtkXMLTableReader::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPTableReader::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPTableReader::RequestInformation(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -294,13 +294,13 @@ int vtkXMLPTableReader::RequestInformation(
   return this->Superclass::RequestInformation(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTable* vtkXMLPTableReader::GetOutputAsTable()
 {
   return vtkTable::SafeDownCast(this->GetOutputDataObject(0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTable* vtkXMLPTableReader::GetPieceInputAsTable(int piece)
 {
   vtkXMLTableReader* reader = this->PieceReaders[piece];
@@ -311,19 +311,19 @@ vtkTable* vtkXMLPTableReader::GetPieceInputAsTable(int piece)
   return static_cast<vtkTable*>(reader->GetExecutive()->GetOutputData(0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkXMLPTableReader::GetNumberOfRows()
 {
   return this->TotalNumberOfRows;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPTableReader::SetupEmptyOutput()
 {
   this->GetCurrentOutput()->Initialize();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPTableReader::SetupOutputInformation(vtkInformation* outInfo)
 {
   if (this->InformationError)
@@ -351,7 +351,7 @@ void vtkXMLPTableReader::SetupOutputInformation(vtkInformation* outInfo)
   outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPTableReader::ReadXMLData()
 {
   // Get the update request.
@@ -416,7 +416,7 @@ void vtkXMLPTableReader::ReadXMLData()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPTableReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
 {
 
@@ -458,7 +458,7 @@ int vtkXMLPTableReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPTableReader::SetupUpdateExtent(int piece, int numberOfPieces)
 {
   this->UpdatePieceId = piece;
@@ -499,13 +499,13 @@ void vtkXMLPTableReader::SetupUpdateExtent(int piece, int numberOfPieces)
   this->SetupOutputTotals();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkXMLPTableReader::GetNumberOfRowsInPiece(int piece)
 {
   return this->PieceReaders[piece] ? this->PieceReaders[piece]->GetNumberOfRows() : 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPTableReader::SetupPieces(int numPieces)
 {
   this->Superclass::SetupPieces(numPieces);
@@ -518,7 +518,7 @@ void vtkXMLPTableReader::SetupPieces(int numPieces)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPTableReader::DestroyPieces()
 {
   for (int i = 0; i < this->NumberOfPieces; ++i)
@@ -536,7 +536,7 @@ void vtkXMLPTableReader::DestroyPieces()
   this->Superclass::DestroyPieces();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPTableReader::ReadPiece(vtkXMLDataElement* ePiece)
 {
   this->PieceElements[this->Piece] = ePiece;
@@ -563,32 +563,32 @@ int vtkXMLPTableReader::ReadPiece(vtkXMLDataElement* ePiece)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPTableReader::ColumnIsEnabled(vtkXMLDataElement* elementRowData)
 {
   const char* name = elementRowData->GetAttribute("Name");
   return (name && this->ColumnSelection->ArrayIsEnabled(name));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPTableReader::GetNumberOfColumnArrays()
 {
   return this->ColumnSelection->GetNumberOfArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXMLPTableReader::GetColumnArrayName(int index)
 {
   return this->ColumnSelection->GetArrayName(index);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPTableReader::GetColumnArrayStatus(const char* name)
 {
   return this->ColumnSelection->ArrayIsEnabled(name);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPTableReader::SetColumnArrayStatus(const char* name, int status)
 {
   if (status)

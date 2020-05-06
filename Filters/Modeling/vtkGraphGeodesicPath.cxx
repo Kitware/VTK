@@ -19,17 +19,17 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGraphGeodesicPath::vtkGraphGeodesicPath()
 {
   this->StartVertex = 0;
   this->EndVertex = 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGraphGeodesicPath::~vtkGraphGeodesicPath() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphGeodesicPath::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

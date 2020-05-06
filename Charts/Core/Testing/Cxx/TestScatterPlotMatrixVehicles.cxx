@@ -24,7 +24,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkTextProperty.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestScatterPlotMatrixVehicles(int argc, char* argv[])
 {
   // Get the file name, and read the CSV file.

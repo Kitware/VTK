@@ -40,10 +40,10 @@
 // to loop a simple source over T and pass Temporal data downstream.
 //
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This is a dummy class which accepts time from the pipeline
 // It doesn't do anything with the time, but it is useful for testing
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkTemporalSphereSource : public vtkSphereSource
 {
 
@@ -78,9 +78,9 @@ public:
   int ActualTimeStep;
   std::vector<double> TimeStepValues;
 };
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkTemporalSphereSource);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTemporalSphereSource::vtkTemporalSphereSource()
 {
   this->TimeStepRange[0] = 0;
@@ -88,7 +88,7 @@ vtkTemporalSphereSource::vtkTemporalSphereSource()
   this->TimeStep = 0;
   this->ActualTimeStep = 0;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTemporalSphereSource::RequestInformation(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -115,7 +115,7 @@ int vtkTemporalSphereSource::RequestInformation(
 
   return 1;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkTestTemporalCacheSimpleWithinTolerance : public std::binary_function<double, double, bool>
 {
 public:
@@ -125,7 +125,7 @@ public:
     return (result_type)result;
   }
 };
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTemporalSphereSource::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -155,9 +155,9 @@ int vtkTemporalSphereSource::RequestData(
 
   return Superclass::RequestData(request, inputVector, outputVector);
 }
-//-------------------------------------------------------------------------
-//-------------------------------------------------------------------------
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkTestTemporalCacheSimpleExecuteCallback : public vtkCommand
 {
 public:
@@ -177,7 +177,7 @@ public:
 
   unsigned int Count;
 };
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestTemporalCacheSimple(int, char*[])
 {
   // test temporal cache with non-temporal data source

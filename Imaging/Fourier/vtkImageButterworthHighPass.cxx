@@ -24,14 +24,14 @@
 
 vtkStandardNewMacro(vtkImageButterworthHighPass);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageButterworthHighPass::vtkImageButterworthHighPass()
 {
   this->CutOff[0] = this->CutOff[1] = this->CutOff[2] = VTK_DOUBLE_MAX;
   this->Order = 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageButterworthHighPass::SetXCutOff(double cutOff)
 {
   if (cutOff == this->CutOff[0])
@@ -41,7 +41,7 @@ void vtkImageButterworthHighPass::SetXCutOff(double cutOff)
   this->CutOff[0] = cutOff;
   this->Modified();
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageButterworthHighPass::SetYCutOff(double cutOff)
 {
   if (cutOff == this->CutOff[1])
@@ -51,7 +51,7 @@ void vtkImageButterworthHighPass::SetYCutOff(double cutOff)
   this->CutOff[1] = cutOff;
   this->Modified();
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageButterworthHighPass::SetZCutOff(double cutOff)
 {
   if (cutOff == this->CutOff[2])
@@ -62,7 +62,7 @@ void vtkImageButterworthHighPass::SetZCutOff(double cutOff)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageButterworthHighPass::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector),
   vtkImageData*** inData, vtkImageData** outData, int ext[6], int id)

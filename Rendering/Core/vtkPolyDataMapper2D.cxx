@@ -25,14 +25,14 @@
 #include "vtkPolyData.h"
 #include "vtkVariantArray.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Return nullptr if no override is supplied.
 vtkObjectFactoryNewMacro(vtkPolyDataMapper2D);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkCxxSetObjectMacro(vtkPolyDataMapper2D, TransformCoordinate, vtkCoordinate);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyDataMapper2D::vtkPolyDataMapper2D()
 {
   this->Colors = nullptr;
@@ -55,7 +55,7 @@ vtkPolyDataMapper2D::vtkPolyDataMapper2D()
   this->ArrayAccessMode = VTK_GET_ARRAY_BY_ID;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyDataMapper2D::ShallowCopy(vtkAbstractMapper* mapper)
 {
   vtkPolyDataMapper2D* m = vtkPolyDataMapper2D::SafeDownCast(mapper);
@@ -76,7 +76,7 @@ void vtkPolyDataMapper2D::ShallowCopy(vtkAbstractMapper* mapper)
   this->vtkMapper2D::ShallowCopy(mapper);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyDataMapper2D::~vtkPolyDataMapper2D()
 {
   if (this->TransformCoordinate)
@@ -93,13 +93,13 @@ vtkPolyDataMapper2D::~vtkPolyDataMapper2D()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyDataMapper2D::SetInputData(vtkPolyData* input)
 {
   this->SetInputDataInternal(0, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify the input data or filter.
 vtkPolyData* vtkPolyDataMapper2D::GetInput()
 {
@@ -110,7 +110,7 @@ vtkPolyData* vtkPolyDataMapper2D::GetInput()
   return vtkPolyData::SafeDownCast(this->GetExecutive()->GetInputData(0, 0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Overload standard modified time function. If lookup table is modified,
 // then this object is modified as well.
 vtkMTimeType vtkPolyDataMapper2D::GetMTime()
@@ -127,7 +127,7 @@ vtkMTimeType vtkPolyDataMapper2D::GetMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // A side effect of this is that this->Colors is also set
 // to the return value
 vtkUnsignedCharArray* vtkPolyDataMapper2D::MapScalars(double alpha)
@@ -188,7 +188,7 @@ vtkUnsignedCharArray* vtkPolyDataMapper2D::MapScalars(double alpha)
   return this->Colors;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyDataMapper2D::ColorByArrayComponent(int arrayNum, int component)
 {
   if (this->ArrayId == arrayNum && component == this->ArrayComponent &&
@@ -203,7 +203,7 @@ void vtkPolyDataMapper2D::ColorByArrayComponent(int arrayNum, int component)
   this->ArrayAccessMode = VTK_GET_ARRAY_BY_ID;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyDataMapper2D::ColorByArrayComponent(const char* arrayName, int component)
 {
   if (strcmp(this->ArrayName, arrayName) == 0 && component == this->ArrayComponent &&
@@ -218,7 +218,7 @@ void vtkPolyDataMapper2D::ColorByArrayComponent(const char* arrayName, int compo
   this->ArrayAccessMode = VTK_GET_ARRAY_BY_NAME;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify a lookup table for the mapper to use.
 void vtkPolyDataMapper2D::SetLookupTable(vtkScalarsToColors* lut)
 {
@@ -237,7 +237,7 @@ void vtkPolyDataMapper2D::SetLookupTable(vtkScalarsToColors* lut)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkScalarsToColors* vtkPolyDataMapper2D::GetLookupTable()
 {
   if (this->LookupTable == nullptr)
@@ -247,7 +247,7 @@ vtkScalarsToColors* vtkPolyDataMapper2D::GetLookupTable()
   return this->LookupTable;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyDataMapper2D::CreateDefaultLookupTable()
 {
   if (this->LookupTable)
@@ -289,14 +289,14 @@ void vtkPolyDataMapper2D::CreateDefaultLookupTable()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Return the method of coloring scalar data.
 const char* vtkPolyDataMapper2D::GetColorModeAsString()
 {
   return (this->ColorMode == VTK_COLOR_MODE_MAP_SCALARS) ? "MapScalars" : "Default";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyDataMapper2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -352,25 +352,25 @@ void vtkPolyDataMapper2D::PrintSelf(ostream& os, vtkIndent indent)
      << (this->TransformCoordinateUseDouble ? "True\n" : "False\n") << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyDataMapper2D::SetColorModeToDefault()
 {
   this->SetColorMode(VTK_COLOR_MODE_DEFAULT);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyDataMapper2D::SetColorModeToMapScalars()
 {
   this->SetColorMode(VTK_COLOR_MODE_MAP_SCALARS);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyDataMapper2D::SetColorModeToDirectScalars()
 {
   this->SetColorMode(VTK_COLOR_MODE_DIRECT_SCALARS);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPolyDataMapper2D::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");

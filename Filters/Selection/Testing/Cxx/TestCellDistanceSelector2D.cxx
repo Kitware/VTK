@@ -104,7 +104,7 @@ static int CheckExtractedUGrid(
   return testStatus;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestCellDistanceSelector2D(int argc, char* argv[])
 {
   // Initialize test value

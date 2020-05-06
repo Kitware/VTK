@@ -71,10 +71,10 @@ POSSIBILITY OF SUCH DAMAGES.
 #include <vtksys/FStream.hxx>
 #include <vtksys/SystemTools.hxx>
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkMNITransformReader);
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMNITransformReader::vtkMNITransformReader()
 {
   this->FileName = nullptr;
@@ -84,7 +84,7 @@ vtkMNITransformReader::vtkMNITransformReader()
   this->Comments = nullptr;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMNITransformReader::~vtkMNITransformReader()
 {
   if (this->Transforms)
@@ -99,7 +99,7 @@ vtkMNITransformReader::~vtkMNITransformReader()
   delete[] this->Comments;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMNITransformReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -114,7 +114,7 @@ void vtkMNITransformReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Comments: " << (this->Comments ? this->Comments : "none") << "\n";
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNITransformReader::CanReadFile(const char* fname)
 {
   // First make sure the file exists.  This prevents an empty file
@@ -146,7 +146,7 @@ int vtkMNITransformReader::CanReadFile(const char* fname)
   return status;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Internal function to read in a line up to 256 characters and then
 // skip to the next line in the file.
 int vtkMNITransformReader::ReadLine(istream& infile, char result[256])
@@ -173,7 +173,7 @@ int vtkMNITransformReader::ReadLine(istream& infile, char result[256])
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Skip all blank lines or comment lines and return the first useful line
 int vtkMNITransformReader::ReadLineAfterComments(istream& infile, char result[256])
 {
@@ -209,7 +209,7 @@ int vtkMNITransformReader::ReadLineAfterComments(istream& infile, char result[25
   return 0;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Skip all whitespace, reading additional lines if necessary
 int vtkMNITransformReader::SkipWhitespace(istream& infile, char linetext[256], char** cpp)
 {
@@ -236,7 +236,7 @@ int vtkMNITransformReader::SkipWhitespace(istream& infile, char linetext[256], c
   return 0;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Read the left hand side of a statement, including the equals sign
 // and any whitespace following the equals.
 int vtkMNITransformReader::ParseLeftHandSide(
@@ -278,7 +278,7 @@ int vtkMNITransformReader::ParseLeftHandSide(
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Read a string value.  The terminating semicolon will be read, but
 // won't be included in the output string.  Neither will any
 // whitespace occurring before the semicolon. The string may not be
@@ -318,7 +318,7 @@ int vtkMNITransformReader::ParseStringValue(
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Read floating-point values into a vtkDoubleArray until a semicolon
 // is reached.  The semicolon is also read.
 int vtkMNITransformReader::ParseFloatValues(
@@ -352,7 +352,7 @@ int vtkMNITransformReader::ParseFloatValues(
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNITransformReader::ParseInvertFlagValue(
   istream& infile, char linetext[256], char** cpp, int* invertFlag)
 {
@@ -380,7 +380,7 @@ int vtkMNITransformReader::ParseInvertFlagValue(
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNITransformReader::ReadLinearTransform(istream& infile, char linetext[256], char** cpp)
 {
   // Read the first variable
@@ -450,7 +450,7 @@ int vtkMNITransformReader::ReadLinearTransform(istream& infile, char linetext[25
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNITransformReader::ReadThinPlateSplineTransform(
   istream& infile, char linetext[256], char** cpp)
 {
@@ -669,7 +669,7 @@ int vtkMNITransformReader::ReadThinPlateSplineTransform(
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNITransformReader::ReadGridTransform(istream& infile, char linetext[256], char** cpp)
 {
   // Read the first variable
@@ -755,7 +755,7 @@ int vtkMNITransformReader::ReadGridTransform(istream& infile, char linetext[256]
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNITransformReader::ReadNextTransform(istream& infile, char linetext[256])
 {
   // Check for errors
@@ -812,7 +812,7 @@ int vtkMNITransformReader::ReadNextTransform(istream& infile, char linetext[256]
   return 0;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNITransformReader::ReadFile()
 {
   this->Transforms->RemoveAllItems();
@@ -931,7 +931,7 @@ int vtkMNITransformReader::ReadFile()
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkMNITransformReader::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -943,7 +943,7 @@ vtkTypeBool vtkMNITransformReader::ProcessRequest(
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMNITransformReader::SetTransform(vtkAbstractTransform* transform)
 {
   if (this->Transform != transform)
@@ -960,7 +960,7 @@ void vtkMNITransformReader::SetTransform(vtkAbstractTransform* transform)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAbstractTransform* vtkMNITransformReader::GetTransform()
 {
   this->Update();
@@ -968,7 +968,7 @@ vtkAbstractTransform* vtkMNITransformReader::GetTransform()
   return this->Transform;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNITransformReader::GetNumberOfTransforms()
 {
   this->Update();
@@ -976,7 +976,7 @@ int vtkMNITransformReader::GetNumberOfTransforms()
   return this->Transforms->GetNumberOfItems();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAbstractTransform* vtkMNITransformReader::GetNthTransform(int i)
 {
   this->Update();
@@ -989,7 +989,7 @@ vtkAbstractTransform* vtkMNITransformReader::GetNthTransform(int i)
   return (vtkAbstractTransform*)this->Transforms->GetItemAsObject(i);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkMNITransformReader::GetComments()
 {
   this->Update();

@@ -13,8 +13,8 @@
 
 =========================================================================*/
 #include "vtkAbstractParticleWriter.h"
-//----------------------------------------------------------------------------
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct with no start and end write methods or arguments.
 vtkAbstractParticleWriter::vtkAbstractParticleWriter()
 {
@@ -23,23 +23,23 @@ vtkAbstractParticleWriter::vtkAbstractParticleWriter()
   this->FileName = nullptr;
   this->CollectiveIO = 0;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAbstractParticleWriter::~vtkAbstractParticleWriter()
 {
   delete[] this->FileName;
   this->FileName = nullptr;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractParticleWriter::SetWriteModeToCollective()
 {
   this->SetCollectiveIO(1);
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractParticleWriter::SetWriteModeToIndependent()
 {
   this->SetCollectiveIO(0);
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractParticleWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

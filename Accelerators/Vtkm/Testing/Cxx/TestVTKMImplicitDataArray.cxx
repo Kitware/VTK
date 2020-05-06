@@ -16,7 +16,7 @@
 #include <array>
 #include <functional>
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestVTKMImplicitDataArray(int, char*[])
 {
   typedef std::function<double(const std::array<double, 3>&)> ScalarFunction;

@@ -27,7 +27,7 @@ vtkStandardNewMacro(vtkButterflySubdivisionFilter);
 
 static const double butterflyWeights[8] = { .5, .5, .125, .125, -.0625, -.0625, -.0625, -.0625 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkButterflySubdivisionFilter::GenerateSubdivisionPoints(
   vtkPolyData* inputDS, vtkIntArray* edgeData, vtkPoints* outputPts, vtkPointData* outputPD)
 {
@@ -152,7 +152,7 @@ int vtkButterflySubdivisionFilter::GenerateSubdivisionPoints(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkButterflySubdivisionFilter::GenerateLoopStencil(
   vtkIdType p1, vtkIdType p2, vtkPolyData* polys, vtkIdList* stencilIds, double* weights)
 {
@@ -253,7 +253,7 @@ void vtkButterflySubdivisionFilter::GenerateLoopStencil(
   stencilIds->InsertNextId(p1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkButterflySubdivisionFilter::GenerateBoundaryStencil(
   vtkIdType p1, vtkIdType p2, vtkPolyData* polys, vtkIdList* stencilIds, double* weights)
 {
@@ -324,7 +324,7 @@ void vtkButterflySubdivisionFilter::GenerateBoundaryStencil(
   weights[3] = -.0625;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkButterflySubdivisionFilter::GenerateButterflyStencil(
   vtkIdType p1, vtkIdType p2, vtkPolyData* polys, vtkIdList* stencilIds, double* weights)
 {

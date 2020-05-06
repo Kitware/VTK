@@ -27,7 +27,7 @@
 vtkStandardNewMacro(vtkCameraActor);
 vtkCxxSetObjectMacro(vtkCameraActor, Camera, vtkCamera);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCameraActor::vtkCameraActor()
 {
   this->Camera = nullptr;
@@ -37,7 +37,7 @@ vtkCameraActor::vtkCameraActor()
   this->FrustumActor = nullptr;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCameraActor::~vtkCameraActor()
 {
   this->SetCamera(nullptr);
@@ -57,7 +57,7 @@ vtkCameraActor::~vtkCameraActor()
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Support the standard render methods.
 int vtkCameraActor::RenderOpaqueGeometry(vtkViewport* viewport)
@@ -72,7 +72,7 @@ int vtkCameraActor::RenderOpaqueGeometry(vtkViewport* viewport)
   return result;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry? No.
 vtkTypeBool vtkCameraActor::HasTranslucentPolygonalGeometry()
@@ -80,7 +80,7 @@ vtkTypeBool vtkCameraActor::HasTranslucentPolygonalGeometry()
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCameraActor::ReleaseGraphicsResources(vtkWindow* window)
 {
   if (this->FrustumActor != nullptr)
@@ -89,7 +89,7 @@ void vtkCameraActor::ReleaseGraphicsResources(vtkWindow* window)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
 double* vtkCameraActor::GetBounds()
 {
@@ -109,7 +109,7 @@ double* vtkCameraActor::GetBounds()
   return this->Bounds;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkCameraActor::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
@@ -125,7 +125,7 @@ vtkMTimeType vtkCameraActor::GetMTime()
   return mTime;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Get property of the internal actor.
 vtkProperty* vtkCameraActor::GetProperty()
@@ -138,7 +138,7 @@ vtkProperty* vtkCameraActor::GetProperty()
   return this->FrustumActor->GetProperty();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Set property of the internal actor.
 void vtkCameraActor::SetProperty(vtkProperty* p)
@@ -151,7 +151,7 @@ void vtkCameraActor::SetProperty(vtkProperty* p)
   this->FrustumActor->SetProperty(p);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCameraActor::UpdateViewProps()
 {
   if (this->Camera == nullptr)
@@ -198,7 +198,7 @@ void vtkCameraActor::UpdateViewProps()
   this->FrustumActor->SetVisibility(1);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCameraActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

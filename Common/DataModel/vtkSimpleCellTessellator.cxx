@@ -285,7 +285,7 @@ static signed char vtkTessellatorTetraCasesRight[65][8][4] = {
   { NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA }
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 // This table is for the case where the 'last edge' of the tetra could not be order
 // properly, then we need a different case table
@@ -488,7 +488,7 @@ static int TRIANGLE_VERTEX_STATE[3] = { 5, // 1 0 1
   6 };                                     // 1 1 0
 
 vtkStandardNewMacro(vtkSimpleCellTessellator);
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 // vtkTriangleTile
 //
@@ -686,7 +686,7 @@ private:
   // bit i (0 to 3) tells if point p (0 to 5) is laying on original edge i.
   unsigned char ClassificationState[6];
 };
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 // vtkTetraTile
 //
@@ -1043,7 +1043,7 @@ private:
   int* FaceIds;
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTriangleTile::Refine(vtkSimpleCellTessellator* tess, vtkTriangleTile* res)
 {
   // The output will contain a maximum of 4 vtkTriangleTiles
@@ -1116,7 +1116,7 @@ int vtkTriangleTile::Refine(vtkSimpleCellTessellator* tess, vtkTriangleTile* res
   return numTriangleCreated;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Extract point `pointId' from the edge table to the output point and output
 // point data.
@@ -1142,7 +1142,7 @@ void vtkSimpleCellTessellator::CopyPoint(vtkIdType pointId)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static void Reorder(vtkIdType in[4], vtkIdType order[4])
 {
   // Input: in[4] contains pointId of a tetra in right hand rule.
@@ -1253,7 +1253,7 @@ static void Reorder(vtkIdType in[4], vtkIdType order[4])
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTetraTile::Refine(vtkSimpleCellTessellator* tess, vtkTetraTile* res)
 {
   // The output will contains a maximum of 8 vtkTetraTiles
@@ -1358,7 +1358,7 @@ int vtkTetraTile::Refine(vtkSimpleCellTessellator* tess, vtkTetraTile* res)
   return numTetraCreated;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Create the tessellator helper with a default of 0.25 for threshold
 //
 vtkSimpleCellTessellator::vtkSimpleCellTessellator()
@@ -1394,7 +1394,7 @@ vtkSimpleCellTessellator::vtkSimpleCellTessellator()
   this->TriangleIds->Allocate(VTK_CELL_SIZE);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSimpleCellTessellator::~vtkSimpleCellTessellator()
 {
   this->EdgeTable->Delete();
@@ -1412,7 +1412,7 @@ vtkSimpleCellTessellator::~vtkSimpleCellTessellator()
   this->TriangleIds->Delete();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This function is supposed to be called only at toplevel (for passing data
 // from third party to the hash point table)
 void vtkSimpleCellTessellator::InsertPointsIntoEdgeTable(vtkTriangleTile& tri)
@@ -1438,7 +1438,7 @@ void vtkSimpleCellTessellator::InsertPointsIntoEdgeTable(vtkTriangleTile& tri)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable(vtkTriangleTile& tri)
 {
@@ -1644,7 +1644,7 @@ void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable(vtkTriangleTile& tri)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable(vtkTetraTile& tetra)
 {
@@ -1872,7 +1872,7 @@ void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable(vtkTetraTile& tetra)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSimpleCellTessellator::RemoveEdgesFromEdgeTable(vtkTriangleTile& tri)
 {
   vtkIdType l, r;
@@ -1893,7 +1893,7 @@ void vtkSimpleCellTessellator::RemoveEdgesFromEdgeTable(vtkTriangleTile& tri)
     this->EdgeTable->RemoveEdge(tri.GetPointId(l), tri.GetPointId(r));
   }
 }
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSimpleCellTessellator::RemoveEdgesFromEdgeTable(vtkTetraTile& tetra)
 {
   vtkIdType l, r;
@@ -1918,7 +1918,7 @@ void vtkSimpleCellTessellator::RemoveEdgesFromEdgeTable(vtkTetraTile& tetra)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSimpleCellTessellator::Reset()
 {
   // No memory deletion should happen here, as one cell to another there
@@ -1927,7 +1927,7 @@ void vtkSimpleCellTessellator::Reset()
   this->TessellateCellArray->Reset();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Initialize the tessellator with a data set `ds'.
 void vtkSimpleCellTessellator::Initialize(vtkGenericDataSet* ds)
@@ -1941,7 +1941,7 @@ void vtkSimpleCellTessellator::Initialize(vtkGenericDataSet* ds)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSimpleCellTessellator::Tessellate(vtkGenericAdaptorCell* cell,
   vtkGenericAttributeCollection* att, vtkDoubleArray* points, vtkCellArray* cellArray,
   vtkPointData* internalPd)
@@ -2199,7 +2199,7 @@ void vtkSimpleCellTessellator::Tessellate(vtkGenericAdaptorCell* cell,
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSimpleCellTessellator::InitTetraTile(
   vtkTetraTile& root, const vtkIdType* localIds, vtkIdType* ids, int* edgeIds, int* faceIds)
 {
@@ -2229,7 +2229,7 @@ void vtkSimpleCellTessellator::InitTetraTile(
   // Prepare the hash table with the top-level edges:
   this->InsertEdgesIntoEdgeTable(root);
 }
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSimpleCellTessellator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -2240,7 +2240,7 @@ void vtkSimpleCellTessellator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "TessellatePoints: " << this->TessellatePoints << endl;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSimpleCellTessellator::TessellateFace(vtkGenericAdaptorCell* cell,
   vtkGenericAttributeCollection* att, vtkIdType index, vtkDoubleArray* points,
   vtkCellArray* cellArray, vtkPointData* internalPd)
@@ -2379,7 +2379,7 @@ void vtkSimpleCellTessellator::TessellateFace(vtkGenericAdaptorCell* cell,
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSimpleCellTessellator::Triangulate(vtkGenericAdaptorCell* cell,
   vtkGenericAttributeCollection* att, vtkDoubleArray* points, vtkCellArray* cellArray,
   vtkPointData* internalPd)
@@ -2479,7 +2479,7 @@ void vtkSimpleCellTessellator::Triangulate(vtkGenericAdaptorCell* cell,
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSimpleCellTessellator::TriangulateTriangle(vtkGenericAdaptorCell* cell, vtkIdType* localIds,
   vtkIdType* ids, const vtkIdType* edgeIds, vtkGenericAttributeCollection* att,
   vtkDoubleArray* points, vtkCellArray* cellArray, vtkPointData* internalPd)
@@ -2560,7 +2560,7 @@ void vtkSimpleCellTessellator::TriangulateTriangle(vtkGenericAdaptorCell* cell, 
 }
 
 #define SLOW_API 0
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Return number of cells using edge #edgeId
 int vtkSimpleCellTessellator::GetNumberOfCellsUsingEdge(int edgeId)
 {
@@ -2590,7 +2590,7 @@ int vtkSimpleCellTessellator::GetNumberOfCellsUsingEdge(int edgeId)
 #endif
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Return number of cells using face #faceId
 int vtkSimpleCellTessellator::GetNumberOfCellsUsingFace(int faceId)
 {
@@ -2623,7 +2623,7 @@ int vtkSimpleCellTessellator::GetNumberOfCellsUsingFace(int faceId)
 #endif
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Allocate some memory if Scalars does not exists or is smaller than size.
 // \pre positive_size: size>0
@@ -2647,7 +2647,7 @@ void vtkSimpleCellTessellator::AllocateScalars(int size)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Return the number of fixed subdivisions. It is used to prevent from
 // infinite loop in degenerated cases. For order 3 or higher, if the
@@ -2667,7 +2667,7 @@ int vtkSimpleCellTessellator::GetFixedSubdivisions()
   return this->FixedSubdivisions;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Return the maximum level of subdivision. It is used to prevent from
 // infinite loop in degenerated cases. For order 3 or higher, if the
@@ -2681,7 +2681,7 @@ int vtkSimpleCellTessellator::GetMaxSubdivisionLevel()
   return this->MaxSubdivisionLevel;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Return the maximum number of adaptive subdivisions.
 // \post valid_result: result==GetMaxSubdivisionLevel()-GetFixedSubdivisions()
@@ -2690,7 +2690,7 @@ int vtkSimpleCellTessellator::GetMaxAdaptiveSubdivisions()
   return this->MaxSubdivisionLevel - this->FixedSubdivisions;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Set the number of fixed subdivisions. See GetFixedSubdivisions() for
 // more explanations.
@@ -2702,7 +2702,7 @@ void vtkSimpleCellTessellator::SetFixedSubdivisions(int level)
   this->FixedSubdivisions = level;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Set the maximum level of subdivision. See GetMaxSubdivisionLevel() for
 // more explanations.
@@ -2714,7 +2714,7 @@ void vtkSimpleCellTessellator::SetMaxSubdivisionLevel(int level)
   this->MaxSubdivisionLevel = level;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Set both the number of fixed subdivisions and the maximum level of
 // subdivisions. See GetFixedSubdivisions(), GetMaxSubdivisionLevel() and
@@ -2731,7 +2731,7 @@ void vtkSimpleCellTessellator::SetSubdivisionLevels(int fixed, int maxLevel)
   this->MaxSubdivisionLevel = maxLevel;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Allocate some memory if PointIds does not exist or is smaller than size.
 // \pre positive_size: size>0
@@ -2747,7 +2747,7 @@ void vtkSimpleCellTessellator::AllocatePointIds(int size)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Are the faces `originalFace' and `face' equal?
 // The result is independent from any order or orientation.

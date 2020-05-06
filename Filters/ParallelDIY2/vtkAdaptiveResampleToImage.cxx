@@ -164,7 +164,7 @@ bool merge(vtkImageData* target, std::vector<vtkSmartPointer<vtkImageData>>& sou
 
 vtkStandardNewMacro(vtkAdaptiveResampleToImage);
 vtkCxxSetObjectMacro(vtkAdaptiveResampleToImage, Controller, vtkMultiProcessController);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAdaptiveResampleToImage::vtkAdaptiveResampleToImage()
   : Controller(nullptr)
   , NumberOfImages(0)
@@ -173,13 +173,13 @@ vtkAdaptiveResampleToImage::vtkAdaptiveResampleToImage()
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAdaptiveResampleToImage::~vtkAdaptiveResampleToImage()
 {
   this->SetController(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAdaptiveResampleToImage::FillOutputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
@@ -187,7 +187,7 @@ int vtkAdaptiveResampleToImage::FillOutputPortInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAdaptiveResampleToImage::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -306,7 +306,7 @@ int vtkAdaptiveResampleToImage::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAdaptiveResampleToImage::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

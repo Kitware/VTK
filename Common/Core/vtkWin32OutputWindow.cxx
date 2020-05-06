@@ -22,7 +22,7 @@ vtkStandardNewMacro(vtkWin32OutputWindow);
 
 HWND vtkWin32OutputWindowOutputWindow = 0;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 LRESULT APIENTRY vtkWin32OutputWindowWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
   switch (message)
@@ -45,7 +45,7 @@ LRESULT APIENTRY vtkWin32OutputWindowWndProc(HWND hWnd, UINT message, WPARAM wPa
   return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkWin32OutputWindow::vtkWin32OutputWindow()
 {
   // Default to sending output to stderr/cerr when running a dashboard
@@ -60,10 +60,10 @@ vtkWin32OutputWindow::vtkWin32OutputWindow()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkWin32OutputWindow::~vtkWin32OutputWindow() {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Display text in the window, and translate the \n to \r\n.
 //
 void vtkWin32OutputWindow::DisplayText(const char* someText)
@@ -136,7 +136,7 @@ void vtkWin32OutputWindow::DisplayText(const char* someText)
   delete[] buffer;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Add some text to the EDIT control.
 //
 void vtkWin32OutputWindow::AddText(const char* someText)
@@ -162,7 +162,7 @@ void vtkWin32OutputWindow::AddText(const char* someText)
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // initialize the output window with an EDIT control and
 // a container window.
 //
@@ -291,7 +291,7 @@ int vtkWin32OutputWindow::Initialize()
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWin32OutputWindow::PromptText(const char* someText)
 {
   size_t vtkmsgsize = strlen(someText) + 100;
@@ -314,7 +314,7 @@ void vtkWin32OutputWindow::PromptText(const char* someText)
   delete[] vtkmsg;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWin32OutputWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -328,7 +328,7 @@ void vtkWin32OutputWindow::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 #if !defined(VTK_LEGACY_REMOVE)
 void vtkWin32OutputWindow::SetSendToStdErr(bool val)
 {

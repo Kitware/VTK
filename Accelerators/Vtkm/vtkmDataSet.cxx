@@ -66,7 +66,7 @@ struct vtkmDataSet::DataMembers
   VtkmLocator<vtkm::cont::CellLocator> CellLocator;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkmDataSet::vtkmDataSet()
   : Internals(new DataMembers)
 {
@@ -84,7 +84,7 @@ void vtkmDataSet::PrintSelf(ostream& os, vtkIndent indent)
   this->Internals->Coordinates.PrintSummary(os);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkmDataSet::SetVtkmDataSet(const vtkm::cont::DataSet& ds)
 {
   this->Internals->CellSet = ds.GetCellSet();
@@ -102,7 +102,7 @@ vtkm::cont::DataSet vtkmDataSet::GetVtkmDataSet() const
   return ds;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkmDataSet::CopyStructure(vtkDataSet* ds)
 {
   auto vtkmds = vtkmDataSet::SafeDownCast(ds);

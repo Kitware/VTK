@@ -1027,7 +1027,7 @@ private:
 
 vtkStandardNewMacro(vtkCityGMLReader);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCityGMLReader::vtkCityGMLReader()
 {
   this->FileName = nullptr;
@@ -1038,14 +1038,14 @@ vtkCityGMLReader::vtkCityGMLReader()
   this->NumberOfBuildings = std::numeric_limits<int>::max();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCityGMLReader::~vtkCityGMLReader()
 {
   delete this->Impl;
   delete[] this->FileName;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCityGMLReader::RequestData(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
@@ -1106,7 +1106,7 @@ int vtkCityGMLReader::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCityGMLReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -67,7 +67,7 @@ vtkPNGWriter::~vtkPNGWriter()
   delete this->Internals;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Writes all the data from the input.
 void vtkPNGWriter::Write()
 {

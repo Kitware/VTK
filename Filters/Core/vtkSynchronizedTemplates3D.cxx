@@ -43,7 +43,7 @@
 
 vtkStandardNewMacro(vtkSynchronizedTemplates3D);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Construct object with initial scalar range (0,1) and single contour value
 // of 0.0. The ImageRange are set to extract the first k-plane.
@@ -62,13 +62,13 @@ vtkSynchronizedTemplates3D::vtkSynchronizedTemplates3D()
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSynchronizedTemplates3D::~vtkSynchronizedTemplates3D()
 {
   this->ContourValues->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Overload standard modified time function. If contour values are modified,
 // then this object is modified as well.
 vtkMTimeType vtkSynchronizedTemplates3D::GetMTime()
@@ -80,7 +80,7 @@ vtkMTimeType vtkSynchronizedTemplates3D::GetMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static void vtkSynchronizedTemplates3DInitializeOutput(int* ext, vtkImageData* input,
   vtkPolyData* o, vtkFloatArray* scalars, vtkFloatArray* normals, vtkFloatArray* gradients,
   vtkDataArray* inScalars)
@@ -141,7 +141,7 @@ static void vtkSynchronizedTemplates3DInitializeOutput(int* ext, vtkImageData* i
   newPolys->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Calculate the gradient using central difference.
 template <class T>
 void vtkSTComputePointGradient(int i, int j, int k, T* s, int* inExt, vtkIdType xInc,
@@ -210,7 +210,7 @@ void vtkSTComputePointGradient(int i, int j, int k, T* s, int* inExt, vtkIdType 
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 #define VTK_CSP3PA(i2, j2, k2, s)                                                                  \
   if (NeedGradients)                                                                               \
   {                                                                                                \
@@ -242,7 +242,7 @@ void vtkSTComputePointGradient(int i, int j, int k, T* s, int* inExt, vtkIdType 
     newScalars->InsertNextTuple(&value);                                                           \
   }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 // Contouring filter specialized for images
 //
@@ -650,7 +650,7 @@ void ContourImage(vtkSynchronizedTemplates3D* self, int* exExt, vtkImageData* da
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSynchronizedTemplates3D::SetInputMemoryLimit(unsigned long vtkNotUsed(limit))
 {
   vtkErrorMacro(<< "This filter no longer supports a memory limit.");
@@ -659,7 +659,7 @@ void vtkSynchronizedTemplates3D::SetInputMemoryLimit(unsigned long vtkNotUsed(li
     << "Please use a vtkPolyDataStreamer after this filter to achieve similar functionality.");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 unsigned long vtkSynchronizedTemplates3D::GetInputMemoryLimit()
 {
   vtkErrorMacro(<< "This filter no longer supports a memory limit.");
@@ -670,7 +670,7 @@ unsigned long vtkSynchronizedTemplates3D::GetInputMemoryLimit()
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 // Contouring filter specialized for images (or slices from images)
 //
@@ -732,7 +732,7 @@ void vtkSynchronizedTemplates3D::ThreadedExecute(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSynchronizedTemplates3D::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -757,7 +757,7 @@ int vtkSynchronizedTemplates3D::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSynchronizedTemplates3D::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -775,14 +775,14 @@ int vtkSynchronizedTemplates3D::RequestUpdateExtent(vtkInformation* vtkNotUsed(r
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSynchronizedTemplates3D::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSynchronizedTemplates3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

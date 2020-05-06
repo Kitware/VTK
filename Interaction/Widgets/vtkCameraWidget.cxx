@@ -20,13 +20,13 @@
 
 vtkStandardNewMacro(vtkCameraWidget);
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCameraWidget::vtkCameraWidget() = default;
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCameraWidget::~vtkCameraWidget() = default;
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCameraWidget::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)
@@ -35,7 +35,7 @@ void vtkCameraWidget::CreateDefaultRepresentation()
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCameraWidget::SelectRegion(double eventPos[2])
 {
   if (!this->WidgetRep)
@@ -60,7 +60,7 @@ void vtkCameraWidget::SelectRegion(double eventPos[2])
   this->Superclass::SelectRegion(eventPos);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCameraWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

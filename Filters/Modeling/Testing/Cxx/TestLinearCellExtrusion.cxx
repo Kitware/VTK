@@ -25,7 +25,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestLinearCellExtrusion(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   vtkNew<vtkPolyData> polyData;

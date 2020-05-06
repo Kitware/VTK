@@ -24,17 +24,17 @@
 
 vtkStandardNewMacro(vtkExternalOpenGLRenderWindow);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExternalOpenGLRenderWindow::vtkExternalOpenGLRenderWindow()
 {
   this->AutomaticWindowPositionAndResize = 1;
   this->UseExternalContent = true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExternalOpenGLRenderWindow::~vtkExternalOpenGLRenderWindow() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExternalOpenGLRenderWindow::Start(void)
 {
   // Make sure all important OpenGL options are set for VTK
@@ -92,13 +92,13 @@ void vtkExternalOpenGLRenderWindow::Start(void)
   this->OffScreenFramebuffer->Bind();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkExternalOpenGLRenderWindow::IsCurrent(void)
 {
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExternalOpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "UseExternalContent: " << this->UseExternalContent << endl;

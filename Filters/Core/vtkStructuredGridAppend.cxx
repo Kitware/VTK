@@ -31,13 +31,13 @@
 
 vtkStandardNewMacro(vtkStructuredGridAppend);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStructuredGridAppend::vtkStructuredGridAppend() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStructuredGridAppend::~vtkStructuredGridAppend() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkStructuredGridAppend::ReplaceNthInputConnection(int idx, vtkAlgorithmOutput* input)
 {
   if (idx < 0 || idx >= this->GetNumberOfInputConnections(0))
@@ -59,7 +59,7 @@ void vtkStructuredGridAppend::ReplaceNthInputConnection(int idx, vtkAlgorithmOut
   this->SetNthInputConnection(0, idx, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The default vtkStructuredGridAlgorithm semantics are that SetInput() puts
 // each input on a different port, we want all the structured grid inputs to
 // go on the first port.
@@ -68,7 +68,7 @@ void vtkStructuredGridAppend::SetInputData(int idx, vtkDataObject* input)
   this->SetInputDataInternal(idx, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject* vtkStructuredGridAppend::GetInput(int idx)
 {
   if (this->GetNumberOfInputConnections(0) <= idx)
@@ -78,7 +78,7 @@ vtkDataObject* vtkStructuredGridAppend::GetInput(int idx)
   return vtkStructuredGrid::SafeDownCast(this->GetExecutive()->GetInputData(0, idx));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method tells the output it will have more components
 int vtkStructuredGridAppend::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -128,7 +128,7 @@ int vtkStructuredGridAppend::RequestInformation(vtkInformation* vtkNotUsed(reque
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkStructuredGridAppend::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -149,7 +149,7 @@ int vtkStructuredGridAppend::RequestUpdateExtent(vtkInformation* vtkNotUsed(requ
 
 namespace
 {
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This templated implementation executes the filter for any type of data.
 struct AppendWorker
 {
@@ -209,7 +209,7 @@ struct AppendWorker
 };
 } // end anon namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkStructuredGridAppend::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -384,14 +384,14 @@ int vtkStructuredGridAppend::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkStructuredGridAppend::FillInputPortInformation(int i, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
   return this->Superclass::FillInputPortInformation(i, info);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkStructuredGridAppend::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

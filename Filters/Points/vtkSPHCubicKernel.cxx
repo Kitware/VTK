@@ -19,7 +19,7 @@
 
 vtkStandardNewMacro(vtkSPHCubicKernel);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSPHCubicKernel::vtkSPHCubicKernel()
 {
   this->CutoffFactor = 2.0;
@@ -38,10 +38,10 @@ vtkSPHCubicKernel::vtkSPHCubicKernel()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSPHCubicKernel::~vtkSPHCubicKernel() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // At this point, the spatial step, the dimension of the kernel, and the cutoff
 // factor should be known.
 void vtkSPHCubicKernel::Initialize(vtkAbstractPointLocator* loc, vtkDataSet* ds, vtkPointData* attr)
@@ -63,7 +63,7 @@ void vtkSPHCubicKernel::Initialize(vtkAbstractPointLocator* loc, vtkDataSet* ds,
   this->Superclass::Initialize(loc, ds, attr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSPHCubicKernel::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

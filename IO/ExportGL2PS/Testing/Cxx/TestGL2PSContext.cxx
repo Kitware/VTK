@@ -39,7 +39,7 @@
 
 #include <string>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class ContextGL2PSTest : public vtkContextItem
 {
 public:
@@ -49,7 +49,7 @@ public:
   bool Paint(vtkContext2D* painter) override;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestGL2PSContext(int, char*[])
 {
   // Set up a 2D context view, context test object and add it to the scene

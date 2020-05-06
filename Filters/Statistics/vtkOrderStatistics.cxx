@@ -41,7 +41,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 vtkStandardNewMacro(vtkOrderStatistics);
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOrderStatistics::vtkOrderStatistics()
 {
   this->QuantileDefinition = vtkOrderStatistics::InverseCDFAveragedSteps;
@@ -55,10 +55,10 @@ vtkOrderStatistics::vtkOrderStatistics()
   this->AssessNames->SetValue(0, "Quantile");
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOrderStatistics::~vtkOrderStatistics() = default;
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrderStatistics::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -68,7 +68,7 @@ void vtkOrderStatistics::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MaximumHistogramSize: " << this->MaximumHistogramSize << endl;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrderStatistics::SetQuantileDefinition(int qd)
 {
   switch (qd)
@@ -86,7 +86,7 @@ void vtkOrderStatistics::SetQuantileDefinition(int qd)
   this->Modified();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkOrderStatistics::SetParameter(
   const char* parameter, int vtkNotUsed(index), vtkVariant value)
 {
@@ -107,7 +107,7 @@ bool vtkOrderStatistics::SetParameter(
   return false;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrderStatistics::Learn(
   vtkTable* inData, vtkTable* vtkNotUsed(inParameters), vtkMultiBlockDataSet* outMeta)
 {
@@ -295,7 +295,7 @@ void vtkOrderStatistics::Learn(
   } // rit
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrderStatistics::Derive(vtkMultiBlockDataSet* inMeta)
 {
   if (!inMeta || inMeta->GetNumberOfBlocks() < 1)
@@ -636,7 +636,7 @@ void vtkOrderStatistics::Derive(vtkMultiBlockDataSet* inMeta)
   quantileTab->Delete();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrderStatistics::Test(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtkTable* outMeta)
 {
   if (!inMeta)
@@ -803,7 +803,7 @@ void vtkOrderStatistics::Test(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vt
   statCol->Delete();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class DataArrayQuantizer : public vtkStatisticsAlgorithm::AssessFunctor
 {
 public:
@@ -840,7 +840,7 @@ public:
   }
 };
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class StringArrayQuantizer : public vtkStatisticsAlgorithm::AssessFunctor
 {
 public:
@@ -877,7 +877,7 @@ public:
   }
 };
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class VariantArrayQuantizer : public vtkStatisticsAlgorithm::AssessFunctor
 {
 public:
@@ -914,7 +914,7 @@ public:
   }
 };
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrderStatistics::SelectAssessFunctor(
   vtkTable* outData, vtkDataObject* inMetaDO, vtkStringArray* rowNames, AssessFunctor*& dfunc)
 {

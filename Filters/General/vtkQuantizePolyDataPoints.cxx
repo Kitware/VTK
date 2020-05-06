@@ -18,7 +18,7 @@
 
 vtkStandardNewMacro(vtkQuantizePolyDataPoints);
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct object with initial QFactor of 0.25
 vtkQuantizePolyDataPoints::vtkQuantizePolyDataPoints()
 {
@@ -26,7 +26,7 @@ vtkQuantizePolyDataPoints::vtkQuantizePolyDataPoints()
   this->Tolerance = 0.0;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQuantizePolyDataPoints::OperateOnPoint(double in[3], double out[3])
 {
   out[0] = floor(in[0] / this->QFactor + 0.5) * this->QFactor;
@@ -34,7 +34,7 @@ void vtkQuantizePolyDataPoints::OperateOnPoint(double in[3], double out[3])
   out[2] = floor(in[2] / this->QFactor + 0.5) * this->QFactor;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQuantizePolyDataPoints::OperateOnBounds(double in[6], double out[6])
 {
   out[0] = floor(in[0] / this->QFactor + 0.5) * this->QFactor;
@@ -45,7 +45,7 @@ void vtkQuantizePolyDataPoints::OperateOnBounds(double in[6], double out[6])
   out[5] = floor(in[5] / this->QFactor + 0.5) * this->QFactor;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQuantizePolyDataPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

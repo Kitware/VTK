@@ -110,7 +110,7 @@ vtkMTimeType vtkImageSeparableConvolution::GetMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageSeparableConvolution::~vtkImageSeparableConvolution()
 {
   if (this->XKernel)
@@ -127,13 +127,13 @@ vtkImageSeparableConvolution::~vtkImageSeparableConvolution()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageSeparableConvolution::vtkImageSeparableConvolution()
 {
   XKernel = YKernel = ZKernel = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This extent of the components changes to real and imaginary values.
 int vtkImageSeparableConvolution::IterativeRequestInformation(
   vtkInformation* vtkNotUsed(input), vtkInformation* output)
@@ -142,7 +142,7 @@ int vtkImageSeparableConvolution::IterativeRequestInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method tells the superclass that the whole input array is needed
 // to compute any output region.
 
@@ -307,7 +307,7 @@ void vtkImageSeparableConvolutionExecute(vtkImageSeparableConvolution* self, vtk
   delete[] kernel;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This is written as a 1D execute method, but is called several times.
 int vtkImageSeparableConvolution::IterativeRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)

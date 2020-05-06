@@ -35,7 +35,7 @@
 
 vtkStandardNewMacro(vtkXMLDataObjectWriter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLDataObjectWriter::vtkXMLDataObjectWriter()
 {
   // Setup a callback for the internal writer to report progress.
@@ -44,25 +44,25 @@ vtkXMLDataObjectWriter::vtkXMLDataObjectWriter()
   this->InternalProgressObserver->SetClientData(this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLDataObjectWriter::~vtkXMLDataObjectWriter()
 {
   this->InternalProgressObserver->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLDataObjectWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataSet* vtkXMLDataObjectWriter::GetInput()
 {
   return static_cast<vtkDataSet*>(this->Superclass::GetInput());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLWriter* vtkXMLDataObjectWriter::NewWriter(int dataset_type)
 {
   // Create a writer based on the data set type.
@@ -88,7 +88,7 @@ vtkXMLWriter* vtkXMLDataObjectWriter::NewWriter(int dataset_type)
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLDataObjectWriter::WriteInternal()
 {
   // Create a writer based on the data set type.
@@ -124,19 +124,19 @@ int vtkXMLDataObjectWriter::WriteInternal()
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXMLDataObjectWriter::GetDataSetName()
 {
   return "DataSet";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXMLDataObjectWriter::GetDefaultFileExtension()
 {
   return "vtk";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLDataObjectWriter::ProgressCallbackFunction(
   vtkObject* caller, unsigned long, void* clientdata, void*)
 {
@@ -147,7 +147,7 @@ void vtkXMLDataObjectWriter::ProgressCallbackFunction(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLDataObjectWriter::ProgressCallback(vtkAlgorithm* w)
 {
   float width = this->ProgressRange[1] - this->ProgressRange[0];
@@ -160,7 +160,7 @@ void vtkXMLDataObjectWriter::ProgressCallback(vtkAlgorithm* w)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLDataObjectWriter::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");

@@ -104,7 +104,7 @@ static const char* vtkDataObjectTypesStrings[] = {
   nullptr,
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkDataObjectTypes::GetClassNameFromTypeId(int type)
 {
   static int numClasses = 0;
@@ -128,7 +128,7 @@ const char* vtkDataObjectTypes::GetClassNameFromTypeId(int type)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObjectTypes::GetTypeIdFromClassName(const char* classname)
 {
   if (!classname)
@@ -147,7 +147,7 @@ int vtkDataObjectTypes::GetTypeIdFromClassName(const char* classname)
   return -1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject* vtkDataObjectTypes::NewDataObject(int type)
 {
   const char* className = vtkDataObjectTypes::GetClassNameFromTypeId(type);
@@ -159,7 +159,7 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(int type)
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* type)
 {
 
@@ -298,7 +298,7 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* type)
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObjectTypes::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -33,7 +33,7 @@
 
 vtkStandardNewMacro(vtkConvexHull2D);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkConvexHull2D::vtkConvexHull2D()
 {
   this->SetNumberOfOutputPorts(2);
@@ -53,13 +53,13 @@ vtkConvexHull2D::vtkConvexHull2D()
   this->HullSource = vtkSmartPointer<vtkPolygon>::New();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkConvexHull2D::~vtkConvexHull2D()
 {
   this->SetRenderer(nullptr);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkConvexHull2D::CalculateBoundingRectangle(
   vtkPoints* inPoints, vtkPoints* outPoints, double minimumHullSize)
 {
@@ -89,7 +89,7 @@ void vtkConvexHull2D::CalculateBoundingRectangle(
   outPoints->SetPoint(3, bounds[0], bounds[3], 0.0);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkConvexHull2D::CalculateConvexHull(
   vtkPoints* inPoints, vtkPoints* outPoints, double minimumHullSize)
 {
@@ -145,7 +145,7 @@ void vtkConvexHull2D::CalculateConvexHull(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkConvexHull2D::ResizeHullToMinimumInDisplay(vtkPolyData* hullPolyData)
 {
   if (this->Renderer && this->Renderer->IsActiveCameraCreated())
@@ -196,20 +196,20 @@ void vtkConvexHull2D::ResizeHullToMinimumInDisplay(vtkPolyData* hullPolyData)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkConvexHull2D::SetRenderer(vtkRenderer* renderer)
 {
   this->Renderer = renderer;
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRenderer* vtkConvexHull2D::GetRenderer()
 {
   return this->Renderer;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkConvexHull2D::GetMTime()
 {
   if (this->Renderer)
@@ -222,7 +222,7 @@ vtkMTimeType vtkConvexHull2D::GetMTime()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkConvexHull2D::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -315,7 +315,7 @@ int vtkConvexHull2D::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkConvexHull2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

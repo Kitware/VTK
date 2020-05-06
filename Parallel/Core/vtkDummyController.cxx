@@ -21,7 +21,7 @@ vtkStandardNewMacro(vtkDummyController);
 vtkCxxSetObjectMacro(vtkDummyController, Communicator, vtkCommunicator);
 vtkCxxSetObjectMacro(vtkDummyController, RMICommunicator, vtkCommunicator);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDummyController::vtkDummyController()
 {
   this->Communicator = vtkDummyCommunicator::New();
@@ -42,7 +42,7 @@ void vtkDummyController::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "RMICommunicator: " << this->RMICommunicator << endl;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDummyController::SingleMethodExecute()
 {
   if (this->SingleMethod)
@@ -59,7 +59,7 @@ void vtkDummyController::SingleMethodExecute()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDummyController::MultipleMethodExecute()
 {
   int i = this->GetLocalProcessId();

@@ -67,7 +67,7 @@ std::array<Justification, 3> JustArray{
   Justification{ VTK_TEXT_RIGHT, VTK_TEXT_TOP },
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class TransformedTextPDFTest : public vtkContextItem
 {
 public:

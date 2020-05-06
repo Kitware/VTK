@@ -39,19 +39,19 @@
 
 vtkStandardNewMacro(vtkPChacoReader);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPChacoReader::vtkPChacoReader()
 {
   this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPChacoReader::~vtkPChacoReader()
 {
   this->SetController(nullptr);
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPChacoReader::SetController(vtkMultiProcessController* c)
 {
   if ((c == nullptr) || (c->GetNumberOfProcesses() == 0))
@@ -85,7 +85,7 @@ void vtkPChacoReader::SetController(vtkMultiProcessController* c)
   this->MyId = c->GetLocalProcessId();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPChacoReader::RequestInformation(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -157,7 +157,7 @@ int vtkPChacoReader::RequestInformation(
   return retVal;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPChacoReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -271,7 +271,7 @@ int vtkPChacoReader::RequestData(vtkInformation* vtkNotUsed(request),
 
   return retVal;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPChacoReader::SetUpEmptyGrid(vtkUnstructuredGrid* output)
 {
   int i;
@@ -329,7 +329,7 @@ void vtkPChacoReader::SetUpEmptyGrid(vtkUnstructuredGrid* output)
     output->GetPointData()->AddArray(ia);
   }
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPChacoReader::DivideCells(
   vtkMultiProcessController* contr, vtkUnstructuredGrid* output, int source)
 {
@@ -552,7 +552,7 @@ vtkUnstructuredGrid* vtkPChacoReader::UnMarshallDataSet(char* buf, vtkIdType siz
 
   return newGrid;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPChacoReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkChacoReader::PrintSelf(os, indent);

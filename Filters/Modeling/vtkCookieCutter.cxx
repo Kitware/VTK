@@ -1019,7 +1019,7 @@ void vtkCookieCutterHelper::CropPoly(vtkIdType cellId, vtkIdType cellOffset, vtk
 
 } // anonymous namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Instantiate object with empty loop.
 vtkCookieCutter::vtkCookieCutter()
 {
@@ -1027,31 +1027,31 @@ vtkCookieCutter::vtkCookieCutter()
   this->SetNumberOfInputPorts(2);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCookieCutter::~vtkCookieCutter()
 {
   this->SetLocator(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCookieCutter::SetLoopsConnection(vtkAlgorithmOutput* algOutput)
 {
   this->SetInputConnection(1, algOutput);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAlgorithmOutput* vtkCookieCutter::GetLoopsConnection()
 {
   return this->GetInputConnection(1, 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCookieCutter::SetLoopsData(vtkDataObject* input)
 {
   this->SetInputData(1, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject* vtkCookieCutter::GetLoops()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
@@ -1062,7 +1062,7 @@ vtkDataObject* vtkCookieCutter::GetLoops()
   return this->GetExecutive()->GetInputData(1, 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCookieCutter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -1228,7 +1228,7 @@ int vtkCookieCutter::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCookieCutter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -1254,7 +1254,7 @@ int vtkCookieCutter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCookieCutter::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
@@ -1270,7 +1270,7 @@ int vtkCookieCutter::FillInputPortInformation(int port, vtkInformation* info)
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCookieCutter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -1285,7 +1285,7 @@ void vtkCookieCutter::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCookieCutter::CreateDefaultLocator()
 {
   if (this->Locator == nullptr)

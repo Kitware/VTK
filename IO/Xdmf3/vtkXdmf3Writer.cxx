@@ -157,7 +157,7 @@ public:
 
 //==============================================================================
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXdmf3Writer::vtkXdmf3Writer()
 {
   this->FileName = nullptr;
@@ -171,7 +171,7 @@ vtkXdmf3Writer::vtkXdmf3Writer()
   this->SetNumberOfOutputPorts(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXdmf3Writer::~vtkXdmf3Writer()
 {
   this->SetFileName(nullptr);
@@ -182,7 +182,7 @@ vtkXdmf3Writer::~vtkXdmf3Writer()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXdmf3Writer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -224,7 +224,7 @@ int vtkXdmf3Writer::Write()
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmf3Writer::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -244,7 +244,7 @@ int vtkXdmf3Writer::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmf3Writer::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -282,7 +282,7 @@ int vtkXdmf3Writer::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmf3Writer::RequestData(vtkInformation* request, vtkInformationVector** inputVector,
   vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -300,13 +300,13 @@ int vtkXdmf3Writer::RequestData(vtkInformation* request, vtkInformationVector** 
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmf3Writer::GlobalContinueExecuting(int localContinueExecution)
 {
   return localContinueExecution;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXdmf3Writer::WriteDataInternal(vtkInformation* request)
 {
   bool isTemporal = false;
@@ -486,7 +486,7 @@ void vtkXdmf3Writer::WriteDataInternal(vtkInformation* request)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmf3Writer::CheckParametersInternal(int _NumberOfProcesses, int _MyRank)
 {
   if (!this->FileName)
@@ -501,7 +501,7 @@ int vtkXdmf3Writer::CheckParametersInternal(int _NumberOfProcesses, int _MyRank)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmf3Writer::CheckParameters()
 {
   return this->CheckParametersInternal(1, 0);

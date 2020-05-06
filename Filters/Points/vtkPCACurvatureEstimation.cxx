@@ -33,7 +33,7 @@ vtkCxxSetObjectMacro(vtkPCACurvatureEstimation, Locator, vtkAbstractPointLocator
 namespace
 {
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The threaded core of the algorithm.
 template <typename T>
 struct GenerateCurvature
@@ -155,7 +155,7 @@ struct GenerateCurvature
 } // anonymous namespace
 
 //================= Begin VTK class proper =======================================
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPCACurvatureEstimation::vtkPCACurvatureEstimation()
 {
 
@@ -163,13 +163,13 @@ vtkPCACurvatureEstimation::vtkPCACurvatureEstimation()
   this->Locator = vtkStaticPointLocator::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPCACurvatureEstimation::~vtkPCACurvatureEstimation()
 {
   this->SetLocator(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Produce the output data
 int vtkPCACurvatureEstimation::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -224,14 +224,14 @@ int vtkPCACurvatureEstimation::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPCACurvatureEstimation::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPCACurvatureEstimation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

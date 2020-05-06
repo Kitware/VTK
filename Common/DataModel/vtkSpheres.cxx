@@ -24,7 +24,7 @@
 vtkStandardNewMacro(vtkSpheres);
 vtkCxxSetObjectMacro(vtkSpheres, Centers, vtkPoints);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSpheres::vtkSpheres()
 {
   this->Centers = nullptr;
@@ -32,7 +32,7 @@ vtkSpheres::vtkSpheres()
   this->Sphere = vtkSphere::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSpheres::~vtkSpheres()
 {
   if (this->Centers)
@@ -46,7 +46,7 @@ vtkSpheres::~vtkSpheres()
   this->Sphere->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSpheres::SetRadii(vtkDataArray* radii)
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting Radii to " << radii);
@@ -72,7 +72,7 @@ void vtkSpheres::SetRadii(vtkDataArray* radii)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Evaluate sphere equations. Return smallest absolute value.
 double vtkSpheres::EvaluateFunction(double x[3])
 {
@@ -106,7 +106,7 @@ double vtkSpheres::EvaluateFunction(double x[3])
   return minVal;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Evaluate spheres gradient.
 void vtkSpheres::EvaluateGradient(double x[3], double n[3])
 {
@@ -142,7 +142,7 @@ void vtkSpheres::EvaluateGradient(double x[3], double n[3])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSpheres::GetNumberOfSpheres()
 {
   if (this->Centers && this->Radii)
@@ -157,7 +157,7 @@ int vtkSpheres::GetNumberOfSpheres()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSphere* vtkSpheres::GetSphere(int i)
 {
   double radius[1];
@@ -177,7 +177,7 @@ vtkSphere* vtkSpheres::GetSphere(int i)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSpheres::GetSphere(int i, vtkSphere* sphere)
 {
   if (i >= 0 && i < this->GetNumberOfSpheres())
@@ -191,7 +191,7 @@ void vtkSpheres::GetSphere(int i, vtkSphere* sphere)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSpheres::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

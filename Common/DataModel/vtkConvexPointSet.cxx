@@ -27,7 +27,7 @@
 
 vtkStandardNewMacro(vtkConvexPointSet);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct the hexahedron with eight points.
 vtkConvexPointSet::vtkConvexPointSet()
 {
@@ -45,7 +45,7 @@ vtkConvexPointSet::vtkConvexPointSet()
   this->ParametricCoords = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkConvexPointSet::~vtkConvexPointSet()
 {
   this->Tetra->Delete();
@@ -60,7 +60,7 @@ vtkConvexPointSet::~vtkConvexPointSet()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Should be called by GetCell() prior to any other method invocation
 void vtkConvexPointSet::Initialize()
 {
@@ -72,7 +72,7 @@ void vtkConvexPointSet::Initialize()
   this->Triangulate(0, this->TetraIds, this->TetraPoints);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkConvexPointSet::GetNumberOfFaces()
 {
   this->BoundaryTris->Reset();
@@ -80,7 +80,7 @@ int vtkConvexPointSet::GetNumberOfFaces()
   return this->BoundaryTris->GetNumberOfCells();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCell* vtkConvexPointSet::GetFace(int faceId)
 {
   int numCells = this->BoundaryTris->GetNumberOfCells();
@@ -104,7 +104,7 @@ vtkCell* vtkConvexPointSet::GetFace(int faceId)
   return this->Triangle;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkConvexPointSet::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* pts)
 {
   vtkIdType numPts = this->GetNumberOfPoints();
@@ -144,7 +144,7 @@ int vtkConvexPointSet::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkP
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkConvexPointSet::Contour(double value, vtkDataArray* cellScalars,
   vtkIncrementalPointLocator* locator, vtkCellArray* verts, vtkCellArray* lines,
   vtkCellArray* polys, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId,
@@ -168,7 +168,7 @@ void vtkConvexPointSet::Contour(double value, vtkDataArray* cellScalars,
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkConvexPointSet::Clip(double value, vtkDataArray* cellScalars,
   vtkIncrementalPointLocator* locator, vtkCellArray* tets, vtkPointData* inPD, vtkPointData* outPD,
   vtkCellData* inCD, vtkIdType cellId, vtkCellData* outCD, int insideOut)
@@ -192,7 +192,7 @@ void vtkConvexPointSet::Clip(double value, vtkDataArray* cellScalars,
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkConvexPointSet::CellBoundary(int subId, const double pcoords[3], vtkIdList* pts)
 {
   // This function was re-written to fix bug #9550.
@@ -209,7 +209,7 @@ int vtkConvexPointSet::CellBoundary(int subId, const double pcoords[3], vtkIdLis
   return this->Tetra->CellBoundary(subId, pcoords, pts);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkConvexPointSet::EvaluatePosition(const double x[3], double vtkNotUsed(closestPoint)[3],
   int& subId, double pcoords[3], double& minDist2, double weights[])
 {
@@ -261,7 +261,7 @@ int vtkConvexPointSet::EvaluatePosition(const double x[3], double vtkNotUsed(clo
   return returnStatus;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkConvexPointSet::EvaluateLocation(
   int& subId, const double pcoords[3], double x[3], double* weights)
 {
@@ -294,7 +294,7 @@ void vtkConvexPointSet::EvaluateLocation(
   weights[this->TetraIds->GetId((subId << 2) + 3)] = tmpWgts[3];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkConvexPointSet::IntersectWithLine(const double p1[3], const double p2[3], double tol,
   double& minT, double x[3], double pcoords[3], int& subId)
 {
@@ -331,7 +331,7 @@ int vtkConvexPointSet::IntersectWithLine(const double p1[3], const double p2[3],
   return status;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkConvexPointSet::Derivatives(
   int subId, const double pcoords[3], const double* values, int dim, double* derivs)
 {
@@ -347,7 +347,7 @@ void vtkConvexPointSet::Derivatives(
   this->Tetra->Derivatives(subId, pcoords, values, dim, derivs);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkConvexPointSet::GetParametricCoords()
 {
   int numPts = this->PointIds->GetNumberOfIds();
@@ -374,21 +374,21 @@ double* vtkConvexPointSet::GetParametricCoords()
   return this->ParametricCoords->GetPointer(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkConvexPointSet::InterpolateFunctions(const double pcoords[3], double* sf)
 {
   (void)pcoords;
   (void)sf;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkConvexPointSet::InterpolateDerivs(const double pcoords[3], double* derivs)
 {
   (void)pcoords;
   (void)derivs;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkConvexPointSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

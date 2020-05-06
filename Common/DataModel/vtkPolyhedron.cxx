@@ -154,7 +154,7 @@ public:
   }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct the hexahedron with eight points.
 vtkPolyhedron::vtkPolyhedron()
 {
@@ -188,7 +188,7 @@ vtkPolyhedron::vtkPolyhedron()
   this->Cell = vtkGenericCell::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyhedron::~vtkPolyhedron()
 {
   this->Line->Delete();
@@ -210,7 +210,7 @@ vtkPolyhedron::~vtkPolyhedron()
   this->Cell->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyhedron::ComputeBounds()
 {
   if (this->BoundsComputed)
@@ -222,7 +222,7 @@ void vtkPolyhedron::ComputeBounds()
   this->BoundsComputed = 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyhedron::ConstructPolyData()
 {
   if (this->PolyDataConstructed)
@@ -263,7 +263,7 @@ vtkPolyData* vtkPolyhedron::GetPolyData()
 
   return this->PolyData;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyhedron::ConstructLocator()
 {
   if (this->LocatorConstructed)
@@ -281,7 +281,7 @@ void vtkPolyhedron::ConstructLocator()
   this->LocatorConstructed = 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyhedron::ComputeParametricCoordinate(const double x[3], double pc[3])
 {
   this->ComputeBounds();
@@ -292,7 +292,7 @@ void vtkPolyhedron::ComputeParametricCoordinate(const double x[3], double pc[3])
   pc[2] = (x[2] - bounds[4]) / (bounds[5] - bounds[4]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyhedron::ComputePositionFromParametricCoordinate(const double pc[3], double x[3])
 {
   this->ComputeBounds();
@@ -302,7 +302,7 @@ void vtkPolyhedron::ComputePositionFromParametricCoordinate(const double pc[3], 
   x[2] = (1 - pc[2]) * bounds[4] + pc[2] * bounds[5];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Should be called by GetCell() prior to any other method invocation and after the
 // points, point ids, and faces have been loaded.
 void vtkPolyhedron::Initialize()
@@ -342,7 +342,7 @@ void vtkPolyhedron::Initialize()
   this->LocatorConstructed = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPolyhedron::GetNumberOfEdges()
 {
   // Make sure edges have been generated.
@@ -354,7 +354,7 @@ int vtkPolyhedron::GetNumberOfEdges()
   return static_cast<int>(this->Edges->GetNumberOfTuples());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method requires that GenerateEdges() is invoked beforehand.
 vtkCell* vtkPolyhedron::GetEdge(int edgeId)
 {
@@ -386,7 +386,7 @@ vtkCell* vtkPolyhedron::GetEdge(int edgeId)
   return this->Line;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPolyhedron::GenerateEdges()
 {
   if (this->EdgesGenerated)
@@ -435,7 +435,7 @@ int vtkPolyhedron::GenerateEdges()
   return this->Edges->GetNumberOfTuples();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPolyhedron::GetNumberOfFaces()
 {
   // Make sure faces have been generated.
@@ -452,7 +452,7 @@ int vtkPolyhedron::GetNumberOfFaces()
   return static_cast<int>(this->GlobalFaces->GetValue(0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyhedron::GenerateFaces()
 {
   if (this->FacesGenerated)
@@ -493,7 +493,7 @@ void vtkPolyhedron::GenerateFaces()
   this->FacesGenerated = 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCell* vtkPolyhedron::GetFace(int faceId)
 {
   if (faceId < 0 || faceId >= this->GlobalFaces->GetValue(0))
@@ -521,7 +521,7 @@ vtkCell* vtkPolyhedron::GetFace(int faceId)
   return this->Polygon;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify the faces for this cell.
 void vtkPolyhedron::SetFaces(vtkIdType* faces)
 {
@@ -557,7 +557,7 @@ void vtkPolyhedron::SetFaces(vtkIdType* faces)
   } // for all faces
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Return the list of faces for this cell.
 vtkIdType* vtkPolyhedron::GetFaces()
 {
@@ -569,7 +569,7 @@ vtkIdType* vtkPolyhedron::GetFaces()
   return this->GlobalFaces->GetPointer(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPolyhedron::IntersectWithLine(const double p1[3], const double p2[3], double tol,
   double& tMin, double xMin[3], double pc[3], int& subId)
 {
@@ -643,7 +643,7 @@ int vtkPolyhedron::IntersectWithLine(const double p1[3], const double p2[3], dou
 #define VTK_MAX_ITER 10 // Maximum iterations for ray-firing
 #define VTK_VOTE_THRESHOLD 3
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Shoot random rays and count the number of intersections
 int vtkPolyhedron::IsInside(const double x[3], double tolerance)
 {
@@ -794,7 +794,7 @@ int vtkPolyhedron::IsInside(const double x[3], double tolerance)
 #undef VTK_MAX_ITER
 #undef VTK_VOTE_THRESHOLD
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Determine whether or not a polyhedron is convex. This method is adapted
 // from Devillers et al., "Checking the Convexity of Polytopes and the
 // Planarity of Subdivisions", Computational Geometry, Volume 11, Issues 3 - 4,
@@ -953,7 +953,7 @@ bool vtkPolyhedron::IsConvex()
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPolyhedron::CellBoundary(int vtkNotUsed(subId), const double pcoords[3], vtkIdList* pts)
 {
   double x[3], n[3], o[3], v[3];
@@ -1014,7 +1014,7 @@ int vtkPolyhedron::CellBoundary(int vtkNotUsed(subId), const double pcoords[3], 
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPolyhedron::EvaluatePosition(const double x[3], double closestPoint[3],
   int& vtkNotUsed(subId), double pcoords[3], double& minDist2, double weights[])
 {
@@ -1055,7 +1055,7 @@ int vtkPolyhedron::EvaluatePosition(const double x[3], double closestPoint[3],
   return isInside;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyhedron::EvaluateLocation(
   int& vtkNotUsed(subId), const double pcoords[3], double x[3], double* weights)
 {
@@ -1064,7 +1064,7 @@ void vtkPolyhedron::EvaluateLocation(
   this->InterpolateFunctions(x, weights);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyhedron::Derivatives(
   int vtkNotUsed(subId), const double pcoords[3], const double* values, int dim, double* derivs)
 {
@@ -1150,13 +1150,13 @@ void vtkPolyhedron::Derivatives(
   delete[] sample;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkPolyhedron::GetParametricCoords()
 {
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyhedron::InterpolateFunctions(const double x[3], double* sf)
 {
   // construct polydata, the result is stored in this->PolyData,
@@ -1172,14 +1172,14 @@ void vtkPolyhedron::InterpolateFunctions(const double x[3], double* sf)
     x, this->PolyData->GetPoints(), this->Polys, sf);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyhedron::InterpolateDerivs(const double x[3], double* derivs)
 {
   (void)x;
   (void)derivs;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPolyhedron::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* pts)
 {
   ptIds->Reset();
@@ -2354,7 +2354,7 @@ void vtkPolyhedron::Clip(double value, vtkDataArray* pointScalars,
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyhedron::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

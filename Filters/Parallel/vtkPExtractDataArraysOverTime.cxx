@@ -79,27 +79,27 @@ vtkSmartPointer<vtkTable> vtkMergeTable(vtkTable* dest, vtkTable* src)
 
 vtkStandardNewMacro(vtkPExtractDataArraysOverTime);
 vtkCxxSetObjectMacro(vtkPExtractDataArraysOverTime, Controller, vtkMultiProcessController);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPExtractDataArraysOverTime::vtkPExtractDataArraysOverTime()
 {
   this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPExtractDataArraysOverTime::~vtkPExtractDataArraysOverTime()
 {
   this->SetController(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPExtractDataArraysOverTime::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Controller: " << this->Controller << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPExtractDataArraysOverTime::PostExecute(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -114,7 +114,7 @@ void vtkPExtractDataArraysOverTime::PostExecute(
   this->ReorganizeData(output);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPExtractDataArraysOverTime::ReorganizeData(vtkMultiBlockDataSet* dataset)
 {
   // 1. Send all blocks to 0.

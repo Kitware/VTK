@@ -162,7 +162,7 @@ public:
 
 vtkStandardNewMacro(vtkPointDataToCellData);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Instantiate object so that point data is not passed to output.
 vtkPointDataToCellData::vtkPointDataToCellData()
 {
@@ -172,13 +172,13 @@ vtkPointDataToCellData::vtkPointDataToCellData()
   this->Implementation = new Internals();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPointDataToCellData::~vtkPointDataToCellData()
 {
   delete this->Implementation;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointDataToCellData::AddPointDataArray(const char* name)
 {
   if (!name)
@@ -191,7 +191,7 @@ void vtkPointDataToCellData::AddPointDataArray(const char* name)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointDataToCellData::RemovePointDataArray(const char* name)
 {
   if (!name)
@@ -204,7 +204,7 @@ void vtkPointDataToCellData::RemovePointDataArray(const char* name)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointDataToCellData::ClearPointDataArrays()
 {
   if (!this->Implementation->PointDataArrays.empty())
@@ -214,7 +214,7 @@ void vtkPointDataToCellData::ClearPointDataArrays()
   this->Implementation->PointDataArrays.clear();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPointDataToCellData::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -370,7 +370,7 @@ int vtkPointDataToCellData::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointDataToCellData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

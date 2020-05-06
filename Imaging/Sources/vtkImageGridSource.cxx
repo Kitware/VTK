@@ -24,7 +24,7 @@
 
 vtkStandardNewMacro(vtkImageGridSource);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageGridSource::vtkImageGridSource()
 {
   this->DataExtent[0] = 0;
@@ -52,7 +52,7 @@ vtkImageGridSource::vtkImageGridSource()
   this->SetNumberOfInputPorts(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageGridSource::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -66,7 +66,7 @@ int vtkImageGridSource::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T>
 void vtkImageGridSourceExecute(
   vtkImageGridSource* self, vtkImageData* data, T* outPtr, int outExt[6], int id)
@@ -144,7 +144,7 @@ void vtkImageGridSourceExecute(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageGridSource::ExecuteDataWithInformation(vtkDataObject* output, vtkInformation* outInfo)
 {
   vtkImageData* data = this->AllocateOutputData(output, outInfo);
@@ -161,7 +161,7 @@ void vtkImageGridSource::ExecuteDataWithInformation(vtkDataObject* output, vtkIn
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageGridSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

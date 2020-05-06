@@ -21,7 +21,7 @@
 
 vtkStandardNewMacro(vtkTupleInterpolator);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTupleInterpolator::vtkTupleInterpolator()
 {
   // Set up the interpolation
@@ -33,7 +33,7 @@ vtkTupleInterpolator::vtkTupleInterpolator()
   this->Linear = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTupleInterpolator::~vtkTupleInterpolator()
 {
   this->Initialize();
@@ -43,7 +43,7 @@ vtkTupleInterpolator::~vtkTupleInterpolator()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTupleInterpolator::SetNumberOfComponents(int numComp)
 {
   numComp = (numComp < 1 ? 1 : numComp);
@@ -56,7 +56,7 @@ void vtkTupleInterpolator::SetNumberOfComponents(int numComp)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTupleInterpolator::GetNumberOfTuples()
 {
   if (this->Spline)
@@ -73,7 +73,7 @@ int vtkTupleInterpolator::GetNumberOfTuples()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkTupleInterpolator::GetMinimumT()
 {
   if (this->Spline)
@@ -92,7 +92,7 @@ double vtkTupleInterpolator::GetMinimumT()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkTupleInterpolator::GetMaximumT()
 {
   if (this->Spline)
@@ -111,7 +111,7 @@ double vtkTupleInterpolator::GetMaximumT()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTupleInterpolator::Initialize()
 {
   int i;
@@ -139,7 +139,7 @@ void vtkTupleInterpolator::Initialize()
   this->NumberOfComponents = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTupleInterpolator::InitializeInterpolation()
 {
   // Prepare for new data
@@ -174,7 +174,7 @@ void vtkTupleInterpolator::InitializeInterpolation()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTupleInterpolator::SetInterpolationType(int type)
 {
   type = (type < INTERPOLATION_TYPE_LINEAR
@@ -189,7 +189,7 @@ void vtkTupleInterpolator::SetInterpolationType(int type)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTupleInterpolator::SetInterpolatingSpline(vtkSpline* spline)
 {
   if (this->InterpolatingSpline == spline)
@@ -209,7 +209,7 @@ void vtkTupleInterpolator::SetInterpolatingSpline(vtkSpline* spline)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTupleInterpolator::AddTuple(double t, double tuple[])
 {
   int i;
@@ -232,7 +232,7 @@ void vtkTupleInterpolator::AddTuple(double t, double tuple[])
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTupleInterpolator::RemoveTuple(double t)
 {
   int i;
@@ -255,7 +255,7 @@ void vtkTupleInterpolator::RemoveTuple(double t)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTupleInterpolator::InterpolateTuple(double t, double tuple[])
 {
   if (this->NumberOfComponents <= 0)
@@ -283,7 +283,7 @@ void vtkTupleInterpolator::InterpolateTuple(double t, double tuple[])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTupleInterpolator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

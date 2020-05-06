@@ -16,23 +16,23 @@
 
 #include "vtkInformation.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationRequestKey::vtkInformationRequestKey(const char* name, const char* location)
   : vtkInformationKey(name, location)
 {
   vtkCommonInformationKeyManager::Register(this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationRequestKey::~vtkInformationRequestKey() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationRequestKey::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationRequestKey::Set(vtkInformation* info)
 {
   if (info->GetRequest() != this)
@@ -47,25 +47,25 @@ void vtkInformationRequestKey::Set(vtkInformation* info)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkInformationRequestKey::Has(vtkInformation* info)
 {
   return (info->GetRequest() == this) ? 1 : 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationRequestKey::Remove(vtkInformation* info)
 {
   info->SetRequest(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationRequestKey::ShallowCopy(vtkInformation* from, vtkInformation* to)
 {
   to->SetRequest(from->GetRequest());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationRequestKey::Print(ostream& os, vtkInformation* info)
 {
   // Print the value.

@@ -26,77 +26,77 @@
 
 vtkStandardNewMacro(vtkPartitionedDataSetCollection);
 vtkCxxSetObjectMacro(vtkPartitionedDataSetCollection, DataAssembly, vtkDataAssembly);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPartitionedDataSetCollection::vtkPartitionedDataSetCollection()
   : DataAssembly(nullptr)
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPartitionedDataSetCollection::~vtkPartitionedDataSetCollection()
 {
   this->SetDataAssembly(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPartitionedDataSetCollection* vtkPartitionedDataSetCollection::GetData(vtkInformation* info)
 {
   return info ? vtkPartitionedDataSetCollection::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPartitionedDataSetCollection* vtkPartitionedDataSetCollection::GetData(
   vtkInformationVector* v, int i)
 {
   return vtkPartitionedDataSetCollection::GetData(v->GetInformationObject(i));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPartitionedDataSetCollection::SetNumberOfPartitionedDataSets(unsigned int numDataSets)
 {
   this->Superclass::SetNumberOfChildren(numDataSets);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 unsigned int vtkPartitionedDataSetCollection::GetNumberOfPartitionedDataSets()
 {
   return this->Superclass::GetNumberOfChildren();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPartitionedDataSet* vtkPartitionedDataSetCollection::GetPartitionedDataSet(unsigned int idx)
 {
   return vtkPartitionedDataSet::SafeDownCast(this->Superclass::GetChild(idx));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPartitionedDataSetCollection::SetPartitionedDataSet(
   unsigned int idx, vtkPartitionedDataSet* dataset)
 {
   this->Superclass::SetChild(idx, dataset);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPartitionedDataSetCollection::RemovePartitionedDataSet(unsigned int idx)
 {
   this->Superclass::RemoveChild(idx);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkPartitionedDataSetCollection::GetMTime()
 {
   return this->DataAssembly ? std::max(this->Superclass::GetMTime(), this->DataAssembly->GetMTime())
                             : this->Superclass::GetMTime();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPartitionedDataSetCollection::Initialize()
 {
   this->Superclass::Initialize();
   this->SetDataAssembly(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPartitionedDataSetCollection::CopyStructure(vtkCompositeDataSet* input)
 {
   this->Superclass::CopyStructure(input);
@@ -106,7 +106,7 @@ void vtkPartitionedDataSetCollection::CopyStructure(vtkCompositeDataSet* input)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPartitionedDataSetCollection::ShallowCopy(vtkDataObject* src)
 {
   this->Superclass::ShallowCopy(src);
@@ -116,7 +116,7 @@ void vtkPartitionedDataSetCollection::ShallowCopy(vtkDataObject* src)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPartitionedDataSetCollection::DeepCopy(vtkDataObject* src)
 {
   this->Superclass::DeepCopy(src);
@@ -135,7 +135,7 @@ void vtkPartitionedDataSetCollection::DeepCopy(vtkDataObject* src)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPartitionedDataSetCollection::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

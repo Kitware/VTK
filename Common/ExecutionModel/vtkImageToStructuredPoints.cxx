@@ -28,35 +28,35 @@
 
 vtkStandardNewMacro(vtkImageToStructuredPoints);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageToStructuredPoints::vtkImageToStructuredPoints()
 {
   this->SetNumberOfInputPorts(2);
   this->Translate[0] = this->Translate[1] = this->Translate[2] = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageToStructuredPoints::~vtkImageToStructuredPoints() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageToStructuredPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStructuredPoints* vtkImageToStructuredPoints::GetStructuredPointsOutput()
 {
   return vtkStructuredPoints::SafeDownCast(this->GetOutputDataObject(0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageToStructuredPoints::SetVectorInputData(vtkImageData* input)
 {
   this->SetInputData(1, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageData* vtkImageToStructuredPoints::GetVectorInput()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
@@ -67,7 +67,7 @@ vtkImageData* vtkImageToStructuredPoints::GetVectorInput()
   return vtkImageData::SafeDownCast(this->GetExecutive()->GetInputData(1, 0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageToStructuredPoints::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -213,7 +213,7 @@ int vtkImageToStructuredPoints::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Copy WholeExtent, Spacing and Origin.
 int vtkImageToStructuredPoints::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -293,7 +293,7 @@ int vtkImageToStructuredPoints::RequestInformation(vtkInformation* vtkNotUsed(re
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageToStructuredPoints::RequestUpdateExtent(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -321,7 +321,7 @@ int vtkImageToStructuredPoints::RequestUpdateExtent(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageToStructuredPoints::FillOutputPortInformation(int port, vtkInformation* info)
 {
   if (!this->Superclass::FillOutputPortInformation(port, info))
@@ -332,7 +332,7 @@ int vtkImageToStructuredPoints::FillOutputPortInformation(int port, vtkInformati
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageToStructuredPoints::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (!this->Superclass::FillInputPortInformation(port, info))

@@ -18,7 +18,7 @@
 
 vtkStandardNewMacro(vtkTDxInteractorStyleSettings);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTDxInteractorStyleSettings::vtkTDxInteractorStyleSettings()
 {
   this->AngleSensitivity = 1.0;
@@ -30,10 +30,10 @@ vtkTDxInteractorStyleSettings::vtkTDxInteractorStyleSettings()
   this->TranslationZSensitivity = 1.0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTDxInteractorStyleSettings::~vtkTDxInteractorStyleSettings() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTDxInteractorStyleSettings::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

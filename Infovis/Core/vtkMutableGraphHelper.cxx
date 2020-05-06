@@ -26,7 +26,7 @@
 
 vtkCxxSetObjectMacro(vtkMutableGraphHelper, InternalGraph, vtkGraph);
 vtkStandardNewMacro(vtkMutableGraphHelper);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMutableGraphHelper::vtkMutableGraphHelper()
 {
   this->InternalGraph = nullptr;
@@ -38,7 +38,7 @@ vtkMutableGraphHelper::vtkMutableGraphHelper()
   this->GraphEdge->SetTarget(-1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMutableGraphHelper::~vtkMutableGraphHelper()
 {
   if (this->InternalGraph)
@@ -48,7 +48,7 @@ vtkMutableGraphHelper::~vtkMutableGraphHelper()
   this->GraphEdge->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMutableGraphHelper::SetGraph(vtkGraph* g)
 {
   this->SetInternalGraph(g);
@@ -60,13 +60,13 @@ void vtkMutableGraphHelper::SetGraph(vtkGraph* g)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGraph* vtkMutableGraphHelper::GetGraph()
 {
   return this->GetInternalGraph();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkMutableGraphHelper::AddVertex()
 {
   if (!this->InternalGraph)
@@ -83,7 +83,7 @@ vtkIdType vtkMutableGraphHelper::AddVertex()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkEdgeType vtkMutableGraphHelper::AddEdge(vtkIdType u, vtkIdType v)
 {
   if (!this->InternalGraph)
@@ -100,7 +100,7 @@ vtkEdgeType vtkMutableGraphHelper::AddEdge(vtkIdType u, vtkIdType v)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGraphEdge* vtkMutableGraphHelper::AddGraphEdge(vtkIdType u, vtkIdType v)
 {
   if (!this->InternalGraph)
@@ -117,7 +117,7 @@ vtkGraphEdge* vtkMutableGraphHelper::AddGraphEdge(vtkIdType u, vtkIdType v)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMutableGraphHelper::RemoveVertex(vtkIdType v)
 {
   if (!this->InternalGraph)
@@ -134,7 +134,7 @@ void vtkMutableGraphHelper::RemoveVertex(vtkIdType v)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMutableGraphHelper::RemoveVertices(vtkIdTypeArray* verts)
 {
   if (!this->InternalGraph)
@@ -151,7 +151,7 @@ void vtkMutableGraphHelper::RemoveVertices(vtkIdTypeArray* verts)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMutableGraphHelper::RemoveEdge(vtkIdType e)
 {
   if (!this->InternalGraph)
@@ -168,7 +168,7 @@ void vtkMutableGraphHelper::RemoveEdge(vtkIdType e)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMutableGraphHelper::RemoveEdges(vtkIdTypeArray* edges)
 {
   if (!this->InternalGraph)
@@ -185,7 +185,7 @@ void vtkMutableGraphHelper::RemoveEdges(vtkIdTypeArray* edges)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMutableGraphHelper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

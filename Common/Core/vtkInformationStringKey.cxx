@@ -18,23 +18,23 @@
 
 #include <string>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationStringKey::vtkInformationStringKey(const char* name, const char* location)
   : vtkInformationKey(name, location)
 {
   vtkCommonInformationKeyManager::Register(this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationStringKey::~vtkInformationStringKey() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationStringKey::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkInformationStringValue : public vtkObjectBase
 {
 public:
@@ -42,7 +42,7 @@ public:
   std::string Value;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationStringKey::Set(vtkInformation* info, const char* value)
 {
   if (value)
@@ -76,13 +76,13 @@ void vtkInformationStringKey::Set(vtkInformation* info, const char* value)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationStringKey::Set(vtkInformation* info, const std::string& s)
 {
   this->Set(info, s.c_str());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkInformationStringKey::Get(vtkInformation* info)
 {
   vtkInformationStringValue* v =
@@ -90,13 +90,13 @@ const char* vtkInformationStringKey::Get(vtkInformation* info)
   return v ? v->Value.c_str() : nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationStringKey::ShallowCopy(vtkInformation* from, vtkInformation* to)
 {
   this->Set(to, this->Get(from));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationStringKey::Print(ostream& os, vtkInformation* info)
 {
   // Print the value.

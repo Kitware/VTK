@@ -19,10 +19,10 @@
 #include "vtkPoints.h"
 #include "vtkProperty.h"
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOpenGLCellToVTKCellMap);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenGLCellToVTKCellMap::vtkOpenGLCellToVTKCellMap()
 {
   this->PrimitiveOffsets[0] = 0;
@@ -36,7 +36,7 @@ vtkOpenGLCellToVTKCellMap::vtkOpenGLCellToVTKCellMap()
   this->CellMapSizes[3] = 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenGLCellToVTKCellMap::~vtkOpenGLCellToVTKCellMap() = default;
 
 void vtkOpenGLCellToVTKCellMap::PrintSelf(ostream& os, vtkIndent indent)

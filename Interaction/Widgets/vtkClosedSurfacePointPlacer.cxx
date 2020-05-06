@@ -29,7 +29,7 @@
 vtkStandardNewMacro(vtkClosedSurfacePointPlacer);
 vtkCxxSetObjectMacro(vtkClosedSurfacePointPlacer, BoundingPlanes, vtkPlaneCollection);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Place holder structure to find the two planes that would best cut
 // a line with a plane. We do this freaky stuff because we cannot use
 // absolute tolerances. Sometimes a point may be intersected by two planes
@@ -55,7 +55,7 @@ struct vtkClosedSurfacePointPlacerNode
   }
 };
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkClosedSurfacePointPlacer::vtkClosedSurfacePointPlacer()
 {
   this->BoundingPlanes = nullptr;
@@ -63,7 +63,7 @@ vtkClosedSurfacePointPlacer::vtkClosedSurfacePointPlacer()
   this->InnerBoundingPlanes = vtkPlaneCollection::New();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkClosedSurfacePointPlacer::~vtkClosedSurfacePointPlacer()
 {
   this->RemoveAllBoundingPlanes();
@@ -74,7 +74,7 @@ vtkClosedSurfacePointPlacer::~vtkClosedSurfacePointPlacer()
   this->InnerBoundingPlanes->Delete();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkClosedSurfacePointPlacer::AddBoundingPlane(vtkPlane* plane)
 {
   if (this->BoundingPlanes == nullptr)
@@ -87,7 +87,7 @@ void vtkClosedSurfacePointPlacer::AddBoundingPlane(vtkPlane* plane)
   this->BoundingPlanes->AddItem(plane);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkClosedSurfacePointPlacer::RemoveBoundingPlane(vtkPlane* plane)
 {
   if (this->BoundingPlanes)
@@ -96,7 +96,7 @@ void vtkClosedSurfacePointPlacer::RemoveBoundingPlane(vtkPlane* plane)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkClosedSurfacePointPlacer::RemoveAllBoundingPlanes()
 {
   if (this->BoundingPlanes)
@@ -106,7 +106,7 @@ void vtkClosedSurfacePointPlacer::RemoveAllBoundingPlanes()
     this->BoundingPlanes = nullptr;
   }
 }
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkClosedSurfacePointPlacer::SetBoundingPlanes(vtkPlanes* planes)
 {
@@ -128,7 +128,7 @@ void vtkClosedSurfacePointPlacer::SetBoundingPlanes(vtkPlanes* planes)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkClosedSurfacePointPlacer::BuildPlanes()
 {
   if (this->InnerBoundingPlanes->GetMTime() > this->GetMTime() &&
@@ -161,7 +161,7 @@ void vtkClosedSurfacePointPlacer::BuildPlanes()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Given a renderer, a display position and a reference position, "worldPos"
 // is calculated as :
 //   Consider the line "L" that passes through the supplied "displayPos" and
@@ -276,7 +276,7 @@ int vtkClosedSurfacePointPlacer::ComputeWorldPosition(vtkRenderer* ren, double d
   return 1;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkClosedSurfacePointPlacer ::ComputeWorldPosition(vtkRenderer*,
   double vtkNotUsed(displayPos)[2], double vtkNotUsed(worldPos)[3],
   double vtkNotUsed(worldOrient)[9])
@@ -285,14 +285,14 @@ int vtkClosedSurfacePointPlacer ::ComputeWorldPosition(vtkRenderer*,
   return 0;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkClosedSurfacePointPlacer::ValidateWorldPosition(
   double worldPos[3], double* vtkNotUsed(worldOrient))
 {
   return this->ValidateWorldPosition(worldPos);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkClosedSurfacePointPlacer::ValidateWorldPosition(double worldPos[3])
 {
   this->BuildPlanes();
@@ -315,7 +315,7 @@ int vtkClosedSurfacePointPlacer::ValidateWorldPosition(double worldPos[3])
   return 1;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Calculate the distance of a point from the Object. Negative
 // values imply that the point is outside. Positive values imply that it is
 // inside. The closest point to the object is returned in closestPt.
@@ -340,7 +340,7 @@ double vtkClosedSurfacePointPlacer ::GetDistanceFromObject(
   return minD;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkClosedSurfacePointPlacer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

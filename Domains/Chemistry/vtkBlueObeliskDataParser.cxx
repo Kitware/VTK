@@ -39,10 +39,10 @@
 #define stat _stat
 #endif
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkBlueObeliskDataParser);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBlueObeliskDataParser::vtkBlueObeliskDataParser()
   : vtkXMLParser()
   , Target(nullptr)
@@ -57,7 +57,7 @@ vtkBlueObeliskDataParser::vtkBlueObeliskDataParser()
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBlueObeliskDataParser::~vtkBlueObeliskDataParser()
 {
   this->SetTarget(nullptr);
@@ -68,19 +68,19 @@ vtkBlueObeliskDataParser::~vtkBlueObeliskDataParser()
   delete CurrentFamily;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBlueObeliskDataParser::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBlueObeliskDataParser::SetTarget(vtkBlueObeliskData* bodr)
 {
   vtkSetObjectBodyMacro(Target, vtkBlueObeliskData, bodr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkBlueObeliskDataParser::Parse()
 {
   if (!this->Target)
@@ -104,19 +104,19 @@ int vtkBlueObeliskDataParser::Parse()
   return ret;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkBlueObeliskDataParser::Parse(const char*)
 {
   return this->Parse();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkBlueObeliskDataParser::Parse(const char*, unsigned int)
 {
   return this->Parse();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBlueObeliskDataParser::StartElement(const char* name, const char** attr)
 {
   if (this->GetDebug())
@@ -152,7 +152,7 @@ void vtkBlueObeliskDataParser::StartElement(const char* name, const char** attr)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBlueObeliskDataParser::EndElement(const char* name)
 {
   if (strcmp(name, "atom") == 0)
@@ -165,7 +165,7 @@ void vtkBlueObeliskDataParser::EndElement(const char* name)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBlueObeliskDataParser::NewAtomStarted(const char**)
 {
   this->CurrentAtomicNumber = -1;
@@ -194,7 +194,7 @@ void vtkBlueObeliskDataParser::NewAtomStarted(const char**)
   this->IsProcessingAtom = true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBlueObeliskDataParser::NewAtomFinished()
 {
   if (this->CurrentAtomicNumber < 0)
@@ -239,7 +239,7 @@ void vtkBlueObeliskDataParser::NewAtomFinished()
   this->IsProcessingAtom = false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBlueObeliskDataParser::NewValueStarted(const char** attr)
 {
   this->IsProcessingValue = true;
@@ -327,7 +327,7 @@ void vtkBlueObeliskDataParser::NewValueStarted(const char** attr)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBlueObeliskDataParser::NewValueFinished()
 {
   this->CurrentValueType = None;
@@ -335,7 +335,7 @@ void vtkBlueObeliskDataParser::NewValueFinished()
   this->CharacterDataValueBuffer.clear();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBlueObeliskDataParser::CharacterDataHandler(const char* data, int length)
 {
   if (this->IsProcessingAtom && this->IsProcessingValue)
@@ -344,7 +344,7 @@ void vtkBlueObeliskDataParser::CharacterDataHandler(const char* data, int length
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBlueObeliskDataParser::SetCurrentValue(const char* data, int length)
 {
   this->CharacterDataValueBuffer += std::string(data, data + length);
@@ -352,7 +352,7 @@ void vtkBlueObeliskDataParser::SetCurrentValue(const char* data, int length)
   this->SetCurrentValue(this->CharacterDataValueBuffer.c_str());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBlueObeliskDataParser::SetCurrentValue(const char* data)
 {
   vtkDebugMacro(<< "Parsing string '" << data << "' for datatype " << this->CurrentValueType
@@ -419,7 +419,7 @@ void vtkBlueObeliskDataParser::SetCurrentValue(const char* data)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBlueObeliskDataParser::ResizeArrayIfNeeded(vtkAbstractArray* arr, vtkIdType ind)
 {
   if (ind >= arr->GetNumberOfTuples())
@@ -428,7 +428,7 @@ void vtkBlueObeliskDataParser::ResizeArrayIfNeeded(vtkAbstractArray* arr, vtkIdT
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBlueObeliskDataParser::ResizeAndSetValue(
   vtkStdString* val, vtkStringArray* arr, vtkIdType ind)
 {
@@ -436,14 +436,14 @@ void vtkBlueObeliskDataParser::ResizeAndSetValue(
   arr->SetValue(ind, val->c_str());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBlueObeliskDataParser::ResizeAndSetValue(float val, vtkFloatArray* arr, vtkIdType ind)
 {
   vtkBlueObeliskDataParser::ResizeArrayIfNeeded(arr, ind);
   arr->SetValue(ind, val);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBlueObeliskDataParser::ResizeAndSetValue(
   unsigned short val, vtkUnsignedShortArray* arr, vtkIdType ind)
 {
@@ -451,13 +451,13 @@ void vtkBlueObeliskDataParser::ResizeAndSetValue(
   arr->SetValue(ind, val);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 inline int vtkBlueObeliskDataParser::parseInt(const char* d)
 {
   return atoi(d);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 inline float vtkBlueObeliskDataParser::parseFloat(const char* d)
 {
   float value;
@@ -472,7 +472,7 @@ inline float vtkBlueObeliskDataParser::parseFloat(const char* d)
   return value;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 inline void vtkBlueObeliskDataParser::parseFloat3(const char* str, float arr[3])
 {
   unsigned short ind = 0;
@@ -491,13 +491,13 @@ inline void vtkBlueObeliskDataParser::parseFloat3(const char* str, float arr[3])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 inline unsigned short vtkBlueObeliskDataParser::parseUnsignedShort(const char* d)
 {
   return static_cast<unsigned short>(atoi(d));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 inline vtkStdString* vtkBlueObeliskDataParser::ToLower(vtkStdString* str)
 {
   for (vtkStdString::iterator it = str->begin(), it_end = str->end(); it != it_end; ++it)

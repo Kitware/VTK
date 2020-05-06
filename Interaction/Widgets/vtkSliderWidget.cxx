@@ -26,7 +26,7 @@
 
 vtkStandardNewMacro(vtkSliderWidget);
 
-//----------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSliderWidget::vtkSliderWidget()
 {
   // Set the initial state
@@ -45,7 +45,7 @@ vtkSliderWidget::vtkSliderWidget()
     vtkWidgetEvent::EndSelect, this, vtkSliderWidget::EndSelectAction);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSliderWidget::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)
@@ -54,7 +54,7 @@ void vtkSliderWidget::CreateDefaultRepresentation()
   }
 }
 
-//----------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSliderWidget::SelectAction(vtkAbstractWidget* w)
 {
   vtkSliderWidget* self = reinterpret_cast<vtkSliderWidget*>(w);
@@ -102,7 +102,7 @@ void vtkSliderWidget::SelectAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSliderWidget::MoveAction(vtkAbstractWidget* w)
 {
   vtkSliderWidget* self = reinterpret_cast<vtkSliderWidget*>(w);
@@ -126,7 +126,7 @@ void vtkSliderWidget::MoveAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSliderWidget::EndSelectAction(vtkAbstractWidget* w)
 {
   vtkSliderWidget* self = reinterpret_cast<vtkSliderWidget*>(w);
@@ -156,7 +156,7 @@ void vtkSliderWidget::EndSelectAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSliderWidget::AnimateSlider(int selectionState)
 {
   // Get the representation and grab some information
@@ -229,7 +229,7 @@ void vtkSliderWidget::AnimateSlider(int selectionState)
   this->WidgetState = vtkSliderWidget::Start;
 }
 
-//----------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSliderWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h

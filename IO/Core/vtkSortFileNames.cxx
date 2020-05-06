@@ -64,7 +64,7 @@ private:
   VectorType Container;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSortFileNames::vtkSortFileNames()
 {
   this->InputFileNames = nullptr;

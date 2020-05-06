@@ -24,20 +24,20 @@
 
 vtkStandardNewMacro(vtkImageSkeleton2D);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct an instance of vtkImageSkeleton2D filter.
 vtkImageSkeleton2D::vtkImageSkeleton2D()
 {
   this->Prune = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSkeleton2D::SetNumberOfIterations(int num)
 {
   this->vtkImageIterateFilter::SetNumberOfIterations(num);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method computes the extent of the input region necessary to generate
 // an output region.  Before this method is called "region" should have the
 // extent of the output region.  After this method finishes, "region" should
@@ -75,7 +75,7 @@ int vtkImageSkeleton2D::IterativeRequestUpdateExtent(vtkInformation* in, vtkInfo
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method contains the second switch statement that calls the correct
 // templated function for the mask types.
 // This is my best attempt at skeleton.  The rules are a little hacked up,
@@ -326,7 +326,7 @@ void vtkImageSkeleton2DExecute(vtkImageSkeleton2D* self, vtkImageData* inData, T
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method contains the first switch statement that calls the correct
 // templated function for the input and output region types.
 void vtkImageSkeleton2D::ThreadedRequestData(vtkInformation* vtkNotUsed(request),

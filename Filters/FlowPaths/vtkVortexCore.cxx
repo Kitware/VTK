@@ -38,7 +38,7 @@
 #include <array>
 #include <deque>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 namespace
 {
 // Computes A*b = x given a 3-matrix A and a 3-vector b.
@@ -240,7 +240,7 @@ private:
 };
 vtkStandardNewMacro(vtkParallelVectorsForVortexCore);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelVectorsForVortexCore::Prefilter(
   vtkInformation*, vtkInformationVector**, vtkInformationVector*)
 {
@@ -250,7 +250,7 @@ void vtkParallelVectorsForVortexCore::Prefilter(
   this->Lambda_ciCriterionArray->SetName("lambda_ci-criterion");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelVectorsForVortexCore::Postfilter(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
@@ -263,7 +263,7 @@ void vtkParallelVectorsForVortexCore::Postfilter(
   output->GetPointData()->AddArray(this->Lambda_ciCriterionArray);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkParallelVectorsForVortexCore::AcceptSurfaceTriangle(
   const vtkIdType surfaceSimplexIndices[3])
 {
@@ -279,7 +279,7 @@ bool vtkParallelVectorsForVortexCore::AcceptSurfaceTriangle(
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkParallelVectorsForVortexCore::ComputeAdditionalCriteria(
   const vtkIdType surfaceSimplexIndices[3], double s, double t)
 {
@@ -319,19 +319,19 @@ bool vtkParallelVectorsForVortexCore::ComputeAdditionalCriteria(
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkVortexCore);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkVortexCore::vtkVortexCore()
   : HigherOrderMethod(false)
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkVortexCore::~vtkVortexCore() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkVortexCore::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -473,14 +473,14 @@ int vtkVortexCore::RequestData(
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkVortexCore::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVortexCore::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

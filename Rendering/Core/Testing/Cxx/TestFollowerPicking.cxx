@@ -40,7 +40,7 @@
 
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-// -----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This does the actual work: updates the vtkPline implicit function.
 // This in turn causes the pipeline to update and clip the object.
 // Callback for the interaction
@@ -61,7 +61,7 @@ public:
   vtkPickFollowerCallback() = default;
 };
 
-// -----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char PickFollowerLog[] = "# StreamVersion 1\n"
                                "RenderEvent 0 0 0 0 0 0 0\n"
                                "EnterEvent 285 289 0 0 0 0 0\n"
@@ -239,7 +239,7 @@ const char PickFollowerLog[] = "# StreamVersion 1\n"
                                "EndPickEvent 173 162 0 0 112 1 p\n"
                                "KeyReleaseEvent 173 162 0 0 112 1 p\n";
 
-// -----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestFollowerPicking(int argc, char* argv[])
 {
   // Create some simple actors

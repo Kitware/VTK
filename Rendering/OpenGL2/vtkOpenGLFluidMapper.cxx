@@ -56,10 +56,10 @@
 #include <cassert>
 #include <sstream>
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOpenGLFluidMapper);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenGLFluidMapper::vtkOpenGLFluidMapper()
   : VBOs(vtkOpenGLVertexBufferObjectGroup::New())
   , TempMatrix4(vtkMatrix4x4::New())
@@ -76,7 +76,7 @@ vtkOpenGLFluidMapper::vtkOpenGLFluidMapper()
   this->CamInvertedNorms = vtkMatrix3x3::New();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenGLFluidMapper::~vtkOpenGLFluidMapper()
 {
   this->TempMatrix4->Delete();
@@ -93,27 +93,27 @@ vtkOpenGLFluidMapper::~vtkOpenGLFluidMapper()
   this->CamInvertedNorms->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLFluidMapper::SetInputData(vtkPolyData* input)
 {
   this->SetInputDataInternal(0, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify the input data or filter.
 vtkPolyData* vtkOpenGLFluidMapper::GetInput()
 {
   return vtkPolyData::SafeDownCast(this->GetExecutive()->GetInputData(0, 0));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLFluidMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Particle radius: " << this->ParticleRadius << "\n";
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLFluidMapper::UpdateDepthThicknessColorShaders(
   vtkOpenGLHelper& glHelper, vtkRenderer* renderer, vtkVolume* actor)
 {
@@ -173,7 +173,7 @@ void vtkOpenGLFluidMapper::UpdateDepthThicknessColorShaders(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLFluidMapper::SetDepthThicknessColorShaderParameters(
   vtkOpenGLHelper& glHelper, vtkRenderer* ren, vtkVolume* actor)
 {
@@ -350,7 +350,7 @@ void vtkOpenGLFluidMapper::SetupBuffers(vtkOpenGLRenderWindow* const renderWindo
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLFluidMapper::Render(vtkRenderer* renderer, vtkVolume* vol)
 {
   // make sure we have data
@@ -873,7 +873,7 @@ void vtkOpenGLFluidMapper::Render(vtkRenderer* renderer, vtkVolume* vol)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLFluidMapper::RenderParticles(vtkRenderer* renderer, vtkVolume* vol)
 {
   vtkPolyData* input = vtkPolyData::SafeDownCast(GetInputDataObject(0, 0));
@@ -910,7 +910,7 @@ void vtkOpenGLFluidMapper::RenderParticles(vtkRenderer* renderer, vtkVolume* vol
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Destructor. Delete SourceCode if any.
 void vtkOpenGLFluidMapper::ReleaseGraphicsResources(vtkWindow* w)

@@ -41,19 +41,19 @@ struct vtkCellTypeSet : public std::set<unsigned int>
 {
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractCellsByType::vtkExtractCellsByType()
 {
   this->CellTypes = new vtkCellTypeSet;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractCellsByType::~vtkExtractCellsByType()
 {
   delete this->CellTypes;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractCellsByType::AddCellType(unsigned int cellType)
 {
   auto prevSize = this->CellTypes->size();
@@ -64,7 +64,7 @@ void vtkExtractCellsByType::AddCellType(unsigned int cellType)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractCellsByType::RemoveCellType(unsigned int cellType)
 {
   auto prevSize = this->CellTypes->size();
@@ -76,7 +76,7 @@ void vtkExtractCellsByType::RemoveCellType(unsigned int cellType)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractCellsByType::RemoveAllCellTypes()
 {
   if (!this->CellTypes->empty())
@@ -86,7 +86,7 @@ void vtkExtractCellsByType::RemoveAllCellTypes()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Special value indicates that all cells are to be selected. This is better
 // than populating from the list vtkCellType.h due to the associated
 // maintenance burden.
@@ -100,7 +100,7 @@ void vtkExtractCellsByType::AddAllCellTypes()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkExtractCellsByType::ExtractCellType(unsigned int cellType)
 {
   if (this->CellTypes->find(cellType) != this->CellTypes->end() ||
@@ -114,7 +114,7 @@ bool vtkExtractCellsByType::ExtractCellType(unsigned int cellType)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractCellsByType::ExtractUnstructuredData(vtkDataSet* inDS, vtkDataSet* outDS)
 {
   vtkPointData* inPD = inDS->GetPointData();
@@ -162,7 +162,7 @@ void vtkExtractCellsByType::ExtractUnstructuredData(vtkDataSet* inDS, vtkDataSet
   delete[] ptMap;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractCellsByType::ExtractPolyDataCells(
   vtkDataSet* inDS, vtkDataSet* outDS, vtkIdType* ptMap, vtkIdType& numNewPts)
 {
@@ -304,7 +304,7 @@ void vtkExtractCellsByType::ExtractPolyDataCells(
   ptIds->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractCellsByType::ExtractUnstructuredGridCells(
   vtkDataSet* inDS, vtkDataSet* outDS, vtkIdType* ptMap, vtkIdType& numNewPts)
 {
@@ -361,7 +361,7 @@ void vtkExtractCellsByType::ExtractUnstructuredGridCells(
   ptIds->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractCellsByType::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -417,14 +417,14 @@ int vtkExtractCellsByType::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractCellsByType::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractCellsByType::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

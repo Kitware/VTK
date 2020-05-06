@@ -23,19 +23,19 @@
 
 #include "vtkTableToPostgreSQLWriter.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkTableToPostgreSQLWriter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTableToPostgreSQLWriter::vtkTableToPostgreSQLWriter()
 {
   this->Database = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTableToPostgreSQLWriter::~vtkTableToPostgreSQLWriter() {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTableToPostgreSQLWriter::WriteData()
 {
   // Make sure we have all the information we need to create a PostgreSQL table
@@ -141,26 +141,26 @@ void vtkTableToPostgreSQLWriter::WriteData()
   return;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTableToPostgreSQLWriter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTable* vtkTableToPostgreSQLWriter::GetInput()
 {
   return vtkTable::SafeDownCast(this->Superclass::GetInput());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTable* vtkTableToPostgreSQLWriter::GetInput(int port)
 {
   return vtkTable::SafeDownCast(this->Superclass::GetInput(port));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTableToPostgreSQLWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

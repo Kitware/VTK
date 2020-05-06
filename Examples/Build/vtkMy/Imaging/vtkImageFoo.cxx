@@ -19,10 +19,10 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkImageFoo);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageFoo::vtkImageFoo()
 {
   this->Foo = 0.0;
@@ -30,7 +30,7 @@ vtkImageFoo::vtkImageFoo()
   this->Bar = vtkBar::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageFoo::~vtkImageFoo()
 {
   if (this->Bar)
@@ -40,7 +40,7 @@ vtkImageFoo::~vtkImageFoo()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageFoo::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -48,7 +48,7 @@ void vtkImageFoo::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Output Scalar Type: " << this->OutputScalarType << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageFoo::RequestInformation(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
@@ -62,7 +62,7 @@ int vtkImageFoo::RequestInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This function template implements the filter for any combination of
 // input and output data type.
 template <class IT, class OT>
@@ -122,7 +122,7 @@ void vtkImageFooExecute(vtkImageFoo* self, vtkImageData* inData, IT* inPtr, vtkI
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This function template is instantiated for each input data type and
 // forwards the call to the above function template for each output
 // data type.
@@ -142,7 +142,7 @@ void vtkImageFooExecute1(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method is passed an input and output data, and executes the
 // filter algorithm to fill the output from the input.  It just
 // executes a switch statement to call the correct function for the

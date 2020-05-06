@@ -26,7 +26,7 @@
 
 vtkStandardNewMacro(vtkInteractorStyleSwitch);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInteractorStyleSwitch::vtkInteractorStyleSwitch()
 {
   this->JoystickActor = vtkInteractorStyleJoystickActor::New();
@@ -40,7 +40,7 @@ vtkInteractorStyleSwitch::vtkInteractorStyleSwitch()
   this->CurrentStyle = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInteractorStyleSwitch::~vtkInteractorStyleSwitch()
 {
   this->JoystickActor->Delete();
@@ -59,7 +59,7 @@ vtkInteractorStyleSwitch::~vtkInteractorStyleSwitch()
   this->MultiTouchCamera = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleSwitch::SetAutoAdjustCameraClippingRange(vtkTypeBool value)
 {
   if (value == this->AutoAdjustCameraClippingRange)
@@ -84,7 +84,7 @@ void vtkInteractorStyleSwitch::SetAutoAdjustCameraClippingRange(vtkTypeBool valu
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleSwitch::SetCurrentStyleToJoystickActor()
 {
   this->JoystickOrTrackball = VTKIS_JOYSTICK;
@@ -93,7 +93,7 @@ void vtkInteractorStyleSwitch::SetCurrentStyleToJoystickActor()
   this->SetCurrentStyle();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleSwitch::SetCurrentStyleToJoystickCamera()
 {
   this->JoystickOrTrackball = VTKIS_JOYSTICK;
@@ -102,7 +102,7 @@ void vtkInteractorStyleSwitch::SetCurrentStyleToJoystickCamera()
   this->SetCurrentStyle();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleSwitch::SetCurrentStyleToTrackballActor()
 {
   this->JoystickOrTrackball = VTKIS_TRACKBALL;
@@ -111,7 +111,7 @@ void vtkInteractorStyleSwitch::SetCurrentStyleToTrackballActor()
   this->SetCurrentStyle();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleSwitch::SetCurrentStyleToTrackballCamera()
 {
   this->JoystickOrTrackball = VTKIS_TRACKBALL;
@@ -120,14 +120,14 @@ void vtkInteractorStyleSwitch::SetCurrentStyleToTrackballCamera()
   this->SetCurrentStyle();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleSwitch::SetCurrentStyleToMultiTouchCamera()
 {
   this->MultiTouch = true;
   this->SetCurrentStyle();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleSwitch::OnChar()
 {
   switch (this->Interactor->GetKeyCode())
@@ -166,7 +166,7 @@ void vtkInteractorStyleSwitch::OnChar()
   this->SetCurrentStyle();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // this will do nothing if the CurrentStyle matches
 // JoystickOrTrackball and CameraOrActor
 // It should! If the this->Interactor was changed (using SetInteractor()),
@@ -241,7 +241,7 @@ void vtkInteractorStyleSwitch::SetCurrentStyle()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleSwitch::SetInteractor(vtkRenderWindowInteractor* iren)
 {
   if (iren == this->Interactor)
@@ -264,7 +264,7 @@ void vtkInteractorStyleSwitch::SetInteractor(vtkRenderWindowInteractor* iren)
   this->SetCurrentStyle();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleSwitch::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -277,7 +277,7 @@ void vtkInteractorStyleSwitch::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleSwitch::SetDefaultRenderer(vtkRenderer* renderer)
 {
   this->vtkInteractorStyle::SetDefaultRenderer(renderer);
@@ -287,7 +287,7 @@ void vtkInteractorStyleSwitch::SetDefaultRenderer(vtkRenderer* renderer)
   this->TrackballCamera->SetDefaultRenderer(renderer);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleSwitch::SetCurrentRenderer(vtkRenderer* renderer)
 {
   this->vtkInteractorStyle::SetCurrentRenderer(renderer);

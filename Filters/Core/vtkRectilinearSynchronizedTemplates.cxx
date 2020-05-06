@@ -44,7 +44,7 @@
 
 vtkStandardNewMacro(vtkRectilinearSynchronizedTemplates);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Construct object with initial scalar range (0,1) and single contour value
 // of 0.0. The ImageRange are set to extract the first k-plane.
@@ -63,13 +63,13 @@ vtkRectilinearSynchronizedTemplates::vtkRectilinearSynchronizedTemplates()
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRectilinearSynchronizedTemplates::~vtkRectilinearSynchronizedTemplates()
 {
   this->ContourValues->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Overload standard modified time function. If contour values are modified,
 // then this object is modified as well.
 vtkMTimeType vtkRectilinearSynchronizedTemplates::GetMTime()
@@ -81,7 +81,7 @@ vtkMTimeType vtkRectilinearSynchronizedTemplates::GetMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static void vtkRectilinearSynchronizedTemplatesInitializeOutput(int* ext, vtkRectilinearGrid* input,
   vtkPolyData* o, vtkFloatArray* scalars, vtkFloatArray* normals, vtkFloatArray* gradients,
   vtkDataArray* inScalars)
@@ -141,7 +141,7 @@ static void vtkRectilinearSynchronizedTemplatesInitializeOutput(int* ext, vtkRec
   newPolys->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Calculate the gradient using central difference.
 template <class T>
 void vtkRSTComputePointGradient(
@@ -210,7 +210,7 @@ void vtkRSTComputePointGradient(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 #define VTK_RECT_CSP3PA(i2, j2, k2, s)                                                             \
   if (NeedGradients)                                                                               \
   {                                                                                                \
@@ -244,7 +244,7 @@ void vtkRSTComputePointGradient(
     newScalars->InsertNextTuple(&value);                                                           \
   }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 // Contouring filter specialized for images
 //
@@ -669,7 +669,7 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates* self, int* exEx
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 // Contouring filter specialized for images (or slices from images)
 //
@@ -736,7 +736,7 @@ int vtkRectilinearSynchronizedTemplates::RequestData(vtkInformation* vtkNotUsed(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkRectilinearSynchronizedTemplates::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -754,7 +754,7 @@ int vtkRectilinearSynchronizedTemplates::RequestUpdateExtent(vtkInformation* vtk
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void* vtkRectilinearSynchronizedTemplates::GetScalarsForExtent(
   vtkDataArray* array, int extent[6], vtkRectilinearGrid* input)
 {
@@ -792,7 +792,7 @@ void* vtkRectilinearSynchronizedTemplates::GetScalarsForExtent(
   return array->GetVoidPointer(idx);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRectilinearSynchronizedTemplates::ComputeSpacing(
   vtkRectilinearGrid* data, int i, int j, int k, int extent[6], double spacing[6])
 {
@@ -839,14 +839,14 @@ void vtkRectilinearSynchronizedTemplates::ComputeSpacing(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkRectilinearSynchronizedTemplates::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkRectilinearGrid");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRectilinearSynchronizedTemplates::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

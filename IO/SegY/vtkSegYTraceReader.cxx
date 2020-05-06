@@ -18,21 +18,21 @@
 
 #include <iostream>
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSegYTraceReader::vtkSegYTraceReader()
 {
   this->XCoordinate = 72;
   this->YCoordinate = 76;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSegYTraceReader::SetXYCoordBytePositions(int x, int y)
 {
   this->XCoordinate = x;
   this->YCoordinate = y;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSegYTraceReader::PrintTraceHeader(std::istream& in, int startPos)
 {
   int traceSequenceNumberInLine =
@@ -79,7 +79,7 @@ void vtkSegYTraceReader::PrintTraceHeader(std::istream& in, int startPos)
   std::cout << "coordinateUnits: " << coordinateUnits << std::endl;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSegYTraceReader::ReadTrace(
   std::streamoff& startPos, std::istream& in, int formatCode, vtkSegYTrace* trace)
 {
@@ -138,7 +138,7 @@ void vtkSegYTraceReader::ReadTrace(
   startPos += 240 + this->GetTraceSize(numSamples, formatCode);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSegYTraceReader::ReadInlineCrossline(std::streamoff& startPos, std::istream& in,
   int formatCode, int* inlineNumber, int* crosslineNumber, int* xCoord, int* yCoord,
   short* coordMultiplier)
@@ -157,7 +157,7 @@ void vtkSegYTraceReader::ReadInlineCrossline(std::streamoff& startPos, std::istr
   startPos += 240 + this->GetTraceSize(numSamples, formatCode);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSegYTraceReader::GetTraceSize(int numSamples, int formatCode)
 {
   if (formatCode == 1 || formatCode == 2 || formatCode == 4 || formatCode == 5)

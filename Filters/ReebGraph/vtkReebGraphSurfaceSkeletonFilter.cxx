@@ -30,7 +30,7 @@
 
 vtkStandardNewMacro(vtkReebGraphSurfaceSkeletonFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkReebGraphSurfaceSkeletonFilter::vtkReebGraphSurfaceSkeletonFilter()
 {
   this->SetNumberOfInputPorts(2);
@@ -39,10 +39,10 @@ vtkReebGraphSurfaceSkeletonFilter::vtkReebGraphSurfaceSkeletonFilter()
   this->NumberOfSmoothingIterations = 30;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkReebGraphSurfaceSkeletonFilter::~vtkReebGraphSurfaceSkeletonFilter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkReebGraphSurfaceSkeletonFilter::FillInputPortInformation(
   int portNumber, vtkInformation* info)
 {
@@ -60,7 +60,7 @@ int vtkReebGraphSurfaceSkeletonFilter::FillInputPortInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkReebGraphSurfaceSkeletonFilter::FillOutputPortInformation(
   int vtkNotUsed(portNumber), vtkInformation* info)
 {
@@ -70,7 +70,7 @@ int vtkReebGraphSurfaceSkeletonFilter::FillOutputPortInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkReebGraphSurfaceSkeletonFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -79,13 +79,13 @@ void vtkReebGraphSurfaceSkeletonFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number of Smoothing Iterations: " << this->NumberOfSmoothingIterations << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTable* vtkReebGraphSurfaceSkeletonFilter::GetOutput()
 {
   return vtkTable::SafeDownCast(this->GetOutputDataObject(0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkReebGraphSurfaceSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

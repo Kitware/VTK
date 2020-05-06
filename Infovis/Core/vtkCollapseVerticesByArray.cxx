@@ -62,7 +62,7 @@ vtkCollapseVerticesByArray::vtkCollapseVerticesByArray()
   this->Internal = new vtkCollapseVerticesByArrayInternal();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCollapseVerticesByArray::~vtkCollapseVerticesByArray()
 {
   delete this->Internal;
@@ -71,7 +71,7 @@ vtkCollapseVerticesByArray::~vtkCollapseVerticesByArray()
   delete[] this->EdgesCollapsedArray;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCollapseVerticesByArray::PrintSelf(ostream& os, vtkIndent indent)
 {
   // Base class print.

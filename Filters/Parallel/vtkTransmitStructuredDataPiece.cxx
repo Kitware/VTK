@@ -26,7 +26,7 @@ vtkStandardNewMacro(vtkTransmitStructuredDataPiece);
 
 vtkCxxSetObjectMacro(vtkTransmitStructuredDataPiece, Controller, vtkMultiProcessController);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTransmitStructuredDataPiece::vtkTransmitStructuredDataPiece()
 {
   this->Controller = nullptr;
@@ -35,13 +35,13 @@ vtkTransmitStructuredDataPiece::vtkTransmitStructuredDataPiece()
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTransmitStructuredDataPiece::~vtkTransmitStructuredDataPiece()
 {
   this->SetController(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTransmitStructuredDataPiece::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -60,7 +60,7 @@ int vtkTransmitStructuredDataPiece::RequestInformation(vtkInformation* vtkNotUse
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTransmitStructuredDataPiece::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -76,7 +76,7 @@ int vtkTransmitStructuredDataPiece::RequestUpdateExtent(vtkInformation* vtkNotUs
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTransmitStructuredDataPiece::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -105,7 +105,7 @@ int vtkTransmitStructuredDataPiece::RequestData(vtkInformation* vtkNotUsed(reque
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTransmitStructuredDataPiece::RootExecute(
   vtkDataSet* input, vtkDataSet* output, vtkInformation* outInfo)
 {
@@ -166,7 +166,7 @@ void vtkTransmitStructuredDataPiece::RootExecute(
   et->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTransmitStructuredDataPiece::SatelliteExecute(
   int, vtkDataSet* output, vtkInformation* outInfo)
 {
@@ -190,7 +190,7 @@ void vtkTransmitStructuredDataPiece::SatelliteExecute(
   this->Controller->Receive(output, 0, 22342);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTransmitStructuredDataPiece::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

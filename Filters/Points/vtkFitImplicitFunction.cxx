@@ -23,12 +23,12 @@
 vtkStandardNewMacro(vtkFitImplicitFunction);
 vtkCxxSetObjectMacro(vtkFitImplicitFunction, ImplicitFunction, vtkImplicitFunction);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Helper classes to support efficient computing, and threaded execution.
 namespace
 {
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The threaded core of the algorithm
 template <typename T>
 struct ExtractPoints
@@ -77,20 +77,20 @@ struct ExtractPoints
 } // anonymous namespace
 
 //================= Begin class proper =======================================
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFitImplicitFunction::vtkFitImplicitFunction()
 {
   this->ImplicitFunction = nullptr;
   this->Threshold = 0.01;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFitImplicitFunction::~vtkFitImplicitFunction()
 {
   this->SetImplicitFunction(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Overload standard modified time function. If implicit function is modified,
 // then this object is modified as well.
 vtkMTimeType vtkFitImplicitFunction::GetMTime()
@@ -107,7 +107,7 @@ vtkMTimeType vtkFitImplicitFunction::GetMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Traverse all the input points and extract those that lie near the surface
 // of an implicit function.
 int vtkFitImplicitFunction::FilterPoints(vtkPointSet* input)
@@ -131,7 +131,7 @@ int vtkFitImplicitFunction::FilterPoints(vtkPointSet* input)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFitImplicitFunction::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

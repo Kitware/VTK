@@ -785,7 +785,7 @@ void vtkWebGLExporter::exportStaticScene(
   base64->Delete();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWebGLExporter::ComputeMD5(const unsigned char* content, int size, std::string& hash)
 {
   unsigned char digest[16];

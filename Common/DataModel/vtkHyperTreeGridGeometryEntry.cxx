@@ -21,7 +21,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <cassert>
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHyperTreeGridGeometryEntry::vtkHyperTreeGridGeometryEntry()
 {
   this->Index = 0;
@@ -31,7 +31,7 @@ vtkHyperTreeGridGeometryEntry::vtkHyperTreeGridGeometryEntry()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridGeometryEntry::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "--vtkHyperTreeGridGeometryLevelEntry--" << endl;
@@ -40,14 +40,14 @@ void vtkHyperTreeGridGeometryEntry::PrintSelf(ostream& os, vtkIndent indent)
      << endl;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridGeometryEntry::Dump(ostream& os)
 {
   os << "Index:" << this->Index << endl;
   os << "Origin:" << this->Origin[0] << ", " << this->Origin[1] << ", " << this->Origin[2] << endl;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHyperTree* vtkHyperTreeGridGeometryEntry::Initialize(
   vtkHyperTreeGrid* grid, vtkIdType treeIndex, bool create)
 {
@@ -56,28 +56,28 @@ vtkHyperTree* vtkHyperTreeGridGeometryEntry::Initialize(
   return grid->GetTree(treeIndex, create);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkHyperTreeGridGeometryEntry::GetGlobalNodeIndex(const vtkHyperTree* tree) const
 {
   assert("pre: not_tree" && tree);
   return tree->GetGlobalIndexFromLocal(this->Index);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridGeometryEntry::SetGlobalIndexStart(vtkHyperTree* tree, vtkIdType index)
 {
   assert("pre: not_tree" && tree);
   tree->SetGlobalIndexStart(index);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridGeometryEntry::SetGlobalIndexFromLocal(vtkHyperTree* tree, vtkIdType index)
 {
   assert("pre: not_tree" && tree);
   tree->SetGlobalIndexFromLocal(this->Index, index);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridGeometryEntry::SetMask(
   const vtkHyperTreeGrid* grid, const vtkHyperTree* tree, bool value)
 {
@@ -86,7 +86,7 @@ void vtkHyperTreeGridGeometryEntry::SetMask(
     this->GetGlobalNodeIndex(tree), value);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkHyperTreeGridGeometryEntry::IsMasked(
   const vtkHyperTreeGrid* grid, const vtkHyperTree* tree) const
 {
@@ -99,7 +99,7 @@ bool vtkHyperTreeGridGeometryEntry::IsMasked(
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkHyperTreeGridGeometryEntry::IsLeaf(
   const vtkHyperTreeGrid* grid, const vtkHyperTree* tree, unsigned int level) const
 {
@@ -111,7 +111,7 @@ bool vtkHyperTreeGridGeometryEntry::IsLeaf(
   return tree->IsLeaf(this->Index);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridGeometryEntry::SubdivideLeaf(
   const vtkHyperTreeGrid* grid, vtkHyperTree* tree, unsigned int level)
 {
@@ -124,7 +124,7 @@ void vtkHyperTreeGridGeometryEntry::SubdivideLeaf(
   }
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkHyperTreeGridGeometryEntry::IsTerminalNode(
   const vtkHyperTreeGrid* grid, const vtkHyperTree* tree, unsigned int level) const
 {
@@ -138,7 +138,7 @@ bool vtkHyperTreeGridGeometryEntry::IsTerminalNode(
   return result;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridGeometryEntry::ToChild(const vtkHyperTreeGrid* grid, const vtkHyperTree* tree,
   unsigned int level, const double* sizeChild, unsigned char ichild)
 {

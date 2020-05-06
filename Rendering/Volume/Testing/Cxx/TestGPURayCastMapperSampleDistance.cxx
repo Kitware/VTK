@@ -31,7 +31,7 @@
 #include "vtkRegressionTestImage.h"
 #include "vtkTestUtilities.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestGPURayCastMapperSampleDistance(int argc, char* argv[])
 {
   vtkNew<vtkRTAnalyticSource> wavelet;

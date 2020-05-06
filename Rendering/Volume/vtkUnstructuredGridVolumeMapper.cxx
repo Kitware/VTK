@@ -65,7 +65,7 @@ void vtkUnstructuredGridVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Blend Mode: " << this->BlendMode << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkUnstructuredGridVolumeMapper::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {

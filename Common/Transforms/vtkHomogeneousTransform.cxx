@@ -35,13 +35,13 @@ void TransformVector(double M[4][4], double* outPnt, double f, double* inVec, do
   outVec[2] = (outVec[2] - w * outPnt[2]) * f;
 }
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHomogeneousTransform::vtkHomogeneousTransform()
 {
   this->Matrix = vtkMatrix4x4::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHomogeneousTransform::~vtkHomogeneousTransform()
 {
   if (this->Matrix)
@@ -50,7 +50,7 @@ vtkHomogeneousTransform::~vtkHomogeneousTransform()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHomogeneousTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -61,7 +61,7 @@ void vtkHomogeneousTransform::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T1, class T2, class T3>
 inline double vtkHomogeneousTransformPoint(T1 M[4][4], T2 in[3], T3 out[3])
 {
@@ -78,7 +78,7 @@ inline double vtkHomogeneousTransformPoint(T1 M[4][4], T2 in[3], T3 out[3])
   return f;
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // computes a coordinate transformation and also returns the Jacobian matrix
 template <class T1, class T2, class T3, class T4>
 inline void vtkHomogeneousTransformDerivative(T1 M[4][4], T2 in[3], T3 out[3], T4 derivative[3][3])
@@ -93,33 +93,33 @@ inline void vtkHomogeneousTransformDerivative(T1 M[4][4], T2 in[3], T3 out[3], T
   }
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHomogeneousTransform::InternalTransformPoint(const float in[3], float out[3])
 {
   vtkHomogeneousTransformPoint(this->Matrix->Element, in, out);
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHomogeneousTransform::InternalTransformPoint(const double in[3], double out[3])
 {
   vtkHomogeneousTransformPoint(this->Matrix->Element, in, out);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHomogeneousTransform::InternalTransformDerivative(
   const float in[3], float out[3], float derivative[3][3])
 {
   vtkHomogeneousTransformDerivative(this->Matrix->Element, in, out, derivative);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHomogeneousTransform::InternalTransformDerivative(
   const double in[3], double out[3], double derivative[3][3])
 {
   vtkHomogeneousTransformDerivative(this->Matrix->Element, in, out, derivative);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHomogeneousTransform::TransformPoints(vtkPoints* inPts, vtkPoints* outPts)
 {
   vtkIdType n = inPts->GetNumberOfPoints();
@@ -138,7 +138,7 @@ void vtkHomogeneousTransform::TransformPoints(vtkPoints* inPts, vtkPoints* outPt
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Transform the normals and vectors using the derivative of the
 // transformation.  Either inNms or inVrs can be set to nullptr.
 // Normals are multiplied by the inverse transpose of the transform
@@ -208,7 +208,7 @@ void vtkHomogeneousTransform::TransformPointsNormalsVectors(vtkPoints* inPts, vt
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // update and copy out the current matrix
 void vtkHomogeneousTransform::GetMatrix(vtkMatrix4x4* m)
 {
@@ -216,7 +216,7 @@ void vtkHomogeneousTransform::GetMatrix(vtkMatrix4x4* m)
   m->DeepCopy(this->Matrix);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHomogeneousTransform::InternalDeepCopy(vtkAbstractTransform* transform)
 {
   vtkHomogeneousTransform* t = static_cast<vtkHomogeneousTransform*>(transform);

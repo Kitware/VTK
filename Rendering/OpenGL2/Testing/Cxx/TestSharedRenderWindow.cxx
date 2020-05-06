@@ -28,7 +28,7 @@
 
 #include "vtkOpenGLRenderWindow.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestSharedRenderWindow(int argc, char* argv[])
 {
   vtkNew<vtkRenderer> renderer;

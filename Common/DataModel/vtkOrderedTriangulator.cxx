@@ -296,7 +296,7 @@ struct vtkOTTemplates : public std::map<int, TemplateList*>
 };
 typedef std::map<int, TemplateList*>::iterator TemplatesIterator;
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOrderedTriangulator::vtkOrderedTriangulator()
 {
   // In place news (using allocators) are done here
@@ -316,7 +316,7 @@ vtkOrderedTriangulator::vtkOrderedTriangulator()
   this->TemplateHeap->SetBlockSize(250000);
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOrderedTriangulator::~vtkOrderedTriangulator()
 {
   delete this->Mesh;
@@ -331,7 +331,7 @@ vtkOrderedTriangulator::~vtkOrderedTriangulator()
   this->TemplateHeap->Delete();
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrderedTriangulator::InitTriangulation(
   double xmin, double xmax, double ymin, double ymax, double zmin, double zmax, int numPts)
 {
@@ -348,7 +348,7 @@ void vtkOrderedTriangulator::InitTriangulation(
   // The templates remain valid and are reused.
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrderedTriangulator::InitTriangulation(double bounds[6], int numPts)
 {
   this->Heap->Reset();
@@ -363,7 +363,7 @@ void vtkOrderedTriangulator::InitTriangulation(double bounds[6], int numPts)
   }
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Create an initial bounding Delaunay triangulation consisting of four
 // tetras arranged in an octahedron.
 void vtkOrderedTriangulator::Initialize()
@@ -484,7 +484,7 @@ void vtkOrderedTriangulator::Initialize()
   tetras[3]->Neighbors[3] = nullptr;
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Add a point to the list of points to be triangulated.
 vtkIdType vtkOrderedTriangulator::InsertPoint(vtkIdType id, double x[3], double p[3], int type)
 {
@@ -512,7 +512,7 @@ vtkIdType vtkOrderedTriangulator::InsertPoint(vtkIdType id, double x[3], double 
   return idx;
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Add a point to the list of points to be triangulated.
 vtkIdType vtkOrderedTriangulator::InsertPoint(
   vtkIdType id, vtkIdType sortid, double x[3], double p[3], int type)
@@ -540,7 +540,7 @@ vtkIdType vtkOrderedTriangulator::InsertPoint(
   return idx;
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Add a point to the list of points to be triangulated.
 vtkIdType vtkOrderedTriangulator::InsertPoint(
   vtkIdType id, vtkIdType sortid, vtkIdType sortid2, double x[3], double p[3], int type)
@@ -568,7 +568,7 @@ vtkIdType vtkOrderedTriangulator::InsertPoint(
   return idx;
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Used when an already inserted point must have its classification changed
 // (e.g., an intersection point is very near another point).
 void vtkOrderedTriangulator::UpdatePointType(vtkIdType internalId, int type)
@@ -577,27 +577,27 @@ void vtkOrderedTriangulator::UpdatePointType(vtkIdType internalId, int type)
   this->Mesh->Points[internalId].Type = static_cast<OTPoint::PointClassification>(type);
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkOrderedTriangulator::GetPointPosition(vtkIdType internalId)
 {
   assert("pre: valid_range" && internalId >= 0 && internalId < this->NumberOfPoints);
   return this->Mesh->Points[internalId].P;
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkOrderedTriangulator::GetPointLocation(vtkIdType internalId)
 {
   assert("pre: valid_range" && internalId >= 0 && internalId < this->NumberOfPoints);
   return this->Mesh->Points[internalId].X;
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkOrderedTriangulator::GetPointId(vtkIdType internalId)
 {
   assert("pre: valid_range" && internalId >= 0 && internalId < this->NumberOfPoints);
   return this->Mesh->Points[internalId].Id;
 }
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // For a particular tetra and given a face id, return the three points
 // defining the face.
 void OTTetra::GetFacePoints(int i, OTFace* face)
@@ -631,7 +631,7 @@ void OTTetra::GetFacePoints(int i, OTFace* face)
   face->ComputePseudoNormal();
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Routines used to sort the points based on id.
 extern "C"
 {
@@ -697,7 +697,7 @@ extern "C"
   }
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // See whether point is in sphere of tetrahedron.
 int OTTetra::InCircumSphere(double x[3])
 {
@@ -711,7 +711,7 @@ int OTTetra::InCircumSphere(double x[3])
   return (dist2 < (0.999999L * this->Radius2) ? 1 : 0);
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Determine the classification of a tetra based on point types.
 inline OTTetra::TetraClassification OTTetra::DetermineType()
 {
@@ -739,7 +739,7 @@ inline OTTetra::TetraClassification OTTetra::DetermineType()
   }
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Determine whether the point is used by a specified tetra.
 inline static vtkTypeBool IsAPoint(OTTetra* t, vtkIdType id)
 {
@@ -754,7 +754,7 @@ inline static vtkTypeBool IsAPoint(OTTetra* t, vtkIdType id)
   }
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Given two tetra face neighbors, assign the neighbor pointers to each tetra.
 static void AssignNeighbors(OTTetra* t1, OTTetra* t2)
 {
@@ -812,7 +812,7 @@ static void AssignNeighbors(OTTetra* t1, OTTetra* t2)
   }
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Instantiate and initialize a tetra.
 OTTetra* vtkOTMesh::CreateTetra(OTPoint* p, OTFace* face)
 {
@@ -837,7 +837,7 @@ OTTetra* vtkOTMesh::CreateTetra(OTPoint* p, OTFace* face)
   return tetra;
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // We start with a point that is inside a tetrahedron. We find face
 // neighbors of the tetrahedron that also contain the point. The
 // process continues recursively until no more tetrahedron are found.
@@ -982,7 +982,7 @@ int vtkOTMesh::CreateInsertionCavity(OTPoint* p, OTTetra* initialTet, double[4])
   return 1;
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Returns the number of tetras classified inside; a side effect is that
 // all tetra are classified.
 int vtkOTMesh::ClassifyTetras()
@@ -1002,7 +1002,7 @@ int vtkOTMesh::ClassifyTetras()
   return numInsideTetras;
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Used to debug (writes a VTK file representing the current insertion cavity).
 void vtkOTMesh::DumpInsertionCavity(double x[3])
 {
@@ -1042,7 +1042,7 @@ void vtkOTMesh::DumpInsertionCavity(double x[3])
   }
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Walk to the tetra tha contains this point. Walking is done by moving
 // in the direction of the most negative barycentric coordinate (i.e.,
 // into the face neighbor).
@@ -1108,7 +1108,7 @@ OTTetra* vtkOTMesh::WalkToTetra(OTTetra* tetra, double x[3], int depth, double b
   }
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Use an ordered insertion process in combination with a consistent
 // degenerate resolution process to generate a unique Delaunay triangulation.
 void vtkOrderedTriangulator::Triangulate()
@@ -1198,7 +1198,7 @@ void vtkOrderedTriangulator::Triangulate()
   this->Mesh->NumberOfTetrasClassifiedInside = this->Mesh->ClassifyTetras();
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Perform triangulation using templates (when possible).
 void vtkOrderedTriangulator::TemplateTriangulate(int cellType, int numPts, int numEdges)
 {
@@ -1236,7 +1236,7 @@ void vtkOrderedTriangulator::TemplateTriangulate(int cellType, int numPts, int n
   }
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Add the tetras classified as specified to an unstructured grid.
 vtkIdType vtkOrderedTriangulator::GetTetras(int classification, vtkUnstructuredGrid* ugrid)
 {
@@ -1278,7 +1278,7 @@ vtkIdType vtkOrderedTriangulator::GetTetras(int classification, vtkUnstructuredG
   return numTetras;
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Add the tetras classified as specified to an unstructured grid
 vtkIdType vtkOrderedTriangulator::AddTetras(int classification, vtkCellArray* outConnectivity)
 {
@@ -1305,7 +1305,7 @@ vtkIdType vtkOrderedTriangulator::AddTetras(int classification, vtkCellArray* ou
   return numTetras;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Assuming that all the inserted points come from a cell `cellId' to
 // triangulate, get the tetrahedra in outConnectivity, the points in locator
 // and copy point data and cell data. Return the number of added tetras.
@@ -1359,14 +1359,14 @@ vtkIdType vtkOrderedTriangulator::AddTetras(int classification, vtkIncrementalPo
 
   return result;
 }
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Initialize tetra traversal. Used in conjunction with GetNextTetra().
 void vtkOrderedTriangulator::InitTetraTraversal()
 {
   this->Mesh->CurrentTetra = this->Mesh->Tetras.begin();
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Retrieve a single tetra. Used in conjunction with InitTetraTraversal().
 // Returns 0 when the list is exhausted.
 int vtkOrderedTriangulator::GetNextTetra(
@@ -1398,7 +1398,7 @@ int vtkOrderedTriangulator::GetNextTetra(
   }
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Add the tetras classified as specified to a list of point ids and
 // point coordinates.
 vtkIdType vtkOrderedTriangulator::AddTetras(int classification, vtkIdList* ptIds, vtkPoints* pts)
@@ -1427,7 +1427,7 @@ vtkIdType vtkOrderedTriangulator::AddTetras(int classification, vtkIdList* ptIds
   return numTetras;
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Add the tetras classified as specified to an unstructured grid
 vtkIdType vtkOrderedTriangulator::AddTetras(int classification, vtkUnstructuredGrid* ugrid)
 
@@ -1456,7 +1456,7 @@ vtkIdType vtkOrderedTriangulator::AddTetras(int classification, vtkUnstructuredG
   return numTetras;
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Add the tetras classified as specified to a call array (connectivity list)
 vtkIdType vtkOrderedTriangulator::AddTriangles(vtkCellArray* tris)
 {
@@ -1493,7 +1493,7 @@ vtkIdType vtkOrderedTriangulator::AddTriangles(vtkCellArray* tris)
   return numTris;
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Add faces classified on the boundary to a cell array (connectivity list)
 vtkIdType vtkOrderedTriangulator::AddTriangles(vtkIdType id, vtkCellArray* tris)
 {
@@ -1551,7 +1551,7 @@ vtkIdType vtkOrderedTriangulator::AddTriangles(vtkIdType id, vtkCellArray* tris)
 // +----+----+----+----+----+----+----+----+
 //
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Given the results of the sorting, compute an index used to specify
 // a template id.
 inline TemplateIDType vtkOrderedTriangulator::ComputeTemplateIndex()
@@ -1571,7 +1571,7 @@ inline TemplateIDType vtkOrderedTriangulator::ComputeTemplateIndex()
   return templateID;
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // If a template is missing, add it to the list of templates.
 void vtkOrderedTriangulator::AddTemplate()
 {
@@ -1629,7 +1629,7 @@ void vtkOrderedTriangulator::AddTemplate()
   }
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Use a template to create the triangulation. Return 0 if a template
 // could not be used.
 int vtkOrderedTriangulator::TemplateTriangulation()
@@ -1664,7 +1664,7 @@ int vtkOrderedTriangulator::TemplateTriangulation()
   return 0;
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrderedTriangulator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

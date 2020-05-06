@@ -32,7 +32,7 @@ vtkStandardNewMacro(vtkLoopSubdivisionFilter);
 
 static const double LoopWeights[4] = { .375, .375, .125, .125 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkLoopSubdivisionFilter::GenerateSubdivisionPoints(
   vtkPolyData* inputDS, vtkIntArray* edgeData, vtkPoints* outputPts, vtkPointData* outputPD)
 {
@@ -125,7 +125,7 @@ int vtkLoopSubdivisionFilter::GenerateSubdivisionPoints(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkLoopSubdivisionFilter::GenerateEvenStencil(
   vtkIdType p1, vtkPolyData* polys, vtkIdList* stencilIds, double* weights)
 {
@@ -261,7 +261,7 @@ int vtkLoopSubdivisionFilter::GenerateEvenStencil(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLoopSubdivisionFilter::GenerateOddStencil(
   vtkIdType p1, vtkIdType p2, vtkPolyData* polys, vtkIdList* stencilIds, double* weights)
 {
@@ -304,7 +304,7 @@ void vtkLoopSubdivisionFilter::GenerateOddStencil(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkLoopSubdivisionFilter::RequestUpdateExtent(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

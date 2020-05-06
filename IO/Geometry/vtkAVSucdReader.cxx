@@ -47,7 +47,7 @@ struct vtkAVSucdReader::idMapping : public std::map<vtkIdType, vtkIdType>
 {
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAVSucdReader::vtkAVSucdReader()
 {
   this->FileName = nullptr;
@@ -70,7 +70,7 @@ vtkAVSucdReader::vtkAVSucdReader()
   this->SetNumberOfInputPorts(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAVSucdReader::~vtkAVSucdReader()
 {
   delete[] this->FileName;
@@ -81,19 +81,19 @@ vtkAVSucdReader::~vtkAVSucdReader()
   this->PointDataArraySelection->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAVSucdReader::SetByteOrderToBigEndian()
 {
   this->ByteOrder = FILE_BIG_ENDIAN;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAVSucdReader::SetByteOrderToLittleEndian()
 {
   this->ByteOrder = FILE_LITTLE_ENDIAN;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkAVSucdReader::GetByteOrderAsString()
 {
   if (this->ByteOrder == FILE_LITTLE_ENDIAN)
@@ -106,7 +106,7 @@ const char* vtkAVSucdReader::GetByteOrderAsString()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAVSucdReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -129,7 +129,7 @@ int vtkAVSucdReader::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAVSucdReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -149,7 +149,7 @@ void vtkAVSucdReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number of Fields: " << this->NumberOfFields << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAVSucdReader::ReadFile(vtkUnstructuredGrid* output)
 {
   idMapping nodeMap, cellMap;
@@ -170,7 +170,7 @@ void vtkAVSucdReader::ReadFile(vtkUnstructuredGrid* output)
   this->FileStream = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAVSucdReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -481,7 +481,7 @@ int vtkAVSucdReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAVSucdReader::GetCellDataRange(int cellComp, int index, float* min, float* max)
 {
   if (index >= this->CellDataInfo[cellComp].veclen || index < 0)
@@ -492,7 +492,7 @@ void vtkAVSucdReader::GetCellDataRange(int cellComp, int index, float* min, floa
   *max = this->CellDataInfo[cellComp].max[index];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAVSucdReader::GetNodeDataRange(int nodeComp, int index, float* min, float* max)
 {
   if (index >= this->NodeDataInfo[nodeComp].veclen || index < 0)
@@ -503,7 +503,7 @@ void vtkAVSucdReader::GetNodeDataRange(int nodeComp, int index, float* min, floa
   *max = this->NodeDataInfo[nodeComp].max[index];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAVSucdReader::ReadGeometry(
   vtkUnstructuredGrid* output, idMapping& nodeMap, idMapping& cellMap)
 {
@@ -563,7 +563,7 @@ void vtkAVSucdReader::ReadGeometry(
   materials->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAVSucdReader::ReadBinaryCellTopology(
   vtkIntArray* materials, int* types, vtkIdTypeArray* listcells)
 {
@@ -651,7 +651,7 @@ void vtkAVSucdReader::ReadBinaryCellTopology(
   delete[] ctype;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAVSucdReader::ReadASCIICellTopology(
   vtkIntArray* materials, vtkUnstructuredGrid* output, const idMapping& nodeMap, idMapping& cellMap)
 {
@@ -756,7 +756,7 @@ void vtkAVSucdReader::ReadASCIICellTopology(
   } // for all cell, read the indices
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAVSucdReader::ReadXYZCoords(vtkFloatArray* coords, idMapping& nodeMap)
 {
   int i;
@@ -800,7 +800,7 @@ void vtkAVSucdReader::ReadXYZCoords(vtkFloatArray* coords, idMapping& nodeMap)
   } // end of ASCII read
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAVSucdReader::ReadNodeData(vtkUnstructuredGrid* output, const idMapping& nodeMap)
 {
   int i, j, n;
@@ -894,7 +894,7 @@ void vtkAVSucdReader::ReadNodeData(vtkUnstructuredGrid* output, const idMapping&
   vtkDebugMacro(<< "End of ReadNodeData()\n");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAVSucdReader::ReadCellData(vtkUnstructuredGrid* output, const idMapping& cellMap)
 {
   int i, j, n;
@@ -983,19 +983,19 @@ void vtkAVSucdReader::ReadCellData(vtkUnstructuredGrid* output, const idMapping&
   vtkDebugMacro(<< "End of ReadCellData()\n");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkAVSucdReader::GetPointArrayName(int index)
 {
   return this->PointDataArraySelection->GetArrayName(index);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAVSucdReader::GetPointArrayStatus(const char* name)
 {
   return this->PointDataArraySelection->ArrayIsEnabled(name);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAVSucdReader::SetPointArrayStatus(const char* name, int status)
 {
   if (status)
@@ -1008,19 +1008,19 @@ void vtkAVSucdReader::SetPointArrayStatus(const char* name, int status)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkAVSucdReader::GetCellArrayName(int index)
 {
   return this->CellDataArraySelection->GetArrayName(index);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAVSucdReader::GetCellArrayStatus(const char* name)
 {
   return this->CellDataArraySelection->ArrayIsEnabled(name);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAVSucdReader::SetCellArrayStatus(const char* name, int status)
 {
   if (status)
@@ -1033,43 +1033,43 @@ void vtkAVSucdReader::SetCellArrayStatus(const char* name, int status)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAVSucdReader::GetNumberOfCellArrays()
 {
   return this->CellDataArraySelection->GetNumberOfArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAVSucdReader::GetNumberOfPointArrays()
 {
   return this->PointDataArraySelection->GetNumberOfArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAVSucdReader::EnableAllPointArrays()
 {
   this->PointDataArraySelection->EnableAllArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAVSucdReader::DisableAllPointArrays()
 {
   this->PointDataArraySelection->DisableAllArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAVSucdReader::EnableAllCellArrays()
 {
   this->CellDataArraySelection->EnableAllArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAVSucdReader::DisableAllCellArrays()
 {
   this->CellDataArraySelection->DisableAllArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAVSucdReader::GetLabel(char* string, int number, char* label)
 {
   int i, j, k, len;
@@ -1112,7 +1112,7 @@ int vtkAVSucdReader::GetLabel(char* string, int number, char* label)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Read a block of ints (ascii or binary) and return number read.
 int vtkAVSucdReader::ReadIntBlock(int n, int* block)
 {
@@ -1149,7 +1149,7 @@ int vtkAVSucdReader::ReadIntBlock(int n, int* block)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAVSucdReader::ReadFloatBlock(int n, float* block)
 {
   if (this->BinaryFile)

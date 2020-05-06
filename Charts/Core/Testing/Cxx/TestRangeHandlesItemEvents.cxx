@@ -25,7 +25,7 @@
 #include <iostream>
 #include <map>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkRangeHandlesCallBack : public vtkCommand
 {
 public:
@@ -53,7 +53,7 @@ public:
   double Range[2];
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestRangeHandlesItemEvents(int, char*[])
 {
   vtkNew<vtkColorTransferFunction> transferFunction;

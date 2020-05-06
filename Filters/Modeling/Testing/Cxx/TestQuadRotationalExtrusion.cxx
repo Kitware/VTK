@@ -30,7 +30,7 @@
 #include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestQuadRotationalExtrusion(int argc, char* argv[])
 {
   // Create a line source

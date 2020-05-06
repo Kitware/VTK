@@ -31,7 +31,7 @@
 
 vtkCxxSetObjectMacro(vtkAbstractHyperTreeGridMapper, ColorMap, vtkScalarsToColors);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAbstractHyperTreeGridMapper::vtkAbstractHyperTreeGridMapper()
 {
   // No default renderer is provided
@@ -82,7 +82,7 @@ vtkAbstractHyperTreeGridMapper::vtkAbstractHyperTreeGridMapper()
   this->ZBuffer = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAbstractHyperTreeGridMapper::~vtkAbstractHyperTreeGridMapper()
 {
   if (this->ColorMap)
@@ -110,7 +110,7 @@ vtkAbstractHyperTreeGridMapper::~vtkAbstractHyperTreeGridMapper()
   this->ZBuffer = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAbstractHyperTreeGridMapper::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
@@ -118,7 +118,7 @@ int vtkAbstractHyperTreeGridMapper::FillInputPortInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractHyperTreeGridMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -205,19 +205,19 @@ void vtkAbstractHyperTreeGridMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ZBuffer: " << this->ZBuffer << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractHyperTreeGridMapper::SetInputData(vtkUniformHyperTreeGrid* uhtg)
 {
   this->SetInputDataInternal(0, uhtg);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractHyperTreeGridMapper::SetInputConnection(int port, vtkAlgorithmOutput* input)
 {
   this->vtkAbstractVolumeMapper::SetInputConnection(port, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUniformHyperTreeGrid* vtkAbstractHyperTreeGridMapper::GetInput()
 {
   if (this->GetNumberOfInputConnections(0) < 1)
@@ -227,7 +227,7 @@ vtkUniformHyperTreeGrid* vtkAbstractHyperTreeGridMapper::GetInput()
   return vtkUniformHyperTreeGrid::SafeDownCast(this->GetExecutive()->GetInputData(0, 0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractHyperTreeGridMapper::SetRenderer(vtkRenderer* ren)
 {
   // Update internal renderer only when needed
@@ -261,7 +261,7 @@ void vtkAbstractHyperTreeGridMapper::SetRenderer(vtkRenderer* ren)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractHyperTreeGridMapper::SetScalarRange(double s0, double s1)
 {
   // Update internal lookup table only when needed
@@ -282,14 +282,14 @@ void vtkAbstractHyperTreeGridMapper::SetScalarRange(double s0, double s1)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractHyperTreeGridMapper::SetScalarRange(double* s)
 {
   // No range checking performed here
   this->SetScalarRange(s[0], s[1]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkAbstractHyperTreeGridMapper::GetMTime()
 {
   // Check for minimal changes
@@ -338,4 +338,4 @@ vtkMTimeType vtkAbstractHyperTreeGridMapper::GetMTime()
   return this->Superclass::GetMTime();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------

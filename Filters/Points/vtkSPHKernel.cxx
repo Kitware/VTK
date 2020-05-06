@@ -26,7 +26,7 @@ vtkCxxSetObjectMacro(vtkSPHKernel, CutoffArray, vtkDataArray);
 vtkCxxSetObjectMacro(vtkSPHKernel, DensityArray, vtkDataArray);
 vtkCxxSetObjectMacro(vtkSPHKernel, MassArray, vtkDataArray);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSPHKernel::vtkSPHKernel()
 {
   this->RequiresInitialization = true;
@@ -37,7 +37,7 @@ vtkSPHKernel::vtkSPHKernel()
   this->MassArray = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSPHKernel::~vtkSPHKernel()
 {
   this->SetCutoffArray(nullptr);
@@ -45,7 +45,7 @@ vtkSPHKernel::~vtkSPHKernel()
   this->SetMassArray(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // At this point, the spatial step, the dimension of the kernel, the cutoff
 // factor, and the sigma normalization factor should be known.
 void vtkSPHKernel::Initialize(vtkAbstractPointLocator* loc, vtkDataSet* ds, vtkPointData* attr)
@@ -80,7 +80,7 @@ void vtkSPHKernel::Initialize(vtkAbstractPointLocator* loc, vtkDataSet* ds, vtkP
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Radius around point is cutoff factor * smoothing length. That is unless
 // cutoff array is provided.
 vtkIdType vtkSPHKernel::ComputeBasis(double x[3], vtkIdList* pIds, vtkIdType ptId)
@@ -99,7 +99,7 @@ vtkIdType vtkSPHKernel::ComputeBasis(double x[3], vtkIdList* pIds, vtkIdType ptI
   return pIds->GetNumberOfIds();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkSPHKernel::ComputeWeights(double x[3], vtkIdList* pIds, vtkDoubleArray* weights)
 {
   vtkIdType numPts = pIds->GetNumberOfIds();
@@ -136,7 +136,7 @@ vtkIdType vtkSPHKernel::ComputeWeights(double x[3], vtkIdList* pIds, vtkDoubleAr
   return numPts;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkSPHKernel::ComputeDerivWeights(
   double x[3], vtkIdList* pIds, vtkDoubleArray* weights, vtkDoubleArray* gradWeights)
 {
@@ -167,7 +167,7 @@ vtkIdType vtkSPHKernel::ComputeDerivWeights(
   return numPts;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSPHKernel::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

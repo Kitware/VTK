@@ -18,7 +18,7 @@
 
 vtkStandardNewMacro(vtkParametricRoman);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParametricRoman::vtkParametricRoman()
   : Radius(1)
 {
@@ -35,10 +35,10 @@ vtkParametricRoman::vtkParametricRoman()
   this->DerivativesAvailable = 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParametricRoman::~vtkParametricRoman() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParametricRoman::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
 {
   double u = uvw[0];
@@ -71,14 +71,14 @@ void vtkParametricRoman::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
   Dv[2] = a2 * cu * c2v;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkParametricRoman::EvaluateScalar(
   double* vtkNotUsed(uv[3]), double* vtkNotUsed(Pt[3]), double* vtkNotUsed(Duv[9]))
 {
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParametricRoman::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

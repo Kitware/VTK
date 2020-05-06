@@ -47,7 +47,7 @@
 vtkStandardNewMacro(vtkAddMembershipArray);
 vtkCxxSetObjectMacro(vtkAddMembershipArray, InputValues, vtkAbstractArray);
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAddMembershipArray::vtkAddMembershipArray()
 {
   this->FieldType = -1;
@@ -58,14 +58,14 @@ vtkAddMembershipArray::vtkAddMembershipArray()
   this->SetNumberOfInputPorts(3);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAddMembershipArray::~vtkAddMembershipArray()
 {
   this->SetOutputArrayName(nullptr);
   this->SetInputArrayName(nullptr);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAddMembershipArray::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
@@ -89,7 +89,7 @@ int vtkAddMembershipArray::FillInputPortInformation(int port, vtkInformation* in
   return 1;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAddMembershipArray::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -251,7 +251,7 @@ int vtkAddMembershipArray::RequestData(
   return 1;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAddMembershipArray::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -24,7 +24,7 @@
 
 vtkStandardNewMacro(vtkImageThreshold);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Constructor sets default values
 vtkImageThreshold::vtkImageThreshold()
 {
@@ -38,7 +38,7 @@ vtkImageThreshold::vtkImageThreshold()
   this->OutputScalarType = -1; // invalid; output same as input
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageThreshold::SetInValue(double val)
 {
   if (val != this->InValue || this->ReplaceIn != 1)
@@ -49,7 +49,7 @@ void vtkImageThreshold::SetInValue(double val)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageThreshold::SetOutValue(double val)
 {
   if (val != this->OutValue || this->ReplaceOut != 1)
@@ -60,7 +60,7 @@ void vtkImageThreshold::SetOutValue(double val)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The values greater than or equal to the value match.
 void vtkImageThreshold::ThresholdByUpper(double thresh)
 {
@@ -72,7 +72,7 @@ void vtkImageThreshold::ThresholdByUpper(double thresh)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The values less than or equal to the value match.
 void vtkImageThreshold::ThresholdByLower(double thresh)
 {
@@ -84,7 +84,7 @@ void vtkImageThreshold::ThresholdByLower(double thresh)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The values in a range (inclusive) match
 void vtkImageThreshold::ThresholdBetween(double lower, double upper)
 {
@@ -96,7 +96,7 @@ void vtkImageThreshold::ThresholdBetween(double lower, double upper)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageThreshold::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -123,7 +123,7 @@ int vtkImageThreshold::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 template <class IT, class OT>
 void vtkImageThresholdExecute(vtkImageThreshold* self, vtkImageData* inData, vtkImageData* outData,
@@ -245,7 +245,7 @@ void vtkImageThresholdExecute(vtkImageThreshold* self, vtkImageData* inData, vtk
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T>
 void vtkImageThresholdExecute1(
   vtkImageThreshold* self, vtkImageData* inData, vtkImageData* outData, int outExt[6], int id, T*)
@@ -260,7 +260,7 @@ void vtkImageThresholdExecute1(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method is passed a input and output data, and executes the filter
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
@@ -279,7 +279,7 @@ void vtkImageThreshold::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageThreshold::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

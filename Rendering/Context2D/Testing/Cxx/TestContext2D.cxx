@@ -28,7 +28,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTextProperty.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 namespace
 {
 class ContextItem : public vtkContextItem
@@ -46,10 +46,10 @@ public:
   bool Succeeded;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(ContextItem);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool IsVector4Same(float expected[4], float computed[4])
 {
 
@@ -78,7 +78,7 @@ bool IsVector4Same(float expected[4], float computed[4])
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool ContextItem::Paint(vtkContext2D* painter)
 {
   const char* text = "Test";
@@ -128,7 +128,7 @@ bool ContextItem::Paint(vtkContext2D* painter)
 
 } // end anonymous namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestContext2D(int, char*[])
 {
   // Set up a 2D context view, context test object and add it to the scene

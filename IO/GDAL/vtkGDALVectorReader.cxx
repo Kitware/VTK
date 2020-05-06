@@ -39,7 +39,7 @@ vtkStandardNewMacro(vtkGDALVectorReader);
 
 int vtkGDALVectorReader::OGRRegistered = 0;
 
-// -----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkGDALVectorReader::Internal
 {
 public:
@@ -388,7 +388,7 @@ public:
   int AddFeatureIds;
 };
 
-// -----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGDALVectorReader::vtkGDALVectorReader()
 {
   this->FileName = 0;
@@ -407,14 +407,14 @@ vtkGDALVectorReader::vtkGDALVectorReader()
   this->AddFeatureIds = 0;
 }
 
-// -----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGDALVectorReader::~vtkGDALVectorReader()
 {
   this->SetFileName(0);
   delete this->Implementation;
 }
 
-// -----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGDALVectorReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -424,7 +424,7 @@ void vtkGDALVectorReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "AddFeatureIds: " << (this->AddFeatureIds ? "ON" : "OFF") << "\n";
 }
 
-// -----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGDALVectorReader::GetNumberOfLayers()
 {
   if (this->InitializeInternal() == VTK_ERROR)
@@ -435,7 +435,7 @@ int vtkGDALVectorReader::GetNumberOfLayers()
   return this->Implementation->Source->GetLayerCount();
 }
 
-// -----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGDALVectorReader::GetLayerType(int layerIndex)
 {
   if (this->InitializeInternal() == VTK_ERROR)
@@ -484,7 +484,7 @@ int vtkGDALVectorReader::GetLayerType(int layerIndex)
   }
 }
 
-// -----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGDALVectorReader::GetFeatureCount(int layerIndex)
 {
   if (this->InitializeInternal() == VTK_ERROR)
@@ -502,7 +502,7 @@ int vtkGDALVectorReader::GetFeatureCount(int layerIndex)
   return layer->GetFeatureCount();
 }
 
-// -----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGDALVectorReader::GetActiveLayerType()
 {
   return this->ActiveLayer < 0 || this->ActiveLayer >= this->GetNumberOfLayers()
@@ -510,7 +510,7 @@ int vtkGDALVectorReader::GetActiveLayerType()
     : this->GetLayerType(this->ActiveLayer);
 }
 
-// -----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGDALVectorReader::GetActiveLayerFeatureCount()
 {
   return this->ActiveLayer < 0 || this->ActiveLayer >= this->GetNumberOfLayers()
@@ -518,7 +518,7 @@ int vtkGDALVectorReader::GetActiveLayerFeatureCount()
     : this->GetFeatureCount(this->ActiveLayer);
 }
 
-// -----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkGDALVectorReader::GetLayerProjection(int layerIndex)
 {
   if (layerIndex < 0)
@@ -537,7 +537,7 @@ const char* vtkGDALVectorReader::GetLayerProjection(int layerIndex)
   }
 }
 
-// -----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkGDALVectorReader::GetLayerProjectionAsProj4(int layerIndex)
 {
   if (layerIndex < 0)
@@ -577,13 +577,13 @@ const char* vtkGDALVectorReader::GetLayerProjectionAsProj4(int layerIndex)
   return returnStr;
 }
 
-// -----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::map<int, std::string> vtkGDALVectorReader::GetLayersProjection()
 {
   return this->LayersProjection;
 }
 
-// -----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGDALVectorReader::RequestInformation(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -594,7 +594,7 @@ int vtkGDALVectorReader::RequestInformation(
   return 1;
 }
 
-// -----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGDALVectorReader::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -658,7 +658,7 @@ int vtkGDALVectorReader::RequestData(
   return 1;
 }
 
-// -----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGDALVectorReader::InitializeInternal()
 {
   if (!this->FileName)

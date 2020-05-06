@@ -32,7 +32,7 @@ class vtkExtractBlock::vtkSet : public std::set<unsigned int>
 
 vtkStandardNewMacro(vtkExtractBlock);
 vtkInformationKeyMacro(vtkExtractBlock, DONT_PRUNE, Integer);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractBlock::vtkExtractBlock()
 {
   this->Indices = new vtkExtractBlock::vtkSet();
@@ -41,35 +41,35 @@ vtkExtractBlock::vtkExtractBlock()
   this->MaintainStructure = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractBlock::~vtkExtractBlock()
 {
   delete this->Indices;
   delete this->ActiveIndices;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractBlock::AddIndex(unsigned int index)
 {
   this->Indices->insert(index);
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractBlock::RemoveIndex(unsigned int index)
 {
   this->Indices->erase(index);
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractBlock::RemoveAllIndices()
 {
   this->Indices->clear();
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractBlock::CopySubTree(
   vtkDataObjectTreeIterator* loc, vtkMultiBlockDataSet* output, vtkMultiBlockDataSet* input)
 {
@@ -105,7 +105,7 @@ void vtkExtractBlock::CopySubTree(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractBlock::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -178,7 +178,7 @@ int vtkExtractBlock::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkExtractBlock::Prune(vtkDataObject* branch)
 {
   if (branch->IsA("vtkMultiBlockDataSet"))
@@ -193,7 +193,7 @@ bool vtkExtractBlock::Prune(vtkDataObject* branch)
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkExtractBlock::Prune(vtkMultiPieceDataSet* mpiece)
 {
   // * Remove any children on mpiece that don't have DONT_PRUNE set.
@@ -220,7 +220,7 @@ bool vtkExtractBlock::Prune(vtkMultiPieceDataSet* mpiece)
   return (mpiece->GetNumberOfPieces() == 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkExtractBlock::Prune(vtkMultiBlockDataSet* mblock)
 {
   vtkMultiBlockDataSet* clone = vtkMultiBlockDataSet::New();
@@ -271,7 +271,7 @@ bool vtkExtractBlock::Prune(vtkMultiBlockDataSet* mblock)
   return (mblock->GetNumberOfBlocks() == 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractBlock::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

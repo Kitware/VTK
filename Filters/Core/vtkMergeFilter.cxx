@@ -504,7 +504,7 @@ int vtkMergeFilter::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //  Trick:  Abstract data types that may or may not be the same type
 // (structured/unstructured), but the points/cells match up.
 // Output/Geometry may be structured while ScalarInput may be

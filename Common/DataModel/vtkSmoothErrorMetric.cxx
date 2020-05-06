@@ -24,23 +24,23 @@
 
 vtkStandardNewMacro(vtkSmoothErrorMetric);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSmoothErrorMetric::vtkSmoothErrorMetric()
 {
   this->AngleTolerance = 90.1; // in degrees
   this->CosTolerance = cos(vtkMath::RadiansFromDegrees(this->AngleTolerance));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSmoothErrorMetric::~vtkSmoothErrorMetric() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkSmoothErrorMetric::GetAngleTolerance()
 {
   return this->AngleTolerance;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSmoothErrorMetric::SetAngleTolerance(double value)
 {
   //  assert("pre: positive_value" && value>90 && value<180);
@@ -69,7 +69,7 @@ void vtkSmoothErrorMetric::SetAngleTolerance(double value)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSmoothErrorMetric::RequiresEdgeSubdivision(
   double* leftPoint, double* midPoint, double* rightPoint, double vtkNotUsed(alpha))
 {
@@ -111,7 +111,7 @@ int vtkSmoothErrorMetric::RequiresEdgeSubdivision(
   return result;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Return the error at the mid-point. The type of error depends on the state
 // of the concrete error metric. For instance, it can return an absolute
@@ -167,7 +167,7 @@ double vtkSmoothErrorMetric::GetError(
   return result;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSmoothErrorMetric::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

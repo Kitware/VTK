@@ -106,17 +106,17 @@ public:
   }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct object with default tuple dimension (number of components) of 1.
 vtkMeanValueCoordinatesInterpolator::vtkMeanValueCoordinatesInterpolator() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMeanValueCoordinatesInterpolator::~vtkMeanValueCoordinatesInterpolator() = default;
 
 namespace
 {
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Templated function to generate weights of a general polygonal mesh.
 // This class actually implements the algorithm.
 struct ComputeWeightsForPolygonMesh
@@ -341,7 +341,7 @@ struct ComputeWeightsForPolygonMesh
   }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Templated function to generate weights of a triangle mesh.
 // This class actually implements the algorithm.
 struct ComputeWeightsForTriangleMesh
@@ -503,7 +503,7 @@ struct ComputeWeightsForTriangleMesh
 
 } // end anon namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Static function to compute weights for triangle mesh (with vtkIdList)
 // Satisfy classes' public API.
 void vtkMeanValueCoordinatesInterpolator::ComputeInterpolationWeights(
@@ -524,7 +524,7 @@ void vtkMeanValueCoordinatesInterpolator::ComputeInterpolationWeights(
     x, pts, iter, weights);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Static function to compute weights for triangle or polygonal mesh
 // (with vtkCellArray). Satisfy classes' public API.
 void vtkMeanValueCoordinatesInterpolator::ComputeInterpolationWeights(
@@ -575,7 +575,7 @@ void vtkMeanValueCoordinatesInterpolator::ComputeInterpolationWeights(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMeanValueCoordinatesInterpolator::ComputeInterpolationWeightsForTriangleMesh(
   const double x[3], vtkPoints* pts, vtkMVCTriIterator& iter, double* weights)
 {
@@ -604,7 +604,7 @@ void vtkMeanValueCoordinatesInterpolator::ComputeInterpolationWeightsForTriangle
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMeanValueCoordinatesInterpolator::ComputeInterpolationWeightsForPolygonMesh(
   const double x[3], vtkPoints* pts, vtkMVCPolyIterator& iter, double* weights)
 {
@@ -633,7 +633,7 @@ void vtkMeanValueCoordinatesInterpolator::ComputeInterpolationWeightsForPolygonM
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMeanValueCoordinatesInterpolator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

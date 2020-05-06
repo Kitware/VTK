@@ -30,7 +30,7 @@
 
 vtkStandardNewMacro(vtkPSphereSource);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPSphereSource::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -236,7 +236,7 @@ int vtkPSphereSource::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 unsigned long vtkPSphereSource::GetEstimatedMemorySize()
 {
   vtkLargeInteger sz;

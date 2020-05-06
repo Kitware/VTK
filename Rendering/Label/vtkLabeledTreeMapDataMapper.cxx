@@ -125,13 +125,13 @@ vtkLabeledTreeMapDataMapper::~vtkLabeledTreeMapDataMapper()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLabeledTreeMapDataMapper::SetRectanglesArrayName(const char* name)
 {
   this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Release any graphics resources that are being consumed by this mapper.
 void vtkLabeledTreeMapDataMapper::ReleaseGraphicsResources(vtkWindow* win)
 {
@@ -299,7 +299,7 @@ void vtkLabeledTreeMapDataMapper::GetVertexLabel(vtkIdType vertex, vtkDataArray*
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLabeledTreeMapDataMapper::RenderOverlay(vtkViewport* viewport, vtkActor2D* actor)
 {
   int i;
@@ -313,7 +313,7 @@ void vtkLabeledTreeMapDataMapper::RenderOverlay(vtkViewport* viewport, vtkActor2
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLabeledTreeMapDataMapper::RenderOpaqueGeometry(vtkViewport* viewport, vtkActor2D* actor)
 {
   int i, numComp = 0, pointIdLabels, activeComp = 0;

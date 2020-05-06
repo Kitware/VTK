@@ -25,7 +25,7 @@
 
 vtkStandardNewMacro(vtkMassProperties);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // TODO: replace with std::cbrt() when C++11 is minimum requirement.
 static inline double vtkCubeRoot(double x)
 {
@@ -43,7 +43,7 @@ static inline double vtkCubeRoot(double x)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Constructs with initial 0 values.
 vtkMassProperties::vtkMassProperties()
 {
@@ -63,11 +63,11 @@ vtkMassProperties::vtkMassProperties()
   this->SetNumberOfOutputPorts(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Destroy any allocated memory.
 vtkMassProperties::~vtkMassProperties() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // This method measures volume, surface area, and normalized shape index.
 // Currently, the input is a ploydata which consists of triangles.
@@ -289,7 +289,7 @@ int vtkMassProperties::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMassProperties::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

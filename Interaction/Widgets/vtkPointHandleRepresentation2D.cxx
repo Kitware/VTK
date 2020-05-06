@@ -37,7 +37,7 @@ vtkCxxSetObjectMacro(vtkPointHandleRepresentation2D, Property, vtkProperty2D);
 vtkCxxSetObjectMacro(vtkPointHandleRepresentation2D, SelectedProperty, vtkProperty2D);
 vtkCxxSetObjectMacro(vtkPointHandleRepresentation2D, PointPlacer, vtkPointPlacer);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPointHandleRepresentation2D::vtkPointHandleRepresentation2D()
 {
   // Initialize state
@@ -88,7 +88,7 @@ vtkPointHandleRepresentation2D::vtkPointHandleRepresentation2D()
   this->WaitingForMotion = 0;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPointHandleRepresentation2D::~vtkPointHandleRepresentation2D()
 {
   this->FocalPoint->Delete();
@@ -104,7 +104,7 @@ vtkPointHandleRepresentation2D::~vtkPointHandleRepresentation2D()
   this->SelectedProperty->Delete();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointHandleRepresentation2D::SetCursorShape(vtkPolyData* shape)
 {
   if (shape != this->CursorShape)
@@ -123,19 +123,19 @@ void vtkPointHandleRepresentation2D::SetCursorShape(vtkPolyData* shape)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyData* vtkPointHandleRepresentation2D::GetCursorShape()
 {
   return this->CursorShape;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkPointHandleRepresentation2D::GetBounds()
 {
   return nullptr;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointHandleRepresentation2D::SetDisplayPosition(double p[3])
 {
   this->Superclass::SetDisplayPosition(p);
@@ -156,7 +156,7 @@ void vtkPointHandleRepresentation2D::SetDisplayPosition(double p[3])
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPointHandleRepresentation2D::ComputeInteractionState(int X, int Y, int vtkNotUsed(modify))
 {
   double pos[3], xyz[3];
@@ -183,7 +183,7 @@ int vtkPointHandleRepresentation2D::ComputeInteractionState(int X, int Y, int vt
   return this->InteractionState;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Record the current event position, and the rectilinear wipe position.
 void vtkPointHandleRepresentation2D::StartWidgetInteraction(double startEventPos[2])
 {
@@ -205,7 +205,7 @@ void vtkPointHandleRepresentation2D::StartWidgetInteraction(double startEventPos
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Based on the displacement vector (computed in display coordinates) and
 // the cursor state (which corresponds to which part of the widget has been
 // selected), the widget points are modified.
@@ -235,7 +235,7 @@ void vtkPointHandleRepresentation2D::WidgetInteraction(double eventPos[2])
   this->Modified();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Translate everything
 void vtkPointHandleRepresentation2D::Translate(const double* eventPos)
 {
@@ -253,7 +253,7 @@ void vtkPointHandleRepresentation2D::Translate(const double* eventPos)
   this->SetDisplayPosition(pos);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointHandleRepresentation2D::Scale(const double eventPos[2])
 {
   // Get the current scale factor
@@ -268,7 +268,7 @@ void vtkPointHandleRepresentation2D::Scale(const double eventPos[2])
   this->Glypher->SetScaleFactor(sf);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointHandleRepresentation2D::Highlight(int highlight)
 {
   if (highlight)
@@ -281,7 +281,7 @@ void vtkPointHandleRepresentation2D::Highlight(int highlight)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointHandleRepresentation2D::CreateDefaultProperties()
 {
   this->Property = vtkProperty2D::New();
@@ -293,7 +293,7 @@ void vtkPointHandleRepresentation2D::CreateDefaultProperties()
   this->SelectedProperty->SetLineWidth(2.0);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointHandleRepresentation2D::BuildRepresentation()
 {
   if (this->GetMTime() > this->BuildTime ||
@@ -310,7 +310,7 @@ void vtkPointHandleRepresentation2D::BuildRepresentation()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointHandleRepresentation2D::ShallowCopy(vtkProp* prop)
 {
   vtkPointHandleRepresentation2D* rep = vtkPointHandleRepresentation2D::SafeDownCast(prop);
@@ -324,7 +324,7 @@ void vtkPointHandleRepresentation2D::ShallowCopy(vtkProp* prop)
   this->Superclass::ShallowCopy(prop);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointHandleRepresentation2D::DeepCopy(vtkProp* prop)
 {
   vtkPointHandleRepresentation2D* rep = vtkPointHandleRepresentation2D::SafeDownCast(prop);
@@ -338,26 +338,26 @@ void vtkPointHandleRepresentation2D::DeepCopy(vtkProp* prop)
   this->Superclass::DeepCopy(prop);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointHandleRepresentation2D::GetActors2D(vtkPropCollection* pc)
 {
   this->Actor->GetActors2D(pc);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointHandleRepresentation2D::ReleaseGraphicsResources(vtkWindow* win)
 {
   this->Actor->ReleaseGraphicsResources(win);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPointHandleRepresentation2D::RenderOverlay(vtkViewport* viewport)
 {
   this->BuildRepresentation();
   return this->Actor->RenderOverlay(viewport);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointHandleRepresentation2D::SetVisibility(vtkTypeBool visible)
 {
   this->Actor->SetVisibility(visible);
@@ -365,7 +365,7 @@ void vtkPointHandleRepresentation2D::SetVisibility(vtkTypeBool visible)
   this->Superclass::SetVisibility(visible);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointHandleRepresentation2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h

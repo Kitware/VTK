@@ -42,10 +42,10 @@
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkSplineRepresentation);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSplineRepresentation::vtkSplineRepresentation()
 {
   // Build the representation of the widget
@@ -96,7 +96,7 @@ vtkSplineRepresentation::vtkSplineRepresentation()
   lineMapper->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSplineRepresentation::~vtkSplineRepresentation()
 {
   if (this->ParametricSpline)
@@ -107,7 +107,7 @@ vtkSplineRepresentation::~vtkSplineRepresentation()
   this->ParametricFunctionSource->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSplineRepresentation::SetParametricSpline(vtkParametricSpline* spline)
 {
   if (this->ParametricSpline != spline)
@@ -127,13 +127,13 @@ void vtkSplineRepresentation::SetParametricSpline(vtkParametricSpline* spline)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDoubleArray* vtkSplineRepresentation::GetHandlePositions()
 {
   return vtkArrayDownCast<vtkDoubleArray>(this->ParametricSpline->GetPoints()->GetData());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSplineRepresentation::BuildRepresentation()
 {
   this->ValidPick = 1;
@@ -175,7 +175,7 @@ void vtkSplineRepresentation::BuildRepresentation()
   this->SizeHandles();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSplineRepresentation::SetNumberOfHandles(int npts)
 {
   if (this->NumberOfHandles == npts)
@@ -234,7 +234,7 @@ void vtkSplineRepresentation::SetNumberOfHandles(int npts)
   this->BuildRepresentation();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSplineRepresentation::SetResolution(int resolution)
 {
   if (this->Resolution == resolution || resolution < (this->NumberOfHandles - 1))
@@ -247,14 +247,14 @@ void vtkSplineRepresentation::SetResolution(int resolution)
   this->ParametricFunctionSource->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSplineRepresentation::GetPolyData(vtkPolyData* pd)
 {
   this->ParametricFunctionSource->Update();
   pd->ShallowCopy(this->ParametricFunctionSource->GetOutput());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkSplineRepresentation::GetSummedLength()
 {
   vtkPoints* points = this->ParametricFunctionSource->GetOutput()->GetPoints();
@@ -290,7 +290,7 @@ double vtkSplineRepresentation::GetSummedLength()
   return sum;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSplineRepresentation::InsertHandleOnLine(double* pos)
 {
   if (this->NumberOfHandles < 2)
@@ -332,7 +332,7 @@ int vtkSplineRepresentation::InsertHandleOnLine(double* pos)
   return insert_index;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSplineRepresentation::InitializeHandles(vtkPoints* points)
 {
   if (!points)
@@ -366,7 +366,7 @@ void vtkSplineRepresentation::InitializeHandles(vtkPoints* points)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSplineRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

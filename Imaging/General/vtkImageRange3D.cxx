@@ -23,7 +23,7 @@
 
 vtkStandardNewMacro(vtkImageRange3D);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct an instance of vtkImageRange3D filter.
 // By default zero values are dilated.
 vtkImageRange3D::vtkImageRange3D()
@@ -38,7 +38,7 @@ vtkImageRange3D::vtkImageRange3D()
   this->SetKernelSize(1, 1, 1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageRange3D::~vtkImageRange3D()
 {
   if (this->Ellipse)
@@ -48,13 +48,13 @@ vtkImageRange3D::~vtkImageRange3D()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageRange3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method sets the size of the neighborhood.  It also sets the
 // default middle of the neighborhood and computes the eliptical foot print.
 void vtkImageRange3D::SetKernelSize(int size0, int size1, int size2)
@@ -98,7 +98,7 @@ void vtkImageRange3D::SetKernelSize(int size0, int size1, int size2)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Output is always float
 int vtkImageRange3D::RequestInformation(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -109,7 +109,7 @@ int vtkImageRange3D::RequestInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This templated function executes the filter on any region,
 // whether it needs boundary checking or not.
 // If the filter needs to be faster, the function could be duplicated
@@ -268,7 +268,7 @@ void vtkImageRange3DExecute(vtkImageRange3D* self, vtkImageData* mask, vtkImageD
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method contains the first switch statement that calls the correct
 // templated function for the input and output Data types.
 // It handles image boundaries, so the image does not shrink.
@@ -310,7 +310,7 @@ void vtkImageRange3D::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageRange3D::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

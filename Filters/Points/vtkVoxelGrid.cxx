@@ -33,12 +33,12 @@
 vtkStandardNewMacro(vtkVoxelGrid);
 vtkCxxSetObjectMacro(vtkVoxelGrid, Kernel, vtkInterpolationKernel);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Helper classes to support efficient computing, and threaded execution.
 namespace
 {
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The threaded core of the algorithm (first pass)
 template <typename T>
 struct Subsample
@@ -129,7 +129,7 @@ struct Subsample
 } // anonymous namespace
 
 //================= Begin class proper =======================================
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkVoxelGrid::vtkVoxelGrid()
 {
   this->Locator = vtkStaticPointLocator::New();
@@ -142,7 +142,7 @@ vtkVoxelGrid::vtkVoxelGrid()
   this->Kernel = vtkLinearKernel::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkVoxelGrid::~vtkVoxelGrid()
 {
   this->Locator->UnRegister(this);
@@ -150,7 +150,7 @@ vtkVoxelGrid::~vtkVoxelGrid()
   this->SetKernel(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Produce the output data
 int vtkVoxelGrid::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -263,14 +263,14 @@ int vtkVoxelGrid::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkVoxelGrid::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVoxelGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

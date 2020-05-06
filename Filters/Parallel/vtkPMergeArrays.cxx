@@ -19,16 +19,16 @@
 
 vtkStandardNewMacro(vtkPMergeArrays);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPMergeArrays::vtkPMergeArrays() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPMergeArrays::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPMergeArrays::MergeDataObjectFields(vtkDataObject* input, int idx, vtkDataObject* output)
 {
   int checks[vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES];

@@ -34,7 +34,7 @@
 
 #include <vector>
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkChartLegend::Private
 {
 public:
@@ -49,10 +49,10 @@ public:
   std::vector<vtkPlot*> ActivePlots;
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartLegend);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkChartLegend::vtkChartLegend()
 {
   this->Storage = new vtkChartLegend::Private;
@@ -77,7 +77,7 @@ vtkChartLegend::vtkChartLegend()
   this->CacheBounds = true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkChartLegend::~vtkChartLegend()
 {
   delete this->Storage;
@@ -85,7 +85,7 @@ vtkChartLegend::~vtkChartLegend()
   this->Point = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartLegend::Update()
 {
   this->Storage->ActivePlots.clear();
@@ -108,7 +108,7 @@ void vtkChartLegend::Update()
   this->PlotTime.Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkChartLegend::Paint(vtkContext2D* painter)
 {
   // This is where everything should be drawn, or dispatched to other methods.
@@ -172,7 +172,7 @@ bool vtkChartLegend::Paint(vtkContext2D* painter)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRectf vtkChartLegend::GetBoundingRect(vtkContext2D* painter)
 {
   if (this->CacheBounds && this->RectTime > this->GetMTime() && this->RectTime > this->PlotTime)
@@ -228,50 +228,50 @@ vtkRectf vtkChartLegend::GetBoundingRect(vtkContext2D* painter)
   return this->Rect;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartLegend::SetPoint(const vtkVector2f& point)
 {
   this->Storage->Point = point;
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const vtkVector2f& vtkChartLegend::GetPointVector()
 {
   return this->Storage->Point;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartLegend::SetLabelSize(int size)
 {
   this->LabelProperties->SetFontSize(size);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkChartLegend::GetLabelSize()
 {
   return this->LabelProperties->GetFontSize();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPen* vtkChartLegend::GetPen()
 {
   return this->Pen;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBrush* vtkChartLegend::GetBrush()
 {
   return this->Brush;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTextProperty* vtkChartLegend::GetLabelProperties()
 {
   return this->LabelProperties;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartLegend::SetChart(vtkChart* chart)
 {
   if (this->Storage->Chart == chart)
@@ -285,13 +285,13 @@ void vtkChartLegend::SetChart(vtkChart* chart)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkChart* vtkChartLegend::GetChart()
 {
   return this->Storage->Chart;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkChartLegend::Hit(const vtkContextMouseEvent& mouse)
 {
   if (!this->GetVisible())
@@ -311,7 +311,7 @@ bool vtkChartLegend::Hit(const vtkContextMouseEvent& mouse)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkChartLegend::MouseMoveEvent(const vtkContextMouseEvent& mouse)
 {
   if (this->Button == vtkContextMouseEvent::LEFT_BUTTON)
@@ -324,7 +324,7 @@ bool vtkChartLegend::MouseMoveEvent(const vtkContextMouseEvent& mouse)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkChartLegend::MouseButtonPressEvent(const vtkContextMouseEvent& mouse)
 {
   if (mouse.GetButton() == vtkContextMouseEvent::LEFT_BUTTON)
@@ -335,14 +335,14 @@ bool vtkChartLegend::MouseButtonPressEvent(const vtkContextMouseEvent& mouse)
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkChartLegend::MouseButtonReleaseEvent(const vtkContextMouseEvent&)
 {
   this->Button = -1;
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartLegend::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

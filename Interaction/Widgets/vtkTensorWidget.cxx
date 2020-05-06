@@ -28,7 +28,7 @@
 
 vtkStandardNewMacro(vtkTensorWidget);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTensorWidget::vtkTensorWidget()
 {
   this->WidgetState = vtkTensorWidget::Start;
@@ -96,13 +96,13 @@ vtkTensorWidget::vtkTensorWidget()
   this->KeyEventCallbackCommand->SetCallback(vtkTensorWidget::ProcessKeyEvents);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTensorWidget::~vtkTensorWidget()
 {
   this->KeyEventCallbackCommand->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorWidget::SetEnabled(int enabling)
 {
   int enabled = this->Enabled;
@@ -141,7 +141,7 @@ void vtkTensorWidget::SetEnabled(int enabling)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorWidget::SelectAction(vtkAbstractWidget* w)
 {
   // We are in a static method, cast to ourself
@@ -211,7 +211,7 @@ void vtkTensorWidget::SelectAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorWidget::SelectAction3D(vtkAbstractWidget* w)
 {
   vtkTensorWidget* self = reinterpret_cast<vtkTensorWidget*>(w);
@@ -266,7 +266,7 @@ void vtkTensorWidget::SelectAction3D(vtkAbstractWidget* w)
   self->InvokeEvent(vtkCommand::StartInteractionEvent, nullptr);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorWidget::TranslateAction(vtkAbstractWidget* w)
 {
   // We are in a static method, cast to ourself
@@ -313,7 +313,7 @@ void vtkTensorWidget::TranslateAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorWidget::ScaleAction(vtkAbstractWidget* w)
 {
   // We are in a static method, cast to ourself
@@ -360,7 +360,7 @@ void vtkTensorWidget::ScaleAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorWidget::MoveAction(vtkAbstractWidget* w)
 {
   vtkTensorWidget* self = reinterpret_cast<vtkTensorWidget*>(w);
@@ -387,7 +387,7 @@ void vtkTensorWidget::MoveAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorWidget::MoveAction3D(vtkAbstractWidget* w)
 {
   vtkTensorWidget* self = reinterpret_cast<vtkTensorWidget*>(w);
@@ -407,7 +407,7 @@ void vtkTensorWidget::MoveAction3D(vtkAbstractWidget* w)
   self->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorWidget::EndSelectAction(vtkAbstractWidget* w)
 {
   vtkTensorWidget* self = reinterpret_cast<vtkTensorWidget*>(w);
@@ -428,7 +428,7 @@ void vtkTensorWidget::EndSelectAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorWidget::EndSelectAction3D(vtkAbstractWidget* w)
 {
   vtkTensorWidget* self = reinterpret_cast<vtkTensorWidget*>(w);
@@ -454,7 +454,7 @@ void vtkTensorWidget::EndSelectAction3D(vtkAbstractWidget* w)
   self->InvokeEvent(vtkCommand::EndInteractionEvent, nullptr);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorWidget::StepAction3D(vtkAbstractWidget* w)
 {
   vtkTensorWidget* self = reinterpret_cast<vtkTensorWidget*>(w);
@@ -479,7 +479,7 @@ void vtkTensorWidget::StepAction3D(vtkAbstractWidget* w)
   self->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorWidget::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)
@@ -488,7 +488,7 @@ void vtkTensorWidget::CreateDefaultRepresentation()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorWidget::ProcessKeyEvents(vtkObject*, unsigned long event, void* clientdata, void*)
 {
   vtkTensorWidget* self = static_cast<vtkTensorWidget*>(clientdata);
@@ -535,7 +535,7 @@ void vtkTensorWidget::ProcessKeyEvents(vtkObject*, unsigned long event, void* cl
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

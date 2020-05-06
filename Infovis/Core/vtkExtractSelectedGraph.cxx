@@ -50,17 +50,17 @@
 #include <map>
 
 vtkStandardNewMacro(vtkExtractSelectedGraph);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractSelectedGraph::vtkExtractSelectedGraph()
 {
   this->SetNumberOfInputPorts(3);
   this->RemoveIsolatedVertices = false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractSelectedGraph::~vtkExtractSelectedGraph() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSelectedGraph::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
@@ -83,19 +83,19 @@ int vtkExtractSelectedGraph::FillInputPortInformation(int port, vtkInformation* 
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractSelectedGraph::SetSelectionConnection(vtkAlgorithmOutput* in)
 {
   this->SetInputConnection(1, in);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractSelectedGraph::SetAnnotationLayersConnection(vtkAlgorithmOutput* in)
 {
   this->SetInputConnection(2, in);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSelectedGraph::RequestDataObject(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -131,7 +131,7 @@ int vtkExtractSelectedGraph::RequestDataObject(
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSelectedGraph::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -458,7 +458,7 @@ int vtkExtractSelectedGraph::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractSelectedGraph::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

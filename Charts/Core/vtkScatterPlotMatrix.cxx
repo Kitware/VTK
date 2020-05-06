@@ -1632,7 +1632,7 @@ vtkTextProperty* vtkScatterPlotMatrix::GetAxisLabelProperties(int plotType)
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkScatterPlotMatrix::SetBackgroundColor(int plotType, const vtkColor4ub& color)
 {
   if (plotType >= 0 && plotType < vtkScatterPlotMatrix::NOPLOT)
@@ -1642,7 +1642,7 @@ void vtkScatterPlotMatrix::SetBackgroundColor(int plotType, const vtkColor4ub& c
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkScatterPlotMatrix::SetAxisColor(int plotType, const vtkColor4ub& color)
 {
   if (plotType >= 0 && plotType < vtkScatterPlotMatrix::NOPLOT)
@@ -1652,7 +1652,7 @@ void vtkScatterPlotMatrix::SetAxisColor(int plotType, const vtkColor4ub& color)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkScatterPlotMatrix::SetGridVisibility(int plotType, bool visible)
 {
   if (plotType != NOPLOT)
@@ -1663,7 +1663,7 @@ void vtkScatterPlotMatrix::SetGridVisibility(int plotType, bool visible)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkScatterPlotMatrix::SetGridColor(int plotType, const vtkColor4ub& color)
 {
   if (plotType >= 0 && plotType < vtkScatterPlotMatrix::NOPLOT)
@@ -1674,7 +1674,7 @@ void vtkScatterPlotMatrix::SetGridColor(int plotType, const vtkColor4ub& color)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkScatterPlotMatrix::SetAxisLabelVisibility(int plotType, bool visible)
 {
   if (plotType != NOPLOT)
@@ -1685,7 +1685,7 @@ void vtkScatterPlotMatrix::SetAxisLabelVisibility(int plotType, bool visible)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkScatterPlotMatrix::SetAxisLabelNotation(int plotType, int notation)
 {
   if (plotType != NOPLOT)
@@ -1696,7 +1696,7 @@ void vtkScatterPlotMatrix::SetAxisLabelNotation(int plotType, int notation)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkScatterPlotMatrix::SetAxisLabelPrecision(int plotType, int precision)
 {
   if (plotType != NOPLOT)
@@ -1707,7 +1707,7 @@ void vtkScatterPlotMatrix::SetAxisLabelPrecision(int plotType, int precision)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkScatterPlotMatrix::SetTooltipNotation(int plotType, int notation)
 {
   if (plotType != NOPLOT)
@@ -1718,7 +1718,7 @@ void vtkScatterPlotMatrix::SetTooltipNotation(int plotType, int notation)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkScatterPlotMatrix::SetTooltipPrecision(int plotType, int precision)
 {
   if (plotType != NOPLOT)
@@ -1729,21 +1729,21 @@ void vtkScatterPlotMatrix::SetTooltipPrecision(int plotType, int precision)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkScatterPlotMatrix::SetScatterPlotSelectedRowColumnColor(const vtkColor4ub& color)
 {
   this->Private->SelectedRowColumnBGBrush->SetColor(color);
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkScatterPlotMatrix::SetScatterPlotSelectedActiveColor(const vtkColor4ub& color)
 {
   this->Private->SelectedChartBGBrush->SetColor(color);
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkScatterPlotMatrix::UpdateChartSettings(int plotType)
 {
   if (plotType == HISTOGRAM)
@@ -1792,7 +1792,7 @@ void vtkScatterPlotMatrix::UpdateChartSettings(int plotType)
   }
   this->Modified();
 }
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkScatterPlotMatrix::SetSelectionMode(int selMode)
 {
   if (this->SelectionMode == selMode || selMode < vtkContextScene::SELECTION_NONE ||
@@ -1809,7 +1809,7 @@ void vtkScatterPlotMatrix::SetSelectionMode(int selMode)
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkScatterPlotMatrix::SetSize(const vtkVector2i& size)
 {
   if (this->Size.GetX() != size.GetX() || this->Size.GetY() != size.GetY())
@@ -1820,7 +1820,7 @@ void vtkScatterPlotMatrix::SetSize(const vtkVector2i& size)
   this->Superclass::SetSize(size);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkScatterPlotMatrix::UpdateSettings()
 {
 
@@ -1831,56 +1831,56 @@ void vtkScatterPlotMatrix::UpdateSettings()
   this->UpdateChartSettings(SCATTERPLOT);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkScatterPlotMatrix::GetGridVisibility(int plotType)
 {
   assert(plotType != NOPLOT);
   return this->Private->ChartSettings[plotType]->ShowGrid;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkColor4ub vtkScatterPlotMatrix::GetBackgroundColor(int plotType)
 {
   assert(plotType != NOPLOT);
   return this->Private->ChartSettings[plotType]->BackgroundBrush->GetColorObject();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkColor4ub vtkScatterPlotMatrix::GetAxisColor(int plotType)
 {
   assert(plotType != NOPLOT);
   return this->Private->ChartSettings[plotType]->AxisColor;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkColor4ub vtkScatterPlotMatrix::GetGridColor(int plotType)
 {
   assert(plotType != NOPLOT);
   return this->Private->ChartSettings[plotType]->GridColor;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkScatterPlotMatrix::GetAxisLabelVisibility(int plotType)
 {
   assert(plotType != NOPLOT);
   return this->Private->ChartSettings[plotType]->ShowAxisLabels;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkScatterPlotMatrix::GetAxisLabelNotation(int plotType)
 {
   assert(plotType != NOPLOT);
   return this->Private->ChartSettings[plotType]->LabelNotation;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkScatterPlotMatrix::GetAxisLabelPrecision(int plotType)
 {
   assert(plotType != NOPLOT);
   return this->Private->ChartSettings[plotType]->LabelPrecision;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkScatterPlotMatrix::GetTooltipNotation(int plotType)
 {
   assert(plotType != NOPLOT);
@@ -1893,7 +1893,7 @@ int vtkScatterPlotMatrix::GetTooltipPrecision(int plotType)
   return this->Private->ChartSettings[plotType]->TooltipPrecision;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkScatterPlotMatrix::SetTooltip(vtkTooltipItem* tooltip)
 {
   if (tooltip != this->Private->TooltipItem)
@@ -1910,13 +1910,13 @@ void vtkScatterPlotMatrix::SetTooltip(vtkTooltipItem* tooltip)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTooltipItem* vtkScatterPlotMatrix::GetTooltip() const
 {
   return this->Private->TooltipItem;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkScatterPlotMatrix::SetIndexedLabels(vtkStringArray* labels)
 {
   if (labels != this->Private->IndexedLabelsArray)
@@ -1936,31 +1936,31 @@ void vtkScatterPlotMatrix::SetIndexedLabels(vtkStringArray* labels)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStringArray* vtkScatterPlotMatrix::GetIndexedLabels() const
 {
   return this->Private->IndexedLabelsArray;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkColor4ub vtkScatterPlotMatrix::GetScatterPlotSelectedRowColumnColor()
 {
   return this->Private->SelectedRowColumnBGBrush->GetColorObject();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkColor4ub vtkScatterPlotMatrix::GetScatterPlotSelectedActiveColor()
 {
   return this->Private->SelectedChartBGBrush->GetColorObject();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkChart* vtkScatterPlotMatrix::GetMainChart()
 {
   return this->Private->BigChart;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkScatterPlotMatrix::PrintSelf(ostream& os, vtkIndent indent)
 {
   Superclass::PrintSelf(os, indent);

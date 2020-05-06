@@ -22,7 +22,7 @@
 
 vtkStandardNewMacro(vtkMoleculeToLinesFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMoleculeToLinesFilter::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

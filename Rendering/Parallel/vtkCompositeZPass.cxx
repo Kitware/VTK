@@ -55,7 +55,7 @@
 vtkStandardNewMacro(vtkCompositeZPass);
 vtkCxxSetObjectMacro(vtkCompositeZPass, Controller, vtkMultiProcessController);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCompositeZPass::vtkCompositeZPass()
 {
   this->Controller = nullptr;
@@ -66,7 +66,7 @@ vtkCompositeZPass::vtkCompositeZPass()
   this->RawZBufferSize = 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCompositeZPass::~vtkCompositeZPass()
 {
   if (this->Controller != nullptr)
@@ -89,7 +89,7 @@ vtkCompositeZPass::~vtkCompositeZPass()
   delete[] this->RawZBuffer;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositeZPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -105,13 +105,13 @@ void vtkCompositeZPass::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkCompositeZPass::IsSupported(vtkOpenGLRenderWindow* context)
 {
   return context != nullptr;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Perform rendering according to a render state \p s.
 // \pre s_exists: s!=0
@@ -652,7 +652,7 @@ void vtkCompositeZPass::Render(const vtkRenderState* s)
 #endif
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositeZPass::CreateProgram(vtkOpenGLRenderWindow* context)
 {
   assert("pre: context_exists" && context != nullptr);
@@ -669,7 +669,7 @@ void vtkCompositeZPass::CreateProgram(vtkOpenGLRenderWindow* context)
   assert("post: Program_exists" && this->Program != nullptr);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Release graphics resources and ask components to release their own
 // resources.

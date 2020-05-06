@@ -38,7 +38,7 @@
 #include "vtkTextureObject.h"
 #include "vtkTimerLog.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestShadowMapBakerPass(int argc, char* argv[])
 {
   vtkNew<vtkActor> actor;

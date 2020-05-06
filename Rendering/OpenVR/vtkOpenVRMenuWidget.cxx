@@ -41,7 +41,7 @@ public:
   InternalElement() {}
 };
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenVRMenuWidget::vtkOpenVRMenuWidget()
 {
   // Set the initial state
@@ -77,7 +77,7 @@ vtkOpenVRMenuWidget::vtkOpenVRMenuWidget()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenVRMenuWidget::~vtkOpenVRMenuWidget()
 {
   this->EventCommand->Delete();
@@ -149,7 +149,7 @@ void vtkOpenVRMenuWidget::EventCallback(vtkObject*, unsigned long, void* clientd
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRMenuWidget::ShowSubMenu(vtkOpenVRMenuWidget* w)
 {
   w->SetInteractor(this->Interactor);
@@ -172,7 +172,7 @@ void vtkOpenVRMenuWidget::Show(vtkEventData* ed)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRMenuWidget::StartMenuAction(vtkAbstractWidget* w)
 {
   vtkOpenVRMenuWidget* self = reinterpret_cast<vtkOpenVRMenuWidget*>(w);
@@ -192,7 +192,7 @@ void vtkOpenVRMenuWidget::StartMenuAction(vtkAbstractWidget* w)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRMenuWidget::SelectMenuAction(vtkAbstractWidget* w)
 {
   vtkOpenVRMenuWidget* self = reinterpret_cast<vtkOpenVRMenuWidget*>(w);
@@ -214,7 +214,7 @@ void vtkOpenVRMenuWidget::SelectMenuAction(vtkAbstractWidget* w)
     self->Interactor, self, vtkWidgetEvent::Select3D, self->CallData);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRMenuWidget::MoveAction(vtkAbstractWidget* w)
 {
   vtkOpenVRMenuWidget* self = reinterpret_cast<vtkOpenVRMenuWidget*>(w);
@@ -228,13 +228,13 @@ void vtkOpenVRMenuWidget::MoveAction(vtkAbstractWidget* w)
     self->Interactor, self, vtkWidgetEvent::Move3D, self->CallData);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRMenuWidget::SetRepresentation(vtkOpenVRMenuRepresentation* rep)
 {
   this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(rep));
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRMenuWidget::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)
@@ -243,7 +243,7 @@ void vtkOpenVRMenuWidget::CreateDefaultRepresentation()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRMenuWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

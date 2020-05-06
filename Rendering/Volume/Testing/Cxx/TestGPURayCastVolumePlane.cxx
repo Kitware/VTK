@@ -34,7 +34,7 @@
 #include <vtkVolume.h>
 #include <vtkVolumeProperty.h>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static const char* TestGPURayCastVolumePlaneLog = "# StreamVersion 1\n"
                                                   "EnterEvent 169 9 0 0 0 0 0\n"
                                                   "MouseMoveEvent 169 9 0 0 0 0 0\n"
@@ -1131,7 +1131,7 @@ static const char* TestGPURayCastVolumePlaneLog = "# StreamVersion 1\n"
                                                   "MouseMoveEvent 284 299 0 0 0 0 0\n"
                                                   "MouseMoveEvent 284 300 0 0 0 0 0\n";
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestGPURayCastVolumePlane(int argc, char* argv[])
 {
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;

@@ -44,20 +44,20 @@
 
 using std::ostringstream;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkQuadraturePointsGenerator);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkQuadraturePointsGenerator::vtkQuadraturePointsGenerator()
 {
   this->SetNumberOfInputPorts(1);
   this->SetNumberOfOutputPorts(1);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkQuadraturePointsGenerator::~vtkQuadraturePointsGenerator() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkQuadraturePointsGenerator::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
@@ -65,7 +65,7 @@ int vtkQuadraturePointsGenerator::FillInputPortInformation(
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkQuadraturePointsGenerator::RequestData(
   vtkInformation*, vtkInformationVector** input, vtkInformationVector* output)
 {
@@ -176,7 +176,7 @@ struct GenerateWorker
 
 } // end anon namespace
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkQuadraturePointsGenerator::GenerateField(
   vtkUnstructuredGrid* usgIn, vtkDataArray* data, vtkDataArray* offsets, vtkPolyData* pdOut)
 {
@@ -213,7 +213,7 @@ int vtkQuadraturePointsGenerator::GenerateField(
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkQuadraturePointsGenerator::Generate(
   vtkUnstructuredGrid* usgIn, vtkDataArray* offsets, vtkPolyData* pdOut)
 {
@@ -327,7 +327,7 @@ int vtkQuadraturePointsGenerator::Generate(
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQuadraturePointsGenerator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

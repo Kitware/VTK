@@ -21,7 +21,7 @@
 
 vtkStandardNewMacro(vtkLandmarkTransform);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLandmarkTransform::vtkLandmarkTransform()
 {
   this->Mode = VTK_LANDMARK_SIMILARITY;
@@ -29,7 +29,7 @@ vtkLandmarkTransform::vtkLandmarkTransform()
   this->TargetLandmarks = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLandmarkTransform::~vtkLandmarkTransform()
 {
   if (this->SourceLandmarks)
@@ -42,7 +42,7 @@ vtkLandmarkTransform::~vtkLandmarkTransform()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLandmarkTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -59,7 +59,7 @@ void vtkLandmarkTransform::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Update the 4x4 matrix. Updates are only done as necessary.
 
 void vtkLandmarkTransform::InternalUpdate()
@@ -385,7 +385,7 @@ void vtkLandmarkTransform::InternalUpdate()
   this->Matrix->Modified();
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkLandmarkTransform::GetMTime()
 {
   vtkMTimeType result = this->vtkLinearTransform::GetMTime();
@@ -409,7 +409,7 @@ vtkMTimeType vtkLandmarkTransform::GetMTime()
   }
   return result;
 }
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLandmarkTransform::SetSourceLandmarks(vtkPoints* source)
 {
   if (this->SourceLandmarks == source)
@@ -428,7 +428,7 @@ void vtkLandmarkTransform::SetSourceLandmarks(vtkPoints* source)
   this->Modified();
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLandmarkTransform::SetTargetLandmarks(vtkPoints* target)
 {
   if (this->TargetLandmarks == target)
@@ -446,7 +446,7 @@ void vtkLandmarkTransform::SetTargetLandmarks(vtkPoints* target)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLandmarkTransform::Inverse()
 {
   vtkPoints* tmp1 = this->SourceLandmarks;
@@ -456,13 +456,13 @@ void vtkLandmarkTransform::Inverse()
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAbstractTransform* vtkLandmarkTransform::MakeTransform()
 {
   return vtkLandmarkTransform::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLandmarkTransform::InternalDeepCopy(vtkAbstractTransform* transform)
 {
   vtkLandmarkTransform* t = (vtkLandmarkTransform*)transform;

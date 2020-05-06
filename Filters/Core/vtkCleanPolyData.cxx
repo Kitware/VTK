@@ -27,12 +27,12 @@
 
 vtkStandardNewMacro(vtkCleanPolyData);
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify a spatial locator for speeding the search process. By
 // default an instance of vtkPointLocator is used.
 vtkCxxSetObjectMacro(vtkCleanPolyData, Locator, vtkIncrementalPointLocator);
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct object with initial Tolerance of 0.0
 vtkCleanPolyData::vtkCleanPolyData()
 {
@@ -48,13 +48,13 @@ vtkCleanPolyData::vtkCleanPolyData()
   this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCleanPolyData::~vtkCleanPolyData()
 {
   this->SetLocator(nullptr);
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCleanPolyData::OperateOnPoint(double in[3], double out[3])
 {
   out[0] = in[0];
@@ -62,7 +62,7 @@ void vtkCleanPolyData::OperateOnPoint(double in[3], double out[3])
   out[2] = in[2];
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCleanPolyData::OperateOnBounds(double in[6], double out[6])
 {
   out[0] = in[0];
@@ -73,7 +73,7 @@ void vtkCleanPolyData::OperateOnBounds(double in[6], double out[6])
   out[5] = in[5];
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCleanPolyData::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -108,7 +108,7 @@ int vtkCleanPolyData::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -610,7 +610,7 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Method manages creation of locators. It takes into account the potential
 // change of tolerance (zero to non-zero).
 void vtkCleanPolyData::CreateDefaultLocator(vtkPolyData* input)
@@ -660,7 +660,7 @@ void vtkCleanPolyData::CreateDefaultLocator(vtkPolyData* input)
   }
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCleanPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -684,7 +684,7 @@ void vtkCleanPolyData::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkCleanPolyData::GetMTime()
 {
   vtkMTimeType mTime = this->vtkObject::GetMTime();

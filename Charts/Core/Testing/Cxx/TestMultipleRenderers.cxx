@@ -31,7 +31,7 @@
 
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestMultipleRenderers(int, char*[])
 {
 

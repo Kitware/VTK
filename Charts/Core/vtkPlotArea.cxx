@@ -483,21 +483,21 @@ public:
 };
 
 vtkStandardNewMacro(vtkPlotArea);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPlotArea::vtkPlotArea()
   : TableCache(new vtkPlotArea::vtkTableCache())
 {
   this->TooltipDefaultLabelFormat = "%l: %x:(%a, %b)";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPlotArea::~vtkPlotArea()
 {
   delete this->TableCache;
   this->TableCache = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlotArea::Update()
 {
   if (!this->Visible)
@@ -529,7 +529,7 @@ void vtkPlotArea::Update()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlotArea::UpdateCache()
 {
   vtkTableCache& cache = (*this->TableCache);
@@ -540,7 +540,7 @@ void vtkPlotArea::UpdateCache()
   cache.UpdateCache(this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlotArea::GetBounds(double bounds[4])
 {
   vtkTableCache& cache = (*this->TableCache);
@@ -551,7 +551,7 @@ void vtkPlotArea::GetBounds(double bounds[4])
   cache.GetDataBounds(bounds);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPlotArea::Paint(vtkContext2D* painter)
 {
   vtkTableCache& cache = (*this->TableCache);
@@ -582,7 +582,7 @@ bool vtkPlotArea::Paint(vtkContext2D* painter)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPlotArea::PaintLegend(
   vtkContext2D* painter, const vtkRectf& rect, int vtkNotUsed(legendIndex))
 {
@@ -592,7 +592,7 @@ bool vtkPlotArea::PaintLegend(
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkPlotArea::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tolerance,
   vtkVector2f* location, vtkIdType* vtkNotUsed(segmentId))
 {
@@ -623,7 +623,7 @@ vtkIdType vtkPlotArea::GetNearestPoint(const vtkVector2f& point, const vtkVector
   return cache.GetNearestPoint(point, tolerance, location);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStdString vtkPlotArea::GetTooltipLabel(
   const vtkVector2d& plotPos, vtkIdType seriesIndex, vtkIdType segmentIndex)
 {
@@ -671,21 +671,21 @@ vtkStdString vtkPlotArea::GetTooltipLabel(
   return tooltipLabel;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlotArea::SetColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
   this->Brush->SetColor(r, g, b, a);
   this->Superclass::SetColor(r, g, b, a);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlotArea::SetColor(double r, double g, double b)
 {
   this->Brush->SetColorF(r, g, b);
   this->Superclass::SetColor(r, g, b);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlotArea::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

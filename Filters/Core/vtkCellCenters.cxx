@@ -78,7 +78,7 @@ public:
 
 } // end anonymous namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellCenters::ComputeCellCenters(vtkDataSet* dataset, vtkDoubleArray* centers)
 {
   CellCenterFunctor functor;
@@ -98,7 +98,7 @@ void vtkCellCenters::ComputeCellCenters(vtkDataSet* dataset, vtkDoubleArray* cen
   vtkSMPTools::For(0, dataset->GetNumberOfCells(), functor);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Generate points
 int vtkCellCenters::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -205,14 +205,14 @@ int vtkCellCenters::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCellCenters::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellCenters::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

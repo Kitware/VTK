@@ -15,7 +15,7 @@
 #include "vtkTexture.h"
 #include "vtkTexturedSphereSource.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestMultiTexturing(int argc, char* argv[])
 {
   vtkNew<vtkRenderer> renderer;

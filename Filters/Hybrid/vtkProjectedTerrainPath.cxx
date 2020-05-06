@@ -55,7 +55,7 @@ typedef vtkEdgeList::iterator EdgeListIterator;
 //
 vtkStandardNewMacro(vtkProjectedTerrainPath);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProjectedTerrainPath::vtkProjectedTerrainPath()
 {
   this->SetNumberOfInputPorts(2);
@@ -68,22 +68,22 @@ vtkProjectedTerrainPath::vtkProjectedTerrainPath()
   this->NegativeLineError = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProjectedTerrainPath::~vtkProjectedTerrainPath() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProjectedTerrainPath::SetSourceConnection(vtkAlgorithmOutput* algOutput)
 {
   this->SetInputConnection(1, algOutput);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProjectedTerrainPath::SetSourceData(vtkImageData* source)
 {
   this->SetInputDataInternal(1, source);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageData* vtkProjectedTerrainPath::GetSource()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
@@ -93,7 +93,7 @@ vtkImageData* vtkProjectedTerrainPath::GetSource()
   return vtkImageData::SafeDownCast(this->GetExecutive()->GetInputData(1, 0));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkProjectedTerrainPath::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
@@ -109,7 +109,7 @@ int vtkProjectedTerrainPath::FillInputPortInformation(int port, vtkInformation* 
   return 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Warning: this method may return negative indices. This is expected behavior
 //
 inline void vtkProjectedTerrainPath::GetImageIndex(double x[3], double loc[2], int ij[2])
@@ -120,7 +120,7 @@ inline void vtkProjectedTerrainPath::GetImageIndex(double x[3], double loc[2], i
   ij[1] = (int)(floor(loc[1]));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkProjectedTerrainPath::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -242,7 +242,7 @@ int vtkProjectedTerrainPath::RequestData(
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Remove all intersections of the line segments with the terrain
 void vtkProjectedTerrainPath::RemoveOcclusions()
 {
@@ -266,7 +266,7 @@ void vtkProjectedTerrainPath::RemoveOcclusions()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Adjust the lines so that they hug the terrain within the tolerance specified
 void vtkProjectedTerrainPath::HugTerrain()
 {
@@ -315,7 +315,7 @@ void vtkProjectedTerrainPath::HugTerrain()
   } // while still popping
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Splits the indicated edge and reinserts the edges back into the EdgeList as
 // well as the appropriate priority queues.
 void vtkProjectedTerrainPath::SplitEdge(vtkIdType eId, double t)
@@ -393,7 +393,7 @@ double vtkProjectedTerrainPath::GetHeight(double loc[2], int ij[2])
     s2 * weights[2] + s3 * weights[3]);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method has the side effect of inserting the edge into the queues
 void vtkProjectedTerrainPath::ComputeError(vtkIdType edgeId)
 {
@@ -520,7 +520,7 @@ void vtkProjectedTerrainPath::ComputeError(vtkIdType edgeId)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProjectedTerrainPath::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

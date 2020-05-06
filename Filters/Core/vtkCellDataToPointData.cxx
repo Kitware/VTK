@@ -41,7 +41,7 @@ vtkStandardNewMacro(vtkCellDataToPointData);
 namespace
 {
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Helper template function that implement the major part of the algorighm
 // which will be expanded by the vtkTemplateMacro. The template function is
 // provided so that coverage test can cover this function.
@@ -228,7 +228,7 @@ public:
   }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Instantiate object so that cell data is not passed to output.
 vtkCellDataToPointData::vtkCellDataToPointData()
 {
@@ -238,13 +238,13 @@ vtkCellDataToPointData::vtkCellDataToPointData()
   this->Implementation = new Internals();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCellDataToPointData::~vtkCellDataToPointData()
 {
   delete this->Implementation;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellDataToPointData::AddCellDataArray(const char* name)
 {
   if (!name)
@@ -257,7 +257,7 @@ void vtkCellDataToPointData::AddCellDataArray(const char* name)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellDataToPointData::RemoveCellDataArray(const char* name)
 {
   if (!name)
@@ -270,7 +270,7 @@ void vtkCellDataToPointData::RemoveCellDataArray(const char* name)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellDataToPointData::ClearCellDataArrays()
 {
   if (!this->Implementation->CellDataArrays.empty())
@@ -280,7 +280,7 @@ void vtkCellDataToPointData::ClearCellDataArrays()
   this->Implementation->CellDataArrays.clear();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCellDataToPointData::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -349,7 +349,7 @@ int vtkCellDataToPointData::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellDataToPointData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -358,7 +358,7 @@ void vtkCellDataToPointData::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ContributingCellOption: " << this->ContributingCellOption << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCellDataToPointData::RequestDataForUnstructuredData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

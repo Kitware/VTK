@@ -29,25 +29,25 @@ vtkStandardNewMacro(vtkStructuredPointsReader);
 vtkStructuredPointsReader::vtkStructuredPointsReader() = default;
 vtkStructuredPointsReader::~vtkStructuredPointsReader() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkStructuredPointsReader::SetOutput(vtkStructuredPoints* output)
 {
   this->GetExecutive()->SetOutputData(0, output);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStructuredPoints* vtkStructuredPointsReader::GetOutput()
 {
   return this->GetOutput(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStructuredPoints* vtkStructuredPointsReader::GetOutput(int idx)
 {
   return vtkStructuredPoints::SafeDownCast(this->GetOutputDataObject(idx));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkStructuredPointsReader::ReadMetaDataSimple(
   const std::string& fname, vtkInformation* metadata)
 {

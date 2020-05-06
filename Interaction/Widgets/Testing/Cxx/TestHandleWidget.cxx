@@ -46,7 +46,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTestUtilities.h"
 
-// -----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This does the actual work: updates the vtkPline implicit function.
 // This in turn causes the pipeline to update and clip the object.
 // Callback for the interaction
@@ -74,7 +74,7 @@ public:
   vtkActor* Actor;
 };
 
-// -----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static char HandleWidgetLog[] = "# StreamVersion> 1\n"
                                 "RenderEvent 0 0 0 0 0 0 0\n"
                                 "RenderEvent 0 0 0 0 0 0 0\n"
@@ -570,7 +570,7 @@ static char HandleWidgetLog[] = "# StreamVersion> 1\n"
                                 "CharEvent 141 164 0 0 113 1 q\n"
                                 "ExitEvent 141 164 0 0 113 1 q\n";
 
-// -----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestHandleWidget(int argc, char* argv[])
 {
   // Create a mace out of filters.

@@ -57,7 +57,7 @@
 
 vtkStandardNewMacro(vtkQuadricDecimation);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkQuadricDecimation::vtkQuadricDecimation()
 {
   this->Edges = vtkEdgeTable::New();
@@ -89,7 +89,7 @@ vtkQuadricDecimation::vtkQuadricDecimation()
   this->ActualReduction = 0.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkQuadricDecimation::~vtkQuadricDecimation()
 {
   this->Edges->Delete();
@@ -173,7 +173,7 @@ void vtkQuadricDecimation::GetPointAttributeArray(vtkIdType ptId, double* x)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkQuadricDecimation::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -418,7 +418,7 @@ int vtkQuadricDecimation::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQuadricDecimation::InitializeQuadrics(vtkIdType numPts)
 {
   vtkPolyData* input = this->Mesh;
@@ -704,7 +704,7 @@ void vtkQuadricDecimation::AddBoundaryConstraints()
   delete[] QEM;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQuadricDecimation::AddQuadric(vtkIdType oldPtId, vtkIdType newPtId)
 {
   int i;
@@ -723,7 +723,7 @@ void vtkQuadricDecimation::AddQuadric(vtkIdType oldPtId, vtkIdType newPtId)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQuadricDecimation::FindAffectedEdges(vtkIdType p1Id, vtkIdType p2Id, vtkIdList* edges)
 {
   vtkIdType ncells;
@@ -846,7 +846,7 @@ void vtkQuadricDecimation::UpdateEdgeData(vtkIdType pt0Id, vtkIdType pt1Id)
   changedEdges->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkQuadricDecimation::ComputeCost(vtkIdType edgeId, double* x)
 {
   static const double errorNumber = 1e-10;
@@ -944,7 +944,7 @@ double vtkQuadricDecimation::ComputeCost(vtkIdType edgeId, double* x)
   return cost;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkQuadricDecimation::ComputeCost2(vtkIdType edgeId, double* x)
 {
   // this function is so ugly because the functionality of converting an QEM
@@ -1445,7 +1445,7 @@ void vtkQuadricDecimation::ComputeNumberOfComponents()
   vtkDebugMacro("Number of components: " << this->NumberOfComponents);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQuadricDecimation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

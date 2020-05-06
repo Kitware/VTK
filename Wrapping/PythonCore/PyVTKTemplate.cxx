@@ -33,19 +33,19 @@
 #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 static const char* PyVTKTemplate_Doc =
   "A container for instantiations of class and function templates.\n\n"
   "This is a dictionary for templates, provide the template args\n"
   "in square brackets to get the desired kind of class.\n";
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Methods to help with name mangling and unmangling
 PyObject* PyVTKTemplate_KeyFromName(PyObject* self, PyObject* arg);
 PyObject* PyVTKTemplate_NameFromKey(PyObject* self, PyObject* key);
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Methods for python
 
 static PyObject* PyVTKTemplate_HasKey(PyObject* ob, PyObject* args)
@@ -185,7 +185,7 @@ static PyMethodDef PyVTKTemplate_Methods[] = {
   { nullptr, nullptr, 0, nullptr }
 };
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Mapping protocol
 
 static Py_ssize_t PyVTKTemplate_Size(PyObject* ob)
@@ -233,20 +233,20 @@ static PyObject* PyVTKTemplate_GetItem(PyObject* ob, PyObject* key)
   return r;
 }
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static PyMappingMethods PyVTKTemplate_AsMapping = {
   PyVTKTemplate_Size,    // mp_length
   PyVTKTemplate_GetItem, // mp_subscript
   nullptr,               // mp_ass_subscript
 };
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static PyObject* PyVTKTemplate_Repr(PyObject* self)
 {
   return PyString_FromFormat("<template %s>", PyModule_GetName(self));
 }
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static PyObject* PyVTKTemplate_Call(PyObject*, PyObject*, PyObject*)
 {
   PyErr_SetString(PyExc_TypeError,
@@ -256,7 +256,7 @@ static PyObject* PyVTKTemplate_Call(PyObject*, PyObject*, PyObject*)
   return nullptr;
 }
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // clang-format off
 PyTypeObject PyVTKTemplate_Type = {
   PyVarObject_HEAD_INIT(&PyType_Type, 0)
@@ -311,7 +311,7 @@ PyTypeObject PyVTKTemplate_Type = {
   VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED };
 // clang-format on
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Generate mangled name from the given template args
 PyObject* PyVTKTemplate_NameFromKey(PyObject* self, PyObject* key)
 {
@@ -559,7 +559,7 @@ PyObject* PyVTKTemplate_NameFromKey(PyObject* self, PyObject* key)
 #endif
 }
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Generate template args by unmangling the class name
 PyObject* PyVTKTemplate_KeyFromName(PyObject* self, PyObject* arg)
 {
@@ -755,10 +755,10 @@ PyObject* PyVTKTemplate_KeyFromName(PyObject* self, PyObject* arg)
   return key;
 }
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // C API
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 PyObject* PyVTKTemplate_New(const char* name, const char* docstring)
 {
   // make sure python has readied the type object
@@ -775,7 +775,7 @@ PyObject* PyVTKTemplate_New(const char* name, const char* docstring)
   return self;
 }
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int PyVTKTemplate_AddItem(PyObject* self, PyObject* val)
 {
   if (!PyType_Check(val))

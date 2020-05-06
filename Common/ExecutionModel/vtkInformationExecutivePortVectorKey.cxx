@@ -25,7 +25,7 @@
 // make garbage collecting easier but results in a weak reference.
 #define VTK_USE_SINGLE_REF 1
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationExecutivePortVectorKey::vtkInformationExecutivePortVectorKey(
   const char* name, const char* location)
   : vtkInformationKey(name, location)
@@ -33,16 +33,16 @@ vtkInformationExecutivePortVectorKey::vtkInformationExecutivePortVectorKey(
   vtkFilteringInformationKeyManager::Register(this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationExecutivePortVectorKey::~vtkInformationExecutivePortVectorKey() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationExecutivePortVectorKey::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkInformationExecutivePortVectorValue : public vtkObjectBase
 {
 public:
@@ -54,14 +54,14 @@ public:
   void UnRegisterAllExecutives();
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationExecutivePortVectorValue ::~vtkInformationExecutivePortVectorValue()
 {
   // Remove all our references to executives before erasing the vector.
   this->UnRegisterAllExecutives();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationExecutivePortVectorValue::UnRegisterAllExecutives()
 {
 #ifndef VTK_USE_SINGLE_REF
@@ -76,7 +76,7 @@ void vtkInformationExecutivePortVectorValue::UnRegisterAllExecutives()
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationExecutivePortVectorKey::Append(
   vtkInformation* info, vtkExecutive* executive, int port)
 {
@@ -97,7 +97,7 @@ void vtkInformationExecutivePortVectorKey::Append(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationExecutivePortVectorKey::Remove(
   vtkInformation* info, vtkExecutive* executive, int port)
 {
@@ -126,7 +126,7 @@ void vtkInformationExecutivePortVectorKey::Remove(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationExecutivePortVectorKey::Set(
   vtkInformation* info, vtkExecutive** executives, int* ports, int length)
 {
@@ -173,7 +173,7 @@ void vtkInformationExecutivePortVectorKey::Set(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExecutive** vtkInformationExecutivePortVectorKey::GetExecutives(vtkInformation* info)
 {
   vtkInformationExecutivePortVectorValue* v =
@@ -181,7 +181,7 @@ vtkExecutive** vtkInformationExecutivePortVectorKey::GetExecutives(vtkInformatio
   return (v && !v->Executives.empty()) ? (&v->Executives[0]) : nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int* vtkInformationExecutivePortVectorKey::GetPorts(vtkInformation* info)
 {
   vtkInformationExecutivePortVectorValue* v =
@@ -189,7 +189,7 @@ int* vtkInformationExecutivePortVectorKey::GetPorts(vtkInformation* info)
   return (v && !v->Ports.empty()) ? (&v->Ports[0]) : nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationExecutivePortVectorKey::Get(
   vtkInformation* info, vtkExecutive** executives, int* ports)
 {
@@ -201,7 +201,7 @@ void vtkInformationExecutivePortVectorKey::Get(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkInformationExecutivePortVectorKey::Length(vtkInformation* info)
 {
   vtkInformationExecutivePortVectorValue* v =
@@ -209,19 +209,19 @@ int vtkInformationExecutivePortVectorKey::Length(vtkInformation* info)
   return v ? static_cast<int>(v->Executives.size()) : 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationExecutivePortVectorKey::ShallowCopy(vtkInformation* from, vtkInformation* to)
 {
   this->Set(to, this->GetExecutives(from), this->GetPorts(from), this->Length(from));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationExecutivePortVectorKey::Remove(vtkInformation* info)
 {
   this->Superclass::Remove(info);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationExecutivePortVectorKey::Print(ostream& os, vtkInformation* info)
 {
   // Print the value.
@@ -246,7 +246,7 @@ void vtkInformationExecutivePortVectorKey::Print(ostream& os, vtkInformation* in
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void
 #ifdef VTK_USE_SINGLE_REF
 vtkInformationExecutivePortVectorKey::Report(vtkInformation*,
@@ -268,7 +268,7 @@ vtkInformationExecutivePortVectorKey::Report(vtkInformation* info,
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExecutive** vtkInformationExecutivePortVectorKey ::GetExecutivesWatchAddress(
   vtkInformation* info)
 {
@@ -277,7 +277,7 @@ vtkExecutive** vtkInformationExecutivePortVectorKey ::GetExecutivesWatchAddress(
   return (v && !v->Executives.empty()) ? (&v->Executives[0]) : nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int* vtkInformationExecutivePortVectorKey ::GetPortsWatchAddress(vtkInformation* info)
 {
   vtkInformationExecutivePortVectorValue* v =

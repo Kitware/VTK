@@ -40,17 +40,17 @@
 
 using namespace xdmf2;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkXdmfDataArray);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXdmfDataArray::vtkXdmfDataArray()
 {
   this->Array = nullptr;
   this->vtkArray = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataArray* vtkXdmfDataArray::FromXdmfArray(
   char* ArrayName, int CopyShape, int rank, int Components, int MakeCopy)
 {
@@ -336,7 +336,7 @@ vtkDataArray* vtkXdmfDataArray::FromXdmfArray(
   return (this->vtkArray);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 char* vtkXdmfDataArray::ToXdmfArray(vtkDataArray* DataArray, int CopyShape)
 {
   xdmf2::XdmfArray* array;
@@ -458,7 +458,7 @@ vtkDataArray* vtkXdmfDataArray::GetVtkArray(void)
   return (this->vtkArray);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXdmfDataArray::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

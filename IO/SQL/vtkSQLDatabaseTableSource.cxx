@@ -31,7 +31,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkSQLDatabaseTableSource::implementation
 {
 public:
@@ -65,7 +65,7 @@ public:
 
 vtkStandardNewMacro(vtkSQLDatabaseTableSource);
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSQLDatabaseTableSource::vtkSQLDatabaseTableSource()
   : Implementation(new implementation())
 {
@@ -80,7 +80,7 @@ vtkSQLDatabaseTableSource::vtkSQLDatabaseTableSource()
   this->EventForwarder->SetTarget(this);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSQLDatabaseTableSource::~vtkSQLDatabaseTableSource()
 {
   delete this->Implementation;
@@ -88,7 +88,7 @@ vtkSQLDatabaseTableSource::~vtkSQLDatabaseTableSource()
   this->EventForwarder->Delete();
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSQLDatabaseTableSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -161,7 +161,7 @@ void vtkSQLDatabaseTableSource::SetQuery(const vtkStdString& query)
   this->Modified();
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSQLDatabaseTableSource::RequestData(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {

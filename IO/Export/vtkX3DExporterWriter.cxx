@@ -16,7 +16,7 @@
 
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkX3DExporterWriter::vtkX3DExporterWriter()
 {
   this->WriteToOutputString = 0;
@@ -24,14 +24,14 @@ vtkX3DExporterWriter::vtkX3DExporterWriter()
   this->OutputStringLength = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkX3DExporterWriter::~vtkX3DExporterWriter()
 {
   delete[] this->OutputString;
   this->OutputString = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporterWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -44,7 +44,7 @@ void vtkX3DExporterWriter::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 char* vtkX3DExporterWriter::RegisterAndGetOutputString()
 {
   char* tmp = this->OutputString;

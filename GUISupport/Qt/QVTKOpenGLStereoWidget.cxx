@@ -28,13 +28,13 @@
 #include <QSurfaceFormat>
 #include <QtDebug>
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 QVTKOpenGLStereoWidget::QVTKOpenGLStereoWidget(QWidget* parent, Qt::WindowFlags f)
   : QVTKOpenGLStereoWidget(vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New(), nullptr, parent, f)
 {
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 QVTKOpenGLStereoWidget::QVTKOpenGLStereoWidget(
   QOpenGLContext* shareContext, QWidget* parent, Qt::WindowFlags f)
   : QVTKOpenGLStereoWidget(
@@ -42,14 +42,14 @@ QVTKOpenGLStereoWidget::QVTKOpenGLStereoWidget(
 {
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 QVTKOpenGLStereoWidget::QVTKOpenGLStereoWidget(
   vtkGenericOpenGLRenderWindow* w, QWidget* parent, Qt::WindowFlags f)
   : QVTKOpenGLStereoWidget(w, QOpenGLContext::currentContext(), parent, f)
 {
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 QVTKOpenGLStereoWidget::QVTKOpenGLStereoWidget(
   vtkGenericOpenGLRenderWindow* w, QOpenGLContext* shareContext, QWidget* parent, Qt::WindowFlags f)
   : QWidget(parent, f)
@@ -87,23 +87,23 @@ QVTKOpenGLStereoWidget::QVTKOpenGLStereoWidget(
   grabGesture(Qt::SwipeGesture);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 QVTKOpenGLStereoWidget::~QVTKOpenGLStereoWidget() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 QImage QVTKOpenGLStereoWidget::grabFramebuffer()
 {
   return this->VTKOpenGLWindow->grabFramebuffer();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void QVTKOpenGLStereoWidget::resizeEvent(QResizeEvent* evt)
 {
   vtkLogScopeF(TRACE, "resizeEvent(%d, %d)", evt->size().width(), evt->size().height());
   this->Superclass::resizeEvent(evt);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void QVTKOpenGLStereoWidget::paintEvent(QPaintEvent* evt)
 {
   vtkLogScopeF(TRACE, "paintEvent");
@@ -116,7 +116,7 @@ void QVTKOpenGLStereoWidget::paintEvent(QPaintEvent* evt)
   this->VTKOpenGLWindow->update();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 #if !defined(VTK_LEGACY_REMOVE)
 void QVTKOpenGLStereoWidget::SetRenderWindow(vtkRenderWindow* win)
 {
@@ -132,7 +132,7 @@ void QVTKOpenGLStereoWidget::SetRenderWindow(vtkRenderWindow* win)
 }
 #endif
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 #if !defined(VTK_LEGACY_REMOVE)
 void QVTKOpenGLStereoWidget::SetRenderWindow(vtkGenericOpenGLRenderWindow* win)
 {
@@ -142,7 +142,7 @@ void QVTKOpenGLStereoWidget::SetRenderWindow(vtkGenericOpenGLRenderWindow* win)
 }
 #endif
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 #if !defined(VTK_LEGACY_REMOVE)
 vtkRenderWindow* QVTKOpenGLStereoWidget::GetRenderWindow()
 {
@@ -152,7 +152,7 @@ vtkRenderWindow* QVTKOpenGLStereoWidget::GetRenderWindow()
 }
 #endif
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 #if !defined(VTK_LEGACY_REMOVE)
 QVTKInteractorAdapter* QVTKOpenGLStereoWidget::GetInteractorAdapter()
 {
@@ -161,7 +161,7 @@ QVTKInteractorAdapter* QVTKOpenGLStereoWidget::GetInteractorAdapter()
 }
 #endif
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 #if !defined(VTK_LEGACY_REMOVE)
 QVTKInteractor* QVTKOpenGLStereoWidget::GetInteractor()
 {
@@ -171,7 +171,7 @@ QVTKInteractor* QVTKOpenGLStereoWidget::GetInteractor()
 }
 #endif
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 #if !defined(VTK_LEGACY_REMOVE)
 void QVTKOpenGLStereoWidget::setQVTKCursor(const QCursor& cursor)
 {
@@ -181,7 +181,7 @@ void QVTKOpenGLStereoWidget::setQVTKCursor(const QCursor& cursor)
 }
 #endif
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 #if !defined(VTK_LEGACY_REMOVE)
 void QVTKOpenGLStereoWidget::setDefaultQVTKCursor(const QCursor& cursor)
 {

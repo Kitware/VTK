@@ -119,7 +119,7 @@ public:
 
 vtkStandardNewMacro(vtkFFMPEGVideoSource);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFFMPEGVideoSource::vtkFFMPEGVideoSource()
   : AudioCallback(nullptr)
   , AudioCallbackClientData(nullptr)
@@ -141,7 +141,7 @@ vtkFFMPEGVideoSource::vtkFFMPEGVideoSource()
   this->Stereo3D = false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFFMPEGVideoSource::~vtkFFMPEGVideoSource()
 {
   this->vtkFFMPEGVideoSource::ReleaseSystemResources();
@@ -149,7 +149,7 @@ vtkFFMPEGVideoSource::~vtkFFMPEGVideoSource()
   delete this->Internal;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFFMPEGVideoSource::Initialize()
 {
   if (this->Initialized)
@@ -308,7 +308,7 @@ void vtkFFMPEGVideoSource::Initialize()
   this->Initialized = 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Feed frames to the decoder
 void* vtkFFMPEGVideoSource::FeedThread(vtkMultiThreader::ThreadInfo* data)
 {
@@ -426,7 +426,7 @@ void* vtkFFMPEGVideoSource::Feed(vtkMultiThreader::ThreadInfo* data)
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Sleep until the specified absolute time has arrived.
 // You must pass a handle to the current thread.
 // If '0' is returned, then the thread was aborted before or during the wait.
@@ -769,7 +769,7 @@ void vtkFFMPEGVideoSource::InternalGrab()
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFFMPEGVideoSource::ReleaseSystemResources()
 {
   if (this->Initialized)
@@ -780,7 +780,7 @@ void vtkFFMPEGVideoSource::ReleaseSystemResources()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFFMPEGVideoSource::Grab()
 {
   if (this->Recording)
@@ -799,13 +799,13 @@ void vtkFFMPEGVideoSource::Grab()
   this->InternalGrab();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFFMPEGVideoSource::Play()
 {
   this->vtkVideoSource::Play();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFFMPEGVideoSource::Record()
 {
   if (this->Playing)
@@ -837,7 +837,7 @@ void vtkFFMPEGVideoSource::Record()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFFMPEGVideoSource::Stop()
 {
   if (this->Playing || this->Recording)
@@ -854,7 +854,7 @@ void vtkFFMPEGVideoSource::Stop()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // try for the specified frame size
 void vtkFFMPEGVideoSource::SetFrameSize(int x, int y, int z)
 {
@@ -882,7 +882,7 @@ void vtkFFMPEGVideoSource::SetFrameSize(int x, int y, int z)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFFMPEGVideoSource::SetFrameRate(float rate)
 {
   if (rate == this->FrameRate)
@@ -894,7 +894,7 @@ void vtkFFMPEGVideoSource::SetFrameRate(float rate)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFFMPEGVideoSource::SetOutputFormat(int format)
 {
   if (format == this->OutputFormat)

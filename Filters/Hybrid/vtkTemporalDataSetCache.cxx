@@ -56,10 +56,10 @@ public:
   vtkTDSCMemkindRAII(vtkTDSCMemkindRAII const&) = default;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkTemporalDataSetCache);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTemporalDataSetCache::vtkTemporalDataSetCache()
 {
   this->CacheSize = 10;
@@ -70,7 +70,7 @@ vtkTemporalDataSetCache::vtkTemporalDataSetCache()
   this->Ejected = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTemporalDataSetCache::~vtkTemporalDataSetCache()
 {
   CacheType::iterator pos = this->Cache.begin();
@@ -82,7 +82,7 @@ vtkTemporalDataSetCache::~vtkTemporalDataSetCache()
   this->SetEjected(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkTemporalDataSetCache::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -117,7 +117,7 @@ vtkTypeBool vtkTemporalDataSetCache::ProcessRequest(
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTemporalDataSetCache::FillInputPortInformation(int port, vtkInformation* info)
 {
   // port 0 must be temporal data, but port 1 can be any dataset
@@ -133,7 +133,7 @@ int vtkTemporalDataSetCache::FillOutputPortInformation(int vtkNotUsed(port), vtk
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkDataObject");
   return 1;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTemporalDataSetCache::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -141,7 +141,7 @@ void vtkTemporalDataSetCache::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CacheSize: " << this->CacheSize << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTemporalDataSetCache::SetCacheSize(int size)
 {
   if (size < 1)
@@ -168,7 +168,7 @@ void vtkTemporalDataSetCache::SetCacheSize(int size)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTemporalDataSetCache::RequestInformation(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -261,7 +261,7 @@ int vtkTemporalDataSetCache::RequestInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTemporalDataSetCache::RequestDataObject(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -298,7 +298,7 @@ int vtkTemporalDataSetCache::RequestDataObject(
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTemporalDataSetCache ::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -387,7 +387,7 @@ int vtkTemporalDataSetCache ::RequestUpdateExtent(vtkInformation* vtkNotUsed(req
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method simply copies by reference the input data to the output.
 int vtkTemporalDataSetCache::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -461,7 +461,7 @@ int vtkTemporalDataSetCache::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTemporalDataSetCache::ReplaceCacheItem(
   vtkDataObject* input, double inTime, vtkMTimeType outputUpdateTime)
 {
@@ -516,7 +516,7 @@ void vtkTemporalDataSetCache::ReplaceCacheItem(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTemporalDataSetCache::SetEjected(vtkDataObject* victim)
 {
   if (this->Ejected != victim)

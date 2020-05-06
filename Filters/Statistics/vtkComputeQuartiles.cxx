@@ -34,7 +34,7 @@
 #include <string>
 
 vtkStandardNewMacro(vtkComputeQuartiles);
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkComputeQuartiles::vtkComputeQuartiles()
 {
   this->SetInputArrayToProcess(
@@ -42,16 +42,16 @@ vtkComputeQuartiles::vtkComputeQuartiles()
   this->FieldAssociation = -1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkComputeQuartiles::~vtkComputeQuartiles() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkComputeQuartiles::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkComputeQuartiles::FillInputPortInformation(int port, vtkInformation* info)
 {
   this->Superclass::FillInputPortInformation(port, info);
@@ -60,7 +60,7 @@ int vtkComputeQuartiles::FillInputPortInformation(int port, vtkInformation* info
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkComputeQuartiles::GetInputFieldAssociation()
 {
   vtkInformationVector* inArrayVec = this->Information->Get(INPUT_ARRAYS_TO_PROCESS());
@@ -68,7 +68,7 @@ int vtkComputeQuartiles::GetInputFieldAssociation()
   return inArrayInfo->Get(vtkDataObject::FIELD_ASSOCIATION());
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFieldData* vtkComputeQuartiles::GetInputFieldData(vtkDataObject* input)
 {
   if (!input)
@@ -111,7 +111,7 @@ vtkFieldData* vtkComputeQuartiles::GetInputFieldData(vtkDataObject* input)
   return nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkComputeQuartiles::RequestData(vtkInformation* /*request*/,
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -141,7 +141,7 @@ int vtkComputeQuartiles::RequestData(vtkInformation* /*request*/,
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkComputeQuartiles::ComputeTable(
   vtkDataObject* input, vtkTable* outputTable, vtkIdType blockId)
 {

@@ -36,16 +36,16 @@
 #endif
 
 vtkStandardNewMacro(vtkDateToNumeric);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDateToNumeric::vtkDateToNumeric()
   : DateFormat(nullptr)
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDateToNumeric::~vtkDateToNumeric() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDateToNumeric::FillInputPortInformation(int, vtkInformation* info)
 {
   // Skip composite data sets so that executives will treat this as a simple filter
@@ -58,7 +58,7 @@ int vtkDateToNumeric::FillInputPortInformation(int, vtkInformation* info)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDateToNumeric::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -174,7 +174,7 @@ int vtkDateToNumeric::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDateToNumeric::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

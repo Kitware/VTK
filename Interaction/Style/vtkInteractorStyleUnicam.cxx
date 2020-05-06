@@ -117,7 +117,7 @@ void vtkInteractorStyleUnicam::SetWorldUpVector(double x, double y, double z)
   WorldUpVector[2] = z;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleUnicam::OnLeftButtonDown()
 {
   this->GrabFocus(this->EventCallbackCommand);
@@ -167,7 +167,7 @@ void vtkInteractorStyleUnicam::OnLeftButtonDown()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkInteractorStyleUnicam::WindowAspect()
 {
   double w = Interactor->GetRenderWindow()->GetSize()[0];
@@ -176,7 +176,7 @@ double vtkInteractorStyleUnicam::WindowAspect()
   return w / h;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleUnicam::NormalizeMouseXY(int X, int Y, double* NX, double* NY)
 {
   double w = Interactor->GetRenderWindow()->GetSize()[0];
@@ -186,7 +186,7 @@ void vtkInteractorStyleUnicam::NormalizeMouseXY(int X, int Y, double* NX, double
   *NY = -1.0 + 2.0 * double(Y) / h;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleUnicam::OnMouseMove()
 {
   int x = this->Interactor->GetEventPosition()[0];
@@ -216,7 +216,7 @@ void vtkInteractorStyleUnicam::OnMouseMove()
   this->Interactor->Render(); // re-draw scene.. it should have changed
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleUnicam::OnLeftButtonUp()
 {
   int x = this->Interactor->GetEventPosition()[0];
@@ -279,7 +279,7 @@ void vtkInteractorStyleUnicam::OnLeftButtonUp()
   this->ReleaseFocus();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleUnicam::OnLeftButtonMove()
 {
   int x = this->Interactor->GetEventPosition()[0];
@@ -302,7 +302,7 @@ void vtkInteractorStyleUnicam::OnLeftButtonMove()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleUnicam::ChooseXY(int X, int Y)
 {
   int te[2]; // pixel location
@@ -367,7 +367,7 @@ inline int Sign(double a)
   return a > 0 ? 1 : a < 0 ? -1 : 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleUnicam::RotateXY(int X, int Y)
 {
   double cpt[3];
@@ -473,7 +473,7 @@ void vtkInteractorStyleUnicam::RotateXY(int X, int Y)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleUnicam::DollyXY(int X, int Y)
 {
   int i;
@@ -522,7 +522,7 @@ void vtkInteractorStyleUnicam::DollyXY(int X, int Y)
   this->MyTranslateCamera(offset2);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 // Transform mouse horizontal & vertical movements to a world
 // space offset for the camera that maintains pick correlation.

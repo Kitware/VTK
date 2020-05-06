@@ -24,7 +24,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int CheckArrayPointData(vtkDataArray* firstArray, vtkDataArray* secondArray, int idx)
 {
   // Check that each component at a given index are the same in each array
@@ -41,7 +41,7 @@ int CheckArrayPointData(vtkDataArray* firstArray, vtkDataArray* secondArray, int
   return 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestOBJReaderRelative(int argc, char* argv[])
 {
   int retVal = 0;

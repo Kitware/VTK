@@ -55,7 +55,7 @@ void setupTextMapper(vtkTextMapper* mapper, vtkActor2D* actor, vtkPolyData* anch
 }
 } // end namespace vtkTestGL2PSTextMapper
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestGL2PSTextMapper(int, char*[])
 {
   using namespace vtkTestGL2PSTextMapper;

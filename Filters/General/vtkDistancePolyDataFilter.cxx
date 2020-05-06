@@ -30,7 +30,7 @@
 
 vtkStandardNewMacro(vtkDistancePolyDataFilter);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDistancePolyDataFilter::vtkDistancePolyDataFilter()
   : vtkPolyDataAlgorithm()
 {
@@ -43,10 +43,10 @@ vtkDistancePolyDataFilter::vtkDistancePolyDataFilter()
   this->SetNumberOfOutputPorts(2);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDistancePolyDataFilter::~vtkDistancePolyDataFilter() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDistancePolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -72,7 +72,7 @@ int vtkDistancePolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistancePolyDataFilter::GetPolyDataDistance(vtkPolyData* mesh, vtkPolyData* src)
 {
   vtkDebugMacro(<< "Start vtkDistancePolyDataFilter::GetPolyDataDistance");
@@ -147,7 +147,7 @@ void vtkDistancePolyDataFilter::GetPolyDataDistance(vtkPolyData* mesh, vtkPolyDa
   vtkDebugMacro(<< "End vtkDistancePolyDataFilter::GetPolyDataDistance");
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyData* vtkDistancePolyDataFilter::GetSecondDistanceOutput()
 {
   if (!this->ComputeSecondDistance)
@@ -157,7 +157,7 @@ vtkPolyData* vtkDistancePolyDataFilter::GetSecondDistanceOutput()
   return vtkPolyData::SafeDownCast(this->GetOutputDataObject(1));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistancePolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

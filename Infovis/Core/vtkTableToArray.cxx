@@ -44,11 +44,11 @@ public:
   std::vector<vtkVariant> Columns;
 };
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkStandardNewMacro(vtkTableToArray);
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkTableToArray::vtkTableToArray()
   : Implementation(new implementation())
@@ -57,14 +57,14 @@ vtkTableToArray::vtkTableToArray()
   this->SetNumberOfOutputPorts(1);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkTableToArray::~vtkTableToArray()
 {
   delete this->Implementation;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkTableToArray::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -115,7 +115,7 @@ int vtkTableToArray::FillInputPortInformation(int port, vtkInformation* info)
   return 0;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkTableToArray::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)

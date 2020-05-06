@@ -25,14 +25,14 @@
 
 vtkStandardNewMacro(vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D::
   vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D()
 {
   this->NumberOfColorComponents = 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D::InternalUpdate(vtkObject* func,
   int vtkNotUsed(blendMode), double vtkNotUsed(sampleDistance), double vtkNotUsed(unitDistance),
   int filterValue)
@@ -73,7 +73,7 @@ void vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D::InternalUpdate(vtkObj
     this->TextureWidth, this->TextureHeight, this->NumberOfColorComponents, VTK_FLOAT, this->Table);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D::ComputeIdealTextureSize(
   vtkObject* func, int& width, int& height, vtkOpenGLRenderWindow* vtkNotUsed(renWin))
 {
@@ -90,7 +90,7 @@ void vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D::ComputeIdealTextureSi
   height = labels.empty() ? 1 : *(labels.crbegin()) + 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

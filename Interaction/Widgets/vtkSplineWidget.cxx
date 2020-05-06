@@ -357,7 +357,7 @@ void vtkSplineWidget::SetEnabled(int enabling)
   this->Interactor->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSplineWidget::RegisterPickers()
 {
   vtkPickingManager* pm = this->GetPickingManager();
@@ -369,7 +369,7 @@ void vtkSplineWidget::RegisterPickers()
   pm->AddPicker(this->LinePicker, this);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSplineWidget::ProcessEventsHandler(
   vtkObject* vtkNotUsed(object), unsigned long event, void* clientdata, void* vtkNotUsed(calldata))
 {

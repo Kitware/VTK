@@ -87,20 +87,20 @@ protected:
 
 vtkStandardNewMacro(MyProcess);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 MyProcess::MyProcess()
 {
   this->ImageReductionFactor = 1;
   this->Controller = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 MyProcess::~MyProcess()
 {
   this->SetController(nullptr);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void MyProcess::CreatePipeline(vtkRenderer* renderer)
 {
   double bounds[] = { -0.5, .5, -0.5, .5, -0.5, 0.5 };
@@ -130,7 +130,7 @@ void MyProcess::CreatePipeline(vtkRenderer* renderer)
   sphere->Delete();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void MyProcess::SetupRenderPasses(vtkRenderer* renderer)
 {
   // the rendering passes
@@ -181,7 +181,7 @@ void MyProcess::SetupRenderPasses(vtkRenderer* renderer)
   csPass->Delete();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool MyProcess::Execute(int argc, char** argv)
 {
   vtkRenderWindow* renWin = vtkRenderWindow::New();
@@ -249,7 +249,7 @@ bool MyProcess::Execute(int argc, char** argv)
 
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int main(int argc, char* argv[])
 {
   int image_reduction_factor = 1;

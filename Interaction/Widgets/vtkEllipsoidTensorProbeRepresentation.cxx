@@ -35,7 +35,7 @@
 
 vtkStandardNewMacro(vtkEllipsoidTensorProbeRepresentation);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkEllipsoidTensorProbeRepresentation ::vtkEllipsoidTensorProbeRepresentation()
 {
   vtkSphereSource* sphere = vtkSphereSource::New();
@@ -89,7 +89,7 @@ vtkEllipsoidTensorProbeRepresentation ::vtkEllipsoidTensorProbeRepresentation()
   this->CellPicker->SetTolerance(0.01); // need some fluff
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkEllipsoidTensorProbeRepresentation ::~vtkEllipsoidTensorProbeRepresentation()
 {
   this->TensorSource->Delete();
@@ -100,7 +100,7 @@ vtkEllipsoidTensorProbeRepresentation ::~vtkEllipsoidTensorProbeRepresentation()
   this->PolyDataNormals->Delete();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkEllipsoidTensorProbeRepresentation ::EvaluateTensor(double t[9])
 {
   double p1[3], p2[3];
@@ -147,7 +147,7 @@ void vtkEllipsoidTensorProbeRepresentation ::EvaluateTensor(double t[9])
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkEllipsoidTensorProbeRepresentation::RegisterPickers()
 {
   vtkPickingManager* pm = this->GetPickingManager();
@@ -158,7 +158,7 @@ void vtkEllipsoidTensorProbeRepresentation::RegisterPickers()
   pm->AddPicker(this->CellPicker, this);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEllipsoidTensorProbeRepresentation ::RenderOpaqueGeometry(vtkViewport* viewport)
 {
   int count = this->Superclass::RenderOpaqueGeometry(viewport);
@@ -166,7 +166,7 @@ int vtkEllipsoidTensorProbeRepresentation ::RenderOpaqueGeometry(vtkViewport* vi
   return count;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEllipsoidTensorProbeRepresentation::SelectProbe(int pos[2])
 {
   this->VisibilityOn(); // actor must be on to be picked
@@ -176,7 +176,7 @@ int vtkEllipsoidTensorProbeRepresentation::SelectProbe(int pos[2])
   return path ? 1 : 0;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkEllipsoidTensorProbeRepresentation::BuildRepresentation()
 {
   this->Superclass::BuildRepresentation();
@@ -190,20 +190,20 @@ void vtkEllipsoidTensorProbeRepresentation::BuildRepresentation()
   this->TensorSource->Modified();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkEllipsoidTensorProbeRepresentation::GetActors(vtkPropCollection* pc)
 {
   this->EllipsoidActor->GetActors(pc);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkEllipsoidTensorProbeRepresentation::ReleaseGraphicsResources(vtkWindow* win)
 {
   this->EllipsoidActor->ReleaseGraphicsResources(win);
   this->Superclass::ReleaseGraphicsResources(win);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkEllipsoidTensorProbeRepresentation ::PrintSelf(ostream& os, vtkIndent indent)
 {
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h

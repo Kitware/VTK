@@ -29,19 +29,19 @@
 //============================================================================
 vtkStandardNewMacro(vtkOSPRayCompositePolyDataMapper2Node);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOSPRayCompositePolyDataMapper2Node::vtkOSPRayCompositePolyDataMapper2Node() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOSPRayCompositePolyDataMapper2Node::~vtkOSPRayCompositePolyDataMapper2Node() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayCompositePolyDataMapper2Node::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayCompositePolyDataMapper2Node::Invalidate(bool prepass)
 {
   if (prepass)
@@ -50,7 +50,7 @@ void vtkOSPRayCompositePolyDataMapper2Node::Invalidate(bool prepass)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayCompositePolyDataMapper2Node::Render(bool prepass)
 {
   if (prepass)
@@ -126,7 +126,7 @@ void vtkOSPRayCompositePolyDataMapper2Node::Render(bool prepass)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayCompositePolyDataMapper2Node::RenderBlock(vtkOSPRayRendererNode* orn,
   vtkCompositePolyDataMapper2* cpdm, vtkActor* actor, vtkDataObject* dobj, unsigned int& flat_index)
 {

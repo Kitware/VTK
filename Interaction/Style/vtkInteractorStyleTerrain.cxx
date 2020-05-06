@@ -29,7 +29,7 @@
 
 vtkStandardNewMacro(vtkInteractorStyleTerrain);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInteractorStyleTerrain::vtkInteractorStyleTerrain()
 {
   this->LatLongLines = 0;
@@ -42,7 +42,7 @@ vtkInteractorStyleTerrain::vtkInteractorStyleTerrain()
   this->MotionFactor = 10.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInteractorStyleTerrain::~vtkInteractorStyleTerrain()
 {
   if (this->LatLongSphere != nullptr)
@@ -66,7 +66,7 @@ vtkInteractorStyleTerrain::~vtkInteractorStyleTerrain()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleTerrain::OnMouseMove()
 {
   int x = this->Interactor->GetEventPosition()[0];
@@ -94,7 +94,7 @@ void vtkInteractorStyleTerrain::OnMouseMove()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleTerrain::OnLeftButtonDown()
 {
   this->FindPokedRenderer(
@@ -108,7 +108,7 @@ void vtkInteractorStyleTerrain::OnLeftButtonDown()
   this->StartRotate();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleTerrain::OnLeftButtonUp()
 {
   switch (this->State)
@@ -123,7 +123,7 @@ void vtkInteractorStyleTerrain::OnLeftButtonUp()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleTerrain::OnMiddleButtonDown()
 {
   this->FindPokedRenderer(
@@ -137,7 +137,7 @@ void vtkInteractorStyleTerrain::OnMiddleButtonDown()
   this->StartPan();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleTerrain::OnMiddleButtonUp()
 {
   switch (this->State)
@@ -152,7 +152,7 @@ void vtkInteractorStyleTerrain::OnMiddleButtonUp()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleTerrain::OnRightButtonDown()
 {
   this->FindPokedRenderer(
@@ -166,7 +166,7 @@ void vtkInteractorStyleTerrain::OnRightButtonDown()
   this->StartDolly();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleTerrain::OnRightButtonUp()
 {
   switch (this->State)
@@ -181,7 +181,7 @@ void vtkInteractorStyleTerrain::OnRightButtonUp()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleTerrain::Rotate()
 {
   if (this->CurrentRenderer == nullptr)
@@ -240,7 +240,7 @@ void vtkInteractorStyleTerrain::Rotate()
   rwi->Render();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleTerrain::Pan()
 {
   if (this->CurrentRenderer == nullptr)
@@ -284,7 +284,7 @@ void vtkInteractorStyleTerrain::Pan()
   rwi->Render();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleTerrain::Dolly()
 {
   if (this->CurrentRenderer == nullptr)
@@ -321,7 +321,7 @@ void vtkInteractorStyleTerrain::Dolly()
   rwi->Render();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleTerrain::OnChar()
 {
   vtkRenderWindowInteractor* rwi = this->Interactor;
@@ -358,7 +358,7 @@ void vtkInteractorStyleTerrain::OnChar()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleTerrain::CreateLatLong()
 {
   if (this->LatLongSphere == nullptr)
@@ -389,7 +389,7 @@ void vtkInteractorStyleTerrain::CreateLatLong()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleTerrain::SelectRepresentation()
 {
   if (this->CurrentRenderer == nullptr)
@@ -410,7 +410,7 @@ void vtkInteractorStyleTerrain::SelectRepresentation()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleTerrain::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

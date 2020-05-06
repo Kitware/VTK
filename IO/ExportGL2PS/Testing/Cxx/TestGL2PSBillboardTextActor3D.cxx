@@ -101,7 +101,7 @@ void setupGrid(vtkPolyData* grid)
 }
 } // end namespace vtkTestGL2PSBillboardTextActor3D
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestGL2PSBillboardTextActor3D(int, char*[])
 {
   using namespace vtkTestGL2PSBillboardTextActor3D;

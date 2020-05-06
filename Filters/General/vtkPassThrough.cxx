@@ -23,17 +23,17 @@
 
 vtkStandardNewMacro(vtkPassThrough);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPassThrough::vtkPassThrough()
   : DeepCopyInput(0)
   , AllowNullInput(false)
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPassThrough::~vtkPassThrough() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPassThrough::RequestDataObject(
   vtkInformation* request, vtkInformationVector** inVec, vtkInformationVector* outVec)
 {
@@ -54,7 +54,7 @@ int vtkPassThrough::RequestDataObject(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPassThrough::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -62,7 +62,7 @@ void vtkPassThrough::PrintSelf(ostream& os, vtkIndent indent)
      << indent << "AllowNullInput: " << (this->AllowNullInput ? "on" : "off") << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPassThrough::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -88,7 +88,7 @@ int vtkPassThrough::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPassThrough::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)

@@ -25,7 +25,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 vtkStandardNewMacro(vtkXYPlotRepresentation);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXYPlotRepresentation::vtkXYPlotRepresentation()
 {
   //    this->PositionCoordinate->SetValue( 0.0, 0.0 );
@@ -40,13 +40,13 @@ vtkXYPlotRepresentation::vtkXYPlotRepresentation()
   this->BWActor->VisibilityOff();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXYPlotRepresentation::~vtkXYPlotRepresentation()
 {
   this->SetXYPlotActor(nullptr);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetXYPlotActor(vtkXYPlotActor* actor)
 {
   if (this->XYPlotActor != actor)
@@ -56,7 +56,7 @@ void vtkXYPlotRepresentation::SetXYPlotActor(vtkXYPlotActor* actor)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -64,7 +64,7 @@ void vtkXYPlotRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "XYPlotActor: " << this->XYPlotActor << endl;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::BuildRepresentation()
 {
   if (this->XYPlotActor)
@@ -76,26 +76,26 @@ void vtkXYPlotRepresentation::BuildRepresentation()
   this->Superclass::BuildRepresentation();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::WidgetInteraction(double eventPos[2])
 {
   // Let superclass move things around.
   this->Superclass::WidgetInteraction(eventPos);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXYPlotRepresentation::GetVisibility()
 {
   return this->XYPlotActor->GetVisibility();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetVisibility(int vis)
 {
   this->XYPlotActor->SetVisibility(vis);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::GetActors2D(vtkPropCollection* collection)
 {
   if (this->XYPlotActor)
@@ -105,7 +105,7 @@ void vtkXYPlotRepresentation::GetActors2D(vtkPropCollection* collection)
   this->Superclass::GetActors2D(collection);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::ReleaseGraphicsResources(vtkWindow* w)
 {
   if (this->XYPlotActor)
@@ -115,7 +115,7 @@ void vtkXYPlotRepresentation::ReleaseGraphicsResources(vtkWindow* w)
   this->Superclass::ReleaseGraphicsResources(w);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXYPlotRepresentation::RenderOverlay(vtkViewport* w)
 {
   int count = this->Superclass::RenderOverlay(w);
@@ -126,7 +126,7 @@ int vtkXYPlotRepresentation::RenderOverlay(vtkViewport* w)
   return count;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXYPlotRepresentation::RenderOpaqueGeometry(vtkViewport* w)
 {
   int count = this->Superclass::RenderOpaqueGeometry(w);
@@ -137,7 +137,7 @@ int vtkXYPlotRepresentation::RenderOpaqueGeometry(vtkViewport* w)
   return count;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXYPlotRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport* w)
 {
   int count = this->Superclass::RenderTranslucentPolygonalGeometry(w);
@@ -148,7 +148,7 @@ int vtkXYPlotRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport* w)
   return count;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkXYPlotRepresentation::HasTranslucentPolygonalGeometry()
 {
   int result = this->Superclass::HasTranslucentPolygonalGeometry();
@@ -159,7 +159,7 @@ vtkTypeBool vtkXYPlotRepresentation::HasTranslucentPolygonalGeometry()
   return result;
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetBorder(int x)
 {
   if (this->XYPlotActor)
@@ -168,7 +168,7 @@ void vtkXYPlotRepresentation::SetBorder(int x)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetTitle(const char* title)
 {
   if (this->XYPlotActor)
@@ -177,7 +177,7 @@ void vtkXYPlotRepresentation::SetTitle(const char* title)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetXTitle(const char* title)
 {
   if (this->XYPlotActor)
@@ -186,7 +186,7 @@ void vtkXYPlotRepresentation::SetXTitle(const char* title)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 char* vtkXYPlotRepresentation::GetXTitle()
 {
   if (this->XYPlotActor)
@@ -196,7 +196,7 @@ char* vtkXYPlotRepresentation::GetXTitle()
   return 0;
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetXRange(double xmin, double xmax)
 {
   if (this->XYPlotActor)
@@ -205,7 +205,7 @@ void vtkXYPlotRepresentation::SetXRange(double xmin, double xmax)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetYTitle(const char* title)
 {
   if (this->XYPlotActor)
@@ -214,7 +214,7 @@ void vtkXYPlotRepresentation::SetYTitle(const char* title)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 char* vtkXYPlotRepresentation::GetYTitle()
 {
   if (this->XYPlotActor)
@@ -224,7 +224,7 @@ char* vtkXYPlotRepresentation::GetYTitle()
   return 0;
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetYRange(double ymin, double ymax)
 {
   if (this->XYPlotActor)
@@ -233,7 +233,7 @@ void vtkXYPlotRepresentation::SetYRange(double ymin, double ymax)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetYTitlePosition(int pos)
 {
   if (this->XYPlotActor)
@@ -253,7 +253,7 @@ void vtkXYPlotRepresentation::SetYTitlePosition(int pos)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXYPlotRepresentation::GetYTitlePosition() const
 {
   if (this->XYPlotActor)
@@ -263,7 +263,7 @@ int vtkXYPlotRepresentation::GetYTitlePosition() const
   return 0;
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetXAxisColor(double r, double g, double b)
 {
   if (this->XYPlotActor)
@@ -272,7 +272,7 @@ void vtkXYPlotRepresentation::SetXAxisColor(double r, double g, double b)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetYAxisColor(double r, double g, double b)
 {
   if (this->XYPlotActor)
@@ -281,7 +281,7 @@ void vtkXYPlotRepresentation::SetYAxisColor(double r, double g, double b)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetXValues(int x)
 {
   if (this->XYPlotActor)
@@ -290,7 +290,7 @@ void vtkXYPlotRepresentation::SetXValues(int x)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetLegend(int x)
 {
   if (this->XYPlotActor)
@@ -299,7 +299,7 @@ void vtkXYPlotRepresentation::SetLegend(int x)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetLegendBorder(int b)
 {
   if (this->XYPlotActor)
@@ -308,7 +308,7 @@ void vtkXYPlotRepresentation::SetLegendBorder(int b)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetLegendBox(int b)
 {
   if (this->XYPlotActor)
@@ -317,7 +317,7 @@ void vtkXYPlotRepresentation::SetLegendBox(int b)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetLegendBoxColor(double r, double g, double b)
 {
   if (this->XYPlotActor)
@@ -326,7 +326,7 @@ void vtkXYPlotRepresentation::SetLegendBoxColor(double r, double g, double b)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetLegendPosition(double x, double y)
 {
   if (this->XYPlotActor)
@@ -335,7 +335,7 @@ void vtkXYPlotRepresentation::SetLegendPosition(double x, double y)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetLegendPosition2(double x, double y)
 {
   if (this->XYPlotActor)
@@ -344,7 +344,7 @@ void vtkXYPlotRepresentation::SetLegendPosition2(double x, double y)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetLineWidth(double w)
 {
   if (this->XYPlotActor)
@@ -353,7 +353,7 @@ void vtkXYPlotRepresentation::SetLineWidth(double w)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetPlotColor(int i, int r, int g, int b)
 {
   if (this->XYPlotActor)
@@ -362,7 +362,7 @@ void vtkXYPlotRepresentation::SetPlotColor(int i, int r, int g, int b)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetPlotLines(int i)
 {
   if (this->XYPlotActor)
@@ -371,7 +371,7 @@ void vtkXYPlotRepresentation::SetPlotLines(int i)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetPlotPoints(int i)
 {
   if (this->XYPlotActor)
@@ -380,7 +380,7 @@ void vtkXYPlotRepresentation::SetPlotPoints(int i)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetPlotLabel(int i, const char* label)
 {
   if (this->XYPlotActor)
@@ -389,7 +389,7 @@ void vtkXYPlotRepresentation::SetPlotLabel(int i, const char* label)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetPlotGlyphType(int curve, int glyph)
 {
   if (this->XYPlotActor)
@@ -398,7 +398,7 @@ void vtkXYPlotRepresentation::SetPlotGlyphType(int curve, int glyph)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetGlyphSize(double x)
 {
   if (this->XYPlotActor)
@@ -407,7 +407,7 @@ void vtkXYPlotRepresentation::SetGlyphSize(double x)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::AddUserCurvesPoint(double c, double x, double y)
 {
   if (this->XYPlotActor)
@@ -416,7 +416,7 @@ void vtkXYPlotRepresentation::AddUserCurvesPoint(double c, double x, double y)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::RemoveAllActiveCurves()
 {
   if (this->XYPlotActor)
@@ -425,7 +425,7 @@ void vtkXYPlotRepresentation::RemoveAllActiveCurves()
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetTitleColor(double r, double g, double b)
 {
   if (this->XYPlotActor)
@@ -434,7 +434,7 @@ void vtkXYPlotRepresentation::SetTitleColor(double r, double g, double b)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetTitleFontFamily(int x)
 {
   if (this->XYPlotActor)
@@ -443,7 +443,7 @@ void vtkXYPlotRepresentation::SetTitleFontFamily(int x)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetTitleBold(int x)
 {
   if (this->XYPlotActor)
@@ -452,7 +452,7 @@ void vtkXYPlotRepresentation::SetTitleBold(int x)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetTitleItalic(int x)
 {
   if (this->XYPlotActor)
@@ -461,7 +461,7 @@ void vtkXYPlotRepresentation::SetTitleItalic(int x)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetTitleShadow(int x)
 {
   if (this->XYPlotActor)
@@ -470,7 +470,7 @@ void vtkXYPlotRepresentation::SetTitleShadow(int x)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetTitleFontSize(int x)
 {
   if (this->XYPlotActor)
@@ -479,7 +479,7 @@ void vtkXYPlotRepresentation::SetTitleFontSize(int x)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetTitleJustification(int x)
 {
   if (this->XYPlotActor)
@@ -488,7 +488,7 @@ void vtkXYPlotRepresentation::SetTitleJustification(int x)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetTitleVerticalJustification(int x)
 {
   if (this->XYPlotActor)
@@ -497,7 +497,7 @@ void vtkXYPlotRepresentation::SetTitleVerticalJustification(int x)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetAdjustTitlePosition(int x)
 {
   if (this->XYPlotActor)
@@ -506,7 +506,7 @@ void vtkXYPlotRepresentation::SetAdjustTitlePosition(int x)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetTitlePosition(double x, double y)
 {
   if (this->XYPlotActor)
@@ -515,7 +515,7 @@ void vtkXYPlotRepresentation::SetTitlePosition(double x, double y)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetAxisTitleColor(double r, double g, double b)
 {
   if (this->XYPlotActor)
@@ -524,7 +524,7 @@ void vtkXYPlotRepresentation::SetAxisTitleColor(double r, double g, double b)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetAxisTitleFontFamily(int x)
 {
   if (this->XYPlotActor)
@@ -533,7 +533,7 @@ void vtkXYPlotRepresentation::SetAxisTitleFontFamily(int x)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetAxisTitleBold(int x)
 {
   if (this->XYPlotActor)
@@ -542,7 +542,7 @@ void vtkXYPlotRepresentation::SetAxisTitleBold(int x)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetAxisTitleItalic(int x)
 {
   if (this->XYPlotActor)
@@ -551,7 +551,7 @@ void vtkXYPlotRepresentation::SetAxisTitleItalic(int x)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetAxisTitleShadow(int x)
 {
   if (this->XYPlotActor)
@@ -560,7 +560,7 @@ void vtkXYPlotRepresentation::SetAxisTitleShadow(int x)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetAxisTitleFontSize(int x)
 {
   if (this->XYPlotActor)
@@ -569,7 +569,7 @@ void vtkXYPlotRepresentation::SetAxisTitleFontSize(int x)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetAxisTitleJustification(int x)
 {
   if (this->XYPlotActor)
@@ -578,7 +578,7 @@ void vtkXYPlotRepresentation::SetAxisTitleJustification(int x)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetAxisTitleVerticalJustification(int x)
 {
   if (this->XYPlotActor)
@@ -587,7 +587,7 @@ void vtkXYPlotRepresentation::SetAxisTitleVerticalJustification(int x)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetAxisLabelColor(double r, double g, double b)
 {
   if (this->XYPlotActor)
@@ -596,7 +596,7 @@ void vtkXYPlotRepresentation::SetAxisLabelColor(double r, double g, double b)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetAxisLabelFontFamily(int x)
 {
   if (this->XYPlotActor)
@@ -605,7 +605,7 @@ void vtkXYPlotRepresentation::SetAxisLabelFontFamily(int x)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetAxisLabelBold(int x)
 {
   if (this->XYPlotActor)
@@ -614,7 +614,7 @@ void vtkXYPlotRepresentation::SetAxisLabelBold(int x)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetAxisLabelItalic(int x)
 {
   if (this->XYPlotActor)
@@ -623,7 +623,7 @@ void vtkXYPlotRepresentation::SetAxisLabelItalic(int x)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetAxisLabelShadow(int x)
 {
   if (this->XYPlotActor)
@@ -632,7 +632,7 @@ void vtkXYPlotRepresentation::SetAxisLabelShadow(int x)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetAxisLabelFontSize(int x)
 {
   if (this->XYPlotActor)
@@ -641,7 +641,7 @@ void vtkXYPlotRepresentation::SetAxisLabelFontSize(int x)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetAxisLabelJustification(int x)
 {
   if (this->XYPlotActor)
@@ -650,7 +650,7 @@ void vtkXYPlotRepresentation::SetAxisLabelJustification(int x)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetAxisLabelVerticalJustification(int x)
 {
   if (this->XYPlotActor)
@@ -659,7 +659,7 @@ void vtkXYPlotRepresentation::SetAxisLabelVerticalJustification(int x)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetXLabelFormat(const char* arg)
 {
   if (this->XYPlotActor)
@@ -668,7 +668,7 @@ void vtkXYPlotRepresentation::SetXLabelFormat(const char* arg)
   }
 }
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::SetYLabelFormat(const char* arg)
 {
   if (this->XYPlotActor)

@@ -18,7 +18,7 @@
 
 vtkStandardNewMacro(vtkGeneralTransform);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGeneralTransform::vtkGeneralTransform()
 {
   this->Input = nullptr;
@@ -30,7 +30,7 @@ vtkGeneralTransform::vtkGeneralTransform()
   this->Stack = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGeneralTransform::~vtkGeneralTransform()
 {
   this->SetInput(nullptr);
@@ -45,7 +45,7 @@ vtkGeneralTransform::~vtkGeneralTransform()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGeneralTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -64,7 +64,7 @@ void vtkGeneralTransform::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Pass the point through each transform in turn
 template <class T2, class T3>
 void vtkConcatenationTransformPoint(
@@ -101,7 +101,7 @@ void vtkConcatenationTransformPoint(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Pass the point through each transform in turn,
 // concatenate the derivatives.
 template <class T2, class T3, class T4>
@@ -146,33 +146,33 @@ void vtkConcatenationTransformDerivative(vtkAbstractTransform* input,
   }
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGeneralTransform::InternalTransformPoint(const float input[3], float output[3])
 {
   vtkConcatenationTransformPoint(this->Input, this->Concatenation, input, output);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGeneralTransform::InternalTransformPoint(const double input[3], double output[3])
 {
   vtkConcatenationTransformPoint(this->Input, this->Concatenation, input, output);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGeneralTransform::InternalTransformDerivative(
   const float input[3], float output[3], float derivative[3][3])
 {
   vtkConcatenationTransformDerivative(this->Input, this->Concatenation, input, output, derivative);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGeneralTransform::InternalTransformDerivative(
   const double input[3], double output[3], double derivative[3][3])
 {
   vtkConcatenationTransformDerivative(this->Input, this->Concatenation, input, output, derivative);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGeneralTransform::InternalDeepCopy(vtkAbstractTransform* gtrans)
 {
   vtkGeneralTransform* transform = static_cast<vtkGeneralTransform*>(gtrans);
@@ -202,7 +202,7 @@ void vtkGeneralTransform::InternalDeepCopy(vtkAbstractTransform* gtrans)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGeneralTransform::InternalUpdate()
 {
   // update the input
@@ -226,7 +226,7 @@ void vtkGeneralTransform::InternalUpdate()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGeneralTransform::Concatenate(vtkAbstractTransform* transform)
 {
   if (transform->CircuitCheck(this))
@@ -238,7 +238,7 @@ void vtkGeneralTransform::Concatenate(vtkAbstractTransform* transform)
   this->Modified();
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGeneralTransform::SetInput(vtkAbstractTransform* input)
 {
   if (this->Input == input)
@@ -262,7 +262,7 @@ void vtkGeneralTransform::SetInput(vtkAbstractTransform* input)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGeneralTransform::CircuitCheck(vtkAbstractTransform* transform)
 {
   if (this->vtkAbstractTransform::CircuitCheck(transform) ||
@@ -283,13 +283,13 @@ int vtkGeneralTransform::CircuitCheck(vtkAbstractTransform* transform)
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAbstractTransform* vtkGeneralTransform::MakeTransform()
 {
   return vtkGeneralTransform::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkGeneralTransform::GetMTime()
 {
   vtkMTimeType mtime = this->vtkAbstractTransform::GetMTime();

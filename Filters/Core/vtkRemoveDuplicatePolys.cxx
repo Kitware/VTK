@@ -32,19 +32,19 @@
 
 vtkStandardNewMacro(vtkRemoveDuplicatePolys);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRemoveDuplicatePolys::vtkRemoveDuplicatePolys() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRemoveDuplicatePolys::~vtkRemoveDuplicatePolys() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRemoveDuplicatePolys::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkRemoveDuplicatePolys::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

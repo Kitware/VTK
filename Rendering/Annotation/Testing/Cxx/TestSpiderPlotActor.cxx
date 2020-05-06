@@ -30,7 +30,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkTextProperty.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestSpiderPlotActor(int argc, char* argv[])
 {
   int numTuples = 12;

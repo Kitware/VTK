@@ -34,7 +34,7 @@
 
 vtkStandardNewMacro(vtkSphereWidget);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSphereWidget::vtkSphereWidget()
 {
   this->State = vtkSphereWidget::Start;
@@ -97,7 +97,7 @@ vtkSphereWidget::vtkSphereWidget()
   this->CreateDefaultProperties();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSphereWidget::~vtkSphereWidget()
 {
   this->SphereActor->Delete();
@@ -128,7 +128,7 @@ vtkSphereWidget::~vtkSphereWidget()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereWidget::SetEnabled(int enabling)
 {
   if (!this->Interactor)
@@ -205,7 +205,7 @@ void vtkSphereWidget::SetEnabled(int enabling)
   this->Interactor->Render();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereWidget::ProcessEvents(
   vtkObject* vtkNotUsed(object), unsigned long event, void* clientdata, void* vtkNotUsed(calldata))
 {
@@ -232,7 +232,7 @@ void vtkSphereWidget::ProcessEvents(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -305,7 +305,7 @@ void vtkSphereWidget::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Radius: " << r << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereWidget::SelectRepresentation()
 {
   if (!this->HandleVisibility)
@@ -333,14 +333,14 @@ void vtkSphereWidget::SelectRepresentation()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereWidget::GetSphere(vtkSphere* sphere)
 {
   sphere->SetRadius(this->SphereSource->GetRadius());
   sphere->SetCenter(this->SphereSource->GetCenter());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereWidget::HighlightSphere(int highlight)
 {
   if (highlight)
@@ -355,7 +355,7 @@ void vtkSphereWidget::HighlightSphere(int highlight)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereWidget::HighlightHandle(int highlight)
 {
   if (highlight)
@@ -370,7 +370,7 @@ void vtkSphereWidget::HighlightHandle(int highlight)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereWidget::OnLeftButtonDown()
 {
   if (!this->Interactor)
@@ -414,7 +414,7 @@ void vtkSphereWidget::OnLeftButtonDown()
   this->Interactor->Render();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereWidget::OnMouseMove()
 {
   // See whether we're active
@@ -470,7 +470,7 @@ void vtkSphereWidget::OnMouseMove()
   this->Interactor->Render();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereWidget::OnLeftButtonUp()
 {
   if (this->State == vtkSphereWidget::Outside)
@@ -492,7 +492,7 @@ void vtkSphereWidget::OnLeftButtonUp()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereWidget::OnRightButtonDown()
 {
   if (!this->Interactor)
@@ -533,7 +533,7 @@ void vtkSphereWidget::OnRightButtonDown()
   this->Interactor->Render();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereWidget::OnRightButtonUp()
 {
   if (this->State == vtkSphereWidget::Outside)
@@ -555,7 +555,7 @@ void vtkSphereWidget::OnRightButtonUp()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Loop through all points and translate them
 void vtkSphereWidget::Translate(double* p1, double* p2)
 {
@@ -586,7 +586,7 @@ void vtkSphereWidget::Translate(double* p1, double* p2)
   this->SelectRepresentation();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereWidget::ScaleSphere(double* p1, double* p2, int vtkNotUsed(X), int Y)
 {
   if (!this->Scale)
@@ -632,7 +632,7 @@ void vtkSphereWidget::ScaleSphere(double* p1, double* p2, int vtkNotUsed(X), int
   this->SelectRepresentation();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereWidget::MoveHandle(double* p1, double* p2, int vtkNotUsed(X), int vtkNotUsed(Y))
 {
   // Get the motion vector
@@ -658,7 +658,7 @@ void vtkSphereWidget::MoveHandle(double* p1, double* p2, int vtkNotUsed(X), int 
   this->SelectRepresentation();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereWidget::CreateDefaultProperties()
 {
   if (!this->SphereProperty)
@@ -682,7 +682,7 @@ void vtkSphereWidget::CreateDefaultProperties()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereWidget::PlaceWidget(double bds[6])
 {
   double bounds[6], center[3], radius;
@@ -718,7 +718,7 @@ void vtkSphereWidget::PlaceWidget(double bds[6])
   this->SizeHandles();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereWidget::PlaceHandle(double* center, double radius)
 {
   double sf = radius / vtkMath::Norm(this->HandleDirection);
@@ -729,7 +729,7 @@ void vtkSphereWidget::PlaceHandle(double* center, double radius)
   this->HandleSource->SetCenter(this->HandlePosition);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereWidget::SizeHandles()
 {
   double radius = this->vtk3DWidget::SizeHandles(1.25);
@@ -747,7 +747,7 @@ void vtkSphereWidget::RegisterPickers()
   pm->AddPicker(this->Picker, this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereWidget::GetPolyData(vtkPolyData* pd)
 {
   pd->ShallowCopy(this->SphereSource->GetOutput());

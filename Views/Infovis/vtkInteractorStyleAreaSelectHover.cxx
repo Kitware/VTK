@@ -50,7 +50,7 @@ vtkStandardNewMacro(vtkInteractorStyleAreaSelectHover);
 
 vtkCxxSetObjectMacro(vtkInteractorStyleAreaSelectHover, Layout, vtkAreaLayout);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInteractorStyleAreaSelectHover::vtkInteractorStyleAreaSelectHover()
 {
   this->Picker = vtkWorldPointPicker::New();
@@ -72,7 +72,7 @@ vtkInteractorStyleAreaSelectHover::vtkInteractorStyleAreaSelectHover()
   highMap->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInteractorStyleAreaSelectHover::~vtkInteractorStyleAreaSelectHover()
 {
   this->HighlightData->Delete();
@@ -87,7 +87,7 @@ vtkInteractorStyleAreaSelectHover::~vtkInteractorStyleAreaSelectHover()
   this->SetLabelField(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleAreaSelectHover::SetInteractor(vtkRenderWindowInteractor* rwi)
 {
   // See if we already had one
@@ -114,7 +114,7 @@ void vtkInteractorStyleAreaSelectHover::SetInteractor(vtkRenderWindowInteractor*
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleAreaSelectHover::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -127,7 +127,7 @@ void vtkInteractorStyleAreaSelectHover::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "UseRectangularCoordinates: " << this->UseRectangularCoordinates << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkInteractorStyleAreaSelectHover::GetIdAtPos(int x, int y)
 {
   vtkIdType id = -1;
@@ -156,7 +156,7 @@ vtkIdType vtkInteractorStyleAreaSelectHover::GetIdAtPos(int x, int y)
   return id;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleAreaSelectHover::GetBoundingAreaForItem(vtkIdType id, float* sinfo)
 {
   if (this->Layout)
@@ -165,7 +165,7 @@ void vtkInteractorStyleAreaSelectHover::GetBoundingAreaForItem(vtkIdType id, flo
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleAreaSelectHover::OnMouseMove()
 {
   if (this->Interaction == vtkInteractorStyleRubberBand2D::SELECTING)
@@ -323,19 +323,19 @@ void vtkInteractorStyleAreaSelectHover::OnMouseMove()
   this->Superclass::OnMouseMove();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleAreaSelectHover::SetHighLightColor(double r, double g, double b)
 {
   this->HighlightActor->GetProperty()->SetColor(r, g, b);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleAreaSelectHover::SetHighLightWidth(double lw)
 {
   this->HighlightActor->GetProperty()->SetLineWidth(lw);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkInteractorStyleAreaSelectHover::GetHighLightWidth()
 {
   return this->HighlightActor->GetProperty()->GetLineWidth();

@@ -23,7 +23,7 @@
 
 vtkStandardNewMacro(vtkExecutionTimer);
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkExecutionTimer::vtkExecutionTimer()
 {
@@ -40,7 +40,7 @@ vtkExecutionTimer::vtkExecutionTimer()
   this->ElapsedWallClockTime = 0;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkExecutionTimer::~vtkExecutionTimer()
 {
@@ -48,7 +48,7 @@ vtkExecutionTimer::~vtkExecutionTimer()
   this->Callback->Delete();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkExecutionTimer::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -72,7 +72,7 @@ void vtkExecutionTimer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Most recent wall clock elapsed time: " << this->WallClockEndTime << "\n";
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkExecutionTimer::SetFilter(vtkAlgorithm* filter)
 {
@@ -93,7 +93,7 @@ void vtkExecutionTimer::SetFilter(vtkAlgorithm* filter)
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkExecutionTimer::EventRelay(vtkObject* vtkNotUsed(caller), unsigned long eventType,
   void* clientData, void* vtkNotUsed(callData))
@@ -115,7 +115,7 @@ void vtkExecutionTimer::EventRelay(vtkObject* vtkNotUsed(caller), unsigned long 
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkExecutionTimer::StartTimer()
 {
@@ -128,7 +128,7 @@ void vtkExecutionTimer::StartTimer()
   this->CPUStartTime = vtkTimerLog::GetCPUTime();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkExecutionTimer::StopTimer()
 {
@@ -141,7 +141,7 @@ void vtkExecutionTimer::StopTimer()
   this->TimerFinished();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkExecutionTimer::TimerFinished()
 {

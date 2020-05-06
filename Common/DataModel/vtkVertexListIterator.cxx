@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkVertexListIterator);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkVertexListIterator::vtkVertexListIterator()
 {
   this->Current = 0;
@@ -35,7 +35,7 @@ vtkVertexListIterator::vtkVertexListIterator()
   this->Graph = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkVertexListIterator::~vtkVertexListIterator()
 {
   if (this->Graph)
@@ -44,7 +44,7 @@ vtkVertexListIterator::~vtkVertexListIterator()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVertexListIterator::SetGraph(vtkGraph* graph)
 {
   vtkSetObjectBodyMacro(Graph, vtkGraph, graph);
@@ -65,7 +65,7 @@ void vtkVertexListIterator::SetGraph(vtkGraph* graph)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVertexListIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

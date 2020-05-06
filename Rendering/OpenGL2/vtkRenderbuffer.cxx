@@ -21,10 +21,10 @@
 
 #include <cassert>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkRenderbuffer);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRenderbuffer::vtkRenderbuffer()
 {
   this->Context = nullptr;
@@ -34,19 +34,19 @@ vtkRenderbuffer::vtkRenderbuffer()
   this->Format = GL_RGBA;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRenderbuffer::~vtkRenderbuffer()
 {
   this->Free();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkRenderbuffer::IsSupported(vtkRenderWindow*)
 {
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkRenderbuffer::LoadRequiredExtensions(vtkRenderWindow*)
 {
   // both texture float and depth float are part of OpenGL 3.0 and later
@@ -54,7 +54,7 @@ bool vtkRenderbuffer::LoadRequiredExtensions(vtkRenderWindow*)
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderbuffer::Alloc()
 {
   glGenRenderbuffers(1, &this->Handle);
@@ -70,19 +70,19 @@ void vtkRenderbuffer::ReleaseGraphicsResources(vtkWindow*)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderbuffer::Free()
 {
   this->ReleaseGraphicsResources(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRenderWindow* vtkRenderbuffer::GetContext()
 {
   return this->Context;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderbuffer::SetContext(vtkRenderWindow* renWin)
 {
   // avoid pointless re-assignment
@@ -110,14 +110,14 @@ void vtkRenderbuffer::SetContext(vtkRenderWindow* renWin)
   this->Context->MakeCurrent();
   this->Alloc();
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkRenderbuffer::CreateColorAttachment(unsigned int width, unsigned int height)
 {
   assert(this->Context);
   return this->Create(GL_RGBA32F, width, height);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkRenderbuffer::CreateDepthAttachment(unsigned int width, unsigned int height)
 {
   assert(this->Context);
@@ -134,7 +134,7 @@ int vtkRenderbuffer::CreateDepthAttachment(unsigned int width, unsigned int heig
   return this->Create(GL_DEPTH_COMPONENT, width, height);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkRenderbuffer::Create(unsigned int format, unsigned int width, unsigned int height)
 {
   return this->Create(format, width, height, 0);
@@ -191,7 +191,7 @@ void vtkRenderbuffer::Resize(unsigned int width, unsigned int height)
   this->Height = height;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderbuffer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

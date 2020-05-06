@@ -28,7 +28,7 @@
 
 vtkStandardNewMacro(vtkPolygonalSurfaceContourLineInterpolator);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolygonalSurfaceContourLineInterpolator ::vtkPolygonalSurfaceContourLineInterpolator()
 {
   this->LastInterpolatedVertexIds[0] = -1;
@@ -37,20 +37,20 @@ vtkPolygonalSurfaceContourLineInterpolator ::vtkPolygonalSurfaceContourLineInter
   this->DijkstraGraphGeodesicPath = vtkDijkstraGraphGeodesicPath::New();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolygonalSurfaceContourLineInterpolator ::~vtkPolygonalSurfaceContourLineInterpolator()
 {
   this->DijkstraGraphGeodesicPath->Delete();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPolygonalSurfaceContourLineInterpolator::UpdateNode(
   vtkRenderer*, vtkContourRepresentation*, double* vtkNotUsed(node), int vtkNotUsed(idx))
 {
   return 0;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPolygonalSurfaceContourLineInterpolator::InterpolateLine(
   vtkRenderer*, vtkContourRepresentation* rep, int idx1, int idx2)
 {
@@ -187,7 +187,7 @@ int vtkPolygonalSurfaceContourLineInterpolator::InterpolateLine(
   return 1;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolygonalSurfaceContourLineInterpolator ::GetContourPointIds(
   vtkContourRepresentation* rep, vtkIdList* ids)
 {
@@ -220,7 +220,7 @@ void vtkPolygonalSurfaceContourLineInterpolator ::GetContourPointIds(
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolygonalSurfaceContourLineInterpolator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

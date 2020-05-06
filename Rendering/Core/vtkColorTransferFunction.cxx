@@ -263,7 +263,7 @@ inline void vtkColorTransferFunctionInterpolateLABCIEDE2000(double s, const doub
   result[2] = rgba[2] / 255.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct a new vtkColorTransferFunction with default values
 vtkColorTransferFunction::vtkColorTransferFunction()
 {
@@ -308,7 +308,7 @@ vtkColorTransferFunction::vtkColorTransferFunction()
   this->Internal = new vtkColorTransferFunctionInternals;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Destruct a vtkColorTransferFunction
 vtkColorTransferFunction::~vtkColorTransferFunction()
 {
@@ -356,14 +356,14 @@ double* vtkColorTransferFunction::GetDataPointer()
   return this->Function;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Add a point defined in RGB
 int vtkColorTransferFunction::AddRGBPoint(double x, double r, double g, double b)
 {
   return this->AddRGBPoint(x, r, g, b, 0.5, 0.0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Add a point defined in RGB
 int vtkColorTransferFunction::AddRGBPoint(
   double x, double r, double g, double b, double midpoint, double sharpness)
@@ -427,7 +427,7 @@ int vtkColorTransferFunction::AddRGBPoint(
   return retVal;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Add a point defined in HSV
 int vtkColorTransferFunction::AddHSVPoint(double x, double h, double s, double v)
 {
@@ -437,7 +437,7 @@ int vtkColorTransferFunction::AddHSVPoint(double x, double h, double s, double v
   return this->AddRGBPoint(x, r, g, b);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Add a point defined in HSV
 int vtkColorTransferFunction::AddHSVPoint(
   double x, double h, double s, double v, double midpoint, double sharpness)
@@ -448,7 +448,7 @@ int vtkColorTransferFunction::AddHSVPoint(
   return this->AddRGBPoint(x, r, g, b, midpoint, sharpness);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Sort the vector in increasing order, then fill in
 // the Range
 void vtkColorTransferFunction::SortAndUpdateRange()
@@ -463,7 +463,7 @@ void vtkColorTransferFunction::SortAndUpdateRange()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkColorTransferFunction::UpdateRange()
 {
   double oldRange[2];
@@ -492,7 +492,7 @@ bool vtkColorTransferFunction::UpdateRange()
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Remove a point
 int vtkColorTransferFunction::RemovePoint(double x)
 {
@@ -552,7 +552,7 @@ int vtkColorTransferFunction::RemovePoint(double x)
   return retVal;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorTransferFunction::MovePoint(double oldX, double newX)
 {
   if (oldX == newX)
@@ -573,7 +573,7 @@ void vtkColorTransferFunction::MovePoint(double oldX, double newX)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Remove all points
 void vtkColorTransferFunction::RemoveAllPoints()
 {
@@ -586,7 +586,7 @@ void vtkColorTransferFunction::RemoveAllPoints()
   this->SortAndUpdateRange();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Add a line defined in RGB
 void vtkColorTransferFunction::AddRGBSegment(
   double x1, double r1, double g1, double b1, double x2, double r2, double g2, double b2)
@@ -619,7 +619,7 @@ void vtkColorTransferFunction::AddRGBSegment(
   this->AddRGBPoint(x2, r2, g2, b2, 0.5, 0.0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Add a line defined in HSV
 void vtkColorTransferFunction::AddHSVSegment(
   double x1, double h1, double s1, double v1, double x2, double h2, double s2, double v2)
@@ -631,7 +631,7 @@ void vtkColorTransferFunction::AddHSVSegment(
   this->AddRGBSegment(x1, r1, g1, b1, x2, r2, g2, b2);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Returns the RGBA color evaluated at the specified location
 const unsigned char* vtkColorTransferFunction::MapValue(double x)
 {
@@ -645,7 +645,7 @@ const unsigned char* vtkColorTransferFunction::MapValue(double x)
   return this->UnsignedCharRGBAValue;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Returns the RGB color evaluated at the specified location
 void vtkColorTransferFunction::GetColor(double x, double rgb[3])
 {
@@ -670,7 +670,7 @@ void vtkColorTransferFunction::GetColor(double x, double rgb[3])
   this->GetTable(x, x, 1, rgb);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Returns the red color evaluated at the specified location
 double vtkColorTransferFunction::GetRedValue(double x)
 {
@@ -680,7 +680,7 @@ double vtkColorTransferFunction::GetRedValue(double x)
   return rgb[0];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Returns the green color evaluated at the specified location
 double vtkColorTransferFunction::GetGreenValue(double x)
 {
@@ -690,7 +690,7 @@ double vtkColorTransferFunction::GetGreenValue(double x)
   return rgb[1];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Returns the blue color evaluated at the specified location
 double vtkColorTransferFunction::GetBlueValue(double x)
 {
@@ -700,7 +700,7 @@ double vtkColorTransferFunction::GetBlueValue(double x)
   return rgb[2];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Returns a table of RGB colors at regular intervals along the function
 void vtkColorTransferFunction::GetTable(double xStart, double xEnd, int size, double* table)
 {
@@ -1168,7 +1168,7 @@ void vtkColorTransferFunction::GetTable(double xStart, double xEnd, int size, do
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorTransferFunction::GetTable(double xStart, double xEnd, int size, float* table)
 {
   double* tmpTable = new double[size * 3];
@@ -1188,7 +1188,7 @@ void vtkColorTransferFunction::GetTable(double xStart, double xEnd, int size, fl
   delete[] tmpTable;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const unsigned char* vtkColorTransferFunction::GetTable(double xStart, double xEnd, int size)
 {
   if (this->GetMTime() <= this->BuildTime && this->TableSize == size)
@@ -1230,7 +1230,7 @@ const unsigned char* vtkColorTransferFunction::GetTable(double xStart, double xE
   return this->Table;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorTransferFunction::BuildFunctionFromTable(
   double xStart, double xEnd, int size, double* table)
 {
@@ -1262,7 +1262,7 @@ void vtkColorTransferFunction::BuildFunctionFromTable(
   this->SortAndUpdateRange();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // For a specified index value, get the node parameters
 int vtkColorTransferFunction::GetNodeValue(int index, double val[6])
 {
@@ -1284,7 +1284,7 @@ int vtkColorTransferFunction::GetNodeValue(int index, double val[6])
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // For a specified index value, get the node parameters
 int vtkColorTransferFunction::SetNodeValue(int index, double val[6])
 {
@@ -1320,7 +1320,7 @@ int vtkColorTransferFunction::SetNodeValue(int index, double val[6])
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorTransferFunction::DeepCopy(vtkScalarsToColors* o)
 {
   vtkColorTransferFunction* f = nullptr;
@@ -1349,7 +1349,7 @@ void vtkColorTransferFunction::DeepCopy(vtkScalarsToColors* o)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorTransferFunction::ShallowCopy(vtkColorTransferFunction* f)
 {
   if (f != nullptr)
@@ -1373,7 +1373,7 @@ void vtkColorTransferFunction::ShallowCopy(vtkColorTransferFunction* f)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Accelerate the mapping by copying the data in 32-bit chunks instead
 // of 8-bit chunks.  The extra "long" argument is to help broken
 // compilers select the non-templates below for unsigned char
@@ -1420,7 +1420,7 @@ void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self, T* input,
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Special implementation for unsigned char input.
 static void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self, unsigned char* input,
   unsigned char* output, int length, int inIncr, int outFormat, int)
@@ -1480,7 +1480,7 @@ static void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self, unsi
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Special implementation for unsigned short input.
 static void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self, unsigned short* input,
   unsigned char* output, int length, int inIncr, int outFormat, int)
@@ -1540,7 +1540,7 @@ static void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self, unsi
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T>
 void vtkColorTransferFunctionIndexedMapData(vtkColorTransferFunction* self, T* input,
   unsigned char* output, int length, int inIncr, int outFormat, long)
@@ -1702,7 +1702,7 @@ void vtkColorTransferFunctionIndexedMapData(vtkColorTransferFunction* self, T* i
   } // alpha blending
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorTransferFunction::MapScalarsThroughTable2(void* input, unsigned char* output,
   int inputDataType, int numberOfValues, int inputIncrement, int outputFormat)
 {
@@ -1737,7 +1737,7 @@ void vtkColorTransferFunction::MapScalarsThroughTable2(void* input, unsigned cha
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkColorTransferFunction::GetNumberOfAvailableColors()
 {
   if (this->IndexedLookup && this->GetSize())
@@ -1754,7 +1754,7 @@ vtkIdType vtkColorTransferFunction::GetNumberOfAvailableColors()
   return 16777216; // 2^24
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorTransferFunction::GetIndexedColor(vtkIdType idx, double rgba[4])
 {
   vtkIdType n = this->GetSize();
@@ -1773,7 +1773,7 @@ void vtkColorTransferFunction::GetIndexedColor(vtkIdType idx, double rgba[4])
   rgba[3] = this->GetNanOpacity();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorTransferFunction::FillFromDataPointer(int nb, double* ptr)
 {
   if (nb <= 0 || !ptr)
@@ -1791,7 +1791,7 @@ void vtkColorTransferFunction::FillFromDataPointer(int nb, double* ptr)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkColorTransferFunction::AdjustRange(double range[2])
 {
   if (!range)
@@ -1854,7 +1854,7 @@ int vtkColorTransferFunction::AdjustRange(double range[2])
   return 1;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkColorTransferFunction::EstimateMinNumberOfSamples(double const& x1, double const& x2)
 {
   double const d = this->FindMinimumXDistance();
@@ -1863,7 +1863,7 @@ int vtkColorTransferFunction::EstimateMinNumberOfSamples(double const& x1, doubl
   return idealWidth;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkColorTransferFunction::FindMinimumXDistance()
 {
   std::vector<vtkCTFNode*> const& nodes = this->Internal->Nodes;
@@ -1884,7 +1884,7 @@ double vtkColorTransferFunction::FindMinimumXDistance()
   return distance;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Print method for vtkColorTransferFunction
 void vtkColorTransferFunction::PrintSelf(ostream& os, vtkIndent indent)
 {

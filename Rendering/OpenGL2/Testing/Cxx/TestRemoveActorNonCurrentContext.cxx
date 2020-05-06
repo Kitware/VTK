@@ -28,7 +28,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class TestRemoveActorNonCurrentContextCallback : public vtkCommand
 {
 public:
@@ -66,7 +66,7 @@ public:
   vtkRenderWindow* renderWindow2;
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestRemoveActorNonCurrentContext(int argc, char* argv[])
 {
   vtkNew<vtkSphereSource> sphere;

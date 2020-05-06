@@ -19,7 +19,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTesting.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestImageStencilDataMethods(int argc, char* argv[])
 {
   vtkSmartPointer<vtkTesting> testing = vtkSmartPointer<vtkTesting>::New();

@@ -23,7 +23,7 @@
 
 vtkStandardNewMacro(vtkMILVideoSource);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMILVideoSource::vtkMILVideoSource()
 {
   this->Initialized = 0;
@@ -75,7 +75,7 @@ vtkMILVideoSource::vtkMILVideoSource()
   this->NextFramePeriod = 0.033;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMILVideoSource::~vtkMILVideoSource()
 {
   this->vtkMILVideoSource::ReleaseSystemResources();
@@ -86,7 +86,7 @@ vtkMILVideoSource::~vtkMILVideoSource()
   this->SetMILSystemType(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMILVideoSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -171,7 +171,7 @@ void vtkMILVideoSource::PrintSelf(ostream& os, vtkIndent indent)
   //  os << indent << "MILDispID: " << this->MILDispID << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // load the DLL for the specified Matrox digitizer, for MIL 5 and MIL 6
 char* vtkMILVideoSource::MILInterpreterForSystem(const char* system)
 {
@@ -244,7 +244,7 @@ char* vtkMILVideoSource::MILInterpreterForSystem(const char* system)
   return (char*)GetProcAddress(mil_lib, func_name);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static void vtkMILVideoSourceSetChannel(long digID, int channel)
 {
   if (digID == 0)
@@ -273,7 +273,7 @@ static void vtkMILVideoSourceSetChannel(long digID, int channel)
   MdigChannel(digID, mil_channel);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static void vtkMILVideoSourceSetLevel(long digID, int ref, float level)
 {
   if (digID == 0)
@@ -296,7 +296,7 @@ static void vtkMILVideoSourceSetLevel(long digID, int ref, float level)
   MdigReference(digID, ref, int_level);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static void vtkMILVideoSourceSetSize(long digID, int size[3], int maxSize[2])
 {
   if (digID == 0)
@@ -332,7 +332,7 @@ static void vtkMILVideoSourceSetSize(long digID, int size[3], int maxSize[2])
   MdigControl(digID, M_GRAB_SCALE_Y, 1.0 / shrink_y);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMILVideoSource::Initialize()
 {
   static char* system_types[] = { VTK_MIL_METEOR, VTK_MIL_METEOR_II, VTK_MIL_METEOR_II_DIG,
@@ -434,7 +434,7 @@ void vtkMILVideoSource::Initialize()
   this->UpdateFrameBuffer();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMILVideoSource::ReleaseSystemResources()
 {
   if (this->MILAppID != 0)
@@ -489,7 +489,7 @@ void vtkMILVideoSource::ReleaseSystemResources()
   this->FatalMILError = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 long MFTYPE vtkMILVideoSourceHook(long HookType, MIL_ID EventID, void* UserPtr)
 {
   vtkMILVideoSource* self = (vtkMILVideoSource*)UserPtr;
@@ -525,7 +525,7 @@ long MFTYPE vtkMILVideoSourceHook(long HookType, MIL_ID EventID, void* UserPtr)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMILVideoSource::InternalGrab()
 {
   this->FrameBufferMutex->Lock();
@@ -579,7 +579,7 @@ void vtkMILVideoSource::InternalGrab()
   this->FrameBufferMutex->Unlock();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // for accurate timing of the transformation: this solves a differential
 // equation that works to smooth out the jitter in the times that
 // are returned by vtkTimerLog::GetUniversalTime() i.e. the system clock.
@@ -620,7 +620,7 @@ double vtkMILVideoSource::CreateTimeStampForFrame(unsigned long framecount)
   return this->LastTimeStamp;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Circulate the buffer and grab a frame.
 // This particular implementation just copies random noise into the frames,
 // you will certainly want to override this method (also note that this
@@ -646,13 +646,13 @@ void vtkMILVideoSource::Grab()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMILVideoSource::Play()
 {
   vtkVideoSource::Play();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMILVideoSource::Record()
 {
   this->Initialize();
@@ -689,7 +689,7 @@ void vtkMILVideoSource::Record()
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMILVideoSource::Stop()
 {
   if (this->Playing)
@@ -713,7 +713,7 @@ void vtkMILVideoSource::Stop()
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMILVideoSource::SetMILErrorMessages(int yesno)
 {
   if (this->MILErrorMessages == yesno)
@@ -730,7 +730,7 @@ void vtkMILVideoSource::SetMILErrorMessages(int yesno)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMILVideoSource::SetFrameSize(int x, int y, int z)
 {
   if (x == this->FrameSize[0] && y == this->FrameSize[1] && z == this->FrameSize[2])
@@ -760,7 +760,7 @@ void vtkMILVideoSource::SetFrameSize(int x, int y, int z)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMILVideoSource::SetOutputFormat(int format)
 {
   if (format == this->OutputFormat)
@@ -838,7 +838,7 @@ void vtkMILVideoSource::SetOutputFormat(int format)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMILVideoSource::SetVideoFormat(int format)
 {
   if (this->VideoFormat == format)
@@ -855,7 +855,7 @@ void vtkMILVideoSource::SetVideoFormat(int format)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMILVideoSource::SetVideoInput(int input)
 {
   if (this->VideoInput == input)
@@ -872,7 +872,7 @@ void vtkMILVideoSource::SetVideoInput(int input)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMILVideoSource::SetVideoChannel(int channel)
 {
   if (this->VideoChannel == channel)
@@ -886,7 +886,7 @@ void vtkMILVideoSource::SetVideoChannel(int channel)
   vtkMILVideoSourceSetChannel(this->MILDigID, channel);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMILVideoSource::SetBrightnessLevel(float brightness)
 {
   if (this->BrightnessLevel == brightness)
@@ -900,7 +900,7 @@ void vtkMILVideoSource::SetBrightnessLevel(float brightness)
   vtkMILVideoSourceSetLevel(this->MILDigID, M_BRIGHTNESS_REF, brightness / 255.0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMILVideoSource::SetContrastLevel(float contrast)
 {
   if (this->ContrastLevel == contrast)
@@ -914,7 +914,7 @@ void vtkMILVideoSource::SetContrastLevel(float contrast)
   vtkMILVideoSourceSetLevel(this->MILDigID, M_CONTRAST_REF, contrast / 2.0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMILVideoSource::SetHueLevel(float hue)
 {
   if (this->HueLevel == hue)
@@ -928,7 +928,7 @@ void vtkMILVideoSource::SetHueLevel(float hue)
   vtkMILVideoSourceSetLevel(this->MILDigID, M_HUE_REF, 0.5 + hue);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMILVideoSource::SetSaturationLevel(float saturation)
 {
   if (this->SaturationLevel == saturation)
@@ -942,7 +942,7 @@ void vtkMILVideoSource::SetSaturationLevel(float saturation)
   vtkMILVideoSourceSetLevel(this->MILDigID, M_SATURATION_REF, saturation / 2.0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMILVideoSource::SetBlackLevel(float black)
 {
   if (this->BlackLevel == black)
@@ -956,7 +956,7 @@ void vtkMILVideoSource::SetBlackLevel(float black)
   vtkMILVideoSourceSetLevel(this->MILDigID, M_BLACK_REF, black / 255);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMILVideoSource::SetWhiteLevel(float white)
 {
   if (this->WhiteLevel == white)
@@ -970,7 +970,7 @@ void vtkMILVideoSource::SetWhiteLevel(float white)
   vtkMILVideoSourceSetLevel(this->MILDigID, M_WHITE_REF, white / 255);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMILVideoSource::AllocateMILDigitizer()
 {
   char* format = "M_NTSC";
@@ -1091,7 +1091,7 @@ void vtkMILVideoSource::AllocateMILDigitizer()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMILVideoSource::AllocateMILBuffer()
 {
   int recording = this->Recording;

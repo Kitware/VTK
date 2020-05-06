@@ -28,7 +28,7 @@ vtkStandardNewMacro(vtkTransmitPolyDataPiece);
 
 vtkCxxSetObjectMacro(vtkTransmitPolyDataPiece, Controller, vtkMultiProcessController);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTransmitPolyDataPiece::vtkTransmitPolyDataPiece()
 {
   this->CreateGhostCells = 1;
@@ -38,13 +38,13 @@ vtkTransmitPolyDataPiece::vtkTransmitPolyDataPiece()
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTransmitPolyDataPiece::~vtkTransmitPolyDataPiece()
 {
   this->SetController(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTransmitPolyDataPiece::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -79,7 +79,7 @@ int vtkTransmitPolyDataPiece::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTransmitPolyDataPiece::RootExecute(
   vtkPolyData* input, vtkPolyData* output, vtkInformation* outInfo)
 {
@@ -116,7 +116,7 @@ void vtkTransmitPolyDataPiece::RootExecute(
   extract->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTransmitPolyDataPiece::SatelliteExecute(int, vtkPolyData* output, vtkInformation* outInfo)
 {
   vtkPolyData* tmp = vtkPolyData::New();
@@ -138,7 +138,7 @@ void vtkTransmitPolyDataPiece::SatelliteExecute(int, vtkPolyData* output, vtkInf
   tmp->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTransmitPolyDataPiece::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

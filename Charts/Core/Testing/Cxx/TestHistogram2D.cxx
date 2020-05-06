@@ -29,7 +29,7 @@
 #include "vtkTable.h"
 #include "vtkVector.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestHistogram2D(int, char*[])
 {
   // Set up a 2D scene, add an XY chart to it

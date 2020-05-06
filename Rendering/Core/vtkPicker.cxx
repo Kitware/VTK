@@ -42,7 +42,7 @@
 
 vtkStandardNewMacro(vtkPicker);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct object with initial tolerance of 1/40th of window. There are no
 // pick methods and picking is performed from the renderer's actors.
 vtkPicker::vtkPicker()
@@ -64,7 +64,7 @@ vtkPicker::vtkPicker()
   this->Transform = vtkTransform::New();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPicker::~vtkPicker()
 {
   this->Actors->Delete();
@@ -73,7 +73,7 @@ vtkPicker::~vtkPicker()
   this->Transform->Delete();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Update state when prop3D is picked.
 void vtkPicker::MarkPicked(vtkAssemblyPath* path, vtkProp3D* vtkNotUsed(prop3D),
   vtkAbstractMapper3D* m, double tMin, double mapperPos[3])
@@ -303,7 +303,7 @@ int vtkPicker::Pick3DPoint(double pos[3], vtkRenderer* renderer)
   return picked;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPicker::Pick3DPoint(double selectionPt[3], double focalPt[3], vtkRenderer* ren)
 {
   // Initialize the picking process
@@ -321,7 +321,7 @@ int vtkPicker::Pick3DPoint(double selectionPt[3], double focalPt[3], vtkRenderer
   return result;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Perform pick operation with selection point provided. Normally the
 // first two values for the selection point are x-y pixel coordinate, and
 // the third value is =0. Return non-zero if something was successfully picked.
@@ -715,7 +715,7 @@ int vtkPicker::Pick3DInternal(vtkRenderer* renderer, double p1World[4], double p
   return picked;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Intersect data with specified ray.
 double vtkPicker::IntersectWithLine(const double p1[3], const double p2[3], double tol,
   vtkAssemblyPath* path, vtkProp3D* prop3D, vtkAbstractMapper3D* mapper)
@@ -823,7 +823,7 @@ bool vtkPicker::CalculateRay(
   return (rayFactor > 0.0);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Initialize the picking process.
 void vtkPicker::Initialize()
 {
@@ -844,7 +844,7 @@ void vtkPicker::Initialize()
   this->GlobalTMin = VTK_DOUBLE_MAX;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkActorCollection* vtkPicker::GetActors()
 {
   if (this->Actors->GetNumberOfItems() != this->PickedPositions->GetNumberOfPoints())
@@ -854,7 +854,7 @@ vtkActorCollection* vtkPicker::GetActors()
   return this->Actors;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPicker::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

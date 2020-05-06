@@ -24,11 +24,11 @@
 
 vtkStandardNewMacro(vtkImageFourierCenter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct an instance of vtkImageFourierCenter filter.
 vtkImageFourierCenter::vtkImageFourierCenter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method tells the superclass which input extent is needed.
 // This gets the whole input (even though it may not be needed).
 int vtkImageFourierCenter::IterativeRequestUpdateExtent(
@@ -45,7 +45,7 @@ int vtkImageFourierCenter::IterativeRequestUpdateExtent(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method is passed input and output regions, and executes the fft
 // algorithm to fill the output from the input.
 void vtkImageFourierCenter::ThreadedRequestData(vtkInformation* vtkNotUsed(request),

@@ -78,7 +78,7 @@ static const char* AttributeTypesNames[] = { "vtkDataObject::POINT", "vtkDataObj
   "vtkDataObject::FIELD", "vtkDataObject::POINT_THEN_CELL", "vtkDataObject::VERTEX",
   "vtkDataObject::EDGE", "vtkDataObject::ROW" };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject::vtkDataObject()
 {
   this->Information = vtkInformation::New();
@@ -93,14 +93,14 @@ vtkDataObject::vtkDataObject()
   fd->FastDelete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject::~vtkDataObject()
 {
   this->SetInformation(nullptr);
   this->SetFieldData(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -124,7 +124,7 @@ void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
   this->FieldData->PrintSelf(os, indent.GetNextIndent());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Determine the modified time of this object
 vtkMTimeType vtkDataObject::GetMTime()
 {
@@ -140,7 +140,7 @@ vtkMTimeType vtkDataObject::GetMTime()
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObject::Initialize()
 {
   if (this->FieldData)
@@ -161,7 +161,7 @@ void vtkDataObject::Initialize()
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObject::SetGlobalReleaseDataFlag(int val)
 {
   if (val == vtkDataObjectGlobalReleaseDataFlag)
@@ -171,7 +171,7 @@ void vtkDataObject::SetGlobalReleaseDataFlag(int val)
   vtkDataObjectGlobalReleaseDataFlag = val;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformation* vtkDataObject::GetActiveFieldInformation(
   vtkInformation* info, int fieldAssociation, int attributeType)
 {
@@ -218,7 +218,7 @@ vtkInformation* vtkDataObject::GetActiveFieldInformation(
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformation* vtkDataObject::GetNamedFieldInformation(
   vtkInformation* info, int fieldAssociation, const char* name)
 {
@@ -264,7 +264,7 @@ vtkInformation* vtkDataObject::GetNamedFieldInformation(
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObject::RemoveNamedFieldInformation(
   vtkInformation* info, int fieldAssociation, const char* name)
 {
@@ -310,7 +310,7 @@ void vtkDataObject::RemoveNamedFieldInformation(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformation* vtkDataObject::SetActiveAttribute(
   vtkInformation* info, int fieldAssociation, const char* attributeName, int attributeType)
 {
@@ -403,7 +403,7 @@ vtkInformation* vtkDataObject::SetActiveAttribute(
   return activeField;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObject::SetActiveAttributeInfo(vtkInformation* info, int fieldAssociation,
   int attributeType, const char* name, int arrayType, int numComponents, int numTuples)
 {
@@ -449,7 +449,7 @@ void vtkDataObject::SetActiveAttributeInfo(vtkInformation* info, int fieldAssoci
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObject::SetPointDataActiveScalarInfo(
   vtkInformation* info, int arrayType, int numComponents)
 {
@@ -457,40 +457,40 @@ void vtkDataObject::SetPointDataActiveScalarInfo(
     vtkDataSetAttributes::SCALARS, nullptr, arrayType, numComponents, -1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObject::DataHasBeenGenerated()
 {
   this->DataReleased = 0;
   this->UpdateTime.Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObject::GetGlobalReleaseDataFlag()
 {
   return vtkDataObjectGlobalReleaseDataFlag;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObject::ReleaseData()
 {
   this->Initialize();
   this->DataReleased = 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkDataObject::GetUpdateTime()
 {
   return this->UpdateTime.GetMTime();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 unsigned long vtkDataObject::GetActualMemorySize()
 {
   return this->FieldData->GetActualMemorySize();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObject::ShallowCopy(vtkDataObject* src)
 {
   if (!src)
@@ -521,7 +521,7 @@ void vtkDataObject::ShallowCopy(vtkDataObject* src)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObject::DeepCopy(vtkDataObject* src)
 {
   vtkFieldData* srcFieldData = src->GetFieldData();
@@ -541,7 +541,7 @@ void vtkDataObject::DeepCopy(vtkDataObject* src)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObject::InternalDataObjectCopy(vtkDataObject* src)
 {
   this->DataReleased = src->DataReleased;
@@ -581,23 +581,23 @@ void vtkDataObject::InternalDataObjectCopy(vtkDataObject* src)
   // this->Locality = src->Locality;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This should be a pure virtual method.
 void vtkDataObject::Crop(const int*) {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject* vtkDataObject::GetData(vtkInformation* info)
 {
   return info ? info->Get(DATA_OBJECT()) : nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject* vtkDataObject::GetData(vtkInformationVector* v, int i)
 {
   return vtkDataObject::GetData(v->GetInformationObject(i));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkDataObject::GetAssociationTypeAsString(int associationType)
 {
   if (associationType < 0 || associationType >= NUMBER_OF_ASSOCIATIONS)
@@ -608,7 +608,7 @@ const char* vtkDataObject::GetAssociationTypeAsString(int associationType)
   return FieldAssociationsNames[associationType];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObject::GetAssociationTypeFromString(const char* associationName)
 {
   if (!associationName)
@@ -639,20 +639,20 @@ int vtkDataObject::GetAssociationTypeFromString(const char* associationName)
   return -1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataSetAttributes* vtkDataObject::GetAttributes(int type)
 {
   return vtkDataSetAttributes::SafeDownCast(this->GetAttributesAsFieldData(type));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataArray* vtkDataObject::GetGhostArray(int type)
 {
   vtkFieldData* fieldData = this->GetAttributesAsFieldData(type);
   return fieldData ? fieldData->GetArray(vtkDataSetAttributes::GhostArrayName()) : nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFieldData* vtkDataObject::GetAttributesAsFieldData(int type)
 {
   switch (type)
@@ -663,7 +663,7 @@ vtkFieldData* vtkDataObject::GetAttributesAsFieldData(int type)
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObject::GetAttributeTypeForArray(vtkAbstractArray* arr)
 {
   for (int i = 0; i < NUMBER_OF_ATTRIBUTE_TYPES; ++i)
@@ -683,7 +683,7 @@ int vtkDataObject::GetAttributeTypeForArray(vtkAbstractArray* arr)
   return -1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkDataObject::GetNumberOfElements(int type)
 {
   switch (type)

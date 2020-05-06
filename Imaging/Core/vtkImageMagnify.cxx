@@ -22,7 +22,7 @@
 
 vtkStandardNewMacro(vtkImageMagnify);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Constructor: Sets default filter to be identity.
 vtkImageMagnify::vtkImageMagnify()
 {
@@ -31,7 +31,7 @@ vtkImageMagnify::vtkImageMagnify()
   this->MagnificationFactors[0] = this->MagnificationFactors[1] = this->MagnificationFactors[2] = 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Computes any global image information associated with regions.
 int vtkImageMagnify::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -65,7 +65,7 @@ int vtkImageMagnify::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method computes the Region of input necessary to generate outRegion.
 // It assumes offset and size are multiples of Magnify Factors.
 int vtkImageMagnify::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
@@ -99,7 +99,7 @@ void vtkImageMagnify::InternalRequestUpdateExtent(int* inExt, int* outExt)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The templated execute function handles all the data types.
 // 2d even though operation is 1d.
 // Note: Slight misalignment (pixel replication is not nearest neighbor).

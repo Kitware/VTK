@@ -46,7 +46,7 @@
 #include <set>
 #include <sstream>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkQtTableModelAdapter::vtkInternal
 {
 public:
@@ -59,7 +59,7 @@ public:
   QHash<vtkIdType, vtkSmartPointer<vtkDoubleArray>> MagnitudeColumns;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkQtTableModelAdapter::vtkQtTableModelAdapter(QObject* p)
   : vtkQtAbstractModelAdapter(p)
 {
@@ -74,7 +74,7 @@ vtkQtTableModelAdapter::vtkQtTableModelAdapter(QObject* p)
   this->IconSize[0] = this->IconSize[1] = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkQtTableModelAdapter::vtkQtTableModelAdapter(vtkTable* t, QObject* p)
   : vtkQtAbstractModelAdapter(p)
   , Table(t)
@@ -93,7 +93,7 @@ vtkQtTableModelAdapter::vtkQtTableModelAdapter(vtkTable* t, QObject* p)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkQtTableModelAdapter::~vtkQtTableModelAdapter()
 {
   if (this->Table != nullptr)
@@ -103,7 +103,7 @@ vtkQtTableModelAdapter::~vtkQtTableModelAdapter()
   delete this->Internal;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTableModelAdapter::SetColorColumnName(const char* name)
 {
   int color_column = this->ColorColumn;
@@ -143,7 +143,7 @@ void vtkQtTableModelAdapter::SetColorColumnName(const char* name)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTableModelAdapter::SetIconIndexColumnName(const char* name)
 {
   int color_column = this->IconIndexColumn;
@@ -183,7 +183,7 @@ void vtkQtTableModelAdapter::SetIconIndexColumnName(const char* name)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTableModelAdapter::SetKeyColumnName(const char* name)
 {
   int key_column = this->KeyColumn;
@@ -223,7 +223,7 @@ void vtkQtTableModelAdapter::SetKeyColumnName(const char* name)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTableModelAdapter::SetVTKDataObject(vtkDataObject* obj)
 {
   vtkTable* t = vtkTable::SafeDownCast(obj);
@@ -237,13 +237,13 @@ void vtkQtTableModelAdapter::SetVTKDataObject(vtkDataObject* obj)
   this->setTable(t);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject* vtkQtTableModelAdapter::GetVTKDataObject() const
 {
   return this->Table;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTableModelAdapter::updateModelColumnHashTables()
 {
   // Clear the hash tables
@@ -328,7 +328,7 @@ void vtkQtTableModelAdapter::updateModelColumnHashTables()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTableModelAdapter::setTable(vtkTable* t)
 {
   if (this->Table != nullptr)
@@ -351,7 +351,7 @@ void vtkQtTableModelAdapter::setTable(vtkTable* t)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkQtTableModelAdapter::noTableCheck() const
 {
   if (this->Table == nullptr)
@@ -367,7 +367,7 @@ bool vtkQtTableModelAdapter::noTableCheck() const
   return false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Selection conversion from VTK land to Qt land
 vtkSelection* vtkQtTableModelAdapter::QModelIndexListToVTKIndexSelection(
@@ -397,7 +397,7 @@ vtkSelection* vtkQtTableModelAdapter::QModelIndexListToVTKIndexSelection(
   return IndexSelection;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 QItemSelection vtkQtTableModelAdapter::VTKIndexSelectionToQItemSelection(vtkSelection* vtksel) const
 {
 
@@ -419,13 +419,13 @@ QItemSelection vtkQtTableModelAdapter::VTKIndexSelectionToQItemSelection(vtkSele
   return qis_list;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkQtTableModelAdapter::GetSplitMultiComponentColumns() const
 {
   return this->SplitMultiComponentColumns;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTableModelAdapter::SetSplitMultiComponentColumns(bool value)
 {
   if (value != this->SplitMultiComponentColumns)
@@ -435,7 +435,7 @@ void vtkQtTableModelAdapter::SetSplitMultiComponentColumns(bool value)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTableModelAdapter::SetDecorationStrategy(int s)
 {
   if (s != this->DecorationStrategy)
@@ -444,7 +444,7 @@ void vtkQtTableModelAdapter::SetDecorationStrategy(int s)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTableModelAdapter::SetDecorationLocation(int s)
 {
   if (s != this->DecorationLocation)
@@ -453,7 +453,7 @@ void vtkQtTableModelAdapter::SetDecorationLocation(int s)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 QVariant vtkQtTableModelAdapter::data(const QModelIndex& idx, int role) const
 {
   if (this->noTableCheck())
@@ -516,7 +516,7 @@ QVariant vtkQtTableModelAdapter::data(const QModelIndex& idx, int role) const
   return QVariant();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkQtTableModelAdapter::setData(const QModelIndex& idx, const QVariant& value, int role)
 {
   if (role == Qt::DecorationRole)
@@ -528,7 +528,7 @@ bool vtkQtTableModelAdapter::setData(const QModelIndex& idx, const QVariant& val
   return false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 Qt::ItemFlags vtkQtTableModelAdapter::flags(const QModelIndex& idx) const
 {
   if (!idx.isValid())
@@ -539,7 +539,7 @@ Qt::ItemFlags vtkQtTableModelAdapter::flags(const QModelIndex& idx) const
   return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDropEnabled | Qt::ItemIsDragEnabled;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 QVariant vtkQtTableModelAdapter::headerData(
   int section, Qt::Orientation orientation, int role) const
 {
@@ -602,7 +602,7 @@ QVariant vtkQtTableModelAdapter::headerData(
   return QVariant();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTableModelAdapter::getValue(int row, int in_column, vtkVariant& v) const
 {
   // Map the qt model column to a column in the vtk table
@@ -667,20 +667,20 @@ void vtkQtTableModelAdapter::getValue(int row, int in_column, vtkVariant& v) con
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 QModelIndex vtkQtTableModelAdapter::index(
   int row, int column, const QModelIndex& vtkNotUsed(parentIdx)) const
 {
   return createIndex(row, column, row);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 QModelIndex vtkQtTableModelAdapter::parent(const QModelIndex& vtkNotUsed(idx)) const
 {
   return QModelIndex();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkQtTableModelAdapter::rowCount(const QModelIndex& mIndex) const
 {
   if (this->noTableCheck())
@@ -694,7 +694,7 @@ int vtkQtTableModelAdapter::rowCount(const QModelIndex& mIndex) const
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkQtTableModelAdapter::columnCount(const QModelIndex&) const
 {
   if (this->noTableCheck())

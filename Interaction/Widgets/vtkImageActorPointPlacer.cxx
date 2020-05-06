@@ -24,7 +24,7 @@ vtkStandardNewMacro(vtkImageActorPointPlacer);
 
 vtkCxxSetObjectMacro(vtkImageActorPointPlacer, ImageActor, vtkImageActor);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageActorPointPlacer::vtkImageActorPointPlacer()
 {
   this->Placer = vtkBoundedPlanePointPlacer::New();
@@ -39,14 +39,14 @@ vtkImageActorPointPlacer::vtkImageActorPointPlacer()
   this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = VTK_DOUBLE_MIN;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageActorPointPlacer::~vtkImageActorPointPlacer()
 {
   this->Placer->Delete();
   this->SetImageActor(nullptr);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageActorPointPlacer::ComputeWorldPosition(vtkRenderer* ren, double displayPos[2],
   double* refWorldPos, double worldPos[3], double worldOrient[9])
 {
@@ -58,7 +58,7 @@ int vtkImageActorPointPlacer::ComputeWorldPosition(vtkRenderer* ren, double disp
   return this->Placer->ComputeWorldPosition(ren, displayPos, refWorldPos, worldPos, worldOrient);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageActorPointPlacer::ComputeWorldPosition(
   vtkRenderer* ren, double displayPos[2], double worldPos[3], double worldOrient[9])
 {
@@ -70,7 +70,7 @@ int vtkImageActorPointPlacer::ComputeWorldPosition(
   return this->Placer->ComputeWorldPosition(ren, displayPos, worldPos, worldOrient);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageActorPointPlacer::ValidateWorldPosition(double worldPos[3], double* worldOrient)
 {
   if (!this->UpdateInternalState())
@@ -81,7 +81,7 @@ int vtkImageActorPointPlacer::ValidateWorldPosition(double worldPos[3], double* 
   return this->Placer->ValidateWorldPosition(worldPos, worldOrient);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageActorPointPlacer::ValidateWorldPosition(double worldPos[3])
 {
   if (!this->UpdateInternalState())
@@ -92,7 +92,7 @@ int vtkImageActorPointPlacer::ValidateWorldPosition(double worldPos[3])
   return this->Placer->ValidateWorldPosition(worldPos);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageActorPointPlacer::UpdateWorldPosition(
   vtkRenderer* ren, double worldPos[3], double worldOrient[9])
 {
@@ -104,7 +104,7 @@ int vtkImageActorPointPlacer::UpdateWorldPosition(
   return this->Placer->UpdateWorldPosition(ren, worldPos, worldOrient);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageActorPointPlacer::UpdateInternalState()
 {
   if (!this->ImageActor)
@@ -234,7 +234,7 @@ int vtkImageActorPointPlacer::UpdateInternalState()
   return 1;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageActorPointPlacer::SetWorldTolerance(double tol)
 {
   if (this->WorldTolerance != (tol < 0.0 ? 0.0 : (tol > VTK_DOUBLE_MAX ? VTK_DOUBLE_MAX : tol)))
@@ -245,7 +245,7 @@ void vtkImageActorPointPlacer::SetWorldTolerance(double tol)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageActorPointPlacer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

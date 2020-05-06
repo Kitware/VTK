@@ -30,7 +30,7 @@
 
 vtkStandardNewMacro(vtkXMLPolyDataWriter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLPolyDataWriter::vtkXMLPolyDataWriter()
 {
   this->VertsOM = new OffsetsManagerArray;
@@ -39,7 +39,7 @@ vtkXMLPolyDataWriter::vtkXMLPolyDataWriter()
   this->PolysOM = new OffsetsManagerArray;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLPolyDataWriter::~vtkXMLPolyDataWriter()
 {
   delete this->VertsOM;
@@ -48,31 +48,31 @@ vtkXMLPolyDataWriter::~vtkXMLPolyDataWriter()
   delete this->PolysOM;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPolyDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyData* vtkXMLPolyDataWriter::GetInput()
 {
   return static_cast<vtkPolyData*>(this->Superclass::GetInput());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXMLPolyDataWriter::GetDataSetName()
 {
   return "PolyData";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXMLPolyDataWriter::GetDefaultFileExtension()
 {
   return "vtp";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPolyDataWriter::AllocatePositionArrays()
 {
   this->Superclass::AllocatePositionArrays();
@@ -88,7 +88,7 @@ void vtkXMLPolyDataWriter::AllocatePositionArrays()
   this->PolysOM->Allocate(this->NumberOfPieces, 2, this->NumberOfTimeSteps);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPolyDataWriter::DeletePositionArrays()
 {
   this->Superclass::DeletePositionArrays();
@@ -99,7 +99,7 @@ void vtkXMLPolyDataWriter::DeletePositionArrays()
   delete[] this->NumberOfPolysPositions;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPolyDataWriter::WriteInlinePieceAttributes()
 {
   this->Superclass::WriteInlinePieceAttributes();
@@ -127,7 +127,7 @@ void vtkXMLPolyDataWriter::WriteInlinePieceAttributes()
   this->WriteScalarAttribute("NumberOfPolys", input->GetPolys()->GetNumberOfCells());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPolyDataWriter::WriteInlinePiece(vtkIndent indent)
 {
   // Split progress range by the approximate fraction of data written
@@ -186,7 +186,7 @@ void vtkXMLPolyDataWriter::WriteInlinePiece(vtkIndent indent)
   this->WriteCellsInline("Polys", input->GetPolys(), nullptr, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPolyDataWriter::WriteAppendedPieceAttributes(int index)
 {
   this->Superclass::WriteAppendedPieceAttributes(index);
@@ -212,7 +212,7 @@ void vtkXMLPolyDataWriter::WriteAppendedPieceAttributes(int index)
   this->NumberOfPolysPositions[index] = this->ReserveAttributeSpace("NumberOfPolys");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPolyDataWriter::WriteAppendedPiece(int index, vtkIndent indent)
 {
   this->Superclass::WriteAppendedPiece(index, indent);
@@ -246,7 +246,7 @@ void vtkXMLPolyDataWriter::WriteAppendedPiece(int index, vtkIndent indent)
   this->WriteCellsAppended("Polys", nullptr, indent, &this->PolysOM->GetPiece(index));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPolyDataWriter::WriteAppendedPieceData(int index)
 {
   ostream& os = *(this->Stream);
@@ -340,7 +340,7 @@ void vtkXMLPolyDataWriter::WriteAppendedPieceData(int index)
     input->GetPolys(), nullptr, this->CurrentTimeIndex, &this->PolysOM->GetPiece(index));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkXMLPolyDataWriter::GetNumberOfInputCells()
 {
   vtkPolyData* input = this->GetInput();
@@ -348,7 +348,7 @@ vtkIdType vtkXMLPolyDataWriter::GetNumberOfInputCells()
     input->GetStrips()->GetNumberOfCells() + input->GetPolys()->GetNumberOfCells());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPolyDataWriter::CalculateSuperclassFraction(float* fractions)
 {
   vtkPolyData* input = this->GetInput();
@@ -385,7 +385,7 @@ void vtkXMLPolyDataWriter::CalculateSuperclassFraction(float* fractions)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPolyDataWriter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");

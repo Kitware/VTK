@@ -25,7 +25,7 @@
 
 vtkStandardNewMacro(vtkImageAppendComponents);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageAppendComponents::ReplaceNthInputConnection(int idx, vtkAlgorithmOutput* input)
 {
   if (idx < 0 || idx >= this->GetNumberOfInputConnections(0))
@@ -47,7 +47,7 @@ void vtkImageAppendComponents::ReplaceNthInputConnection(int idx, vtkAlgorithmOu
   this->SetNthInputConnection(0, idx, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The default vtkImageAlgorithm semantics are that SetInput() puts
 // each input on a different port, we want all the image inputs to
 // go on the first port.
@@ -56,7 +56,7 @@ void vtkImageAppendComponents::SetInputData(int idx, vtkDataObject* input)
   this->SetInputDataInternal(idx, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject* vtkImageAppendComponents::GetInput(int idx)
 {
   if (this->GetNumberOfInputConnections(0) <= idx)
@@ -66,7 +66,7 @@ vtkDataObject* vtkImageAppendComponents::GetInput(int idx)
   return vtkImageData::SafeDownCast(this->GetExecutive()->GetInputData(0, idx));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method tells the output it will have more components
 int vtkImageAppendComponents::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -92,7 +92,7 @@ int vtkImageAppendComponents::RequestInformation(vtkInformation* vtkNotUsed(requ
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 template <class T>
 void vtkImageAppendComponentsExecute(vtkImageAppendComponents* self, vtkImageData* inData,
@@ -126,14 +126,14 @@ void vtkImageAppendComponentsExecute(vtkImageAppendComponents* self, vtkImageDat
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageAppendComponents::FillInputPortInformation(int i, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
   return this->Superclass::FillInputPortInformation(i, info);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method is passed a input and output regions, and executes the filter
 // algorithm to fill the output from the inputs.
 // It just executes a switch statement to call the correct function for

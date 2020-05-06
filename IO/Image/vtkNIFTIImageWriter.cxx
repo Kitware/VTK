@@ -47,7 +47,7 @@ vtkCxxSetObjectMacro(vtkNIFTIImageWriter, QFormMatrix, vtkMatrix4x4);
 vtkCxxSetObjectMacro(vtkNIFTIImageWriter, SFormMatrix, vtkMatrix4x4);
 vtkCxxSetObjectMacro(vtkNIFTIImageWriter, NIFTIHeader, vtkNIFTIImageHeader);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkNIFTIImageWriter::vtkNIFTIImageWriter()
 {
   this->FileLowerLeft = 1;
@@ -73,7 +73,7 @@ vtkNIFTIImageWriter::vtkNIFTIImageWriter()
   this->PlanarRGB = false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkNIFTIImageWriter::~vtkNIFTIImageWriter()
 {
   if (this->QFormMatrix)
@@ -95,7 +95,7 @@ vtkNIFTIImageWriter::~vtkNIFTIImageWriter()
   delete[] this->Description;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkNIFTIImageHeader* vtkNIFTIImageWriter::GetNIFTIHeader()
 {
   if (!this->NIFTIHeader)
@@ -105,7 +105,7 @@ vtkNIFTIImageHeader* vtkNIFTIImageWriter::GetNIFTIHeader()
   return this->NIFTIHeader;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNIFTIImageWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -162,7 +162,7 @@ void vtkNIFTIImageWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PlanarRGB: " << (this->PlanarRGB ? "On\n" : "Off\n");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 char* vtkNIFTIImageWriter::ReplaceExtension(
   const char* filename, const char* ext1, const char* ext2)
 {
@@ -196,7 +196,7 @@ char* vtkNIFTIImageWriter::ReplaceExtension(
   return newname;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 namespace
 {
 
@@ -413,7 +413,7 @@ void vtkNIFTIImageWriterMatrix(double mmat[16], vtkMatrix4x4* matrix, const doub
 
 } // end anonymous namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkNIFTIImageWriter::GenerateHeader(vtkInformation* info, bool singleFile)
 {
   // create the header
@@ -572,7 +572,7 @@ int vtkNIFTIImageWriter::GenerateHeader(vtkInformation* info, bool singleFile)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkNIFTIImageWriter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {

@@ -32,7 +32,7 @@ extern "C"
 }
 #endif
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkFFMPEGWriterInternal
 {
 public:
@@ -64,7 +64,7 @@ private:
   int closedFile;
 };
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFFMPEGWriterInternal::vtkFFMPEGWriterInternal(vtkFFMPEGWriter* creator)
 {
   this->Writer = creator;
@@ -86,7 +86,7 @@ vtkFFMPEGWriterInternal::vtkFFMPEGWriterInternal(vtkFFMPEGWriter* creator)
   this->FrameRate = 25;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFFMPEGWriterInternal::~vtkFFMPEGWriterInternal()
 {
   if (!this->closedFile)
@@ -98,7 +98,7 @@ vtkFFMPEGWriterInternal::~vtkFFMPEGWriterInternal()
 // for newer versions of ffmpeg use the new API as the old has been deprecated
 #if defined(LIBAVFORMAT_VERSION_MAJOR) && LIBAVFORMAT_VERSION_MAJOR >= 57
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkFFMPEGWriterInternal::Start()
 {
   this->closedFile = 0;
@@ -263,7 +263,7 @@ int vtkFFMPEGWriterInternal::Start()
   return 1;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkFFMPEGWriterInternal::Write(vtkImageData* id)
 {
   this->Writer->GetInputAlgorithm(0, 0)->UpdateWholeExtent();
@@ -334,7 +334,7 @@ int vtkFFMPEGWriterInternal::Write(vtkImageData* id)
   return 1;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFFMPEGWriterInternal::End()
 {
   if (this->yuvOutput)
@@ -384,7 +384,7 @@ void vtkFFMPEGWriterInternal::End()
 // The new API was introduced around 2016
 #else
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkFFMPEGWriterInternal::Start()
 {
   this->closedFile = 0;
@@ -546,7 +546,7 @@ int vtkFFMPEGWriterInternal::Start()
   return 1;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkFFMPEGWriterInternal::Write(vtkImageData* id)
 {
   this->Writer->GetInputAlgorithm(0, 0)->UpdateWholeExtent();
@@ -609,7 +609,7 @@ int vtkFFMPEGWriterInternal::Write(vtkImageData* id)
   return 1;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFFMPEGWriterInternal::End()
 {
   if (this->yuvOutput)
@@ -658,10 +658,10 @@ void vtkFFMPEGWriterInternal::End()
 
 #endif
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkFFMPEGWriter);
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFFMPEGWriter::vtkFFMPEGWriter()
 {
   this->Internals = 0;
@@ -672,13 +672,13 @@ vtkFFMPEGWriter::vtkFFMPEGWriter()
   this->BitRateTolerance = 0;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFFMPEGWriter::~vtkFFMPEGWriter()
 {
   delete this->Internals;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFFMPEGWriter::Start()
 {
   this->Error = 1;
@@ -709,7 +709,7 @@ void vtkFFMPEGWriter::Start()
   this->Initialized = 0;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFFMPEGWriter::Write()
 {
   if (this->Error)
@@ -766,7 +766,7 @@ void vtkFFMPEGWriter::Write()
   }
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFFMPEGWriter::End()
 {
   this->Internals->End();
@@ -775,7 +775,7 @@ void vtkFFMPEGWriter::End()
   this->Internals = 0;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFFMPEGWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

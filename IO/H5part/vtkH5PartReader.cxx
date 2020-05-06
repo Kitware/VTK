@@ -80,7 +80,7 @@
 #include VTK_H5PART(H5Part.h)
 // clang-format on
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 /*!
   \ingroup h5part_utility
 
@@ -107,7 +107,7 @@ static hid_t H5PartGetNativeDatasetType(H5PartFile* f, const char* name)
   return datatypen;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static hid_t H5PartGetDiskShape(H5PartFile* f, hid_t dataset)
 {
   hid_t space = H5Dget_space(dataset);
@@ -160,9 +160,9 @@ static void vtkPickArray(char*& arrayPtr, const std::initializer_list<const char
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkH5PartReader);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkH5PartReader::vtkH5PartReader()
 {
   this->SetNumberOfInputPorts(0);
@@ -183,7 +183,7 @@ vtkH5PartReader::vtkH5PartReader()
   this->PointDataArraySelection = vtkDataArraySelection::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkH5PartReader::~vtkH5PartReader()
 {
   this->CloseFile();
@@ -203,7 +203,7 @@ vtkH5PartReader::~vtkH5PartReader()
   this->PointDataArraySelection = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkH5PartReader::SetFileName(char* filename)
 {
   if (this->FileName == nullptr && filename == nullptr)
@@ -224,7 +224,7 @@ void vtkH5PartReader::SetFileName(char* filename)
   }
   this->Modified();
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkH5PartReader::CloseFile()
 {
   if (this->H5FileId != nullptr)
@@ -233,7 +233,7 @@ void vtkH5PartReader::CloseFile()
     this->H5FileId = nullptr;
   }
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkH5PartReader::OpenFile()
 {
   if (!this->FileName)
@@ -261,7 +261,7 @@ int vtkH5PartReader::OpenFile()
 
   return 1;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkH5PartReader::IndexOfVectorComponent(const char* name)
 {
   if (!this->CombineVectorComponents)
@@ -277,7 +277,7 @@ int vtkH5PartReader::IndexOfVectorComponent(const char* name)
   }
   return 0;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::string vtkH5PartReader::NameOfVectorComponent(const char* name)
 {
   if (!this->CombineVectorComponents)
@@ -292,7 +292,7 @@ std::string vtkH5PartReader::NameOfVectorComponent(const char* name)
   }
   return name;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkH5PartReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -452,7 +452,7 @@ int GetVTKDataType(hid_t datatype)
   return VTK_VOID;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // A Convenience Macro which does what we want for any dataset type
 #define H5PartReadDataArray(nullptr, T2)                                                           \
   dataarray->SetNumberOfComponents(Nc);                                                            \
@@ -492,7 +492,7 @@ public:
     return (result_type)result;
   }
 };
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkH5PartReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -775,12 +775,12 @@ int vtkH5PartReader::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkH5PartReader::GetCoordinateArrayStatus(const char* name)
 {
   return this->PointDataArraySelection->ArrayIsEnabled(name);
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkH5PartReader::SetCoordinateArrayStatus(const char* name, int status)
 {
   if (status)
@@ -793,17 +793,17 @@ void vtkH5PartReader::SetCoordinateArrayStatus(const char* name, int status)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkH5PartReader::GetPointArrayName(int index)
 {
   return this->PointDataArraySelection->GetArrayName(index);
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkH5PartReader::GetPointArrayStatus(const char* name)
 {
   return this->PointDataArraySelection->ArrayIsEnabled(name);
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkH5PartReader::SetPointArrayStatus(const char* name, int status)
 {
   if (status != this->GetPointArrayStatus(name))
@@ -819,32 +819,32 @@ void vtkH5PartReader::SetPointArrayStatus(const char* name, int status)
     this->Modified();
   }
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkH5PartReader::Enable(const char* name)
 {
   this->SetPointArrayStatus(name, 1);
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkH5PartReader::Disable(const char* name)
 {
   this->SetPointArrayStatus(name, 0);
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkH5PartReader::EnableAll()
 {
   this->PointDataArraySelection->EnableAllArrays();
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkH5PartReader::DisableAll()
 {
   this->PointDataArraySelection->DisableAllArrays();
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkH5PartReader::GetNumberOfPointArrays()
 {
   return this->PointDataArraySelection->GetNumberOfArrays();
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkH5PartReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

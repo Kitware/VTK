@@ -23,26 +23,26 @@ PURPOSE.  See the above copyright notice for more information.
 
 vtkStandardNewMacro(vtkUniformHyperTreeGridSource);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUniformHyperTreeGridSource::vtkUniformHyperTreeGridSource() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUniformHyperTreeGridSource::~vtkUniformHyperTreeGridSource() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkUniformHyperTreeGridSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkUniformHyperTreeGridSource::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkUniformHyperTreeGrid");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkUniformHyperTreeGridSource::RequestData(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {

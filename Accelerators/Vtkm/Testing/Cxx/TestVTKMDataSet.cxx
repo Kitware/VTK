@@ -27,7 +27,7 @@
 namespace
 {
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class TestError
 {
 public:
@@ -58,7 +58,7 @@ inline bool IsEqualFloat(double a, double b, double e = 1e-6f)
   return (std::abs(a - b) <= e);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 inline void TestEqualCells(vtkCell* c1, vtkCell* c2)
 {
   TEST_VERIFY(c1->GetCellType() == c2->GetCellType(), "Cell types don't match");
@@ -235,7 +235,7 @@ void TestDataSets(vtkDataSet* dsVtk, vtkDataSet* dsVtkm)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 inline void CoordsCopy(const vtkm::cont::CoordinateSystem& coords, vtkPoints* points)
 {
   auto ptsPortal = coords.GetData().ReadPortal();
@@ -267,7 +267,7 @@ inline void FieldCopy(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkm::cont::testing::MakeTestDataSet Maker;
 
 void TestUniformDataSet()
@@ -375,7 +375,7 @@ void TestExplicitDataSet()
 
 } // anonymous namespace
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestVTKMDataSet(int, char*[])
 try
 {

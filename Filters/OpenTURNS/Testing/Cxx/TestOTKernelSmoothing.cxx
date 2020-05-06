@@ -23,7 +23,7 @@
 #include "vtkTestErrorObserver.h"
 
 #include <iostream>
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestOTKernelSmoothing(int, char*[])
 {
   vtkNew<vtkDoubleArray> arrFirstVariable;

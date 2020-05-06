@@ -30,10 +30,10 @@ struct vtkBufferedArchiver::Internal
   std::set<std::string> Entries;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkBufferedArchiver);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBufferedArchiver::vtkBufferedArchiver()
   : Internals(new vtkBufferedArchiver::Internal)
 {
@@ -42,14 +42,14 @@ vtkBufferedArchiver::vtkBufferedArchiver()
   this->SetArchiveName("");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBufferedArchiver::~vtkBufferedArchiver()
 {
   free(this->Internals->Buffer);
   delete this->Internals;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBufferedArchiver::OpenArchive()
 {
   this->Internals->Archive = archive_write_new();
@@ -68,13 +68,13 @@ void vtkBufferedArchiver::OpenArchive()
     this->Internals->AllocatedSize, &this->Internals->BufferSize);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBufferedArchiver::CloseArchive()
 {
   archive_write_free(this->Internals->Archive);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBufferedArchiver::InsertIntoArchive(
   const std::string& relativePath, const char* data, std::size_t size)
 {
@@ -92,43 +92,43 @@ void vtkBufferedArchiver::InsertIntoArchive(
   this->Internals->Entries.insert(relativePath);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkBufferedArchiver::Contains(const std::string& relativePath)
 {
   return this->Internals->Entries.find(relativePath) != this->Internals->Entries.end();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkBufferedArchiver::GetBuffer()
 {
   return this->Internals->Buffer;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const void* vtkBufferedArchiver::GetBufferAddress()
 {
   return this->Internals->Buffer;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBufferedArchiver::SetAllocatedSize(std::size_t size)
 {
   this->Internals->AllocatedSize = size;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::size_t vtkBufferedArchiver::GetAllocatedSize()
 {
   return this->Internals->AllocatedSize;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::size_t vtkBufferedArchiver::GetBufferSize()
 {
   return this->Internals->BufferSize;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBufferedArchiver::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

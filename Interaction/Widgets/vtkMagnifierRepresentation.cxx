@@ -27,7 +27,7 @@
 
 vtkStandardNewMacro(vtkMagnifierRepresentation);
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMagnifierRepresentation::vtkMagnifierRepresentation()
 {
   this->MagnificationFactor = 10.0;
@@ -74,7 +74,7 @@ vtkMagnifierRepresentation::vtkMagnifierRepresentation()
   this->BorderActor->SetProperty(this->BorderProperty);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMagnifierRepresentation::~vtkMagnifierRepresentation()
 {
   this->Props->Delete();
@@ -93,7 +93,7 @@ vtkMagnifierRepresentation::~vtkMagnifierRepresentation()
   this->BorderActor->Delete();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Move the magnifier around. This method is invoked every time the mouse
 // moves.
 void vtkMagnifierRepresentation::WidgetInteraction(double eventPos[2])
@@ -153,7 +153,7 @@ void vtkMagnifierRepresentation::WidgetInteraction(double eventPos[2])
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method is invoked when this class or dependent classes change (based
 // on modified time).
 void vtkMagnifierRepresentation::BuildRepresentation()
@@ -201,7 +201,7 @@ void vtkMagnifierRepresentation::BuildRepresentation()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkMagnifierRepresentation::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
@@ -209,7 +209,7 @@ vtkMTimeType vtkMagnifierRepresentation::GetMTime()
   return mTime;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Optionally, use different view props than that used by the associated
 // renderer. This enables special effects etc during magnification (or the
 // ability to remove props from the scence like widgets etc).
@@ -218,31 +218,31 @@ void vtkMagnifierRepresentation::AddViewProp(vtkProp* prop)
   this->Props->AddItem(prop);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMagnifierRepresentation::HasViewProp(vtkProp* prop)
 {
   return (prop && this->Props->IsItemPresent(prop));
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMagnifierRepresentation::RemoveViewProp(vtkProp* prop)
 {
   this->Props->RemoveItem(prop);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMagnifierRepresentation::RemoveAllViewProps(void)
 {
   return this->Props->RemoveAllItems();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMagnifierRepresentation::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->BorderActor->ReleaseGraphicsResources(w);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMagnifierRepresentation::RenderOverlay(vtkViewport* w)
 {
   if (this->Border && w == this->MagnificationRenderer)
@@ -253,7 +253,7 @@ int vtkMagnifierRepresentation::RenderOverlay(vtkViewport* w)
   return 0;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMagnifierRepresentation::RenderOpaqueGeometry(vtkViewport* w)
 {
   if (this->Border && w == this->MagnificationRenderer)
@@ -264,7 +264,7 @@ int vtkMagnifierRepresentation::RenderOpaqueGeometry(vtkViewport* w)
   return 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMagnifierRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport* w)
 {
   if (this->Border && w == this->MagnificationRenderer)
@@ -275,7 +275,7 @@ int vtkMagnifierRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport* 
   return 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry?
 vtkTypeBool vtkMagnifierRepresentation::HasTranslucentPolygonalGeometry()
@@ -288,7 +288,7 @@ vtkTypeBool vtkMagnifierRepresentation::HasTranslucentPolygonalGeometry()
   return false;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMagnifierRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

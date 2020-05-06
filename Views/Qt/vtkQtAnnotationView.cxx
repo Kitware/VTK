@@ -50,7 +50,7 @@
 
 vtkStandardNewMacro(vtkQtAnnotationView);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkQtAnnotationView::vtkQtAnnotationView()
 {
   this->View = new QTableView();
@@ -76,20 +76,20 @@ vtkQtAnnotationView::vtkQtAnnotationView()
     SLOT(slotQtSelectionChanged(const QItemSelection&, const QItemSelection&)));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkQtAnnotationView::~vtkQtAnnotationView()
 {
   delete this->View;
   delete this->Adapter;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 QWidget* vtkQtAnnotationView::GetWidget()
 {
   return this->View;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtAnnotationView::slotQtSelectionChanged(
   const QItemSelection& vtkNotUsed(s1), const QItemSelection& vtkNotUsed(s2))
 {
@@ -126,7 +126,7 @@ void vtkQtAnnotationView::slotQtSelectionChanged(
     this->GetRepresentation()->GetAnnotationLink()->GetAnnotationLayers()->GetMTime();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtAnnotationView::Update()
 {
   vtkDataRepresentation* rep = this->GetRepresentation();
@@ -153,7 +153,7 @@ void vtkQtAnnotationView::Update()
   this->View->resizeColumnToContents(1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtAnnotationView::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

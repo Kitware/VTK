@@ -23,19 +23,19 @@ vtkStandardNewMacro(vtkTexturedActor2D);
 
 vtkCxxSetObjectMacro(vtkTexturedActor2D, Texture, vtkTexture);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTexturedActor2D::vtkTexturedActor2D()
 {
   this->Texture = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTexturedActor2D::~vtkTexturedActor2D()
 {
   this->SetTexture(nullptr);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTexturedActor2D::ReleaseGraphicsResources(vtkWindow* win)
 {
   this->Superclass::ReleaseGraphicsResources(win);
@@ -47,7 +47,7 @@ void vtkTexturedActor2D::ReleaseGraphicsResources(vtkWindow* win)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTexturedActor2D::RenderOverlay(vtkViewport* viewport)
 {
   // Render the texture.
@@ -76,7 +76,7 @@ int vtkTexturedActor2D::RenderOverlay(vtkViewport* viewport)
   return result;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTexturedActor2D::RenderOpaqueGeometry(vtkViewport* viewport)
 {
   // Render the texture.
@@ -93,7 +93,7 @@ int vtkTexturedActor2D::RenderOpaqueGeometry(vtkViewport* viewport)
   return result;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTexturedActor2D::RenderTranslucentPolygonalGeometry(vtkViewport* viewport)
 {
   // Render the texture.
@@ -110,7 +110,7 @@ int vtkTexturedActor2D::RenderTranslucentPolygonalGeometry(vtkViewport* viewport
   return result;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkTexturedActor2D::GetMTime()
 {
   vtkMTimeType mTime = vtkActor2D::GetMTime();
@@ -123,7 +123,7 @@ vtkMTimeType vtkTexturedActor2D::GetMTime()
   return mTime;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTexturedActor2D::ShallowCopy(vtkProp* prop)
 {
   vtkTexturedActor2D* a = vtkTexturedActor2D::SafeDownCast(prop);
@@ -136,7 +136,7 @@ void vtkTexturedActor2D::ShallowCopy(vtkProp* prop)
   this->Superclass::ShallowCopy(prop);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTexturedActor2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

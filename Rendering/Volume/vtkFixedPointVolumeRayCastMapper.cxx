@@ -68,7 +68,7 @@ vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPoi
   B[1] = A[0] * M[1] + A[1] * M[5] + A[2] * M[9];                                                  \
   B[2] = A[0] * M[2] + A[1] * M[6] + A[2] * M[10]
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T>
 void vtkFixedPointVolumeRayCastMapperComputeCS1CGradients(T* dataPtr, int dim[3], double spacing[3],
   double scalarRange[2], unsigned short** gradientNormal, unsigned char** gradientMagnitude,
@@ -544,7 +544,7 @@ void vtkFixedPointVolumeRayCastMapperComputeGradients(T* dataPtr, int dim[3], do
   me->InvokeEvent(vtkCommand::VolumeMapperComputeGradientsEndEvent, nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct a new vtkFixedPointVolumeRayCastMapper with default values
 vtkFixedPointVolumeRayCastMapper::vtkFixedPointVolumeRayCastMapper()
 {
@@ -686,7 +686,7 @@ vtkFixedPointVolumeRayCastMapper::vtkFixedPointVolumeRayCastMapper()
   this->MinMaxVolumeCache = vtkImageData::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Destruct a vtkFixedPointVolumeRayCastMapper - clean up any memory used
 vtkFixedPointVolumeRayCastMapper::~vtkFixedPointVolumeRayCastMapper()
 {
@@ -919,7 +919,7 @@ int vtkFixedPointVolumeRayCastMapper::GetNumberOfThreads()
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method should be called after UpdateColorTables since it
 // relies on some information (shift and scale) computed in that method,
 // as well as the last built time for the color tables.
@@ -1011,7 +1011,7 @@ void vtkFixedPointVolumeRayCastMapper::UpdateMinMaxVolume(vtkVolume* vol)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFixedPointVolumeRayCastMapper::UpdateCroppingRegions()
 {
   this->ConvertCroppingRegionPlanesToVoxels();

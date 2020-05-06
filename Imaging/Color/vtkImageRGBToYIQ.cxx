@@ -21,7 +21,7 @@
 
 vtkStandardNewMacro(vtkImageRGBToYIQ);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageRGBToYIQ::vtkImageRGBToYIQ()
 {
   this->Maximum = 255.0;
@@ -29,7 +29,7 @@ vtkImageRGBToYIQ::vtkImageRGBToYIQ()
   this->SetNumberOfOutputPorts(1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 namespace
 {
@@ -108,7 +108,7 @@ void vtkImageRGBToYIQExecute(
 }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageRGBToYIQ::ThreadedExecute(
   vtkImageData* inData, vtkImageData* outData, int outExt[6], int id)
 {

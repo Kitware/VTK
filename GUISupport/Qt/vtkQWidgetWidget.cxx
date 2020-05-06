@@ -37,7 +37,7 @@
 
 vtkStandardNewMacro(vtkQWidgetWidget);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkQWidgetWidget::vtkQWidgetWidget()
 {
   this->Widget = nullptr;
@@ -69,7 +69,7 @@ vtkQWidgetWidget::vtkQWidgetWidget()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkQWidgetWidget::~vtkQWidgetWidget() = default;
 
 vtkQWidgetRepresentation* vtkQWidgetWidget::GetQWidgetRepresentation()
@@ -92,7 +92,7 @@ void vtkQWidgetWidget::SetWidget(QWidget* w)
   this->Modified();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQWidgetWidget::SelectAction3D(vtkAbstractWidget* w)
 {
   vtkQWidgetWidget* self = reinterpret_cast<vtkQWidgetWidget*>(w);
@@ -148,7 +148,7 @@ void vtkQWidgetWidget::SelectAction3D(vtkAbstractWidget* w)
   self->InvokeEvent(vtkCommand::StartInteractionEvent, nullptr);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQWidgetWidget::MoveAction3D(vtkAbstractWidget* w)
 {
   vtkQWidgetWidget* self = reinterpret_cast<vtkQWidgetWidget*>(w);
@@ -196,7 +196,7 @@ void vtkQWidgetWidget::MoveAction3D(vtkAbstractWidget* w)
   self->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQWidgetWidget::EndSelectAction3D(vtkAbstractWidget* w)
 {
   vtkQWidgetWidget* self = reinterpret_cast<vtkQWidgetWidget*>(w);
@@ -257,7 +257,7 @@ void vtkQWidgetWidget::EndSelectAction3D(vtkAbstractWidget* w)
   self->InvokeEvent(vtkCommand::EndInteractionEvent, nullptr);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQWidgetWidget::SetEnabled(int enabling)
 {
   if (this->Enabled == enabling)
@@ -272,7 +272,7 @@ void vtkQWidgetWidget::SetEnabled(int enabling)
   Superclass::SetEnabled(enabling);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQWidgetWidget::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)
@@ -282,14 +282,14 @@ void vtkQWidgetWidget::CreateDefaultRepresentation()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQWidgetWidget::SetRepresentation(vtkQWidgetRepresentation* rep)
 {
   this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(rep));
   rep->SetWidget(this->Widget);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQWidgetWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

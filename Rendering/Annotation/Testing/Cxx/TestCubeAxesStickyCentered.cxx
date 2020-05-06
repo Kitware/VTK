@@ -31,7 +31,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkTextProperty.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestCubeAxesStickyCentered(int argc, char* argv[])
 {
   vtkNew<vtkBYUReader> fohe;

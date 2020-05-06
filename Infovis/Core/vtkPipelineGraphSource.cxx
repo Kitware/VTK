@@ -38,7 +38,7 @@
 
 vtkStandardNewMacro(vtkPipelineGraphSource);
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkPipelineGraphSource::vtkPipelineGraphSource()
 {
@@ -47,7 +47,7 @@ vtkPipelineGraphSource::vtkPipelineGraphSource()
   this->Sinks = vtkCollection::New();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkPipelineGraphSource::~vtkPipelineGraphSource()
 {
@@ -58,14 +58,14 @@ vtkPipelineGraphSource::~vtkPipelineGraphSource()
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkPipelineGraphSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkPipelineGraphSource::AddSink(vtkObject* sink)
 {
@@ -85,7 +85,7 @@ void vtkPipelineGraphSource::RemoveSink(vtkObject* sink)
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 static void InsertObject(vtkObject* object, std::map<vtkObject*, vtkIdType>& object_map,
   vtkMutableDirectedGraph* builder, vtkStringArray* vertex_class_name_array,

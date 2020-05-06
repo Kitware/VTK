@@ -13,19 +13,19 @@
 =========================================================================*/
 #include "vtkGaussianRandomSequence.h"
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGaussianRandomSequence::vtkGaussianRandomSequence() = default;
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGaussianRandomSequence::~vtkGaussianRandomSequence() = default;
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkGaussianRandomSequence::GetScaledValue(double mean, double standardDeviation)
 {
   return mean + standardDeviation * this->GetValue();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGaussianRandomSequence::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -18,7 +18,7 @@
 
 vtkStandardNewMacro(vtkParametricKlein);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParametricKlein::vtkParametricKlein()
 {
   // Preset triangulation parameters
@@ -35,10 +35,10 @@ vtkParametricKlein::vtkParametricKlein()
   this->DerivativesAvailable = 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParametricKlein::~vtkParametricKlein() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParametricKlein::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
 {
   double u = uvw[0];
@@ -91,13 +91,13 @@ void vtkParametricKlein::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
   // clang-format on
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkParametricKlein::EvaluateScalar(double*, double*, double*)
 {
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParametricKlein::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

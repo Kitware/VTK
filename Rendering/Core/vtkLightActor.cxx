@@ -28,7 +28,7 @@
 vtkStandardNewMacro(vtkLightActor);
 vtkCxxSetObjectMacro(vtkLightActor, Light, vtkLight);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLightActor::vtkLightActor()
 {
   this->Light = nullptr;
@@ -44,7 +44,7 @@ vtkLightActor::vtkLightActor()
   this->BoundingBox = new vtkBoundingBox;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLightActor::~vtkLightActor()
 {
   this->SetLight(nullptr);
@@ -73,7 +73,7 @@ vtkLightActor::~vtkLightActor()
   delete this->BoundingBox;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Set/Get the location of the near and far clipping planes along the
 // direction of projection.  Both of these values must be positive.
@@ -84,13 +84,13 @@ void vtkLightActor::SetClippingRange(double dNear, double dFar)
   this->ClippingRange[1] = dFar;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLightActor::SetClippingRange(const double a[2])
 {
   this->SetClippingRange(a[0], a[1]);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProperty* vtkLightActor::GetConeProperty()
 {
   if (this->ConeActor == nullptr)
@@ -100,7 +100,7 @@ vtkProperty* vtkLightActor::GetConeProperty()
   return this->ConeActor->GetProperty();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProperty* vtkLightActor::GetFrustumProperty()
 {
   if (this->FrustumActor == nullptr)
@@ -110,7 +110,7 @@ vtkProperty* vtkLightActor::GetFrustumProperty()
   return this->FrustumActor->GetProperty();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Support the standard render methods.
 int vtkLightActor::RenderOpaqueGeometry(vtkViewport* viewport)
@@ -128,7 +128,7 @@ int vtkLightActor::RenderOpaqueGeometry(vtkViewport* viewport)
   return result;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry? No.
 vtkTypeBool vtkLightActor::HasTranslucentPolygonalGeometry()
@@ -136,7 +136,7 @@ vtkTypeBool vtkLightActor::HasTranslucentPolygonalGeometry()
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLightActor::ReleaseGraphicsResources(vtkWindow* window)
 {
   if (this->ConeActor != nullptr)
@@ -146,7 +146,7 @@ void vtkLightActor::ReleaseGraphicsResources(vtkWindow* window)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
 double* vtkLightActor::GetBounds()
 {
@@ -189,7 +189,7 @@ double* vtkLightActor::GetBounds()
   return this->Bounds;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkLightActor::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
@@ -205,7 +205,7 @@ vtkMTimeType vtkLightActor::GetMTime()
   return mTime;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLightActor::UpdateViewProps()
 {
   if (this->Light == nullptr)
@@ -307,7 +307,7 @@ void vtkLightActor::UpdateViewProps()
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLightActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

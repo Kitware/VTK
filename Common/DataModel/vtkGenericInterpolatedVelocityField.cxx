@@ -203,7 +203,7 @@ int vtkGenericInterpolatedVelocityField::FunctionValues(
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenericInterpolatedVelocityField::AddDataSet(vtkGenericDataSet* dataset)
 {
   if (!dataset)
@@ -214,7 +214,7 @@ void vtkGenericInterpolatedVelocityField::AddDataSet(vtkGenericDataSet* dataset)
   this->DataSets->push_back(dataset);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Set the last cell id to -1 so that the next search does not
 // start from the previous cell
@@ -228,7 +228,7 @@ void vtkGenericInterpolatedVelocityField::ClearLastCell()
     }
   }
 }
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Return the cell cached from last evaluation.
 vtkGenericAdaptorCell* vtkGenericInterpolatedVelocityField::GetLastCell()
@@ -245,7 +245,7 @@ vtkGenericAdaptorCell* vtkGenericInterpolatedVelocityField::GetLastCell()
   return result;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGenericInterpolatedVelocityField::GetLastLocalCoordinates(double pcoords[3])
 {
   int j;

@@ -22,7 +22,7 @@
 
 vtkStandardNewMacro(vtkImageLogarithmicScale);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Constructor sets default values
 vtkImageLogarithmicScale::vtkImageLogarithmicScale()
 {
@@ -31,7 +31,7 @@ vtkImageLogarithmicScale::vtkImageLogarithmicScale()
   this->Constant = 10.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 template <class T>
 void vtkImageLogarithmicScaleExecute(vtkImageLogarithmicScale* self, vtkImageData* inData,
@@ -69,7 +69,7 @@ void vtkImageLogarithmicScaleExecute(vtkImageLogarithmicScale* self, vtkImageDat
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method is passed a input and output region, and executes the filter
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for

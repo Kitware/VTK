@@ -439,7 +439,7 @@ bool vtkOpenGLVertexArrayObject::RemoveAttributeArray(const std::string& name)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLVertexArrayObject::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -27,17 +27,17 @@
 
 vtkStandardNewMacro(vtkPieceScalars);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPieceScalars::vtkPieceScalars()
 {
   this->CellScalarsFlag = 0;
   this->RandomMode = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPieceScalars::~vtkPieceScalars() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Append data sets into single unstructured grid
 int vtkPieceScalars::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -91,7 +91,7 @@ int vtkPieceScalars::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIntArray* vtkPieceScalars::MakePieceScalars(int piece, vtkIdType num)
 {
   vtkIntArray* pieceColors = vtkIntArray::New();
@@ -105,7 +105,7 @@ vtkIntArray* vtkPieceScalars::MakePieceScalars(int piece, vtkIdType num)
   return pieceColors;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFloatArray* vtkPieceScalars::MakeRandomScalars(int piece, vtkIdType num)
 {
   vtkMath::RandomSeed(piece);
@@ -122,7 +122,7 @@ vtkFloatArray* vtkPieceScalars::MakeRandomScalars(int piece, vtkIdType num)
   return pieceColors;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPieceScalars::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

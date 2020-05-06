@@ -20,16 +20,16 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkSortFieldData);
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSortFieldData::vtkSortFieldData() = default;
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSortFieldData::~vtkSortFieldData() = default;
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Using vtkSortDataArray, it's easy to loop over all of the arrays in the
 // field data and sort them. Initially we just need to generate the sort
 // indices which are then applied to each array in turn.
@@ -98,7 +98,7 @@ vtkIdType* vtkSortFieldData::Sort(
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSortFieldData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

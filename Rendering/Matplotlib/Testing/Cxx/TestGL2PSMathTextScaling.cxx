@@ -30,7 +30,7 @@
 #include "vtkTestingInteractor.h"
 #include "vtkTextProperty.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class GL2PSMathTextScalingTest : public vtkContextItem
 {
 public:
@@ -40,7 +40,7 @@ public:
   bool Paint(vtkContext2D* painter) override;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestGL2PSMathTextScaling(int, char*[])
 {
   // Set up a 2D context view, context test object and add it to the scene

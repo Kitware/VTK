@@ -20,63 +20,63 @@
 
 #include "vtkTransform2D.h"
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkContextPolygonPrivate
 {
 public:
   std::vector<vtkVector2f> points;
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkContextPolygon::vtkContextPolygon()
   : d(new vtkContextPolygonPrivate)
 {
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkContextPolygon::vtkContextPolygon(const vtkContextPolygon& polygon)
   : d(new vtkContextPolygonPrivate)
 {
   d->points = polygon.d->points;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkContextPolygon::~vtkContextPolygon()
 {
   delete d;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContextPolygon::AddPoint(const vtkVector2f& point)
 {
   d->points.push_back(point);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContextPolygon::AddPoint(float x, float y)
 {
   this->AddPoint(vtkVector2f(x, y));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkVector2f vtkContextPolygon::GetPoint(vtkIdType index) const
 {
   return d->points[index];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkContextPolygon::GetNumberOfPoints() const
 {
   return static_cast<vtkIdType>(d->points.size());
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContextPolygon::Clear()
 {
   d->points.clear();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkContextPolygon::Contains(const vtkVector2f& point) const
 {
   float x = point.GetX();
@@ -110,7 +110,7 @@ bool vtkContextPolygon::Contains(const vtkVector2f& point) const
   return inside;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkContextPolygon vtkContextPolygon::Transformed(vtkTransform2D* transform) const
 {
   vtkContextPolygon transformed;
@@ -120,7 +120,7 @@ vtkContextPolygon vtkContextPolygon::Transformed(vtkTransform2D* transform) cons
   return transformed;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkContextPolygon& vtkContextPolygon::operator=(const vtkContextPolygon& other)
 {
   if (this != &other)

@@ -17,7 +17,7 @@
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestVectorOperators(int, char*[])
 {
   vtkVector3i vec3i(0, 6, 9);

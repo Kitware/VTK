@@ -55,7 +55,7 @@
 // clipTriangleVertices.
 static const char ternaryShift[4] = { 1, 3, 9, 27 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 // In the Marching Tethrhedron with Grey case, the iso-surface can be either a triangle
 // ,quad or null. The number of triangles in each case is at most 2. This array
@@ -74,7 +74,7 @@ static const int nTriangles[81] = {
   2, 1, 1, 1, 0, 0, 1, 0, 0  // cases 2200-2222
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 // array of vertices for triangles in the marching tetrahedron cases
 // each vertex on the tetra is marked as (B)lack, (W)hite or (G)rey
@@ -408,21 +408,21 @@ static const vtkFiberSurface::BaseVertexType greyTetTriangles[81][2][3] = {
     { vtkFiberSurface::bv_not_used, vtkFiberSurface::bv_not_used, vtkFiberSurface::bv_not_used } }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 // conversion from the enum semantics for edges to actual edge numbers
 // depends on the ordering of bv_edge_** in BaseVertexType enum
 static const int edge2endpoints[6][2] = { { 0, 1 }, { 0, 2 }, { 0, 3 }, { 1, 2 }, { 1, 3 },
   { 2, 3 } };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 // convert edge_*_param_* enum to edge numbers
 // depends on the ordering of edge_0 and edge_1 enums (i.e. edge_0 + 2 == edge_1 + 1
 // == edge_2)
 static const int clip2points[3][2] = { { 1, 2 }, { 2, 0 }, { 0, 1 } };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 // this table lists the number of triangles per case for fiber clipping
 static const int nClipTriangles[27] = {
@@ -431,7 +431,7 @@ static const int nClipTriangles[27] = {
   2, 3, 2, 3, 2, 1, 2, 1, 0  // cases 200 - 222
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 // with up to three triangles, we can have up to 9 vertices specified
 // note that this may lead to redundant interpolation (as in MC/MT), but we gain in
@@ -627,11 +627,11 @@ static const int clipTriangleVertices[27][3][3] = {
     { vtkFiberSurface::not_used, vtkFiberSurface::not_used, vtkFiberSurface::not_used } }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkStandardNewMacro(vtkFiberSurface);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkFiberSurface::vtkFiberSurface()
 {
@@ -640,28 +640,28 @@ vtkFiberSurface::vtkFiberSurface()
   this->Fields[0] = this->Fields[1] = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkFiberSurface::SetField1(const char* nm)
 {
   this->Fields[0] = nm;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkFiberSurface::SetField2(const char* nm)
 {
   this->Fields[1] = nm;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkFiberSurface::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkFiberSurface::FillInputPortInformation(int port, vtkInformation* info)
 {
@@ -679,7 +679,7 @@ int vtkFiberSurface::FillInputPortInformation(int port, vtkInformation* info)
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkFiberSurface::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)

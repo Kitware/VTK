@@ -50,7 +50,7 @@
 
 vtkStandardNewMacro(vtkCapsuleSource);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCapsuleSource::vtkCapsuleSource(int res)
 {
   res = res < 8 ? 8 : res;
@@ -68,7 +68,7 @@ vtkCapsuleSource::vtkCapsuleSource(int res)
 
 namespace
 {
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void InsertPole(
   vtkPoints* points, vtkFloatArray* normals, double center[3], double radius, double halfHeight)
 {
@@ -82,7 +82,7 @@ void InsertPole(
   normals->InsertNextTuple(x);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void FillHalfSphere(vtkPoints* points, vtkFloatArray* normals, double thetaResolution,
   double phiResolution, double startAngle, double sign, double center[3], double radius,
   double halfHeight)
@@ -116,7 +116,7 @@ void FillHalfSphere(vtkPoints* points, vtkFloatArray* normals, double thetaResol
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void ConnectCylinderSide(vtkCellArray* faces, int minusPoleId, int plusPoleId, int clockwise,
   int increment, int quadrangle)
 {
@@ -145,7 +145,7 @@ void ConnectCylinderSide(vtkCellArray* faces, int minusPoleId, int plusPoleId, i
 }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCapsuleSource::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -338,7 +338,7 @@ int vtkCapsuleSource::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCapsuleSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -351,7 +351,7 @@ void vtkCapsuleSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Radius: " << this->Radius << std::endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCapsuleSource::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {

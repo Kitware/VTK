@@ -28,21 +28,21 @@ int vtkSocketController::Initialized = 0;
 
 vtkStandardNewMacro(vtkSocketController);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSocketController::vtkSocketController()
 {
   this->Communicator = vtkSocketCommunicator::New();
   this->RMICommunicator = this->Communicator;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSocketController::~vtkSocketController()
 {
   this->Communicator->Delete();
   this->Communicator = this->RMICommunicator = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSocketController::Initialize(int*, char***)
 {
   if (vtkSocketController::Initialized)
@@ -61,7 +61,7 @@ void vtkSocketController::Initialize(int*, char***)
   vtkSocketController::Initialized = 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSocketController::SetCommunicator(vtkSocketCommunicator* comm)
 {
   if (comm == this->Communicator)
@@ -80,37 +80,37 @@ void vtkSocketController::SetCommunicator(vtkSocketCommunicator* comm)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSocketController::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSocketController::WaitForConnection(int port)
 {
   return vtkSocketCommunicator::SafeDownCast(this->Communicator)->WaitForConnection(port);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSocketController::CloseConnection()
 {
   vtkSocketCommunicator::SafeDownCast(this->Communicator)->CloseConnection();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSocketController::ConnectTo(const char* hostName, int port)
 {
   return vtkSocketCommunicator::SafeDownCast(this->Communicator)->ConnectTo(hostName, port);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSocketController::GetSwapBytesInReceivedData()
 {
   return vtkSocketCommunicator::SafeDownCast(this->Communicator)->GetSwapBytesInReceivedData();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiProcessController* vtkSocketController::CreateCompliantController()
 {
   vtkProcessGroup* group = vtkProcessGroup::New();

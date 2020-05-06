@@ -23,16 +23,16 @@ const int VTK_K_M = 2147483647; // Mersenne prime 2^(31)-1
 const int VTK_K_Q = 127773;     // M/A
 const int VTK_K_R = 2836;       // M%A
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMinimalStandardRandomSequence::vtkMinimalStandardRandomSequence()
 {
   this->Seed = 1;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMinimalStandardRandomSequence::~vtkMinimalStandardRandomSequence() = default;
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMinimalStandardRandomSequence::SetSeedOnly(int value)
 {
   this->Seed = value;
@@ -51,7 +51,7 @@ void vtkMinimalStandardRandomSequence::SetSeedOnly(int value)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMinimalStandardRandomSequence::SetSeed(int value)
 {
   this->SetSeedOnly(value);
@@ -64,13 +64,13 @@ void vtkMinimalStandardRandomSequence::SetSeed(int value)
   this->Next();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMinimalStandardRandomSequence::GetSeed()
 {
   return this->Seed;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkMinimalStandardRandomSequence::GetValue()
 {
   double result = static_cast<double>(this->Seed) / VTK_K_M;
@@ -79,7 +79,7 @@ double vtkMinimalStandardRandomSequence::GetValue()
   return result;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMinimalStandardRandomSequence::Next()
 {
   int hi = this->Seed / VTK_K_Q;
@@ -91,7 +91,7 @@ void vtkMinimalStandardRandomSequence::Next()
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkMinimalStandardRandomSequence::GetRangeValue(double rangeMin, double rangeMax)
 {
   double result;
@@ -109,7 +109,7 @@ double vtkMinimalStandardRandomSequence::GetRangeValue(double rangeMin, double r
   return result;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMinimalStandardRandomSequence::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

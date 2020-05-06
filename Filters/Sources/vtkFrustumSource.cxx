@@ -25,7 +25,7 @@
 vtkStandardNewMacro(vtkFrustumSource);
 vtkCxxSetObjectMacro(vtkFrustumSource, Planes, vtkPlanes);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFrustumSource::vtkFrustumSource()
 {
   this->Planes = nullptr;
@@ -37,7 +37,7 @@ vtkFrustumSource::vtkFrustumSource()
   this->SetNumberOfInputPorts(0);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFrustumSource::~vtkFrustumSource()
 {
   if (this->Planes != nullptr)
@@ -46,7 +46,7 @@ vtkFrustumSource::~vtkFrustumSource()
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkFrustumSource::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -381,7 +381,7 @@ void vtkFrustumSource::ComputePoint(int planes[3], double* pt)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Modified GetMTime because of Planes.
 vtkMTimeType vtkFrustumSource::GetMTime()
@@ -399,7 +399,7 @@ vtkMTimeType vtkFrustumSource::GetMTime()
   return mTime;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFrustumSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -29,10 +29,10 @@ using std::vector;
 // 2 -- all
 #define vtkSurfaceLICCompositeDEBUG 0
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkObjectFactoryNewMacro(vtkSurfaceLICComposite);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSurfaceLICComposite::vtkSurfaceLICComposite()
   : Pass(0)
   , WindowExt()
@@ -48,10 +48,10 @@ vtkSurfaceLICComposite::vtkSurfaceLICComposite()
 {
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSurfaceLICComposite::~vtkSurfaceLICComposite() = default;
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSurfaceLICComposite::Initialize(const vtkPixelExtent& winExt,
   const deque<vtkPixelExtent>& blockExts, int strategy, double stepSize, int nSteps,
   int normalizeVectors, int enhancedLIC, int antialias)
@@ -79,7 +79,7 @@ void vtkSurfaceLICComposite::Initialize(const vtkPixelExtent& winExt,
   this->NumberOfAAGuardPixels = 2 * antialias;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSurfaceLICComposite::VectorMax(
   const deque<vtkPixelExtent>& exts, float* vectors, vector<float>& vMax)
 {
@@ -117,7 +117,7 @@ int vtkSurfaceLICComposite::VectorMax(
   return 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 float vtkSurfaceLICComposite::VectorMax(const vtkPixelExtent& ext, float* vectors)
 {
 #if vtkSurfaceLICCompositeDEBUG >= 2
@@ -149,7 +149,7 @@ float vtkSurfaceLICComposite::VectorMax(const vtkPixelExtent& ext, float* vector
   return eMax;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSurfaceLICComposite::MakeDecompDisjoint(
   const deque<vtkPixelExtent>& in, deque<vtkPixelExtent>& out, float* vectors)
 {
@@ -193,7 +193,7 @@ int vtkSurfaceLICComposite::MakeDecompDisjoint(
   return 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSurfaceLICComposite::MakeDecompDisjoint(
   deque<vtkPixelExtent>& in, deque<vtkPixelExtent>& out)
 {
@@ -231,7 +231,7 @@ int vtkSurfaceLICComposite::MakeDecompDisjoint(
 // space. see how we transform step size in surface lic painter.
 // also there is bleeding at the edges so you do need a bit extra
 // paddding.
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 float vtkSurfaceLICComposite::GetFudgeFactor(int nx[2])
 {
   float aspect = float(nx[0]) / float(nx[1]);
@@ -242,7 +242,7 @@ float vtkSurfaceLICComposite::GetFudgeFactor(int nx[2])
   return fudge;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSurfaceLICComposite::AddGuardPixels(const deque<vtkPixelExtent>& exts,
   deque<vtkPixelExtent>& guardExts, deque<vtkPixelExtent>& disjointGuardExts, float* vectors)
 {
@@ -305,7 +305,7 @@ int vtkSurfaceLICComposite::AddGuardPixels(const deque<vtkPixelExtent>& exts,
   return 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSurfaceLICComposite::GetPixelBounds(float* rgba, int ni, vtkPixelExtent& ext)
 {
   vtkPixelExtent text;
@@ -325,7 +325,7 @@ void vtkSurfaceLICComposite::GetPixelBounds(float* rgba, int ni, vtkPixelExtent&
   ext = text;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSurfaceLICComposite::InitializeCompositeExtents(float* vectors)
 {
   // determine screen bounds of all blocks
@@ -353,7 +353,7 @@ int vtkSurfaceLICComposite::InitializeCompositeExtents(float* vectors)
   return 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSurfaceLICComposite::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os, indent);

@@ -19,7 +19,7 @@
 
 vtkStandardNewMacro(vtkImageConnector);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageConnector::vtkImageConnector()
 {
   this->Seeds = nullptr;
@@ -28,13 +28,13 @@ vtkImageConnector::vtkImageConnector()
   this->UnconnectedValue = 128;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageConnector::~vtkImageConnector()
 {
   this->RemoveAllSeeds();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageConnector::RemoveAllSeeds()
 {
   vtkImageConnectorSeed* temp;
@@ -48,7 +48,7 @@ void vtkImageConnector::RemoveAllSeeds()
   this->LastSeed = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageConnectorSeed* vtkImageConnector::NewSeed(int index[3], void* ptr)
 {
   vtkImageConnectorSeed* seed = vtkImageConnectorSeed::New();
@@ -64,7 +64,7 @@ vtkImageConnectorSeed* vtkImageConnector::NewSeed(int index[3], void* ptr)
   return seed;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Add a new seed to the end of the seed list.
 void vtkImageConnector::AddSeedToEnd(vtkImageConnectorSeed* seed)
 {
@@ -80,7 +80,7 @@ void vtkImageConnector::AddSeedToEnd(vtkImageConnectorSeed* seed)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Add a new seed to the start of the seed list.
 void vtkImageConnector::AddSeed(vtkImageConnectorSeed* seed)
 {
@@ -92,7 +92,7 @@ void vtkImageConnector::AddSeed(vtkImageConnectorSeed* seed)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Removes a seed from the start of the seed list, and returns the seed.
 vtkImageConnectorSeed* vtkImageConnector::PopSeed()
 {
@@ -107,7 +107,7 @@ vtkImageConnectorSeed* vtkImageConnector::PopSeed()
   return seed;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Input a data of 0's and "UnconnectedValue"s. Seeds of this object are
 // used to find connected pixels.
 // All pixels connected to seeds are set to ConnectedValue.

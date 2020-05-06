@@ -31,7 +31,7 @@
 
 vtkStandardNewMacro(vtkExtractFunctionalBagPlot);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractFunctionalBagPlot::vtkExtractFunctionalBagPlot()
 {
   this->SetNumberOfInputPorts(2);
@@ -40,16 +40,16 @@ vtkExtractFunctionalBagPlot::vtkExtractFunctionalBagPlot()
   this->PUser = 95;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractFunctionalBagPlot::~vtkExtractFunctionalBagPlot() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractFunctionalBagPlot::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class DensityVal
 {
 public:
@@ -63,7 +63,7 @@ public:
   vtkAbstractArray* Array;
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractFunctionalBagPlot::RequestData(vtkInformation* /*request*/,
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

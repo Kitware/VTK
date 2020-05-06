@@ -23,10 +23,10 @@
 #include "vtkRenderingOpenGLConfigure.h"
 #include "vtkShaderProgram.h"
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenGLRenderUtilities::vtkOpenGLRenderUtilities() = default;
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenGLRenderUtilities::~vtkOpenGLRenderUtilities() = default;
 
 void vtkOpenGLRenderUtilities::PrintSelf(ostream& os, vtkIndent indent)
@@ -34,7 +34,7 @@ void vtkOpenGLRenderUtilities::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // a program must be bound
 // a VAO must be bound
 void vtkOpenGLRenderUtilities::RenderQuad(
@@ -44,7 +44,7 @@ void vtkOpenGLRenderUtilities::RenderQuad(
   vtkOpenGLRenderUtilities::RenderTriangles(verts, 4, iboData, 6, tcoords, program, vao);
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // a program must be bound
 // a VAO must be bound
 void vtkOpenGLRenderUtilities::RenderTriangles(float* verts, unsigned int numVerts, GLuint* iboData,

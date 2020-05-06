@@ -26,7 +26,7 @@
 #include "vtkTree.h"
 #include "vtkUnsignedCharArray.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool VerifyArrayValue(vtkTree* tree, vtkIdType index, const char* arrayName, const char* baseline)
 {
   vtkAbstractArray* array = tree->GetVertexData()->GetAbstractArray(arrayName);
@@ -44,7 +44,7 @@ bool VerifyArrayValue(vtkTree* tree, vtkIdType index, const char* arrayName, con
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool VerifyArrayAttribute(
   vtkTree* tree, const char* arrayName, const char* attributeName, const char* baseline)
 {
@@ -79,7 +79,7 @@ bool VerifyArrayAttribute(
   return false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool VerifyColor(vtkTree* tree, vtkIdType vertex, unsigned char r, unsigned char g, unsigned char b)
 {
   vtkUnsignedCharArray* array =
@@ -115,7 +115,7 @@ bool VerifyColor(vtkTree* tree, vtkIdType vertex, unsigned char r, unsigned char
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestPhyloXMLTreeReadWrite(int argc, char* argv[])
 {
   // get the full path to the input file

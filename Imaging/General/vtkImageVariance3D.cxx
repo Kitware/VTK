@@ -23,7 +23,7 @@
 
 vtkStandardNewMacro(vtkImageVariance3D);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageVariance3D::vtkImageVariance3D()
 {
   this->HandleBoundaries = 1;
@@ -36,7 +36,7 @@ vtkImageVariance3D::vtkImageVariance3D()
   this->SetKernelSize(1, 1, 1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageVariance3D::~vtkImageVariance3D()
 {
   if (this->Ellipse)
@@ -46,13 +46,13 @@ vtkImageVariance3D::~vtkImageVariance3D()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageVariance3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method sets the size of the neighborhood.  It also sets the
 // default middle of the neighborhood and computes the Elliptical foot print.
 void vtkImageVariance3D::SetKernelSize(int size0, int size1, int size2)
@@ -97,7 +97,7 @@ void vtkImageVariance3D::SetKernelSize(int size0, int size1, int size2)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Output is always float
 int vtkImageVariance3D::RequestInformation(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -108,7 +108,7 @@ int vtkImageVariance3D::RequestInformation(
   return retval;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This templated function executes the filter on any region,
 // whether it needs boundary checking or not.
 // If the filter needs to be faster, the function could be duplicated
@@ -264,7 +264,7 @@ void vtkImageVariance3DExecute(vtkImageVariance3D* self, vtkImageData* mask, vtk
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method contains the first switch statement that calls the correct
 // templated function for the input and output Data types.
 // It handles image boundaries, so the image does not shrink.
@@ -306,7 +306,7 @@ void vtkImageVariance3D::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageVariance3D::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

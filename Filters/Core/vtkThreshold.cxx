@@ -52,19 +52,19 @@ vtkThreshold::vtkThreshold()
 
 vtkThreshold::~vtkThreshold() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkThreshold::Lower(double s) const
 {
   return (s <= this->LowerThreshold ? 1 : 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkThreshold::Upper(double s) const
 {
   return (s >= this->UpperThreshold ? 1 : 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkThreshold::Between(double s) const
 {
   return (s >= this->LowerThreshold ? (s <= this->UpperThreshold ? 1 : 0) : 0);

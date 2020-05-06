@@ -22,7 +22,7 @@
 
 vtkStandardNewMacro(vtkDummyGPUInfoList);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Build the list of vtkInfoGPU if not done yet.
 // \post probed: IsProbed()
@@ -37,13 +37,13 @@ void vtkDummyGPUInfoList::Probe()
   assert("post: probed" && this->IsProbed());
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDummyGPUInfoList::vtkDummyGPUInfoList() = default;
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDummyGPUInfoList::~vtkDummyGPUInfoList() = default;
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDummyGPUInfoList::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -17,7 +17,7 @@
 #include "vtkCommand.h"
 #include "vtkToolkits.h"
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct an instance of vtkRenderWindow with its screen size
 // set to 300x300, borders turned on, positioned at (0,0), double
 // buffering turned on.
@@ -44,14 +44,14 @@ vtkWindow::vtkWindow()
   this->TileScale[1] = 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Destructor for the vtkWindow object.
 vtkWindow::~vtkWindow()
 {
   this->SetWindowName(nullptr);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int* vtkWindow::GetSize()
 {
   this->TileSize[0] = this->Size[0] * this->TileScale[0];
@@ -60,7 +60,7 @@ int* vtkWindow::GetSize()
   return this->TileSize;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int* vtkWindow::GetActualSize()
 {
   // Some subclasses override GetSize() to do some additional magic.
@@ -68,13 +68,13 @@ int* vtkWindow::GetActualSize()
   return this->Size;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWindow::SetSize(int a[2])
 {
   this->SetSize(a[0], a[1]);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWindow::SetSize(int width, int height)
 {
   if (this->Size[0] != width || this->Size[1] != height)
@@ -86,19 +86,19 @@ void vtkWindow::SetSize(int width, int height)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int* vtkWindow::GetPosition()
 {
   return this->Position;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWindow::SetPosition(int a[2])
 {
   this->SetPosition(a[0], a[1]);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWindow::SetPosition(int x, int y)
 {
   if (this->Position[0] != x || this->Position[1] != y)
@@ -109,7 +109,7 @@ void vtkWindow::SetPosition(int x, int y)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

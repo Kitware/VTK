@@ -396,7 +396,7 @@ void vtkBYUReader::ReadTextureFile(int numPts, vtkInformation* outInfo)
   newTCoords->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This source does not know how to generate pieces yet.
 int vtkBYUReader::ComputeDivisionExtents(
   vtkDataObject* vtkNotUsed(output), int idx, int numDivisions)

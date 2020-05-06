@@ -27,7 +27,7 @@
 
 vtkStandardNewMacro(vtkImplicitProjectOnPlaneDistance);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImplicitProjectOnPlaneDistance::vtkImplicitProjectOnPlaneDistance()
   : Tolerance(0.01)
   , Norm(NormType::L2)
@@ -38,7 +38,7 @@ vtkImplicitProjectOnPlaneDistance::vtkImplicitProjectOnPlaneDistance()
 {
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitProjectOnPlaneDistance::SetInput(vtkPolyData* input)
 {
   if (this->Input != input)
@@ -75,7 +75,7 @@ void vtkImplicitProjectOnPlaneDistance::SetInput(vtkPolyData* input)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkImplicitProjectOnPlaneDistance::GetMTime()
 {
   vtkMTimeType mTime = this->vtkImplicitFunction::GetMTime();
@@ -90,7 +90,7 @@ vtkMTimeType vtkImplicitProjectOnPlaneDistance::GetMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitProjectOnPlaneDistance::CreateDefaultLocator()
 {
   if (this->Locator == nullptr)
@@ -99,7 +99,7 @@ void vtkImplicitProjectOnPlaneDistance::CreateDefaultLocator()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkImplicitProjectOnPlaneDistance::EvaluateFunction(double x[3])
 {
   if (!this->Input)
@@ -135,7 +135,7 @@ double vtkImplicitProjectOnPlaneDistance::EvaluateFunction(double x[3])
   return distanceToCell;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitProjectOnPlaneDistance::EvaluateGradient(
   double vtkNotUsed(x)[3], double vtkNotUsed(g)[3])
 {
@@ -144,7 +144,7 @@ void vtkImplicitProjectOnPlaneDistance::EvaluateGradient(
     false);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitProjectOnPlaneDistance::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImplicitFunction::PrintSelf(os, indent);

@@ -30,7 +30,7 @@
 
 vtkStandardNewMacro(vtkRectilinearGridToPointSet);
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRectilinearGridToPointSet::vtkRectilinearGridToPointSet() = default;
 
 vtkRectilinearGridToPointSet::~vtkRectilinearGridToPointSet() = default;
@@ -40,7 +40,7 @@ void vtkRectilinearGridToPointSet::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkRectilinearGridToPointSet::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (!this->Superclass::FillInputPortInformation(port, info))
@@ -51,7 +51,7 @@ int vtkRectilinearGridToPointSet::FillInputPortInformation(int port, vtkInformat
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkRectilinearGridToPointSet::CopyStructure(
   vtkStructuredGrid* outData, vtkRectilinearGrid* inData)
 {
@@ -98,7 +98,7 @@ int vtkRectilinearGridToPointSet::CopyStructure(
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkRectilinearGridToPointSet::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

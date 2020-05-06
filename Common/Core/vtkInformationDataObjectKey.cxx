@@ -18,23 +18,23 @@
 #include "../DataModel/vtkDataObject.h"
 #endif
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationDataObjectKey::vtkInformationDataObjectKey(const char* name, const char* location)
   : vtkInformationKey(name, location)
 {
   vtkCommonInformationKeyManager::Register(this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationDataObjectKey::~vtkInformationDataObjectKey() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationDataObjectKey::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationDataObjectKey::Set(vtkInformation* info, vtkDataObject* value)
 {
 #if defined(vtkCommonDataModel_ENABLED)
@@ -42,7 +42,7 @@ void vtkInformationDataObjectKey::Set(vtkInformation* info, vtkDataObject* value
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject* vtkInformationDataObjectKey::Get(vtkInformation* info)
 {
 #if defined(vtkCommonDataModel_ENABLED)
@@ -52,13 +52,13 @@ vtkDataObject* vtkInformationDataObjectKey::Get(vtkInformation* info)
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationDataObjectKey::ShallowCopy(vtkInformation* from, vtkInformation* to)
 {
   this->Set(to, this->Get(from));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationDataObjectKey::Report(vtkInformation* info, vtkGarbageCollector* collector)
 {
   this->ReportAsObjectBase(info, collector);

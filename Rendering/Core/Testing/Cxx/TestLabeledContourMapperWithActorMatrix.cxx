@@ -34,7 +34,7 @@
 #include "vtkTextPropertyCollection.h"
 #include "vtkTransform.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestLabeledContourMapperWithActorMatrix(int argc, char* argv[])
 {
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SainteHelens.dem");

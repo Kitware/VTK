@@ -28,19 +28,19 @@
 //============================================================================
 vtkStandardNewMacro(vtkPolyDataMapperNode);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyDataMapperNode::vtkPolyDataMapperNode() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyDataMapperNode::~vtkPolyDataMapperNode() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyDataMapperNode::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyDataMapperNode::TransformPoints(
   vtkActor* act, vtkPolyData* poly, std::vector<double>& _vertices)
 {
@@ -96,7 +96,7 @@ namespace
 // The CreateXIndexBuffer's were adapted from vtkOpenGLIndexBufferObject.
 // Apply rule of three if made again somewhere in VTK.
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Homogenizes everything into a flat list of point indexes.
 // At same time creates a reverse cell index array for obtaining cell quantities for points
@@ -122,7 +122,7 @@ void CreatePointIndexBuffer(vtkCellArray* cells, std::vector<unsigned int>& inde
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Homogenizes lines into a flat list of line segments, each containing two point indexes
 // At same time creates a reverse cell index array for obtaining cell quantities for points
@@ -150,7 +150,7 @@ void CreateLineIndexBuffer(vtkCellArray* cells, std::vector<unsigned int>& index
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Homogenizes polygons into a flat list of line segments, each containing two point indexes.
 // At same time creates a reverse cell index array for obtaining cell quantities for points
@@ -180,7 +180,7 @@ void CreateTriangleLineIndexBuffer(vtkCellArray* cells, std::vector<unsigned int
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Homogenizes polygons into a flat list of triangles, each containing three point indexes
 // At same time creates a reverse cell index array for obtaining cell quantities for points
@@ -324,7 +324,7 @@ void CreateTriangleIndexBuffer(vtkCellArray* cells, vtkPoints* points,
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Homogenizes triangle strips.
 // Depending on wireframeTriStrips it will produce either line segments (two indices per edge)
@@ -387,7 +387,7 @@ void CreateStripIndexBuffer(vtkCellArray* cells, std::vector<unsigned int>& inde
 }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyDataMapperNode::MakeConnectivity(
   vtkPolyData* poly, int representation, vtkPDConnectivity& conn)
 {

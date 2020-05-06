@@ -43,11 +43,11 @@ public:
   bool ExplicitOutputExtents;
 };
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkStandardNewMacro(vtkTableToSparseArray);
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkTableToSparseArray::vtkTableToSparseArray()
   : Implementation(new implementation())
@@ -58,14 +58,14 @@ vtkTableToSparseArray::vtkTableToSparseArray()
   this->SetNumberOfOutputPorts(1);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkTableToSparseArray::~vtkTableToSparseArray()
 {
   delete this->Implementation;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkTableToSparseArray::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -140,7 +140,7 @@ int vtkTableToSparseArray::FillInputPortInformation(int port, vtkInformation* in
   return 0;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkTableToSparseArray::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)

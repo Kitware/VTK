@@ -45,7 +45,7 @@
 vtkStandardNewMacro(vtkSynchronizedTemplatesCutter3D);
 vtkCxxSetObjectMacro(vtkSynchronizedTemplatesCutter3D, CutFunction, vtkImplicitFunction);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Construct object with initial scalar range (0,1) and single contour value
 // of 0.0. The ImageRange are set to extract the first k-plane.
@@ -55,13 +55,13 @@ vtkSynchronizedTemplatesCutter3D::vtkSynchronizedTemplatesCutter3D()
   this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSynchronizedTemplatesCutter3D::~vtkSynchronizedTemplatesCutter3D()
 {
   this->SetCutFunction(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static void vtkSynchronizedTemplatesCutter3DInitializeOutput(
   int* ext, int precision, vtkImageData* input, vtkPolyData* o)
 {
@@ -115,7 +115,7 @@ static void vtkSynchronizedTemplatesCutter3DInitializeOutput(
   newPolys->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 // Contouring filter specialized for images
 //
@@ -533,7 +533,7 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D* self, int* exExt, vtkImageDa
   delete[] scalars;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 // Contouring filter specialized for images (or slices from images)
 //
@@ -557,7 +557,7 @@ void vtkSynchronizedTemplatesCutter3D::ThreadedExecute(
   ContourImage(this, exExt, data, output, (double*)nullptr, this->GenerateTriangles != 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSynchronizedTemplatesCutter3D::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -577,7 +577,7 @@ int vtkSynchronizedTemplatesCutter3D::RequestData(vtkInformation* vtkNotUsed(req
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSynchronizedTemplatesCutter3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

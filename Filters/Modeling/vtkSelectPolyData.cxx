@@ -58,7 +58,7 @@ vtkSelectPolyData::vtkSelectPolyData()
   output3->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSelectPolyData::~vtkSelectPolyData()
 {
   if (this->Loop)
@@ -67,7 +67,7 @@ vtkSelectPolyData::~vtkSelectPolyData()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyData* vtkSelectPolyData::GetUnselectedOutput()
 {
   if (this->GetNumberOfOutputPorts() < 2)
@@ -78,7 +78,7 @@ vtkPolyData* vtkSelectPolyData::GetUnselectedOutput()
   return vtkPolyData::SafeDownCast(this->GetExecutive()->GetOutputData(1));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyData* vtkSelectPolyData::GetSelectionEdges()
 {
   if (this->GetNumberOfOutputPorts() < 3)
@@ -89,7 +89,7 @@ vtkPolyData* vtkSelectPolyData::GetSelectionEdges()
   return vtkPolyData::SafeDownCast(this->GetExecutive()->GetOutputData(2));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSelectPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -586,7 +586,7 @@ int vtkSelectPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelectPolyData::GetPointNeighbors(vtkIdType ptId, vtkIdList* nei)
 {
   vtkIdType ncells;
@@ -610,7 +610,7 @@ void vtkSelectPolyData::GetPointNeighbors(vtkIdType ptId, vtkIdList* nei)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkSelectPolyData::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
@@ -625,7 +625,7 @@ vtkMTimeType vtkSelectPolyData::GetMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelectPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

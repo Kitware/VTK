@@ -958,7 +958,7 @@ bool vtkShaderProgram::IsUniformUsed(const char* cname)
   return (result != -1);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkShaderProgram::IsAttributeUsed(const char* cname)
 {
   int result = this->FindAttributeArray(cname);
@@ -970,7 +970,7 @@ bool vtkShaderProgram::IsAttributeUsed(const char* cname)
   return (result != -1);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkShaderProgram::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

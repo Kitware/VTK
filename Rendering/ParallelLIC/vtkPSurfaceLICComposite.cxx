@@ -66,7 +66,7 @@ using std::vector;
 #include <sstream>
 using std::ostringstream;
 using std::string;
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static string mpifn(int rank, const char* fn)
 {
   ostringstream oss;
@@ -160,13 +160,13 @@ private:
   MPI_Op Union;
 };
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPPixelExtentOps::~vtkPPixelExtentOps()
 {
   this->DeleteOps();
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPPixelExtentOps::CreateOps()
 {
   if ((this->Union == MPI_OP_NULL) && vtkPPainterCommunicator::MPIInitialized())
@@ -175,7 +175,7 @@ void vtkPPixelExtentOps::CreateOps()
   }
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPPixelExtentOps::DeleteOps()
 {
   if ((this->Union != MPI_OP_NULL) && vtkPPainterCommunicator::MPIInitialized() &&
@@ -275,10 +275,10 @@ static int ScanMPIStatusForError(vector<MPI_Status>& stat)
 }
 #endif
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPSurfaceLICComposite);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPSurfaceLICComposite::vtkPSurfaceLICComposite()
   : vtkSurfaceLICComposite()
   , PainterComm(nullptr)
@@ -293,7 +293,7 @@ vtkPSurfaceLICComposite::vtkPSurfaceLICComposite()
   this->PixelOps = new vtkPPixelExtentOps;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPSurfaceLICComposite::~vtkPSurfaceLICComposite()
 {
   delete this->PainterComm;
@@ -309,7 +309,7 @@ vtkPSurfaceLICComposite::~vtkPSurfaceLICComposite()
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPSurfaceLICComposite::SetCommunicator(vtkPainterCommunicator* comm)
 {
 #if DUPLICATE_COMMUNICATOR
@@ -324,7 +324,7 @@ void vtkPSurfaceLICComposite::SetCommunicator(vtkPainterCommunicator* comm)
   this->PixelOps->CreateOps();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPSurfaceLICComposite::SetContext(vtkOpenGLRenderWindow* rwin)
 {
   if (this->Context == rwin)
@@ -362,7 +362,7 @@ void vtkPSurfaceLICComposite::SetContext(vtkOpenGLRenderWindow* rwin)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPSurfaceLICComposite::AllGatherExtents(const deque<vtkPixelExtent>& localExts,
   deque<deque<vtkPixelExtent>>& remoteExts, vtkPixelExtent& dataSetExt)
 {
@@ -428,7 +428,7 @@ int vtkPSurfaceLICComposite::AllGatherExtents(const deque<vtkPixelExtent>& local
   return 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPSurfaceLICComposite::AllReduceVectorMax(
   const deque<vtkPixelExtent>& originalExts,   // local data
   const deque<deque<vtkPixelExtent>>& newExts, // all composited regions
@@ -512,7 +512,7 @@ int vtkPSurfaceLICComposite::AllReduceVectorMax(
   return 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPSurfaceLICComposite::DecomposeExtent(
   vtkPixelExtent& in, int nPieces, list<vtkPixelExtent>& out)
 {
@@ -580,7 +580,7 @@ int vtkPSurfaceLICComposite::DecomposeExtent(
   return 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPSurfaceLICComposite::DecomposeScreenExtent(
   deque<deque<vtkPixelExtent>>& newExts, float* vectors)
 {
@@ -641,7 +641,7 @@ int vtkPSurfaceLICComposite::DecomposeScreenExtent(
   return 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPSurfaceLICComposite::MakeDecompLocallyDisjoint(
   const deque<deque<vtkPixelExtent>>& in, deque<deque<vtkPixelExtent>>& out)
 {
@@ -656,7 +656,7 @@ int vtkPSurfaceLICComposite::MakeDecompLocallyDisjoint(
   return 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPSurfaceLICComposite::MakeDecompDisjoint(
   const deque<deque<vtkPixelExtent>>& in, deque<deque<vtkPixelExtent>>& out, float* vectors)
 {
@@ -774,7 +774,7 @@ int vtkPSurfaceLICComposite::MakeDecompDisjoint(
   return 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPSurfaceLICComposite::AddGuardPixels(const deque<deque<vtkPixelExtent>>& exts,
   deque<deque<vtkPixelExtent>>& guardExts, deque<deque<vtkPixelExtent>>& disjointGuardExts,
   float* vectors)
@@ -874,7 +874,7 @@ int vtkPSurfaceLICComposite::AddGuardPixels(const deque<deque<vtkPixelExtent>>& 
   return 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkPSurfaceLICComposite::EstimateCommunicationCost(
   const deque<deque<vtkPixelExtent>>& srcExts, const deque<deque<vtkPixelExtent>>& destExts)
 {
@@ -919,7 +919,7 @@ double vtkPSurfaceLICComposite::EstimateCommunicationCost(
   return (static_cast<double>(overlap)) / (static_cast<double>(total));
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkPSurfaceLICComposite::EstimateDecompEfficiency(
   const deque<deque<vtkPixelExtent>>& exts, const deque<deque<vtkPixelExtent>>& guardExts)
 {
@@ -932,7 +932,7 @@ double vtkPSurfaceLICComposite::EstimateDecompEfficiency(
   return ne / fabs(ne - nge);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPSurfaceLICComposite::BuildProgram(float* vectors)
 {
 #if vtkPSurfaceLICCompositeDEBUG >= 2
@@ -1130,7 +1130,7 @@ int vtkPSurfaceLICComposite::BuildProgram(float* vectors)
   return 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPSurfaceLICComposite::Gather(
   void* pSendPBO, int dataType, int nComps, vtkTextureObject*& newImage)
 {
@@ -1432,7 +1432,7 @@ int vtkPSurfaceLICComposite::Gather(
   return 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPSurfaceLICComposite::ExecuteShader(const vtkPixelExtent& ext, vtkTextureObject* tex)
 {
   // cell to node
@@ -1463,7 +1463,7 @@ int vtkPSurfaceLICComposite::ExecuteShader(const vtkPixelExtent& ext, vtkTexture
   return 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPSurfaceLICComposite::Scatter(
   void* pSendPBO, int dataType, int nComps, vtkTextureObject*& newImage)
 {
@@ -1649,7 +1649,7 @@ int vtkPSurfaceLICComposite::Scatter(
   return 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPSurfaceLICComposite::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os, indent);

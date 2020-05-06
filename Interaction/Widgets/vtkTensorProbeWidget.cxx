@@ -32,7 +32,7 @@
 
 vtkStandardNewMacro(vtkTensorProbeWidget);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTensorProbeWidget::vtkTensorProbeWidget()
 {
   // These are the event callbacks supported by this widget
@@ -48,10 +48,10 @@ vtkTensorProbeWidget::vtkTensorProbeWidget()
   this->Selected = 0;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTensorProbeWidget::~vtkTensorProbeWidget() = default;
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorProbeWidget::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)
@@ -60,7 +60,7 @@ void vtkTensorProbeWidget::CreateDefaultRepresentation()
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorProbeWidget::SelectAction(vtkAbstractWidget* w)
 {
   vtkTensorProbeWidget* self = reinterpret_cast<vtkTensorProbeWidget*>(w);
@@ -83,7 +83,7 @@ void vtkTensorProbeWidget::SelectAction(vtkAbstractWidget* w)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorProbeWidget::EndSelectAction(vtkAbstractWidget* w)
 {
   vtkTensorProbeWidget* self = reinterpret_cast<vtkTensorProbeWidget*>(w);
@@ -97,7 +97,7 @@ void vtkTensorProbeWidget::EndSelectAction(vtkAbstractWidget* w)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorProbeWidget::MoveAction(vtkAbstractWidget* w)
 {
   vtkTensorProbeWidget* self = reinterpret_cast<vtkTensorProbeWidget*>(w);
@@ -125,7 +125,7 @@ void vtkTensorProbeWidget::MoveAction(vtkAbstractWidget* w)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorProbeWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

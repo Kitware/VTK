@@ -88,7 +88,7 @@ vtkOpenVRRenderer::~vtkOpenVRRenderer()
   this->FloorActor = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCamera* vtkOpenVRRenderer::MakeCamera()
 {
   vtkCamera* cam = vtkOpenVRCamera::New();

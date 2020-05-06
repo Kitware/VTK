@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkPassSelectedArrays);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPassSelectedArrays::vtkPassSelectedArrays()
   : Enabled(true)
 {
@@ -40,10 +40,10 @@ vtkPassSelectedArrays::vtkPassSelectedArrays()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPassSelectedArrays::~vtkPassSelectedArrays() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataArraySelection* vtkPassSelectedArrays::GetArraySelection(int association)
 {
   if (association >= 0 && association < vtkDataObject::NUMBER_OF_ASSOCIATIONS)
@@ -54,7 +54,7 @@ vtkDataArraySelection* vtkPassSelectedArrays::GetArraySelection(int association)
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPassSelectedArrays::FillInputPortInformation(int, vtkInformation* info)
 {
   // Skip composite data sets so that executives will treat this as a simple filter
@@ -67,7 +67,7 @@ int vtkPassSelectedArrays::FillInputPortInformation(int, vtkInformation* info)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPassSelectedArrays::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -129,7 +129,7 @@ int vtkPassSelectedArrays::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPassSelectedArrays::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -23,13 +23,13 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkStandardNewMacro(vtkMultiBlockMergeFilter);
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiBlockMergeFilter::vtkMultiBlockMergeFilter() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiBlockMergeFilter::~vtkMultiBlockMergeFilter() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMultiBlockMergeFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -103,7 +103,7 @@ int vtkMultiBlockMergeFilter::RequestData(vtkInformation* vtkNotUsed(request),
   return !first;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMultiBlockMergeFilter::IsMultiPiece(vtkMultiBlockDataSet* mb)
 {
   unsigned int numBlocks = mb->GetNumberOfBlocks();
@@ -118,7 +118,7 @@ int vtkMultiBlockMergeFilter::IsMultiPiece(vtkMultiBlockDataSet* mb)
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMultiBlockMergeFilter::Merge(unsigned int numPieces, unsigned int pieceNo,
   vtkMultiBlockDataSet* output, vtkMultiBlockDataSet* input)
 {
@@ -177,19 +177,19 @@ int vtkMultiBlockMergeFilter::Merge(unsigned int numPieces, unsigned int pieceNo
   return 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiBlockMergeFilter::AddInputData(vtkDataObject* input)
 {
   this->AddInputData(0, input);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiBlockMergeFilter::AddInputData(int index, vtkDataObject* input)
 {
   this->AddInputDataInternal(index, input);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMultiBlockMergeFilter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet");
@@ -198,7 +198,7 @@ int vtkMultiBlockMergeFilter::FillInputPortInformation(int, vtkInformation* info
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiBlockMergeFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

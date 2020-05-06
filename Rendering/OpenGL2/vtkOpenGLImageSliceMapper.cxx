@@ -54,7 +54,7 @@
 
 vtkStandardNewMacro(vtkOpenGLImageSliceMapper);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Initializes an instance, generates a unique index.
 vtkOpenGLImageSliceMapper::vtkOpenGLImageSliceMapper()
 {
@@ -129,7 +129,7 @@ vtkOpenGLImageSliceMapper::vtkOpenGLImageSliceMapper()
   this->LastSliceNumber = VTK_INT_MAX;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenGLImageSliceMapper::~vtkOpenGLImageSliceMapper()
 {
   this->RenderWindow = nullptr;
@@ -138,7 +138,7 @@ vtkOpenGLImageSliceMapper::~vtkOpenGLImageSliceMapper()
   this->PolyDataActor->UnRegister(this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Release the graphics resources used by this texture.
 void vtkOpenGLImageSliceMapper::ReleaseGraphicsResources(vtkWindow* renWin)
 {
@@ -150,7 +150,7 @@ void vtkOpenGLImageSliceMapper::ReleaseGraphicsResources(vtkWindow* renWin)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Subdivide the image until the pieces fit into texture memory
 void vtkOpenGLImageSliceMapper::RecursiveRenderTexturedPolygon(
   vtkRenderer* ren, vtkImageProperty* property, vtkImageData* input, int extent[6], bool recursive)
@@ -206,7 +206,7 @@ void vtkOpenGLImageSliceMapper::RecursiveRenderTexturedPolygon(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Load the given image extent into a texture and render it
 void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
   vtkRenderer* ren, vtkImageProperty* property, vtkImageData* input, int extent[6], bool recursive)
@@ -329,7 +329,7 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
   vtkOpenGLCheckErrorMacro("failed after RenderTexturedPolygon");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Render the polygon that displays the image data
 void vtkOpenGLImageSliceMapper::RenderPolygon(
   vtkActor* actor, vtkPoints* points, const int extent[6], vtkRenderer* ren)
@@ -442,7 +442,7 @@ void vtkOpenGLImageSliceMapper::RenderPolygon(
   vtkOpenGLCheckErrorMacro("failed after RenderPolygon");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Render a wide black border around the polygon, wide enough to fill
 // the entire viewport.
 void vtkOpenGLImageSliceMapper::RenderBackground(
@@ -571,7 +571,7 @@ void vtkOpenGLImageSliceMapper::RenderBackground(
   vtkOpenGLCheckErrorMacro("failed after RenderBackground");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLImageSliceMapper::ComputeTextureSize(
   const int extent[6], int& xdim, int& ydim, int imageSize[2], int textureSize[2])
 {
@@ -587,7 +587,7 @@ void vtkOpenGLImageSliceMapper::ComputeTextureSize(
   textureSize[1] = imageSize[1];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Determine if a given texture size is supported by the video card
 bool vtkOpenGLImageSliceMapper::TextureSizeOK(const int size[2], vtkRenderer* ren)
 {
@@ -606,7 +606,7 @@ bool vtkOpenGLImageSliceMapper::TextureSizeOK(const int size[2], vtkRenderer* re
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Set the modelview transform and load the texture
 void vtkOpenGLImageSliceMapper::Render(vtkRenderer* ren, vtkImageSlice* prop)
 {
@@ -708,7 +708,7 @@ void vtkOpenGLImageSliceMapper::Render(vtkRenderer* ren, vtkImageSlice* prop)
   vtkOpenGLCheckErrorMacro("failed after Render");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLImageSliceMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

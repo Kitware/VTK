@@ -25,21 +25,21 @@
 
 #include <vtksys/RegularExpression.hxx>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The singleton, and the singleton cleanup
 vtkTextRenderer* vtkTextRenderer::Instance = nullptr;
 vtkTextRendererCleanup vtkTextRenderer::Cleanup;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTextRendererCleanup::vtkTextRendererCleanup() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTextRendererCleanup::~vtkTextRendererCleanup()
 {
   vtkTextRenderer::SetInstance(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextRenderer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -49,7 +49,7 @@ void vtkTextRenderer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MathTextRegExp2: " << this->MathTextRegExp2 << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTextRenderer* vtkTextRenderer::New()
 {
   vtkTextRenderer* instance = vtkTextRenderer::GetInstance();
@@ -60,7 +60,7 @@ vtkTextRenderer* vtkTextRenderer::New()
   return instance;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTextRenderer* vtkTextRenderer::GetInstance()
 {
   if (vtkTextRenderer::Instance)
@@ -74,7 +74,7 @@ vtkTextRenderer* vtkTextRenderer::GetInstance()
   return vtkTextRenderer::Instance;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextRenderer::SetInstance(vtkTextRenderer* instance)
 {
   if (vtkTextRenderer::Instance == instance)
@@ -95,7 +95,7 @@ void vtkTextRenderer::SetInstance(vtkTextRenderer* instance)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTextRenderer::vtkTextRenderer()
   : MathTextRegExp(new vtksys::RegularExpression("[^\\]\\$.*[^\\]\\$"))
   , MathTextRegExp2(new vtksys::RegularExpression("^\\$.*[^\\]\\$"))
@@ -103,14 +103,14 @@ vtkTextRenderer::vtkTextRenderer()
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTextRenderer::~vtkTextRenderer()
 {
   delete this->MathTextRegExp;
   delete this->MathTextRegExp2;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTextRenderer::DetectBackend(const vtkStdString& str)
 {
   if (!str.empty())
@@ -130,7 +130,7 @@ int vtkTextRenderer::DetectBackend(const vtkStdString& str)
   return static_cast<int>(FreeType);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTextRenderer::DetectBackend(const vtkUnicodeString& str)
 {
   if (!str.empty())
@@ -151,7 +151,7 @@ int vtkTextRenderer::DetectBackend(const vtkUnicodeString& str)
   return static_cast<int>(FreeType);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextRenderer::CleanUpFreeTypeEscapes(vtkStdString& str)
 {
   size_t ind = str.find("\\$");
@@ -162,7 +162,7 @@ void vtkTextRenderer::CleanUpFreeTypeEscapes(vtkStdString& str)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextRenderer::CleanUpFreeTypeEscapes(vtkUnicodeString& str)
 {
   // vtkUnicodeString has only a subset of the std::string API available, so

@@ -67,7 +67,7 @@ class vtkTransformList : public std::list<vtkQTransform>
 };
 typedef vtkTransformList::iterator TransformListIterator;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTransformInterpolator::vtkTransformInterpolator()
 {
   // Set up the interpolation
@@ -83,7 +83,7 @@ vtkTransformInterpolator::vtkTransformInterpolator()
   this->Initialized = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTransformInterpolator::~vtkTransformInterpolator()
 {
   delete this->TransformList;
@@ -102,7 +102,7 @@ vtkTransformInterpolator::~vtkTransformInterpolator()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkTransformInterpolator::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
@@ -127,13 +127,13 @@ vtkMTimeType vtkTransformInterpolator::GetMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTransformInterpolator::GetNumberOfTransforms()
 {
   return static_cast<int>(this->TransformList->size());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkTransformInterpolator::GetMinimumT()
 {
   if (this->TransformList->empty())
@@ -146,7 +146,7 @@ double vtkTransformInterpolator::GetMinimumT()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkTransformInterpolator::GetMaximumT()
 {
   if (this->TransformList->empty())
@@ -159,13 +159,13 @@ double vtkTransformInterpolator::GetMaximumT()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTransformInterpolator::Initialize()
 {
   this->TransformList->clear();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTransformInterpolator::AddTransform(double t, vtkTransform* xform)
 {
   int size = static_cast<int>(this->TransformList->size());
@@ -205,7 +205,7 @@ void vtkTransformInterpolator::AddTransform(double t, vtkTransform* xform)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTransformInterpolator::AddTransform(double t, vtkMatrix4x4* matrix)
 {
   vtkTransform* xform = vtkTransform::New();
@@ -214,13 +214,13 @@ void vtkTransformInterpolator::AddTransform(double t, vtkMatrix4x4* matrix)
   xform->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTransformInterpolator::AddTransform(double t, vtkProp3D* prop3D)
 {
   this->AddTransform(t, prop3D->GetMatrix());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTransformInterpolator::RemoveTransform(double t)
 {
   if (t < this->TransformList->front().Time || t > this->TransformList->back().Time)
@@ -238,7 +238,7 @@ void vtkTransformInterpolator::RemoveTransform(double t)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTransformInterpolator::SetPositionInterpolator(vtkTupleInterpolator* pi)
 {
   if (this->PositionInterpolator != pi)
@@ -256,7 +256,7 @@ void vtkTransformInterpolator::SetPositionInterpolator(vtkTupleInterpolator* pi)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTransformInterpolator::SetScaleInterpolator(vtkTupleInterpolator* si)
 {
   if (this->ScaleInterpolator != si)
@@ -274,7 +274,7 @@ void vtkTransformInterpolator::SetScaleInterpolator(vtkTupleInterpolator* si)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTransformInterpolator::SetRotationInterpolator(vtkQuaternionInterpolator* ri)
 {
   if (this->RotationInterpolator != ri)
@@ -292,7 +292,7 @@ void vtkTransformInterpolator::SetRotationInterpolator(vtkQuaternionInterpolator
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTransformInterpolator::InitializeInterpolation()
 {
   if (this->TransformList->empty())
@@ -354,7 +354,7 @@ void vtkTransformInterpolator::InitializeInterpolation()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTransformInterpolator::InterpolateTransform(double t, vtkTransform* xform)
 {
   if (this->TransformList->empty())
@@ -389,7 +389,7 @@ void vtkTransformInterpolator::InterpolateTransform(double t, vtkTransform* xfor
   xform->Scale(S);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTransformInterpolator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

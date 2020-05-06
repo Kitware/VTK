@@ -24,20 +24,20 @@
 
 vtkStandardNewMacro(vtkPDirectory);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPDirectory::vtkPDirectory()
 {
   this->Files = vtkStringArray::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPDirectory::~vtkPDirectory()
 {
   this->Files->Delete();
   this->Files = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPDirectory::Load(const std::string& name)
 {
   this->Clear();
@@ -85,19 +85,19 @@ bool vtkPDirectory::Load(const std::string& name)
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPDirectory::Open(const char* name)
 {
   return static_cast<int>(this->Load(name));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkPDirectory::GetNumberOfFiles() const
 {
   return this->Files->GetNumberOfTuples();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkPDirectory::GetFile(vtkIdType index) const
 {
   if (index >= this->Files->GetNumberOfTuples())
@@ -107,7 +107,7 @@ const char* vtkPDirectory::GetFile(vtkIdType index) const
   return this->Files->GetValue(index).c_str();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPDirectory::FileIsDirectory(const char* name)
 {
   // The vtksys::SystemTools::FileIsDirectory()
@@ -205,20 +205,20 @@ int vtkPDirectory::FileIsDirectory(const char* name)
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkPDirectory::GetPath() const
 {
   return this->Path.c_str();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPDirectory::Clear()
 {
   this->Path.clear();
   this->Files->Reset();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPDirectory::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -42,7 +42,7 @@
 
 #include <string>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class ContextPDFTest : public vtkContextItem
 {
   void SetSpritePoint(int x, int y, vtkImageData* sprite);

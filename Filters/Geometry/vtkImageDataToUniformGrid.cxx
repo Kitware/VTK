@@ -29,23 +29,23 @@
 
 vtkStandardNewMacro(vtkImageDataToUniformGrid);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageDataToUniformGrid::vtkImageDataToUniformGrid()
 {
   this->Reverse = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageDataToUniformGrid::~vtkImageDataToUniformGrid() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageDataToUniformGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Reverse: " << this->Reverse << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageDataToUniformGrid::RequestDataObject(
   vtkInformation*, vtkInformationVector** inV, vtkInformationVector* outV)
 {
@@ -86,7 +86,7 @@ int vtkImageDataToUniformGrid::RequestDataObject(
   return VTK_ERROR;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageDataToUniformGrid::RequestData(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outV)
 {
@@ -147,7 +147,7 @@ int vtkImageDataToUniformGrid::RequestData(
   return VTK_OK;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageDataToUniformGrid::FillInputPortInformation(int port, vtkInformation* info)
 {
   this->Superclass::FillInputPortInformation(port, info);
@@ -158,7 +158,7 @@ int vtkImageDataToUniformGrid::FillInputPortInformation(int port, vtkInformation
   return VTK_OK;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageDataToUniformGrid::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   // now add our info
@@ -167,7 +167,7 @@ int vtkImageDataToUniformGrid::FillOutputPortInformation(int vtkNotUsed(port), v
   return VTK_OK;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageDataToUniformGrid::Process(
   vtkImageData* input, int association, const char* arrayName, vtkUniformGrid* output)
 {

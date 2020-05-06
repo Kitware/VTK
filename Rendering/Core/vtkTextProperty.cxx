@@ -17,7 +17,7 @@
 
 vtkStandardNewMacro(vtkTextProperty);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTextProperty::vtkTextProperty()
 {
   this->Color[0] = 1.0;
@@ -59,14 +59,14 @@ vtkTextProperty::vtkTextProperty()
   this->Orientation = 0.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTextProperty::~vtkTextProperty()
 {
   this->SetFontFamilyAsString(nullptr);
   this->SetFontFile(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextProperty::ShallowCopy(vtkTextProperty* tprop)
 {
   if (!tprop)
@@ -105,7 +105,7 @@ void vtkTextProperty::ShallowCopy(vtkTextProperty* tprop)
   this->SetShadowOffset(tprop->GetShadowOffset());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextProperty::GetShadowColor(double color[3])
 {
 #if 1
@@ -117,7 +117,7 @@ void vtkTextProperty::GetShadowColor(double color[3])
   color[0] = color[1] = color[2] = shadow_i;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextProperty::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

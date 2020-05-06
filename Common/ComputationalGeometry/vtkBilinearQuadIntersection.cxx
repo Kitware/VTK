@@ -81,7 +81,7 @@ double ComputeIntersectionFactor(
 }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBilinearQuadIntersection::vtkBilinearQuadIntersection(const vtkVector3d& pt00,
   const vtkVector3d& pt01, const vtkVector3d& pt10, const vtkVector3d& pt11)
   : Point00(pt00.GetData())
@@ -91,31 +91,31 @@ vtkBilinearQuadIntersection::vtkBilinearQuadIntersection(const vtkVector3d& pt00
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkBilinearQuadIntersection::GetP00Data()
 {
   return this->Point00.GetData();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkBilinearQuadIntersection::GetP01Data()
 {
   return this->Point01.GetData();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkBilinearQuadIntersection::GetP10Data()
 {
   return this->Point10.GetData();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkBilinearQuadIntersection::GetP11Data()
 {
   return this->Point11.GetData();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkVector3d vtkBilinearQuadIntersection::ComputeCartesianCoordinates(double u, double v)
 {
   vtkVector3d respt;
@@ -138,7 +138,7 @@ vtkVector3d vtkBilinearQuadIntersection::ComputeCartesianCoordinates(double u, d
   return respt;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkBilinearQuadIntersection::RayIntersection(
   const vtkVector3d& r, const vtkVector3d& q, vtkVector3d& uv)
 {

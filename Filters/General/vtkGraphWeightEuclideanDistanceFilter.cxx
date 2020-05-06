@@ -44,7 +44,7 @@ bool vtkGraphWeightEuclideanDistanceFilter::CheckRequirements(vtkGraph* const gr
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphWeightEuclideanDistanceFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkGraphWeightFilter::PrintSelf(os, indent);

@@ -15,32 +15,32 @@
 #include "vtkProcess.h"
 #include "vtkMultiProcessController.h"
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProcess::vtkProcess()
 {
   this->Controller = nullptr;
   this->ReturnValue = 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiProcessController* vtkProcess::GetController()
 {
   return this->Controller;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProcess::SetController(vtkMultiProcessController* aController)
 {
   this->Controller = aController;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkProcess::GetReturnValue()
 {
   return this->ReturnValue;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProcess::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

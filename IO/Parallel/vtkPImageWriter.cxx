@@ -44,7 +44,7 @@ vtkStandardNewMacro(vtkPImageWriter);
 #undef close
 #endif
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPImageWriter::vtkPImageWriter()
 {
   // Set a default memory limit of a gibibyte
@@ -53,7 +53,7 @@ vtkPImageWriter::vtkPImageWriter()
   this->SizeEstimator = vtkPipelineSize::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPImageWriter::~vtkPImageWriter()
 {
   if (this->SizeEstimator)
@@ -62,7 +62,7 @@ vtkPImageWriter::~vtkPImageWriter()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPImageWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -70,7 +70,7 @@ void vtkPImageWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MemoryLimit (in kibibytes): " << this->MemoryLimit << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Breaks region into pieces with correct dimensionality.
 void vtkPImageWriter::RecursiveWrite(
   int axis, vtkImageData* cache, vtkInformation* inInfo, ostream* file)

@@ -32,7 +32,7 @@
 
 // TODO , tweak the sampling rate and number of samples to test if the
 // baseline image would be matched (only visible differences on the edges)
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestGPURayCastMapperBenchmark(int argc, char* argv[])
 {
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;

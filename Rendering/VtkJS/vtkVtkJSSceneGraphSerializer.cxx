@@ -51,7 +51,7 @@
 #include <sstream>
 #include <unordered_map>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 namespace
 {
 static const std::array<char, 13> arrayTypes = {
@@ -116,7 +116,7 @@ std::string ptrToString(void* ptr)
 }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 struct vtkVtkJSSceneGraphSerializer::Internal
 {
   Internal()
@@ -186,21 +186,21 @@ Json::ArrayIndex vtkVtkJSSceneGraphSerializer::Internal::uniqueId(void* ptr)
   return id;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkVtkJSSceneGraphSerializer);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkVtkJSSceneGraphSerializer::vtkVtkJSSceneGraphSerializer()
   : Internals(new vtkVtkJSSceneGraphSerializer::Internal)
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkVtkJSSceneGraphSerializer::~vtkVtkJSSceneGraphSerializer()
 {
   delete Internals;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVtkJSSceneGraphSerializer::Reset()
 {
   this->Internals->Root = Json::Value();
@@ -210,49 +210,49 @@ void vtkVtkJSSceneGraphSerializer::Reset()
   this->Internals->DataArrays.clear();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const Json::Value& vtkVtkJSSceneGraphSerializer::GetRoot() const
 {
   return this->Internals->Root;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkVtkJSSceneGraphSerializer::GetNumberOfDataObjects() const
 {
   return vtkIdType(this->Internals->DataObjects.size());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 Json::ArrayIndex vtkVtkJSSceneGraphSerializer::GetDataObjectId(vtkIdType i) const
 {
   return this->Internals->DataObjects.at(i).first;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject* vtkVtkJSSceneGraphSerializer::GetDataObject(vtkIdType i) const
 {
   return this->Internals->DataObjects.at(i).second;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkVtkJSSceneGraphSerializer::GetNumberOfDataArrays() const
 {
   return vtkIdType(this->Internals->DataArrays.size());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::string vtkVtkJSSceneGraphSerializer::GetDataArrayId(vtkIdType i) const
 {
   return this->Internals->DataArrays.at(i).first;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataArray* vtkVtkJSSceneGraphSerializer::GetDataArray(vtkIdType i) const
 {
   return this->Internals->DataArrays.at(i).second;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVtkJSSceneGraphSerializer::Add(vtkViewNode* node, vtkActor* actor)
 {
   // Skip actors that are connected to composite mappers (they are dealt with
@@ -291,7 +291,7 @@ void vtkVtkJSSceneGraphSerializer::Add(vtkViewNode* node, vtkActor* actor)
   (*parent)["calls"].append(v);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVtkJSSceneGraphSerializer::Add(Json::Value* self, vtkAlgorithm* algorithm)
 {
   algorithm->Update();
@@ -318,7 +318,7 @@ void vtkVtkJSSceneGraphSerializer::Add(Json::Value* self, vtkAlgorithm* algorith
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 namespace
 {
 #if VTK_MODULE_ENABLE_VTK_RenderingOpenGL2
@@ -363,7 +363,7 @@ SetColorAndOpacity(Json::Value&, CompositeMapper*, vtkDataObject*)
 }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <typename CompositeMapper>
 void vtkVtkJSSceneGraphSerializer::Add(
   vtkViewNode* node, vtkDataObject* dataObject, CompositeMapper* mapper)
@@ -452,13 +452,13 @@ void vtkVtkJSSceneGraphSerializer::Add(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVtkJSSceneGraphSerializer::Add(vtkViewNode* node, vtkCompositePolyDataMapper* mapper)
 {
   this->Add<vtkCompositePolyDataMapper>(node, mapper->GetInputDataObject(0, 0), mapper);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVtkJSSceneGraphSerializer::Add(vtkViewNode* node, vtkCompositePolyDataMapper2* mapper)
 {
 #if VTK_MODULE_ENABLE_VTK_RenderingOpenGL2
@@ -469,7 +469,7 @@ void vtkVtkJSSceneGraphSerializer::Add(vtkViewNode* node, vtkCompositePolyDataMa
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVtkJSSceneGraphSerializer::Add(vtkViewNode* node, vtkGlyph3DMapper* mapper)
 {
   // TODO: vtkGlyph3DMapper and its derived implementation
@@ -508,7 +508,7 @@ void vtkVtkJSSceneGraphSerializer::Add(vtkViewNode* node, vtkGlyph3DMapper* mapp
   this->Add(this->Internals->entry(node->GetRenderable()), vtkAlgorithm::SafeDownCast(mapper));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVtkJSSceneGraphSerializer::Add(vtkViewNode* node, vtkMapper* mapper)
 {
   Json::Value* parent = this->Internals->entry(node->GetParent()->GetRenderable());
@@ -525,7 +525,7 @@ void vtkVtkJSSceneGraphSerializer::Add(vtkViewNode* node, vtkMapper* mapper)
   this->Add(this->Internals->entry(node->GetRenderable()), vtkAlgorithm::SafeDownCast(mapper));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVtkJSSceneGraphSerializer::Add(vtkViewNode* node, vtkRenderer* renderer)
 {
   Json::Value* parent = this->Internals->entry(node->GetParent()->GetRenderable());
@@ -540,13 +540,13 @@ void vtkVtkJSSceneGraphSerializer::Add(vtkViewNode* node, vtkRenderer* renderer)
   (*parent)["calls"].append(v);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVtkJSSceneGraphSerializer::Add(vtkViewNode*, vtkRenderWindow* window)
 {
   this->Internals->Root = this->ToJson(window);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 Json::Value vtkVtkJSSceneGraphSerializer::ToJson(
   Json::Value& parent, vtkAlgorithm* algorithm, vtkDataObject* dataObject)
 {
@@ -565,7 +565,7 @@ Json::Value vtkVtkJSSceneGraphSerializer::ToJson(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 Json::Value vtkVtkJSSceneGraphSerializer::ToJson(
   Json::Value& parent, vtkAlgorithm* algorithm, vtkImageData* imageData)
 {
@@ -596,7 +596,7 @@ Json::Value vtkVtkJSSceneGraphSerializer::ToJson(
   return val;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 Json::Value vtkVtkJSSceneGraphSerializer::ToJson(vtkDataArray* array)
 {
   Json::Value val;
@@ -629,7 +629,7 @@ Json::Value vtkVtkJSSceneGraphSerializer::ToJson(vtkDataArray* array)
   return val;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 Json::Value vtkVtkJSSceneGraphSerializer::ToJson(
   Json::Value& parent, vtkAlgorithm* algorithm, vtkPolyData* polyData)
 {
@@ -679,7 +679,7 @@ Json::Value vtkVtkJSSceneGraphSerializer::ToJson(
   return val;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 Json::Value vtkVtkJSSceneGraphSerializer::ToJson(Json::Value& parent, vtkProperty* property)
 {
   Json::Value val;
@@ -717,7 +717,7 @@ Json::Value vtkVtkJSSceneGraphSerializer::ToJson(Json::Value& parent, vtkPropert
   return val;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 Json::Value vtkVtkJSSceneGraphSerializer::ToJson(Json::Value& parent, vtkTransform* transform)
 {
   Json::Value val;
@@ -746,7 +746,7 @@ Json::Value vtkVtkJSSceneGraphSerializer::ToJson(Json::Value& parent, vtkTransfo
   return val;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 Json::Value vtkVtkJSSceneGraphSerializer::ToJson(Json::Value& parent, vtkTexture* texture)
 {
   Json::Value val;
@@ -807,7 +807,7 @@ Json::Value vtkVtkJSSceneGraphSerializer::ToJson(Json::Value& parent, vtkTexture
   return val;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 Json::Value vtkVtkJSSceneGraphSerializer::ToJson(
   Json::Value& parent, vtkActor* actor, bool newPropertyId)
 {
@@ -869,7 +869,7 @@ Json::Value vtkVtkJSSceneGraphSerializer::ToJson(
   return val;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 Json::Value vtkVtkJSSceneGraphSerializer::ToJson(Json::Value& parent, vtkLookupTable* lookupTable)
 {
   Json::Value val;
@@ -900,7 +900,7 @@ Json::Value vtkVtkJSSceneGraphSerializer::ToJson(Json::Value& parent, vtkLookupT
   return val;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 Json::Value vtkVtkJSSceneGraphSerializer::ToJson(
   Json::Value& parent, Json::ArrayIndex id, vtkMapper* mapper, bool newLUTId)
 {
@@ -946,7 +946,7 @@ Json::Value vtkVtkJSSceneGraphSerializer::ToJson(
   return val;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 Json::Value vtkVtkJSSceneGraphSerializer::ToJson(
   Json::Value& parent, Json::ArrayIndex id, vtkGlyph3DMapper* mapper)
 {
@@ -964,7 +964,7 @@ Json::Value vtkVtkJSSceneGraphSerializer::ToJson(
   return val;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 Json::Value vtkVtkJSSceneGraphSerializer::ToJson(Json::Value& parent, vtkCamera* camera)
 {
   Json::Value val;
@@ -988,7 +988,7 @@ Json::Value vtkVtkJSSceneGraphSerializer::ToJson(Json::Value& parent, vtkCamera*
   return val;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 Json::Value vtkVtkJSSceneGraphSerializer::ToJson(Json::Value& parent, vtkLight* light)
 {
   Json::Value val;
@@ -1021,7 +1021,7 @@ Json::Value vtkVtkJSSceneGraphSerializer::ToJson(Json::Value& parent, vtkLight* 
   return val;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 Json::Value vtkVtkJSSceneGraphSerializer::ToJson(Json::Value& parent, vtkRenderer* renderer)
 {
   Json::Value val;
@@ -1089,7 +1089,7 @@ Json::Value vtkVtkJSSceneGraphSerializer::ToJson(Json::Value& parent, vtkRendere
   return val;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 Json::Value vtkVtkJSSceneGraphSerializer::ToJson(vtkRenderWindow* renderWindow)
 {
   Json::Value val;
@@ -1109,13 +1109,13 @@ Json::Value vtkVtkJSSceneGraphSerializer::ToJson(vtkRenderWindow* renderWindow)
   return val;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 Json::ArrayIndex vtkVtkJSSceneGraphSerializer::UniqueId(void* ptr)
 {
   return this->Internals->uniqueId(ptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVtkJSSceneGraphSerializer::extractRequiredFields(
   Json::Value& extractedFields, vtkMapper* mapper, vtkDataSet* dataSet)
 {
@@ -1201,7 +1201,7 @@ void vtkVtkJSSceneGraphSerializer::extractRequiredFields(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVtkJSSceneGraphSerializer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

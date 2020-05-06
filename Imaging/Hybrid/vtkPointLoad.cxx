@@ -25,7 +25,7 @@
 
 vtkStandardNewMacro(vtkPointLoad);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct with ModelBounds=(-1,1,-1,1,-1,1), SampleDimensions=(50,50,50),
 // and LoadValue = 1.
 vtkPointLoad::vtkPointLoad()
@@ -48,7 +48,7 @@ vtkPointLoad::vtkPointLoad()
   this->SetNumberOfInputPorts(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify the dimensions of the volume. A stress tensor will be computed for
 // each point in the volume.
 void vtkPointLoad::SetSampleDimensions(int i, int j, int k)
@@ -62,7 +62,7 @@ void vtkPointLoad::SetSampleDimensions(int i, int j, int k)
   this->SetSampleDimensions(dim);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify the dimensions of the volume. A stress tensor will be computed for
 // each point in the volume.
 void vtkPointLoad::SetSampleDimensions(int dim[3])
@@ -81,7 +81,7 @@ void vtkPointLoad::SetSampleDimensions(int dim[3])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPointLoad::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -122,7 +122,7 @@ int vtkPointLoad::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 // Generate tensors and scalars for point load on semi-infinite domain.
 //
@@ -247,7 +247,7 @@ void vtkPointLoad::ExecuteDataWithInformation(vtkDataObject* outp, vtkInformatio
   newTensors->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointLoad::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

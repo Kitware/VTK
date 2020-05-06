@@ -53,7 +53,7 @@ public:
   vtkAngleWidget* AngleWidget;
 };
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAngleWidget::vtkAngleWidget()
 {
   this->ManagesCursor = 0;
@@ -111,7 +111,7 @@ vtkAngleWidget::vtkAngleWidget()
     vtkWidgetEvent::EndSelect, this, vtkAngleWidget::EndSelectAction);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAngleWidget::~vtkAngleWidget()
 {
   this->Point1Widget->RemoveObserver(this->AngleWidgetCallback1);
@@ -127,7 +127,7 @@ vtkAngleWidget::~vtkAngleWidget()
   this->AngleWidgetCallback2->Delete();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngleWidget::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)
@@ -137,7 +137,7 @@ void vtkAngleWidget::CreateDefaultRepresentation()
   reinterpret_cast<vtkAngleRepresentation*>(this->WidgetRep)->InstantiateHandleRepresentation();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngleWidget::SetEnabled(int enabling)
 {
   // The handle widgets are not actually enabled until they are placed.
@@ -332,7 +332,7 @@ void vtkAngleWidget::SetEnabled(int enabling)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkAngleWidget::IsAngleValid()
 {
   if (this->WidgetState == vtkAngleWidget::Manipulate ||
@@ -347,7 +347,7 @@ vtkTypeBool vtkAngleWidget::IsAngleValid()
 }
 
 // The following methods are the callbacks that the angle widget responds to.
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngleWidget::AddPointAction(vtkAbstractWidget* w)
 {
   vtkAngleWidget* self = reinterpret_cast<vtkAngleWidget*>(w);
@@ -426,7 +426,7 @@ void vtkAngleWidget::AddPointAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngleWidget::MoveAction(vtkAbstractWidget* w)
 {
   vtkAngleWidget* self = reinterpret_cast<vtkAngleWidget*>(w);
@@ -466,7 +466,7 @@ void vtkAngleWidget::MoveAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngleWidget::EndSelectAction(vtkAbstractWidget* w)
 {
   vtkAngleWidget* self = reinterpret_cast<vtkAngleWidget*>(w);
@@ -488,20 +488,20 @@ void vtkAngleWidget::EndSelectAction(vtkAbstractWidget* w)
 
 // These are callbacks that are active when the user is manipulating the
 // handles of the angle widget.
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngleWidget::StartAngleInteraction(int)
 {
   this->Superclass::StartInteraction();
   this->InvokeEvent(vtkCommand::StartInteractionEvent, nullptr);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngleWidget::AngleInteraction(int)
 {
   this->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngleWidget::EndAngleInteraction(int)
 {
   this->Superclass::EndInteraction();
@@ -509,7 +509,7 @@ void vtkAngleWidget::EndAngleInteraction(int)
   this->InvokeEvent(vtkCommand::EndInteractionEvent, nullptr);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngleWidget::SetProcessEvents(vtkTypeBool pe)
 {
   this->Superclass::SetProcessEvents(pe);
@@ -520,7 +520,7 @@ void vtkAngleWidget::SetProcessEvents(vtkTypeBool pe)
   this->Point2Widget->SetProcessEvents(pe);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngleWidget::SetWidgetStateToStart()
 {
   this->WidgetState = vtkAngleWidget::Start;
@@ -530,7 +530,7 @@ void vtkAngleWidget::SetWidgetStateToStart()
   this->SetEnabled(this->GetEnabled());             // show/hide the handles properly
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngleWidget::SetWidgetStateToManipulate()
 {
   this->WidgetState = vtkAngleWidget::Manipulate;
@@ -540,7 +540,7 @@ void vtkAngleWidget::SetWidgetStateToManipulate()
   this->SetEnabled(this->GetEnabled());             // show/hide the handles properly
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngleWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h

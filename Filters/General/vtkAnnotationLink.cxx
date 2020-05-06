@@ -30,9 +30,9 @@
 vtkStandardNewMacro(vtkAnnotationLink);
 // vtkCxxSetObjectMacro(vtkAnnotationLink, AnnotationLayers, vtkAnnotationLayers);
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // vtkAnnotationLink::Command
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 class vtkAnnotationLink::Command : public vtkCommand
 {
@@ -52,7 +52,7 @@ private:
   vtkAnnotationLink* Target;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAnnotationLink::vtkAnnotationLink()
 {
   this->SetNumberOfInputPorts(2);
@@ -65,7 +65,7 @@ vtkAnnotationLink::vtkAnnotationLink()
   this->AnnotationLayers->AddObserver(vtkCommand::ModifiedEvent, this->Observer);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAnnotationLink::~vtkAnnotationLink()
 {
   this->Observer->Delete();
@@ -80,7 +80,7 @@ vtkAnnotationLink::~vtkAnnotationLink()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAnnotationLink::ProcessEvents(
   vtkObject* caller, unsigned long eventId, void* vtkNotUsed(callData))
 {
@@ -94,7 +94,7 @@ void vtkAnnotationLink::ProcessEvents(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAnnotationLink::SetAnnotationLayers(vtkAnnotationLayers* layers)
 {
   // This method is a cut and paste of vtkCxxSetObjectMacro
@@ -121,7 +121,7 @@ void vtkAnnotationLink::SetAnnotationLayers(vtkAnnotationLayers* layers)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAnnotationLink::AddDomainMap(vtkTable* map)
 {
   if (!this->DomainMaps->IsItemPresent(map))
@@ -130,13 +130,13 @@ void vtkAnnotationLink::AddDomainMap(vtkTable* map)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAnnotationLink::RemoveDomainMap(vtkTable* map)
 {
   this->DomainMaps->RemoveItem(map);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAnnotationLink::RemoveAllDomainMaps()
 {
   if (this->DomainMaps->GetNumberOfItems() > 0)
@@ -145,19 +145,19 @@ void vtkAnnotationLink::RemoveAllDomainMaps()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAnnotationLink::GetNumberOfDomainMaps()
 {
   return this->DomainMaps->GetNumberOfItems();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTable* vtkAnnotationLink::GetDomainMap(int i)
 {
   return vtkTable::SafeDownCast(this->DomainMaps->GetItem(i));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAnnotationLink::SetCurrentSelection(vtkSelection* sel)
 {
   if (this->AnnotationLayers)
@@ -166,7 +166,7 @@ void vtkAnnotationLink::SetCurrentSelection(vtkSelection* sel)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSelection* vtkAnnotationLink::GetCurrentSelection()
 {
   if (this->AnnotationLayers)
@@ -176,7 +176,7 @@ vtkSelection* vtkAnnotationLink::GetCurrentSelection()
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAnnotationLink::RequestData(vtkInformation* vtkNotUsed(info),
   vtkInformationVector** inVector, vtkInformationVector* outVector)
 {
@@ -240,7 +240,7 @@ int vtkAnnotationLink::RequestData(vtkInformation* vtkNotUsed(info),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAnnotationLink::ShallowCopyToOutput(
   vtkAnnotationLayers* input, vtkAnnotationLayers* output, vtkSelection* sel)
 {
@@ -252,7 +252,7 @@ void vtkAnnotationLink::ShallowCopyToOutput(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAnnotationLink::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
@@ -272,7 +272,7 @@ int vtkAnnotationLink::FillInputPortInformation(int port, vtkInformation* info)
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAnnotationLink::FillOutputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
@@ -293,7 +293,7 @@ int vtkAnnotationLink::FillOutputPortInformation(int port, vtkInformation* info)
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkAnnotationLink::GetMTime()
 {
   vtkMTimeType mtime = this->Superclass::GetMTime();
@@ -318,7 +318,7 @@ vtkMTimeType vtkAnnotationLink::GetMTime()
   return mtime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAnnotationLink::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

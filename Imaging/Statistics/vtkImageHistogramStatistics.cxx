@@ -21,7 +21,7 @@
 
 vtkStandardNewMacro(vtkImageHistogramStatistics);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Constructor sets default values
 vtkImageHistogramStatistics::vtkImageHistogramStatistics()
 {
@@ -42,10 +42,10 @@ vtkImageHistogramStatistics::vtkImageHistogramStatistics()
   this->AutoRangeExpansionFactors[1] = 0.1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageHistogramStatistics::~vtkImageHistogramStatistics() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageHistogramStatistics::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -63,7 +63,7 @@ void vtkImageHistogramStatistics::PrintSelf(ostream& os, vtkIndent indent)
      << this->AutoRangeExpansionFactors[1] << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageHistogramStatistics::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

@@ -90,10 +90,10 @@ static int tet_edges[6][2] = { { 0, 1 }, { 1, 2 }, { 2, 0 }, { 0, 3 }, { 1, 3 },
 
 const int SqrtTableSize = 2048;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOpenGLProjectedTetrahedraMapper);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenGLProjectedTetrahedraMapper::vtkOpenGLProjectedTetrahedraMapper()
 {
   this->TransformedPoints = vtkFloatArray::New();
@@ -114,7 +114,7 @@ vtkOpenGLProjectedTetrahedraMapper::vtkOpenGLProjectedTetrahedraMapper()
   this->VBO = vtkOpenGLVertexBufferObject::New();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenGLProjectedTetrahedraMapper::~vtkOpenGLProjectedTetrahedraMapper()
 {
   this->ReleaseGraphicsResources(nullptr);
@@ -125,7 +125,7 @@ vtkOpenGLProjectedTetrahedraMapper::~vtkOpenGLProjectedTetrahedraMapper()
   this->Framebuffer->Delete();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLProjectedTetrahedraMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -135,7 +135,7 @@ void vtkOpenGLProjectedTetrahedraMapper::PrintSelf(ostream& os, vtkIndent indent
      << endl;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkOpenGLProjectedTetrahedraMapper::IsSupported(vtkRenderWindow* rwin)
 {
   vtkOpenGLRenderWindow* context = vtkOpenGLRenderWindow::SafeDownCast(rwin);
@@ -155,7 +155,7 @@ bool vtkOpenGLProjectedTetrahedraMapper::IsSupported(vtkRenderWindow* rwin)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLProjectedTetrahedraMapper::Initialize(vtkRenderer* renderer)
 {
   if (this->Initialized)
@@ -174,7 +174,7 @@ void vtkOpenGLProjectedTetrahedraMapper::Initialize(vtkRenderer* renderer)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkOpenGLProjectedTetrahedraMapper::AllocateFOResources(vtkRenderer* r)
 {
   vtkOpenGLClearErrorMacro();
@@ -255,7 +255,7 @@ bool vtkOpenGLProjectedTetrahedraMapper::AllocateFOResources(vtkRenderer* r)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLProjectedTetrahedraMapper::ReleaseGraphicsResources(vtkWindow* win)
 {
   this->Initialized = false;
@@ -272,7 +272,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ReleaseGraphicsResources(vtkWindow* win
   this->Superclass::ReleaseGraphicsResources(win);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer* renderer, vtkVolume* volume)
 {
   vtkOpenGLClearErrorMacro();
@@ -437,7 +437,7 @@ void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer* renderer, vtkVolume
   vtkOpenGLCheckErrorMacro("failed after Render");
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 inline float vtkOpenGLProjectedTetrahedraMapper::GetCorrectedDepth(float x, float y, float z1,
   float z2, const float inverse_projection_mat[16], int use_linear_depth_correction,
@@ -483,7 +483,7 @@ inline float vtkOpenGLProjectedTetrahedraMapper::GetCorrectedDepth(float x, floa
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
   vtkRenderer* renderer, vtkVolume* volume, vtkOpenGLRenderWindow* window)
 {
@@ -1067,7 +1067,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
   this->GLSafeUpdateProgress(1.0, window);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLProjectedTetrahedraMapper::GLSafeUpdateProgress(
   double value, vtkOpenGLRenderWindow* window)
 {

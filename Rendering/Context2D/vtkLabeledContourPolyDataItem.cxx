@@ -209,7 +209,7 @@ struct vtkLabeledContourPolyDataItem::Private
 
 vtkStandardNewMacro(vtkLabeledContourPolyDataItem);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLabeledContourPolyDataItem::vtkLabeledContourPolyDataItem()
 {
   this->SkipDistance = 0.;
@@ -233,14 +233,14 @@ vtkLabeledContourPolyDataItem::vtkLabeledContourPolyDataItem()
   this->Reset();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLabeledContourPolyDataItem::~vtkLabeledContourPolyDataItem()
 {
   this->FreeTextActors();
   delete this->Internal;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkLabeledContourPolyDataItem::Paint(vtkContext2D* painter)
 {
   if (!this->CheckInputs())
@@ -803,7 +803,7 @@ bool vtkLabeledContourPolyDataItem::FreeTextActors()
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLabeledContourPolyDataItem::PrintSelf(ostream& os, vtkIndent indent)
 {
   Superclass::PrintSelf(os, indent);

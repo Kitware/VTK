@@ -24,7 +24,7 @@
 
 vtkCxxSetObjectMacro(vtkHandleRepresentation, PointPlacer, vtkPointPlacer);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHandleRepresentation::vtkHandleRepresentation()
 {
   // Positions are maintained via a vtkCoordinate
@@ -46,7 +46,7 @@ vtkHandleRepresentation::vtkHandleRepresentation()
   this->TranslationAxis = Axis::NONE;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHandleRepresentation::~vtkHandleRepresentation()
 {
   this->DisplayPosition->Delete();
@@ -54,7 +54,7 @@ vtkHandleRepresentation::~vtkHandleRepresentation()
   this->SetPointPlacer(nullptr);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHandleRepresentation::SetDisplayPosition(double displyPos[3])
 {
   if (this->Renderer && this->PointPlacer)
@@ -77,7 +77,7 @@ void vtkHandleRepresentation::SetDisplayPosition(double displyPos[3])
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHandleRepresentation::GetDisplayPosition(double pos[3])
 {
   // The position is really represented in the world position; the display
@@ -95,7 +95,7 @@ void vtkHandleRepresentation::GetDisplayPosition(double pos[3])
   this->DisplayPosition->GetValue(pos);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkHandleRepresentation::GetDisplayPosition()
 {
   // The position is really represented in the world position; the display
@@ -113,7 +113,7 @@ double* vtkHandleRepresentation::GetDisplayPosition()
   return this->DisplayPosition->GetValue();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHandleRepresentation::SetWorldPosition(double pos[3])
 {
   if (this->Renderer && this->PointPlacer)
@@ -131,26 +131,26 @@ void vtkHandleRepresentation::SetWorldPosition(double pos[3])
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHandleRepresentation::GetWorldPosition(double pos[3])
 {
   this->WorldPosition->GetValue(pos);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkHandleRepresentation::GetWorldPosition()
 {
   return this->WorldPosition->GetValue();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkHandleRepresentation::CheckConstraint(
   vtkRenderer* vtkNotUsed(renderer), double vtkNotUsed(pos)[2])
 {
   return 1;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHandleRepresentation::SetRenderer(vtkRenderer* ren)
 {
   this->DisplayPosition->SetViewport(ren);
@@ -168,7 +168,7 @@ void vtkHandleRepresentation::SetRenderer(vtkRenderer* ren)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHandleRepresentation::GetTranslationVector(
   const double* p1, const double* p2, double* v) const
 {
@@ -195,7 +195,7 @@ void vtkHandleRepresentation::GetTranslationVector(
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHandleRepresentation::Translate(const double* p1, const double* p2)
 {
   double v[3];
@@ -203,7 +203,7 @@ void vtkHandleRepresentation::Translate(const double* p1, const double* p2)
   this->Translate(v);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHandleRepresentation::Translate(const double* v)
 {
   if (this->TranslationAxis == Axis::NONE)
@@ -221,7 +221,7 @@ void vtkHandleRepresentation::Translate(const double* v)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHandleRepresentation::DeepCopy(vtkProp* prop)
 {
   vtkHandleRepresentation* rep = vtkHandleRepresentation::SafeDownCast(prop);
@@ -235,7 +235,7 @@ void vtkHandleRepresentation::DeepCopy(vtkProp* prop)
   this->Superclass::ShallowCopy(prop);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHandleRepresentation::ShallowCopy(vtkProp* prop)
 {
   vtkHandleRepresentation* rep = vtkHandleRepresentation::SafeDownCast(prop);
@@ -248,7 +248,7 @@ void vtkHandleRepresentation::ShallowCopy(vtkProp* prop)
   this->Superclass::ShallowCopy(prop);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkHandleRepresentation::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
@@ -260,7 +260,7 @@ vtkMTimeType vtkHandleRepresentation::GetMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHandleRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h

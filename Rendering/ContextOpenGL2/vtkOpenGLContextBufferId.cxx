@@ -26,14 +26,14 @@
 
 vtkStandardNewMacro(vtkOpenGLContextBufferId);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenGLContextBufferId::vtkOpenGLContextBufferId()
 {
   this->Texture = nullptr;
   this->Context = nullptr;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenGLContextBufferId::~vtkOpenGLContextBufferId()
 {
   if (this->Texture != nullptr)
@@ -42,7 +42,7 @@ vtkOpenGLContextBufferId::~vtkOpenGLContextBufferId()
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLContextBufferId::ReleaseGraphicsResources()
 {
   if (this->Texture != nullptr)
@@ -52,7 +52,7 @@ void vtkOpenGLContextBufferId::ReleaseGraphicsResources()
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLContextBufferId::SetContext(vtkRenderWindow* context)
 {
   vtkOpenGLRenderWindow* c = vtkOpenGLRenderWindow::SafeDownCast(context);
@@ -64,20 +64,20 @@ void vtkOpenGLContextBufferId::SetContext(vtkRenderWindow* context)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRenderWindow* vtkOpenGLContextBufferId::GetContext()
 {
   return this->Context;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkOpenGLContextBufferId::IsSupported()
 {
   assert("pre: context_is_set" && this->GetContext() != nullptr);
   return vtkTextureObject::IsSupported(this->Context);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLContextBufferId::Allocate()
 {
   assert("pre: positive_width" && this->GetWidth() > 0);
@@ -95,7 +95,7 @@ void vtkOpenGLContextBufferId::Allocate()
     static_cast<unsigned int>(this->GetHeight()), 3, VTK_UNSIGNED_CHAR);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkOpenGLContextBufferId::IsAllocated() const
 {
   return this->Texture != nullptr &&
@@ -103,7 +103,7 @@ bool vtkOpenGLContextBufferId::IsAllocated() const
     this->Texture->GetHeight() == static_cast<unsigned int>(this->Height);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLContextBufferId::SetValues(int srcXmin, int srcYmin)
 {
   assert("pre: is_allocated" && this->IsAllocated());
@@ -112,7 +112,7 @@ void vtkOpenGLContextBufferId::SetValues(int srcXmin, int srcYmin)
   this->Texture->CopyFromFrameBuffer(srcXmin, srcYmin, 0, 0, this->Width, this->Height);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkOpenGLContextBufferId::GetPickedItem(int x, int y)
 {
   assert("pre: is_allocated" && this->IsAllocated());
@@ -193,7 +193,7 @@ vtkIdType vtkOpenGLContextBufferId::GetPickedItem(int x, int y)
   return result;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLContextBufferId::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -39,7 +39,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkTexture.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestPBRMaterials(int argc, char* argv[])
 {
   vtkNew<vtkOpenGLRenderer> renderer;

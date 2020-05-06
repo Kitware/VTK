@@ -128,7 +128,7 @@ void vtkVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
   // Don't print this->VoxelCroppingRegionPlanes
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkVolumeMapper::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (!this->Superclass::FillInputPortInformation(port, info))
@@ -139,7 +139,7 @@ int vtkVolumeMapper::FillInputPortInformation(int port, vtkInformation* info)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkVolumeMapper::SpacingAdjustedSampleDistance(double inputSpacing[3], int inputExtent[6])
 {
   // compute 1/2 the average spacing

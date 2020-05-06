@@ -21,21 +21,21 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCompositeInterpolatedVelocityField::vtkCompositeInterpolatedVelocityField()
 {
   this->LastDataSetIndex = 0;
   this->DataSets = new vtkCompositeInterpolatedVelocityFieldDataSetsType;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCompositeInterpolatedVelocityField::~vtkCompositeInterpolatedVelocityField()
 {
   delete this->DataSets;
   this->DataSets = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositeInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

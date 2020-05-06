@@ -37,7 +37,7 @@
 
 vtkStandardNewMacro(vtkAngularPeriodicFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAngularPeriodicFilter::vtkAngularPeriodicFilter()
 {
   this->ComputeRotationsOnTheFly = true;
@@ -50,13 +50,13 @@ vtkAngularPeriodicFilter::vtkAngularPeriodicFilter()
   this->Center[2] = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAngularPeriodicFilter::~vtkAngularPeriodicFilter()
 {
   this->SetRotationArrayName(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngularPeriodicFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -87,25 +87,25 @@ void vtkAngularPeriodicFilter::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngularPeriodicFilter::SetRotationAxisToX()
 {
   this->SetRotationAxis(VTK_PERIODIC_ARRAY_AXIS_X);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngularPeriodicFilter::SetRotationAxisToY()
 {
   this->SetRotationAxis(VTK_PERIODIC_ARRAY_AXIS_Y);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngularPeriodicFilter::SetRotationAxisToZ()
 {
   this->SetRotationAxis(VTK_PERIODIC_ARRAY_AXIS_Z);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngularPeriodicFilter::CreatePeriodicDataSet(
   vtkCompositeDataIterator* loc, vtkCompositeDataSet* output, vtkCompositeDataSet* input)
 {
@@ -189,7 +189,7 @@ void vtkAngularPeriodicFilter::CreatePeriodicDataSet(
   output->SetDataSet(loc, multiPiece);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngularPeriodicFilter::SetPeriodNumber(
   vtkCompositeDataIterator* loc, vtkCompositeDataSet* output, int nbPeriod)
 {
@@ -204,7 +204,7 @@ void vtkAngularPeriodicFilter::SetPeriodNumber(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngularPeriodicFilter::AppendPeriodicPiece(
   double angle, vtkIdType iPiece, vtkDataObject* inputNode, vtkMultiPieceDataSet* multiPiece)
 {
@@ -251,7 +251,7 @@ void vtkAngularPeriodicFilter::AppendPeriodicPiece(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataArray* vtkAngularPeriodicFilter::TransformDataArray(
   vtkDataArray* inputArray, double angle, bool useCenter, bool normalize)
 {
@@ -318,7 +318,7 @@ vtkDataArray* vtkAngularPeriodicFilter::TransformDataArray(
   return periodicArray;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngularPeriodicFilter::ComputeAngularPeriodicData(
   vtkDataSetAttributes* data, vtkDataSetAttributes* transformedData, double angle)
 {
@@ -349,7 +349,7 @@ void vtkAngularPeriodicFilter::ComputeAngularPeriodicData(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngularPeriodicFilter::ComputePeriodicMesh(
   vtkPointSet* dataset, vtkPointSet* transformedDataset, double angle)
 {
@@ -381,7 +381,7 @@ void vtkAngularPeriodicFilter::ComputePeriodicMesh(
   transformedDataset->GetFieldData()->ShallowCopy(dataset->GetFieldData());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAngularPeriodicFilter::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -393,7 +393,7 @@ int vtkAngularPeriodicFilter::RequestData(
   return this->Superclass::RequestData(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngularPeriodicFilter::GeneratePieceName(vtkCompositeDataSet* input,
   vtkCompositeDataIterator* inputLoc, vtkMultiPieceDataSet* output, vtkIdType outputId)
 {

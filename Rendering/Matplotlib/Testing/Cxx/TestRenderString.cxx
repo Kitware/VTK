@@ -24,7 +24,7 @@
 #include "vtkRenderer.h"
 #include "vtkTextProperty.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestRenderString(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   const char* str = "$\\hat{H}\\psi = \\left(-\\frac{\\hbar}{2m}\\nabla^2"

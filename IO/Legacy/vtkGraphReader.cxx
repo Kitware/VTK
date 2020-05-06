@@ -33,25 +33,25 @@ vtkStandardNewMacro(vtkGraphReader);
 #undef read
 #endif
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGraphReader::vtkGraphReader() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGraphReader::~vtkGraphReader() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGraph* vtkGraphReader::GetOutput()
 {
   return this->GetOutput(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGraph* vtkGraphReader::GetOutput(int idx)
 {
   return vtkGraph::SafeDownCast(this->GetOutputDataObject(idx));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGraphReader::ReadMeshSimple(const std::string& fname, vtkDataObject* doOutput)
 {
   vtkDebugMacro(<< "Reading vtk graph ...");
@@ -324,7 +324,7 @@ int vtkGraphReader::ReadMeshSimple(const std::string& fname, vtkDataObject* doOu
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGraphReader::ReadGraphType(const char* fname, GraphType& type)
 {
   type = UnknownGraph;
@@ -378,14 +378,14 @@ int vtkGraphReader::ReadGraphType(const char* fname, GraphType& type)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGraphReader::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkGraph");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject* vtkGraphReader::CreateOutput(vtkDataObject* currentOutput)
 {
   GraphType graphType;
@@ -426,7 +426,7 @@ vtkDataObject* vtkGraphReader::CreateOutput(vtkDataObject* currentOutput)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

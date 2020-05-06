@@ -22,7 +22,7 @@
 
 vtkStandardNewMacro(vtkImageDilateErode3D);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct an instance of vtkImageDilateErode3D filter.
 // By default zero values are dilated.
 vtkImageDilateErode3D::vtkImageDilateErode3D()
@@ -40,7 +40,7 @@ vtkImageDilateErode3D::vtkImageDilateErode3D()
   this->SetKernelSize(1, 1, 1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageDilateErode3D::~vtkImageDilateErode3D()
 {
   if (this->Ellipse)
@@ -50,7 +50,7 @@ vtkImageDilateErode3D::~vtkImageDilateErode3D()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageDilateErode3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -59,7 +59,7 @@ void vtkImageDilateErode3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ErodeValue: " << this->ErodeValue << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method sets the size of the neighborhood.  It also sets the
 // default middle of the neighborhood and computes the eliptical foot print.
 void vtkImageDilateErode3D::SetKernelSize(int size0, int size1, int size2)
@@ -104,7 +104,7 @@ void vtkImageDilateErode3D::SetKernelSize(int size0, int size1, int size2)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This templated function executes the filter on any region,
 // whether it needs boundary checking or not.
 // If the filter needs to be faster, the function could be duplicated
@@ -262,7 +262,7 @@ void vtkImageDilateErode3DExecute(vtkImageDilateErode3D* self, vtkImageData* mas
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method contains the first switch statement that calls the correct
 // templated function for the input and output Data types.
 // It handles image boundaries, so the image does not shrink.
@@ -305,7 +305,7 @@ void vtkImageDilateErode3D::ThreadedRequestData(vtkInformation* vtkNotUsed(reque
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageDilateErode3D::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

@@ -64,7 +64,7 @@ const int ThreeDCellTypes[NumberOf3DCellTypes] = { VTK_TETRA, VTK_HEXAHEDRON, VT
   VTK_BEZIER_WEDGE };
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCellTypeSource::vtkCellTypeSource()
   : CellType(VTK_HEXAHEDRON)
   , CellOrder(3)
@@ -79,7 +79,7 @@ vtkCellTypeSource::vtkCellTypeSource()
   this->SetNumberOfInputPorts(0);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellTypeSource::SetCellType(int cellType)
 {
   if (cellType == this->CellType)
@@ -116,7 +116,7 @@ void vtkCellTypeSource::SetCellType(int cellType)
   vtkWarningMacro("Cell type " << cellType << " not supported");
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCellTypeSource::GetCellDimension()
 {
   for (int i = 0; i < NumberOf1DCellTypes; i++)
@@ -143,7 +143,7 @@ int vtkCellTypeSource::GetCellDimension()
   return -1;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellTypeSource::SetBlocksDimensions(int* dims)
 {
   for (int i = 0; i < 3; i++)
@@ -156,14 +156,14 @@ void vtkCellTypeSource::SetBlocksDimensions(int* dims)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellTypeSource::SetBlocksDimensions(int iDim, int jDim, int kDim)
 {
   int dims[3] = { iDim, jDim, kDim };
   this->SetBlocksDimensions(dims);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCellTypeSource::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -425,7 +425,7 @@ int vtkCellTypeSource::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCellTypeSource::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -437,7 +437,7 @@ int vtkCellTypeSource::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellTypeSource::GenerateTriangles(vtkUnstructuredGrid* output, int extent[6])
 {
   int firstDim = extent[1] - extent[0];
@@ -457,7 +457,7 @@ void vtkCellTypeSource::GenerateTriangles(vtkUnstructuredGrid* output, int exten
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellTypeSource::GenerateQuads(vtkUnstructuredGrid* output, int extent[6])
 {
   int firstDim = extent[1] - extent[0];
@@ -474,7 +474,7 @@ void vtkCellTypeSource::GenerateQuads(vtkUnstructuredGrid* output, int extent[6]
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellTypeSource::GenerateQuadraticTriangles(vtkUnstructuredGrid* output, int extent[6])
 {
   int firstDim = extent[1] - extent[0];
@@ -586,7 +586,7 @@ void vtkCellTypeSource::GenerateQuadraticTriangles(vtkUnstructuredGrid* output, 
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellTypeSource::GenerateQuadraticQuads(vtkUnstructuredGrid* output, int extent[6])
 {
   int firstDim = extent[1] - extent[0];
@@ -680,7 +680,7 @@ void vtkCellTypeSource::GenerateQuadraticQuads(vtkUnstructuredGrid* output, int 
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellTypeSource::GenerateTetras(vtkUnstructuredGrid* output, int extent[6])
 {
   // cell dimensions
@@ -748,7 +748,7 @@ void vtkCellTypeSource::GenerateTetras(vtkUnstructuredGrid* output, int extent[6
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellTypeSource::GenerateHexahedron(vtkUnstructuredGrid* output, int extent[6])
 {
   // cell dimensions
@@ -779,7 +779,7 @@ void vtkCellTypeSource::GenerateHexahedron(vtkUnstructuredGrid* output, int exte
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellTypeSource::GenerateWedges(vtkUnstructuredGrid* output, int extent[6])
 {
   // cell dimensions
@@ -813,7 +813,7 @@ void vtkCellTypeSource::GenerateWedges(vtkUnstructuredGrid* output, int extent[6
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellTypeSource::GeneratePyramids(vtkUnstructuredGrid* output, int extent[6])
 {
   // cell dimensions
@@ -864,7 +864,7 @@ void vtkCellTypeSource::GeneratePyramids(vtkUnstructuredGrid* output, int extent
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellTypeSource::GeneratePentagonalPrism(vtkUnstructuredGrid* output, int extent[6])
 {
   // cell dimensions
@@ -973,7 +973,7 @@ void vtkCellTypeSource::GenerateHexagonalPrism(vtkUnstructuredGrid* output, int 
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellTypeSource::GenerateQuadraticTetras(vtkUnstructuredGrid* output, int extent[6])
 {
   // cell dimensions
@@ -1071,7 +1071,7 @@ void vtkCellTypeSource::GenerateQuadraticTetras(vtkUnstructuredGrid* output, int
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellTypeSource::GenerateQuadraticHexahedron(vtkUnstructuredGrid* output, int extent[6])
 {
   // cell dimensions
@@ -1154,7 +1154,7 @@ void vtkCellTypeSource::GenerateQuadraticHexahedron(vtkUnstructuredGrid* output,
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellTypeSource::GenerateQuadraticWedges(vtkUnstructuredGrid* output, int extent[6])
 {
   // cell dimensions
@@ -1230,7 +1230,7 @@ void vtkCellTypeSource::GenerateQuadraticWedges(vtkUnstructuredGrid* output, int
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellTypeSource::GenerateQuadraticPyramids(vtkUnstructuredGrid* output, int extent[6])
 {
   // cell dimensions
@@ -1336,7 +1336,7 @@ void vtkCellTypeSource::GenerateQuadraticPyramids(vtkUnstructuredGrid* output, i
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellTypeSource::GenerateLagrangeCurves(vtkUnstructuredGrid* output, int extent[6])
 {
   vtkPoints* points = output->GetPoints();
@@ -1369,7 +1369,7 @@ void vtkCellTypeSource::GenerateLagrangeCurves(vtkUnstructuredGrid* output, int 
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellTypeSource::GenerateLagrangeTris(vtkUnstructuredGrid* output, int extent[6])
 {
   // cell dimensions
@@ -1454,7 +1454,7 @@ void vtkCellTypeSource::GenerateLagrangeTris(vtkUnstructuredGrid* output, int ex
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellTypeSource::GenerateLagrangeQuads(vtkUnstructuredGrid* output, int extent[6])
 {
   vtkPoints* points = output->GetPoints();
@@ -1504,7 +1504,7 @@ void vtkCellTypeSource::GenerateLagrangeQuads(vtkUnstructuredGrid* output, int e
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellTypeSource::GenerateLagrangeTets(vtkUnstructuredGrid* output, int extent[6])
 {
   static const int tetsOfHex[12][4] = {
@@ -1625,7 +1625,7 @@ void vtkCellTypeSource::GenerateLagrangeTets(vtkUnstructuredGrid* output, int ex
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellTypeSource::GenerateLagrangeHexes(vtkUnstructuredGrid* output, int extent[6])
 {
   // cell dimensions
@@ -1695,7 +1695,7 @@ void vtkCellTypeSource::GenerateLagrangeHexes(vtkUnstructuredGrid* output, int e
   }     // k
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellTypeSource::GenerateLagrangeWedges(vtkUnstructuredGrid* output, int extent[6])
 {
   // cell dimensions
@@ -1832,7 +1832,7 @@ void vtkCellTypeSource::GenerateLagrangeWedges(vtkUnstructuredGrid* output, int 
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellTypeSource::GenerateBezierCurves(vtkUnstructuredGrid* output, int extent[6])
 {
   vtkPoints* points = output->GetPoints();
@@ -1865,7 +1865,7 @@ void vtkCellTypeSource::GenerateBezierCurves(vtkUnstructuredGrid* output, int ex
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellTypeSource::GenerateBezierTris(vtkUnstructuredGrid* output, int extent[6])
 {
   // cell dimensions
@@ -1950,7 +1950,7 @@ void vtkCellTypeSource::GenerateBezierTris(vtkUnstructuredGrid* output, int exte
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellTypeSource::GenerateBezierQuads(vtkUnstructuredGrid* output, int extent[6])
 {
   vtkPoints* points = output->GetPoints();
@@ -2000,7 +2000,7 @@ void vtkCellTypeSource::GenerateBezierQuads(vtkUnstructuredGrid* output, int ext
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellTypeSource::GenerateBezierTets(vtkUnstructuredGrid* output, int extent[6])
 {
   static const int tetsOfHex[12][4] = {
@@ -2121,7 +2121,7 @@ void vtkCellTypeSource::GenerateBezierTets(vtkUnstructuredGrid* output, int exte
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellTypeSource::GenerateBezierHexes(vtkUnstructuredGrid* output, int extent[6])
 {
   // cell dimensions
@@ -2191,7 +2191,7 @@ void vtkCellTypeSource::GenerateBezierHexes(vtkUnstructuredGrid* output, int ext
   }     // k
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellTypeSource::GenerateBezierWedges(vtkUnstructuredGrid* output, int extent[6])
 {
   // cell dimensions
@@ -2328,7 +2328,7 @@ void vtkCellTypeSource::GenerateBezierWedges(vtkUnstructuredGrid* output, int ex
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellTypeSource::ComputeFields(vtkUnstructuredGrid* output)
 {
   double center[3] = { this->BlocksDimensions[0] * .5, this->BlocksDimensions[1] * .5,
@@ -2368,7 +2368,7 @@ void vtkCellTypeSource::ComputeFields(vtkUnstructuredGrid* output)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkCellTypeSource::GetValueOfOrder(int order, double coords[3])
 {
   int v = 0;
@@ -2383,7 +2383,7 @@ double vtkCellTypeSource::GetValueOfOrder(int order, double coords[3])
   return v;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellTypeSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

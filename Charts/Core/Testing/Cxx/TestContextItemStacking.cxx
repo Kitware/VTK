@@ -23,7 +23,7 @@
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestContextItemStacking(int, char*[])
 {
   // Set up a 2D context view, context test object and add it to the scene

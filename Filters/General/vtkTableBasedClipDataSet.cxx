@@ -1542,7 +1542,7 @@ inline void GetPoint(
 // =============== vtkTableBasedClipperVolumeFromVolume ( end ) ===============
 // ============================================================================
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct with user-specified implicit function; InsideOut turned off; value
 // set to 0.0; and generate clip scalars turned off.
 vtkTableBasedClipDataSet::vtkTableBasedClipDataSet(vtkImplicitFunction* cf)
@@ -1576,7 +1576,7 @@ vtkTableBasedClipDataSet::vtkTableBasedClipDataSet(vtkImplicitFunction* cf)
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTableBasedClipDataSet::~vtkTableBasedClipDataSet()
 {
   if (this->Locator)
@@ -1589,7 +1589,7 @@ vtkTableBasedClipDataSet::~vtkTableBasedClipDataSet()
   this->InternalProgressObserver = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTableBasedClipDataSet::InternalProgressCallbackFunction(
   vtkObject* arg, unsigned long, void* clientdata, void*)
 {
@@ -1597,7 +1597,7 @@ void vtkTableBasedClipDataSet::InternalProgressCallbackFunction(
     ->InternalProgressCallback(static_cast<vtkAlgorithm*>(arg));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTableBasedClipDataSet::InternalProgressCallback(vtkAlgorithm* algorithm)
 {
   double progress = algorithm->GetProgress();
@@ -1609,7 +1609,7 @@ void vtkTableBasedClipDataSet::InternalProgressCallback(vtkAlgorithm* algorithm)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkTableBasedClipDataSet::GetMTime()
 {
   vtkMTimeType time;
@@ -1640,7 +1640,7 @@ vtkUnstructuredGrid* vtkTableBasedClipDataSet::GetClippedOutput()
   return vtkUnstructuredGrid::SafeDownCast(this->GetExecutive()->GetOutputData(1));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTableBasedClipDataSet::SetLocator(vtkIncrementalPointLocator* locator)
 {
   if (this->Locator == locator)
@@ -1663,7 +1663,7 @@ void vtkTableBasedClipDataSet::SetLocator(vtkIncrementalPointLocator* locator)
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTableBasedClipDataSet::CreateDefaultLocator()
 {
   if (this->Locator == nullptr)
@@ -1674,14 +1674,14 @@ void vtkTableBasedClipDataSet::CreateDefaultLocator()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTableBasedClipDataSet::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTableBasedClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -1849,7 +1849,7 @@ int vtkTableBasedClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTableBasedClipDataSet::ClipDataSet(
   vtkDataSet* pDataSet, vtkDataArray* clipAray, vtkUnstructuredGrid* unstruct)
 {
@@ -1873,7 +1873,7 @@ void vtkTableBasedClipDataSet::ClipDataSet(
   clipData = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTableBasedClipDataSet::ClipImageData(
   vtkDataSet* inputGrd, vtkDataArray* clipAray, double isoValue, vtkUnstructuredGrid* outputUG)
 {
@@ -1924,7 +1924,7 @@ void vtkTableBasedClipDataSet::ClipImageData(
   dataBBox = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTableBasedClipDataSet::ClipPolyData(
   vtkDataSet* inputGrd, vtkDataArray* clipAray, double isoValue, vtkUnstructuredGrid* outputUG)
 {
@@ -2271,7 +2271,7 @@ void vtkTableBasedClipDataSet::ClipPolyData(
   polyData = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTableBasedClipDataSet::ClipRectilinearGridData(
   vtkDataSet* inputGrd, vtkDataArray* clipAray, double isoValue, vtkUnstructuredGrid* outputUG)
 {
@@ -2602,7 +2602,7 @@ void vtkTableBasedClipDataSet::ClipRectilinearGridData(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTableBasedClipDataSet::ClipStructuredGridData(
   vtkDataSet* inputGrd, vtkDataArray* clipAray, double isoValue, vtkUnstructuredGrid* outputUG)
 {
@@ -2896,7 +2896,7 @@ void vtkTableBasedClipDataSet::ClipStructuredGridData(
   strcGrid = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTableBasedClipDataSet::ClipUnstructuredGridData(
   vtkDataSet* inputGrd, vtkDataArray* clipAray, double isoValue, vtkUnstructuredGrid* outputUG)
 {
@@ -3280,7 +3280,7 @@ void vtkTableBasedClipDataSet::ClipUnstructuredGridData(
   unstruct = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTableBasedClipDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -38,16 +38,16 @@
 #include <vector>
 
 vtkStandardNewMacro(vtkPerturbCoincidentVertices);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPerturbCoincidentVertices::vtkPerturbCoincidentVertices()
 {
   PerturbFactor = 1.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPerturbCoincidentVertices::~vtkPerturbCoincidentVertices() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPerturbCoincidentVertices::SpiralPerturbation(vtkGraph* input, vtkGraph* output)
 {
 
@@ -194,7 +194,7 @@ struct Coord
   }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPerturbCoincidentVertices::SimpleSpiralPerturbation(
   vtkGraph* input, vtkGraph* output, float perturbFactor)
 {
@@ -295,7 +295,7 @@ void vtkPerturbCoincidentVertices::SimpleSpiralPerturbation(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPerturbCoincidentVertices::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -307,7 +307,7 @@ int vtkPerturbCoincidentVertices::RequestData(vtkInformation* vtkNotUsed(request
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPerturbCoincidentVertices::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

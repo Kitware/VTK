@@ -73,7 +73,7 @@ vtkDataSet* vtkAbstractVolumeMapper::GetDataSetInput()
   return vtkDataSet::SafeDownCast(this->GetInputDataObject(0, 0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAbstractVolumeMapper::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");

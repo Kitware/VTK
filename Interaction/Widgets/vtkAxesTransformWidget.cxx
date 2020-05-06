@@ -29,7 +29,7 @@
 
 vtkStandardNewMacro(vtkAxesTransformWidget);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAxesTransformWidget::vtkAxesTransformWidget()
 {
   this->WidgetState = vtkAxesTransformWidget::Start;
@@ -57,14 +57,14 @@ vtkAxesTransformWidget::vtkAxesTransformWidget()
     vtkCommand::MouseMoveEvent, vtkWidgetEvent::Move, this, vtkAxesTransformWidget::MoveAction);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAxesTransformWidget::~vtkAxesTransformWidget()
 {
   this->OriginWidget->Delete();
   this->SelectionWidget->Delete();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxesTransformWidget::SetEnabled(int enabling)
 {
   // We defer enabling the handles until the selection process begins
@@ -109,7 +109,7 @@ void vtkAxesTransformWidget::SetEnabled(int enabling)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxesTransformWidget::SelectAction(vtkAbstractWidget* w)
 {
   vtkAxesTransformWidget* self = reinterpret_cast<vtkAxesTransformWidget*>(w);
@@ -135,7 +135,7 @@ void vtkAxesTransformWidget::SelectAction(vtkAbstractWidget* w)
   self->EventCallbackCommand->SetAbortFlag(1);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxesTransformWidget::MoveAction(vtkAbstractWidget* w)
 {
   vtkAxesTransformWidget* self = reinterpret_cast<vtkAxesTransformWidget*>(w);
@@ -191,7 +191,7 @@ void vtkAxesTransformWidget::MoveAction(vtkAbstractWidget* w)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxesTransformWidget::EndSelectAction(vtkAbstractWidget* w)
 {
   vtkAxesTransformWidget* self = reinterpret_cast<vtkAxesTransformWidget*>(w);
@@ -210,7 +210,7 @@ void vtkAxesTransformWidget::EndSelectAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxesTransformWidget::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)
@@ -219,7 +219,7 @@ void vtkAxesTransformWidget::CreateDefaultRepresentation()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxesTransformWidget::SetProcessEvents(vtkTypeBool pe)
 {
   this->Superclass::SetProcessEvents(pe);
@@ -228,7 +228,7 @@ void vtkAxesTransformWidget::SetProcessEvents(vtkTypeBool pe)
   this->SelectionWidget->SetProcessEvents(pe);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxesTransformWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

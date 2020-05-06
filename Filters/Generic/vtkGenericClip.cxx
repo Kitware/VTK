@@ -44,7 +44,7 @@ vtkStandardNewMacro(vtkGenericClip);
 vtkCxxSetObjectMacro(vtkGenericClip, ClipFunction, vtkImplicitFunction);
 vtkCxxSetObjectMacro(vtkGenericClip, Locator, vtkIncrementalPointLocator);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct with user-specified implicit function; InsideOut turned off; value
 // set to 0.0; and generate clip scalars turned off.
 vtkGenericClip::vtkGenericClip(vtkImplicitFunction* cf)
@@ -70,7 +70,7 @@ vtkGenericClip::vtkGenericClip(vtkImplicitFunction* cf)
   this->SecondaryCD = vtkCellData::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGenericClip::~vtkGenericClip()
 {
   if (this->Locator)
@@ -85,7 +85,7 @@ vtkGenericClip::~vtkGenericClip()
   this->SecondaryCD->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Do not say we have two outputs unless we are generating the clipped output.
 int vtkGenericClip::GetNumberOfOutputs()
 {
@@ -96,7 +96,7 @@ int vtkGenericClip::GetNumberOfOutputs()
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Overload standard modified time function. If Clip functions is modified,
 // then this object is modified as well.
 vtkMTimeType vtkGenericClip::GetMTime()
@@ -118,7 +118,7 @@ vtkMTimeType vtkGenericClip::GetMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUnstructuredGrid* vtkGenericClip::GetClippedOutput()
 {
   if (!this->GenerateClippedOutput)
@@ -128,7 +128,7 @@ vtkUnstructuredGrid* vtkGenericClip::GetClippedOutput()
   return vtkUnstructuredGrid::SafeDownCast(this->GetExecutive()->GetOutputData(1));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 // Clip through data generating surface.
 //
@@ -370,7 +370,7 @@ int vtkGenericClip::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify a spatial locator for merging points. By default,
 // an instance of vtkMergePoints is used.
 void vtkGenericClip::CreateDefaultLocator()
@@ -383,7 +383,7 @@ void vtkGenericClip::CreateDefaultLocator()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenericClip::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -417,7 +417,7 @@ void vtkGenericClip::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "InputScalarsSelection: " << this->InputScalarsSelection << endl;
   }
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGenericClip::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (!this->Superclass::FillInputPortInformation(port, info))

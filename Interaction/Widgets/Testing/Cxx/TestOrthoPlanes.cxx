@@ -329,7 +329,7 @@ static char IOPeventLog[] = "# StreamVersion 1\n"
                             "MouseMoveEvent 86 274 0 0 0 0 Shift_L\n"
                             "MiddleButtonReleaseEvent 86 274 0 0 0 0 Shift_L\n";
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkOrthoPlanesCallback : public vtkCommand
 {
 public:

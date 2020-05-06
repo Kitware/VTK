@@ -42,7 +42,7 @@ typedef std::vector<bool> BitVector;
 
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // lightweight class that holds the cell properties
 class vtkLSDynaPart::InternalCellProperties
 {
@@ -169,7 +169,7 @@ protected:
   vtkIdType UserIdIndex;
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkLSDynaPart::InternalCells
 {
   // lightweight class that holds the cell topology.In buildTopology
@@ -200,7 +200,7 @@ public:
   std::vector<vtkIdType> data;
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkLSDynaPart::InternalPointsUsed
 {
   // Base class that tracks which points this part uses
@@ -227,7 +227,7 @@ protected:
   vtkIdType MaxId;
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkLSDynaPart::DensePointsUsed : public vtkLSDynaPart::InternalPointsUsed
 {
   // uses a min and max id to bound the bit vector of points that this part
@@ -246,7 +246,7 @@ protected:
   BitVector UsedPoints;
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkLSDynaPart::SparsePointsUsed : public vtkLSDynaPart::InternalPointsUsed
 {
   // uses a set to store highly unrelated points. I doubt this is used by
@@ -274,7 +274,7 @@ protected:
   std::set<vtkIdType> UsedPoints;
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkLSDynaPart::InternalCurrentPointInfo
 {
 public:
@@ -289,7 +289,7 @@ public:
 
 vtkStandardNewMacro(vtkLSDynaPart);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLSDynaPart::vtkLSDynaPart()
 {
   this->Cells = new vtkLSDynaPart::InternalCells();
@@ -315,7 +315,7 @@ vtkLSDynaPart::vtkLSDynaPart()
   this->Points = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLSDynaPart::~vtkLSDynaPart()
 {
   delete this->Cells;
@@ -339,7 +339,7 @@ vtkLSDynaPart::~vtkLSDynaPart()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaPart::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "Type " << this->Type << "(" << TypeNames[this->Type] << ")" << endl;
@@ -350,13 +350,13 @@ void vtkLSDynaPart::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "TopologyBuilt" << this->TopologyBuilt << endl;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkLSDynaPart::HasCells() const
 {
   return this->Cells->size() > 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaPart::InitPart(vtkStdString name, const vtkIdType& partId, const vtkIdType& userMatId,
   const vtkIdType& numGlobalPoints, const int& sizeOfWord)
 {
@@ -403,7 +403,7 @@ void vtkLSDynaPart::InitPart(vtkStdString name, const vtkIdType& partId, const v
   materialId->FastDelete();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaPart::SetPartType(int type)
 {
   switch (type)
@@ -435,25 +435,25 @@ void vtkLSDynaPart::SetPartType(int type)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkLSDynaPart::hasValidType() const
 {
   return (this->Type >= LSDynaMetaData::PARTICLE && this->Type <= LSDynaMetaData::ROAD_SURFACE);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaPart::AllocateCellMemory(const vtkIdType& numCells, const vtkIdType& cellLen)
 {
   this->Cells->reserve(numCells, cellLen);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaPart::AddCell(const int& cellType, const vtkIdType& npts, vtkIdType conn[8])
 {
   this->Cells->add(cellType, npts, conn);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaPart::BuildToplogy()
 {
   // determine the number of points that this part has
@@ -469,7 +469,7 @@ void vtkLSDynaPart::BuildToplogy()
   this->TopologyBuilt = true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUnstructuredGrid* vtkLSDynaPart::GenerateGrid()
 {
   this->CellProperties->ResetForNextTimeStep();
@@ -503,7 +503,7 @@ vtkUnstructuredGrid* vtkLSDynaPart::GenerateGrid()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUnstructuredGrid* vtkLSDynaPart::RemoveDeletedCells()
 {
   if (this->ThresholdGrid)
@@ -585,7 +585,7 @@ vtkUnstructuredGrid* vtkLSDynaPart::RemoveDeletedCells()
 
   return this->ThresholdGrid;
 }
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaPart::EnableDeadCells(const int& deadCellsAsGhostArray)
 {
   this->HasDeadCells = true;
@@ -611,7 +611,7 @@ void vtkLSDynaPart::EnableDeadCells(const int& deadCellsAsGhostArray)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaPart::DisableDeadCells()
 {
   this->HasDeadCells = false;
@@ -621,14 +621,14 @@ void vtkLSDynaPart::DisableDeadCells()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaPart::SetCellsDeadState(unsigned char* dead, const vtkIdType& size)
 {
   // presumes the HideDeletedCells is true, doesn't check for speed
   this->CellProperties->SetDeadCells(dead, size);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaPart::EnableCellUserIds()
 {
   if (this->CellProperties->NoUserIds())
@@ -646,13 +646,13 @@ void vtkLSDynaPart::EnableCellUserIds()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaPart::SetNextCellUserIds(const vtkIdType& value)
 {
   this->CellProperties->SetNextUserId(value);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaPart::AddPointProperty(const char* name, const vtkIdType& numComps,
   const bool& isIdTypeProperty, const bool& isProperty, const bool& isGeometryPoints)
 {
@@ -664,7 +664,7 @@ void vtkLSDynaPart::AddPointProperty(const char* name, const vtkIdType& numComps
   this->CurrentPointPropInfo->index = 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaPart::ReadPointBasedProperty(float* data, const vtkIdType& numTuples,
   const vtkIdType& numComps, const vtkIdType& currentGlobalPointIndex)
 {
@@ -672,7 +672,7 @@ void vtkLSDynaPart::ReadPointBasedProperty(float* data, const vtkIdType& numTupl
   this->AddPointInformation(data, ptr, numTuples, numComps, currentGlobalPointIndex);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaPart::ReadPointBasedProperty(double* data, const vtkIdType& numTuples,
   const vtkIdType& numComps, const vtkIdType& currentGlobalPointIndex)
 {
@@ -680,7 +680,7 @@ void vtkLSDynaPart::ReadPointBasedProperty(double* data, const vtkIdType& numTup
   this->AddPointInformation(data, ptr, numTuples, numComps, currentGlobalPointIndex);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <typename T>
 void vtkLSDynaPart::AddPointInformation(T* buffer, T* pointData, const vtkIdType& numTuples,
   const vtkIdType& numComps, const vtkIdType& currentGlobalIndex)
@@ -721,7 +721,7 @@ void vtkLSDynaPart::AddPointInformation(T* buffer, T* pointData, const vtkIdType
   this->CurrentPointPropInfo->index += numPointsRead;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaPart::GetPropertyData(const char* name, const vtkIdType& numComps,
   const bool& isIdTypeProperty, const bool& isProperty, const bool& isGeometry)
 {
@@ -778,7 +778,7 @@ void vtkLSDynaPart::GetPropertyData(const char* name, const vtkIdType& numComps,
   this->CurrentPointPropInfo->ptr = data->GetVoidPointer(0);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaPart::AddCellProperty(const char* name, const int& offset, const int& numComps)
 {
   if (this->Grid->GetCellData()->HasArray(name))
@@ -814,7 +814,7 @@ void vtkLSDynaPart::AddCellProperty(const char* name, const int& offset, const i
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaPart::ReadCellProperties(
   float* cellProperties, const vtkIdType& numCells, const vtkIdType& numPropertiesInCell)
 {
@@ -825,7 +825,7 @@ void vtkLSDynaPart::ReadCellProperties(
     cell += numPropertiesInCell;
   }
 }
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaPart::ReadCellProperties(
   double* cellProperties, const vtkIdType& numCells, const vtkIdType& numPropertiesInCell)
 {
@@ -837,21 +837,21 @@ void vtkLSDynaPart::ReadCellProperties(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkLSDynaPart::GetMinGlobalPointId() const
 {
   // presumes topology has been built already
   return this->GlobalPointsUsed->minId();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkLSDynaPart::GetMaxGlobalPointId() const
 {
   // presumes topology has been built already
   return this->GlobalPointsUsed->maxId();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaPart::BuildCells()
 {
   this->NumberOfCells = static_cast<vtkIdType>(this->Cells->size());
@@ -881,7 +881,7 @@ void vtkLSDynaPart::BuildCells()
   cells->FastDelete();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaPart::BuildUniquePoints()
 {
 

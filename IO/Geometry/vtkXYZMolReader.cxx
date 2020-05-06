@@ -24,20 +24,20 @@
 
 #include <vtksys/SystemTools.hxx>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkXYZMolReader);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXYZMolReader::vtkXYZMolReader()
 {
   this->TimeStep = 0;
   this->MaxTimeStep = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXYZMolReader::~vtkXYZMolReader() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 char* vtkXYZMolReader::GetNextLine(FILE* fp, char* line, int maxlen)
 {
   int cc;
@@ -99,7 +99,7 @@ char* vtkXYZMolReader::GetNextLine(FILE* fp, char* line, int maxlen)
   return ptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXYZMolReader::GetLine1(const char* line, int* cnt)
 {
   char dummy[1024] = "";
@@ -118,7 +118,7 @@ int vtkXYZMolReader::GetLine1(const char* line, int* cnt)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXYZMolReader::GetLine2(const char* line, char* name)
 {
   char dummy[1024] = "";
@@ -129,7 +129,7 @@ int vtkXYZMolReader::GetLine2(const char* line, char* name)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXYZMolReader::GetAtom(const char* line, char* atom, float* x)
 {
   // cout << "Lookinf for atom: " << line << endl;
@@ -149,7 +149,7 @@ int vtkXYZMolReader::GetAtom(const char* line, char* atom, float* x)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYZMolReader::InsertAtom(const char* atom, float* pos)
 {
   this->Points->InsertNextPoint(pos);
@@ -163,7 +163,7 @@ void vtkXYZMolReader::InsertAtom(const char* atom, float* pos)
   this->IsHetatm->InsertNextValue(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXYZMolReader::CanReadFile(const char* name)
 {
   if (!name)
@@ -227,7 +227,7 @@ int vtkXYZMolReader::CanReadFile(const char* name)
   return valid;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYZMolReader::ReadSpecificMolecule(FILE* fp)
 {
   const int maxlen = 1024;
@@ -339,7 +339,7 @@ void vtkXYZMolReader::ReadSpecificMolecule(FILE* fp)
   this->NumberOfAtoms = num;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYZMolReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

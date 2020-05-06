@@ -18,7 +18,7 @@
 
 vtkStandardNewMacro(vtkCylinder);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct cylinder radius of 0.5.
 vtkCylinder::vtkCylinder()
 {
@@ -29,7 +29,7 @@ vtkCylinder::vtkCylinder()
   this->Radius = 0.5;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Evaluate cylinder equation F(x,y,z) along specified Axis. Note that this is
 // basically a distance to line computation, compared to the cylinder radius.
 double vtkCylinder::EvaluateFunction(double x[3])
@@ -48,7 +48,7 @@ double vtkCylinder::EvaluateFunction(double x[3])
   return ((vtkMath::Dot(x2C, x2C) - proj * proj) - this->Radius * this->Radius);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Evaluate cylinder function gradient (along potentially oriented axis). The
 // gradient is always in the radial direction, and thus must be projected
 // onto the three x-y-z coordinate axes.
@@ -72,7 +72,7 @@ void vtkCylinder::EvaluateGradient(double x[3], double g[3])
   g[2] = 2.0 * (x[2] - cp[2]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify the cylinder axis. Normalize if necessary.
 void vtkCylinder::SetAxis(double ax, double ay, double az)
 {
@@ -83,7 +83,7 @@ void vtkCylinder::SetAxis(double ax, double ay, double az)
   this->SetAxis(axis);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify the cylinder axis. Reject non-zero axis vectors. It normalizes the
 // axis vector.
 void vtkCylinder::SetAxis(double a[3])
@@ -103,7 +103,7 @@ void vtkCylinder::SetAxis(double a[3])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCylinder::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

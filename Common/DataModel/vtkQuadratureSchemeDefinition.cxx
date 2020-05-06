@@ -28,12 +28,12 @@ using std::string;
 
 vtkStandardNewMacro(vtkQuadratureSchemeDefinition);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationKeyMacro(vtkQuadratureSchemeDefinition, DICTIONARY, QuadratureSchemeDefinitionVector);
 
 vtkInformationKeyMacro(vtkQuadratureSchemeDefinition, QUADRATURE_OFFSET_ARRAY_NAME, String);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkQuadratureSchemeDefinition::vtkQuadratureSchemeDefinition()
 {
   this->ShapeFunctionWeights = nullptr;
@@ -41,13 +41,13 @@ vtkQuadratureSchemeDefinition::vtkQuadratureSchemeDefinition()
   this->Clear();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkQuadratureSchemeDefinition::~vtkQuadratureSchemeDefinition()
 {
   this->Clear();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkQuadratureSchemeDefinition::DeepCopy(const vtkQuadratureSchemeDefinition* other)
 {
   this->ShapeFunctionWeights = nullptr;
@@ -67,7 +67,7 @@ int vtkQuadratureSchemeDefinition::DeepCopy(const vtkQuadratureSchemeDefinition*
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQuadratureSchemeDefinition::Clear()
 {
   this->ReleaseResources();
@@ -77,7 +77,7 @@ void vtkQuadratureSchemeDefinition::Clear()
   this->NumberOfQuadraturePoints = 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQuadratureSchemeDefinition::Initialize(
   int cellType, int numberOfNodes, int numberOfQuadraturePoints, double* shapeFunctionWeights)
 {
@@ -93,7 +93,7 @@ void vtkQuadratureSchemeDefinition::Initialize(
   this->SetShapeFunctionWeights(shapeFunctionWeights);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQuadratureSchemeDefinition::Initialize(int cellType, int numberOfNodes,
   int numberOfQuadraturePoints, double* shapeFunctionWeights, double* quadratureWeights)
 {
@@ -110,7 +110,7 @@ void vtkQuadratureSchemeDefinition::Initialize(int cellType, int numberOfNodes,
   this->SetQuadratureWeights(quadratureWeights);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQuadratureSchemeDefinition::ReleaseResources()
 {
   delete[] this->ShapeFunctionWeights;
@@ -120,7 +120,7 @@ void vtkQuadratureSchemeDefinition::ReleaseResources()
   this->QuadratureWeights = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkQuadratureSchemeDefinition::SecureResources()
 {
   if ((this->NumberOfQuadraturePoints <= 0) || (this->NumberOfNodes <= 0))
@@ -148,7 +148,7 @@ int vtkQuadratureSchemeDefinition::SecureResources()
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQuadratureSchemeDefinition::SetShapeFunctionWeights(const double* W)
 {
   if ((this->NumberOfQuadraturePoints <= 0) || (this->NumberOfNodes <= 0) ||
@@ -164,7 +164,7 @@ void vtkQuadratureSchemeDefinition::SetShapeFunctionWeights(const double* W)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQuadratureSchemeDefinition::SetQuadratureWeights(const double* W)
 {
   if ((this->NumberOfQuadraturePoints <= 0) || (this->NumberOfNodes <= 0) ||
@@ -179,7 +179,7 @@ void vtkQuadratureSchemeDefinition::SetQuadratureWeights(const double* W)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQuadratureSchemeDefinition::PrintSelf(ostream& sout, vtkIndent indent)
 {
 
@@ -201,7 +201,7 @@ void vtkQuadratureSchemeDefinition::PrintSelf(ostream& sout, vtkIndent indent)
 }
 
 // NOTE: These are used by XML readers/writers.
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 ostream& operator<<(ostream& sout, const vtkQuadratureSchemeDefinition& def)
 {
   /*
@@ -247,7 +247,7 @@ ostream& operator<<(ostream& sout, const vtkQuadratureSchemeDefinition& def)
   return sout;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 istream& operator>>(istream& sin, vtkQuadratureSchemeDefinition& def)
 {
   /*
@@ -297,7 +297,7 @@ istream& operator>>(istream& sin, vtkQuadratureSchemeDefinition& def)
   return sin;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkQuadratureSchemeDefinition::SaveState(vtkXMLDataElement* root)
 {
   // Quick sanity check, we're not nesting rather treating
@@ -377,7 +377,7 @@ int vtkQuadratureSchemeDefinition::SaveState(vtkXMLDataElement* root)
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkQuadratureSchemeDefinition::RestoreState(vtkXMLDataElement* root)
 {
   // A quick sanity check to be sure we have the correct tag.

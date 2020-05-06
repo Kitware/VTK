@@ -23,7 +23,7 @@
 
 vtkStandardNewMacro(vtkImagePadFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Constructor sets default values
 vtkImagePadFilter::vtkImagePadFilter()
 {
@@ -39,7 +39,7 @@ vtkImagePadFilter::vtkImagePadFilter()
   this->OutputNumberOfScalarComponents = -1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImagePadFilter::SetOutputWholeExtent(int extent[6])
 {
   int idx, modified = 0;
@@ -58,7 +58,7 @@ void vtkImagePadFilter::SetOutputWholeExtent(int extent[6])
     this->Modified();
   }
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImagePadFilter::SetOutputWholeExtent(
   int minX, int maxX, int minY, int maxY, int minZ, int maxZ)
 {
@@ -73,7 +73,7 @@ void vtkImagePadFilter::SetOutputWholeExtent(
   this->SetOutputWholeExtent(extent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImagePadFilter::GetOutputWholeExtent(int extent[6])
 {
   int idx;
@@ -84,7 +84,7 @@ void vtkImagePadFilter::GetOutputWholeExtent(int extent[6])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Just change the Image extent.
 int vtkImagePadFilter::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -145,7 +145,7 @@ void vtkImagePadFilter::ComputeInputUpdateExtent(int inExt[6], int outExt[6], in
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Just clip the request.  The subclass may need to overwrite this method.
 int vtkImagePadFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)

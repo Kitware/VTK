@@ -46,7 +46,7 @@ vtkCenteredSliderWidget::vtkCenteredSliderWidget()
     vtkCommand::TimerEvent, vtkWidgetEvent::TimedOut, this, vtkCenteredSliderWidget::TimerAction);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCenteredSliderWidget::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)

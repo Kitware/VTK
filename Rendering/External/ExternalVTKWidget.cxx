@@ -19,19 +19,19 @@
 
 vtkStandardNewMacro(ExternalVTKWidget);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 ExternalVTKWidget::ExternalVTKWidget()
 {
   this->RenderWindow = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 ExternalVTKWidget::~ExternalVTKWidget()
 {
   this->SetRenderWindow(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExternalOpenGLRenderWindow* ExternalVTKWidget::GetRenderWindow()
 {
   if (!this->RenderWindow)
@@ -43,7 +43,7 @@ vtkExternalOpenGLRenderWindow* ExternalVTKWidget::GetRenderWindow()
   return this->RenderWindow;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExternalOpenGLRenderer* ExternalVTKWidget::AddRenderer(void)
 {
   vtkExternalOpenGLRenderer* ren = vtkExternalOpenGLRenderer::New();
@@ -52,13 +52,13 @@ vtkExternalOpenGLRenderer* ExternalVTKWidget::AddRenderer(void)
   return ren;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void ExternalVTKWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void ExternalVTKWidget::SetRenderWindow(vtkExternalOpenGLRenderWindow* w)
 {
   // Do nothing if we don't have to

@@ -32,7 +32,7 @@
 
 #include "vtkRegressionTestImage.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestDendrogramItem(int argc, char* argv[])
 {
   vtkNew<vtkMutableDirectedGraph> graph;

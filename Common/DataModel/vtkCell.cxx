@@ -17,7 +17,7 @@
 #include "vtkMath.h"
 #include "vtkPoints.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct cell.
 vtkCell::vtkCell()
 {
@@ -30,14 +30,14 @@ vtkCell::vtkCell()
   this->PointIds->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCell::~vtkCell()
 {
   this->Points->UnRegister(this);
   this->PointIds->UnRegister(this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Instantiate cell from outside
 //
 void vtkCell::Initialize(int npts, const vtkIdType* pts, vtkPoints* p)
@@ -52,7 +52,7 @@ void vtkCell::Initialize(int npts, const vtkIdType* pts, vtkPoints* p)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Instantiate cell from outside. A simplified version of
 // vtkCell::Initialize() that assumes point ids are simply the index into the
 // points. This is a convenience function.
@@ -69,7 +69,7 @@ void vtkCell::Initialize(int npts, vtkPoints* p)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCell::ShallowCopy(vtkCell* c)
 {
   this->Points->ShallowCopy(c->Points);
@@ -81,14 +81,14 @@ void vtkCell::ShallowCopy(vtkCell* c)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCell::DeepCopy(vtkCell* c)
 {
   this->Points->DeepCopy(c->Points);
   this->PointIds->DeepCopy(c->PointIds);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Compute cell bounding box (xmin,xmax,ymin,ymax,zmin,zmax). Return pointer
 // to array of six double values.
 double* vtkCell::GetBounds()
@@ -123,7 +123,7 @@ double* vtkCell::GetBounds()
   return this->Bounds;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Compute cell bounding box (xmin,xmax,ymin,ymax,zmin,zmax). Copy result into
 // user provided array.
 void vtkCell::GetBounds(double bounds[6])
@@ -135,7 +135,7 @@ void vtkCell::GetBounds(double bounds[6])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Compute Length squared of cell (i.e., bounding box diagonal squared).
 double vtkCell::GetLength2()
 {
@@ -151,7 +151,7 @@ double vtkCell::GetLength2()
   return l;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Return center of the cell in parametric coordinates.
 // Note that the parametric center is not always located
 // at (0.5,0.5,0.5). The return value is the subId that
@@ -163,7 +163,7 @@ int vtkCell::GetParametricCenter(double pcoords[3])
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method works fine for all "rectangular" cells, not triangular
 // and tetrahedral topologies.
 double vtkCell::GetParametricDistance(const double pcoords[3])
@@ -193,7 +193,7 @@ double vtkCell::GetParametricDistance(const double pcoords[3])
   return pDistMax;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCell::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

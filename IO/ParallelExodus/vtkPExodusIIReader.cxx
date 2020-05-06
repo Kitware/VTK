@@ -105,7 +105,7 @@ protected:
   int Index;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Instantiate object with nullptr filename.
 vtkPExodusIIReader::vtkPExodusIIReader()
@@ -132,7 +132,7 @@ vtkPExodusIIReader::vtkPExodusIIReader()
   this->VariableCacheSize = 100;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPExodusIIReader::~vtkPExodusIIReader()
 {
   this->SetController(nullptr);
@@ -165,7 +165,7 @@ vtkPExodusIIReader::~vtkPExodusIIReader()
   delete[] this->MultiFileName;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPExodusIIReader::SetController(vtkMultiProcessController* c)
 {
   if (this->Controller == c)
@@ -196,7 +196,7 @@ void vtkPExodusIIReader::SetController(vtkMultiProcessController* c)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPExodusIIReader::RequestInformation(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -349,7 +349,7 @@ int vtkPExodusIIReader::RequestInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPExodusIIReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -711,7 +711,7 @@ int vtkPExodusIIReader::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPExodusIIReader::SetFileRange(int min, int max)
 {
   if (min == this->FileRange[0] && max == this->FileRange[1])
@@ -723,7 +723,7 @@ void vtkPExodusIIReader::SetFileRange(int min, int max)
   this->NumberOfFiles = max - min + 1;
   this->Modified();
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPExodusIIReader::SetFileName(const char* name)
 {
   this->SetFileNames(1, &name);
@@ -757,7 +757,7 @@ void vtkPExodusIIReader::SetFileNames(int nfiles, const char** names)
   this->Superclass::SetFileName(names[0]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPExodusIIReader::DetermineFileId(const char* file)
 {
   // Assume the file number is the last digits found in the file name.
@@ -929,7 +929,7 @@ int vtkPExodusIIReader::DeterminePattern(const char* file)
   return VTK_OK;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPExodusIIReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkExodusIIReader::PrintSelf(os, indent);

@@ -37,7 +37,7 @@
 
 vtkStandardNewMacro(vtkChacoReader);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Instantiate object with nullptr filename.
 vtkChacoReader::vtkChacoReader()
@@ -75,7 +75,7 @@ vtkChacoReader::vtkChacoReader()
   this->SetNumberOfInputPorts(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkChacoReader::~vtkChacoReader()
 {
   this->SetBaseName(nullptr);
@@ -89,7 +89,7 @@ vtkChacoReader::~vtkChacoReader()
   delete[] this->Line;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChacoReader::ClearWeightArrayNames()
 {
   int i = 0;
@@ -114,7 +114,7 @@ void vtkChacoReader::ClearWeightArrayNames()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChacoReader::MakeWeightArrayNames(int nv, int ne)
 {
   int i = 0;
@@ -138,7 +138,7 @@ void vtkChacoReader::MakeWeightArrayNames(int nv, int ne)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkChacoReader::GetVertexWeightArrayName(int weight)
 {
   if (this->GetGenerateVertexWeightArrays() && (weight > 0) &&
@@ -150,7 +150,7 @@ const char* vtkChacoReader::GetVertexWeightArrayName(int weight)
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkChacoReader::GetEdgeWeightArrayName(int weight)
 {
   if (this->GetGenerateEdgeWeightArrays() && (weight > 0) && (weight <= this->NumberOfEdgeWeights))
@@ -161,7 +161,7 @@ const char* vtkChacoReader::GetEdgeWeightArrayName(int weight)
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkChacoReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -215,7 +215,7 @@ int vtkChacoReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   return rc;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkChacoReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -235,7 +235,7 @@ int vtkChacoReader::RequestData(vtkInformation* vtkNotUsed(request),
   return retVal;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkChacoReader::BuildOutputGrid(vtkUnstructuredGrid* output)
 {
   int i = 0;
@@ -368,7 +368,7 @@ int vtkChacoReader::BuildOutputGrid(vtkUnstructuredGrid* output)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkChacoReader::ReadFile(vtkUnstructuredGrid* output)
 {
   int i = 0;
@@ -700,7 +700,7 @@ int vtkChacoReader::ReadFile(vtkUnstructuredGrid* output)
 
   return retVal;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChacoReader::AddElementIds(vtkUnstructuredGrid* output)
 {
   // We arbitrarily assign the element ids, since Chaco files do
@@ -721,7 +721,7 @@ void vtkChacoReader::AddElementIds(vtkUnstructuredGrid* output)
   ia->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChacoReader::AddNodeIds(vtkUnstructuredGrid* output)
 {
   // The vertex IDs in a Chaco file begin at 1 for the first
@@ -742,7 +742,7 @@ void vtkChacoReader::AddNodeIds(vtkUnstructuredGrid* output)
   ia->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChacoReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   int i = 0;
@@ -804,7 +804,7 @@ void vtkChacoReader::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChacoReader::CloseCurrentFile()
 {
   if (this->CurrentGeometryFP)
@@ -816,7 +816,7 @@ void vtkChacoReader::CloseCurrentFile()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkChacoReader::OpenCurrentFile()
 {
   int result = 0;
@@ -859,7 +859,7 @@ int vtkChacoReader::OpenCurrentFile()
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Code to read Chaco files.
 // This software was developed by Bruce Hendrickson and Robert Leland
 // at Sandia National Laboratories under US Department of Energy
@@ -873,7 +873,7 @@ void vtkChacoReader::ResetInputBuffers()
   this->Save_pnt = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkChacoReader::InputGeom(vtkIdType nvtxs, // Number of vertices to read in
   int igeom,                                   // Dimension (1, 2 or 3), or 0 if you don't know
   double* x, double* y, double* z)
@@ -978,7 +978,7 @@ int vtkChacoReader::InputGeom(vtkIdType nvtxs, // Number of vertices to read in
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkChacoReader::InputGraph1()
 {
   /* Read first line of input (= nvtxs, narcs, option). */
@@ -1044,7 +1044,7 @@ int vtkChacoReader::InputGraph1()
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkChacoReader::InputGraph2(
   vtkIdType** start,     // start[i]: location of vertex i in adjacency array
   vtkIdType** adjacency, // by vertex by vertex neighbor
@@ -1262,7 +1262,7 @@ done:
   return retVal;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkChacoReader::ReadVal(FILE* infile, int* end_flag)
 {
   double val;
@@ -1369,7 +1369,7 @@ double vtkChacoReader::ReadVal(FILE* infile, int* end_flag)
   return (val);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkChacoReader::ReadInt(FILE* infile, int* end_flag)
 {
   vtkIdType val;
@@ -1476,7 +1476,7 @@ vtkIdType vtkChacoReader::ReadInt(FILE* infile, int* end_flag)
   return (val);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChacoReader::FlushLine(FILE* infile)
 {
   char c;

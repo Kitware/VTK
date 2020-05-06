@@ -177,7 +177,7 @@ const char* vtkDirectory::GetCurrentWorkingDirectory(char* buf, unsigned int len
 
 #endif
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDirectory::MakeDirectory(const char* dir)
 {
   return vtksys::SystemTools::MakeDirectory(dir);
@@ -199,7 +199,7 @@ vtkIdType vtkDirectory::GetNumberOfFiles()
   return this->Files->GetNumberOfValues();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDirectory::FileIsDirectory(const char* name)
 {
   // The vtksys::SystemTools::FileIsDirectory()

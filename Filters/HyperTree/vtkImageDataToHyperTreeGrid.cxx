@@ -35,17 +35,17 @@
 
 vtkStandardNewMacro(vtkImageDataToHyperTreeGrid);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageDataToHyperTreeGrid::vtkImageDataToHyperTreeGrid()
 {
   this->NbColors = 256;
   this->DepthMax = 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageDataToHyperTreeGrid::~vtkImageDataToHyperTreeGrid() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageDataToHyperTreeGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -254,7 +254,7 @@ int vtkImageDataToHyperTreeGrid::ProcessTrees(
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageDataToHyperTreeGrid::FillOutputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
@@ -262,7 +262,7 @@ int vtkImageDataToHyperTreeGrid::FillOutputPortInformation(
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageDataToHyperTreeGrid::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {

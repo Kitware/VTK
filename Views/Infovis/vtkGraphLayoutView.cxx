@@ -36,7 +36,7 @@
 #include "vtkTextProperty.h"
 
 vtkStandardNewMacro(vtkGraphLayoutView);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
 {
   this->SetInteractionModeTo2D();
@@ -47,10 +47,10 @@ vtkGraphLayoutView::vtkGraphLayoutView()
   this->Interacting = false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGraphLayoutView::~vtkGraphLayoutView() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRenderedGraphRepresentation* vtkGraphLayoutView::GetGraphRepresentation()
 {
   vtkRenderedGraphRepresentation* graphRep = nullptr;
@@ -71,7 +71,7 @@ vtkRenderedGraphRepresentation* vtkGraphLayoutView::GetGraphRepresentation()
   return graphRep;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataRepresentation* vtkGraphLayoutView::CreateDefaultRepresentation(vtkAlgorithmOutput* port)
 {
   vtkRenderedGraphRepresentation* rep = vtkRenderedGraphRepresentation::New();
@@ -79,7 +79,7 @@ vtkDataRepresentation* vtkGraphLayoutView::CreateDefaultRepresentation(vtkAlgori
   return rep;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphLayoutView::ProcessEvents(vtkObject* caller, unsigned long eventId, void* callData)
 {
   if (eventId == vtkCommand::StartInteractionEvent)
@@ -122,31 +122,31 @@ void vtkGraphLayoutView::ProcessEvents(vtkObject* caller, unsigned long eventId,
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphLayoutView::SetVertexLabelArrayName(const char* name)
 {
   this->GetGraphRepresentation()->SetVertexLabelArrayName(name);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkGraphLayoutView::GetVertexLabelArrayName()
 {
   return this->GetGraphRepresentation()->GetVertexLabelArrayName();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphLayoutView::SetEdgeLabelArrayName(const char* name)
 {
   this->GetGraphRepresentation()->SetEdgeLabelArrayName(name);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkGraphLayoutView::GetEdgeLabelArrayName()
 {
   return this->GetGraphRepresentation()->GetEdgeLabelArrayName();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphLayoutView::SetVertexLabelVisibility(bool vis)
 {
   this->VertexLabelsRequested = vis;
@@ -156,37 +156,37 @@ void vtkGraphLayoutView::SetVertexLabelVisibility(bool vis)
     this->GetGraphRepresentation()->SetVertexLabelVisibility(vis);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGraphLayoutView::GetVertexLabelVisibility()
 {
   return this->GetGraphRepresentation()->GetVertexLabelVisibility();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphLayoutView::SetHideVertexLabelsOnInteraction(bool vis)
 {
   this->GetGraphRepresentation()->SetHideVertexLabelsOnInteraction(vis);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGraphLayoutView::GetHideVertexLabelsOnInteraction()
 {
   return this->GetGraphRepresentation()->GetHideVertexLabelsOnInteraction();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphLayoutView::SetEdgeVisibility(bool vis)
 {
   this->GetGraphRepresentation()->SetEdgeVisibility(vis);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGraphLayoutView::GetEdgeVisibility()
 {
   return this->GetGraphRepresentation()->GetEdgeVisibility();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphLayoutView::SetEdgeLabelVisibility(bool vis)
 {
   this->EdgeLabelsRequested = vis;
@@ -196,317 +196,317 @@ void vtkGraphLayoutView::SetEdgeLabelVisibility(bool vis)
     this->GetGraphRepresentation()->SetEdgeLabelVisibility(vis);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGraphLayoutView::GetEdgeLabelVisibility()
 {
   return this->GetGraphRepresentation()->GetEdgeLabelVisibility();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphLayoutView::SetHideEdgeLabelsOnInteraction(bool vis)
 {
   this->GetGraphRepresentation()->SetHideEdgeLabelsOnInteraction(vis);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGraphLayoutView::GetHideEdgeLabelsOnInteraction()
 {
   return this->GetGraphRepresentation()->GetHideEdgeLabelsOnInteraction();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphLayoutView::SetVertexColorArrayName(const char* name)
 {
   this->GetGraphRepresentation()->SetVertexColorArrayName(name);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkGraphLayoutView::GetVertexColorArrayName()
 {
   return this->GetGraphRepresentation()->GetVertexColorArrayName();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphLayoutView::SetColorVertices(bool vis)
 {
   this->GetGraphRepresentation()->SetColorVerticesByArray(vis);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGraphLayoutView::GetColorVertices()
 {
   return this->GetGraphRepresentation()->GetColorVerticesByArray();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphLayoutView::SetVertexScalarBarVisibility(bool vis)
 {
   this->GetGraphRepresentation()->SetVertexScalarBarVisibility(vis);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGraphLayoutView::GetVertexScalarBarVisibility()
 {
   return this->GetGraphRepresentation()->GetVertexScalarBarVisibility();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphLayoutView::SetEdgeColorArrayName(const char* name)
 {
   this->GetGraphRepresentation()->SetEdgeColorArrayName(name);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkGraphLayoutView::GetEdgeColorArrayName()
 {
   return this->GetGraphRepresentation()->GetEdgeColorArrayName();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphLayoutView::SetColorEdges(bool vis)
 {
   this->GetGraphRepresentation()->SetColorEdgesByArray(vis);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGraphLayoutView::GetColorEdges()
 {
   return this->GetGraphRepresentation()->GetColorEdgesByArray();
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphLayoutView::SetEdgeSelection(bool vis)
 {
   this->GetGraphRepresentation()->SetEdgeSelection(vis);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGraphLayoutView::GetEdgeSelection()
 {
   return this->GetGraphRepresentation()->GetEdgeSelection();
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphLayoutView::SetEdgeScalarBarVisibility(bool vis)
 {
   this->GetGraphRepresentation()->SetEdgeScalarBarVisibility(vis);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGraphLayoutView::GetEdgeScalarBarVisibility()
 {
   return this->GetGraphRepresentation()->GetEdgeScalarBarVisibility();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphLayoutView::SetEnabledEdgesArrayName(const char* name)
 {
   this->GetGraphRepresentation()->SetEnabledEdgesArrayName(name);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkGraphLayoutView::GetEnabledEdgesArrayName()
 {
   return this->GetGraphRepresentation()->GetEnabledEdgesArrayName();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphLayoutView::SetEnableEdgesByArray(bool vis)
 {
   this->GetGraphRepresentation()->SetEnableEdgesByArray(vis);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGraphLayoutView::GetEnableEdgesByArray()
 {
   return this->GetGraphRepresentation()->GetEnableEdgesByArray();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphLayoutView::SetEnabledVerticesArrayName(const char* name)
 {
   this->GetGraphRepresentation()->SetEnabledVerticesArrayName(name);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkGraphLayoutView::GetEnabledVerticesArrayName()
 {
   return this->GetGraphRepresentation()->GetEnabledVerticesArrayName();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphLayoutView::SetEnableVerticesByArray(bool vis)
 {
   this->GetGraphRepresentation()->SetEnableVerticesByArray(vis);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGraphLayoutView::GetEnableVerticesByArray()
 {
   return this->GetGraphRepresentation()->GetEnableVerticesByArray();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphLayoutView::SetGlyphType(int type)
 {
   this->GetGraphRepresentation()->SetGlyphType(type);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGraphLayoutView::GetGlyphType()
 {
   return this->GetGraphRepresentation()->GetGlyphType();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphLayoutView::SetScaledGlyphs(bool arg)
 {
   this->GetGraphRepresentation()->SetScaling(arg);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGraphLayoutView::GetScaledGlyphs()
 {
   return this->GetGraphRepresentation()->GetScaling();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphLayoutView::SetScalingArrayName(const char* name)
 {
   this->GetGraphRepresentation()->SetScalingArrayName(name);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkGraphLayoutView::GetScalingArrayName()
 {
   return this->GetGraphRepresentation()->GetScalingArrayName();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphLayoutView::SetIconArrayName(const char* name)
 {
   this->GetGraphRepresentation()->SetVertexIconArrayName(name);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkGraphLayoutView::GetIconArrayName()
 {
   return this->GetGraphRepresentation()->GetVertexIconArrayName();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphLayoutView::AddIconType(const char* type, int index)
 {
   this->GetGraphRepresentation()->AddVertexIconType(type, index);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphLayoutView::ClearIconTypes()
 {
   this->GetGraphRepresentation()->ClearVertexIconTypes();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGraphLayoutView::IsLayoutComplete()
 {
   return this->GetGraphRepresentation()->IsLayoutComplete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphLayoutView::UpdateLayout()
 {
   this->GetGraphRepresentation()->UpdateLayout();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphLayoutView::SetLayoutStrategy(vtkGraphLayoutStrategy* s)
 {
   this->GetGraphRepresentation()->SetLayoutStrategy(s);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphLayoutView::SetLayoutStrategy(const char* name)
 {
   this->GetGraphRepresentation()->SetLayoutStrategy(name);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGraphLayoutStrategy* vtkGraphLayoutView::GetLayoutStrategy()
 {
   return this->GetGraphRepresentation()->GetLayoutStrategy();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkGraphLayoutView::GetLayoutStrategyName()
 {
   return this->GetGraphRepresentation()->GetLayoutStrategyName();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphLayoutView::SetEdgeLayoutStrategy(vtkEdgeLayoutStrategy* s)
 {
   this->GetGraphRepresentation()->SetEdgeLayoutStrategy(s);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkEdgeLayoutStrategy* vtkGraphLayoutView::GetEdgeLayoutStrategy()
 {
   return this->GetGraphRepresentation()->GetEdgeLayoutStrategy();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphLayoutView::SetEdgeLayoutStrategy(const char* name)
 {
   this->GetGraphRepresentation()->SetEdgeLayoutStrategy(name);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkGraphLayoutView::GetEdgeLayoutStrategyName()
 {
   return this->GetGraphRepresentation()->GetEdgeLayoutStrategyName();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphLayoutView::SetIconAlignment(int alignment)
 {
   this->GetGraphRepresentation()->SetVertexIconAlignment(alignment);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphLayoutView::SetIconVisibility(bool b)
 {
   this->GetGraphRepresentation()->SetVertexIconVisibility(b);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGraphLayoutView::GetIconVisibility()
 {
   return this->GetGraphRepresentation()->GetVertexIconVisibility();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphLayoutView::SetVertexLabelFontSize(const int size)
 {
   this->GetGraphRepresentation()->GetVertexLabelTextProperty()->SetFontSize(size);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGraphLayoutView::GetVertexLabelFontSize()
 {
   return this->GetGraphRepresentation()->GetVertexLabelTextProperty()->GetFontSize();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphLayoutView::SetEdgeLabelFontSize(const int size)
 {
   this->GetGraphRepresentation()->GetEdgeLabelTextProperty()->SetFontSize(size);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGraphLayoutView::GetEdgeLabelFontSize()
 {
   return this->GetGraphRepresentation()->GetEdgeLabelTextProperty()->GetFontSize();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphLayoutView::ZoomToSelection()
 {
   double bounds[6];
@@ -514,7 +514,7 @@ void vtkGraphLayoutView::ZoomToSelection()
   this->Renderer->ResetCamera(bounds);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphLayoutView::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -26,14 +26,14 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkCornerAnnotation);
 
 vtkSetObjectImplementationMacro(vtkCornerAnnotation, ImageActor, vtkImageActor);
 vtkSetObjectImplementationMacro(vtkCornerAnnotation, WindowLevel, vtkImageMapToWindowLevelColors);
 vtkCxxSetObjectMacro(vtkCornerAnnotation, TextProperty, vtkTextProperty);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCornerAnnotation::vtkCornerAnnotation()
 {
   this->PositionCoordinate->SetCoordinateSystemToNormalizedViewport();
@@ -70,7 +70,7 @@ vtkCornerAnnotation::vtkCornerAnnotation()
   this->ShowSliceAndImage = 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCornerAnnotation::~vtkCornerAnnotation()
 {
   this->SetTextProperty(nullptr);
@@ -86,7 +86,7 @@ vtkCornerAnnotation::~vtkCornerAnnotation()
   this->SetImageActor(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Release any graphics resources that are being consumed by this actor.
 // The parameter window could be used to determine which graphic
 // resources to release.
@@ -99,7 +99,7 @@ void vtkCornerAnnotation::ReleaseGraphicsResources(vtkWindow* win)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCornerAnnotation::TextReplace(vtkImageActor* ia, vtkImageMapToWindowLevelColors* wl)
 {
   int i;
@@ -341,7 +341,7 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor* ia, vtkImageMapToWindowLeve
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCornerAnnotation::RenderOverlay(vtkViewport* viewport)
 {
   // Everything is built, just have to render
@@ -379,7 +379,7 @@ int GetNumberOfLines(const char* str)
 }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCornerAnnotation::RenderOpaqueGeometry(vtkViewport* viewport)
 {
   int fontSize;
@@ -612,7 +612,7 @@ int vtkCornerAnnotation::RenderOpaqueGeometry(vtkViewport* viewport)
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry?
 vtkTypeBool vtkCornerAnnotation::HasTranslucentPolygonalGeometry()
@@ -620,7 +620,7 @@ vtkTypeBool vtkCornerAnnotation::HasTranslucentPolygonalGeometry()
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCornerAnnotation::SetTextActorsPosition(const int vsize[2])
 {
   this->TextActor[LowerLeft]->SetPosition(5, 5);
@@ -634,7 +634,7 @@ void vtkCornerAnnotation::SetTextActorsPosition(const int vsize[2])
   this->TextActor[RightEdge]->SetPosition(vsize[0] - 5, vsize[1] / 2);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCornerAnnotation::SetTextActorsJustification()
 {
   vtkTextProperty* tprop = this->TextMapper[LowerLeft]->GetTextProperty();
@@ -670,7 +670,7 @@ void vtkCornerAnnotation::SetTextActorsJustification()
   tprop->SetVerticalJustificationToCentered();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCornerAnnotation::SetText(int i, const char* text)
 {
   if (i < 0 || i >= NumTextPositions)
@@ -688,7 +688,7 @@ void vtkCornerAnnotation::SetText(int i, const char* text)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkCornerAnnotation::GetText(int i)
 {
   if (i < 0 || i >= NumTextPositions)
@@ -699,7 +699,7 @@ const char* vtkCornerAnnotation::GetText(int i)
   return this->CornerText[i];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCornerAnnotation::ClearAllTexts()
 {
   for (int i = 0; i < NumTextPositions; i++)
@@ -708,7 +708,7 @@ void vtkCornerAnnotation::ClearAllTexts()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCornerAnnotation::CopyAllTextsFrom(vtkCornerAnnotation* ca)
 {
   for (int i = 0; i < NumTextPositions; i++)
@@ -717,7 +717,7 @@ void vtkCornerAnnotation::CopyAllTextsFrom(vtkCornerAnnotation* ca)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCornerAnnotation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

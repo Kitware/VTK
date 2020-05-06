@@ -67,10 +67,10 @@ static bool vtkX3DExporterWriterRenderVerts(vtkPoints* points, vtkCellArray* cel
 static bool vtkX3DExporterWriterRenderPoints(
   vtkPolyData* pd, vtkUnsignedCharArray* colors, bool cell_colors, vtkX3DExporterWriter* writer);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkX3DExporter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkX3DExporter::vtkX3DExporter()
 {
   this->Speed = 4.0;
@@ -82,14 +82,14 @@ vtkX3DExporter::vtkX3DExporter()
   this->OutputStringLength = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkX3DExporter::~vtkX3DExporter()
 {
   this->SetFileName(nullptr);
   delete[] this->OutputString;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporter::WriteData()
 {
   vtkSmartPointer<vtkX3DExporterWriter> writer;
@@ -318,7 +318,7 @@ void vtkX3DExporter::WriteData()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporter::WriteALight(vtkLight* aLight, vtkX3DExporterWriter* writer)
 {
   double *pos, *focus, *colord;
@@ -362,7 +362,7 @@ void vtkX3DExporter::WriteALight(vtkLight* aLight, vtkX3DExporterWriter* writer)
   writer->Flush();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporter::WriteAnActor(vtkActor* anActor, vtkX3DExporterWriter* writer, int index)
 {
   // see if the actor has a mapper. it could be an assembly
@@ -426,7 +426,7 @@ void vtkX3DExporter::WriteAnActor(vtkActor* anActor, vtkX3DExporterWriter* write
   writer->EndNode();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporter::WriteAPiece(
   vtkPolyData* pd, vtkActor* anActor, vtkX3DExporterWriter* writer, int index)
 {
@@ -586,7 +586,7 @@ void vtkX3DExporter::WriteAPiece(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -612,7 +612,7 @@ void vtkX3DExporter::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporter::WriteATextActor2D(vtkActor2D* anTextActor2D, vtkX3DExporterWriter* writer)
 {
   char* ds;
@@ -849,7 +849,7 @@ void vtkX3DExporter::WriteATexture(vtkActor* anActor, vtkX3DExporterWriter* writ
   writer->EndNode();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkX3DExporter::HasHeadLight(vtkRenderer* ren)
 {
   // make sure we have a default light
@@ -877,7 +877,7 @@ static bool vtkX3DExporterWriterUsingCellColors(vtkMapper* mapper)
   return (cellFlag == 1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static bool vtkX3DExporterWriterRenderFaceSet(int cellType, int representation, vtkPoints* points,
   vtkIdType cellOffset, vtkCellArray* cells, vtkUnsignedCharArray* colors, bool cell_colors,
   vtkDataArray* normals, bool cell_normals, vtkDataArray* tcoords, bool common_data_written,
@@ -1211,7 +1211,7 @@ static bool vtkX3DExporterWriterRenderPoints(
   writer->EndNode(); // PointSet
   return true;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 char* vtkX3DExporter::RegisterAndGetOutputString()
 {
   char* tmp = this->OutputString;

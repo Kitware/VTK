@@ -41,7 +41,7 @@
 
 vtkStandardNewMacro(vtkOrientedGlyphFocalPlaneContourRepresentation);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOrientedGlyphFocalPlaneContourRepresentation::vtkOrientedGlyphFocalPlaneContourRepresentation()
 {
 
@@ -180,7 +180,7 @@ vtkOrientedGlyphFocalPlaneContourRepresentation::vtkOrientedGlyphFocalPlaneConto
   this->ContourPlaneDirectionCosines = vtkMatrix4x4::New();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOrientedGlyphFocalPlaneContourRepresentation::~vtkOrientedGlyphFocalPlaneContourRepresentation()
 {
   this->FocalPoint->Delete();
@@ -212,7 +212,7 @@ vtkOrientedGlyphFocalPlaneContourRepresentation::~vtkOrientedGlyphFocalPlaneCont
   this->ContourPlaneDirectionCosines->Delete();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientedGlyphFocalPlaneContourRepresentation::SetCursorShape(vtkPolyData* shape)
 {
   if (shape != this->CursorShape)
@@ -234,13 +234,13 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::SetCursorShape(vtkPolyData
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyData* vtkOrientedGlyphFocalPlaneContourRepresentation::GetCursorShape()
 {
   return this->CursorShape;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientedGlyphFocalPlaneContourRepresentation::SetActiveCursorShape(vtkPolyData* shape)
 {
   if (shape != this->ActiveCursorShape)
@@ -262,20 +262,20 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::SetActiveCursorShape(vtkPo
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyData* vtkOrientedGlyphFocalPlaneContourRepresentation::GetActiveCursorShape()
 {
   return this->ActiveCursorShape;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientedGlyphFocalPlaneContourRepresentation::SetRenderer(vtkRenderer* ren)
 {
   //  this->WorldPosition->SetViewport(ren);
   this->Superclass::SetRenderer(ren);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkOrientedGlyphFocalPlaneContourRepresentation::ComputeInteractionState(
   int X, int Y, int vtkNotUsed(modified))
 {
@@ -313,7 +313,7 @@ int vtkOrientedGlyphFocalPlaneContourRepresentation::ComputeInteractionState(
   return this->InteractionState;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Record the current event position, and the rectilinear wipe position.
 void vtkOrientedGlyphFocalPlaneContourRepresentation::StartWidgetInteraction(
   double startEventPos[2])
@@ -337,7 +337,7 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::StartWidgetInteraction(
   this->InteractionOffset[1] = pos[1] - startEventPos[1];
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Based on the displacement vector (computed in display coordinates) and
 // the cursor state (which corresponds to which part of the widget has been
 // selected), the widget points are modified.
@@ -364,7 +364,7 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::WidgetInteraction(double e
   this->LastEventPosition[1] = eventPos[1];
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Translate everything
 void vtkOrientedGlyphFocalPlaneContourRepresentation::Translate(double eventPos[2])
 {
@@ -397,7 +397,7 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::Translate(double eventPos[
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientedGlyphFocalPlaneContourRepresentation::ShiftContour(double eventPos[2])
 {
   double ref[3];
@@ -437,7 +437,7 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::ShiftContour(double eventP
     }
   }
 }
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientedGlyphFocalPlaneContourRepresentation::ScaleContour(double eventPos[2])
 {
   double ref[3];
@@ -482,7 +482,7 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::ScaleContour(double eventP
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientedGlyphFocalPlaneContourRepresentation::ComputeCentroid(double* ioCentroid)
 {
   double p[3];
@@ -503,7 +503,7 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::ComputeCentroid(double* io
   ioCentroid[2] *= inv_N;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientedGlyphFocalPlaneContourRepresentation::Scale(double eventPos[2])
 {
   // Get the current scale factor
@@ -518,7 +518,7 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::Scale(double eventPos[2])
   this->Glypher->SetScaleFactor(sf);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientedGlyphFocalPlaneContourRepresentation::CreateDefaultProperties()
 {
   this->Property = vtkProperty2D::New();
@@ -535,7 +535,7 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::CreateDefaultProperties()
   this->LinesProperty->SetLineWidth(1);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientedGlyphFocalPlaneContourRepresentation::BuildLines()
 {
   vtkPoints* points = vtkPoints::New();
@@ -602,7 +602,7 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::BuildLines()
   lines->Delete();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Returns the direction cosines of the plane on which the contour lies
 // on in world co-ordinates. This would be the same matrix that would be
 // set in vtkImageReslice or vtkImagePlaneWidget if there were a plane
@@ -640,7 +640,7 @@ vtkMatrix4x4* vtkOrientedGlyphFocalPlaneContourRepresentation ::GetContourPlaneD
   return this->ContourPlaneDirectionCosines;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Returns the contour representation as polydata in world co-ordinates
 // For this class, the contour is overlaid on the focal plane.
 //
@@ -714,7 +714,7 @@ vtkPolyData* vtkOrientedGlyphFocalPlaneContourRepresentation ::GetContourReprese
   return this->LinesWorldCoordinates;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientedGlyphFocalPlaneContourRepresentation::BuildRepresentation()
 {
   // Make sure we are up to date with any changes made in the placer
@@ -812,7 +812,7 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::BuildRepresentation()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientedGlyphFocalPlaneContourRepresentation::GetActors2D(vtkPropCollection* pc)
 {
   this->Actor->GetActors2D(pc);
@@ -820,7 +820,7 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::GetActors2D(vtkPropCollect
   this->LinesActor->GetActors2D(pc);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientedGlyphFocalPlaneContourRepresentation::ReleaseGraphicsResources(vtkWindow* win)
 {
   this->Actor->ReleaseGraphicsResources(win);
@@ -828,7 +828,7 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::ReleaseGraphicsResources(v
   this->LinesActor->ReleaseGraphicsResources(win);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkOrientedGlyphFocalPlaneContourRepresentation::RenderOverlay(vtkViewport* viewport)
 {
   int count = 0;
@@ -844,7 +844,7 @@ int vtkOrientedGlyphFocalPlaneContourRepresentation::RenderOverlay(vtkViewport* 
   return count;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkOrientedGlyphFocalPlaneContourRepresentation::RenderOpaqueGeometry(vtkViewport* viewport)
 {
   // Since we know RenderOpaqueGeometry gets called first, will do the
@@ -863,7 +863,7 @@ int vtkOrientedGlyphFocalPlaneContourRepresentation::RenderOpaqueGeometry(vtkVie
   return count;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkOrientedGlyphFocalPlaneContourRepresentation::RenderTranslucentPolygonalGeometry(
   vtkViewport* viewport)
 {
@@ -879,7 +879,7 @@ int vtkOrientedGlyphFocalPlaneContourRepresentation::RenderTranslucentPolygonalG
   return count;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkOrientedGlyphFocalPlaneContourRepresentation::HasTranslucentPolygonalGeometry()
 {
   int result = this->LinesActor->HasTranslucentPolygonalGeometry();
@@ -894,7 +894,7 @@ vtkTypeBool vtkOrientedGlyphFocalPlaneContourRepresentation::HasTranslucentPolyg
   return result;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientedGlyphFocalPlaneContourRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

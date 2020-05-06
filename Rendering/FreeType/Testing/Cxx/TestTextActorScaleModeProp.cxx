@@ -21,7 +21,7 @@
 #include "vtkRenderer.h"
 #include "vtkTextProperty.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestTextActorScaleModeProp(int, char*[])
 {
   // Test PROP scale mode actor with a text property that's instantiated first

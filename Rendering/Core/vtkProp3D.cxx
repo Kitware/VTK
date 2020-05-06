@@ -22,7 +22,7 @@
 
 #include <cmath>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct with the following defaults: origin(0,0,0)
 // position=(0,0,0) and orientation=(0,0,0). No user defined
 // matrix and no texture map.
@@ -57,7 +57,7 @@ vtkProp3D::vtkProp3D()
   this->IsIdentity = 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProp3D::~vtkProp3D()
 {
   this->Matrix->Delete();
@@ -79,7 +79,7 @@ vtkProp3D::~vtkProp3D()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkProp3D::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
@@ -91,7 +91,7 @@ vtkMTimeType vtkProp3D::GetMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkProp3D::GetUserTransformMatrixMTime()
 {
   vtkMTimeType mTime = 0;
@@ -115,7 +115,7 @@ vtkMTimeType vtkProp3D::GetUserTransformMatrixMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Incrementally change the position of the Prop3D.
 void vtkProp3D::AddPosition(double deltaX, double deltaY, double deltaZ)
 {
@@ -129,14 +129,14 @@ void vtkProp3D::AddPosition(double deltaX, double deltaY, double deltaZ)
   this->IsIdentity = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProp3D::AddPosition(double deltaPosition[3])
 {
   this->AddPosition(deltaPosition[0], deltaPosition[1], deltaPosition[2]);
   this->IsIdentity = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Sets the orientation of the Prop3D.  Orientation is specified as X,Y and Z
 // rotations in that order, but they are performed as RotateZ, RotateX, and
 // finally RotateY.
@@ -169,13 +169,13 @@ void vtkProp3D::SetOrientation(double x, double y, double z)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProp3D::SetOrientation(double a[3])
 {
   this->SetOrientation(a[0], a[1], a[2]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Returns the orientation of the Prop3D as s vector of X,Y and Z rotation.
 // The ordering in which these rotations must be done to generate the same
 // matrix is RotateZ, RotateX, and finally RotateY. See also SetOrientation.
@@ -190,7 +190,7 @@ double* vtkProp3D::GetOrientation()
   return this->Orientation;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProp3D::GetOrientation(double o[3])
 {
   // return the orientation of the transformation matrix
@@ -198,14 +198,14 @@ void vtkProp3D::GetOrientation(double o[3])
   vtkDebugMacro(<< " Returning Orientation of ( " << o[0] << ", " << o[1] << ", " << o[2] << ")\n");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Returns the WXYZ orientation of the Prop3D.
 double* vtkProp3D::GetOrientationWXYZ()
 {
   return this->Transform->GetOrientationWXYZ();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Add to the current orientation. See SetOrientation and GetOrientation for
 // more details. This basically does a GetOrientation, adds the passed in
 // arguments, and then calls SetOrientation.
@@ -217,13 +217,13 @@ void vtkProp3D::AddOrientation(double a1, double a2, double a3)
   this->SetOrientation(orient[0] + a1, orient[1] + a2, orient[2] + a3);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProp3D::AddOrientation(double a[3])
 {
   this->AddOrientation(a[0], a[1], a[2]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Rotate the Prop3D in degrees about the X axis using the right hand
 // rule. The axis is the Prop3D's X axis, which can change as other rotations
 // are performed.  To rotate about the world X axis use RotateWXYZ (angle, 1,
@@ -237,7 +237,7 @@ void vtkProp3D::RotateX(double angle)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Rotate the Prop3D in degrees about the Y axis using the right hand
 // rule. The axis is the Prop3D's Y axis, which can change as other rotations
 // are performed.  To rotate about the world Y axis use RotateWXYZ (angle, 0,
@@ -251,7 +251,7 @@ void vtkProp3D::RotateY(double angle)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Rotate the Prop3D in degrees about the Z axis using the right hand
 // rule. The axis is the Prop3D's Z axis, which can change as other rotations
 // are performed.  To rotate about the world Z axis use RotateWXYZ (angle, 0,
@@ -266,7 +266,7 @@ void vtkProp3D::RotateZ(double angle)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Rotate the Prop3D in degrees about an arbitrary axis specified by the
 // last three arguments. The axis is specified in world coordinates. To
 // rotate an about its model axes, use RotateX, RotateY, RotateZ.
@@ -279,7 +279,7 @@ void vtkProp3D::RotateWXYZ(double degree, double x, double y, double z)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProp3D::SetUserTransform(vtkLinearTransform* transform)
 {
   this->IsIdentity = 0;
@@ -307,7 +307,7 @@ void vtkProp3D::SetUserTransform(vtkLinearTransform* transform)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProp3D::SetUserMatrix(vtkMatrix4x4* matrix)
 {
   this->IsIdentity = 0;
@@ -339,7 +339,7 @@ void vtkProp3D::SetUserMatrix(vtkMatrix4x4* matrix)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProp3D::GetMatrix(vtkMatrix4x4* result)
 {
   double mine[16];
@@ -360,14 +360,14 @@ void vtkProp3D::GetMatrix(vtkMatrix4x4* result)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProp3D::GetMatrix(double result[16])
 {
   this->ComputeMatrix();
   vtkMatrix4x4::DeepCopy(result, this->Matrix);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProp3D::ComputeMatrix()
 {
   if (this->IsIdentity)
@@ -412,7 +412,7 @@ void vtkProp3D::ComputeMatrix()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the bounds for this Prop3D as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
 void vtkProp3D::GetBounds(double bounds[6])
 {
@@ -423,7 +423,7 @@ void vtkProp3D::GetBounds(double bounds[6])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the center of the bounding box in world coordinates.
 double* vtkProp3D::GetCenter()
 {
@@ -435,7 +435,7 @@ double* vtkProp3D::GetCenter()
   return this->Center;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the length of the diagonal of the bounding box.
 double vtkProp3D::GetLength()
 {
@@ -452,7 +452,7 @@ double vtkProp3D::GetLength()
   return sqrt(l);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the Prop3D's x range in world coordinates.
 double* vtkProp3D::GetXRange()
 {
@@ -460,7 +460,7 @@ double* vtkProp3D::GetXRange()
   return this->Bounds;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the Prop3D's y range in world coordinates.
 double* vtkProp3D::GetYRange()
 {
@@ -468,7 +468,7 @@ double* vtkProp3D::GetYRange()
   return &(this->Bounds[2]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the Prop3D's z range in world coordinates.
 double* vtkProp3D::GetZRange()
 {
@@ -476,7 +476,7 @@ double* vtkProp3D::GetZRange()
   return &(this->Bounds[4]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Shallow copy of vtkProp3D.
 void vtkProp3D::ShallowCopy(vtkProp* prop)
 {
@@ -507,7 +507,7 @@ void vtkProp3D::ShallowCopy(vtkProp* prop)
   this->vtkProp::ShallowCopy(prop);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Backdoor allows temporary replacement of matrix in vtkProp3D
 void vtkProp3D::PokeMatrix(vtkMatrix4x4* matrix)
 {
@@ -577,7 +577,7 @@ void vtkProp3D::PokeMatrix(vtkMatrix4x4* matrix)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProp3D::InitPathTraversal()
 {
   if (this->Paths)
@@ -593,7 +593,7 @@ void vtkProp3D::InitPathTraversal()
   this->Paths->InitTraversal();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMatrix4x4* vtkProp3D::GetUserMatrix()
 {
   if (this->UserTransform)
@@ -603,7 +603,7 @@ vtkMatrix4x4* vtkProp3D::GetUserMatrix()
   return this->UserMatrix;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProp3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

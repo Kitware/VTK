@@ -33,12 +33,12 @@
 
 #include <algorithm>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkObjectFactoryNewMacro(vtkTextMapper);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkTextMapper, TextProperty, vtkTextProperty);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Creates a new text mapper
 vtkTextMapper::vtkTextMapper()
 {
@@ -79,7 +79,7 @@ vtkTextMapper::vtkTextMapper()
   this->TextDims[0] = this->TextDims[1] = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Shallow copy of an actor.
 void vtkTextMapper::ShallowCopy(vtkAbstractMapper* m)
 {
@@ -94,14 +94,14 @@ void vtkTextMapper::ShallowCopy(vtkAbstractMapper* m)
   this->vtkMapper2D::ShallowCopy(m);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTextMapper::~vtkTextMapper()
 {
   delete[] this->Input;
   this->SetTextProperty(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -134,7 +134,7 @@ void vtkTextMapper::PrintSelf(ostream& os, vtkIndent indent)
   this->Texture->PrintSelf(os, indent.GetNextIndent());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextMapper::GetSize(vtkViewport* vp, int size[2])
 {
   vtkWindow* win = vp ? vp->GetVTKWindow() : nullptr;
@@ -150,7 +150,7 @@ void vtkTextMapper::GetSize(vtkViewport* vp, int size[2])
   size[1] = this->TextDims[1];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTextMapper::GetWidth(vtkViewport* viewport)
 {
   int size[2];
@@ -158,7 +158,7 @@ int vtkTextMapper::GetWidth(vtkViewport* viewport)
   return size[0];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTextMapper::GetHeight(vtkViewport* viewport)
 {
   int size[2];
@@ -166,13 +166,13 @@ int vtkTextMapper::GetHeight(vtkViewport* viewport)
   return size[1];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTextMapper::SetConstrainedFontSize(vtkViewport* viewport, int targetWidth, int targetHeight)
 {
   return this->SetConstrainedFontSize(this, viewport, targetWidth, targetHeight);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTextMapper::SetConstrainedFontSize(
   vtkTextMapper* tmapper, vtkViewport* viewport, int targetWidth, int targetHeight)
 {
@@ -229,7 +229,7 @@ int vtkTextMapper::SetConstrainedFontSize(
   return fontSize;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTextMapper::SetMultipleConstrainedFontSize(vtkViewport* viewport, int targetWidth,
   int targetHeight, vtkTextMapper** mappers, int nbOfMappers, int* maxResultingSize)
 {
@@ -300,7 +300,7 @@ int vtkTextMapper::SetMultipleConstrainedFontSize(vtkViewport* viewport, int tar
   return fontSize;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTextMapper::SetRelativeFontSize(vtkTextMapper* tmapper, vtkViewport* viewport,
   const int* targetSize, int* stringSize, float sizeFactor)
 {
@@ -317,7 +317,7 @@ int vtkTextMapper::SetRelativeFontSize(vtkTextMapper* tmapper, vtkViewport* view
   return fontSize;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTextMapper::SetMultipleRelativeFontSize(vtkViewport* viewport, vtkTextMapper** textMappers,
   int nbOfMappers, int* targetSize, int* stringSize, float sizeFactor)
 {
@@ -337,7 +337,7 @@ int vtkTextMapper::SetMultipleRelativeFontSize(vtkViewport* viewport, vtkTextMap
   return fontSize;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextMapper::RenderOverlay(vtkViewport* viewport, vtkActor2D* actor)
 {
   // This is necessary for GL2PS exports when this actor/mapper are part of an
@@ -391,7 +391,7 @@ void vtkTextMapper::RenderOverlay(vtkViewport* viewport, vtkActor2D* actor)
   this->Superclass::RenderOverlay(viewport, actor);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextMapper::ReleaseGraphicsResources(vtkWindow* win)
 {
   this->Superclass::ReleaseGraphicsResources(win);
@@ -399,7 +399,7 @@ void vtkTextMapper::ReleaseGraphicsResources(vtkWindow* win)
   this->Texture->ReleaseGraphicsResources(win);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkTextMapper::GetMTime()
 {
   vtkMTimeType result = this->Superclass::GetMTime();
@@ -412,7 +412,7 @@ vtkMTimeType vtkTextMapper::GetMTime()
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextMapper::UpdateQuad(vtkActor2D* actor, int dpi)
 {
   vtkDebugMacro(<< "UpdateQuad called");
@@ -498,7 +498,7 @@ void vtkTextMapper::UpdateQuad(vtkActor2D* actor, int dpi)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextMapper::UpdateImage(int dpi)
 {
   vtkDebugMacro(<< "UpdateImage called");

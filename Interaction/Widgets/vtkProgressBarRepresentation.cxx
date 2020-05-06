@@ -125,7 +125,7 @@ vtkProgressBarRepresentation::vtkProgressBarRepresentation()
   this->BackgroundActor->SetMapper(backgroundMapper);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProgressBarRepresentation::~vtkProgressBarRepresentation()
 {
   this->Points->Delete();
@@ -135,7 +135,7 @@ vtkProgressBarRepresentation::~vtkProgressBarRepresentation()
   this->BackgroundActor->Delete();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProgressBarRepresentation::BuildRepresentation()
 {
   // Reposition progress bar points
@@ -159,14 +159,14 @@ void vtkProgressBarRepresentation::BuildRepresentation()
   this->Superclass::BuildRepresentation();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProgressBarRepresentation::GetSize(double size[2])
 {
   size[0] = PROGRESS_BAR_WIDTH + 0.2;
   size[1] = PROGRESS_BAR_HEIGHT + 0.2;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProgressBarRepresentation::GetActors2D(vtkPropCollection* pc)
 {
   if (this->DrawBackground)
@@ -177,7 +177,7 @@ void vtkProgressBarRepresentation::GetActors2D(vtkPropCollection* pc)
   this->Superclass::GetActors2D(pc);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProgressBarRepresentation::ReleaseGraphicsResources(vtkWindow* w)
 {
   if (this->DrawBackground)
@@ -188,7 +188,7 @@ void vtkProgressBarRepresentation::ReleaseGraphicsResources(vtkWindow* w)
   this->Superclass::ReleaseGraphicsResources(w);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkProgressBarRepresentation::RenderOverlay(vtkViewport* w)
 {
   int count = this->Superclass::RenderOverlay(w);
@@ -200,7 +200,7 @@ int vtkProgressBarRepresentation::RenderOverlay(vtkViewport* w)
   return count;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkProgressBarRepresentation::RenderOpaqueGeometry(vtkViewport* w)
 {
   int count = this->Superclass::RenderOpaqueGeometry(w);
@@ -212,7 +212,7 @@ int vtkProgressBarRepresentation::RenderOpaqueGeometry(vtkViewport* w)
   return count;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkProgressBarRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport* w)
 {
   int count = this->Superclass::RenderTranslucentPolygonalGeometry(w);
@@ -224,7 +224,7 @@ int vtkProgressBarRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport
   return count;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkProgressBarRepresentation::HasTranslucentPolygonalGeometry()
 {
   int result = this->Superclass::HasTranslucentPolygonalGeometry();
@@ -236,7 +236,7 @@ vtkTypeBool vtkProgressBarRepresentation::HasTranslucentPolygonalGeometry()
   return result;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProgressBarRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

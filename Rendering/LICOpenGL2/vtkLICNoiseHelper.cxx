@@ -42,7 +42,7 @@ int ilog2(unsigned int n)
 
 } // end anonymous namespace
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLICRandomNoise2D::GetValidDimensionAndGrainSize(int type, int& sideLen, int& grainSize)
 {
   // perlin noise both side len and grain size need to be powers of 2
@@ -67,7 +67,7 @@ void vtkLICRandomNoise2D::GetValidDimensionAndGrainSize(int type, int& sideLen, 
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkLICRandomNoise2D::ShouldGenerateValue(double prob)
 {
   if (this->ProbGen.GetRandomNumber() > (1.0 - prob))
@@ -77,7 +77,7 @@ int vtkLICRandomNoise2D::ShouldGenerateValue(double prob)
   return 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 float* vtkLICRandomNoise2D::Generate(int type, int& sideLen, int& grainSize, float minNoiseVal,
   float maxNoiseVal, int nLevels, double impulseProb, float impulseBgNoiseVal, int seed)
 {
@@ -100,7 +100,7 @@ float* vtkLICRandomNoise2D::Generate(int type, int& sideLen, int& grainSize, flo
   return nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 float* vtkLICRandomNoise2D::GenerateUniform(int sideLen, int grainSize, float minNoiseVal,
   float maxNoiseVal, int nLevels, double impulseProb, float impulseBgNoiseVal, int seed)
 {
@@ -165,7 +165,7 @@ float* vtkLICRandomNoise2D::GenerateUniform(int sideLen, int grainSize, float mi
   return noise;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 float* vtkLICRandomNoise2D::GenerateGaussian(int sideLen, int grainSize, float minNoiseVal,
   float maxNoiseVal, int nLevels, double impulseProb, float impulseBgNoiseVal, int seed)
 {
@@ -270,7 +270,7 @@ float* vtkLICRandomNoise2D::GenerateGaussian(int sideLen, int grainSize, float m
   return noise;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 float* vtkLICRandomNoise2D::GeneratePerlin(int sideLen, int grainSize, float minNoiseVal,
   float maxNoiseVal, int nLevels, double impulseProb, float impulseBgNoiseVal, int seed)
 {

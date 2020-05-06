@@ -42,7 +42,7 @@
 vtkStandardNewMacro(vtk3DLinearGridCrinkleExtractor);
 vtkCxxSetObjectMacro(vtk3DLinearGridCrinkleExtractor, ImplicitFunction, vtkImplicitFunction);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Macros immediately below are just used to make code easier to
 // read. Invokes functor _op _num times depending on serial (_seq==1) or
 // parallel processing mode. The _REDUCE_ version is used to called functors
@@ -560,7 +560,7 @@ struct CopyPointAttributes
 
 } // anonymous namespace
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct an instance of the class.
 vtk3DLinearGridCrinkleExtractor::vtk3DLinearGridCrinkleExtractor()
 {
@@ -573,13 +573,13 @@ vtk3DLinearGridCrinkleExtractor::vtk3DLinearGridCrinkleExtractor()
   this->NumberOfThreadsUsed = 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtk3DLinearGridCrinkleExtractor::~vtk3DLinearGridCrinkleExtractor()
 {
   this->SetImplicitFunction(nullptr);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Overload standard modified time function. If the implicit function
 // definition is modified, then this object is modified as well.
 vtkMTimeType vtk3DLinearGridCrinkleExtractor::GetMTime()
@@ -596,7 +596,7 @@ vtkMTimeType vtk3DLinearGridCrinkleExtractor::GetMTime()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specialized implicit function extraction filter to handle unstructured
 // grids with 3D linear cells (tetrahedras, hexes, wedges, pyradmids, voxels)
 //
@@ -809,7 +809,7 @@ int vtk3DLinearGridCrinkleExtractor::ProcessPiece(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The output dataset type varies depending on the input type.
 int vtk3DLinearGridCrinkleExtractor::RequestDataObject(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -853,7 +853,7 @@ int vtk3DLinearGridCrinkleExtractor::RequestDataObject(
   return 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specialized extraction filter to handle unstructured grids with 3D
 // linear cells (tetrahedras, hexes, wedges, pyradmids, voxels)
 //
@@ -926,20 +926,20 @@ int vtk3DLinearGridCrinkleExtractor::RequestData(
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtk3DLinearGridCrinkleExtractor::SetOutputPointsPrecision(int precision)
 {
   this->OutputPointsPrecision = precision;
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtk3DLinearGridCrinkleExtractor::GetOutputPointsPrecision() const
 {
   return this->OutputPointsPrecision;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtk3DLinearGridCrinkleExtractor::CanFullyProcessDataObject(vtkDataObject* object)
 {
   auto ug = vtkUnstructuredGrid::SafeDownCast(object);
@@ -985,7 +985,7 @@ bool vtk3DLinearGridCrinkleExtractor::CanFullyProcessDataObject(vtkDataObject* o
   return false; // not a vtkUnstructuredGrid nor a composite dataset
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtk3DLinearGridCrinkleExtractor::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
@@ -993,7 +993,7 @@ int vtk3DLinearGridCrinkleExtractor::FillInputPortInformation(int, vtkInformatio
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtk3DLinearGridCrinkleExtractor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

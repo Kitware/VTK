@@ -34,7 +34,7 @@
 
 vtkStandardNewMacro(vtkDataSetToDataObjectFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Instantiate object.
 vtkDataSetToDataObjectFilter::vtkDataSetToDataObjectFilter()
 {
@@ -49,7 +49,7 @@ vtkDataSetToDataObjectFilter::vtkDataSetToDataObjectFilter()
 
 vtkDataSetToDataObjectFilter::~vtkDataSetToDataObjectFilter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataSetToDataObjectFilter::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -313,7 +313,7 @@ int vtkDataSetToDataObjectFilter::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataSetToDataObjectFilter::RequestUpdateExtent(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector*)
 {
@@ -326,7 +326,7 @@ int vtkDataSetToDataObjectFilter::RequestUpdateExtent(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataSetToDataObjectFilter::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (!this->Superclass::FillInputPortInformation(port, info))
@@ -337,7 +337,7 @@ int vtkDataSetToDataObjectFilter::FillInputPortInformation(int port, vtkInformat
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataSetToDataObjectFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -28,7 +28,7 @@
 
 vtkStandardNewMacro(vtkTIFFWriter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTIFFWriter::vtkTIFFWriter()
   : TIFFPtr(nullptr)
   , Compression(PackBits)
@@ -43,7 +43,7 @@ vtkTIFFWriter::vtkTIFFWriter()
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTIFFWriter::Write()
 {
   // make sure the latest input is available.
@@ -118,7 +118,7 @@ void vtkTIFFWriter::Write()
   this->InternalFileName = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTIFFWriter::WriteFileHeader(ostream*, vtkImageData* data, int wExt[6])
 {
   vtkDataArray* scalarArray = this->GetInputArrayToProcess(0, this->GetInput());
@@ -263,7 +263,7 @@ void vtkTIFFWriter::WriteFileHeader(ostream*, vtkImageData* data, int wExt[6])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTIFFWriter::WriteFile(ostream*, vtkImageData* data, int extent[6], int*)
 {
   vtkDataArray* scalarArray = this->GetInputArrayToProcess(0, this->GetInput());
@@ -324,7 +324,7 @@ void vtkTIFFWriter::WriteFile(ostream*, vtkImageData* data, int extent[6], int*)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <typename T>
 void vtkTIFFWriter::WriteVolume(T* buffer)
 {
@@ -422,7 +422,7 @@ void vtkTIFFWriter::WriteVolume(T* buffer)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTIFFWriter::WriteFileTrailer(ostream*, vtkImageData*)
 {
   TIFF* tif = reinterpret_cast<TIFF*>(this->TIFFPtr);
@@ -439,7 +439,7 @@ void vtkTIFFWriter::WriteFileTrailer(ostream*, vtkImageData*)
   this->TIFFPtr = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTIFFWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

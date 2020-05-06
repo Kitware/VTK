@@ -56,7 +56,7 @@ public:
   }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // set default values
 vtkNetCDFPOPReader::vtkNetCDFPOPReader()
 {
@@ -74,7 +74,7 @@ vtkNetCDFPOPReader::vtkNetCDFPOPReader()
     vtkCommand::ModifiedEvent, this->SelectionObserver);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // delete filename and netcdf file descriptor
 vtkNetCDFPOPReader::~vtkNetCDFPOPReader()
 {
@@ -93,7 +93,7 @@ vtkNetCDFPOPReader::~vtkNetCDFPOPReader()
   this->Internals = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNetCDFPOPReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -109,7 +109,7 @@ void vtkNetCDFPOPReader::PrintSelf(ostream& os, vtkIndent indent)
   this->Internals->VariableArraySelection->PrintSelf(os, indent.GetNextIndent());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // RequestInformation supplies global meta information
 // This should return the reality of what the reader is going to supply.
 // This retrieve the extents for the rectilinear grid
@@ -181,7 +181,7 @@ int vtkNetCDFPOPReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Setting extents of the rectilinear grid
 int vtkNetCDFPOPReader::RequestData(vtkInformation* request,
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
@@ -306,7 +306,7 @@ int vtkNetCDFPOPReader::RequestData(vtkInformation* request,
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // following 5 functions are used for paraview user interface
 void vtkNetCDFPOPReader::SelectionModifiedCallback(
   vtkObject*, unsigned long, void* clientdata, void*)
@@ -314,13 +314,13 @@ void vtkNetCDFPOPReader::SelectionModifiedCallback(
   static_cast<vtkNetCDFPOPReader*>(clientdata)->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkNetCDFPOPReader::GetNumberOfVariableArrays()
 {
   return this->Internals->VariableArraySelection->GetNumberOfArrays();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkNetCDFPOPReader::GetVariableArrayName(int index)
 {
   if (index < 0 || index >= this->GetNumberOfVariableArrays())
@@ -330,13 +330,13 @@ const char* vtkNetCDFPOPReader::GetVariableArrayName(int index)
   return this->Internals->VariableArraySelection->GetArrayName(index);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkNetCDFPOPReader::GetVariableArrayStatus(const char* name)
 {
   return this->Internals->VariableArraySelection->ArrayIsEnabled(name);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNetCDFPOPReader::SetVariableArrayStatus(const char* name, int status)
 {
   vtkDebugMacro("Set cell array \"" << name << "\" status to: " << status);

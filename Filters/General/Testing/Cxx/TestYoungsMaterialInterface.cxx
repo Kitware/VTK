@@ -35,7 +35,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkYoungsMaterialInterface.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestYoungsMaterialInterface(int argc, char* argv[])
 {
   // Create renderer and add actors to it

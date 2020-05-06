@@ -103,7 +103,7 @@ static int CheckExtractedUGrid(
   return testStatus;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestLinearSelector3D(int argc, char* argv[])
 {
   // Initialize test value

@@ -39,27 +39,27 @@ PURPOSE.  See the above copyright notice for more information.
 
 vtkStandardNewMacro(vtkPOrderStatistics);
 vtkCxxSetObjectMacro(vtkPOrderStatistics, Controller, vtkMultiProcessController);
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPOrderStatistics::vtkPOrderStatistics()
 {
   this->Controller = 0;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPOrderStatistics::~vtkPOrderStatistics()
 {
   this->SetController(0);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPOrderStatistics::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Controller: " << this->Controller << endl;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static void StringVectorToStringBuffer(
   const std::vector<vtkStdString>& strings, vtkStdString& buffer)
 {
@@ -72,7 +72,7 @@ static void StringVectorToStringBuffer(
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static void StringArrayToStringBuffer(vtkStringArray* sVals, vtkStdString& sPack)
 {
   std::vector<vtkStdString> sVect; // consecutive strings
@@ -88,7 +88,7 @@ static void StringArrayToStringBuffer(vtkStringArray* sVals, vtkStdString& sPack
   StringVectorToStringBuffer(sVect, sPack);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static void StringHistoToBuffers(
   const std::map<vtkStdString, vtkIdType>& histo, vtkStdString& buffer, vtkIdTypeArray* card)
 {
@@ -106,7 +106,7 @@ static void StringHistoToBuffers(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static void StringBufferToStringVector(
   const vtkStdString& buffer, std::vector<vtkStdString>& strings)
 {
@@ -128,7 +128,7 @@ static void StringBufferToStringVector(
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPOrderStatistics::Learn(
   vtkTable* inData, vtkTable* inParameters, vtkMultiBlockDataSet* outMeta)
 {
@@ -351,7 +351,7 @@ void vtkPOrderStatistics::Learn(
   } // for ( unsigned int b = 0; b < nBlocks; ++ b )
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPOrderStatistics::Reduce(vtkIdTypeArray* card_g, vtkDataArray* dVals_g)
 {
   // Check consistency: we must have as many values as cardinality entries
@@ -398,7 +398,7 @@ bool vtkPOrderStatistics::Reduce(vtkIdTypeArray* card_g, vtkDataArray* dVals_g)
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPOrderStatistics::Reduce(vtkIdTypeArray* card_g, vtkIdType& ncTotal, char* sPack_g,
   std::map<vtkStdString, vtkIdType>& histogram)
 {
@@ -433,7 +433,7 @@ bool vtkPOrderStatistics::Reduce(vtkIdTypeArray* card_g, vtkIdType& ncTotal, cha
   return false;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPOrderStatistics::Broadcast(std::map<vtkStdString, vtkIdType>& histogram,
   vtkIdTypeArray* card, vtkStringArray* sVals, vtkIdType rProc)
 {

@@ -30,7 +30,7 @@
 #include "vtkTemporalShiftScale.h"
 #include "vtkThreshold.h"
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestTemporalFractal(int argc, char* argv[])
 {
   // we have to use a composite pipeline

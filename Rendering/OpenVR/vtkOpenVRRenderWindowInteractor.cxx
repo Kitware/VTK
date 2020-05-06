@@ -42,7 +42,7 @@ void* vtkOpenVRRenderWindowInteractor::ClassExitMethodArg = (void*)nullptr;
 void (*vtkOpenVRRenderWindowInteractor::ClassExitMethodArgDelete)(
   void*) = (void (*)(void*)) nullptr;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct object so that light follows camera motion.
 vtkOpenVRRenderWindowInteractor::vtkOpenVRRenderWindowInteractor()
 {
@@ -58,7 +58,7 @@ vtkOpenVRRenderWindowInteractor::vtkOpenVRRenderWindowInteractor()
   this->DeviceInputDownCount[1] = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenVRRenderWindowInteractor::~vtkOpenVRRenderWindowInteractor() {}
 
 void vtkOpenVRRenderWindowInteractor::SetPhysicalScale(double scale)
@@ -255,7 +255,7 @@ void vtkOpenVRRenderWindowInteractor::GetTouchPadPosition(
   result[1] = cstate.rAxis[offset].y;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRRenderWindowInteractor::StartEventLoop()
 {
   this->StartedMessageLoop = 1;
@@ -587,7 +587,7 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkOpenVRRenderWindow* renWin, 
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRRenderWindowInteractor::RecognizeComplexGesture(vtkEventDataDevice3D* edata)
 {
   // Recognize gesture only if one button is pressed per controller
@@ -760,7 +760,7 @@ void vtkOpenVRRenderWindowInteractor::RecognizeComplexGesture(vtkEventDataDevice
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRRenderWindowInteractor::Initialize()
 {
   // make sure we have a RenderWindow and camera
@@ -787,7 +787,7 @@ void vtkOpenVRRenderWindowInteractor::Initialize()
   this->Size[1] = size[1];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkOpenVRRenderWindowInteractor::InternalCreateTimer(
   int vtkNotUsed(timerId), int vtkNotUsed(timerType), unsigned long vtkNotUsed(duration))
 {
@@ -795,14 +795,14 @@ int vtkOpenVRRenderWindowInteractor::InternalCreateTimer(
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkOpenVRRenderWindowInteractor::InternalDestroyTimer(int vtkNotUsed(platformTimerId))
 {
   // todo
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify the default function to be called when an interactor needs to exit.
 // This callback is overridden by an instance ExitMethod that is defined.
 void vtkOpenVRRenderWindowInteractor::SetClassExitMethod(void (*f)(void*), void* arg)
@@ -824,7 +824,7 @@ void vtkOpenVRRenderWindowInteractor::SetClassExitMethod(void (*f)(void*), void*
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Set the arg delete method.  This is used to free user memory.
 void vtkOpenVRRenderWindowInteractor::SetClassExitMethodArgDelete(void (*f)(void*))
 {
@@ -836,14 +836,14 @@ void vtkOpenVRRenderWindowInteractor::SetClassExitMethodArgDelete(void (*f)(void
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "StartedMessageLoop: " << this->StartedMessageLoop << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRRenderWindowInteractor::ExitCallback()
 {
   if (this->HasObserver(vtkCommand::ExitEvent))
@@ -858,7 +858,7 @@ void vtkOpenVRRenderWindowInteractor::ExitCallback()
   this->TerminateApp();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkEventDataDevice vtkOpenVRRenderWindowInteractor::GetPointerDevice()
 {
   if (this->PointerIndex == 0)
@@ -872,7 +872,7 @@ vtkEventDataDevice vtkOpenVRRenderWindowInteractor::GetPointerDevice()
   return vtkEventDataDevice::Unknown;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRRenderWindowInteractor::GetStartingPhysicalToWorldMatrix(
   vtkMatrix4x4* startingPhysicalToWorldMatrix)
 {

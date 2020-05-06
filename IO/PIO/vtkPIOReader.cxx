@@ -37,9 +37,9 @@
 
 vtkStandardNewMacro(vtkPIOReader);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Constructor for PIO Reader
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPIOReader::vtkPIOReader()
 {
   this->SetNumberOfInputPorts(0);
@@ -76,9 +76,9 @@ vtkPIOReader::vtkPIOReader()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Destructor for PIO Reader
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPIOReader::~vtkPIOReader()
 {
   delete[] this->FileName;
@@ -94,9 +94,9 @@ vtkPIOReader::~vtkPIOReader()
   this->MPIController = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Verify that the file exists
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPIOReader::RequestInformation(vtkInformation* vtkNotUsed(reqInfo),
   vtkInformationVector** vtkNotUsed(inVector), vtkInformationVector* outVector)
 {
@@ -179,9 +179,9 @@ int vtkPIOReader::RequestInformation(vtkInformation* vtkNotUsed(reqInfo),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Data is read into a vtkMultiBlockDataSet
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPIOReader::RequestData(vtkInformation* vtkNotUsed(reqInfo),
   vtkInformationVector** vtkNotUsed(inVector), vtkInformationVector* outVector)
 {
@@ -258,20 +258,20 @@ int vtkPIOReader::RequestData(vtkInformation* vtkNotUsed(reqInfo),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPIOReader::SelectionModifiedCallback(
   vtkObject*, unsigned long vtkNotUsed(eventid), void* clientdata, void* vtkNotUsed(calldata))
 {
   static_cast<vtkPIOReader*>(clientdata)->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiBlockDataSet* vtkPIOReader::GetOutput()
 {
   return this->GetOutput(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiBlockDataSet* vtkPIOReader::GetOutput(int idx)
 {
   if (idx)
@@ -284,37 +284,37 @@ vtkMultiBlockDataSet* vtkPIOReader::GetOutput(int idx)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPIOReader::GetNumberOfCellArrays()
 {
   return this->CellDataArraySelection->GetNumberOfArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPIOReader::EnableAllCellArrays()
 {
   this->CellDataArraySelection->EnableAllArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPIOReader::DisableAllCellArrays()
 {
   this->CellDataArraySelection->DisableAllArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkPIOReader::GetCellArrayName(int index)
 {
   return this->CellDataArraySelection->GetArrayName(index);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPIOReader::GetCellArrayStatus(const char* name)
 {
   return this->CellDataArraySelection->ArrayIsEnabled(name);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPIOReader::SetCellArrayStatus(const char* name, int status)
 {
   if (status)

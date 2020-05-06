@@ -41,7 +41,7 @@ static const char* vtkCellTypesStrings[] = { "vtkEmptyCell", "vtkVertex", "vtkPo
   "vtkBezierTriangle", "vtkBezierTetra", "vtkBezierHexahedron", "vtkBezierWedge",
   "vtkBezierPyramid", nullptr };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkCellTypes::GetClassNameFromTypeId(int type)
 {
   static int numClasses = 0;
@@ -65,7 +65,7 @@ const char* vtkCellTypes::GetClassNameFromTypeId(int type)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCellTypes::GetTypeIdFromClassName(const char* classname)
 {
   if (!classname)
@@ -84,7 +84,7 @@ int vtkCellTypes::GetTypeIdFromClassName(const char* classname)
   return -1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCellTypes::vtkCellTypes()
   : TypeArray(vtkUnsignedCharArray::New())
   , LocationArray(vtkIdTypeArray::New())
@@ -99,7 +99,7 @@ vtkCellTypes::vtkCellTypes()
   this->LocationArray->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCellTypes::~vtkCellTypes()
 {
   if (this->TypeArray)
@@ -113,7 +113,7 @@ vtkCellTypes::~vtkCellTypes()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Allocate memory for this array. Delete old storage only if necessary.
 int vtkCellTypes::Allocate(vtkIdType sz, vtkIdType ext)
 {
@@ -143,7 +143,7 @@ int vtkCellTypes::Allocate(vtkIdType sz, vtkIdType ext)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Add a cell at specified id.
 void vtkCellTypes::InsertCell(vtkIdType cellId, unsigned char type, vtkIdType loc)
 {
@@ -158,7 +158,7 @@ void vtkCellTypes::InsertCell(vtkIdType cellId, unsigned char type, vtkIdType lo
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Add a cell to the object in the next available slot.
 vtkIdType vtkCellTypes::InsertNextCell(unsigned char type, vtkIdType loc)
 {
@@ -167,7 +167,7 @@ vtkIdType vtkCellTypes::InsertNextCell(unsigned char type, vtkIdType loc)
   return this->MaxId;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify a group of cell types.
 void vtkCellTypes::SetCellTypes(
   vtkIdType ncells, vtkUnsignedCharArray* cellTypes, vtkIntArray* cellLocations)
@@ -184,7 +184,7 @@ void vtkCellTypes::SetCellTypes(
   cellLocations64->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify a group of cell types.
 void vtkCellTypes::SetCellTypes(
   vtkIdType ncells, vtkUnsignedCharArray* cellTypes, vtkIdTypeArray* cellLocations)
@@ -209,7 +209,7 @@ void vtkCellTypes::SetCellTypes(
   this->MaxId = ncells - 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Reclaim any extra memory.
 void vtkCellTypes::Squeeze()
 {
@@ -217,14 +217,14 @@ void vtkCellTypes::Squeeze()
   this->LocationArray->Squeeze();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Initialize object without releasing memory.
 void vtkCellTypes::Reset()
 {
   this->MaxId = -1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 unsigned long vtkCellTypes::GetActualMemorySize()
 {
   unsigned long size = 0;
@@ -242,7 +242,7 @@ unsigned long vtkCellTypes::GetActualMemorySize()
   return static_cast<unsigned long>(ceil(size / 1024.0)); // kibibytes
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellTypes::DeepCopy(vtkCellTypes* src)
 {
   if (this->TypeArray)
@@ -275,7 +275,7 @@ void vtkCellTypes::DeepCopy(vtkCellTypes* src)
   this->MaxId = src->MaxId;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellTypes::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

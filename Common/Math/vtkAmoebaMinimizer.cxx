@@ -20,7 +20,7 @@
 
 vtkStandardNewMacro(vtkAmoebaMinimizer);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAmoebaMinimizer::vtkAmoebaMinimizer()
 {
   this->Function = nullptr;
@@ -52,7 +52,7 @@ vtkAmoebaMinimizer::vtkAmoebaMinimizer()
   this->AmoebaNStepsNoImprovement = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAmoebaMinimizer::~vtkAmoebaMinimizer()
 {
   this->TerminateAmoeba();
@@ -82,7 +82,7 @@ vtkAmoebaMinimizer::~vtkAmoebaMinimizer()
   this->NumberOfParameters = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAmoebaMinimizer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -134,7 +134,7 @@ void vtkAmoebaMinimizer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ExpansionRatio: " << this->GetExpansionRatio() << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAmoebaMinimizer::SetFunction(void (*f)(void*), void* arg)
 {
   if (f != this->Function || arg != this->FunctionArg)
@@ -150,7 +150,7 @@ void vtkAmoebaMinimizer::SetFunction(void (*f)(void*), void* arg)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAmoebaMinimizer::SetFunctionArgDelete(void (*f)(void*))
 {
   if (f != this->FunctionArgDelete)
@@ -160,7 +160,7 @@ void vtkAmoebaMinimizer::SetFunctionArgDelete(void (*f)(void*))
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkAmoebaMinimizer::GetParameterValue(const char* name)
 {
   for (int i = 0; i < this->NumberOfParameters; i++)
@@ -174,7 +174,7 @@ double vtkAmoebaMinimizer::GetParameterValue(const char* name)
   return 0.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAmoebaMinimizer::SetParameterValue(const char* name, double val)
 {
   int i;
@@ -197,7 +197,7 @@ void vtkAmoebaMinimizer::SetParameterValue(const char* name, double val)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAmoebaMinimizer::SetParameterValue(int i, double val)
 {
   if (i < this->NumberOfParameters)
@@ -241,7 +241,7 @@ void vtkAmoebaMinimizer::SetParameterValue(int i, double val)
   this->FunctionEvaluations = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkAmoebaMinimizer::GetParameterScale(const char* name)
 {
   for (int i = 0; i < this->NumberOfParameters; i++)
@@ -255,7 +255,7 @@ double vtkAmoebaMinimizer::GetParameterScale(const char* name)
   return 1.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAmoebaMinimizer::SetParameterScale(const char* name, double scale)
 {
   for (int i = 0; i < this->NumberOfParameters; i++)
@@ -269,7 +269,7 @@ void vtkAmoebaMinimizer::SetParameterScale(const char* name, double scale)
   vtkErrorMacro("SetParameterScale: no parameter named " << name);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAmoebaMinimizer::SetParameterScale(int i, double scale)
 {
   if (i < 0 || i > this->NumberOfParameters)
@@ -285,7 +285,7 @@ void vtkAmoebaMinimizer::SetParameterScale(int i, double scale)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // reset the number of parameters to zero
 void vtkAmoebaMinimizer::Initialize()
 {
@@ -311,7 +311,7 @@ void vtkAmoebaMinimizer::Initialize()
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAmoebaMinimizer::EvaluateFunction()
 {
   if (this->Function)
@@ -321,7 +321,7 @@ void vtkAmoebaMinimizer::EvaluateFunction()
   this->FunctionEvaluations++;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAmoebaMinimizer::CheckParameterTolerance()
 {
   int n = this->NumberOfParameters;
@@ -355,7 +355,7 @@ int vtkAmoebaMinimizer::CheckParameterTolerance()
   return (size <= this->ParameterTolerance);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAmoebaMinimizer::Iterate()
 {
   if (this->Iterations == 0)
@@ -380,7 +380,7 @@ int vtkAmoebaMinimizer::Iterate()
   return (improved || !paramsWithinTol);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAmoebaMinimizer::Minimize()
 {
   if (this->Iterations == 0)

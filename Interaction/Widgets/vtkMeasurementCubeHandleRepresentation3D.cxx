@@ -46,7 +46,7 @@ vtkStandardNewMacro(vtkMeasurementCubeHandleRepresentation3D);
 vtkCxxSetObjectMacro(vtkMeasurementCubeHandleRepresentation3D, Property, vtkProperty);
 vtkCxxSetObjectMacro(vtkMeasurementCubeHandleRepresentation3D, SelectedProperty, vtkProperty);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMeasurementCubeHandleRepresentation3D::vtkMeasurementCubeHandleRepresentation3D()
 {
   this->InteractionState = vtkHandleRepresentation::Outside;
@@ -120,7 +120,7 @@ vtkMeasurementCubeHandleRepresentation3D::vtkMeasurementCubeHandleRepresentation
   this->HandleTransformFilter->SetInputData(cubeSource->GetOutput());
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMeasurementCubeHandleRepresentation3D ::~vtkMeasurementCubeHandleRepresentation3D()
 {
   this->SetLengthUnit(nullptr);
@@ -135,7 +135,7 @@ vtkMeasurementCubeHandleRepresentation3D ::~vtkMeasurementCubeHandleRepresentati
   this->LabelText->Delete();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMeasurementCubeHandleRepresentation3D::RegisterPickers()
 {
   vtkPickingManager* pm = this->GetPickingManager();
@@ -146,13 +146,13 @@ void vtkMeasurementCubeHandleRepresentation3D::RegisterPickers()
   pm->AddPicker(this->HandlePicker, this);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyData* vtkMeasurementCubeHandleRepresentation3D::GetHandle()
 {
   return vtkPolyData::SafeDownCast(this->HandleTransformFilter->GetInput());
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMeasurementCubeHandleRepresentation3D::SetWorldPosition(double p[3])
 {
   if (!this->Renderer || !this->PointPlacer || this->PointPlacer->ValidateWorldPosition(p))
@@ -168,7 +168,7 @@ void vtkMeasurementCubeHandleRepresentation3D::SetWorldPosition(double p[3])
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMeasurementCubeHandleRepresentation3D::SetDisplayPosition(double p[3])
 {
   if (this->Renderer && this->PointPlacer)
@@ -192,7 +192,7 @@ void vtkMeasurementCubeHandleRepresentation3D::SetDisplayPosition(double p[3])
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMeasurementCubeHandleRepresentation3D ::ComputeInteractionState(
   int X, int Y, int vtkNotUsed(modify))
 {
@@ -215,7 +215,7 @@ int vtkMeasurementCubeHandleRepresentation3D ::ComputeInteractionState(
   return this->InteractionState;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Record the current event position, and the rectilinear wipe position.
 void vtkMeasurementCubeHandleRepresentation3D::StartWidgetInteraction(double startEventPos[2])
 {
@@ -242,7 +242,7 @@ void vtkMeasurementCubeHandleRepresentation3D::StartWidgetInteraction(double sta
   this->WaitCount = 0;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Based on the displacement vector (computed in display coordinates) and
 // the cursor state (which corresponds to which part of the widget has been
 // selected), the widget points are modified.
@@ -351,7 +351,7 @@ void vtkMeasurementCubeHandleRepresentation3D::WidgetInteraction(double eventPos
   this->Modified();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMeasurementCubeHandleRepresentation3D ::MoveFocusRequest(
   const double* p1, const double* p2, const double currPos[2], double center[3])
 {
@@ -379,7 +379,7 @@ void vtkMeasurementCubeHandleRepresentation3D ::MoveFocusRequest(
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMeasurementCubeHandleRepresentation3D::MoveFocus(const double* p1, const double* p2)
 {
   // Get the motion vector
@@ -397,7 +397,7 @@ void vtkMeasurementCubeHandleRepresentation3D::MoveFocus(const double* p1, const
   this->SetWorldPosition(focus);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMeasurementCubeHandleRepresentation3D ::Scale(
   const double*, const double*, const double eventPos[2])
 {
@@ -413,7 +413,7 @@ void vtkMeasurementCubeHandleRepresentation3D ::Scale(
   this->SetUniformScale(handleSize);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMeasurementCubeHandleRepresentation3D ::SetUniformScale(double handleSize)
 {
   this->HandleTransformMatrix->SetElement(0, 0, handleSize);
@@ -421,14 +421,14 @@ void vtkMeasurementCubeHandleRepresentation3D ::SetUniformScale(double handleSiz
   this->HandleTransformMatrix->SetElement(2, 2, handleSize);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMeasurementCubeHandleRepresentation3D::Highlight(int highlight)
 {
   this->Actor->SetProperty(highlight ? this->SelectedProperty : this->Property);
   this->LabelText->SetVisibility(highlight ? this->SelectedLabelVisibility : this->LabelVisibility);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMeasurementCubeHandleRepresentation3D::CreateDefaultProperties()
 {
   this->Property = vtkProperty::New();
@@ -440,7 +440,7 @@ void vtkMeasurementCubeHandleRepresentation3D::CreateDefaultProperties()
   this->SelectedProperty->SetLineWidth(2.0);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMeasurementCubeHandleRepresentation3D::UpdateHandle()
 {
   this->HandleTransformFilter->Update();
@@ -452,7 +452,7 @@ static const int OpposingDiagonals[4][2][3] = { { { 0, 2, 4 }, { 1, 3, 5 } },
   { { 1, 2, 4 }, { 0, 3, 5 } }, { { 0, 3, 4 }, { 1, 2, 5 } }, { { 0, 2, 5 }, { 1, 3, 4 } } };
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMeasurementCubeHandleRepresentation3D::ScaleIfNecessary(vtkViewport* viewport)
 {
   // Scaling is performed relative to the viewport window, so if there is no
@@ -511,7 +511,7 @@ void vtkMeasurementCubeHandleRepresentation3D::ScaleIfNecessary(vtkViewport* vie
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMeasurementCubeHandleRepresentation3D::BuildRepresentation()
 {
   // This method is called for two reasons: to prepare the geometry for
@@ -535,7 +535,7 @@ void vtkMeasurementCubeHandleRepresentation3D::BuildRepresentation()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMeasurementCubeHandleRepresentation3D::UpdateLabel()
 {
   // Display the label if needed.
@@ -584,7 +584,7 @@ void vtkMeasurementCubeHandleRepresentation3D::UpdateLabel()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMeasurementCubeHandleRepresentation3D::ShallowCopy(vtkProp* prop)
 {
   vtkMeasurementCubeHandleRepresentation3D* rep =
@@ -605,7 +605,7 @@ void vtkMeasurementCubeHandleRepresentation3D::ShallowCopy(vtkProp* prop)
   this->Superclass::ShallowCopy(prop);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMeasurementCubeHandleRepresentation3D::DeepCopy(vtkProp* prop)
 {
   vtkMeasurementCubeHandleRepresentation3D* rep =
@@ -628,21 +628,21 @@ void vtkMeasurementCubeHandleRepresentation3D::DeepCopy(vtkProp* prop)
   this->Superclass::DeepCopy(prop);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMeasurementCubeHandleRepresentation3D::GetActors(vtkPropCollection* pc)
 {
   this->Actor->GetActors(pc);
   this->LabelText->GetActors(pc);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMeasurementCubeHandleRepresentation3D::ReleaseGraphicsResources(vtkWindow* win)
 {
   this->Actor->ReleaseGraphicsResources(win);
   this->LabelText->ReleaseGraphicsResources(win);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMeasurementCubeHandleRepresentation3D::RenderOpaqueGeometry(vtkViewport* viewport)
 {
   int count = 0;
@@ -665,7 +665,7 @@ int vtkMeasurementCubeHandleRepresentation3D::RenderOpaqueGeometry(vtkViewport* 
   return count;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMeasurementCubeHandleRepresentation3D::RenderTranslucentPolygonalGeometry(
   vtkViewport* viewport)
 {
@@ -683,7 +683,7 @@ int vtkMeasurementCubeHandleRepresentation3D::RenderTranslucentPolygonalGeometry
   return count;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkMeasurementCubeHandleRepresentation3D::HasTranslucentPolygonalGeometry()
 {
   int result = 0;
@@ -699,14 +699,14 @@ vtkTypeBool vtkMeasurementCubeHandleRepresentation3D::HasTranslucentPolygonalGeo
   return result;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkMeasurementCubeHandleRepresentation3D::GetBounds()
 {
   this->BuildRepresentation();
   return this->Actor->GetBounds();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAbstractTransform* vtkMeasurementCubeHandleRepresentation3D::GetTransform()
 {
   return this->HandleTransform;
@@ -788,7 +788,7 @@ void vtkMeasurementCubeHandleRepresentation3D::SetMaxRelativeCubeScreenArea(doub
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMeasurementCubeHandleRepresentation3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

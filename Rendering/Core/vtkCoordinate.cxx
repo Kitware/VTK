@@ -21,7 +21,7 @@ vtkStandardNewMacro(vtkCoordinate);
 
 vtkCxxSetObjectMacro(vtkCoordinate, ReferenceCoordinate, vtkCoordinate);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Creates an Coordinate with the following defaults:
 // value of  0, 0, 0 in world coordinates
 vtkCoordinate::vtkCoordinate()
@@ -35,7 +35,7 @@ vtkCoordinate::vtkCoordinate()
   this->Computing = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Destroy a Coordinate.
 vtkCoordinate::~vtkCoordinate()
 {
@@ -43,7 +43,7 @@ vtkCoordinate::~vtkCoordinate()
   this->SetReferenceCoordinate(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Set the viewport. This is a raw pointer, not a weak pointer or a reference
 // counted object to avoid cycle reference loop between rendering classes
 // and filter classes.
@@ -56,7 +56,7 @@ void vtkCoordinate::SetViewport(vtkViewport* viewport)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkCoordinate::GetCoordinateSystemAsString()
 {
   switch (this->CoordinateSystem)
@@ -82,7 +82,7 @@ const char* vtkCoordinate::GetCoordinateSystemAsString()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCoordinate::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -108,7 +108,7 @@ void vtkCoordinate::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkCoordinate::GetComputedWorldValue(vtkViewport* viewport)
 {
   double* val = this->ComputedWorldValue;
@@ -236,7 +236,7 @@ double* vtkCoordinate::GetComputedWorldValue(vtkViewport* viewport)
   return val;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkCoordinate::GetComputedDoubleViewportValue(vtkViewport* viewport)
 {
   // use our viewport if set
@@ -267,7 +267,7 @@ double* vtkCoordinate::GetComputedDoubleViewportValue(vtkViewport* viewport)
   return this->ComputedDoubleViewportValue;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int* vtkCoordinate::GetComputedViewportValue(vtkViewport* viewport)
 {
   double* f = this->GetComputedDoubleViewportValue(viewport);
@@ -278,7 +278,7 @@ int* vtkCoordinate::GetComputedViewportValue(vtkViewport* viewport)
   return this->ComputedViewportValue;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int* vtkCoordinate::GetComputedLocalDisplayValue(vtkViewport* viewport)
 {
   double a[2];
@@ -310,7 +310,7 @@ int* vtkCoordinate::GetComputedLocalDisplayValue(vtkViewport* viewport)
   return this->ComputedDisplayValue;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkCoordinate::GetComputedDoubleDisplayValue(vtkViewport* viewport)
 {
   double val[3];
@@ -416,7 +416,7 @@ double* vtkCoordinate::GetComputedDoubleDisplayValue(vtkViewport* viewport)
   return this->ComputedDoubleDisplayValue;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int* vtkCoordinate::GetComputedDisplayValue(vtkViewport* viewport)
 {
   double* val = this->GetComputedDoubleDisplayValue(viewport);
@@ -429,7 +429,7 @@ int* vtkCoordinate::GetComputedDisplayValue(vtkViewport* viewport)
   return this->ComputedDisplayValue;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkCoordinate::GetComputedValue(vtkViewport* viewport)
 {
   // use our viewport if set

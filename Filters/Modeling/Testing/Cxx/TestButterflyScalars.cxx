@@ -32,7 +32,7 @@
 #include "vtkTriangleFilter.h"
 #include "vtkUnsignedCharArray.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestButterflyScalars(int argc, char* argv[])
 {
   // Defining a cylinder source.

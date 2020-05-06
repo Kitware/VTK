@@ -31,7 +31,7 @@
 
 vtkStandardNewMacro(vtkToneMappingPass);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkToneMappingPass::~vtkToneMappingPass()
 {
   if (this->FrameBufferObject)
@@ -48,7 +48,7 @@ vtkToneMappingPass::~vtkToneMappingPass()
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkToneMappingPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -73,7 +73,7 @@ void vtkToneMappingPass::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkToneMappingPass::Render(const vtkRenderState* s)
 {
   vtkOpenGLClearErrorMacro();
@@ -259,7 +259,7 @@ void vtkToneMappingPass::Render(const vtkRenderState* s)
   vtkOpenGLCheckErrorMacro("failed after Render");
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkToneMappingPass::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->Superclass::ReleaseGraphicsResources(w);

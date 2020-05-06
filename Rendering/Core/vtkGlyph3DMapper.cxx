@@ -68,7 +68,7 @@ int getNumberOfChildren(vtkDataObjectTree* tree)
 vtkObjectFactoryNewMacro(vtkGlyph3DMapper);
 vtkCxxSetObjectMacro(vtkGlyph3DMapper, BlockAttributes, vtkCompositeDataDisplayAttributes);
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct object with scaling on, scaling mode is by scalar value,
 // scale factor = 1.0, the range is (0,1), orient geometry is on, and
 // orientation is by vector. Clamping and indexing are turned off. No
@@ -100,27 +100,27 @@ vtkGlyph3DMapper::vtkGlyph3DMapper()
   this->SelectionColorId = 1;
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGlyph3DMapper::~vtkGlyph3DMapper()
 {
   this->SetBlockAttributes(nullptr);
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGlyph3DMapper::SetMaskArray(int fieldAttributeType)
 {
   this->SetInputArrayToProcess(
     vtkGlyph3DMapper::MASK, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, fieldAttributeType);
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGlyph3DMapper::SetMaskArray(const char* maskarrayname)
 {
   this->SetInputArrayToProcess(
     vtkGlyph3DMapper::MASK, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, maskarrayname);
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataArray* vtkGlyph3DMapper::GetMaskArray(vtkDataSet* input)
 {
   if (this->Masking)
@@ -131,21 +131,21 @@ vtkDataArray* vtkGlyph3DMapper::GetMaskArray(vtkDataSet* input)
   return nullptr;
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGlyph3DMapper::SetOrientationArray(const char* orientationarrayname)
 {
   this->SetInputArrayToProcess(vtkGlyph3DMapper::ORIENTATION, 0, 0,
     vtkDataObject::FIELD_ASSOCIATION_POINTS, orientationarrayname);
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGlyph3DMapper::SetOrientationArray(int fieldAttributeType)
 {
   this->SetInputArrayToProcess(vtkGlyph3DMapper::ORIENTATION, 0, 0,
     vtkDataObject::FIELD_ASSOCIATION_POINTS, fieldAttributeType);
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataArray* vtkGlyph3DMapper::GetOrientationArray(vtkDataSet* input)
 {
   if (this->Orient)
@@ -156,21 +156,21 @@ vtkDataArray* vtkGlyph3DMapper::GetOrientationArray(vtkDataSet* input)
   return nullptr;
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGlyph3DMapper::SetScaleArray(const char* scalarsarrayname)
 {
   this->SetInputArrayToProcess(
     vtkGlyph3DMapper::SCALE, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, scalarsarrayname);
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGlyph3DMapper::SetScaleArray(int fieldAttributeType)
 {
   this->SetInputArrayToProcess(
     vtkGlyph3DMapper::SCALE, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, fieldAttributeType);
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataArray* vtkGlyph3DMapper::GetScaleArray(vtkDataSet* input)
 {
   if (this->Scaling && this->ScaleMode != vtkGlyph3DMapper::NO_DATA_SCALING)
@@ -182,21 +182,21 @@ vtkDataArray* vtkGlyph3DMapper::GetScaleArray(vtkDataSet* input)
   return nullptr;
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGlyph3DMapper::SetSourceIndexArray(const char* arrayname)
 {
   this->SetInputArrayToProcess(
     vtkGlyph3DMapper::SOURCE_INDEX, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, arrayname);
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGlyph3DMapper::SetSourceIndexArray(int fieldAttributeType)
 {
   this->SetInputArrayToProcess(vtkGlyph3DMapper::SOURCE_INDEX, 0, 0,
     vtkDataObject::FIELD_ASSOCIATION_POINTS, fieldAttributeType);
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataArray* vtkGlyph3DMapper::GetSourceIndexArray(vtkDataSet* input)
 {
   if (this->SourceIndexing)
@@ -207,21 +207,21 @@ vtkDataArray* vtkGlyph3DMapper::GetSourceIndexArray(vtkDataSet* input)
   return nullptr;
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGlyph3DMapper::SetSelectionIdArray(const char* selectionIdArrayName)
 {
   this->SetInputArrayToProcess(vtkGlyph3DMapper::SELECTIONID, 0, 0,
     vtkDataObject::FIELD_ASSOCIATION_POINTS, selectionIdArrayName);
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGlyph3DMapper::SetSelectionIdArray(int fieldAttributeType)
 {
   this->SetInputArrayToProcess(vtkGlyph3DMapper::SELECTIONID, 0, 0,
     vtkDataObject::FIELD_ASSOCIATION_POINTS, fieldAttributeType);
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataArray* vtkGlyph3DMapper::GetSelectionIdArray(vtkDataSet* input)
 {
   if (this->UseSelectionIds)
@@ -234,13 +234,13 @@ vtkDataArray* vtkGlyph3DMapper::GetSelectionIdArray(vtkDataSet* input)
   return nullptr;
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUnsignedCharArray* vtkGlyph3DMapper::GetColors(vtkDataSet* input)
 {
   return vtkArrayDownCast<vtkUnsignedCharArray>(input->GetPointData()->GetScalars());
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify a source object at a specified table location.
 void vtkGlyph3DMapper::SetSourceConnection(int idx, vtkAlgorithmOutput* algOutput)
 {
@@ -268,7 +268,7 @@ void vtkGlyph3DMapper::SetSourceConnection(int idx, vtkAlgorithmOutput* algOutpu
   }
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify a source object at a specified table location.
 void vtkGlyph3DMapper::SetSourceData(int idx, vtkPolyData* pd)
 {
@@ -309,7 +309,7 @@ void vtkGlyph3DMapper::SetSourceData(int idx, vtkPolyData* pd)
   }
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGlyph3DMapper::SetSourceTableTree(vtkDataObjectTree* tree)
 {
   vtkNew<vtkTrivialProducer> tp;
@@ -318,13 +318,13 @@ void vtkGlyph3DMapper::SetSourceTableTree(vtkDataObjectTree* tree)
   this->SetInputConnection(1, tp->GetOutputPort());
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGlyph3DMapper::SetSourceData(vtkPolyData* pd)
 {
   this->SetSourceData(0, pd);
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get a pointer to a source object at a specified table location.
 vtkPolyData* vtkGlyph3DMapper::GetSource(int idx)
 {
@@ -336,7 +336,7 @@ vtkPolyData* vtkGlyph3DMapper::GetSource(int idx)
   return vtkPolyData::SafeDownCast(this->GetExecutive()->GetInputData(1, idx));
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObjectTree* vtkGlyph3DMapper::GetSourceTableTree()
 {
   return this->UseSourceTableTree
@@ -344,7 +344,7 @@ vtkDataObjectTree* vtkGlyph3DMapper::GetSourceTableTree()
     : nullptr;
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyData* vtkGlyph3DMapper::GetSource(int idx, vtkInformationVector* sourceInfo)
 {
   vtkInformation* info = sourceInfo->GetInformationObject(idx);
@@ -355,7 +355,7 @@ vtkPolyData* vtkGlyph3DMapper::GetSource(int idx, vtkInformationVector* sourceIn
   return vtkPolyData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkGlyph3DMapper::GetOrientationModeAsString()
 {
   switch (this->OrientationMode)
@@ -370,7 +370,7 @@ const char* vtkGlyph3DMapper::GetOrientationModeAsString()
   return "Invalid";
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGlyph3DMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -419,7 +419,7 @@ void vtkGlyph3DMapper::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGlyph3DMapper::RequestUpdateExtent(
   vtkInformation* vtkNotUsed(request), vtkInformationVector** inputVector, vtkInformationVector*)
 {
@@ -438,7 +438,7 @@ int vtkGlyph3DMapper::RequestUpdateExtent(
   return 1;
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGlyph3DMapper::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
@@ -458,7 +458,7 @@ int vtkGlyph3DMapper::FillInputPortInformation(int port, vtkInformation* info)
   return 0;
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Return the method of scaling as a descriptive character string.
 const char* vtkGlyph3DMapper::GetScaleModeAsString()
@@ -475,7 +475,7 @@ const char* vtkGlyph3DMapper::GetScaleModeAsString()
   return "NoDataScaling";
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGlyph3DMapper::GetBoundsInternal(vtkDataSet* ds, double ds_bounds[6])
 {
   if (ds == nullptr)
@@ -731,7 +731,7 @@ bool vtkGlyph3DMapper::GetBoundsInternal(vtkDataSet* ds, double ds_bounds[6])
   return true;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkGlyph3DMapper::GetBounds()
 {
   //  static double bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
@@ -788,25 +788,25 @@ double* vtkGlyph3DMapper::GetBounds()
   return this->Bounds;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGlyph3DMapper::GetBounds(double bounds[6])
 {
   this->Superclass::GetBounds(bounds);
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGlyph3DMapper::Render(vtkRenderer*, vtkActor*)
 {
   cerr << "Calling wrong render method!!\n";
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGlyph3DMapper::SetInputData(vtkDataObject* input)
 {
   this->SetInputDataInternal(0, input);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkGlyph3DMapper::GetMaxNumberOfLOD()
 {
   return 0;

@@ -26,7 +26,7 @@
 
 vtkStandardNewMacro(vtkImageAppend);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageAppend::vtkImageAppend()
 {
   this->AppendAxis = 0;
@@ -34,13 +34,13 @@ vtkImageAppend::vtkImageAppend()
   this->PreserveExtents = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageAppend::~vtkImageAppend()
 {
   delete[] this->Shifts;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageAppend::ReplaceNthInputConnection(int idx, vtkAlgorithmOutput* input)
 {
   if (idx < 0 || idx >= this->GetNumberOfInputConnections(0))
@@ -62,7 +62,7 @@ void vtkImageAppend::ReplaceNthInputConnection(int idx, vtkAlgorithmOutput* inpu
   this->SetNthInputConnection(0, idx, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The default vtkImageAlgorithm semantics are that SetInput() puts
 // each input on a different port, we want all the image inputs to
 // go on the first port.
@@ -71,7 +71,7 @@ void vtkImageAppend::SetInputData(int idx, vtkDataObject* input)
   this->SetInputDataInternal(idx, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject* vtkImageAppend::GetInput(int idx)
 {
   if (this->GetNumberOfInputConnections(0) <= idx)
@@ -81,7 +81,7 @@ vtkDataObject* vtkImageAppend::GetInput(int idx)
   return vtkImageData::SafeDownCast(this->GetExecutive()->GetInputData(0, idx));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method tells the output it will have more components
 int vtkImageAppend::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -167,7 +167,7 @@ int vtkImageAppend::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageAppend::InternalComputeInputUpdateExtent(
   int* inExt, int* outExt, int* inWextent, int whichInput)
 {
@@ -218,7 +218,7 @@ void vtkImageAppend::InternalComputeInputUpdateExtent(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageAppend::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -246,7 +246,7 @@ int vtkImageAppend::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static void vtkImageAppendGetContinuousIncrements(int wExtent[6], int sExtent[6], vtkIdType nComp,
   bool forCells, vtkIdType& incX, vtkIdType& incY, vtkIdType& incZ)
 {
@@ -306,7 +306,7 @@ static void vtkImageAppendGetContinuousIncrements(int wExtent[6], int sExtent[6]
   // cerr << "RETURN " << incX << " " << incY << " " << incZ << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 template <class T>
 void vtkImageAppendExecute(vtkImageAppend* self, int id, int inExt[6], vtkImageData* inData,
@@ -387,7 +387,7 @@ void vtkImageAppendExecute(vtkImageAppend* self, int id, int inExt[6], vtkImageD
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageAppend::InitOutput(int outExt[6], vtkImageData* outData)
 {
   int idxY, idxZ;
@@ -440,7 +440,7 @@ void vtkImageAppend::InitOutput(int outExt[6], vtkImageData* outData)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method is passed a input and output regions, and executes the filter
 // algorithm to fill the output from the inputs.
 // It just executes a switch statement to call the correct function for
@@ -581,14 +581,14 @@ void vtkImageAppend::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageAppend::FillInputPortInformation(int i, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
   return this->Superclass::FillInputPortInformation(i, info);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageAppend::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -597,7 +597,7 @@ void vtkImageAppend::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PreserveExtents: " << this->PreserveExtents << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageAppend::AllocateOutputData(vtkImageData* output, vtkInformation*, int* uExtent)
 {
   output->SetExtent(uExtent);
@@ -640,7 +640,7 @@ void vtkImageAppend::AllocateOutputData(vtkImageData* output, vtkInformation*, i
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageData* vtkImageAppend::AllocateOutputData(vtkDataObject* output, vtkInformation* outInfo)
 {
   // set the extent to be the update extent
@@ -653,7 +653,7 @@ vtkImageData* vtkImageAppend::AllocateOutputData(vtkDataObject* output, vtkInfor
   return out;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageAppend::CopyAttributeData(vtkImageData* vtkNotUsed(input),
   vtkImageData* vtkNotUsed(output), vtkInformationVector** vtkNotUsed(inputVector))
 {

@@ -22,13 +22,13 @@
 #include <cassert>
 
 vtkStandardNewMacro(vtkStereoCompositor);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStereoCompositor::vtkStereoCompositor() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStereoCompositor::~vtkStereoCompositor() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkStereoCompositor::Validate(vtkUnsignedCharArray* rgbLeftNResult,
   vtkUnsignedCharArray* rgbRight, const int* size /*=nullptr*/)
 {
@@ -55,7 +55,7 @@ bool vtkStereoCompositor::Validate(vtkUnsignedCharArray* rgbLeftNResult,
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkStereoCompositor::RedBlue(
   vtkUnsignedCharArray* rgbLeftNResult, vtkUnsignedCharArray* rgbRight)
 {
@@ -82,7 +82,7 @@ bool vtkStereoCompositor::RedBlue(
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkStereoCompositor::Anaglyph(vtkUnsignedCharArray* rgbLeftNResult,
   vtkUnsignedCharArray* rgbRight, float colorSaturation, const int colorMask[2])
 {
@@ -148,7 +148,7 @@ bool vtkStereoCompositor::Anaglyph(vtkUnsignedCharArray* rgbLeftNResult,
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkStereoCompositor::Interlaced(
   vtkUnsignedCharArray* rgbLeftNResult, vtkUnsignedCharArray* rgbRight, const int size[2])
 {
@@ -177,7 +177,7 @@ bool vtkStereoCompositor::Interlaced(
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkStereoCompositor::Dresden(
   vtkUnsignedCharArray* rgbLeftNResult, vtkUnsignedCharArray* rgbRight, const int size[2])
 {
@@ -210,7 +210,7 @@ bool vtkStereoCompositor::Dresden(
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkStereoCompositor::Checkerboard(
   vtkUnsignedCharArray* rgbLeftNResult, vtkUnsignedCharArray* rgbRight, const int size[2])
 {
@@ -244,7 +244,7 @@ bool vtkStereoCompositor::Checkerboard(
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkStereoCompositor::SplitViewportHorizontal(
   vtkUnsignedCharArray* rgbLeftNResult, vtkUnsignedCharArray* rgbRight, const int size[2])
 {
@@ -295,7 +295,7 @@ bool vtkStereoCompositor::SplitViewportHorizontal(
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkStereoCompositor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

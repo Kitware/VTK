@@ -30,7 +30,7 @@
 
 vtkStandardNewMacro(vtkSegYReader);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSegYReader::vtkSegYReader()
 {
   this->SetNumberOfInputPorts(0);
@@ -53,38 +53,38 @@ vtkSegYReader::vtkSegYReader()
   this->VerticalCRS = VTK_SEGY_VERTICAL_HEIGHTS;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSegYReader::~vtkSegYReader()
 {
   delete this->Reader;
   delete[] this->FileName;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSegYReader::SetXYCoordModeToSource()
 {
   this->SetXYCoordMode(VTK_SEGY_SOURCE);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSegYReader::SetXYCoordModeToCDP()
 {
   this->SetXYCoordMode(VTK_SEGY_CDP);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSegYReader::SetXYCoordModeToCustom()
 {
   this->SetXYCoordMode(VTK_SEGY_CUSTOM);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSegYReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   Superclass::PrintSelf(os, indent);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSegYReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -142,7 +142,7 @@ int vtkSegYReader::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSegYReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -164,7 +164,7 @@ int vtkSegYReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSegYReader::RequestDataObject(vtkInformation*,
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {

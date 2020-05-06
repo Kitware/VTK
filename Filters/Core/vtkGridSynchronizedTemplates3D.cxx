@@ -43,7 +43,7 @@
 
 vtkStandardNewMacro(vtkGridSynchronizedTemplates3D);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Construct object with initial scalar range (0,1) and single contour value
 // of 0.0. The ImageRange are set to extract the first k-plane.
@@ -66,13 +66,13 @@ vtkGridSynchronizedTemplates3D::vtkGridSynchronizedTemplates3D()
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGridSynchronizedTemplates3D::~vtkGridSynchronizedTemplates3D()
 {
   this->ContourValues->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGridSynchronizedTemplates3D::SetInputMemoryLimit(long vtkNotUsed(limit))
 {
   vtkErrorMacro(<< "This filter no longer supports a memory limit.");
@@ -80,7 +80,7 @@ void vtkGridSynchronizedTemplates3D::SetInputMemoryLimit(long vtkNotUsed(limit))
   vtkErrorMacro(<< "Please use a .... after this filter to achieve similar functionality.");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Overload standard modified time function. If contour values are modified,
 // then this object is modified as well.
@@ -93,7 +93,7 @@ vtkMTimeType vtkGridSynchronizedTemplates3D::GetMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static void vtkGridSynchronizedTemplates3DInitializeOutput(int* ext, int precision,
   vtkStructuredGrid* input, vtkPolyData* o, vtkFloatArray* scalars, vtkFloatArray* normals,
   vtkFloatArray* gradients, vtkDataArray* inScalars)
@@ -178,7 +178,7 @@ static void vtkGridSynchronizedTemplates3DInitializeOutput(int* ext, int precisi
   o->GetCellData()->CopyAllocate(input->GetCellData(), estimatedSize, estimatedSize / 2);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Close to central differences for a grid as I could get.
 // Given a linear gradient assumption find gradient that minimizes
 // error squared for + and - (*3) neighbors).
@@ -319,7 +319,7 @@ void ComputeGridPointGradient(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 #define VTK_CSP3PA(i2, j2, k2, s, p, grad, norm)                                                   \
   if (NeedGradients)                                                                               \
   {                                                                                                \
@@ -408,7 +408,7 @@ private:
 };
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Contouring filter specialized for structured grids
 template <class T, class PointsType>
 void ContourGrid(vtkGridSynchronizedTemplates3D* self, int* exExt, T* scalars,
@@ -841,7 +841,7 @@ void ContourGrid(vtkGridSynchronizedTemplates3D* self, int* exExt, T* scalars,
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Contouring filter specialized for images (or slices from images)
 void vtkGridSynchronizedTemplates3D::ThreadedExecute(
   vtkStructuredGrid* input, vtkInformationVector** inputVector, vtkInformation* outInfo)
@@ -921,7 +921,7 @@ void vtkGridSynchronizedTemplates3D::ThreadedExecute(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGridSynchronizedTemplates3D::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -939,14 +939,14 @@ int vtkGridSynchronizedTemplates3D::RequestUpdateExtent(vtkInformation* vtkNotUs
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGridSynchronizedTemplates3D::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkStructuredGrid");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGridSynchronizedTemplates3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -960,7 +960,7 @@ void vtkGridSynchronizedTemplates3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Precision of the output points: " << this->OutputPointsPrecision << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGridSynchronizedTemplates3D::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

@@ -29,7 +29,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPoints2D* vtkPoints2D::New(int dataType)
 {
   // First try to create the object from the vtkObjectFactory

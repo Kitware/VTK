@@ -41,7 +41,7 @@
 
 vtkStandardNewMacro(vtkBridgeDataSet);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Default constructor.
 vtkBridgeDataSet::vtkBridgeDataSet()
 {
@@ -50,7 +50,7 @@ vtkBridgeDataSet::vtkBridgeDataSet()
   this->Tessellator = vtkSimpleCellTessellator::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBridgeDataSet::~vtkBridgeDataSet()
 {
   if (this->Implementation)
@@ -61,7 +61,7 @@ vtkBridgeDataSet::~vtkBridgeDataSet()
   // this->Tessellator is deleted in the superclass
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBridgeDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -77,7 +77,7 @@ void vtkBridgeDataSet::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Return the dataset that will be manipulated through the adaptor interface.
 vtkDataSet* vtkBridgeDataSet::GetDataSet()
@@ -85,7 +85,7 @@ vtkDataSet* vtkBridgeDataSet::GetDataSet()
   return this->Implementation;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Set the dataset that will be manipulated through the adaptor interface.
 // \pre ds_exists: ds!=0
@@ -131,7 +131,7 @@ void vtkBridgeDataSet::SetDataSet(vtkDataSet* ds)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Number of points composing the dataset. See NewPointIterator for more
 // details.
@@ -147,7 +147,7 @@ vtkIdType vtkBridgeDataSet::GetNumberOfPoints()
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Compute the number of cells for each dimension and the list of types of
 // cells.
@@ -211,7 +211,7 @@ void vtkBridgeDataSet::ComputeNumberOfCellsAndTypes()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Number of cells that explicitly define the dataset. See NewCellIterator
 // for more details.
@@ -253,7 +253,7 @@ vtkIdType vtkBridgeDataSet::GetNumberOfCells(int dim)
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Return -1 if the dataset is explicitly defined by cells of several
 // dimensions or if there is no cell. If the dataset is explicitly defined by
@@ -294,7 +294,7 @@ int vtkBridgeDataSet::GetCellDimension()
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Get a list of types of cells in a dataset. The list consists of an array
 // of types (not necessarily in any order), with a single entry per type.
@@ -323,7 +323,7 @@ void vtkBridgeDataSet::GetCellTypes(vtkCellTypes* types)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Cells of dimension `dim' (or all dimensions if -1) that explicitly define
 // the dataset. For instance, it will return only tetrahedra if the mesh is
@@ -343,7 +343,7 @@ vtkGenericCellIterator* vtkBridgeDataSet::NewCellIterator(int dim)
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Boundaries of dimension `dim' (or all dimensions if -1) of the dataset.
 // If `exteriorOnly' is true, only the exterior boundaries of the dataset
@@ -363,7 +363,7 @@ vtkGenericCellIterator* vtkBridgeDataSet::NewBoundaryIterator(int dim, int exter
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Points composing the dataset; they can be on a vertex or isolated.
 // \post result_exists: result!=0
@@ -375,7 +375,7 @@ vtkGenericPointIterator* vtkBridgeDataSet::NewPointIterator()
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Estimated size needed after tessellation (or special operation)
 vtkIdType vtkBridgeDataSet::GetEstimatedSize()
@@ -383,7 +383,7 @@ vtkIdType vtkBridgeDataSet::GetEstimatedSize()
   return this->GetNumberOfPoints() * this->GetNumberOfCells();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Locate closest cell to position `x' (global coordinates) with respect to
 // a tolerance squared `tol2' and an initial guess `cell' (if valid). The
@@ -442,7 +442,7 @@ int vtkBridgeDataSet::FindCell(
   return cellid >= 0; // bool
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Locate closest point `p' to position `x' (global coordinates)
 // \pre not_empty: GetNumberOfPoints()>0
@@ -464,7 +464,7 @@ void vtkBridgeDataSet::FindPoint(double x[3], vtkGenericPointIterator* p)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Datasets are composite objects and need to check each part for MTime.
 vtkMTimeType vtkBridgeDataSet::GetMTime()
@@ -482,7 +482,7 @@ vtkMTimeType vtkBridgeDataSet::GetMTime()
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Compute the geometry bounding box.
 void vtkBridgeDataSet::ComputeBounds()

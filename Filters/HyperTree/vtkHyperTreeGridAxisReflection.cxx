@@ -26,7 +26,7 @@
 
 vtkStandardNewMacro(vtkHyperTreeGridAxisReflection);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHyperTreeGridAxisReflection::vtkHyperTreeGridAxisReflection()
 {
   // Default reflection plane is lower X bounding plane
@@ -39,10 +39,10 @@ vtkHyperTreeGridAxisReflection::vtkHyperTreeGridAxisReflection()
   this->AppropriateOutput = true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHyperTreeGridAxisReflection::~vtkHyperTreeGridAxisReflection() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridAxisReflection::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -51,14 +51,14 @@ void vtkHyperTreeGridAxisReflection::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Center: " << this->Center << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkHyperTreeGridAxisReflection::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkHyperTreeGrid");
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkHyperTreeGridAxisReflection::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObject* outputDO)
 {
   // Skip empty inputs

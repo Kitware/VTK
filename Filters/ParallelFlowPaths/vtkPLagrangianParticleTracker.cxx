@@ -601,7 +601,7 @@ private:
 
 vtkStandardNewMacro(vtkPLagrangianParticleTracker);
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPLagrangianParticleTracker::vtkPLagrangianParticleTracker()
   : Controller(vtkMPIController::SafeDownCast(vtkMultiProcessController::GetGlobalController()))
   , StreamManager(nullptr)
@@ -616,7 +616,7 @@ vtkPLagrangianParticleTracker::vtkPLagrangianParticleTracker()
   }
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPLagrangianParticleTracker::~vtkPLagrangianParticleTracker()
 {
   delete RFlagManager;
@@ -625,7 +625,7 @@ vtkPLagrangianParticleTracker::~vtkPLagrangianParticleTracker()
   delete TransferredParticleIdManager;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPLagrangianParticleTracker::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -661,7 +661,7 @@ int vtkPLagrangianParticleTracker::RequestUpdateExtent(vtkInformation* vtkNotUse
   return 1;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPLagrangianParticleTracker::GenerateParticles(const vtkBoundingBox* bounds,
   vtkDataSet* seeds, vtkDataArray* initialVelocities, vtkDataArray* initialIntegrationTimes,
   vtkPointData* seedData, int nVar, std::queue<vtkLagrangianParticle*>& particles)
@@ -928,7 +928,7 @@ void vtkPLagrangianParticleTracker::GenerateParticles(const vtkBoundingBox* boun
   }
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPLagrangianParticleTracker::GetParticleFeed(
   std::queue<vtkLagrangianParticle*>& particleQueue)
 {
@@ -1044,7 +1044,7 @@ void vtkPLagrangianParticleTracker::GetParticleFeed(
   }
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPLagrangianParticleTracker::Integrate(vtkInitialValueProblemSolver* integrator,
   vtkLagrangianParticle* particle, std::queue<vtkLagrangianParticle*>& particleQueue,
   vtkPolyData* particlePathsOutput, vtkPolyLine* particlePath, vtkDataObject* interactionOutput)
@@ -1079,7 +1079,7 @@ int vtkPLagrangianParticleTracker::Integrate(vtkInitialValueProblemSolver* integ
   return ret;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPLagrangianParticleTracker::ReceiveTransferredParticleIds(
   std::vector<vtkIdType>& particleIds)
 {
@@ -1090,7 +1090,7 @@ void vtkPLagrangianParticleTracker::ReceiveTransferredParticleIds(
   }
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPLagrangianParticleTracker::ReceiveParticles(
   std::queue<vtkLagrangianParticle*>& particleQueue)
 {
@@ -1121,7 +1121,7 @@ void vtkPLagrangianParticleTracker::ReceiveParticles(
   }
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPLagrangianParticleTracker::FinalizeOutputs(
   vtkPolyData* particlePathsOutput, vtkDataObject* interactionOutput)
 {
@@ -1174,7 +1174,7 @@ bool vtkPLagrangianParticleTracker::FinalizeOutputs(
   return this->Superclass::FinalizeOutputs(particlePathsOutput, interactionOutput);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPLagrangianParticleTracker::UpdateSurfaceCacheIfNeeded(vtkDataObject*& surfaces)
 {
   if (this->Controller && this->Controller->GetNumberOfProcesses() > 1)
@@ -1274,7 +1274,7 @@ bool vtkPLagrangianParticleTracker::UpdateSurfaceCacheIfNeeded(vtkDataObject*& s
   }
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkPLagrangianParticleTracker::GetNewParticleId()
 {
   if (this->Controller && this->Controller->GetNumberOfProcesses() > 1)
@@ -1286,13 +1286,13 @@ vtkIdType vtkPLagrangianParticleTracker::GetNewParticleId()
   return this->Superclass::GetNewParticleId();
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPLagrangianParticleTracker::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPLagrangianParticleTracker::DeleteParticle(vtkLagrangianParticle* particle)
 {
   if (particle->GetTermination() != vtkLagrangianParticle::PARTICLE_TERMINATION_OUT_OF_DOMAIN)

@@ -28,7 +28,7 @@
 
 vtkStandardNewMacro(vtkDeformPointSet);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDeformPointSet::vtkDeformPointSet()
 {
   this->InitializeWeights = 0;
@@ -42,22 +42,22 @@ vtkDeformPointSet::vtkDeformPointSet()
   this->Weights = vtkSmartPointer<vtkDoubleArray>::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDeformPointSet::~vtkDeformPointSet() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDeformPointSet::SetControlMeshConnection(vtkAlgorithmOutput* algOutput)
 {
   this->SetInputConnection(1, algOutput);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDeformPointSet::SetControlMeshData(vtkPolyData* input)
 {
   this->SetInputData(1, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyData* vtkDeformPointSet::GetControlMeshData()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
@@ -68,7 +68,7 @@ vtkPolyData* vtkDeformPointSet::GetControlMeshData()
   return vtkPolyData::SafeDownCast(this->GetInputDataObject(1, 0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDeformPointSet::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -193,7 +193,7 @@ int vtkDeformPointSet::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDeformPointSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

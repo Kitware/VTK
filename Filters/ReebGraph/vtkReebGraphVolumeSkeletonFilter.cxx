@@ -32,7 +32,7 @@
 
 vtkStandardNewMacro(vtkReebGraphVolumeSkeletonFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkReebGraphVolumeSkeletonFilter::vtkReebGraphVolumeSkeletonFilter()
 {
   this->SetNumberOfInputPorts(2);
@@ -41,10 +41,10 @@ vtkReebGraphVolumeSkeletonFilter::vtkReebGraphVolumeSkeletonFilter()
   this->NumberOfSmoothingIterations = 30;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkReebGraphVolumeSkeletonFilter::~vtkReebGraphVolumeSkeletonFilter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkReebGraphVolumeSkeletonFilter::FillInputPortInformation(int portNumber, vtkInformation* info)
 {
   switch (portNumber)
@@ -61,7 +61,7 @@ int vtkReebGraphVolumeSkeletonFilter::FillInputPortInformation(int portNumber, v
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkReebGraphVolumeSkeletonFilter::FillOutputPortInformation(
   int vtkNotUsed(portNumber), vtkInformation* info)
 {
@@ -71,7 +71,7 @@ int vtkReebGraphVolumeSkeletonFilter::FillOutputPortInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkReebGraphVolumeSkeletonFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -80,13 +80,13 @@ void vtkReebGraphVolumeSkeletonFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number of Smoothing Iterations: " << this->NumberOfSmoothingIterations << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTable* vtkReebGraphVolumeSkeletonFilter::GetOutput()
 {
   return vtkTable::SafeDownCast(this->GetOutputDataObject(0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkReebGraphVolumeSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

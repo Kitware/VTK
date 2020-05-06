@@ -23,27 +23,27 @@
 
 vtkStandardNewMacro(vtkSimplePointsReader);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSimplePointsReader::vtkSimplePointsReader()
 {
   this->FileName = nullptr;
   this->SetNumberOfInputPorts(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSimplePointsReader::~vtkSimplePointsReader()
 {
   this->SetFileName(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSimplePointsReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "FileName: " << (this->FileName ? this->FileName : "(none)") << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSimplePointsReader::RequestData(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {

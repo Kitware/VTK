@@ -30,13 +30,13 @@
 
 vtkStandardNewMacro(vtkPointConnectivityFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPointConnectivityFilter::vtkPointConnectivityFilter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPointConnectivityFilter::~vtkPointConnectivityFilter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 namespace
 {
 
@@ -74,7 +74,7 @@ struct UpdateConnectivityCount
 
 } // end anon namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This is the generic non-optimized method
 int vtkPointConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -113,7 +113,7 @@ int vtkPointConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointConnectivityFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

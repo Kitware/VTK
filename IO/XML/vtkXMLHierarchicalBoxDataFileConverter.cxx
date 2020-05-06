@@ -35,7 +35,7 @@
 #include <vector>
 
 vtkStandardNewMacro(vtkXMLHierarchicalBoxDataFileConverter);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLHierarchicalBoxDataFileConverter::vtkXMLHierarchicalBoxDataFileConverter()
 {
   this->InputFileName = nullptr;
@@ -43,7 +43,7 @@ vtkXMLHierarchicalBoxDataFileConverter::vtkXMLHierarchicalBoxDataFileConverter()
   this->FilePath = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLHierarchicalBoxDataFileConverter::~vtkXMLHierarchicalBoxDataFileConverter()
 {
   this->SetInputFileName(nullptr);
@@ -51,7 +51,7 @@ vtkXMLHierarchicalBoxDataFileConverter::~vtkXMLHierarchicalBoxDataFileConverter(
   this->SetFilePath(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkXMLHierarchicalBoxDataFileConverter::Convert()
 {
   if (!this->InputFileName)
@@ -177,7 +177,7 @@ bool vtkXMLHierarchicalBoxDataFileConverter::Convert()
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLDataElement* vtkXMLHierarchicalBoxDataFileConverter::ParseXML(const char* fname)
 {
   assert(fname);
@@ -195,7 +195,7 @@ vtkXMLDataElement* vtkXMLHierarchicalBoxDataFileConverter::ParseXML(const char* 
   return element;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLHierarchicalBoxDataFileConverter::GetOriginAndSpacing(
   vtkXMLDataElement* ePrimary, double origin[3], double*& spacing)
 {
@@ -290,7 +290,7 @@ int vtkXMLHierarchicalBoxDataFileConverter::GetOriginAndSpacing(
   return gridDescription;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLHierarchicalBoxDataFileConverter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

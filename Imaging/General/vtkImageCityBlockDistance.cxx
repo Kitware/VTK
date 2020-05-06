@@ -22,10 +22,10 @@
 
 vtkStandardNewMacro(vtkImageCityBlockDistance);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageCityBlockDistance::vtkImageCityBlockDistance() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageCityBlockDistance::AllocateOutputScalars(
   vtkImageData* outData, int* uExt, int* wholeExtent, vtkInformation* outInfo)
 {
@@ -41,7 +41,7 @@ void vtkImageCityBlockDistance::AllocateOutputScalars(
   outData->AllocateScalars(outInfo);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method tells the superclass that the whole input array is needed
 // to compute any output region.
 int vtkImageCityBlockDistance::IterativeRequestUpdateExtent(
@@ -59,7 +59,7 @@ int vtkImageCityBlockDistance::IterativeRequestUpdateExtent(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This is written as a 1D execute method, but is called several times.
 int vtkImageCityBlockDistance::IterativeRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)

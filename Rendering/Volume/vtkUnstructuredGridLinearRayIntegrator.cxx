@@ -48,7 +48,7 @@
 #define M_1_SQRTPI (0.5 * M_2_SQRTPI)
 #endif
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 // VTK's native classes for defining transfer functions is actually slow to
 // access, so we have to cache it somehow.  This class is straightforward
@@ -304,7 +304,7 @@ inline void vtkLinearRayIntegratorTransferFunction::GetColor(double x, double c[
   c[3] = (1 - interp) * beforec[3] + interp * afterc[3];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkStandardNewMacro(vtkUnstructuredGridLinearRayIntegrator);
 
@@ -315,21 +315,21 @@ vtkUnstructuredGridLinearRayIntegrator::vtkUnstructuredGridLinearRayIntegrator()
   this->NumIndependentComponents = 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkUnstructuredGridLinearRayIntegrator::~vtkUnstructuredGridLinearRayIntegrator()
 {
   delete[] this->TransferFunctions;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkUnstructuredGridLinearRayIntegrator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkUnstructuredGridLinearRayIntegrator::Initialize(vtkVolume* volume, vtkDataArray* scalars)
 {
@@ -378,7 +378,7 @@ void vtkUnstructuredGridLinearRayIntegrator::Initialize(vtkVolume* volume, vtkDa
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkUnstructuredGridLinearRayIntegrator::Integrate(vtkDoubleArray* intersectionLengths,
   vtkDataArray* nearIntersections, vtkDataArray* farIntersections, float color[4])
@@ -528,7 +528,7 @@ void vtkUnstructuredGridLinearRayIntegrator::Integrate(vtkDoubleArray* intersect
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkUnstructuredGridLinearRayIntegrator::IntegrateRay(double length, double intensity_front,
   double attenuation_front, double intensity_back, double attenuation_back, float color[4])
@@ -562,7 +562,7 @@ void vtkUnstructuredGridLinearRayIntegrator::IntegrateRay(double length,
   color[3] += (1 - color[3]) * alpha;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 static inline float erf_fitting_function(float u)
 {

@@ -47,7 +47,7 @@ static const double VTK_DIVERGED = 1.e6;
 // Thus EXPRA + EXPRB = 1.0
 #define EXPRB 0.066987298107780702
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct the prism with twelve points.
 vtkHexagonalPrism::vtkHexagonalPrism()
 {
@@ -74,7 +74,7 @@ vtkHexagonalPrism::vtkHexagonalPrism()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHexagonalPrism::~vtkHexagonalPrism()
 {
   this->Line->Delete();
@@ -88,7 +88,7 @@ vtkHexagonalPrism::~vtkHexagonalPrism()
 static const int VTK_HEX_MAX_ITERATION = 10;
 static const double VTK_HEX_CONVERGED = 1.e-03;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkHexagonalPrism::EvaluatePosition(const double x[3], double closestPoint[3], int& subId,
   double pcoords[3], double& dist2, double weights[])
 {
@@ -216,7 +216,7 @@ int vtkHexagonalPrism::EvaluatePosition(const double x[3], double closestPoint[3
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 // Compute iso-parametric interpolation functions
 //
@@ -248,7 +248,7 @@ void vtkHexagonalPrism::InterpolationFunctions(const double pcoords[3], double s
   // clang-format on
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHexagonalPrism::InterpolationDerivs(const double pcoords[3], double derivs[36])
 {
   double r, s, t;
@@ -310,7 +310,7 @@ void vtkHexagonalPrism::InterpolationDerivs(const double pcoords[3], double deri
   // clang-format on
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHexagonalPrism::EvaluateLocation(
   int& vtkNotUsed(subId), const double pcoords[3], double x[3], double* weights)
 {
@@ -472,13 +472,13 @@ static constexpr vtkIdType numberOfPointsInFace[vtkHexagonalPrism::NumberOfFaces
 
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkHexagonalPrism::GetCentroid(double centroid[3]) const
 {
   return vtkHexagonalPrism::ComputeCentroid(this->Points, nullptr, centroid);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkHexagonalPrism::ComputeCentroid(
   vtkPoints* points, const vtkIdType* pointIds, double centroid[3])
 {
@@ -510,7 +510,7 @@ bool vtkHexagonalPrism::ComputeCentroid(
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkHexagonalPrism::IsInsideOut()
 {
   double n0[3], n1[3];
@@ -519,7 +519,7 @@ bool vtkHexagonalPrism::IsInsideOut()
   return vtkMath::Dot(n0, n1) > 0.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Returns the closest face to the point specified. Closeness is measured
 // parametrically.
 int vtkHexagonalPrism::CellBoundary(int subId, const double pcoords[3], vtkIdList* pts)
@@ -634,42 +634,42 @@ int vtkHexagonalPrism::CellBoundary(int subId, const double pcoords[3], vtkIdLis
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const vtkIdType* vtkHexagonalPrism::GetEdgeToAdjacentFacesArray(vtkIdType edgeId)
 {
   assert(edgeId < vtkHexagonalPrism::NumberOfEdges && "edgeId too large");
   return edgeToAdjacentFaces[edgeId];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const vtkIdType* vtkHexagonalPrism::GetFaceToAdjacentFacesArray(vtkIdType faceId)
 {
   assert(faceId < vtkHexagonalPrism::NumberOfFaces && "faceId too large");
   return faceToAdjacentFaces[faceId];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const vtkIdType* vtkHexagonalPrism::GetPointToIncidentEdgesArray(vtkIdType pointId)
 {
   assert(pointId < vtkHexagonalPrism::NumberOfPoints && "pointId too large");
   return pointToIncidentEdges[pointId];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const vtkIdType* vtkHexagonalPrism::GetPointToIncidentFacesArray(vtkIdType pointId)
 {
   assert(pointId < vtkHexagonalPrism::NumberOfPoints && "pointId too large");
   return pointToIncidentFaces[pointId];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const vtkIdType* vtkHexagonalPrism::GetPointToOneRingPointsArray(vtkIdType pointId)
 {
   assert(pointId < vtkHexagonalPrism::NumberOfPoints && "pointId too large");
   return pointToOneRingPoints[pointId];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const vtkIdType* vtkHexagonalPrism::GetEdgeArray(vtkIdType edgeId)
 {
   assert(edgeId < vtkHexagonalPrism::NumberOfEdges && "edgeId too large");
@@ -677,7 +677,7 @@ const vtkIdType* vtkHexagonalPrism::GetEdgeArray(vtkIdType edgeId)
 }
 
 #ifndef VTK_LEGACY_REMOVE
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHexagonalPrism::GetEdgePoints(int edgeId, int*& pts)
 {
   VTK_LEGACY_REPLACED_BODY(vtkHexagonalPrism::GetEdgePoints(int, int*&), "VTK 9.0",
@@ -686,7 +686,7 @@ void vtkHexagonalPrism::GetEdgePoints(int edgeId, int*& pts)
   pts = tmp.data();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHexagonalPrism::GetFacePoints(int faceId, int*& pts)
 {
   VTK_LEGACY_REPLACED_BODY(vtkHexagonalPrism::GetFacePoints(int, int*&), "VTK 9.0",
@@ -696,7 +696,7 @@ void vtkHexagonalPrism::GetFacePoints(int faceId, int*& pts)
 }
 #endif
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCell* vtkHexagonalPrism::GetEdge(int edgeId)
 {
   const vtkIdType* verts;
@@ -714,14 +714,14 @@ vtkCell* vtkHexagonalPrism::GetEdge(int edgeId)
   return this->Line;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const vtkIdType* vtkHexagonalPrism::GetFaceArray(vtkIdType faceId)
 {
   assert(faceId < vtkHexagonalPrism::NumberOfFaces && "faceId too large");
   return faces[faceId];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCell* vtkHexagonalPrism::GetFace(int faceId)
 {
   const vtkIdType* verts;
@@ -765,7 +765,7 @@ vtkCell* vtkHexagonalPrism::GetFace(int faceId)
     return this->Quad;
   }
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 // Intersect prism faces against line. Each prism face is a quadrilateral.
 //
@@ -861,7 +861,7 @@ int vtkHexagonalPrism::IntersectWithLine(const double p1[3], const double p2[3],
 
   return intersection;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkHexagonalPrism::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* pts)
 {
   ptIds->Reset();
@@ -974,7 +974,7 @@ int vtkHexagonalPrism::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkP
 
   return 1;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 // Compute derivatives in x-y-z directions. Use chain rule in combination
 // with interpolation function derivatives.
@@ -1010,7 +1010,7 @@ void vtkHexagonalPrism::Derivatives(
     }
   }
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Given parametric coordinates compute inverse Jacobian transformation
 // matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
 // function derivatives.
@@ -1052,7 +1052,7 @@ void vtkHexagonalPrism::JacobianInverse(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkHexagonalPrism::GetPointToOneRingPoints(vtkIdType pointId, const vtkIdType*& pts)
 {
   assert(pointId < vtkHexagonalPrism::NumberOfPoints && "pointId too large");
@@ -1060,7 +1060,7 @@ vtkIdType vtkHexagonalPrism::GetPointToOneRingPoints(vtkIdType pointId, const vt
   return vtkHexagonalPrism::MaximumValence;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkHexagonalPrism::GetPointToIncidentFaces(vtkIdType pointId, const vtkIdType*& faceIds)
 {
   assert(pointId < vtkHexagonalPrism::NumberOfPoints && "pointId too large");
@@ -1068,7 +1068,7 @@ vtkIdType vtkHexagonalPrism::GetPointToIncidentFaces(vtkIdType pointId, const vt
   return vtkHexagonalPrism::MaximumValence;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkHexagonalPrism::GetPointToIncidentEdges(vtkIdType pointId, const vtkIdType*& edgeIds)
 {
   assert(pointId < vtkHexagonalPrism::NumberOfPoints && "pointId too large");
@@ -1076,7 +1076,7 @@ vtkIdType vtkHexagonalPrism::GetPointToIncidentEdges(vtkIdType pointId, const vt
   return vtkHexagonalPrism::MaximumValence;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkHexagonalPrism::GetFaceToAdjacentFaces(vtkIdType faceId, const vtkIdType*& faceIds)
 {
   assert(faceId < vtkHexagonalPrism::NumberOfFaces && "faceId too large");
@@ -1084,21 +1084,21 @@ vtkIdType vtkHexagonalPrism::GetFaceToAdjacentFaces(vtkIdType faceId, const vtkI
   return numberOfPointsInFace[faceId];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHexagonalPrism::GetEdgeToAdjacentFaces(vtkIdType edgeId, const vtkIdType*& pts)
 {
   assert(edgeId < vtkHexagonalPrism::NumberOfEdges && "edgeId too large");
   pts = edgeToAdjacentFaces[edgeId];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHexagonalPrism::GetEdgePoints(vtkIdType edgeId, const vtkIdType*& pts)
 {
   assert(edgeId < vtkHexagonalPrism::NumberOfEdges && "edgeId too large");
   pts = this->GetEdgeArray(edgeId);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkHexagonalPrism::GetFacePoints(vtkIdType faceId, const vtkIdType*& pts)
 {
   assert(faceId < vtkHexagonalPrism::NumberOfFaces && "faceId too large");
@@ -1121,13 +1121,13 @@ static double vtkHexagonalPrismCellPCoords[36] = {
   EXPRB, 0.25, 1.0, //
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkHexagonalPrism::GetParametricCoords()
 {
   return vtkHexagonalPrismCellPCoords;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHexagonalPrism::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

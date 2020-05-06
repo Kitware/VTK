@@ -24,7 +24,7 @@
 
 #include <ctime>
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkOggTheoraWriterInternal
 {
 public:
@@ -66,7 +66,7 @@ private:
   int closedFile;
 };
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOggTheoraWriterInternal::vtkOggTheoraWriterInternal(vtkOggTheoraWriter* creator)
 {
   this->Writer = creator;
@@ -88,7 +88,7 @@ vtkOggTheoraWriterInternal::vtkOggTheoraWriterInternal(vtkOggTheoraWriter* creat
   this->FrameRate = 25;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOggTheoraWriterInternal::~vtkOggTheoraWriterInternal()
 {
   if (!this->closedFile)
@@ -97,7 +97,7 @@ vtkOggTheoraWriterInternal::~vtkOggTheoraWriterInternal()
   }
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkOggTheoraWriterInternal::Start()
 {
   this->closedFile = 0;
@@ -201,7 +201,7 @@ int vtkOggTheoraWriterInternal::Start()
   return this->WriteHeader();
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // ripped from libtheora-1.0/examples/encoder_example.c
 int vtkOggTheoraWriterInternal::WriteHeader()
 {
@@ -261,7 +261,7 @@ int vtkOggTheoraWriterInternal::WriteHeader()
   return 1;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkOggTheoraWriterInternal::Write(vtkImageData* id)
 {
   // encode the frame from the last call.
@@ -283,7 +283,7 @@ int vtkOggTheoraWriterInternal::Write(vtkImageData* id)
   return ret;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // ripped from libtheora-1.0/examples/encoder_example.c
 int vtkOggTheoraWriterInternal::EncodeFrame(th_ycbcr_buffer, int lastFrame)
 {
@@ -317,7 +317,7 @@ int vtkOggTheoraWriterInternal::EncodeFrame(th_ycbcr_buffer, int lastFrame)
   return 1;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOggTheoraWriterInternal::End()
 {
   // flush remaining frame
@@ -349,7 +349,7 @@ void vtkOggTheoraWriterInternal::End()
   this->closedFile = 1;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOggTheoraWriterInternal::RGB2YCbCr(vtkImageData* id, th_ycbcr_buffer ycbcr)
 {
   // convenience
@@ -463,10 +463,10 @@ void vtkOggTheoraWriterInternal::RGB2YCbCr(vtkImageData* id, th_ycbcr_buffer ycb
   }
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOggTheoraWriter);
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOggTheoraWriter::vtkOggTheoraWriter()
 {
   this->Internals = nullptr;
@@ -475,13 +475,13 @@ vtkOggTheoraWriter::vtkOggTheoraWriter()
   this->Subsampling = 0;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOggTheoraWriter::~vtkOggTheoraWriter()
 {
   delete this->Internals;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOggTheoraWriter::Start()
 {
   this->Error = 1;
@@ -512,7 +512,7 @@ void vtkOggTheoraWriter::Start()
   this->Initialized = 0;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOggTheoraWriter::Write()
 {
   if (this->Error)
@@ -569,7 +569,7 @@ void vtkOggTheoraWriter::Write()
   }
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOggTheoraWriter::End()
 {
   if (this->Internals)
@@ -581,7 +581,7 @@ void vtkOggTheoraWriter::End()
   }
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOggTheoraWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

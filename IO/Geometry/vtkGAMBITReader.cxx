@@ -33,7 +33,7 @@
 
 vtkStandardNewMacro(vtkGAMBITReader);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGAMBITReader::vtkGAMBITReader()
 {
   this->FileName = nullptr;
@@ -46,13 +46,13 @@ vtkGAMBITReader::vtkGAMBITReader()
   this->SetNumberOfInputPorts(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGAMBITReader::~vtkGAMBITReader()
 {
   delete[] this->FileName;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGAMBITReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -77,7 +77,7 @@ int vtkGAMBITReader::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGAMBITReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -91,7 +91,7 @@ void vtkGAMBITReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number Of Cell Fields: " << this->NumberOfCellFields << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGAMBITReader::ReadFile(vtkUnstructuredGrid* output)
 {
   this->ReadGeometry(output);
@@ -113,19 +113,19 @@ void vtkGAMBITReader::ReadFile(vtkUnstructuredGrid* output)
   this->FileStream = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGAMBITReader::ReadNodeData(vtkUnstructuredGrid* vtkNotUsed(output))
 {
   vtkWarningMacro("Not implemented due to lack of examples");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGAMBITReader::ReadCellData(vtkUnstructuredGrid* vtkNotUsed(output))
 {
   vtkWarningMacro("Not implemented due to lack of examples");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGAMBITReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -189,7 +189,7 @@ int vtkGAMBITReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGAMBITReader::ReadGeometry(vtkUnstructuredGrid* output)
 {
   vtkDoubleArray* coords = vtkDoubleArray::New();
@@ -215,7 +215,7 @@ void vtkGAMBITReader::ReadGeometry(vtkUnstructuredGrid* output)
   points->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGAMBITReader::ReadBoundaryConditionSets(vtkUnstructuredGrid* output)
 {
   int bcs, f, itype, nentry, nvalues;
@@ -295,7 +295,7 @@ void vtkGAMBITReader::ReadBoundaryConditionSets(vtkUnstructuredGrid* output)
   bcscalar->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGAMBITReader::ReadMaterialTypes(vtkUnstructuredGrid* output)
 {
   int grp, f, flag, id, nbelts, elt, mat, nbflags;
@@ -349,7 +349,7 @@ void vtkGAMBITReader::ReadMaterialTypes(vtkUnstructuredGrid* output)
   materials->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGAMBITReader::ReadCellConnectivity(vtkUnstructuredGrid* output)
 {
   int i, k;
@@ -456,7 +456,7 @@ void vtkGAMBITReader::ReadCellConnectivity(vtkUnstructuredGrid* output)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGAMBITReader::ReadXYZCoords(vtkDoubleArray* coords)
 {
   int i;

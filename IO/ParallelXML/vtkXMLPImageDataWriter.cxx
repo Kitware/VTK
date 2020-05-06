@@ -22,37 +22,37 @@
 
 vtkStandardNewMacro(vtkXMLPImageDataWriter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLPImageDataWriter::vtkXMLPImageDataWriter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLPImageDataWriter::~vtkXMLPImageDataWriter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPImageDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageData* vtkXMLPImageDataWriter::GetInput()
 {
   return static_cast<vtkImageData*>(this->Superclass::GetInput());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXMLPImageDataWriter::GetDataSetName()
 {
   return "PImageData";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXMLPImageDataWriter::GetDefaultFileExtension()
 {
   return "pvti";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPImageDataWriter::WritePrimaryElementAttributes(ostream& os, vtkIndent indent)
 {
   this->Superclass::WritePrimaryElementAttributes(os, indent);
@@ -71,7 +71,7 @@ void vtkXMLPImageDataWriter::WritePrimaryElementAttributes(ostream& os, vtkInden
   this->WriteVectorAttribute("Spacing", 3, input->GetSpacing());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLStructuredDataWriter* vtkXMLPImageDataWriter::CreateStructuredPieceWriter()
 {
   // Create the writer for the piece.
@@ -80,7 +80,7 @@ vtkXMLStructuredDataWriter* vtkXMLPImageDataWriter::CreateStructuredPieceWriter(
   return pWriter;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPImageDataWriter::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");

@@ -18,7 +18,7 @@
 
 #include <vector>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationDoubleVectorKey ::vtkInformationDoubleVectorKey(
   const char* name, const char* location, int length)
   : vtkInformationKey(name, location)
@@ -27,16 +27,16 @@ vtkInformationDoubleVectorKey ::vtkInformationDoubleVectorKey(
   vtkCommonInformationKeyManager::Register(this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationDoubleVectorKey::~vtkInformationDoubleVectorKey() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationDoubleVectorKey::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkInformationDoubleVectorValue : public vtkObjectBase
 {
 public:
@@ -44,7 +44,7 @@ public:
   std::vector<double> Value;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationDoubleVectorKey::Append(vtkInformation* info, double value)
 {
   vtkInformationDoubleVectorValue* v =
@@ -59,7 +59,7 @@ void vtkInformationDoubleVectorKey::Append(vtkInformation* info, double value)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationDoubleVectorKey::Set(vtkInformation* info, const double* value, int length)
 {
   if (value)
@@ -86,7 +86,7 @@ void vtkInformationDoubleVectorKey::Set(vtkInformation* info, const double* valu
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkInformationDoubleVectorKey::Get(vtkInformation* info)
 {
   vtkInformationDoubleVectorValue* v =
@@ -94,7 +94,7 @@ double* vtkInformationDoubleVectorKey::Get(vtkInformation* info)
   return (v && !v->Value.empty()) ? (&v->Value[0]) : nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkInformationDoubleVectorKey::Get(vtkInformation* info, int idx)
 {
   if (idx >= this->Length(info))
@@ -107,7 +107,7 @@ double vtkInformationDoubleVectorKey::Get(vtkInformation* info, int idx)
   return values[idx];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationDoubleVectorKey::Get(vtkInformation* info, double* value)
 {
   vtkInformationDoubleVectorValue* v =
@@ -121,7 +121,7 @@ void vtkInformationDoubleVectorKey::Get(vtkInformation* info, double* value)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkInformationDoubleVectorKey::Length(vtkInformation* info)
 {
   vtkInformationDoubleVectorValue* v =
@@ -129,13 +129,13 @@ int vtkInformationDoubleVectorKey::Length(vtkInformation* info)
   return v ? static_cast<int>(v->Value.size()) : 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationDoubleVectorKey::ShallowCopy(vtkInformation* from, vtkInformation* to)
 {
   this->Set(to, this->Get(from), this->Length(from));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationDoubleVectorKey::Print(ostream& os, vtkInformation* info)
 {
   // Print the value.

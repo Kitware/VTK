@@ -26,7 +26,7 @@
 
 #include <cstdio> // For EXIT_SUCCESS
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //! Get a hexadecimal string of the RGBA colors.
 std::string RGBAToHexString(const unsigned char* rgba)
 {

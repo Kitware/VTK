@@ -33,7 +33,7 @@ static int data[] = { 77938, 9109, 2070, 12806, 19514 };
 // static int data[] = {200,200,200,200,200};
 static const char* labels[] = { "Books", "New and Popular", "Periodical", "Audiobook", "Video" };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestPieChart(int, char*[])
 {
   // Set up a 2D scene, add an XY chart to it

@@ -41,7 +41,7 @@ public:
   }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationKey::vtkInformationKey(const char* name, const char* location)
 {
   // Save the name and location.
@@ -54,7 +54,7 @@ vtkInformationKey::vtkInformationKey(const char* name, const char* location)
   vtkInformationKeyLookup::RegisterKey(this, name, location);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationKey::~vtkInformationKey()
 {
   this->SetReferenceCount(0);
@@ -62,73 +62,73 @@ vtkInformationKey::~vtkInformationKey()
   this->SetLocation(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationKey::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationKey::Register(vtkObjectBase*) {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationKey::UnRegister(vtkObjectBase*) {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkInformationKey::GetName()
 {
   return this->Name;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkInformationKey::GetLocation()
 {
   return this->Location;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationKey::SetAsObjectBase(vtkInformation* info, vtkObjectBase* value)
 {
   vtkInformationKeyToInformationFriendship::SetAsObjectBase(info, this, value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkObjectBase* vtkInformationKey::GetAsObjectBase(vtkInformation* info)
 {
   return vtkInformationKeyToInformationFriendship::GetAsObjectBase(info, this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const vtkObjectBase* vtkInformationKey::GetAsObjectBase(vtkInformation* info) const
 {
   return vtkInformationKeyToInformationFriendship::GetAsObjectBase(info, this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkInformationKey::Has(vtkInformation* info)
 {
   return this->GetAsObjectBase(info) ? 1 : 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationKey::Remove(vtkInformation* info)
 {
   this->SetAsObjectBase(info, nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationKey::Report(vtkInformation*, vtkGarbageCollector*)
 {
   // Report nothing by default.
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationKey::Print(vtkInformation* info)
 {
   this->Print(cout, info);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationKey::Print(ostream& os, vtkInformation* info)
 {
   // Just print the value type and pointer by default.
@@ -138,11 +138,11 @@ void vtkInformationKey::Print(ostream& os, vtkInformation* info)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationKey::ReportAsObjectBase(vtkInformation* info, vtkGarbageCollector* collector)
 {
   vtkInformationKeyToInformationFriendship::ReportAsObjectBase(info, this, collector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationKey::ConstructClass(const char*) {}

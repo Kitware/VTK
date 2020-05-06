@@ -19,16 +19,16 @@
 
 vtkStandardNewMacro(vtkWendlandQuinticKernel);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkWendlandQuinticKernel::vtkWendlandQuinticKernel()
 {
   this->CutoffFactor = 2.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkWendlandQuinticKernel::~vtkWendlandQuinticKernel() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // At this point, the spatial step, the dimension of the kernel, and the cutoff
 // factor should be known.
 void vtkWendlandQuinticKernel::Initialize(
@@ -51,7 +51,7 @@ void vtkWendlandQuinticKernel::Initialize(
   this->Superclass::Initialize(loc, ds, attr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWendlandQuinticKernel::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

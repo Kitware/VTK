@@ -46,16 +46,16 @@ vtkVolumeTexture::vtkVolumeTexture()
   this->AdjustedTexMax[3] = 1.0f;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkVolumeTexture::~vtkVolumeTexture()
 {
   this->ClearBlocks();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkVolumeTexture);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkVolumeTexture::LoadVolume(vtkRenderer* ren, vtkImageData* data, vtkDataArray* scalars,
   int const isCell, int const interpolation)
 {
@@ -112,7 +112,7 @@ bool vtkVolumeTexture::LoadVolume(vtkRenderer* ren, vtkImageData* data, vtkDataA
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeTexture::SetInterpolation(int const interpolation)
 {
   this->InterpolationType = interpolation;
@@ -125,7 +125,7 @@ void vtkVolumeTexture::SetInterpolation(int const interpolation)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkVolumeTexture::VolumeBlock* vtkVolumeTexture::GetNextBlock()
 {
   this->CurrentBlockIdx++;
@@ -146,13 +146,13 @@ vtkVolumeTexture::VolumeBlock* vtkVolumeTexture::GetNextBlock()
   return block;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkVolumeTexture::VolumeBlock* vtkVolumeTexture::GetCurrentBlock()
 {
   return this->SortedVolumeBlocks[this->CurrentBlockIdx];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeTexture::CreateBlocks(
   unsigned int const format, unsigned int const internalFormat, int const type)
 {
@@ -193,7 +193,7 @@ void vtkVolumeTexture::CreateBlocks(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeTexture::AdjustExtentForCell(Size6& extent)
 {
   int i = 1;
@@ -204,7 +204,7 @@ void vtkVolumeTexture::AdjustExtentForCell(Size6& extent)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkVolumeTexture::Size3 vtkVolumeTexture::ComputeBlockSize(int* extent)
 {
   int i = 0;
@@ -217,7 +217,7 @@ vtkVolumeTexture::Size3 vtkVolumeTexture::ComputeBlockSize(int* extent)
   return texSize;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBlock)
 {
   int const noOfComponents = this->Scalars->GetNumberOfComponents();
@@ -359,7 +359,7 @@ bool vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBloc
   return success;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeTexture::ReleaseGraphicsResources(vtkWindow* win)
 {
   if (this->Texture)
@@ -369,7 +369,7 @@ void vtkVolumeTexture::ReleaseGraphicsResources(vtkWindow* win)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeTexture::ClearBlocks()
 {
   if (this->ImageDataBlocks.empty())
@@ -390,7 +390,7 @@ void vtkVolumeTexture::ClearBlocks()
   this->ImageDataBlockMap.clear();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeTexture::SplitVolume(vtkImageData* imageData, Size3 const& part)
 {
   Size6& fullExt = this->FullExtent;
@@ -437,7 +437,7 @@ void vtkVolumeTexture::SplitVolume(vtkImageData* imageData, Size3 const& part)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeTexture::GetScaleAndBias(
   const int scalarType, float* scalarRange, float& scale, float& bias)
 {
@@ -483,7 +483,7 @@ void vtkVolumeTexture::GetScaleAndBias(
   bias = static_cast<float>(0.0 - glRange[0] * scale);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeTexture::SelectTextureFormat(unsigned int& format, unsigned int& internalFormat,
   int& type, int const scalarType, int const noOfComponents)
 {
@@ -613,7 +613,7 @@ void vtkVolumeTexture::SelectTextureFormat(unsigned int& format, unsigned int& i
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeTexture::UpdateVolume(vtkVolumeProperty* property)
 {
   if (property->GetMTime() > this->UpdateTime.GetMTime())
@@ -625,7 +625,7 @@ void vtkVolumeTexture::UpdateVolume(vtkVolumeProperty* property)
   this->UpdateTime.Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeTexture::UpdateInterpolationType(int const interpolation)
 {
   if (interpolation == VTK_LINEAR_INTERPOLATION &&
@@ -644,7 +644,7 @@ void vtkVolumeTexture::UpdateInterpolationType(int const interpolation)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeTexture::SortBlocksBackToFront(vtkRenderer* ren, vtkMatrix4x4* volumeMat)
 {
   if (this->ImageDataBlocks.size() > 1)
@@ -667,7 +667,7 @@ void vtkVolumeTexture::SortBlocksBackToFront(vtkRenderer* ren, vtkMatrix4x4* vol
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeTexture::SetPartitions(int const x, int const y, int const z)
 {
   if (x > 0 && y > 0 && z > 0)
@@ -688,13 +688,13 @@ void vtkVolumeTexture::SetPartitions(int const x, int const y, int const z)
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const vtkVolumeTexture::Size3& vtkVolumeTexture::GetPartitions()
 {
   return this->Partitions;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeTexture::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -710,7 +710,7 @@ void vtkVolumeTexture::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "StreamBlocks: " << this->StreamBlocks << '\n';
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkVolumeTexture::AreDimensionsValid(
   vtkTextureObject* texture, int const width, int const height, int const depth)
 {
@@ -724,7 +724,7 @@ bool vtkVolumeTexture::AreDimensionsValid(
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkVolumeTexture::SafeLoadTexture(vtkTextureObject* texture, int const width, int const height,
   int const depth, int numComps, int dataType, void* dataPtr)
 {
@@ -751,7 +751,7 @@ bool vtkVolumeTexture::SafeLoadTexture(vtkTextureObject* texture, int const widt
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeTexture::ComputeBounds(VolumeBlock* block)
 {
   vtkImageData* input = block->ImageData;
@@ -861,7 +861,7 @@ void vtkVolumeTexture::ComputeBounds(VolumeBlock* block)
   this->CellSpacing[2] = static_cast<float>(spacing[2]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeTexture::UpdateTextureToDataMatrix(VolumeBlock* block)
 {
   // take the 0.0 to 1.0 texture coordinates and map them into
@@ -900,7 +900,7 @@ void vtkVolumeTexture::UpdateTextureToDataMatrix(VolumeBlock* block)
   matrixInv->Invert();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeTexture::ComputeCellToPointMatrix(int extents[6])
 {
   this->CellToPointMatrix->Identity();
@@ -945,7 +945,7 @@ void vtkVolumeTexture::ComputeCellToPointMatrix(int extents[6])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataArray* vtkVolumeTexture::GetLoadedScalars()
 {
   return this->Scalars;

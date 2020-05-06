@@ -38,7 +38,7 @@
 vtkStandardNewMacro(vtkGraphLayout);
 vtkCxxSetObjectMacro(vtkGraphLayout, Transform, vtkAbstractTransform);
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkGraphLayout::vtkGraphLayout()
 {
@@ -55,7 +55,7 @@ vtkGraphLayout::vtkGraphLayout()
   this->EventForwarder->SetTarget(this);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkGraphLayout::~vtkGraphLayout()
 {
@@ -75,7 +75,7 @@ vtkGraphLayout::~vtkGraphLayout()
   this->EventForwarder->Delete();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkGraphLayout::SetLayoutStrategy(vtkGraphLayoutStrategy* strategy)
 {
@@ -108,7 +108,7 @@ void vtkGraphLayout::SetLayoutStrategy(vtkGraphLayoutStrategy* strategy)
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkMTimeType vtkGraphLayout::GetMTime()
 {
@@ -123,7 +123,7 @@ vtkMTimeType vtkGraphLayout::GetMTime()
   return mTime;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkGraphLayout::IsLayoutComplete()
 {
@@ -137,7 +137,7 @@ int vtkGraphLayout::IsLayoutComplete()
   return 0;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkGraphLayout::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -264,7 +264,7 @@ int vtkGraphLayout::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkGraphLayout::PrintSelf(ostream& os, vtkIndent indent)
 {

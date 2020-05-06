@@ -30,16 +30,16 @@
 #include "vtkRenderer.h"
 #include "vtkWindow.h"
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkContinuousValueWidgetRepresentation::vtkContinuousValueWidgetRepresentation()
 {
   this->Value = 0;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkContinuousValueWidgetRepresentation::~vtkContinuousValueWidgetRepresentation() = default;
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContinuousValueWidgetRepresentation::PlaceWidget(double* vtkNotUsed(bds[6]))
 {
   // Position the handles at the end of the lines
@@ -48,7 +48,7 @@ void vtkContinuousValueWidgetRepresentation::PlaceWidget(double* vtkNotUsed(bds[
 
 void vtkContinuousValueWidgetRepresentation::SetValue(double) {}
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContinuousValueWidgetRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h

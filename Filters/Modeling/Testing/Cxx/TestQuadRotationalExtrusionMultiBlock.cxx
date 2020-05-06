@@ -31,7 +31,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkXMLPolyDataReader.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestQuadRotationalExtrusionMultiBlock(int argc, char* argv[])
 {
   // Read block 0 of 2D polygonal input mesh

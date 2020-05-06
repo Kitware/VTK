@@ -28,7 +28,7 @@
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkEdgeListIterator);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkEdgeListIterator::vtkEdgeListIterator()
 {
   this->Vertex = 0;
@@ -39,7 +39,7 @@ vtkEdgeListIterator::vtkEdgeListIterator()
   this->GraphEdge = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkEdgeListIterator::~vtkEdgeListIterator()
 {
   if (this->Graph)
@@ -52,7 +52,7 @@ vtkEdgeListIterator::~vtkEdgeListIterator()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkEdgeListIterator::SetGraph(vtkGraph* graph)
 {
   vtkSetObjectBodyMacro(Graph, vtkGraph, graph);
@@ -101,7 +101,7 @@ void vtkEdgeListIterator::SetGraph(vtkGraph* graph)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkEdgeType vtkEdgeListIterator::Next()
 {
   // First, determine the current item.
@@ -136,7 +136,7 @@ vtkEdgeType vtkEdgeListIterator::Next()
   return e;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGraphEdge* vtkEdgeListIterator::NextGraphEdge()
 {
   vtkEdgeType e = this->Next();
@@ -150,7 +150,7 @@ vtkGraphEdge* vtkEdgeListIterator::NextGraphEdge()
   return this->GraphEdge;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkEdgeListIterator::Increment()
 {
   if (!this->Graph)
@@ -193,13 +193,13 @@ void vtkEdgeListIterator::Increment()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkEdgeListIterator::HasNext()
 {
   return (this->Current != nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkEdgeListIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

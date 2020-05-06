@@ -22,7 +22,7 @@
 
 vtkStandardNewMacro(vtkImageMirrorPad);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Just clip the request.
 void vtkImageMirrorPad::ComputeInputUpdateExtent(int inExt[6], int outExt[6], int wExtent[6])
 {
@@ -44,7 +44,7 @@ void vtkImageMirrorPad::ComputeInputUpdateExtent(int inExt[6], int outExt[6], in
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T>
 void vtkImageMirrorPadExecute(vtkImageMirrorPad* self, vtkImageData* inData, int* wExtent,
   vtkImageData* outData, T* outPtr, int outExt[6], int id)
@@ -190,7 +190,7 @@ void vtkImageMirrorPadExecute(vtkImageMirrorPad* self, vtkImageData* inData, int
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method is passed a input and output data, and executes the filter
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for

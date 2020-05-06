@@ -19,16 +19,16 @@
 
 vtkStandardNewMacro(vtkSPHQuinticKernel);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSPHQuinticKernel::vtkSPHQuinticKernel()
 {
   this->CutoffFactor = 3.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSPHQuinticKernel::~vtkSPHQuinticKernel() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // At this point, the spatial step, the dimension of the kernel, and the cutoff
 // factor should be known.
 void vtkSPHQuinticKernel::Initialize(
@@ -51,7 +51,7 @@ void vtkSPHQuinticKernel::Initialize(
   this->Superclass::Initialize(loc, ds, attr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSPHQuinticKernel::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -40,7 +40,7 @@ double SgnPower(double x, double n)
 
 } // anonymous namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParametricSuperToroid::vtkParametricSuperToroid()
   : RingRadius(1)
   , CrossSectionRadius(0.5)
@@ -64,10 +64,10 @@ vtkParametricSuperToroid::vtkParametricSuperToroid()
   this->DerivativesAvailable = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParametricSuperToroid::~vtkParametricSuperToroid() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParametricSuperToroid::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
 {
   double u = uvw[0];
@@ -93,13 +93,13 @@ void vtkParametricSuperToroid::Evaluate(double uvw[3], double Pt[3], double Duvw
   Pt[2] = this->ZRadius * this->CrossSectionRadius * SgnPower(sv, this->N2);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkParametricSuperToroid::EvaluateScalar(double*, double*, double*)
 {
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParametricSuperToroid::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

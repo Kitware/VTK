@@ -19,19 +19,19 @@
 
 vtkStandardNewMacro(vtkHierarchicalBoxDataSet);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHierarchicalBoxDataSet::vtkHierarchicalBoxDataSet() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHierarchicalBoxDataSet::~vtkHierarchicalBoxDataSet() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHierarchicalBoxDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCompositeDataIterator* vtkHierarchicalBoxDataSet::NewIterator()
 {
   vtkCompositeDataIterator* iter = vtkHierarchicalBoxDataIterator::New();
@@ -39,13 +39,13 @@ vtkCompositeDataIterator* vtkHierarchicalBoxDataSet::NewIterator()
   return iter;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHierarchicalBoxDataSet* vtkHierarchicalBoxDataSet::GetData(vtkInformation* info)
 {
   return info ? vtkHierarchicalBoxDataSet::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHierarchicalBoxDataSet* vtkHierarchicalBoxDataSet::GetData(vtkInformationVector* v, int i)
 {
   return vtkHierarchicalBoxDataSet::GetData(v->GetInformationObject(i));

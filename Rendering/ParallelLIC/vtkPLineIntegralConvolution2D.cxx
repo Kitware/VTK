@@ -20,31 +20,31 @@
 #include "vtkPainterCommunicator.h"
 #include "vtkParallelTimer.h"
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPLineIntegralConvolution2D);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPLineIntegralConvolution2D::vtkPLineIntegralConvolution2D()
 {
   this->Comm = new vtkPPainterCommunicator;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPLineIntegralConvolution2D::~vtkPLineIntegralConvolution2D() {}
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPLineIntegralConvolution2D::SetCommunicator(vtkPainterCommunicator* comm)
 {
   this->Comm->Copy(comm, false);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPainterCommunicator* vtkPLineIntegralConvolution2D::GetCommunicator()
 {
   return this->Comm;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPLineIntegralConvolution2D::GetGlobalMinMax(
   vtkPainterCommunicator* painterComm, float& min, float& max)
 {
@@ -60,7 +60,7 @@ void vtkPLineIntegralConvolution2D::GetGlobalMinMax(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPLineIntegralConvolution2D::StartTimerEvent(const char* event)
 {
 #if defined(vtkLineIntegralConvolution2DTIME) || defined(vtkSurfaceLICPainterTIME)
@@ -71,7 +71,7 @@ void vtkPLineIntegralConvolution2D::StartTimerEvent(const char* event)
 #endif
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPLineIntegralConvolution2D::EndTimerEvent(const char* event)
 {
 #if defined(vtkLineIntegralConvolution2DTIME) || defined(vtkSurfaceLICPainterTIME)
@@ -82,7 +82,7 @@ void vtkPLineIntegralConvolution2D::EndTimerEvent(const char* event)
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPLineIntegralConvolution2D::WriteTimerLog(const char* fileName)
 {
 #ifdef vtkLineIntegralConvolution2DTIME
@@ -104,7 +104,7 @@ void vtkPLineIntegralConvolution2D::WriteTimerLog(const char* fileName)
 #endif
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPLineIntegralConvolution2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

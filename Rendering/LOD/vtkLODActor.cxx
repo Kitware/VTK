@@ -32,7 +32,7 @@ vtkStandardNewMacro(vtkLODActor);
 vtkCxxSetObjectMacro(vtkLODActor, LowResFilter, vtkPolyDataAlgorithm);
 vtkCxxSetObjectMacro(vtkLODActor, MediumResFilter, vtkPolyDataAlgorithm);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLODActor::vtkLODActor()
 {
   // get a hardware dependent actor and mappers
@@ -49,7 +49,7 @@ vtkLODActor::vtkLODActor()
   this->MediumMapper = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLODActor::~vtkLODActor()
 {
   this->Device->Delete();
@@ -58,7 +58,7 @@ vtkLODActor::~vtkLODActor()
   this->LODMappers->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLODActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -79,7 +79,7 @@ void vtkLODActor::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLODActor::Render(vtkRenderer* ren, vtkMapper* vtkNotUsed(m))
 {
   float myTime, bestTime, tempTime;
@@ -240,7 +240,7 @@ void vtkLODActor::ReleaseGraphicsResources(vtkWindow* renWin)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // does not matter if mapper is in mapper collection.
 void vtkLODActor::AddLODMapper(vtkMapper* mapper)
 {
@@ -257,7 +257,7 @@ void vtkLODActor::AddLODMapper(vtkMapper* mapper)
   this->LODMappers->AddItem(mapper);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Can only be used if no LOD mappers have been added.
 // Maybe we should remove this exculsive feature.
 void vtkLODActor::CreateOwnLODs()
@@ -306,7 +306,7 @@ void vtkLODActor::CreateOwnLODs()
   this->UpdateOwnLODs();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLODActor::UpdateOwnLODs()
 {
   if (!this->Mapper)
@@ -347,7 +347,7 @@ void vtkLODActor::UpdateOwnLODs()
   this->BuildTime.Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Deletes Mappers and filters created by this object.
 // (number two and three)
 void vtkLODActor::DeleteOwnLODs()
@@ -373,7 +373,7 @@ void vtkLODActor::DeleteOwnLODs()
   this->SetMediumResFilter(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLODActor::Modified()
 {
   if (this->Device) // Will be nullptr only during destruction of this class.

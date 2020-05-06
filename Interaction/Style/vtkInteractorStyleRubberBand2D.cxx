@@ -31,7 +31,7 @@
 
 vtkStandardNewMacro(vtkInteractorStyleRubberBand2D);
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInteractorStyleRubberBand2D::vtkInteractorStyleRubberBand2D()
 {
   this->PixelArray = vtkUnsignedCharArray::New();
@@ -43,13 +43,13 @@ vtkInteractorStyleRubberBand2D::vtkInteractorStyleRubberBand2D()
   this->EndPosition[1] = 0;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInteractorStyleRubberBand2D::~vtkInteractorStyleRubberBand2D()
 {
   this->PixelArray->Delete();
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleRubberBand2D::OnLeftButtonDown()
 {
   if (this->Interaction == NONE)
@@ -80,7 +80,7 @@ void vtkInteractorStyleRubberBand2D::OnLeftButtonDown()
   }
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleRubberBand2D::OnLeftButtonUp()
 {
   if (this->Interaction == SELECTING)
@@ -117,7 +117,7 @@ void vtkInteractorStyleRubberBand2D::OnLeftButtonUp()
   }
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleRubberBand2D::OnMiddleButtonDown()
 {
   if (this->Interaction == NONE)
@@ -129,7 +129,7 @@ void vtkInteractorStyleRubberBand2D::OnMiddleButtonDown()
   }
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleRubberBand2D::OnMiddleButtonUp()
 {
   if (this->Interaction == PANNING)
@@ -139,7 +139,7 @@ void vtkInteractorStyleRubberBand2D::OnMiddleButtonUp()
   }
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleRubberBand2D::OnRightButtonDown()
 {
   if (this->Interaction == NONE)
@@ -151,7 +151,7 @@ void vtkInteractorStyleRubberBand2D::OnRightButtonDown()
   }
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleRubberBand2D::OnRightButtonUp()
 {
   if (this->Interaction == ZOOMING)
@@ -161,7 +161,7 @@ void vtkInteractorStyleRubberBand2D::OnRightButtonUp()
   }
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleRubberBand2D::OnMouseMove()
 {
   if (this->Interaction == PANNING || this->Interaction == ZOOMING)
@@ -231,7 +231,7 @@ void vtkInteractorStyleRubberBand2D::OnMouseMove()
   }
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleRubberBand2D::OnMouseWheelForward()
 {
   this->FindPokedRenderer(
@@ -251,7 +251,7 @@ void vtkInteractorStyleRubberBand2D::OnMouseWheelForward()
   this->Interaction = NONE;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleRubberBand2D::OnMouseWheelBackward()
 {
   this->FindPokedRenderer(
@@ -271,7 +271,7 @@ void vtkInteractorStyleRubberBand2D::OnMouseWheelBackward()
   this->Interaction = NONE;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleRubberBand2D::RedrawRubberBand()
 {
   // Update the rubber band on the screen
@@ -354,7 +354,7 @@ void vtkInteractorStyleRubberBand2D::RedrawRubberBand()
   tmpPixelArray->Delete();
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleRubberBand2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

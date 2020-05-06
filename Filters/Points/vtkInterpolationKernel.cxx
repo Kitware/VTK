@@ -17,7 +17,7 @@
 #include "vtkDataSet.h"
 #include "vtkPointData.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInterpolationKernel::vtkInterpolationKernel()
 {
   this->RequiresInitialization = true;
@@ -27,13 +27,13 @@ vtkInterpolationKernel::vtkInterpolationKernel()
   this->PointData = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInterpolationKernel::~vtkInterpolationKernel()
 {
   this->FreeStructures();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInterpolationKernel::FreeStructures()
 {
   if (this->Locator)
@@ -55,7 +55,7 @@ void vtkInterpolationKernel::FreeStructures()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInterpolationKernel::Initialize(
   vtkAbstractPointLocator* loc, vtkDataSet* ds, vtkPointData* attr)
 {
@@ -80,7 +80,7 @@ void vtkInterpolationKernel::Initialize(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInterpolationKernel::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

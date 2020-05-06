@@ -41,7 +41,7 @@
 vtkCxxSetObjectMacro(vtkAbstractPolygonalHandleRepresentation3D, Property, vtkProperty);
 vtkCxxSetObjectMacro(vtkAbstractPolygonalHandleRepresentation3D, SelectedProperty, vtkProperty);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAbstractPolygonalHandleRepresentation3D ::vtkAbstractPolygonalHandleRepresentation3D()
 {
   this->InteractionState = vtkHandleRepresentation::Outside;
@@ -100,7 +100,7 @@ vtkAbstractPolygonalHandleRepresentation3D ::vtkAbstractPolygonalHandleRepresent
   this->SmoothMotion = 1;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAbstractPolygonalHandleRepresentation3D ::~vtkAbstractPolygonalHandleRepresentation3D()
 {
   this->HandleTransformFilter->Delete();
@@ -116,7 +116,7 @@ vtkAbstractPolygonalHandleRepresentation3D ::~vtkAbstractPolygonalHandleRepresen
   this->LabelTextActor->Delete();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractPolygonalHandleRepresentation3D::RegisterPickers()
 {
   vtkPickingManager* pm = this->GetPickingManager();
@@ -127,19 +127,19 @@ void vtkAbstractPolygonalHandleRepresentation3D::RegisterPickers()
   pm->AddPicker(this->HandlePicker, this);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractPolygonalHandleRepresentation3D::SetHandle(vtkPolyData* pd)
 {
   this->HandleTransformFilter->SetInputData(pd);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyData* vtkAbstractPolygonalHandleRepresentation3D::GetHandle()
 {
   return vtkPolyData::SafeDownCast(this->HandleTransformFilter->GetInput());
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractPolygonalHandleRepresentation3D::SetWorldPosition(double p[3])
 {
   if (!this->Renderer || !this->PointPlacer || this->PointPlacer->ValidateWorldPosition(p))
@@ -150,7 +150,7 @@ void vtkAbstractPolygonalHandleRepresentation3D::SetWorldPosition(double p[3])
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractPolygonalHandleRepresentation3D::SetDisplayPosition(double p[3])
 {
   if (this->Renderer && this->PointPlacer)
@@ -174,7 +174,7 @@ void vtkAbstractPolygonalHandleRepresentation3D::SetDisplayPosition(double p[3])
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAbstractPolygonalHandleRepresentation3D ::ComputeInteractionState(
   int X, int Y, int vtkNotUsed(modify))
 {
@@ -197,7 +197,7 @@ int vtkAbstractPolygonalHandleRepresentation3D ::ComputeInteractionState(
   return this->InteractionState;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAbstractPolygonalHandleRepresentation3D::DetermineConstraintAxis(
   int constraint, double* x, double* startPickPoint)
 {
@@ -244,7 +244,7 @@ int vtkAbstractPolygonalHandleRepresentation3D::DetermineConstraintAxis(
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Record the current event position, and the rectilinear wipe position.
 void vtkAbstractPolygonalHandleRepresentation3D::StartWidgetInteraction(double startEventPos[2])
 {
@@ -273,7 +273,7 @@ void vtkAbstractPolygonalHandleRepresentation3D::StartWidgetInteraction(double s
   this->WaitCount = 0;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Based on the displacement vector (computed in display coordinates) and
 // the cursor state (which corresponds to which part of the widget has been
 // selected), the widget points are modified.
@@ -410,7 +410,7 @@ void vtkAbstractPolygonalHandleRepresentation3D::WidgetInteraction(double eventP
   this->Modified();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractPolygonalHandleRepresentation3D ::MoveFocusRequest(
   const double* p1, const double* p2, const double currPos[2], double center[3])
 {
@@ -451,13 +451,13 @@ void vtkAbstractPolygonalHandleRepresentation3D ::MoveFocusRequest(
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractPolygonalHandleRepresentation3D::MoveFocus(const double* p1, const double* p2)
 {
   this->Translate(p1, p2);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Translate everything
 void vtkAbstractPolygonalHandleRepresentation3D::Translate(const double* p1, const double* p2)
 {
@@ -487,7 +487,7 @@ void vtkAbstractPolygonalHandleRepresentation3D::Translate(const double* p1, con
   this->SetWorldPosition(newFocus);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractPolygonalHandleRepresentation3D ::Scale(
   const double*, const double*, const double eventPos[2])
 {
@@ -503,7 +503,7 @@ void vtkAbstractPolygonalHandleRepresentation3D ::Scale(
   this->SetUniformScale(handleSize);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractPolygonalHandleRepresentation3D ::SetUniformScale(double handleSize)
 {
   this->HandleTransformMatrix->SetElement(0, 0, handleSize);
@@ -511,13 +511,13 @@ void vtkAbstractPolygonalHandleRepresentation3D ::SetUniformScale(double handleS
   this->HandleTransformMatrix->SetElement(2, 2, handleSize);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractPolygonalHandleRepresentation3D::Highlight(int highlight)
 {
   this->Actor->SetProperty(highlight ? this->SelectedProperty : this->Property);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractPolygonalHandleRepresentation3D::CreateDefaultProperties()
 {
   this->Property = vtkProperty::New();
@@ -529,14 +529,14 @@ void vtkAbstractPolygonalHandleRepresentation3D::CreateDefaultProperties()
   this->SelectedProperty->SetLineWidth(2.0);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractPolygonalHandleRepresentation3D::UpdateHandle()
 {
   // Subclasses should override this.
   this->HandleTransformFilter->Update();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractPolygonalHandleRepresentation3D::BuildRepresentation()
 {
   // The net effect is to resize the handle
@@ -555,7 +555,7 @@ void vtkAbstractPolygonalHandleRepresentation3D::BuildRepresentation()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractPolygonalHandleRepresentation3D::UpdateLabel()
 {
   // Display the label if needed.
@@ -598,7 +598,7 @@ void vtkAbstractPolygonalHandleRepresentation3D::UpdateLabel()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractPolygonalHandleRepresentation3D::ShallowCopy(vtkProp* prop)
 {
   vtkAbstractPolygonalHandleRepresentation3D* rep =
@@ -619,7 +619,7 @@ void vtkAbstractPolygonalHandleRepresentation3D::ShallowCopy(vtkProp* prop)
   this->Superclass::ShallowCopy(prop);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractPolygonalHandleRepresentation3D::DeepCopy(vtkProp* prop)
 {
   vtkAbstractPolygonalHandleRepresentation3D* rep =
@@ -642,21 +642,21 @@ void vtkAbstractPolygonalHandleRepresentation3D::DeepCopy(vtkProp* prop)
   this->Superclass::DeepCopy(prop);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractPolygonalHandleRepresentation3D::GetActors(vtkPropCollection* pc)
 {
   this->Actor->GetActors(pc);
   this->LabelTextActor->GetActors(pc);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractPolygonalHandleRepresentation3D::ReleaseGraphicsResources(vtkWindow* win)
 {
   this->Actor->ReleaseGraphicsResources(win);
   this->LabelTextActor->ReleaseGraphicsResources(win);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAbstractPolygonalHandleRepresentation3D::RenderOpaqueGeometry(vtkViewport* viewport)
 {
   int count = 0;
@@ -672,7 +672,7 @@ int vtkAbstractPolygonalHandleRepresentation3D::RenderOpaqueGeometry(vtkViewport
   return count;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAbstractPolygonalHandleRepresentation3D::RenderTranslucentPolygonalGeometry(
   vtkViewport* viewport)
 {
@@ -692,7 +692,7 @@ int vtkAbstractPolygonalHandleRepresentation3D::RenderTranslucentPolygonalGeomet
   return count;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkAbstractPolygonalHandleRepresentation3D::HasTranslucentPolygonalGeometry()
 {
   int result = 0;
@@ -708,45 +708,45 @@ vtkTypeBool vtkAbstractPolygonalHandleRepresentation3D::HasTranslucentPolygonalG
   return result;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkAbstractPolygonalHandleRepresentation3D::GetBounds()
 {
   this->BuildRepresentation();
   return this->Actor ? this->Actor->GetBounds() : nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAbstractTransform* vtkAbstractPolygonalHandleRepresentation3D::GetTransform()
 {
   return this->HandleTransform;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractPolygonalHandleRepresentation3D::SetLabelText(const char* s)
 {
   this->LabelTextInput->SetText(s);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 char* vtkAbstractPolygonalHandleRepresentation3D::GetLabelText()
 {
   return this->LabelTextInput->GetText();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractPolygonalHandleRepresentation3D::SetLabelTextScale(double scale[3])
 {
   this->LabelTextActor->SetScale(scale);
   this->LabelAnnotationTextScaleInitialized = true;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkAbstractPolygonalHandleRepresentation3D::GetLabelTextScale()
 {
   return this->LabelTextActor->GetScale();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractPolygonalHandleRepresentation3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

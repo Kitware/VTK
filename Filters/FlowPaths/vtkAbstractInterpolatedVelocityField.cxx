@@ -26,10 +26,10 @@
 #include <map>
 #include <utility> //make_pair
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkAbstractInterpolatedVelocityField, FindCellStrategy, vtkFindCellStrategy);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const double vtkAbstractInterpolatedVelocityField::TOLERANCE_SCALE = 1.0E-8;
 const double vtkAbstractInterpolatedVelocityField::SURFACE_TOLERANCE_SCALE = 1.0E-5;
 
@@ -39,7 +39,7 @@ struct vtkStrategyMap : public std::map<vtkPointSet*, vtkFindCellStrategy*>
 {
 };
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAbstractInterpolatedVelocityField::vtkAbstractInterpolatedVelocityField()
 {
   this->NumFuncs = 3;     // u, v, w
@@ -70,7 +70,7 @@ vtkAbstractInterpolatedVelocityField::vtkAbstractInterpolatedVelocityField()
   this->StrategyMap = new vtkStrategyMap;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAbstractInterpolatedVelocityField::~vtkAbstractInterpolatedVelocityField()
 {
   this->NumFuncs = 0;
@@ -111,7 +111,7 @@ vtkAbstractInterpolatedVelocityField::~vtkAbstractInterpolatedVelocityField()
   this->SetFindCellStrategy(nullptr);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAbstractInterpolatedVelocityField::FunctionValues(vtkDataSet* dataset, double* x, double* f)
 {
   int i, j, numPts, id;
@@ -257,7 +257,7 @@ int vtkAbstractInterpolatedVelocityField::FunctionValues(vtkDataSet* dataset, do
   return 1;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkAbstractInterpolatedVelocityField::CheckPCoords(double pcoords[3])
 {
   for (int i = 0; i < 3; i++)
@@ -270,7 +270,7 @@ bool vtkAbstractInterpolatedVelocityField::CheckPCoords(double pcoords[3])
   return true;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkAbstractInterpolatedVelocityField::FindAndUpdateCell(vtkDataSet* dataset, double* x)
 {
   double tol2, dist2;
@@ -458,7 +458,7 @@ bool vtkAbstractInterpolatedVelocityField::FindAndUpdateCell(vtkDataSet* dataset
   }
   return true;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAbstractInterpolatedVelocityField::GetLastWeights(double* w)
 {
   if (this->LastCellId < 0)
@@ -475,7 +475,7 @@ int vtkAbstractInterpolatedVelocityField::GetLastWeights(double* w)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAbstractInterpolatedVelocityField::GetLastLocalCoordinates(double pcoords[3])
 {
   if (this->LastCellId < 0)
@@ -490,7 +490,7 @@ int vtkAbstractInterpolatedVelocityField::GetLastLocalCoordinates(double pcoords
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractInterpolatedVelocityField::FastCompute(vtkDataArray* vectors, double f[3])
 {
   int pntIdx;
@@ -508,7 +508,7 @@ void vtkAbstractInterpolatedVelocityField::FastCompute(vtkDataArray* vectors, do
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkAbstractInterpolatedVelocityField::InterpolatePoint(vtkPointData* outPD, vtkIdType outIndex)
 {
   if (!this->LastDataSet)
@@ -521,7 +521,7 @@ bool vtkAbstractInterpolatedVelocityField::InterpolatePoint(vtkPointData* outPD,
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractInterpolatedVelocityField::CopyParameters(
   vtkAbstractInterpolatedVelocityField* from)
 {
@@ -529,7 +529,7 @@ void vtkAbstractInterpolatedVelocityField::CopyParameters(
   this->SetFindCellStrategy(from->GetFindCellStrategy());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -558,7 +558,7 @@ void vtkAbstractInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent inde
   os << indent << "FindCell Strategy: " << this->FindCellStrategy << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractInterpolatedVelocityField::SelectVectors(int associationType, const char* fieldName)
 {
   this->VectorsType = associationType;

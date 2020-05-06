@@ -216,7 +216,7 @@ void vtkCompositeMapperHelper2::RemoveUnused()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Returns if we can use texture maps for scalar coloring. Note this doesn't say
 // we "will" use scalar coloring. It says, if we do use scalar coloring, we will
 // use a texture.
@@ -276,7 +276,7 @@ int vtkCompositeMapperHelper2::CanUseTextureMapForColoring(vtkDataObject*)
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositeMapperHelper2::RenderPiece(vtkRenderer* ren, vtkActor* actor)
 {
   // Make sure that we have been properly initialized.
@@ -364,7 +364,7 @@ void vtkCompositeMapperHelper2::DrawIBO(vtkRenderer* ren, vtkActor* actor, int p
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositeMapperHelper2::RenderPieceDraw(vtkRenderer* ren, vtkActor* actor)
 {
   int representation = actor->GetProperty()->GetRepresentation();
@@ -420,7 +420,7 @@ vtkCompositeMapperHelperData* vtkCompositeMapperHelper2::AddData(
   return found->second;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositeMapperHelper2::BuildBufferObjects(vtkRenderer* ren, vtkActor* act)
 {
   // render using the composite data attributes
@@ -566,7 +566,7 @@ void vtkCompositeMapperHelper2::BuildBufferObjects(vtkRenderer* ren, vtkActor* a
   this->VBOBuildTime.Modified();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositeMapperHelper2::AppendOneBufferObject(vtkRenderer* ren, vtkActor* act,
   vtkCompositeMapperHelperData* hdata, vtkIdType& voffset, std::vector<unsigned char>& newColors,
   std::vector<float>& newNorms)
@@ -1155,14 +1155,14 @@ void vtkCompositeMapperHelper2::ProcessCompositePixelBuffers(vtkHardwareSelector
 // Now the main class methods
 
 vtkStandardNewMacro(vtkCompositePolyDataMapper2);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCompositePolyDataMapper2::vtkCompositePolyDataMapper2()
 {
   this->CurrentFlatIndex = 0;
   this->ColorMissingArraysWithNanColor = false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCompositePolyDataMapper2::~vtkCompositePolyDataMapper2()
 {
   helpIter miter = this->Helpers.begin();
@@ -1173,7 +1173,7 @@ vtkCompositePolyDataMapper2::~vtkCompositePolyDataMapper2()
   this->Helpers.clear();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCompositePolyDataMapper2::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
@@ -1182,13 +1182,13 @@ int vtkCompositePolyDataMapper2::FillInputPortInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExecutive* vtkCompositePolyDataMapper2::CreateDefaultExecutive()
 {
   return vtkCompositeDataPipeline::New();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Looks at each DataSet and finds the union of all the bounds
 void vtkCompositePolyDataMapper2::ComputeBounds()
 {
@@ -1214,7 +1214,7 @@ void vtkCompositePolyDataMapper2::ComputeBounds()
   this->BoundsMTime.Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // simple tests, the mapper is tolerant of being
 // called both on opaque and translucent
 bool vtkCompositePolyDataMapper2::HasOpaqueGeometry()
@@ -1285,7 +1285,7 @@ bool vtkCompositePolyDataMapper2::RecursiveHasTranslucentGeometry(
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // simple tests, the mapper is tolerant of being
 // called both on opaque and translucent
 bool vtkCompositePolyDataMapper2::HasTranslucentPolygonalGeometry()
@@ -1334,7 +1334,7 @@ bool vtkCompositePolyDataMapper2::HasTranslucentPolygonalGeometry()
   return this->HasTranslucentGeometry;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositePolyDataMapper2::SetBlockVisibility(unsigned int index, bool visible)
 {
   if (this->CompositeAttributes)
@@ -1350,7 +1350,7 @@ void vtkCompositePolyDataMapper2::SetBlockVisibility(unsigned int index, bool vi
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkCompositePolyDataMapper2::GetBlockVisibility(unsigned int index)
 {
   if (this->CompositeAttributes)
@@ -1367,7 +1367,7 @@ bool vtkCompositePolyDataMapper2::GetBlockVisibility(unsigned int index)
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositePolyDataMapper2::RemoveBlockVisibility(unsigned int index)
 {
   if (this->CompositeAttributes)
@@ -1383,7 +1383,7 @@ void vtkCompositePolyDataMapper2::RemoveBlockVisibility(unsigned int index)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositePolyDataMapper2::RemoveBlockVisibilities()
 {
   if (this->CompositeAttributes)
@@ -1393,7 +1393,7 @@ void vtkCompositePolyDataMapper2::RemoveBlockVisibilities()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositePolyDataMapper2::SetBlockColor(unsigned int index, double color[3])
 {
   if (this->CompositeAttributes)
@@ -1410,7 +1410,7 @@ void vtkCompositePolyDataMapper2::SetBlockColor(unsigned int index, double color
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkCompositePolyDataMapper2::GetBlockColor(unsigned int index)
 {
   static double white[3] = { 1.0, 1.0, 1.0 };
@@ -1433,7 +1433,7 @@ double* vtkCompositePolyDataMapper2::GetBlockColor(unsigned int index)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositePolyDataMapper2::RemoveBlockColor(unsigned int index)
 {
   if (this->CompositeAttributes)
@@ -1449,7 +1449,7 @@ void vtkCompositePolyDataMapper2::RemoveBlockColor(unsigned int index)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositePolyDataMapper2::RemoveBlockColors()
 {
   if (this->CompositeAttributes)
@@ -1459,7 +1459,7 @@ void vtkCompositePolyDataMapper2::RemoveBlockColors()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositePolyDataMapper2::SetBlockOpacity(unsigned int index, double opacity)
 {
   if (this->CompositeAttributes)
@@ -1475,7 +1475,7 @@ void vtkCompositePolyDataMapper2::SetBlockOpacity(unsigned int index, double opa
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkCompositePolyDataMapper2::GetBlockOpacity(unsigned int index)
 {
   if (this->CompositeAttributes)
@@ -1491,7 +1491,7 @@ double vtkCompositePolyDataMapper2::GetBlockOpacity(unsigned int index)
   return 1.;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositePolyDataMapper2::RemoveBlockOpacity(unsigned int index)
 {
   if (this->CompositeAttributes)
@@ -1507,7 +1507,7 @@ void vtkCompositePolyDataMapper2::RemoveBlockOpacity(unsigned int index)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositePolyDataMapper2::RemoveBlockOpacities()
 {
   if (this->CompositeAttributes)
@@ -1517,7 +1517,7 @@ void vtkCompositePolyDataMapper2::RemoveBlockOpacities()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositePolyDataMapper2::SetCompositeDataDisplayAttributes(
   vtkCompositeDataDisplayAttributes* attributes)
 {
@@ -1528,13 +1528,13 @@ void vtkCompositePolyDataMapper2::SetCompositeDataDisplayAttributes(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCompositeDataDisplayAttributes* vtkCompositePolyDataMapper2::GetCompositeDataDisplayAttributes()
 {
   return this->CompositeAttributes;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositePolyDataMapper2::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -1553,7 +1553,7 @@ void vtkCompositePolyDataMapper2::CopyMapperValuesToHelper(vtkCompositeMapperHel
   helper->SetStatic(1);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositePolyDataMapper2::ReleaseGraphicsResources(vtkWindow* win)
 {
   helpIter miter = this->Helpers.begin();
@@ -1571,7 +1571,7 @@ void vtkCompositePolyDataMapper2::ReleaseGraphicsResources(vtkWindow* win)
   this->Superclass::ReleaseGraphicsResources(win);
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Method initiates the mapping process. Generally sent by the actor
 // as each frame is rendered.
@@ -1780,7 +1780,7 @@ vtkCompositeMapperHelper2* vtkCompositePolyDataMapper2::CreateHelper()
   return vtkCompositeMapperHelper2::New();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositePolyDataMapper2::BuildRenderValues(
   vtkRenderer* renderer, vtkActor* actor, vtkDataObject* dobj, unsigned int& flat_index)
 {
@@ -1885,7 +1885,7 @@ void vtkCompositePolyDataMapper2::BuildRenderValues(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositePolyDataMapper2::SetInputArrayToProcess(int idx, vtkInformation* inInfo)
 {
   this->Superclass::SetInputArrayToProcess(idx, inInfo);
@@ -1897,7 +1897,7 @@ void vtkCompositePolyDataMapper2::SetInputArrayToProcess(int idx, vtkInformation
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositePolyDataMapper2::SetInputArrayToProcess(
   int idx, int port, int connection, int fieldAssociation, int attributeType)
 {
@@ -1910,7 +1910,7 @@ void vtkCompositePolyDataMapper2::SetInputArrayToProcess(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositePolyDataMapper2::SetInputArrayToProcess(
   int idx, int port, int connection, int fieldAssociation, const char* name)
 {

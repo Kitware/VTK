@@ -26,7 +26,7 @@
 
 vtkStandardNewMacro(vtkViewDependentErrorMetric);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkViewDependentErrorMetric::vtkViewDependentErrorMetric()
 {
   this->PixelTolerance = 0.25; // arbitrary positive value
@@ -35,13 +35,13 @@ vtkViewDependentErrorMetric::vtkViewDependentErrorMetric()
   this->Coordinate->SetCoordinateSystemToWorld();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkViewDependentErrorMetric::~vtkViewDependentErrorMetric()
 {
   this->Coordinate->Delete();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Set the squared screen-based geometric accuracy measured in pixels.
 // Subdivision will be required if the square distance between the projection
@@ -59,7 +59,7 @@ void vtkViewDependentErrorMetric::SetPixelTolerance(double value)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Avoid reference loop
 void vtkViewDependentErrorMetric::SetViewport(vtkViewport* viewport)
 {
@@ -70,7 +70,7 @@ void vtkViewDependentErrorMetric::SetViewport(vtkViewport* viewport)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkViewDependentErrorMetric::RequiresEdgeSubdivision(
   double* leftPoint, double* midPoint, double* rightPoint, double vtkNotUsed(alpha))
 {
@@ -117,7 +117,7 @@ int vtkViewDependentErrorMetric::RequiresEdgeSubdivision(
   return this->Distance2LinePoint(leftProjPoint, pix, midProjPoint) > this->PixelTolerance;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Return the error at the mid-point. The type of error depends on the state
 // of the concrete error metric. For instance, it can return an absolute
@@ -169,7 +169,7 @@ double vtkViewDependentErrorMetric::GetError(
   return this->Distance2LinePoint(leftProjPoint, pix, midProjPoint);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Square distance between a straight line (defined by points x and y)
 // and a point z. Property: if x and y are equal, the line is a point and
@@ -196,7 +196,7 @@ double vtkViewDependentErrorMetric::Distance2LinePoint(double x[2], double y[2],
   return vtkMath::Dot2D(w, w);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkViewDependentErrorMetric::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

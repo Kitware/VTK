@@ -23,7 +23,7 @@
 #include "vtkWidgetEventTranslator.h"
 #include "vtkWidgetRepresentation.h"
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAbstractWidget::vtkAbstractWidget()
 {
   // Setup event processing
@@ -50,7 +50,7 @@ vtkAbstractWidget::vtkAbstractWidget()
   this->CallbackMapper->SetEventTranslator(this->EventTranslator);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAbstractWidget::~vtkAbstractWidget()
 {
   if (this->WidgetRep)
@@ -70,7 +70,7 @@ vtkAbstractWidget::~vtkAbstractWidget()
   this->SetEnabled(0);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractWidget::SetWidgetRepresentation(vtkWidgetRepresentation* r)
 {
   if (r != this->WidgetRep)
@@ -100,7 +100,7 @@ void vtkAbstractWidget::SetWidgetRepresentation(vtkWidgetRepresentation* r)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractWidget::SetEnabled(int enabling)
 {
   if (enabling) //----------------
@@ -207,7 +207,7 @@ void vtkAbstractWidget::SetEnabled(int enabling)
   //  }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractWidget::ProcessEventsHandler(
   vtkObject* vtkNotUsed(object), unsigned long vtkEvent, void* clientdata, void* calldata)
 {
@@ -258,7 +258,7 @@ void vtkAbstractWidget::ProcessEventsHandler(
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractWidget::Render()
 {
   if (!this->Parent && this->Interactor)
@@ -267,7 +267,7 @@ void vtkAbstractWidget::Render()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractWidget::SetPriority(float f)
 {
   if (f != this->Priority)
@@ -323,7 +323,7 @@ void vtkAbstractWidget::SetPriority(float f)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h

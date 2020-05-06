@@ -39,7 +39,7 @@
 
 vtkStandardNewMacro(vtkPostgreSQLDatabase);
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPostgreSQLDatabase::vtkPostgreSQLDatabase()
 {
   this->Connection = 0;
@@ -59,7 +59,7 @@ vtkPostgreSQLDatabase::vtkPostgreSQLDatabase()
   this->Tables->Delete();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPostgreSQLDatabase::~vtkPostgreSQLDatabase()
 {
   if (this->IsOpen())
@@ -76,7 +76,7 @@ vtkPostgreSQLDatabase::~vtkPostgreSQLDatabase()
   this->Tables->UnRegister(this);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPostgreSQLDatabase::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -100,7 +100,7 @@ void vtkPostgreSQLDatabase::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "LastErrorText: " << this->LastErrorText << endl;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStdString vtkPostgreSQLDatabase::GetColumnSpecification(
   vtkSQLDatabaseSchema* schema, int tblHandle, int colHandle)
 {
@@ -231,7 +231,7 @@ vtkStdString vtkPostgreSQLDatabase::GetColumnSpecification(
   return queryStr.str();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPostgreSQLDatabase::Open(const char* password)
 {
   if (!this->HostName || !this->DatabaseName)
@@ -304,7 +304,7 @@ bool vtkPostgreSQLDatabase::Open(const char* password)
   return false;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPostgreSQLDatabase::Close()
 {
   if (this->Connection)
@@ -316,14 +316,14 @@ void vtkPostgreSQLDatabase::Close()
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPostgreSQLDatabase::IsOpen()
 {
   return (this->Connection != 0 && this->Connection->Connection != 0 &&
     PQstatus(this->Connection->Connection) == CONNECTION_OK);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSQLQuery* vtkPostgreSQLDatabase::GetQueryInstance()
 {
   vtkPostgreSQLQuery* query = vtkPostgreSQLQuery::New();
@@ -331,7 +331,7 @@ vtkSQLQuery* vtkPostgreSQLDatabase::GetQueryInstance()
   return query;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPostgreSQLDatabase::HasError()
 {
   // Assume that an unopened connection is not a symptom of failure.
@@ -345,13 +345,13 @@ bool vtkPostgreSQLDatabase::HasError()
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkPostgreSQLDatabase::GetLastErrorText()
 {
   return this->LastErrorText;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStdString vtkPostgreSQLDatabase::GetURL()
 {
   vtkStdString url = this->GetDatabaseType();
@@ -370,7 +370,7 @@ vtkStdString vtkPostgreSQLDatabase::GetURL()
   return url;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPostgreSQLDatabase::ParseURL(const char* URL)
 {
   std::string urlstr(URL ? URL : "");
@@ -402,7 +402,7 @@ bool vtkPostgreSQLDatabase::ParseURL(const char* URL)
   return false;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStringArray* vtkPostgreSQLDatabase::GetTables()
 {
   this->Tables->Resize(0);
@@ -438,7 +438,7 @@ vtkStringArray* vtkPostgreSQLDatabase::GetTables()
   return this->Tables;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStringArray* vtkPostgreSQLDatabase::GetRecord(const char* table)
 {
   // NB: There are *too many* other column names to list. Even the ones
@@ -478,7 +478,7 @@ vtkStringArray* vtkPostgreSQLDatabase::GetRecord(const char* table)
   return results;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPostgreSQLDatabase::IsSupported(int feature)
 {
   switch (feature)
@@ -503,7 +503,7 @@ bool vtkPostgreSQLDatabase::IsSupported(int feature)
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStringArray* vtkPostgreSQLDatabase::GetDatabases()
 {
   if (!this->Connection)
@@ -534,7 +534,7 @@ vtkStringArray* vtkPostgreSQLDatabase::GetDatabases()
   return dbNames;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPostgreSQLDatabase::CreateDatabase(const char* dbName, bool dropExisting)
 {
   if (!dbName)
@@ -608,7 +608,7 @@ bool vtkPostgreSQLDatabase::CreateDatabase(const char* dbName, bool dropExisting
   return true;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPostgreSQLDatabase::DropDatabase(const char* dbName)
 {
   if (!dbName || strlen(dbName) == 0)
@@ -687,7 +687,7 @@ bool vtkPostgreSQLDatabase::OpenInternal(const char* connectionOptions)
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkPostgreSQLDatabase::UpdateDataTypeMap()
 {

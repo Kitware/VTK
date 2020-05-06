@@ -24,7 +24,7 @@
 
 vtkStandardNewMacro(vtkImageMathematics);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageMathematics::vtkImageMathematics()
 {
   this->Operation = VTK_ADD;
@@ -34,7 +34,7 @@ vtkImageMathematics::vtkImageMathematics()
   this->SetNumberOfInputPorts(2);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The output extent is the intersection.
 int vtkImageMathematics::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -78,7 +78,7 @@ int vtkImageMathematics::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class TValue, class TIvar>
 void vtkImageMathematicsClamp(TValue& value, TIvar ivar, vtkImageData* data)
 {
@@ -96,7 +96,7 @@ void vtkImageMathematicsClamp(TValue& value, TIvar ivar, vtkImageData* data)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 // Handles the one input operations
 template <class T>
@@ -224,7 +224,7 @@ void vtkImageMathematicsExecute1(vtkImageMathematics* self, vtkImageData* in1Dat
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 // Handles the two input operations
 template <class T>
@@ -360,7 +360,7 @@ void vtkImageMathematicsExecute2(vtkImageMathematics* self, vtkImageData* in1Dat
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method is passed a input and output datas, and executes the filter
 // algorithm to fill the output from the inputs.
 // It just executes a switch statement to call the correct function for
@@ -466,7 +466,7 @@ void vtkImageMathematics::ThreadedRequestData(vtkInformation* vtkNotUsed(request
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageMathematics::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 1)
@@ -477,7 +477,7 @@ int vtkImageMathematics::FillInputPortInformation(int port, vtkInformation* info
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageMathematics::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

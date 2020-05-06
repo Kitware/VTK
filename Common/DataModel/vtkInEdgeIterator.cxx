@@ -26,7 +26,7 @@
 
 vtkCxxSetObjectMacro(vtkInEdgeIterator, Graph, vtkGraph);
 vtkStandardNewMacro(vtkInEdgeIterator);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInEdgeIterator::vtkInEdgeIterator()
 {
   this->Vertex = 0;
@@ -36,7 +36,7 @@ vtkInEdgeIterator::vtkInEdgeIterator()
   this->GraphEdge = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInEdgeIterator::~vtkInEdgeIterator()
 {
   if (this->Graph)
@@ -49,7 +49,7 @@ vtkInEdgeIterator::~vtkInEdgeIterator()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInEdgeIterator::Initialize(vtkGraph* graph, vtkIdType v)
 {
   this->SetGraph(graph);
@@ -59,7 +59,7 @@ void vtkInEdgeIterator::Initialize(vtkGraph* graph, vtkIdType v)
   this->End = this->Current + nedges;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGraphEdge* vtkInEdgeIterator::NextGraphEdge()
 {
   vtkInEdgeType e = this->Next();
@@ -73,7 +73,7 @@ vtkGraphEdge* vtkInEdgeIterator::NextGraphEdge()
   return this->GraphEdge;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInEdgeIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -17,10 +17,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkOpenGL.h"
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkExternalLight);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExternalLight::vtkExternalLight()
 {
   this->LightIndex = GL_LIGHT0;
@@ -42,80 +42,80 @@ vtkExternalLight::vtkExternalLight()
   this->LightType = VTK_LIGHT_TYPE_HEADLIGHT;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExternalLight::~vtkExternalLight() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExternalLight::SetPosition(double position1, double position2, double position3)
 {
   this->Superclass::SetPosition(position1, position2, position3);
   this->PositionSet = true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExternalLight::SetFocalPoint(double focalpoint1, double focalpoint2, double focalpoint3)
 {
   this->Superclass::SetFocalPoint(focalpoint1, focalpoint2, focalpoint3);
   this->FocalPointSet = true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExternalLight::SetAmbientColor(double color1, double color2, double color3)
 {
   this->Superclass::SetAmbientColor(color1, color2, color3);
   this->AmbientColorSet = true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExternalLight::SetDiffuseColor(double color1, double color2, double color3)
 {
   this->Superclass::SetDiffuseColor(color1, color2, color3);
   this->DiffuseColorSet = true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExternalLight::SetSpecularColor(double color1, double color2, double color3)
 {
   this->Superclass::SetSpecularColor(color1, color2, color3);
   this->SpecularColorSet = true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExternalLight::SetIntensity(double intensity)
 {
   this->Superclass::SetIntensity(intensity);
   this->IntensitySet = true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExternalLight::SetConeAngle(double angle)
 {
   this->Superclass::SetConeAngle(angle);
   this->ConeAngleSet = true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExternalLight::SetAttenuationValues(double value1, double value2, double value3)
 {
   this->Superclass::SetAttenuationValues(value1, value2, value3);
   this->AttenuationValuesSet = true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExternalLight::SetExponent(double exp)
 {
   this->Superclass::SetExponent(exp);
   this->ExponentSet = true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExternalLight::SetPositional(vtkTypeBool p)
 {
   this->Superclass::SetPositional(p);
   this->PositionalSet = true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExternalLight::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

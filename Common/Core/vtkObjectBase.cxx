@@ -42,7 +42,7 @@ public:
   static void ClearPointer(vtkWeakPointerBase* p) { p->Object = nullptr; }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void* vtkCustomMalloc(size_t size)
 {
 #ifdef VTK_USE_MEMKIND
@@ -60,7 +60,7 @@ void* vtkCustomMalloc(size_t size)
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void* vtkCustomRealloc(void* p, size_t size)
 {
 #ifdef VTK_USE_MEMKIND
@@ -79,7 +79,7 @@ void* vtkCustomRealloc(void* p, size_t size)
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCustomFree(void* addr)
 {
 #ifdef VTK_USE_MEMKIND
@@ -90,7 +90,7 @@ void vtkCustomFree(void* addr)
 }
 
 #if defined(_WIN32) || defined(VTK_USE_MEMKIND)
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Take control of allocation to avoid dll boundary problems or to use memkind.
 void* vtkObjectBase::operator new(size_t nSize)
 {
@@ -101,7 +101,7 @@ void* vtkObjectBase::operator new(size_t nSize)
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkObjectBase::operator delete(void* p)
 {
 #ifdef VTK_USE_MEMKIND
@@ -131,7 +131,7 @@ ostream& operator<<(ostream& os, vtkObjectBase& o)
   return os;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Create an object with Debug turned off and modified time initialized
 // to zero.
 vtkObjectBase::vtkObjectBase()
@@ -148,7 +148,7 @@ vtkObjectBase::vtkObjectBase()
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkObjectBase::~vtkObjectBase()
 {
 #ifdef VTK_DEBUG_LEAKS
@@ -163,7 +163,7 @@ vtkObjectBase::~vtkObjectBase()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkObjectBase::InitializeObjectBase()
 {
 #ifdef VTK_DEBUG_LEAKS
@@ -171,7 +171,7 @@ void vtkObjectBase::InitializeObjectBase()
 #endif // VTK_DEBUG_LEAKS
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 #ifdef VTK_WORKAROUND_WINDOWS_MANGLE
 #undef GetClassName
 // Define possible mangled names.
@@ -270,21 +270,21 @@ void vtkObjectBase::SetReferenceCount(int ref)
   vtkBaseDebugMacro(<< "Reference Count set to " << this->ReferenceCount);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkObjectBase::Register(vtkObjectBase* o)
 {
   // Do not participate in garbage collection by default.
   this->RegisterInternal(o, 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkObjectBase::UnRegister(vtkObjectBase* o)
 {
   // Do not participate in garbage collection by default.
   this->UnRegisterInternal(o, 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkObjectBase::RegisterInternal(vtkObjectBase*, vtkTypeBool check)
 {
   // If a reference is available from the garbage collector, use it.
@@ -296,7 +296,7 @@ void vtkObjectBase::RegisterInternal(vtkObjectBase*, vtkTypeBool check)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkObjectBase::UnRegisterInternal(vtkObjectBase*, vtkTypeBool check)
 {
   // If the garbage collector accepts a reference, do not decrement
@@ -335,7 +335,7 @@ void vtkObjectBase::UnRegisterInternal(vtkObjectBase*, vtkTypeBool check)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkObjectBase::ReportReferences(vtkGarbageCollector*)
 {
   // vtkObjectBase has no references to report.
@@ -364,7 +364,7 @@ vtkFreeingFunction AlternateFreeFunction = vtkCustomFree;
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkObjectBase::SetMemkindDirectory(const char* fn)
 {
 #ifndef VTK_HAS_THREADLOCAL
@@ -401,13 +401,13 @@ void vtkObjectBase::SetMemkindDirectory(const char* fn)
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkObjectBase::GetUsingMemkind()
 {
   return UsingMemkind;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkObjectBase::SetUsingMemkind(bool b)
 {
 #ifdef VTK_USE_MEMKIND
@@ -431,34 +431,34 @@ void vtkObjectBase::SetUsingMemkind(bool b)
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMallocingFunction vtkObjectBase::GetCurrentMallocFunction()
 {
   return CurrentMallocFunction;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkReallocingFunction vtkObjectBase::GetCurrentReallocFunction()
 {
   return CurrentReallocFunction;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFreeingFunction vtkObjectBase::GetCurrentFreeFunction()
 {
   return CurrentFreeFunction;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFreeingFunction vtkObjectBase::GetAlternateFreeFunction()
 {
   return AlternateFreeFunction;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkObjectBase::GetIsInMemkind() const
 {
   return this->IsInMemkind;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkObjectBase::SetIsInMemkind(bool v)
 {
 #ifdef VTK_USE_MEMKIND
@@ -469,7 +469,7 @@ void vtkObjectBase::SetIsInMemkind(bool v)
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkObjectBase::vtkMemkindRAII::vtkMemkindRAII(bool newValue)
 {
 #ifdef VTK_USE_MEMKIND
@@ -481,7 +481,7 @@ vtkObjectBase::vtkMemkindRAII::vtkMemkindRAII(bool newValue)
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkObjectBase::vtkMemkindRAII::~vtkMemkindRAII()
 {
 #ifdef VTK_USE_MEMKIND

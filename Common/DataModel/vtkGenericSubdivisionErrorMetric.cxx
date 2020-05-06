@@ -22,17 +22,17 @@
 #include "vtkObjectFactory.h"
 #include <cassert>
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGenericSubdivisionErrorMetric::vtkGenericSubdivisionErrorMetric()
 {
   this->GenericCell = nullptr;
   this->DataSet = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGenericSubdivisionErrorMetric::~vtkGenericSubdivisionErrorMetric() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Avoid reference loop
 void vtkGenericSubdivisionErrorMetric::SetGenericCell(vtkGenericAdaptorCell* c)
 {
@@ -40,7 +40,7 @@ void vtkGenericSubdivisionErrorMetric::SetGenericCell(vtkGenericAdaptorCell* c)
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Avoid reference loop
 void vtkGenericSubdivisionErrorMetric::SetDataSet(vtkGenericDataSet* ds)
 {
@@ -48,7 +48,7 @@ void vtkGenericSubdivisionErrorMetric::SetDataSet(vtkGenericDataSet* ds)
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenericSubdivisionErrorMetric::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

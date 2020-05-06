@@ -19,13 +19,13 @@
 
 vtkStandardNewMacro(vtkByteSwap);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkByteSwap::vtkByteSwap() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkByteSwap::~vtkByteSwap() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Define swap functions for each type size.
 template <size_t s>
 struct vtkByteSwapper;
@@ -80,7 +80,7 @@ struct vtkByteSwapper<8>
   }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Define range swap functions.
 template <class T>
 inline void vtkByteSwapRange(T* first, size_t num)
@@ -163,7 +163,7 @@ inline void vtkByteSwapRangeWrite(const T* first, size_t num, ostream* os, long)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Define swap functions for each endian-ness.
 #if defined(VTK_WORDS_BIGENDIAN)
 template <class T>
@@ -247,7 +247,7 @@ inline void vtkByteSwapLERangeWrite(const T* p, size_t num, ostream* os)
 }
 #endif
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 #define VTK_BYTE_SWAP_IMPL(T)                                                                      \
   void vtkByteSwap::SwapLE(T* p) { vtkByteSwapLE(p); }                                             \
   void vtkByteSwap::SwapBE(T* p) { vtkByteSwapBE(p); }                                             \
@@ -302,7 +302,7 @@ typedef double vtkByteSwapType8;
 #error "..."
 #endif
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 #define VTK_BYTE_SWAP_SIZE(S)                                                                      \
   void vtkByteSwap::Swap##S##LE(void* p)                                                           \
   {                                                                                                \
@@ -341,7 +341,7 @@ VTK_BYTE_SWAP_SIZE(4)
 VTK_BYTE_SWAP_SIZE(8)
 #undef VTK_BYTE_SWAP_SIZE
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Swaps the bytes of a buffer.  Uses an arbitrary word size, but
 // assumes the word size is divisible by two.
 void vtkByteSwap::SwapVoidRange(void* buffer, size_t numWords, size_t wordSize)

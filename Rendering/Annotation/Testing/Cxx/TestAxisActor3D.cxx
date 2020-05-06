@@ -24,7 +24,7 @@
 #include "vtkStringArray.h"
 #include "vtkTestUtilities.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestAxisActor3D(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   // Create the axis actor

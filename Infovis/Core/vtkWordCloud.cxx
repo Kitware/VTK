@@ -101,7 +101,7 @@ void ExtractWordsFromString(std::string& str, std::vector<std::string>& words);
 void ShowColorSeriesNames(ostream& os);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkWordCloud::vtkWordCloud()
   : BackgroundColorName("MidnightBlue")
   , BWMask(false)
@@ -140,7 +140,7 @@ vtkWordCloud::vtkWordCloud()
   this->WholeExtent[5] = 0;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkWordCloud::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -157,7 +157,7 @@ int vtkWordCloud::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkWordCloud::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -348,7 +348,7 @@ int vtkWordCloud::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWordCloud::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

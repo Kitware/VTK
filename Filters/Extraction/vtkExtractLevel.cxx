@@ -31,33 +31,33 @@ class vtkExtractLevel::vtkSet : public std::set<unsigned int>
 };
 
 vtkStandardNewMacro(vtkExtractLevel);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractLevel::vtkExtractLevel()
 {
   this->Levels = new vtkExtractLevel::vtkSet();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractLevel::~vtkExtractLevel()
 {
   delete this->Levels;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractLevel::AddLevel(unsigned int level)
 {
   this->Levels->insert(level);
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractLevel::RemoveLevel(unsigned int level)
 {
   this->Levels->erase(level);
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractLevel::RemoveAllLevels()
 {
   this->Levels->clear();
@@ -125,7 +125,7 @@ int vtkExtractLevel::RequestUpdateExtent(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractLevel::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -185,7 +185,7 @@ int vtkExtractLevel::RequestData(vtkInformation* vtkNotUsed(request),
   return (1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractLevel::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

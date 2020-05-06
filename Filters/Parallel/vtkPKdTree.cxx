@@ -197,10 +197,10 @@ void vtkPKdTree::SetController(vtkMultiProcessController* c)
   this->MyId = c->GetLocalProcessId();
   c->Register(this);
 }
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Parallel k-d tree build, Floyd and Rivest (1975) select algorithm
 // for median finding.
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkPKdTree::AllCheckForFailure(int rc, const char* where, const char* how)
 {
@@ -1828,9 +1828,9 @@ int* vtkPKdTree::PartitionAboutMyValue(int L, int R, int K, int dim)
   return vals;
 }
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Compute the bounds for the data in a region
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkPKdTree::GetLocalMinMax(int L, int R, int me, float* min, float* max)
 {
@@ -1926,10 +1926,10 @@ void vtkPKdTree::GetDataBounds(int L, int K, int R, float globalBounds[12])
   MinMaxToBounds(right, globalMinRight, globalMaxRight);
 }
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Complete the tree - Different nodes of tree were computed by different
 //   processors.  Now put it together.
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkPKdTree::CompleteTree()
 {
@@ -2286,9 +2286,9 @@ int vtkPKdTree::ComputeDepth(vtkKdNode* kd)
     return rightDepth + 1;
 }
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // lists, lists, lists
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkPKdTree::AllocateDoubleBuffer()
 {
@@ -2579,10 +2579,10 @@ void vtkPKdTree::ReleaseTables()
   this->FreeFieldArrayMinMax();
 }
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Create tables indicating which processes have data for which
 //  regions.
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkPKdTree::CreateProcessCellCountData()
 {
@@ -2721,9 +2721,9 @@ int vtkPKdTree::CreateProcessCellCountData()
   return retval;
 }
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Create list of global min and max for cell and point field arrays
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkPKdTree::CreateGlobalDataArrayBounds()
 {
@@ -2940,9 +2940,9 @@ int vtkPKdTree::BinarySearch(vtkIdType* list, int len, vtkIdType which)
   }
   return mid;
 }
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Assign responsibility for each spatial region to one process
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkPKdTree::UpdateRegionAssignment()
 {
@@ -3139,9 +3139,9 @@ void vtkPKdTree::BuildRegionListsForProcesses()
   delete[] count;
 }
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Queries
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPKdTree::FindNextLocalArrayIndex(
   const char* n, const std::vector<std::string>& names, int len, int start)
 {

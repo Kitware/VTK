@@ -42,7 +42,7 @@
 
 vtkObjectFactoryNewMacro(vtkCorrelativeStatistics);
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCorrelativeStatistics::vtkCorrelativeStatistics()
 {
   this->AssessNames->SetNumberOfValues(3);
@@ -51,16 +51,16 @@ vtkCorrelativeStatistics::vtkCorrelativeStatistics()
   this->AssessNames->SetValue(2, "Residual X/Y");
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCorrelativeStatistics::~vtkCorrelativeStatistics() = default;
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCorrelativeStatistics::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCorrelativeStatistics::Aggregate(
   vtkDataObjectCollection* inMetaColl, vtkMultiBlockDataSet* outMeta)
 {
@@ -202,7 +202,7 @@ void vtkCorrelativeStatistics::Aggregate(
   aggregatedTab->Delete();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCorrelativeStatistics::Learn(
   vtkTable* inData, vtkTable* vtkNotUsed(inParameters), vtkMultiBlockDataSet* outMeta)
 {
@@ -337,7 +337,7 @@ void vtkCorrelativeStatistics::Learn(
   primaryTab->Delete();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCorrelativeStatistics::Derive(vtkMultiBlockDataSet* inMeta)
 {
   if (!inMeta || inMeta->GetNumberOfBlocks() < 1)
@@ -459,7 +459,7 @@ void vtkCorrelativeStatistics::Derive(vtkMultiBlockDataSet* inMeta)
   derivedTab->Delete();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDoubleArray* vtkCorrelativeStatistics::CalculatePValues(vtkDoubleArray* statCol)
 {
   vtkDoubleArray* testCol = vtkDoubleArray::New();
@@ -475,7 +475,7 @@ vtkDoubleArray* vtkCorrelativeStatistics::CalculatePValues(vtkDoubleArray* statC
   return testCol;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCorrelativeStatistics::Test(
   vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtkTable* outMeta)
 {
@@ -750,7 +750,7 @@ void vtkCorrelativeStatistics::Test(
   statCol->Delete();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class BivariateRegressionDeviationsFunctor : public vtkStatisticsAlgorithm::AssessFunctor
 {
 public:
@@ -813,7 +813,7 @@ public:
   }
 };
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCorrelativeStatistics::SelectAssessFunctor(
   vtkTable* outData, vtkDataObject* inMetaDO, vtkStringArray* rowNames, AssessFunctor*& dfunc)
 {

@@ -29,7 +29,7 @@
 
 vtkStandardNewMacro(vtkDistanceRepresentation2D);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDistanceRepresentation2D::vtkDistanceRepresentation2D()
 {
   // By default, use one of these handles
@@ -54,26 +54,26 @@ vtkDistanceRepresentation2D::vtkDistanceRepresentation2D()
   this->Distance = 0.0;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDistanceRepresentation2D::~vtkDistanceRepresentation2D()
 {
   this->AxisProperty->Delete();
   this->AxisActor->Delete();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceRepresentation2D::GetPoint1WorldPosition(double pos[3])
 {
   this->Point1Representation->GetWorldPosition(pos);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceRepresentation2D::GetPoint2WorldPosition(double pos[3])
 {
   this->Point2Representation->GetWorldPosition(pos);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkDistanceRepresentation2D::GetPoint1WorldPosition()
 {
   if (!this->Point1Representation)
@@ -84,7 +84,7 @@ double* vtkDistanceRepresentation2D::GetPoint1WorldPosition()
   return this->Point1Representation->GetWorldPosition();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkDistanceRepresentation2D::GetPoint2WorldPosition()
 {
   if (!this->Point2Representation)
@@ -95,7 +95,7 @@ double* vtkDistanceRepresentation2D::GetPoint2WorldPosition()
   return this->Point2Representation->GetWorldPosition();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceRepresentation2D::SetPoint1DisplayPosition(double x[3])
 {
   this->Point1Representation->SetDisplayPosition(x);
@@ -105,7 +105,7 @@ void vtkDistanceRepresentation2D::SetPoint1DisplayPosition(double x[3])
   this->BuildRepresentation();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceRepresentation2D::SetPoint2DisplayPosition(double x[3])
 {
   this->Point2Representation->SetDisplayPosition(x);
@@ -115,7 +115,7 @@ void vtkDistanceRepresentation2D::SetPoint2DisplayPosition(double x[3])
   this->BuildRepresentation();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceRepresentation2D::SetPoint1WorldPosition(double x[3])
 {
   if (this->Point1Representation)
@@ -125,7 +125,7 @@ void vtkDistanceRepresentation2D::SetPoint1WorldPosition(double x[3])
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceRepresentation2D::SetPoint2WorldPosition(double x[3])
 {
   if (this->Point2Representation)
@@ -135,33 +135,33 @@ void vtkDistanceRepresentation2D::SetPoint2WorldPosition(double x[3])
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceRepresentation2D::GetPoint1DisplayPosition(double pos[3])
 {
   this->Point1Representation->GetDisplayPosition(pos);
   pos[2] = 0.0;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceRepresentation2D::GetPoint2DisplayPosition(double pos[3])
 {
   this->Point2Representation->GetDisplayPosition(pos);
   pos[2] = 0.0;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAxisActor2D* vtkDistanceRepresentation2D::GetAxis()
 {
   return this->AxisActor;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProperty2D* vtkDistanceRepresentation2D::GetAxisProperty()
 {
   return this->AxisActor->GetProperty();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceRepresentation2D::BuildRepresentation()
 {
   if (this->GetMTime() > this->BuildTime || this->AxisActor->GetMTime() > this->BuildTime ||
@@ -196,13 +196,13 @@ void vtkDistanceRepresentation2D::BuildRepresentation()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceRepresentation2D::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->AxisActor->ReleaseGraphicsResources(w);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDistanceRepresentation2D::RenderOverlay(vtkViewport* v)
 {
   this->BuildRepresentation();
@@ -217,7 +217,7 @@ int vtkDistanceRepresentation2D::RenderOverlay(vtkViewport* v)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDistanceRepresentation2D::RenderOpaqueGeometry(vtkViewport* v)
 {
   this->BuildRepresentation();
@@ -232,7 +232,7 @@ int vtkDistanceRepresentation2D::RenderOpaqueGeometry(vtkViewport* v)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceRepresentation2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h

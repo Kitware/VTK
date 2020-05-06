@@ -41,7 +41,7 @@
 
 vtkStandardNewMacro(vtkImplicitPlaneWidget);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImplicitPlaneWidget::vtkImplicitPlaneWidget()
   : vtkPolyDataSourceWidget()
 {
@@ -163,7 +163,7 @@ vtkImplicitPlaneWidget::vtkImplicitPlaneWidget()
   this->CreateDefaultProperties();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImplicitPlaneWidget::~vtkImplicitPlaneWidget()
 {
   this->Plane->Delete();
@@ -214,7 +214,7 @@ vtkImplicitPlaneWidget::~vtkImplicitPlaneWidget()
   this->EdgesProperty->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget::SetEnabled(int enabling)
 {
   if (!this->Interactor)
@@ -323,7 +323,7 @@ void vtkImplicitPlaneWidget::SetEnabled(int enabling)
   this->Interactor->Render();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget::ProcessEvents(
   vtkObject* vtkNotUsed(object), unsigned long event, void* clientdata, void* vtkNotUsed(calldata))
 {
@@ -356,7 +356,7 @@ void vtkImplicitPlaneWidget::ProcessEvents(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -435,7 +435,7 @@ void vtkImplicitPlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Diagonal Ratio: " << this->DiagonalRatio << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget::HighlightNormal(int highlight)
 {
   if (highlight)
@@ -456,7 +456,7 @@ void vtkImplicitPlaneWidget::HighlightNormal(int highlight)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget::HighlightPlane(int highlight)
 {
   if (highlight)
@@ -469,7 +469,7 @@ void vtkImplicitPlaneWidget::HighlightPlane(int highlight)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget::HighlightOutline(int highlight)
 {
   if (highlight)
@@ -482,7 +482,7 @@ void vtkImplicitPlaneWidget::HighlightOutline(int highlight)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget::OnLeftButtonDown()
 {
   // We're only here if we are enabled
@@ -554,7 +554,7 @@ void vtkImplicitPlaneWidget::OnLeftButtonDown()
   this->Interactor->Render();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget::OnLeftButtonUp()
 {
   if (this->State == vtkImplicitPlaneWidget::Outside)
@@ -574,7 +574,7 @@ void vtkImplicitPlaneWidget::OnLeftButtonUp()
   this->Interactor->Render();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget::OnMiddleButtonDown()
 {
   int X = this->Interactor->GetEventPosition()[0];
@@ -609,7 +609,7 @@ void vtkImplicitPlaneWidget::OnMiddleButtonDown()
   this->Interactor->Render();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget::OnMiddleButtonUp()
 {
   if (this->State == vtkImplicitPlaneWidget::Outside)
@@ -629,7 +629,7 @@ void vtkImplicitPlaneWidget::OnMiddleButtonUp()
   this->Interactor->Render();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget::OnRightButtonDown()
 {
   if (this->ScaleEnabled)
@@ -670,7 +670,7 @@ void vtkImplicitPlaneWidget::OnRightButtonDown()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget::OnRightButtonUp()
 {
   if (this->State == vtkImplicitPlaneWidget::Outside)
@@ -690,7 +690,7 @@ void vtkImplicitPlaneWidget::OnRightButtonUp()
   this->Interactor->Render();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget::OnMouseMove()
 {
   // See whether we're active
@@ -756,7 +756,7 @@ void vtkImplicitPlaneWidget::OnMouseMove()
   this->Interactor->Render();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget::Rotate(int X, int Y, double* p1, double* p2, double* vpn)
 {
   double v[3];    // vector of motion
@@ -798,7 +798,7 @@ void vtkImplicitPlaneWidget::Rotate(int X, int Y, double* p1, double* p2, double
   this->UpdateRepresentation();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Loop through all points and translate them
 void vtkImplicitPlaneWidget::TranslatePlane(double* p1, double* p2)
 {
@@ -819,7 +819,7 @@ void vtkImplicitPlaneWidget::TranslatePlane(double* p1, double* p2)
   this->UpdateRepresentation();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Loop through all points and translate them
 void vtkImplicitPlaneWidget::TranslateOutline(double* p1, double* p2)
 {
@@ -847,7 +847,7 @@ void vtkImplicitPlaneWidget::TranslateOutline(double* p1, double* p2)
   this->UpdateRepresentation();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Loop through all points and translate them
 void vtkImplicitPlaneWidget::TranslateOrigin(double* p1, double* p2)
 {
@@ -871,7 +871,7 @@ void vtkImplicitPlaneWidget::TranslateOrigin(double* p1, double* p2)
   this->UpdateRepresentation();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget::Scale(double* p1, double* p2, int vtkNotUsed(X), int Y)
 {
   // Get the motion vector
@@ -914,7 +914,7 @@ void vtkImplicitPlaneWidget::Scale(double* p1, double* p2, int vtkNotUsed(X), in
   this->UpdateRepresentation();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget::Push(double* p1, double* p2)
 {
   // Get the motion vector
@@ -928,7 +928,7 @@ void vtkImplicitPlaneWidget::Push(double* p1, double* p2)
   this->UpdateRepresentation();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget::CreateDefaultProperties()
 {
   // Normal properties
@@ -974,7 +974,7 @@ void vtkImplicitPlaneWidget::RegisterPickers()
   pm->AddPicker(this->Picker, this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget::PlaceWidget(double bds[6])
 {
   int i;
@@ -1018,7 +1018,7 @@ void vtkImplicitPlaneWidget::PlaceWidget(double bds[6])
   this->SizeHandles();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Set the origin of the plane.
 void vtkImplicitPlaneWidget::SetOrigin(double x, double y, double z)
@@ -1030,7 +1030,7 @@ void vtkImplicitPlaneWidget::SetOrigin(double x, double y, double z)
   this->SetOrigin(origin);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Set the origin of the plane.
 void vtkImplicitPlaneWidget::SetOrigin(double x[3])
@@ -1051,7 +1051,7 @@ void vtkImplicitPlaneWidget::SetOrigin(double x[3])
   this->UpdateRepresentation();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Get the origin of the plane.
 double* vtkImplicitPlaneWidget::GetOrigin()
@@ -1059,13 +1059,13 @@ double* vtkImplicitPlaneWidget::GetOrigin()
   return this->Plane->GetOrigin();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget::GetOrigin(double xyz[3])
 {
   this->Plane->GetOrigin(xyz);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Set the normal to the plane.
 void vtkImplicitPlaneWidget::SetNormal(double x, double y, double z)
@@ -1079,7 +1079,7 @@ void vtkImplicitPlaneWidget::SetNormal(double x, double y, double z)
   this->UpdateRepresentation();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Set the normal to the plane.
 void vtkImplicitPlaneWidget::SetNormal(double n[3])
@@ -1087,7 +1087,7 @@ void vtkImplicitPlaneWidget::SetNormal(double n[3])
   this->SetNormal(n[0], n[1], n[2]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Get the normal to the plane.
 double* vtkImplicitPlaneWidget::GetNormal()
@@ -1095,13 +1095,13 @@ double* vtkImplicitPlaneWidget::GetNormal()
   return this->Plane->GetNormal();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget::GetNormal(double xyz[3])
 {
   this->Plane->GetNormal(xyz);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget::SetDrawPlane(vtkTypeBool drawPlane)
 {
   if (drawPlane == this->DrawPlane)
@@ -1125,7 +1125,7 @@ void vtkImplicitPlaneWidget::SetDrawPlane(vtkTypeBool drawPlane)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget::SetNormalToXAxis(vtkTypeBool var)
 {
   if (this->NormalToXAxis != var)
@@ -1140,7 +1140,7 @@ void vtkImplicitPlaneWidget::SetNormalToXAxis(vtkTypeBool var)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget::SetNormalToYAxis(vtkTypeBool var)
 {
   if (this->NormalToYAxis != var)
@@ -1155,7 +1155,7 @@ void vtkImplicitPlaneWidget::SetNormalToYAxis(vtkTypeBool var)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget::SetNormalToZAxis(vtkTypeBool var)
 {
   if (this->NormalToZAxis != var)
@@ -1170,19 +1170,19 @@ void vtkImplicitPlaneWidget::SetNormalToZAxis(vtkTypeBool var)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget::GetPolyData(vtkPolyData* pd)
 {
   pd->ShallowCopy(this->Cutter->GetOutput());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyDataAlgorithm* vtkImplicitPlaneWidget::GetPolyDataAlgorithm()
 {
   return this->Cutter;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget::GetPlane(vtkPlane* plane)
 {
   if (plane == nullptr)
@@ -1194,7 +1194,7 @@ void vtkImplicitPlaneWidget::GetPlane(vtkPlane* plane)
   plane->SetOrigin(this->Plane->GetOrigin());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget::UpdatePlacement()
 {
   this->Outline->Update();
@@ -1203,7 +1203,7 @@ void vtkImplicitPlaneWidget::UpdatePlacement()
   this->UpdateRepresentation();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget::UpdateRepresentation()
 {
   if (!this->CurrentRenderer)
@@ -1266,7 +1266,7 @@ void vtkImplicitPlaneWidget::UpdateRepresentation()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget::SizeHandles()
 {
   double radius = this->vtk3DWidget::SizeHandles(1.35);

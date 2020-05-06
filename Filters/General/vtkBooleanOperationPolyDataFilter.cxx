@@ -28,7 +28,7 @@
 
 vtkStandardNewMacro(vtkBooleanOperationPolyDataFilter);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBooleanOperationPolyDataFilter::vtkBooleanOperationPolyDataFilter()
   : vtkPolyDataAlgorithm()
 {
@@ -40,10 +40,10 @@ vtkBooleanOperationPolyDataFilter::vtkBooleanOperationPolyDataFilter()
   this->SetNumberOfOutputPorts(2);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBooleanOperationPolyDataFilter::~vtkBooleanOperationPolyDataFilter() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBooleanOperationPolyDataFilter::SortPolyData(
   vtkPolyData* input, vtkIdList* interList, vtkIdList* unionList)
 {
@@ -66,7 +66,7 @@ void vtkBooleanOperationPolyDataFilter::SortPolyData(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkBooleanOperationPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -216,7 +216,7 @@ int vtkBooleanOperationPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(re
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBooleanOperationPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -241,7 +241,7 @@ void vtkBooleanOperationPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ReorientDifferenceCells: " << this->ReorientDifferenceCells << "\n";
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkBooleanOperationPolyDataFilter::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (!this->Superclass::FillInputPortInformation(port, info))
@@ -260,7 +260,7 @@ int vtkBooleanOperationPolyDataFilter::FillInputPortInformation(int port, vtkInf
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBooleanOperationPolyDataFilter ::CopyCells(vtkPolyData* in, vtkPolyData* out, int idx,
   vtkDataSetAttributes::FieldList& pointFieldList, vtkDataSetAttributes::FieldList& cellFieldList,
   vtkIdList* cellIds, bool reverseCells)

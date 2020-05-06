@@ -176,16 +176,16 @@ public:
 };
 
 vtkStandardNewMacro(vtkExtractExodusGlobalTemporalVariables);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractExodusGlobalTemporalVariables::vtkExtractExodusGlobalTemporalVariables()
   : Internals(new vtkExtractExodusGlobalTemporalVariables::vtkInternals())
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractExodusGlobalTemporalVariables::~vtkExtractExodusGlobalTemporalVariables() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractExodusGlobalTemporalVariables::GetContinuationState(
   bool& continue_executing_flag, size_t& offset) const
 {
@@ -194,7 +194,7 @@ void vtkExtractExodusGlobalTemporalVariables::GetContinuationState(
   offset = internals.Offset;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractExodusGlobalTemporalVariables::SetContinuationState(
   bool continue_executing_flag, size_t offset)
 {
@@ -203,7 +203,7 @@ void vtkExtractExodusGlobalTemporalVariables::SetContinuationState(
   internals.Offset = offset;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractExodusGlobalTemporalVariables::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
@@ -212,7 +212,7 @@ int vtkExtractExodusGlobalTemporalVariables::FillInputPortInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractExodusGlobalTemporalVariables::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -241,7 +241,7 @@ int vtkExtractExodusGlobalTemporalVariables::RequestInformation(vtkInformation* 
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractExodusGlobalTemporalVariables::RequestUpdateExtent(vtkInformation*,
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -269,7 +269,7 @@ int vtkExtractExodusGlobalTemporalVariables::RequestUpdateExtent(vtkInformation*
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractExodusGlobalTemporalVariables::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -353,7 +353,7 @@ int vtkExtractExodusGlobalTemporalVariables::RequestData(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractExodusGlobalTemporalVariables::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

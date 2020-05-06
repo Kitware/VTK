@@ -91,7 +91,7 @@ public:
 
 vtkStandardNewMacro(vtkSocketCommunicator);
 vtkCxxSetObjectMacro(vtkSocketCommunicator, Socket, vtkClientSocket);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSocketCommunicator::vtkSocketCommunicator()
 {
   this->Socket = nullptr;
@@ -109,7 +109,7 @@ vtkSocketCommunicator::vtkSocketCommunicator()
   this->ReceivedMessageBuffer = new vtkSocketCommunicator::vtkMessageBuffer();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSocketCommunicator::~vtkSocketCommunicator()
 {
   this->SetSocket(nullptr);
@@ -118,7 +118,7 @@ vtkSocketCommunicator::~vtkSocketCommunicator()
   this->ReceivedMessageBuffer = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSocketCommunicator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -154,7 +154,7 @@ void vtkSocketCommunicator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ReportErrors: " << this->ReportErrors << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSocketCommunicator::SetLogStream(ostream* stream)
 {
   if (this->LogStream != stream)
@@ -171,7 +171,7 @@ void vtkSocketCommunicator::SetLogStream(ostream* stream)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSocketCommunicator::GetIsConnected()
 {
   if (this->Socket)
@@ -181,25 +181,25 @@ int vtkSocketCommunicator::GetIsConnected()
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSocketCommunicator::SetNumberOfProcesses(int vtkNotUsed(num))
 {
   vtkErrorMacro("Can not change the number of processes.");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 ostream* vtkSocketCommunicator::GetLogStream()
 {
   return this->LogStream;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSocketCommunicator::LogToFile(const char* name)
 {
   return this->LogToFile(name, 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSocketCommunicator::LogToFile(const char* name, int append)
 {
   // Close old logging file.
@@ -226,7 +226,7 @@ int vtkSocketCommunicator::LogToFile(const char* name, int append)
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSocketCommunicator::SendVoidArray(
   const void* data, vtkIdType length, int type, int remoteProcessId, int tag)
 {
@@ -291,13 +291,13 @@ int vtkSocketCommunicator::SendVoidArray(
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 inline vtkIdType vtkSocketCommunicatorMin(vtkIdType a, vtkIdType b)
 {
   return (a < b) ? a : b;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSocketCommunicator::ReceiveVoidArray(
   void* data, vtkIdType length, int type, int remoteProcessId, int tag)
 {
@@ -383,7 +383,7 @@ int vtkSocketCommunicator::ReceiveVoidArray(
   return ret;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSocketCommunicator::Handshake()
 {
   if (!this->Socket)
@@ -402,7 +402,7 @@ int vtkSocketCommunicator::Handshake()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSocketCommunicator::ServerSideHandshake()
 {
   this->IsServer = 1;
@@ -505,7 +505,7 @@ int vtkSocketCommunicator::ServerSideHandshake()
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSocketCommunicator::ClientSideHandshake()
 {
   this->IsServer = 0;
@@ -611,7 +611,7 @@ int vtkSocketCommunicator::ClientSideHandshake()
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSocketCommunicator::WaitForConnection(int port)
 {
   if (this->GetIsConnected())
@@ -631,7 +631,7 @@ int vtkSocketCommunicator::WaitForConnection(int port)
   return ret;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSocketCommunicator::WaitForConnection(vtkServerSocket* socket, unsigned long msec /*=0*/)
 {
   if (this->GetIsConnected())
@@ -659,7 +659,7 @@ int vtkSocketCommunicator::WaitForConnection(vtkServerSocket* socket, unsigned l
   return this->ServerSideHandshake();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSocketCommunicator::CloseConnection()
 {
   if (this->Socket)
@@ -670,7 +670,7 @@ void vtkSocketCommunicator::CloseConnection()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSocketCommunicator::ConnectTo(const char* hostName, int port)
 {
 
@@ -695,7 +695,7 @@ int vtkSocketCommunicator::ConnectTo(const char* hostName, int port)
   return this->ClientSideHandshake();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSocketCommunicator::SendTagged(
   const void* data, int wordSize, int numWords, int tag, const char* logName)
 {
@@ -726,7 +726,7 @@ int vtkSocketCommunicator::SendTagged(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSocketCommunicator::ReceivedTaggedFromBuffer(
   void* data, int wordSize, int numWords, int tag, const char* logName)
 {
@@ -756,7 +756,7 @@ int vtkSocketCommunicator::ReceivedTaggedFromBuffer(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSocketCommunicator::ReceiveTagged(
   void* data, int wordSize, int numWords, int tag, const char* logName)
 {
@@ -868,7 +868,7 @@ int vtkSocketCommunicator::ReceiveTagged(
   return this->ReceivePartialTagged(data, wordSize, length / wordSize, tag, logName);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSocketCommunicator::ReceivePartialTagged(
   void* data, int wordSize, int numWords, int tag, const char* logName)
 {
@@ -889,7 +889,7 @@ int vtkSocketCommunicator::ReceivePartialTagged(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSocketCommunicator::FixByteOrder(void* data, int wordSize, int numWords)
 {
   // Unless we're dealing with chars, then check byte ordering.
@@ -909,13 +909,13 @@ void vtkSocketCommunicator::FixByteOrder(void* data, int wordSize, int numWords)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkSocketCommunicator::HasBufferredMessages()
 {
   return this->ReceivedMessageBuffer->HasBufferredMessages();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T, class OutType>
 void vtkSocketCommunicatorLogArray(ostream& os, T* array, int length, int max, OutType*)
 {
@@ -935,7 +935,7 @@ void vtkSocketCommunicatorLogArray(ostream& os, T* array, int length, int max, O
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSocketCommunicator::LogTagged(
   const char* name, const void* data, int wordSize, int numWords, int tag, const char* logName)
 {
@@ -1031,7 +1031,7 @@ void vtkSocketCommunicator::LogTagged(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSocketCommunicator::CheckForErrorInternal(int id)
 {
   if (id == 0)
@@ -1052,7 +1052,7 @@ int vtkSocketCommunicator::CheckForErrorInternal(int id)
   return 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSocketCommunicator::Barrier()
 {
   int junk = 0;
@@ -1068,13 +1068,13 @@ void vtkSocketCommunicator::Barrier()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSocketCommunicator::BroadcastVoidArray(void* data, vtkIdType length, int type, int root)
 {
   return this->Superclass::BroadcastVoidArray(data, length, type, root);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSocketCommunicator::GatherVoidArray(const void*, void*, vtkIdType, int, int)
 {
   vtkErrorMacro("Collective operations not supported on sockets.");
@@ -1129,7 +1129,7 @@ int vtkSocketCommunicator::AllReduceVoidArray(const void*, void*, vtkIdType, int
   return 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSocketCommunicator::GetVersion()
 {
   return vtkSocketCommunicatorHashId;

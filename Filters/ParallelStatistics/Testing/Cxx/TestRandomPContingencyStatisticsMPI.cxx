@@ -329,7 +329,7 @@ void RandomContingencyStatistics(vtkMultiProcessController* controller, void* ar
 
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestRandomPContingencyStatisticsMPI(int argc, char* argv[])
 {
   // **************************** MPI Initialization ***************************

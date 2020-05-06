@@ -52,7 +52,7 @@
 
 vtkStandardNewMacro(vtkQtTableView);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkQtTableView::vtkQtTableView()
 {
   this->ApplyColors = vtkSmartPointer<vtkApplyColors>::New();
@@ -97,7 +97,7 @@ vtkQtTableView::vtkQtTableView()
     SLOT(slotQtSelectionChanged(const QItemSelection&, const QItemSelection&)));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkQtTableView::~vtkQtTableView()
 {
   delete this->TableView;
@@ -106,13 +106,13 @@ vtkQtTableView::~vtkQtTableView()
   this->SetColumnName(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 QWidget* vtkQtTableView::GetWidget()
 {
   return this->TableView;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTableView::SetShowVerticalHeaders(bool state)
 {
   if (state)
@@ -125,7 +125,7 @@ void vtkQtTableView::SetShowVerticalHeaders(bool state)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTableView::SetShowHorizontalHeaders(bool state)
 {
   if (state)
@@ -138,19 +138,19 @@ void vtkQtTableView::SetShowHorizontalHeaders(bool state)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTableView::SetEnableDragDrop(bool state)
 {
   this->TableView->setDragEnabled(state);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTableView::SetSortingEnabled(bool state)
 {
   this->TableView->setSortingEnabled(state);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTableView::SetFieldType(int type)
 {
   this->DataObjectToTable->SetFieldType(type);
@@ -162,7 +162,7 @@ void vtkQtTableView::SetFieldType(int type)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTableView::SetColumnVisibility(const QString& name, bool s)
 {
   for (int j = 0; j < this->TableAdapter->columnCount(); ++j)
@@ -183,7 +183,7 @@ void vtkQtTableView::SetColumnVisibility(const QString& name, bool s)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTableView::SetShowAll(bool s)
 {
   if (this->ShowAll != s)
@@ -224,13 +224,13 @@ void vtkQtTableView::SetSortSelectionToTop(bool value)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTableView::SetSplitMultiComponentColumns(bool value)
 {
   this->TableAdapter->SetSplitMultiComponentColumns(value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkQtTableView::GetSplitMultiComponentColumns()
 {
   return this->TableAdapter->GetSplitMultiComponentColumns();
@@ -307,7 +307,7 @@ const char* vtkQtTableView::GetColorArrayName()
   return this->GetColorArrayNameInternal();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTableView::slotQtSelectionChanged(
   const QItemSelection& vtkNotUsed(s1), const QItemSelection& vtkNotUsed(s2))
 {
@@ -347,7 +347,7 @@ void vtkQtTableView::slotQtSelectionChanged(
   this->InSelectionChanged = true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTableView::SetVTKSelection()
 {
   if (this->InSelectionChanged)
@@ -405,7 +405,7 @@ void vtkQtTableView::SetVTKSelection()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTableView::Update()
 {
   vtkView::Update();
@@ -608,7 +608,7 @@ void vtkQtTableView::ApplyViewTheme(vtkViewTheme* theme)
   this->ApplyColors->SetSelectedCellOpacity(theme->GetSelectedCellOpacity());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTableView::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

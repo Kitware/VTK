@@ -24,13 +24,13 @@
 #include "vtkUnsignedCharArray.h"
 
 vtkStandardNewMacro(vtkBlockIdScalars);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBlockIdScalars::vtkBlockIdScalars() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBlockIdScalars::~vtkBlockIdScalars() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Map ids into attribute data
 int vtkBlockIdScalars::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -77,7 +77,7 @@ int vtkBlockIdScalars::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject* vtkBlockIdScalars::ColorBlock(vtkDataObject* input, int group)
 {
   vtkDataObject* output = nullptr;
@@ -124,7 +124,7 @@ vtkDataObject* vtkBlockIdScalars::ColorBlock(vtkDataObject* input, int group)
   return output;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBlockIdScalars::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

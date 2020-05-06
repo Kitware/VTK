@@ -29,7 +29,7 @@
 
 vtkStandardNewMacro(vtkBridgePointIteratorOnDataSet);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Default constructor.
 vtkBridgePointIteratorOnDataSet::vtkBridgePointIteratorOnDataSet()
@@ -38,7 +38,7 @@ vtkBridgePointIteratorOnDataSet::vtkBridgePointIteratorOnDataSet()
   this->Size = 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Destructor.
 vtkBridgePointIteratorOnDataSet::~vtkBridgePointIteratorOnDataSet()
@@ -46,13 +46,13 @@ vtkBridgePointIteratorOnDataSet::~vtkBridgePointIteratorOnDataSet()
   vtkSetObjectBodyMacro(DataSet, vtkBridgeDataSet, static_cast<vtkBridgeDataSet*>(nullptr));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBridgePointIteratorOnDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Move iterator to first position if any (loop initialization).
 void vtkBridgePointIteratorOnDataSet::Begin()
@@ -60,7 +60,7 @@ void vtkBridgePointIteratorOnDataSet::Begin()
   this->Id = 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Is there no point at iterator position? (exit condition).
 vtkTypeBool vtkBridgePointIteratorOnDataSet::IsAtEnd()
@@ -68,7 +68,7 @@ vtkTypeBool vtkBridgePointIteratorOnDataSet::IsAtEnd()
   return (this->Id < 0) || (this->Id >= this->Size);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Move iterator to next position. (loop progression).
 // \pre not_off: !IsAtEnd()
@@ -78,7 +78,7 @@ void vtkBridgePointIteratorOnDataSet::Next()
   this->Id++;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Point at iterator position.
 // \pre not_off: !IsAtEnd()
@@ -93,7 +93,7 @@ double* vtkBridgePointIteratorOnDataSet::GetPosition()
   return result;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Point at iterator position.
 // \pre not_off: !IsAtEnd()
@@ -105,7 +105,7 @@ void vtkBridgePointIteratorOnDataSet::GetPosition(double x[3])
   this->DataSet->Implementation->GetPoint(this->Id, x);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Unique identifier for the point, could be non-contiguous
 // \pre not_off: !IsAtEnd()
@@ -116,7 +116,7 @@ vtkIdType vtkBridgePointIteratorOnDataSet::GetId()
   return this->Id;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Used internally by vtkBridgeDataSet.
 // Iterate over points of `ds'.

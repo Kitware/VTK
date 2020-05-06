@@ -26,37 +26,37 @@
 
 vtkStandardNewMacro(vtkXMLPUnstructuredGridReader);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLPUnstructuredGridReader::vtkXMLPUnstructuredGridReader() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLPUnstructuredGridReader::~vtkXMLPUnstructuredGridReader() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPUnstructuredGridReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUnstructuredGrid* vtkXMLPUnstructuredGridReader::GetOutput()
 {
   return this->GetOutput(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUnstructuredGrid* vtkXMLPUnstructuredGridReader::GetOutput(int idx)
 {
   return vtkUnstructuredGrid::SafeDownCast(this->GetOutputDataObject(idx));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXMLPUnstructuredGridReader::GetDataSetName()
 {
   return "PUnstructuredGrid";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPUnstructuredGridReader::GetOutputUpdateExtent(
   int& piece, int& numberOfPieces, int& ghostLevel)
 {
@@ -66,7 +66,7 @@ void vtkXMLPUnstructuredGridReader::GetOutputUpdateExtent(
   ghostLevel = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPUnstructuredGridReader::SetupOutputTotals()
 {
   this->Superclass::SetupOutputTotals();
@@ -84,7 +84,7 @@ void vtkXMLPUnstructuredGridReader::SetupOutputTotals()
   this->StartCell = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPUnstructuredGridReader::SetupOutputData()
 {
   this->Superclass::SetupOutputData();
@@ -102,7 +102,7 @@ void vtkXMLPUnstructuredGridReader::SetupOutputData()
   cellTypes->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPUnstructuredGridReader::SetupNextPiece()
 {
   this->Superclass::SetupNextPiece();
@@ -112,7 +112,7 @@ void vtkXMLPUnstructuredGridReader::SetupNextPiece()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPUnstructuredGridReader::ReadPieceData()
 {
   if (!this->Superclass::ReadPieceData())
@@ -176,7 +176,7 @@ int vtkXMLPUnstructuredGridReader::ReadPieceData()
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPUnstructuredGridReader::CopyArrayForCells(vtkDataArray* inArray, vtkDataArray* outArray)
 {
   if (!this->PieceReaders[this->Piece])
@@ -195,20 +195,20 @@ void vtkXMLPUnstructuredGridReader::CopyArrayForCells(vtkDataArray* inArray, vtk
     numCells * tupleSize);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLDataReader* vtkXMLPUnstructuredGridReader::CreatePieceReader()
 {
   return vtkXMLUnstructuredGridReader::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPUnstructuredGridReader::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkUnstructuredGrid");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPUnstructuredGridReader::SqueezeOutputArrays(vtkDataObject* output)
 {
   vtkUnstructuredGrid* grid = vtkUnstructuredGrid::SafeDownCast(output);

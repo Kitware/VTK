@@ -37,19 +37,19 @@ public:
 };
 
 vtkStandardNewMacro(vtkGenericVertexAttributeMapping);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGenericVertexAttributeMapping::vtkGenericVertexAttributeMapping()
 {
   this->Internal = new vtkInternal();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGenericVertexAttributeMapping::~vtkGenericVertexAttributeMapping()
 {
   delete this->Internal;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenericVertexAttributeMapping::AddMapping(
   const char* attributeName, const char* arrayName, int fieldAssociation, int component)
 {
@@ -73,7 +73,7 @@ void vtkGenericVertexAttributeMapping::AddMapping(
   this->Internal->Mappings.push_back(info);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenericVertexAttributeMapping::AddMapping(
   int unit, const char* arrayName, int fieldAssociation, int component)
 {
@@ -94,7 +94,7 @@ void vtkGenericVertexAttributeMapping::AddMapping(
   this->Internal->Mappings.push_back(info);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGenericVertexAttributeMapping::RemoveMapping(const char* attributeName)
 {
   vtkInternal::VectorType::iterator iter;
@@ -109,19 +109,19 @@ bool vtkGenericVertexAttributeMapping::RemoveMapping(const char* attributeName)
   return false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenericVertexAttributeMapping::RemoveAllMappings()
 {
   this->Internal->Mappings.clear();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 unsigned int vtkGenericVertexAttributeMapping::GetNumberOfMappings()
 {
   return static_cast<unsigned int>(this->Internal->Mappings.size());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkGenericVertexAttributeMapping::GetAttributeName(unsigned int index)
 {
   if (index >= this->Internal->Mappings.size())
@@ -132,7 +132,7 @@ const char* vtkGenericVertexAttributeMapping::GetAttributeName(unsigned int inde
   return this->Internal->Mappings[index].AttributeName.c_str();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkGenericVertexAttributeMapping::GetArrayName(unsigned int index)
 {
   if (index >= this->Internal->Mappings.size())
@@ -143,7 +143,7 @@ const char* vtkGenericVertexAttributeMapping::GetArrayName(unsigned int index)
   return this->Internal->Mappings[index].ArrayName.c_str();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGenericVertexAttributeMapping::GetFieldAssociation(unsigned int index)
 {
   if (index >= this->Internal->Mappings.size())
@@ -154,7 +154,7 @@ int vtkGenericVertexAttributeMapping::GetFieldAssociation(unsigned int index)
   return this->Internal->Mappings[index].FieldAssociation;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGenericVertexAttributeMapping::GetComponent(unsigned int index)
 {
   if (index >= this->Internal->Mappings.size())
@@ -165,7 +165,7 @@ int vtkGenericVertexAttributeMapping::GetComponent(unsigned int index)
   return this->Internal->Mappings[index].Component;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGenericVertexAttributeMapping::GetTextureUnit(unsigned int index)
 {
   if (index >= this->Internal->Mappings.size())
@@ -176,7 +176,7 @@ int vtkGenericVertexAttributeMapping::GetTextureUnit(unsigned int index)
   return this->Internal->Mappings[index].TextureUnit;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenericVertexAttributeMapping::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

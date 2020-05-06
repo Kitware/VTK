@@ -48,7 +48,7 @@ static int splitString(const vtkStdString& input, unsigned int fieldWidth, bool 
 // myself.
 static int my_getline(std::istream& stream, vtkStdString& output, char delim = '\n');
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkFixedWidthTextReader::vtkFixedWidthTextReader()
 {
@@ -61,7 +61,7 @@ vtkFixedWidthTextReader::vtkFixedWidthTextReader()
   this->TableErrorObserver = nullptr;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkFixedWidthTextReader::~vtkFixedWidthTextReader()
 {
@@ -72,7 +72,7 @@ vtkFixedWidthTextReader::~vtkFixedWidthTextReader()
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkFixedWidthTextReader::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -84,7 +84,7 @@ void vtkFixedWidthTextReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "HaveHeaders: " << (this->HaveHeaders ? "Yes" : "No") << endl;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkFixedWidthTextReader::RequestData(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
@@ -209,7 +209,7 @@ int vtkFixedWidthTextReader::RequestData(
   return 1;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 static int splitString(const vtkStdString& input, unsigned int fieldWidth, bool stripWhitespace,
   std::vector<vtkStdString>& results, bool includeEmpties)
@@ -263,7 +263,7 @@ static int splitString(const vtkStdString& input, unsigned int fieldWidth, bool 
   return static_cast<int>(results.size());
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 static int my_getline(istream& in, vtkStdString& out, char delimiter)
 {

@@ -51,7 +51,7 @@
 
 vtkStandardNewMacro(vtkQtTreeView);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkQtTreeView::vtkQtTreeView()
 {
   this->ApplyColors = vtkSmartPointer<vtkApplyColors>::New();
@@ -117,7 +117,7 @@ vtkQtTreeView::vtkQtTreeView()
     SIGNAL(updatePreviewWidget(const QModelIndex&)));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkQtTreeView::~vtkQtTreeView()
 {
   delete this->TreeView;
@@ -129,7 +129,7 @@ vtkQtTreeView::~vtkQtTreeView()
   delete this->TreeFilter;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTreeView::SetUseColumnView(int state)
 {
   if (state)
@@ -149,13 +149,13 @@ void vtkQtTreeView::SetUseColumnView(int state)
   this->Widget->update();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 QWidget* vtkQtTreeView::GetWidget()
 {
   return this->Widget;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTreeView::SetShowHeaders(bool state)
 {
   if (state)
@@ -168,21 +168,21 @@ void vtkQtTreeView::SetShowHeaders(bool state)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTreeView::SetAlternatingRowColors(bool state)
 {
   this->TreeView->setAlternatingRowColors(state);
   this->ColumnView->setAlternatingRowColors(state);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTreeView::SetEnableDragDrop(bool state)
 {
   this->TreeView->setDragEnabled(state);
   this->ColumnView->setDragEnabled(state);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTreeView::SetShowRootNode(bool state)
 {
   if (!state)
@@ -197,21 +197,21 @@ void vtkQtTreeView::SetShowRootNode(bool state)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTreeView::HideColumn(int i)
 {
   this->TreeView->hideColumn(i);
   this->HiddenColumns << i;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTreeView::ShowColumn(int i)
 {
   this->TreeView->showColumn(i);
   this->HiddenColumns.removeAll(i);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTreeView::HideAllButFirstColumn()
 {
   this->HiddenColumns.clear();
@@ -223,19 +223,19 @@ void vtkQtTreeView::HideAllButFirstColumn()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTreeView::SetFilterColumn(int i)
 {
   this->TreeFilter->setFilterKeyColumn(i);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTreeView::SetFilterRegExp(const QRegExp& pattern)
 {
   this->TreeFilter->setFilterRegExp(pattern);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTreeView::SetFilterTreeLevel(int level)
 {
   this->TreeFilter->setFilterTreeLevel(level);
@@ -266,7 +266,7 @@ void vtkQtTreeView::RemoveRepresentationInternal(vtkDataRepresentation* rep)
   this->TreeAdapter->SetVTKDataObject(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTreeView::SetItemDelegate(QAbstractItemDelegate* delegate)
 {
   this->TreeView->setItemDelegate(delegate);
@@ -295,7 +295,7 @@ const char* vtkQtTreeView::GetColorArrayName()
   return this->GetColorArrayNameInternal();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTreeView::slotQtSelectionChanged(
   const QItemSelection& vtkNotUsed(s1), const QItemSelection& vtkNotUsed(s2))
 {
@@ -346,7 +346,7 @@ void vtkQtTreeView::slotQtSelectionChanged(
   this->CurrentSelectionMTime = rep->GetAnnotationLink()->GetCurrentSelection()->GetMTime();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTreeView::SetVTKSelection()
 {
   // Check to see we actually have data
@@ -391,7 +391,7 @@ void vtkQtTreeView::SetVTKSelection()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTreeView::Update()
 {
   vtkDataRepresentation* rep = this->GetRepresentation();
@@ -478,7 +478,7 @@ void vtkQtTreeView::Update()
   this->ColumnView->update();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTreeView::ApplyViewTheme(vtkViewTheme* theme)
 {
   this->Superclass::ApplyViewTheme(theme);
@@ -496,43 +496,43 @@ void vtkQtTreeView::ApplyViewTheme(vtkViewTheme* theme)
   this->ApplyColors->SetScaleCellLookupTable(theme->GetScaleCellLookupTable());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTreeView::Collapse(const QModelIndex& index)
 {
   this->TreeView->collapse(index);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTreeView::CollapseAll()
 {
   this->TreeView->collapseAll();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTreeView::Expand(const QModelIndex& index)
 {
   this->TreeView->expand(index);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTreeView::ExpandAll()
 {
   this->TreeView->expandAll();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTreeView::ExpandToDepth(int depth)
 {
   this->TreeView->expandToDepth(depth);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTreeView::ResizeColumnToContents(int column)
 {
   this->TreeView->resizeColumnToContents(column);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTreeView::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

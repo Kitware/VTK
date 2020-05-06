@@ -684,7 +684,7 @@ static void vtkGESignaReaderUpdate2(
   fclose(fp);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This function reads in one data of data.
 // templated to handle different data types.
 static void vtkGESignaReaderUpdate(
@@ -709,7 +709,7 @@ static void vtkGESignaReaderUpdate(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This function reads a data from a file.  The datas extent/axes
 // are assumed to be the same as the file extent/order.
 void vtkGESignaReader::ExecuteDataWithInformation(vtkDataObject* output, vtkInformation* outInfo)
@@ -734,7 +734,7 @@ void vtkGESignaReader::ExecuteDataWithInformation(vtkDataObject* output, vtkInfo
   vtkGESignaReaderUpdate(this, data, (unsigned short*)(outPtr));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGESignaReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

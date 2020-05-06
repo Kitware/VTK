@@ -27,10 +27,10 @@
 #include "vtkTransform.h"
 
 vtkCxxSetObjectMacro(vtkTexture, LookupTable, vtkScalarsToColors);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Return nullptr if no override is supplied.
 vtkObjectFactoryNewMacro(vtkTexture);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 // Construct object and initialize.
 vtkTexture::vtkTexture()
@@ -63,7 +63,7 @@ vtkTexture::vtkTexture()
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS, vtkDataSetAttributes::SCALARS);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTexture::~vtkTexture()
 {
   if (this->MappedScalars)
@@ -82,7 +82,7 @@ vtkTexture::~vtkTexture()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageData* vtkTexture::GetInput()
 {
   if (this->GetNumberOfInputConnections(0) < 1)
@@ -92,7 +92,7 @@ vtkImageData* vtkTexture::GetInput()
   return vtkImageData::SafeDownCast(this->GetExecutive()->GetInputData(0, 0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTexture::SetCubeMap(bool val)
 {
   if (val == this->CubeMap)
@@ -117,7 +117,7 @@ void vtkTexture::SetCubeMap(bool val)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTexture::SetTransform(vtkTransform* transform)
 {
   if (transform == this->Transform)
@@ -139,7 +139,7 @@ void vtkTexture::SetTransform(vtkTransform* transform)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTexture::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -246,7 +246,7 @@ void vtkTexture::PrintSelf(ostream& os, vtkIndent indent)
      << (this->RestrictPowerOf2ImageSmaller ? "On\n" : "Off\n");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 unsigned char* vtkTexture::MapScalarsToColors(vtkDataArray* scalars)
 {
   // if there is no lookup table, create one
@@ -284,7 +284,7 @@ unsigned char* vtkTexture::MapScalarsToColors(vtkDataArray* scalars)
     : nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTexture::Render(vtkRenderer* ren)
 {
   for (int i = 0; i < this->GetNumberOfInputPorts(); ++i)
@@ -304,7 +304,7 @@ void vtkTexture::Render(vtkRenderer* ren)
   this->Load(ren);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTexture::IsTranslucent()
 {
   if (this->GetMTime() <= this->TranslucentComputationTime &&

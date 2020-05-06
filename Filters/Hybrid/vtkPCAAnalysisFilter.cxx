@@ -25,7 +25,7 @@
 
 vtkStandardNewMacro(vtkPCAAnalysisFilter);
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Matrix ops. Some taken from vtkThinPlateSplineTransform.cxx
 static inline double** NewMatrix(int rows, int cols)
 {
@@ -38,14 +38,14 @@ static inline double** NewMatrix(int rows, int cols)
   return m;
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static inline void DeleteMatrix(double** m)
 {
   delete[] * m;
   delete[] m;
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static inline void MatrixMultiply(
   double** a, double** b, double** c, int arows, int acols, int brows, int bcols)
 {
@@ -69,7 +69,7 @@ static inline void MatrixMultiply(
   }
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Subtracting the mean column from the observation matrix is equal
 // to subtracting the mean shape from all shapes.
 // The mean column is equal to the Procrustes mean (it is also returned)
@@ -98,7 +98,7 @@ static inline void SubtractMeanColumn(double** m, double* mean, int rows, int co
   }
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Normalise all columns to have length 1
 // meaning that all eigenvectors are normalised
 static inline void NormaliseColumns(double** m, int rows, int cols)
@@ -123,7 +123,7 @@ static inline void NormaliseColumns(double** m, int rows, int cols)
   }
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Here it is assumed that a rows >> a cols
 // Output matrix is [a cols X a cols]
 static inline void SmallCovarianceMatrix(double** a, double** c, int arows, int acols)
@@ -150,20 +150,20 @@ static inline void SmallCovarianceMatrix(double** a, double** c, int arows, int 
   }
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static inline double* NewVector(int length)
 {
   double* vec = new double[length];
   return vec;
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static inline void DeleteVector(double* v)
 {
   delete[] v;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // protected
 vtkPCAAnalysisFilter::vtkPCAAnalysisFilter()
 {
@@ -172,7 +172,7 @@ vtkPCAAnalysisFilter::vtkPCAAnalysisFilter()
   this->meanshape = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // protected
 vtkPCAAnalysisFilter::~vtkPCAAnalysisFilter()
 {
@@ -192,7 +192,7 @@ vtkPCAAnalysisFilter::~vtkPCAAnalysisFilter()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // protected
 int vtkPCAAnalysisFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -362,7 +362,7 @@ int vtkPCAAnalysisFilter::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // public
 void vtkPCAAnalysisFilter::GetParameterisedShape(vtkFloatArray* b, vtkPointSet* shape)
 {
@@ -428,7 +428,7 @@ void vtkPCAAnalysisFilter::GetParameterisedShape(vtkFloatArray* b, vtkPointSet* 
   DeleteVector(w);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // public
 void vtkPCAAnalysisFilter::GetShapeParameters(vtkPointSet* shape, vtkFloatArray* b, int bsize)
 {
@@ -504,7 +504,7 @@ void vtkPCAAnalysisFilter::GetShapeParameters(vtkPointSet* shape, vtkFloatArray*
   DeleteVector(bloc);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // public
 void vtkPCAAnalysisFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -512,7 +512,7 @@ void vtkPCAAnalysisFilter::PrintSelf(ostream& os, vtkIndent indent)
   this->Evals->PrintSelf(os, indent.GetNextIndent());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // public
 int vtkPCAAnalysisFilter::GetModesRequiredFor(double proportion)
 {

@@ -35,7 +35,7 @@
 
 vtkStandardNewMacro(vtkDiscreteFlyingEdges3D);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 namespace
 {
 // This templated class implements the heart of the algorithm.
@@ -389,13 +389,13 @@ public:
     vtkFloatArray* newGradients);
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Map MC edges numbering to use the saner FlyingEdges edge numbering scheme.
 template <class T>
 const unsigned char vtkDiscreteFlyingEdges3DAlgorithm<T>::EdgeMap[12] = { 0, 5, 1, 4, 2, 7, 3, 6, 8,
   9, 10, 11 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Map MC edges numbering to use the saner FlyingEdges edge numbering scheme.
 template <class T>
 const unsigned char vtkDiscreteFlyingEdges3DAlgorithm<T>::VertMap[12][2] = {
@@ -413,7 +413,7 @@ const unsigned char vtkDiscreteFlyingEdges3DAlgorithm<T>::VertMap[12][2] = {
   { 3, 7 },
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The offsets of each vertex (in index space) from the voxel axes origin.
 template <class T>
 const unsigned char vtkDiscreteFlyingEdges3DAlgorithm<T>::VertOffsets[8][3] = {
@@ -427,7 +427,7 @@ const unsigned char vtkDiscreteFlyingEdges3DAlgorithm<T>::VertOffsets[8][3] = {
   { 1, 1, 1 },
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Instantiate and initialize key data members. Mostly we build the
 // edge-based case table, and associated acceleration structures, from the
 // marching cubes case table. Some of this code is borrowed shamelessly from
@@ -531,7 +531,7 @@ vtkDiscreteFlyingEdges3DAlgorithm<T>::vtkDiscreteFlyingEdges3DAlgorithm()
   } // for all cases
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Count intersections along voxel axes. When traversing the volume across
 // x-edges, the voxel axes on the boundary may be undefined near boundaries
 // (because there are no fully-formed cells). Thus the voxel axes on the
@@ -581,7 +581,7 @@ void vtkDiscreteFlyingEdges3DAlgorithm<T>::CountBoundaryYZInts(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Compute the gradient when the point may be near the boundary of the
 // volume.
 template <class T>
@@ -631,7 +631,7 @@ void vtkDiscreteFlyingEdges3DAlgorithm<T>::ComputeBoundaryGradient(vtkIdType ijk
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Interpolate a new point along a boundary edge. Make sure to consider
 // proximity to the boundary when computing gradients, etc.
 template <class T>
@@ -707,7 +707,7 @@ void vtkDiscreteFlyingEdges3DAlgorithm<T>::InterpolateEdge(double vtkNotUsed(val
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Generate the output points and optionally normals, gradients and
 // interpolate attributes.
 template <class T>
@@ -811,7 +811,7 @@ void vtkDiscreteFlyingEdges3DAlgorithm<T>::GeneratePoints(double value, unsigned
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // PASS 1: Process a single volume x-row (and all of the voxel edges that
 // compose the row). Determine the x-edges case classification, count the
 // number of x-edge intersections, and figure out where intersections along
@@ -875,7 +875,7 @@ void vtkDiscreteFlyingEdges3DAlgorithm<T>::ProcessXEdge(
   edgeMetaData[5] = maxInt; // where intersections end along x edge
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // PASS 2: Process a single x-row of voxels. Count the number of y- and
 // z-intersections by topological reasoning from x-edge cases. Determine the
 // number of primitives (i.e., triangles) generated from this row. Use
@@ -1004,7 +1004,7 @@ void vtkDiscreteFlyingEdges3DAlgorithm<T>::ProcessYZEdges(vtkIdType row, vtkIdTy
   } // for all voxels along this x-edge
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // PASS 4: Process the x-row cells to generate output primitives, including
 // point coordinates and triangles. This is the fourth and final pass of the
 // algorithm.
@@ -1100,7 +1100,7 @@ void vtkDiscreteFlyingEdges3DAlgorithm<T>::GenerateOutput(
   }   // for all non-trimmed cells along this x-edge
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Contouring filter specialized for 3D volumes. This templated function
 // interfaces the vtkDiscreteFlyingEdges3D class with the templated algorithm
 // class. It also invokes the three passes of the Flying Edges algorithm.
@@ -1275,7 +1275,7 @@ void vtkDiscreteFlyingEdges3DAlgorithm<T>::Contour(vtkDiscreteFlyingEdges3D* sel
 
 } // anonymous namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Here is the VTK class proper.
 // Construct object with a single contour value of 0.0.
 vtkDiscreteFlyingEdges3D::vtkDiscreteFlyingEdges3D()
@@ -1292,13 +1292,13 @@ vtkDiscreteFlyingEdges3D::vtkDiscreteFlyingEdges3D()
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDiscreteFlyingEdges3D::~vtkDiscreteFlyingEdges3D()
 {
   this->ContourValues->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Overload standard modified time function. If contour values are modified,
 // then this object is modified as well.
 vtkMTimeType vtkDiscreteFlyingEdges3D::GetMTime()
@@ -1308,7 +1308,7 @@ vtkMTimeType vtkDiscreteFlyingEdges3D::GetMTime()
   return (mTime2 > mTime ? mTime2 : mTime);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDiscreteFlyingEdges3D::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -1326,7 +1326,7 @@ int vtkDiscreteFlyingEdges3D::RequestUpdateExtent(vtkInformation* vtkNotUsed(req
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDiscreteFlyingEdges3D::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -1457,14 +1457,14 @@ int vtkDiscreteFlyingEdges3D::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDiscreteFlyingEdges3D::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDiscreteFlyingEdges3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

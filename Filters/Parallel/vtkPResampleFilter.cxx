@@ -34,7 +34,7 @@ vtkStandardNewMacro(vtkPResampleFilter);
 
 vtkCxxSetObjectMacro(vtkPResampleFilter, Controller, vtkMultiProcessController);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPResampleFilter::vtkPResampleFilter()
   : UseInputBounds(0)
 {
@@ -48,13 +48,13 @@ vtkPResampleFilter::vtkPResampleFilter()
   vtkMath::UninitializeBounds(this->Bounds);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPResampleFilter::~vtkPResampleFilter()
 {
   this->SetController(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkPResampleFilter::CalculateBounds(vtkDataSet* input)
 {
   double localBounds[6];
@@ -102,7 +102,7 @@ double* vtkPResampleFilter::CalculateBounds(vtkDataSet* input)
   return this->Bounds;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPResampleFilter::RequestInformation(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
@@ -115,7 +115,7 @@ int vtkPResampleFilter::RequestInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPResampleFilter::RequestUpdateExtent(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector*)
 {
@@ -129,7 +129,7 @@ int vtkPResampleFilter::RequestUpdateExtent(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPResampleFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -163,7 +163,7 @@ int vtkPResampleFilter::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPResampleFilter::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (!this->Superclass::FillInputPortInformation(port, info))
@@ -174,7 +174,7 @@ int vtkPResampleFilter::FillInputPortInformation(int port, vtkInformation* info)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPResampleFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -20,7 +20,7 @@
 
 vtkStandardNewMacro(vtkQuaternionInterpolator);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // PIMPL STL encapsulation for list of quaternions. The list is sorted on
 // the spline parameter T (or Time) using a STL list.
 // Here we define a quaternion class that includes extra information including
@@ -48,7 +48,7 @@ class vtkQuaternionList : public std::vector<TimedQuaternion>
 };
 typedef vtkQuaternionList::iterator QuaternionListIterator;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkQuaternionInterpolator::vtkQuaternionInterpolator()
 {
   // Set up the interpolation
@@ -56,20 +56,20 @@ vtkQuaternionInterpolator::vtkQuaternionInterpolator()
   this->InterpolationType = INTERPOLATION_TYPE_SPLINE;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkQuaternionInterpolator::~vtkQuaternionInterpolator()
 {
   this->Initialize();
   delete this->QuaternionList;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkQuaternionInterpolator::GetNumberOfQuaternions()
 {
   return static_cast<int>(this->QuaternionList->size());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkQuaternionInterpolator::GetMinimumT()
 {
   if (!this->QuaternionList->empty())
@@ -82,7 +82,7 @@ double vtkQuaternionInterpolator::GetMinimumT()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkQuaternionInterpolator::GetMaximumT()
 {
   if (!this->QuaternionList->empty())
@@ -95,21 +95,21 @@ double vtkQuaternionInterpolator::GetMaximumT()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQuaternionInterpolator::Initialize()
 {
   // Wipe out old data
   this->QuaternionList->clear();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQuaternionInterpolator::AddQuaternion(double t, double q[4])
 {
   vtkQuaterniond quat(q);
   this->AddQuaternion(t, quat);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQuaternionInterpolator::AddQuaternion(double t, const vtkQuaterniond& q)
 {
   int size = static_cast<int>(this->QuaternionList->size());
@@ -151,7 +151,7 @@ void vtkQuaternionInterpolator::AddQuaternion(double t, const vtkQuaterniond& q)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQuaternionInterpolator::RemoveQuaternion(double t)
 {
   if (t < this->QuaternionList->front().Time || t > this->QuaternionList->back().Time)
@@ -171,7 +171,7 @@ void vtkQuaternionInterpolator::RemoveQuaternion(double t)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQuaternionInterpolator::InterpolateQuaternion(double t, double q[4])
 {
   vtkQuaterniond quat(q);
@@ -182,7 +182,7 @@ void vtkQuaternionInterpolator::InterpolateQuaternion(double t, double q[4])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQuaternionInterpolator::InterpolateQuaternion(double t, vtkQuaterniond& q)
 {
   // The quaternion may be clamped if it is outside the range specified
@@ -281,7 +281,7 @@ void vtkQuaternionInterpolator::InterpolateQuaternion(double t, vtkQuaterniond& 
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQuaternionInterpolator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -23,7 +23,7 @@ void vtkOpenGLLight::Render(vtkRenderer* vtkNotUsed(ren), int vtkNotUsed(light_i
   // all handled by the mappers
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLLight::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

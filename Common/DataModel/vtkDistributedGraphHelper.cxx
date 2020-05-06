@@ -34,11 +34,11 @@
 vtkInformationKeyMacro(vtkDistributedGraphHelper, DISTRIBUTEDVERTEXIDS, Integer);
 vtkInformationKeyMacro(vtkDistributedGraphHelper, DISTRIBUTEDEDGEIDS, Integer);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // class vtkDistributedGraphHelper
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistributedGraphHelper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -47,17 +47,17 @@ void vtkDistributedGraphHelper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Processor: " << myRank << " of " << numProcs << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDistributedGraphHelper::vtkDistributedGraphHelper()
 {
   this->Graph = nullptr;
   this->VertexDistribution = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDistributedGraphHelper::~vtkDistributedGraphHelper() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkDistributedGraphHelper::GetVertexOwner(vtkIdType v) const
 {
   vtkIdType owner = v;
@@ -88,7 +88,7 @@ vtkIdType vtkDistributedGraphHelper::GetVertexOwner(vtkIdType v) const
   return owner;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkDistributedGraphHelper::GetVertexIndex(vtkIdType v) const
 {
   vtkIdType index = v;
@@ -103,7 +103,7 @@ vtkIdType vtkDistributedGraphHelper::GetVertexIndex(vtkIdType v) const
   return index;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkDistributedGraphHelper::GetEdgeOwner(vtkIdType e_id) const
 {
   vtkIdType owner = e_id;
@@ -130,7 +130,7 @@ vtkIdType vtkDistributedGraphHelper::GetEdgeOwner(vtkIdType e_id) const
   return owner;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkDistributedGraphHelper::GetEdgeIndex(vtkIdType e_id) const
 {
   vtkIdType index = e_id;
@@ -145,7 +145,7 @@ vtkIdType vtkDistributedGraphHelper::GetEdgeIndex(vtkIdType e_id) const
   return index;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkDistributedGraphHelper::MakeDistributedId(int owner, vtkIdType local)
 {
   int numProcs = this->Graph->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
@@ -159,7 +159,7 @@ vtkIdType vtkDistributedGraphHelper::MakeDistributedId(int owner, vtkIdType loca
   return local;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistributedGraphHelper::AttachToGraph(vtkGraph* graph)
 {
   this->Graph = graph;
@@ -183,7 +183,7 @@ void vtkDistributedGraphHelper::AttachToGraph(vtkGraph* graph)
   this->indexBits = (sizeof(vtkIdType) * CHAR_BIT) - (numProcBits + 1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistributedGraphHelper::SetVertexPedigreeIdDistribution(
   vtkVertexPedigreeIdDistribution Func, void* userData)
 {
@@ -191,7 +191,7 @@ void vtkDistributedGraphHelper::SetVertexPedigreeIdDistribution(
   this->VertexDistributionUserData = userData;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkDistributedGraphHelper::GetVertexOwnerByPedigreeId(const vtkVariant& pedigreeId)
 {
   vtkIdType numProcs = this->Graph->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());

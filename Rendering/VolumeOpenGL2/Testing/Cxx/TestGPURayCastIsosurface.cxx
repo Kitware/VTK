@@ -15,7 +15,7 @@
 #include <vtkVolume.h>
 #include <vtkVolumeProperty.h>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestGPURayCastIsosurface(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
 

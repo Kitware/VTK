@@ -37,10 +37,10 @@
 //============================================================================
 vtkStandardNewMacro(vtkOSPRayMoleculeMapperNode);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOSPRayMoleculeMapperNode::vtkOSPRayMoleculeMapperNode() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOSPRayMoleculeMapperNode::~vtkOSPRayMoleculeMapperNode()
 {
   vtkOSPRayRendererNode* orn = vtkOSPRayRendererNode::GetRendererNode(this);
@@ -58,13 +58,13 @@ vtkOSPRayMoleculeMapperNode::~vtkOSPRayMoleculeMapperNode()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayMoleculeMapperNode::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
 {
   if (!prepass)

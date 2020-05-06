@@ -72,10 +72,10 @@
 #include <algorithm>
 #include <sstream>
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   : UsingScalarColoring(false)
   , TimerQuery(new vtkOpenGLRenderTimer)
@@ -123,7 +123,7 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   this->TimeToDraw = 0.0001;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenGLPolyDataMapper::~vtkOpenGLPolyDataMapper()
 {
   if (this->ResourceCallback)
@@ -172,7 +172,7 @@ vtkOpenGLPolyDataMapper::~vtkOpenGLPolyDataMapper()
   delete TimerQuery;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
 {
   if (!this->ResourceCallback->IsReleasing())
@@ -216,7 +216,7 @@ void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
 
 #ifndef VTK_LEGACY_REMOVE
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::AddShaderReplacement(
   vtkShader::Type shaderType, // vertex, fragment, etc
   const std::string& originalValue,
@@ -230,7 +230,7 @@ void vtkOpenGLPolyDataMapper::AddShaderReplacement(
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::ClearShaderReplacement(
   vtkShader::Type shaderType, // vertex, fragment, etc
   const std::string& originalValue, bool replaceFirst)
@@ -241,7 +241,7 @@ void vtkOpenGLPolyDataMapper::ClearShaderReplacement(
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::ClearAllShaderReplacements(vtkShader::Type shaderType)
 {
   VTK_LEGACY_REPLACED_BODY(vtkOpenGLPolyDataMapper::ClearAllShaderReplacements, "VTK 9.0",
@@ -250,7 +250,7 @@ void vtkOpenGLPolyDataMapper::ClearAllShaderReplacements(vtkShader::Type shaderT
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::ClearAllShaderReplacements()
 {
   this->GetLegacyShaderProperty()->ClearAllShaderReplacements();
@@ -311,7 +311,7 @@ vtkOpenGLShaderProperty* vtkOpenGLPolyDataMapper::GetLegacyShaderProperty()
 }
 #endif
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::BuildShaders(
   std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* actor)
 {
@@ -357,7 +357,7 @@ void vtkOpenGLPolyDataMapper::BuildShaders(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkOpenGLPolyDataMapper::HaveWideLines(vtkRenderer* ren, vtkActor* actor)
 {
   if (this->GetOpenGLMode(
@@ -374,7 +374,7 @@ bool vtkOpenGLPolyDataMapper::HaveWideLines(vtkRenderer* ren, vtkActor* actor)
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkOpenGLPolyDataMapper::GetRenderPassStageMTime(vtkActor* actor)
 {
   vtkInformation* info = actor->GetPropertyKeys();
@@ -454,7 +454,7 @@ std::string vtkOpenGLPolyDataMapper::GetTextureCoordinateName(const char* tname)
   return std::string("tcoord");
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkOpenGLPolyDataMapper::HaveTextures(vtkActor* actor)
 {
   return (this->GetNumberOfTextures(actor) > 0);
@@ -462,7 +462,7 @@ bool vtkOpenGLPolyDataMapper::HaveTextures(vtkActor* actor)
 
 typedef std::pair<vtkTexture*, std::string> texinfo;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 unsigned int vtkOpenGLPolyDataMapper::GetNumberOfTextures(vtkActor* actor)
 {
   unsigned int res = 0;
@@ -478,7 +478,7 @@ unsigned int vtkOpenGLPolyDataMapper::GetNumberOfTextures(vtkActor* actor)
   return res;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::vector<texinfo> vtkOpenGLPolyDataMapper::GetTextures(vtkActor* actor)
 {
   std::vector<texinfo> res;
@@ -499,14 +499,14 @@ std::vector<texinfo> vtkOpenGLPolyDataMapper::GetTextures(vtkActor* actor)
   return res;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkOpenGLPolyDataMapper::HaveTCoords(vtkPolyData* poly)
 {
   return (
     this->ColorCoordinates || poly->GetPointData()->GetTCoords() || this->ForceTextureCoordinates);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::GetShaderTemplate(
   std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* actor)
 {
@@ -2051,7 +2051,7 @@ bool vtkOpenGLPolyDataMapper::DrawingTubes(vtkOpenGLHelper& cellBO, vtkActor* ac
       GL_LINES);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
   vtkOpenGLHelper& cellBO, vtkRenderer* ren, vtkActor* actor)
 {
@@ -2151,7 +2151,7 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::UpdateShaders(
   vtkOpenGLHelper& cellBO, vtkRenderer* ren, vtkActor* actor)
 {
@@ -2383,7 +2383,7 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::SetLightingShaderParameters(
   vtkOpenGLHelper& cellBO, vtkRenderer* ren, vtkActor*)
 {
@@ -2398,7 +2398,7 @@ void vtkOpenGLPolyDataMapper::SetLightingShaderParameters(
   oren->UpdateLightingUniforms(program);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(
   vtkOpenGLHelper& cellBO, vtkRenderer* ren, vtkActor* actor)
 {
@@ -2559,7 +2559,7 @@ void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::SetPropertyShaderParameters(
   vtkOpenGLHelper& cellBO, vtkRenderer*, vtkActor* actor)
 {
@@ -2782,7 +2782,7 @@ void vtkOpenGLPolyDataMapper::UpdateMaximumPointCellIds(vtkRenderer* ren, vtkAct
   selector->UpdateMaximumCellId(maxCellId);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor* actor)
 {
   // Set the PointSize and LineWidget
@@ -2854,7 +2854,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor* actor
   this->LastBoundBO = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor* actor)
 {
   int representation = actor->GetProperty()->GetRepresentation();
@@ -2916,7 +2916,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor* actor)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::RenderPieceFinish(vtkRenderer* ren, vtkActor*)
 {
   vtkHardwareSelector* selector = ren->GetSelector();
@@ -2967,7 +2967,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceFinish(vtkRenderer* ren, vtkActor*)
   this->UpdateProgress(1.0);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor* actor)
 {
   // Make sure that we have been properly initialized.
@@ -3005,7 +3005,7 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor* actor)
   this->RenderPieceFinish(ren, actor);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::ComputeBounds()
 {
   if (!this->GetInput())
@@ -3016,7 +3016,7 @@ void vtkOpenGLPolyDataMapper::ComputeBounds()
   this->GetInput()->GetBounds(this->Bounds);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::UpdateBufferObjects(vtkRenderer* ren, vtkActor* act)
 {
   // Rebuild buffers if needed
@@ -3026,7 +3026,7 @@ void vtkOpenGLPolyDataMapper::UpdateBufferObjects(vtkRenderer* ren, vtkActor* ac
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkOpenGLPolyDataMapper::GetNeedToRebuildBufferObjects(
   vtkRenderer* vtkNotUsed(ren), vtkActor* act)
 {
@@ -3173,7 +3173,7 @@ void vtkOpenGLPolyDataMapper::BuildCellTextures(
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer* ren, vtkActor* act)
 {
   vtkPolyData* poly = this->CurrentInput;
@@ -3329,7 +3329,7 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer* ren, vtkActor* act
     .Modified(); // need to call all the time or GetNeedToRebuild will always return true;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::BuildIBO(vtkRenderer* /* ren */, vtkActor* act, vtkPolyData* poly)
 {
   vtkCellArray* prims[4];
@@ -3440,7 +3440,7 @@ void vtkOpenGLPolyDataMapper::BuildIBO(vtkRenderer* /* ren */, vtkActor* act, vt
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::ShallowCopy(vtkAbstractMapper* mapper)
 {
   vtkOpenGLPolyDataMapper* m = vtkOpenGLPolyDataMapper::SafeDownCast(mapper);
@@ -3493,7 +3493,7 @@ int vtkOpenGLPolyDataMapper::GetPointPickingPrimitiveSize(int primType)
   return 6;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::MapDataArrayToVertexAttribute(
   const char* vertexAttributeName, const char* dataArrayName, int fieldAssociation, int componentno)
 {
@@ -3534,7 +3534,7 @@ void vtkOpenGLPolyDataMapper::MapDataArray(const char* vertexAttributeName,
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::RemoveVertexAttributeMapping(const char* vertexAttributeName)
 {
   auto itr = this->ExtraAttributes.find(vertexAttributeName);
@@ -3546,7 +3546,7 @@ void vtkOpenGLPolyDataMapper::RemoveVertexAttributeMapping(const char* vertexAtt
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::RemoveAllVertexAttributeMappings()
 {
   for (auto itr = this->ExtraAttributes.begin(); itr != this->ExtraAttributes.end();
@@ -3556,7 +3556,7 @@ void vtkOpenGLPolyDataMapper::RemoveAllVertexAttributeMappings()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

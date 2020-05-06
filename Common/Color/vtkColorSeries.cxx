@@ -21,7 +21,7 @@
 #include <sstream>
 #include <vector>
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkColorSeriesPalette
 {
 public:
@@ -29,7 +29,7 @@ public:
   vtkStdString Name;
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkColorSeries::Private
 {
 public:
@@ -43,7 +43,7 @@ public:
   std::vector<vtkColor3ub>* Colors;            // Pointer to colors in current scheme
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 inline vtkColor3ub vtkColor3ubFromHex3(vtkTypeUInt32 hex)
 {
   int b = hex & 0xff;
@@ -54,7 +54,7 @@ inline vtkColor3ub vtkColor3ubFromHex3(vtkTypeUInt32 hex)
   return vtkColor3ub(r, g, b);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkColorSeries::Private::Private()
 {
   this->Palettes.resize(vtkColorSeries::CUSTOM);
@@ -332,14 +332,14 @@ guidance on attribution and permissions:
   this->Colors = &(this->Palettes[this->Palette].Colors);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorSeries::Private::SetScheme(int idx)
 {
   this->Colors = &(this->Palettes[idx].Colors);
   this->Palette = idx;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkColorSeries::Private::SetSchemeByName(const vtkStdString& name, bool& modified)
 {
   modified = false;
@@ -363,25 +363,25 @@ int vtkColorSeries::Private::SetSchemeByName(const vtkStdString& name, bool& mod
   return idx;
 }
 
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkColorSeries);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkColorSeries::vtkColorSeries()
 {
   this->Storage = new vtkColorSeries::Private;
   this->SetColorScheme(vtkColorSeries::SPECTRUM);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkColorSeries::~vtkColorSeries()
 {
   delete this->Storage;
   this->Storage = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorSeries::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -392,7 +392,7 @@ void vtkColorSeries::PrintSelf(ostream& os, vtkIndent indent)
      << "ColorSchemeName : " << (palette->Name.empty() ? "(empty)" : palette->Name.c_str()) << endl;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorSeries::SetColorScheme(int scheme)
 {
   if (this->Storage->Palette == scheme)
@@ -410,7 +410,7 @@ void vtkColorSeries::SetColorScheme(int scheme)
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkColorSeries::SetColorSchemeByName(const vtkStdString& schemeName)
 {
   bool modified;
@@ -422,19 +422,19 @@ int vtkColorSeries::SetColorSchemeByName(const vtkStdString& schemeName)
   return index;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkColorSeries::GetNumberOfColorSchemes() const
 {
   return static_cast<int>(this->Storage->Palettes.size());
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStdString vtkColorSeries::GetColorSchemeName() const
 {
   return this->Storage->Palettes[this->Storage->Palette].Name;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorSeries::SetColorSchemeName(const vtkStdString& name)
 {
   // Ignore empty names
@@ -455,26 +455,26 @@ void vtkColorSeries::SetColorSchemeName(const vtkStdString& name)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkColorSeries::GetColorScheme() const
 {
   return this->Storage->Palette;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkColorSeries::GetNumberOfColors() const
 {
   return static_cast<int>(this->Storage->Colors->size());
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorSeries::SetNumberOfColors(int numColors)
 {
   this->CopyOnWrite();
   this->Storage->Colors->resize(numColors);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkColor3ub vtkColorSeries::GetColor(int index) const
 {
   if (index >= 0 && index < static_cast<int>(this->Storage->Colors->size()))
@@ -487,7 +487,7 @@ vtkColor3ub vtkColorSeries::GetColor(int index) const
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkColor3ub vtkColorSeries::GetColorRepeating(int index) const
 {
   vtkColor3ub color;
@@ -499,7 +499,7 @@ vtkColor3ub vtkColorSeries::GetColorRepeating(int index) const
   return color;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorSeries::SetColor(int index, const vtkColor3ub& color)
 {
   if (index >= 0 && index < static_cast<int>(this->Storage->Colors->size()))
@@ -510,7 +510,7 @@ void vtkColorSeries::SetColor(int index, const vtkColor3ub& color)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorSeries::AddColor(const vtkColor3ub& color)
 {
   this->CopyOnWrite();
@@ -518,7 +518,7 @@ void vtkColorSeries::AddColor(const vtkColor3ub& color)
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorSeries::InsertColor(int index, const vtkColor3ub& color)
 {
   if (index >= 0 && index < static_cast<int>(this->Storage->Colors->size()))
@@ -529,7 +529,7 @@ void vtkColorSeries::InsertColor(int index, const vtkColor3ub& color)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorSeries::RemoveColor(int index)
 {
   if (index >= 0 && index < static_cast<int>(this->Storage->Colors->size()))
@@ -540,7 +540,7 @@ void vtkColorSeries::RemoveColor(int index)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorSeries::ClearColors()
 {
   this->CopyOnWrite();
@@ -548,7 +548,7 @@ void vtkColorSeries::ClearColors()
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorSeries::DeepCopy(vtkColorSeries* colors)
 {
   if (!colors)
@@ -562,7 +562,7 @@ void vtkColorSeries::DeepCopy(vtkColorSeries* colors)
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorSeries::BuildLookupTable(vtkLookupTable* lkup, int lutIndexing)
 {
   if (lkup)
@@ -578,7 +578,7 @@ void vtkColorSeries::BuildLookupTable(vtkLookupTable* lkup, int lutIndexing)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLookupTable* vtkColorSeries::CreateLookupTable(int lutIndexing)
 {
   vtkLookupTable* lkup = vtkLookupTable::New();
@@ -586,7 +586,7 @@ vtkLookupTable* vtkColorSeries::CreateLookupTable(int lutIndexing)
   return lkup;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorSeries::CopyOnWrite()
 {
   // If the current scheme is predefined, copy it to a new, custom scheme.

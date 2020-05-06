@@ -30,13 +30,13 @@
 #define SEVEN_POINT_TRIANGLE
 
 vtkStandardNewMacro(vtkLagrangeTriangle);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLagrangeTriangle::vtkLagrangeTriangle()
   : vtkHigherOrderTriangle()
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLagrangeTriangle::~vtkLagrangeTriangle() = default;
 
 void vtkLagrangeTriangle::PrintSelf(ostream& os, vtkIndent indent)
@@ -51,7 +51,7 @@ vtkCell* vtkLagrangeTriangle::GetEdge(int edgeId)
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLagrangeTriangle::InterpolateFunctions(const double pcoords[3], double* weights)
 {
   // Adapted from P. Silvester, "High-Order Polynomial Triangular Finite
@@ -115,7 +115,7 @@ void vtkLagrangeTriangle::InterpolateFunctions(const double pcoords[3], double* 
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLagrangeTriangle::InterpolateDerivs(const double pcoords[3], double* derivs)
 {
   // Analytic differentiation of the triangle shape functions, as defined in

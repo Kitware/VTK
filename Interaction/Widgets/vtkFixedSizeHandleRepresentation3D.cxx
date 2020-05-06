@@ -25,7 +25,7 @@
 
 vtkStandardNewMacro(vtkFixedSizeHandleRepresentation3D);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFixedSizeHandleRepresentation3D::vtkFixedSizeHandleRepresentation3D()
 {
   // Instantiate a handle template shape as a sphere
@@ -40,13 +40,13 @@ vtkFixedSizeHandleRepresentation3D::vtkFixedSizeHandleRepresentation3D()
   this->HandleSizeToleranceInPixels = 0.5;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFixedSizeHandleRepresentation3D::~vtkFixedSizeHandleRepresentation3D()
 {
   this->SphereSource->Delete();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFixedSizeHandleRepresentation3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -60,7 +60,7 @@ void vtkFixedSizeHandleRepresentation3D::PrintSelf(ostream& os, vtkIndent indent
   }
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Convert a given point from world to display coords.
 void vtkFixedSizeHandleRepresentation3D ::WorldToDisplay(double w[4], double d[4])
 {
@@ -70,7 +70,7 @@ void vtkFixedSizeHandleRepresentation3D ::WorldToDisplay(double w[4], double d[4
   viewport->GetDisplayPoint(d);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Convert a given point from display to world coords.
 void vtkFixedSizeHandleRepresentation3D ::DisplayToWorld(double d[4], double w[4])
 {
@@ -81,7 +81,7 @@ void vtkFixedSizeHandleRepresentation3D ::DisplayToWorld(double d[4], double w[4
   viewport->GetWorldPoint(w);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFixedSizeHandleRepresentation3D::BuildRepresentation()
 {
   if (!this->GetRenderer() || !this->GetRenderer()->GetActiveCamera())

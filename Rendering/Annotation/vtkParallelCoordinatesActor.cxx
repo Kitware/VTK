@@ -43,7 +43,7 @@ public:
 
 vtkStandardNewMacro(vtkParallelCoordinatesActorConnection);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Instantiate object
 vtkParallelCoordinatesActor::vtkParallelCoordinatesActor()
 {
@@ -96,7 +96,7 @@ vtkParallelCoordinatesActor::vtkParallelCoordinatesActor()
     0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParallelCoordinatesActor::~vtkParallelCoordinatesActor()
 {
   this->TitleMapper->Delete();
@@ -123,7 +123,7 @@ vtkParallelCoordinatesActor::~vtkParallelCoordinatesActor()
   this->SetTitleTextProperty(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Free-up axes and related stuff
 void vtkParallelCoordinatesActor::Initialize()
 {
@@ -145,13 +145,13 @@ void vtkParallelCoordinatesActor::Initialize()
   this->N = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelCoordinatesActor::SetInputConnection(vtkAlgorithmOutput* ao)
 {
   this->ConnectionHolder->SetInputConnection(ao);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelCoordinatesActor::SetInputData(vtkDataObject* dobj)
 {
   vtkTrivialProducer* tp = vtkTrivialProducer::New();
@@ -160,13 +160,13 @@ void vtkParallelCoordinatesActor::SetInputData(vtkDataObject* dobj)
   tp->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject* vtkParallelCoordinatesActor::GetInput()
 {
   return this->ConnectionHolder->GetInputDataObject(0, 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Plot scalar data for each input dataset.
 int vtkParallelCoordinatesActor::RenderOverlay(vtkViewport* viewport)
 {
@@ -195,7 +195,7 @@ int vtkParallelCoordinatesActor::RenderOverlay(vtkViewport* viewport)
   return renderedSomething;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkParallelCoordinatesActor::RenderOpaqueGeometry(vtkViewport* viewport)
 {
   int renderedSomething = 0;
@@ -305,7 +305,7 @@ int vtkParallelCoordinatesActor::RenderOpaqueGeometry(vtkViewport* viewport)
   return renderedSomething;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry?
 vtkTypeBool vtkParallelCoordinatesActor::HasTranslucentPolygonalGeometry()
@@ -313,7 +313,7 @@ vtkTypeBool vtkParallelCoordinatesActor::HasTranslucentPolygonalGeometry()
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static inline int vtkParallelCoordinatesActorGetComponent(
   vtkFieldData* field, vtkIdType tuple, int component, double* val)
 {
@@ -333,7 +333,7 @@ static inline int vtkParallelCoordinatesActorGetComponent(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport* viewport, const int* vtkNotUsed(size))
 {
   vtkIdType i, j, k, ptId;
@@ -572,7 +572,7 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport* viewport, const int* vtk
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Release any graphics resources that are being consumed by this actor.
 // The parameter window could be used to determine which graphic
 // resources to release.
@@ -585,7 +585,7 @@ void vtkParallelCoordinatesActor::ReleaseGraphicsResources(vtkWindow* win)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelCoordinatesActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

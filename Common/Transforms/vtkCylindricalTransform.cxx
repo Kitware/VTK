@@ -20,7 +20,7 @@
 
 vtkStandardNewMacro(vtkCylindricalTransform);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCylindricalTransform::vtkCylindricalTransform() = default;
 
 vtkCylindricalTransform::~vtkCylindricalTransform() = default;

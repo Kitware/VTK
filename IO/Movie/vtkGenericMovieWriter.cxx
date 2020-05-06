@@ -17,20 +17,20 @@
 #include "vtkErrorCode.h"
 #include "vtkImageData.h"
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGenericMovieWriter::vtkGenericMovieWriter()
 {
   this->FileName = nullptr;
   this->Error = 0;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGenericMovieWriter::~vtkGenericMovieWriter()
 {
   this->SetFileName(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenericMovieWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -39,7 +39,7 @@ void vtkGenericMovieWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Error: " << this->Error << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static const char* vtkMovieWriterErrorStrings[] = { "Unassigned Error", "Initialize Error",
   "No Input Error", "Can Not Compress Error", "Can Not Format Error", "Changed Resolution Error",
   nullptr };

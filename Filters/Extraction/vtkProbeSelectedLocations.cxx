@@ -27,13 +27,13 @@
 #include "vtkUnstructuredGrid.h"
 
 vtkStandardNewMacro(vtkProbeSelectedLocations);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProbeSelectedLocations::vtkProbeSelectedLocations() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProbeSelectedLocations::~vtkProbeSelectedLocations() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkProbeSelectedLocations::RequestDataObject(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -45,7 +45,7 @@ int vtkProbeSelectedLocations::RequestDataObject(
   return this->Superclass::RequestDataObject(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkProbeSelectedLocations::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -149,7 +149,7 @@ int vtkProbeSelectedLocations::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProbeSelectedLocations::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

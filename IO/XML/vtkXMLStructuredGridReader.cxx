@@ -23,13 +23,13 @@
 
 vtkStandardNewMacro(vtkXMLStructuredGridReader);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLStructuredGridReader::vtkXMLStructuredGridReader()
 {
   this->PointElements = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLStructuredGridReader::~vtkXMLStructuredGridReader()
 {
   if (this->NumberOfPieces)
@@ -38,37 +38,37 @@ vtkXMLStructuredGridReader::~vtkXMLStructuredGridReader()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLStructuredGridReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStructuredGrid* vtkXMLStructuredGridReader::GetOutput()
 {
   return this->GetOutput(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStructuredGrid* vtkXMLStructuredGridReader::GetOutput(int idx)
 {
   return vtkStructuredGrid::SafeDownCast(this->GetOutputDataObject(idx));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXMLStructuredGridReader::GetDataSetName()
 {
   return "StructuredGrid";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLStructuredGridReader::SetOutputExtent(int* extent)
 {
   vtkStructuredGrid::SafeDownCast(this->GetCurrentOutput())->SetExtent(extent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLStructuredGridReader::SetupPieces(int numPieces)
 {
   this->Superclass::SetupPieces(numPieces);
@@ -80,14 +80,14 @@ void vtkXMLStructuredGridReader::SetupPieces(int numPieces)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLStructuredGridReader::DestroyPieces()
 {
   delete[] this->PointElements;
   this->Superclass::DestroyPieces();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLStructuredGridReader::ReadPiece(vtkXMLDataElement* ePiece)
 {
   if (!this->Superclass::ReadPiece(ePiece))
@@ -120,7 +120,7 @@ int vtkXMLStructuredGridReader::ReadPiece(vtkXMLDataElement* ePiece)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLStructuredGridReader::SetupOutputData()
 {
   this->Superclass::SetupOutputData();
@@ -156,7 +156,7 @@ void vtkXMLStructuredGridReader::SetupOutputData()
   points->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLStructuredGridReader::ReadPieceData()
 {
   // The amount of data read by the superclass's ReadPieceData comes

@@ -27,7 +27,7 @@
 
 vtkCxxSetObjectMacro(vtkAngleRepresentation, HandleRepresentation, vtkHandleRepresentation);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAngleRepresentation::vtkAngleRepresentation()
 {
   this->HandleRepresentation = nullptr;
@@ -46,7 +46,7 @@ vtkAngleRepresentation::vtkAngleRepresentation()
   snprintf(this->LabelFormat, 8, "%s", "%-#6.3g");
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAngleRepresentation::~vtkAngleRepresentation()
 {
   if (this->HandleRepresentation)
@@ -70,7 +70,7 @@ vtkAngleRepresentation::~vtkAngleRepresentation()
   this->LabelFormat = nullptr;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngleRepresentation::InstantiateHandleRepresentation()
 {
   if (!this->Point1Representation)
@@ -92,7 +92,7 @@ void vtkAngleRepresentation::InstantiateHandleRepresentation()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAngleRepresentation::ComputeInteractionState(
   int vtkNotUsed(X), int vtkNotUsed(Y), int vtkNotUsed(modify))
 {
@@ -126,7 +126,7 @@ int vtkAngleRepresentation::ComputeInteractionState(
   return this->InteractionState;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngleRepresentation::StartWidgetInteraction(double e[2])
 {
   double pos[3];
@@ -138,7 +138,7 @@ void vtkAngleRepresentation::StartWidgetInteraction(double e[2])
   this->SetPoint2DisplayPosition(pos);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngleRepresentation::CenterWidgetInteraction(double e[2])
 {
   double pos[3];
@@ -149,7 +149,7 @@ void vtkAngleRepresentation::CenterWidgetInteraction(double e[2])
   this->SetPoint2DisplayPosition(pos);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngleRepresentation::WidgetInteraction(double e[2])
 {
   double pos[3];
@@ -159,7 +159,7 @@ void vtkAngleRepresentation::WidgetInteraction(double e[2])
   this->SetPoint2DisplayPosition(pos);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngleRepresentation::BuildRepresentation()
 {
   // Make sure that tolerance is consistent between handles and this representation
@@ -168,7 +168,7 @@ void vtkAngleRepresentation::BuildRepresentation()
   this->Point2Representation->SetTolerance(this->Tolerance);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngleRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h

@@ -48,7 +48,7 @@
 
 #include "vtkTestUtilities.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkResliceCursorCallback : public vtkCommand
 {
 public:
@@ -112,7 +112,7 @@ public:
   vtkResliceCursorWidget* RCW[3];
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestResliceCursorWidget2(int argc, char* argv[])
 {
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");

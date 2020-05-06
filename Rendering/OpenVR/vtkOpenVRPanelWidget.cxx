@@ -24,7 +24,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 vtkStandardNewMacro(vtkOpenVRPanelWidget);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenVRPanelWidget::vtkOpenVRPanelWidget()
 {
   this->WidgetState = vtkOpenVRPanelWidget::Start;
@@ -55,16 +55,16 @@ vtkOpenVRPanelWidget::vtkOpenVRPanelWidget()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenVRPanelWidget::~vtkOpenVRPanelWidget() {}
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRPanelWidget::SetRepresentation(vtkOpenVRPanelRepresentation* rep)
 {
   this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(rep));
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRPanelWidget::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)
@@ -73,13 +73,13 @@ void vtkOpenVRPanelWidget::CreateDefaultRepresentation()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRPanelWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRPanelWidget::SelectAction3D(vtkAbstractWidget* w)
 {
   vtkOpenVRPanelWidget* self = reinterpret_cast<vtkOpenVRPanelWidget*>(w);
@@ -108,7 +108,7 @@ void vtkOpenVRPanelWidget::SelectAction3D(vtkAbstractWidget* w)
   self->InvokeEvent(vtkCommand::StartInteractionEvent, nullptr);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRPanelWidget::MoveAction3D(vtkAbstractWidget* w)
 {
   vtkOpenVRPanelWidget* self = reinterpret_cast<vtkOpenVRPanelWidget*>(w);
@@ -128,7 +128,7 @@ void vtkOpenVRPanelWidget::MoveAction3D(vtkAbstractWidget* w)
   self->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRPanelWidget::EndSelectAction3D(vtkAbstractWidget* w)
 {
   vtkOpenVRPanelWidget* self = reinterpret_cast<vtkOpenVRPanelWidget*>(w);

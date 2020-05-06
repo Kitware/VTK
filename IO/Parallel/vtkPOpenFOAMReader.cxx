@@ -38,7 +38,7 @@
 vtkStandardNewMacro(vtkPOpenFOAMReader);
 vtkCxxSetObjectMacro(vtkPOpenFOAMReader, Controller, vtkMultiProcessController);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPOpenFOAMReader::vtkPOpenFOAMReader()
 {
   this->Controller = nullptr;
@@ -57,13 +57,13 @@ vtkPOpenFOAMReader::vtkPOpenFOAMReader()
   this->MTimeOld = 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPOpenFOAMReader::~vtkPOpenFOAMReader()
 {
   this->SetController(nullptr);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPOpenFOAMReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -74,7 +74,7 @@ void vtkPOpenFOAMReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Controller: " << this->Controller << endl;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPOpenFOAMReader::SetCaseType(const int t)
 {
   if (this->CaseType != t)
@@ -85,7 +85,7 @@ void vtkPOpenFOAMReader::SetCaseType(const int t)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPOpenFOAMReader::RequestInformation(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -293,7 +293,7 @@ int vtkPOpenFOAMReader::RequestInformation(
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPOpenFOAMReader::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -402,7 +402,7 @@ int vtkPOpenFOAMReader::RequestData(
   return ret;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPOpenFOAMReader::BroadcastStatus(int& status)
 {
   if (this->NumProcesses > 1)
@@ -411,7 +411,7 @@ void vtkPOpenFOAMReader::BroadcastStatus(int& status)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPOpenFOAMReader::GatherMetaData()
 {
   if (this->NumProcesses > 1)
@@ -427,7 +427,7 @@ void vtkPOpenFOAMReader::GatherMetaData()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Broadcast a vtkStringArray in process 0 to all processes
 void vtkPOpenFOAMReader::Broadcast(vtkStringArray* sa)
 {
@@ -466,7 +466,7 @@ void vtkPOpenFOAMReader::Broadcast(vtkStringArray* sa)
   delete[] contents;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // AllGather vtkStringArray from and to all processes
 void vtkPOpenFOAMReader::AllGather(vtkStringArray* s)
 {
@@ -509,7 +509,7 @@ void vtkPOpenFOAMReader::AllGather(vtkStringArray* s)
   delete[] allContents;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // AllGather vtkDataArraySelections from and to all processes
 void vtkPOpenFOAMReader::AllGather(vtkDataArraySelection* s)
 {

@@ -41,12 +41,12 @@ vtkExtractSelectedTree::vtkExtractSelectedTree()
 
 vtkExtractSelectedTree::~vtkExtractSelectedTree() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractSelectedTree::SetSelectionConnection(vtkAlgorithmOutput* in)
 {
   this->SetInputConnection(1, in);
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSelectedTree::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
@@ -63,13 +63,13 @@ int vtkExtractSelectedTree::FillInputPortInformation(int port, vtkInformation* i
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractSelectedTree::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSelectedTree::BuildTree(
   vtkTree* inputTree, vtkIdTypeArray* selectedVerticesList, vtkMutableDirectedGraph* builder)
 {

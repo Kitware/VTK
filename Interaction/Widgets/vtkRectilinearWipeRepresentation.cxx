@@ -35,7 +35,7 @@ vtkStandardNewMacro(vtkRectilinearWipeRepresentation);
 vtkCxxSetObjectMacro(vtkRectilinearWipeRepresentation, RectilinearWipe, vtkImageRectilinearWipe);
 vtkCxxSetObjectMacro(vtkRectilinearWipeRepresentation, ImageActor, vtkImageActor);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRectilinearWipeRepresentation::vtkRectilinearWipeRepresentation()
 {
   this->RectilinearWipe = nullptr;
@@ -72,7 +72,7 @@ vtkRectilinearWipeRepresentation::vtkRectilinearWipeRepresentation()
   this->WipeActor->SetProperty(this->Property);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRectilinearWipeRepresentation::~vtkRectilinearWipeRepresentation()
 {
   if (this->RectilinearWipe)
@@ -92,7 +92,7 @@ vtkRectilinearWipeRepresentation::~vtkRectilinearWipeRepresentation()
   this->Property->Delete();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkRectilinearWipeRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUsed(modify))
 {
   this->InteractionState = vtkRectilinearWipeRepresentation::Outside;
@@ -153,7 +153,7 @@ int vtkRectilinearWipeRepresentation::ComputeInteractionState(int X, int Y, int 
   return this->InteractionState;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Record the current event position, and the rectilinear wipe position.
 void vtkRectilinearWipeRepresentation::StartWidgetInteraction(double startEventPos[2])
 {
@@ -170,7 +170,7 @@ void vtkRectilinearWipeRepresentation::StartWidgetInteraction(double startEventP
   this->StartWipePosition[1] = static_cast<double>(pos[1]);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Based on the displacement vector (computed in display coordinates) and
 // the cursor state (which corresponds to which part of the widget has been
 // selected), the widget points are modified.
@@ -228,7 +228,7 @@ void vtkRectilinearWipeRepresentation::WidgetInteraction(double newEventPos[2])
   this->BuildRepresentation();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRectilinearWipeRepresentation::BuildRepresentation()
 {
   if (!this->RectilinearWipe || !this->ImageActor)
@@ -416,43 +416,43 @@ void vtkRectilinearWipeRepresentation::BuildRepresentation()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRectilinearWipeRepresentation::GetActors2D(vtkPropCollection* pc)
 {
   this->WipeActor->GetActors2D(pc);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRectilinearWipeRepresentation::ReleaseGraphicsResources(vtkWindow* win)
 {
   this->WipeActor->ReleaseGraphicsResources(win);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkRectilinearWipeRepresentation::RenderOverlay(vtkViewport* viewport)
 {
   return this->WipeActor->RenderOverlay(viewport);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkRectilinearWipeRepresentation::RenderOpaqueGeometry(vtkViewport* viewport)
 {
   return this->WipeActor->RenderOpaqueGeometry(viewport);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkRectilinearWipeRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport* viewport)
 {
   return this->WipeActor->RenderTranslucentPolygonalGeometry(viewport);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkRectilinearWipeRepresentation::HasTranslucentPolygonalGeometry()
 {
   return this->WipeActor->HasTranslucentPolygonalGeometry();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRectilinearWipeRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h

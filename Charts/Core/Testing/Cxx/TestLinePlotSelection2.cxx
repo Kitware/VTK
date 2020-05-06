@@ -26,7 +26,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestLinePlotSelection2(int, char*[])
 {
   // Set up a 2D scene, add an XY chart to it

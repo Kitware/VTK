@@ -28,7 +28,7 @@
 
 vtkStandardNewMacro(vtkLineWidget2);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLineWidget2::vtkLineWidget2()
 {
   this->WidgetState = vtkLineWidget2::Start;
@@ -73,7 +73,7 @@ vtkLineWidget2::vtkLineWidget2()
   this->KeyEventCallbackCommand->SetCallback(vtkLineWidget2::ProcessKeyEvents);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLineWidget2::~vtkLineWidget2()
 {
   this->Point1Widget->Delete();
@@ -82,7 +82,7 @@ vtkLineWidget2::~vtkLineWidget2()
   this->KeyEventCallbackCommand->Delete();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLineWidget2::SetEnabled(int enabling)
 {
   int enabled = this->Enabled;
@@ -142,7 +142,7 @@ void vtkLineWidget2::SetEnabled(int enabling)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLineWidget2::SelectAction(vtkAbstractWidget* w)
 {
   vtkLineWidget2* self = reinterpret_cast<vtkLineWidget2*>(w);
@@ -168,7 +168,7 @@ void vtkLineWidget2::SelectAction(vtkAbstractWidget* w)
   self->EventCallbackCommand->SetAbortFlag(1);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLineWidget2::TranslateAction(vtkAbstractWidget* w)
 {
   vtkLineWidget2* self = reinterpret_cast<vtkLineWidget2*>(w);
@@ -212,7 +212,7 @@ void vtkLineWidget2::TranslateAction(vtkAbstractWidget* w)
   self->InvokeEvent(vtkCommand::StartInteractionEvent, nullptr);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLineWidget2::ScaleAction(vtkAbstractWidget* w)
 {
   vtkLineWidget2* self = reinterpret_cast<vtkLineWidget2*>(w);
@@ -243,7 +243,7 @@ void vtkLineWidget2::ScaleAction(vtkAbstractWidget* w)
   self->InvokeEvent(vtkCommand::StartInteractionEvent, nullptr);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLineWidget2::MoveAction(vtkAbstractWidget* w)
 {
   vtkLineWidget2* self = reinterpret_cast<vtkLineWidget2*>(w);
@@ -304,7 +304,7 @@ void vtkLineWidget2::MoveAction(vtkAbstractWidget* w)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLineWidget2::EndSelectAction(vtkAbstractWidget* w)
 {
   vtkLineWidget2* self = reinterpret_cast<vtkLineWidget2*>(w);
@@ -323,7 +323,7 @@ void vtkLineWidget2::EndSelectAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLineWidget2::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)
@@ -332,7 +332,7 @@ void vtkLineWidget2::CreateDefaultRepresentation()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLineWidget2::SetProcessEvents(vtkTypeBool pe)
 {
   this->Superclass::SetProcessEvents(pe);
@@ -342,7 +342,7 @@ void vtkLineWidget2::SetProcessEvents(vtkTypeBool pe)
   this->LineHandle->SetProcessEvents(pe);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLineWidget2::ProcessKeyEvents(vtkObject*, unsigned long event, void* clientdata, void*)
 {
   vtkLineWidget2* self = static_cast<vtkLineWidget2*>(clientdata);
@@ -397,7 +397,7 @@ void vtkLineWidget2::ProcessKeyEvents(vtkObject*, unsigned long event, void* cli
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLineWidget2::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

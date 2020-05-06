@@ -33,7 +33,7 @@
 
 vtkStandardNewMacro(vtkWarpScalar);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkWarpScalar::vtkWarpScalar()
 {
   this->ScaleFactor = 1.0;
@@ -48,29 +48,29 @@ vtkWarpScalar::vtkWarpScalar()
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkWarpScalar::~vtkWarpScalar() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkWarpScalar::DataNormal(vtkIdType id, vtkDataArray* normals)
 {
   return normals->GetTuple(id);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkWarpScalar::InstanceNormal(vtkIdType vtkNotUsed(id), vtkDataArray* vtkNotUsed(normals))
 {
   return this->Normal;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkWarpScalar::ZNormal(vtkIdType vtkNotUsed(id), vtkDataArray* vtkNotUsed(normals))
 {
   static double zNormal[3] = { 0.0, 0.0, 1.0 };
   return zNormal;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkWarpScalar::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
@@ -80,7 +80,7 @@ int vtkWarpScalar::FillInputPortInformation(int vtkNotUsed(port), vtkInformation
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkWarpScalar::RequestDataObject(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -103,7 +103,7 @@ int vtkWarpScalar::RequestDataObject(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkWarpScalar::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -231,7 +231,7 @@ int vtkWarpScalar::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWarpScalar::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

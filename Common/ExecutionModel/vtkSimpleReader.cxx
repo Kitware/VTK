@@ -29,7 +29,7 @@ struct vtkSimpleReaderInternal
   FileNamesType FileNames;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSimpleReader::vtkSimpleReader()
 {
   this->Internal = new vtkSimpleReaderInternal;
@@ -37,25 +37,25 @@ vtkSimpleReader::vtkSimpleReader()
   this->HasTemporalMetaData = false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSimpleReader::~vtkSimpleReader()
 {
   delete this->Internal;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExecutive* vtkSimpleReader::CreateDefaultExecutive()
 {
   return vtkReaderExecutive::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSimpleReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSimpleReader::AddFileName(const char* fname)
 {
   if (fname == nullptr || strlen(fname) == 0)
@@ -66,26 +66,26 @@ void vtkSimpleReader::AddFileName(const char* fname)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSimpleReader::ClearFileNames()
 {
   this->Internal->FileNames.clear();
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSimpleReader::GetNumberOfFileNames() const
 {
   return static_cast<int>(this->Internal->FileNames.size());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkSimpleReader::GetFileName(int i) const
 {
   return this->Internal->FileNames[i].c_str();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkSimpleReader::GetCurrentFileName() const
 {
   if (this->CurrentFileIndex < 0 || this->CurrentFileIndex >= (int)this->Internal->FileNames.size())
@@ -95,7 +95,7 @@ const char* vtkSimpleReader::GetCurrentFileName() const
   return this->Internal->FileNames[this->CurrentFileIndex].c_str();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSimpleReader::ReadTimeDependentMetaData(int timestep, vtkInformation* metadata)
 {
   if (!this->HasTemporalMetaData)
@@ -114,7 +114,7 @@ int vtkSimpleReader::ReadTimeDependentMetaData(int timestep, vtkInformation* met
   return this->ReadMetaDataSimple(this->Internal->FileNames[timestep], metadata);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSimpleReader::ReadMetaData(vtkInformation* metadata)
 {
   if (this->HasTemporalMetaData)
@@ -172,7 +172,7 @@ int vtkSimpleReader::ReadMetaData(vtkInformation* metadata)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSimpleReader::ReadMesh(int piece, int, int, int timestep, vtkDataObject* output)
 {
   // Not a parallel reader. Cannot handle anything other than the first piece,
@@ -198,7 +198,7 @@ int vtkSimpleReader::ReadMesh(int piece, int, int, int timestep, vtkDataObject* 
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSimpleReader::ReadPoints(int piece, int, int, int timestep, vtkDataObject* output)
 {
   // Not a parallel reader. Cannot handle anything other than the first piece,
@@ -219,7 +219,7 @@ int vtkSimpleReader::ReadPoints(int piece, int, int, int timestep, vtkDataObject
   return this->ReadPointsSimple(this->Internal->FileNames[timestep], output);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSimpleReader::ReadArrays(int piece, int, int, int timestep, vtkDataObject* output)
 {
   // Not a parallel reader. Cannot handle anything other than the first piece,
@@ -240,7 +240,7 @@ int vtkSimpleReader::ReadArrays(int piece, int, int, int timestep, vtkDataObject
   return this->ReadArraysSimple(this->Internal->FileNames[timestep], output);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkSimpleReader::GetTimeValue(const std::string&)
 {
   return vtkMath::Nan();

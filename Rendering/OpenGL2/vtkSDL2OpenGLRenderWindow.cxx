@@ -91,7 +91,7 @@ void vtkSDL2OpenGLRenderWindow::SetWindowName(const char* title)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSDL2OpenGLRenderWindow::MakeCurrent()
 {
   if (this->ContextId)
@@ -124,7 +124,7 @@ void vtkSDL2OpenGLRenderWindow::PopContext()
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Tells if this window is the current OpenGL context for the calling thread.
 bool vtkSDL2OpenGLRenderWindow::IsCurrent()
@@ -138,7 +138,7 @@ bool vtkSDL2OpenGLRenderWindow::SetSwapControl(int i)
   return true;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSDL2OpenGLRenderWindow::SetSize(int x, int y)
 {
   if ((this->Size[0] != x) || (this->Size[1] != y))
@@ -361,13 +361,13 @@ void vtkSDL2OpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Window Id: " << this->WindowId << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSDL2OpenGLRenderWindow::HideCursor()
 {
   SDL_ShowCursor(SDL_DISABLE);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSDL2OpenGLRenderWindow::ShowCursor()
 {
   SDL_ShowCursor(SDL_ENABLE);

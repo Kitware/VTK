@@ -110,7 +110,7 @@ static bool ReadTextAttribute(int ncFD, int varId, const char* name, vtkStdStrin
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Convenience function for getting the range of all values in all components of
 // a vtkDoubleArray.
 static void GetRangeOfAllComponents(vtkDoubleArray* array, double range[2])
@@ -345,7 +345,7 @@ int vtkNetCDFCFReader::vtkDimensionInfo::LoadMetaData(int ncFD)
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkNetCDFCFReader::vtkDimensionInfoVector
 {
 public:
@@ -366,7 +366,7 @@ vtkNetCDFCFReader::vtkDependentDimensionInfo::vtkDependentDimensionInfo(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkNetCDFCFReader::vtkDependentDimensionInfo::LoadMetaData(
   int ncFD, int varId, vtkNetCDFCFReader* parent)
 {
@@ -597,7 +597,7 @@ int vtkNetCDFCFReader::vtkDependentDimensionInfo::LoadMetaData(
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkNetCDFCFReader::vtkDependentDimensionInfo::LoadCoordinateVariable(
   int ncFD, int varId, vtkDoubleArray* coords)
 {
@@ -617,7 +617,7 @@ int vtkNetCDFCFReader::vtkDependentDimensionInfo::LoadCoordinateVariable(
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkNetCDFCFReader::vtkDependentDimensionInfo::LoadBoundsVariable(
   int ncFD, int varId, vtkDoubleArray* coords)
 {
@@ -674,7 +674,7 @@ int vtkNetCDFCFReader::vtkDependentDimensionInfo::LoadBoundsVariable(
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkNetCDFCFReader::vtkDependentDimensionInfo::LoadUnstructuredBoundsVariable(
   int ncFD, int varId, vtkDoubleArray* coords)
 {
@@ -697,7 +697,7 @@ int vtkNetCDFCFReader::vtkDependentDimensionInfo::LoadUnstructuredBoundsVariable
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkNetCDFCFReader::vtkDependentDimensionInfoVector
 {
 public:
@@ -707,7 +707,7 @@ public:
 //=============================================================================
 vtkStandardNewMacro(vtkNetCDFCFReader);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkNetCDFCFReader::vtkNetCDFCFReader()
 {
   this->SphericalCoordinates = 1;
@@ -735,7 +735,7 @@ void vtkNetCDFCFReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "OutputType: " << this->OutputType << endl;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkNetCDFCFReader::CanReadFile(const char* filename)
 {
   // We really just read basic arrays from netCDF files.  If the netCDF library
@@ -753,7 +753,7 @@ int vtkNetCDFCFReader::CanReadFile(const char* filename)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNetCDFCFReader::SetOutputType(int type)
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this
@@ -776,7 +776,7 @@ void vtkNetCDFCFReader::SetOutputType(int type)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkNetCDFCFReader::RequestDataObject(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -955,7 +955,7 @@ int vtkNetCDFCFReader::RequestDataObject(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkNetCDFCFReader::RequestInformation(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -987,7 +987,7 @@ int vtkNetCDFCFReader::RequestInformation(
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkNetCDFCFReader::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -1135,7 +1135,7 @@ int vtkNetCDFCFReader::RequestData(
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNetCDFCFReader::ExtentForDimensionsAndPiece(
   int pieceNumber, int numberOfPieces, int ghostLevels, int extent[6])
 {
@@ -1151,7 +1151,7 @@ void vtkNetCDFCFReader::ExtentForDimensionsAndPiece(
   extentTranslator->GetExtent(extent);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNetCDFCFReader::GetUpdateExtentForOutput(vtkDataSet* output, int extent[6])
 {
   vtkInformation* info = output->GetInformation();
@@ -1165,7 +1165,7 @@ void vtkNetCDFCFReader::GetUpdateExtentForOutput(vtkDataSet* output, int extent[
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNetCDFCFReader::AddRectilinearCoordinates(vtkImageData* imageOutput)
 {
   double origin[3];
@@ -1190,7 +1190,7 @@ void vtkNetCDFCFReader::AddRectilinearCoordinates(vtkImageData* imageOutput)
   imageOutput->SetSpacing(spacing);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNetCDFCFReader::AddRectilinearCoordinates(vtkRectilinearGrid* rectilinearOutput)
 {
   int extent[6];
@@ -1242,7 +1242,7 @@ void vtkNetCDFCFReader::AddRectilinearCoordinates(vtkRectilinearGrid* rectilinea
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNetCDFCFReader::FakeRectilinearCoordinates(vtkRectilinearGrid* rectilinearOutput)
 {
   int dimensionSizes[3];
@@ -1276,7 +1276,7 @@ void vtkNetCDFCFReader::FakeRectilinearCoordinates(vtkRectilinearGrid* rectiline
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNetCDFCFReader::Add1DRectilinearCoordinates(vtkPoints* points, const int extent[6])
 {
   points->SetDataTypeToDouble();
@@ -1327,7 +1327,7 @@ void vtkNetCDFCFReader::Add1DRectilinearCoordinates(vtkPoints* points, const int
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNetCDFCFReader::Add2DRectilinearCoordinates(vtkPoints* points, const int extent[6])
 {
   points->SetDataTypeToDouble();
@@ -1376,7 +1376,7 @@ void vtkNetCDFCFReader::Add2DRectilinearCoordinates(vtkPoints* points, const int
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNetCDFCFReader::Add1DRectilinearCoordinates(vtkStructuredGrid* structuredOutput)
 {
   int extent[6];
@@ -1387,7 +1387,7 @@ void vtkNetCDFCFReader::Add1DRectilinearCoordinates(vtkStructuredGrid* structure
   structuredOutput->SetPoints(points);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNetCDFCFReader::Add2DRectilinearCoordinates(vtkStructuredGrid* structuredOutput)
 {
   int extent[6];
@@ -1398,7 +1398,7 @@ void vtkNetCDFCFReader::Add2DRectilinearCoordinates(vtkStructuredGrid* structure
   structuredOutput->SetPoints(points);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNetCDFCFReader::FakeStructuredCoordinates(vtkStructuredGrid* structuredOutput)
 {
   int extent[6];
@@ -1423,7 +1423,7 @@ void vtkNetCDFCFReader::FakeStructuredCoordinates(vtkStructuredGrid* structuredO
   structuredOutput->SetPoints(points);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNetCDFCFReader::Add1DRectilinearCoordinates(
   vtkUnstructuredGrid* unstructuredOutput, const int extent[6])
 {
@@ -1434,7 +1434,7 @@ void vtkNetCDFCFReader::Add1DRectilinearCoordinates(
   this->AddStructuredCells(unstructuredOutput, extent);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNetCDFCFReader::Add2DRectilinearCoordinates(
   vtkUnstructuredGrid* unstructuredOutput, const int extent[6])
 {
@@ -1445,7 +1445,7 @@ void vtkNetCDFCFReader::Add2DRectilinearCoordinates(
   this->AddStructuredCells(unstructuredOutput, extent);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNetCDFCFReader::Add1DSphericalCoordinates(vtkPoints* points, const int extent[6])
 {
   points->SetDataTypeToDouble();
@@ -1525,7 +1525,7 @@ void vtkNetCDFCFReader::Add1DSphericalCoordinates(vtkPoints* points, const int e
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNetCDFCFReader::Add2DSphericalCoordinates(vtkPoints* points, const int extent[6])
 {
   points->SetDataTypeToDouble();
@@ -1602,7 +1602,7 @@ void vtkNetCDFCFReader::Add2DSphericalCoordinates(vtkPoints* points, const int e
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNetCDFCFReader::Add1DSphericalCoordinates(vtkStructuredGrid* structuredOutput)
 {
   int extent[6];
@@ -1613,7 +1613,7 @@ void vtkNetCDFCFReader::Add1DSphericalCoordinates(vtkStructuredGrid* structuredO
   structuredOutput->SetPoints(points);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNetCDFCFReader::Add2DSphericalCoordinates(vtkStructuredGrid* structuredOutput)
 {
   int extent[6];
@@ -1624,7 +1624,7 @@ void vtkNetCDFCFReader::Add2DSphericalCoordinates(vtkStructuredGrid* structuredO
   structuredOutput->SetPoints(points);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNetCDFCFReader::Add1DSphericalCoordinates(
   vtkUnstructuredGrid* unstructuredOutput, const int extent[6])
 {
@@ -1635,7 +1635,7 @@ void vtkNetCDFCFReader::Add1DSphericalCoordinates(
   this->AddStructuredCells(unstructuredOutput, extent);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNetCDFCFReader::Add2DSphericalCoordinates(
   vtkUnstructuredGrid* unstructuredOutput, const int extent[6])
 {
@@ -1646,7 +1646,7 @@ void vtkNetCDFCFReader::Add2DSphericalCoordinates(
   this->AddStructuredCells(unstructuredOutput, extent);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNetCDFCFReader::AddStructuredCells(
   vtkUnstructuredGrid* unstructuredOutput, const int extent[6])
 {
@@ -1725,7 +1725,7 @@ void vtkNetCDFCFReader::AddStructuredCells(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNetCDFCFReader::AddUnstructuredRectilinearCoordinates(
   vtkUnstructuredGrid* unstructuredOutput, const int extent[6])
 {
@@ -1779,7 +1779,7 @@ void vtkNetCDFCFReader::AddUnstructuredRectilinearCoordinates(
   unstructuredOutput->SetPoints(points);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNetCDFCFReader::AddUnstructuredSphericalCoordinates(
   vtkUnstructuredGrid* unstructuredOutput, const int extent[6])
 {
@@ -1811,7 +1811,7 @@ void vtkNetCDFCFReader::AddUnstructuredSphericalCoordinates(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkNetCDFCFReader::ReadMetaData(int ncFD)
 {
   vtkDebugMacro("ReadMetaData");
@@ -1908,25 +1908,25 @@ int vtkNetCDFCFReader::ReadMetaData(int ncFD)
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkNetCDFCFReader::IsTimeDimension(int vtkNotUsed(ncFD), int dimId)
 {
   return (this->GetDimensionInfo(dimId)->GetUnits() == vtkDimensionInfo::TIME_UNITS);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSmartPointer<vtkDoubleArray> vtkNetCDFCFReader::GetTimeValues(int vtkNotUsed(ncFD), int dimId)
 {
   return this->GetDimensionInfo(dimId)->GetCoordinates();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 inline vtkNetCDFCFReader::vtkDimensionInfo* vtkNetCDFCFReader::GetDimensionInfo(int dimension)
 {
   return &(this->DimensionInfo->v.at(dimension));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkNetCDFCFReader::vtkDependentDimensionInfo* vtkNetCDFCFReader::FindDependentDimensionInfo(
   vtkIntArray* dims)
 {
@@ -1951,7 +1951,7 @@ vtkNetCDFCFReader::vtkDependentDimensionInfo* vtkNetCDFCFReader::FindDependentDi
   return nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNetCDFCFReader::IdentifySphericalCoordinates(
   vtkIntArray* dimensions, int& longitudeDim, int& latitudeDim, int& verticalDim)
 {
@@ -1976,7 +1976,7 @@ void vtkNetCDFCFReader::IdentifySphericalCoordinates(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkNetCDFCFReader::CoordinateTypesEnum vtkNetCDFCFReader::CoordinateType(vtkIntArray* dimensions)
 {
   vtkDependentDimensionInfo* dependentDimInfo = this->FindDependentDimensionInfo(dimensions);
@@ -2048,7 +2048,7 @@ vtkNetCDFCFReader::CoordinateTypesEnum vtkNetCDFCFReader::CoordinateType(vtkIntA
   return COORDS_UNIFORM_RECTILINEAR;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkNetCDFCFReader::DimensionsAreForPointData(vtkIntArray* dimensions)
 {
   switch (this->CoordinateType(dimensions))

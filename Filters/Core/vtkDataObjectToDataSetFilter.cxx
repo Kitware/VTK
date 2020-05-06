@@ -30,7 +30,7 @@
 
 vtkStandardNewMacro(vtkDataObjectToDataSetFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Instantiate object with no input and no defined output.
 vtkDataObjectToDataSetFilter::vtkDataObjectToDataSetFilter()
 {
@@ -99,7 +99,7 @@ vtkDataObjectToDataSetFilter::vtkDataObjectToDataSetFilter()
   this->Origin[0] = this->Origin[1] = this->Origin[2] = 0.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObjectToDataSetFilter::~vtkDataObjectToDataSetFilter()
 {
   for (int i = 0; i < 3; i++)
@@ -159,7 +159,7 @@ void vtkDataObjectToDataSetFilter::SetDataSetType(int dt)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject* vtkDataObjectToDataSetFilter::GetInput()
 {
   if (this->GetNumberOfInputConnections(0) < 1)
@@ -170,7 +170,7 @@ vtkDataObject* vtkDataObjectToDataSetFilter::GetInput()
   return this->GetExecutive()->GetInputData(0, 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObjectToDataSetFilter::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -225,7 +225,7 @@ int vtkDataObjectToDataSetFilter::RequestInformation(vtkInformation* vtkNotUsed(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObjectToDataSetFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -327,7 +327,7 @@ vtkPolyData* vtkDataObjectToDataSetFilter::GetPolyDataOutput()
   return vtkPolyData::SafeDownCast(this->GetOutput());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataSet* vtkDataObjectToDataSetFilter::GetOutput()
 {
   if (this->GetNumberOfOutputPorts() < 1)
@@ -362,7 +362,7 @@ vtkRectilinearGrid* vtkDataObjectToDataSetFilter::GetRectilinearGridOutput()
   return vtkRectilinearGrid::SafeDownCast(this->GetOutput());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObjectToDataSetFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -376,7 +376,7 @@ int vtkDataObjectToDataSetFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObjectToDataSetFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -415,7 +415,7 @@ void vtkDataObjectToDataSetFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Default Normalize: " << (this->DefaultNormalize ? "On\n" : "Off\n");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Stuff related to points --------------------------------------------
 //
 void vtkDataObjectToDataSetFilter::SetPointComponent(
@@ -450,42 +450,42 @@ void vtkDataObjectToDataSetFilter::SetPointComponent(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkDataObjectToDataSetFilter::GetPointComponentArrayName(int comp)
 {
   comp = (comp < 0 ? 0 : (comp > 2 ? 2 : comp));
   return this->PointArrays[comp];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObjectToDataSetFilter::GetPointComponentArrayComponent(int comp)
 {
   comp = (comp < 0 ? 0 : (comp > 2 ? 2 : comp));
   return this->PointArrayComponents[comp];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObjectToDataSetFilter::GetPointComponentMinRange(int comp)
 {
   comp = (comp < 0 ? 0 : (comp > 2 ? 2 : comp));
   return this->PointComponentRange[comp][0];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObjectToDataSetFilter::GetPointComponentMaxRange(int comp)
 {
   comp = (comp < 0 ? 0 : (comp > 2 ? 2 : comp));
   return this->PointComponentRange[comp][1];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObjectToDataSetFilter::GetPointComponentNormailzeFlag(int comp)
 {
   comp = (comp < 0 ? 0 : (comp > 2 ? 2 : comp));
   return this->PointNormalize[comp];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkDataObjectToDataSetFilter::ConstructPoints(vtkDataObject* input, vtkPointSet* ps)
 {
   int i, updated = 0;
@@ -553,7 +553,7 @@ vtkIdType vtkDataObjectToDataSetFilter::ConstructPoints(vtkDataObject* input, vt
   return npts;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkDataObjectToDataSetFilter::ConstructPoints(
   vtkDataObject* input, vtkRectilinearGrid* rg)
 {
@@ -681,7 +681,7 @@ vtkIdType vtkDataObjectToDataSetFilter::ConstructPoints(
   return npts;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Stuff related to vtkPolyData --------------------------------------------
 //
 void vtkDataObjectToDataSetFilter::SetVertsComponent(
@@ -705,31 +705,31 @@ void vtkDataObjectToDataSetFilter::SetVertsComponent(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkDataObjectToDataSetFilter::GetVertsComponentArrayName()
 {
   return this->VertsArray;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObjectToDataSetFilter::GetVertsComponentArrayComponent()
 {
   return this->VertsArrayComponent;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObjectToDataSetFilter::GetVertsComponentMinRange()
 {
   return this->VertsComponentRange[0];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObjectToDataSetFilter::GetVertsComponentMaxRange()
 {
   return this->VertsComponentRange[1];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObjectToDataSetFilter::SetLinesComponent(
   const char* arrayName, int arrayComp, int min, int max)
 {
@@ -751,31 +751,31 @@ void vtkDataObjectToDataSetFilter::SetLinesComponent(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkDataObjectToDataSetFilter::GetLinesComponentArrayName()
 {
   return this->LinesArray;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObjectToDataSetFilter::GetLinesComponentArrayComponent()
 {
   return this->LinesArrayComponent;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObjectToDataSetFilter::GetLinesComponentMinRange()
 {
   return this->LinesComponentRange[0];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObjectToDataSetFilter::GetLinesComponentMaxRange()
 {
   return this->LinesComponentRange[1];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObjectToDataSetFilter::SetPolysComponent(
   const char* arrayName, int arrayComp, int min, int max)
 {
@@ -797,31 +797,31 @@ void vtkDataObjectToDataSetFilter::SetPolysComponent(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkDataObjectToDataSetFilter::GetPolysComponentArrayName()
 {
   return this->PolysArray;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObjectToDataSetFilter::GetPolysComponentArrayComponent()
 {
   return this->PolysArrayComponent;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObjectToDataSetFilter::GetPolysComponentMinRange()
 {
   return this->PolysComponentRange[0];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObjectToDataSetFilter::GetPolysComponentMaxRange()
 {
   return this->PolysComponentRange[1];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObjectToDataSetFilter::SetStripsComponent(
   const char* arrayName, int arrayComp, int min, int max)
 {
@@ -843,31 +843,31 @@ void vtkDataObjectToDataSetFilter::SetStripsComponent(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkDataObjectToDataSetFilter::GetStripsComponentArrayName()
 {
   return this->StripsArray;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObjectToDataSetFilter::GetStripsComponentArrayComponent()
 {
   return this->StripsArrayComponent;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObjectToDataSetFilter::GetStripsComponentMinRange()
 {
   return this->StripsComponentRange[0];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObjectToDataSetFilter::GetStripsComponentMaxRange()
 {
   return this->StripsComponentRange[1];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Stuff related to vtkUnstructuredGrid --------------------------------------
 void vtkDataObjectToDataSetFilter::SetCellTypeComponent(
   const char* arrayName, int arrayComp, int min, int max)
@@ -890,31 +890,31 @@ void vtkDataObjectToDataSetFilter::SetCellTypeComponent(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkDataObjectToDataSetFilter::GetCellTypeComponentArrayName()
 {
   return this->CellTypeArray;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObjectToDataSetFilter::GetCellTypeComponentArrayComponent()
 {
   return this->CellTypeArrayComponent;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObjectToDataSetFilter::GetCellTypeComponentMinRange()
 {
   return this->CellTypeComponentRange[0];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObjectToDataSetFilter::GetCellTypeComponentMaxRange()
 {
   return this->CellTypeComponentRange[1];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObjectToDataSetFilter::SetCellConnectivityComponent(
   const char* arrayName, int arrayComp, int min, int max)
 {
@@ -936,31 +936,31 @@ void vtkDataObjectToDataSetFilter::SetCellConnectivityComponent(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkDataObjectToDataSetFilter::GetCellConnectivityComponentArrayName()
 {
   return this->CellConnectivityArray;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObjectToDataSetFilter::GetCellConnectivityComponentArrayComponent()
 {
   return this->CellConnectivityArrayComponent;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObjectToDataSetFilter::GetCellConnectivityComponentMinRange()
 {
   return this->CellConnectivityComponentRange[0];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObjectToDataSetFilter::GetCellConnectivityComponentMaxRange()
 {
   return this->CellConnectivityComponentRange[1];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObjectToDataSetFilter::ConstructCells(vtkDataObject* input, vtkPolyData* pd)
 {
   vtkIdType ncells = 0;
@@ -1062,7 +1062,7 @@ int vtkDataObjectToDataSetFilter::ConstructCells(vtkDataObject* input, vtkPolyDa
   return ncells;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObjectToDataSetFilter::ConstructCells(vtkDataObject* input, vtkUnstructuredGrid* ug)
 {
   int i, *types, typesAllocated = 0;
@@ -1138,7 +1138,7 @@ int vtkDataObjectToDataSetFilter::ConstructCells(vtkDataObject* input, vtkUnstru
   return ncells;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCellArray* vtkDataObjectToDataSetFilter::ConstructCellArray(
   vtkDataArray* da, int comp, vtkIdType compRange[2])
 {
@@ -1198,7 +1198,7 @@ vtkCellArray* vtkDataObjectToDataSetFilter::ConstructCellArray(
   return carray;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Alternative methods for Dimensions, Spacing, and Origin -------------------
 //
 void vtkDataObjectToDataSetFilter::SetDimensionsComponent(
@@ -1222,7 +1222,7 @@ void vtkDataObjectToDataSetFilter::SetDimensionsComponent(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObjectToDataSetFilter::SetSpacingComponent(
   const char* arrayName, int arrayComp, int min, int max)
 {
@@ -1244,7 +1244,7 @@ void vtkDataObjectToDataSetFilter::SetSpacingComponent(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObjectToDataSetFilter::SetOriginComponent(
   const char* arrayName, int arrayComp, int min, int max)
 {
@@ -1266,7 +1266,7 @@ void vtkDataObjectToDataSetFilter::SetOriginComponent(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObjectToDataSetFilter::ConstructDimensions(vtkDataObject* input)
 {
   if (this->DimensionsArray == nullptr || this->DimensionsArrayComponent < 0)
@@ -1297,7 +1297,7 @@ void vtkDataObjectToDataSetFilter::ConstructDimensions(vtkDataObject* input)
   this->DimensionsComponentRange[0] = this->DimensionsComponentRange[1] = -1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObjectToDataSetFilter::ConstructSpacing(vtkDataObject* input)
 {
   if (this->SpacingArray == nullptr || this->SpacingArrayComponent < 0)
@@ -1327,13 +1327,13 @@ void vtkDataObjectToDataSetFilter::ConstructSpacing(vtkDataObject* input)
   this->SpacingComponentRange[0] = this->SpacingComponentRange[1] = -1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataSet* vtkDataObjectToDataSetFilter::GetOutput(int idx)
 {
   return vtkDataSet::SafeDownCast(this->GetExecutive()->GetOutputData(idx));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObjectToDataSetFilter::ConstructOrigin(vtkDataObject* input)
 {
   if (this->OriginArray == nullptr || this->OriginArrayComponent < 0)
@@ -1363,14 +1363,14 @@ void vtkDataObjectToDataSetFilter::ConstructOrigin(vtkDataObject* input)
   this->OriginComponentRange[0] = this->OriginComponentRange[1] = -1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObjectToDataSetFilter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObjectToDataSetFilter::RequestDataObject(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {

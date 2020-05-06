@@ -63,11 +63,11 @@ void ConvertFromNetworkOrder(T& target, const char* rawBytes)
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkStandardNewMacro(vtkPostgreSQLQuery);
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 class vtkPostgreSQLQueryPrivate
 {
@@ -89,7 +89,7 @@ public:
   int CurrentRow;
 };
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkVariant vtkPostgreSQLQuery::DataValue(vtkIdType column)
 {
@@ -191,7 +191,7 @@ vtkVariant vtkPostgreSQLQuery::DataValue(vtkIdType column)
   } // end of switch on column type
 } // end of DataValue(int column)
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPostgreSQLQuery::vtkPostgreSQLQuery()
 {
   this->TransactionInProgress = false;
@@ -199,7 +199,7 @@ vtkPostgreSQLQuery::vtkPostgreSQLQuery()
   this->QueryInternals = nullptr;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPostgreSQLQuery::~vtkPostgreSQLQuery()
 {
   this->SetDatabase(nullptr);
@@ -207,7 +207,7 @@ vtkPostgreSQLQuery::~vtkPostgreSQLQuery()
   delete this->QueryInternals;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPostgreSQLQuery::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -227,7 +227,7 @@ void vtkPostgreSQLQuery::PrintSelf(ostream& os, vtkIndent indent)
   os << "\n";
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPostgreSQLQuery::Execute()
 {
   if (this->Query == 0)
@@ -323,7 +323,7 @@ bool vtkPostgreSQLQuery::Execute()
   return returnStatus;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPostgreSQLQuery::GetNumberOfFields()
 {
   if (!this->Active || !this->QueryInternals)
@@ -335,7 +335,7 @@ int vtkPostgreSQLQuery::GetNumberOfFields()
   return PQnfields(this->QueryInternals->QueryResults);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkPostgreSQLQuery::GetFieldName(int column)
 {
   if (!this->Active || !this->QueryInternals->QueryResults)
@@ -351,7 +351,7 @@ const char* vtkPostgreSQLQuery::GetFieldName(int column)
   return PQfname(this->QueryInternals->QueryResults, column);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPostgreSQLQuery::GetFieldType(int column)
 {
   if (!this->Active || !this->QueryInternals)
@@ -374,7 +374,7 @@ int vtkPostgreSQLQuery::GetFieldType(int column)
   return db->Connection->GetVTKTypeFromOID(PQftype(this->QueryInternals->QueryResults, column));
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPostgreSQLQuery::NextRow()
 {
   if (!this->IsActive() || !this->QueryInternals)
@@ -394,7 +394,7 @@ bool vtkPostgreSQLQuery::NextRow()
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkPostgreSQLQuery::GetLastErrorText()
 {
   if (!this->Database)
@@ -404,7 +404,7 @@ const char* vtkPostgreSQLQuery::GetLastErrorText()
   return this->LastErrorText;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkStdString vtkPostgreSQLQuery::EscapeString(vtkStdString s, bool addSurroundingQuotes)
 {
@@ -441,7 +441,7 @@ vtkStdString vtkPostgreSQLQuery::EscapeString(vtkStdString s, bool addSurroundin
   return retval;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPostgreSQLQuery::HasError()
 {
   if (!this->Database)
@@ -451,7 +451,7 @@ bool vtkPostgreSQLQuery::HasError()
   return this->LastErrorText != 0;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPostgreSQLQuery::BeginTransaction()
 {
   if (this->TransactionInProgress)
@@ -494,7 +494,7 @@ bool vtkPostgreSQLQuery::BeginTransaction()
   return status;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPostgreSQLQuery::CommitTransaction()
 {
   if (!this->TransactionInProgress)
@@ -540,7 +540,7 @@ bool vtkPostgreSQLQuery::CommitTransaction()
   return status;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPostgreSQLQuery::RollbackTransaction()
 {
   if (!this->TransactionInProgress)
@@ -586,7 +586,7 @@ bool vtkPostgreSQLQuery::RollbackTransaction()
   return status;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkPostgreSQLQuery::DeleteQueryResults()
 {
@@ -595,7 +595,7 @@ void vtkPostgreSQLQuery::DeleteQueryResults()
   this->QueryInternals = nullptr;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkVariant ConvertStringToBoolean(bool, const char* rawData)
 {
@@ -632,7 +632,7 @@ vtkVariant ConvertStringToBoolean(bool, const char* rawData)
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkVariant ConvertStringToSignedChar(bool isBinary, const char* rawData)
 {
@@ -647,7 +647,7 @@ vtkVariant ConvertStringToSignedChar(bool isBinary, const char* rawData)
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkVariant ConvertStringToUnsignedChar(bool isBinary, const char* rawData)
 {
@@ -662,7 +662,7 @@ vtkVariant ConvertStringToUnsignedChar(bool isBinary, const char* rawData)
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkVariant ConvertStringToSignedShort(bool isBinary, const char* rawData)
 {
@@ -679,7 +679,7 @@ vtkVariant ConvertStringToSignedShort(bool isBinary, const char* rawData)
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkVariant ConvertStringToUnsignedShort(bool isBinary, const char* rawData)
 {
@@ -696,7 +696,7 @@ vtkVariant ConvertStringToUnsignedShort(bool isBinary, const char* rawData)
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkVariant ConvertStringToSignedInt(bool isBinary, const char* rawData)
 {
@@ -713,7 +713,7 @@ vtkVariant ConvertStringToSignedInt(bool isBinary, const char* rawData)
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkVariant ConvertStringToUnsignedInt(bool isBinary, const char* rawData)
 {
@@ -730,7 +730,7 @@ vtkVariant ConvertStringToUnsignedInt(bool isBinary, const char* rawData)
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkVariant ConvertStringToSignedLong(bool isBinary, const char* rawData)
 {
@@ -747,7 +747,7 @@ vtkVariant ConvertStringToSignedLong(bool isBinary, const char* rawData)
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkVariant ConvertStringToUnsignedLong(bool isBinary, const char* rawData)
 {
@@ -764,7 +764,7 @@ vtkVariant ConvertStringToUnsignedLong(bool isBinary, const char* rawData)
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkVariant ConvertStringToSignedLongLong(bool isBinary, const char* rawData)
 {
@@ -781,7 +781,7 @@ vtkVariant ConvertStringToSignedLongLong(bool isBinary, const char* rawData)
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkVariant ConvertStringToUnsignedLongLong(bool isBinary, const char* rawData)
 {
@@ -798,7 +798,7 @@ vtkVariant ConvertStringToUnsignedLongLong(bool isBinary, const char* rawData)
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkVariant ConvertStringToFloat(bool isBinary, const char* rawData)
 {
@@ -878,7 +878,7 @@ vtkVariant ConvertStringToFloat(bool isBinary, const char* rawData)
   } // end of handling string representation
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkVariant ConvertStringToVtkIdType(bool isBinary, const char* rawData)
 {
@@ -898,7 +898,7 @@ vtkVariant ConvertStringToVtkIdType(bool isBinary, const char* rawData)
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkVariant ConvertStringToDouble(bool isBinary, const char* rawData)
 {
@@ -975,7 +975,7 @@ vtkVariant ConvertStringToDouble(bool isBinary, const char* rawData)
   } // end of handling string representation
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 bool vtkPostgreSQLQuery::IsColumnBinary(int whichColumn)
 {
@@ -995,7 +995,7 @@ bool vtkPostgreSQLQuery::IsColumnBinary(int whichColumn)
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 const char* vtkPostgreSQLQuery::GetColumnRawData(int whichColumn)
 {
@@ -1016,7 +1016,7 @@ const char* vtkPostgreSQLQuery::GetColumnRawData(int whichColumn)
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkPostgreSQLQuery::GetNumberOfRows()
 {

@@ -44,7 +44,7 @@ static inline float CoolDown(float t, float r)
   return t - (t / r);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkSimple2DLayoutStrategy::vtkSimple2DLayoutStrategy()
 {
@@ -66,7 +66,7 @@ vtkSimple2DLayoutStrategy::vtkSimple2DLayoutStrategy()
   this->EdgeArray = nullptr;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkSimple2DLayoutStrategy::~vtkSimple2DLayoutStrategy()
 {
@@ -77,7 +77,7 @@ vtkSimple2DLayoutStrategy::~vtkSimple2DLayoutStrategy()
   this->EdgeArray = nullptr;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 // Set the graph that will be laid out
 void vtkSimple2DLayoutStrategy::Initialize()
@@ -191,7 +191,7 @@ void vtkSimple2DLayoutStrategy::Initialize()
   this->Temp = this->InitialTemperature;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 // Simple graph layout method
 void vtkSimple2DLayoutStrategy::Layout()

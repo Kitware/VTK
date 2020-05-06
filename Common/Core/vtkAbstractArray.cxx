@@ -64,7 +64,7 @@ class vtkAbstractArray::vtkInternalComponentNames : public vtkInternalComponentN
 {
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct object with sane defaults.
 vtkAbstractArray::vtkAbstractArray()
 {
@@ -79,7 +79,7 @@ vtkAbstractArray::vtkAbstractArray()
   this->MaxDiscreteValues = vtkAbstractArray::MAX_DISCRETE_VALUES; // 32
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAbstractArray::~vtkAbstractArray()
 {
   if (this->ComponentNames)
@@ -97,7 +97,7 @@ vtkAbstractArray::~vtkAbstractArray()
   this->SetInformation(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractArray::SetComponentName(vtkIdType component, const char* name)
 {
   if (component < 0 || name == nullptr)
@@ -135,7 +135,7 @@ void vtkAbstractArray::SetComponentName(vtkIdType component, const char* name)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkAbstractArray::GetComponentName(vtkIdType component) const
 {
   unsigned int index = static_cast<unsigned int>(component);
@@ -149,13 +149,13 @@ const char* vtkAbstractArray::GetComponentName(vtkIdType component) const
   return (compName) ? compName->c_str() : nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkAbstractArray::HasAComponentName() const
 {
   return this->ComponentNames && !this->ComponentNames->empty();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAbstractArray::CopyComponentNames(vtkAbstractArray* da)
 {
   if (da && da != this && da->ComponentNames)
@@ -187,7 +187,7 @@ int vtkAbstractArray::CopyComponentNames(vtkAbstractArray* da)
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkAbstractArray::SetNumberOfValues(vtkIdType numValues)
 {
   vtkIdType numTuples = this->NumberOfComponents == 1
@@ -201,7 +201,7 @@ bool vtkAbstractArray::SetNumberOfValues(vtkIdType numValues)
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractArray::SetInformation(vtkInformation* args)
 {
   // Same as in vtkCxxSetObjectMacro, but no Modified() so that
@@ -222,7 +222,7 @@ void vtkAbstractArray::SetInformation(vtkInformation* args)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractArray::GetTuples(vtkIdList* tupleIds, vtkAbstractArray* aa)
 {
   if (aa->GetNumberOfComponents() != this->GetNumberOfComponents())
@@ -239,7 +239,7 @@ void vtkAbstractArray::GetTuples(vtkIdList* tupleIds, vtkAbstractArray* aa)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractArray::GetTuples(vtkIdType p1, vtkIdType p2, vtkAbstractArray* aa)
 {
   if (aa->GetNumberOfComponents() != this->GetNumberOfComponents())
@@ -257,13 +257,13 @@ void vtkAbstractArray::GetTuples(vtkIdType p1, vtkIdType p2, vtkAbstractArray* a
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkAbstractArray::HasStandardMemoryLayout() const
 {
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractArray::DeepCopy(vtkAbstractArray* da)
 {
   if (!da || da == this)
@@ -285,7 +285,7 @@ void vtkAbstractArray::DeepCopy(vtkAbstractArray* da)
   this->CopyComponentNames(da);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractArray::ExportToVoidPointer(void* dest)
 {
   if (this->MaxId > 0 && this->GetDataTypeSize() > 0)
@@ -295,7 +295,7 @@ void vtkAbstractArray::ExportToVoidPointer(void* dest)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAbstractArray::CopyInformation(vtkInformation* infoFrom, int deep)
 {
   // Copy all keys. NOTE: subclasses rely on this.
@@ -311,7 +311,7 @@ int vtkAbstractArray::CopyInformation(vtkInformation* infoFrom, int deep)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // call modified on superclass
 void vtkAbstractArray::Modified()
 {
@@ -325,7 +325,7 @@ void vtkAbstractArray::Modified()
   this->Superclass::Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformation* vtkAbstractArray::GetInformation()
 {
   if (!this->Information)
@@ -337,7 +337,7 @@ vtkInformation* vtkAbstractArray::GetInformation()
   return this->Information;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T>
 int vtkAbstractArrayGetDataTypeSize(T*)
 {
@@ -362,7 +362,7 @@ int vtkAbstractArray::GetDataTypeSize(int type)
   return 1;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAbstractArray* vtkAbstractArray::CreateArray(int dataType)
 {
   switch (dataType)
@@ -429,14 +429,14 @@ vtkAbstractArray* vtkAbstractArray::CreateArray(int dataType)
   return vtkDoubleArray::New();
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <typename T>
 vtkVariant vtkAbstractArrayGetVariantValue(T* arr, vtkIdType index)
 {
   return vtkVariant(arr[index]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkVariant vtkAbstractArray::GetVariantValue(vtkIdType valueIdx)
 {
   vtkVariant val;
@@ -448,7 +448,7 @@ vtkVariant vtkAbstractArray::GetVariantValue(vtkIdType valueIdx)
   return val;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractArray::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -482,7 +482,7 @@ void vtkAbstractArray::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractArray::GetProminentComponentValues(
   int comp, vtkVariantArray* values, double uncertainty, double minimumProminence)
 {
@@ -557,7 +557,7 @@ void vtkAbstractArray::GetProminentComponentValues(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 namespace
 {
 template <typename T>
@@ -605,7 +605,7 @@ bool AccumulateSampleValues(T* array, int nc, vtkIdType begin, vtkIdType end,
   return ndc == 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <typename U>
 void SampleProminentValues(std::vector<std::vector<vtkVariant>>& uniques, vtkIdType maxId, int nc,
   vtkIdType nt, int blockSize, vtkIdType numberOfBlocks, U* ptr, unsigned int maxDiscreteValues)
@@ -668,7 +668,7 @@ void SampleProminentValues(std::vector<std::vector<vtkVariant>>& uniques, vtkIdT
 }
 } // End anonymous namespace.
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractArray::UpdateDiscreteValueSet(double uncertainty, double minimumProminence)
 {
   // For an array with T tuples and given uncertainty U and mininumum

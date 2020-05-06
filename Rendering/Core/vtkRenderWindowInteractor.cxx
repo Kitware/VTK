@@ -61,11 +61,11 @@ typedef std::map<int, vtkTimerStruct>::iterator vtkTimerIdMapIterator;
 // render window interactors.
 static int vtkTimerId = 1;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkRenderWindowInteractor, Picker, vtkAbstractPicker);
 vtkCxxSetObjectMacro(vtkRenderWindowInteractor, HardwareWindow, vtkHardwareWindow);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct object so that light follows camera motion.
 vtkRenderWindowInteractor::vtkRenderWindowInteractor()
 {
@@ -149,7 +149,7 @@ vtkRenderWindowInteractor::vtkRenderWindowInteractor()
   this->Done = false;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRenderWindowInteractor::~vtkRenderWindowInteractor()
 {
   if (this->InteractorStyle != nullptr)
@@ -174,7 +174,7 @@ vtkRenderWindowInteractor::~vtkRenderWindowInteractor()
 
 vtkObjectFactoryNewMacro(vtkRenderWindowInteractor);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderWindowInteractor::Render()
 {
   if (this->RenderWindow && this->Enabled && this->EnableRender)
@@ -186,7 +186,7 @@ void vtkRenderWindowInteractor::Render()
   this->InvokeEvent(vtkCommand::RenderEvent, nullptr);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // treat renderWindow and interactor as one object.
 // it might be easier if the GetReference count method were redefined.
 void vtkRenderWindowInteractor::UnRegister(vtkObjectBase* o)
@@ -203,7 +203,7 @@ void vtkRenderWindowInteractor::UnRegister(vtkObjectBase* o)
   this->vtkObject::UnRegister(o);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderWindowInteractor::Start()
 {
   // Let the compositing handle the event loop if it wants to.
@@ -230,7 +230,7 @@ void vtkRenderWindowInteractor::Start()
   this->StartEventLoop();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderWindowInteractor::SetRenderWindow(vtkRenderWindow* aren)
 {
   if (this->RenderWindow != aren)
@@ -253,7 +253,7 @@ void vtkRenderWindowInteractor::SetRenderWindow(vtkRenderWindow* aren)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderWindowInteractor::SetInteractorStyle(vtkInteractorObserver* style)
 {
   if (this->InteractorStyle != style)
@@ -277,7 +277,7 @@ void vtkRenderWindowInteractor::SetInteractorStyle(vtkInteractorObserver* style)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderWindowInteractor::UpdateSize(int x, int y)
 {
   // if the size changed send this on to the RenderWindow
@@ -369,21 +369,21 @@ bool vtkRenderWindowInteractor::IsPointerIndexSet(int i)
   return false;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Creates an instance of vtkPropPicker by default
 vtkAbstractPropPicker* vtkRenderWindowInteractor::CreateDefaultPicker()
 {
   return vtkPropPicker::New();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Creates an instance of vtkPickingManager by default
 vtkPickingManager* vtkRenderWindowInteractor::CreateDefaultPickingManager()
 {
   return vtkPickingManager::New();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderWindowInteractor::SetPickingManager(vtkPickingManager* pm)
 {
   if (this->PickingManager == pm)
@@ -408,7 +408,7 @@ void vtkRenderWindowInteractor::SetPickingManager(vtkPickingManager* pm)
   this->Modified();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderWindowInteractor::ExitCallback()
 {
   if (this->HasObserver(vtkCommand::ExitEvent))
@@ -421,25 +421,25 @@ void vtkRenderWindowInteractor::ExitCallback()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderWindowInteractor::UserCallback()
 {
   this->InvokeEvent(vtkCommand::UserEvent, nullptr);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderWindowInteractor::StartPickCallback()
 {
   this->InvokeEvent(vtkCommand::StartPickEvent, nullptr);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderWindowInteractor::EndPickCallback()
 {
   this->InvokeEvent(vtkCommand::EndPickEvent, nullptr);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderWindowInteractor::FlyTo(vtkRenderer* ren, double x, double y, double z)
 {
   double flyFrom[3], flyTo[3];
@@ -471,7 +471,7 @@ void vtkRenderWindowInteractor::FlyTo(vtkRenderer* ren, double x, double y, doub
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderWindowInteractor::FlyToImage(vtkRenderer* ren, double x, double y)
 {
   double flyFrom[3], flyTo[3];
@@ -506,7 +506,7 @@ void vtkRenderWindowInteractor::FlyToImage(vtkRenderer* ren, double x, double y)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRenderer* vtkRenderWindowInteractor::FindPokedRenderer(int x, int y)
 {
   if (this->RenderWindow == nullptr)
@@ -565,7 +565,7 @@ vtkRenderer* vtkRenderWindowInteractor::FindPokedRenderer(int x, int y)
   return currentRenderer;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderWindowInteractor::SetScale(double scale)
 {
   this->LastScale = this->Scale;
@@ -576,7 +576,7 @@ void vtkRenderWindowInteractor::SetScale(double scale)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderWindowInteractor::SetRotation(double rotation)
 {
   this->LastRotation = this->Rotation;
@@ -587,7 +587,7 @@ void vtkRenderWindowInteractor::SetRotation(double rotation)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderWindowInteractor::SetTranslation(double val[2])
 {
   this->LastTranslation[0] = this->Translation[0];
@@ -600,7 +600,7 @@ void vtkRenderWindowInteractor::SetTranslation(double val[2])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderWindowInteractor::RecognizeGesture(vtkCommand::EventIds event)
 {
   // we know we are in multitouch now, so start recognizing
@@ -942,7 +942,7 @@ int vtkRenderWindowInteractor::GetCurrentTimerId()
   return vtkTimerId;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -996,7 +996,7 @@ void vtkRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Recognize Gestures: " << this->RecognizeGestures << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderWindowInteractor::Initialize()
 {
   this->Initialized = 1;
@@ -1004,19 +1004,19 @@ void vtkRenderWindowInteractor::Initialize()
   this->Render();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderWindowInteractor::HideCursor()
 {
   this->RenderWindow->HideCursor();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderWindowInteractor::ShowCursor()
 {
   this->RenderWindow->ShowCursor();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkObserverMediator* vtkRenderWindowInteractor::GetObserverMediator()
 {
   if (!this->ObserverMediator)

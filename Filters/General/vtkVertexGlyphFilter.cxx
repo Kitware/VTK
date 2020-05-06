@@ -32,7 +32,7 @@
 
 vtkStandardNewMacro(vtkVertexGlyphFilter);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkVertexGlyphFilter::vtkVertexGlyphFilter() = default;
 
@@ -43,7 +43,7 @@ void vtkVertexGlyphFilter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkVertexGlyphFilter::FillInputPortInformation(int, vtkInformation* info)
 {
@@ -53,7 +53,7 @@ int vtkVertexGlyphFilter::FillInputPortInformation(int, vtkInformation* info)
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkVertexGlyphFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)

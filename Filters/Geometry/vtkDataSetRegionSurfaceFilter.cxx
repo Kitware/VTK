@@ -54,7 +54,7 @@ public:
 };
 vtkStandardNewMacro(vtkDataSetRegionSurfaceFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataSetRegionSurfaceFilter::vtkDataSetRegionSurfaceFilter()
 {
   this->RegionArray = nullptr;
@@ -78,7 +78,7 @@ vtkDataSetRegionSurfaceFilter::vtkDataSetRegionSurfaceFilter()
   this->SingleSided = true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataSetRegionSurfaceFilter::~vtkDataSetRegionSurfaceFilter()
 {
   this->SetRegionArrayName(nullptr);
@@ -91,14 +91,14 @@ vtkDataSetRegionSurfaceFilter::~vtkDataSetRegionSurfaceFilter()
   delete this->Internal;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataSetRegionSurfaceFilter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataSetRegionSurfaceFilter::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -150,7 +150,7 @@ int vtkDataSetRegionSurfaceFilter::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataSetRegionSurfaceFilter::UnstructuredGridExecute(
   vtkDataSet* dataSetInput, vtkPolyData* output)
 {
@@ -881,7 +881,7 @@ int vtkDataSetRegionSurfaceFilter::UnstructuredGridExecute(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataSetRegionSurfaceFilter::InsertQuadInHash(
   vtkIdType a, vtkIdType b, vtkIdType c, vtkIdType d, vtkIdType sourceId, vtkIdType faceId)
 {
@@ -969,7 +969,7 @@ void vtkDataSetRegionSurfaceFilter::InsertQuadInHash(
   *end = quad;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataSetRegionSurfaceFilter::InsertTriInHash(
   vtkIdType a, vtkIdType b, vtkIdType c, vtkIdType sourceId, vtkIdType faceId)
 {
@@ -1043,7 +1043,7 @@ void vtkDataSetRegionSurfaceFilter::InsertTriInHash(
   *end = quad;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataSetRegionSurfaceFilter::RecordOrigCellId(vtkIdType destIndex, vtkFastGeomQuad* quad)
 {
   this->OrigCellIds->InsertValue(destIndex, quad->SourceId);
@@ -1051,13 +1051,13 @@ void vtkDataSetRegionSurfaceFilter::RecordOrigCellId(vtkIdType destIndex, vtkFas
   this->CellFaceIds->InsertValue(destIndex, *faceId);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataSetRegionSurfaceFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFastGeomQuad* vtkDataSetRegionSurfaceFilter::GetNextVisibleQuadFromHash()
 {
   if (!this->RegionArray)

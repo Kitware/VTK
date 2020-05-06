@@ -24,10 +24,10 @@
 #include "vtkTable.h"
 #include "vtkUnsignedCharArray.h"
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotSurface);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPlotSurface::vtkPlotSurface()
 {
   this->NumberOfRows = 0;
@@ -41,16 +41,16 @@ vtkPlotSurface::vtkPlotSurface()
   this->DataHasBeenRescaled = true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPlotSurface::~vtkPlotSurface() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlotSurface::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPlotSurface::Paint(vtkContext2D* painter)
 {
   if (!this->Visible)
@@ -83,7 +83,7 @@ bool vtkPlotSurface::Paint(vtkContext2D* painter)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlotSurface::SetInputData(vtkTable* input)
 {
   this->InputTable = input;
@@ -154,7 +154,7 @@ void vtkPlotSurface::SetInputData(vtkTable* input)
   this->DataHasBeenRescaled = true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlotSurface::SetInputData(vtkTable* input, const vtkStdString& vtkNotUsed(xName),
   const vtkStdString& vtkNotUsed(yName), const vtkStdString& vtkNotUsed(zName))
 {
@@ -162,7 +162,7 @@ void vtkPlotSurface::SetInputData(vtkTable* input, const vtkStdString& vtkNotUse
   this->SetInputData(input);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlotSurface::SetInputData(vtkTable* input, const vtkStdString& vtkNotUsed(xName),
   const vtkStdString& vtkNotUsed(yName), const vtkStdString& vtkNotUsed(zName),
   const vtkStdString& vtkNotUsed(colorName))
@@ -171,7 +171,7 @@ void vtkPlotSurface::SetInputData(vtkTable* input, const vtkStdString& vtkNotUse
   this->SetInputData(input);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlotSurface::SetInputData(vtkTable* input, vtkIdType vtkNotUsed(xColumn),
   vtkIdType vtkNotUsed(yColumn), vtkIdType vtkNotUsed(zColumn))
 {
@@ -179,7 +179,7 @@ void vtkPlotSurface::SetInputData(vtkTable* input, vtkIdType vtkNotUsed(xColumn)
   this->SetInputData(input);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlotSurface::GenerateSurface()
 {
   // clear out and initialize our surface & colors
@@ -213,7 +213,7 @@ void vtkPlotSurface::GenerateSurface()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlotSurface::InsertSurfaceVertex(float* data, float value, int i, int j, int& pos)
 {
   data[pos] = this->ColumnToX(j);
@@ -229,7 +229,7 @@ void vtkPlotSurface::InsertSurfaceVertex(float* data, float value, int i, int j,
   this->Colors->InsertNextTypedTuple(&rgb[2]);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlotSurface::SetXRange(float min, float max)
 {
   this->XMinimum = min;
@@ -237,7 +237,7 @@ void vtkPlotSurface::SetXRange(float min, float max)
   this->DataHasBeenRescaled = false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlotSurface::SetYRange(float min, float max)
 {
   this->YMinimum = min;
@@ -245,7 +245,7 @@ void vtkPlotSurface::SetYRange(float min, float max)
   this->DataHasBeenRescaled = false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlotSurface::RescaleData()
 {
   float* data = this->Points[0].GetData();
@@ -273,14 +273,14 @@ void vtkPlotSurface::RescaleData()
   this->DataHasBeenRescaled = true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 float vtkPlotSurface::ColumnToX(int columnIndex)
 {
   float newRange = this->XMaximum - this->XMinimum;
   return static_cast<float>(columnIndex) * (newRange / this->NumberOfColumns) + this->XMinimum;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 float vtkPlotSurface::RowToY(int rowIndex)
 {
   float newRange = this->YMaximum - this->YMinimum;

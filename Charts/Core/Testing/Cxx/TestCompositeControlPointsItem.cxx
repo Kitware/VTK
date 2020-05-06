@@ -19,7 +19,7 @@
 // STD includes
 #include <iostream>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestCompositeControlPointsItem(int, char*[])
 {
   vtkNew<vtkCompositeControlPointsItem> controlPoints;

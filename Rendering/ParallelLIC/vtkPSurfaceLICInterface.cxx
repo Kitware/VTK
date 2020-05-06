@@ -20,13 +20,13 @@
 #include "vtkPainterCommunicator.h"
 #include "vtkParallelTimer.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPSurfaceLICInterface);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPSurfaceLICInterface::vtkPSurfaceLICInterface() {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPSurfaceLICInterface::~vtkPSurfaceLICInterface()
 {
 #ifdef vtkPSurfaceLICInterfaceDEBUG
@@ -34,7 +34,7 @@ vtkPSurfaceLICInterface::~vtkPSurfaceLICInterface()
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPSurfaceLICInterface::NeedToUpdateCommunicator()
 {
   // TODO -- with slice widget in PV the input dataset
@@ -61,7 +61,7 @@ bool vtkPSurfaceLICInterface::NeedToUpdateCommunicator()
   return updateComm != 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPSurfaceLICInterface::GetGlobalMinMax(
   vtkPainterCommunicator* painterComm, float& min, float& max)
 {
@@ -77,7 +77,7 @@ void vtkPSurfaceLICInterface::GetGlobalMinMax(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPSurfaceLICInterface::StartTimerEvent(const char* event)
 {
 #if defined(vtkSurfaceLICInterfaceTIME)
@@ -88,7 +88,7 @@ void vtkPSurfaceLICInterface::StartTimerEvent(const char* event)
 #endif
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPSurfaceLICInterface::EndTimerEvent(const char* event)
 {
 #if defined(vtkSurfaceLICInterfaceTIME)
@@ -99,7 +99,7 @@ void vtkPSurfaceLICInterface::EndTimerEvent(const char* event)
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPSurfaceLICInterface::WriteTimerLog(const char* fileName)
 {
 #if defined(vtkSurfaceLICInterfaceTIME)
@@ -121,7 +121,7 @@ void vtkPSurfaceLICInterface::WriteTimerLog(const char* fileName)
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPainterCommunicator* vtkPSurfaceLICInterface::CreateCommunicator(int include)
 {
   // if we're using MPI and it's been initialized then
@@ -139,7 +139,7 @@ vtkPainterCommunicator* vtkPSurfaceLICInterface::CreateCommunicator(int include)
   return comm;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPSurfaceLICInterface::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -112,7 +112,7 @@ void vtkPNMWriter::WriteFile(ostream* file, vtkImageData* data, int extent[6], i
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPNMWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -21,7 +21,7 @@
 
 vtkStandardNewMacro(vtkInteractorStyleTrackball);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInteractorStyleTrackball::vtkInteractorStyleTrackball()
 {
   vtkWarningMacro("vtkInteractorStyleTrackball will be deprecated in"
@@ -30,10 +30,10 @@ vtkInteractorStyleTrackball::vtkInteractorStyleTrackball()
     << "vtkInteractorStyleSwitch instead.");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInteractorStyleTrackball::~vtkInteractorStyleTrackball() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleTrackball::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

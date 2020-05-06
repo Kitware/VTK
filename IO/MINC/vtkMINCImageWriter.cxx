@@ -89,13 +89,13 @@ POSSIBILITY OF SUCH DAMAGES.
 
 #define VTK_MINC_MAX_DIMS 8
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkMINCImageWriter);
 
 vtkCxxSetObjectMacro(vtkMINCImageWriter, DirectionCosines, vtkMatrix4x4);
 vtkCxxSetObjectMacro(vtkMINCImageWriter, ImageAttributes, vtkMINCImageAttributes);
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMINCImageWriter::vtkMINCImageWriter()
 {
   this->DirectionCosines = nullptr;
@@ -131,7 +131,7 @@ vtkMINCImageWriter::vtkMINCImageWriter()
   this->HistoryAddition = nullptr;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMINCImageWriter::~vtkMINCImageWriter()
 {
   if (this->DirectionCosines)
@@ -152,7 +152,7 @@ vtkMINCImageWriter::~vtkMINCImageWriter()
   this->SetHistoryAddition(nullptr);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMINCImageWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -169,13 +169,13 @@ void vtkMINCImageWriter::PrintSelf(ostream& os, vtkIndent indent)
      << "\n";
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMINCImageWriter::SetFileName(const char* name)
 {
   this->Superclass::SetFileName(name);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMINCImageWriter::OpenNetCDFFile(const char* filename, int& ncid)
 {
   int status = 0;
@@ -196,7 +196,7 @@ int vtkMINCImageWriter::OpenNetCDFFile(const char* filename, int& ncid)
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMINCImageWriter::CloseNetCDFFile(int ncid)
 {
   int status = 0;
@@ -210,7 +210,7 @@ int vtkMINCImageWriter::CloseNetCDFFile(int ncid)
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // this is a macro so the vtkErrorMacro will report a useful line number
 #define vtkMINCImageWriterFailAndClose(ncid, status)                                               \
   {                                                                                                \
@@ -222,7 +222,7 @@ int vtkMINCImageWriter::CloseNetCDFFile(int ncid)
     nc_close(ncid);                                                                                \
   }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Function for getting VTK dimension index from file name.
 int vtkMINCImageWriter::IndexFromDimensionName(const char* dimName)
 {
@@ -246,7 +246,7 @@ int vtkMINCImageWriter::IndexFromDimensionName(const char* dimName)
   return 3;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Compute the default dimension order from the direction cosines,
 // and look for flips.
 // The way the permutation should be used is as follows:
@@ -374,7 +374,7 @@ void vtkMINCImageWriter::ComputePermutationFromOrientation(int permutation[3], i
   flip[zidx] = (jmax ^ kmax ^ lmax ^ oddPermutation);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Create an identity string for a file.
 std::string vtkMINCImageWriterCreateIdentString()
 {
@@ -437,7 +437,7 @@ std::string vtkMINCImageWriterCreateIdentString()
   return ident;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 nc_type vtkMINCImageWriterConvertVTKTypeToMINCType(int dataType, int& mincsigned)
 {
   nc_type minctype = NC_BYTE;
@@ -485,7 +485,7 @@ nc_type vtkMINCImageWriterConvertVTKTypeToMINCType(int dataType, int& mincsigned
   return minctype;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // These macros are only for use in WriteMINCFileAttributes.
 
 // Note: Until VTK 7.0, this macro added a terminating null byte to all
@@ -503,12 +503,12 @@ nc_type vtkMINCImageWriterConvertVTKTypeToMINCType(int dataType, int& mincsigned
     status = nc_put_att_double(ncid, varid, name, NC_DOUBLE, count, ptr);                          \
   }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Allowed dimension variable names
 static const char* vtkMINCDimVarNames[] = { MIxspace, MIyspace, MIzspace, MItime, MIxfrequency,
   MIyfrequency, MIzfrequency, MItfrequency, nullptr };
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMINCImageWriter::CreateMINCDimensions(vtkImageData* input, int numTimeSteps, int* dimids)
 {
   int wholeExtent[6];
@@ -648,7 +648,7 @@ int vtkMINCImageWriter::CreateMINCDimensions(vtkImageData* input, int numTimeSte
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMINCImageWriter::CreateMINCVariables(
   vtkImageData* input, int vtkNotUsed(numTimeSteps), int* dimids)
 {
@@ -1071,7 +1071,7 @@ int vtkMINCImageWriter::CreateMINCVariables(
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMINCImageWriter::WriteMINCFileAttributes(vtkImageData* input, int numTimeSteps)
 {
   // Get the image data type
@@ -1141,7 +1141,7 @@ int vtkMINCImageWriter::WriteMINCFileAttributes(vtkImageData* input, int numTime
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMINCImageWriter::FindMINCValidRange(double range[2])
 {
   // Find the valid range. Start with the default.
@@ -1220,7 +1220,7 @@ void vtkMINCImageWriter::FindMINCValidRange(double range[2])
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMINCImageWriter::FindRescale(double& rescaleSlope, double& rescaleIntercept)
 {
   // If this->RescaleSlope was set, use it
@@ -1256,7 +1256,7 @@ void vtkMINCImageWriter::FindRescale(double& rescaleSlope, double& rescaleInterc
   rescaleIntercept = 0;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Data conversion functions.  The rounding is done using the same
 // method as in the MINC libraries.
 #define vtkMINCImageWriterConvertMacro(F, T, MIN, MAX)                                             \
@@ -1291,7 +1291,7 @@ vtkMINCImageWriterConvertMacro(double, unsigned int, 0, VTK_UNSIGNED_INT_MAX);
 vtkMINCImageWriterConvertMacroFloat(double, float);
 vtkMINCImageWriterConvertMacroFloat(double, double);
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Overloaded functions for writing various data types.
 
 #define vtkMINCImageWriterWriteChunkMacro(ncFunction, T)                                           \
@@ -1317,7 +1317,7 @@ vtkMINCImageWriterWriteChunkMacro2(nc_put_vara_int, unsigned int, int);
 vtkMINCImageWriterWriteChunkMacro(nc_put_vara_float, float);
 vtkMINCImageWriterWriteChunkMacro(nc_put_vara_double, double);
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T1, class T2>
 void vtkMINCImageWriterExecuteChunk(T1* inPtr, T2* buffer, double chunkRange[2],
   double validRange[2], int ncid, int varid, int ndims, size_t* start, size_t* count,
@@ -1486,7 +1486,7 @@ void vtkMINCImageWriterExecuteChunk(T1* inPtr, T2* buffer, double chunkRange[2],
   chunkRange[1] = maxval;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Our own template that only includes MINC data types.
 
 #define vtkMINCImageWriterTemplateMacro(call)                                                      \
@@ -1539,7 +1539,7 @@ void vtkMINCImageWriterExecuteChunk(T1* inPtr, T2* buffer, double chunkRange[2],
   }                                                                                                \
   break
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Write out the UpdateExtent of the input data.  Note that MINC has
 // to calculate the scalar range of each slice before writing it,
 // therefore the UpdateExtent must contain whole slices, otherwise
@@ -1820,7 +1820,7 @@ int vtkMINCImageWriter::WriteMINCData(
   return 1;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMINCImageWriter::Write()
 {
   if (this->GetFileName() == nullptr)
@@ -1996,7 +1996,7 @@ void vtkMINCImageWriter::Write()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMINCImageWriter::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (!this->Superclass::FillInputPortInformation(port, info))
@@ -2007,7 +2007,7 @@ int vtkMINCImageWriter::FillInputPortInformation(int port, vtkInformation* info)
   return 1;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMINCImageWriter::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -2049,7 +2049,7 @@ int vtkMINCImageWriter::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMINCImageWriter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -2064,7 +2064,7 @@ int vtkMINCImageWriter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMINCImageWriter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {

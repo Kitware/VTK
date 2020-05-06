@@ -57,7 +57,7 @@ void annotate(const std::string& str)
 
 vtkStandardNewMacro(vtkEDLShading);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkEDLShading::vtkEDLShading()
 {
 
@@ -88,7 +88,7 @@ vtkEDLShading::vtkEDLShading()
   this->Zf = 1.0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkEDLShading::~vtkEDLShading()
 {
   if (this->ProjectionFBO != nullptr)
@@ -133,7 +133,7 @@ vtkEDLShading::~vtkEDLShading()
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkEDLShading::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -149,7 +149,7 @@ void vtkEDLShading::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Initialize framebuffers and associated texture objects,
 // with link to render state s
@@ -292,7 +292,7 @@ void vtkEDLShading::EDLInitializeFramebuffers(vtkRenderState& s)
 
   vtkOpenGLCheckErrorMacro("failed after Initialize");
 }
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Initialize shaders
 //
@@ -331,7 +331,7 @@ void vtkEDLShading::EDLInitializeShaders(vtkOpenGLRenderWindow* renWin)
 #endif
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Render EDL in full resolution
 //
@@ -420,7 +420,7 @@ bool vtkEDLShading::EDLShadeHigh(vtkRenderState& s, vtkOpenGLRenderWindow* renWi
   return true; // succeeded
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Render EDL in low resolution
 //
@@ -475,7 +475,7 @@ bool vtkEDLShading::EDLShadeLow(vtkRenderState& s, vtkOpenGLRenderWindow* renWin
   return true; // succeeded
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Bilateral Filter low resolution shaded image
 //
@@ -528,7 +528,7 @@ bool vtkEDLShading::EDLBlurLow(vtkRenderState& s, vtkOpenGLRenderWindow* renWin)
   return EDLIsFiltered;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Compose color and shaded images
 //
@@ -600,7 +600,7 @@ bool vtkEDLShading::EDLCompose(const vtkRenderState*, vtkOpenGLRenderWindow* ren
   return true;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Perform rendering according to a render state \p s.
 // \pre s_exists: s!=0
@@ -725,7 +725,7 @@ void vtkEDLShading::Render(const vtkRenderState* s)
   annotate("END vtkEDLShading::Render");
 }
 
-// --------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Release graphics resources and ask components to release their own
 // resources.

@@ -39,7 +39,7 @@ vtkStandardNewMacro(vtkStaticPointLocator2D);
 #define Distance2BetweenPoints2D(p1, p2)                                                           \
   (p1[0] - p2[0]) * (p1[0] - p2[0]) + (p1[1] - p2[1]) * (p1[1] - p2[1])
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The following code supports threaded point locator construction. The locator
 // is assumed to be constructed once (i.e., it does not allow incremental point
 // insertion). The algorithm proceeds in three steps:
@@ -58,7 +58,7 @@ vtkStandardNewMacro(vtkStaticPointLocator2D);
 // in vtkPointLocator and vtkStaticPointLocator2D and causing weird faults.
 struct NeighborBuckets2D;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The bucketed points, including the sorted map. This is just a PIMPLd
 // wrapper around the classes that do the real work.
 struct vtkBucketList2D
@@ -138,7 +138,7 @@ struct vtkBucketList2D
   }
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Utility class to store an array of ij values
 struct NeighborBuckets2D
 {
@@ -200,7 +200,7 @@ struct NeighborBuckets2D
   }
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //  Internal function to get bucket neighbors at specified level
 //
 void vtkBucketList2D::GetBucketNeighbors(
@@ -247,7 +247,7 @@ void vtkBucketList2D::GetBucketNeighbors(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBucketList2D::GenerateFace(
   int vtkNotUsed(face), int i, int j, int vtkNotUsed(k), vtkPoints* pts, vtkCellArray* polys)
 {
@@ -278,7 +278,7 @@ void vtkBucketList2D::GenerateFace(
   polys->InsertNextCell(4, ids);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Calculate the distance between the point x to the bucket "nei".
 //
 // WARNING!!!!! Be very careful altering this routine.  Simple changes to this
@@ -298,7 +298,7 @@ double vtkBucketList2D::Distance2ToBucket(const double x[3], const int nei[3])
   return this->Distance2ToBounds(x, bounds);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Calculate the distance between the point x and the specified bounds
 //
 // WARNING!!!!! Be very careful altering this routine.  Simple changes to this
@@ -342,7 +342,7 @@ double vtkBucketList2D::Distance2ToBounds(const double x[3], const double bounds
   return distance;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The following tuple is what is sorted in the map. Note that it is templated
 // because depending on the number of points / buckets to process we may want
 // to use vtkIdType. Otherwise for performance reasons it's best to use an int
@@ -359,7 +359,7 @@ struct LocatorTuple
   bool operator<(const LocatorTuple& tuple) const { return Bucket < tuple.Bucket; }
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This templated class manages the creation of the static locator
 // structures. It also implements the operator() functors which are supplied
 // to vtkSMPTools for threaded processesing.
@@ -715,7 +715,7 @@ struct BucketList2D : public vtkBucketList2D
   }
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Given a position x, return the id of the point closest to it.
 template <typename TIds>
 vtkIdType BucketList2D<TIds>::FindClosestPoint(const double x[3])
@@ -798,7 +798,7 @@ vtkIdType BucketList2D<TIds>::FindClosestPoint(const double x[3])
   return closest;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <typename TIds>
 vtkIdType BucketList2D<TIds>::FindClosestPointWithinRadius(
   double radius, const double x[3], double inputDataLength, double& dist2)
@@ -957,7 +957,7 @@ vtkIdType BucketList2D<TIds>::FindClosestPointWithinRadius(
 
 namespace
 {
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Obtaining closest points requires sorting nearby points
 struct IdTuple
 {
@@ -978,7 +978,7 @@ typedef std::vector<IdTuple>::iterator IdTupleIterator;
 
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <typename TIds>
 void BucketList2D<TIds>::FindClosestNPoints(int N, const double x[3], vtkIdList* result)
 {
@@ -1089,7 +1089,7 @@ FOUND_N:
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The Radius defines a block of buckets which the sphere of radis R may
 // touch.
 template <typename TIds>
@@ -1142,7 +1142,7 @@ void BucketList2D<TIds>::FindPointsWithinRadius(double R, const double x[3], vtk
   }       // j-footprint
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Find the point within tol of the finite line, and closest to the starting
 // point of the line (i.e., min parametric coordinate t). This is specialized
 // for 2D, so the line may either be parallel to the locator or not. If not,
@@ -1336,7 +1336,7 @@ int BucketList2D<TIds>::IntersectWithLine(double a0[3], double a1[3], double tol
   return 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <typename TIds>
 double BucketList2D<TIds>::FindCloseNBoundedPoints(int N, const double x[3], vtkIdList* result)
 {
@@ -1453,7 +1453,7 @@ FOUND_N:
   return sqrt(maxDist2);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Does the circle contain the bucket? Find the closest of the four points of
 // the bucket and see if it is within R2.
 template <typename TIds>
@@ -1484,7 +1484,7 @@ bool BucketList2D<TIds>::BucketIntersectsCircle(int i, int j, const double cente
   return ((delX * delX + delY * delY) <= R2 ? true : false);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Merge points based on tolerance. Return a point map. There are two
 // separate paths: when the tolerance is precisely 0.0, and when tol >
 // 0.0. Both are executed in parallel, although the second uses a
@@ -1513,7 +1513,7 @@ void BucketList2D<TIds>::MergePoints(double tol, vtkIdType* mergeMap)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Internal method to find those buckets that are within distance specified
 // only those buckets outside of level radiuses of ij are returned
 template <typename TIds>
@@ -1549,7 +1549,7 @@ void BucketList2D<TIds>::GetOverlappingBuckets(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Internal method to find those buckets that are within distance specified
 // only those buckets outside of level radiuses of ij are returned
 template <typename TIds>
@@ -1613,7 +1613,7 @@ void BucketList2D<TIds>::GetOverlappingBuckets(NeighborBuckets2D* buckets, const
   prevMaxLevel[1] = maxLevel[1];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Build polygonal representation of locator. Create faces that separate
 // inside/outside buckets, or separate inside/boundary of locator.
 template <typename TIds>
@@ -1700,11 +1700,11 @@ void BucketList2D<TIds>::GenerateRepresentation(int vtkNotUsed(level), vtkPolyDa
   pd->Squeeze();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Here is the VTK class proper. It's implemented with the templated
 // BucketList2D class.
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct with automatic computation of divisions, averaging
 // 5 points per bucket.
 vtkStaticPointLocator2D::vtkStaticPointLocator2D()
@@ -1717,19 +1717,19 @@ vtkStaticPointLocator2D::vtkStaticPointLocator2D()
   this->LargeIds = false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStaticPointLocator2D::~vtkStaticPointLocator2D()
 {
   this->FreeSearchStructure();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkStaticPointLocator2D::Initialize()
 {
   this->FreeSearchStructure();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkStaticPointLocator2D::FreeSearchStructure()
 {
   if (this->Buckets)
@@ -1739,7 +1739,7 @@ void vtkStaticPointLocator2D::FreeSearchStructure()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //  Method to form subdivision of space based on the points provided and
 //  subject to the constraints of levels and NumberOfPointsPerBucket.
 //  The result is directly addressable and of uniform subdivision.
@@ -1829,7 +1829,7 @@ void vtkStaticPointLocator2D::BuildLocator()
   this->BuildTime.Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // These methods satisfy the vtkStaticPointLocator2D API. The implementation is
 // with the templated BucketList2D class. Note that a lot of the complexity here
 // is due to the desire to use different id types (int versus vtkIdType) for the
@@ -1840,7 +1840,7 @@ void vtkStaticPointLocator2D::BuildLocator()
 // used. Benchmarking shows a small speed difference due to inlining, which
 // the use of virtual methods short circuits.
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Given a position x, return the id of the point closest to it.
 vtkIdType vtkStaticPointLocator2D::FindClosestPoint(const double x[3])
 {
@@ -1860,7 +1860,7 @@ vtkIdType vtkStaticPointLocator2D::FindClosestPoint(const double x[3])
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkStaticPointLocator2D::FindClosestPointWithinRadius(
   double radius, const double x[3], double inputDataLength, double& dist2)
 {
@@ -1882,14 +1882,14 @@ vtkIdType vtkStaticPointLocator2D::FindClosestPointWithinRadius(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkStaticPointLocator2D::FindClosestPointWithinRadius(
   double radius, const double x[3], double& dist2)
 {
   return this->FindClosestPointWithinRadius(radius, x, this->DataSet->GetLength(), dist2);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkStaticPointLocator2D::FindClosestNPoints(int N, const double x[3], vtkIdList* result)
 {
   this->BuildLocator(); // will subdivide if modified; otherwise returns
@@ -1908,7 +1908,7 @@ void vtkStaticPointLocator2D::FindClosestNPoints(int N, const double x[3], vtkId
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkStaticPointLocator2D::FindPointsWithinRadius(double R, const double x[3], vtkIdList* result)
 {
   this->BuildLocator(); // will subdivide if modified; otherwise returns
@@ -1928,7 +1928,7 @@ void vtkStaticPointLocator2D::FindPointsWithinRadius(double R, const double x[3]
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Find bounded points, approximately N, returning max radius Rmax. All
 // points returned will be r <= Rmax.
 double vtkStaticPointLocator2D::FindCloseNBoundedPoints(int N, const double x[3], vtkIdList* result)
@@ -1950,7 +1950,7 @@ double vtkStaticPointLocator2D::FindCloseNBoundedPoints(int N, const double x[3]
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method traverses the locator along the defined ray, finding the
 // closest point to a0 when projected onto the line (a0,a1) (i.e., min
 // parametric coordinate t) and within the tolerance tol (measured in the
@@ -1976,7 +1976,7 @@ int vtkStaticPointLocator2D::IntersectWithLine(double a0[3], double a1[3], doubl
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkStaticPointLocator2D::GenerateRepresentation(int level, vtkPolyData* pd)
 {
   this->BuildLocator(); // will subdivide if modified; otherwise returns
@@ -1995,7 +1995,7 @@ void vtkStaticPointLocator2D::GenerateRepresentation(int level, vtkPolyData* pd)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Given a position x, return the id of the point closest to it.
 vtkIdType vtkStaticPointLocator2D::GetNumberOfPointsInBucket(vtkIdType bNum)
 {
@@ -2009,7 +2009,7 @@ vtkIdType vtkStaticPointLocator2D::GetNumberOfPointsInBucket(vtkIdType bNum)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Given a position x, return the id of the point closest to it.
 void vtkStaticPointLocator2D::GetBucketIds(vtkIdType bNum, vtkIdList* bList)
 {
@@ -2023,7 +2023,7 @@ void vtkStaticPointLocator2D::GetBucketIds(vtkIdType bNum, vtkIdList* bList)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Given a bucket, return the ids in the bucket.
 void vtkStaticPointLocator2D::MergePoints(double tol, vtkIdType* pointMap)
 {
@@ -2043,19 +2043,19 @@ void vtkStaticPointLocator2D::MergePoints(double tol, vtkIdType* pointMap)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkStaticPointLocator2D::GetBucketIndices(const double* x, int ij[2]) const
 {
   this->Buckets->GetBucketIndices(x, ij);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkStaticPointLocator2D::GetBucketIndex(const double* x) const
 {
   return this->Buckets->GetBucketIndex(x);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkStaticPointLocator2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

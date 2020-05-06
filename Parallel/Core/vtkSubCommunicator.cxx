@@ -24,10 +24,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkProcessGroup.h"
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkSubCommunicator);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSubCommunicator::vtkSubCommunicator()
 {
   this->Group = nullptr;
@@ -45,7 +45,7 @@ void vtkSubCommunicator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Group: " << this->Group << endl;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSubCommunicator::SendVoidArray(
   const void* data, vtkIdType length, int type, int remoteHandle, int tag)
 {
@@ -53,7 +53,7 @@ int vtkSubCommunicator::SendVoidArray(
   return this->Group->GetCommunicator()->SendVoidArray(data, length, type, realHandle, tag);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSubCommunicator::ReceiveVoidArray(
   void* data, vtkIdType length, int type, int remoteHandle, int tag)
 {
@@ -69,7 +69,7 @@ int vtkSubCommunicator::ReceiveVoidArray(
   return this->Group->GetCommunicator()->ReceiveVoidArray(data, length, type, realHandle, tag);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSubCommunicator::SetGroup(vtkProcessGroup* group)
 {
   vtkSetObjectBodyMacro(Group, vtkProcessGroup, group);

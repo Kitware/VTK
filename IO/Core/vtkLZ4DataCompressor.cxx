@@ -18,16 +18,16 @@
 
 vtkStandardNewMacro(vtkLZ4DataCompressor);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLZ4DataCompressor::vtkLZ4DataCompressor()
 {
   this->AccelerationLevel = 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLZ4DataCompressor::~vtkLZ4DataCompressor() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLZ4DataCompressor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -35,7 +35,7 @@ void vtkLZ4DataCompressor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "AccelerationLevel: " << this->AccelerationLevel << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 size_t vtkLZ4DataCompressor::CompressBuffer(unsigned char const* uncompressedData,
   size_t uncompressedSize, unsigned char* compressedData, size_t compressionSpace)
 {
@@ -51,7 +51,7 @@ size_t vtkLZ4DataCompressor::CompressBuffer(unsigned char const* uncompressedDat
   return static_cast<size_t>(cs);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 size_t vtkLZ4DataCompressor::UncompressBuffer(unsigned char const* compressedData,
   size_t compressedSize, unsigned char* uncompressedData, size_t uncompressedSize)
 {
@@ -74,14 +74,14 @@ size_t vtkLZ4DataCompressor::UncompressBuffer(unsigned char const* compressedDat
   }
   return static_cast<size_t>(us);
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkLZ4DataCompressor::GetCompressionLevel()
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning CompressionLevel "
                 << (10 - this->AccelerationLevel));
   return 10 - this->AccelerationLevel;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLZ4DataCompressor::SetCompressionLevel(int compressionLevel)
 {
   int min = 1;
@@ -101,7 +101,7 @@ void vtkLZ4DataCompressor::SetCompressionLevel(int compressionLevel)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 size_t vtkLZ4DataCompressor::GetMaximumCompressionSpace(size_t size)
 {
   return LZ4_COMPRESSBOUND(size);

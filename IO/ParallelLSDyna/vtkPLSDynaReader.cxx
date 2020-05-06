@@ -58,7 +58,7 @@ struct vtkPLSDynaReader::vtkPLSDynaReaderInternal
   }
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPLSDynaReader::vtkPLSDynaReader()
 {
   this->Controller = nullptr;
@@ -68,7 +68,7 @@ vtkPLSDynaReader::vtkPLSDynaReader()
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPLSDynaReader::~vtkPLSDynaReader()
 {
   this->SetController(nullptr);
@@ -82,7 +82,7 @@ void vtkPLSDynaReader::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPLSDynaReader::SetController(vtkMultiProcessController* c)
 {
   if ((c == nullptr) || (c->GetNumberOfProcesses() == 0))
@@ -116,13 +116,13 @@ void vtkPLSDynaReader::SetController(vtkMultiProcessController* c)
   this->Internal->ProcessRank = c->GetLocalProcessId();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPLSDynaReader::CanReadFile(const char* fname)
 {
   return this->Superclass::CanReadFile(fname);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPLSDynaReader::RequestInformation(
   vtkInformation* request, vtkInformationVector** iinfo, vtkInformationVector* outputVector)
 {
@@ -139,7 +139,7 @@ int vtkPLSDynaReader::RequestInformation(
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPLSDynaReader::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -154,7 +154,7 @@ int vtkPLSDynaReader::RequestData(
   return this->Superclass::RequestData(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPLSDynaReader::ReadTopology()
 {
   bool readTopology = false;
@@ -208,7 +208,7 @@ int vtkPLSDynaReader::ReadTopology()
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // determine which parts will be read by this processor
 void vtkPLSDynaReader::GetPartRanges(vtkIdType* mins, vtkIdType* maxs)
 {
