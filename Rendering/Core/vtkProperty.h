@@ -348,6 +348,33 @@ public:
 
   //@{
   /**
+   * Set/Get the RGBA color of selection primitives (if a selection is active on the mapper).
+   * Default is red and opaque.
+   */
+  vtkSetVector4Macro(SelectionColor, double);
+  vtkGetVector4Macro(SelectionColor, double);
+  //@}
+
+  //@{
+  /**
+   * Set/Get the selection line width.
+   * Default is 2.
+   */
+  vtkSetMacro(SelectionLineWidth, float);
+  vtkGetMacro(SelectionLineWidth, float);
+  //@}
+
+  //@{
+  /**
+   * Set/Get the selection point size.
+   * Default is 2.
+   */
+  vtkSetMacro(SelectionPointSize, float);
+  vtkGetMacro(SelectionPointSize, float);
+  //@}
+
+  //@{
+  /**
    * Set/Get the width of a Line. The width is expressed in screen units.
    * This is only implemented for OpenGL. The default is 1.0.
    */
@@ -583,6 +610,7 @@ protected:
   double SpecularColor[3];
   double EdgeColor[3];
   double VertexColor[3];
+  double SelectionColor[4] = { 1.0, 0.0, 0.0, 1.0 };
   double Ambient;
   double Diffuse;
   double Metallic;
@@ -596,6 +624,8 @@ protected:
   double EdgeTint[3];
   float PointSize;
   float LineWidth;
+  float SelectionPointSize = 2.f;
+  float SelectionLineWidth = 2.f;
   int LineStipplePattern;
   int LineStippleRepeatFactor;
   int Interpolation;

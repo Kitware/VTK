@@ -40,6 +40,8 @@ public:
   bool OverridesColor;
   vtkColor3d AmbientColor;
   vtkColor3d DiffuseColor;
+  vtkColor3d SelectionColor;
+  double SelectionOpacity;
 
   bool Marked;
 
@@ -66,8 +68,9 @@ public:
 
   vtkCompositeMapperHelperData* AddData(vtkPolyData* pd, unsigned int flatIndex);
 
-  // Description:
-  // Implemented by sub classes. Actual rendering is done here.
+  /**
+   * Implemented by sub classes. Actual rendering is done here.
+   */
   void RenderPiece(vtkRenderer* ren, vtkActor* act) override;
 
   // keep track of what data is being used as the multiblock
@@ -113,23 +116,32 @@ protected:
    */
   void UpdateShaders(vtkOpenGLHelper& cellBO, vtkRenderer* ren, vtkActor* act) override;
 
-  // Description:
-  // Perform string replacements on the shader templates, called from
-  // ReplaceShaderValues
+  /**
+   * Perform string replacements on the shader templates, called from
+   * ReplaceShaderValues
+   */
   void ReplaceShaderColor(
     std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act) override;
 
-  // Description:
-  // Build the VBO/IBO, called by UpdateBufferObjects
+  /**
+   * Build the VBO/IBO, called by UpdateBufferObjects
+   */
   void BuildBufferObjects(vtkRenderer* ren, vtkActor* act) override;
   virtual void AppendOneBufferObject(vtkRenderer* ren, vtkActor* act,
     vtkCompositeMapperHelperData* hdata, vtkIdType& flat_index, std::vector<unsigned char>& colors,
     std::vector<float>& norms);
 
-  // Description:
-  // Returns if we can use texture maps for scalar coloring. Note this doesn't
-  // say we "will" use scalar coloring. It says, if we do use scalar coloring,
-  // we will use a texture. Always off for this mapper.
+  /**
+   * Build the selection IBOs, called by UpdateBufferObjects
+   */
+  void BuildSelectionIBO(
+    vtkPolyData* poly, std::vector<unsigned int> (&indices)[4], vtkIdType offset) override;
+
+  /**
+   * Returns if we can use texture maps for scalar coloring. Note this doesn't
+   * say we "will" use scalar coloring. It says, if we do use scalar coloring,
+   * we will use a texture. Always off for this mapper.
+   */
   int CanUseTextureMapForColoring(vtkDataObject*) override;
 
   std::vector<unsigned int> VertexOffsets;

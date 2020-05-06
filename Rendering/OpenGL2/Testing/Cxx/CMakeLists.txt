@@ -63,6 +63,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestShadowMapBakerPass.cxx
   TestShadowMapPass.cxx
   TestSharedRenderWindow.cxx
+  TestDirectSelectionRendering.cxx
   TestSimpleMotionBlur.cxx
   TestSobelGradientMagnitudePass.cxx
   TestSphereMap.cxx
