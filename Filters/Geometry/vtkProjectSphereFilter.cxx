@@ -62,7 +62,7 @@ void TransformVector(double* transformMatrix, data_type* data)
 
 vtkStandardNewMacro(vtkProjectSphereFilter);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProjectSphereFilter::vtkProjectSphereFilter()
   : SplitLongitude(-180)
 {
@@ -71,10 +71,10 @@ vtkProjectSphereFilter::vtkProjectSphereFilter()
   this->TranslateZ = false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProjectSphereFilter::~vtkProjectSphereFilter() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProjectSphereFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -87,7 +87,7 @@ void vtkProjectSphereFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "TranslateZ " << this->GetTranslateZ() << "\n";
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkProjectSphereFilter::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
@@ -96,7 +96,7 @@ int vtkProjectSphereFilter::FillInputPortInformation(int vtkNotUsed(port), vtkIn
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkProjectSphereFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -128,7 +128,7 @@ int vtkProjectSphereFilter::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProjectSphereFilter::TransformPointInformation(
   vtkPointSet* input, vtkPointSet* output, vtkIdList* polePointIds)
 {
@@ -194,7 +194,7 @@ void vtkProjectSphereFilter::TransformPointInformation(
   this->ComputePointsClosestToCenterLine(minDist2ToCenterLine, polePointIds);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProjectSphereFilter::TransformCellInformation(
   vtkPointSet* input, vtkPointSet* output, vtkIdList* polePointIds)
 {
@@ -390,7 +390,7 @@ void vtkProjectSphereFilter::TransformCellInformation(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProjectSphereFilter::TransformTensors(
   vtkIdType pointId, double* coord, vtkDataSetAttributes* dataArrays)
 {
@@ -418,7 +418,7 @@ void vtkProjectSphereFilter::TransformTensors(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkProjectSphereFilter::GetZTranslation(vtkPointSet* input)
 {
   double maxRadius2 = 0; // squared radius
@@ -435,7 +435,7 @@ double vtkProjectSphereFilter::GetZTranslation(vtkPointSet* input)
   return sqrt(maxRadius2);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProjectSphereFilter::SplitCell(vtkPointSet* input, vtkPointSet* output,
   vtkIdType inputCellId, vtkIncrementalPointLocator* locator, vtkCellArray* connectivity,
   int splitSide)
@@ -472,7 +472,7 @@ void vtkProjectSphereFilter::SplitCell(vtkPointSet* input, vtkPointSet* output,
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProjectSphereFilter::SetCellInformation(
   vtkUnstructuredGrid* output, vtkCell* cell, vtkIdType numberOfNewCells)
 {

@@ -39,10 +39,10 @@
 
 #include "vtk_glew.h"
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOpenGLStickMapper);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenGLStickMapper::vtkOpenGLStickMapper()
 {
   this->ScaleArray = nullptr;
@@ -50,7 +50,7 @@ vtkOpenGLStickMapper::vtkOpenGLStickMapper()
   this->SelectionIdArray = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLStickMapper::GetShaderTemplate(
   std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* actor)
 {
@@ -212,7 +212,7 @@ void vtkOpenGLStickMapper::ReplaceShaderValues(
   this->Superclass::ReplaceShaderValues(shaders, ren, actor);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenGLStickMapper::~vtkOpenGLStickMapper()
 {
   this->SetScaleArray(nullptr);
@@ -220,7 +220,7 @@ vtkOpenGLStickMapper::~vtkOpenGLStickMapper()
   this->SetSelectionIdArray(nullptr);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLStickMapper::SetCameraShaderParameters(
   vtkOpenGLHelper& cellBO, vtkRenderer* ren, vtkActor* actor)
 {
@@ -273,14 +273,14 @@ void vtkOpenGLStickMapper::SetCameraShaderParameters(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLStickMapper::SetMapperShaderParameters(
   vtkOpenGLHelper& cellBO, vtkRenderer* ren, vtkActor* actor)
 {
   this->Superclass::SetMapperShaderParameters(cellBO, ren, actor);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLStickMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -364,7 +364,7 @@ void vtkOpenGLStickMapperCreateVBO(vtkPolyData* poly, vtkIdType numPts, unsigned
 }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkOpenGLStickMapper::GetNeedToRebuildBufferObjects(vtkRenderer* ren, vtkActor* act)
 {
   if (this->Superclass::GetNeedToRebuildBufferObjects(ren, act) ||
@@ -375,7 +375,7 @@ bool vtkOpenGLStickMapper::GetNeedToRebuildBufferObjects(vtkRenderer* ren, vtkAc
   return false;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLStickMapper::BuildBufferObjects(vtkRenderer* ren, vtkActor* vtkNotUsed(act))
 {
   vtkPolyData* poly = this->CurrentInput;
@@ -415,7 +415,7 @@ void vtkOpenGLStickMapper::BuildBufferObjects(vtkRenderer* ren, vtkActor* vtkNot
   this->VBOBuildTime.Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLStickMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor* actor)
 {
   // draw polygons

@@ -35,7 +35,7 @@
 
 vtkObjectFactoryNewMacro(vtkResampleWithDataSet);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkResampleWithDataSet::vtkResampleWithDataSet()
   : MarkBlankPointsAndCells(true)
 {
@@ -43,29 +43,29 @@ vtkResampleWithDataSet::vtkResampleWithDataSet()
   this->SetNumberOfOutputPorts(1);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkResampleWithDataSet::~vtkResampleWithDataSet() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResampleWithDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   this->Prober->PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResampleWithDataSet::SetSourceConnection(vtkAlgorithmOutput* algOutput)
 {
   this->SetInputConnection(1, algOutput);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResampleWithDataSet::SetSourceData(vtkDataObject* input)
 {
   this->SetInputData(1, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResampleWithDataSet::SetCategoricalData(bool arg)
 {
   this->Prober->SetCategoricalData(arg);
@@ -120,7 +120,7 @@ vtkAbstractCellLocator* vtkResampleWithDataSet::GetCellLocatorPrototype() const
   return this->Prober->GetCellLocatorPrototype();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResampleWithDataSet::SetTolerance(double arg)
 {
   this->Prober->SetTolerance(arg);
@@ -141,13 +141,13 @@ bool vtkResampleWithDataSet::GetComputeTolerance()
   return this->Prober->GetComputeTolerance();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkResampleWithDataSet::GetMTime()
 {
   return std::max(this->Superclass::GetMTime(), this->Prober->GetMTime());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkResampleWithDataSet::RequestInformation(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -161,7 +161,7 @@ int vtkResampleWithDataSet::RequestInformation(
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkResampleWithDataSet::RequestUpdateExtent(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector*)
 {
@@ -181,7 +181,7 @@ int vtkResampleWithDataSet::RequestUpdateExtent(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkResampleWithDataSet::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
@@ -189,20 +189,20 @@ int vtkResampleWithDataSet::FillInputPortInformation(int vtkNotUsed(port), vtkIn
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkResampleWithDataSet::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkDataObject");
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkResampleWithDataSet::GetMaskArrayName() const
 {
   return this->Prober->GetValidPointMaskArrayName();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 namespace
 {
 
@@ -304,7 +304,7 @@ void vtkResampleWithDataSet::SetBlankPointsAndCells(vtkDataSet* dataset)
   vtkSMPTools::For(0, numCells, cellWorklet);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkResampleWithDataSet::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

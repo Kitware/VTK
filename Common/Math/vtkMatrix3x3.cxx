@@ -21,16 +21,16 @@
 
 vtkStandardNewMacro(vtkMatrix3x3);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMatrix3x3::vtkMatrix3x3()
 {
   vtkMatrix3x3::Identity(*this->Element);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMatrix3x3::~vtkMatrix3x3() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMatrix3x3::Zero(double elements[9])
 {
   for (int i = 0; i < 9; ++i)
@@ -39,14 +39,14 @@ void vtkMatrix3x3::Zero(double elements[9])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMatrix3x3::Identity(double elements[9])
 {
   elements[0] = elements[4] = elements[8] = 1.0;
   elements[1] = elements[2] = elements[3] = elements[5] = elements[6] = elements[7] = 0.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 namespace
 { // Enclose private helper function in anonymous namespace
 
@@ -64,7 +64,7 @@ void vtkMatrix3x3MultiplyPoint(T1 elem[9], T2 in[3], T3 out[3])
 
 } // End anonymous namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Multiply this matrix by a point (in homogeneous coordinates).
 // and return the result in result. The in[3] and result[3]
 // arrays must both be allocated but they can be the same array.
@@ -73,13 +73,13 @@ void vtkMatrix3x3::MultiplyPoint(const double elements[9], const float in[3], fl
   vtkMatrix3x3MultiplyPoint(elements, in, result);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMatrix3x3::MultiplyPoint(const double elements[9], const double in[3], double result[3])
 {
   vtkMatrix3x3MultiplyPoint(elements, in, result);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Multiplies matrices a and b and stores the result in c.
 void vtkMatrix3x3::Multiply3x3(const double a[9], const double b[9], double c[9])
 {
@@ -100,7 +100,7 @@ void vtkMatrix3x3::Multiply3x3(const double a[9], const double b[9], double c[9]
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Matrix Inversion (adapted from Richard Carling in "Graphics Gems,"
 // Academic Press, 1990).
 void vtkMatrix3x3::Invert(const double inElements[9], double outElements[9])
@@ -133,14 +133,14 @@ void vtkMatrix3x3::Invert(const double inElements[9], double outElements[9])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkMatrix3x3::Determinant(const double elements[9])
 {
   return vtkMath::Determinant3x3(elements[0], elements[1], elements[2], elements[3], elements[4],
     elements[5], elements[6], elements[7], elements[8]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMatrix3x3::Adjoint(const double inElements[9], double outElements[9])
 {
   //
@@ -189,7 +189,7 @@ void vtkMatrix3x3::Adjoint(const double inElements[9], double outElements[9])
   outElements[8] = vtkMath::Determinant2x2(a1, a2, b1, b2);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMatrix3x3::DeepCopy(double elements[9], const double newElements[9])
 {
   for (int i = 0; i < 9; ++i)
@@ -198,7 +198,7 @@ void vtkMatrix3x3::DeepCopy(double elements[9], const double newElements[9])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Transpose the matrix and put it into out.
 void vtkMatrix3x3::Transpose(const double inElements[9], double outElements[9])
 {
@@ -213,7 +213,7 @@ void vtkMatrix3x3::Transpose(const double inElements[9], double outElements[9])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMatrix3x3::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

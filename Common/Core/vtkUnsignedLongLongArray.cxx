@@ -21,17 +21,17 @@ VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATE(unsigned long long);
 
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkUnsignedLongLongArray);
 vtkStandardExtendedNewMacro(vtkUnsignedLongLongArray);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUnsignedLongLongArray::vtkUnsignedLongLongArray() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUnsignedLongLongArray::~vtkUnsignedLongLongArray() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkUnsignedLongLongArray::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->RealSuperclass::PrintSelf(os, indent);

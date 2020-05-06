@@ -26,7 +26,7 @@
 
 vtkStandardNewMacro(vtkBoundedPointSource);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBoundedPointSource::vtkBoundedPointSource()
 {
   this->NumberOfPoints = 100;
@@ -45,7 +45,7 @@ vtkBoundedPointSource::vtkBoundedPointSource()
   this->SetNumberOfInputPorts(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkBoundedPointSource::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -126,7 +126,7 @@ int vtkBoundedPointSource::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoundedPointSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

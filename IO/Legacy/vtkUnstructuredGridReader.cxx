@@ -32,31 +32,31 @@ vtkStandardNewMacro(vtkUnstructuredGridReader);
 #undef read
 #endif
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUnstructuredGridReader::vtkUnstructuredGridReader() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUnstructuredGridReader::~vtkUnstructuredGridReader() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUnstructuredGrid* vtkUnstructuredGridReader::GetOutput()
 {
   return this->GetOutput(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUnstructuredGrid* vtkUnstructuredGridReader::GetOutput(int idx)
 {
   return vtkUnstructuredGrid::SafeDownCast(this->GetOutputDataObject(idx));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkUnstructuredGridReader::SetOutput(vtkUnstructuredGrid* output)
 {
   this->GetExecutive()->SetOutputData(0, output);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkUnstructuredGridReader::ReadMeshSimple(const std::string& fname, vtkDataObject* doOutput)
 {
   vtkIdType i, numPts = 0, numCells = 0;
@@ -367,14 +367,14 @@ int vtkUnstructuredGridReader::ReadMeshSimple(const std::string& fname, vtkDataO
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkUnstructuredGridReader::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkUnstructuredGrid");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkUnstructuredGridReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

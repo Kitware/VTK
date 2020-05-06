@@ -26,20 +26,20 @@
 #include <cassert>
 
 vtkStandardNewMacro(vtkXMLUniformGridAMRWriter);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLUniformGridAMRWriter::vtkXMLUniformGridAMRWriter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLUniformGridAMRWriter::~vtkXMLUniformGridAMRWriter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLUniformGridAMRWriter::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUniformGridAMR");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLUniformGridAMRWriter::WriteComposite(
   vtkCompositeDataSet* compositeData, vtkXMLDataElement* parent, int& writerIdx)
 {
@@ -151,7 +151,7 @@ int vtkXMLUniformGridAMRWriter::WriteComposite(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLUniformGridAMRWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

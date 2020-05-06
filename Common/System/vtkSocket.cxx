@@ -103,13 +103,13 @@ static const char* wsaStrerror(int wsaeid)
 }
 #endif
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSocket::vtkSocket()
 {
   this->SocketDescriptor = -1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSocket::~vtkSocket()
 {
   if (this->SocketDescriptor != -1)
@@ -119,7 +119,7 @@ vtkSocket::~vtkSocket()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSocket::CreateSocket()
 {
 #ifndef VTK_SOCKET_FAKE_API
@@ -148,14 +148,14 @@ int vtkSocket::CreateSocket()
 #endif
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSocket::CloseSocket()
 {
   this->CloseSocket(this->SocketDescriptor);
   this->SocketDescriptor = -1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSocket::BindSocket(int socketdescriptor, int port)
 {
 #ifndef VTK_SOCKET_FAKE_API
@@ -196,7 +196,7 @@ int vtkSocket::BindSocket(int socketdescriptor, int port)
 #endif
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSocket::Accept(int socketdescriptor)
 {
 #ifndef VTK_SOCKET_FAKE_API
@@ -221,7 +221,7 @@ int vtkSocket::Accept(int socketdescriptor)
 #endif
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSocket::Listen(int socketdescriptor)
 {
 #ifndef VTK_SOCKET_FAKE_API
@@ -246,7 +246,7 @@ int vtkSocket::Listen(int socketdescriptor)
 #endif
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSocket::SelectSocket(int socketdescriptor, unsigned long msec)
 {
 #ifndef VTK_SOCKET_FAKE_API
@@ -305,7 +305,7 @@ int vtkSocket::SelectSocket(int socketdescriptor, unsigned long msec)
 #endif
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSocket::SelectSockets(
   const int* sockets_to_select, int size, unsigned long msec, int* selected_index)
 {
@@ -381,7 +381,7 @@ int vtkSocket::SelectSockets(
 #endif
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSocket::Connect(int socketdescriptor, const char* hostName, int port)
 {
 #ifndef VTK_SOCKET_FAKE_API
@@ -457,7 +457,7 @@ int vtkSocket::Connect(int socketdescriptor, const char* hostName, int port)
 #endif
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSocket::GetPort(int sock)
 {
 #ifndef VTK_SOCKET_FAKE_API
@@ -484,7 +484,7 @@ int vtkSocket::GetPort(int sock)
 #endif
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSocket::CloseSocket(int socketdescriptor)
 {
 #ifndef VTK_SOCKET_FAKE_API
@@ -505,7 +505,7 @@ void vtkSocket::CloseSocket(int socketdescriptor)
 #endif
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSocket::Send(const void* data, int length)
 {
 #ifndef VTK_SOCKET_FAKE_API
@@ -543,7 +543,7 @@ int vtkSocket::Send(const void* data, int length)
 #endif
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSocket::Receive(void* data, int length, int readFully /*=1*/)
 {
 #ifndef VTK_SOCKET_FAKE_API
@@ -598,7 +598,7 @@ int vtkSocket::Receive(void* data, int length, int readFully /*=1*/)
 #endif
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSocket::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

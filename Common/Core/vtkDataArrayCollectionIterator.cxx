@@ -19,19 +19,19 @@
 
 vtkStandardNewMacro(vtkDataArrayCollectionIterator);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataArrayCollectionIterator::vtkDataArrayCollectionIterator() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataArrayCollectionIterator::~vtkDataArrayCollectionIterator() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataArrayCollectionIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataArrayCollectionIterator::SetCollection(vtkCollection* c)
 {
   if (c)
@@ -48,13 +48,13 @@ void vtkDataArrayCollectionIterator::SetCollection(vtkCollection* c)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataArrayCollectionIterator::SetCollection(vtkDataArrayCollection* c)
 {
   this->Superclass::SetCollection(c);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataArray* vtkDataArrayCollectionIterator::GetDataArray()
 {
   return static_cast<vtkDataArray*>(this->GetCurrentObject());

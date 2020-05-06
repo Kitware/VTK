@@ -39,10 +39,10 @@
 #include <cstdio>
 #include <limits>
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAxis);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAxis::vtkAxis()
 {
   this->Position = -1;
@@ -112,7 +112,7 @@ vtkAxis::vtkAxis()
   this->CustomTickLabels = false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAxis::~vtkAxis()
 {
   this->TitleProperties->Delete();
@@ -163,7 +163,7 @@ void vtkAxis::SetPosition(int position)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxis::SetPoint1(const vtkVector2f& pos)
 {
   if (this->Position1 != pos)
@@ -174,19 +174,19 @@ void vtkAxis::SetPoint1(const vtkVector2f& pos)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxis::SetPoint1(float x, float y)
 {
   this->SetPoint1(vtkVector2f(x, y));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkVector2f vtkAxis::GetPosition1()
 {
   return this->Position1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxis::SetPoint2(const vtkVector2f& pos)
 {
   if (this->Position2 != pos)
@@ -197,19 +197,19 @@ void vtkAxis::SetPoint2(const vtkVector2f& pos)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxis::SetPoint2(float x, float y)
 {
   this->SetPoint2(vtkVector2f(x, y));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkVector2f vtkAxis::GetPosition2()
 {
   return this->Position2;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxis::SetNumberOfTicks(int numberOfTicks)
 {
   if (this->NumberOfTicks != numberOfTicks)
@@ -221,7 +221,7 @@ void vtkAxis::SetNumberOfTicks(int numberOfTicks)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxis::Update()
 {
   if (!this->Visible || this->BuildTime > this->MTime)
@@ -294,7 +294,7 @@ void vtkAxis::Update()
   this->BuildTime.Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkAxis::Paint(vtkContext2D* painter)
 {
   // This is where everything should be drawn, or dispatched to other methods.
@@ -548,7 +548,7 @@ bool vtkAxis::Paint(vtkContext2D* painter)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxis::SetMinimum(double minimum)
 {
   minimum = std::max(minimum, this->MinimumLimit);
@@ -564,7 +564,7 @@ void vtkAxis::SetMinimum(double minimum)
   this->InvokeEvent(vtkChart::UpdateRange);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxis::SetUnscaledMinimum(double minimum)
 {
   minimum = std::max(minimum, this->UnscaledMinimumLimit);
@@ -580,7 +580,7 @@ void vtkAxis::SetUnscaledMinimum(double minimum)
   this->InvokeEvent(vtkChart::UpdateRange);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxis::SetMinimumLimit(double lowest)
 {
   if (this->MinimumLimit == lowest)
@@ -609,7 +609,7 @@ void vtkAxis::SetMinimumLimit(double lowest)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxis::SetUnscaledMinimumLimit(double lowest)
 {
   if (this->UnscaledMinimumLimit == lowest)
@@ -626,7 +626,7 @@ void vtkAxis::SetUnscaledMinimumLimit(double lowest)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxis::SetMaximum(double maximum)
 {
   maximum = std::min(maximum, this->MaximumLimit);
@@ -642,7 +642,7 @@ void vtkAxis::SetMaximum(double maximum)
   this->InvokeEvent(vtkChart::UpdateRange);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxis::SetUnscaledMaximum(double maximum)
 {
   maximum = std::min(maximum, this->UnscaledMaximumLimit);
@@ -658,7 +658,7 @@ void vtkAxis::SetUnscaledMaximum(double maximum)
   this->InvokeEvent(vtkChart::UpdateRange);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxis::SetMaximumLimit(double highest)
 {
   if (this->MaximumLimit == highest)
@@ -687,7 +687,7 @@ void vtkAxis::SetMaximumLimit(double highest)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxis::SetUnscaledMaximumLimit(double highest)
 {
   if (this->UnscaledMaximumLimit == highest)
@@ -704,7 +704,7 @@ void vtkAxis::SetUnscaledMaximumLimit(double highest)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxis::SetRange(double minimum, double maximum)
 {
   bool rangeModified = false;
@@ -733,7 +733,7 @@ void vtkAxis::SetRange(double minimum, double maximum)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxis::SetRange(double* range)
 {
   if (range)
@@ -742,7 +742,7 @@ void vtkAxis::SetRange(double* range)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxis::SetUnscaledRange(double minimum, double maximum)
 {
   bool rangeModified = false;
@@ -772,7 +772,7 @@ void vtkAxis::SetUnscaledRange(double minimum, double maximum)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxis::SetUnscaledRange(double* range)
 {
   if (range)
@@ -781,7 +781,7 @@ void vtkAxis::SetUnscaledRange(double* range)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxis::GetRange(double* range)
 {
   if (range)
@@ -791,7 +791,7 @@ void vtkAxis::GetRange(double* range)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxis::GetUnscaledRange(double* range)
 {
   if (range)
@@ -801,7 +801,7 @@ void vtkAxis::GetUnscaledRange(double* range)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxis::SetTitle(const vtkStdString& title)
 {
   if (this->Title != title)
@@ -811,13 +811,13 @@ void vtkAxis::SetTitle(const vtkStdString& title)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStdString vtkAxis::GetTitle()
 {
   return this->Title;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxis::SetPrecision(int precision)
 {
   if (this->Precision == precision)
@@ -829,7 +829,7 @@ void vtkAxis::SetPrecision(int precision)
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxis::SetLabelFormat(const std::string& fmt)
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting LabelFormat to " << fmt);
@@ -841,7 +841,7 @@ void vtkAxis::SetLabelFormat(const std::string& fmt)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxis::SetLogScale(bool logScale)
 {
   if (this->LogScale == logScale)
@@ -853,7 +853,7 @@ void vtkAxis::SetLogScale(bool logScale)
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxis::SetNotation(int notation)
 {
   if (this->Notation == notation)
@@ -865,7 +865,7 @@ void vtkAxis::SetNotation(int notation)
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxis::AutoScale()
 {
   if (this->Behavior != vtkAxis::AUTO)
@@ -886,7 +886,7 @@ void vtkAxis::AutoScale()
   this->GenerateTickLabels(this->Minimum, this->Maximum);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxis::RecalculateTickSpacing()
 {
   // Calculate the min and max, set the number of ticks and the tick spacing,
@@ -944,25 +944,25 @@ void vtkAxis::RecalculateTickSpacing()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDoubleArray* vtkAxis::GetTickPositions()
 {
   return this->TickPositions;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFloatArray* vtkAxis::GetTickScenePositions()
 {
   return this->TickScenePositions;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStringArray* vtkAxis::GetTickLabels()
 {
   return this->TickLabels;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkAxis::SetCustomTickPositions(vtkDoubleArray* positions, vtkStringArray* labels)
 {
   if (!positions && !labels)
@@ -1002,7 +1002,7 @@ bool vtkAxis::SetCustomTickPositions(vtkDoubleArray* positions, vtkStringArray* 
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRectf vtkAxis::GetBoundingRect(vtkContext2D* painter)
 {
   bool vertical = false;
@@ -1072,7 +1072,7 @@ vtkRectf vtkAxis::GetBoundingRect(vtkContext2D* painter)
   return bounds;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxis::UpdateLogScaleActive(bool alwaysUpdateMinMaxFromUnscaled)
 {
   bool needUpdate = false;
@@ -1161,7 +1161,7 @@ void vtkAxis::UpdateLogScaleActive(bool alwaysUpdateMinMaxFromUnscaled)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxis::GenerateTickLabels(double min, double max)
 {
   if (this->CustomTickLabels == true)
@@ -1343,7 +1343,7 @@ void vtkAxis::GenerateTickLabels(double min, double max)
   this->TickMarksDirty = false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxis::GenerateTickLabels()
 {
   this->TickLabels->SetNumberOfTuples(0);
@@ -1359,7 +1359,7 @@ void vtkAxis::GenerateTickLabels()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStdString vtkAxis::GenerateSimpleLabel(double val)
 {
   vtkStdString result;
@@ -1427,7 +1427,7 @@ vtkStdString vtkAxis::GenerateSimpleLabel(double val)
   return result;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This methods generates tick labels for 8 different format notations
 //   1 - Scientific 5 * 10^6
 //   2 - Decimal e.g. 5000
@@ -1534,7 +1534,7 @@ void vtkAxis::GenerateLabelFormat(int notation, double n)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStdString vtkAxis::GenerateSprintfLabel(double value, const std::string& format)
 {
   // Use the C-style printf specification:
@@ -1548,7 +1548,7 @@ vtkStdString vtkAxis::GenerateSprintfLabel(double value, const std::string& form
   return result;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkAxis::NiceMinMax(double& min, double& max, float pixelRange, float tickPixelSpacing)
 {
   // First get the order of the range of the numbers
@@ -1608,7 +1608,7 @@ double vtkAxis::NiceMinMax(double& min, double& max, float pixelRange, float tic
   return niceTickSpacing;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkAxis::CalculateNiceMinMax(double& min, double& max)
 {
   if (this->NumberOfTicks > 0)
@@ -1658,7 +1658,7 @@ double vtkAxis::CalculateNiceMinMax(double& min, double& max)
   return niceTickSpacing;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkAxis::NiceNumber(double n, bool roundUp)
 {
   if (roundUp)
@@ -1701,7 +1701,7 @@ double vtkAxis::NiceNumber(double n, bool roundUp)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkAxis::LogScaleTickMark(double number, bool roundUp, bool& niceValue, int& order)
 {
   // We need to retrieve the order of our number.
@@ -1721,7 +1721,7 @@ double vtkAxis::LogScaleTickMark(double number, bool roundUp, bool& niceValue, i
   return result;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxis::GenerateLogSpacedLinearTicks(int order, double min, double max)
 {
   // Log-scale axis, but zoomed in too far to show an order of magnitude in
@@ -1776,7 +1776,7 @@ void vtkAxis::GenerateLogSpacedLinearTicks(int order, double min, double max)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxis::GenerateLogScaleTickMarks(int order, double min, double max, bool detailLabels)
 {
   // If the values min and max are not within limits we set defaults
@@ -1836,7 +1836,7 @@ void vtkAxis::GenerateLogScaleTickMarks(int order, double min, double max, bool 
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 inline bool vtkAxis::InRange(double value)
 {
   // Figure out which way around the axes are, then see if the value is inside.
@@ -1857,7 +1857,7 @@ inline bool vtkAxis::InRange(double value)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxis::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

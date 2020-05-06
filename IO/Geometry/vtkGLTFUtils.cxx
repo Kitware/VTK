@@ -25,7 +25,7 @@
 #include <iostream>
 
 #define MIN_GLTF_VERSION "2.0"
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGLTFUtils::GetBoolValue(const Json::Value& root, bool& value)
 {
   if (root.empty() || !root.isBool())
@@ -36,7 +36,7 @@ bool vtkGLTFUtils::GetBoolValue(const Json::Value& root, bool& value)
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGLTFUtils::GetIntValue(const Json::Value& root, int& value)
 {
   if (root.empty() || !root.isInt())
@@ -47,7 +47,7 @@ bool vtkGLTFUtils::GetIntValue(const Json::Value& root, int& value)
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGLTFUtils::GetUIntValue(const Json::Value& root, unsigned int& value)
 {
   if (root.empty() || !root.isUInt())
@@ -58,7 +58,7 @@ bool vtkGLTFUtils::GetUIntValue(const Json::Value& root, unsigned int& value)
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGLTFUtils::GetDoubleValue(const Json::Value& root, double& value)
 {
   if (root.empty() || !root.isDouble())
@@ -69,7 +69,7 @@ bool vtkGLTFUtils::GetDoubleValue(const Json::Value& root, double& value)
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGLTFUtils::GetIntArray(const Json::Value& root, std::vector<int>& value)
 {
   if (root.empty() || !root.isArray())
@@ -94,7 +94,7 @@ bool vtkGLTFUtils::GetIntArray(const Json::Value& root, std::vector<int>& value)
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGLTFUtils::GetUIntArray(const Json::Value& root, std::vector<unsigned int>& value)
 {
   if (root.empty() || !root.isArray())
@@ -119,7 +119,7 @@ bool vtkGLTFUtils::GetUIntArray(const Json::Value& root, std::vector<unsigned in
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGLTFUtils::GetFloatArray(const Json::Value& root, std::vector<float>& value)
 {
   if (root.empty() || !root.isArray())
@@ -144,7 +144,7 @@ bool vtkGLTFUtils::GetFloatArray(const Json::Value& root, std::vector<float>& va
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGLTFUtils::GetDoubleArray(const Json::Value& root, std::vector<double>& value)
 {
   if (root.empty() || !root.isArray())
@@ -169,7 +169,7 @@ bool vtkGLTFUtils::GetDoubleArray(const Json::Value& root, std::vector<double>& 
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGLTFUtils::GetStringValue(const Json::Value& root, std::string& value)
 {
   if (root.empty() || !root.isString())
@@ -180,7 +180,7 @@ bool vtkGLTFUtils::GetStringValue(const Json::Value& root, std::string& value)
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGLTFUtils::CheckVersion(const Json::Value& glTFAsset)
 {
   Json::Value assetMinVersion = glTFAsset["minVersion"];
@@ -208,7 +208,7 @@ bool vtkGLTFUtils::CheckVersion(const Json::Value& glTFAsset)
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::string vtkGLTFUtils::GetResourceFullPath(
   const std::string& resourcePath, const std::string& glTFFilePath)
 {
@@ -222,7 +222,7 @@ std::string vtkGLTFUtils::GetResourceFullPath(
   return resourcePath;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::string vtkGLTFUtils::GetDataUriMimeType(const std::string& uri)
 {
   vtksys::RegularExpression regex("^data:.*;");
@@ -236,7 +236,7 @@ std::string vtkGLTFUtils::GetDataUriMimeType(const std::string& uri)
   return std::string();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGLTFUtils::GetBinaryBufferFromUri(const std::string& uri, const std::string& glTFFilePath,
   std::vector<char>& buffer, size_t bufferSize)
 {
@@ -279,7 +279,7 @@ bool vtkGLTFUtils::GetBinaryBufferFromUri(const std::string& uri, const std::str
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGLTFUtils::ExtractGLBFileInformation(const std::string& fileName, std::string& magic,
   uint32_t& version, uint32_t& fileLength, std::vector<vtkGLTFUtils::ChunkInfoType>& chunkInfo)
 {
@@ -324,7 +324,7 @@ bool vtkGLTFUtils::ExtractGLBFileInformation(const std::string& fileName, std::s
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGLTFUtils::ValidateGLBFile(const std::string& magic, uint32_t version, uint32_t fileLength,
   std::vector<vtkGLTFUtils::ChunkInfoType> chunkInfo)
 {

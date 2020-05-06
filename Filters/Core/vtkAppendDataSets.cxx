@@ -37,7 +37,7 @@
 
 vtkStandardNewMacro(vtkAppendDataSets);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAppendDataSets::vtkAppendDataSets()
   : MergePoints(false)
   , Tolerance(0.0)
@@ -47,10 +47,10 @@ vtkAppendDataSets::vtkAppendDataSets()
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAppendDataSets::~vtkAppendDataSets() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkAppendDataSets::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -63,7 +63,7 @@ vtkTypeBool vtkAppendDataSets::ProcessRequest(
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAppendDataSets::RequestDataObject(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -103,7 +103,7 @@ int vtkAppendDataSets::RequestDataObject(vtkInformation* vtkNotUsed(request),
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Append data sets into single unstructured grid
 int vtkAppendDataSets::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -192,7 +192,7 @@ int vtkAppendDataSets::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAppendDataSets::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -214,7 +214,7 @@ int vtkAppendDataSets::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAppendDataSets::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
@@ -222,7 +222,7 @@ int vtkAppendDataSets::FillInputPortInformation(int, vtkInformation* info)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAppendDataSets::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

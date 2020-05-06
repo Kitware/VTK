@@ -48,7 +48,7 @@ public:
 };
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOutputWindow* vtkOutputWindow::Instance = nullptr;
 static unsigned int vtkOutputWindowCleanupCounter = 0;
 

@@ -25,7 +25,7 @@
 
 vtkStandardNewMacro(vtkImageClip);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageClip::vtkImageClip()
 {
   this->ClipData = 0;
@@ -38,7 +38,7 @@ vtkImageClip::vtkImageClip()
     VTK_INT_MAX;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageClip::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -63,7 +63,7 @@ void vtkImageClip::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageClip::SetOutputWholeExtent(int extent[6], vtkInformation* outInfo)
 {
   int idx;
@@ -89,7 +89,7 @@ void vtkImageClip::SetOutputWholeExtent(int extent[6], vtkInformation* outInfo)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageClip::SetOutputWholeExtent(int minX, int maxX, int minY, int maxY, int minZ, int maxZ)
 {
   int extent[6];
@@ -103,7 +103,7 @@ void vtkImageClip::SetOutputWholeExtent(int minX, int maxX, int minY, int maxY, 
   this->SetOutputWholeExtent(extent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageClip::GetOutputWholeExtent(int extent[6])
 {
   int idx;
@@ -114,7 +114,7 @@ void vtkImageClip::GetOutputWholeExtent(int extent[6])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Change the WholeExtent
 int vtkImageClip::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -156,7 +156,7 @@ int vtkImageClip::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Sets the output whole extent to be the input whole extent.
 void vtkImageClip::ResetOutputWholeExtent()
 {
@@ -171,7 +171,7 @@ void vtkImageClip::ResetOutputWholeExtent()
   this->SetOutputWholeExtent(inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method simply copies by reference the input data to the output.
 int vtkImageClip::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)

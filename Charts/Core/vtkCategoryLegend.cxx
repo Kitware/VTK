@@ -21,10 +21,10 @@
 #include "vtkTextProperty.h"
 #include "vtkVariantArray.h"
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkCategoryLegend);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCategoryLegend::vtkCategoryLegend()
 {
   this->SetInline(false);
@@ -46,10 +46,10 @@ vtkCategoryLegend::vtkCategoryLegend()
   this->OutlierLabel = "outliers";
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCategoryLegend::~vtkCategoryLegend() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkCategoryLegend::Paint(vtkContext2D* painter)
 {
   if (!this->Visible || this->ScalarsToColors == nullptr || this->Values == nullptr)
@@ -136,19 +136,19 @@ bool vtkCategoryLegend::Paint(vtkContext2D* painter)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCategoryLegend::SetScalarsToColors(vtkScalarsToColors* stc)
 {
   this->ScalarsToColors = stc;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkScalarsToColors* vtkCategoryLegend::GetScalarsToColors()
 {
   return this->ScalarsToColors;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRectf vtkCategoryLegend::GetBoundingRect(vtkContext2D* painter)
 {
   if (this->CacheBounds && this->RectTime > this->GetMTime() && this->RectTime > this->PlotTime &&
@@ -265,13 +265,13 @@ vtkRectf vtkCategoryLegend::GetBoundingRect(vtkContext2D* painter)
   return this->Rect;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCategoryLegend::SetTitle(const vtkStdString& title)
 {
   this->Title = title;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStdString vtkCategoryLegend::GetTitle()
 {
   return this->Title;

@@ -20,13 +20,13 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSimpleImageToImageFilter::vtkSimpleImageToImageFilter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSimpleImageToImageFilter::~vtkSimpleImageToImageFilter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSimpleImageToImageFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -39,7 +39,7 @@ int vtkSimpleImageToImageFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSimpleImageToImageFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -67,7 +67,7 @@ int vtkSimpleImageToImageFilter::RequestData(vtkInformation* vtkNotUsed(request)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSimpleImageToImageFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -41,22 +41,22 @@ vtkInformationKeyMacro(vtkOSPRayActorNode, SCALE_FUNCTION, ObjectBase);
 //============================================================================
 vtkStandardNewMacro(vtkOSPRayActorNode);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOSPRayActorNode::vtkOSPRayActorNode()
 {
   this->LastMapper = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOSPRayActorNode::~vtkOSPRayActorNode() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayActorNode::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayActorNode::SetEnableScaling(int value, vtkActor* actor)
 {
   if (!actor)
@@ -71,7 +71,7 @@ void vtkOSPRayActorNode::SetEnableScaling(int value, vtkActor* actor)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkOSPRayActorNode::GetEnableScaling(vtkActor* actor)
 {
   if (!actor)
@@ -90,7 +90,7 @@ int vtkOSPRayActorNode::GetEnableScaling(vtkActor* actor)
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayActorNode::SetScaleArrayName(const char* arrayName, vtkActor* actor)
 {
   if (!actor)
@@ -105,7 +105,7 @@ void vtkOSPRayActorNode::SetScaleArrayName(const char* arrayName, vtkActor* acto
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayActorNode::SetScaleFunction(vtkPiecewiseFunction* scaleFunction, vtkActor* actor)
 {
   if (!actor)
@@ -120,7 +120,7 @@ void vtkOSPRayActorNode::SetScaleFunction(vtkPiecewiseFunction* scaleFunction, v
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayActorNode::SetLuminosity(double value, vtkProperty* property)
 {
   if (!property)
@@ -131,7 +131,7 @@ void vtkOSPRayActorNode::SetLuminosity(double value, vtkProperty* property)
   info->Set(vtkOSPRayActorNode::LUMINOSITY(), value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkOSPRayActorNode::GetLuminosity(vtkProperty* property)
 {
   if (!property)
@@ -147,7 +147,7 @@ double vtkOSPRayActorNode::GetLuminosity(vtkProperty* property)
   return 0.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkOSPRayActorNode::GetMTime()
 {
   vtkMTimeType mtime = this->Superclass::GetMTime();

@@ -22,7 +22,7 @@
 
 #include <string>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkEnSightMasterServerReader);
 
 static int vtkEnSightMasterServerReaderStartsWith(const char* str1, const char* str2)
@@ -34,7 +34,7 @@ static int vtkEnSightMasterServerReaderStartsWith(const char* str1, const char* 
   return !strncmp(str1, str2, strlen(str2));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkEnSightMasterServerReader::vtkEnSightMasterServerReader()
 {
   this->PieceCaseFileName = nullptr;
@@ -42,13 +42,13 @@ vtkEnSightMasterServerReader::vtkEnSightMasterServerReader()
   this->CurrentPiece = -1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkEnSightMasterServerReader::~vtkEnSightMasterServerReader()
 {
   this->SetPieceCaseFileName(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightMasterServerReader::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -80,7 +80,7 @@ int vtkEnSightMasterServerReader::RequestData(
   return this->Superclass::RequestData(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightMasterServerReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -92,7 +92,7 @@ int vtkEnSightMasterServerReader::RequestInformation(vtkInformation* vtkNotUsed(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightMasterServerReader::DetermineFileName(int piece)
 {
   if (!this->CaseFileName)
@@ -181,7 +181,7 @@ int vtkEnSightMasterServerReader::DetermineFileName(int piece)
   return VTK_OK;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightMasterServerReader::CanReadFile(const char* fname)
 {
   // We may have to read quite a few lines of the file to do this test
@@ -198,7 +198,7 @@ int vtkEnSightMasterServerReader::CanReadFile(const char* fname)
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkEnSightMasterServerReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

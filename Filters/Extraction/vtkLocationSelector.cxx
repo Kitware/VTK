@@ -146,16 +146,16 @@ public:
 };
 
 vtkStandardNewMacro(vtkLocationSelector);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLocationSelector::vtkLocationSelector()
   : Internals(nullptr)
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLocationSelector::~vtkLocationSelector() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLocationSelector::Initialize(vtkSelectionNode* node)
 {
   this->Superclass::Initialize(node);
@@ -205,13 +205,13 @@ void vtkLocationSelector::Initialize(vtkSelectionNode* node)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLocationSelector::Finalize()
 {
   this->Internals.reset();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkLocationSelector::ComputeSelectedElements(
   vtkDataObject* input, vtkSignedCharArray* insidednessArray)
 {
@@ -222,7 +222,7 @@ bool vtkLocationSelector::ComputeSelectedElements(
     : false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLocationSelector::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

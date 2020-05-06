@@ -17,16 +17,16 @@
 
 #include "vtkMedicalImageProperties.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkMedicalImageReader2);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMedicalImageReader2::vtkMedicalImageReader2()
 {
   this->MedicalImageProperties = vtkMedicalImageProperties::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMedicalImageReader2::~vtkMedicalImageReader2()
 {
   if (this->MedicalImageProperties)
@@ -36,7 +36,7 @@ vtkMedicalImageReader2::~vtkMedicalImageReader2()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMedicalImageReader2::SetPatientName(const char* arg)
 {
   if (this->MedicalImageProperties)
@@ -45,7 +45,7 @@ void vtkMedicalImageReader2::SetPatientName(const char* arg)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkMedicalImageReader2::GetPatientName()
 {
   if (this->MedicalImageProperties)
@@ -55,7 +55,7 @@ const char* vtkMedicalImageReader2::GetPatientName()
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMedicalImageReader2::SetPatientID(const char* arg)
 {
   if (this->MedicalImageProperties)
@@ -64,7 +64,7 @@ void vtkMedicalImageReader2::SetPatientID(const char* arg)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkMedicalImageReader2::GetPatientID()
 {
   if (this->MedicalImageProperties)
@@ -74,7 +74,7 @@ const char* vtkMedicalImageReader2::GetPatientID()
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMedicalImageReader2::SetDate(const char* arg)
 {
   if (this->MedicalImageProperties)
@@ -83,7 +83,7 @@ void vtkMedicalImageReader2::SetDate(const char* arg)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkMedicalImageReader2::GetDate()
 {
   if (this->MedicalImageProperties)
@@ -93,7 +93,7 @@ const char* vtkMedicalImageReader2::GetDate()
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMedicalImageReader2::SetSeries(const char* arg)
 {
   if (this->MedicalImageProperties)
@@ -102,7 +102,7 @@ void vtkMedicalImageReader2::SetSeries(const char* arg)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkMedicalImageReader2::GetSeries()
 {
   if (this->MedicalImageProperties)
@@ -112,7 +112,7 @@ const char* vtkMedicalImageReader2::GetSeries()
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMedicalImageReader2::SetStudy(const char* arg)
 {
   if (this->MedicalImageProperties)
@@ -121,7 +121,7 @@ void vtkMedicalImageReader2::SetStudy(const char* arg)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkMedicalImageReader2::GetStudy()
 {
   if (this->MedicalImageProperties)
@@ -131,7 +131,7 @@ const char* vtkMedicalImageReader2::GetStudy()
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMedicalImageReader2::SetImageNumber(const char* arg)
 {
   if (this->MedicalImageProperties)
@@ -140,7 +140,7 @@ void vtkMedicalImageReader2::SetImageNumber(const char* arg)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkMedicalImageReader2::GetImageNumber()
 {
   if (this->MedicalImageProperties)
@@ -150,7 +150,7 @@ const char* vtkMedicalImageReader2::GetImageNumber()
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMedicalImageReader2::SetModality(const char* arg)
 {
   if (this->MedicalImageProperties)
@@ -159,7 +159,7 @@ void vtkMedicalImageReader2::SetModality(const char* arg)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkMedicalImageReader2::GetModality()
 {
   if (this->MedicalImageProperties)
@@ -169,7 +169,7 @@ const char* vtkMedicalImageReader2::GetModality()
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMedicalImageReader2::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

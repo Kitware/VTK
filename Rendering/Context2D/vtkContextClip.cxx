@@ -25,7 +25,7 @@
 
 vtkStandardNewMacro(vtkContextClip);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkContextClip::vtkContextClip()
 {
   this->Dims[0] = 0.0;
@@ -34,10 +34,10 @@ vtkContextClip::vtkContextClip()
   this->Dims[3] = 100.0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkContextClip::~vtkContextClip() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkContextClip::Paint(vtkContext2D* painter)
 {
   // Clip rendering for all child items.
@@ -54,10 +54,10 @@ bool vtkContextClip::Paint(vtkContext2D* painter)
   return result;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContextClip::Update() {}
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContextClip::SetClip(float x, float y, float width, float height)
 {
   this->Dims[0] = x;
@@ -67,7 +67,7 @@ void vtkContextClip::SetClip(float x, float y, float width, float height)
   assert(width >= 0 && height >= 0);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContextClip::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

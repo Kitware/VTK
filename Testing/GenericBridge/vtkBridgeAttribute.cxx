@@ -41,7 +41,7 @@ void vtkBridgeAttribute::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Name of the attribute. (e.g. "velocity")
 // \post result_may_not_exist: result!=0 || result==0
@@ -50,7 +50,7 @@ const char* vtkBridgeAttribute::GetName()
   return this->Data->GetArray(this->AttributeNumber)->GetName();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Dimension of the attribute. (1 for scalar, 3 for velocity)
 // \post positive_result: result>=0
@@ -61,7 +61,7 @@ int vtkBridgeAttribute::GetNumberOfComponents()
   return result;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Is the attribute centered either on points, cells or boundaries?
 // \post valid_result: (result==vtkPointCentered) ||
@@ -83,7 +83,7 @@ int vtkBridgeAttribute::GetCentering()
   return result;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Type of the attribute: scalar, vector, normal, texture coordinate, tensor
 // \post valid_result: (result==vtkDataSetAttributes::SCALARS)
@@ -115,7 +115,7 @@ int vtkBridgeAttribute::GetType()
   return result;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Type of the components of the attribute: int, float, double
 // \post valid_result: (result==VTK_BIT)           ||(result==VTK_CHAR)
@@ -129,7 +129,7 @@ int vtkBridgeAttribute::GetComponentType()
   return this->Data->GetArray(this->AttributeNumber)->GetDataType();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Number of tuples.
 // \post valid_result: result>=0
@@ -140,7 +140,7 @@ vtkIdType vtkBridgeAttribute::GetSize()
   return result;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Size in kibibytes (1024 bytes) taken by the attribute.
 unsigned long vtkBridgeAttribute::GetActualMemorySize()
@@ -148,7 +148,7 @@ unsigned long vtkBridgeAttribute::GetActualMemorySize()
   return this->Data->GetArray(this->AttributeNumber)->GetActualMemorySize();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Range of the attribute component `component'. It returns double, even if
 // GetType()==VTK_INT.
@@ -164,7 +164,7 @@ double* vtkBridgeAttribute::GetRange(int component)
   return result;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Range of the attribute component `component'.
 // THREAD SAFE
@@ -176,7 +176,7 @@ void vtkBridgeAttribute::GetRange(int component, double range[2])
   this->Data->GetArray(this->AttributeNumber)->GetRange(range, component);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Return the maximum euclidean norm for the tuples.
 // \post positive_result: result>=0
@@ -187,7 +187,7 @@ double vtkBridgeAttribute::GetMaxNorm()
   return result;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Attribute at all points of cell `c'.
 // \pre c_exists: c!=0
@@ -205,7 +205,7 @@ double* vtkBridgeAttribute::GetTuple(vtkGenericAdaptorCell* c)
   return this->InternalTuple;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Put attribute at all points of cell `c' in `tuple'.
 // \pre c_exists: c!=0
@@ -251,7 +251,7 @@ void vtkBridgeAttribute::GetTuple(vtkGenericAdaptorCell* c, double* tuple)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Attribute at all points of cell `c'.
 // \pre c_exists: c!=0
@@ -266,7 +266,7 @@ double* vtkBridgeAttribute::GetTuple(vtkGenericCellIterator* c)
   return this->GetTuple(c->GetCell());
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Put attribute at all points of cell `c' in `tuple'.
 // \pre c_exists: c!=0
@@ -282,7 +282,7 @@ void vtkBridgeAttribute::GetTuple(vtkGenericCellIterator* c, double* tuple)
   this->GetTuple(c->GetCell(), tuple);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Value of the attribute at position `p'.
 // \pre p_exists: p!=0
@@ -302,7 +302,7 @@ double* vtkBridgeAttribute::GetTuple(vtkGenericPointIterator* p)
   return this->InternalTuple;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Put the value of the attribute at position `p' into `tuple'.
 // \pre p_exists: p!=0
@@ -317,7 +317,7 @@ void vtkBridgeAttribute::GetTuple(vtkGenericPointIterator* p, double* tuple)
   this->Data->GetArray(this->AttributeNumber)->GetTuple(p->GetId(), tuple);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Put component `i' of the attribute at all points of cell `c' in `values'.
 // \pre valid_component: (i>=0) && (i<GetNumberOfComponents())
@@ -360,7 +360,7 @@ void vtkBridgeAttribute::GetComponent(int i, vtkGenericCellIterator* c, double* 
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Value of the component `i' of the attribute at position `p'.
 // \pre valid_component: (i>=0) && (i<GetNumberOfComponents())
@@ -374,7 +374,7 @@ double vtkBridgeAttribute::GetComponent(int i, vtkGenericPointIterator* p)
   return this->Data->GetArray(this->AttributeNumber)->GetComponent(p->GetId(), i);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Recursive duplication of `other' in `this'.
 // \pre other_exists: other!=0
@@ -392,7 +392,7 @@ void vtkBridgeAttribute::DeepCopy(vtkGenericAttribute* other)
   this->AllocateInternalTuple(this->GetNumberOfComponents());
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Update `this' using fields of `other'.
 // \pre other_exists: other!=0
@@ -410,7 +410,7 @@ void vtkBridgeAttribute::ShallowCopy(vtkGenericAttribute* other)
   this->AllocateInternalTuple(this->GetNumberOfComponents());
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Set the current attribute to be centered on points with attribute `i' of
 // `d'.
@@ -427,7 +427,7 @@ void vtkBridgeAttribute::InitWithPointData(vtkPointData* d, int i)
   this->AllocateInternalTuple(this->GetNumberOfComponents());
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Set the current attribute to be centered on cells with attribute `i' of `d'.
 // \pre d_exists: d!=0
@@ -443,7 +443,7 @@ void vtkBridgeAttribute::InitWithCellData(vtkCellData* d, int i)
   this->AllocateInternalTuple(this->GetNumberOfComponents());
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Default constructor: empty attribute, not valid
 vtkBridgeAttribute::vtkBridgeAttribute()
@@ -456,7 +456,7 @@ vtkBridgeAttribute::vtkBridgeAttribute()
   this->InternalTupleCapacity = 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Destructor.
 vtkBridgeAttribute::~vtkBridgeAttribute()
@@ -475,7 +475,7 @@ vtkBridgeAttribute::~vtkBridgeAttribute()
   delete[] this->InternalTuple;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // If size>InternalTupleCapacity, allocate enough memory.
 // \pre positive_size: size>0

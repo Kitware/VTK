@@ -17,7 +17,7 @@
 #include "vtkRenderer.h"
 #include <cassert>
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Default constructor. Do nothing.
 vtkRenderPass::vtkRenderPass()
@@ -25,12 +25,12 @@ vtkRenderPass::vtkRenderPass()
   this->NumberOfRenderedProps = 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Destructor. Do nothing.
 vtkRenderPass::~vtkRenderPass() = default;
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Release graphics resources and ask components to release their own
 // resources. Default implementation is empty.
@@ -42,7 +42,7 @@ void vtkRenderPass::ReleaseGraphicsResources(vtkWindow* w)
   static_cast<void>(w); // avoid warning in release mode.
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Call UpdateCamera() on Renderer. This ugly mechanism gives access to
 // a protected method of Renderer to subclasses of vtkRenderPass.
@@ -53,7 +53,7 @@ void vtkRenderPass::UpdateCamera(vtkRenderer* renderer)
   renderer->UpdateCamera();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Call ClearLights() on Renderer. See note about UpdateCamera().
 // \pre renderer_exists: renderer!=0
@@ -63,7 +63,7 @@ void vtkRenderPass::ClearLights(vtkRenderer* renderer)
   renderer->ClearLights();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Call UpdateLightGeometry() on Renderer. See note about UpdateCamera().
 // \pre renderer_exists: renderer!=0
@@ -73,7 +73,7 @@ void vtkRenderPass::UpdateLightGeometry(vtkRenderer* renderer)
   renderer->UpdateLightGeometry();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Call UpdateLights() on Renderer. See note about UpdateCamera().
 // \pre renderer_exists: renderer!=0
@@ -83,7 +83,7 @@ void vtkRenderPass::UpdateLights(vtkRenderer* renderer)
   renderer->UpdateLights();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Call UpdateGeometry() on Renderer. See note about UpdateCamera().
 // \pre renderer_exists: renderer!=0
@@ -93,7 +93,7 @@ void vtkRenderPass::UpdateGeometry(vtkRenderer* renderer, vtkFrameBufferObjectBa
   renderer->UpdateGeometry(fbo);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderPass::SetLastRenderingUsedDepthPeeling(vtkRenderer* renderer, bool value)
 {
   assert("pre: renderer_exists" && renderer != nullptr);
@@ -101,7 +101,7 @@ void vtkRenderPass::SetLastRenderingUsedDepthPeeling(vtkRenderer* renderer, bool
   renderer->LastRenderingUsedDepthPeeling = value;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

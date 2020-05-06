@@ -43,7 +43,7 @@
 #include <limits>
 #include <vector>
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkStandardNewMacro(vtkGradientFilter);
 
@@ -57,7 +57,7 @@ namespace
 
 // helper function to replace the gradient of a vector
 // with the vorticity/curl of that vector
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class data_type>
 void ComputeVorticityFromGradient(data_type* gradients, data_type* vorticity)
 {
@@ -164,7 +164,7 @@ int GetOutputDataType(data_type vtkNotUsed(data))
 }
 } // end anonymous namespace
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGradientFilter::vtkGradientFilter()
 {
   this->ResultArrayName = nullptr;
@@ -182,7 +182,7 @@ vtkGradientFilter::vtkGradientFilter()
     vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS, vtkDataSetAttributes::SCALARS);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGradientFilter::~vtkGradientFilter()
 {
   this->SetResultArrayName(nullptr);
@@ -191,7 +191,7 @@ vtkGradientFilter::~vtkGradientFilter()
   this->SetQCriterionArrayName(nullptr);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGradientFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -214,7 +214,7 @@ void vtkGradientFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ReplacementValueOption:" << this->ReplacementValueOption << endl;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGradientFilter::SetInputScalars(int fieldAssociation, const char* name)
 {
   if ((fieldAssociation != vtkDataObject::FIELD_ASSOCIATION_POINTS) &&
@@ -228,7 +228,7 @@ void vtkGradientFilter::SetInputScalars(int fieldAssociation, const char* name)
   this->SetInputArrayToProcess(0, 0, 0, fieldAssociation, name);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGradientFilter::SetInputScalars(int fieldAssociation, int fieldAttributeType)
 {
   if ((fieldAssociation != vtkDataObject::FIELD_ASSOCIATION_POINTS) &&
@@ -242,7 +242,7 @@ void vtkGradientFilter::SetInputScalars(int fieldAssociation, int fieldAttribute
   this->SetInputArrayToProcess(0, 0, 0, fieldAssociation, fieldAttributeType);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGradientFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -272,7 +272,7 @@ int vtkGradientFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGradientFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -363,7 +363,7 @@ int vtkGradientFilter::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGradientFilter::ComputeUnstructuredGridGradient(vtkDataArray* array, int fieldAssociation,
   vtkDataSet* input, bool computeVorticity, bool computeQCriterion, bool computeDivergence,
   vtkDataSet* output)
@@ -645,7 +645,7 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(vtkDataArray* array, int 
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGradientFilter::ComputeRegularGridGradient(vtkDataArray* array, int fieldAssociation,
   bool computeVorticity, bool computeQCriterion, bool computeDivergence, vtkDataSet* output)
 {
@@ -792,7 +792,7 @@ int vtkGradientFilter::ComputeRegularGridGradient(vtkDataArray* array, int field
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGradientFilter::GetOutputArrayType(vtkDataArray* array)
 {
   int retType = VTK_DOUBLE;
@@ -805,7 +805,7 @@ int vtkGradientFilter::GetOutputArrayType(vtkDataArray* array)
 
 namespace
 {
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class data_type>
 void ComputePointGradientsUG(vtkDataSet* structure, vtkDataArray* array, data_type* gradients,
   int numberOfInputComponents, data_type* vorticity, data_type* qCriterion, data_type* divergence,
@@ -920,7 +920,7 @@ void ComputePointGradientsUG(vtkDataSet* structure, vtkDataArray* array, data_ty
   } // iterating over points in grid
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int GetCellParametricData(
   vtkIdType pointId, double pointCoord[3], vtkCell* cell, int& subId, double parametricCoord[3])
 {
@@ -951,7 +951,7 @@ int GetCellParametricData(
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class data_type>
 void ComputeCellGradientsUG(vtkDataSet* structure, vtkDataArray* array, data_type* gradients,
   int numberOfInputComponents, data_type* vorticity, data_type* qCriterion, data_type* divergence)
@@ -1006,7 +1006,7 @@ void ComputeCellGradientsUG(vtkDataSet* structure, vtkDataArray* array, data_typ
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class Grid, class data_type>
 void ComputeGradientsSG(Grid output, vtkDataArray* array, data_type* gradients,
   int numberOfInputComponents, int fieldAssociation, data_type* vorticity, data_type* qCriterion,

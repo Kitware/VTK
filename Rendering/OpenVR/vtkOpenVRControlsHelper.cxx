@@ -35,7 +35,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 vtkStandardNewMacro(vtkOpenVRControlsHelper);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenVRControlsHelper::vtkOpenVRControlsHelper()
 {
   // The text
@@ -88,7 +88,7 @@ vtkOpenVRControlsHelper::vtkOpenVRControlsHelper()
   this->LabelVisible = false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenVRControlsHelper::~vtkOpenVRControlsHelper()
 {
   this->SetRenderer(nullptr);
@@ -113,7 +113,7 @@ void vtkOpenVRControlsHelper::SetDevice(vtkEventDataDevice val)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRControlsHelper::InitControlPosition()
 {
   vtkOpenVRRenderWindowInteractor* iren = static_cast<vtkOpenVRRenderWindowInteractor*>(
@@ -206,7 +206,7 @@ void vtkOpenVRControlsHelper::MoveEvent(vtkObject*, unsigned long, void* clientd
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRControlsHelper::UpdateRepresentation()
 {
   this->NeedUpdate = false;
@@ -365,14 +365,14 @@ void vtkOpenVRControlsHelper::UpdateRepresentation()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRControlsHelper::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->TextActor->ReleaseGraphicsResources(w);
   this->LineActor->ReleaseGraphicsResources(w);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkOpenVRControlsHelper::RenderOpaqueGeometry(vtkViewport* v)
 {
   if (this->NeedUpdate)
@@ -393,7 +393,7 @@ int vtkOpenVRControlsHelper::RenderOpaqueGeometry(vtkViewport* v)
   return count;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkOpenVRControlsHelper::RenderTranslucentPolygonalGeometry(vtkViewport* v)
 {
   if (this->NeedUpdate)
@@ -413,7 +413,7 @@ int vtkOpenVRControlsHelper::RenderTranslucentPolygonalGeometry(vtkViewport* v)
   return count;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkOpenVRControlsHelper::HasTranslucentPolygonalGeometry()
 {
   if (!this->GetVisibility())
@@ -428,7 +428,7 @@ vtkTypeBool vtkOpenVRControlsHelper::HasTranslucentPolygonalGeometry()
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRControlsHelper::BuildRepresentation()
 {
   ////Compute text size in world coordinates
@@ -447,13 +447,13 @@ void vtkOpenVRControlsHelper::BuildRepresentation()
   this->FrameSize[1] = (textSize[1] - 2.0 * textFrameWidth) * FontSizeFactor;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRControlsHelper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRControlsHelper::SetText(vtkStdString _text)
 {
   if (this->Text == _text)
@@ -478,7 +478,7 @@ void vtkOpenVRControlsHelper::SetEnabled(bool val)
   this->Modified();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRControlsHelper::SetRenderer(vtkRenderer* ren)
 {
   if (ren == this->Renderer)
@@ -504,7 +504,7 @@ void vtkOpenVRControlsHelper::SetRenderer(vtkRenderer* ren)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRenderer* vtkOpenVRControlsHelper::GetRenderer()
 {
   return this->Renderer;

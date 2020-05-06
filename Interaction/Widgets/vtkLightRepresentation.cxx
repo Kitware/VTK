@@ -31,7 +31,7 @@
 
 vtkStandardNewMacro(vtkLightRepresentation);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLightRepresentation::vtkLightRepresentation()
 {
   // Initialize state
@@ -83,13 +83,13 @@ vtkLightRepresentation::vtkLightRepresentation()
   this->UpdateSources();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLightRepresentation::~vtkLightRepresentation()
 {
   // Needed in order to be able to forward declare the classes in vtkNew
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLightRepresentation::SetLightPosition(double x[3])
 {
   if (this->LightPosition[0] != x[0] || this->LightPosition[1] != x[1] ||
@@ -103,7 +103,7 @@ void vtkLightRepresentation::SetLightPosition(double x[3])
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLightRepresentation::SetFocalPoint(double x[3])
 {
   if (this->FocalPoint[0] != x[0] || this->FocalPoint[1] != x[1] || this->FocalPoint[2] != x[2])
@@ -116,7 +116,7 @@ void vtkLightRepresentation::SetFocalPoint(double x[3])
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLightRepresentation::SetConeAngle(double angle)
 {
   // Clamp between 0 and 89.98 because of
@@ -130,19 +130,19 @@ void vtkLightRepresentation::SetConeAngle(double angle)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLightRepresentation::SetLightColor(double* color)
 {
   this->Property->SetColor(color);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkLightRepresentation::GetLightColor()
 {
   return this->Property->GetColor();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLightRepresentation::UpdateSources()
 {
   this->Sphere->SetCenter(this->LightPosition);
@@ -167,7 +167,7 @@ void vtkLightRepresentation::UpdateSources()
   this->SizeHandles();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkLightRepresentation::GetBounds()
 {
   this->BuildRepresentation();
@@ -180,7 +180,7 @@ double* vtkLightRepresentation::GetBounds()
   return this->BoundingBox->GetBounds();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLightRepresentation::StartWidgetInteraction(double eventPosition[2])
 {
   // Store the start position
@@ -197,7 +197,7 @@ void vtkLightRepresentation::StartWidgetInteraction(double eventPosition[2])
   this->LastScalingDistance2 = -1;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLightRepresentation::WidgetInteraction(double eventPosition[2])
 {
   // Convert events to appropriate coordinate systems
@@ -245,7 +245,7 @@ void vtkLightRepresentation::WidgetInteraction(double eventPosition[2])
   this->LastEventPosition[2] = 0.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkLightRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUsed(modify))
 {
   // Picked point is not inside
@@ -291,7 +291,7 @@ int vtkLightRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUsed
   return this->InteractionState;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLightRepresentation::BuildRepresentation()
 {
   if (this->GetMTime() > this->BuildTime ||
@@ -307,7 +307,7 @@ void vtkLightRepresentation::BuildRepresentation()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLightRepresentation::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->SphereActor->ReleaseGraphicsResources(w);
@@ -315,7 +315,7 @@ void vtkLightRepresentation::ReleaseGraphicsResources(vtkWindow* w)
   this->ConeActor->ReleaseGraphicsResources(w);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkLightRepresentation::RenderOpaqueGeometry(vtkViewport* v)
 {
   this->BuildRepresentation();
@@ -330,7 +330,7 @@ int vtkLightRepresentation::RenderOpaqueGeometry(vtkViewport* v)
   return count;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkLightRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport* v)
 {
   this->BuildRepresentation();
@@ -345,7 +345,7 @@ int vtkLightRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport* v)
   return count;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLightRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "LightPosition: " << this->LightPosition[0] << " " << this->LightPosition[1]
@@ -395,7 +395,7 @@ void vtkLightRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLightRepresentation::SizeHandles()
 {
   double radius =
@@ -403,7 +403,7 @@ void vtkLightRepresentation::SizeHandles()
   this->Sphere->SetRadius(radius);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLightRepresentation::ScaleConeAngle(double* pickPoint, double* lastPickPoint)
 {
   double vecOrig[3];

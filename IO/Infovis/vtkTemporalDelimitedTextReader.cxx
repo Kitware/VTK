@@ -28,13 +28,13 @@
 
 vtkStandardNewMacro(vtkTemporalDelimitedTextReader);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTemporalDelimitedTextReader::vtkTemporalDelimitedTextReader()
 {
   this->DetectNumericColumnsOn();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTemporalDelimitedTextReader::SetTimeColumnName(const std::string name)
 {
   if (this->TimeColumnName.compare(name) != 0)
@@ -46,7 +46,7 @@ void vtkTemporalDelimitedTextReader::SetTimeColumnName(const std::string name)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTemporalDelimitedTextReader::SetTimeColumnId(const int idx)
 {
   if (idx != this->TimeColumnId)
@@ -57,7 +57,7 @@ void vtkTemporalDelimitedTextReader::SetTimeColumnId(const int idx)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTemporalDelimitedTextReader::SetRemoveTimeStepColumn(bool rts)
 {
   if (rts != this->RemoveTimeStepColumn)
@@ -69,13 +69,13 @@ void vtkTemporalDelimitedTextReader::SetRemoveTimeStepColumn(bool rts)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkTemporalDelimitedTextReader::GetMTime()
 {
   return std::max(this->MTime, this->InternalMTime);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTemporalDelimitedTextReader::RequestInformation(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -145,7 +145,7 @@ int vtkTemporalDelimitedTextReader::RequestInformation(
   return this->Superclass::RequestInformation(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTemporalDelimitedTextReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -215,7 +215,7 @@ int vtkTemporalDelimitedTextReader::RequestData(vtkInformation* vtkNotUsed(reque
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkTemporalDelimitedTextReader::EnforceColumnName()
 {
   this->InternalColumnName = "";
@@ -271,13 +271,13 @@ bool vtkTemporalDelimitedTextReader::EnforceColumnName()
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTemporalDelimitedTextReader::InternalModified()
 {
   this->InternalMTime.Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTemporalDelimitedTextReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

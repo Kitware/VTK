@@ -64,7 +64,7 @@ protected:
   vtkTable* OutTable;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 template <typename ArrayType, typename ValueType>
 bool vtkTransposeTableInternal::TransposeColumn(int columnId, bool useVariant)
@@ -111,7 +111,7 @@ bool vtkTransposeTableInternal::TransposeColumn(int columnId, bool useVariant)
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkTransposeTableInternal::InsertColumn(int pos, vtkAbstractArray* col)
 {
   if (!col ||
@@ -144,7 +144,7 @@ bool vtkTransposeTableInternal::InsertColumn(int pos, vtkAbstractArray* col)
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkTransposeTableInternal::TransposeTable(vtkTable* inTable, vtkTable* outTable)
 {
   this->InTable = inTable;
@@ -256,10 +256,10 @@ bool vtkTransposeTableInternal::TransposeTable(vtkTable* inTable, vtkTable* outT
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkTransposeTable);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTransposeTable::vtkTransposeTable()
 {
   this->AddIdColumn = true;
@@ -268,19 +268,19 @@ vtkTransposeTable::vtkTransposeTable()
   this->SetIdColumnName("ColName");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTransposeTable::~vtkTransposeTable()
 {
   delete[] IdColumnName;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTransposeTable::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTransposeTable::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

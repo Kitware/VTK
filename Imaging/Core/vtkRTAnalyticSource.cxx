@@ -26,7 +26,7 @@
 
 vtkStandardNewMacro(vtkRTAnalyticSource);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRTAnalyticSource::vtkRTAnalyticSource()
 {
   this->Maximum = 255.0;
@@ -54,7 +54,7 @@ vtkRTAnalyticSource::vtkRTAnalyticSource()
   this->SubsampleRate = 1;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRTAnalyticSource::SetWholeExtent(int xMin, int xMax, int yMin, int yMax, int zMin, int zMax)
 {
   int modified = 0;
@@ -95,7 +95,7 @@ void vtkRTAnalyticSource::SetWholeExtent(int xMin, int xMax, int yMin, int yMax,
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkRTAnalyticSource::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {

@@ -16,7 +16,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkTransform.h"
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAffineRepresentation::vtkAffineRepresentation()
 {
   this->InteractionState = vtkAffineRepresentation::Outside;
@@ -24,13 +24,13 @@ vtkAffineRepresentation::vtkAffineRepresentation()
   this->Transform = vtkTransform::New();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAffineRepresentation::~vtkAffineRepresentation()
 {
   this->Transform->Delete();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAffineRepresentation::ShallowCopy(vtkProp* prop)
 {
   vtkAffineRepresentation* rep = vtkAffineRepresentation::SafeDownCast(prop);
@@ -41,7 +41,7 @@ void vtkAffineRepresentation::ShallowCopy(vtkProp* prop)
   this->Superclass::ShallowCopy(prop);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAffineRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h

@@ -29,19 +29,19 @@
 
 vtkStandardNewMacro(vtkRemoveGhosts);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRemoveGhosts::vtkRemoveGhosts() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRemoveGhosts::~vtkRemoveGhosts() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRemoveGhosts::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkRemoveGhosts::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -53,7 +53,7 @@ int vtkRemoveGhosts::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkRemoveGhosts::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -99,7 +99,7 @@ int vtkRemoveGhosts::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkRemoveGhosts::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");

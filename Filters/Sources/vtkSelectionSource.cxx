@@ -49,7 +49,7 @@ public:
   double Frustum[32];
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSelectionSource::vtkSelectionSource()
 {
   this->SetNumberOfInputPorts(0);
@@ -72,7 +72,7 @@ vtkSelectionSource::vtkSelectionSource()
   this->NumberOfLayers = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSelectionSource::~vtkSelectionSource()
 {
   delete this->Internal;
@@ -80,35 +80,35 @@ vtkSelectionSource::~vtkSelectionSource()
   delete[] this->QueryString;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelectionSource::RemoveAllIDs()
 {
   this->Internal->IDs.clear();
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelectionSource::RemoveAllStringIDs()
 {
   this->Internal->StringIDs.clear();
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelectionSource::RemoveAllLocations()
 {
   this->Internal->Locations.clear();
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelectionSource::RemoveAllThresholds()
 {
   this->Internal->Thresholds.clear();
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelectionSource::AddID(vtkIdType proc, vtkIdType id)
 {
   // proc == -1 means all processes. All other are stored at index proc+1
@@ -123,7 +123,7 @@ void vtkSelectionSource::AddID(vtkIdType proc, vtkIdType id)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelectionSource::AddStringID(vtkIdType proc, const char* id)
 {
   // proc == -1 means all processes. All other are stored at index proc+1
@@ -138,7 +138,7 @@ void vtkSelectionSource::AddStringID(vtkIdType proc, const char* id)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelectionSource::AddLocation(double x, double y, double z)
 {
   this->Internal->Locations.push_back(x);
@@ -147,7 +147,7 @@ void vtkSelectionSource::AddLocation(double x, double y, double z)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelectionSource::AddThreshold(double min, double max)
 {
   this->Internal->Thresholds.push_back(min);
@@ -155,7 +155,7 @@ void vtkSelectionSource::AddThreshold(double min, double max)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelectionSource::SetFrustum(double* vertices)
 {
   for (int cc = 0; cc < 32; cc++)
@@ -169,21 +169,21 @@ void vtkSelectionSource::SetFrustum(double* vertices)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelectionSource::AddBlock(vtkIdType block)
 {
   this->Internal->Blocks.insert(block);
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelectionSource::RemoveAllBlocks()
 {
   this->Internal->Blocks.clear();
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelectionSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -257,7 +257,7 @@ void vtkSelectionSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NumberOfLayers: " << this->NumberOfLayers << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSelectionSource::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -267,7 +267,7 @@ int vtkSelectionSource::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSelectionSource::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {

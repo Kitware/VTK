@@ -32,7 +32,7 @@
 #include "vtkTreeMapToPolyData.h"
 
 vtkStandardNewMacro(vtkTreeMapView);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTreeMapView::vtkTreeMapView()
 {
   this->BoxLayout = vtkSmartPointer<vtkBoxLayoutStrategy>::New();
@@ -48,28 +48,28 @@ vtkTreeMapView::vtkTreeMapView()
   this->SetAreaLabelMapper(mapper);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTreeMapView::~vtkTreeMapView() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeMapView::SetLayoutStrategyToBox()
 {
   this->SetLayoutStrategy("Box");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeMapView::SetLayoutStrategyToSliceAndDice()
 {
   this->SetLayoutStrategy("Slice And Dice");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeMapView::SetLayoutStrategyToSquarify()
 {
   this->SetLayoutStrategy("Squarify");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeMapView::SetLayoutStrategy(vtkAreaLayoutStrategy* s)
 {
   if (!vtkTreeMapLayoutStrategy::SafeDownCast(s))
@@ -80,7 +80,7 @@ void vtkTreeMapView::SetLayoutStrategy(vtkAreaLayoutStrategy* s)
   this->Superclass::SetLayoutStrategy(s);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeMapView::SetLayoutStrategy(const char* name)
 {
   if (!strcmp(name, "Box"))
@@ -104,7 +104,7 @@ void vtkTreeMapView::SetLayoutStrategy(const char* name)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeMapView::SetFontSizeRange(const int maxSize, const int minSize, const int delta)
 {
   vtkLabeledTreeMapDataMapper* mapper =
@@ -115,7 +115,7 @@ void vtkTreeMapView::SetFontSizeRange(const int maxSize, const int minSize, cons
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeMapView::GetFontSizeRange(int range[3])
 {
   vtkLabeledTreeMapDataMapper* mapper =
@@ -126,7 +126,7 @@ void vtkTreeMapView::GetFontSizeRange(int range[3])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeMapView::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

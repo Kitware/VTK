@@ -53,7 +53,7 @@ void vtkThreadMessager::WaitForMessage()
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkThreadMessager::SendWakeMessage()
 {
 #ifdef VTK_USE_WIN32_THREADS

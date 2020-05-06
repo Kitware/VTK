@@ -28,7 +28,7 @@
 #include "vtkRegressionTestImage.h"
 #include "vtkTestUtilities.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestContextImage(int argc, char* argv[])
 {
   char* logo = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vtk.png");

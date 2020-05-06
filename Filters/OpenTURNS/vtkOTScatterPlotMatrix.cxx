@@ -83,7 +83,7 @@ vtkOTScatterPlotMatrix::~vtkOTScatterPlotMatrix()
   delete this->DensityMapsSettings[vtkScatterPlotMatrix::ACTIVEPLOT];
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOTScatterPlotMatrix::AddSupplementaryPlot(
   vtkChart* chart, int plotType, vtkStdString row, vtkStdString column, int plotCorner)
 {
@@ -178,7 +178,7 @@ void vtkOTScatterPlotMatrix::AddSupplementaryPlot(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOTScatterPlotMatrix::SetDensityMapVisibility(int plotType, bool visible)
 {
   if (plotType != NOPLOT && plotType != HISTOGRAM &&
@@ -193,7 +193,7 @@ void vtkOTScatterPlotMatrix::SetDensityMapVisibility(int plotType, bool visible)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOTScatterPlotMatrix::SetDensityLineSize(int plotType, float size)
 {
   if (plotType != NOPLOT && plotType != HISTOGRAM &&
@@ -208,7 +208,7 @@ void vtkOTScatterPlotMatrix::SetDensityLineSize(int plotType, float size)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOTScatterPlotMatrix::SetDensityMapColor(
   int plotType, unsigned int densityLineIndex, const vtkColor4ub& color)
 {
@@ -228,19 +228,19 @@ void vtkOTScatterPlotMatrix::SetDensityMapColor(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOTScatterPlotMatrix::PrintSelf(ostream& os, vtkIndent indent)
 {
   Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkScalarsToColors* vtkOTScatterPlotMatrix::GetTransferFunction()
 {
   return this->TransferFunction;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOTScatterPlotMatrix::SetTransferFunction(vtkScalarsToColors* stc)
 {
   if (this->TransferFunction.Get() != stc)

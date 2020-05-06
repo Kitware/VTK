@@ -25,7 +25,7 @@
 vtkStandardNewMacro(vtkImageStencilSource);
 vtkCxxSetObjectMacro(vtkImageStencilSource, InformationInput, vtkImageData);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageStencilSource::vtkImageStencilSource()
 {
   this->InformationInput = nullptr;
@@ -46,13 +46,13 @@ vtkImageStencilSource::vtkImageStencilSource()
   this->OutputWholeExtent[5] = -1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageStencilSource::~vtkImageStencilSource()
 {
   this->SetInformationInput(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageStencilSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -69,14 +69,14 @@ void vtkImageStencilSource::PrintSelf(ostream& os, vtkIndent indent)
      << this->OutputWholeExtent[5] << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageStencilSource::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
   vtkGarbageCollectorReport(collector, this->InformationInput, "InformationInput");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageStencilSource::RequestInformation(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {

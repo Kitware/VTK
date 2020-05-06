@@ -24,7 +24,7 @@
 
 vtkStandardNewMacro(vtkTerrainContourLineInterpolator);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTerrainContourLineInterpolator::vtkTerrainContourLineInterpolator()
 {
   this->ImageData = nullptr;
@@ -34,14 +34,14 @@ vtkTerrainContourLineInterpolator::vtkTerrainContourLineInterpolator()
   this->Projector->SetProjectionModeToHug();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTerrainContourLineInterpolator::~vtkTerrainContourLineInterpolator()
 {
   this->SetImageData(nullptr);
   this->Projector->Delete();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTerrainContourLineInterpolator::SetImageData(vtkImageData* image)
 {
   if (this->ImageData != image)
@@ -61,7 +61,7 @@ void vtkTerrainContourLineInterpolator::SetImageData(vtkImageData* image)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTerrainContourLineInterpolator::InterpolateLine(
   vtkRenderer*, vtkContourRepresentation* rep, int idx1, int idx2)
 {
@@ -136,14 +136,14 @@ int vtkTerrainContourLineInterpolator::InterpolateLine(
   return 1;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTerrainContourLineInterpolator::UpdateNode(
   vtkRenderer*, vtkContourRepresentation*, double* vtkNotUsed(node), int vtkNotUsed(idx))
 {
   return 0;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTerrainContourLineInterpolator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

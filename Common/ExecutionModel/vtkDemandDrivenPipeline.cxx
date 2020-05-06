@@ -46,7 +46,7 @@ vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_DATA_NOT_GENERATED, Requ
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_DATA_OBJECT, Request);
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_INFORMATION, Request);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDemandDrivenPipeline::vtkDemandDrivenPipeline()
 {
   this->InfoRequest = nullptr;
@@ -55,7 +55,7 @@ vtkDemandDrivenPipeline::vtkDemandDrivenPipeline()
   this->PipelineMTime = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDemandDrivenPipeline::~vtkDemandDrivenPipeline()
 {
   if (this->InfoRequest)
@@ -72,14 +72,14 @@ vtkDemandDrivenPipeline::~vtkDemandDrivenPipeline()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDemandDrivenPipeline::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "PipelineMTime: " << this->PipelineMTime << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::ComputePipelineMTime(vtkInformation* request,
   vtkInformationVector** inInfoVec, vtkInformationVector* outInfoVec, int requestFromOutputPort,
   vtkMTimeType* mtime)
@@ -144,7 +144,7 @@ int vtkDemandDrivenPipeline::ComputePipelineMTime(vtkInformation* request,
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkDemandDrivenPipeline::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inInfoVec, vtkInformationVector* outInfoVec)
 {
@@ -281,16 +281,16 @@ vtkTypeBool vtkDemandDrivenPipeline::ProcessRequest(
   return this->Superclass::ProcessRequest(request, inInfoVec, outInfoVec);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDemandDrivenPipeline::ResetPipelineInformation(int, vtkInformation*) {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkDemandDrivenPipeline::Update()
 {
   return this->Superclass::Update();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkDemandDrivenPipeline::Update(int port)
 {
   if (!this->UpdateInformation())
@@ -307,7 +307,7 @@ vtkTypeBool vtkDemandDrivenPipeline::Update(int port)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::UpdatePipelineMTime()
 {
   // The algorithm should not invoke anything on the executive.
@@ -323,7 +323,7 @@ int vtkDemandDrivenPipeline::UpdatePipelineMTime()
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::UpdateDataObject()
 {
   // The algorithm should not invoke anything on the executive.
@@ -354,7 +354,7 @@ int vtkDemandDrivenPipeline::UpdateDataObject()
     this->DataObjectRequest, this->GetInputInformation(), this->GetOutputInformation());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::UpdateInformation()
 {
   // The algorithm should not invoke anything on the executive.
@@ -385,7 +385,7 @@ int vtkDemandDrivenPipeline::UpdateInformation()
     this->InfoRequest, this->GetInputInformation(), this->GetOutputInformation());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::UpdateData(int outputPort)
 {
   // The algorithm should not invoke anything on the executive.
@@ -420,7 +420,7 @@ int vtkDemandDrivenPipeline::UpdateData(int outputPort)
     this->DataRequest, this->GetInputInformation(), this->GetOutputInformation());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::ExecuteDataObject(
   vtkInformation* request, vtkInformationVector** inInfo, vtkInformationVector* outInfo)
 {
@@ -436,7 +436,7 @@ int vtkDemandDrivenPipeline::ExecuteDataObject(
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::ExecuteInformation(
   vtkInformation* request, vtkInformationVector** inInfoVec, vtkInformationVector* outInfoVec)
 {
@@ -452,7 +452,7 @@ int vtkDemandDrivenPipeline::ExecuteInformation(
   return this->CallAlgorithm(request, vtkExecutive::RequestDownstream, inInfoVec, outInfoVec);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::ExecuteData(
   vtkInformation* request, vtkInformationVector** inInfo, vtkInformationVector* outInfo)
 {
@@ -472,7 +472,7 @@ int vtkDemandDrivenPipeline::ExecuteData(
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDemandDrivenPipeline::ExecuteDataStart(
   vtkInformation* request, vtkInformationVector** inInfo, vtkInformationVector* outputs)
 {
@@ -524,7 +524,7 @@ void vtkDemandDrivenPipeline::ExecuteDataStart(
   this->Algorithm->UpdateProgress(0.0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDemandDrivenPipeline::ExecuteDataEnd(
   vtkInformation* request, vtkInformationVector** inInfoVec, vtkInformationVector* outputs)
 {
@@ -563,7 +563,7 @@ void vtkDemandDrivenPipeline::ExecuteDataEnd(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDemandDrivenPipeline::MarkOutputsGenerated(
   vtkInformation*, vtkInformationVector** /* inInfoVec */, vtkInformationVector* outputs)
 {
@@ -579,7 +579,7 @@ void vtkDemandDrivenPipeline::MarkOutputsGenerated(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::CheckDataObject(int port, vtkInformationVector* outInfoVec)
 {
   // Check that the given output port has a valid data object.
@@ -635,7 +635,7 @@ int vtkDemandDrivenPipeline::CheckDataObject(int port, vtkInformationVector* out
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::InputCountIsValid(vtkInformationVector** inInfoVec)
 {
   // Check the number of connections for each port.
@@ -650,7 +650,7 @@ int vtkDemandDrivenPipeline::InputCountIsValid(vtkInformationVector** inInfoVec)
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::InputCountIsValid(int port, vtkInformationVector** inInfoVec)
 {
   // Get the number of connections for this port.
@@ -680,7 +680,7 @@ int vtkDemandDrivenPipeline::InputCountIsValid(int port, vtkInformationVector** 
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::InputTypeIsValid(vtkInformationVector** inInfoVec)
 {
   // Check the connection types for each port.
@@ -695,7 +695,7 @@ int vtkDemandDrivenPipeline::InputTypeIsValid(vtkInformationVector** inInfoVec)
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::InputTypeIsValid(int port, vtkInformationVector** inInfoVec)
 {
   // Check the type of each connection on this port.
@@ -714,7 +714,7 @@ int vtkDemandDrivenPipeline::InputTypeIsValid(int port, vtkInformationVector** i
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::InputTypeIsValid(int port, int index, vtkInformationVector** inInfoVec)
 {
   if (!inInfoVec[port])
@@ -764,7 +764,7 @@ int vtkDemandDrivenPipeline::InputTypeIsValid(int port, int index, vtkInformatio
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::InputFieldsAreValid(vtkInformationVector** inInfoVec)
 {
   // Check the fields for each port.
@@ -779,7 +779,7 @@ int vtkDemandDrivenPipeline::InputFieldsAreValid(vtkInformationVector** inInfoVe
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::InputFieldsAreValid(int port, vtkInformationVector** inInfoVec)
 {
   // Check the fields for each connection on this port.
@@ -798,7 +798,7 @@ int vtkDemandDrivenPipeline::InputFieldsAreValid(int port, vtkInformationVector*
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::InputFieldsAreValid(
   int port, int index, vtkInformationVector** inInfoVec)
 {
@@ -869,7 +869,7 @@ int vtkDemandDrivenPipeline::InputFieldsAreValid(
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::DataSetAttributeExists(
   vtkDataSetAttributes* dsa, vtkInformation* field)
 {
@@ -886,7 +886,7 @@ int vtkDemandDrivenPipeline::DataSetAttributeExists(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::FieldArrayExists(vtkFieldData* data, vtkInformation* field)
 {
   // Search the field data instance for an array matching the requirements.
@@ -901,7 +901,7 @@ int vtkDemandDrivenPipeline::FieldArrayExists(vtkFieldData* data, vtkInformation
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::ArrayIsValid(vtkAbstractArray* array, vtkInformation* field)
 {
   // Enforce existence of the array.
@@ -954,7 +954,7 @@ int vtkDemandDrivenPipeline::ArrayIsValid(vtkAbstractArray* array, vtkInformatio
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::InputIsOptional(int port)
 {
   if (vtkInformation* info = this->Algorithm->GetInputPortInformation(port))
@@ -964,7 +964,7 @@ int vtkDemandDrivenPipeline::InputIsOptional(int port)
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::InputIsRepeatable(int port)
 {
   if (vtkInformation* info = this->Algorithm->GetInputPortInformation(port))
@@ -974,13 +974,13 @@ int vtkDemandDrivenPipeline::InputIsRepeatable(int port)
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject* vtkDemandDrivenPipeline::NewDataObject(const char* type)
 {
   return vtkDataObjectTypes::NewDataObject(type);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDemandDrivenPipeline ::NeedToExecuteData(
   int outputPort, vtkInformationVector** inInfoVec, vtkInformationVector* outInfoVec)
 {
@@ -1020,7 +1020,7 @@ int vtkDemandDrivenPipeline ::NeedToExecuteData(
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::SetReleaseDataFlag(int port, int n)
 {
   if (!this->OutputPortIndexInRange(port, "set release data flag on"))
@@ -1036,7 +1036,7 @@ int vtkDemandDrivenPipeline::SetReleaseDataFlag(int port, int n)
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::GetReleaseDataFlag(int port)
 {
   if (!this->OutputPortIndexInRange(port, "get release data flag from"))

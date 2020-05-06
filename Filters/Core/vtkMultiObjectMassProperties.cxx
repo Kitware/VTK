@@ -34,7 +34,7 @@
 
 vtkStandardNewMacro(vtkMultiObjectMassProperties);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Helper classes to support efficient computing, and threaded execution.
 namespace
 {
@@ -154,7 +154,7 @@ struct ComputeProperties
 } // anonymous namespace
 
 //================= Begin VTK class proper =======================================
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Constructs with initial 0 values.
 vtkMultiObjectMassProperties::vtkMultiObjectMassProperties()
 {
@@ -178,14 +178,14 @@ vtkMultiObjectMassProperties::vtkMultiObjectMassProperties()
   this->Wave2 = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Destroy any allocated memory.
 vtkMultiObjectMassProperties::~vtkMultiObjectMassProperties()
 {
   this->CellNeighbors->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // This method measures volume, surface area, and normalized shape index.
 // Currently, the input is a ploydata which consists of triangles.
@@ -418,7 +418,7 @@ int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method not only identified connected objects, it ensures that they
 // are manifold (i.e., valid) and polygons are oriented in a consistent manner.
 // Consistent normal orientation is necessary to correctly compute volumes.
@@ -496,7 +496,7 @@ void vtkMultiObjectMassProperties::TraverseAndMark(
   } // while wave is not empty
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiObjectMassProperties::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

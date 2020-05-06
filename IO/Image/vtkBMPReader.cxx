@@ -41,7 +41,7 @@ vtkBMPReader::vtkBMPReader()
   this->Allow8BitBMP = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBMPReader::~vtkBMPReader()
 {
   // free any old memory
@@ -55,7 +55,7 @@ vtkBMPReader::~vtkBMPReader()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBMPReader::ExecuteInformation()
 {
   int xsize, ysize;
@@ -310,7 +310,7 @@ void vtkBMPReader::ExecuteInformation()
   this->vtkImageReader::ExecuteInformation();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This function opens a file to determine the file size, and to
 // automatically determine the header size.
 void vtkBMPReader::ComputeDataIncrements()
@@ -359,7 +359,7 @@ void vtkBMPReader::ComputeDataIncrements()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This function reads in one data of data.
 // templated to handle different data types.
 template <class OT>
@@ -511,7 +511,7 @@ void vtkBMPReaderUpdate2(vtkBMPReader* self, vtkImageData* data, OT* outPtr)
   // delete the temporary buffer
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This function reads a data from a file.  The datas extent/axes
 // are assumed to be the same as the file extent/order.
 void vtkBMPReader::ExecuteDataWithInformation(vtkDataObject* output, vtkInformation* outInfo)
@@ -545,7 +545,7 @@ void vtkBMPReader::ExecuteDataWithInformation(vtkDataObject* output, vtkInformat
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBMPReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -563,7 +563,7 @@ void vtkBMPReader::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkBMPReader::CanReadFile(const char* fname)
 {
   // get the magic number by reading in a file

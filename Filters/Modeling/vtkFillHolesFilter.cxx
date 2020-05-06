@@ -29,16 +29,16 @@
 
 vtkStandardNewMacro(vtkFillHolesFilter);
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFillHolesFilter::vtkFillHolesFilter()
 {
   this->HoleSize = 1.0;
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFillHolesFilter::~vtkFillHolesFilter() = default;
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkFillHolesFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -255,7 +255,7 @@ int vtkFillHolesFilter::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFillHolesFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

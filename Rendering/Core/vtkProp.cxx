@@ -29,7 +29,7 @@ vtkCxxSetObjectMacro(vtkProp, PropertyKeys, vtkInformation);
 vtkInformationKeyMacro(vtkProp, GeneralTextureUnit, Integer);
 vtkInformationKeyMacro(vtkProp, GeneralTextureTransform, DoubleVector);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Creates an Prop with the following defaults: visibility on.
 vtkProp::vtkProp()
 {
@@ -54,7 +54,7 @@ vtkProp::vtkProp()
   this->ShaderProperty = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProp::~vtkProp()
 {
   if (this->Paths)
@@ -75,14 +75,14 @@ vtkProp::~vtkProp()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method is invoked if the prop is picked.
 void vtkProp::Pick()
 {
   this->InvokeEvent(vtkCommand::PickEvent, nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Shallow copy of vtkProp.
 void vtkProp::ShallowCopy(vtkProp* prop)
 {
@@ -92,7 +92,7 @@ void vtkProp::ShallowCopy(vtkProp* prop)
   this->SetShaderProperty(prop->GetShaderProperty());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProp::InitPathTraversal()
 {
   if (this->Paths == nullptr)
@@ -106,7 +106,7 @@ void vtkProp::InitPathTraversal()
   this->Paths->InitTraversal();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAssemblyPath* vtkProp::GetNextPath()
 {
   if (!this->Paths)
@@ -116,7 +116,7 @@ vtkAssemblyPath* vtkProp::GetNextPath()
   return this->Paths->GetNextItem();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method is used in conjunction with the assembly object to build a copy
 // of the assembly hierarchy. This hierarchy can then be traversed for
 // rendering, picking or other operations.
@@ -132,7 +132,7 @@ void vtkProp::BuildPaths(vtkAssemblyPaths* paths, vtkAssemblyPath* path)
   childPath->Delete(); // okay, reference counting
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProp::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -160,7 +160,7 @@ void vtkProp::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "useBounds: " << this->UseBounds << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProp::AddConsumer(vtkObject* c)
 {
   // make sure it isn't already there
@@ -181,7 +181,7 @@ void vtkProp::AddConsumer(vtkObject* c)
   delete[] tmp;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProp::RemoveConsumer(vtkObject* c)
 {
   // make sure it is already there
@@ -207,7 +207,7 @@ void vtkProp::RemoveConsumer(vtkObject* c)
   delete[] tmp;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkProp::IsConsumer(vtkObject* c)
 {
   int i;
@@ -221,7 +221,7 @@ int vtkProp::IsConsumer(vtkObject* c)
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkObject* vtkProp::GetConsumer(int i)
 {
   if (i >= this->NumberOfConsumers)
@@ -231,7 +231,7 @@ vtkObject* vtkProp::GetConsumer(int i)
   return this->Consumers[i];
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Tells if the prop has all the required keys.
 // \pre keys_can_be_null: requiredKeys==0 || requiredKeys!=0
@@ -255,7 +255,7 @@ bool vtkProp::HasKeys(vtkInformation* requiredKeys)
   return result;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Render the opaque geometry only if the prop has all the requiredKeys.
 // This is recursive for composite props like vtkAssembly.
@@ -279,7 +279,7 @@ bool vtkProp::RenderFilteredOpaqueGeometry(vtkViewport* v, vtkInformation* requi
   return result;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Render the translucent polygonal geometry only if the prop has all the
 // requiredKeys.
@@ -305,7 +305,7 @@ bool vtkProp::RenderFilteredTranslucentPolygonalGeometry(
   return result;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Render the volumetric geometry only if the prop has all the
 // requiredKeys.
@@ -330,7 +330,7 @@ bool vtkProp::RenderFilteredVolumetricGeometry(vtkViewport* v, vtkInformation* r
   return result;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Render in the overlay of the viewport only if the prop has all the
 // requiredKeys.

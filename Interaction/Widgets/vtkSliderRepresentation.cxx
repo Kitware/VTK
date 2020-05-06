@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSliderRepresentation::vtkSliderRepresentation()
 {
   this->MinimumValue = 0.0;
@@ -43,14 +43,14 @@ vtkSliderRepresentation::vtkSliderRepresentation()
   this->TitleHeight = 0.15;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSliderRepresentation::~vtkSliderRepresentation()
 {
   delete[] this->LabelFormat;
   this->LabelFormat = nullptr;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSliderRepresentation::SetMinimumValue(double minValue)
 {
   if (minValue == this->MinimumValue)
@@ -84,7 +84,7 @@ void vtkSliderRepresentation::SetMinimumValue(double minValue)
   this->Modified();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSliderRepresentation::SetMaximumValue(double maxValue)
 {
   if (maxValue == this->MaximumValue)
@@ -118,7 +118,7 @@ void vtkSliderRepresentation::SetMaximumValue(double maxValue)
   this->Modified();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSliderRepresentation::SetValue(double value)
 {
   if (value == this->Value)
@@ -147,7 +147,7 @@ void vtkSliderRepresentation::SetValue(double value)
   this->Modified();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSliderRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h

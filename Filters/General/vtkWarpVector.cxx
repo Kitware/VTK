@@ -35,7 +35,7 @@
 
 vtkStandardNewMacro(vtkWarpVector);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkWarpVector::vtkWarpVector()
 {
   this->ScaleFactor = 1.0;
@@ -45,10 +45,10 @@ vtkWarpVector::vtkWarpVector()
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::VECTORS);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkWarpVector::~vtkWarpVector() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkWarpVector::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
@@ -58,7 +58,7 @@ int vtkWarpVector::FillInputPortInformation(int vtkNotUsed(port), vtkInformation
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkWarpVector::RequestDataObject(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -81,7 +81,7 @@ int vtkWarpVector::RequestDataObject(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 namespace
 {
 // Used by the WarpVectorDispatch1Vector worker, defined below:
@@ -156,7 +156,7 @@ struct WarpVectorDispatch1Vector
 };
 } // end anon namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkWarpVector::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -243,7 +243,7 @@ int vtkWarpVector::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWarpVector::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

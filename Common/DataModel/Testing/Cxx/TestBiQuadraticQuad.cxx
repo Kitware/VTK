@@ -23,7 +23,7 @@
 #include "vtkProbeFilter.h"
 #include "vtkUnstructuredGrid.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestBiQuadraticQuad(int, char*[])
 {
   vtkNew<vtkPoints> points;

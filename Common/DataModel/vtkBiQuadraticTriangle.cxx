@@ -24,7 +24,7 @@
 
 vtkStandardNewMacro(vtkBiQuadraticTriangle);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct the line with two points.
 vtkBiQuadraticTriangle::vtkBiQuadraticTriangle()
 {
@@ -42,7 +42,7 @@ vtkBiQuadraticTriangle::vtkBiQuadraticTriangle()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBiQuadraticTriangle::~vtkBiQuadraticTriangle()
 {
   this->Edge->Delete();
@@ -50,7 +50,7 @@ vtkBiQuadraticTriangle::~vtkBiQuadraticTriangle()
   this->Scalars->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCell* vtkBiQuadraticTriangle::GetEdge(int edgeId)
 {
   edgeId = (edgeId < 0 ? 0 : (edgeId > 2 ? 2 : edgeId));
@@ -69,7 +69,7 @@ vtkCell* vtkBiQuadraticTriangle::GetEdge(int edgeId)
   return this->Edge;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // order picked carefully for parametric coordinate conversion
 static int LinearTris[6][3] = {
   { 0, 3, 6 },
@@ -155,7 +155,7 @@ int vtkBiQuadraticTriangle::EvaluatePosition(const double x[3], double closestPo
   return returnStatus;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBiQuadraticTriangle::EvaluateLocation(
   int& vtkNotUsed(subId), const double pcoords[3], double x[3], double* weights)
 {
@@ -178,13 +178,13 @@ void vtkBiQuadraticTriangle::EvaluateLocation(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkBiQuadraticTriangle::CellBoundary(int subId, const double pcoords[3], vtkIdList* pts)
 {
   return this->Face->CellBoundary(subId, pcoords, pts);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBiQuadraticTriangle::Contour(double value, vtkDataArray* cellScalars,
   vtkIncrementalPointLocator* locator, vtkCellArray* verts, vtkCellArray* lines,
   vtkCellArray* polys, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId,
@@ -212,7 +212,7 @@ void vtkBiQuadraticTriangle::Contour(double value, vtkDataArray* cellScalars,
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Line-line intersection. Intersection has to occur within [0,1] parametric
 // coordinates and with specified tolerance.
 int vtkBiQuadraticTriangle::IntersectWithLine(
@@ -236,7 +236,7 @@ int vtkBiQuadraticTriangle::IntersectWithLine(
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkBiQuadraticTriangle::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* pts)
 {
   pts->Reset();
@@ -256,7 +256,7 @@ int vtkBiQuadraticTriangle::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds,
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBiQuadraticTriangle::Derivatives(
   int vtkNotUsed(subId), const double pcoords[3], const double* values, int dim, double* derivs)
 {
@@ -375,7 +375,7 @@ void vtkBiQuadraticTriangle::Derivatives(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Clip this quadratic triangle using the scalar value provided. Like
 // contouring, except that it cuts the triangle to produce other quads
 // and triangles.
@@ -402,7 +402,7 @@ void vtkBiQuadraticTriangle::Clip(double value, vtkDataArray* cellScalars,
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Compute maximum parametric distance to cell
 double vtkBiQuadraticTriangle::GetParametricDistance(const double pcoords[3])
 {
@@ -437,7 +437,7 @@ double vtkBiQuadraticTriangle::GetParametricDistance(const double pcoords[3])
   return pDistMax;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Compute interpolation functions. The first three nodes are the triangle
 // vertices; the next three nodes are mid-edge nodes; the last node is the mid-cell node.
 void vtkBiQuadraticTriangle::InterpolationFunctions(const double pcoords[3], double weights[7])
@@ -454,7 +454,7 @@ void vtkBiQuadraticTriangle::InterpolationFunctions(const double pcoords[3], dou
   weights[6] = 27.0 * r * s * (1.0 - r - s);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Derivatives in parametric space.
 void vtkBiQuadraticTriangle::InterpolationDerivs(const double pcoords[3], double derivs[14])
 {
@@ -480,7 +480,7 @@ void vtkBiQuadraticTriangle::InterpolationDerivs(const double pcoords[3], double
   derivs[13] = 27.0 * r * (1.0 - r - 2.0 * s);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static double vtkBiQTriangleCellPCoords[21] = {
   0.0, 0.0, 0.0,                //
   1.0, 0.0, 0.0,                //
@@ -495,7 +495,7 @@ double* vtkBiQuadraticTriangle::GetParametricCoords()
   return vtkBiQTriangleCellPCoords;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBiQuadraticTriangle::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

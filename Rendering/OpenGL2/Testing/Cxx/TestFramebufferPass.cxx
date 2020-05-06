@@ -34,7 +34,7 @@
 #include "vtkTextureObject.h"
 #include "vtkTimerLog.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestFramebufferPass(int argc, char* argv[])
 {
   vtkNew<vtkRenderer> renderer;

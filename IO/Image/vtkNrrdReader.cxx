@@ -71,7 +71,7 @@ static std::string trim(std::string s)
   return s.substr(start, end - start);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static std::vector<std::string> split(std::string s)
 {
   std::vector<std::string> result;
@@ -94,7 +94,7 @@ static std::vector<std::string> split(std::string s)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static void GetVector(std::string& s, std::vector<int>& dest)
 {
   std::vector<std::string> strlist = split(s);
@@ -111,7 +111,7 @@ static void GetVector(std::string& s, std::vector<int>& dest)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static void GetVector(std::string& s, std::vector<double>& dest)
 {
   std::vector<std::string> strlist = split(s);
@@ -128,7 +128,7 @@ static void GetVector(std::string& s, std::vector<double>& dest)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static std::vector<double> ParseVector(std::string s)
 {
   std::vector<double> result;
@@ -150,7 +150,7 @@ static std::vector<double> ParseVector(std::string s)
   return result;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static int NrrdType2VTKType(std::string nrrdType)
 {
   nrrdType = trim(nrrdType);
@@ -214,11 +214,11 @@ static int NrrdType2VTKType(std::string nrrdType)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkObjectFactoryNewMacro(vtkNrrdReader);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkNrrdReader::vtkNrrdReader()
 {
   this->DataFiles = vtkStringArray::New();
@@ -252,7 +252,7 @@ void vtkNrrdReader::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkNrrdReader::CanReadFile(const char* filename)
 {
   vtksys::ifstream file(filename, ios::in | ios::binary);
@@ -268,7 +268,7 @@ int vtkNrrdReader::CanReadFile(const char* filename)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkNrrdReader::RequestInformation(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -278,7 +278,7 @@ int vtkNrrdReader::RequestInformation(
   return this->Superclass::RequestInformation(request, inputVector, outputVector);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkNrrdReader::ReadHeaderInternal(vtkCharArray* headerBuffer)
 {
   if (!this->FileName)
@@ -321,7 +321,7 @@ int vtkNrrdReader::ReadHeaderInternal(vtkCharArray* headerBuffer)
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkNrrdReader::ReadHeader()
 {
   VTK_CREATE(vtkCharArray, headerBuffer);
@@ -334,7 +334,7 @@ int vtkNrrdReader::ReadHeader()
   return this->ReadHeader(headerBuffer);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkNrrdReader::ReadHeader(vtkCharArray* headerBuffer)
 {
   this->HeaderSize = headerBuffer->GetNumberOfTuples() - 1;

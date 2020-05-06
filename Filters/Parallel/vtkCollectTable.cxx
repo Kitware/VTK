@@ -32,7 +32,7 @@ vtkStandardNewMacro(vtkCollectTable);
 vtkCxxSetObjectMacro(vtkCollectTable, Controller, vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkCollectTable, SocketController, vtkSocketController);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCollectTable::vtkCollectTable()
 {
   this->PassThrough = 0;
@@ -43,14 +43,14 @@ vtkCollectTable::vtkCollectTable()
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCollectTable::~vtkCollectTable()
 {
   this->SetController(nullptr);
   this->SetSocketController(nullptr);
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCollectTable::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -68,7 +68,7 @@ int vtkCollectTable::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCollectTable::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -155,7 +155,7 @@ int vtkCollectTable::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCollectTable::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

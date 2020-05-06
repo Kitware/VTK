@@ -29,7 +29,7 @@
 
 vtkStandardNewMacro(vtkHyperTreeGridDepthLimiter);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHyperTreeGridDepthLimiter::vtkHyperTreeGridDepthLimiter()
 {
   // Require root-level depth by default
@@ -48,7 +48,7 @@ vtkHyperTreeGridDepthLimiter::vtkHyperTreeGridDepthLimiter()
   this->AppropriateOutput = true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHyperTreeGridDepthLimiter::~vtkHyperTreeGridDepthLimiter()
 {
   if (this->OutMask)
@@ -58,7 +58,7 @@ vtkHyperTreeGridDepthLimiter::~vtkHyperTreeGridDepthLimiter()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridDepthLimiter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -68,14 +68,14 @@ void vtkHyperTreeGridDepthLimiter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CurrentId: " << this->CurrentId << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkHyperTreeGridDepthLimiter::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkHyperTreeGrid");
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkHyperTreeGridDepthLimiter::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObject* outputDO)
 {
   // Downcast output data object to hyper tree grid
@@ -150,7 +150,7 @@ int vtkHyperTreeGridDepthLimiter::ProcessTrees(vtkHyperTreeGrid* input, vtkDataO
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridDepthLimiter::RecursivelyProcessTree(
   vtkHyperTreeGridNonOrientedCursor* inCursor, vtkHyperTreeGridNonOrientedCursor* outCursor)
 {

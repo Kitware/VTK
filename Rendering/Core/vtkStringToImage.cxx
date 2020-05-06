@@ -17,17 +17,17 @@
 
 #include "vtkObjectFactory.h"
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStringToImage::vtkStringToImage()
 {
   this->Antialias = true;
   this->ScaleToPowerOfTwo = false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStringToImage::~vtkStringToImage() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkStringToImage::SetScaleToPowerOfTwo(bool scale)
 {
   if (this->ScaleToPowerOfTwo != scale)
@@ -37,7 +37,7 @@ void vtkStringToImage::SetScaleToPowerOfTwo(bool scale)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkStringToImage::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

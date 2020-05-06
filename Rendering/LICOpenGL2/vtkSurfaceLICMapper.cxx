@@ -37,10 +37,10 @@
 #endif
 #define vtkSurfaceLICMapperDEBUG 0
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkObjectFactoryNewMacro(vtkSurfaceLICMapper);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSurfaceLICMapper::vtkSurfaceLICMapper()
 {
   this->SetInputArrayToProcess(
@@ -49,7 +49,7 @@ vtkSurfaceLICMapper::vtkSurfaceLICMapper()
   this->LICInterface = vtkSurfaceLICInterface::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSurfaceLICMapper::~vtkSurfaceLICMapper()
 {
 #if vtkSurfaceLICMapperDEBUG >= 1
@@ -72,7 +72,7 @@ void vtkSurfaceLICMapper::ShallowCopy(vtkAbstractMapper* mapper)
   this->vtkOpenGLPolyDataMapper::ShallowCopy(mapper);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSurfaceLICMapper::ReleaseGraphicsResources(vtkWindow* win)
 {
   this->LICInterface->ReleaseGraphicsResources(win);
@@ -132,7 +132,7 @@ void vtkSurfaceLICMapper::SetMapperShaderParameters(
   cellBO.Program->SetUniformi("uMaskOnSurface", this->LICInterface->GetMaskOnSurface());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSurfaceLICMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor)
 {
 #ifdef vtkSurfaceLICMapperTIME
@@ -218,7 +218,7 @@ void vtkSurfaceLICMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor)
 #endif
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSurfaceLICMapper::BuildBufferObjects(vtkRenderer* ren, vtkActor* act)
 {
   if (this->LICInterface->GetHasVectors())
@@ -230,7 +230,7 @@ void vtkSurfaceLICMapper::BuildBufferObjects(vtkRenderer* ren, vtkActor* act)
   this->Superclass::BuildBufferObjects(ren, act);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSurfaceLICMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

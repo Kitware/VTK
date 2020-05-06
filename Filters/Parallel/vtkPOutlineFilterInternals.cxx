@@ -31,7 +31,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkUniformGrid.h"
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class AddBoundsListOperator : public vtkCommunicator::Operation
 {
   // Description:
@@ -58,7 +58,7 @@ class AddBoundsListOperator : public vtkCommunicator::Operation
   int Commutative() override { return 1; }
 };
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPOutlineFilterInternals::vtkPOutlineFilterInternals()
 {
   this->Controller = nullptr;
@@ -66,31 +66,31 @@ vtkPOutlineFilterInternals::vtkPOutlineFilterInternals()
   this->CornerFactor = 0.2;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPOutlineFilterInternals::~vtkPOutlineFilterInternals()
 {
   this->Controller = nullptr;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPOutlineFilterInternals::SetController(vtkMultiProcessController* controller)
 {
   this->Controller = controller;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPOutlineFilterInternals::SetCornerFactor(double cornerFactor)
 {
   this->CornerFactor = cornerFactor;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPOutlineFilterInternals::SetIsCornerSource(bool value)
 {
   this->IsCornerSource = value;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPOutlineFilterInternals::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -141,7 +141,7 @@ int vtkPOutlineFilterInternals::RequestData(vtkInformation* vtkNotUsed(request),
   return 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPOutlineFilterInternals::CollectCompositeBounds(vtkDataObject* input)
 {
   vtkDataSet* ds = vtkDataSet::SafeDownCast(input);
@@ -171,7 +171,7 @@ void vtkPOutlineFilterInternals::CollectCompositeBounds(vtkDataObject* input)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPOutlineFilterInternals::RequestData(vtkDataObjectTree* input, vtkPolyData* output)
 {
   // Check Output and Input
@@ -238,7 +238,7 @@ int vtkPOutlineFilterInternals::RequestData(vtkDataObjectTree* input, vtkPolyDat
   return 1;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPOutlineFilterInternals::RequestData(vtkOverlappingAMR* input, vtkPolyData* output)
 {
   // For Overlapping AMR, we have meta-data on all processes for the complete
@@ -289,7 +289,7 @@ int vtkPOutlineFilterInternals::RequestData(vtkOverlappingAMR* input, vtkPolyDat
   return 1;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPOutlineFilterInternals::RequestData(vtkUniformGridAMR* input, vtkPolyData* output)
 {
   // All processes simply produce the outline for the non-null blocks that exist
@@ -337,7 +337,7 @@ int vtkPOutlineFilterInternals::RequestData(vtkUniformGridAMR* input, vtkPolyDat
   return 1;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPOutlineFilterInternals::RequestData(vtkDataSet* input, vtkPolyData* output)
 {
   double bounds[6];
@@ -380,7 +380,7 @@ int vtkPOutlineFilterInternals::RequestData(vtkDataSet* input, vtkPolyData* outp
   return 1;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPOutlineFilterInternals::RequestData(vtkGraph* input, vtkPolyData* output)
 {
   double bounds[6];

@@ -38,7 +38,7 @@
 
 vtkStandardNewMacro(vtkGaussianCubeReader2);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGaussianCubeReader2::vtkGaussianCubeReader2()
   : FileName(nullptr)
 {
@@ -54,25 +54,25 @@ vtkGaussianCubeReader2::vtkGaussianCubeReader2()
   grid->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGaussianCubeReader2::~vtkGaussianCubeReader2()
 {
   this->SetFileName(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMolecule* vtkGaussianCubeReader2::GetOutput()
 {
   return vtkMolecule::SafeDownCast(this->GetOutputDataObject(0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGaussianCubeReader2::SetOutput(vtkMolecule* output)
 {
   this->GetExecutive()->SetOutputData(0, output);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageData* vtkGaussianCubeReader2::GetGridOutput()
 {
   if (this->GetNumberOfOutputPorts() < 2)

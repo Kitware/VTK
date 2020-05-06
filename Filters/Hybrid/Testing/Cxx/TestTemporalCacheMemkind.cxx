@@ -61,10 +61,10 @@ public:
   std::vector<double> TimeStepValues;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkTemporalSphereSource2);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTemporalSphereSource2::vtkTemporalSphereSource2()
 {
   this->TimeStepRange[0] = 0;
@@ -73,7 +73,7 @@ vtkTemporalSphereSource2::vtkTemporalSphereSource2()
   this->ActualTimeStep = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTemporalSphereSource2::RequestInformation(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -100,7 +100,7 @@ int vtkTemporalSphereSource2::RequestInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkTestTemporalCacheSimpleWithinTolerance2 : public std::binary_function<double, double, bool>
 {
 public:
@@ -111,7 +111,7 @@ public:
   }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTemporalSphereSource2::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

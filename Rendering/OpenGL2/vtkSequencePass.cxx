@@ -21,13 +21,13 @@
 vtkStandardNewMacro(vtkSequencePass);
 vtkCxxSetObjectMacro(vtkSequencePass, Passes, vtkRenderPassCollection);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSequencePass::vtkSequencePass()
 {
   this->Passes = nullptr;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSequencePass::~vtkSequencePass()
 {
   if (this->Passes)
@@ -36,7 +36,7 @@ vtkSequencePass::~vtkSequencePass()
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSequencePass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -52,7 +52,7 @@ void vtkSequencePass::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Perform rendering according to a render state \p s.
 // \pre s_exists: s!=0
@@ -74,7 +74,7 @@ void vtkSequencePass::Render(const vtkRenderState* s)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Release graphics resources and ask components to release their own
 // resources.

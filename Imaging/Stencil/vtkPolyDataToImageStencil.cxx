@@ -72,23 +72,23 @@ POSSIBILITY OF SUCH DAMAGES.
 
 vtkStandardNewMacro(vtkPolyDataToImageStencil);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyDataToImageStencil::vtkPolyDataToImageStencil()
 {
   // The default tolerance is 0.5*2^(-16)
   this->Tolerance = 7.62939453125e-06;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyDataToImageStencil::~vtkPolyDataToImageStencil() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyDataToImageStencil::SetInputData(vtkPolyData* input)
 {
   this->SetInputDataInternal(0, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyData* vtkPolyDataToImageStencil::GetInput()
 {
   if (this->GetNumberOfInputConnections(0) < 1)
@@ -99,7 +99,7 @@ vtkPolyData* vtkPolyDataToImageStencil::GetInput()
   return vtkPolyData::SafeDownCast(this->GetExecutive()->GetInputData(0, 0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyDataToImageStencil::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -108,7 +108,7 @@ void vtkPolyDataToImageStencil::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Tolerance: " << this->Tolerance << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // A helper class to quickly locate an edge, given the endpoint ids.
 // It uses an stl map rather than a table partitioning scheme, since
 // we have no idea how many entries there will be when we start.  So
@@ -280,7 +280,7 @@ bool EdgeLocator::InterpolateEdge(vtkPoints* points, vtkPoints* outPoints, vtkId
 
 } // end anonymous namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Select contours within slice z
 void vtkPolyDataToImageStencil::PolyDataSelector(
   vtkPolyData* input, vtkPolyData* output, double z, double thickness)
@@ -347,7 +347,7 @@ void vtkPolyDataToImageStencil::PolyDataSelector(
   newLines->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyDataToImageStencil::PolyDataCutter(vtkPolyData* input, vtkPolyData* output, double z)
 {
   vtkPoints* points = input->GetPoints();
@@ -444,7 +444,7 @@ void vtkPolyDataToImageStencil::PolyDataCutter(vtkPolyData* input, vtkPolyData* 
   newLines->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyDataToImageStencil::ThreadedExecute(
   vtkImageStencilData* data, int extent[6], int threadId)
 {
@@ -761,7 +761,7 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
   slice->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPolyDataToImageStencil::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -781,7 +781,7 @@ int vtkPolyDataToImageStencil::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPolyDataToImageStencil::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");

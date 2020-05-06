@@ -27,13 +27,13 @@
 
 #include <unordered_set>
 vtkStandardNewMacro(vtkExtractSelectedBlock);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractSelectedBlock::vtkExtractSelectedBlock() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractSelectedBlock::~vtkExtractSelectedBlock() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSelectedBlock::FillInputPortInformation(int port, vtkInformation* info)
 {
   this->Superclass::FillInputPortInformation(port, info);
@@ -48,7 +48,7 @@ int vtkExtractSelectedBlock::FillInputPortInformation(int port, vtkInformation* 
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Needed because parent class sets output type to input type
 // and we sometimes want to change it to make an UnstructuredGrid regardless of
 // input type
@@ -134,7 +134,7 @@ struct SelectionToIds
 };
 } // namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSelectedBlock::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -219,7 +219,7 @@ int vtkExtractSelectedBlock::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractSelectedBlock::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

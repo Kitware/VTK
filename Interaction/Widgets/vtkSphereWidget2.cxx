@@ -27,7 +27,7 @@
 
 vtkStandardNewMacro(vtkSphereWidget2);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSphereWidget2::vtkSphereWidget2()
 {
   this->WidgetState = vtkSphereWidget2::Start;
@@ -57,13 +57,13 @@ vtkSphereWidget2::vtkSphereWidget2()
   this->KeyEventCallbackCommand->SetCallback(vtkSphereWidget2::ProcessKeyEvents);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSphereWidget2::~vtkSphereWidget2()
 {
   this->KeyEventCallbackCommand->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereWidget2::SetEnabled(int enabling)
 {
   int enabled = this->Enabled;
@@ -102,7 +102,7 @@ void vtkSphereWidget2::SetEnabled(int enabling)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereWidget2::SelectAction(vtkAbstractWidget* w)
 {
   // We are in a static method, cast to ourself
@@ -160,7 +160,7 @@ void vtkSphereWidget2::SelectAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereWidget2::TranslateAction(vtkAbstractWidget* w)
 {
   // We are in a static method, cast to ourself
@@ -208,7 +208,7 @@ void vtkSphereWidget2::TranslateAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereWidget2::ScaleAction(vtkAbstractWidget* w)
 {
   // We are in a static method, cast to ourself
@@ -256,7 +256,7 @@ void vtkSphereWidget2::ScaleAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereWidget2::MoveAction(vtkAbstractWidget* w)
 {
   vtkSphereWidget2* self = reinterpret_cast<vtkSphereWidget2*>(w);
@@ -283,7 +283,7 @@ void vtkSphereWidget2::MoveAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereWidget2::EndSelectAction(vtkAbstractWidget* w)
 {
   vtkSphereWidget2* self = reinterpret_cast<vtkSphereWidget2*>(w);
@@ -304,7 +304,7 @@ void vtkSphereWidget2::EndSelectAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereWidget2::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)
@@ -313,7 +313,7 @@ void vtkSphereWidget2::CreateDefaultRepresentation()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereWidget2::ProcessKeyEvents(vtkObject*, unsigned long event, void* clientdata, void*)
 {
   vtkSphereWidget2* self = static_cast<vtkSphereWidget2*>(clientdata);
@@ -360,7 +360,7 @@ void vtkSphereWidget2::ProcessKeyEvents(vtkObject*, unsigned long event, void* c
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereWidget2::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

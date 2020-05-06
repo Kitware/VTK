@@ -25,7 +25,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestScatterPlot(int, char*[])
 {
   // Set up a 2D scene, add an XY chart to it

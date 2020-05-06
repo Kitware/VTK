@@ -25,7 +25,7 @@
 
 vtkStandardNewMacro(vtkTemporalShiftScale);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTemporalShiftScale::vtkTemporalShiftScale()
 {
   this->PreShift = 0;
@@ -39,10 +39,10 @@ vtkTemporalShiftScale::vtkTemporalShiftScale()
   this->SetNumberOfOutputPorts(1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTemporalShiftScale::~vtkTemporalShiftScale() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTemporalShiftScale::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -55,7 +55,7 @@ void vtkTemporalShiftScale::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MaximumNumberOfPeriods: " << this->MaximumNumberOfPeriods << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkTemporalShiftScale::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -88,7 +88,7 @@ vtkTypeBool vtkTemporalShiftScale::ProcessRequest(
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTemporalShiftScale::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
@@ -139,17 +139,17 @@ int vtkTemporalShiftScale::RequestDataObject(
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 inline double vtkTemporalShiftScale::ForwardConvert(double T0)
 {
   return (T0 + this->PreShift) * this->Scale + this->PostShift;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 inline double vtkTemporalShiftScale::BackwardConvert(double T1)
 {
   return (T1 - this->PostShift) / this->Scale - this->PreShift;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Change the information
 int vtkTemporalShiftScale::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -271,7 +271,7 @@ int vtkTemporalShiftScale::RequestInformation(vtkInformation* vtkNotUsed(request
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method simply copies by reference the input data to the output.
 int vtkTemporalShiftScale::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -306,7 +306,7 @@ int vtkTemporalShiftScale::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTemporalShiftScale::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

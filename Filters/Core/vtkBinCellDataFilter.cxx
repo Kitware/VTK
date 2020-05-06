@@ -35,14 +35,14 @@
 
 vtkStandardNewMacro(vtkBinCellDataFilter);
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify a spatial locator for speeding the search process. By
 // default an instance of vtkStaticCellLocator is used.
 vtkCxxSetObjectMacro(vtkBinCellDataFilter, CellLocator, vtkAbstractCellLocator);
 
 #define CELL_TOLERANCE_FACTOR_SQR 1e-6
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 namespace
 {
 typedef std::map<vtkIdType, vtkIdType> IdMap;
@@ -75,7 +75,7 @@ int GetBinId(double value, double* binValues, int nBins)
 }
 } // namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBinCellDataFilter::vtkBinCellDataFilter()
 {
   this->BinValues = vtkBinValues::New();
@@ -100,7 +100,7 @@ vtkBinCellDataFilter::vtkBinCellDataFilter()
     0, 1, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, vtkDataSetAttributes::SCALARS);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBinCellDataFilter::~vtkBinCellDataFilter()
 {
   this->BinValues->Delete();
@@ -108,19 +108,19 @@ vtkBinCellDataFilter::~vtkBinCellDataFilter()
   this->SetNumberOfNonzeroBinsArrayName(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBinCellDataFilter::SetSourceConnection(vtkAlgorithmOutput* algOutput)
 {
   this->SetInputConnection(1, algOutput);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBinCellDataFilter::SetSourceData(vtkDataObject* input)
 {
   this->SetInputData(1, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject* vtkBinCellDataFilter::GetSource()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
@@ -131,7 +131,7 @@ vtkDataObject* vtkBinCellDataFilter::GetSource()
   return this->GetExecutive()->GetInputData(1, 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkBinCellDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -276,7 +276,7 @@ int vtkBinCellDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkBinCellDataFilter::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -307,7 +307,7 @@ int vtkBinCellDataFilter::RequestInformation(vtkInformation* vtkNotUsed(request)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkBinCellDataFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -397,7 +397,7 @@ int vtkBinCellDataFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request
   return 1;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Method manages creation of locators.
 void vtkBinCellDataFilter::CreateDefaultLocator()
 {
@@ -405,7 +405,7 @@ void vtkBinCellDataFilter::CreateDefaultLocator()
   this->CellLocator = vtkStaticCellLocator::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBinCellDataFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataObject* source = this->GetSource();

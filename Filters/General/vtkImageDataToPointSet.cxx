@@ -31,7 +31,7 @@
 
 vtkStandardNewMacro(vtkImageDataToPointSet);
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageDataToPointSet::vtkImageDataToPointSet() = default;
 
 vtkImageDataToPointSet::~vtkImageDataToPointSet() = default;
@@ -41,7 +41,7 @@ void vtkImageDataToPointSet::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageDataToPointSet::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (!this->Superclass::FillInputPortInformation(port, info))
@@ -52,7 +52,7 @@ int vtkImageDataToPointSet::FillInputPortInformation(int port, vtkInformation* i
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageDataToPointSet::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

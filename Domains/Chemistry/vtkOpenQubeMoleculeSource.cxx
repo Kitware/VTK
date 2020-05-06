@@ -27,10 +27,10 @@
 
 #include <vector>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOpenQubeMoleculeSource);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenQubeMoleculeSource::vtkOpenQubeMoleculeSource()
   : vtkDataReader()
   , FileName(nullptr)
@@ -38,7 +38,7 @@ vtkOpenQubeMoleculeSource::vtkOpenQubeMoleculeSource()
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenQubeMoleculeSource::~vtkOpenQubeMoleculeSource()
 {
   this->SetFileName(nullptr);
@@ -49,19 +49,19 @@ vtkOpenQubeMoleculeSource::~vtkOpenQubeMoleculeSource()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMolecule* vtkOpenQubeMoleculeSource::GetOutput()
 {
   return vtkMolecule::SafeDownCast(this->GetOutputDataObject(0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenQubeMoleculeSource::SetOutput(vtkMolecule* output)
 {
   this->GetExecutive()->SetOutputData(0, output);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenQubeMoleculeSource::SetBasisSet(OpenQube::BasisSet* b)
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting BasisSet to " << b);
@@ -77,7 +77,7 @@ void vtkOpenQubeMoleculeSource::SetBasisSet(OpenQube::BasisSet* b)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkOpenQubeMoleculeSource::RequestData(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
@@ -131,14 +131,14 @@ int vtkOpenQubeMoleculeSource::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkOpenQubeMoleculeSource::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkMolecule");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenQubeMoleculeSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -146,7 +146,7 @@ void vtkOpenQubeMoleculeSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FileName: " << this->FileName << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenQubeMoleculeSource::CopyOQMoleculeToVtkMolecule(
   const OpenQube::Molecule* oqmol, vtkMolecule* mol)
 {

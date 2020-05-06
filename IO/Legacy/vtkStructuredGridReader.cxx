@@ -30,25 +30,25 @@ vtkStandardNewMacro(vtkStructuredGridReader);
 vtkStructuredGridReader::vtkStructuredGridReader() = default;
 vtkStructuredGridReader::~vtkStructuredGridReader() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStructuredGrid* vtkStructuredGridReader::GetOutput()
 {
   return this->GetOutput(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStructuredGrid* vtkStructuredGridReader::GetOutput(int idx)
 {
   return vtkStructuredGrid::SafeDownCast(this->GetOutputDataObject(idx));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkStructuredGridReader::SetOutput(vtkStructuredGrid* output)
 {
   this->GetExecutive()->SetOutputData(0, output);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkStructuredGridReader::ReadMetaDataSimple(const std::string& fname, vtkInformation* metadata)
 {
   char line[256];
@@ -146,7 +146,7 @@ int vtkStructuredGridReader::ReadMetaDataSimple(const std::string& fname, vtkInf
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkStructuredGridReader::ReadMeshSimple(const std::string& fname, vtkDataObject* doOutput)
 {
   vtkIdType numPts = 0, npts = 0, numCells = 0, ncells;
@@ -376,7 +376,7 @@ int vtkStructuredGridReader::ReadMeshSimple(const std::string& fname, vtkDataObj
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkStructuredGridReader::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkStructuredGrid");

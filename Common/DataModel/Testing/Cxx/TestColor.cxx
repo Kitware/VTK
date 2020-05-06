@@ -18,7 +18,7 @@
 #include "vtkColor.h"
 #include "vtkMathUtilities.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestColor(int, char*[])
 {
   // Store up any errors, return non-zero if something fails.

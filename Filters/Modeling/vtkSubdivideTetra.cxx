@@ -25,12 +25,12 @@
 
 vtkStandardNewMacro(vtkSubdivideTetra);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Construct with all types of clipping turned off.
 vtkSubdivideTetra::vtkSubdivideTetra() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSubdivideTetra::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -235,7 +235,7 @@ int vtkSubdivideTetra::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSubdivideTetra::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

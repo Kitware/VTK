@@ -22,7 +22,7 @@
 vtkStandardNewMacro(vtkLinearSelector);
 vtkCxxSetObjectMacro(vtkLinearSelector, Points, vtkPoints);
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLinearSelector::vtkLinearSelector()
 {
 
@@ -34,13 +34,13 @@ vtkLinearSelector::vtkLinearSelector()
   this->Points = nullptr;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLinearSelector::~vtkLinearSelector()
 {
   this->SetPoints(nullptr);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLinearSelector::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -68,7 +68,7 @@ void vtkLinearSelector::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "VertexEliminationTolerance: " << this->VertexEliminationTolerance << "\n";
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkLinearSelector::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
@@ -76,7 +76,7 @@ int vtkLinearSelector::FillInputPortInformation(int vtkNotUsed(port), vtkInforma
   return 1;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkLinearSelector::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -129,7 +129,7 @@ int vtkLinearSelector::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLinearSelector::SeekIntersectingCells(vtkDataSet* input, vtkIdTypeArray* outIndices)
 {
   vtkIdType nSegments = this->Points ? this->Points->GetNumberOfPoints() - 1 : 1;

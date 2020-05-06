@@ -24,17 +24,17 @@
 #include <ogr_spatialref.h>
 
 vtkStandardNewMacro(vtkGDALRasterReprojection);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGDALRasterReprojection::vtkGDALRasterReprojection()
 {
   this->MaxError = 0.0;
   this->ResamplingAlgorithm = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGDALRasterReprojection::~vtkGDALRasterReprojection() {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGDALRasterReprojection::PrintSelf(ostream& os, vtkIndent indent)
 {
   Superclass::PrintSelf(os, indent);
@@ -44,7 +44,7 @@ void vtkGDALRasterReprojection::PrintSelf(ostream& os, vtkIndent indent)
      << std::endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGDALRasterReprojection::SuggestOutputDimensions(GDALDataset* dataset,
   const char* projection, double geoTransform[6], int* nPixels, int* nLines, double maxError)
 {
@@ -91,7 +91,7 @@ bool vtkGDALRasterReprojection::SuggestOutputDimensions(GDALDataset* dataset,
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGDALRasterReprojection::Reproject(GDALDataset* input, GDALDataset* output)
 {
   // Convert this->ResamplingAlgorithm to GDALResampleAlg

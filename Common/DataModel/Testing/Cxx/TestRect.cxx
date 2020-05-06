@@ -17,7 +17,7 @@
 namespace
 {
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T>
 int TestAddPoint(vtkRect<T>& expandRect, T x, T y, const vtkRect<T>& expected)
 {
@@ -63,7 +63,7 @@ int TestAddPoint(vtkRect<T>& expandRect, T x, T y, const vtkRect<T>& expected)
   return returnValue;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T>
 int TestAddRect(vtkRect<T>& expandRect, vtkRect<T>& addRect, const vtkRect<T>& expected)
 {
@@ -111,7 +111,7 @@ int TestAddRect(vtkRect<T>& expandRect, vtkRect<T>& addRect, const vtkRect<T>& e
 
 } // end anonymous namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestRect(int, char*[])
 {
   int result = 0;

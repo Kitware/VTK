@@ -36,7 +36,7 @@ vtkStandardNewMacro(vtkStaticCleanPolyData);
 namespace
 { // anonymous
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Fast, threaded way to copy new points and attribute data to output.
 template <typename InArrayT, typename OutArrayT>
 struct CopyPointsAlgorithm
@@ -96,7 +96,7 @@ struct CopyPointsLauncher
 
 } // anonymous namespace
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct object with initial Tolerance of 0.0
 vtkStaticCleanPolyData::vtkStaticCleanPolyData()
 {
@@ -111,14 +111,14 @@ vtkStaticCleanPolyData::vtkStaticCleanPolyData()
   this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStaticCleanPolyData::~vtkStaticCleanPolyData()
 {
   this->Locator->Delete();
   this->Locator = nullptr;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkStaticCleanPolyData::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -153,7 +153,7 @@ int vtkStaticCleanPolyData::RequestUpdateExtent(vtkInformation* vtkNotUsed(reque
   return 1;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkStaticCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -559,7 +559,7 @@ int vtkStaticCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkStaticCleanPolyData::GetMTime()
 {
   vtkMTimeType mTime = this->vtkObject::GetMTime();
@@ -567,7 +567,7 @@ vtkMTimeType vtkStaticCleanPolyData::GetMTime()
   return (time > mTime ? time : mTime);
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkStaticCleanPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

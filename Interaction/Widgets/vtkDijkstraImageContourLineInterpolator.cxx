@@ -28,21 +28,21 @@
 
 vtkStandardNewMacro(vtkDijkstraImageContourLineInterpolator);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDijkstraImageContourLineInterpolator ::vtkDijkstraImageContourLineInterpolator()
 {
   this->DijkstraImageGeodesicPath = vtkDijkstraImageGeodesicPath::New();
   this->CostImage = nullptr;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDijkstraImageContourLineInterpolator ::~vtkDijkstraImageContourLineInterpolator()
 {
   this->DijkstraImageGeodesicPath->Delete();
   this->CostImage = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDijkstraImageContourLineInterpolator::SetCostImage(vtkImageData* arg)
 {
   if (this->CostImage == arg)
@@ -57,7 +57,7 @@ void vtkDijkstraImageContourLineInterpolator::SetCostImage(vtkImageData* arg)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDijkstraImageContourLineInterpolator::InterpolateLine(
   vtkRenderer* vtkNotUsed(ren), vtkContourRepresentation* rep, int idx1, int idx2)
 {
@@ -138,7 +138,7 @@ int vtkDijkstraImageContourLineInterpolator::InterpolateLine(
   return 1;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDijkstraImageContourLineInterpolator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

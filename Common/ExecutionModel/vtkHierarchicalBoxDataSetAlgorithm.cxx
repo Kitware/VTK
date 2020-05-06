@@ -22,23 +22,23 @@
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkHierarchicalBoxDataSetAlgorithm);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHierarchicalBoxDataSetAlgorithm::vtkHierarchicalBoxDataSetAlgorithm()
 {
   this->SetNumberOfInputPorts(1);
   this->SetNumberOfOutputPorts(1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHierarchicalBoxDataSetAlgorithm::~vtkHierarchicalBoxDataSetAlgorithm() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHierarchicalBoxDataSet* vtkHierarchicalBoxDataSetAlgorithm::GetOutput()
 {
   return this->GetOutput(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHierarchicalBoxDataSet* vtkHierarchicalBoxDataSetAlgorithm::GetOutput(int port)
 {
   vtkDataObject* output =
@@ -46,19 +46,19 @@ vtkHierarchicalBoxDataSet* vtkHierarchicalBoxDataSetAlgorithm::GetOutput(int por
   return vtkHierarchicalBoxDataSet::SafeDownCast(output);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHierarchicalBoxDataSetAlgorithm::SetInputData(vtkDataObject* input)
 {
   this->SetInputData(0, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHierarchicalBoxDataSetAlgorithm::SetInputData(int index, vtkDataObject* input)
 {
   this->SetInputDataInternal(index, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject* vtkHierarchicalBoxDataSetAlgorithm::GetInput(int port)
 {
   if (this->GetNumberOfInputConnections(port) < 1)
@@ -68,7 +68,7 @@ vtkDataObject* vtkHierarchicalBoxDataSetAlgorithm::GetInput(int port)
   return this->GetExecutive()->GetInputData(port, 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkHierarchicalBoxDataSetAlgorithm::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -100,7 +100,7 @@ vtkTypeBool vtkHierarchicalBoxDataSetAlgorithm::ProcessRequest(
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkHierarchicalBoxDataSetAlgorithm::FillOutputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
@@ -108,7 +108,7 @@ int vtkHierarchicalBoxDataSetAlgorithm::FillOutputPortInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkHierarchicalBoxDataSetAlgorithm::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
@@ -117,13 +117,13 @@ int vtkHierarchicalBoxDataSetAlgorithm::FillInputPortInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExecutive* vtkHierarchicalBoxDataSetAlgorithm::CreateDefaultExecutive()
 {
   return vtkCompositeDataPipeline::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHierarchicalBoxDataSetAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

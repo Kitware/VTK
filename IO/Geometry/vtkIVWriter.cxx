@@ -24,7 +24,7 @@
 
 vtkStandardNewMacro(vtkIVWriter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkIVWriter::WriteData()
 {
   FILE* fp;
@@ -57,7 +57,7 @@ void vtkIVWriter::WriteData()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkIVWriter::WritePolyData(vtkPolyData* pd, FILE* fp)
 {
   vtkPoints* points;
@@ -217,25 +217,25 @@ void vtkIVWriter::WritePolyData(vtkPolyData* pd, FILE* fp)
   fprintf(fp, "}\n"); // close the Shape
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkIVWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyData* vtkIVWriter::GetInput()
 {
   return vtkPolyData::SafeDownCast(this->Superclass::GetInput());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyData* vtkIVWriter::GetInput(int port)
 {
   return vtkPolyData::SafeDownCast(this->Superclass::GetInput(port));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkIVWriter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");

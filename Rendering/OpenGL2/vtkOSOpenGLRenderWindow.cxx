@@ -331,7 +331,7 @@ void vtkOSOpenGLRenderWindow::MakeCurrent()
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Tells if this window is the current OpenGL context for the calling thread.
 bool vtkOSOpenGLRenderWindow::IsCurrent()

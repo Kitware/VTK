@@ -103,7 +103,7 @@ static vtkSmartPointer<vtkCubicLine> MakeCubicLine();
 
 template <typename T>
 int TestOneCell(const VTKCellType cellType, vtkSmartPointer<T> cell, int linear = 1);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int UnitTestCells(int, char*[])
 {
   std::map<std::string, int> results;

@@ -28,7 +28,7 @@
 
 vtkStandardNewMacro(vtkProbePolyhedron);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProbePolyhedron::vtkProbePolyhedron()
 {
   this->ProbePointData = 1;
@@ -37,22 +37,22 @@ vtkProbePolyhedron::vtkProbePolyhedron()
   this->SetNumberOfInputPorts(2);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProbePolyhedron::~vtkProbePolyhedron() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProbePolyhedron::SetSourceConnection(vtkAlgorithmOutput* algOutput)
 {
   this->SetInputConnection(1, algOutput);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProbePolyhedron::SetSourceData(vtkPolyData* input)
 {
   this->SetInputData(1, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyData* vtkProbePolyhedron::GetSource()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
@@ -63,7 +63,7 @@ vtkPolyData* vtkProbePolyhedron::GetSource()
   return vtkPolyData::SafeDownCast(this->GetExecutive()->GetInputData(1, 0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkProbePolyhedron::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -181,7 +181,7 @@ int vtkProbePolyhedron::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkProbePolyhedron::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -199,7 +199,7 @@ int vtkProbePolyhedron::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkProbePolyhedron::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -240,7 +240,7 @@ int vtkProbePolyhedron::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProbePolyhedron::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

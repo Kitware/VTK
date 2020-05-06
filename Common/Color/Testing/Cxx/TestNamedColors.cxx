@@ -81,7 +81,7 @@ bool TestRGBToHTMLColor();
 // A test to see if transforming a vtkColor4ub into an HTML color string works.
 bool TestRGBAToHTMLColor();
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool TestEmptyColorName()
 {
   vtkSmartPointer<vtkNamedColors> nc = vtkSmartPointer<vtkNamedColors>::New();
@@ -153,7 +153,7 @@ bool TestEmptyColorName()
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool TestNoSuchColor(vtkStdString const& name)
 {
   vtkSmartPointer<vtkNamedColors> nc = vtkSmartPointer<vtkNamedColors>::New();
@@ -165,7 +165,7 @@ bool TestNoSuchColor(vtkStdString const& name)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool TestUnsignedChar(vtkStdString const& name)
 {
   vtkSmartPointer<vtkNamedColors> nc = vtkSmartPointer<vtkNamedColors>::New();
@@ -232,7 +232,7 @@ bool TestUnsignedChar(vtkStdString const& name)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool TestDouble(vtkStdString const& name)
 {
   vtkSmartPointer<vtkNamedColors> nc = vtkSmartPointer<vtkNamedColors>::New();
@@ -299,7 +299,7 @@ bool TestDouble(vtkStdString const& name)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool TestDoubleRGB(vtkStdString const& name)
 {
   vtkSmartPointer<vtkNamedColors> nc = vtkSmartPointer<vtkNamedColors>::New();
@@ -333,7 +333,7 @@ bool TestDoubleRGB(vtkStdString const& name)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool TestUCharToDouble(vtkStdString const& name)
 {
   vtkSmartPointer<vtkNamedColors> nc = vtkSmartPointer<vtkNamedColors>::New();
@@ -361,7 +361,7 @@ bool TestUCharToDouble(vtkStdString const& name)
   return sameElements;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool TestAddingAColor(
   const vtkStdString& name, const double dcolor[4], const unsigned char ucolor[4])
 {
@@ -621,7 +621,7 @@ bool TestAddingAColor(
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::vector<vtkStdString> ParseColorNames(const vtkStdString& colorNames)
 {
   // The delimiter for a color.
@@ -643,7 +643,7 @@ std::vector<vtkStdString> ParseColorNames(const vtkStdString& colorNames)
   return cn;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::vector<std::vector<vtkStdString>> ParseSynonyms(const vtkStdString& synonyms)
 {
   // The delimiter for a string of synonyms.
@@ -682,7 +682,7 @@ std::vector<std::vector<vtkStdString>> ParseSynonyms(const vtkStdString& synonym
   return syn;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool TestSearchForSynonyms()
 {
   vtkSmartPointer<vtkNamedColors> nc = vtkSmartPointer<vtkNamedColors>::New();
@@ -690,7 +690,7 @@ bool TestSearchForSynonyms()
   return static_cast<int>(synonyms.size()) == NUMBER_OF_SYNONYMS;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 struct ColorDataMap
 {
   const char* colorString;
@@ -779,7 +779,7 @@ bool TestHTMLColorToRGBA()
   return testResult;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool TestRGBToHTMLColor()
 {
   bool testResult = true;
@@ -814,7 +814,7 @@ bool TestRGBToHTMLColor()
   return testResult;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool TestRGBAToHTMLColor()
 {
   bool testResult = true;
@@ -851,7 +851,7 @@ bool TestRGBAToHTMLColor()
   return testResult;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestNamedColors(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   vtkSmartPointer<vtkNamedColors> nc = vtkSmartPointer<vtkNamedColors>::New();

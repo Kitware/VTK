@@ -37,7 +37,7 @@
 
 vtkStandardNewMacro(vtkOSPRayTetrahedraMapperNode);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOSPRayTetrahedraMapperNode::vtkOSPRayTetrahedraMapperNode()
 {
   this->SamplingRate = 0.0f;
@@ -70,7 +70,7 @@ void vtkOSPRayTetrahedraMapperNode::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
 {
   if (prepass)

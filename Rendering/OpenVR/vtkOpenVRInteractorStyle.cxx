@@ -64,7 +64,7 @@ PURPOSE.  See the above copyright notice for more information.
 // Map controller inputs to interaction states
 vtkStandardNewMacro(vtkOpenVRInteractorStyle);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenVRInteractorStyle::vtkOpenVRInteractorStyle()
 {
   for (int d = 0; d < vtkEventDataNumberOfDevices; ++d)
@@ -121,7 +121,7 @@ vtkOpenVRInteractorStyle::vtkOpenVRInteractorStyle()
   this->SetInteractionPicker(exactPicker);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenVRInteractorStyle::~vtkOpenVRInteractorStyle()
 {
   for (int d = 0; d < vtkEventDataNumberOfDevices; ++d)
@@ -151,13 +151,13 @@ void vtkOpenVRInteractorStyle::SetInteractor(vtkRenderWindowInteractor* iren)
   this->Superclass::SetInteractor(iren);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRInteractorStyle::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRInteractorStyle::MenuCallback(
   vtkObject* vtkNotUsed(object), unsigned long, void* clientdata, void* calldata)
 {
@@ -192,9 +192,9 @@ void vtkOpenVRInteractorStyle::MenuCallback(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Generic events binding
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRInteractorStyle::OnMove3D(vtkEventData* edata)
 {
   vtkEventDataDevice3D* edd = edata->GetAsEventDataDevice3D();
@@ -236,7 +236,7 @@ void vtkOpenVRInteractorStyle::OnMove3D(vtkEventData* edata)
   this->UpdateRay(edd->GetDevice());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRInteractorStyle::OnButton3D(vtkEventData* edata)
 {
   vtkEventDataDevice3D* bd = edata->GetAsEventDataDevice3D();
@@ -265,11 +265,11 @@ void vtkOpenVRInteractorStyle::OnButton3D(vtkEventData* edata)
     this->EndAction(state, bd);
   }
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Interaction entry points
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRInteractorStyle::StartPick(vtkEventDataDevice3D* edata)
 {
   this->HideBillboard();
@@ -280,7 +280,7 @@ void vtkOpenVRInteractorStyle::StartPick(vtkEventDataDevice3D* edata)
   // update ray
   this->UpdateRay(edata->GetDevice());
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRInteractorStyle::EndPick(vtkEventDataDevice3D* edata)
 {
   // perform probe
@@ -292,13 +292,13 @@ void vtkOpenVRInteractorStyle::EndPick(vtkEventDataDevice3D* edata)
   this->UpdateRay(edata->GetDevice());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRInteractorStyle::StartLoadCamPose(vtkEventDataDevice3D* edata)
 {
   int iDevice = static_cast<int>(edata->GetDevice());
   this->InteractionState[iDevice] = VTKIS_LOAD_CAMERA_POSE;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRInteractorStyle::EndLoadCamPose(vtkEventDataDevice3D* edata)
 {
   this->LoadNextCameraPose();
@@ -307,7 +307,7 @@ void vtkOpenVRInteractorStyle::EndLoadCamPose(vtkEventDataDevice3D* edata)
   this->InteractionState[iDevice] = VTKIS_NONE;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkOpenVRInteractorStyle::HardwareSelect(vtkEventDataDevice controller, bool actorPassOnly)
 {
   vtkRenderer* ren = this->CurrentRenderer;
@@ -344,7 +344,7 @@ bool vtkOpenVRInteractorStyle::HardwareSelect(vtkEventDataDevice controller, boo
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRInteractorStyle::StartPositionProp(vtkEventDataDevice3D* edata)
 {
   if (this->GrabWithRay)
@@ -390,7 +390,7 @@ void vtkOpenVRInteractorStyle::StartPositionProp(vtkEventDataDevice3D* edata)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRInteractorStyle::EndPositionProp(vtkEventDataDevice3D* edata)
 {
   vtkEventDataDevice dev = edata->GetDevice();
@@ -398,7 +398,7 @@ void vtkOpenVRInteractorStyle::EndPositionProp(vtkEventDataDevice3D* edata)
   this->InteractionProps[static_cast<int>(dev)] = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRInteractorStyle::StartClip(vtkEventDataDevice3D* ed)
 {
   if (this->CurrentRenderer == nullptr)
@@ -440,7 +440,7 @@ void vtkOpenVRInteractorStyle::StartClip(vtkEventDataDevice3D* ed)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRInteractorStyle::EndClip(vtkEventDataDevice3D* ed)
 {
   vtkEventDataDevice dev = ed->GetDevice();
@@ -472,7 +472,7 @@ void vtkOpenVRInteractorStyle::EndClip(vtkEventDataDevice3D* ed)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRInteractorStyle::StartDolly3D(vtkEventDataDevice3D* ed)
 {
   if (this->CurrentRenderer == nullptr)
@@ -485,7 +485,7 @@ void vtkOpenVRInteractorStyle::StartDolly3D(vtkEventDataDevice3D* ed)
 
   // this->GrabFocus(this->EventCallbackCommand);
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRInteractorStyle::EndDolly3D(vtkEventDataDevice3D* ed)
 {
   vtkEventDataDevice dev = ed->GetDevice();
@@ -494,7 +494,7 @@ void vtkOpenVRInteractorStyle::EndDolly3D(vtkEventDataDevice3D* ed)
   this->LastDolly3DEventTime->StopTimer();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRInteractorStyle::ToggleDrawControls()
 {
   if (this->CurrentRenderer == nullptr)
@@ -573,9 +573,9 @@ void vtkOpenVRInteractorStyle::SetDrawControls(bool val)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Interaction methods
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRInteractorStyle::ProbeData(vtkEventDataDevice controller)
 {
   // Invoke start pick method if defined
@@ -618,7 +618,7 @@ void vtkOpenVRInteractorStyle::EndPickCallback(vtkSelection* sel)
   this->ShowPickSphere(prop->GetCenter(), prop->GetLength() / 2.0, nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRInteractorStyle::LoadNextCameraPose()
 {
   vtkOpenVRRenderWindow* renWin =
@@ -631,7 +631,7 @@ void vtkOpenVRInteractorStyle::LoadNextCameraPose()
   ovl->LoadNextCameraPose();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRInteractorStyle::PositionProp(vtkEventData* ed)
 {
   if (this->InteractionProp == nullptr || !this->InteractionProp->GetDragable())
@@ -641,7 +641,7 @@ void vtkOpenVRInteractorStyle::PositionProp(vtkEventData* ed)
   this->Superclass::PositionProp(ed);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRInteractorStyle::Clip(vtkEventDataDevice3D* ed)
 {
   if (this->CurrentRenderer == nullptr)
@@ -675,11 +675,11 @@ void vtkOpenVRInteractorStyle::Clip(vtkEventDataDevice3D* ed)
   this->ClippingPlanes[idev]->SetOrigin(wpos[0], wpos[1], wpos[2]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Multitouch interaction methods
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRInteractorStyle::OnPan()
 {
   int rc = static_cast<int>(vtkEventDataDevice::RightController);
@@ -720,7 +720,7 @@ void vtkOpenVRInteractorStyle::OnPan()
     }
   }
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRInteractorStyle::OnPinch()
 {
   int rc = static_cast<int>(vtkEventDataDevice::RightController);
@@ -749,7 +749,7 @@ void vtkOpenVRInteractorStyle::OnPinch()
     this->SetScale(camera, physicalScale / dyf);
   }
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRInteractorStyle::OnRotate()
 {
   int rc = static_cast<int>(vtkEventDataDevice::RightController);
@@ -774,11 +774,11 @@ void vtkOpenVRInteractorStyle::OnRotate()
     }
   }
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Utility routines
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRInteractorStyle::MapInputToAction(
   vtkEventDataDevice device, vtkEventDataDeviceInput input, int state)
 {
@@ -799,7 +799,7 @@ void vtkOpenVRInteractorStyle::MapInputToAction(
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRInteractorStyle::StartAction(int state, vtkEventDataDevice3D* edata)
 {
   switch (state)
@@ -821,7 +821,7 @@ void vtkOpenVRInteractorStyle::StartAction(int state, vtkEventDataDevice3D* edat
       break;
   }
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRInteractorStyle::EndAction(int state, vtkEventDataDevice3D* edata)
 {
   switch (state)
@@ -869,11 +869,11 @@ void vtkOpenVRInteractorStyle::EndAction(int state, vtkEventDataDevice3D* edata)
     }
   }
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Handle Ray drawing and update
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRInteractorStyle::ShowRay(vtkEventDataDevice controller)
 {
   vtkOpenVRRenderWindow* renWin =
@@ -890,7 +890,7 @@ void vtkOpenVRInteractorStyle::ShowRay(vtkEventDataDevice controller)
     cmodel->SetShowRay(true);
   }
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRInteractorStyle::HideRay(vtkEventDataDevice controller)
 {
   vtkOpenVRRenderWindow* renWin =
@@ -907,7 +907,7 @@ void vtkOpenVRInteractorStyle::HideRay(vtkEventDataDevice controller)
     cmodel->SetShowRay(false);
   }
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRInteractorStyle::UpdateRay(vtkEventDataDevice controller)
 {
   if (!this->Interactor)
@@ -1009,7 +1009,7 @@ void vtkOpenVRInteractorStyle::UpdateRay(vtkEventDataDevice controller)
 
   return;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkOpenVRInteractorStyle::ShowBillboard(const std::string& text)
 {
@@ -1171,13 +1171,13 @@ void vtkOpenVRInteractorStyle::HidePickActor()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRInteractorStyle::AddTooltipForInput(
   vtkEventDataDevice device, vtkEventDataDeviceInput input)
 {
   this->AddTooltipForInput(device, input, "");
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRInteractorStyle::AddTooltipForInput(
   vtkEventDataDevice device, vtkEventDataDeviceInput input, const std::string& text)
 {

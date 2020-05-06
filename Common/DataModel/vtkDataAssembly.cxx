@@ -38,7 +38,7 @@ public:
   pugi::xml_node CurrentNode;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataAssemblyVisitor::vtkDataAssemblyVisitor()
   : Internals(new vtkDataAssemblyVisitor::vtkInternals())
   , Assembly(nullptr)
@@ -46,15 +46,15 @@ vtkDataAssemblyVisitor::vtkDataAssemblyVisitor()
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataAssemblyVisitor::~vtkDataAssemblyVisitor() = default;
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkDataAssemblyVisitor::GetCurrentNodeName() const
 {
   return this->Internals->CurrentNode.attribute("name").value(); // TODO: unmangle
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::vector<unsigned int> vtkDataAssemblyVisitor::GetCurrentDataSetIndices() const
 {
   std::vector<unsigned int> indices;
@@ -65,7 +65,7 @@ std::vector<unsigned int> vtkDataAssemblyVisitor::GetCurrentDataSetIndices() con
   return indices;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataAssemblyVisitor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -74,7 +74,7 @@ void vtkDataAssemblyVisitor::PrintSelf(ostream& os, vtkIndent indent)
 namespace
 {
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 struct ValidationAndInitializationWalker : public pugi::xml_tree_walker
 {
   std::unordered_map<int, pugi::xml_node>& NodeMap;
@@ -140,7 +140,7 @@ struct ValidationAndInitializationWalker : public pugi::xml_tree_walker
   }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class FindNodesWithNameVisitor : public vtkDataAssemblyVisitor
 {
 public:
@@ -180,7 +180,7 @@ private:
 };
 vtkStandardNewMacro(FindNodesWithNameVisitor);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class GetChildNodesVisitor : public vtkDataAssemblyVisitor
 {
 public:
@@ -210,7 +210,7 @@ protected:
 };
 vtkStandardNewMacro(GetChildNodesVisitor);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class GetDataSetIndicesVisitor : public vtkDataAssemblyVisitor
 {
 public:
@@ -237,7 +237,7 @@ protected:
 };
 vtkStandardNewMacro(GetDataSetIndicesVisitor);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class SelectNodesVisitor : public vtkDataAssemblyVisitor
 {
 public:
@@ -260,7 +260,7 @@ protected:
   ~SelectNodesVisitor() override = default;
 };
 vtkStandardNewMacro(SelectNodesVisitor);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const std::string ConvertToXPathQuery(const std::string& path_query)
 {
   auto is_unescaped_slash = [](const std::string& str, size_t offset) {
@@ -341,7 +341,7 @@ public:
   }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkDataAssembly::vtkInternals::Parse(const char* xmlcontents, vtkDataAssembly* self)
 {
   auto& doc = this->Document;
@@ -360,17 +360,17 @@ bool vtkDataAssembly::vtkInternals::Parse(const char* xmlcontents, vtkDataAssemb
 
 //============================================================================
 vtkStandardNewMacro(vtkDataAssembly);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataAssembly::vtkDataAssembly()
   : Internals(nullptr)
 {
   this->Initialize();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataAssembly::~vtkDataAssembly() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataAssembly::Initialize()
 {
   this->Internals.reset(new vtkDataAssembly::vtkInternals());
@@ -378,7 +378,7 @@ void vtkDataAssembly::Initialize()
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkDataAssembly::InitializeFromXML(const char* xmlcontents)
 {
   this->Initialize();
@@ -395,7 +395,7 @@ bool vtkDataAssembly::InitializeFromXML(const char* xmlcontents)
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::string vtkDataAssembly::SerializeToXML(vtkIndent indent) const
 {
   std::ostringstream indent_str;
@@ -406,7 +406,7 @@ std::string vtkDataAssembly::SerializeToXML(vtkIndent indent) const
   return stream.str();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataAssembly::DeepCopy(vtkDataAssembly* other)
 {
   if (other)
@@ -424,7 +424,7 @@ void vtkDataAssembly::DeepCopy(vtkDataAssembly* other)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataAssembly::AddNode(const char* name, int parent)
 {
   if (name == nullptr || name[0] == '\0')
@@ -450,7 +450,7 @@ int vtkDataAssembly::AddNode(const char* name, int parent)
   return child;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::vector<int> vtkDataAssembly::AddNodes(const std::vector<std::string>& names, int parent)
 {
   auto& internals = (*this->Internals);
@@ -478,7 +478,7 @@ std::vector<int> vtkDataAssembly::AddNodes(const std::vector<std::string>& names
   return ids;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkDataAssembly::RemoveNode(int id)
 {
   if (id == 0)
@@ -505,7 +505,7 @@ bool vtkDataAssembly::RemoveNode(int id)
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataAssembly::SetNodeName(int id, const char* name)
 {
   if (name == nullptr || name[0] == '\0')
@@ -526,7 +526,7 @@ void vtkDataAssembly::SetNodeName(int id, const char* name)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkDataAssembly::GetNodeName(int id) const
 {
   const auto& internals = (*this->Internals);
@@ -540,7 +540,7 @@ const char* vtkDataAssembly::GetNodeName(int id) const
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::string vtkDataAssembly::GetNodePath(int id) const
 {
   const auto& internals = (*this->Internals);
@@ -567,7 +567,7 @@ std::string vtkDataAssembly::GetNodePath(int id) const
   return stream.str();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkDataAssembly::AddDataSetIndex(int id, unsigned int dataset_index)
 {
   auto& internals = (*this->Internals);
@@ -590,7 +590,7 @@ bool vtkDataAssembly::AddDataSetIndex(int id, unsigned int dataset_index)
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkDataAssembly::AddDataSetIndices(int id, const std::vector<unsigned int>& dataset_indices)
 {
   auto& internals = (*this->Internals);
@@ -619,7 +619,7 @@ bool vtkDataAssembly::AddDataSetIndices(int id, const std::vector<unsigned int>&
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkDataAssembly::RemoveDataSetIndex(int id, unsigned int dataset_index)
 {
   auto& internals = (*this->Internals);
@@ -641,7 +641,7 @@ bool vtkDataAssembly::RemoveDataSetIndex(int id, unsigned int dataset_index)
   return false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkDataAssembly::RemoveAllDataSetIndices(int id, bool traverse_subtree /*=true*/)
 {
   auto& internals = (*this->Internals);
@@ -696,7 +696,7 @@ bool vtkDataAssembly::RemoveAllDataSetIndices(int id, bool traverse_subtree /*=t
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataAssembly::GetNumberOfChildren(int parent) const
 {
   const auto& internals = (*this->Internals);
@@ -714,7 +714,7 @@ int vtkDataAssembly::GetNumberOfChildren(int parent) const
   return count;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataAssembly::GetChild(int parent, int index) const
 {
   const auto& internals = (*this->Internals);
@@ -731,7 +731,7 @@ int vtkDataAssembly::GetChild(int parent, int index) const
   return -1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataAssembly::GetChildIndex(int parent, int child) const
 {
   const auto& internals = (*this->Internals);
@@ -748,7 +748,7 @@ int vtkDataAssembly::GetChildIndex(int parent, int child) const
   return -1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataAssembly::GetParent(int id) const
 {
   const auto& internals = (*this->Internals);
@@ -756,7 +756,7 @@ int vtkDataAssembly::GetParent(int id) const
   return node.parent().attribute("id").as_int(-1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataAssembly::FindFirstNodeWithName(const char* name, int traversal_order) const
 {
   vtkNew<FindNodesWithNameVisitor> visitor;
@@ -773,7 +773,7 @@ int vtkDataAssembly::FindFirstNodeWithName(const char* name, int traversal_order
   return visitor->Matches.size() ? visitor->Matches.front() : -1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::vector<int> vtkDataAssembly::FindNodesWithName(const char* name, int traversal_order) const
 {
   vtkNew<FindNodesWithNameVisitor> visitor;
@@ -783,7 +783,7 @@ std::vector<int> vtkDataAssembly::FindNodesWithName(const char* name, int traver
   return visitor->Matches;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::vector<int> vtkDataAssembly::GetChildNodes(
   int parent, bool traverse_subtree, int traversal_order) const
 {
@@ -795,7 +795,7 @@ std::vector<int> vtkDataAssembly::GetChildNodes(
   return visitor->Children;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::vector<unsigned int> vtkDataAssembly::GetDataSetIndices(
   int id, bool traverse_subtree, int traversal_order) const
 {
@@ -814,7 +814,7 @@ std::vector<unsigned int> vtkDataAssembly::GetDataSetIndices(
   return indices;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataAssembly::Visit(int id, vtkDataAssemblyVisitor* visitor, int traversal_order) const
 {
   const auto& internals = (*this->Internals);
@@ -886,7 +886,7 @@ void vtkDataAssembly::Visit(int id, vtkDataAssemblyVisitor* visitor, int travers
   visitor->Assembly = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::vector<int> vtkDataAssembly::SelectNodes(
   const std::vector<std::string>& path_queries, int traversal_order) const
 {
@@ -910,7 +910,7 @@ std::vector<int> vtkDataAssembly::SelectNodes(
   return visitor->SelectedNodes;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkDataAssembly::RemapDataSetIndices(
   const std::map<unsigned int, unsigned int>& mapping, bool remove_unmapped)
 {
@@ -942,7 +942,7 @@ bool vtkDataAssembly::RemapDataSetIndices(
   return modified;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataAssembly::SubsetCopy(vtkDataAssembly* other, const std::vector<int>& selected_branches)
 {
   if (other == nullptr)
@@ -1022,7 +1022,7 @@ void vtkDataAssembly::SubsetCopy(vtkDataAssembly* other, const std::vector<int>&
   internals.ParseDocument(this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataAssembly::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

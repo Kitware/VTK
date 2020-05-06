@@ -41,38 +41,38 @@
 #include <vector>
 
 vtkStandardNewMacro(vtkCompositeDataReader);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCompositeDataReader::vtkCompositeDataReader() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCompositeDataReader::~vtkCompositeDataReader() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCompositeDataSet* vtkCompositeDataReader::GetOutput()
 {
   return this->GetOutput(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCompositeDataSet* vtkCompositeDataReader::GetOutput(int idx)
 {
   return vtkCompositeDataSet::SafeDownCast(this->GetOutputDataObject(idx));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositeDataReader::SetOutput(vtkCompositeDataSet* output)
 {
   this->GetExecutive()->SetOutputData(0, output);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCompositeDataReader::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkCompositeDataSet");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject* vtkCompositeDataReader::CreateOutput(vtkDataObject* currentOutput)
 {
   if (this->GetFileName() == nullptr &&
@@ -98,7 +98,7 @@ vtkDataObject* vtkCompositeDataReader::CreateOutput(vtkDataObject* currentOutput
   return vtkDataObjectTypes::NewDataObject(outputType);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCompositeDataReader::ReadOutputType()
 {
   char line[256];
@@ -161,7 +161,7 @@ int vtkCompositeDataReader::ReadOutputType()
   return -1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCompositeDataReader::ReadMeshSimple(const std::string& fname, vtkDataObject* output)
 {
   if (!this->OpenVTKFile(fname.c_str()) || !this->ReadHeader(fname.c_str()))
@@ -220,7 +220,7 @@ int vtkCompositeDataReader::ReadMeshSimple(const std::string& fname, vtkDataObje
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkCompositeDataReader::ReadCompositeData(vtkMultiBlockDataSet* mb)
 {
   char line[256];
@@ -296,7 +296,7 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkMultiBlockDataSet* mb)
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkCompositeDataReader::ReadCompositeData(vtkHierarchicalBoxDataSet* hb)
 {
   (void)hb;
@@ -304,7 +304,7 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkHierarchicalBoxDataSet* hb)
   return false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkCompositeDataReader::ReadCompositeData(vtkOverlappingAMR* oamr)
 {
   char line[256];
@@ -468,7 +468,7 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkOverlappingAMR* oamr)
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkCompositeDataReader::ReadCompositeData(vtkNonOverlappingAMR* hb)
 {
   (void)hb;
@@ -476,7 +476,7 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkNonOverlappingAMR* hb)
   return false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkCompositeDataReader::ReadCompositeData(vtkMultiPieceDataSet* mp)
 {
   char line[256];
@@ -545,7 +545,7 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkMultiPieceDataSet* mp)
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkCompositeDataReader::ReadCompositeData(vtkPartitionedDataSet* mp)
 {
   char line[256];
@@ -607,7 +607,7 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkPartitionedDataSet* mp)
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkCompositeDataReader::ReadCompositeData(vtkPartitionedDataSetCollection* mp)
 {
   char line[256];
@@ -669,7 +669,7 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkPartitionedDataSetCollection* 
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject* vtkCompositeDataReader::ReadChild()
 {
   // This is tricky. Simplistically speaking, we need to read the string for the
@@ -758,7 +758,7 @@ vtkDataObject* vtkCompositeDataReader::ReadChild()
   return child;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositeDataReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

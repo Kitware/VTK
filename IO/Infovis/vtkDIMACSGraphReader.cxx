@@ -515,7 +515,7 @@ int vtkDIMACSGraphReader::RequestData(vtkInformation* vtkNotUsed(request),
   return rval;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDIMACSGraphReader::RequestDataObject(
   vtkInformation*, vtkInformationVector**, vtkInformationVector*)
 {

@@ -32,7 +32,7 @@
 
 vtkStandardNewMacro(vtkSpherePuzzle);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct a new puzzle.
 vtkSpherePuzzle::vtkSpherePuzzle()
 {
@@ -43,7 +43,7 @@ vtkSpherePuzzle::vtkSpherePuzzle()
   this->SetNumberOfInputPorts(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct a new puzzle.
 vtkSpherePuzzle::~vtkSpherePuzzle()
 {
@@ -51,7 +51,7 @@ vtkSpherePuzzle::~vtkSpherePuzzle()
   this->Transform = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSpherePuzzle::Reset()
 {
   int idx;
@@ -99,7 +99,7 @@ void vtkSpherePuzzle::Reset()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSpherePuzzle::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -196,7 +196,7 @@ int vtkSpherePuzzle::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSpherePuzzle::MarkHorizontal(int section)
 {
   int i;
@@ -213,7 +213,7 @@ void vtkSpherePuzzle::MarkHorizontal(int section)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSpherePuzzle::MarkVertical(int section)
 {
   int i, j, offset;
@@ -232,7 +232,7 @@ void vtkSpherePuzzle::MarkVertical(int section)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSpherePuzzle::MoveHorizontal(int slab, int percentage, int rightFlag)
 {
   int offset;
@@ -289,7 +289,7 @@ void vtkSpherePuzzle::MoveHorizontal(int slab, int percentage, int rightFlag)
   this->Transform->RotateZ(((double)(percentage) / 100.0) * (360.0 / 8.0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSpherePuzzle::MoveVertical(int half, int percentage, int rightFlag)
 {
   int tmp;
@@ -361,7 +361,7 @@ void vtkSpherePuzzle::MoveVertical(int half, int percentage, int rightFlag)
     ((double)(percentage) / 100.0) * (360.0 / 2.0), sin(theta), -cos(theta), 0.0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSpherePuzzle::SetPoint(double x, double y, double z)
 {
   double pt[3];
@@ -430,7 +430,7 @@ int vtkSpherePuzzle::SetPoint(double x, double y, double z)
   return this->Section + this->VerticalFlag * 10 + this->RightFlag * 100;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSpherePuzzle::MovePoint(int percentage)
 {
   if (!this->Active)
@@ -449,7 +449,7 @@ void vtkSpherePuzzle::MovePoint(int percentage)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSpherePuzzle::PrintSelf(ostream& os, vtkIndent indent)
 {
   int idx;

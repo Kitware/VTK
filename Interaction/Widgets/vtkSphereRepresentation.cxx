@@ -44,7 +44,7 @@
 
 vtkStandardNewMacro(vtkSphereRepresentation);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSphereRepresentation::vtkSphereRepresentation()
 {
   // The initial state
@@ -147,7 +147,7 @@ vtkSphereRepresentation::vtkSphereRepresentation()
   this->TranslationAxis = Axis::NONE;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSphereRepresentation::~vtkSphereRepresentation()
 {
   this->SphereActor->Delete();
@@ -195,21 +195,21 @@ vtkSphereRepresentation::~vtkSphereRepresentation()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereRepresentation::GetPolyData(vtkPolyData* pd)
 {
   this->SphereSource->Update();
   pd->ShallowCopy(this->SphereSource->GetOutput());
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereRepresentation::GetSphere(vtkSphere* sphere)
 {
   sphere->SetRadius(this->SphereSource->GetRadius());
   sphere->SetCenter(this->SphereSource->GetCenter());
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereRepresentation::HighlightSphere(int highlight)
 {
   if (highlight)
@@ -223,7 +223,7 @@ void vtkSphereRepresentation::HighlightSphere(int highlight)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereRepresentation::HighlightHandle(int highlight)
 {
   if (highlight)
@@ -249,7 +249,7 @@ void vtkSphereRepresentation::RegisterPickers()
   pm->AddPicker(this->SpherePicker, this);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereRepresentation::Scale(const double* p1, const double* p2, int vtkNotUsed(X), int Y)
 {
   // Get the motion vector
@@ -288,7 +288,7 @@ void vtkSphereRepresentation::Scale(const double* p1, const double* p2, int vtkN
   this->AdaptCenterCursorBounds();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereRepresentation::StartWidgetInteraction(double e[2])
 {
   // Store the start position
@@ -304,7 +304,7 @@ void vtkSphereRepresentation::StartWidgetInteraction(double e[2])
   this->ComputeInteractionState(static_cast<int>(e[0]), static_cast<int>(e[1]), 0);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereRepresentation::WidgetInteraction(double e[2])
 {
   // Convert events to appropriate coordinate systems
@@ -357,7 +357,7 @@ void vtkSphereRepresentation::WidgetInteraction(double e[2])
   this->LastEventPosition[2] = 0.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Loop through all points and translate them
 void vtkSphereRepresentation::Translate(const double* p1, const double* p2)
 {
@@ -391,7 +391,7 @@ void vtkSphereRepresentation::Translate(const double* p1, const double* p2)
   this->HandleSource->SetCenter(HandlePosition);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereRepresentation::CreateDefaultProperties()
 {
   if (!this->SphereProperty)
@@ -431,7 +431,7 @@ void vtkSphereRepresentation::CreateDefaultProperties()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereRepresentation::PlaceWidget(double center[3], double handle[3])
 {
   double r = sqrt(vtkMath::Distance2BetweenPoints(center, handle));
@@ -464,7 +464,7 @@ void vtkSphereRepresentation::PlaceWidget(double center[3], double handle[3])
   this->BuildRepresentation();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereRepresentation::SetCenter(double center[3])
 {
   double c[3];
@@ -493,7 +493,7 @@ void vtkSphereRepresentation::SetCenter(double center[3])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereRepresentation::SetRadius(double r)
 {
   r = (r <= this->InitialLength * 1.0e-04 ? this->InitialLength * 1.0e-04 : r);
@@ -508,7 +508,7 @@ void vtkSphereRepresentation::SetRadius(double r)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method may change the radius of the sphere
 void vtkSphereRepresentation::SetHandlePosition(double handle[3])
 {
@@ -530,7 +530,7 @@ void vtkSphereRepresentation::SetHandlePosition(double handle[3])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method preserves the radius of the sphere. The handle is repositioned
 // on the existing sphere but in the new direction. So the handle will move across
 // the surface of the sphere. Note that the HandlePosition[3] data member is
@@ -554,7 +554,7 @@ void vtkSphereRepresentation::SetHandleDirection(double dir[3])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereRepresentation::PlaceWidget(double bds[6])
 {
   double bounds[6], center[3], radius;
@@ -594,7 +594,7 @@ void vtkSphereRepresentation::PlaceWidget(double bds[6])
   this->SizeHandles();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereRepresentation::PlaceHandle(const double* center, double radius)
 {
   double sf = radius / vtkMath::Norm(this->HandleDirection);
@@ -606,7 +606,7 @@ void vtkSphereRepresentation::PlaceHandle(const double* center, double radius)
   this->HandleSource->Update();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSphereRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUsed(modify))
 {
   // Okay, we can process this. Try to pick handles first;
@@ -650,7 +650,7 @@ int vtkSphereRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUse
   return this->InteractionState;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereRepresentation::AdaptCenterCursorBounds()
 {
   double center[3], newBounds[6];
@@ -664,7 +664,7 @@ void vtkSphereRepresentation::AdaptCenterCursorBounds()
   this->CenterCursorSource->SetModelBounds(newBounds);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereRepresentation::SetInteractionState(int state)
 {
   // Clamp to allowable values
@@ -676,14 +676,14 @@ void vtkSphereRepresentation::SetInteractionState(int state)
   this->InteractionState = state;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkSphereRepresentation::GetBounds()
 {
   this->BuildRepresentation();
   return this->SphereSource->GetOutput()->GetBounds();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereRepresentation::BuildRepresentation()
 {
   // Always rebuild, it's not worth keeping track of modified
@@ -729,7 +729,7 @@ void vtkSphereRepresentation::BuildRepresentation()
   this->AdaptCenterCursorBounds();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereRepresentation::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->SphereActor->ReleaseGraphicsResources(w);
@@ -739,7 +739,7 @@ void vtkSphereRepresentation::ReleaseGraphicsResources(vtkWindow* w)
   this->CenterActor->ReleaseGraphicsResources(w);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSphereRepresentation::RenderOpaqueGeometry(vtkViewport* v)
 {
   int count = 0;
@@ -765,7 +765,7 @@ int vtkSphereRepresentation::RenderOpaqueGeometry(vtkViewport* v)
   return count;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSphereRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport* v)
 {
   int count = 0;
@@ -790,7 +790,7 @@ int vtkSphereRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport* v)
   return count;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSphereRepresentation::RenderOverlay(vtkViewport* v)
 {
   int count = 0;
@@ -803,7 +803,7 @@ int vtkSphereRepresentation::RenderOverlay(vtkViewport* v)
   return count;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkSphereRepresentation::HasTranslucentPolygonalGeometry()
 {
   int result = 0;
@@ -833,7 +833,7 @@ vtkTypeBool vtkSphereRepresentation::HasTranslucentPolygonalGeometry()
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereRepresentation::SizeHandles()
 {
   double radius = this->vtkWidgetRepresentation::SizeHandlesInPixels(
@@ -841,7 +841,7 @@ void vtkSphereRepresentation::SizeHandles()
   this->HandleSource->SetRadius(radius);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

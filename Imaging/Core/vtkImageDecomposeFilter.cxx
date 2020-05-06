@@ -16,7 +16,7 @@
 
 #include <cmath>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct an instance of vtkImageDecomposeFilter filter.
 vtkImageDecomposeFilter::vtkImageDecomposeFilter()
 {
@@ -24,7 +24,7 @@ vtkImageDecomposeFilter::vtkImageDecomposeFilter()
   this->SetNumberOfIterations(3);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageDecomposeFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -32,7 +32,7 @@ void vtkImageDecomposeFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Dimensionality: " << this->Dimensionality << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageDecomposeFilter::SetDimensionality(int dim)
 {
   if (this->Dimensionality == dim)
@@ -51,7 +51,7 @@ void vtkImageDecomposeFilter::SetDimensionality(int dim)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageDecomposeFilter::PermuteIncrements(
   vtkIdType* increments, vtkIdType& inc0, vtkIdType& inc1, vtkIdType& inc2)
 {
@@ -75,7 +75,7 @@ void vtkImageDecomposeFilter::PermuteIncrements(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageDecomposeFilter::PermuteExtent(
   int* extent, int& min0, int& max0, int& min1, int& max1, int& min2, int& max2)
 {

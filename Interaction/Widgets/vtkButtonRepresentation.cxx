@@ -16,7 +16,7 @@
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkButtonRepresentation::vtkButtonRepresentation()
 {
   this->NumberOfStates = 0;
@@ -24,10 +24,10 @@ vtkButtonRepresentation::vtkButtonRepresentation()
   this->HighlightState = vtkButtonRepresentation::HighlightNormal;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkButtonRepresentation::~vtkButtonRepresentation() = default;
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Implement the modulo behavior in this method
 void vtkButtonRepresentation::SetState(int state)
 {
@@ -51,19 +51,19 @@ void vtkButtonRepresentation::SetState(int state)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkButtonRepresentation::NextState()
 {
   this->SetState(this->State + 1);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkButtonRepresentation::PreviousState()
 {
   this->SetState(this->State - 1);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkButtonRepresentation::Highlight(int state)
 {
   int newState;
@@ -88,7 +88,7 @@ void vtkButtonRepresentation::Highlight(int state)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkButtonRepresentation::ShallowCopy(vtkProp* prop)
 {
   vtkButtonRepresentation* rep = vtkButtonRepresentation::SafeDownCast(prop);
@@ -103,7 +103,7 @@ void vtkButtonRepresentation::ShallowCopy(vtkProp* prop)
   this->Superclass::ShallowCopy(prop);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkButtonRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h

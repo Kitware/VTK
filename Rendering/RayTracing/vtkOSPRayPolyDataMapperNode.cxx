@@ -126,7 +126,7 @@ void CellMaterials(vtkOSPRayRendererNode* orn, OSPRenderer oRenderer, vtkPolyDat
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 float MapThroughPWF(double in, vtkPiecewiseFunction* scaleFunction)
 {
   double out = in;
@@ -141,7 +141,7 @@ float MapThroughPWF(double in, vtkPiecewiseFunction* scaleFunction)
   return static_cast<float>(out);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 OSPGeometry RenderAsSpheres(osp::vec3f* vertices, std::vector<unsigned int>& indexArray,
   std::vector<unsigned int>& rIndexArray, double pointSize, vtkDataArray* scaleArray,
   vtkPiecewiseFunction* scaleFunction, bool useCustomMaterial, OSPMaterial actorMaterial,
@@ -271,7 +271,7 @@ OSPGeometry RenderAsSpheres(osp::vec3f* vertices, std::vector<unsigned int>& ind
   return ospMesh;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 OSPGeometry RenderAsCylinders(osp::vec3f* vertices, std::vector<unsigned int>& indexArray,
   std::vector<unsigned int>& rIndexArray, double lineWidth, vtkDataArray* scaleArray,
   vtkPiecewiseFunction* scaleFunction, bool useCustomMaterial, OSPMaterial actorMaterial,
@@ -416,7 +416,7 @@ OSPGeometry RenderAsCylinders(osp::vec3f* vertices, std::vector<unsigned int>& i
   return ospMesh;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 OSPGeometry RenderAsTriangles(OSPData vertices, std::vector<unsigned int>& indexArray,
   std::vector<unsigned int>& rIndexArray, bool useCustomMaterial, OSPMaterial actorMaterial,
   int numNormals, osp::vec3f* normals, int interpolationType, vtkImageData* vColorTextureMap,
@@ -711,7 +711,7 @@ OSPMaterial MakeActorMaterial(vtkOSPRayRendererNode* orn, OSPRenderer oRenderer,
 //============================================================================
 vtkStandardNewMacro(vtkOSPRayPolyDataMapperNode);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOSPRayPolyDataMapperNode::vtkOSPRayPolyDataMapperNode()
 {
   this->UseInstanceCache = true;
@@ -720,20 +720,20 @@ vtkOSPRayPolyDataMapperNode::vtkOSPRayPolyDataMapperNode()
   this->InstanceCache = new vtkOSPRayCache<vtkOSPRayCacheItemObject>;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOSPRayPolyDataMapperNode::~vtkOSPRayPolyDataMapperNode()
 {
   delete this->GeometryCache;
   delete this->InstanceCache;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayPolyDataMapperNode::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode* aNode,
   vtkPolyData* poly, double* ambientColor, double* diffuseColor, double opacity,
   std::string materialName)
@@ -1196,7 +1196,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
   delete[] textureCoordinates;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayPolyDataMapperNode::Invalidate(bool prepass)
 {
   if (prepass)
@@ -1205,7 +1205,7 @@ void vtkOSPRayPolyDataMapperNode::Invalidate(bool prepass)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayPolyDataMapperNode::Render(bool prepass)
 {
   if (prepass)
@@ -1262,7 +1262,7 @@ void vtkOSPRayPolyDataMapperNode::Render(bool prepass)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayPolyDataMapperNode::PopulateCache()
 {
 
@@ -1296,7 +1296,7 @@ void vtkOSPRayPolyDataMapperNode::PopulateCache()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayPolyDataMapperNode::RenderGeometries()
 {
   vtkOSPRayRendererNode* orn =
@@ -1332,7 +1332,7 @@ void vtkOSPRayPolyDataMapperNode::RenderGeometries()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayPolyDataMapperNode::ClearGeometries()
 {
   vtkOSPRayRendererNode* orn =

@@ -36,7 +36,7 @@
 #include <locale> // C++ locale
 #include <sstream>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 // Implementation of vtkVariant's
 // fast-but-potentially-counterintuitive < operation
@@ -121,7 +121,7 @@ bool vtkVariantStrictWeakOrder::operator()(const vtkVariant& s1, const vtkVarian
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 bool vtkVariantStrictEquality::operator()(const vtkVariant& s1, const vtkVariant& s2) const
 {
@@ -202,21 +202,21 @@ bool vtkVariantStrictEquality::operator()(const vtkVariant& s1, const vtkVariant
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 bool vtkVariantLessThan::operator()(const vtkVariant& v1, const vtkVariant& v2) const
 {
   return v1.operator<(v2);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 bool vtkVariantEqual::operator()(const vtkVariant& v1, const vtkVariant& v2) const
 {
   return v1.operator==(v2);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkVariant::vtkVariant()
 {
   this->Valid = 0;
@@ -891,12 +891,12 @@ T vtkVariantStringToNumeric(vtkStdString str, bool* valid, T* vtkNotUsed(ignored
   return data;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Definition of ToNumeric
 
 #include "vtkVariantToNumeric.cxx"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Explicitly instantiate the ToNumeric member template to make sure
 // the symbols are exported from this object file.
 // This explicit instantiation exists to resolve VTK issue #5791.
@@ -921,7 +921,7 @@ vtkVariantToNumericInstantiateMacro(unsigned long long);
 
 #endif
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Callers causing implicit instantiations of ToNumeric
 
 float vtkVariant::ToFloat(bool* valid) const

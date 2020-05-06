@@ -24,7 +24,7 @@
 
 vtkStandardNewMacro(vtkImageFlip);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageFlip::vtkImageFlip()
 {
   this->PreserveImageExtent = 1;
@@ -39,7 +39,7 @@ vtkImageFlip::vtkImageFlip()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageFlip::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -111,7 +111,7 @@ int vtkImageFlip::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageFlip::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

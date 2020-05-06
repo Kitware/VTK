@@ -23,7 +23,7 @@
 
 vtkStandardNewMacro(vtkImageEuclideanToPolar);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageEuclideanToPolar::vtkImageEuclideanToPolar()
 {
   this->SetNumberOfInputPorts(1);
@@ -31,7 +31,7 @@ vtkImageEuclideanToPolar::vtkImageEuclideanToPolar()
   this->ThetaMaximum = 255.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 template <class T>
 void vtkImageEuclideanToPolarExecute(vtkImageEuclideanToPolar* self, vtkImageData* inData,
@@ -82,7 +82,7 @@ void vtkImageEuclideanToPolarExecute(vtkImageEuclideanToPolar* self, vtkImageDat
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageEuclideanToPolar::ThreadedExecute(
   vtkImageData* inData, vtkImageData* outData, int outExt[6], int id)
 {

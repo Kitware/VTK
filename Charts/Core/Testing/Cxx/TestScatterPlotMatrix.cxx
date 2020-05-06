@@ -26,7 +26,7 @@
 #include "vtkScatterPlotMatrix.h"
 #include "vtkTable.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestScatterPlotMatrix(int, char*[])
 {
   // Set up a 2D scene, add a chart to it

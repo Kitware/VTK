@@ -93,11 +93,11 @@ public:
 };
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkVtkJSViewNodeFactory);
 vtkCxxSetObjectMacro(vtkVtkJSViewNodeFactory, Serializer, vtkVtkJSSceneGraphSerializer);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkVtkJSViewNodeFactory::vtkVtkJSViewNodeFactory()
 {
   this->Serializer = vtkVtkJSSceneGraphSerializer::New();
@@ -124,13 +124,13 @@ vtkVtkJSViewNodeFactory::vtkVtkJSViewNodeFactory()
     "vtkGlyph3DMapper", vtkVtkJSViewNode<vtkMapperNode, vtkGlyph3DMapper>::New);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkVtkJSViewNodeFactory::~vtkVtkJSViewNodeFactory()
 {
   this->SetSerializer(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVtkJSViewNodeFactory::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

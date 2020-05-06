@@ -24,14 +24,14 @@
 
 vtkStandardNewMacro(vtkCellLinks);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCellLinks::~vtkCellLinks()
 {
   this->Type = vtkAbstractCellLinks::CELL_LINKS;
   this->Initialize();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellLinks::Initialize()
 {
   if (this->Array != nullptr)
@@ -46,7 +46,7 @@ void vtkCellLinks::Initialize()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellLinks::Allocate(vtkIdType sz, vtkIdType ext)
 {
   static vtkCellLinks::Link linkInit = { 0, nullptr };
@@ -63,7 +63,7 @@ void vtkCellLinks::Allocate(vtkIdType sz, vtkIdType ext)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Allocate memory for the list of lists of cell ids.
 void vtkCellLinks::AllocateLinks(vtkIdType n)
 {
@@ -73,20 +73,20 @@ void vtkCellLinks::AllocateLinks(vtkIdType n)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Reclaim any unused memory.
 void vtkCellLinks::Squeeze()
 {
   this->Resize(this->MaxId + 1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellLinks::Reset()
 {
   this->MaxId = -1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 // Private function does "reallocate"
 //
@@ -125,7 +125,7 @@ vtkCellLinks::Link* vtkCellLinks::Resize(vtkIdType sz)
   return this->Array;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Build the link list array.
 void vtkCellLinks::BuildLinks(vtkDataSet* data)
 {
@@ -202,7 +202,7 @@ void vtkCellLinks::BuildLinks(vtkDataSet* data)
   } // end else
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Insert a new point into the cell-links data structure. The size parameter
 // is the initial size of the list.
 vtkIdType vtkCellLinks::InsertNextPoint(int numLinks)
@@ -215,7 +215,7 @@ vtkIdType vtkCellLinks::InsertNextPoint(int numLinks)
   return this->MaxId;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 unsigned long vtkCellLinks::GetActualMemorySize()
 {
   vtkIdType size = 0;
@@ -232,7 +232,7 @@ unsigned long vtkCellLinks::GetActualMemorySize()
   return static_cast<unsigned long>(ceil(size / 1024.0)); // kibibytes
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellLinks::DeepCopy(vtkAbstractCellLinks* src)
 {
   vtkCellLinks* clinks = static_cast<vtkCellLinks*>(src);
@@ -241,7 +241,7 @@ void vtkCellLinks::DeepCopy(vtkAbstractCellLinks* src)
   this->MaxId = clinks->MaxId;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellLinks::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -41,14 +41,14 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <map>
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <typename T>
 vtkVariant vtkGetValue(T* arr, vtkIdType index)
 {
   return vtkVariant(arr[index]);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static vtkVariant vtkGetVariantValue(vtkAbstractArray* arr, vtkIdType i)
 {
   vtkVariant val;

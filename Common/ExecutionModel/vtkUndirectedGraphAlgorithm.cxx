@@ -28,7 +28,7 @@
 
 vtkStandardNewMacro(vtkUndirectedGraphAlgorithm);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUndirectedGraphAlgorithm::vtkUndirectedGraphAlgorithm()
 {
   // by default assume filters have one input and one output
@@ -37,16 +37,16 @@ vtkUndirectedGraphAlgorithm::vtkUndirectedGraphAlgorithm()
   this->SetNumberOfOutputPorts(1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUndirectedGraphAlgorithm::~vtkUndirectedGraphAlgorithm() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkUndirectedGraphAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkUndirectedGraphAlgorithm::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -70,7 +70,7 @@ vtkTypeBool vtkUndirectedGraphAlgorithm::ProcessRequest(
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkUndirectedGraphAlgorithm::FillOutputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
@@ -79,7 +79,7 @@ int vtkUndirectedGraphAlgorithm::FillOutputPortInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkUndirectedGraphAlgorithm::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
@@ -87,19 +87,19 @@ int vtkUndirectedGraphAlgorithm::FillInputPortInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUndirectedGraph* vtkUndirectedGraphAlgorithm::GetOutput(int index)
 {
   return vtkUndirectedGraph::SafeDownCast(this->GetOutputDataObject(index));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkUndirectedGraphAlgorithm::SetInputData(int index, vtkDataObject* input)
 {
   this->SetInputDataInternal(index, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkUndirectedGraphAlgorithm::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -107,7 +107,7 @@ int vtkUndirectedGraphAlgorithm::RequestInformation(vtkInformation* vtkNotUsed(r
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkUndirectedGraphAlgorithm::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -124,7 +124,7 @@ int vtkUndirectedGraphAlgorithm::RequestUpdateExtent(vtkInformation* vtkNotUsed(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This is the superclasses style of Execute method.  Convert it into
 // an imaging style Execute method.
 int vtkUndirectedGraphAlgorithm::RequestData(vtkInformation* vtkNotUsed(request),

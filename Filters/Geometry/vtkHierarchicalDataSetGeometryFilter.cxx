@@ -17,13 +17,13 @@
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkHierarchicalDataSetGeometryFilter);
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHierarchicalDataSetGeometryFilter::vtkHierarchicalDataSetGeometryFilter() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHierarchicalDataSetGeometryFilter::~vtkHierarchicalDataSetGeometryFilter() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHierarchicalDataSetGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

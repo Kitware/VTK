@@ -26,7 +26,7 @@
 
 vtkStandardNewMacro(vtkLightWidget);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLightWidget::vtkLightWidget()
 {
   // Define widget events
@@ -42,7 +42,7 @@ vtkLightWidget::vtkLightWidget()
     vtkWidgetEvent::EndScale, this, vtkLightWidget::EndSelectAction);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLightWidget::SelectAction(vtkAbstractWidget* w)
 {
   vtkLightWidget* self = vtkLightWidget::SafeDownCast(w);
@@ -67,7 +67,7 @@ void vtkLightWidget::SelectAction(vtkAbstractWidget* w)
   self->EventCallbackCommand->SetAbortFlag(1);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLightWidget::MoveAction(vtkAbstractWidget* w)
 {
   vtkLightWidget* self = vtkLightWidget::SafeDownCast(w);
@@ -111,7 +111,7 @@ void vtkLightWidget::MoveAction(vtkAbstractWidget* w)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLightWidget::EndSelectAction(vtkAbstractWidget* w)
 {
   vtkLightWidget* self = vtkLightWidget::SafeDownCast(w);
@@ -129,7 +129,7 @@ void vtkLightWidget::EndSelectAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLightWidget::ScaleAction(vtkAbstractWidget* w)
 {
   // We are in a static method, cast to ourself
@@ -171,7 +171,7 @@ void vtkLightWidget::ScaleAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLightWidget::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)
@@ -180,19 +180,19 @@ void vtkLightWidget::CreateDefaultRepresentation()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLightWidget::SetRepresentation(vtkLightRepresentation* r)
 {
   this->Superclass::SetWidgetRepresentation(r);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLightRepresentation* vtkLightWidget::GetLightRepresentation()
 {
   return vtkLightRepresentation::SafeDownCast(this->WidgetRep);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLightWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "WidgetActive: " << this->WidgetActive << endl;

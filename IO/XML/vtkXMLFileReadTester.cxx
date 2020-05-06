@@ -18,21 +18,21 @@
 
 vtkStandardNewMacro(vtkXMLFileReadTester);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLFileReadTester::vtkXMLFileReadTester()
 {
   this->FileDataType = nullptr;
   this->FileVersion = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLFileReadTester::~vtkXMLFileReadTester()
 {
   this->SetFileDataType(nullptr);
   this->SetFileVersion(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLFileReadTester::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -40,7 +40,7 @@ void vtkXMLFileReadTester::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FileVersion: " << (this->FileVersion ? this->FileVersion : "") << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLFileReadTester::TestReadFile()
 {
   if (!this->FileName)
@@ -62,7 +62,7 @@ int vtkXMLFileReadTester::TestReadFile()
   return this->Done ? 1 : 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLFileReadTester::StartElement(const char* name, const char** atts)
 {
   this->Done = 1;
@@ -82,7 +82,7 @@ void vtkXMLFileReadTester::StartElement(const char* name, const char** atts)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLFileReadTester::ParsingComplete()
 {
   return this->Done ? 1 : 0;

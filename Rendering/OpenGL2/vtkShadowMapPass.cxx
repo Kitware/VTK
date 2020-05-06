@@ -63,7 +63,7 @@ vtkCxxSetObjectMacro(vtkShadowMapPass, OpaqueSequence, vtkRenderPass);
 
 vtkInformationKeyMacro(vtkShadowMapPass, ShadowMapPass, ObjectBase);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkShadowMapPass::vtkShadowMapPass()
 {
   this->ShadowMapBakerPass = nullptr;
@@ -84,7 +84,7 @@ vtkShadowMapPass::vtkShadowMapPass()
   this->SetShadowMapBakerPass(bp);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkShadowMapPass::~vtkShadowMapPass()
 {
   if (this->ShadowMapBakerPass != nullptr)
@@ -97,7 +97,7 @@ vtkShadowMapPass::~vtkShadowMapPass()
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkShadowMapPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -122,7 +122,7 @@ void vtkShadowMapPass::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Perform rendering according to a render state \p s.
 // \pre s_exists: s!=0
@@ -463,7 +463,7 @@ void vtkShadowMapPass::BuildShaderCode()
   this->FragmentImplementation = toString.str();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Release graphics resources and ask components to release their own
 // resources.

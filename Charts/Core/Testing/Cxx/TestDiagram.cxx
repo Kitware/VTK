@@ -30,7 +30,7 @@
 
 #include "vtkRegressionTestImage.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class APIDiagram : public vtkContextItem
 {
 public:
@@ -40,7 +40,7 @@ public:
   bool Paint(vtkContext2D* painter) override;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestDiagram(int, char*[])
 {
   // Set up a 2D chart actor, APIDiagram object andn add them to the renderer

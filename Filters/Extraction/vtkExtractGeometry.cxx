@@ -34,7 +34,7 @@
 vtkStandardNewMacro(vtkExtractGeometry);
 vtkCxxSetObjectMacro(vtkExtractGeometry, ImplicitFunction, vtkImplicitFunction);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct object with ExtractInside turned on.
 vtkExtractGeometry::vtkExtractGeometry(vtkImplicitFunction* f)
 {
@@ -49,7 +49,7 @@ vtkExtractGeometry::vtkExtractGeometry(vtkImplicitFunction* f)
   this->ExtractOnlyBoundaryCells = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractGeometry::~vtkExtractGeometry()
 {
   this->SetImplicitFunction(nullptr);
@@ -71,7 +71,7 @@ vtkMTimeType vtkExtractGeometry::GetMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractGeometry::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -306,14 +306,14 @@ int vtkExtractGeometry::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractGeometry::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractGeometry::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

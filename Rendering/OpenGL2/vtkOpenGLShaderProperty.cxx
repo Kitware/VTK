@@ -131,7 +131,7 @@ void vtkOpenGLShaderProperty::ClearAllGeometryShaderReplacements()
   this->ClearAllShaderReplacements(vtkShader::Geometry);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLShaderProperty::ClearAllShaderReplacements()
 {
   this->SetVertexShaderCode(nullptr);
@@ -141,7 +141,7 @@ void vtkOpenGLShaderProperty::ClearAllShaderReplacements()
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLShaderProperty::AddShaderReplacement(
   vtkShader::Type shaderType, // vertex, fragment, etc
   const std::string& originalValue,
@@ -161,7 +161,7 @@ void vtkOpenGLShaderProperty::AddShaderReplacement(
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLShaderProperty::ClearShaderReplacement(
   vtkShader::Type shaderType, // vertex, fragment, etc
   const std::string& originalValue, bool replaceFirst)
@@ -180,7 +180,7 @@ void vtkOpenGLShaderProperty::ClearShaderReplacement(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLShaderProperty::ClearAllShaderReplacements(vtkShader::Type shaderType)
 {
   bool modified = false;
@@ -216,7 +216,7 @@ void vtkOpenGLShaderProperty::ClearAllShaderReplacements(vtkShader::Type shaderT
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLShaderProperty::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

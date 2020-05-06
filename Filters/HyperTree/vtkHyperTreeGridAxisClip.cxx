@@ -36,7 +36,7 @@
 vtkStandardNewMacro(vtkHyperTreeGridAxisClip);
 vtkCxxSetObjectMacro(vtkHyperTreeGridAxisClip, Quadric, vtkQuadric);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHyperTreeGridAxisClip::vtkHyperTreeGridAxisClip()
 {
   // Defaut clipping mode is by plane
@@ -72,7 +72,7 @@ vtkHyperTreeGridAxisClip::vtkHyperTreeGridAxisClip()
   this->AppropriateOutput = true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHyperTreeGridAxisClip::~vtkHyperTreeGridAxisClip()
 {
   if (this->OutMask)
@@ -88,7 +88,7 @@ vtkHyperTreeGridAxisClip::~vtkHyperTreeGridAxisClip()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridAxisClip::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -108,14 +108,14 @@ void vtkHyperTreeGridAxisClip::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkHyperTreeGridAxisClip::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkHyperTreeGrid");
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridAxisClip::GetMinimumBounds(double bMin[3])
 {
   bMin[0] = this->Bounds[0];
@@ -123,7 +123,7 @@ void vtkHyperTreeGridAxisClip::GetMinimumBounds(double bMin[3])
   bMin[2] = this->Bounds[4];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridAxisClip::GetMaximumBounds(double bMax[3])
 {
   bMax[0] = this->Bounds[1];
@@ -131,7 +131,7 @@ void vtkHyperTreeGridAxisClip::GetMaximumBounds(double bMax[3])
   bMax[2] = this->Bounds[5];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridAxisClip::SetQuadricCoefficients(double q[10])
 {
   if (!this->Quadric)
@@ -142,19 +142,19 @@ void vtkHyperTreeGridAxisClip::SetQuadricCoefficients(double q[10])
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridAxisClip::GetQuadricCoefficients(double q[10])
 {
   this->Quadric->GetCoefficients(q);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkHyperTreeGridAxisClip::GetQuadricCoefficients()
 {
   return this->Quadric->GetCoefficients();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkHyperTreeGridAxisClip::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
@@ -168,7 +168,7 @@ vtkMTimeType vtkHyperTreeGridAxisClip::GetMTime()
   return mTime;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkHyperTreeGridAxisClip::IsClipped(vtkHyperTreeGridNonOrientedGeometryCursor* cursor)
 {
   // Check clipping status depending on clip type
@@ -255,7 +255,7 @@ bool vtkHyperTreeGridAxisClip::IsClipped(vtkHyperTreeGridNonOrientedGeometryCurs
   return this->InsideOut;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkHyperTreeGridAxisClip::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObject* outputDO)
 {
   // Downcast output data object to hyper tree grid
@@ -441,7 +441,7 @@ int vtkHyperTreeGridAxisClip::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObjec
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridAxisClip::RecursivelyProcessTree(
   vtkHyperTreeGridNonOrientedGeometryCursor* inCursor, vtkHyperTreeGridNonOrientedCursor* outCursor)
 {

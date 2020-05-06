@@ -31,7 +31,7 @@
 
 vtkStandardNewMacro(vtkInteractorStyleImage);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInteractorStyleImage::vtkInteractorStyleImage()
 {
   this->WindowLevelStartPosition[0] = 0;
@@ -73,7 +73,7 @@ vtkInteractorStyleImage::vtkInteractorStyleImage()
   this->ZViewUpVector[2] = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInteractorStyleImage::~vtkInteractorStyleImage()
 {
   if (this->CurrentImageProperty)
@@ -82,7 +82,7 @@ vtkInteractorStyleImage::~vtkInteractorStyleImage()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleImage::StartWindowLevel()
 {
   if (this->State != VTKIS_NONE)
@@ -109,7 +109,7 @@ void vtkInteractorStyleImage::StartWindowLevel()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleImage::EndWindowLevel()
 {
   if (this->State != VTKIS_WINDOW_LEVEL)
@@ -123,7 +123,7 @@ void vtkInteractorStyleImage::EndWindowLevel()
   this->StopState();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleImage::StartPick()
 {
   if (this->State != VTKIS_NONE)
@@ -137,7 +137,7 @@ void vtkInteractorStyleImage::StartPick()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleImage::EndPick()
 {
   if (this->State != VTKIS_PICK)
@@ -151,7 +151,7 @@ void vtkInteractorStyleImage::EndPick()
   this->StopState();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleImage::StartSlice()
 {
   if (this->State != VTKIS_NONE)
@@ -161,7 +161,7 @@ void vtkInteractorStyleImage::StartSlice()
   this->StartState(VTKIS_SLICE);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleImage::EndSlice()
 {
   if (this->State != VTKIS_SLICE)
@@ -171,7 +171,7 @@ void vtkInteractorStyleImage::EndSlice()
   this->StopState();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleImage::OnMouseMove()
 {
   int x = this->Interactor->GetEventPosition()[0];
@@ -203,7 +203,7 @@ void vtkInteractorStyleImage::OnMouseMove()
   this->Superclass::OnMouseMove();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleImage::OnLeftButtonDown()
 {
   int x = this->Interactor->GetEventPosition()[0];
@@ -244,7 +244,7 @@ void vtkInteractorStyleImage::OnLeftButtonDown()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleImage::OnLeftButtonUp()
 {
   switch (this->State)
@@ -271,7 +271,7 @@ void vtkInteractorStyleImage::OnLeftButtonUp()
   this->Superclass::OnLeftButtonUp();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleImage::OnMiddleButtonDown()
 {
   this->FindPokedRenderer(
@@ -296,7 +296,7 @@ void vtkInteractorStyleImage::OnMiddleButtonDown()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleImage::OnMiddleButtonUp()
 {
   switch (this->State)
@@ -315,7 +315,7 @@ void vtkInteractorStyleImage::OnMiddleButtonUp()
   this->Superclass::OnMiddleButtonUp();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleImage::OnRightButtonDown()
 {
   int x = this->Interactor->GetEventPosition()[0];
@@ -351,7 +351,7 @@ void vtkInteractorStyleImage::OnRightButtonDown()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleImage::OnRightButtonUp()
 {
   switch (this->State)
@@ -385,7 +385,7 @@ void vtkInteractorStyleImage::OnRightButtonUp()
   this->Superclass::OnRightButtonUp();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleImage::OnChar()
 {
   vtkRenderWindowInteractor* rwi = this->Interactor;
@@ -464,7 +464,7 @@ void vtkInteractorStyleImage::OnChar()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleImage::WindowLevel()
 {
   vtkRenderWindowInteractor* rwi = this->Interactor;
@@ -537,13 +537,13 @@ void vtkInteractorStyleImage::WindowLevel()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleImage::Pick()
 {
   this->InvokeEvent(vtkCommand::PickEvent, this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleImage::Slice()
 {
   if (this->CurrentRenderer == nullptr)
@@ -588,7 +588,7 @@ void vtkInteractorStyleImage::Slice()
   rwi->Render();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleImage::SetImageOrientation(
   const double leftToRight[3], const double viewUp[3])
 {
@@ -608,7 +608,7 @@ void vtkInteractorStyleImage::SetImageOrientation(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This is a way of dealing with images as if they were layers.
 // It looks through the renderer's list of props and sets the
 // interactor ivars from the Nth image that it finds.  You can
@@ -683,7 +683,7 @@ void vtkInteractorStyleImage::SetCurrentImageNumber(int i)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleImage::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

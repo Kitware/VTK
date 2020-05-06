@@ -45,7 +45,7 @@ double SgnPower(double x, double n)
 
 } // anonymous namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParametricSuperEllipsoid::vtkParametricSuperEllipsoid()
   : XRadius(1)
   , YRadius(1)
@@ -66,10 +66,10 @@ vtkParametricSuperEllipsoid::vtkParametricSuperEllipsoid()
   this->DerivativesAvailable = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParametricSuperEllipsoid::~vtkParametricSuperEllipsoid() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParametricSuperEllipsoid::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
 {
   double u = uvw[0];
@@ -95,13 +95,13 @@ void vtkParametricSuperEllipsoid::Evaluate(double uvw[3], double Pt[3], double D
   Pt[2] = this->ZRadius * SgnPower(sv, this->N1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkParametricSuperEllipsoid::EvaluateScalar(double*, double*, double*)
 {
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParametricSuperEllipsoid::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

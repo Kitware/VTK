@@ -20,7 +20,7 @@
 
 vtkStandardNewMacro(vtkSphericalTransform);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSphericalTransform::vtkSphericalTransform() = default;
 
 vtkSphericalTransform::~vtkSphericalTransform() = default;

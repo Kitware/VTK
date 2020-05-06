@@ -683,7 +683,7 @@ struct Serialization<::CellTT>
 
 vtkStandardNewMacro(vtkGenerateGlobalIds);
 vtkCxxSetObjectMacro(vtkGenerateGlobalIds, Controller, vtkMultiProcessController);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGenerateGlobalIds::vtkGenerateGlobalIds()
   : Controller(nullptr)
 {
@@ -692,13 +692,13 @@ vtkGenerateGlobalIds::vtkGenerateGlobalIds()
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGenerateGlobalIds::~vtkGenerateGlobalIds()
 {
   this->SetController(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGenerateGlobalIds::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -732,7 +732,7 @@ int vtkGenerateGlobalIds::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenerateGlobalIds::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

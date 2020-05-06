@@ -26,7 +26,7 @@
 
 vtkStandardNewMacro(vtkRectilinearGridClip);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRectilinearGridClip::vtkRectilinearGridClip()
 {
   this->ClipData = 0;
@@ -39,7 +39,7 @@ vtkRectilinearGridClip::vtkRectilinearGridClip()
     VTK_INT_MAX;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRectilinearGridClip::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -64,7 +64,7 @@ void vtkRectilinearGridClip::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRectilinearGridClip::SetOutputWholeExtent(int extent[6], vtkInformation* outInfo)
 {
   int idx;
@@ -90,7 +90,7 @@ void vtkRectilinearGridClip::SetOutputWholeExtent(int extent[6], vtkInformation*
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRectilinearGridClip::SetOutputWholeExtent(
   int minX, int maxX, int minY, int maxY, int minZ, int maxZ)
 {
@@ -105,7 +105,7 @@ void vtkRectilinearGridClip::SetOutputWholeExtent(
   this->SetOutputWholeExtent(extent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRectilinearGridClip::GetOutputWholeExtent(int extent[6])
 {
   int idx;
@@ -116,7 +116,7 @@ void vtkRectilinearGridClip::GetOutputWholeExtent(int extent[6])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Change the WholeExtent
 int vtkRectilinearGridClip::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -158,7 +158,7 @@ int vtkRectilinearGridClip::RequestInformation(vtkInformation* vtkNotUsed(reques
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Sets the output whole extent to be the input whole extent.
 void vtkRectilinearGridClip::ResetOutputWholeExtent()
 {
@@ -173,7 +173,7 @@ void vtkRectilinearGridClip::ResetOutputWholeExtent()
   this->SetOutputWholeExtent(inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method simply copies by reference the input data to the output.
 int vtkRectilinearGridClip::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)

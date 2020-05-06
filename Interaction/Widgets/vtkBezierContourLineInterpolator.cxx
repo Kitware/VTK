@@ -22,17 +22,17 @@
 
 vtkStandardNewMacro(vtkBezierContourLineInterpolator);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBezierContourLineInterpolator::vtkBezierContourLineInterpolator()
 {
   this->MaximumCurveError = 0.005;
   this->MaximumCurveLineSegments = 100;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBezierContourLineInterpolator::~vtkBezierContourLineInterpolator() = default;
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkBezierContourLineInterpolator::InterpolateLine(
   vtkRenderer* vtkNotUsed(ren), vtkContourRepresentation* rep, int idx1, int idx2)
 {
@@ -168,7 +168,7 @@ int vtkBezierContourLineInterpolator::InterpolateLine(
   return 1;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBezierContourLineInterpolator::GetSpan(
   int nodeIndex, vtkIntArray* nodeIndices, vtkContourRepresentation* rep)
 {
@@ -214,7 +214,7 @@ void vtkBezierContourLineInterpolator::GetSpan(
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBezierContourLineInterpolator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -25,7 +25,7 @@
 
 #include "vtkRegressionTestImage.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestContextScene(int argc, char* argv[])
 {
   // Set up a 2D context view, context test object and add it to the scene

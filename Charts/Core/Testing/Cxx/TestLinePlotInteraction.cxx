@@ -124,7 +124,7 @@ static char TestLinePlotInteractionLog[] = "# StreamVersion 1\n"
                                            "LeaveEvent 395 300 0 0 0 0 0\n"
                                            "ExitEvent 395 300 0 0 0 0 0";
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestLinePlotInteraction(int, char*[])
 {
   // Set up a 2D scene, add an XY chart to it

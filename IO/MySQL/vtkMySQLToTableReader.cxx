@@ -26,16 +26,16 @@
 
 #include "vtkMySQLToTableReader.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkMySQLToTableReader);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMySQLToTableReader::vtkMySQLToTableReader() {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMySQLToTableReader::~vtkMySQLToTableReader() {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMySQLToTableReader::RequestData(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
@@ -151,7 +151,7 @@ int vtkMySQLToTableReader::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMySQLToTableReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

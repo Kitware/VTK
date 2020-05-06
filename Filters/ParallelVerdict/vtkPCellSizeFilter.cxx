@@ -20,13 +20,13 @@
 
 vtkStandardNewMacro(vtkPCellSizeFilter);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPCellSizeFilter::vtkPCellSizeFilter() {}
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPCellSizeFilter::~vtkPCellSizeFilter() {}
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPCellSizeFilter::ComputeGlobalSum(double sum[4])
 {
   vtkMultiProcessController* controller = vtkMultiProcessController::GetGlobalController();

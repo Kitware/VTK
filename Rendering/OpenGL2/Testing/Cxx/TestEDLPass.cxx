@@ -34,7 +34,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkTimerLog.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestEDLPass(int argc, char* argv[])
 {
   vtkNew<vtkRenderer> renderer;

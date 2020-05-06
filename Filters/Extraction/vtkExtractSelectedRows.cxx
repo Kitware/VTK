@@ -51,17 +51,17 @@
 #include <vector>
 
 vtkStandardNewMacro(vtkExtractSelectedRows);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractSelectedRows::vtkExtractSelectedRows()
 {
   this->AddOriginalRowIdsArray = false;
   this->SetNumberOfInputPorts(3);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractSelectedRows::~vtkExtractSelectedRows() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSelectedRows::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
@@ -84,13 +84,13 @@ int vtkExtractSelectedRows::FillInputPortInformation(int port, vtkInformation* i
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractSelectedRows::SetSelectionConnection(vtkAlgorithmOutput* in)
 {
   this->SetInputConnection(1, in);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractSelectedRows::SetAnnotationLayersConnection(vtkAlgorithmOutput* in)
 {
   this->SetInputConnection(2, in);
@@ -117,7 +117,7 @@ struct vtkCopySelectedRows
 };
 } // namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSelectedRows::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -235,7 +235,7 @@ int vtkExtractSelectedRows::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractSelectedRows::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

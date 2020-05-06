@@ -76,7 +76,7 @@ static const int HTGGCG_DATA_EXCHANGE_TAG = 5099;
 static const int HTGGCG_DATA2_EXCHANGE_TAG = 5100;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHyperTreeGridGhostCellsGenerator::vtkHyperTreeGridGhostCellsGenerator()
 {
   this->AppropriateOutput = true;
@@ -84,26 +84,26 @@ vtkHyperTreeGridGhostCellsGenerator::vtkHyperTreeGridGhostCellsGenerator()
   this->Internals->Controller = vtkMultiProcessController::GetGlobalController();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHyperTreeGridGhostCellsGenerator::~vtkHyperTreeGridGhostCellsGenerator()
 {
   delete this->Internals;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridGhostCellsGenerator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkHyperTreeGridGhostCellsGenerator::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkHyperTreeGrid");
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
   vtkHyperTreeGrid* input, vtkDataObject* outputDO)
 {
@@ -575,7 +575,7 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridGhostCellsGenerator::ExtractInterface(
   vtkHyperTreeGridNonOrientedCursor* inCursor, vtkBitArray* isParent,
   std::vector<vtkIdType>& indices, vtkHyperTreeGrid* grid, unsigned int mask, vtkIdType& pos)
@@ -604,7 +604,7 @@ void vtkHyperTreeGridGhostCellsGenerator::ExtractInterface(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkHyperTreeGridGhostCellsGenerator::CreateGhostTree(
   vtkHyperTreeGridNonOrientedCursor* outCursor, vtkBitArray* isParent, vtkIdType* indices,
   vtkIdType&& pos)
@@ -623,7 +623,7 @@ vtkIdType vtkHyperTreeGridGhostCellsGenerator::CreateGhostTree(
   return pos;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridGhostCellsGenerator::CopyInputTreeToOutput(
   vtkHyperTreeGridNonOrientedCursor* inCursor, vtkHyperTreeGridNonOrientedCursor* outCursor,
   vtkCellData* inCellData, vtkCellData* outCellData, vtkBitArray* inMask, vtkBitArray* outMask)

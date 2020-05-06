@@ -50,7 +50,7 @@ public:
   unsigned int Count;
 };
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestTemporalCacheTemporal(int, char*[])
 {
   // we have to use a composite pipeline

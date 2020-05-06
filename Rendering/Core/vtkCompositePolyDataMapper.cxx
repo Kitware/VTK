@@ -312,7 +312,7 @@ vtkPolyDataMapper* vtkCompositePolyDataMapper::MakeAMapper()
   return m;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // look at children
 bool vtkCompositePolyDataMapper::HasOpaqueGeometry()
 {
@@ -333,7 +333,7 @@ bool vtkCompositePolyDataMapper::HasOpaqueGeometry()
   return hasOpaque;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // look at children
 bool vtkCompositePolyDataMapper::HasTranslucentPolygonalGeometry()
 {

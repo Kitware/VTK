@@ -25,7 +25,7 @@ See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
 vtkStandardNewMacro(vtkNIFTIImageHeader);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 namespace
 {
 
@@ -41,16 +41,16 @@ double vtkNIFTINormalizeDouble(double d)
 }
 } // end anonymous namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkNIFTIImageHeader::vtkNIFTIImageHeader()
 {
   this->Initialize();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkNIFTIImageHeader::~vtkNIFTIImageHeader() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNIFTIImageHeader::Initialize()
 {
   memset(this->Magic, '\0', sizeof(this->Magic));
@@ -96,7 +96,7 @@ void vtkNIFTIImageHeader::Initialize()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNIFTIImageHeader::SetHeader(const nifti_1_header* hdr)
 {
   // clear all fields (in case supplied header is Analyze 7.5)
@@ -161,7 +161,7 @@ void vtkNIFTIImageHeader::SetHeader(const nifti_1_header* hdr)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNIFTIImageHeader::GetHeader(nifti_1_header* hdr)
 {
   hdr->sizeof_hdr = NIFTI1HeaderSize;
@@ -218,7 +218,7 @@ void vtkNIFTIImageHeader::GetHeader(nifti_1_header* hdr)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNIFTIImageHeader::SetHeader(const nifti_2_header* hdr)
 {
   memcpy(this->Magic, hdr->magic, sizeof(hdr->magic));
@@ -264,7 +264,7 @@ void vtkNIFTIImageHeader::SetHeader(const nifti_2_header* hdr)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNIFTIImageHeader::GetHeader(nifti_2_header* hdr)
 {
   hdr->sizeof_hdr = NIFTI2HeaderSize;
@@ -315,7 +315,7 @@ void vtkNIFTIImageHeader::GetHeader(nifti_2_header* hdr)
   memset(hdr->unused_str, '\0', 15);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNIFTIImageHeader::DeepCopy(vtkNIFTIImageHeader* o)
 {
   if (o)
@@ -330,7 +330,7 @@ void vtkNIFTIImageHeader::DeepCopy(vtkNIFTIImageHeader* o)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNIFTIImageHeader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -421,7 +421,7 @@ void vtkNIFTIImageHeader::PrintSelf(ostream& os, vtkIndent indent)
   os << "\"\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNIFTIImageHeader::SetStringValue(char* x, const char* y, size_t n)
 {
   if (y == nullptr)
@@ -436,19 +436,19 @@ void vtkNIFTIImageHeader::SetStringValue(char* x, const char* y, size_t n)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNIFTIImageHeader::SetIntentName(const char* val)
 {
   this->SetStringValue(this->IntentName, val, 16);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNIFTIImageHeader::SetDescrip(const char* val)
 {
   this->SetStringValue(this->Descrip, val, 80);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNIFTIImageHeader::SetAuxFile(const char* val)
 {
   this->SetStringValue(this->AuxFile, val, 24);

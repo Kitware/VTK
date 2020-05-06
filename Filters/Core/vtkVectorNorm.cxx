@@ -109,7 +109,7 @@ struct vtkVectorNormDispatch // Interface between VTK and templated functions.
 }
 
 //=================================Begin class proper=========================
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct with normalize flag off.
 vtkVectorNorm::vtkVectorNorm()
 {
@@ -117,7 +117,7 @@ vtkVectorNorm::vtkVectorNorm()
   this->AttributeMode = VTK_ATTRIBUTE_MODE_DEFAULT;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkVectorNorm::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -211,7 +211,7 @@ int vtkVectorNorm::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Return the method for generating scalar data as a string.
 const char* vtkVectorNorm::GetAttributeModeAsString()
 {
@@ -229,7 +229,7 @@ const char* vtkVectorNorm::GetAttributeModeAsString()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVectorNorm::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

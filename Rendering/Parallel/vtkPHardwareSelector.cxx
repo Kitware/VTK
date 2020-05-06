@@ -37,10 +37,10 @@ public:
   vtkPHardwareSelector* Target;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPHardwareSelector);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPHardwareSelector::vtkPHardwareSelector()
 {
   this->ProcessIsRoot = false;
@@ -48,14 +48,14 @@ vtkPHardwareSelector::vtkPHardwareSelector()
   this->Observer->Target = this;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPHardwareSelector::~vtkPHardwareSelector()
 {
   this->Observer->Target = nullptr;
   this->Observer->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPHardwareSelector::CaptureBuffers()
 {
   if (this->ProcessIsRoot)
@@ -84,10 +84,10 @@ bool vtkPHardwareSelector::CaptureBuffers()
   return false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPHardwareSelector::StartRender() {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPHardwareSelector::EndRender()
 {
   this->CurrentPass++;
@@ -108,7 +108,7 @@ void vtkPHardwareSelector::EndRender()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPHardwareSelector::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

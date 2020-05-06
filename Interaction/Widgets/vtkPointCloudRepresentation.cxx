@@ -47,7 +47,7 @@
 
 vtkStandardNewMacro(vtkPointCloudRepresentation);
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Abstract class to hide the details of picking
 struct vtkPointCloudPicker
 {
@@ -151,7 +151,7 @@ struct vtkPointCloudPicker
   }
 };
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPointCloudRepresentation::vtkPointCloudRepresentation()
 {
   // Internal state
@@ -199,7 +199,7 @@ vtkPointCloudRepresentation::vtkPointCloudRepresentation()
   this->SelectionActor->SetProperty(this->SelectionProperty);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPointCloudRepresentation::~vtkPointCloudRepresentation()
 {
   if (this->PointCloud)
@@ -219,7 +219,7 @@ vtkPointCloudRepresentation::~vtkPointCloudRepresentation()
   this->SelectionProperty->Delete();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointCloudRepresentation::CreateDefaultProperties()
 {
   this->SelectionProperty = vtkProperty2D::New();
@@ -227,7 +227,7 @@ void vtkPointCloudRepresentation::CreateDefaultProperties()
   this->SelectionProperty->SetLineWidth(1.0);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointCloudRepresentation::PlacePointCloud(vtkActor* a)
 {
   // Return if nothing has changed
@@ -287,7 +287,7 @@ void vtkPointCloudRepresentation::PlacePointCloud(vtkActor* a)
   this->Modified();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // If specifying point set, create our own actor and mapper
 void vtkPointCloudRepresentation::PlacePointCloud(vtkPointSet* pc)
 {
@@ -318,7 +318,7 @@ void vtkPointCloudRepresentation::PlacePointCloud(vtkPointSet* pc)
   this->PlacePointCloud(actor);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkPointCloudRepresentation::GetBounds()
 {
   if (this->PointCloudActor)
@@ -331,7 +331,7 @@ double* vtkPointCloudRepresentation::GetBounds()
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPointCloudRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUsed(modify))
 {
   if (!this->Renderer || !this->PointCloudActor || !this->PointCloud)
@@ -373,14 +373,14 @@ int vtkPointCloudRepresentation::ComputeInteractionState(int X, int Y, int vtkNo
   return this->InteractionState;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointCloudRepresentation::GetActors2D(vtkPropCollection* pc)
 {
   pc->AddItem(this->SelectionActor);
   this->Superclass::GetActors2D(pc);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointCloudRepresentation::ReleaseGraphicsResources(vtkWindow* w)
 {
   if (this->PointCloudActor)
@@ -391,7 +391,7 @@ void vtkPointCloudRepresentation::ReleaseGraphicsResources(vtkWindow* w)
   this->SelectionActor->ReleaseGraphicsResources(w);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPointCloudRepresentation::RenderOpaqueGeometry(vtkViewport* viewport)
 {
   int count = 0;
@@ -407,7 +407,7 @@ int vtkPointCloudRepresentation::RenderOpaqueGeometry(vtkViewport* viewport)
   return count;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPointCloudRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport* viewport)
 {
   int count = 0;
@@ -423,7 +423,7 @@ int vtkPointCloudRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport*
   return count;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkPointCloudRepresentation::HasTranslucentPolygonalGeometry()
 {
   int result = 0;
@@ -440,7 +440,7 @@ vtkTypeBool vtkPointCloudRepresentation::HasTranslucentPolygonalGeometry()
   return result;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPointCloudRepresentation::RenderOverlay(vtkViewport* v)
 {
   int count = 0;
@@ -455,7 +455,7 @@ int vtkPointCloudRepresentation::RenderOverlay(vtkViewport* v)
   return count;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointCloudRepresentation::RegisterPickers()
 {
   vtkPickingManager* pm = this->GetPickingManager();
@@ -466,7 +466,7 @@ void vtkPointCloudRepresentation::RegisterPickers()
   pm->AddPicker(this->OutlinePicker, this);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointCloudRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

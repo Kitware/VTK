@@ -29,7 +29,7 @@
 
 vtkStandardNewMacro(vtkImageBSplineCoefficients);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageBSplineCoefficients::vtkImageBSplineCoefficients()
 {
   this->SplineDegree = 3;
@@ -40,17 +40,17 @@ vtkImageBSplineCoefficients::vtkImageBSplineCoefficients()
   this->Iteration = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageBSplineCoefficients::~vtkImageBSplineCoefficients() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageBSplineCoefficients::AllocateOutputData(
   vtkImageData* vtkNotUsed(output), vtkInformation* vtkNotUsed(outInfo), int* vtkNotUsed(uExtent))
 {
   // turn into a no-op, we allocate our output manually
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageData* vtkImageBSplineCoefficients::AllocateOutputData(
   vtkDataObject* output, vtkInformation* vtkNotUsed(outInfo))
 {
@@ -59,7 +59,7 @@ vtkImageData* vtkImageBSplineCoefficients::AllocateOutputData(
   return out;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageBSplineCoefficients::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -158,7 +158,7 @@ int vtkImageBSplineCoefficients::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageBSplineCoefficients::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -196,7 +196,7 @@ int vtkImageBSplineCoefficients::RequestInformation(vtkInformation* vtkNotUsed(r
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageBSplineCoefficients::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -220,7 +220,7 @@ int vtkImageBSplineCoefficients::RequestUpdateExtent(vtkInformation* vtkNotUsed(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T>
 void vtkImageBSplineCoefficientsExecute(vtkImageBSplineCoefficients* self, vtkImageData* inData,
   vtkImageData* outData, T* inPtr, T* outPtr, int extent[6], int axis, int threadId)
@@ -320,7 +320,7 @@ void vtkImageBSplineCoefficientsExecute(vtkImageBSplineCoefficients* self, vtkIm
   delete[] image;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This is called three times (once per dimension)
 void vtkImageBSplineCoefficients::ThreadedExecute(
   vtkImageData* inData, vtkImageData* outData, int outExt[6], int threadId)
@@ -340,7 +340,7 @@ void vtkImageBSplineCoefficients::ThreadedExecute(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageBSplineCoefficients::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -350,7 +350,7 @@ void vtkImageBSplineCoefficients::PrintSelf(ostream& os, vtkIndent indent)
   os << "Bypass: " << (this->Bypass ? "On\n" : "Off\n");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkImageBSplineCoefficients::GetBorderModeAsString()
 {
   switch (this->BorderMode)
@@ -368,13 +368,13 @@ const char* vtkImageBSplineCoefficients::GetBorderModeAsString()
   return "Unknown";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkImageBSplineCoefficients::GetOutputScalarTypeAsString()
 {
   return vtkImageScalarTypeNameMacro(this->OutputScalarType);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageBSplineCoefficients::CheckBounds(const double point[3])
 {
   const double* bounds = this->GetOutput()->GetBounds();
@@ -391,7 +391,7 @@ int vtkImageBSplineCoefficients::CheckBounds(const double point[3])
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageBSplineCoefficients::Evaluate(const double p[3], double* val)
 {
   vtkImageData* output = this->GetOutput();
@@ -451,7 +451,7 @@ void vtkImageBSplineCoefficients::Evaluate(const double p[3], double* val)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkImageBSplineCoefficients::Evaluate(double x, double y, double z)
 {
   vtkImageData* output = this->GetOutput();

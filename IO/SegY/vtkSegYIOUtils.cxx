@@ -20,27 +20,27 @@
 #include <cstring>
 #include <sys/types.h>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSegYIOUtils::vtkSegYIOUtils()
 {
   this->IsBigEndian = checkIfBigEndian();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSegYIOUtils* vtkSegYIOUtils::Instance()
 {
   static vtkSegYIOUtils vtkSegYIOUtils;
   return &vtkSegYIOUtils;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 short vtkSegYIOUtils::readShortInteger(std::streamoff pos, std::istream& in)
 {
   in.seekg(pos, in.beg);
   return readShortInteger(in);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 short vtkSegYIOUtils::readShortInteger(std::istream& in)
 {
   char buffer[2];
@@ -56,14 +56,14 @@ short vtkSegYIOUtils::readShortInteger(std::istream& in)
   return num;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSegYIOUtils::readLongInteger(std::streamoff pos, std::istream& in)
 {
   in.seekg(pos, in.beg);
   return readLongInteger(in);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSegYIOUtils::readLongInteger(std::istream& in)
 {
   char buffer[4];
@@ -80,7 +80,7 @@ int vtkSegYIOUtils::readLongInteger(std::istream& in)
   return num;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 float vtkSegYIOUtils::readFloat(std::istream& in)
 {
   char buffer[4];
@@ -97,7 +97,7 @@ float vtkSegYIOUtils::readFloat(std::istream& in)
   return num;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 float vtkSegYIOUtils::readIBMFloat(std::istream& in)
 {
   char buffer[4];
@@ -140,7 +140,7 @@ float vtkSegYIOUtils::readIBMFloat(std::istream& in)
   return num;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 char vtkSegYIOUtils::readChar(std::istream& in)
 {
   char buffer;
@@ -148,7 +148,7 @@ char vtkSegYIOUtils::readChar(std::istream& in)
   return buffer;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 unsigned char vtkSegYIOUtils::readUChar(std::istream& in)
 {
   char buffer;
@@ -156,7 +156,7 @@ unsigned char vtkSegYIOUtils::readUChar(std::istream& in)
   return buffer;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSegYIOUtils::swap(char* a, char* b)
 {
   char temp = *a;
@@ -164,7 +164,7 @@ void vtkSegYIOUtils::swap(char* a, char* b)
   *b = temp;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::streamoff vtkSegYIOUtils::getFileSize(std::istream& in)
 {
   in.seekg(0, in.end);

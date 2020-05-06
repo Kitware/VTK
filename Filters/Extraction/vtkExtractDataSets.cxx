@@ -50,19 +50,19 @@ public:
 };
 
 vtkStandardNewMacro(vtkExtractDataSets);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractDataSets::vtkExtractDataSets()
 {
   this->Internals = new vtkInternals();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractDataSets::~vtkExtractDataSets()
 {
   delete this->Internals;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractDataSets::AddDataSet(unsigned int level, unsigned int idx)
 {
   vtkInternals::Node node;
@@ -72,7 +72,7 @@ void vtkExtractDataSets::AddDataSet(unsigned int level, unsigned int idx)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractDataSets::ClearDataSetList()
 {
   this->Internals->Datasets.clear();
@@ -147,7 +147,7 @@ int vtkExtractDataSets::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractDataSets::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

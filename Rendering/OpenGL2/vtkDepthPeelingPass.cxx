@@ -43,7 +43,7 @@ PURPOSE.  See the above copyright notice for more information.
 vtkStandardNewMacro(vtkDepthPeelingPass);
 vtkCxxSetObjectMacro(vtkDepthPeelingPass, TranslucentPass, vtkRenderPass);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDepthPeelingPass::vtkDepthPeelingPass()
   : Framebuffer(nullptr)
 {
@@ -75,7 +75,7 @@ vtkDepthPeelingPass::vtkDepthPeelingPass()
   this->ViewportHeight = 100;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDepthPeelingPass::~vtkDepthPeelingPass()
 {
   if (this->TranslucentPass != nullptr)
@@ -117,7 +117,7 @@ vtkDepthPeelingPass::~vtkDepthPeelingPass()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Destructor. Delete SourceCode if any.
 void vtkDepthPeelingPass::ReleaseGraphicsResources(vtkWindow* w)
@@ -207,7 +207,7 @@ void vtkDepthPeelingPass::SetOpaqueRGBATexture(vtkTextureObject* to)
   this->Modified();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDepthPeelingPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -313,7 +313,7 @@ void vtkDepthPeelingPass::BlendFinalPeel(vtkOpenGLRenderWindow* renWin)
   this->State->vtkglDepthFunc(GL_LEQUAL);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Perform rendering according to a render state \p s.
 // \pre s_exists: s!=0

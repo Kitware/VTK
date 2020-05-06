@@ -26,7 +26,7 @@
 
 vtkStandardNewMacro(vtkExtractTensorComponents);
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 namespace
 {
 vtkDataArray* CreateDataArray(int type, const char* name)
@@ -45,7 +45,7 @@ vtkDataArray* CreateDataArray(int type, const char* name)
 }
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct object to extract nothing and to not pass tensor data
 // through the pipeline.
 vtkExtractTensorComponents::vtkExtractTensorComponents()
@@ -86,7 +86,7 @@ vtkExtractTensorComponents::vtkExtractTensorComponents()
   this->OutputPrecision = vtkAlgorithm::DEFAULT_PRECISION;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Extract data from tensors.
 //
 int vtkExtractTensorComponents::RequestData(vtkInformation* vtkNotUsed(request),
@@ -287,7 +287,7 @@ int vtkExtractTensorComponents::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractTensorComponents::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -46,7 +46,7 @@ typedef Py_intptr_t Py_ssize_t;
 #endif
 #endif
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMatplotlibMathTextUtilities::Availability vtkMatplotlibMathTextUtilities::MPLMathTextAvailable =
   vtkMatplotlibMathTextUtilities::NOT_TESTED;
 
@@ -61,7 +61,7 @@ vtkMatplotlibMathTextUtilities::Availability vtkMatplotlibMathTextUtilities::MPL
 
 vtkObjectFactoryNewMacro(vtkMatplotlibMathTextUtilities);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMatplotlibMathTextUtilities::Availability vtkMatplotlibMathTextUtilities::CheckMPLAvailability()
 {
   if (vtkMatplotlibMathTextUtilities::MPLMathTextAvailable != NOT_TESTED)
@@ -111,13 +111,13 @@ vtkMatplotlibMathTextUtilities::Availability vtkMatplotlibMathTextUtilities::Che
   return vtkMatplotlibMathTextUtilities::MPLMathTextAvailable;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkMatplotlibMathTextUtilities::IsAvailable()
 {
   return this->CheckMPLAvailability() == AVAILABLE;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMatplotlibMathTextUtilities::vtkMatplotlibMathTextUtilities()
   : Superclass()
   , MaskParser(nullptr)
@@ -130,14 +130,14 @@ vtkMatplotlibMathTextUtilities::vtkMatplotlibMathTextUtilities()
     vtkCommand::ExitEvent, this, &vtkMatplotlibMathTextUtilities::CleanupPythonObjects);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMatplotlibMathTextUtilities::~vtkMatplotlibMathTextUtilities()
 {
   this->CleanupPythonObjects();
   this->Interpreter->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMatplotlibMathTextUtilities::CleanupPythonObjects()
 {
   if (Py_IsInitialized())
@@ -153,7 +153,7 @@ void vtkMatplotlibMathTextUtilities::CleanupPythonObjects()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkMatplotlibMathTextUtilities::InitializeMaskParser()
 {
   // ensure that Python is initialized.
@@ -181,7 +181,7 @@ bool vtkMatplotlibMathTextUtilities::InitializeMaskParser()
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkMatplotlibMathTextUtilities::InitializePathParser()
 {
   // ensure that Python is initialized.
@@ -209,7 +209,7 @@ bool vtkMatplotlibMathTextUtilities::InitializePathParser()
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkMatplotlibMathTextUtilities::InitializeFontPropertiesClass()
 {
   // ensure that Python is initialized.
@@ -231,7 +231,7 @@ bool vtkMatplotlibMathTextUtilities::InitializeFontPropertiesClass()
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkMatplotlibMathTextUtilities::CheckForError()
 {
   vtkPythonScopeGilEnsurer gilEnsurer;
@@ -264,7 +264,7 @@ bool vtkMatplotlibMathTextUtilities::CheckForError()
   return false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkMatplotlibMathTextUtilities::CheckForError(PyObject* object)
 {
   // Print any exceptions
@@ -278,7 +278,7 @@ bool vtkMatplotlibMathTextUtilities::CheckForError(PyObject* object)
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 PyObject* vtkMatplotlibMathTextUtilities::GetFontProperties(vtkTextProperty* tprop)
 {
   if (!this->IsAvailable())
@@ -342,7 +342,7 @@ PyObject* vtkMatplotlibMathTextUtilities::GetFontProperties(vtkTextProperty* tpr
     tpropStyle, tpropVariant, tpropWeight, tpropStretch, tpropFontSize);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMatplotlibMathTextUtilities::GetJustifiedBBox(
   int rows, int cols, vtkTextProperty* tprop, int bbox[])
 {
@@ -385,7 +385,7 @@ void vtkMatplotlibMathTextUtilities::GetJustifiedBBox(
   bbox[3] -= justifyOffset[1];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMatplotlibMathTextUtilities::RotateCorners(
   double angleDeg, double corners[4][2], double bbox[4])
 {
@@ -427,7 +427,7 @@ void vtkMatplotlibMathTextUtilities::RotateCorners(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This is more or less ported from vtkFreeTypeTools.
 bool vtkMatplotlibMathTextUtilities::PrepareImageData(vtkImageData* data, int textBbox[4])
 {
@@ -483,7 +483,7 @@ bool vtkMatplotlibMathTextUtilities::PrepareImageData(vtkImageData* data, int te
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkMatplotlibMathTextUtilities::GetBoundingBox(
   vtkTextProperty* tprop, const char* str, int dpi, int bbox[4])
 {
@@ -496,7 +496,7 @@ bool vtkMatplotlibMathTextUtilities::GetBoundingBox(
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkMatplotlibMathTextUtilities::GetMetrics(
   vtkTextProperty* tprop, const char* str, int dpi, vtkTextRenderer::Metrics& metrics)
 {
@@ -578,7 +578,7 @@ bool vtkMatplotlibMathTextUtilities::GetMetrics(
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkMatplotlibMathTextUtilities::RenderString(
   const char* str, vtkImageData* image, vtkTextProperty* tprop, int dpi, int textDims[2])
 {
@@ -793,7 +793,7 @@ bool vtkMatplotlibMathTextUtilities::RenderString(
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkMatplotlibMathTextUtilities::StringToPath(
   const char* str, vtkPath* path, vtkTextProperty* tprop, int dpi)
 {
@@ -1041,7 +1041,7 @@ bool vtkMatplotlibMathTextUtilities::StringToPath(
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMatplotlibMathTextUtilities::SetScaleToPowerOfTwo(bool val)
 {
   if (this->ScaleToPowerOfTwo != val)
@@ -1051,13 +1051,13 @@ void vtkMatplotlibMathTextUtilities::SetScaleToPowerOfTwo(bool val)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkMatplotlibMathTextUtilities::GetScaleToPowerOfTwo()
 {
   return this->ScaleToPowerOfTwo;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMatplotlibMathTextUtilities::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

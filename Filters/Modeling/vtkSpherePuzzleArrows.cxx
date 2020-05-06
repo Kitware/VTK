@@ -26,7 +26,7 @@
 
 vtkStandardNewMacro(vtkSpherePuzzleArrows);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct a new puzzle.
 vtkSpherePuzzleArrows::vtkSpherePuzzleArrows()
 {
@@ -42,11 +42,11 @@ vtkSpherePuzzleArrows::vtkSpherePuzzleArrows()
   this->SetNumberOfInputPorts(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Destruct the puzzle.
 vtkSpherePuzzleArrows::~vtkSpherePuzzleArrows() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSpherePuzzleArrows::SetPermutationComponent(int comp, int val)
 {
   if (this->Permutation[comp] == val)
@@ -58,7 +58,7 @@ void vtkSpherePuzzleArrows::SetPermutationComponent(int comp, int val)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSpherePuzzleArrows::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -88,7 +88,7 @@ int vtkSpherePuzzleArrows::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Draw an arrow for piece with id1 to piece with id2.
 void vtkSpherePuzzleArrows::AppendArrow(int id1, int id2, vtkPoints* pts, vtkCellArray* polys)
 {
@@ -194,13 +194,13 @@ void vtkSpherePuzzleArrows::AppendArrow(int id1, int id2, vtkPoints* pts, vtkCel
   polys->InsertCellPoint(ptId3);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSpherePuzzleArrows::SetPermutation(vtkSpherePuzzle* puz)
 {
   this->SetPermutation(puz->GetState());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSpherePuzzleArrows::PrintSelf(ostream& os, vtkIndent indent)
 {
   int i;

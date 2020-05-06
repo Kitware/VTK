@@ -19,16 +19,16 @@
 
 // This is largely here to confirm the approach works, and will be replaced
 // with standard factory override logic in the modularized source tree.
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkObjectFactoryNewMacro(vtkInteractorStyleSwitchBase);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInteractorStyleSwitchBase::vtkInteractorStyleSwitchBase() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInteractorStyleSwitchBase::~vtkInteractorStyleSwitchBase() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRenderWindowInteractor* vtkInteractorStyleSwitchBase::GetInteractor()
 {
   static bool warned = false;
@@ -40,7 +40,7 @@ vtkRenderWindowInteractor* vtkInteractorStyleSwitchBase::GetInteractor()
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleSwitchBase::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

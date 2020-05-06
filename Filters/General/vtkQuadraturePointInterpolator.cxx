@@ -44,7 +44,7 @@ using std::ostringstream;
 
 vtkStandardNewMacro(vtkQuadraturePointInterpolator);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkQuadraturePointInterpolator::vtkQuadraturePointInterpolator()
 {
   this->Clear();
@@ -52,13 +52,13 @@ vtkQuadraturePointInterpolator::vtkQuadraturePointInterpolator()
   this->SetNumberOfOutputPorts(1);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkQuadraturePointInterpolator::~vtkQuadraturePointInterpolator()
 {
   this->Clear();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkQuadraturePointInterpolator::FillInputPortInformation(int port, vtkInformation* info)
 {
   switch (port)
@@ -70,7 +70,7 @@ int vtkQuadraturePointInterpolator::FillInputPortInformation(int port, vtkInform
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkQuadraturePointInterpolator::FillOutputPortInformation(int port, vtkInformation* info)
 {
   switch (port)
@@ -82,7 +82,7 @@ int vtkQuadraturePointInterpolator::FillOutputPortInformation(int port, vtkInfor
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkQuadraturePointInterpolator::RequestData(
   vtkInformation*, vtkInformationVector** input, vtkInformationVector* output)
 {
@@ -113,13 +113,13 @@ int vtkQuadraturePointInterpolator::RequestData(
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQuadraturePointInterpolator::Clear()
 {
   // Nothing to do
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkQuadraturePointInterpolator::InterpolateFields(vtkUnstructuredGrid* usgOut)
 {
   // Extract info we need for all cells.
@@ -196,7 +196,7 @@ int vtkQuadraturePointInterpolator::InterpolateFields(vtkUnstructuredGrid* usgOu
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQuadraturePointInterpolator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

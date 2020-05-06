@@ -42,7 +42,7 @@ public:
 
 vtkStandardNewMacro(vtkImageCanvasSource2D);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct an instance of vtkImageCanvasSource2D with no data.
 vtkImageCanvasSource2D::vtkImageCanvasSource2D()
 {
@@ -64,7 +64,7 @@ vtkImageCanvasSource2D::vtkImageCanvasSource2D()
   this->Ratio[0] = this->Ratio[1] = this->Ratio[2] = 1.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Destructor: Deleting a vtkImageCanvasSource2D automatically
 // deletes the associated
 // vtkImageData.  However, since the data is reference counted, it may not
@@ -74,7 +74,7 @@ vtkImageCanvasSource2D::~vtkImageCanvasSource2D()
   this->ImageData->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageCanvasSource2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -93,7 +93,7 @@ void vtkImageCanvasSource2D::PrintSelf(ostream& os, vtkIndent indent)
      << ")\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Draw a data.  Only implentented for 2D extents.
 template <class T>
 void vtkImageCanvasSource2DDrawImage(vtkImageData* image, vtkImageData* simage, T* ptr, T* sptr,
@@ -146,7 +146,7 @@ void vtkImageCanvasSource2DDrawImage(vtkImageData* image, vtkImageData* simage, 
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageCanvasSource2D::DrawImage(
   int x0, int y0, vtkImageData* image, int sx, int sy, int width, int height)
 {
@@ -246,7 +246,7 @@ void vtkImageCanvasSource2D::DrawImage(
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Draw a data.  Only implentented for 2D extents.
 template <class T>
 void vtkImageCanvasSource2DFillBox(
@@ -283,7 +283,7 @@ void vtkImageCanvasSource2DFillBox(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Draw a data.  Only implentented for 2D extents.
 void vtkImageCanvasSource2D::FillBox(int min0, int max0, int min1, int max1)
 {
@@ -331,7 +331,7 @@ void vtkImageCanvasSource2D::FillBox(int min0, int max0, int min1, int max1)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Fill a tube (thick line for initial 2D implementation.
 template <class T>
 void vtkImageCanvasSource2DFillTube(
@@ -404,7 +404,7 @@ void vtkImageCanvasSource2DFillTube(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Fill a tube (thick line for initial 2D implementation).
 void vtkImageCanvasSource2D::FillTube(int a0, int a1, int b0, int b1, double radius)
 {
@@ -443,7 +443,7 @@ void vtkImageCanvasSource2D::FillTube(int a0, int a1, int b0, int b1, double rad
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Fill a triangle (rasterize)
 template <class T>
 void vtkImageCanvasSource2DFillTriangle(vtkImageData* image, double* drawColor, T* ptr, int a0,
@@ -569,7 +569,7 @@ void vtkImageCanvasSource2DFillTriangle(vtkImageData* image, double* drawColor, 
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Fill a tube (thick line for initial 2D implementation).
 void vtkImageCanvasSource2D::FillTriangle(int a0, int a1, int b0, int b1, int c0, int c1)
 {
@@ -605,7 +605,7 @@ void vtkImageCanvasSource2D::FillTriangle(int a0, int a1, int b0, int b1, int c0
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Draw a point.  Only implentented for 2D images.
 template <class T>
 void vtkImageCanvasSource2DDrawPoint(
@@ -634,7 +634,7 @@ void vtkImageCanvasSource2DDrawPoint(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Draw a circle
 void vtkImageCanvasSource2D::DrawPoint(int p0, int p1)
 {
@@ -667,7 +667,7 @@ void vtkImageCanvasSource2D::DrawPoint(int p0, int p1)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Draw a circle.  Only implentented for 2D images.
 template <class T>
 void vtkImageCanvasSource2DDrawCircle(
@@ -718,7 +718,7 @@ void vtkImageCanvasSource2DDrawCircle(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Draw a circle
 void vtkImageCanvasSource2D::DrawCircle(int c0, int c1, double radius)
 {
@@ -752,7 +752,7 @@ void vtkImageCanvasSource2D::DrawCircle(int c0, int c1, double radius)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Draw a line.  Only implentented for 2D images.
 // First point is already shifted to origin.
 template <class T>
@@ -835,7 +835,7 @@ void vtkImageCanvasSource2DDrawSegment(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Draw a Segment from point a to point b.
 void vtkImageCanvasSource2D::DrawSegment(int a0, int a1, int b0, int b1)
 {
@@ -888,7 +888,7 @@ void vtkImageCanvasSource2D::DrawSegment(int a0, int a1, int b0, int b1)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Clips a line segment so it will be in bounds.
 // If the entire segment is out of bounds, the method returns 0.
 int vtkImageCanvasSource2D::ClipSegment(int& a0, int& a1, int& b0, int& b1)
@@ -991,7 +991,7 @@ int vtkImageCanvasSource2D::ClipSegment(int& a0, int& a1, int& b0, int& b1)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Draw a line.  Only implentented for 3D images.
 // First point is already shifted to origin.
 template <class T>
@@ -1078,7 +1078,7 @@ void vtkImageCanvasSource2DDrawSegment3D(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Draw a Segment from point a to point b.
 // No clipping or bounds checking.
 void vtkImageCanvasSource2D::DrawSegment3D(double* a, double* b)
@@ -1118,7 +1118,7 @@ void vtkImageCanvasSource2D::DrawSegment3D(double* a, double* b)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T>
 void vtkImageCanvasSource2DFill(vtkImageData* image, double* color, T* ptr, int x, int y)
 {
@@ -1373,7 +1373,7 @@ void vtkImageCanvasSource2DFill(vtkImageData* image, double* color, T* ptr, int 
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Fill a colored area with another color. (like connectivity)
 // All pixels connected to pixel (x, y) get replaced by draw color.
 void vtkImageCanvasSource2D::FillPixel(int x, int y)
@@ -1411,13 +1411,13 @@ void vtkImageCanvasSource2D::FillPixel(int x, int y)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageCanvasSource2D::SetExtent(int* extent)
 {
   this->SetExtent(extent[0], extent[1], extent[2], extent[3], extent[4], extent[5]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageCanvasSource2D::SetExtent(int xMin, int xMax, int yMin, int yMax, int zMin, int zMax)
 {
   int modified = 0;
@@ -1461,7 +1461,7 @@ void vtkImageCanvasSource2D::SetExtent(int xMin, int xMax, int yMin, int yMax, i
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageCanvasSource2D::SetScalarType(int t)
 {
   if (this->ImageData->GetScalarType() != t)
@@ -1471,13 +1471,13 @@ void vtkImageCanvasSource2D::SetScalarType(int t)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageCanvasSource2D::GetScalarType() const
 {
   return this->ImageData->GetScalarType();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageCanvasSource2D::SetNumberOfScalarComponents(int t)
 {
   if (this->ImageData->GetNumberOfScalarComponents() != t)
@@ -1487,13 +1487,13 @@ void vtkImageCanvasSource2D::SetNumberOfScalarComponents(int t)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageCanvasSource2D::GetNumberOfScalarComponents() const
 {
   return this->ImageData->GetNumberOfScalarComponents();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageCanvasSource2D::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -1510,7 +1510,7 @@ int vtkImageCanvasSource2D::RequestInformation(vtkInformation* vtkNotUsed(reques
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageCanvasSource2D::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -1524,7 +1524,7 @@ int vtkImageCanvasSource2D::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageCanvasSource2D::InitializeCanvasVolume(vtkImageData* volume)
 {
   if (!volume)

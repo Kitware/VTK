@@ -34,18 +34,18 @@
 #include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //                       Functions for Parsing File Names
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 static std::string GetEnzoMajorFileName(const char* path)
 {
   return (vtksys::SystemTools::GetFilenameName(std::string(path)));
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //                       Class vtkEnzoReaderBlock (begin)
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 void vtkEnzoReaderBlock::Init()
 {
@@ -274,13 +274,13 @@ void vtkEnzoReaderBlock::GetLevelBasedIds(std::vector<vtkEnzoReaderBlock>& block
   }
 }
 //------------------------------------------------------------------------------
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //                       Class vtkEnzoReaderBlock ( end )
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //                     Class  vtkEnzoReaderInternal (begin)
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkEnzoReaderInternal::vtkEnzoReaderInternal()
 {
@@ -581,7 +581,7 @@ int vtkEnzoReaderInternal::LoadAttribute(const char* attribute, int blockIdx)
 }
 
 //------------------------------------------------------------------------------
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // parse the hierarchy file to create block structures, including the bounding
 // box, cell dimensions, grid / node dimensions, number of particles, level Id,
 // block file name, and particle file name of each block
@@ -812,7 +812,7 @@ void vtkEnzoReaderInternal::ReadBlockStructures()
 }
 
 //------------------------------------------------------------------------------
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // obtain the general information of the dataset (number of dimensions)
 void vtkEnzoReaderInternal::ReadGeneralParameters()
 {
@@ -849,7 +849,7 @@ void vtkEnzoReaderInternal::ReadGeneralParameters()
 }
 
 //------------------------------------------------------------------------------
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // get the bounding box of the root block based on those of its descendants
 void vtkEnzoReaderInternal::DetermineRootBoundingBox()
 {
@@ -871,7 +871,7 @@ void vtkEnzoReaderInternal::DetermineRootBoundingBox()
 }
 
 //------------------------------------------------------------------------------
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // perform an initial collection of attribute names (for block and particles)
 void vtkEnzoReaderInternal::GetAttributeNames()
 {
@@ -985,7 +985,7 @@ void vtkEnzoReaderInternal::GetAttributeNames()
   H5Fclose(fileIndx);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This function checks the block attributes, of which some might be actually
 // particle attributes since a flexible (not standard) attributes naming scheme
 // (such as the one adopted in cosmological datasets) causes this Enzo reader,
@@ -1085,7 +1085,7 @@ void vtkEnzoReaderInternal::CheckAttributeNames()
   toExport.clear();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // get the meta data
 void vtkEnzoReaderInternal::ReadMetaData()
 {

@@ -33,7 +33,7 @@ vtkSmartPointer<vtkHexagonalPrism> MakeHexagonalPrism();
 template <typename T>
 int TestCell(const VTKCellType cellType, vtkSmartPointer<T> cell);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestPentagonalPrism(int, char*[])
 {
   std::map<std::string, int> results;

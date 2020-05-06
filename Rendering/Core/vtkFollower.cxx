@@ -30,7 +30,7 @@ vtkStandardNewMacro(vtkFollower);
 
 vtkCxxSetObjectMacro(vtkFollower, Camera, vtkCamera);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Creates a follower with no camera set
 vtkFollower::vtkFollower()
 {
@@ -40,7 +40,7 @@ vtkFollower::vtkFollower()
   this->InternalMatrix = vtkMatrix4x4::New();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFollower::~vtkFollower()
 {
   if (this->Camera)
@@ -53,7 +53,7 @@ vtkFollower::~vtkFollower()
   this->InternalMatrix->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFollower::ComputeMatrix()
 {
   // check whether or not need to rebuild the matrix
@@ -153,7 +153,7 @@ void vtkFollower::ComputeMatrix()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFollower::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -169,7 +169,7 @@ void vtkFollower::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkFollower::RenderOpaqueGeometry(vtkViewport* vp)
 {
   if (!this->Mapper)
@@ -192,7 +192,7 @@ int vtkFollower::RenderOpaqueGeometry(vtkViewport* vp)
   return 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkFollower::RenderTranslucentPolygonalGeometry(vtkViewport* vp)
 {
   if (!this->Mapper)
@@ -215,14 +215,14 @@ int vtkFollower::RenderTranslucentPolygonalGeometry(vtkViewport* vp)
   return 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFollower::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->Device->ReleaseGraphicsResources(w);
   this->Superclass::ReleaseGraphicsResources(w);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry?
 vtkTypeBool vtkFollower::HasTranslucentPolygonalGeometry()
@@ -242,7 +242,7 @@ vtkTypeBool vtkFollower::HasTranslucentPolygonalGeometry()
   return !this->GetIsOpaque();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This causes the actor to be rendered. It, in turn, will render the actor's
 // property and then mapper.
 void vtkFollower::Render(vtkRenderer* ren)
@@ -274,7 +274,7 @@ void vtkFollower::Render(vtkRenderer* ren)
   this->Device->Render(ren, this->Mapper);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFollower::ShallowCopy(vtkProp* prop)
 {
   vtkFollower* f = vtkFollower::SafeDownCast(prop);

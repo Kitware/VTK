@@ -45,7 +45,7 @@
 
 vtkStandardNewMacro(vtkCenteredSliderRepresentation);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCenteredSliderRepresentation::vtkCenteredSliderRepresentation()
 {
   // The coordinates defining the slider
@@ -242,7 +242,7 @@ void vtkCenteredSliderRepresentation::BuildTube()
   colors->SetTypedTuple(this->ArcCount * 2 + 11, col);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCenteredSliderRepresentation::~vtkCenteredSliderRepresentation()
 {
   this->Point1Coordinate->Delete();
@@ -271,7 +271,7 @@ vtkCenteredSliderRepresentation::~vtkCenteredSliderRepresentation()
   this->LabelActor->Delete();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCoordinate* vtkCenteredSliderRepresentation::GetPoint1Coordinate()
 {
   return this->Point1Coordinate;
@@ -282,7 +282,7 @@ void vtkCenteredSliderRepresentation::StartWidgetInteraction(double eventPos[2])
   this->ComputeInteractionState(static_cast<int>(eventPos[0]), static_cast<int>(eventPos[1]));
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCenteredSliderRepresentation::ComputeInteractionState(int x, int y, int /*modify*/)
 {
   // where is the pick
@@ -339,7 +339,7 @@ int vtkCenteredSliderRepresentation::ComputeInteractionState(int x, int y, int /
   return this->InteractionState;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCenteredSliderRepresentation::WidgetInteraction(double eventPos[2])
 {
   double t = this->ComputePickPosition(eventPos[0], eventPos[1]);
@@ -347,20 +347,20 @@ void vtkCenteredSliderRepresentation::WidgetInteraction(double eventPos[2])
   this->BuildRepresentation();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCoordinate* vtkCenteredSliderRepresentation::GetPoint2Coordinate()
 {
   return this->Point2Coordinate;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCenteredSliderRepresentation::PlaceWidget(double* vtkNotUsed(bds[6]))
 {
   // Position the handles at the end of the lines
   this->BuildRepresentation();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkCenteredSliderRepresentation ::ComputePickPosition(double /* x */, double y)
 {
   // where is the pick
@@ -376,7 +376,7 @@ double vtkCenteredSliderRepresentation ::ComputePickPosition(double /* x */, dou
   return this->PickedT;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCenteredSliderRepresentation::Highlight(int highlight)
 {
   if (highlight)
@@ -390,7 +390,7 @@ void vtkCenteredSliderRepresentation::Highlight(int highlight)
   this->HighlightState = highlight;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCenteredSliderRepresentation::BuildRepresentation()
 {
   if (this->GetMTime() <= this->BuildTime &&
@@ -434,7 +434,7 @@ void vtkCenteredSliderRepresentation::BuildRepresentation()
   this->BuildTime.Modified();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCenteredSliderRepresentation::GetActors(vtkPropCollection* pc)
 {
   pc->AddItem(this->TubeActor);
@@ -442,7 +442,7 @@ void vtkCenteredSliderRepresentation::GetActors(vtkPropCollection* pc)
   pc->AddItem(this->LabelActor);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCenteredSliderRepresentation::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->TubeActor->ReleaseGraphicsResources(w);
@@ -450,7 +450,7 @@ void vtkCenteredSliderRepresentation::ReleaseGraphicsResources(vtkWindow* w)
   this->SliderActor->ReleaseGraphicsResources(w);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCenteredSliderRepresentation::RenderOpaqueGeometry(vtkViewport* viewport)
 {
   this->BuildRepresentation();
@@ -463,7 +463,7 @@ int vtkCenteredSliderRepresentation::RenderOpaqueGeometry(vtkViewport* viewport)
   return count;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCenteredSliderRepresentation::RenderOverlay(vtkViewport* viewport)
 {
   this->BuildRepresentation();
@@ -476,7 +476,7 @@ int vtkCenteredSliderRepresentation::RenderOverlay(vtkViewport* viewport)
   return count;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCenteredSliderRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
@@ -539,7 +539,7 @@ void vtkCenteredSliderRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCenteredSliderRepresentation::SetTitleText(const char* label)
 {
   this->LabelActor->SetInput(label);
@@ -549,7 +549,7 @@ void vtkCenteredSliderRepresentation::SetTitleText(const char* label)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkCenteredSliderRepresentation::GetTitleText()
 {
   return this->LabelActor->GetInput();

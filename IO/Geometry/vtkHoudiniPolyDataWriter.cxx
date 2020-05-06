@@ -284,19 +284,19 @@ void AddAttribute(Attributes& atts, vtkAbstractArray* array)
 }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHoudiniPolyDataWriter::vtkHoudiniPolyDataWriter()
 {
   this->FileName = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHoudiniPolyDataWriter::~vtkHoudiniPolyDataWriter()
 {
   this->SetFileName(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHoudiniPolyDataWriter::WriteData()
 {
   // Grab the input data
@@ -567,14 +567,14 @@ void vtkHoudiniPolyDataWriter::WriteData()
   file.close();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkHoudiniPolyDataWriter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHoudiniPolyDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

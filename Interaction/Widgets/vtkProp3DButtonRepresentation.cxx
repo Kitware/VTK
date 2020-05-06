@@ -51,7 +51,7 @@ class vtkPropArray : public std::map<int, vtkScaledProp>
 };
 typedef std::map<int, vtkScaledProp>::iterator vtkPropArrayIterator;
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProp3DButtonRepresentation::vtkProp3DButtonRepresentation()
 {
   // Current button representation
@@ -68,7 +68,7 @@ vtkProp3DButtonRepresentation::vtkProp3DButtonRepresentation()
   this->Picker->PickFromListOn();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProp3DButtonRepresentation::~vtkProp3DButtonRepresentation()
 {
   this->Follower->Delete();
@@ -78,7 +78,7 @@ vtkProp3DButtonRepresentation::~vtkProp3DButtonRepresentation()
   this->Picker->Delete();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProp3DButtonRepresentation::SetState(int state)
 {
   this->Superclass::SetState(state);
@@ -93,7 +93,7 @@ void vtkProp3DButtonRepresentation::SetState(int state)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProp3DButtonRepresentation::SetButtonProp(int i, vtkProp3D* prop)
 {
   if (i < 0)
@@ -111,7 +111,7 @@ void vtkProp3DButtonRepresentation::SetButtonProp(int i, vtkProp3D* prop)
   (*this->PropArray)[i] = sprop;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProp3D* vtkProp3DButtonRepresentation::GetButtonProp(int i)
 {
   if (i < 0)
@@ -145,7 +145,7 @@ void vtkProp3DButtonRepresentation::RegisterPickers()
   pm->AddPicker(this->Picker, this);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProp3DButtonRepresentation::PlaceWidget(double bds[6])
 {
   double bounds[6], center[3], aBds[6], aCenter[3];
@@ -200,7 +200,7 @@ void vtkProp3DButtonRepresentation::PlaceWidget(double bds[6])
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkProp3DButtonRepresentation ::ComputeInteractionState(int X, int Y, int vtkNotUsed(modify))
 {
   this->InteractionState = vtkButtonRepresentation::Outside;
@@ -220,7 +220,7 @@ int vtkProp3DButtonRepresentation ::ComputeInteractionState(int X, int Y, int vt
   return this->InteractionState;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProp3DButtonRepresentation::BuildRepresentation()
 {
   // The net effect is to resize the handle
@@ -255,7 +255,7 @@ void vtkProp3DButtonRepresentation::BuildRepresentation()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProp3DButtonRepresentation::ShallowCopy(vtkProp* prop)
 {
   vtkProp3DButtonRepresentation* rep = vtkProp3DButtonRepresentation::SafeDownCast(prop);
@@ -272,13 +272,13 @@ void vtkProp3DButtonRepresentation::ShallowCopy(vtkProp* prop)
   this->Superclass::ShallowCopy(prop);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProp3DButtonRepresentation::ReleaseGraphicsResources(vtkWindow* win)
 {
   this->Follower->ReleaseGraphicsResources(win);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkProp3DButtonRepresentation::RenderVolumetricGeometry(vtkViewport* viewport)
 {
   this->BuildRepresentation();
@@ -298,7 +298,7 @@ int vtkProp3DButtonRepresentation::RenderVolumetricGeometry(vtkViewport* viewpor
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkProp3DButtonRepresentation::RenderOpaqueGeometry(vtkViewport* viewport)
 {
   this->BuildRepresentation();
@@ -318,7 +318,7 @@ int vtkProp3DButtonRepresentation::RenderOpaqueGeometry(vtkViewport* viewport)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkProp3DButtonRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport* viewport)
 {
   this->BuildRepresentation();
@@ -337,7 +337,7 @@ int vtkProp3DButtonRepresentation::RenderTranslucentPolygonalGeometry(vtkViewpor
     return this->CurrentProp->RenderTranslucentPolygonalGeometry(viewport);
   }
 }
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkProp3DButtonRepresentation::HasTranslucentPolygonalGeometry()
 {
   this->BuildRepresentation();
@@ -352,7 +352,7 @@ vtkTypeBool vtkProp3DButtonRepresentation::HasTranslucentPolygonalGeometry()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkProp3DButtonRepresentation::GetBounds()
 {
   if (!this->CurrentProp)
@@ -370,7 +370,7 @@ double* vtkProp3DButtonRepresentation::GetBounds()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProp3DButtonRepresentation::GetActors(vtkPropCollection* pc)
 {
   if (this->CurrentProp)
@@ -379,7 +379,7 @@ void vtkProp3DButtonRepresentation::GetActors(vtkPropCollection* pc)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProp3DButtonRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h

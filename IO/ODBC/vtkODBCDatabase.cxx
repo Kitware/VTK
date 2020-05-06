@@ -47,10 +47,10 @@
 #include <sql.h>
 #include <sqlext.h>
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkODBCDatabase);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static vtkStdString GetErrorMessage(SQLSMALLINT handleType, SQLHANDLE handle, int* code = 0)
 {
   SQLINTEGER sqlNativeCode = 0;
@@ -92,7 +92,7 @@ static vtkStdString GetErrorMessage(SQLSMALLINT handleType, SQLHANDLE handle, in
   return vtkStdString(messagebuf.str());
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // COLUMN is zero-indexed but ODBC indexes from 1.  Sigh.  Aren't
 // standards fun?
 //
@@ -162,7 +162,7 @@ static vtkStdString odbcGetString(SQLHANDLE statement, int column, int columnSiz
   return returnString;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkODBCDatabase::vtkODBCDatabase()
 {
   this->Internals = new vtkODBCInternals;
@@ -189,7 +189,7 @@ vtkODBCDatabase::vtkODBCDatabase()
   this->SetDatabaseType("ODBC");
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkODBCDatabase::~vtkODBCDatabase()
 {
   if (this->IsOpen())
@@ -212,7 +212,7 @@ vtkODBCDatabase::~vtkODBCDatabase()
   this->Record->UnRegister(this);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkODBCDatabase::IsSupported(int feature)
 {
   switch (feature)
@@ -247,7 +247,7 @@ bool vtkODBCDatabase::IsSupported(int feature)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkODBCDatabase::Open(const char* password)
 {
   if (!this->DataSourceName)
@@ -374,7 +374,7 @@ bool vtkODBCDatabase::Open(const char* password)
   return true;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkODBCDatabase::Close()
 {
   if (!this->IsOpen())
@@ -412,13 +412,13 @@ void vtkODBCDatabase::Close()
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkODBCDatabase::IsOpen()
 {
   return (this->Internals->Connection != SQL_NULL_HDBC);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSQLQuery* vtkODBCDatabase::GetQueryInstance()
 {
   vtkODBCQuery* query = vtkODBCQuery::New();
@@ -426,13 +426,13 @@ vtkSQLQuery* vtkODBCDatabase::GetQueryInstance()
   return query;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkODBCDatabase::GetLastErrorText()
 {
   return this->LastErrorText;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStringArray* vtkODBCDatabase::GetTables()
 {
   this->Tables->Resize(0);
@@ -485,7 +485,7 @@ vtkStringArray* vtkODBCDatabase::GetTables()
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStringArray* vtkODBCDatabase::GetRecord(const char* table)
 {
   this->Record->Reset();
@@ -566,7 +566,7 @@ vtkStringArray* vtkODBCDatabase::GetRecord(const char* table)
   return this->Record;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkODBCDatabase::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -623,19 +623,19 @@ void vtkODBCDatabase::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "DatabaseType: " << (this->DatabaseType ? this->DatabaseType : "nullptr") << endl;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkODBCDatabase::HasError()
 {
   return this->LastErrorText != nullptr;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStdString vtkODBCDatabase::GetURL()
 {
   return vtkStdString("GetURL on ODBC databases is not yet implemented");
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkODBCDatabase::ParseURL(const char* URL)
 {
   std::string urlstr(URL ? URL : "");
@@ -666,7 +666,7 @@ bool vtkODBCDatabase::ParseURL(const char* URL)
   return false;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStdString vtkODBCDatabase::GetColumnSpecification(
   vtkSQLDatabaseSchema* schema, int tblHandle, int colHandle)
 {
@@ -799,7 +799,7 @@ vtkStdString vtkODBCDatabase::GetColumnSpecification(
   return queryStr.str();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStdString vtkODBCDatabase::GetIndexSpecification(
   vtkSQLDatabaseSchema* schema, int tblHandle, int idxHandle, bool& skipped)
 {
@@ -858,7 +858,7 @@ vtkStdString vtkODBCDatabase::GetIndexSpecification(
   return queryStr;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkODBCDatabase::CreateDatabase(const char* dbName, bool dropExisting = false)
 {
   if (dropExisting)
@@ -878,7 +878,7 @@ bool vtkODBCDatabase::CreateDatabase(const char* dbName, bool dropExisting = fal
   return status;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkODBCDatabase::DropDatabase(const char* dbName)
 {
   vtkStdString queryStr;

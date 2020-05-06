@@ -26,19 +26,19 @@ vtkStandardNewMacro(vtkDataObjectReader);
 vtkDataObjectReader::vtkDataObjectReader() = default;
 vtkDataObjectReader::~vtkDataObjectReader() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject* vtkDataObjectReader::GetOutput()
 {
   return this->GetOutput(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject* vtkDataObjectReader::GetOutput(int port)
 {
   return vtkDataObject::SafeDownCast(this->GetOutputDataObject(port));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObjectReader::SetOutput(vtkDataObject* output)
 {
   this->GetExecutive()->SetOutputData(0, output);

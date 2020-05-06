@@ -18,20 +18,20 @@
 
 vtkAbstractObjectFactoryNewMacro(vtkAbstractContextBufferId);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAbstractContextBufferId::vtkAbstractContextBufferId()
 {
   this->Width = 0;
   this->Height = 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAbstractContextBufferId::~vtkAbstractContextBufferId() = default;
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractContextBufferId::ReleaseGraphicsResources() {}
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractContextBufferId::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

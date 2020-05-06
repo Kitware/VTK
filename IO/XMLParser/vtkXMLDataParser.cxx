@@ -38,7 +38,7 @@
 vtkStandardNewMacro(vtkXMLDataParser);
 vtkCxxSetObjectMacro(vtkXMLDataParser, Compressor, vtkDataCompressor);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLDataParser::vtkXMLDataParser()
 {
   this->NumberOfOpenElements = 0;
@@ -78,7 +78,7 @@ vtkXMLDataParser::vtkXMLDataParser()
   this->IgnoreCharacterData = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLDataParser::~vtkXMLDataParser()
 {
   this->FreeAllElements();
@@ -94,7 +94,7 @@ vtkXMLDataParser::~vtkXMLDataParser()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLDataParser::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -116,7 +116,7 @@ void vtkXMLDataParser::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "AttributesEncoding: " << this->AttributesEncoding << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLDataParser::Parse()
 {
   // Delete any elements left from previous parsing.
@@ -134,21 +134,21 @@ int vtkXMLDataParser::Parse()
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLDataParser::Parse(const char*)
 {
   vtkErrorMacro("Parsing from a string is not supported.");
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLDataParser::Parse(const char*, unsigned int)
 {
   vtkErrorMacro("Parsing from a string is not supported.");
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLDataParser::StartElement(const char* name, const char** atts)
 {
   vtkXMLDataElement* element = vtkXMLDataElement::New();
@@ -178,7 +178,7 @@ void vtkXMLDataParser::StartElement(const char* name, const char** atts)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLDataParser::SeekInlineDataPosition(vtkXMLDataElement* element)
 {
   istream* stream = this->GetStream();
@@ -205,7 +205,7 @@ void vtkXMLDataParser::SeekInlineDataPosition(vtkXMLDataElement* element)
   this->SeekG(element->GetInlineDataPosition());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLDataParser::EndElement(const char*)
 {
   vtkXMLDataElement* finished = this->PopOpenElement();
@@ -221,7 +221,7 @@ void vtkXMLDataParser::EndElement(const char*)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLDataParser::ParsingComplete()
 {
   // If we have reached the appended data section, we stop parsing.
@@ -234,7 +234,7 @@ int vtkXMLDataParser::ParsingComplete()
   return this->Superclass::ParsingComplete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLDataParser::CheckPrimaryAttributes()
 {
   const char* byte_order = this->RootElement->GetAttribute("byte_order");
@@ -273,7 +273,7 @@ int vtkXMLDataParser::CheckPrimaryAttributes()
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLDataParser::FindAppendedDataPosition()
 {
   // Clear stream fail and eof bits.  We may have already read past
@@ -313,7 +313,7 @@ void vtkXMLDataParser::FindAppendedDataPosition()
   this->SeekG(returnPosition);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLDataParser::PushOpenElement(vtkXMLDataElement* element)
 {
   if (this->NumberOfOpenElements == this->OpenElementsSize)
@@ -334,7 +334,7 @@ void vtkXMLDataParser::PushOpenElement(vtkXMLDataElement* element)
   this->OpenElements[pos] = element;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLDataElement* vtkXMLDataParser::PopOpenElement()
 {
   if (this->NumberOfOpenElements > 0)
@@ -345,7 +345,7 @@ vtkXMLDataElement* vtkXMLDataParser::PopOpenElement()
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLDataParser::FreeAllElements()
 {
   while (this->NumberOfOpenElements > 0)
@@ -361,7 +361,7 @@ void vtkXMLDataParser::FreeAllElements()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLDataParser::ParseBuffer(const char* buffer, unsigned int count)
 {
   // Parsing must stop when "<AppendedData" is reached.  Use a search
@@ -453,14 +453,14 @@ int vtkXMLDataParser::ParseBuffer(const char* buffer, unsigned int count)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T>
 size_t vtkXMLDataParserGetWordTypeSize(T*)
 {
   return sizeof(T);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 size_t vtkXMLDataParser::GetWordTypeSize(int wordType)
 {
   size_t size = 1;
@@ -481,7 +481,7 @@ size_t vtkXMLDataParser::GetWordTypeSize(int wordType)
   return size;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLDataParser::PerformByteSwap(void* data, size_t numWords, size_t wordSize)
 {
   char* ptr = static_cast<char*>(data);
@@ -525,7 +525,7 @@ void vtkXMLDataParser::PerformByteSwap(void* data, size_t numWords, size_t wordS
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLDataParser::ReadCompressionHeader()
 {
   std::unique_ptr<vtkXMLDataHeader> ch(vtkXMLDataHeader::New(this->HeaderType, 3));
@@ -588,7 +588,7 @@ int vtkXMLDataParser::ReadCompressionHeader()
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 size_t vtkXMLDataParser::FindBlockSize(vtkTypeUInt64 block)
 {
   if (block < this->NumberOfBlocks - (this->PartialLastBlockUncompressedSize ? 1 : 0))
@@ -601,7 +601,7 @@ size_t vtkXMLDataParser::FindBlockSize(vtkTypeUInt64 block)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLDataParser::ReadBlock(vtkTypeUInt64 block, unsigned char* buffer)
 {
   size_t uncompressedSize = this->FindBlockSize(block);
@@ -627,7 +627,7 @@ int vtkXMLDataParser::ReadBlock(vtkTypeUInt64 block, unsigned char* buffer)
   return result > 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 unsigned char* vtkXMLDataParser::ReadBlock(vtkTypeUInt64 block)
 {
   unsigned char* decompressBuffer = new unsigned char[this->FindBlockSize(block)];
@@ -639,7 +639,7 @@ unsigned char* vtkXMLDataParser::ReadBlock(vtkTypeUInt64 block)
   return decompressBuffer;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 size_t vtkXMLDataParser::ReadUncompressedData(
   unsigned char* data, vtkTypeUInt64 startWord, size_t numWords, size_t wordSize)
 {
@@ -714,7 +714,7 @@ size_t vtkXMLDataParser::ReadUncompressedData(
   return length / wordSize;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 size_t vtkXMLDataParser::ReadCompressedData(
   unsigned char* data, vtkTypeUInt64 startWord, size_t numWords, size_t wordSize)
 {
@@ -853,13 +853,13 @@ size_t vtkXMLDataParser::ReadCompressedData(
   return (endOffset - beginOffset) / wordSize;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLDataElement* vtkXMLDataParser::GetRootElement()
 {
   return this->RootElement;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 size_t vtkXMLDataParser::ReadBinaryData(
   void* in_buffer, vtkTypeUInt64 startWord, size_t numWords, int wordType)
 {
@@ -900,7 +900,7 @@ size_t vtkXMLDataParser::ReadBinaryData(
   return this->Abort ? 0 : actualWords;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 size_t vtkXMLDataParser::ReadAsciiData(
   void* buffer, vtkTypeUInt64 startWord, size_t numWords, int wordType)
 {
@@ -948,7 +948,7 @@ size_t vtkXMLDataParser::ReadAsciiData(
   return this->Abort ? 0 : actualWords;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 size_t vtkXMLDataParser::ReadInlineData(vtkXMLDataElement* element, int isAscii, void* buffer,
   vtkTypeUInt64 startWord, size_t numWords, int wordType)
 {
@@ -964,7 +964,7 @@ size_t vtkXMLDataParser::ReadInlineData(vtkXMLDataElement* element, int isAscii,
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 size_t vtkXMLDataParser::ReadAppendedData(
   vtkTypeInt64 offset, void* buffer, vtkTypeUInt64 startWord, size_t numWords, int wordType)
 {
@@ -973,8 +973,8 @@ size_t vtkXMLDataParser::ReadAppendedData(
   return this->ReadBinaryData(buffer, startWord, numWords, wordType);
 }
 
-//----------------------------------------------------------------------------
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Define a parsing function template.  The extra "long" argument is used
 // to help broken compilers select the non-templates below for char and
 // unsigned char, and float/double by making them a better conversion than
@@ -1010,7 +1010,7 @@ T* vtkXMLParseAsciiData(istream& is, int* length, T*, long)
   return dataBuffer;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static float* vtkXMLParseAsciiData(istream& is, int* length, float*, int)
 {
   int dataLength = 0;
@@ -1065,7 +1065,7 @@ static float* vtkXMLParseAsciiData(istream& is, int* length, float*, int)
   return dataBuffer;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static double* vtkXMLParseAsciiData(istream& is, int* length, double*, int)
 {
   int dataLength = 0;
@@ -1120,7 +1120,7 @@ static double* vtkXMLParseAsciiData(istream& is, int* length, double*, int)
   return dataBuffer;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static char* vtkXMLParseAsciiData(istream& is, int* length, char*, int)
 {
   int dataLength = 0;
@@ -1153,7 +1153,7 @@ static char* vtkXMLParseAsciiData(istream& is, int* length, char*, int)
   return dataBuffer;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static unsigned char* vtkXMLParseAsciiData(istream& is, int* length, unsigned char*, int)
 {
   int dataLength = 0;
@@ -1186,7 +1186,7 @@ static unsigned char* vtkXMLParseAsciiData(istream& is, int* length, unsigned ch
   return dataBuffer;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static signed char* vtkXMLParseAsciiData(istream& is, int* length, signed char*, int)
 {
   int dataLength = 0;
@@ -1219,7 +1219,7 @@ static signed char* vtkXMLParseAsciiData(istream& is, int* length, signed char*,
   return dataBuffer;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static unsigned char* vtkXMLParseAsciiBitData(istream& is, int* length)
 {
   size_t arrayCapacity = 64; // capacity in bytes
@@ -1274,7 +1274,7 @@ static unsigned char* vtkXMLParseAsciiBitData(istream& is, int* length)
   return array;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLDataParser::ParseAsciiData(int wordType)
 {
   istream& is = *(this->Stream);
@@ -1314,14 +1314,14 @@ int vtkXMLDataParser::ParseAsciiData(int wordType)
   return (this->AsciiDataBuffer ? 1 : 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T>
 void vtkXMLDataParserFreeAsciiBuffer(T* buffer)
 {
   delete[] buffer;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLDataParser::FreeAsciiBuffer()
 {
   void* buffer = this->AsciiDataBuffer;
@@ -1336,7 +1336,7 @@ void vtkXMLDataParser::FreeAsciiBuffer()
   this->AsciiDataBuffer = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLDataParser::UpdateProgress(float progress)
 {
   this->Progress = progress;

@@ -46,7 +46,7 @@ vtkStandardNewMacro(vtkCollectGraph);
 vtkCxxSetObjectMacro(vtkCollectGraph, Controller, vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkCollectGraph, SocketController, vtkSocketController);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCollectGraph::vtkCollectGraph()
 {
   this->PassThrough = 0;
@@ -62,14 +62,14 @@ vtkCollectGraph::vtkCollectGraph()
   this->OutputType = USE_INPUT_TYPE;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCollectGraph::~vtkCollectGraph()
 {
   this->SetController(nullptr);
   this->SetSocketController(nullptr);
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCollectGraph::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -87,7 +87,7 @@ int vtkCollectGraph::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCollectGraph::RequestDataObject(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -117,7 +117,7 @@ int vtkCollectGraph::RequestDataObject(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCollectGraph::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -378,7 +378,7 @@ int vtkCollectGraph::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCollectGraph::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

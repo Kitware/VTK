@@ -28,17 +28,17 @@
 
 #include <vector>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // class vtkUndirectedGraph
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkUndirectedGraph);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUndirectedGraph::vtkUndirectedGraph() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUndirectedGraph::~vtkUndirectedGraph() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkUndirectedGraph::GetInEdges(vtkIdType v, const vtkInEdgeType*& edges, vtkIdType& nedges)
 {
   const vtkOutEdgeType* outEdges;
@@ -46,7 +46,7 @@ void vtkUndirectedGraph::GetInEdges(vtkIdType v, const vtkInEdgeType*& edges, vt
   edges = reinterpret_cast<const vtkInEdgeType*>(outEdges);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInEdgeType vtkUndirectedGraph::GetInEdge(vtkIdType v, vtkIdType i)
 {
   vtkOutEdgeType oe = this->GetOutEdge(v, i);
@@ -54,25 +54,25 @@ vtkInEdgeType vtkUndirectedGraph::GetInEdge(vtkIdType v, vtkIdType i)
   return ie;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkUndirectedGraph::GetInDegree(vtkIdType v)
 {
   return this->GetOutDegree(v);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUndirectedGraph* vtkUndirectedGraph::GetData(vtkInformation* info)
 {
   return info ? vtkUndirectedGraph::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUndirectedGraph* vtkUndirectedGraph::GetData(vtkInformationVector* v, int i)
 {
   return vtkUndirectedGraph::GetData(v->GetInformationObject(i));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkUndirectedGraph::IsStructureValid(vtkGraph* g)
 {
   if (!g)
@@ -125,7 +125,7 @@ bool vtkUndirectedGraph::IsStructureValid(vtkGraph* g)
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkUndirectedGraph::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

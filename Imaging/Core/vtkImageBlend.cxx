@@ -27,7 +27,7 @@
 
 vtkStandardNewMacro(vtkImageBlend);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageBlend::vtkImageBlend()
 {
   this->Opacity = nullptr;
@@ -41,14 +41,14 @@ vtkImageBlend::vtkImageBlend()
   this->SetNumberOfInputPorts(2);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageBlend::~vtkImageBlend()
 {
   delete[] this->Opacity;
   this->OpacityArrayLength = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageBlend::ReplaceNthInputConnection(int idx, vtkAlgorithmOutput* input)
 {
   if (idx < 0 || idx >= this->GetNumberOfInputConnections(0))
@@ -70,7 +70,7 @@ void vtkImageBlend::ReplaceNthInputConnection(int idx, vtkAlgorithmOutput* input
   this->SetNthInputConnection(0, idx, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The default vtkImageAlgorithm semantics are that SetInput() puts
 // each input on a different port, we want all the image inputs to
 // go on the first port.
@@ -79,7 +79,7 @@ void vtkImageBlend::SetInputData(int idx, vtkDataObject* input)
   this->SetInputDataInternal(idx, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject* vtkImageBlend::GetInput(int idx)
 {
   if (this->GetNumberOfInputConnections(0) <= idx)
@@ -89,18 +89,18 @@ vtkDataObject* vtkImageBlend::GetInput(int idx)
   return vtkImageData::SafeDownCast(this->GetExecutive()->GetInputData(0, idx));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageBlend::SetStencilConnection(vtkAlgorithmOutput* algOutput)
 {
   this->SetInputConnection(1, algOutput);
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageBlend::SetStencilData(vtkImageStencilData* stencil)
 {
   this->SetInputDataInternal(1, stencil);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageStencilData* vtkImageBlend::GetStencil()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
@@ -110,7 +110,7 @@ vtkImageStencilData* vtkImageBlend::GetStencil()
   return vtkImageStencilData::SafeDownCast(this->GetExecutive()->GetInputData(1, 0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageBlend::SetOpacity(int idx, double opacity)
 {
   int i;
@@ -150,7 +150,7 @@ void vtkImageBlend::SetOpacity(int idx, double opacity)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkImageBlend::GetOpacity(int idx)
 {
   if (idx >= this->OpacityArrayLength)
@@ -160,7 +160,7 @@ double vtkImageBlend::GetOpacity(int idx)
   return this->Opacity[idx];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method computes the extent of the input region necessary to generate
 // an output region.  Before this method is called "region" should have the
 // extent of the output region.  After this method finishes, "region" should
@@ -188,7 +188,7 @@ void vtkImageBlend::InternalComputeInputUpdateExtent(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageBlend::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -212,7 +212,7 @@ int vtkImageBlend::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageBlend::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -245,7 +245,7 @@ int vtkImageBlend::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 template <class T>
 void vtkImageBlendExecute(vtkImageBlend* self, int extent[6], vtkImageData* inData, T*,
@@ -396,7 +396,7 @@ void vtkImageBlendExecute(vtkImageBlend* self, int extent[6], vtkImageData* inDa
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This templated function executes the filter specifically for char data
 template <class T>
 void vtkImageBlendExecuteChar(vtkImageBlend* self, int extent[6], vtkImageData* inData, T*,
@@ -569,9 +569,9 @@ void vtkImageBlendExecuteChar(vtkImageBlend* self, int extent[6], vtkImageData* 
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This function simply does a copy (for the first input)
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static void vtkImageBlendCopyData(vtkImageData* inData, vtkImageData* outData, int* ext)
 {
   int idxY, idxZ, maxY, maxZ;
@@ -610,7 +610,7 @@ static void vtkImageBlendCopyData(vtkImageData* inData, vtkImageData* outData, i
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 template <class T>
 void vtkImageBlendCompoundExecute(vtkImageBlend* self, int extent[6], vtkImageData* inData, T*,
@@ -786,7 +786,7 @@ void vtkImageBlendCompoundExecute(vtkImageBlend* self, int extent[6], vtkImageDa
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 template <class T>
 void vtkImageBlendCompoundTransferExecute(vtkImageBlend* self, int extent[6], vtkImageData* outData,
@@ -899,7 +899,7 @@ void vtkImageBlendCompoundTransferExecute(vtkImageBlend* self, int extent[6], vt
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method is passed a input and output regions, and executes the filter
 // algorithm to fill the output from the inputs.
 // It just executes a switch statement to call the correct function for
@@ -1086,7 +1086,7 @@ void vtkImageBlend::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageBlend::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -1100,7 +1100,7 @@ void vtkImageBlend::PrintSelf(ostream& os, vtkIndent indent)
      << indent << "CompoundThreshold: " << this->CompoundThreshold << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageBlend::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)

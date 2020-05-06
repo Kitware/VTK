@@ -54,10 +54,10 @@ float vtkComputePosition(int alignment, float pos, float size, int vp_size, int 
   }
 }
 }
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkBlockItem);
 vtkCxxSetObjectMacro(vtkBlockItem, LabelProperties, vtkTextProperty);
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBlockItem::vtkBlockItem()
   : Dimensions{ 0, 0, 0, 0 }
   , Label{}
@@ -80,13 +80,13 @@ vtkBlockItem::vtkBlockItem()
   this->Pen->SetColor(0, 0, 0);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBlockItem::~vtkBlockItem()
 {
   this->SetLabelProperties(nullptr);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkBlockItem::Paint(vtkContext2D* painter)
 {
   this->CachedTextProp->ShallowCopy(painter->GetTextProp());
@@ -165,7 +165,7 @@ bool vtkBlockItem::Paint(vtkContext2D* painter)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkBlockItem::Hit(const vtkContextMouseEvent& mouse)
 {
   if (!this->GetVisible() || !this->GetInteractive())
@@ -185,7 +185,7 @@ bool vtkBlockItem::Hit(const vtkContextMouseEvent& mouse)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkBlockItem::MouseEnterEvent(const vtkContextMouseEvent&)
 {
   this->MouseOver = true;
@@ -193,7 +193,7 @@ bool vtkBlockItem::MouseEnterEvent(const vtkContextMouseEvent&)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkBlockItem::MouseMoveEvent(const vtkContextMouseEvent& mouse)
 {
   vtkVector2f delta = mouse.GetPos() - mouse.GetLastPos();
@@ -233,7 +233,7 @@ bool vtkBlockItem::MouseMoveEvent(const vtkContextMouseEvent& mouse)
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkBlockItem::MouseLeaveEvent(const vtkContextMouseEvent&)
 {
   this->MouseOver = false;
@@ -241,19 +241,19 @@ bool vtkBlockItem::MouseLeaveEvent(const vtkContextMouseEvent&)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkBlockItem::MouseButtonPressEvent(const vtkContextMouseEvent&)
 {
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkBlockItem::MouseButtonReleaseEvent(const vtkContextMouseEvent&)
 {
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBlockItem::SetLabel(const vtkStdString& label)
 {
   if (this->Label != label)
@@ -263,19 +263,19 @@ void vtkBlockItem::SetLabel(const vtkStdString& label)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStdString vtkBlockItem::GetLabel()
 {
   return this->Label;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBlockItem::SetScalarFunctor(double (*ScalarFunction)(double, double))
 {
   this->scalarFunction = ScalarFunction;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBlockItem::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -26,7 +26,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestLegendBoxActor(int argc, char* argv[])
 {
   // Create the RenderWindow, Renderer and both Actors

@@ -28,7 +28,7 @@
 
 vtkStandardNewMacro(vtkExtractVectorComponents);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractVectorComponents::vtkExtractVectorComponents()
 {
   this->ExtractToFieldData = 0;
@@ -36,10 +36,10 @@ vtkExtractVectorComponents::vtkExtractVectorComponents()
   this->OutputsInitialized = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractVectorComponents::~vtkExtractVectorComponents() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the output dataset representing velocity x-component. If output is nullptr
 // then input hasn't been set, which is necessary for abstract objects. (Note:
 // this method returns the same information as the GetOutput() method with an
@@ -49,7 +49,7 @@ vtkDataSet* vtkExtractVectorComponents::GetVxComponent()
   return this->GetOutput(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the output dataset representing velocity y-component. If output is nullptr
 // then input hasn't been set, which is necessary for abstract objects. (Note:
 // this method returns the same information as the GetOutput() method with an
@@ -59,7 +59,7 @@ vtkDataSet* vtkExtractVectorComponents::GetVyComponent()
   return this->GetOutput(1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the output dataset representing velocity z-component. If output is nullptr
 // then input hasn't been set, which is necessary for abstract objects. (Note:
 // this method returns the same information as the GetOutput() method with an
@@ -69,7 +69,7 @@ vtkDataSet* vtkExtractVectorComponents::GetVzComponent()
   return this->GetOutput(2);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify the input data or filter.
 void vtkExtractVectorComponents::SetInputData(vtkDataSet* input)
 {
@@ -119,7 +119,7 @@ void vtkExtractVectorComponents::SetInputData(vtkDataSet* input)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 namespace
 {
 
@@ -148,7 +148,7 @@ struct vtkExtractComponents
 };
 } // namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractVectorComponents::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -316,7 +316,7 @@ int vtkExtractVectorComponents::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractVectorComponents::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

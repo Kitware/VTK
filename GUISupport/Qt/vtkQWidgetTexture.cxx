@@ -26,10 +26,10 @@
 #include <QtWidgets/QGraphicsScene>
 #include <QtWidgets/QWidget>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkQWidgetTexture);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkQWidgetTexture::vtkQWidgetTexture()
 {
   this->Framebuffer = nullptr;
@@ -80,7 +80,7 @@ vtkQWidgetTexture::vtkQWidgetTexture()
   };
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkQWidgetTexture::~vtkQWidgetTexture()
 {
   this->SetWidget(nullptr);
@@ -91,7 +91,7 @@ vtkQWidgetTexture::~vtkQWidgetTexture()
   delete this->Framebuffer;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQWidgetTexture::ReleaseGraphicsResources(vtkWindow* win)
 {
   if (!this->ResourceCallback->IsReleasing())

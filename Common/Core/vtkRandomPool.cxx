@@ -30,7 +30,7 @@
 vtkStandardNewMacro(vtkRandomPool);
 vtkCxxSetObjectMacro(vtkRandomPool, Sequence, vtkRandomSequence);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Static methods to populate a data array.
 namespace
 {
@@ -138,7 +138,7 @@ struct PopulateDAComponentLauncher
 
 } // anonymous namespace
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRandomPool::vtkRandomPool()
 {
   this->Sequence = vtkMinimalStandardRandomSequence::New();
@@ -154,14 +154,14 @@ vtkRandomPool::vtkRandomPool()
   this->Modified();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRandomPool::~vtkRandomPool()
 {
   this->SetSequence(nullptr);
   delete[] this->Pool;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRandomPool::PopulateDataArray(vtkDataArray* da, double minRange, double maxRange)
 {
   if (da == nullptr)
@@ -193,7 +193,7 @@ void vtkRandomPool::PopulateDataArray(vtkDataArray* da, double minRange, double 
   da->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRandomPool::PopulateDataArray(
   vtkDataArray* da, int compNum, double minRange, double maxRange)
 {
@@ -227,7 +227,7 @@ void vtkRandomPool::PopulateDataArray(
   da->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Support multithreading of sequence generation
 struct vtkRandomPoolInfo
 {
@@ -265,7 +265,7 @@ struct vtkRandomPoolInfo
   }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This is the multithreaded piece of random sequence generation.
 static VTK_THREAD_RETURN_TYPE vtkRandomPool_ThreadedMethod(void* arg)
 {
@@ -290,7 +290,7 @@ static VTK_THREAD_RETURN_TYPE vtkRandomPool_ThreadedMethod(void* arg)
   return VTK_THREAD_RETURN_VALUE;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // May use threaded sequence generation if the length of the sequence is
 // greater than a pre-defined work size.
 const double* vtkRandomPool::GeneratePool()
@@ -351,7 +351,7 @@ const double* vtkRandomPool::GeneratePool()
   return this->Pool;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRandomPool::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

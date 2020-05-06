@@ -27,10 +27,10 @@
 
 #include <algorithm>
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkProcessGroup);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProcessGroup::vtkProcessGroup()
 {
   this->Communicator = nullptr;
@@ -57,7 +57,7 @@ void vtkProcessGroup::PrintSelf(ostream& os, vtkIndent indent)
   os << endl;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProcessGroup::Initialize(vtkMultiProcessController* controller)
 {
   this->Initialize(controller->GetCommunicator());
@@ -74,7 +74,7 @@ void vtkProcessGroup::Initialize(vtkCommunicator* communicator)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProcessGroup::SetCommunicator(vtkCommunicator* communicator)
 {
   // Adjust ProcessIds array.
@@ -101,7 +101,7 @@ void vtkProcessGroup::SetCommunicator(vtkCommunicator* communicator)
   vtkSetObjectBodyMacro(Communicator, vtkCommunicator, communicator);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkProcessGroup::GetLocalProcessId()
 {
   if (this->Communicator)
@@ -114,7 +114,7 @@ int vtkProcessGroup::GetLocalProcessId()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkProcessGroup::FindProcessId(int processId)
 {
   for (int i = 0; i < this->NumberOfProcessIds; i++)
@@ -125,7 +125,7 @@ int vtkProcessGroup::FindProcessId(int processId)
   return -1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkProcessGroup::AddProcessId(int processId)
 {
   int loc = this->FindProcessId(processId);
@@ -138,7 +138,7 @@ int vtkProcessGroup::AddProcessId(int processId)
   return loc;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkProcessGroup::RemoveProcessId(int processId)
 {
   int loc = this->FindProcessId(processId);
@@ -154,7 +154,7 @@ int vtkProcessGroup::RemoveProcessId(int processId)
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProcessGroup::RemoveAllProcessIds()
 {
   if (this->NumberOfProcessIds > 0)
@@ -164,7 +164,7 @@ void vtkProcessGroup::RemoveAllProcessIds()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProcessGroup::Copy(vtkProcessGroup* group)
 {
   this->SetCommunicator(group->Communicator);

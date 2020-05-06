@@ -67,7 +67,7 @@ public:
 // This is half the precision of an int.
 #define MAXIMUM_PART_ID 65536
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkEnSightGoldBinaryReader::vtkEnSightGoldBinaryReader()
 {
   this->FileOffsets = new vtkEnSightGoldBinaryReader::FileOffsetMapInternal;
@@ -80,7 +80,7 @@ vtkEnSightGoldBinaryReader::vtkEnSightGoldBinaryReader()
   this->ElementIdsListed = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkEnSightGoldBinaryReader::~vtkEnSightGoldBinaryReader()
 {
   delete this->FileOffsets;
@@ -88,7 +88,7 @@ vtkEnSightGoldBinaryReader::~vtkEnSightGoldBinaryReader()
   this->GoldIFile = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightGoldBinaryReader::OpenFile(const char* filename)
 {
   if (!filename)
@@ -189,7 +189,7 @@ int vtkEnSightGoldBinaryReader::OpenFile(const char* filename)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightGoldBinaryReader::InitializeFile(const char* fileName)
 {
   char line[80], subLine[80];
@@ -246,7 +246,7 @@ int vtkEnSightGoldBinaryReader::InitializeFile(const char* fileName)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightGoldBinaryReader::ReadGeometryFile(
   const char* fileName, int timeStep, vtkMultiBlockDataSet* output)
 {
@@ -417,7 +417,7 @@ int vtkEnSightGoldBinaryReader::ReadGeometryFile(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightGoldBinaryReader::CountTimeSteps()
 {
   int count = 0;
@@ -436,7 +436,7 @@ int vtkEnSightGoldBinaryReader::CountTimeSteps()
   return count;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightGoldBinaryReader::SkipTimeStep()
 {
   char line[80], subLine[80];
@@ -544,7 +544,7 @@ int vtkEnSightGoldBinaryReader::SkipTimeStep()
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightGoldBinaryReader::SkipStructuredGrid(char line[256])
 {
   char subLine[80];
@@ -588,7 +588,7 @@ int vtkEnSightGoldBinaryReader::SkipStructuredGrid(char line[256])
   return lineRead;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightGoldBinaryReader::SkipUnstructuredGrid(char line[256])
 {
   int lineRead = 1;
@@ -983,7 +983,7 @@ int vtkEnSightGoldBinaryReader::SkipUnstructuredGrid(char line[256])
   return lineRead;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightGoldBinaryReader::SkipRectilinearGrid(char line[256])
 {
   char subLine[80];
@@ -1035,7 +1035,7 @@ int vtkEnSightGoldBinaryReader::SkipRectilinearGrid(char line[256])
   return lineRead;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightGoldBinaryReader::SkipImageData(char line[256])
 {
   char subLine[80];
@@ -1079,7 +1079,7 @@ int vtkEnSightGoldBinaryReader::SkipImageData(char line[256])
   return lineRead;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightGoldBinaryReader::ReadMeasuredGeometryFile(
   const char* fileName, int timeStep, vtkMultiBlockDataSet* output)
 {
@@ -1242,7 +1242,7 @@ int vtkEnSightGoldBinaryReader::ReadMeasuredGeometryFile(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput, int measured, int numberOfComponents,
   int component)
@@ -1455,7 +1455,7 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(const char* fileName, const c
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput, int measured)
 {
@@ -1652,7 +1652,7 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(const char* fileName, const c
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightGoldBinaryReader::ReadTensorsPerNode(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput)
 {
@@ -1797,7 +1797,7 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerNode(const char* fileName, const c
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput, int numberOfComponents, int component)
 {
@@ -2026,7 +2026,7 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(const char* fileName, cons
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput)
 {
@@ -2256,7 +2256,7 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(const char* fileName, cons
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput)
 {
@@ -2508,7 +2508,7 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(const char* fileName, cons
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
   int partId, char line[80], const char* name, vtkMultiBlockDataSet* compositeOutput)
 {
@@ -3604,7 +3604,7 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
   return lineRead;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightGoldBinaryReader::CreateStructuredGridOutput(
   int partId, char line[80], const char* name, vtkMultiBlockDataSet* compositeOutput)
 {
@@ -3718,7 +3718,7 @@ int vtkEnSightGoldBinaryReader::CreateStructuredGridOutput(
   return lineRead;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightGoldBinaryReader::CreateRectilinearGridOutput(
   int partId, char line[80], const char* name, vtkMultiBlockDataSet* compositeOutput)
 {
@@ -3823,7 +3823,7 @@ int vtkEnSightGoldBinaryReader::CreateRectilinearGridOutput(
   return lineRead;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightGoldBinaryReader::CreateImageDataOutput(
   int partId, char line[80], const char* name, vtkMultiBlockDataSet* compositeOutput)
 {
@@ -4144,7 +4144,7 @@ int vtkEnSightGoldBinaryReader::ReadFloatArray(float* result, int numFloats)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkEnSightGoldBinaryReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -4152,7 +4152,7 @@ void vtkEnSightGoldBinaryReader::PrintSelf(ostream& os, vtkIndent indent)
 
 // Seeks the IFile to the cached timestep nearest the target timestep.
 // Returns the actually sought to timestep
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightGoldBinaryReader::SeekToCachedTimeStep(const char* fileName, int realTimeStep)
 {
   typedef vtkEnSightGoldBinaryReader::FileOffsetMapInternal MapType;
@@ -4184,7 +4184,7 @@ int vtkEnSightGoldBinaryReader::SeekToCachedTimeStep(const char* fileName, int r
   return j;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Add a cached file offset
 void vtkEnSightGoldBinaryReader::AddTimeStepToCache(
   const char* fileName, int realTimeStep, vtkTypeInt64 address)
@@ -4197,7 +4197,7 @@ void vtkEnSightGoldBinaryReader::AddTimeStepToCache(
   this->FileOffsets->Map[fileName][realTimeStep] = address;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkEnSightGoldBinaryReader::AddFileIndexToCache(const char* fileName)
 {
   // only read the file index if we have not searched for the file index before

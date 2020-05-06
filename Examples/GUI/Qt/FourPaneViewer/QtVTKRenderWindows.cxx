@@ -33,7 +33,7 @@
 #include <vtkRenderWindow.h>
 #include <vtkRenderer.h>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkResliceCursorCallback : public vtkCommand
 {
 public:

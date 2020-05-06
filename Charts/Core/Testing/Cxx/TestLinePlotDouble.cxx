@@ -24,7 +24,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkTable.h"
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestLinePlotDouble(int, char*[])
 {
   // Thus test will cause floating point because it uses inf and nan for some

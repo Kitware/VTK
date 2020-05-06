@@ -16,7 +16,7 @@
 
 #include <vector>
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFlashReaderInternal::GetBlockAttribute(
   const char* attribute, int blockIdx, vtkDataSet* pDataSet)
 {
@@ -154,7 +154,7 @@ void vtkFlashReaderInternal::GetBlockAttribute(
   arrayPtr = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFlashReaderInternal::Init()
 {
   this->FileName = nullptr;
@@ -189,7 +189,7 @@ void vtkFlashReaderInternal::Init()
   this->ParticleAttributeNamesToIds.clear();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkFlashReaderInternal::GetCycle()
 {
   const bool bTmCycle = true;
@@ -207,7 +207,7 @@ int vtkFlashReaderInternal::GetCycle()
   return this->SimulationParameters.NumberOfTimeSteps;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkFlashReaderInternal::GetTime()
 {
   const bool bTmCycle = true;
@@ -225,7 +225,7 @@ double vtkFlashReaderInternal::GetTime()
   return this->SimulationParameters.Time;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFlashReaderInternal::ReadMetaData()
 {
   if (this->FileIndex >= 0)
@@ -275,7 +275,7 @@ void vtkFlashReaderInternal::ReadMetaData()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFlashReaderInternal::ReadProcessorIds()
 {
   hid_t rootIndx = H5Gopen(this->FileIndex, "/");
@@ -366,7 +366,7 @@ void vtkFlashReaderInternal::ReadProcessorIds()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFlashReaderInternal::ReadDoubleScalars(hid_t fileIndx)
 {
   // Should only be used for FLASH3 files
@@ -424,7 +424,7 @@ void vtkFlashReaderInternal::ReadDoubleScalars(hid_t fileIndx)
   H5Dclose(realScalarsId);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFlashReaderInternal::ReadIntegerScalars(hid_t fileIndx)
 {
   // Should only be used for FLASH3 files
@@ -496,7 +496,7 @@ void vtkFlashReaderInternal::ReadIntegerScalars(hid_t fileIndx)
   H5Dclose(intScalarsId);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFlashReaderInternal::ReadVersionInformation(hid_t fileIndx)
 {
   // temporarily disable error reporting
@@ -596,7 +596,7 @@ void vtkFlashReaderInternal::ReadVersionInformation(hid_t fileIndx)
   old_clientdata = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFlashReaderInternal::ReadSimulationParameters(hid_t fileIndx, bool bTmCycle)
 {
   if (this->FileFormatVersion < FLASH_READER_FLASH3_FFV8)
@@ -684,7 +684,7 @@ void vtkFlashReaderInternal::ReadSimulationParameters(hid_t fileIndx, bool bTmCy
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFlashReaderInternal::GetBlockMinMaxGlobalDivisionIds()
 {
   double problemsize[3] = { this->MaxBounds[0] - this->MinBounds[0],
@@ -715,7 +715,7 @@ void vtkFlashReaderInternal::GetBlockMinMaxGlobalDivisionIds()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFlashReaderInternal::ReadBlockTypes()
 {
   // Read the node type description for the blocks
@@ -762,7 +762,7 @@ void vtkFlashReaderInternal::ReadBlockTypes()
   H5Dclose(nodetypeId);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFlashReaderInternal::ReadBlockBounds()
 {
   // Read the bounding box description for the blocks
@@ -918,7 +918,7 @@ void vtkFlashReaderInternal::ReadBlockBounds()
   H5Dclose(bboxId);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFlashReaderInternal::ReadBlockCenters()
 {
   // Read the coordinates description for the blocks
@@ -1004,7 +1004,7 @@ void vtkFlashReaderInternal::ReadBlockCenters()
   H5Dclose(coordinatesId);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFlashReaderInternal::ReadBlockStructures()
 {
   // temporarily disable error reporting
@@ -1109,7 +1109,7 @@ void vtkFlashReaderInternal::ReadBlockStructures()
   H5Dclose(gidId);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFlashReaderInternal::ReadRefinementLevels()
 {
   // Read the bounding box description for the blocks
@@ -1155,7 +1155,7 @@ void vtkFlashReaderInternal::ReadRefinementLevels()
   H5Dclose(refinementId);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFlashReaderInternal::ReadDataAttributeNames()
 {
   hid_t unknownsId = H5Dopen(this->FileIndex, "unknown names");
@@ -1201,7 +1201,7 @@ void vtkFlashReaderInternal::ReadDataAttributeNames()
   H5Dclose(unknownsId);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFlashReaderInternal::ReadParticlesComponent(
   hid_t dataIndx, const char* compName, double* dataBuff)
 {
@@ -1226,7 +1226,7 @@ void vtkFlashReaderInternal::ReadParticlesComponent(
   H5Sclose(spaceMem);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFlashReaderInternal::ReadParticleAttributes()
 {
   // temporarily disable error reporting
@@ -1328,7 +1328,7 @@ void vtkFlashReaderInternal::ReadParticleAttributes()
   H5Dclose(pointId);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFlashReaderInternal::ReadParticleAttributesFLASH3()
 {
   // Should only be used for FLASH3 files

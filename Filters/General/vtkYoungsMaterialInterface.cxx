@@ -336,7 +336,7 @@ void vtkYoungsMaterialInterface::SetMaterialArrays(int M, const char* volume, co
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkYoungsMaterialInterface::SetMaterialNormalArray(const char* volume, const char* normal)
 {
   // not sure why this is done, but all SetMaterialNormalArray(int,..) variants
@@ -349,7 +349,7 @@ void vtkYoungsMaterialInterface::SetMaterialNormalArray(const char* volume, cons
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkYoungsMaterialInterface::SetMaterialOrderingArray(const char* volume, const char* ordering)
 {
   // not sure why this is done, but all SetMaterialOrderingArray(int,..) variants
@@ -362,7 +362,7 @@ void vtkYoungsMaterialInterface::SetMaterialOrderingArray(const char* volume, co
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkYoungsMaterialInterface::RemoveAllMaterials()
 {
   this->NumberOfDomains = -1;
@@ -518,7 +518,7 @@ void vtkYoungsMaterialInterface::UpdateBlockMapping()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkYoungsMaterialInterface::Aggregate(int nmat, int* inputsPerMaterial)
 {
   // Calculate number of domains
@@ -537,7 +537,7 @@ void vtkYoungsMaterialInterface::Aggregate(int nmat, int* inputsPerMaterial)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkYoungsMaterialInterface::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

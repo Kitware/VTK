@@ -26,7 +26,7 @@
 #include "vtkStdString.h"
 #include "vtkTextProperty.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestFreeTypeTextMapper(int argc, char* argv[])
 {
   if (argc < 2)

@@ -17,20 +17,20 @@
 #include "vtkContourRepresentation.h"
 #include "vtkIntArray.h"
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkContourLineInterpolator::vtkContourLineInterpolator() = default;
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkContourLineInterpolator::~vtkContourLineInterpolator() = default;
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkContourLineInterpolator::UpdateNode(
   vtkRenderer*, vtkContourRepresentation*, double* vtkNotUsed(node), int vtkNotUsed(idx))
 {
   return 0;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContourLineInterpolator::GetSpan(
   int nodeIndex, vtkIntArray* nodeIndices, vtkContourRepresentation* rep)
 {
@@ -76,7 +76,7 @@ void vtkContourLineInterpolator::GetSpan(
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContourLineInterpolator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -23,7 +23,7 @@
 
 vtkStandardNewMacro(vtkOutlineSource);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOutlineSource::vtkOutlineSource()
 {
   this->BoxType = VTK_BOX_TYPE_AXIS_ALIGNED;
@@ -67,7 +67,7 @@ vtkOutlineSource::vtkOutlineSource()
   this->SetNumberOfInputPorts(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkOutlineSource::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -260,7 +260,7 @@ int vtkOutlineSource::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOutlineSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

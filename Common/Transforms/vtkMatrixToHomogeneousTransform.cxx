@@ -20,20 +20,20 @@
 vtkStandardNewMacro(vtkMatrixToHomogeneousTransform);
 vtkCxxSetObjectMacro(vtkMatrixToHomogeneousTransform, Input, vtkMatrix4x4);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMatrixToHomogeneousTransform::vtkMatrixToHomogeneousTransform()
 {
   this->Input = nullptr;
   this->InverseFlag = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMatrixToHomogeneousTransform::~vtkMatrixToHomogeneousTransform()
 {
   this->SetInput(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMatrixToHomogeneousTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Update();
@@ -43,14 +43,14 @@ void vtkMatrixToHomogeneousTransform::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "InverseFlag: " << this->InverseFlag << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMatrixToHomogeneousTransform::Inverse()
 {
   this->InverseFlag = !this->InverseFlag;
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMatrixToHomogeneousTransform::InternalUpdate()
 {
   if (this->Input)
@@ -67,7 +67,7 @@ void vtkMatrixToHomogeneousTransform::InternalUpdate()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMatrixToHomogeneousTransform::InternalDeepCopy(vtkAbstractTransform* gtrans)
 {
   vtkMatrixToHomogeneousTransform* transform =
@@ -81,13 +81,13 @@ void vtkMatrixToHomogeneousTransform::InternalDeepCopy(vtkAbstractTransform* gtr
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAbstractTransform* vtkMatrixToHomogeneousTransform::MakeTransform()
 {
   return vtkMatrixToHomogeneousTransform::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the MTime
 vtkMTimeType vtkMatrixToHomogeneousTransform::GetMTime()
 {

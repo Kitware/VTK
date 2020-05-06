@@ -75,7 +75,7 @@ vtkRenderer* vtkRendererCollection::GetFirstRenderer()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRendererCollection::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

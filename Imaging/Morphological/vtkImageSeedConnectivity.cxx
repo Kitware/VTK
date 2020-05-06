@@ -23,7 +23,7 @@
 
 vtkStandardNewMacro(vtkImageSeedConnectivity);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageSeedConnectivity::vtkImageSeedConnectivity()
 {
   this->InputConnectValue = 255;
@@ -34,14 +34,14 @@ vtkImageSeedConnectivity::vtkImageSeedConnectivity()
   this->Dimensionality = 3;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageSeedConnectivity::~vtkImageSeedConnectivity()
 {
   this->Connector->Delete();
   this->RemoveAllSeeds();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSeedConnectivity::RemoveAllSeeds()
 {
   vtkImageConnectorSeed* temp;
@@ -53,7 +53,7 @@ void vtkImageSeedConnectivity::RemoveAllSeeds()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSeedConnectivity::AddSeed(int num, int* index)
 {
   int idx, newIndex[3];
@@ -77,7 +77,7 @@ void vtkImageSeedConnectivity::AddSeed(int num, int* index)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSeedConnectivity::AddSeed(int i0, int i1, int i2)
 {
   int index[3];
@@ -88,7 +88,7 @@ void vtkImageSeedConnectivity::AddSeed(int i0, int i1, int i2)
   this->AddSeed(3, index);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSeedConnectivity::AddSeed(int i0, int i1)
 {
   int index[2];
@@ -98,7 +98,7 @@ void vtkImageSeedConnectivity::AddSeed(int i0, int i1)
   this->AddSeed(2, index);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageSeedConnectivity::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -109,7 +109,7 @@ int vtkImageSeedConnectivity::RequestUpdateExtent(vtkInformation* vtkNotUsed(req
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageSeedConnectivity::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

@@ -22,7 +22,7 @@
 
 vtkStandardNewMacro(vtkExtentSplitter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 struct vtkExtentSplitterExtent
 {
   int extent[6];
@@ -51,20 +51,20 @@ public:
   SubExtentsType SubExtents;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtentSplitter::vtkExtentSplitter()
 {
   this->Internal = new vtkExtentSplitterInternals;
   this->PointMode = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtentSplitter::~vtkExtentSplitter()
 {
   delete this->Internal;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtentSplitter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -107,7 +107,7 @@ void vtkExtentSplitter::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtentSplitter::AddExtentSource(
   int id, int priority, int x0, int x1, int y0, int y1, int z0, int z1)
 {
@@ -125,14 +125,14 @@ void vtkExtentSplitter::AddExtentSource(
   this->Internal->SubExtents.clear();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtentSplitter::AddExtentSource(int id, int priority, int* extent)
 {
   this->AddExtentSource(
     id, priority, extent[0], extent[1], extent[2], extent[3], extent[4], extent[5]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtentSplitter::RemoveExtentSource(int id)
 {
   // Remove the source.
@@ -142,7 +142,7 @@ void vtkExtentSplitter::RemoveExtentSource(int id)
   this->Internal->SubExtents.clear();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtentSplitter::RemoveAllExtentSources()
 {
   // Clear the set of sources.
@@ -152,7 +152,7 @@ void vtkExtentSplitter::RemoveAllExtentSources()
   this->Internal->SubExtents.clear();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtentSplitter::AddExtent(int x0, int x1, int y0, int y1, int z0, int z1)
 {
   // Queue the extent.
@@ -169,19 +169,19 @@ void vtkExtentSplitter::AddExtent(int x0, int x1, int y0, int y1, int z0, int z1
   this->Internal->SubExtents.clear();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtentSplitter::AddExtent(int* extent)
 {
   this->AddExtent(extent[0], extent[1], extent[2], extent[3], extent[4], extent[5]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtentSplitter::GetNumberOfSubExtents()
 {
   return static_cast<int>(this->Internal->SubExtents.size());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int* vtkExtentSplitter::GetSubExtent(int index)
 {
   if (index < 0 || index >= this->GetNumberOfSubExtents())
@@ -194,7 +194,7 @@ int* vtkExtentSplitter::GetSubExtent(int index)
   return this->Internal->SubExtents[index].extent;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtentSplitter::GetSubExtent(int index, int* extent)
 {
   if (index < 0 || index >= this->GetNumberOfSubExtents())
@@ -219,7 +219,7 @@ void vtkExtentSplitter::GetSubExtent(int index, int* extent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtentSplitter::GetSubExtentSource(int index)
 {
   if (index < 0 || index >= this->GetNumberOfSubExtents())
@@ -231,7 +231,7 @@ int vtkExtentSplitter::GetSubExtentSource(int index)
   return this->Internal->SubExtents[index].source;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtentSplitter::ComputeSubExtents()
 {
   // Assume success.
@@ -340,7 +340,7 @@ int vtkExtentSplitter::ComputeSubExtents()
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtentSplitter::SplitExtent(int* extent, int* subextent)
 {
   // Subtract the volume described by subextent from that described by
@@ -435,7 +435,7 @@ void vtkExtentSplitter::SplitExtent(int* extent, int* subextent)
   // No more volume remains.
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtentSplitter::IntersectExtents(const int* extent1, const int* extent2, int* result)
 {
   if ((extent1[0] > extent2[1]) || (extent1[2] > extent2[3]) || (extent1[4] > extent2[5]) ||
@@ -456,13 +456,13 @@ int vtkExtentSplitter::IntersectExtents(const int* extent1, const int* extent2, 
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtentSplitter::Min(int a, int b)
 {
   return (a < b) ? a : b;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtentSplitter::Max(int a, int b)
 {
   return (a > b) ? a : b;

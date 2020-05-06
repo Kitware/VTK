@@ -177,7 +177,7 @@ public:
   std::vector<vtkInternalStructureCache*> children;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // search the head of the input string for one of the tokens we know how to
 // do something with. If we see something, bump char ptr passed it, and return
 // a code that says what we found. Skip over chars we don't recognize. When
@@ -208,7 +208,7 @@ static int vtkDataObjectGeneratorGetNextToken(char** str)
   return -1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static vtkInternalStructureCache* vtkDataObjectGeneratorParseStructure(char* Program)
 {
   vtkInternalStructureCache* structure = new vtkInternalStructureCache();
@@ -284,7 +284,7 @@ static vtkInternalStructureCache* vtkDataObjectGeneratorParseStructure(char* Pro
   return structure;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObjectGenerator::vtkDataObjectGenerator()
 {
   this->SetNumberOfInputPorts(0);
@@ -300,21 +300,21 @@ vtkDataObjectGenerator::vtkDataObjectGenerator()
   this->ZOffset = 0.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObjectGenerator::~vtkDataObjectGenerator()
 {
   this->SetProgram(nullptr);
   delete this->Structure;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObjectGenerator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Program: " << (this->Program ? this->Program : "(none)") << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObjectGenerator::RequestDataObject(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outV)
 {
@@ -338,7 +338,7 @@ int vtkDataObjectGenerator::RequestDataObject(
   return VTK_OK;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject* vtkDataObjectGenerator::CreateOutputDataObjects(vtkInternalStructureCache* structure)
 {
   vtkDataObject* outData;
@@ -399,7 +399,7 @@ vtkDataObject* vtkDataObjectGenerator::CreateOutputDataObjects(vtkInternalStruct
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObjectGenerator::RequestInformation(
   vtkInformation* req, vtkInformationVector** inV, vtkInformationVector* outV)
 {
@@ -490,7 +490,7 @@ int vtkDataObjectGenerator::RequestInformation(
   return this->Superclass::RequestInformation(req, inV, outV);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObjectGenerator::RequestUpdateExtent(
   vtkInformation* req, vtkInformationVector** inV, vtkInformationVector* outV)
 {
@@ -501,7 +501,7 @@ int vtkDataObjectGenerator::RequestUpdateExtent(
   return this->Superclass::RequestUpdateExtent(req, inV, outV);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObjectGenerator::RequestData(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outV)
 {
@@ -552,7 +552,7 @@ int vtkDataObjectGenerator::RequestData(
   return VTK_OK;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject* vtkDataObjectGenerator::FillOutputDataObjects(
   vtkInternalStructureCache* structure, int level, int stripe)
 {
@@ -809,7 +809,7 @@ vtkDataObject* vtkDataObjectGenerator::FillOutputDataObjects(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObjectGenerator::MakeValues(vtkDataSet* ds)
 {
   vtkIdTypeArray* ids;
@@ -894,7 +894,7 @@ void vtkDataObjectGenerator::MakeValues(vtkDataSet* ds)
   zcoords->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObjectGenerator::MakeImageData1(vtkDataSet* ids)
 {
   // ID1 == an ImageData of 1 voxel
@@ -912,7 +912,7 @@ void vtkDataObjectGenerator::MakeImageData1(vtkDataSet* ids)
   this->MakeValues(ds);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObjectGenerator::MakeImageData2(vtkDataSet* ids)
 {
   // ID2 == an ImageData of 24 voxel2
@@ -930,7 +930,7 @@ void vtkDataObjectGenerator::MakeImageData2(vtkDataSet* ids)
   this->MakeValues(ds);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObjectGenerator::MakeUniformGrid1(vtkDataSet* ids)
 {
   // UF1 == an UniformGrid of 8 voxels
@@ -948,7 +948,7 @@ void vtkDataObjectGenerator::MakeUniformGrid1(vtkDataSet* ids)
   this->MakeValues(ds);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObjectGenerator::MakeRectilinearGrid1(vtkDataSet* ids)
 {
   // RG1 = a RectilnearGrid of 1 voxel
@@ -992,7 +992,7 @@ void vtkDataObjectGenerator::MakeRectilinearGrid1(vtkDataSet* ids)
   this->MakeValues(ds);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObjectGenerator::MakeStructuredGrid1(vtkDataSet* ids)
 {
   // SG1 = a StructuredGrid of 1 voxel
@@ -1022,7 +1022,7 @@ void vtkDataObjectGenerator::MakeStructuredGrid1(vtkDataSet* ids)
   this->MakeValues(ds);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObjectGenerator::MakePolyData1(vtkDataSet* ids)
 {
   // PD1 = a PolyData of 1 triangle
@@ -1050,7 +1050,7 @@ void vtkDataObjectGenerator::MakePolyData1(vtkDataSet* ids)
   this->MakeValues(ds);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObjectGenerator::MakePolyData2(vtkDataSet* ids)
 {
   // PD2 = a PolyData of 1 triangle and 1 point
@@ -1081,7 +1081,7 @@ void vtkDataObjectGenerator::MakePolyData2(vtkDataSet* ids)
   this->MakeValues(ds);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObjectGenerator::MakeUnstructuredGrid1(vtkDataSet* ids)
 {
   // UG1 = an UnstructuredGrid of 1 triangle
@@ -1108,7 +1108,7 @@ void vtkDataObjectGenerator::MakeUnstructuredGrid1(vtkDataSet* ids)
   this->MakeValues(ds);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObjectGenerator::MakeUnstructuredGrid2(vtkDataSet* ids)
 {
   // UG2 = an UnstructuredGrid of 2 triangles
@@ -1137,7 +1137,7 @@ void vtkDataObjectGenerator::MakeUnstructuredGrid2(vtkDataSet* ids)
   this->MakeValues(ds);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObjectGenerator::MakeUnstructuredGrid3(vtkDataSet* ids)
 {
   // UG3 = an UnstructuredGrid of 1 tet
@@ -1165,7 +1165,7 @@ void vtkDataObjectGenerator::MakeUnstructuredGrid3(vtkDataSet* ids)
   this->MakeValues(ds);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObjectGenerator::MakeUnstructuredGrid4(vtkDataSet* ids)
 {
   // UG4 = an UnstructuredGrid of 2 triangles and 1 tetraheda

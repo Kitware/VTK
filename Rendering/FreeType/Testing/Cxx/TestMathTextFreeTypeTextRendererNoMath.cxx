@@ -26,7 +26,7 @@
 #include <iostream>
 #include <string>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestMathTextFreeTypeTextRendererNoMath(int argc, char* argv[])
 {
   if (argc < 2)

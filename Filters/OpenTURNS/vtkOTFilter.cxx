@@ -26,17 +26,17 @@
 
 using namespace OT;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOTFilter::vtkOTFilter()
 {
   this->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS, vtkDataSetAttributes::SCALARS);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOTFilter::~vtkOTFilter() {}
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkOTFilter::FillInputPortInformation(int port, vtkInformation* info)
 {
   this->Superclass::FillInputPortInformation(port, info);
@@ -45,7 +45,7 @@ int vtkOTFilter::FillInputPortInformation(int port, vtkInformation* info)
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOTFilter::AddToOutput(Sample* ns, const std::string& name)
 {
   vtkSmartPointer<vtkDataArray> outArray =
@@ -54,7 +54,7 @@ void vtkOTFilter::AddToOutput(Sample* ns, const std::string& name)
   this->Output->AddColumn(outArray);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkOTFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -73,7 +73,7 @@ int vtkOTFilter::RequestData(vtkInformation* vtkNotUsed(request),
   return ret;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOTFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

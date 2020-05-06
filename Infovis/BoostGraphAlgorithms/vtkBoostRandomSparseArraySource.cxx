@@ -28,11 +28,11 @@
 
 #include <boost/random.hpp>
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkStandardNewMacro(vtkBoostRandomSparseArraySource);
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkBoostRandomSparseArraySource::vtkBoostRandomSparseArraySource()
   : Extents(2, 2)
@@ -46,11 +46,11 @@ vtkBoostRandomSparseArraySource::vtkBoostRandomSparseArraySource()
   this->SetNumberOfOutputPorts(1);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkBoostRandomSparseArraySource::~vtkBoostRandomSparseArraySource() = default;
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkBoostRandomSparseArraySource::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -77,7 +77,7 @@ vtkArrayExtents vtkBoostRandomSparseArraySource::GetExtents()
   return this->Extents;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkBoostRandomSparseArraySource::RequestData(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)

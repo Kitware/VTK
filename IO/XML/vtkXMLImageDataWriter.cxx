@@ -20,43 +20,43 @@
 
 vtkStandardNewMacro(vtkXMLImageDataWriter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLImageDataWriter::vtkXMLImageDataWriter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLImageDataWriter::~vtkXMLImageDataWriter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLImageDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageData* vtkXMLImageDataWriter::GetInput()
 {
   return static_cast<vtkImageData*>(this->Superclass::GetInput());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLImageDataWriter::GetInputExtent(int* extent)
 {
   this->GetInput()->GetExtent(extent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXMLImageDataWriter::GetDataSetName()
 {
   return "ImageData";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXMLImageDataWriter::GetDefaultFileExtension()
 {
   return "vti";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLImageDataWriter::WritePrimaryElementAttributes(ostream& os, vtkIndent indent)
 {
   this->Superclass::WritePrimaryElementAttributes(os, indent);
@@ -66,7 +66,7 @@ void vtkXMLImageDataWriter::WritePrimaryElementAttributes(ostream& os, vtkIndent
   this->WriteVectorAttribute("Direction", 9, input->GetDirectionMatrix()->GetData());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLImageDataWriter::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");

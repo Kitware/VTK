@@ -66,7 +66,7 @@ public:
   }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Templated class is glue between VTK and templated algorithms.
 struct Elevate
 {
@@ -81,7 +81,7 @@ struct Elevate
 } // end anon namespace
 
 // Okay begin the class proper
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct object with Vector=(0,0,1).
 vtkSimpleElevationFilter::vtkSimpleElevationFilter()
 {
@@ -90,7 +90,7 @@ vtkSimpleElevationFilter::vtkSimpleElevationFilter()
   this->Vector[2] = 1.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Convert position along the ray into scalar value.  Example use includes
 // coloring terrain by elevation.
 //
@@ -192,7 +192,7 @@ int vtkSimpleElevationFilter::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSimpleElevationFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

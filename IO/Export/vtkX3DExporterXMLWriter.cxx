@@ -50,9 +50,9 @@ class vtkX3DExporterXMLNodeInfoStack : public vtkX3DExporterXMLNodeInfoStackBase
 {
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkX3DExporterXMLWriter);
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkX3DExporterXMLWriter::~vtkX3DExporterXMLWriter()
 {
   delete this->InfoStack;
@@ -60,7 +60,7 @@ vtkX3DExporterXMLWriter::~vtkX3DExporterXMLWriter()
   this->OutputStream = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkX3DExporterXMLWriter::vtkX3DExporterXMLWriter()
 {
   this->OutputStream = nullptr;
@@ -69,13 +69,13 @@ vtkX3DExporterXMLWriter::vtkX3DExporterXMLWriter()
   this->ActTab = "";
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporterXMLWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkX3DExporterXMLWriter::OpenFile(const char* file)
 {
   this->CloseFile();
@@ -96,7 +96,7 @@ int vtkX3DExporterXMLWriter::OpenFile(const char* file)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkX3DExporterXMLWriter::OpenStream()
 {
   this->CloseFile();
@@ -106,7 +106,7 @@ int vtkX3DExporterXMLWriter::OpenStream()
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporterXMLWriter::CloseFile()
 {
   if (this->OutputStream != nullptr)
@@ -126,20 +126,20 @@ void vtkX3DExporterXMLWriter::CloseFile()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporterXMLWriter::StartDocument()
 {
   this->Depth = 0;
   *this->OutputStream << "<?xml version=\"1.0\" encoding =\"UTF-8\"?>" << endl << endl;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporterXMLWriter::EndDocument()
 {
   assert(this->Depth == 0);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporterXMLWriter::StartNode(int elementID)
 {
   // End last tag, if this is the first child
@@ -157,7 +157,7 @@ void vtkX3DExporterXMLWriter::StartNode(int elementID)
   this->AddDepth();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporterXMLWriter::EndNode()
 {
   assert(!this->InfoStack->empty());
@@ -178,7 +178,7 @@ void vtkX3DExporterXMLWriter::EndNode()
   this->InfoStack->pop_back();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporterXMLWriter::SetField(int attributeID, int type, const double* d)
 {
   *this->OutputStream << " " << x3dAttributeString[attributeID] << "=\"";
@@ -198,7 +198,7 @@ void vtkX3DExporterXMLWriter::SetField(int attributeID, int type, const double* 
   *this->OutputStream << "\"";
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporterXMLWriter::SetField(int attributeID, int type, vtkDataArray* a)
 {
   *this->OutputStream << " " << x3dAttributeString[attributeID] << "=\"" << this->GetNewline();
@@ -225,7 +225,7 @@ void vtkX3DExporterXMLWriter::SetField(int attributeID, int type, vtkDataArray* 
   *this->OutputStream << this->ActTab << "\"";
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporterXMLWriter::SetField(int attributeID, const double* values, size_t size)
 {
   *this->OutputStream << " " << x3dAttributeString[attributeID] << "=\"" << this->GetNewline()
@@ -248,7 +248,7 @@ void vtkX3DExporterXMLWriter::SetField(int attributeID, const double* values, si
   *this->OutputStream << "\"";
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporterXMLWriter::SetField(int attributeID, const int* values, size_t size, bool image)
 {
   *this->OutputStream << " " << x3dAttributeString[attributeID] << "=\"" << this->GetNewline()
@@ -298,19 +298,19 @@ void vtkX3DExporterXMLWriter::SetField(int attributeID, const int* values, size_
   *this->OutputStream << "\"";
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporterXMLWriter::SetField(int attributeID, int value)
 {
   *this->OutputStream << " " << x3dAttributeString[attributeID] << "=\"" << value << "\"";
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporterXMLWriter::SetField(int attributeID, float value)
 {
   *this->OutputStream << " " << x3dAttributeString[attributeID] << "=\"" << value << "\"";
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporterXMLWriter::SetField(int attributeID, double vtkNotUsed(value))
 {
   *this->OutputStream << " " << x3dAttributeString[attributeID] << "=\""
@@ -319,14 +319,14 @@ void vtkX3DExporterXMLWriter::SetField(int attributeID, double vtkNotUsed(value)
   assert(false);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporterXMLWriter::SetField(int attributeID, bool value)
 {
   *this->OutputStream << " " << x3dAttributeString[attributeID] << "=\""
                       << (value ? "true" : "false") << "\"";
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporterXMLWriter::SetField(int attributeID, const char* value, bool mfstring)
 {
   if (mfstring)
@@ -339,19 +339,19 @@ void vtkX3DExporterXMLWriter::SetField(int attributeID, const char* value, bool 
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporterXMLWriter::Flush()
 {
   this->OutputStream->flush();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporterXMLWriter::AddDepth()
 {
   this->ActTab += "  ";
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporterXMLWriter::SubDepth()
 {
   this->ActTab.erase(0, 2);

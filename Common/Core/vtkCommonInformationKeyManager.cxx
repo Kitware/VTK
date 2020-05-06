@@ -26,13 +26,13 @@ struct vtkCommonInformationKeyManagerKeysType : public std::vector<vtkInformatio
   typedef Superclass::iterator iterator;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Must NOT be initialized.  Default initialization to zero is
 // necessary.
 static unsigned int vtkCommonInformationKeyManagerCount;
 static vtkCommonInformationKeyManagerKeysType* vtkCommonInformationKeyManagerKeys;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCommonInformationKeyManager::vtkCommonInformationKeyManager()
 {
   if (++vtkCommonInformationKeyManagerCount == 1)
@@ -41,7 +41,7 @@ vtkCommonInformationKeyManager::vtkCommonInformationKeyManager()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCommonInformationKeyManager::~vtkCommonInformationKeyManager()
 {
   if (--vtkCommonInformationKeyManagerCount == 0)
@@ -50,14 +50,14 @@ vtkCommonInformationKeyManager::~vtkCommonInformationKeyManager()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCommonInformationKeyManager::Register(vtkInformationKey* key)
 {
   // Register this instance for deletion by the singleton.
   vtkCommonInformationKeyManagerKeys->push_back(key);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCommonInformationKeyManager::ClassInitialize()
 {
   // Allocate the singleton storing pointers to information keys.
@@ -70,7 +70,7 @@ void vtkCommonInformationKeyManager::ClassInitialize()
   vtkCommonInformationKeyManagerKeys = new (keys) vtkCommonInformationKeyManagerKeysType;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCommonInformationKeyManager::ClassFinalize()
 {
   if (vtkCommonInformationKeyManagerKeys)

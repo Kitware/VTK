@@ -27,7 +27,7 @@
 
 vtkStandardNewMacro(vtkAffineWidget);
 
-//----------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAffineWidget::vtkAffineWidget()
 {
   // Set the initial state
@@ -48,16 +48,16 @@ vtkAffineWidget::vtkAffineWidget()
     this, vtkAffineWidget::ModifyEventAction);
 }
 
-//----------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAffineWidget::~vtkAffineWidget() = default;
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAffineWidget::SetEnabled(int enabling)
 {
   this->Superclass::SetEnabled(enabling);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAffineWidget::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)
@@ -66,7 +66,7 @@ void vtkAffineWidget::CreateDefaultRepresentation()
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAffineWidget::SetCursor(int cState)
 {
   switch (cState)
@@ -112,7 +112,7 @@ void vtkAffineWidget::SetCursor(int cState)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAffineWidget::SelectAction(vtkAbstractWidget* w)
 {
   vtkAffineWidget* self = reinterpret_cast<vtkAffineWidget*>(w);
@@ -148,7 +148,7 @@ void vtkAffineWidget::SelectAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAffineWidget::MoveAction(vtkAbstractWidget* w)
 {
   vtkAffineWidget* self = reinterpret_cast<vtkAffineWidget*>(w);
@@ -184,7 +184,7 @@ void vtkAffineWidget::MoveAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAffineWidget::ModifyEventAction(vtkAbstractWidget* w)
 {
   vtkAffineWidget* self = reinterpret_cast<vtkAffineWidget*>(w);
@@ -203,7 +203,7 @@ void vtkAffineWidget::ModifyEventAction(vtkAbstractWidget* w)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAffineWidget::EndSelectAction(vtkAbstractWidget* w)
 {
   vtkAffineWidget* self = reinterpret_cast<vtkAffineWidget*>(w);
@@ -236,7 +236,7 @@ void vtkAffineWidget::EndSelectAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAffineWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h

@@ -321,7 +321,7 @@ int vtkJPEGReaderUpdate2(vtkJPEGReader* self, OT* outPtr, int* outExt, vtkIdType
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This function reads in one data of data.
 // templated to handle different data types.
 template <class OT>
@@ -353,7 +353,7 @@ void vtkJPEGReaderUpdate(vtkJPEGReader* self, vtkImageData* data, OT* outPtr)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This function reads a data from a file.  The datas extent/axes
 // are assumed to be the same as the file extent/order.
 void vtkJPEGReader::ExecuteDataWithInformation(vtkDataObject* output, vtkInformation* outInfo)
@@ -448,7 +448,7 @@ int vtkJPEGReader::CanReadFile(const char* fname)
 #pragma warning(default : 4611)
 #endif
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkJPEGReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

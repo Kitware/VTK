@@ -46,7 +46,7 @@
 
 vtkStandardNewMacro(vtkContourGrid);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct object with initial range (0,1) and single contour value
 // of 0.0.
 vtkContourGrid::vtkContourGrid()
@@ -71,7 +71,7 @@ vtkContourGrid::vtkContourGrid()
   this->EdgeTable = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkContourGrid::~vtkContourGrid()
 {
   this->ContourValues->Delete();
@@ -86,7 +86,7 @@ vtkContourGrid::~vtkContourGrid()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Overload standard modified time function. If contour values are modified,
 // then this object is modified as well.
 vtkMTimeType vtkContourGrid::GetMTime()
@@ -108,7 +108,7 @@ vtkMTimeType vtkContourGrid::GetMTime()
   return mTime;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContourGridExecute(vtkContourGrid* self, vtkDataSet* input, vtkPolyData* output,
   vtkDataArray* inScalars, vtkIdType numContours, double* values, int computeScalars,
   int useScalarTree, vtkScalarTree* scalarTree, bool generateTriangles)
@@ -368,7 +368,7 @@ void vtkContourGridExecute(vtkContourGrid* self, vtkDataSet* input, vtkPolyData*
   output->Squeeze();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Contouring filter for unstructured grids.
 //
 int vtkContourGrid::RequestData(vtkInformation* vtkNotUsed(request),
@@ -438,7 +438,7 @@ int vtkContourGrid::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify a spatial locator for merging points. By default,
 // an instance of vtkMergePoints is used.
 void vtkContourGrid::SetScalarTree(vtkScalarTree* sTree)
@@ -460,7 +460,7 @@ void vtkContourGrid::SetScalarTree(vtkScalarTree* sTree)
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify a spatial locator for merging points. By default,
 // an instance of vtkMergePoints is used.
 void vtkContourGrid::SetLocator(vtkIncrementalPointLocator* locator)
@@ -482,7 +482,7 @@ void vtkContourGrid::SetLocator(vtkIncrementalPointLocator* locator)
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContourGrid::CreateDefaultLocator()
 {
   if (this->Locator == nullptr)
@@ -493,27 +493,27 @@ void vtkContourGrid::CreateDefaultLocator()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContourGrid::SetOutputPointsPrecision(int precision)
 {
   this->OutputPointsPrecision = precision;
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkContourGrid::GetOutputPointsPrecision() const
 {
   return this->OutputPointsPrecision;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkContourGrid::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGridBase");
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContourGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

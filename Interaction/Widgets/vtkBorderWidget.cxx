@@ -27,7 +27,7 @@
 
 vtkStandardNewMacro(vtkBorderWidget);
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBorderWidget::vtkBorderWidget()
 {
   this->WidgetState = vtkBorderWidget::Start;
@@ -46,10 +46,10 @@ vtkBorderWidget::vtkBorderWidget()
     vtkCommand::MouseMoveEvent, vtkWidgetEvent::Move, this, vtkBorderWidget::MoveAction);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBorderWidget::~vtkBorderWidget() = default;
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBorderWidget::SetCursor(int cState)
 {
   if (!this->Resizable && cState != vtkBorderRepresentation::Inside)
@@ -95,7 +95,7 @@ void vtkBorderWidget::SetCursor(int cState)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBorderWidget::SelectAction(vtkAbstractWidget* w)
 {
   vtkBorderWidget* self = reinterpret_cast<vtkBorderWidget*>(w);
@@ -148,7 +148,7 @@ void vtkBorderWidget::SelectAction(vtkAbstractWidget* w)
   self->InvokeEvent(vtkCommand::StartInteractionEvent, nullptr);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBorderWidget::TranslateAction(vtkAbstractWidget* w)
 {
   vtkBorderWidget* self = reinterpret_cast<vtkBorderWidget*>(w);
@@ -189,7 +189,7 @@ void vtkBorderWidget::TranslateAction(vtkAbstractWidget* w)
   self->InvokeEvent(vtkCommand::StartInteractionEvent, nullptr);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBorderWidget::MoveAction(vtkAbstractWidget* w)
 {
   vtkBorderWidget* self = reinterpret_cast<vtkBorderWidget*>(w);
@@ -251,7 +251,7 @@ void vtkBorderWidget::MoveAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBorderWidget::EndSelectAction(vtkAbstractWidget* w)
 {
   vtkBorderWidget* self = reinterpret_cast<vtkBorderWidget*>(w);
@@ -274,7 +274,7 @@ void vtkBorderWidget::EndSelectAction(vtkAbstractWidget* w)
   self->InvokeEvent(vtkCommand::EndInteractionEvent, nullptr);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBorderWidget::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)
@@ -283,13 +283,13 @@ void vtkBorderWidget::CreateDefaultRepresentation()
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBorderWidget::SelectRegion(double* vtkNotUsed(eventPos[2]))
 {
   this->InvokeEvent(vtkCommand::WidgetActivateEvent, nullptr);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBorderWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

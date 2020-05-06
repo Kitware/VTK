@@ -64,13 +64,13 @@ vtkDIYUtilitiesCleanup::~vtkDIYUtilitiesCleanup()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDIYUtilities::vtkDIYUtilities() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDIYUtilities::~vtkDIYUtilities() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDIYUtilities::InitializeEnvironmentForDIY()
 {
 #if VTK_MODULE_ENABLE_VTK_ParallelMPI
@@ -90,7 +90,7 @@ void vtkDIYUtilities::InitializeEnvironmentForDIY()
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 diy::mpi::communicator vtkDIYUtilities::GetCommunicator(vtkMultiProcessController* controller)
 {
   vtkDIYUtilities::InitializeEnvironmentForDIY();
@@ -106,7 +106,7 @@ diy::mpi::communicator vtkDIYUtilities::GetCommunicator(vtkMultiProcessControlle
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDIYUtilities::AllReduce(diy::mpi::communicator& comm, vtkBoundingBox& bbox)
 {
   if (comm.size() > 1)
@@ -124,7 +124,7 @@ void vtkDIYUtilities::AllReduce(diy::mpi::communicator& comm, vtkBoundingBox& bb
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDIYUtilities::Save(diy::BinaryBuffer& bb, vtkDataSet* p)
 {
   if (p)
@@ -154,7 +154,7 @@ void vtkDIYUtilities::Save(diy::BinaryBuffer& bb, vtkDataSet* p)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDIYUtilities::Load(diy::BinaryBuffer& bb, vtkDataSet*& p)
 {
   p = nullptr;
@@ -190,7 +190,7 @@ void vtkDIYUtilities::Load(diy::BinaryBuffer& bb, vtkDataSet*& p)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 diy::ContinuousBounds vtkDIYUtilities::Convert(const vtkBoundingBox& bbox)
 {
   if (bbox.IsValid())
@@ -207,7 +207,7 @@ diy::ContinuousBounds vtkDIYUtilities::Convert(const vtkBoundingBox& bbox)
   return diy::ContinuousBounds(3);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBoundingBox vtkDIYUtilities::Convert(const diy::ContinuousBounds& bds)
 {
   double bounds[6];
@@ -222,7 +222,7 @@ vtkBoundingBox vtkDIYUtilities::Convert(const diy::ContinuousBounds& bds)
   return bbox;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDIYUtilities::Broadcast(
   diy::mpi::communicator& comm, std::vector<vtkBoundingBox>& boxes, int source)
 {
@@ -247,7 +247,7 @@ void vtkDIYUtilities::Broadcast(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::vector<vtkDataSet*> vtkDIYUtilities::GetDataSets(vtkDataObject* input)
 {
   std::vector<vtkDataSet*> datasets;
@@ -271,7 +271,7 @@ std::vector<vtkDataSet*> vtkDIYUtilities::GetDataSets(vtkDataObject* input)
   return datasets;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::vector<vtkSmartPointer<vtkPoints>> vtkDIYUtilities::ExtractPoints(
   const std::vector<vtkDataSet*>& datasets, bool use_cell_centers)
 {
@@ -316,7 +316,7 @@ std::vector<vtkSmartPointer<vtkPoints>> vtkDIYUtilities::ExtractPoints(
   return all_points;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBoundingBox vtkDIYUtilities::GetLocalBounds(vtkDataObject* dobj)
 {
   double bds[6];
@@ -332,7 +332,7 @@ vtkBoundingBox vtkDIYUtilities::GetLocalBounds(vtkDataObject* dobj)
   return vtkBoundingBox(bds);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDIYUtilities::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

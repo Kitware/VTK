@@ -29,14 +29,14 @@
 
 vtkStandardNewMacro(vtkExtractEdges);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct object.
 vtkExtractEdges::vtkExtractEdges()
 {
   this->Locator = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractEdges::~vtkExtractEdges()
 {
   if (this->Locator)
@@ -46,7 +46,7 @@ vtkExtractEdges::~vtkExtractEdges()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Generate feature edges for mesh
 int vtkExtractEdges::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -204,7 +204,7 @@ int vtkExtractEdges::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify a spatial locator for merging points. By
 // default an instance of vtkMergePoints is used.
 void vtkExtractEdges::SetLocator(vtkIncrementalPointLocator* locator)
@@ -226,7 +226,7 @@ void vtkExtractEdges::SetLocator(vtkIncrementalPointLocator* locator)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractEdges::CreateDefaultLocator()
 {
   if (this->Locator == nullptr)
@@ -237,14 +237,14 @@ void vtkExtractEdges::CreateDefaultLocator()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractEdges::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractEdges::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -259,7 +259,7 @@ void vtkExtractEdges::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkExtractEdges::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();

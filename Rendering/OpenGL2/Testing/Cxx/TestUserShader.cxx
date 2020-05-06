@@ -29,7 +29,7 @@
 
 #include "vtkRenderWindowInteractor.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestUserShader(int argc, char* argv[])
 {
   vtkNew<vtkActor> actor;

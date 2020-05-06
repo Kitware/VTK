@@ -18,13 +18,13 @@
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkServerSocket);
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkServerSocket::vtkServerSocket() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkServerSocket::~vtkServerSocket() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkServerSocket::GetServerPort()
 {
   if (!this->GetConnected())
@@ -34,7 +34,7 @@ int vtkServerSocket::GetServerPort()
   return this->GetPort(this->SocketDescriptor);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkServerSocket::CreateServer(int port)
 {
   if (this->SocketDescriptor != -1)
@@ -60,7 +60,7 @@ int vtkServerSocket::CreateServer(int port)
   return 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkClientSocket* vtkServerSocket::WaitForConnection(unsigned long msec /*=0*/)
 {
   if (this->SocketDescriptor < 0)
@@ -93,7 +93,7 @@ vtkClientSocket* vtkServerSocket::WaitForConnection(unsigned long msec /*=0*/)
   return cs;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkServerSocket::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

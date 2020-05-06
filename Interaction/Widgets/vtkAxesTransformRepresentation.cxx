@@ -40,7 +40,7 @@
 
 vtkStandardNewMacro(vtkAxesTransformRepresentation);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAxesTransformRepresentation::vtkAxesTransformRepresentation()
 {
   // By default, use one of these handles
@@ -106,7 +106,7 @@ vtkAxesTransformRepresentation::vtkAxesTransformRepresentation()
   this->InteractionState = Outside;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAxesTransformRepresentation::~vtkAxesTransformRepresentation()
 {
   this->OriginRepresentation->Delete();
@@ -136,13 +136,13 @@ vtkAxesTransformRepresentation::~vtkAxesTransformRepresentation()
   this->BoundingBox->Delete();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxesTransformRepresentation::GetOriginWorldPosition(double pos[3])
 {
   this->OriginRepresentation->GetWorldPosition(pos);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkAxesTransformRepresentation::GetOriginWorldPosition()
 {
   if (!this->OriginRepresentation)
@@ -153,7 +153,7 @@ double* vtkAxesTransformRepresentation::GetOriginWorldPosition()
   return this->OriginRepresentation->GetWorldPosition();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxesTransformRepresentation::SetOriginDisplayPosition(double x[3])
 {
   this->OriginRepresentation->SetDisplayPosition(x);
@@ -162,7 +162,7 @@ void vtkAxesTransformRepresentation::SetOriginDisplayPosition(double x[3])
   this->OriginRepresentation->SetWorldPosition(p);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxesTransformRepresentation::SetOriginWorldPosition(double x[3])
 {
   if (this->OriginRepresentation)
@@ -171,14 +171,14 @@ void vtkAxesTransformRepresentation::SetOriginWorldPosition(double x[3])
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxesTransformRepresentation::GetOriginDisplayPosition(double pos[3])
 {
   this->OriginRepresentation->GetDisplayPosition(pos);
   pos[2] = 0.0;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkAxesTransformRepresentation::GetBounds()
 {
   this->BuildRepresentation();
@@ -190,7 +190,7 @@ double* vtkAxesTransformRepresentation::GetBounds()
   return this->BoundingBox->GetBounds();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxesTransformRepresentation::StartWidgetInteraction(double e[2])
 {
   // Store the start position
@@ -208,7 +208,7 @@ void vtkAxesTransformRepresentation::StartWidgetInteraction(double e[2])
   //   this->SelectionRepresentation->GetWorldPosition(this->StartP2);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxesTransformRepresentation::WidgetInteraction(double e[2])
 {
 
@@ -218,7 +218,7 @@ void vtkAxesTransformRepresentation::WidgetInteraction(double e[2])
   this->LastEventPosition[2] = 0.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAxesTransformRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUsed(modify))
 {
   // Check if we are on the origin. Use the handle to determine this.
@@ -242,7 +242,7 @@ int vtkAxesTransformRepresentation::ComputeInteractionState(int X, int Y, int vt
   return this->InteractionState;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxesTransformRepresentation::BuildRepresentation()
 {
   if (this->GetMTime() > this->BuildTime ||
@@ -256,7 +256,7 @@ void vtkAxesTransformRepresentation::BuildRepresentation()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxesTransformRepresentation::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->LineActor->ReleaseGraphicsResources(w);
@@ -264,7 +264,7 @@ void vtkAxesTransformRepresentation::ReleaseGraphicsResources(vtkWindow* w)
   this->GlyphActor->ReleaseGraphicsResources(w);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAxesTransformRepresentation::RenderOpaqueGeometry(vtkViewport* v)
 {
   this->BuildRepresentation();
@@ -276,7 +276,7 @@ int vtkAxesTransformRepresentation::RenderOpaqueGeometry(vtkViewport* v)
   return 3;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAxesTransformRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport* v)
 {
   this->BuildRepresentation();
@@ -288,25 +288,25 @@ int vtkAxesTransformRepresentation::RenderTranslucentPolygonalGeometry(vtkViewpo
   return 3;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxesTransformRepresentation::SetLabelScale(double scale[3])
 {
   this->LabelActor->SetScale(scale);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkAxesTransformRepresentation::GetLabelScale()
 {
   return this->LabelActor->GetScale();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProperty* vtkAxesTransformRepresentation::GetLabelProperty()
 {
   return this->LabelActor->GetProperty();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxesTransformRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "Label Format: ";

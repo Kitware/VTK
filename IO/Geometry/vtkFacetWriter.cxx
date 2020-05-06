@@ -37,26 +37,26 @@
 
 vtkStandardNewMacro(vtkFacetWriter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFacetWriter::vtkFacetWriter()
 {
   this->FileName = nullptr;
   this->OutputStream = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFacetWriter::~vtkFacetWriter()
 {
   this->SetFileName(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFacetWriter::Write()
 {
   this->WriteToStream(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkFacetWriter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -112,7 +112,7 @@ int vtkFacetWriter::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFacetWriter::WriteToStream(ostream* ost)
 {
   this->OutputStream = ost;
@@ -126,7 +126,7 @@ void vtkFacetWriter::WriteToStream(ostream* ost)
   this->OutputStream = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkFacetWriter::WriteDataToStream(ostream* ost, vtkPolyData* data)
 {
   *ost << "Element" << data << endl << "0" << endl << data->GetNumberOfPoints() << " 0 0" << endl;
@@ -297,7 +297,7 @@ int vtkFacetWriter::WriteDataToStream(ostream* ost, vtkPolyData* data)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkFacetWriter::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (!this->Superclass::FillInputPortInformation(port, info))
@@ -307,7 +307,7 @@ int vtkFacetWriter::FillInputPortInformation(int port, vtkInformation* info)
   info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
   return 1;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFacetWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -55,7 +55,7 @@ void setupTextActor(vtkTextActor* actor, vtkPolyData* anchor)
 }
 } // end namespace vtkTestTextActor
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestTextActor(int, char*[])
 {
   using namespace vtkTestTextActor;

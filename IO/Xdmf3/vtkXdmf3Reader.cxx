@@ -378,7 +378,7 @@ private:
 
 vtkStandardNewMacro(vtkXdmf3Reader);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXdmf3Reader::vtkXdmf3Reader()
 {
   this->FileNameInternal = nullptr;
@@ -395,7 +395,7 @@ vtkXdmf3Reader::vtkXdmf3Reader()
   this->SetNumberOfInputPorts(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXdmf3Reader::~vtkXdmf3Reader()
 {
 
@@ -404,7 +404,7 @@ vtkXdmf3Reader::~vtkXdmf3Reader()
   // XdmfHDF5Controller::closeFiles();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXdmf3Reader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -413,7 +413,7 @@ void vtkXdmf3Reader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FileSeriesAsTime: " << (this->FileSeriesAsTime ? "True" : "False") << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXdmf3Reader::AddFileName(const char* filename)
 {
   this->Internal->FileNames.emplace_back(filename);
@@ -423,7 +423,7 @@ void vtkXdmf3Reader::AddFileName(const char* filename)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXdmf3Reader::SetFileName(const char* filename)
 {
   this->RemoveAllFileNames();
@@ -434,13 +434,13 @@ void vtkXdmf3Reader::SetFileName(const char* filename)
   this->SetFileNameInternal(filename);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXdmf3Reader::RemoveAllFileNames()
 {
   this->Internal->FileNames.clear();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmf3Reader::CanReadFile(const char* filename)
 {
   if (!vtksys::SystemTools::FileExists(filename))
@@ -461,14 +461,14 @@ int vtkXdmf3Reader::CanReadFile(const char* filename)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmf3Reader::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkDataObject");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkXdmf3Reader::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -480,7 +480,7 @@ vtkTypeBool vtkXdmf3Reader::ProcessRequest(
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmf3Reader::RequestDataObjectInternal(vtkInformationVector* outputVector)
 {
   vtkTimerLog::MarkStartEvent("X3R::RDO");
@@ -516,7 +516,7 @@ int vtkXdmf3Reader::RequestDataObjectInternal(vtkInformationVector* outputVector
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmf3Reader::RequestInformation(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
@@ -606,7 +606,7 @@ int vtkXdmf3Reader::RequestInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmf3Reader::RequestData(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
@@ -722,7 +722,7 @@ int vtkXdmf3Reader::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiPieceDataSet* vtkXdmf3Reader::Internals::Flatten(vtkMultiBlockDataSet* ibds)
 {
   vtkDataObjectTreeIterator* it = ibds->NewTreeIterator();
@@ -790,169 +790,169 @@ vtkMultiPieceDataSet* vtkXdmf3Reader::Internals::Flatten(vtkMultiBlockDataSet* i
   return mpds; // caller must Delete
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmf3Reader::GetNumberOfFieldArrays()
 {
   return this->GetFieldArraySelection()->GetNumberOfArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXdmf3Reader::SetFieldArrayStatus(const char* arrayname, int status)
 {
   this->GetFieldArraySelection()->SetArrayStatus(arrayname, status != 0);
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmf3Reader::GetFieldArrayStatus(const char* arrayname)
 {
   return this->GetFieldArraySelection()->GetArraySetting(arrayname);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXdmf3Reader::GetFieldArrayName(int index)
 {
   return this->GetFieldArraySelection()->GetArrayName(index);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXdmf3ArraySelection* vtkXdmf3Reader::GetFieldArraySelection()
 {
   return this->FieldArraysCache;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmf3Reader::GetNumberOfCellArrays()
 {
   return this->GetCellArraySelection()->GetNumberOfArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXdmf3Reader::SetCellArrayStatus(const char* arrayname, int status)
 {
   this->GetCellArraySelection()->SetArrayStatus(arrayname, status != 0);
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmf3Reader::GetCellArrayStatus(const char* arrayname)
 {
   return this->GetCellArraySelection()->GetArraySetting(arrayname);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXdmf3Reader::GetCellArrayName(int index)
 {
   return this->GetCellArraySelection()->GetArrayName(index);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXdmf3ArraySelection* vtkXdmf3Reader::GetCellArraySelection()
 {
   return this->CellArraysCache;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmf3Reader::GetNumberOfPointArrays()
 {
   return this->GetPointArraySelection()->GetNumberOfArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXdmf3Reader::SetPointArrayStatus(const char* arrayname, int status)
 {
   this->GetPointArraySelection()->SetArrayStatus(arrayname, status != 0);
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmf3Reader::GetPointArrayStatus(const char* arrayname)
 {
   return this->GetPointArraySelection()->GetArraySetting(arrayname);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXdmf3Reader::GetPointArrayName(int index)
 {
   return this->GetPointArraySelection()->GetArrayName(index);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXdmf3ArraySelection* vtkXdmf3Reader::GetPointArraySelection()
 {
   return this->PointArraysCache;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmf3Reader::GetNumberOfGrids()
 {
   return this->GetGridsSelection()->GetNumberOfArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXdmf3Reader::SetGridStatus(const char* gridname, int status)
 {
   this->GetGridsSelection()->SetArrayStatus(gridname, status != 0);
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmf3Reader::GetGridStatus(const char* arrayname)
 {
   return this->GetGridsSelection()->GetArraySetting(arrayname);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXdmf3Reader::GetGridName(int index)
 {
   return this->GetGridsSelection()->GetArrayName(index);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXdmf3ArraySelection* vtkXdmf3Reader::GetGridsSelection()
 {
   return this->GridsCache;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmf3Reader::GetNumberOfSets()
 {
   return this->GetSetsSelection()->GetNumberOfArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXdmf3Reader::SetSetStatus(const char* arrayname, int status)
 {
   this->GetSetsSelection()->SetArrayStatus(arrayname, status != 0);
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmf3Reader::GetSetStatus(const char* arrayname)
 {
   return this->GetSetsSelection()->GetArraySetting(arrayname);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXdmf3Reader::GetSetName(int index)
 {
   return this->GetSetsSelection()->GetArrayName(index);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXdmf3ArraySelection* vtkXdmf3Reader::GetSetsSelection()
 {
   return this->SetsCache;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGraph* vtkXdmf3Reader::GetSIL()
 {
   vtkGraph* ret = this->Internal->GetSIL();
   return ret;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmf3Reader::GetSILUpdateStamp()
 {
   return this->Internal->GetSIL()->GetMTime();

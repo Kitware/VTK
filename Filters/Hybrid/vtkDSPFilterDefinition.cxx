@@ -40,7 +40,7 @@ public:
   std::string m_string;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDSPFilterDefinition::vtkDSPFilterDefinition()
 {
   // printf("    in vtkDSPFilterDefinition::vtkDSPFilterDefinition()\n");
@@ -56,7 +56,7 @@ vtkDSPFilterDefinition::vtkDSPFilterDefinition()
   this->InputVariableName->m_string = "";
   this->OutputVariableName->m_string = "";
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDSPFilterDefinition::vtkDSPFilterDefinition(vtkDSPFilterDefinition* other)
 {
   // printf("    in vtkDSPFilterDefinition::vtkDSPFilterDefinition(vtkDSPFilterDefinition
@@ -73,7 +73,7 @@ vtkDSPFilterDefinition::vtkDSPFilterDefinition(vtkDSPFilterDefinition* other)
   this->InputVariableName->m_string = other->InputVariableName->m_string;
   this->OutputVariableName->m_string = other->OutputVariableName->m_string;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDSPFilterDefinition::Copy(vtkDSPFilterDefinition* other)
 {
   // printf("    in vtkDSPFilterDefinition::Copy(vtkDSPFilterDefinition *other)\n");
@@ -83,7 +83,7 @@ void vtkDSPFilterDefinition::Copy(vtkDSPFilterDefinition* other)
   this->InputVariableName->m_string = other->InputVariableName->m_string;
   this->OutputVariableName->m_string = other->OutputVariableName->m_string;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDSPFilterDefinition::~vtkDSPFilterDefinition()
 {
   this->NumeratorWeights->m_vector.resize(0);
@@ -98,7 +98,7 @@ vtkDSPFilterDefinition::~vtkDSPFilterDefinition()
   delete this->InputVariableName;
   delete this->OutputVariableName;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDSPFilterDefinition::Clear()
 {
   this->NumeratorWeights->m_vector.resize(0);
@@ -107,7 +107,7 @@ void vtkDSPFilterDefinition::Clear()
   this->InputVariableName->m_string = "";
   this->OutputVariableName->m_string = "";
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkDSPFilterDefinition::IsThisInputVariableInstanceNeeded(int a_timestep, int a_outputTimestep)
 {
   if (a_outputTimestep < a_timestep)
@@ -142,77 +142,77 @@ bool vtkDSPFilterDefinition::IsThisInputVariableInstanceNeeded(int a_timestep, i
   return (true);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDSPFilterDefinition::PushBackNumeratorWeight(double a_value)
 {
   this->NumeratorWeights->m_vector.push_back(a_value);
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDSPFilterDefinition::PushBackDenominatorWeight(double a_value)
 {
   this->DenominatorWeights->m_vector.push_back(a_value);
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDSPFilterDefinition::PushBackForwardNumeratorWeight(double a_value)
 {
   this->ForwardNumeratorWeights->m_vector.push_back(a_value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDSPFilterDefinition::SetInputVariableName(const char* a_value)
 {
   this->InputVariableName->m_string = a_value;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDSPFilterDefinition::SetOutputVariableName(const char* a_value)
 {
   this->OutputVariableName->m_string = a_value;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkDSPFilterDefinition::GetInputVariableName()
 {
   return this->InputVariableName->m_string.c_str();
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkDSPFilterDefinition::GetOutputVariableName()
 {
   return this->OutputVariableName->m_string.c_str();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDSPFilterDefinition::GetNumNumeratorWeights()
 {
   return static_cast<int>(this->NumeratorWeights->m_vector.size());
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDSPFilterDefinition::GetNumDenominatorWeights()
 {
   return static_cast<int>(this->DenominatorWeights->m_vector.size());
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDSPFilterDefinition::GetNumForwardNumeratorWeights()
 {
   return static_cast<int>(this->ForwardNumeratorWeights->m_vector.size());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkDSPFilterDefinition::GetNumeratorWeight(int a_which)
 {
   return this->NumeratorWeights->m_vector[a_which];
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkDSPFilterDefinition::GetDenominatorWeight(int a_which)
 {
   return this->DenominatorWeights->m_vector[a_which];
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkDSPFilterDefinition::GetForwardNumeratorWeight(int a_which)
 {
   return this->ForwardNumeratorWeights->m_vector[a_which];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDSPFilterDefinition::PrintSelf(ostream& os, vtkIndent indent)
 {
 

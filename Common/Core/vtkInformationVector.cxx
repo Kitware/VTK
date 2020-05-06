@@ -30,7 +30,7 @@ public:
   ~vtkInformationVectorInternals();
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationVectorInternals::~vtkInformationVectorInternals()
 {
   // Delete all the information objects.
@@ -44,20 +44,20 @@ vtkInformationVectorInternals::~vtkInformationVectorInternals()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationVector::vtkInformationVector()
 {
   this->Internal = new vtkInformationVectorInternals;
   this->NumberOfInformationObjects = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationVector::~vtkInformationVector()
 {
   delete this->Internal;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationVector::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -72,7 +72,7 @@ void vtkInformationVector::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationVector::SetNumberOfInformationObjects(int newNumber)
 {
   // Adjust the number of objects.
@@ -106,7 +106,7 @@ void vtkInformationVector::SetNumberOfInformationObjects(int newNumber)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationVector::SetInformationObject(int index, vtkInformation* newInfo)
 {
   if (newInfo && index >= 0 && index < this->NumberOfInformationObjects)
@@ -148,7 +148,7 @@ void vtkInformationVector::SetInformationObject(int index, vtkInformation* newIn
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformation* vtkInformationVector::GetInformationObject(int index)
 {
   if (index >= 0 && index < this->NumberOfInformationObjects)
@@ -158,14 +158,14 @@ vtkInformation* vtkInformationVector::GetInformationObject(int index)
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationVector::Append(vtkInformation* info)
 {
   // Setting an entry beyond the end will automatically append.
   this->SetInformationObject(this->NumberOfInformationObjects, info);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationVector::Remove(vtkInformation* info)
 {
   // Search for the information object and remove it.
@@ -180,7 +180,7 @@ void vtkInformationVector::Remove(vtkInformation* info)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationVector::Remove(int i)
 {
   if (i < this->NumberOfInformationObjects)
@@ -194,7 +194,7 @@ void vtkInformationVector::Remove(int i)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationVector::Copy(vtkInformationVector* from, int deep)
 {
   // if deep we can reuse existing info objects
@@ -218,19 +218,19 @@ void vtkInformationVector::Copy(vtkInformationVector* from, int deep)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationVector::Register(vtkObjectBase* o)
 {
   this->RegisterInternal(o, 1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationVector::UnRegister(vtkObjectBase* o)
 {
   this->UnRegisterInternal(o, 1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationVector::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);

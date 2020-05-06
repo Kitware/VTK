@@ -55,7 +55,7 @@ public:
   vtkDistanceWidget* DistanceWidget;
 };
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDistanceWidget::vtkDistanceWidget()
 {
   this->ManagesCursor = 0;
@@ -125,7 +125,7 @@ vtkDistanceWidget::vtkDistanceWidget()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDistanceWidget::~vtkDistanceWidget()
 {
   this->Point1Widget->RemoveObserver(this->DistanceWidgetCallback1);
@@ -137,7 +137,7 @@ vtkDistanceWidget::~vtkDistanceWidget()
   this->DistanceWidgetCallback2->Delete();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceWidget::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)
@@ -147,7 +147,7 @@ void vtkDistanceWidget::CreateDefaultRepresentation()
   reinterpret_cast<vtkDistanceRepresentation*>(this->WidgetRep)->InstantiateHandleRepresentation();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceWidget::SetEnabled(int enabling)
 {
   // The handle widgets are not actually enabled until they are placed.
@@ -287,7 +287,7 @@ void vtkDistanceWidget::SetEnabled(int enabling)
 }
 
 // The following methods are the callbacks that the measure widget responds to
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceWidget::AddPointAction(vtkAbstractWidget* w)
 {
   vtkDistanceWidget* self = reinterpret_cast<vtkDistanceWidget*>(w);
@@ -350,7 +350,7 @@ void vtkDistanceWidget::AddPointAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceWidget::AddPointAction3D(vtkAbstractWidget* w)
 {
   vtkDistanceWidget* self = reinterpret_cast<vtkDistanceWidget*>(w);
@@ -409,7 +409,7 @@ void vtkDistanceWidget::AddPointAction3D(vtkAbstractWidget* w)
   self->Render();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceWidget::MoveAction(vtkAbstractWidget* w)
 {
   vtkDistanceWidget* self = reinterpret_cast<vtkDistanceWidget*>(w);
@@ -441,7 +441,7 @@ void vtkDistanceWidget::MoveAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceWidget::MoveAction3D(vtkAbstractWidget* w)
 {
   vtkDistanceWidget* self = reinterpret_cast<vtkDistanceWidget*>(w);
@@ -468,7 +468,7 @@ void vtkDistanceWidget::MoveAction3D(vtkAbstractWidget* w)
   self->Render();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceWidget::EndSelectAction(vtkAbstractWidget* w)
 {
   vtkDistanceWidget* self = reinterpret_cast<vtkDistanceWidget*>(w);
@@ -488,7 +488,7 @@ void vtkDistanceWidget::EndSelectAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceWidget::EndSelectAction3D(vtkAbstractWidget* w)
 {
   vtkDistanceWidget* self = reinterpret_cast<vtkDistanceWidget*>(w);
@@ -510,27 +510,27 @@ void vtkDistanceWidget::EndSelectAction3D(vtkAbstractWidget* w)
 
 // These are callbacks that are active when the user is manipulating the
 // handles of the measure widget.
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceWidget::StartDistanceInteraction(int)
 {
   this->Superclass::StartInteraction();
   this->InvokeEvent(vtkCommand::StartInteractionEvent, nullptr);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceWidget::DistanceInteraction(int)
 {
   this->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceWidget::EndDistanceInteraction(int)
 {
   this->Superclass::EndInteraction();
   this->InvokeEvent(vtkCommand::EndInteractionEvent, nullptr);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceWidget::SetProcessEvents(vtkTypeBool pe)
 {
   this->Superclass::SetProcessEvents(pe);
@@ -539,7 +539,7 @@ void vtkDistanceWidget::SetProcessEvents(vtkTypeBool pe)
   this->Point2Widget->SetProcessEvents(pe);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceWidget::SetWidgetStateToStart()
 {
   this->WidgetState = vtkDistanceWidget::Start;
@@ -549,7 +549,7 @@ void vtkDistanceWidget::SetWidgetStateToStart()
   this->SetEnabled(this->GetEnabled());             // show/hide the handles properly
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceWidget::SetWidgetStateToManipulate()
 {
   this->WidgetState = vtkDistanceWidget::Manipulate;
@@ -559,7 +559,7 @@ void vtkDistanceWidget::SetWidgetStateToManipulate()
   this->SetEnabled(this->GetEnabled());             // show/hide the handles properly
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h

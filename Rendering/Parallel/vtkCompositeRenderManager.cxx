@@ -27,7 +27,7 @@ vtkStandardNewMacro(vtkCompositeRenderManager);
 
 vtkCxxSetObjectMacro(vtkCompositeRenderManager, Compositer, vtkCompositer);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCompositeRenderManager::vtkCompositeRenderManager()
 {
   this->Compositer = vtkCompressCompositer::New();
@@ -43,7 +43,7 @@ vtkCompositeRenderManager::vtkCompositeRenderManager()
   this->TmpDepthData->SetNumberOfComponents(1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCompositeRenderManager::~vtkCompositeRenderManager()
 {
   this->SetCompositer(nullptr);
@@ -52,7 +52,7 @@ vtkCompositeRenderManager::~vtkCompositeRenderManager()
   this->TmpDepthData->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositeRenderManager::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -60,7 +60,7 @@ void vtkCompositeRenderManager::PrintSelf(ostream& os, vtkIndent indent)
   this->Compositer->PrintSelf(os, indent.GetNextIndent());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositeRenderManager::PreRenderProcessing()
 {
   vtkTimerLog::MarkStartEvent("Compositing");
@@ -75,7 +75,7 @@ void vtkCompositeRenderManager::PreRenderProcessing()
   this->RenderWindow->SetMultiSamples(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositeRenderManager::PostRenderProcessing()
 {
   this->RenderWindow->SetMultiSamples(this->SavedMultiSamplesSetting);

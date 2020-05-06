@@ -25,7 +25,7 @@
 
 vtkStandardNewMacro(vtkInteractorStyleDrawPolygon);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkInteractorStyleDrawPolygon::vtkInternal
 {
 public:
@@ -73,7 +73,7 @@ public:
   }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInteractorStyleDrawPolygon::vtkInteractorStyleDrawPolygon()
 {
   this->Internal = new vtkInternal();
@@ -84,20 +84,20 @@ vtkInteractorStyleDrawPolygon::vtkInteractorStyleDrawPolygon()
   this->PixelArray = vtkUnsignedCharArray::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInteractorStyleDrawPolygon::~vtkInteractorStyleDrawPolygon()
 {
   this->PixelArray->Delete();
   delete this->Internal;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::vector<vtkVector2i> vtkInteractorStyleDrawPolygon::GetPolygonPoints()
 {
   return this->Internal->points;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleDrawPolygon::OnMouseMove()
 {
   if (!this->Interactor || !this->Moving)
@@ -137,7 +137,7 @@ void vtkInteractorStyleDrawPolygon::OnMouseMove()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleDrawPolygon::OnLeftButtonDown()
 {
   if (!this->Interactor)
@@ -164,7 +164,7 @@ void vtkInteractorStyleDrawPolygon::OnLeftButtonDown()
   this->InvokeEvent(vtkCommand::StartInteractionEvent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleDrawPolygon::OnLeftButtonUp()
 {
   if (!this->Interactor || !this->Moving)
@@ -185,7 +185,7 @@ void vtkInteractorStyleDrawPolygon::OnLeftButtonUp()
   this->InvokeEvent(vtkCommand::EndInteractionEvent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleDrawPolygon::DrawPolygon()
 {
   vtkNew<vtkUnsignedCharArray> tmpPixelArray;
@@ -215,7 +215,7 @@ void vtkInteractorStyleDrawPolygon::DrawPolygon()
   this->Interactor->GetRenderWindow()->Frame();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleDrawPolygon::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

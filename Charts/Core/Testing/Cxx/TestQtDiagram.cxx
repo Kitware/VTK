@@ -32,7 +32,7 @@
 
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class APIDiagram2 : public vtkContextItem
 {
 public:
@@ -42,7 +42,7 @@ public:
   virtual bool Paint(vtkContext2D* painter);
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestQtDiagram(int argc, char* argv[])
 {
   // Set up a QApplication instance to see if heart needs a QApplication

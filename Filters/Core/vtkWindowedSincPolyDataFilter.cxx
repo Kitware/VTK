@@ -29,7 +29,7 @@
 
 vtkStandardNewMacro(vtkWindowedSincPolyDataFilter);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct object with number of iterations 20; passband .1;
 // feature edge smoothing turned off; feature
 // angle 45 degrees; edge angle 15 degrees; and boundary smoothing turned
@@ -64,7 +64,7 @@ typedef struct _vtkMeshVertex
   vtkIdList* edges; // connected edges (list of connected point ids)
 } vtkMeshVertex, *vtkMeshVertexPtr;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkWindowedSincPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -794,7 +794,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(reques
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWindowedSincPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

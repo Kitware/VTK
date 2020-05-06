@@ -26,23 +26,23 @@
 
 vtkStandardNewMacro(vtkSynchronizeTimeFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSynchronizeTimeFilter::vtkSynchronizeTimeFilter()
 {
   this->SetNumberOfInputPorts(2);
   this->RelativeTolerance = 0.00001;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSynchronizeTimeFilter::~vtkSynchronizeTimeFilter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSynchronizeTimeFilter::SetSourceConnection(vtkAlgorithmOutput* algOutput)
 {
   this->SetInputConnection(1, algOutput);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkSynchronizeTimeFilter::GetInputTimeValue(double outputTimeValue)
 {
   double inputTimeValue = outputTimeValue;
@@ -60,7 +60,7 @@ double vtkSynchronizeTimeFilter::GetInputTimeValue(double outputTimeValue)
   return inputTimeValue;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkSynchronizeTimeFilter::GetOutputTimeValue(double inputTimeValue)
 {
   double outputTimeValue = inputTimeValue;
@@ -78,7 +78,7 @@ double vtkSynchronizeTimeFilter::GetOutputTimeValue(double inputTimeValue)
   return outputTimeValue;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSynchronizeTimeFilter::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -146,7 +146,7 @@ int vtkSynchronizeTimeFilter::RequestInformation(vtkInformation* vtkNotUsed(requ
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSynchronizeTimeFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -172,7 +172,7 @@ int vtkSynchronizeTimeFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(req
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSynchronizeTimeFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

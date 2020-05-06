@@ -50,23 +50,23 @@ PURPOSE.  See the above copyright notice for more information.
 
 using namespace vtkTemporalStreamTracerNamespace;
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPTemporalStreamTracer);
 vtkCxxSetObjectMacro(vtkPTemporalStreamTracer, Controller, vtkMultiProcessController);
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPTemporalStreamTracer::vtkPTemporalStreamTracer()
 {
   this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
   VTK_LEGACY_BODY(vtkPTemporalStreamTracer::vtkPTemporalStreamTracer, "VTK 9.0");
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPTemporalStreamTracer::~vtkPTemporalStreamTracer()
 {
   this->SetController(nullptr);
   this->SetParticleWriter(nullptr);
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPTemporalStreamTracer::AssignSeedsToProcessors(vtkDataSet* source, int sourceID, int ptId,
   ParticleVector& LocalSeedPoints, int& LocalAssignedCount)
 {
@@ -144,7 +144,7 @@ void vtkPTemporalStreamTracer::AssignSeedsToProcessors(vtkDataSet* source, int s
     vtkDebugMacro(<< "Total Assigned to all processes " << TotalAssigned);
   }
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPTemporalStreamTracer::AssignUniqueIds(
   vtkTemporalStreamTracerNamespace::ParticleVector& LocalSeedPoints)
 {
@@ -194,7 +194,7 @@ void vtkPTemporalStreamTracer::AssignUniqueIds(
     this->UniqueIdCounter += numParticles;
   }
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPTemporalStreamTracer::TransmitReceiveParticles(
   ParticleVector& sending, ParticleVector& received, bool removeself)
 {
@@ -243,7 +243,7 @@ void vtkPTemporalStreamTracer::TransmitReceiveParticles(
     received.erase(first, last);
   }
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPTemporalStreamTracer::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -256,14 +256,14 @@ int vtkPTemporalStreamTracer::RequestData(
 
   return rvalue;
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPTemporalStreamTracer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Controller: " << this->Controller << endl;
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPTemporalStreamTracer::AddParticleToMPISendList(ParticleInformation& info)
 {
   double eps = (this->CurrentTimeSteps[1] - this->CurrentTimeSteps[0]) / 100;

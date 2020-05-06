@@ -19,7 +19,7 @@
 #include <algorithm>
 #include <vector>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationIntegerVectorKey ::vtkInformationIntegerVectorKey(
   const char* name, const char* location, int length)
   : vtkInformationKey(name, location)
@@ -28,16 +28,16 @@ vtkInformationIntegerVectorKey ::vtkInformationIntegerVectorKey(
   vtkCommonInformationKeyManager::Register(this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationIntegerVectorKey::~vtkInformationIntegerVectorKey() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationIntegerVectorKey::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkInformationIntegerVectorValue : public vtkObjectBase
 {
 public:
@@ -45,7 +45,7 @@ public:
   std::vector<int> Value;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationIntegerVectorKey::Append(vtkInformation* info, int value)
 {
   vtkInformationIntegerVectorValue* v =
@@ -60,14 +60,14 @@ void vtkInformationIntegerVectorKey::Append(vtkInformation* info, int value)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationIntegerVectorKey::Set(vtkInformation* info)
 {
   int someVal;
   this->Set(info, &someVal, 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationIntegerVectorKey::Set(vtkInformation* info, const int* value, int length)
 {
   if (value)
@@ -110,7 +110,7 @@ void vtkInformationIntegerVectorKey::Set(vtkInformation* info, const int* value,
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int* vtkInformationIntegerVectorKey::Get(vtkInformation* info)
 {
   vtkInformationIntegerVectorValue* v =
@@ -118,7 +118,7 @@ int* vtkInformationIntegerVectorKey::Get(vtkInformation* info)
   return (v && !v->Value.empty()) ? (&v->Value[0]) : nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkInformationIntegerVectorKey::Get(vtkInformation* info, int idx)
 {
   if (idx >= this->Length(info))
@@ -131,7 +131,7 @@ int vtkInformationIntegerVectorKey::Get(vtkInformation* info, int idx)
   return values[idx];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationIntegerVectorKey::Get(vtkInformation* info, int* value)
 {
   vtkInformationIntegerVectorValue* v =
@@ -145,7 +145,7 @@ void vtkInformationIntegerVectorKey::Get(vtkInformation* info, int* value)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkInformationIntegerVectorKey::Length(vtkInformation* info)
 {
   vtkInformationIntegerVectorValue* v =
@@ -153,13 +153,13 @@ int vtkInformationIntegerVectorKey::Length(vtkInformation* info)
   return v ? static_cast<int>(v->Value.size()) : 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationIntegerVectorKey::ShallowCopy(vtkInformation* from, vtkInformation* to)
 {
   this->Set(to, this->Get(from), this->Length(from));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationIntegerVectorKey::Print(ostream& os, vtkInformation* info)
 {
   // Print the value.
@@ -176,7 +176,7 @@ void vtkInformationIntegerVectorKey::Print(ostream& os, vtkInformation* info)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int* vtkInformationIntegerVectorKey::GetWatchAddress(vtkInformation* info)
 {
   vtkInformationIntegerVectorValue* v =

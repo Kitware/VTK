@@ -59,7 +59,7 @@ vtkActor::vtkActor()
   vtkMath::UninitializeBounds(this->MapperBounds);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkActor::~vtkActor()
 {
   if (this->Property != nullptr)
@@ -82,7 +82,7 @@ vtkActor::~vtkActor()
   this->SetTexture(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Shallow copy of an actor.
 void vtkActor::ShallowCopy(vtkProp* prop)
 {
@@ -99,7 +99,7 @@ void vtkActor::ShallowCopy(vtkProp* prop)
   this->vtkProp3D::ShallowCopy(prop);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkActor::GetActors(vtkPropCollection* ac)
 {
   ac->AddItem(this);
@@ -169,14 +169,14 @@ vtkTypeBool vtkActor::HasTranslucentPolygonalGeometry()
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // should be called from the render methods only
 int vtkActor::GetIsOpaque()
 {
   return this->HasOpaqueGeometry();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This causes the actor to be rendered. It in turn will render the actor's
 // property, texture map and then mapper. If a property hasn't been
 // assigned, then the actor will create one automatically. Note that a
@@ -244,7 +244,7 @@ int vtkActor::RenderOpaqueGeometry(vtkViewport* vp)
   return renderedSomething;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkActor::RenderTranslucentPolygonalGeometry(vtkViewport* vp)
 {
   int renderedSomething = 0;
@@ -312,7 +312,7 @@ int vtkActor::RenderTranslucentPolygonalGeometry(vtkViewport* vp)
   return renderedSomething;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkActor::ReleaseGraphicsResources(vtkWindow* win)
 {
   vtkRenderWindow* renWin = static_cast<vtkRenderWindow*>(win);
@@ -340,13 +340,13 @@ void vtkActor::ReleaseGraphicsResources(vtkWindow* win)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProperty* vtkActor::MakeProperty()
 {
   return vtkProperty::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProperty* vtkActor::GetProperty()
 {
   if (this->Property == nullptr)
@@ -358,7 +358,7 @@ vtkProperty* vtkActor::GetProperty()
   return this->Property;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
 double* vtkActor::GetBounds()
 {
@@ -465,7 +465,7 @@ double* vtkActor::GetBounds()
   return this->Bounds;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkActor::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
@@ -492,7 +492,7 @@ vtkMTimeType vtkActor::GetMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkActor::GetRedrawMTime()
 {
   vtkMTimeType mTime = this->GetMTime();
@@ -514,7 +514,7 @@ vtkMTimeType vtkActor::GetRedrawMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -562,7 +562,7 @@ void vtkActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ForceTranslucent: " << (this->ForceTranslucent ? "true" : "false") << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkActor::GetSupportsSelection()
 {
   if (this->Mapper)

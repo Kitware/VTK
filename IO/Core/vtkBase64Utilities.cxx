@@ -16,22 +16,22 @@
 #include "vtkObjectFactory.h"
 #include <cassert>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkBase64Utilities);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static const unsigned char vtkBase64UtilitiesEncodeTable[65] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                                                                "abcdefghijklmnopqrstuvwxyz"
                                                                "0123456789+/";
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 inline static unsigned char vtkBase64UtilitiesEncodeChar(unsigned char c)
 {
   assert(c < 65);
   return vtkBase64UtilitiesEncodeTable[c];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBase64Utilities::EncodeTriplet(unsigned char i0, unsigned char i1, unsigned char i2,
   unsigned char* o0, unsigned char* o1, unsigned char* o2, unsigned char* o3)
 {
@@ -41,7 +41,7 @@ void vtkBase64Utilities::EncodeTriplet(unsigned char i0, unsigned char i1, unsig
   *o3 = vtkBase64UtilitiesEncodeChar(i2 & 0x3F);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBase64Utilities::EncodePair(unsigned char i0, unsigned char i1, unsigned char* o0,
   unsigned char* o1, unsigned char* o2, unsigned char* o3)
 {
@@ -51,7 +51,7 @@ void vtkBase64Utilities::EncodePair(unsigned char i0, unsigned char i1, unsigned
   *o3 = '=';
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBase64Utilities::EncodeSingle(
   unsigned char i0, unsigned char* o0, unsigned char* o1, unsigned char* o2, unsigned char* o3)
 {
@@ -61,7 +61,7 @@ void vtkBase64Utilities::EncodeSingle(
   *o3 = '=';
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 unsigned long vtkBase64Utilities::Encode(
   const unsigned char* input, unsigned long length, unsigned char* output, int mark_end)
 {
@@ -107,7 +107,7 @@ unsigned long vtkBase64Utilities::Encode(
   return optr - output;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static const unsigned char vtkBase64UtilitiesDecodeTable[256] = {
   0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, //
   0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, //
@@ -144,13 +144,13 @@ static const unsigned char vtkBase64UtilitiesDecodeTable[256] = {
   0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF  //
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 inline static unsigned char vtkBase64UtilitiesDecodeChar(unsigned char c)
 {
   return vtkBase64UtilitiesDecodeTable[c];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkBase64Utilities::DecodeTriplet(unsigned char i0, unsigned char i1, unsigned char i2,
   unsigned char i3, unsigned char* o0, unsigned char* o1, unsigned char* o2)
 {
@@ -187,7 +187,7 @@ int vtkBase64Utilities::DecodeTriplet(unsigned char i0, unsigned char i1, unsign
   return 3;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 size_t vtkBase64Utilities::DecodeSafely(
   const unsigned char* input, size_t inputLen, unsigned char* output, size_t outputLen)
 {

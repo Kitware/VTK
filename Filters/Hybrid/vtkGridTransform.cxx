@@ -38,7 +38,7 @@ public:
 
 vtkStandardNewMacro(vtkGridTransformConnectionHolder);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Nearest-neighbor interpolation of a displacement grid.
 // The displacement as well as the derivatives are returned.
 // There are two versions: one which computes the derivatives,
@@ -204,7 +204,7 @@ static void vtkNearestNeighborInterpolation(double point[3], double displacement
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Trilinear interpolation of a displacement grid.
 // The displacement as well as the derivatives are returned.
 
@@ -350,7 +350,7 @@ static void vtkTrilinearInterpolation(double point[3], double displacement[3],
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Do tricubic interpolation of the input data 'gridPtr' of extent 'gridExt'
 // at the 'point'.  The result is placed at 'outPtr'.
 // The number of scalar components in the data is 'numscalars'
@@ -675,7 +675,7 @@ static void vtkTricubicInterpolation(double point[3], double displacement[3],
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGridTransform::vtkGridTransform()
 {
   this->InterpolationMode = VTK_LINEAR_INTERPOLATION;
@@ -689,14 +689,14 @@ vtkGridTransform::vtkGridTransform()
   this->ConnectionHolder = vtkGridTransformConnectionHolder::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGridTransform::~vtkGridTransform()
 {
   this->ConnectionHolder->Delete();
   this->ConnectionHolder = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGridTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -706,7 +706,7 @@ void vtkGridTransform::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "DisplacementShift: " << this->DisplacementShift << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // need to check the input image data to determine MTime
 vtkMTimeType vtkGridTransform::GetMTime()
 {
@@ -726,7 +726,7 @@ vtkMTimeType vtkGridTransform::GetMTime()
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGridTransform::SetInterpolationMode(int mode)
 {
   if (mode == this->InterpolationMode)
@@ -751,7 +751,7 @@ void vtkGridTransform::SetInterpolationMode(int mode)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGridTransform::ForwardTransformPoint(const double inPoint[3], double outPoint[3])
 {
   if (!this->GridPointer)
@@ -789,7 +789,7 @@ void vtkGridTransform::ForwardTransformPoint(const double inPoint[3], double out
   outPoint[2] = inPoint[2] + (displacement[2] * scale + shift);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // convert double to double
 void vtkGridTransform::ForwardTransformPoint(const float point[3], float output[3])
 {
@@ -805,7 +805,7 @@ void vtkGridTransform::ForwardTransformPoint(const float point[3], float output[
   output[2] = static_cast<float>(fpoint[2]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // calculate the derivative of the grid transform: only cubic interpolation
 // provides well-behaved derivative so we always use that.
 void vtkGridTransform::ForwardTransformDerivative(
@@ -855,7 +855,7 @@ void vtkGridTransform::ForwardTransformDerivative(
   outPoint[2] = inPoint[2] + (displacement[2] * scale + shift);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // convert double to double
 void vtkGridTransform::ForwardTransformDerivative(
   const float point[3], float output[3], float derivative[3][3])
@@ -877,7 +877,7 @@ void vtkGridTransform::ForwardTransformDerivative(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // We use Newton's method to iteratively invert the transformation.
 // This is actually quite robust as long as the Jacobian matrix is never
 // singular.
@@ -1043,7 +1043,7 @@ void vtkGridTransform::InverseTransformDerivative(
   outPoint[2] = inverse[2] * spacing[2] + origin[2];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // convert double to double and back again
 void vtkGridTransform::InverseTransformDerivative(
   const float point[3], float output[3], float derivative[3][3])
@@ -1065,7 +1065,7 @@ void vtkGridTransform::InverseTransformDerivative(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGridTransform::InverseTransformPoint(const double point[3], double output[3])
 {
   // the derivative won't be used, but it is required for Newton's method
@@ -1073,7 +1073,7 @@ void vtkGridTransform::InverseTransformPoint(const double point[3], double outpu
   this->InverseTransformDerivative(point, output, derivative);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // convert double to double and back again
 void vtkGridTransform::InverseTransformPoint(const float point[3], float output[3])
 {
@@ -1090,7 +1090,7 @@ void vtkGridTransform::InverseTransformPoint(const float point[3], float output[
   output[2] = static_cast<float>(fpoint[2]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGridTransform::InternalDeepCopy(vtkAbstractTransform* transform)
 {
   vtkGridTransform* gridTransform = (vtkGridTransform*)transform;
@@ -1114,7 +1114,7 @@ void vtkGridTransform::InternalDeepCopy(vtkAbstractTransform* transform)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGridTransform::InternalUpdate()
 {
   vtkImageData* grid = this->GetDisplacementGrid();
@@ -1153,19 +1153,19 @@ void vtkGridTransform::InternalUpdate()
   grid->GetIncrements(this->GridIncrements);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAbstractTransform* vtkGridTransform::MakeTransform()
 {
   return vtkGridTransform::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGridTransform::SetDisplacementGridConnection(vtkAlgorithmOutput* output)
 {
   this->ConnectionHolder->SetInputConnection(output);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGridTransform::SetDisplacementGridData(vtkImageData* grid)
 {
   vtkTrivialProducer* tp = vtkTrivialProducer::New();
@@ -1174,7 +1174,7 @@ void vtkGridTransform::SetDisplacementGridData(vtkImageData* grid)
   tp->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageData* vtkGridTransform::GetDisplacementGrid()
 {
   return vtkImageData::SafeDownCast(this->ConnectionHolder->GetInputDataObject(0, 0));

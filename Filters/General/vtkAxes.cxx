@@ -24,7 +24,7 @@
 
 vtkStandardNewMacro(vtkAxes);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct with origin=(0,0,0) and scale factor=1.
 vtkAxes::vtkAxes()
 {
@@ -161,7 +161,7 @@ int vtkAxes::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This source does not know how to generate pieces yet.
 int vtkAxes::ComputeDivisionExtents(vtkDataObject* vtkNotUsed(output), int idx, int numDivisions)
 {
@@ -177,7 +177,7 @@ int vtkAxes::ComputeDivisionExtents(vtkDataObject* vtkNotUsed(output), int idx, 
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxes::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -21,7 +21,7 @@
 
 vtkStandardNewMacro(vtkReebGraphSimplificationFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkReebGraphSimplificationFilter::vtkReebGraphSimplificationFilter()
 {
   this->SetNumberOfInputPorts(1);
@@ -29,10 +29,10 @@ vtkReebGraphSimplificationFilter::vtkReebGraphSimplificationFilter()
   this->SimplificationMetric = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkReebGraphSimplificationFilter::~vtkReebGraphSimplificationFilter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkReebGraphSimplificationFilter::SetSimplificationMetric(
   vtkReebGraphSimplificationMetric* simplificationMetric)
 {
@@ -43,7 +43,7 @@ void vtkReebGraphSimplificationFilter::SetSimplificationMetric(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkReebGraphSimplificationFilter::FillInputPortInformation(int portNumber, vtkInformation* info)
 {
   if (!portNumber)
@@ -54,27 +54,27 @@ int vtkReebGraphSimplificationFilter::FillInputPortInformation(int portNumber, v
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkReebGraphSimplificationFilter::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDirectedGraph::DATA_TYPE_NAME(), "vtkReebGraph");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkReebGraphSimplificationFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Simplification Threshold: " << this->SimplificationThreshold << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkReebGraph* vtkReebGraphSimplificationFilter::GetOutput()
 {
   return vtkReebGraph::SafeDownCast(this->GetOutputDataObject(0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkReebGraphSimplificationFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

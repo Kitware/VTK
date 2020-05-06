@@ -18,14 +18,14 @@
 
 vtkStandardNewMacro(vtkTextPropertyCollection);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextPropertyCollection::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTextPropertyCollection::vtkTextPropertyCollection() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTextPropertyCollection::~vtkTextPropertyCollection() = default;

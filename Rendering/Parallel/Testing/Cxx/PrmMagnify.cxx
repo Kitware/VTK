@@ -45,7 +45,7 @@
 
 #define VTK_CREATE(type, var) vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 class vtkTestMagnifyRenderManager : public vtkParallelRenderManager
 {
@@ -198,7 +198,7 @@ void vtkTestMagnifyRenderManager::ReadReducedImage()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int PrmMagnify(int argc, char* argv[])
 {

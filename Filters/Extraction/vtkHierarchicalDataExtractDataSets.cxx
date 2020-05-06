@@ -17,13 +17,13 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkObjectFactory.h"
 vtkStandardNewMacro(vtkHierarchicalDataExtractDataSets);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHierarchicalDataExtractDataSets::vtkHierarchicalDataExtractDataSets() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHierarchicalDataExtractDataSets::~vtkHierarchicalDataExtractDataSets() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHierarchicalDataExtractDataSets::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

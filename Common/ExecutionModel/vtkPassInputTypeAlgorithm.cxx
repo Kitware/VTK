@@ -32,7 +32,7 @@
 
 vtkStandardNewMacro(vtkPassInputTypeAlgorithm);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Instantiate object so that cell data is not passed to output.
 vtkPassInputTypeAlgorithm::vtkPassInputTypeAlgorithm()
 {
@@ -40,118 +40,118 @@ vtkPassInputTypeAlgorithm::vtkPassInputTypeAlgorithm()
   this->SetNumberOfOutputPorts(1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject* vtkPassInputTypeAlgorithm::GetOutput()
 {
   return this->GetOutput(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject* vtkPassInputTypeAlgorithm::GetOutput(int port)
 {
   return vtkDataObject::SafeDownCast(this->GetOutputDataObject(port));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the output as vtkImageData
 vtkImageData* vtkPassInputTypeAlgorithm::GetImageDataOutput()
 {
   return vtkImageData::SafeDownCast(this->GetOutput());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the output as vtkPolyData.
 vtkPolyData* vtkPassInputTypeAlgorithm::GetPolyDataOutput()
 {
   return vtkPolyData::SafeDownCast(this->GetOutput());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the output as vtkStructuredPoints.
 vtkStructuredPoints* vtkPassInputTypeAlgorithm::GetStructuredPointsOutput()
 {
   return vtkStructuredPoints::SafeDownCast(this->GetOutput());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the output as vtkStructuredGrid.
 vtkStructuredGrid* vtkPassInputTypeAlgorithm::GetStructuredGridOutput()
 {
   return vtkStructuredGrid::SafeDownCast(this->GetOutput());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the output as vtkUnstructuredGrid.
 vtkUnstructuredGrid* vtkPassInputTypeAlgorithm::GetUnstructuredGridOutput()
 {
   return vtkUnstructuredGrid::SafeDownCast(this->GetOutput());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the output as vtkRectilinearGrid.
 vtkRectilinearGrid* vtkPassInputTypeAlgorithm::GetRectilinearGridOutput()
 {
   return vtkRectilinearGrid::SafeDownCast(this->GetOutput());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the output as vtkGraph.
 vtkGraph* vtkPassInputTypeAlgorithm::GetGraphOutput()
 {
   return vtkGraph::SafeDownCast(this->GetOutput());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the output as vtkMolecule.
 vtkMolecule* vtkPassInputTypeAlgorithm::GetMoleculeOutput()
 {
   return vtkMolecule::SafeDownCast(this->GetOutput());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the output as vtkTable.
 vtkTable* vtkPassInputTypeAlgorithm::GetTableOutput()
 {
   return vtkTable::SafeDownCast(this->GetOutput());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPassInputTypeAlgorithm::SetInputData(vtkDataObject* input)
 {
   this->SetInputData(0, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPassInputTypeAlgorithm::SetInputData(int index, vtkDataObject* input)
 {
   this->SetInputDataInternal(index, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPassInputTypeAlgorithm::AddInputData(vtkDataObject* input)
 {
   this->AddInputData(0, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPassInputTypeAlgorithm::AddInputData(int index, vtkDataObject* input)
 {
   this->AddInputDataInternal(index, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject* vtkPassInputTypeAlgorithm::GetInput()
 {
   return this->GetInput(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject* vtkPassInputTypeAlgorithm::GetInput(int port)
 {
   return this->GetExecutive()->GetInputData(port, 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkPassInputTypeAlgorithm::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -192,7 +192,7 @@ vtkTypeBool vtkPassInputTypeAlgorithm::ProcessRequest(
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPassInputTypeAlgorithm::RequestDataObject(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -228,7 +228,7 @@ int vtkPassInputTypeAlgorithm::RequestDataObject(
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPassInputTypeAlgorithm::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   // now add our info
@@ -236,14 +236,14 @@ int vtkPassInputTypeAlgorithm::FillOutputPortInformation(int vtkNotUsed(port), v
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPassInputTypeAlgorithm::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPassInputTypeAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

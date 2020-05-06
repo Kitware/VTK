@@ -18,7 +18,7 @@
 
 vtkStandardNewMacro(vtkDummyCommunicator);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDummyCommunicator::vtkDummyCommunicator()
 {
   this->MaximumNumberOfProcesses = 1;

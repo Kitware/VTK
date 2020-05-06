@@ -42,7 +42,7 @@ PURPOSE.  See the above copyright notice for more information.
 vtkStandardNewMacro(vtkOrderIndependentTranslucentPass);
 vtkCxxSetObjectMacro(vtkOrderIndependentTranslucentPass, TranslucentPass, vtkRenderPass);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOrderIndependentTranslucentPass::vtkOrderIndependentTranslucentPass()
   : Framebuffer(nullptr)
   , State(nullptr)
@@ -62,7 +62,7 @@ vtkOrderIndependentTranslucentPass::vtkOrderIndependentTranslucentPass()
   this->ViewportHeight = 100;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOrderIndependentTranslucentPass::~vtkOrderIndependentTranslucentPass()
 {
   if (this->TranslucentPass != nullptr)
@@ -91,7 +91,7 @@ vtkOrderIndependentTranslucentPass::~vtkOrderIndependentTranslucentPass()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Destructor. Delete SourceCode if any.
 void vtkOrderIndependentTranslucentPass::ReleaseGraphicsResources(vtkWindow* w)
@@ -127,7 +127,7 @@ void vtkOrderIndependentTranslucentPass::ReleaseGraphicsResources(vtkWindow* w)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrderIndependentTranslucentPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -169,7 +169,7 @@ void vtkOrderIndependentTranslucentPass::BlendFinalPeel(vtkOpenGLRenderWindow* r
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Perform rendering according to a render state \p s.
 // \pre s_exists: s!=0

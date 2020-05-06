@@ -219,20 +219,20 @@ public:
   }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPNGReader::vtkPNGReader()
 {
   this->Internals = new vtkInternals();
   this->ReadSpacingFromFile = false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPNGReader::~vtkPNGReader()
 {
   delete this->Internals;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPNGReader::ExecuteInformation()
 {
   vtkInternals* impl = this->Internals;
@@ -359,7 +359,7 @@ void vtkPNGReader::ExecuteInformation()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class OT>
 void vtkPNGReader::vtkPNGReaderUpdate2(OT* outPtr, int* outExt, vtkIdType* outInc, long pixSize)
 {
@@ -485,7 +485,7 @@ void vtkPNGReader::vtkPNGReaderUpdate2(OT* outPtr, int* outExt, vtkIdType* outIn
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This function reads in one data of data.
 // templated to handle different data types.
 template <class OT>
@@ -512,7 +512,7 @@ void vtkPNGReader::vtkPNGReaderUpdate(vtkImageData* data, OT* outPtr)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This function reads a data from a file.  The datas extent/axes
 // are assumed to be the same as the file extent/order.
 void vtkPNGReader::ExecuteDataWithInformation(vtkDataObject* output, vtkInformation* outInfo)
@@ -542,7 +542,7 @@ void vtkPNGReader::ExecuteDataWithInformation(vtkDataObject* output, vtkInformat
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPNGReader::CanReadFile(const char* fname)
 {
   FILE* fp = vtksys::SystemTools::Fopen(fname, "rb");
@@ -595,7 +595,7 @@ int vtkPNGReader::CanReadFile(const char* fname)
 #pragma warning(default : 4611)
 #endif
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPNGReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -603,19 +603,19 @@ void vtkPNGReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Read Spacing From File: " << (this->ReadSpacingFromFile ? "On\n" : "Off\n");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPNGReader::GetTextChunks(const char* key, int beginEndIndex[2])
 {
   this->Internals->GetTextChunks(key, beginEndIndex);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkPNGReader::GetTextKey(int index)
 {
   return this->Internals->TextKeyValue[index].first.c_str();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkPNGReader::GetTextValue(int index)
 {
   return this->Internals->TextKeyValue[index].second.c_str();

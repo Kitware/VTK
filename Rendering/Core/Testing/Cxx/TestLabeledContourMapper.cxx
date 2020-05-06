@@ -36,7 +36,7 @@
 
 #include <algorithm>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestLabeledContourMapper(int argc, char* argv[])
 {
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SainteHelens.dem");

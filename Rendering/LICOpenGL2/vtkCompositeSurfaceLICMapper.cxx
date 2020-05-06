@@ -90,17 +90,17 @@ private:
   void operator=(const vtkCompositeLICHelper&) = delete;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkObjectFactoryNewMacro(vtkCompositeLICHelper);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCompositeLICHelper::vtkCompositeLICHelper()
 {
   this->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS, vtkDataSetAttributes::VECTORS);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCompositeLICHelper::~vtkCompositeLICHelper() = default;
 
 void vtkCompositeLICHelper::ReplaceShaderValues(
@@ -159,7 +159,7 @@ void vtkCompositeLICHelper::SetMapperShaderParameters(
       ->GetMaskOnSurface());
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositeLICHelper::AppendOneBufferObject(vtkRenderer* ren, vtkActor* act,
   vtkCompositeMapperHelperData* hdata, vtkIdType& voffset, std::vector<unsigned char>& newColors,
   std::vector<float>& newNorms)
@@ -180,10 +180,10 @@ void vtkCompositeLICHelper::AppendOneBufferObject(vtkRenderer* ren, vtkActor* ac
 // Now the main class methods
 
 vtkStandardNewMacro(vtkCompositeSurfaceLICMapper);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCompositeSurfaceLICMapper::vtkCompositeSurfaceLICMapper() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCompositeSurfaceLICMapper::~vtkCompositeSurfaceLICMapper() = default;
 
 vtkCompositeMapperHelper2* vtkCompositeSurfaceLICMapper::CreateHelper()
@@ -191,7 +191,7 @@ vtkCompositeMapperHelper2* vtkCompositeSurfaceLICMapper::CreateHelper()
   return vtkCompositeLICHelper::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositeSurfaceLICMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -204,7 +204,7 @@ void vtkCompositeSurfaceLICMapper::CopyMapperValuesToHelper(vtkCompositeMapperHe
   helper->SetInputArrayToProcess(0, this->GetInputArrayInformation(0));
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Method initiates the mapping process. Generally sent by the actor
 // as each frame is rendered.

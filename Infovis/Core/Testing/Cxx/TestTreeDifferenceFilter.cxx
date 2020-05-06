@@ -21,7 +21,7 @@
 #include "vtkTree.h"
 #include "vtkTreeDifferenceFilter.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestTreeDifferenceFilter(int, char*[])
 {
   // create tree 1

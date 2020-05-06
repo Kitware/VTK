@@ -19,7 +19,7 @@
 
 #include <vector>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationVariantVectorKey ::vtkInformationVariantVectorKey(
   const char* name, const char* location, int length)
   : vtkInformationKey(name, location)
@@ -28,16 +28,16 @@ vtkInformationVariantVectorKey ::vtkInformationVariantVectorKey(
   vtkCommonInformationKeyManager::Register(this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationVariantVectorKey::~vtkInformationVariantVectorKey() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationVariantVectorKey::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkInformationVariantVectorValue : public vtkObjectBase
 {
 public:
@@ -48,7 +48,7 @@ public:
 
 vtkVariant vtkInformationVariantVectorValue::Invalid;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationVariantVectorKey::Append(vtkInformation* info, const vtkVariant& value)
 {
   vtkInformationVariantVectorValue* v =
@@ -63,7 +63,7 @@ void vtkInformationVariantVectorKey::Append(vtkInformation* info, const vtkVaria
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationVariantVectorKey::Set(vtkInformation* info, const vtkVariant* value, int length)
 {
   if (value)
@@ -90,7 +90,7 @@ void vtkInformationVariantVectorKey::Set(vtkInformation* info, const vtkVariant*
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const vtkVariant* vtkInformationVariantVectorKey::Get(vtkInformation* info) const
 {
   const vtkInformationVariantVectorValue* v =
@@ -98,7 +98,7 @@ const vtkVariant* vtkInformationVariantVectorKey::Get(vtkInformation* info) cons
   return (v && !v->Value.empty()) ? (&v->Value[0]) : nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const vtkVariant& vtkInformationVariantVectorKey::Get(vtkInformation* info, int idx) const
 {
   if (idx >= this->Length(info))
@@ -111,7 +111,7 @@ const vtkVariant& vtkInformationVariantVectorKey::Get(vtkInformation* info, int 
   return values[idx];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationVariantVectorKey::Get(vtkInformation* info, vtkVariant* value) const
 {
   const vtkInformationVariantVectorValue* v =
@@ -125,7 +125,7 @@ void vtkInformationVariantVectorKey::Get(vtkInformation* info, vtkVariant* value
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkInformationVariantVectorKey::Length(vtkInformation* info) const
 {
   const vtkInformationVariantVectorValue* v =
@@ -133,13 +133,13 @@ int vtkInformationVariantVectorKey::Length(vtkInformation* info) const
   return v ? static_cast<int>(v->Value.size()) : 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationVariantVectorKey::ShallowCopy(vtkInformation* from, vtkInformation* to)
 {
   this->Set(to, this->Get(from), this->Length(from));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationVariantVectorKey::Print(ostream& os, vtkInformation* info)
 {
   // Print the value.

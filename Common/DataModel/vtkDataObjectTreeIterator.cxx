@@ -262,7 +262,7 @@ public:
 };
 
 vtkStandardNewMacro(vtkDataObjectTreeIterator);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObjectTreeIterator::vtkDataObjectTreeIterator()
 {
   this->VisitOnlyLeaves = 1;
@@ -272,19 +272,19 @@ vtkDataObjectTreeIterator::vtkDataObjectTreeIterator()
   this->Internals->CompositeDataIterator = this;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObjectTreeIterator::~vtkDataObjectTreeIterator()
 {
   delete this->Internals;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObjectTreeIterator::IsDoneWithTraversal()
 {
   return this->Internals->Iterator->IsDoneWithTraversal();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObjectTreeIterator::GoToFirstItem()
 {
   this->SetCurrentFlatIndex(0);
@@ -306,7 +306,7 @@ void vtkDataObjectTreeIterator::GoToFirstItem()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObjectTreeIterator::GoToNextItem()
 {
   if (!this->Internals->Iterator->IsDoneWithTraversal())
@@ -329,7 +329,7 @@ void vtkDataObjectTreeIterator::GoToNextItem()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObjectTreeIterator::NextInternal()
 {
   do
@@ -341,7 +341,7 @@ void vtkDataObjectTreeIterator::NextInternal()
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject* vtkDataObjectTreeIterator::GetCurrentDataObject()
 {
   if (!this->IsDoneWithTraversal())
@@ -352,7 +352,7 @@ vtkDataObject* vtkDataObjectTreeIterator::GetCurrentDataObject()
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformation* vtkDataObjectTreeIterator::GetCurrentMetaData()
 {
   if (!this->IsDoneWithTraversal())
@@ -363,7 +363,7 @@ vtkInformation* vtkDataObjectTreeIterator::GetCurrentMetaData()
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObjectTreeIterator::HasCurrentMetaData()
 {
   if (!this->IsDoneWithTraversal())
@@ -374,13 +374,13 @@ int vtkDataObjectTreeIterator::HasCurrentMetaData()
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObjectTreeIndex vtkDataObjectTreeIterator::GetCurrentIndex()
 {
   return this->Internals->Iterator->GetCurrentIndex();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 unsigned int vtkDataObjectTreeIterator::GetCurrentFlatIndex()
 {
   if (this->Reverse)
@@ -391,7 +391,7 @@ unsigned int vtkDataObjectTreeIterator::GetCurrentFlatIndex()
   return this->CurrentFlatIndex;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObjectTreeInternals* vtkDataObjectTreeIterator::GetInternals(vtkDataObjectTree* cd)
 {
   if (cd)
@@ -402,7 +402,7 @@ vtkDataObjectTreeInternals* vtkDataObjectTreeIterator::GetInternals(vtkDataObjec
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObjectTreeIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -39,7 +39,7 @@
 
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestMultipleScalarsToColors(int, char*[])
 {
   VTK_CREATE(vtkRenderWindow, renwin);

@@ -22,13 +22,13 @@
 
 vtkStandardNewMacro(vtkPPolyDataNormals);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPPolyDataNormals::vtkPPolyDataNormals()
 {
   this->PieceInvariant = 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPPolyDataNormals::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -40,7 +40,7 @@ int vtkPPolyDataNormals::RequestData(
   return 1;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPPolyDataNormals::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -67,7 +67,7 @@ int vtkPPolyDataNormals::RequestUpdateExtent(vtkInformation* vtkNotUsed(request)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPPolyDataNormals::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

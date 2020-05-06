@@ -35,7 +35,7 @@
 vtkStandardNewMacro(vtkDepthImageToPointCloud);
 vtkCxxSetObjectMacro(vtkDepthImageToPointCloud, Camera, vtkCamera);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Helper classes to support efficient computing, and threaded execution.
 namespace
 {
@@ -175,7 +175,7 @@ struct MapScalars
 } // anonymous namespace
 
 //================= Begin class proper =======================================
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDepthImageToPointCloud::vtkDepthImageToPointCloud()
 {
   this->Camera = nullptr;
@@ -189,7 +189,7 @@ vtkDepthImageToPointCloud::vtkDepthImageToPointCloud()
   this->SetNumberOfOutputPorts(1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDepthImageToPointCloud::~vtkDepthImageToPointCloud()
 {
   if (this->Camera)
@@ -199,7 +199,7 @@ vtkDepthImageToPointCloud::~vtkDepthImageToPointCloud()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkDepthImageToPointCloud::GetMTime()
 {
   vtkCamera* cam = this->GetCamera();
@@ -221,7 +221,7 @@ vtkMTimeType vtkDepthImageToPointCloud::GetMTime()
   return t1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDepthImageToPointCloud::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
@@ -237,7 +237,7 @@ int vtkDepthImageToPointCloud::FillInputPortInformation(int port, vtkInformation
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDepthImageToPointCloud::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   // now add our info
@@ -245,14 +245,14 @@ int vtkDepthImageToPointCloud::FillOutputPortInformation(int vtkNotUsed(port), v
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDepthImageToPointCloud::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
 {
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDepthImageToPointCloud::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -272,7 +272,7 @@ int vtkDepthImageToPointCloud::RequestUpdateExtent(vtkInformation* vtkNotUsed(re
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDepthImageToPointCloud::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -419,7 +419,7 @@ int vtkDepthImageToPointCloud::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDepthImageToPointCloud::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

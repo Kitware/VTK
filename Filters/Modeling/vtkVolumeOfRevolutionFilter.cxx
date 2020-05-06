@@ -375,7 +375,7 @@ int RevolveCell(int cellType, vtkIdList* pointIds, vtkIdType n2DPoints, int reso
 }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkVolumeOfRevolutionFilter::vtkVolumeOfRevolutionFilter()
 {
   this->SweepAngle = 360.0;
@@ -386,10 +386,10 @@ vtkVolumeOfRevolutionFilter::vtkVolumeOfRevolutionFilter()
   this->OutputPointsPrecision = DEFAULT_PRECISION;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkVolumeOfRevolutionFilter::~vtkVolumeOfRevolutionFilter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkVolumeOfRevolutionFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -488,14 +488,14 @@ int vtkVolumeOfRevolutionFilter::RequestData(vtkInformation* vtkNotUsed(request)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkVolumeOfRevolutionFilter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeOfRevolutionFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -24,17 +24,17 @@
 
 vtkStandardNewMacro(vtkPolyDataToReebGraphFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyDataToReebGraphFilter::vtkPolyDataToReebGraphFilter()
 {
   FieldId = 0;
   this->SetNumberOfInputPorts(1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyDataToReebGraphFilter::~vtkPolyDataToReebGraphFilter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPolyDataToReebGraphFilter::FillInputPortInformation(
   int vtkNotUsed(portNumber), vtkInformation* info)
 {
@@ -43,27 +43,27 @@ int vtkPolyDataToReebGraphFilter::FillInputPortInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPolyDataToReebGraphFilter::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDirectedGraph::DATA_TYPE_NAME(), "vtkReebGraph");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyDataToReebGraphFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Field Id: " << this->FieldId << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkReebGraph* vtkPolyDataToReebGraphFilter::GetOutput()
 {
   return vtkReebGraph::SafeDownCast(this->GetOutputDataObject(0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPolyDataToReebGraphFilter::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

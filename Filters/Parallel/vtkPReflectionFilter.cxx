@@ -20,20 +20,20 @@
 
 vtkStandardNewMacro(vtkPReflectionFilter);
 vtkCxxSetObjectMacro(vtkPReflectionFilter, Controller, vtkMultiProcessController);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPReflectionFilter::vtkPReflectionFilter()
 {
   this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPReflectionFilter::~vtkPReflectionFilter()
 {
   this->SetController(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPReflectionFilter::ComputeBounds(vtkDataObject* input, double bounds[6])
 {
   vtkBoundingBox bbox;
@@ -53,7 +53,7 @@ int vtkPReflectionFilter::ComputeBounds(vtkDataObject* input, double bounds[6])
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPReflectionFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

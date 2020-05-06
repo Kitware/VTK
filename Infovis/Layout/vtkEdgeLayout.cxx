@@ -34,7 +34,7 @@
 
 vtkStandardNewMacro(vtkEdgeLayout);
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkEdgeLayout::vtkEdgeLayout()
 {
@@ -46,7 +46,7 @@ vtkEdgeLayout::vtkEdgeLayout()
   this->EventForwarder->SetTarget(this);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkEdgeLayout::~vtkEdgeLayout()
 {
@@ -61,7 +61,7 @@ vtkEdgeLayout::~vtkEdgeLayout()
   this->EventForwarder->Delete();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkEdgeLayout::SetLayoutStrategy(vtkEdgeLayoutStrategy* strategy)
 {
@@ -91,7 +91,7 @@ void vtkEdgeLayout::SetLayoutStrategy(vtkEdgeLayoutStrategy* strategy)
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkMTimeType vtkEdgeLayout::GetMTime()
 {
@@ -106,7 +106,7 @@ vtkMTimeType vtkEdgeLayout::GetMTime()
   return mTime;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkEdgeLayout::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -155,7 +155,7 @@ int vtkEdgeLayout::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkEdgeLayout::PrintSelf(ostream& os, vtkIndent indent)
 {

@@ -34,10 +34,10 @@
 
 #include <cassert>
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkScalarsToColorsItem, HistogramTable, vtkTable);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkScalarsToColorsItem::vtkScalarsToColorsItem()
 {
   this->PolyLinePen->SetWidth(2.);
@@ -64,7 +64,7 @@ vtkScalarsToColorsItem::vtkScalarsToColorsItem()
   this->AddItem(this->PlotBar);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkScalarsToColorsItem::~vtkScalarsToColorsItem()
 {
   if (this->HistogramTable)
@@ -79,14 +79,14 @@ vtkScalarsToColorsItem::~vtkScalarsToColorsItem()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkScalarsToColorsItem::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Interpolate: " << this->Interpolate << endl;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkScalarsToColorsItem::GetBounds(double bounds[4])
 {
   if (this->UserBounds[1] > this->UserBounds[0] && this->UserBounds[3] > this->UserBounds[2])
@@ -100,7 +100,7 @@ void vtkScalarsToColorsItem::GetBounds(double bounds[4])
   this->ComputeBounds(bounds);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkScalarsToColorsItem::ComputeBounds(double bounds[4])
 {
   bounds[0] = 0.;
@@ -109,7 +109,7 @@ void vtkScalarsToColorsItem::ComputeBounds(double bounds[4])
   bounds[3] = 1.;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkScalarsToColorsItem::Paint(vtkContext2D* painter)
 {
   this->TextureWidth = this->GetScene()->GetViewWidth();
@@ -189,7 +189,7 @@ bool vtkScalarsToColorsItem::Paint(vtkContext2D* painter)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkScalarsToColorsItem::OnScalarsToColorsModified(
   vtkObject* caller, unsigned long eid, void* clientdata, void* calldata)
 {
@@ -197,14 +197,14 @@ void vtkScalarsToColorsItem::OnScalarsToColorsModified(
   self->ScalarsToColorsModified(caller, eid, calldata);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkScalarsToColorsItem::ScalarsToColorsModified(
   vtkObject* vtkNotUsed(object), unsigned long vtkNotUsed(eid), void* vtkNotUsed(calldata))
 {
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkScalarsToColorsItem::ConfigurePlotBar()
 {
   bool visible = this->HistogramTable && this->HistogramTable->GetNumberOfColumns() >= 2 &&
@@ -253,7 +253,7 @@ bool vtkScalarsToColorsItem::ConfigurePlotBar()
   return visible;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkScalarsToColorsItem::GetNearestPoint(const vtkVector2f& point,
   const vtkVector2f& tolerance, vtkVector2f* location, vtkIdType* segmentIndex)
 {
@@ -264,7 +264,7 @@ vtkIdType vtkScalarsToColorsItem::GetNearestPoint(const vtkVector2f& point,
   return -1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStdString vtkScalarsToColorsItem::GetTooltipLabel(
   const vtkVector2d& plotPos, vtkIdType seriesIndex, vtkIdType segmentIndex)
 {

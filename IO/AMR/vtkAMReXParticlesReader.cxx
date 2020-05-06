@@ -593,7 +593,7 @@ public:
 
 vtkStandardNewMacro(vtkAMReXParticlesReader);
 vtkCxxSetObjectMacro(vtkAMReXParticlesReader, Controller, vtkMultiProcessController);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAMReXParticlesReader::vtkAMReXParticlesReader()
   : Controller(nullptr)
   , PlotFileName()
@@ -609,14 +609,14 @@ vtkAMReXParticlesReader::vtkAMReXParticlesReader()
     vtkCommand::ModifiedEvent, this, &vtkAMReXParticlesReader::Modified);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAMReXParticlesReader::~vtkAMReXParticlesReader()
 {
   this->SetController(nullptr);
   delete this->Header;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAMReXParticlesReader::SetPlotFileName(const char* fname)
 {
   const std::string filename(fname == nullptr ? "" : fname);
@@ -628,7 +628,7 @@ void vtkAMReXParticlesReader::SetPlotFileName(const char* fname)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAMReXParticlesReader::SetParticleType(const std::string& str)
 {
   if (this->ParticleType != str)
@@ -639,13 +639,13 @@ void vtkAMReXParticlesReader::SetParticleType(const std::string& str)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataArraySelection* vtkAMReXParticlesReader::GetPointDataArraySelection() const
 {
   return this->PointDataArraySelection;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAMReXParticlesReader::CanReadFile(const char* fname, const char* particleType)
 {
   if (fname && vtksystools::FileIsDirectory(fname))
@@ -687,13 +687,13 @@ int vtkAMReXParticlesReader::CanReadFile(const char* fname, const char* particle
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkAMReXParticlesReader::GetPlotFileName() const
 {
   return (this->PlotFileName.empty() ? nullptr : this->PlotFileName.c_str());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAMReXParticlesReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -711,7 +711,7 @@ void vtkAMReXParticlesReader::PrintSelf(ostream& os, vtkIndent indent)
   this->PointDataArraySelection->PrintSelf(os, indent.GetNextIndent());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAMReXParticlesReader::RequestInformation(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -726,7 +726,7 @@ int vtkAMReXParticlesReader::RequestInformation(
   return this->Superclass::RequestInformation(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAMReXParticlesReader::RequestData(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
@@ -767,7 +767,7 @@ int vtkAMReXParticlesReader::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkAMReXParticlesReader::ReadMetaData()
 {
   if (this->MetaDataMTime > this->PlotFileNameMTime)
@@ -810,7 +810,7 @@ bool vtkAMReXParticlesReader::ReadMetaData()
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkAMReXParticlesReader::ReadLevel(
   const int level, vtkMultiPieceDataSet* levelDS, const int piece_idx, const int num_pieces) const
 {

@@ -24,7 +24,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTestUtilities.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestLegendScaleActor(int argc, char* argv[])
 {
   // Create the RenderWindow, Renderer and both Actors

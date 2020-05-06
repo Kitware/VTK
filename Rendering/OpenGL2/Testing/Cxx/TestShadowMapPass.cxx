@@ -41,7 +41,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkTimerLog.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestShadowMapPass(int argc, char* argv[])
 {
   vtkNew<vtkRenderer> renderer;

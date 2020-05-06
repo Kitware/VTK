@@ -30,7 +30,7 @@
 vtkStandardNewMacro(vtkEuclideanClusterExtraction);
 vtkCxxSetObjectMacro(vtkEuclideanClusterExtraction, Locator, vtkAbstractPointLocator);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct with default extraction mode to extract largest cluster.
 vtkEuclideanClusterExtraction::vtkEuclideanClusterExtraction()
 {
@@ -58,7 +58,7 @@ vtkEuclideanClusterExtraction::vtkEuclideanClusterExtraction()
   this->NewScalars = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkEuclideanClusterExtraction::~vtkEuclideanClusterExtraction()
 {
   this->SetLocator(nullptr);
@@ -69,7 +69,7 @@ vtkEuclideanClusterExtraction::~vtkEuclideanClusterExtraction()
   this->SpecifiedClusterIds->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEuclideanClusterExtraction::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -305,7 +305,7 @@ int vtkEuclideanClusterExtraction::RequestData(vtkInformation* vtkNotUsed(reques
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Insert point into connected wave. Check to make sure it satisfies connectivity
 // criterion (if enabled).
 void vtkEuclideanClusterExtraction::InsertIntoWave(vtkIdList* wave, vtkIdType ptId)
@@ -325,7 +325,7 @@ void vtkEuclideanClusterExtraction::InsertIntoWave(vtkIdList* wave, vtkIdType pt
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Update current point information including updating cluster number.  Note:
 // traversal occurs across proximally located points, possibly limited by
 // scalar connectivty.
@@ -366,14 +366,14 @@ void vtkEuclideanClusterExtraction::TraverseAndMark(vtkPoints* inPts)
   } // while wave is not empty
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Obtain the number of connected clusters.
 int vtkEuclideanClusterExtraction::GetNumberOfExtractedClusters()
 {
   return this->ClusterSizes->GetMaxId() + 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Initialize list of point ids used to seed clusters.
 void vtkEuclideanClusterExtraction::InitializeSeedList()
 {
@@ -381,7 +381,7 @@ void vtkEuclideanClusterExtraction::InitializeSeedList()
   this->Seeds->Reset();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Add a seed id. Note: ids are 0-offset.
 void vtkEuclideanClusterExtraction::AddSeed(vtkIdType id)
 {
@@ -389,7 +389,7 @@ void vtkEuclideanClusterExtraction::AddSeed(vtkIdType id)
   this->Seeds->InsertNextId(id);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Delete a seed id. Note: ids are 0-offset.
 void vtkEuclideanClusterExtraction::DeleteSeed(vtkIdType id)
 {
@@ -397,7 +397,7 @@ void vtkEuclideanClusterExtraction::DeleteSeed(vtkIdType id)
   this->Seeds->DeleteId(id);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Initialize list of cluster ids to extract.
 void vtkEuclideanClusterExtraction::InitializeSpecifiedClusterList()
 {
@@ -405,7 +405,7 @@ void vtkEuclideanClusterExtraction::InitializeSpecifiedClusterList()
   this->SpecifiedClusterIds->Reset();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Add a cluster id to extract. Note: ids are 0-offset.
 void vtkEuclideanClusterExtraction::AddSpecifiedCluster(int id)
 {
@@ -413,7 +413,7 @@ void vtkEuclideanClusterExtraction::AddSpecifiedCluster(int id)
   this->SpecifiedClusterIds->InsertNextId(id);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Delete a cluster id to extract. Note: ids are 0-offset.
 void vtkEuclideanClusterExtraction::DeleteSpecifiedCluster(int id)
 {
@@ -421,14 +421,14 @@ void vtkEuclideanClusterExtraction::DeleteSpecifiedCluster(int id)
   this->SpecifiedClusterIds->DeleteId(id);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEuclideanClusterExtraction::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkEuclideanClusterExtraction::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

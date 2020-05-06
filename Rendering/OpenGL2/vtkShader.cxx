@@ -122,7 +122,7 @@ void vtkShader::Cleanup()
   this->Dirty = true;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkShader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

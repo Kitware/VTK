@@ -65,7 +65,7 @@ void vtkOpenGLVertexBufferObject::SetCoordShiftAndScaleMethod(ShiftScaleMethod m
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLVertexBufferObject::SetShift(const std::vector<double>& shift)
 {
   if (!this->PackedVBO.empty())
@@ -99,7 +99,7 @@ void vtkOpenGLVertexBufferObject::SetShift(const std::vector<double>& shift)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLVertexBufferObject::SetScale(const std::vector<double>& scale)
 {
   if (!this->PackedVBO.empty())
@@ -133,13 +133,13 @@ void vtkOpenGLVertexBufferObject::SetScale(const std::vector<double>& scale)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const std::vector<double>& vtkOpenGLVertexBufferObject::GetShift()
 {
   return this->Shift;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const std::vector<double>& vtkOpenGLVertexBufferObject::GetScale()
 {
   return this->Scale;
@@ -521,7 +521,7 @@ void vtkOpenGLVertexBufferObject::AppendDataArray(vtkDataArray* array)
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLVertexBufferObject::UploadVBO()
 {
   this->Upload(this->PackedVBO, vtkOpenGLBufferObject::ArrayBuffer);
@@ -529,7 +529,7 @@ void vtkOpenGLVertexBufferObject::UploadVBO()
   this->UploadTime.Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLVertexBufferObject::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -26,7 +26,7 @@
 
 vtkStandardNewMacro(vtkShepardMethod);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Thread the algorithm by processing each z-slice independently as each
 // point is procssed. (As input points are processed, their influence is felt
 // across a cuboid domain - a splat footprint. The slices that make up the
@@ -212,7 +212,7 @@ public:
   };
 }; // Shepard algorithm
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct with sample dimensions=(50,50,50) and so that model bounds are
 // automatically computed from input. Null value for each unvisited output
 // point is 0.0. Maximum distance is 0.25.
@@ -236,7 +236,7 @@ vtkShepardMethod::vtkShepardMethod()
   this->PowerParameter = 2.0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Compute ModelBounds from input geometry.
 double vtkShepardMethod::ComputeModelBounds(double origin[3], double spacing[3])
 {
@@ -288,7 +288,7 @@ double vtkShepardMethod::ComputeModelBounds(double origin[3], double spacing[3])
   return maxDist;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkShepardMethod::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -321,7 +321,7 @@ int vtkShepardMethod::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkShepardMethod::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -461,7 +461,7 @@ int vtkShepardMethod::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Set the i-j-k dimensions on which to sample the distance function.
 void vtkShepardMethod::SetSampleDimensions(int i, int j, int k)
 {
@@ -474,7 +474,7 @@ void vtkShepardMethod::SetSampleDimensions(int i, int j, int k)
   this->SetSampleDimensions(dim);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Set the i-j-k dimensions on which to sample the distance function.
 void vtkShepardMethod::SetSampleDimensions(int dim[3])
 {
@@ -515,14 +515,14 @@ void vtkShepardMethod::SetSampleDimensions(int dim[3])
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkShepardMethod::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkShepardMethod::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

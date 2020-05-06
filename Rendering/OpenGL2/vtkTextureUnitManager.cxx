@@ -22,20 +22,20 @@
 
 vtkStandardNewMacro(vtkTextureUnitManager);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTextureUnitManager::vtkTextureUnitManager()
 {
   this->NumberOfTextureUnits = 0;
   this->TextureUnits = nullptr;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTextureUnitManager::~vtkTextureUnitManager()
 {
   this->DeleteTable();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Delete the allocation table and check if it is not called before
 // all the texture units have been released.
@@ -62,7 +62,7 @@ void vtkTextureUnitManager::DeleteTable()
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextureUnitManager::Initialize()
 {
   // this->DeleteTable();
@@ -83,7 +83,7 @@ void vtkTextureUnitManager::Initialize()
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Number of texture units supported by the OpenGL context.
 int vtkTextureUnitManager::GetNumberOfTextureUnits()
@@ -91,7 +91,7 @@ int vtkTextureUnitManager::GetNumberOfTextureUnits()
   return this->NumberOfTextureUnits;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Reserve a texture unit. It returns its number.
 // It returns -1 if the allocation failed (because there is no more
@@ -138,7 +138,7 @@ int vtkTextureUnitManager::Allocate(int unit)
   return unit;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Tell if texture unit `textureUnitId' is already allocated.
 // \pre valid_id_range : textureUnitId>=0 && textureUnitId<this->GetNumberOfTextureUnits()
@@ -149,7 +149,7 @@ bool vtkTextureUnitManager::IsAllocated(int textureUnitId)
   return (this->TextureUnits[textureUnitId] ? true : false);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Release a texture unit.
 // \pre valid_id: textureUnitId>=0 && textureUnitId<this->GetNumberOfTextureUnits()
@@ -163,7 +163,7 @@ void vtkTextureUnitManager::Free(int textureUnitId)
   this->TextureUnits[textureUnitId] = false;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextureUnitManager::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

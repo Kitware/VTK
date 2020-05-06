@@ -35,7 +35,7 @@ vtkEmptyRepresentation::vtkEmptyRepresentation()
 
 vtkEmptyRepresentation::~vtkEmptyRepresentation() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAlgorithmOutput* vtkEmptyRepresentation::GetInternalAnnotationOutputPort(
   int vtkNotUsed(port), int vtkNotUsed(conn))
 {

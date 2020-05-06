@@ -57,7 +57,7 @@ static void RenderRMI(void* arg, void*, int, int);
 static void ComputeVisiblePropBoundsRMI(void* arg, void*, int, int);
 bool vtkParallelRenderManager::DefaultRenderEventPropagation = true;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParallelRenderManager::vtkParallelRenderManager()
 {
   this->RenderWindow = nullptr;
@@ -117,7 +117,7 @@ vtkParallelRenderManager::vtkParallelRenderManager()
   this->SynchronizeTileProperties = 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParallelRenderManager::~vtkParallelRenderManager()
 {
   this->SetRenderWindow(nullptr);
@@ -140,7 +140,7 @@ vtkParallelRenderManager::~vtkParallelRenderManager()
     this->Renderers->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -206,7 +206,7 @@ void vtkParallelRenderManager::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "UseBackBuffer: " << (this->UseBackBuffer ? "on" : "off") << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRenderWindow* vtkParallelRenderManager::MakeRenderWindow()
 {
   vtkDebugMacro("MakeRenderWindow");
@@ -214,7 +214,7 @@ vtkRenderWindow* vtkParallelRenderManager::MakeRenderWindow()
   return vtkRenderWindow::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRenderer* vtkParallelRenderManager::MakeRenderer()
 {
   vtkDebugMacro("MakeRenderer");
@@ -222,7 +222,7 @@ vtkRenderer* vtkParallelRenderManager::MakeRenderer()
   return vtkRenderer::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::AddRenderWindowEventHandlers()
 {
   if (this->RenderWindow && !this->ObservingRenderWindow)
@@ -244,7 +244,7 @@ void vtkParallelRenderManager::AddRenderWindowEventHandlers()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::RemoveRenderWindowEventHandlers()
 {
   if (this->RenderWindow && this->ObservingRenderWindow)
@@ -257,7 +257,7 @@ void vtkParallelRenderManager::RemoveRenderWindowEventHandlers()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::SetRenderWindow(vtkRenderWindow* renWin)
 {
   vtkDebugMacro("SetRenderWindow");
@@ -297,14 +297,14 @@ void vtkParallelRenderManager::SetRenderWindow(vtkRenderWindow* renWin)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::SetController(vtkMultiProcessController* controller)
 {
   // Regular vtkSetObjectMacro:
   vtkSetObjectBodyMacro(Controller, vtkMultiProcessController, controller);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::InitializePieces()
 {
   vtkDebugMacro("InitializePieces");
@@ -346,7 +346,7 @@ void vtkParallelRenderManager::InitializePieces()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::InitializeOffScreen()
 {
   vtkDebugMacro("InitializeOffScreen");
@@ -367,7 +367,7 @@ void vtkParallelRenderManager::InitializeOffScreen()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::StartInteractor()
 {
   vtkDebugMacro("StartInteractor");
@@ -399,7 +399,7 @@ void vtkParallelRenderManager::StartInteractor()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::StartServices()
 {
   vtkDebugMacro("StartServices");
@@ -418,7 +418,7 @@ void vtkParallelRenderManager::StartServices()
   this->Controller->ProcessRMIs();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::StopServices()
 {
   vtkDebugMacro("StopServices");
@@ -437,7 +437,7 @@ void vtkParallelRenderManager::StopServices()
   this->Controller->TriggerRMIOnAllChildren(vtkMultiProcessController::BREAK_RMI_TAG);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::GenericStartRenderCallback()
 {
   if (!this->Controller)
@@ -455,7 +455,7 @@ void vtkParallelRenderManager::GenericStartRenderCallback()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::GenericEndRenderCallback()
 {
   if (!this->Controller)
@@ -473,7 +473,7 @@ void vtkParallelRenderManager::GenericEndRenderCallback()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::StartRender()
 {
   vtkParallelRenderManager::RenderWindowInfo winInfo;
@@ -653,7 +653,7 @@ void vtkParallelRenderManager::StartRender()
   this->PreRenderProcessing();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::EndRender()
 {
   if (!this->ParallelRendering)
@@ -700,7 +700,7 @@ void vtkParallelRenderManager::EndRender()
   this->Lock = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::SatelliteEndRender()
 {
   if (this->CheckForAbortComposite())
@@ -728,13 +728,13 @@ void vtkParallelRenderManager::SatelliteEndRender()
   this->InvokeEvent(vtkCommand::EndEvent, nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::RenderRMI()
 {
   this->RenderWindow->Render();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::ResetCamera(vtkRenderer* ren)
 {
   vtkDebugMacro("ResetCamera");
@@ -769,7 +769,7 @@ void vtkParallelRenderManager::ResetCamera(vtkRenderer* ren)
   this->Lock = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::ResetCameraClippingRange(vtkRenderer* ren)
 {
   vtkDebugMacro("ResetCameraClippingRange");
@@ -793,7 +793,7 @@ void vtkParallelRenderManager::ResetCameraClippingRange(vtkRenderer* ren)
   this->Lock = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::ComputeVisiblePropBoundsRMI(int renderId)
 {
   vtkDebugMacro("ComputeVisiblePropBoundsRMI");
@@ -822,13 +822,13 @@ void vtkParallelRenderManager::ComputeVisiblePropBoundsRMI(int renderId)
   this->Controller->Send(bounds, 6, this->RootProcessId, vtkParallelRenderManager::BOUNDS_TAG);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::LocalComputeVisiblePropBounds(vtkRenderer* ren, double bounds[6])
 {
   ren->ComputeVisiblePropBounds(bounds);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::ComputeVisiblePropBounds(vtkRenderer* ren, double bounds[6])
 {
   vtkDebugMacro(<< "ComputeVisiblePropBounds");
@@ -926,7 +926,7 @@ void vtkParallelRenderManager::ComputeVisiblePropBounds(vtkRenderer* ren, double
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::InitializeRMIs()
 {
   vtkDebugMacro("InitializeRMIs");
@@ -947,7 +947,7 @@ void vtkParallelRenderManager::InitializeRMIs()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::ResetAllCameras()
 {
   vtkDebugMacro("ResetAllCameras");
@@ -969,7 +969,7 @@ void vtkParallelRenderManager::ResetAllCameras()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::SetImageReductionFactor(double factor)
 {
   // Clamp factor.
@@ -996,7 +996,7 @@ void vtkParallelRenderManager::SetImageReductionFactor(double factor)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::SetMagnifyImageMethod(int method)
 {
   if (this->MagnifyImageMethod == method)
@@ -1009,7 +1009,7 @@ void vtkParallelRenderManager::SetMagnifyImageMethod(int method)
   this->SetImageReductionFactor(this->ImageReductionFactor);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::SetImageReductionFactorForUpdateRate(double desiredUpdateRate)
 {
   vtkDebugMacro("Setting reduction factor for update rate of " << desiredUpdateRate);
@@ -1083,7 +1083,7 @@ void vtkParallelRenderManager::SetImageReductionFactorForUpdateRate(double desir
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::SetRenderWindowSize()
 {
   if (!this->RenderWindow->GetOffScreenRendering())
@@ -1120,7 +1120,7 @@ void vtkParallelRenderManager::SetRenderWindowSize()
   this->RenderWindow->SetSize(this->FullImageSize[0], this->FullImageSize[1]);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRendererCollection* vtkParallelRenderManager::GetRenderers()
 {
   if (this->SyncRenderWindowRenderers)
@@ -1133,38 +1133,38 @@ vtkRendererCollection* vtkParallelRenderManager::GetRenderers()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::AddRenderer(vtkRenderer* ren)
 {
   this->Renderers->AddItem(ren);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::RemoveRenderer(vtkRenderer* ren)
 {
   this->Renderers->RemoveItem(ren);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::RemoveAllRenderers()
 {
   this->Renderers->RemoveAllItems();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkParallelRenderManager::LastRenderInFrontBuffer()
 {
   return this->RenderWindow->GetSwapBuffers();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkParallelRenderManager::ChooseBuffer()
 {
   // Choose the back buffer if double buffering is on.
   return (this->RenderWindow->GetDoubleBuffer() == 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::MagnifyImageNearest(vtkUnsignedCharArray* fullImage,
   const int fullImageSize[2], vtkUnsignedCharArray* reducedImage, const int reducedImageSize[2],
   const int fullImageViewport[4], const int reducedImageViewport[4])
@@ -1286,7 +1286,7 @@ void vtkParallelRenderManager::MagnifyImageNearest(vtkUnsignedCharArray* fullIma
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // A neat trick to quickly divide all 4 of the bytes in an integer by 2.
 #define VTK_VEC_DIV_2(intvector) (((intvector) >> 1) & 0x7F7F7F7F)
 
@@ -1419,7 +1419,7 @@ void vtkParallelRenderManager::MagnifyImageLinear(vtkUnsignedCharArray* fullImag
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::MagnifyImage(vtkUnsignedCharArray* fullImage,
   const int fullImageSize[2], vtkUnsignedCharArray* reducedImage, const int reducedImageSize[2],
   const int fullImageViewport[4], const int reducedImageViewport[4])
@@ -1437,7 +1437,7 @@ void vtkParallelRenderManager::MagnifyImage(vtkUnsignedCharArray* fullImage,
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::MagnifyReducedImage()
 {
   if ((this->FullImageUpToDate))
@@ -1462,7 +1462,7 @@ void vtkParallelRenderManager::MagnifyReducedImage()
   this->FullImageUpToDate = 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::WriteFullImage()
 {
   if (this->RenderWindowImageUpToDate || !this->WriteBackImages)
@@ -1490,7 +1490,7 @@ void vtkParallelRenderManager::WriteFullImage()
   this->RenderWindowImageUpToDate = 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::SetRenderWindowPixelData(
   vtkUnsignedCharArray* pixels, const int pixelDimensions[2])
 {
@@ -1506,7 +1506,7 @@ void vtkParallelRenderManager::SetRenderWindowPixelData(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::ReadReducedImage()
 {
   if (this->ReducedImageUpToDate)
@@ -1553,7 +1553,7 @@ void vtkParallelRenderManager::ReadReducedImage()
   this->ReducedImageUpToDate = 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::GetPixelData(vtkUnsignedCharArray* data)
 {
   if (!this->RenderWindow)
@@ -1570,7 +1570,7 @@ void vtkParallelRenderManager::GetPixelData(vtkUnsignedCharArray* data)
   data->SetNumberOfTuples(this->FullImage->GetNumberOfTuples());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::GetPixelData(
   int x1, int y1, int x2, int y2, vtkUnsignedCharArray* data)
 {
@@ -1619,7 +1619,7 @@ void vtkParallelRenderManager::GetPixelData(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::GetReducedPixelData(vtkUnsignedCharArray* data)
 {
   if (!this->RenderWindow)
@@ -1636,7 +1636,7 @@ void vtkParallelRenderManager::GetReducedPixelData(vtkUnsignedCharArray* data)
   data->SetNumberOfTuples(this->ReducedImage->GetNumberOfTuples());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::GetReducedPixelData(
   int x1, int y1, int x2, int y2, vtkUnsignedCharArray* data)
 {
@@ -1745,7 +1745,7 @@ static void ComputeVisiblePropBoundsRMI(void* arg, void* remoteArg, int remoteAr
   self->ComputeVisiblePropBoundsRMI(*iarg);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::SatelliteStartRender()
 {
   vtkParallelRenderManager::RenderWindowInfo winInfo;
@@ -1913,7 +1913,7 @@ void vtkParallelRenderManager::SatelliteStartRender()
   this->PreRenderProcessing();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::TileWindows(int xsize, int ysize, int ncolumn)
 {
   if (!this->RenderWindow || !this->Controller)
@@ -1929,9 +1929,9 @@ void vtkParallelRenderManager::TileWindows(int xsize, int ysize, int ncolumn)
   this->RenderWindow->SetPosition(xsize * column, ysize * row);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // ********* INFO OBJECT METHODS ***************************
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::RenderWindowInfo::Save(vtkMultiProcessStream& stream)
 {
   stream << vtkParallelRenderManager::WIN_INFO_TAG << this->FullSize[0] << this->FullSize[1]
@@ -1941,7 +1941,7 @@ void vtkParallelRenderManager::RenderWindowInfo::Save(vtkMultiProcessStream& str
          << this->TileViewport[1] << this->TileViewport[2] << this->TileViewport[3];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkParallelRenderManager::RenderWindowInfo::Restore(vtkMultiProcessStream& stream)
 {
   int tag;
@@ -1958,7 +1958,7 @@ bool vtkParallelRenderManager::RenderWindowInfo::Restore(vtkMultiProcessStream& 
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::RendererInfo::Save(vtkMultiProcessStream& stream)
 {
   int value = this->GradientBackground;
@@ -1973,7 +1973,7 @@ void vtkParallelRenderManager::RendererInfo::Save(vtkMultiProcessStream& stream)
          << this->Background2[1] << this->Background2[2] << value << this->ParallelScale;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkParallelRenderManager::RendererInfo::Restore(vtkMultiProcessStream& stream)
 {
   int tag;
@@ -1998,7 +1998,7 @@ bool vtkParallelRenderManager::RendererInfo::Restore(vtkMultiProcessStream& stre
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkParallelRenderManager::LightInfo::Restore(vtkMultiProcessStream& stream)
 {
   int tag;
@@ -2012,7 +2012,7 @@ bool vtkParallelRenderManager::LightInfo::Restore(vtkMultiProcessStream& stream)
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelRenderManager::LightInfo::Save(vtkMultiProcessStream& stream)
 {
   stream << vtkParallelRenderManager::LIGHT_INFO_TAG << this->Position[0] << this->Position[1]

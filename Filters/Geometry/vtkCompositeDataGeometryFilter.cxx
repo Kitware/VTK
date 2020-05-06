@@ -29,13 +29,13 @@
 
 vtkStandardNewMacro(vtkCompositeDataGeometryFilter);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCompositeDataGeometryFilter::vtkCompositeDataGeometryFilter() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCompositeDataGeometryFilter::~vtkCompositeDataGeometryFilter() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCompositeDataGeometryFilter::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
@@ -44,7 +44,7 @@ int vtkCompositeDataGeometryFilter::FillInputPortInformation(
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkCompositeDataGeometryFilter::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -58,7 +58,7 @@ vtkTypeBool vtkCompositeDataGeometryFilter::ProcessRequest(
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCompositeDataGeometryFilter::RequestCompositeData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -100,13 +100,13 @@ int vtkCompositeDataGeometryFilter::RequestCompositeData(
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExecutive* vtkCompositeDataGeometryFilter::CreateDefaultExecutive()
 {
   return vtkCompositeDataPipeline::New();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositeDataGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

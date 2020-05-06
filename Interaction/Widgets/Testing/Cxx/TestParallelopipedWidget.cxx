@@ -33,7 +33,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransformPolyDataFilter.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestParallelopipedWidget(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();

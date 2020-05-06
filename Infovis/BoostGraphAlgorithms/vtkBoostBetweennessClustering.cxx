@@ -101,7 +101,7 @@ void betweenness_centrality_clustering(MutableGraph& g, Done done,
 
 vtkStandardNewMacro(vtkBoostBetweennessClustering);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBoostBetweennessClustering::vtkBoostBetweennessClustering()
   : vtkGraphAlgorithm()
   , Threshold(0)
@@ -113,14 +113,14 @@ vtkBoostBetweennessClustering::vtkBoostBetweennessClustering()
   this->SetNumberOfOutputPorts(2);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBoostBetweennessClustering::~vtkBoostBetweennessClustering()
 {
   this->SetEdgeWeightArrayName(0);
   this->SetEdgeCentralityArrayName(0);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoostBetweennessClustering::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -137,7 +137,7 @@ void vtkBoostBetweennessClustering::PrintSelf(ostream& os, vtkIndent indent)
     : os << indent << "EdgeCentralityArrayName: nullptr" << endl;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkBoostBetweennessClustering::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -369,7 +369,7 @@ int vtkBoostBetweennessClustering::RequestData(vtkInformation* vtkNotUsed(reques
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkBoostBetweennessClustering::FillOutputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0 || port == 1)

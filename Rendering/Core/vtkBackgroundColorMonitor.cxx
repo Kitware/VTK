@@ -18,10 +18,10 @@
 #include <cmath>
 #include <cstring>
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkBackgroundColorMonitor);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBackgroundColorMonitor::vtkBackgroundColorMonitor()
   : UpTime(0)
   , Gradient(false)
@@ -30,7 +30,7 @@ vtkBackgroundColorMonitor::vtkBackgroundColorMonitor()
   memset(this->Color2, 0, 3 * sizeof(double));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkBackgroundColorMonitor::StateChanged(vtkRenderer* ren)
 {
   unsigned int oldUpTime = this->UpTime;
@@ -42,7 +42,7 @@ bool vtkBackgroundColorMonitor::StateChanged(vtkRenderer* ren)
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBackgroundColorMonitor::Update(vtkRenderer* ren)
 {
   // update colors
@@ -72,7 +72,7 @@ void vtkBackgroundColorMonitor::Update(vtkRenderer* ren)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBackgroundColorMonitor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

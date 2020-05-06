@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGeneralizedKernel::vtkGeneralizedKernel()
 {
   this->KernelFootprint = vtkGeneralizedKernel::RADIUS;
@@ -30,10 +30,10 @@ vtkGeneralizedKernel::vtkGeneralizedKernel()
   this->NormalizeWeights = true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGeneralizedKernel::~vtkGeneralizedKernel() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkGeneralizedKernel::ComputeBasis(double x[3], vtkIdList* pIds, vtkIdType)
 {
   if (this->KernelFootprint == vtkGeneralizedKernel::RADIUS)
@@ -48,7 +48,7 @@ vtkIdType vtkGeneralizedKernel::ComputeBasis(double x[3], vtkIdList* pIds, vtkId
   return pIds->GetNumberOfIds();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGeneralizedKernel::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

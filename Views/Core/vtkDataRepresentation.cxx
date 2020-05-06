@@ -39,9 +39,9 @@
 
 #include <map>
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // vtkDataRepresentation::Internals
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 class vtkDataRepresentation::Internals
 {
@@ -58,9 +58,9 @@ public:
   std::map<std::pair<int, int>, vtkSmartPointer<vtkConvertSelectionDomain>> ConvertDomainInternal;
 };
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // vtkDataRepresentation::Command
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 class vtkDataRepresentation::Command : public vtkCommand
 {
@@ -80,21 +80,21 @@ private:
   vtkDataRepresentation* Target;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // vtkDataRepresentation
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkStandardNewMacro(vtkDataRepresentation);
 vtkCxxSetObjectMacro(vtkDataRepresentation, AnnotationLinkInternal, vtkAnnotationLink);
 vtkCxxSetObjectMacro(vtkDataRepresentation, SelectionArrayNames, vtkStringArray);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTrivialProducer* vtkDataRepresentation::GetInternalInput(int port, int conn)
 {
   return this->Implementation->InputInternal[std::pair<int, int>(port, conn)].second;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataRepresentation::SetInternalInput(int port, int conn, vtkTrivialProducer* producer)
 {
   this->Implementation->InputInternal[std::pair<int, int>(port, conn)] =
@@ -102,7 +102,7 @@ void vtkDataRepresentation::SetInternalInput(int port, int conn, vtkTrivialProdu
       this->GetInputConnection(port, conn), producer);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataRepresentation::vtkDataRepresentation()
 {
   this->Implementation = new vtkDataRepresentation::Internals();
@@ -118,7 +118,7 @@ vtkDataRepresentation::vtkDataRepresentation()
   this->SetNumberOfOutputPorts(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataRepresentation::~vtkDataRepresentation()
 {
   delete this->Implementation;
@@ -127,13 +127,13 @@ vtkDataRepresentation::~vtkDataRepresentation()
   this->SetAnnotationLinkInternal(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataRepresentation::SetAnnotationLink(vtkAnnotationLink* link)
 {
   this->SetAnnotationLinkInternal(link);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataRepresentation::ProcessEvents(
   vtkObject* caller, unsigned long eventId, void* vtkNotUsed(callData))
 {
@@ -161,7 +161,7 @@ void vtkDataRepresentation::ProcessEvents(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAlgorithmOutput* vtkDataRepresentation::GetInternalOutputPort(int port, int conn)
 {
   if (port >= this->GetNumberOfInputPorts() || conn >= this->GetNumberOfInputConnections(port))
@@ -194,7 +194,7 @@ vtkAlgorithmOutput* vtkDataRepresentation::GetInternalOutputPort(int port, int c
   return this->Implementation->InputInternal[p].second->GetOutputPort();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAlgorithmOutput* vtkDataRepresentation::GetInternalAnnotationOutputPort(int port, int conn)
 {
   if (port >= this->GetNumberOfInputPorts() || conn >= this->GetNumberOfInputConnections(port))
@@ -224,7 +224,7 @@ vtkAlgorithmOutput* vtkDataRepresentation::GetInternalAnnotationOutputPort(int p
   return domain->GetOutputPort();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAlgorithmOutput* vtkDataRepresentation::GetInternalSelectionOutputPort(int port, int conn)
 {
   // First make sure the convert domain filter is up to date.
@@ -244,7 +244,7 @@ vtkAlgorithmOutput* vtkDataRepresentation::GetInternalSelectionOutputPort(int po
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataRepresentation::Select(vtkView* view, vtkSelection* selection, bool extend)
 {
   if (this->Selectable)
@@ -261,14 +261,14 @@ void vtkDataRepresentation::Select(vtkView* view, vtkSelection* selection, bool 
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSelection* vtkDataRepresentation::ConvertSelection(
   vtkView* vtkNotUsed(view), vtkSelection* selection)
 {
   return selection;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataRepresentation::UpdateSelection(vtkSelection* selection, bool extend)
 {
   if (extend)
@@ -279,7 +279,7 @@ void vtkDataRepresentation::UpdateSelection(vtkSelection* selection, bool extend
   this->InvokeEvent(vtkCommand::SelectionChangedEvent, reinterpret_cast<void*>(selection));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataRepresentation::Annotate(vtkView* view, vtkAnnotationLayers* annotations, bool extend)
 {
   vtkAnnotationLayers* converted = this->ConvertAnnotations(view, annotations);
@@ -293,14 +293,14 @@ void vtkDataRepresentation::Annotate(vtkView* view, vtkAnnotationLayers* annotat
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAnnotationLayers* vtkDataRepresentation::ConvertAnnotations(
   vtkView* vtkNotUsed(view), vtkAnnotationLayers* annotations)
 {
   return annotations;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataRepresentation::UpdateAnnotations(vtkAnnotationLayers* annotations, bool extend)
 {
   if (extend)
@@ -321,7 +321,7 @@ void vtkDataRepresentation::UpdateAnnotations(vtkAnnotationLayers* annotations, 
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataRepresentation::SetSelectionArrayName(const char* name)
 {
   if (!this->SelectionArrayNames)
@@ -332,7 +332,7 @@ void vtkDataRepresentation::SetSelectionArrayName(const char* name)
   this->SelectionArrayNames->InsertNextValue(name);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkDataRepresentation::GetSelectionArrayName()
 {
   if (this->SelectionArrayNames && this->SelectionArrayNames->GetNumberOfTuples() > 0)
@@ -342,7 +342,7 @@ const char* vtkDataRepresentation::GetSelectionArrayName()
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -41,7 +41,7 @@ void lorenz(const float* varX, float* varXDerivative)
 }
 } // end anonymous namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestLinePlot3D(int, char*[])
 {
   // Create the data.

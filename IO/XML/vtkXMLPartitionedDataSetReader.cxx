@@ -26,19 +26,19 @@
 
 vtkStandardNewMacro(vtkXMLPartitionedDataSetReader);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLPartitionedDataSetReader::vtkXMLPartitionedDataSetReader() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLPartitionedDataSetReader::~vtkXMLPartitionedDataSetReader() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPartitionedDataSetReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPartitionedDataSetReader::FillOutputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
@@ -46,13 +46,13 @@ int vtkXMLPartitionedDataSetReader::FillOutputPortInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXMLPartitionedDataSetReader::GetDataSetName()
 {
   return "vtkPartitionedDataSet";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPartitionedDataSetReader::ReadComposite(vtkXMLDataElement* element,
   vtkCompositeDataSet* composite, const char* filePath, unsigned int& dataSetIndex)
 {

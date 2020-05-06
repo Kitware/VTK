@@ -32,27 +32,27 @@
 
 vtkStandardNewMacro(vtkGenericProbeFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGenericProbeFilter::vtkGenericProbeFilter()
 {
   this->ValidPoints = vtkIdTypeArray::New();
   this->SetNumberOfInputPorts(2);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGenericProbeFilter::~vtkGenericProbeFilter()
 {
   this->ValidPoints->Delete();
   this->ValidPoints = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenericProbeFilter::SetSourceData(vtkGenericDataSet* input)
 {
   this->SetInputData(1, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGenericDataSet* vtkGenericProbeFilter::GetSource()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
@@ -63,7 +63,7 @@ vtkGenericDataSet* vtkGenericProbeFilter::GetSource()
   return vtkGenericDataSet::SafeDownCast(this->GetExecutive()->GetInputData(1, 0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGenericProbeFilter::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -85,7 +85,7 @@ int vtkGenericProbeFilter::RequestInformation(vtkInformation* vtkNotUsed(request
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGenericProbeFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -225,7 +225,7 @@ int vtkGenericProbeFilter::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenericProbeFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkGenericDataSet* source = this->GetSource();
@@ -236,7 +236,7 @@ void vtkGenericProbeFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ValidPoints: " << this->ValidPoints << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGenericProbeFilter::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (!this->Superclass::FillInputPortInformation(port, info))

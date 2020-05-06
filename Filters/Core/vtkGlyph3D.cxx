@@ -36,7 +36,7 @@
 vtkStandardNewMacro(vtkGlyph3D);
 vtkCxxSetObjectMacro(vtkGlyph3D, SourceTransform, vtkTransform);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct object with scaling on, scaling mode is by scalar value,
 // scale factor = 1.0, the range is (0,1), orient geometry is on, and
 // orientation is by vector. Clamping and indexing are turned off. No
@@ -80,14 +80,14 @@ vtkGlyph3D::vtkGlyph3D()
     3, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGlyph3D::~vtkGlyph3D()
 {
   delete[] PointIdsName;
   this->SetSourceTransform(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkGlyph3D::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
@@ -100,7 +100,7 @@ vtkMTimeType vtkGlyph3D::GetMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGlyph3D::RequestData(vtkInformation* vtkNotUsed(request), vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
@@ -111,7 +111,7 @@ int vtkGlyph3D::RequestData(vtkInformation* vtkNotUsed(request), vtkInformationV
   return this->Execute(input, inputVector[1], output) ? 1 : 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGlyph3D::Execute(vtkDataSet* input, vtkInformationVector* sourceVector, vtkPolyData* output)
 {
   vtkDataArray* inSScalars = this->GetInputArrayToProcess(0, input);
@@ -119,7 +119,7 @@ bool vtkGlyph3D::Execute(vtkDataSet* input, vtkInformationVector* sourceVector, 
   return this->Execute(input, sourceVector, output, inSScalars, inVectors);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGlyph3D::Execute(vtkDataSet* input, vtkInformationVector* sourceVector, vtkPolyData* output,
   vtkDataArray* inSScalars, vtkDataArray* inVectors)
 {
@@ -755,7 +755,7 @@ bool vtkGlyph3D::Execute(vtkDataSet* input, vtkInformationVector* sourceVector, 
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify a source object at a specified table location.
 void vtkGlyph3D::SetSourceConnection(int id, vtkAlgorithmOutput* algOutput)
 {
@@ -783,7 +783,7 @@ void vtkGlyph3D::SetSourceConnection(int id, vtkAlgorithmOutput* algOutput)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify a source object at a specified table location.
 void vtkGlyph3D::SetSourceData(int id, vtkPolyData* pd)
 {
@@ -824,7 +824,7 @@ void vtkGlyph3D::SetSourceData(int id, vtkPolyData* pd)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get a pointer to a source object at a specified table location.
 vtkPolyData* vtkGlyph3D::GetSource(int id)
 {
@@ -836,7 +836,7 @@ vtkPolyData* vtkGlyph3D::GetSource(int id)
   return vtkPolyData::SafeDownCast(this->GetExecutive()->GetInputData(1, id));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGlyph3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -940,7 +940,7 @@ int vtkGlyph3D::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyData* vtkGlyph3D::GetSource(int idx, vtkInformationVector* sourceInfo)
 {
   vtkInformation* info = sourceInfo->GetInformationObject(idx);
@@ -951,7 +951,7 @@ vtkPolyData* vtkGlyph3D::GetSource(int idx, vtkInformationVector* sourceInfo)
   return vtkPolyData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGlyph3D::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)

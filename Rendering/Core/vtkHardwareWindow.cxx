@@ -16,7 +16,7 @@
 
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkObjectFactoryNewMacro(vtkHardwareWindow);
 
 vtkHardwareWindow::vtkHardwareWindow()
@@ -30,10 +30,10 @@ vtkHardwareWindow::vtkHardwareWindow()
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHardwareWindow::~vtkHardwareWindow() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHardwareWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

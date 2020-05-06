@@ -121,17 +121,17 @@ double W_QE_42_A[] = { 1.56250000000000e-01, -9.37500000000000e-02, -9.375000000
 
 vtkStandardNewMacro(vtkQuadratureSchemeDictionaryGenerator);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkQuadratureSchemeDictionaryGenerator::vtkQuadratureSchemeDictionaryGenerator()
 {
   this->SetNumberOfInputPorts(1);
   this->SetNumberOfOutputPorts(1);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkQuadratureSchemeDictionaryGenerator::~vtkQuadratureSchemeDictionaryGenerator() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkQuadratureSchemeDictionaryGenerator::FillInputPortInformation(int port, vtkInformation* info)
 {
   switch (port)
@@ -143,7 +143,7 @@ int vtkQuadratureSchemeDictionaryGenerator::FillInputPortInformation(int port, v
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkQuadratureSchemeDictionaryGenerator::FillOutputPortInformation(
   int port, vtkInformation* info)
 {
@@ -156,7 +156,7 @@ int vtkQuadratureSchemeDictionaryGenerator::FillOutputPortInformation(
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkQuadratureSchemeDictionaryGenerator::RequestData(
   vtkInformation*, vtkInformationVector** input, vtkInformationVector* output)
 {
@@ -186,7 +186,7 @@ int vtkQuadratureSchemeDictionaryGenerator::RequestData(
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkQuadratureSchemeDictionaryGenerator::Generate(vtkUnstructuredGrid* usgOut)
 {
   // Get the dictionary key.
@@ -276,7 +276,7 @@ int vtkQuadratureSchemeDictionaryGenerator::Generate(vtkUnstructuredGrid* usgOut
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQuadratureSchemeDictionaryGenerator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

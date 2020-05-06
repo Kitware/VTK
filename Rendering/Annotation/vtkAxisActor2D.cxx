@@ -32,7 +32,7 @@ vtkStandardNewMacro(vtkAxisActor2D);
 vtkCxxSetObjectMacro(vtkAxisActor2D, LabelTextProperty, vtkTextProperty);
 vtkCxxSetObjectMacro(vtkAxisActor2D, TitleTextProperty, vtkTextProperty);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Instantiate this object.
 vtkAxisActor2D::vtkAxisActor2D()
 {
@@ -113,7 +113,7 @@ vtkAxisActor2D::vtkAxisActor2D()
   this->LastMaxLabelSize[0] = this->LastMaxLabelSize[1] = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAxisActor2D::~vtkAxisActor2D()
 {
   delete[] this->LabelFormat;
@@ -144,7 +144,7 @@ vtkAxisActor2D::~vtkAxisActor2D()
   this->SetTitleTextProperty(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Build the axis, ticks, title, and labels and render.
 
 int vtkAxisActor2D::RenderOpaqueGeometry(vtkViewport* viewport)
@@ -175,7 +175,7 @@ int vtkAxisActor2D::RenderOpaqueGeometry(vtkViewport* viewport)
   return renderedSomething;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Render the axis, ticks, title, and labels.
 
 int vtkAxisActor2D::RenderOverlay(vtkViewport* viewport)
@@ -204,7 +204,7 @@ int vtkAxisActor2D::RenderOverlay(vtkViewport* viewport)
   return renderedSomething;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry?
 vtkTypeBool vtkAxisActor2D::HasTranslucentPolygonalGeometry()
@@ -212,7 +212,7 @@ vtkTypeBool vtkAxisActor2D::HasTranslucentPolygonalGeometry()
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Release any graphics resources that are being consumed by this actor.
 // The parameter window could be used to determine which graphic
 // resources to release.
@@ -226,7 +226,7 @@ void vtkAxisActor2D::ReleaseGraphicsResources(vtkWindow* win)
   this->AxisActor->ReleaseGraphicsResources(win);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxisActor2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -282,7 +282,7 @@ void vtkAxisActor2D::PrintSelf(ostream& os, vtkIndent indent)
      << "Size Font Relative To Axis: " << (this->SizeFontRelativeToAxis ? "On\n" : "Off\n");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxisActor2D::BuildAxis(vtkViewport* viewport)
 {
   int i, *x, viewportSizeHasChanged, positionsHaveChanged;
@@ -636,7 +636,7 @@ void vtkAxisActor2D::BuildAxis(vtkViewport* viewport)
   this->BuildTime.Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxisActor2D::UpdateAdjustedRange()
 {
   // Try not to update/adjust the range to often, do not update it
@@ -774,7 +774,7 @@ static int vtkAxisActor2DComputeTicks(double sRange[2], double& interval, double
   return numTicks;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // this method takes an initial range and an initial number of ticks and then
 // computes a final range and number of ticks so that two properties are
 // satisfied. First the final range includes at least the initial range, and
@@ -848,7 +848,7 @@ void vtkAxisActor2D::ComputeRange(double inRange[2], double outRange[2], int vtk
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Position text with respect to a point (xTick) where the angle of the line
 // from the point to the center of the text is given by theta. The offset
 // is the spacing between ticks and labels.
@@ -870,7 +870,7 @@ void vtkAxisActor2D::SetOffsetPosition(
   actor->SetPosition(pos[0], pos[1]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkAxisActor2D::ComputeStringOffset(double width, double height, double theta)
 {
   double f1 = height * cos(theta);
@@ -878,7 +878,7 @@ double vtkAxisActor2D::ComputeStringOffset(double width, double height, double t
   return (1.2 * sqrt(f1 * f1 + f2 * f2));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAxisActor2D::ShallowCopy(vtkProp* prop)
 {
   vtkAxisActor2D* a = vtkAxisActor2D::SafeDownCast(prop);

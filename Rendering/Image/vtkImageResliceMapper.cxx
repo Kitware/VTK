@@ -39,7 +39,7 @@
 
 vtkStandardNewMacro(vtkImageResliceMapper);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageResliceMapper::vtkImageResliceMapper()
 {
   this->SliceMapper = vtkImageSliceMapper::New();
@@ -63,7 +63,7 @@ vtkImageResliceMapper::vtkImageResliceMapper()
   this->SetNumberOfOutputPorts(1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageResliceMapper::~vtkImageResliceMapper()
 {
   if (this->SliceMapper)
@@ -88,7 +88,7 @@ vtkImageResliceMapper::~vtkImageResliceMapper()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageResliceMapper::SetSlicePlane(vtkPlane* plane)
 {
   if (this->SlicePlane == plane)
@@ -112,7 +112,7 @@ void vtkImageResliceMapper::SetSlicePlane(vtkPlane* plane)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageResliceMapper::SetInterpolator(vtkAbstractImageInterpolator* interpolator)
 {
   vtkMTimeType mtime = this->ImageReslice->GetMTime();
@@ -125,19 +125,19 @@ void vtkImageResliceMapper::SetInterpolator(vtkAbstractImageInterpolator* interp
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAbstractImageInterpolator* vtkImageResliceMapper::GetInterpolator()
 {
   return this->ImageReslice->GetInterpolator();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageResliceMapper::ReleaseGraphicsResources(vtkWindow* win)
 {
   this->SliceMapper->ReleaseGraphicsResources(win);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageResliceMapper::Render(vtkRenderer* ren, vtkImageSlice* prop)
 {
   if (this->ResliceNeedUpdate)
@@ -181,7 +181,7 @@ void vtkImageResliceMapper::Render(vtkRenderer* ren, vtkImageSlice* prop)
   this->SliceMapper->Render(ren, prop);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageResliceMapper::Update(int port)
 {
   // I don't like to override Update, or call Modified() in Update,
@@ -265,13 +265,13 @@ void vtkImageResliceMapper::Update(int port)
   this->UpdateTime.Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageResliceMapper::Update()
 {
   this->Superclass::Update();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkImageResliceMapper::Update(int port, vtkInformationVector*)
 {
   // One can't really make requests of a mapper so default to regular
@@ -280,7 +280,7 @@ vtkTypeBool vtkImageResliceMapper::Update(int port, vtkInformationVector*)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkImageResliceMapper::Update(vtkInformation*)
 {
   // One can't really make requests of a mapper so default to regular
@@ -289,7 +289,7 @@ vtkTypeBool vtkImageResliceMapper::Update(vtkInformation*)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkImageResliceMapper::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -439,7 +439,7 @@ vtkTypeBool vtkImageResliceMapper::ProcessRequest(
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Update the WorldToData transformation matrix, which is just the
 // inverse of the vtkProp3D matrix.
 void vtkImageResliceMapper::UpdateWorldToDataMatrix(vtkImageSlice* prop)
@@ -462,7 +462,7 @@ void vtkImageResliceMapper::UpdateWorldToDataMatrix(vtkImageSlice* prop)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Update the SliceToWorld transformation matrix
 void vtkImageResliceMapper::UpdateSliceToWorldMatrix(vtkCamera* camera)
 {
@@ -540,7 +540,7 @@ void vtkImageResliceMapper::UpdateSliceToWorldMatrix(vtkCamera* camera)
   sliceToWorld->Element[3][3] = 1.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Update the reslice matrix, which is the slice-to-data matrix.
 void vtkImageResliceMapper::UpdateResliceMatrix(vtkRenderer* ren, vtkImageSlice* prop)
 {
@@ -722,7 +722,7 @@ void vtkImageResliceMapper::UpdateResliceMatrix(vtkRenderer* ren, vtkImageSlice*
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Do all the fancy math to set up the reslicing
 void vtkImageResliceMapper::UpdateResliceInformation(vtkRenderer* ren)
 {
@@ -993,7 +993,7 @@ void vtkImageResliceMapper::UpdateResliceInformation(vtkRenderer* ren)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Do all the fancy math to set up the reslicing
 void vtkImageResliceMapper::UpdateColorInformation(vtkImageProperty* property)
 {
@@ -1034,7 +1034,7 @@ void vtkImageResliceMapper::UpdateColorInformation(vtkImageProperty* property)
   this->ImageReslice->SetBackgroundColor(backgroundColor);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Set the reslice interpolation and slab thickness
 void vtkImageResliceMapper::UpdateResliceInterpolation(vtkImageProperty* property)
 {
@@ -1095,7 +1095,7 @@ void vtkImageResliceMapper::UpdateResliceInterpolation(vtkImageProperty* propert
   this->ImageReslice->SlabTrapezoidIntegrationOn();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageResliceMapper::CheckerboardImage(
   vtkImageData* input, vtkCamera* camera, vtkImageProperty* property)
 {
@@ -1142,7 +1142,7 @@ void vtkImageResliceMapper::CheckerboardImage(
     checkOffset[0], checkOffset[1], checkSpacing[0], checkSpacing[1]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Compute the vertices of the polygon in the slice coordinate system
 #define VTK_IRM_MAX_VERTS 32
 #define VTK_IRM_MAX_COORDS 96
@@ -1421,7 +1421,7 @@ void vtkImageResliceMapper::UpdatePolygonCoords(vtkRenderer* ren)
   points->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageResliceMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -1438,7 +1438,7 @@ void vtkImageResliceMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Interpolator: " << this->GetInterpolator() << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkImageResliceMapper::GetSlabTypeAsString()
 {
   switch (this->SlabType)
@@ -1455,7 +1455,7 @@ const char* vtkImageResliceMapper::GetSlabTypeAsString()
   return "";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkImageResliceMapper::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
@@ -1528,7 +1528,7 @@ vtkMTimeType vtkImageResliceMapper::GetMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageResliceMapper::GetIndexBounds(double extent[6])
 {
   if (!this->GetInput())
@@ -1556,7 +1556,7 @@ void vtkImageResliceMapper::GetIndexBounds(double extent[6])
   extent[5] += border;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkImageResliceMapper::GetBounds()
 {
   if (!this->GetInput())
@@ -1614,7 +1614,7 @@ double* vtkImageResliceMapper::GetBounds()
   return this->Bounds;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageResliceMapper::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);

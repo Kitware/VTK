@@ -32,7 +32,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestCubeAxesWithXInnerPolys(int argc, char* argv[])
 {
   vtkNew<vtkBYUReader> fohe;

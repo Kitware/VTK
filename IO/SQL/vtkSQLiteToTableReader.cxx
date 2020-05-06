@@ -26,16 +26,16 @@
 
 #include "vtkSQLiteToTableReader.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkSQLiteToTableReader);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSQLiteToTableReader::vtkSQLiteToTableReader() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSQLiteToTableReader::~vtkSQLiteToTableReader() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSQLiteToTableReader::RequestData(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
@@ -140,7 +140,7 @@ int vtkSQLiteToTableReader::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSQLiteToTableReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

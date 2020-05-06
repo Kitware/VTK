@@ -27,7 +27,7 @@
 #include "vtkWidgetEventTranslator.h"
 
 vtkStandardNewMacro(vtkPolyLineWidget);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyLineWidget::vtkPolyLineWidget()
 {
   this->WidgetState = vtkPolyLineWidget::Start;
@@ -54,13 +54,13 @@ vtkPolyLineWidget::vtkPolyLineWidget()
   this->KeyEventCallbackCommand->SetCallback(vtkPolyLineWidget::ProcessKeyEvents);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyLineWidget::~vtkPolyLineWidget()
 {
   this->KeyEventCallbackCommand->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyLineWidget::SetEnabled(int enabling)
 {
   int enabled = this->Enabled;
@@ -99,7 +99,7 @@ void vtkPolyLineWidget::SetEnabled(int enabling)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyLineWidget::SelectAction(vtkAbstractWidget* w)
 {
   // We are in a static method, cast to ourself
@@ -164,14 +164,14 @@ void vtkPolyLineWidget::SelectAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyLineWidget::TranslateAction(vtkAbstractWidget* w)
 {
   // Not sure this should be any different than SelectAction
   vtkPolyLineWidget::SelectAction(w);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyLineWidget::ScaleAction(vtkAbstractWidget* w)
 {
   // We are in a static method, cast to ourself
@@ -214,7 +214,7 @@ void vtkPolyLineWidget::ScaleAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyLineWidget::MoveAction(vtkAbstractWidget* w)
 {
   vtkPolyLineWidget* self = reinterpret_cast<vtkPolyLineWidget*>(w);
@@ -241,7 +241,7 @@ void vtkPolyLineWidget::MoveAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyLineWidget::EndSelectAction(vtkAbstractWidget* w)
 {
   vtkPolyLineWidget* self = reinterpret_cast<vtkPolyLineWidget*>(w);
@@ -277,7 +277,7 @@ void vtkPolyLineWidget::EndSelectAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyLineWidget::ProcessKeyEvents(vtkObject*, unsigned long event, void* clientdata, void*)
 {
   vtkPolyLineWidget* self = static_cast<vtkPolyLineWidget*>(clientdata);
@@ -324,7 +324,7 @@ void vtkPolyLineWidget::ProcessKeyEvents(vtkObject*, unsigned long event, void* 
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyLineWidget::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)
@@ -333,7 +333,7 @@ void vtkPolyLineWidget::CreateDefaultRepresentation()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyLineWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

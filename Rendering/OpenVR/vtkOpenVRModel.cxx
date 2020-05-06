@@ -52,7 +52,7 @@ vtkOpenVRModel::~vtkOpenVRModel()
   this->ModelVBO = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRModel::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -39,7 +39,7 @@
 #include "vtkTriangleFilter.h"
 #include "vtkXMLPolyDataReader.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestPolyDataTangents(int argc, char* argv[])
 {
   vtkNew<vtkXMLPolyDataReader> reader;

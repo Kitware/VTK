@@ -76,10 +76,10 @@ POSSIBILITY OF SUCH DAMAGES.
 #include <vtksys/FStream.hxx>
 #include <vtksys/SystemTools.hxx>
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkMNITransformWriter);
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMNITransformWriter::vtkMNITransformWriter()
 {
   this->FileName = nullptr;
@@ -88,7 +88,7 @@ vtkMNITransformWriter::vtkMNITransformWriter()
   this->Comments = nullptr;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMNITransformWriter::~vtkMNITransformWriter()
 {
   if (this->Transforms)
@@ -103,7 +103,7 @@ vtkMNITransformWriter::~vtkMNITransformWriter()
   delete[] this->Comments;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMNITransformWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -118,7 +118,7 @@ void vtkMNITransformWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Comments: " << (this->Comments ? this->Comments : "none") << "\n";
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNITransformWriter::WriteLinearTransform(
   ostream& outfile, vtkHomogeneousTransform* transform)
 {
@@ -146,7 +146,7 @@ int vtkMNITransformWriter::WriteLinearTransform(
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNITransformWriter::WriteThinPlateSplineTransform(
   ostream& outfile, vtkThinPlateSplineTransform* transform)
 {
@@ -318,7 +318,7 @@ int vtkMNITransformWriter::WriteThinPlateSplineTransform(
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNITransformWriter::WriteGridTransform(ostream& outfile, vtkGridTransform* transform)
 {
   // Write the inverse flag if necessary
@@ -362,7 +362,7 @@ int vtkMNITransformWriter::WriteGridTransform(ostream& outfile, vtkGridTransform
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNITransformWriter::WriteTransform(ostream& outfile, vtkAbstractTransform* transform)
 {
   outfile << "Transform_Type = ";
@@ -388,7 +388,7 @@ int vtkMNITransformWriter::WriteTransform(ostream& outfile, vtkAbstractTransform
   return 0;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNITransformWriter::WriteFile()
 {
   // Check that a transform has been set.
@@ -496,7 +496,7 @@ int vtkMNITransformWriter::WriteFile()
   return status;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkMNITransformWriter::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -517,14 +517,14 @@ vtkTypeBool vtkMNITransformWriter::ProcessRequest(
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMNITransformWriter::Write()
 {
   this->Modified();
   this->Update();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNITransformWriter::GetNumberOfTransforms()
 {
   if (this->Transform == nullptr)
@@ -535,7 +535,7 @@ int vtkMNITransformWriter::GetNumberOfTransforms()
   return (1 + this->Transforms->GetNumberOfItems());
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMNITransformWriter::SetTransform(vtkAbstractTransform* transform)
 {
   if (transform == this->Transform)
@@ -558,7 +558,7 @@ void vtkMNITransformWriter::SetTransform(vtkAbstractTransform* transform)
   this->Modified();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMNITransformWriter::AddTransform(vtkAbstractTransform* transform)
 {
   if (transform == nullptr)

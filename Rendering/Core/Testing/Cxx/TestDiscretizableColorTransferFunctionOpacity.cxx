@@ -21,7 +21,7 @@
 
 #include <cstring>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestDiscretizableColorTransferFunctionOpacity(int, char*[])
 {
   // Discretizable color transfer function

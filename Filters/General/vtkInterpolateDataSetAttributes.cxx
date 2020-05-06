@@ -235,7 +235,7 @@ void vtkInterpolateDataSetAttributes::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "T: " << this->T << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInterpolateDataSetAttributes ::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);

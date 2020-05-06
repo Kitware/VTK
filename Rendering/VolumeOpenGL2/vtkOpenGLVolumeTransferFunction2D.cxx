@@ -25,13 +25,13 @@
 
 vtkStandardNewMacro(vtkOpenGLVolumeTransferFunction2D);
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenGLVolumeTransferFunction2D::vtkOpenGLVolumeTransferFunction2D()
 {
   this->NumberOfColorComponents = 4;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLVolumeTransferFunction2D::InternalUpdate(vtkObject* func, int vtkNotUsed(blendMode),
   double vtkNotUsed(sampleDistance), double vtkNotUsed(unitDistance), int filterValue)
 {
@@ -60,7 +60,7 @@ void vtkOpenGLVolumeTransferFunction2D::InternalUpdate(vtkObject* func, int vtkN
     this->TextureWidth, this->TextureHeight, this->NumberOfColorComponents, VTK_FLOAT, data);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkOpenGLVolumeTransferFunction2D::NeedsUpdate(vtkObject* func,
   double[2] vtkNotUsed(scalarRange), int vtkNotUsed(blendMode), double vtkNotUsed(sampleDistance))
 {
@@ -76,10 +76,10 @@ bool vtkOpenGLVolumeTransferFunction2D::NeedsUpdate(vtkObject* func,
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLVolumeTransferFunction2D::AllocateTable() {}
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLVolumeTransferFunction2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

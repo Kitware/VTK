@@ -24,7 +24,7 @@
 
 vtkStandardNewMacro(vtkExtractDataOverTime);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractDataOverTime::vtkExtractDataOverTime()
 {
   this->NumberOfTimeSteps = 0;
@@ -32,7 +32,7 @@ vtkExtractDataOverTime::vtkExtractDataOverTime()
   this->PointIndex = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractDataOverTime::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -41,7 +41,7 @@ void vtkExtractDataOverTime::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NumberOfTimeSteps: " << this->NumberOfTimeSteps << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractDataOverTime::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -71,7 +71,7 @@ int vtkExtractDataOverTime::RequestInformation(vtkInformation* vtkNotUsed(reques
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkExtractDataOverTime::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -150,7 +150,7 @@ vtkTypeBool vtkExtractDataOverTime::ProcessRequest(
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractDataOverTime::AllocateOutputData(vtkPointSet* input, vtkPointSet* output)
 {
   // by default vtkPointSetAlgorithm::RequestDataObject already

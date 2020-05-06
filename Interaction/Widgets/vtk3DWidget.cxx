@@ -36,7 +36,7 @@ public:
 
 vtkStandardNewMacro(vtk3DWidgetConnection);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtk3DWidget::vtk3DWidget()
 {
   this->Placed = 0;
@@ -50,7 +50,7 @@ vtk3DWidget::vtk3DWidget()
   this->ValidPick = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtk3DWidget::~vtk3DWidget()
 {
   this->ConnectionHolder->Delete();
@@ -63,7 +63,7 @@ vtk3DWidget::~vtk3DWidget()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtk3DWidget::UpdateInput()
 {
   vtkAlgorithm* inpAlg = this->ConnectionHolder->GetInputAlgorithm();
@@ -73,7 +73,7 @@ void vtk3DWidget::UpdateInput()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtk3DWidget::PlaceWidget()
 {
   double bounds[6];
@@ -101,7 +101,7 @@ void vtk3DWidget::PlaceWidget()
   this->PlaceWidget(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtk3DWidget::PlaceWidget(
   double xmin, double xmax, double ymin, double ymax, double zmin, double zmax)
 {
@@ -119,7 +119,7 @@ void vtk3DWidget::PlaceWidget(
   this->Placed = 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtk3DWidget::AdjustBounds(double bounds[6], double newBounds[6], double center[3])
 {
   center[0] = (bounds[0] + bounds[1]) / 2.0;
@@ -134,7 +134,7 @@ void vtk3DWidget::AdjustBounds(double bounds[6], double newBounds[6], double cen
   newBounds[5] = center[2] + this->PlaceFactor * (bounds[5] - center[2]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtk3DWidget::SizeHandles(double factor)
 {
   int i;
@@ -174,7 +174,7 @@ double vtk3DWidget::SizeHandles(double factor)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtk3DWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -185,13 +185,13 @@ void vtk3DWidget::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Place Factor: " << this->PlaceFactor << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtk3DWidget::SetInputConnection(vtkAlgorithmOutput* ao)
 {
   this->ConnectionHolder->SetInputConnection(ao);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtk3DWidget::SetInputData(vtkDataSet* ds)
 {
   vtkTrivialProducer* tp = vtkTrivialProducer::New();
@@ -200,7 +200,7 @@ void vtk3DWidget::SetInputData(vtkDataSet* ds)
   tp->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataSet* vtk3DWidget::GetInput()
 {
   return vtkDataSet::SafeDownCast(this->ConnectionHolder->GetInputDataObject(0, 0));

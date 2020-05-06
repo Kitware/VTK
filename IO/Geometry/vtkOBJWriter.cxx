@@ -30,7 +30,7 @@
 
 namespace
 {
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void WriteFaces(std::ostream& f, vtkCellArray* faces, bool withNormals, bool withTCoords)
 {
   vtkIdType npts;
@@ -58,7 +58,7 @@ void WriteFaces(std::ostream& f, vtkCellArray* faces, bool withNormals, bool wit
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void WriteLines(std::ostream& f, vtkCellArray* lines)
 {
   vtkIdType npts;
@@ -74,7 +74,7 @@ void WriteLines(std::ostream& f, vtkCellArray* lines)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void WritePoints(std::ostream& f, vtkPoints* pts, vtkDataArray* normals, vtkDataArray* tcoords)
 {
   vtkNumberToString convert;
@@ -111,7 +111,7 @@ void WritePoints(std::ostream& f, vtkPoints* pts, vtkDataArray* normals, vtkData
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool WriteTexture(std::ostream& f, const std::string& baseName, vtkImageData* texture)
 {
   std::string mtlName = baseName + ".mtl";
@@ -144,23 +144,23 @@ bool WriteTexture(std::ostream& f, const std::string& baseName, vtkImageData* te
 }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOBJWriter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOBJWriter::vtkOBJWriter()
 {
   this->FileName = nullptr;
   this->SetNumberOfInputPorts(2);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOBJWriter::~vtkOBJWriter()
 {
   this->SetFileName(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOBJWriter::WriteData()
 {
   vtkPolyData* input = this->GetInputGeometry();
@@ -251,7 +251,7 @@ void vtkOBJWriter::WriteData()
   f.close();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOBJWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -267,25 +267,25 @@ void vtkOBJWriter::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyData* vtkOBJWriter::GetInputGeometry()
 {
   return vtkPolyData::SafeDownCast(this->GetInput(0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageData* vtkOBJWriter::GetInputTexture()
 {
   return vtkImageData::SafeDownCast(this->GetInput(1));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataSet* vtkOBJWriter::GetInput(int port)
 {
   return vtkDataSet::SafeDownCast(this->Superclass::GetInput(port));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkOBJWriter::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)

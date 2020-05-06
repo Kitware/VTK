@@ -39,7 +39,7 @@ void CopyToPoints(float* data, A* input, size_t offset, size_t n)
 
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPlot3D::vtkPlot3D()
 {
   this->Pen = vtkSmartPointer<vtkPen>::New();
@@ -51,16 +51,16 @@ vtkPlot3D::vtkPlot3D()
   this->Chart = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPlot3D::~vtkPlot3D() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlot3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlot3D::SetPen(vtkPen* pen)
 {
   if (this->Pen != pen)
@@ -70,13 +70,13 @@ void vtkPlot3D::SetPen(vtkPen* pen)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPen* vtkPlot3D::GetSelectionPen()
 {
   return this->SelectionPen;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlot3D::SetSelectionPen(vtkPen* pen)
 {
   if (this->SelectionPen != pen)
@@ -86,13 +86,13 @@ void vtkPlot3D::SetSelectionPen(vtkPen* pen)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPen* vtkPlot3D::GetPen()
 {
   return this->Pen;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlot3D::SetInputData(vtkTable* input)
 {
   assert(input->GetNumberOfColumns() >= 3);
@@ -110,7 +110,7 @@ void vtkPlot3D::SetInputData(vtkTable* input)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlot3D::SetInputData(
   vtkTable* input, vtkIdType xColumn, vtkIdType yColumn, vtkIdType zColumn)
 {
@@ -118,7 +118,7 @@ void vtkPlot3D::SetInputData(
     input->GetColumnName(zColumn));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlot3D::SetInputData(
   vtkTable* input, const vtkStdString& xName, const vtkStdString& yName, const vtkStdString& zName)
 {
@@ -162,7 +162,7 @@ void vtkPlot3D::SetInputData(
   this->ComputeDataBounds();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlot3D::SetInputData(vtkTable* input, const vtkStdString& xName, const vtkStdString& yName,
   const vtkStdString& zName, const vtkStdString& colorName)
 {
@@ -173,7 +173,7 @@ void vtkPlot3D::SetInputData(vtkTable* input, const vtkStdString& xName, const v
   this->SetColors(colorArr);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlot3D::SetColors(vtkDataArray* colorArr)
 {
   assert(colorArr);
@@ -216,7 +216,7 @@ void vtkPlot3D::SetColors(vtkDataArray* colorArr)
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlot3D::ComputeDataBounds()
 {
   double xMin = VTK_DOUBLE_MAX;
@@ -300,31 +300,31 @@ void vtkPlot3D::ComputeDataBounds()
   data[23] = zMax;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlot3D::SetChart(vtkChartXYZ* chart)
 {
   this->Chart = chart;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::string vtkPlot3D::GetXAxisLabel()
 {
   return this->XAxisLabel;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::string vtkPlot3D::GetYAxisLabel()
 {
   return this->YAxisLabel;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::string vtkPlot3D::GetZAxisLabel()
 {
   return this->ZAxisLabel;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlot3D::SetSelection(vtkIdTypeArray* id)
 {
   if (id == this->Selection)
@@ -335,13 +335,13 @@ void vtkPlot3D::SetSelection(vtkIdTypeArray* id)
   this->Modified();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdTypeArray* vtkPlot3D::GetSelection()
 {
   return this->Selection;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::vector<vtkVector3f> vtkPlot3D::GetPoints()
 {
   return this->Points;

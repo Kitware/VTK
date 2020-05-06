@@ -153,21 +153,21 @@ class vtkEventMap : public std::map<unsigned long, EventList>
 };
 typedef std::map<unsigned long, EventList>::iterator EventMapIterator;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkWidgetEventTranslator::vtkWidgetEventTranslator()
 {
   this->EventMap = new vtkEventMap;
   this->Event = vtkEvent::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkWidgetEventTranslator::~vtkWidgetEventTranslator()
 {
   delete this->EventMap;
   this->Event->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWidgetEventTranslator::SetTranslation(unsigned long VTKEvent, unsigned long widgetEvent)
 {
   vtkSmartPointer<vtkEvent> e = vtkSmartPointer<vtkEvent>::New();
@@ -182,14 +182,14 @@ void vtkWidgetEventTranslator::SetTranslation(unsigned long VTKEvent, unsigned l
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWidgetEventTranslator::SetTranslation(const char* VTKEvent, const char* widgetEvent)
 {
   this->SetTranslation(
     vtkCommand::GetEventIdFromString(VTKEvent), vtkWidgetEvent::GetEventIdFromString(widgetEvent));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWidgetEventTranslator::SetTranslation(unsigned long VTKEvent, int modifier, char keyCode,
   int repeatCount, const char* keySym, unsigned long widgetEvent)
 {
@@ -222,7 +222,7 @@ void vtkWidgetEventTranslator::SetTranslation(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWidgetEventTranslator::SetTranslation(vtkEvent* VTKEvent, unsigned long widgetEvent)
 {
   if (widgetEvent != vtkWidgetEvent::NoEvent)
@@ -235,7 +235,7 @@ void vtkWidgetEventTranslator::SetTranslation(vtkEvent* VTKEvent, unsigned long 
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 unsigned long vtkWidgetEventTranslator::GetTranslation(unsigned long VTKEvent)
 {
   EventMapIterator iter = this->EventMap->find(VTKEvent);
@@ -250,14 +250,14 @@ unsigned long vtkWidgetEventTranslator::GetTranslation(unsigned long VTKEvent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkWidgetEventTranslator::GetTranslation(const char* VTKEvent)
 {
   return vtkWidgetEvent::GetStringFromEventId(
     this->GetTranslation(vtkCommand::GetEventIdFromString(VTKEvent)));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 unsigned long vtkWidgetEventTranslator::GetTranslation(
   unsigned long VTKEvent, int modifier, char keyCode, int repeatCount, const char* keySym)
 {
@@ -275,7 +275,7 @@ unsigned long vtkWidgetEventTranslator::GetTranslation(
   return vtkWidgetEvent::NoEvent;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 unsigned long vtkWidgetEventTranslator::GetTranslation(unsigned long, vtkEventData* edata)
 {
   EventMapIterator iter = this->EventMap->find(edata->GetType());
@@ -287,7 +287,7 @@ unsigned long vtkWidgetEventTranslator::GetTranslation(unsigned long, vtkEventDa
   return vtkWidgetEvent::NoEvent;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 unsigned long vtkWidgetEventTranslator::GetTranslation(vtkEvent* VTKEvent)
 {
   EventMapIterator iter = this->EventMap->find(VTKEvent->GetEventId());
@@ -302,7 +302,7 @@ unsigned long vtkWidgetEventTranslator::GetTranslation(vtkEvent* VTKEvent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkWidgetEventTranslator::RemoveTranslation(
   unsigned long VTKEvent, int modifier, char keyCode, int repeatCount, const char* keySym)
 {
@@ -315,7 +315,7 @@ int vtkWidgetEventTranslator::RemoveTranslation(
   return this->RemoveTranslation(e);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkWidgetEventTranslator::RemoveTranslation(vtkEvent* e)
 {
   EventMapIterator iter = this->EventMap->find(e->GetEventId());
@@ -336,7 +336,7 @@ int vtkWidgetEventTranslator::RemoveTranslation(vtkEvent* e)
   return numTranslationsRemoved;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkWidgetEventTranslator::RemoveTranslation(vtkEventData* edata)
 {
   EventMapIterator iter = this->EventMap->find(edata->GetType());
@@ -357,7 +357,7 @@ int vtkWidgetEventTranslator::RemoveTranslation(vtkEventData* edata)
   return numTranslationsRemoved;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkWidgetEventTranslator::RemoveTranslation(unsigned long VTKEvent)
 {
   vtkSmartPointer<vtkEvent> e = vtkSmartPointer<vtkEvent>::New();
@@ -365,7 +365,7 @@ int vtkWidgetEventTranslator::RemoveTranslation(unsigned long VTKEvent)
   return this->RemoveTranslation(e);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkWidgetEventTranslator::RemoveTranslation(const char* VTKEvent)
 {
   vtkSmartPointer<vtkEvent> e = vtkSmartPointer<vtkEvent>::New();
@@ -373,7 +373,7 @@ int vtkWidgetEventTranslator::RemoveTranslation(const char* VTKEvent)
   return this->RemoveTranslation(e);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWidgetEventTranslator::ClearEvents()
 {
   EventMapIterator iter = this->EventMap->begin();
@@ -385,7 +385,7 @@ void vtkWidgetEventTranslator::ClearEvents()
   this->EventMap->clear();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWidgetEventTranslator::AddEventsToInteractor(
   vtkRenderWindowInteractor* i, vtkCallbackCommand* command, float priority)
 {
@@ -396,7 +396,7 @@ void vtkWidgetEventTranslator::AddEventsToInteractor(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWidgetEventTranslator::AddEventsToParent(
   vtkAbstractWidget* w, vtkCallbackCommand* command, float priority)
 {
@@ -407,7 +407,7 @@ void vtkWidgetEventTranslator::AddEventsToParent(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWidgetEventTranslator::PrintSelf(ostream& os, vtkIndent indent)
 {
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h

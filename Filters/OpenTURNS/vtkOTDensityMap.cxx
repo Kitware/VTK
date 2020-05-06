@@ -60,7 +60,7 @@ public:
   Sample* Cache;
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOTDensityMap::vtkOTDensityMap()
 {
   this->SetNumberOfOutputPorts(2);
@@ -72,7 +72,7 @@ vtkOTDensityMap::vtkOTDensityMap()
   this->DistributionCache = new vtkOTDensityMap::OTDistributionCache();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOTDensityMap::~vtkOTDensityMap()
 {
   this->ContourValues->Delete();
@@ -82,7 +82,7 @@ vtkOTDensityMap::~vtkOTDensityMap()
   delete this->DistributionCache;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOTDensityMap::ClearCache()
 {
   if (this->DensityLogPDFSampleCache->Cache != nullptr)
@@ -99,7 +99,7 @@ void vtkOTDensityMap::ClearCache()
   this->DensityPDFMTime.Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOTDensityMap::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -109,7 +109,7 @@ void vtkOTDensityMap::PrintSelf(ostream& os, vtkIndent indent)
      << endl;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkOTDensityMap::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   // Input is a table
@@ -117,7 +117,7 @@ int vtkOTDensityMap::FillInputPortInformation(int vtkNotUsed(port), vtkInformati
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkOTDensityMap::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -285,7 +285,7 @@ int vtkOTDensityMap::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkOTDensityMap::FillOutputPortInformation(int port, vtkInformation* info)
 {
   if (port == 1)
@@ -296,7 +296,7 @@ int vtkOTDensityMap::FillOutputPortInformation(int port, vtkInformation* info)
   return this->Superclass::FillOutputPortInformation(port, info);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOTDensityMap::BuildContours(vtkPolyData* contourPd, int numContours,
   const double* contourValues, const double* densityPDFContourValues, const char* xArrayName,
   const char* yArrayName, std::multimap<double, vtkSmartPointer<vtkTable>>& contoursMap)
@@ -408,7 +408,7 @@ void vtkOTDensityMap::BuildContours(vtkPolyData* contourPd, int numContours,
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkOTDensityMap::FindNextCellId(vtkPolyData* pd, vtkIdType cellId,
   vtkIdType previousCellId, bool& invertedPoints, bool up, vtkIdList* currentCellPoints)
 {
@@ -473,7 +473,7 @@ vtkIdType vtkOTDensityMap::FindNextCellId(vtkPolyData* pd, vtkIdType cellId,
   return nextCellId;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOTDensityMap::SetGridSubdivisions(int gridSubdivisions)
 {
   if (this->GridSubdivisions != gridSubdivisions)
@@ -484,7 +484,7 @@ void vtkOTDensityMap::SetGridSubdivisions(int gridSubdivisions)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOTDensityMap::SetContourApproximationNumberOfPoints(int val)
 {
   if (this->ContourApproximationNumberOfPoints != val)
@@ -495,43 +495,43 @@ void vtkOTDensityMap::SetContourApproximationNumberOfPoints(int val)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOTDensityMap::SetValue(int i, double value)
 {
   this->ContourValues->SetValue(i, value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkOTDensityMap::GetValue(int i)
 {
   return this->ContourValues->GetValue(i);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkOTDensityMap::GetValues()
 {
   return this->ContourValues->GetValues();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOTDensityMap::GetValues(double* contourValues)
 {
   this->ContourValues->GetValues(contourValues);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOTDensityMap::SetNumberOfContours(int number)
 {
   this->ContourValues->SetNumberOfContours(number);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkOTDensityMap::GetNumberOfContours()
 {
   return this->ContourValues->GetNumberOfContours();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkOTDensityMap::GetMTime()
 {
   return vtkMath::Max(this->Superclass::GetMTime(), this->ContourValues->GetMTime());

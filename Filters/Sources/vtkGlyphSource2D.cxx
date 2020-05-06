@@ -26,7 +26,7 @@
 
 vtkStandardNewMacro(vtkGlyphSource2D);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGlyphSource2D::vtkGlyphSource2D()
 {
   this->Center[0] = 0.0;
@@ -48,7 +48,7 @@ vtkGlyphSource2D::vtkGlyphSource2D()
   this->SetNumberOfInputPorts(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGlyphSource2D::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -555,7 +555,7 @@ void vtkGlyphSource2D::CreateDash(vtkPoints* pts, vtkCellArray* lines, vtkCellAr
   colors->InsertNextValue(this->RGB[2]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGlyphSource2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

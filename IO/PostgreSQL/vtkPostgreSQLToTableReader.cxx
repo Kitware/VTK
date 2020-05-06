@@ -26,16 +26,16 @@
 
 #include "vtkPostgreSQLToTableReader.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPostgreSQLToTableReader);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPostgreSQLToTableReader::vtkPostgreSQLToTableReader() {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPostgreSQLToTableReader::~vtkPostgreSQLToTableReader() {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPostgreSQLToTableReader::RequestData(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
@@ -153,7 +153,7 @@ int vtkPostgreSQLToTableReader::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPostgreSQLToTableReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

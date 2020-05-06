@@ -464,7 +464,7 @@ public:
   }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool QVTKRenderWindowAdapter::QVTKInternals::needToRecreateFBO() const
 {
   if (!this->FBO)
@@ -530,7 +530,7 @@ bool QVTKRenderWindowAdapter::QVTKInternals::needToRecreateFBO() const
   return false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void QVTKRenderWindowAdapter::QVTKInternals::recreateFBO()
 {
   vtkLogF(TRACE, "recreateFBO");
@@ -584,7 +584,7 @@ void QVTKRenderWindowAdapter::QVTKInternals::recreateFBO()
   renWin->GetState()->ResetFramebufferBindings();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void QVTKRenderWindowAdapter::QVTKInternals::renderWindowEventHandler(
   vtkObject*, unsigned long eventid, void* callData)
 {
@@ -623,7 +623,7 @@ void QVTKRenderWindowAdapter::QVTKInternals::renderWindowEventHandler(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void QVTKRenderWindowAdapter::QVTKInternals::updateDPI() const
 {
   assert(this->RenderWindow != nullptr);
@@ -631,21 +631,21 @@ void QVTKRenderWindowAdapter::QVTKInternals::updateDPI() const
   this->RenderWindow->SetDPI(dpr * this->UnscaledDPI);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 QVTKRenderWindowAdapter::QVTKRenderWindowAdapter(
   QOpenGLContext* cntxt, vtkGenericOpenGLRenderWindow* renWin, QWidget* widget)
   : QVTKRenderWindowAdapter(cntxt, renWin, static_cast<QObject*>(widget))
 {
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 QVTKRenderWindowAdapter::QVTKRenderWindowAdapter(
   QOpenGLContext* cntxt, vtkGenericOpenGLRenderWindow* renWin, QWindow* window)
   : QVTKRenderWindowAdapter(cntxt, renWin, static_cast<QObject*>(window))
 {
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 QVTKRenderWindowAdapter::QVTKRenderWindowAdapter(
   QOpenGLContext* cntxt, vtkGenericOpenGLRenderWindow* renWin, QObject* widgetOrWindow)
   : Superclass(widgetOrWindow)
@@ -659,19 +659,19 @@ QVTKRenderWindowAdapter::QVTKRenderWindowAdapter(
   this->connect(cntxt, SIGNAL(aboutToBeDestroyed()), SLOT(contextAboutToBeDestroyed()));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 QVTKRenderWindowAdapter::~QVTKRenderWindowAdapter()
 {
   this->Internals.reset(nullptr);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void QVTKRenderWindowAdapter::contextAboutToBeDestroyed()
 {
   this->Internals.reset(nullptr);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void QVTKRenderWindowAdapter::paint()
 {
   if (this->Internals)
@@ -680,7 +680,7 @@ void QVTKRenderWindowAdapter::paint()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void QVTKRenderWindowAdapter::resize(int width, int height)
 {
   if (this->Internals)
@@ -689,7 +689,7 @@ void QVTKRenderWindowAdapter::resize(int width, int height)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool QVTKRenderWindowAdapter::blit(
   unsigned int targetId, int targetAttachement, const QRect& targetRect, bool left)
 {
@@ -700,7 +700,7 @@ bool QVTKRenderWindowAdapter::blit(
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool QVTKRenderWindowAdapter::handleEvent(QEvent* evt)
 {
   return this->Internals ? this->Internals->InteractorAdapter.ProcessEvent(
@@ -708,7 +708,7 @@ bool QVTKRenderWindowAdapter::handleEvent(QEvent* evt)
                          : false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void QVTKRenderWindowAdapter::setEnableHiDPI(bool value)
 {
   if (this->Internals)
@@ -717,7 +717,7 @@ void QVTKRenderWindowAdapter::setEnableHiDPI(bool value)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void QVTKRenderWindowAdapter::setUnscaledDPI(int unscaledDPI)
 {
   if (this->Internals)
@@ -726,7 +726,7 @@ void QVTKRenderWindowAdapter::setUnscaledDPI(int unscaledDPI)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 QSurfaceFormat QVTKRenderWindowAdapter::defaultFormat(bool stereo_capable)
 {
   QSurfaceFormat fmt;

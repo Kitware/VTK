@@ -212,7 +212,7 @@ vtkUniformGrid* ConstructGrid(
 };
 
 vtkStandardNewMacro(vtkImageToAMR);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageToAMR::vtkImageToAMR()
 {
   this->NumberOfLevels = 2;
@@ -220,17 +220,17 @@ vtkImageToAMR::vtkImageToAMR()
   this->MaximumNumberOfBlocks = 100;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageToAMR::~vtkImageToAMR() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageToAMR::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageToAMR::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -347,7 +347,7 @@ int vtkImageToAMR::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageToAMR::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

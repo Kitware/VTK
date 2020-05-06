@@ -46,7 +46,7 @@
 #include <vtksys/SystemTools.hxx>
 using std::ostringstream;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestImageDataLIC2D(int argc, char* argv[])
 {
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SurfaceVectors.vtk");
@@ -80,7 +80,7 @@ int TestImageDataLIC2D(int argc, char* argv[])
 // Example demonstrating use of vtkImageDataLIC2D filter.
 // Typical usage:
 // ./bin/ImageDataLIC2D --data=<vtk file> --output=<png file>
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int ImageDataLIC2D(int argc, char* argv[])
 {
   std::string filename;

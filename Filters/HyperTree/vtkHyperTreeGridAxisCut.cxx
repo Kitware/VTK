@@ -32,7 +32,7 @@
 
 vtkStandardNewMacro(vtkHyperTreeGridAxisCut);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHyperTreeGridAxisCut::vtkHyperTreeGridAxisCut()
 {
   // Defaut normal axis is Z
@@ -53,7 +53,7 @@ vtkHyperTreeGridAxisCut::vtkHyperTreeGridAxisCut()
   this->AppropriateOutput = true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHyperTreeGridAxisCut::~vtkHyperTreeGridAxisCut()
 {
   if (this->OutMask)
@@ -63,7 +63,7 @@ vtkHyperTreeGridAxisCut::~vtkHyperTreeGridAxisCut()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridAxisCut::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -74,14 +74,14 @@ void vtkHyperTreeGridAxisCut::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CurrentId: " << this->CurrentId << endl;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkHyperTreeGridAxisCut::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkHyperTreeGrid");
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkHyperTreeGridAxisCut::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObject* outputDO)
 {
   // Downcast output data object to hyper tree grid
@@ -222,7 +222,7 @@ int vtkHyperTreeGridAxisCut::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObject
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridAxisCut::RecursivelyProcessTree(
   vtkHyperTreeGridNonOrientedGeometryCursor* inCursor, vtkHyperTreeGridNonOrientedCursor* outCursor)
 {

@@ -53,7 +53,7 @@ vtkCxxSetObjectMacro(vtkRenderer, RightBackgroundTexture, vtkTexture);
 vtkCxxSetObjectMacro(vtkRenderer, Pass, vtkRenderPass);
 vtkCxxSetObjectMacro(vtkRenderer, FXAAOptions, vtkFXAAOptions);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkObjectFactoryNewMacro(vtkRenderer);
 
 // Create a vtkRenderer with a black background, a white ambient light,
@@ -430,13 +430,13 @@ void vtkRenderer::Render()
   this->InvokeEvent(vtkCommand::EndEvent, nullptr);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderer::DeviceRenderOpaqueGeometry(vtkFrameBufferObjectBase* vtkNotUsed(fbo))
 {
   this->UpdateOpaquePolygonalGeometry();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Render translucent polygonal geometry. Default implementation just call
 // UpdateTranslucentPolygonalGeometry().
@@ -453,7 +453,7 @@ void vtkRenderer::DeviceRenderTranslucentPolygonalGeometry(
   this->UpdateTranslucentPolygonalGeometry();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkRenderer::GetAllocatedRenderTime()
 {
   return this->AllocatedRenderTime;
@@ -706,7 +706,7 @@ int vtkRenderer::UpdateGeometry(vtkFrameBufferObjectBase* vtkNotUsed(fbo))
   return this->NumberOfPropsRendered;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Ask all props to update and draw any translucent polygonal
 // geometry. This includes both vtkActors and vtkVolumes
@@ -727,7 +727,7 @@ int vtkRenderer::UpdateTranslucentPolygonalGeometry()
   return result;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkRenderer::UpdateOpaquePolygonalGeometry()
 {
   int result = 0;
@@ -739,13 +739,13 @@ int vtkRenderer::UpdateOpaquePolygonalGeometry()
   return result;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkWindow* vtkRenderer::GetVTKWindow()
 {
   return this->RenderWindow;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderer::SetLayer(int layer)
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting Layer to " << layer);
@@ -780,7 +780,7 @@ void vtkRenderer::SetActiveCamera(vtkCamera* cam)
   this->InvokeEvent(vtkCommand::ActiveCameraEvent, cam);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCamera* vtkRenderer::MakeCamera()
 {
   vtkCamera* cam = vtkCamera::New();
@@ -788,7 +788,7 @@ vtkCamera* vtkRenderer::MakeCamera()
   return cam;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCamera* vtkRenderer::GetActiveCamera()
 {
   if (this->ActiveCamera == nullptr)
@@ -808,7 +808,7 @@ vtkCamera* vtkRenderer::GetActiveCamera()
   return this->ActiveCamera;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCamera* vtkRenderer::GetActiveCameraAndResetIfCreated()
 {
   if (this->ActiveCamera == nullptr)
@@ -819,26 +819,26 @@ vtkCamera* vtkRenderer::GetActiveCameraAndResetIfCreated()
   return this->ActiveCamera;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderer::AddActor(vtkProp* p)
 {
   this->AddViewProp(p);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderer::AddVolume(vtkProp* p)
 {
   this->AddViewProp(p);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderer::RemoveActor(vtkProp* p)
 {
   this->Actors->RemoveItem(p);
   this->RemoveViewProp(p);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderer::RemoveVolume(vtkProp* p)
 {
   this->Volumes->RemoveItem(p);
@@ -907,7 +907,7 @@ void vtkRenderer::RemoveCuller(vtkCuller* culler)
   this->Cullers->RemoveItem(culler);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderer::SetLightCollection(vtkLightCollection* lights)
 {
   assert("pre lights_exist" && lights != nullptr);
@@ -920,7 +920,7 @@ void vtkRenderer::SetLightCollection(vtkLightCollection* lights)
   assert("post: lights_set" && lights == this->GetLights());
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLight* vtkRenderer::MakeLight()
 {
   return vtkLight::New();
@@ -1819,13 +1819,13 @@ vtkAssemblyPath* vtkRenderer::PickProp(
   return this->PickedProp; // returns an assembly path
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderer::SetEnvironmentTexture(vtkTexture* texture, bool vtkNotUsed(isSRGB))
 {
   vtkSetObjectBodyMacro(EnvironmentTexture, vtkTexture, texture);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderer::ExpandBounds(double bounds[6], vtkMatrix4x4* matrix)
 {
   if (!bounds)

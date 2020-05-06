@@ -50,7 +50,7 @@ vtkmHistogram::vtkmHistogram()
 //------------------------------------------------------------------------------
 vtkmHistogram::~vtkmHistogram() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkmHistogram::FillInputPortInformation(int port, vtkInformation* info)
 {
   this->Superclass::FillInputPortInformation(port, info);

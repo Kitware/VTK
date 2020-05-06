@@ -90,13 +90,13 @@ public:
 
 int vtkOSPRayPass::RTDeviceRefCount = 0;
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOSPRayPassInternals);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOSPRayPass);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOSPRayPass::vtkOSPRayPass()
 {
   this->SceneGraph = nullptr;
@@ -123,7 +123,7 @@ vtkOSPRayPass::vtkOSPRayPass()
   this->PreviousType = "none";
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOSPRayPass::~vtkOSPRayPass()
 {
   this->SetSceneGraph(nullptr);
@@ -162,7 +162,7 @@ vtkOSPRayPass::~vtkOSPRayPass()
   vtkOSPRayPass::RTShutdown();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayPass::RTInit()
 {
   if (RTDeviceRefCount == 0)
@@ -172,7 +172,7 @@ void vtkOSPRayPass::RTInit()
   RTDeviceRefCount++;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayPass::RTShutdown()
 {
   --RTDeviceRefCount;
@@ -182,16 +182,16 @@ void vtkOSPRayPass::RTShutdown()
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkOSPRayPass, SceneGraph, vtkOSPRayRendererNode);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayPass::Render(const vtkRenderState* s)
 {
   vtkRenderer* ren = s->GetRenderer();
@@ -214,7 +214,7 @@ void vtkOSPRayPass::Render(const vtkRenderState* s)
   this->CameraPass->Render(s);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayPass::RenderInternal(const vtkRenderState* s)
 {
   this->NumberOfRenderedProps = 0;
@@ -362,7 +362,7 @@ void vtkOSPRayPass::RenderInternal(const vtkRenderState* s)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkOSPRayPass::IsBackendAvailable(const char* choice)
 {
   std::set<RTWBackendType> bends = rtwGetAvailableBackends();

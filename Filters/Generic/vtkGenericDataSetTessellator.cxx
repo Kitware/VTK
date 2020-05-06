@@ -37,7 +37,7 @@
 vtkStandardNewMacro(vtkGenericDataSetTessellator);
 
 vtkCxxSetObjectMacro(vtkGenericDataSetTessellator, Locator, vtkIncrementalPointLocator);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 vtkGenericDataSetTessellator::vtkGenericDataSetTessellator()
 {
@@ -48,7 +48,7 @@ vtkGenericDataSetTessellator::vtkGenericDataSetTessellator()
   this->Locator = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGenericDataSetTessellator::~vtkGenericDataSetTessellator()
 {
   if (this->Locator)
@@ -59,7 +59,7 @@ vtkGenericDataSetTessellator::~vtkGenericDataSetTessellator()
   this->InternalPD->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 int vtkGenericDataSetTessellator::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -220,7 +220,7 @@ int vtkGenericDataSetTessellator::RequestData(vtkInformation* vtkNotUsed(request
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGenericDataSetTessellator::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (!this->Superclass::FillInputPortInformation(port, info))
@@ -231,7 +231,7 @@ int vtkGenericDataSetTessellator::FillInputPortInformation(int port, vtkInformat
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify a spatial locator for merging points. By
 // default an instance of vtkMergePoints is used.
 void vtkGenericDataSetTessellator::CreateDefaultLocator()
@@ -242,7 +242,7 @@ void vtkGenericDataSetTessellator::CreateDefaultLocator()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenericDataSetTessellator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -267,7 +267,7 @@ void vtkGenericDataSetTessellator::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkGenericDataSetTessellator::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();

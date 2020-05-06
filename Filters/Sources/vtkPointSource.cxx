@@ -28,12 +28,12 @@
 
 vtkStandardNewMacro(vtkPointSource);
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify a random sequence, or use the non-threadsafe one in vtkMath by
 // default.
 vtkCxxSetObjectMacro(vtkPointSource, RandomSequence, vtkRandomSequence);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPointSource::vtkPointSource(vtkIdType numPts)
 {
   this->NumberOfPoints = (numPts > 0 ? numPts : 10);
@@ -51,13 +51,13 @@ vtkPointSource::vtkPointSource(vtkIdType numPts)
   this->SetNumberOfInputPorts(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPointSource::~vtkPointSource()
 {
   this->SetRandomSequence(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPointSource::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -132,7 +132,7 @@ int vtkPointSource::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkPointSource::Random()
 {
   if (!this->RandomSequence)
@@ -144,7 +144,7 @@ double vtkPointSource::Random()
   return this->RandomSequence->GetValue();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -24,7 +24,7 @@
 
 vtkStandardNewMacro(vtkIterativeClosestPointTransform);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkIterativeClosestPointTransform::vtkIterativeClosestPointTransform()
   : vtkLinearTransform()
@@ -44,7 +44,7 @@ vtkIterativeClosestPointTransform::vtkIterativeClosestPointTransform()
   this->MeanDistance = 0.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 const char* vtkIterativeClosestPointTransform::GetMeanDistanceModeAsString()
 {
@@ -58,7 +58,7 @@ const char* vtkIterativeClosestPointTransform::GetMeanDistanceModeAsString()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkIterativeClosestPointTransform::~vtkIterativeClosestPointTransform()
 {
@@ -68,7 +68,7 @@ vtkIterativeClosestPointTransform::~vtkIterativeClosestPointTransform()
   this->LandmarkTransform->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkIterativeClosestPointTransform::SetSource(vtkDataSet* source)
 {
@@ -91,7 +91,7 @@ void vtkIterativeClosestPointTransform::SetSource(vtkDataSet* source)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkIterativeClosestPointTransform::ReleaseSource()
 {
@@ -102,7 +102,7 @@ void vtkIterativeClosestPointTransform::ReleaseSource()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkIterativeClosestPointTransform::SetTarget(vtkDataSet* target)
 {
@@ -125,7 +125,7 @@ void vtkIterativeClosestPointTransform::SetTarget(vtkDataSet* target)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkIterativeClosestPointTransform::ReleaseTarget()
 {
@@ -136,7 +136,7 @@ void vtkIterativeClosestPointTransform::ReleaseTarget()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkIterativeClosestPointTransform::SetLocator(vtkCellLocator* locator)
 {
@@ -159,7 +159,7 @@ void vtkIterativeClosestPointTransform::SetLocator(vtkCellLocator* locator)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkIterativeClosestPointTransform::ReleaseLocator()
 {
@@ -170,7 +170,7 @@ void vtkIterativeClosestPointTransform::ReleaseLocator()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkIterativeClosestPointTransform::CreateDefaultLocator()
 {
@@ -182,7 +182,7 @@ void vtkIterativeClosestPointTransform::CreateDefaultLocator()
   this->Locator = vtkCellLocator::New();
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkMTimeType vtkIterativeClosestPointTransform::GetMTime()
 {
@@ -228,7 +228,7 @@ vtkMTimeType vtkIterativeClosestPointTransform::GetMTime()
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkIterativeClosestPointTransform::Inverse()
 {
@@ -238,14 +238,14 @@ void vtkIterativeClosestPointTransform::Inverse()
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkAbstractTransform* vtkIterativeClosestPointTransform::MakeTransform()
 {
   return vtkIterativeClosestPointTransform::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkIterativeClosestPointTransform::InternalDeepCopy(vtkAbstractTransform* transform)
 {
@@ -263,7 +263,7 @@ void vtkIterativeClosestPointTransform::InternalDeepCopy(vtkAbstractTransform* t
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkIterativeClosestPointTransform::InternalUpdate()
 {
@@ -466,7 +466,7 @@ void vtkIterativeClosestPointTransform::InternalUpdate()
   points2->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkIterativeClosestPointTransform::PrintSelf(ostream& os, vtkIndent indent)
 {

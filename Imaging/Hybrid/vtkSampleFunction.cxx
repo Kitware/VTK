@@ -125,7 +125,7 @@ public:
   };
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Initialized mainly to eliminate compiler warnings.
 template <class T>
 vtkSampleFunctionAlgorithm<T>::vtkSampleFunctionAlgorithm()
@@ -142,7 +142,7 @@ vtkSampleFunctionAlgorithm<T>::vtkSampleFunctionAlgorithm()
   this->CapValue = 0.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Templated class is glue between VTK and templated algorithms.
 template <class T>
 void vtkSampleFunctionAlgorithm<T>::SampleAcrossImage(
@@ -182,7 +182,7 @@ void vtkSampleFunctionAlgorithm<T>::SampleAcrossImage(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Cap the boundaries of the volume if requested.
 template <class T>
 void vtkSampleFunctionAlgorithm<T>::Cap()
@@ -249,7 +249,7 @@ void vtkSampleFunctionAlgorithm<T>::Cap()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Okay define the VTK class proper
 vtkSampleFunction::vtkSampleFunction()
 {
@@ -281,7 +281,7 @@ vtkSampleFunction::vtkSampleFunction()
   this->SetNumberOfInputPorts(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSampleFunction::~vtkSampleFunction()
 {
   this->SetImplicitFunction(nullptr);
@@ -289,7 +289,7 @@ vtkSampleFunction::~vtkSampleFunction()
   this->SetNormalArrayName(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify the dimensions of the data on which to sample.
 void vtkSampleFunction::SetSampleDimensions(int i, int j, int k)
 {
@@ -302,7 +302,7 @@ void vtkSampleFunction::SetSampleDimensions(int i, int j, int k)
   this->SetSampleDimensions(dim);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify the dimensions of the data on which to sample.
 void vtkSampleFunction::SetSampleDimensions(int dim[3])
 {
@@ -320,14 +320,14 @@ void vtkSampleFunction::SetSampleDimensions(int dim[3])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Set the bounds of the model.
 void vtkSampleFunction::SetModelBounds(const double bounds[6])
 {
   this->SetModelBounds(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSampleFunction::SetModelBounds(
   double xMin, double xMax, double yMin, double yMax, double zMin, double zMax)
 {
@@ -358,7 +358,7 @@ void vtkSampleFunction::SetModelBounds(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSampleFunction::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -401,7 +401,7 @@ int vtkSampleFunction::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Produce the data.
 void vtkSampleFunction::ExecuteDataWithInformation(vtkDataObject* outp, vtkInformation* outInfo)
 {
@@ -457,7 +457,7 @@ void vtkSampleFunction::ExecuteDataWithInformation(vtkDataObject* outp, vtkInfor
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkSampleFunction::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
@@ -472,7 +472,7 @@ vtkMTimeType vtkSampleFunction::GetMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSampleFunction::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -521,7 +521,7 @@ void vtkSampleFunction::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSampleFunction::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);

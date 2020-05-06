@@ -32,7 +32,7 @@
 
 #include "vtkRegressionTestImage.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class ContextTest : public vtkContextItem
 {
 public:
@@ -42,7 +42,7 @@ public:
   bool Paint(vtkContext2D* painter) override;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestContext(int, char*[])
 {
   // Set up a 2D context view, context test object and add it to the scene

@@ -72,7 +72,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include <io.h> /* unlink */
 #endif
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkMNITagPointWriter);
 
 vtkCxxSetObjectMacro(vtkMNITagPointWriter, LabelText, vtkStringArray);
@@ -80,7 +80,7 @@ vtkCxxSetObjectMacro(vtkMNITagPointWriter, Weights, vtkDoubleArray);
 vtkCxxSetObjectMacro(vtkMNITagPointWriter, StructureIds, vtkIntArray);
 vtkCxxSetObjectMacro(vtkMNITagPointWriter, PatientIds, vtkIntArray);
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMNITagPointWriter::vtkMNITagPointWriter()
 {
   this->Points[0] = nullptr;
@@ -99,7 +99,7 @@ vtkMNITagPointWriter::vtkMNITagPointWriter()
   this->FileName = nullptr;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMNITagPointWriter::~vtkMNITagPointWriter()
 {
   vtkObject* objects[6];
@@ -123,7 +123,7 @@ vtkMNITagPointWriter::~vtkMNITagPointWriter()
   delete[] this->FileName;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMNITagPointWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -137,7 +137,7 @@ void vtkMNITagPointWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Comments: " << (this->Comments ? this->Comments : "none") << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNITagPointWriter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
@@ -145,7 +145,7 @@ int vtkMNITagPointWriter::FillInputPortInformation(int, vtkInformation* info)
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkMNITagPointWriter::GetMTime()
 {
   vtkMTimeType mtime = this->Superclass::GetMTime();
@@ -173,7 +173,7 @@ vtkMTimeType vtkMNITagPointWriter::GetMTime()
   return mtime;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMNITagPointWriter::SetPoints(int port, vtkPoints* points)
 {
   if (port < 0 || port > 1)
@@ -196,7 +196,7 @@ void vtkMNITagPointWriter::SetPoints(int port, vtkPoints* points)
   this->Modified();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPoints* vtkMNITagPointWriter::GetPoints(int port)
 {
   if (port < 0 || port > 1)
@@ -206,7 +206,7 @@ vtkPoints* vtkMNITagPointWriter::GetPoints(int port)
   return this->Points[port];
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMNITagPointWriter::WriteData(vtkPointSet* inputs[2])
 {
   static const char* arrayNames[3] = { "Weights", "StructureIds", "PatientIds" };
@@ -458,7 +458,7 @@ void vtkMNITagPointWriter::WriteData(vtkPointSet* inputs[2])
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNITagPointWriter::Write()
 {
   // Allow writer to work when no inputs are provided
@@ -467,7 +467,7 @@ int vtkMNITagPointWriter::Write()
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNITagPointWriter::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector*)
 {
@@ -513,7 +513,7 @@ int vtkMNITagPointWriter::RequestData(
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 ostream* vtkMNITagPointWriter::OpenFile()
 {
   ostream* fptr;
@@ -540,7 +540,7 @@ ostream* vtkMNITagPointWriter::OpenFile()
   return fptr;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMNITagPointWriter::CloseFile(ostream* fp)
 {
   vtkDebugMacro(<< "Closing file\n");

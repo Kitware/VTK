@@ -36,7 +36,7 @@
 
 vtkStandardNewMacro(vtkPointFillPass);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPointFillPass::vtkPointFillPass()
 {
   this->FrameBufferObject = nullptr;
@@ -47,7 +47,7 @@ vtkPointFillPass::vtkPointFillPass()
   this->CandidatePointRatio = 0.99;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPointFillPass::~vtkPointFillPass()
 {
   if (this->FrameBufferObject != nullptr)
@@ -64,13 +64,13 @@ vtkPointFillPass::~vtkPointFillPass()
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointFillPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Perform rendering according to a render state \p s.
 // \pre s_exists: s!=0
@@ -177,7 +177,7 @@ void vtkPointFillPass::Render(const vtkRenderState* s)
   vtkOpenGLCheckErrorMacro("failed after Render");
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Release graphics resources and ask components to release their own
 // resources.

@@ -27,7 +27,7 @@
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestColorTransferFunction(int, char*[])
 {
   // Set up a 2D scene, add an XY chart to it

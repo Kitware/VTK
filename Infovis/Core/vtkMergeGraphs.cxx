@@ -36,7 +36,7 @@
 #include <map>
 
 vtkStandardNewMacro(vtkMergeGraphs);
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMergeGraphs::vtkMergeGraphs()
 {
   this->SetNumberOfInputPorts(2);
@@ -47,13 +47,13 @@ vtkMergeGraphs::vtkMergeGraphs()
   this->EdgeWindow = 10000;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMergeGraphs::~vtkMergeGraphs()
 {
   this->SetEdgeWindowArrayName(nullptr);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMergeGraphs::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
@@ -69,7 +69,7 @@ int vtkMergeGraphs::FillInputPortInformation(int port, vtkInformation* info)
   return 1;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Fills array_map with matching arrays from data1 to data2
 static void vtkMergeGraphsCreateArrayMapping(
   std::map<vtkAbstractArray*, vtkAbstractArray*>& array_map, vtkDataSetAttributes* data1,
@@ -91,7 +91,7 @@ static void vtkMergeGraphsCreateArrayMapping(
     array_map[data1->GetPedigreeIds()] = data2->GetPedigreeIds();
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Uses array_map to append a row to data1 corresponding to
 // row index2 of mapped arrays (which came from data2)
 static void vtkMergeGraphsAddRow(vtkDataSetAttributes* data1, vtkIdType index2,
@@ -117,7 +117,7 @@ static void vtkMergeGraphsAddRow(vtkDataSetAttributes* data1, vtkIdType index2,
   }
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMergeGraphs::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -167,7 +167,7 @@ int vtkMergeGraphs::RequestData(
   return 1;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMergeGraphs::ExtendGraph(vtkMutableGraphHelper* builder, vtkGraph* graph2)
 {
   vtkAbstractArray* ped_ids1 = builder->GetGraph()->GetVertexData()->GetPedigreeIds();
@@ -272,7 +272,7 @@ int vtkMergeGraphs::ExtendGraph(vtkMutableGraphHelper* builder, vtkGraph* graph2
   return 1;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMergeGraphs::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

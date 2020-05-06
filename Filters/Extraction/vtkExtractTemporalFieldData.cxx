@@ -35,7 +35,7 @@ public:
 };
 
 vtkObjectFactoryNewMacro(vtkExtractTemporalFieldData);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractTemporalFieldData::vtkExtractTemporalFieldData()
 {
   VTK_LEGACY_REPLACED_BODY(
@@ -45,20 +45,20 @@ vtkExtractTemporalFieldData::vtkExtractTemporalFieldData()
   this->HandleCompositeDataBlocksIndividually = true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractTemporalFieldData::~vtkExtractTemporalFieldData()
 {
   delete this->Internals;
   this->Internals = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractTemporalFieldData::GetNumberOfTimeSteps()
 {
   return static_cast<int>(this->Internals->TimeSteps.size());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractTemporalFieldData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -67,7 +67,7 @@ void vtkExtractTemporalFieldData::PrintSelf(ostream& os, vtkIndent indent)
      << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractTemporalFieldData::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
@@ -76,7 +76,7 @@ int vtkExtractTemporalFieldData::FillInputPortInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractTemporalFieldData::RequestDataObject(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -98,7 +98,7 @@ int vtkExtractTemporalFieldData::RequestDataObject(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractTemporalFieldData::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -127,7 +127,7 @@ int vtkExtractTemporalFieldData::RequestInformation(vtkInformation* vtkNotUsed(r
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractTemporalFieldData::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -186,7 +186,7 @@ int vtkExtractTemporalFieldData::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkExtractTemporalFieldData::CopyDataToOutput(vtkDataSet* input, vtkTable* output)
 {
   vtkDataSetAttributes* outRowData = output->GetRowData();

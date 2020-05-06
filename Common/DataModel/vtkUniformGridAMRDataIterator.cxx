@@ -210,7 +210,7 @@ void vtkUniformGridAMRDataIterator::GoToNextItem()
   this->Iter->Next();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkUniformGridAMRDataIterator::IsDoneWithTraversal()
 {
   return (!this->Iter) || this->Iter->IsDone();

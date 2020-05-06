@@ -191,7 +191,7 @@ vtkImageTracerWidget::~vtkImageTracerWidget()
   this->HandleGenerator->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageTracerWidget::SetViewProp(vtkProp* prop)
 {
   if (this->ViewProp != prop)

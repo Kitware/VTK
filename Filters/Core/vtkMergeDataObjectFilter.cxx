@@ -27,7 +27,7 @@
 
 vtkStandardNewMacro(vtkMergeDataObjectFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Create object with no input or output.
 vtkMergeDataObjectFilter::vtkMergeDataObjectFilter()
 {
@@ -35,17 +35,17 @@ vtkMergeDataObjectFilter::vtkMergeDataObjectFilter()
   this->SetNumberOfInputPorts(2);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMergeDataObjectFilter::~vtkMergeDataObjectFilter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify a data object at a specified table location.
 void vtkMergeDataObjectFilter::SetDataObjectInputData(vtkDataObject* d)
 {
   this->SetInputData(1, d);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get a pointer to a data object at a specified table location.
 vtkDataObject* vtkMergeDataObjectFilter::GetDataObject()
 {
@@ -56,7 +56,7 @@ vtkDataObject* vtkMergeDataObjectFilter::GetDataObject()
   return this->GetExecutive()->GetInputData(1, 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Merge it all together
 int vtkMergeDataObjectFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -124,25 +124,25 @@ int vtkMergeDataObjectFilter::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMergeDataObjectFilter::SetOutputFieldToDataObjectField()
 {
   this->SetOutputField(VTK_DATA_OBJECT_FIELD);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMergeDataObjectFilter::SetOutputFieldToPointDataField()
 {
   this->SetOutputField(VTK_POINT_DATA_FIELD);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMergeDataObjectFilter::SetOutputFieldToCellDataField()
 {
   this->SetOutputField(VTK_CELL_DATA_FIELD);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMergeDataObjectFilter::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
@@ -154,7 +154,7 @@ int vtkMergeDataObjectFilter::FillInputPortInformation(int port, vtkInformation*
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMergeDataObjectFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

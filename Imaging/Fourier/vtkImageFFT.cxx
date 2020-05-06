@@ -24,7 +24,7 @@
 
 vtkStandardNewMacro(vtkImageFFT);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This extent of the components changes to real and imaginary values.
 int vtkImageFFT::IterativeRequestInformation(
   vtkInformation* vtkNotUsed(input), vtkInformation* output)
@@ -33,7 +33,7 @@ int vtkImageFFT::IterativeRequestInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static void vtkImageFFTInternalRequestUpdateExtent(
   int* inExt, int* outExt, int* wExt, int iteration)
 {
@@ -42,7 +42,7 @@ static void vtkImageFFTInternalRequestUpdateExtent(
   inExt[iteration * 2 + 1] = wExt[iteration * 2 + 1];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method tells the superclass that the whole input array is needed
 // to compute any output region.
 int vtkImageFFT::IterativeRequestUpdateExtent(vtkInformation* input, vtkInformation* output)
@@ -56,7 +56,7 @@ int vtkImageFFT::IterativeRequestUpdateExtent(vtkInformation* input, vtkInformat
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This templated execute method handles any type input, but the output
 // is always doubles.
 template <class T>
@@ -162,7 +162,7 @@ void vtkImageFFTExecute(vtkImageFFT* self, vtkImageData* inData, int inExt[6], T
   delete[] outComplex;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method is passed input and output Datas, and executes the fft
 // algorithm to fill the output from the input.
 // Not threaded yet.

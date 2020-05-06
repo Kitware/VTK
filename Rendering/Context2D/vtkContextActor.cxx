@@ -111,7 +111,7 @@ vtkViewportSpecification<int> convert(
 
 vtkObjectFactoryNewMacro(vtkContextActor);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkContextActor::vtkContextActor()
   : ForceDevice(nullptr)
 {
@@ -121,7 +121,7 @@ vtkContextActor::vtkContextActor()
   this->Context->SetContext3D(this->Context3D);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkContextActor::~vtkContextActor()
 {
   if (this->Context)
@@ -134,19 +134,19 @@ vtkContextActor::~vtkContextActor()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkContextScene* vtkContextActor::GetScene()
 {
   return this->Scene;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContextActor::SetScene(vtkContextScene* scene)
 {
   this->Scene = scene;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContextActor::SetForceDevice(vtkContextDevice2D* dev)
 {
   if (this->ForceDevice != dev)
@@ -170,10 +170,10 @@ void vtkContextActor::SetForceDevice(vtkContextDevice2D* dev)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContextActor::ReleaseGraphicsResources(vtkWindow*) {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Renders an actor2D's property and then it's mapper.
 int vtkContextActor::RenderOverlay(vtkViewport* viewport)
 {
@@ -241,13 +241,13 @@ int vtkContextActor::RenderOverlay(vtkViewport* viewport)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContextActor::Initialize(vtkViewport*)
 {
   // Initialization deferred to the derived actor classes.
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContextActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

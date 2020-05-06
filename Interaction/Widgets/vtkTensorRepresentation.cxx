@@ -47,7 +47,7 @@
 
 vtkStandardNewMacro(vtkTensorRepresentation);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTensorRepresentation::vtkTensorRepresentation()
 {
   // The current tensor and derivative information
@@ -244,7 +244,7 @@ vtkTensorRepresentation::vtkTensorRepresentation()
   this->TranslationAxis = Axis::NONE;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTensorRepresentation::~vtkTensorRepresentation()
 {
   this->HexActor->Delete();
@@ -300,7 +300,7 @@ vtkTensorRepresentation::~vtkTensorRepresentation()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorRepresentation::SetSymmetricTensor(double symTensor[6])
 {
   double tensor[9];
@@ -308,7 +308,7 @@ void vtkTensorRepresentation::SetSymmetricTensor(double symTensor[6])
   this->SetTensor(tensor);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Given a 3x3 symmetric tensor, update the widget accordingly.
 void vtkTensorRepresentation::SetTensor(double tensor[9])
 {
@@ -338,7 +338,7 @@ void vtkTensorRepresentation::SetTensor(double tensor[9])
   this->UpdateWidgetFromTensor();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Set the position of the tensor. This means translating the representation.
 void vtkTensorRepresentation::SetPosition(double pos[3])
 {
@@ -347,14 +347,14 @@ void vtkTensorRepresentation::SetPosition(double pos[3])
   this->Translate(center, pos);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorRepresentation::GetPolyData(vtkPolyData* pd)
 {
   pd->SetPoints(this->HexPolyData->GetPoints());
   pd->SetPolys(this->HexPolyData->GetPolys());
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorRepresentation::StartWidgetInteraction(double e[2])
 {
   // Store the start position
@@ -370,7 +370,7 @@ void vtkTensorRepresentation::StartWidgetInteraction(double e[2])
   this->ComputeInteractionState(static_cast<int>(e[0]), static_cast<int>(e[1]), 0);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorRepresentation::StartComplexInteraction(
   vtkRenderWindowInteractor*, vtkAbstractWidget*, unsigned long, void* calldata)
 {
@@ -396,7 +396,7 @@ void vtkTensorRepresentation::StartComplexInteraction(
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorRepresentation::WidgetInteraction(double e[2])
 {
   // Convert events to appropriate coordinate systems
@@ -477,7 +477,7 @@ void vtkTensorRepresentation::WidgetInteraction(double e[2])
   this->LastEventPosition[2] = 0.0;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorRepresentation::ComplexInteraction(
   vtkRenderWindowInteractor*, vtkAbstractWidget*, unsigned long, void* calldata)
 {
@@ -536,27 +536,27 @@ void vtkTensorRepresentation::ComplexInteraction(
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorRepresentation::StepForward()
 {
   double* pts = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0);
   this->Translate(pts, pts + 3);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorRepresentation::StepBackward()
 {
   double* pts = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0);
   this->Translate(pts + 3, pts);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorRepresentation::EndComplexInteraction(
   vtkRenderWindowInteractor*, vtkAbstractWidget*, unsigned long, void*)
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This actually moves
 void vtkTensorRepresentation::MoveFace(const double* p1, const double* p2, const double* dir,
   double* x1, double* x2, double* x3, double* x4, double* x5)
@@ -585,7 +585,7 @@ void vtkTensorRepresentation::MoveFace(const double* p1, const double* p2, const
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorRepresentation::GetDirection(
   const double Nx[3], const double Ny[3], const double Nz[3], double dir[3])
 {
@@ -625,10 +625,10 @@ void vtkTensorRepresentation::GetDirection(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Move faces in pairs (e.g., minus x, plus x). This maintains a more natural
 // transformation of a tensor. That is, it decouples scaling from translation.
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorRepresentation::MovePlusXFace(const double* p1, const double* p2, bool entry)
 {
   double* pts = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0);
@@ -654,7 +654,7 @@ void vtkTensorRepresentation::MovePlusXFace(const double* p1, const double* p2, 
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorRepresentation::MoveMinusXFace(const double* p1, const double* p2, bool entry)
 {
   double* pts = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0);
@@ -680,7 +680,7 @@ void vtkTensorRepresentation::MoveMinusXFace(const double* p1, const double* p2,
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorRepresentation::MovePlusYFace(const double* p1, const double* p2, bool entry)
 {
   double* pts = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0);
@@ -705,7 +705,7 @@ void vtkTensorRepresentation::MovePlusYFace(const double* p1, const double* p2, 
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorRepresentation::MoveMinusYFace(const double* p1, const double* p2, bool entry)
 {
   double* pts = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0);
@@ -730,7 +730,7 @@ void vtkTensorRepresentation::MoveMinusYFace(const double* p1, const double* p2,
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorRepresentation::MovePlusZFace(const double* p1, const double* p2, bool entry)
 {
   double* pts = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0);
@@ -757,7 +757,7 @@ void vtkTensorRepresentation::MovePlusZFace(const double* p1, const double* p2, 
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorRepresentation::MoveMinusZFace(const double* p1, const double* p2, bool entry)
 {
   double* pts = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0);
@@ -782,7 +782,7 @@ void vtkTensorRepresentation::MoveMinusZFace(const double* p1, const double* p2,
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Loop through all points and translate them
 void vtkTensorRepresentation::Translate(const double* p1, const double* p2)
 {
@@ -815,7 +815,7 @@ void vtkTensorRepresentation::Translate(const double* p1, const double* p2)
   this->UpdateTensorFromWidget();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorRepresentation::Scale(
   const double* vtkNotUsed(p1), const double* vtkNotUsed(p2), int vtkNotUsed(X), int Y)
 {
@@ -843,7 +843,7 @@ void vtkTensorRepresentation::Scale(
   this->UpdateTensorFromWidget();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorRepresentation::ComputeNormals()
 {
   double* pts = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0);
@@ -870,7 +870,7 @@ void vtkTensorRepresentation::ComputeNormals()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorRepresentation::Rotate(
   int X, int Y, const double* p1, const double* p2, const double* vpn)
 {
@@ -914,7 +914,7 @@ void vtkTensorRepresentation::Rotate(
   this->UpdateTensorFromWidget();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 namespace
 {
 bool snapToAxis(vtkVector3d& in, vtkVector3d& out, double snapAngle)
@@ -944,7 +944,7 @@ bool snapToAxis(vtkVector3d& in, vtkVector3d& out, double snapAngle)
 }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorRepresentation::UpdatePose(
   const double* pos1, const double* orient1, const double* pos2, const double* orient2)
 {
@@ -1079,7 +1079,7 @@ void vtkTensorRepresentation::UpdatePose(
   this->UpdateTensorFromWidget();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorRepresentation::CreateDefaultProperties()
 {
   // Handle properties
@@ -1118,7 +1118,7 @@ void vtkTensorRepresentation::CreateDefaultProperties()
   this->EllipsoidProperty->SetOpacity(0.25);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Place a tensor at a specified position
 void vtkTensorRepresentation::PlaceTensor(double tensor[9], double pos[3])
 {
@@ -1131,7 +1131,7 @@ void vtkTensorRepresentation::PlaceTensor(double tensor[9], double pos[3])
   this->Translate(center, pos);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorRepresentation::PlaceWidget(double bds[6])
 {
   int i;
@@ -1163,7 +1163,7 @@ void vtkTensorRepresentation::PlaceWidget(double bds[6])
   this->SizeHandles();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorRepresentation::SetOutlineFaceWires(bool newValue)
 {
   if (this->OutlineFaceWires != newValue)
@@ -1175,7 +1175,7 @@ void vtkTensorRepresentation::SetOutlineFaceWires(bool newValue)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorRepresentation::SetOutlineCursorWires(bool newValue)
 {
   if (this->OutlineCursorWires != newValue)
@@ -1187,7 +1187,7 @@ void vtkTensorRepresentation::SetOutlineCursorWires(bool newValue)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorRepresentation::GenerateOutline()
 {
   // Whatever the case may be, we have to reset the Lines of the
@@ -1265,7 +1265,7 @@ void vtkTensorRepresentation::GenerateOutline()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorRepresentation::SetTensorEllipsoid(bool newValue)
 {
   if (this->TensorEllipsoid != newValue)
@@ -1276,7 +1276,7 @@ void vtkTensorRepresentation::SetTensorEllipsoid(bool newValue)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Update the tensor ellipsoid, and associated tensor data (e.g., eigenvalues)
 // from the current widget/representation state.
 void vtkTensorRepresentation::UpdateTensorFromWidget()
@@ -1325,7 +1325,7 @@ void vtkTensorRepresentation::UpdateTensorFromWidget()
   this->UpdateTensorEigenfunctions(tensor);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorRepresentation::UpdateTensorEigenfunctions(double tensor[3][3])
 {
   // Now update the tensor information. The tensor data is sorted
@@ -1348,7 +1348,7 @@ void vtkTensorRepresentation::UpdateTensorEigenfunctions(double tensor[3][3])
   std::copy(tensor[order[2]], tensor[order[2]] + 3, this->Eigenvectors[2]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Update the tensor ellipsoid, and associated widget/representation from the
 // current tensor specification. We'll use the current position.
 void vtkTensorRepresentation::UpdateWidgetFromTensor()
@@ -1394,7 +1394,7 @@ void vtkTensorRepresentation::UpdateWidgetFromTensor()
   this->PositionHandles();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTensorRepresentation::ComputeInteractionState(int X, int Y, int modify)
 {
   // Okay, we can process this. Try to pick handles first;
@@ -1472,7 +1472,7 @@ int vtkTensorRepresentation::ComputeInteractionState(int X, int Y, int modify)
   return this->InteractionState;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTensorRepresentation::ComputeComplexInteractionState(
   vtkRenderWindowInteractor*, vtkAbstractWidget*, unsigned long, void* calldata, int)
 {
@@ -1542,7 +1542,7 @@ int vtkTensorRepresentation::ComputeComplexInteractionState(
   return this->InteractionState;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorRepresentation::SetInteractionState(int state)
 {
   // Clamp to allowable values
@@ -1583,7 +1583,7 @@ void vtkTensorRepresentation::SetInteractionState(int state)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkTensorRepresentation::GetBounds()
 {
   this->BuildRepresentation();
@@ -1591,7 +1591,7 @@ double* vtkTensorRepresentation::GetBounds()
   return this->BoundingBox->GetBounds();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorRepresentation::BuildRepresentation()
 {
   // Rebuild only if necessary
@@ -1605,7 +1605,7 @@ void vtkTensorRepresentation::BuildRepresentation()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorRepresentation::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->HexActor->ReleaseGraphicsResources(w);
@@ -1620,7 +1620,7 @@ void vtkTensorRepresentation::ReleaseGraphicsResources(vtkWindow* w)
   this->EllipsoidActor->ReleaseGraphicsResources(w);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTensorRepresentation::RenderOpaqueGeometry(vtkViewport* v)
 {
   int count = 0;
@@ -1650,7 +1650,7 @@ int vtkTensorRepresentation::RenderOpaqueGeometry(vtkViewport* v)
   return count;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTensorRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport* v)
 {
   int count = 0;
@@ -1681,7 +1681,7 @@ int vtkTensorRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport* v)
   return count;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkTensorRepresentation::HasTranslucentPolygonalGeometry()
 {
   int result = 0;
@@ -1717,7 +1717,7 @@ vtkTypeBool vtkTensorRepresentation::HasTranslucentPolygonalGeometry()
   c[1] = (a[1] + b[1]) / 2.0;                                                                      \
   c[2] = (a[2] + b[2]) / 2.0;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Position the handles based on the current positions of the eight corner points
 void vtkTensorRepresentation::PositionHandles()
 {
@@ -1770,7 +1770,7 @@ void vtkTensorRepresentation::PositionHandles()
 }
 #undef VTK_AVERAGE
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorRepresentation::HandlesOn()
 {
   for (int i = 0; i < 7; i++)
@@ -1779,7 +1779,7 @@ void vtkTensorRepresentation::HandlesOn()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorRepresentation::HandlesOff()
 {
   for (int i = 0; i < 7; i++)
@@ -1788,7 +1788,7 @@ void vtkTensorRepresentation::HandlesOff()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorRepresentation::SizeHandles()
 {
   double* center = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(3 * 14);
@@ -1799,7 +1799,7 @@ void vtkTensorRepresentation::SizeHandles()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTensorRepresentation::HighlightHandle(vtkProp* prop)
 {
   // first unhighlight anything picked
@@ -1832,7 +1832,7 @@ int vtkTensorRepresentation::HighlightHandle(vtkProp* prop)
   return -1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorRepresentation::HighlightFace(int cellId)
 {
   if (cellId >= 0)
@@ -1858,7 +1858,7 @@ void vtkTensorRepresentation::HighlightFace(int cellId)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorRepresentation::HighlightOutline(int highlight)
 {
   if (highlight)
@@ -1885,7 +1885,7 @@ void vtkTensorRepresentation::RegisterPickers()
   pm->AddPicker(this->HexPicker, this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTensorRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

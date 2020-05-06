@@ -24,11 +24,11 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Return nullptr if no override is supplied.
 vtkObjectFactoryNewMacro(vtkImageMapper);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkImageMapper::vtkImageMapper()
 {
@@ -50,13 +50,13 @@ vtkImageMapper::vtkImageMapper()
 
 vtkImageMapper::~vtkImageMapper() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageMapper::SetInputData(vtkImageData* input)
 {
   this->SetInputDataInternal(0, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageData* vtkImageMapper::GetInput()
 {
   if (this->GetNumberOfInputConnections(0) < 1)
@@ -215,7 +215,7 @@ void vtkImageMapper::RenderStart(vtkViewport* viewport, vtkActor2D* actor)
   this->RenderData(viewport, data, actor);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageMapper::GetWholeZMin()
 {
   int* extent;
@@ -229,7 +229,7 @@ int vtkImageMapper::GetWholeZMin()
   return extent[4];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageMapper::GetWholeZMax()
 {
   int* extent;
@@ -243,7 +243,7 @@ int vtkImageMapper::GetWholeZMax()
   return extent[5];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageMapper::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");

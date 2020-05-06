@@ -22,7 +22,7 @@
 
 vtkStandardNewMacro(vtkImageSlabReslice);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageSlabReslice::vtkImageSlabReslice()
 {
   // Input is 3D, output is a 2D projection within the slab.
@@ -39,10 +39,10 @@ vtkImageSlabReslice::vtkImageSlabReslice()
   this->SlabResolution = 1; // mm or world coords
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageSlabReslice::~vtkImageSlabReslice() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageSlabReslice::RequestInformation(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -63,7 +63,7 @@ int vtkImageSlabReslice::RequestInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSlabReslice::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

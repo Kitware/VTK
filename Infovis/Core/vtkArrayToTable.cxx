@@ -123,11 +123,11 @@ static bool ConvertMatrix(vtkArray* Array, vtkTable* Output)
   return true;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkStandardNewMacro(vtkArrayToTable);
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkArrayToTable::vtkArrayToTable()
 {
@@ -135,11 +135,11 @@ vtkArrayToTable::vtkArrayToTable()
   this->SetNumberOfOutputPorts(1);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkArrayToTable::~vtkArrayToTable() = default;
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkArrayToTable::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -158,7 +158,7 @@ int vtkArrayToTable::FillInputPortInformation(int port, vtkInformation* info)
   return 0;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkArrayToTable::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)

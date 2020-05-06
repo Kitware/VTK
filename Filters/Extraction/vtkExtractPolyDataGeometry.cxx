@@ -27,7 +27,7 @@
 vtkStandardNewMacro(vtkExtractPolyDataGeometry);
 vtkCxxSetObjectMacro(vtkExtractPolyDataGeometry, ImplicitFunction, vtkImplicitFunction);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct object with ExtractInside turned on.
 vtkExtractPolyDataGeometry::vtkExtractPolyDataGeometry(vtkImplicitFunction* f)
 {
@@ -42,13 +42,13 @@ vtkExtractPolyDataGeometry::vtkExtractPolyDataGeometry(vtkImplicitFunction* f)
   this->PassPoints = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractPolyDataGeometry::~vtkExtractPolyDataGeometry()
 {
   this->SetImplicitFunction(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Overload standard modified time function. If implicit function is modified,
 // then this object is modified as well.
 vtkMTimeType vtkExtractPolyDataGeometry::GetMTime()
@@ -65,7 +65,7 @@ vtkMTimeType vtkExtractPolyDataGeometry::GetMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractPolyDataGeometry::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -382,7 +382,7 @@ int vtkExtractPolyDataGeometry::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractPolyDataGeometry::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

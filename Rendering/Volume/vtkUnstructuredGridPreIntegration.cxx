@@ -35,14 +35,14 @@
 #include <algorithm>
 #include <cmath>
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkStandardNewMacro(vtkUnstructuredGridPreIntegration);
 
 vtkCxxSetObjectMacro(
   vtkUnstructuredGridPreIntegration, Integrator, vtkUnstructuredGridVolumeRayIntegrator);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkUnstructuredGridPreIntegration::vtkUnstructuredGridPreIntegration()
 {
@@ -91,7 +91,7 @@ void vtkUnstructuredGridPreIntegration::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "IncrementalPreIntegration: " << this->IncrementalPreIntegration << endl;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 double vtkUnstructuredGridPreIntegration::GetIntegrationTableScalarShift(int component)
 {
@@ -113,7 +113,7 @@ float* vtkUnstructuredGridPreIntegration::GetPreIntegrationTable(int component)
   return this->IntegrationTable[component];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkUnstructuredGridPreIntegration::BuildPreIntegrationTables(vtkDataArray* scalars)
 {
@@ -344,7 +344,7 @@ void vtkUnstructuredGridPreIntegration::BuildPreIntegrationTables(vtkDataArray* 
   tmpFarIntersections->Delete();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkUnstructuredGridPreIntegration::Initialize(vtkVolume* volume, vtkDataArray* scalars)
 {
@@ -388,7 +388,7 @@ void vtkUnstructuredGridPreIntegration::Initialize(vtkVolume* volume, vtkDataArr
   this->BuildPreIntegrationTables(scalars);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkUnstructuredGridPreIntegration::Integrate(vtkDoubleArray* intersectionLengths,
   vtkDataArray* nearIntersections, vtkDataArray* farIntersections, float color[4])

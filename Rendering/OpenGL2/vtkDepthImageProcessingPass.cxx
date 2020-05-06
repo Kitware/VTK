@@ -33,7 +33,7 @@ Ph.D. thesis of Christian BOUCHENY.
 #include "vtkMath.h"
 #include "vtkPixelBufferObject.h"
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDepthImageProcessingPass::vtkDepthImageProcessingPass()
 {
   this->Origin[0] = 0;
@@ -45,16 +45,16 @@ vtkDepthImageProcessingPass::vtkDepthImageProcessingPass()
   this->ExtraPixels = 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDepthImageProcessingPass::~vtkDepthImageProcessingPass() = default;
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDepthImageProcessingPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Render delegate with a image of different dimensions than the
 // original one.
@@ -137,7 +137,7 @@ void vtkDepthImageProcessingPass::RenderDelegate(const vtkRenderState* s, int wi
   savedCamera->UnRegister(this);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Read window size from parent
 // \pre s_exists: s!=0

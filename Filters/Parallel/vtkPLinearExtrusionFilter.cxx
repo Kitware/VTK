@@ -22,7 +22,7 @@
 
 vtkStandardNewMacro(vtkPLinearExtrusionFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPLinearExtrusionFilter::vtkPLinearExtrusionFilter()
 {
   // Since I do not thing the visual impact of invariance is significant,
@@ -31,7 +31,7 @@ vtkPLinearExtrusionFilter::vtkPLinearExtrusionFilter()
   this->PieceInvariant = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPLinearExtrusionFilter::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -43,7 +43,7 @@ int vtkPLinearExtrusionFilter::RequestData(
   return 1;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPLinearExtrusionFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -69,7 +69,7 @@ int vtkPLinearExtrusionFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(re
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPLinearExtrusionFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

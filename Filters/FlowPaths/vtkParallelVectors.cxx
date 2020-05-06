@@ -36,7 +36,7 @@
 #include <array>
 #include <deque>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 namespace
 {
 // Given a triangle with two vector fields (v0, v1, v2) and (w0, w1, w2) defined
@@ -409,36 +409,36 @@ bool surfaceTessellationForCell(vtkCell3D* cell, std::vector<std::array<vtkIdTyp
 }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkParallelVectors);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParallelVectors::vtkParallelVectors()
 {
   this->FirstVectorFieldName = nullptr;
   this->SecondVectorFieldName = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParallelVectors::~vtkParallelVectors()
 {
   this->SetFirstVectorFieldName(nullptr);
   this->SetSecondVectorFieldName(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkParallelVectors::AcceptSurfaceTriangle(const vtkIdType*)
 {
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkParallelVectors::ComputeAdditionalCriteria(const vtkIdType*, double, double)
 {
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkParallelVectors::RequestData(
   vtkInformation* info, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -668,14 +668,14 @@ int vtkParallelVectors::RequestData(
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkParallelVectors::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelVectors::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

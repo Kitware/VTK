@@ -18,13 +18,13 @@
 
 vtkStandardNewMacro(vtkTransmitRectilinearGridPiece);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTransmitRectilinearGridPiece::vtkTransmitRectilinearGridPiece() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTransmitRectilinearGridPiece::~vtkTransmitRectilinearGridPiece() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTransmitRectilinearGridPiece::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

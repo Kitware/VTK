@@ -18,7 +18,7 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Templated definition of ToNumeric, isolated into its very own file to
 // allow it to be defined before its use with most compilers, but after its
 // use for (at least) Visual Studio 6.

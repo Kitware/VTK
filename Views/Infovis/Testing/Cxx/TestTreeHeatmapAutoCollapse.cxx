@@ -34,7 +34,7 @@
 
 #include "vtkRegressionTestImage.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestTreeHeatmapAutoCollapse(int argc, char* argv[])
 {
   vtkNew<vtkMutableDirectedGraph> graph;

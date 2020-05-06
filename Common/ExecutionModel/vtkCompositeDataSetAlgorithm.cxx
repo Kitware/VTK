@@ -25,7 +25,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 vtkStandardNewMacro(vtkCompositeDataSetAlgorithm);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Instantiate object so that cell data is not passed to output.
 vtkCompositeDataSetAlgorithm::vtkCompositeDataSetAlgorithm()
 {
@@ -33,13 +33,13 @@ vtkCompositeDataSetAlgorithm::vtkCompositeDataSetAlgorithm()
   this->SetNumberOfOutputPorts(1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCompositeDataSet* vtkCompositeDataSetAlgorithm::GetOutput()
 {
   return this->GetOutput(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCompositeDataSet* vtkCompositeDataSetAlgorithm::GetOutput(int port)
 {
   vtkDataObject* output =
@@ -47,19 +47,19 @@ vtkCompositeDataSet* vtkCompositeDataSetAlgorithm::GetOutput(int port)
   return vtkCompositeDataSet::SafeDownCast(output);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositeDataSetAlgorithm::SetInputData(vtkDataObject* input)
 {
   this->SetInputData(0, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositeDataSetAlgorithm::SetInputData(int index, vtkDataObject* input)
 {
   this->SetInputDataInternal(index, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject* vtkCompositeDataSetAlgorithm::GetInput(int port)
 {
   if (this->GetNumberOfInputConnections(port) < 1)
@@ -69,7 +69,7 @@ vtkDataObject* vtkCompositeDataSetAlgorithm::GetInput(int port)
   return this->GetExecutive()->GetInputData(port, 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkCompositeDataSetAlgorithm::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -101,7 +101,7 @@ vtkTypeBool vtkCompositeDataSetAlgorithm::ProcessRequest(
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCompositeDataSetAlgorithm::FillOutputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
@@ -109,7 +109,7 @@ int vtkCompositeDataSetAlgorithm::FillOutputPortInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCompositeDataSetAlgorithm::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
@@ -118,13 +118,13 @@ int vtkCompositeDataSetAlgorithm::FillInputPortInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExecutive* vtkCompositeDataSetAlgorithm::CreateDefaultExecutive()
 {
   return vtkCompositeDataPipeline::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositeDataSetAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

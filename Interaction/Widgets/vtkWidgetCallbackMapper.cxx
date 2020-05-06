@@ -47,14 +47,14 @@ public:
   typedef std::map<unsigned long, vtkCallbackPair>::iterator CallbackMapIterator;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkWidgetCallbackMapper::vtkWidgetCallbackMapper()
 {
   this->CallbackMap = new vtkCallbackMap;
   this->EventTranslator = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkWidgetCallbackMapper::~vtkWidgetCallbackMapper()
 {
   delete this->CallbackMap;
@@ -64,7 +64,7 @@ vtkWidgetCallbackMapper::~vtkWidgetCallbackMapper()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWidgetCallbackMapper::SetEventTranslator(vtkWidgetEventTranslator* t)
 {
   if (this->EventTranslator != t)
@@ -83,7 +83,7 @@ void vtkWidgetCallbackMapper::SetEventTranslator(vtkWidgetEventTranslator* t)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWidgetCallbackMapper::SetCallbackMethod(
   unsigned long VTKEvent, unsigned long widgetEvent, vtkAbstractWidget* w, CallbackType f)
 {
@@ -91,7 +91,7 @@ void vtkWidgetCallbackMapper::SetCallbackMethod(
   this->SetCallbackMethod(widgetEvent, w, f);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWidgetCallbackMapper::SetCallbackMethod(unsigned long VTKEvent, int modifier, char keyCode,
   int repeatCount, const char* keySym, unsigned long widgetEvent, vtkAbstractWidget* w,
   CallbackType f)
@@ -101,7 +101,7 @@ void vtkWidgetCallbackMapper::SetCallbackMethod(unsigned long VTKEvent, int modi
   this->SetCallbackMethod(widgetEvent, w, f);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWidgetCallbackMapper::SetCallbackMethod(unsigned long VTKEvent, vtkEventData* edata,
   unsigned long widgetEvent, vtkAbstractWidget* w, CallbackType f)
 {
@@ -109,14 +109,14 @@ void vtkWidgetCallbackMapper::SetCallbackMethod(unsigned long VTKEvent, vtkEvent
   this->SetCallbackMethod(widgetEvent, w, f);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWidgetCallbackMapper::SetCallbackMethod(
   unsigned long widgetEvent, vtkAbstractWidget* w, CallbackType f)
 {
   (*this->CallbackMap)[widgetEvent] = vtkCallbackPair(w, f);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWidgetCallbackMapper::InvokeCallback(unsigned long widgetEvent)
 {
   vtkCallbackMap::CallbackMapIterator iter = this->CallbackMap->find(widgetEvent);
@@ -128,7 +128,7 @@ void vtkWidgetCallbackMapper::InvokeCallback(unsigned long widgetEvent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWidgetCallbackMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h

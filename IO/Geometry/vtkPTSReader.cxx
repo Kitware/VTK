@@ -30,7 +30,7 @@
 
 vtkStandardNewMacro(vtkPTSReader);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPTSReader::vtkPTSReader()
   : FileName(nullptr)
   , OutputDataTypeIsDouble(false)
@@ -46,7 +46,7 @@ vtkPTSReader::vtkPTSReader()
   this->IncludeColorAndLuminance = true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPTSReader::~vtkPTSReader()
 {
   if (this->FileName)
@@ -56,7 +56,7 @@ vtkPTSReader::~vtkPTSReader()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // vtkSetStringMacro except we clear some variables if we update the value
 void vtkPTSReader::SetFileName(const char* filename)
 {
@@ -88,7 +88,7 @@ void vtkPTSReader::SetFileName(const char* filename)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPTSReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -101,7 +101,7 @@ int vtkPTSReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPTSReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -138,7 +138,7 @@ void vtkPTSReader::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPTSReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {

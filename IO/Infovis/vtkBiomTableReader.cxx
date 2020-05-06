@@ -38,7 +38,7 @@ vtkStandardNewMacro(vtkBiomTableReader);
 #undef read
 #endif
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBiomTableReader::vtkBiomTableReader()
 {
   vtkTable* output = vtkTable::New();
@@ -49,28 +49,28 @@ vtkBiomTableReader::vtkBiomTableReader()
   output->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBiomTableReader::~vtkBiomTableReader() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTable* vtkBiomTableReader::GetOutput()
 {
   return this->GetOutput(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTable* vtkBiomTableReader::GetOutput(int idx)
 {
   return vtkTable::SafeDownCast(this->GetOutputDataObject(idx));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBiomTableReader::SetOutput(vtkTable* output)
 {
   this->GetExecutive()->SetOutputData(0, output);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkBiomTableReader::ReadMeshSimple(const std::string& fname, vtkDataObject* doOutput)
 {
   vtkDebugMacro(<< "Reading biom table...");
@@ -192,7 +192,7 @@ void vtkBiomTableReader::ParseShape()
   this->NumberOfColumns = atoi(this->FileContents.substr(pos3 + 1, pos4 - pos3 - 1).c_str());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBiomTableReader::ParseDataType()
 {
   // find "matrix_element_type":
@@ -248,7 +248,7 @@ void vtkBiomTableReader::ParseDataType()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBiomTableReader::InitializeData()
 {
   switch (this->DataType)
@@ -278,7 +278,7 @@ void vtkBiomTableReader::InitializeData()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBiomTableReader::FillData(vtkVariant v)
 {
   for (int row = 0; row < this->NumberOfRows; ++row)
@@ -290,7 +290,7 @@ void vtkBiomTableReader::FillData(vtkVariant v)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBiomTableReader::ParseSparseness()
 {
   // find "matrix_type":
@@ -334,7 +334,7 @@ void vtkBiomTableReader::ParseSparseness()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBiomTableReader::ParseSparseData()
 {
   // find "data":
@@ -400,7 +400,7 @@ void vtkBiomTableReader::ParseSparseData()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBiomTableReader::ParseDenseData()
 {
   // find "data":
@@ -459,7 +459,7 @@ void vtkBiomTableReader::ParseDenseData()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBiomTableReader::InsertValue(int row, int col, const std::string& value)
 {
   std::stringstream stream;
@@ -498,7 +498,7 @@ void vtkBiomTableReader::InsertValue(int row, int col, const std::string& value)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBiomTableReader::ParseColumns()
 {
   // find "columns":
@@ -539,7 +539,7 @@ void vtkBiomTableReader::ParseColumns()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBiomTableReader::ParseRows()
 {
   // find "rows":
@@ -581,7 +581,7 @@ void vtkBiomTableReader::ParseRows()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBiomTableReader::ParseId()
 {
   bool done = false;
@@ -623,14 +623,14 @@ void vtkBiomTableReader::ParseId()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkBiomTableReader::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBiomTableReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

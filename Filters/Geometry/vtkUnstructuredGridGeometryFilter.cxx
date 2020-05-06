@@ -64,7 +64,7 @@
 vtkStandardNewMacro(vtkUnstructuredGridGeometryFilter);
 
 #if 0
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Pool allocator: interface is defined in section 20.1.5
 // "Allocator Requirement" in the C++ norm.
 template <class G> class vtkPoolAllocator
@@ -202,7 +202,7 @@ template <class G> bool operator!=(const allocator<G>&a1,
 const unsigned int VTK_DEFAULT_CHUNK_SIZE = 50;
 const int VTK_DEFAULT_NUMBER_OF_CHUNKS = 100;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Memory management with a pool of objects to make allocation of chunks of
 // objects instead of slow per-object allocation.
 // Assumption about class G: has a public default constructor.
@@ -317,7 +317,7 @@ protected:
   unsigned int ChunkSize;
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Surface element: face of a 3D cell.
 //  As this is internal use only, we put variables as public.
 class vtkSurfel
@@ -375,7 +375,7 @@ public:
   vtkSurfel() = default;
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Hashtable of surfels.
 const int VTK_HASH_PRIME = 31;
 class vtkHashTableOfSurfels
@@ -655,7 +655,7 @@ protected:
   vtkPoolManager<vtkSurfel>* Pool;
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Object used to traverse an hashtable of surfels.
 class vtkHashTableOfSurfelsCursor
 {
@@ -743,7 +743,7 @@ protected:
   int AtEnd;
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct with all types of clipping turned off.
 vtkUnstructuredGridGeometryFilter::vtkUnstructuredGridGeometryFilter()
 {
@@ -776,7 +776,7 @@ vtkUnstructuredGridGeometryFilter::vtkUnstructuredGridGeometryFilter()
   this->HashTable = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUnstructuredGridGeometryFilter::~vtkUnstructuredGridGeometryFilter()
 {
   if (this->Locator)
@@ -789,7 +789,7 @@ vtkUnstructuredGridGeometryFilter::~vtkUnstructuredGridGeometryFilter()
   this->SetOriginalPointIdsName(nullptr);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify a (xmin,xmax, ymin,ymax, zmin,zmax) bounding box to clip data.
 void vtkUnstructuredGridGeometryFilter::SetExtent(
   double xMin, double xMax, double yMin, double yMax, double zMin, double zMax)
@@ -806,7 +806,7 @@ void vtkUnstructuredGridGeometryFilter::SetExtent(
   this->SetExtent(extent);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify a (xmin,xmax, ymin,ymax, zmin,zmax) bounding box to clip data.
 void vtkUnstructuredGridGeometryFilter::SetExtent(double extent[6])
 {
@@ -829,7 +829,7 @@ void vtkUnstructuredGridGeometryFilter::SetExtent(double extent[6])
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkUnstructuredGridGeometryFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -1310,7 +1310,7 @@ int vtkUnstructuredGridGeometryFilter::RequestData(vtkInformation* vtkNotUsed(re
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify a spatial locator for merging points. By
 // default an instance of vtkMergePoints is used.
 void vtkUnstructuredGridGeometryFilter::SetLocator(vtkIncrementalPointLocator* locator)
@@ -1332,7 +1332,7 @@ void vtkUnstructuredGridGeometryFilter::SetLocator(vtkIncrementalPointLocator* l
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkUnstructuredGridGeometryFilter::CreateDefaultLocator()
 {
   if (this->Locator == nullptr)
@@ -1341,14 +1341,14 @@ void vtkUnstructuredGridGeometryFilter::CreateDefaultLocator()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkUnstructuredGridGeometryFilter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGridBase");
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkUnstructuredGridGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -1385,7 +1385,7 @@ void vtkUnstructuredGridGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkUnstructuredGridGeometryFilter::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
@@ -1399,7 +1399,7 @@ vtkMTimeType vtkUnstructuredGridGeometryFilter::GetMTime()
   return mTime;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkUnstructuredGridGeometryFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

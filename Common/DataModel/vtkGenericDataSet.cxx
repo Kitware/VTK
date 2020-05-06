@@ -27,7 +27,7 @@
 
 vtkCxxSetObjectMacro(vtkGenericDataSet, Tessellator, vtkGenericCellTessellator);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGenericDataSet::vtkGenericDataSet()
 {
   this->Tessellator = nullptr;
@@ -35,7 +35,7 @@ vtkGenericDataSet::vtkGenericDataSet()
   vtkMath::UninitializeBounds(this->Bounds);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGenericDataSet::~vtkGenericDataSet()
 {
   if (this->Tessellator != nullptr)
@@ -45,7 +45,7 @@ vtkGenericDataSet::~vtkGenericDataSet()
   this->Attributes->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenericDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -65,7 +65,7 @@ void vtkGenericDataSet::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Tessellator:" << this->Tessellator << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Get a list of types of cells in a dataset. The list consists of an array
 // of types (not necessarily in any order), with a single entry per type.
@@ -99,7 +99,7 @@ void vtkGenericDataSet::GetCellTypes(vtkCellTypes* types)
   it->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Return a pointer to the geometry bounding box in the form
 // (xmin,xmax, ymin,ymax, zmin,zmax).
 // The return value is VOLATILE.
@@ -110,7 +110,7 @@ double* vtkGenericDataSet::GetBounds()
   return this->Bounds;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Return the geometry bounding box in global coordinates in
 // the form (xmin,xmax, ymin,ymax, zmin,zmax) into `bounds'.
@@ -120,7 +120,7 @@ void vtkGenericDataSet::GetBounds(double bounds[6])
   memcpy(bounds, this->Bounds, sizeof(double) * 6);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Get the center of the bounding box in global coordinates.
 // The return value is VOLATILE.
@@ -135,7 +135,7 @@ double* vtkGenericDataSet::GetCenter()
   return this->Center;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Get the center of the bounding box in global coordinates.
 void vtkGenericDataSet::GetCenter(double center[3])
@@ -147,7 +147,7 @@ void vtkGenericDataSet::GetCenter(double center[3])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Length of the diagonal of the bounding box.
 double vtkGenericDataSet::GetLength()
@@ -166,7 +166,7 @@ double vtkGenericDataSet::GetLength()
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkGenericDataSet::GetMTime()
 {
   vtkMTimeType result;
@@ -186,7 +186,7 @@ vtkMTimeType vtkGenericDataSet::GetMTime()
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Actual size of the data in kibibytes (1024 bytes); only valid after the pipeline has
 // updated. It is guaranteed to be greater than or equal to the memory
@@ -198,7 +198,7 @@ unsigned long vtkGenericDataSet::GetActualMemorySize()
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Return the type of data object.
 int vtkGenericDataSet::GetDataObjectType()
@@ -206,13 +206,13 @@ int vtkGenericDataSet::GetDataObjectType()
   return VTK_GENERIC_DATA_SET;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGenericDataSet* vtkGenericDataSet::GetData(vtkInformation* info)
 {
   return info ? vtkGenericDataSet::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGenericDataSet* vtkGenericDataSet::GetData(vtkInformationVector* v, int i)
 {
   return vtkGenericDataSet::GetData(v->GetInformationObject(i));

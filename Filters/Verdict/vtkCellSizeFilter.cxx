@@ -37,7 +37,7 @@
 
 vtkStandardNewMacro(vtkCellSizeFilter);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCellSizeFilter::vtkCellSizeFilter()
   : ComputeVertexCount(true)
   , ComputeLength(true)
@@ -55,7 +55,7 @@ vtkCellSizeFilter::vtkCellSizeFilter()
   this->SetVolumeArrayName("Volume");
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCellSizeFilter::~vtkCellSizeFilter()
 {
   this->SetVertexCountArrayName(nullptr);
@@ -64,7 +64,7 @@ vtkCellSizeFilter::~vtkCellSizeFilter()
   this->SetVolumeArrayName(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellSizeFilter::ExecuteBlock(vtkDataSet* input, vtkDataSet* output, double sum[4])
 {
   vtkSmartPointer<vtkIdList> cellPtIds = vtkSmartPointer<vtkIdList>::New();
@@ -344,7 +344,7 @@ void vtkCellSizeFilter::ExecuteBlock(vtkDataSet* input, vtkDataSet* output, doub
   } // end cell iteration
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCellSizeFilter::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -411,7 +411,7 @@ int vtkCellSizeFilter::RequestData(
   return retVal;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkCellSizeFilter::ComputeDataSet(vtkDataSet* input, vtkDataSet* output, double sum[4])
 {
   output->ShallowCopy(input);
@@ -433,7 +433,7 @@ bool vtkCellSizeFilter::ComputeDataSet(vtkDataSet* input, vtkDataSet* output, do
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellSizeFilter::IntegrateImageData(vtkImageData* input, vtkImageData* output, double sum[4])
 {
   int extent[6];
@@ -529,7 +529,7 @@ void vtkCellSizeFilter::IntegrateImageData(vtkImageData* input, vtkImageData* ou
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkCellSizeFilter::IntegratePolyLine(vtkDataSet* input, vtkIdList* ptIds)
 {
   double sum = 0;
@@ -550,7 +550,7 @@ double vtkCellSizeFilter::IntegratePolyLine(vtkDataSet* input, vtkIdList* ptIds)
   return sum;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkCellSizeFilter::IntegrateGeneral1DCell(vtkDataSet* input, vtkIdList* ptIds)
 {
   // Determine the number of lines
@@ -580,7 +580,7 @@ double vtkCellSizeFilter::IntegrateGeneral1DCell(vtkDataSet* input, vtkIdList* p
   return sum;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkCellSizeFilter::IntegrateTriangleStrip(vtkPointSet* input, vtkIdList* ptIds)
 {
   vtkIdType trianglePtIds[3];
@@ -598,7 +598,7 @@ double vtkCellSizeFilter::IntegrateTriangleStrip(vtkPointSet* input, vtkIdList* 
   return sum;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Works for convex polygons, and interpolation is not correct.
 double vtkCellSizeFilter::IntegratePolygon(vtkPointSet* input, vtkIdList* ptIds)
 {
@@ -616,7 +616,7 @@ double vtkCellSizeFilter::IntegratePolygon(vtkPointSet* input, vtkIdList* ptIds)
   return sum;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // For axis aligned rectangular cells
 double vtkCellSizeFilter::IntegratePixel(vtkDataSet* input, vtkIdList* cellPtIds)
 {
@@ -639,7 +639,7 @@ double vtkCellSizeFilter::IntegratePixel(vtkDataSet* input, vtkIdList* cellPtIds
   return fabs(l * w);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkCellSizeFilter::IntegrateGeneral2DCell(vtkPointSet* input, vtkIdList* ptIds)
 {
   vtkIdType nPnts = ptIds->GetNumberOfIds();
@@ -666,7 +666,7 @@ double vtkCellSizeFilter::IntegrateGeneral2DCell(vtkPointSet* input, vtkIdList* 
   return sum;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // For axis aligned hexahedral cells
 double vtkCellSizeFilter::IntegrateVoxel(vtkDataSet* input, vtkIdList* cellPtIds)
 {
@@ -690,7 +690,7 @@ double vtkCellSizeFilter::IntegrateVoxel(vtkDataSet* input, vtkIdList* cellPtIds
   return fabs(l * w * h);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkCellSizeFilter::IntegrateGeneral3DCell(vtkPointSet* input, vtkIdList* ptIds)
 {
   vtkIdType nPnts = ptIds->GetNumberOfIds();
@@ -719,7 +719,7 @@ double vtkCellSizeFilter::IntegrateGeneral3DCell(vtkPointSet* input, vtkIdList* 
   return sum;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellSizeFilter::AddSumFieldData(vtkDataObject* output, double sum[4])
 {
   if (this->ComputeVertexCount)
@@ -756,7 +756,7 @@ void vtkCellSizeFilter::AddSumFieldData(vtkDataObject* output, double sum[4])
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellSizeFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

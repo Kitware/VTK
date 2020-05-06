@@ -16,13 +16,13 @@
 #include "Core/vtkADIOS2CoreArraySelection.h"
 #include <iostream>
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkADIOS2ArraySelection::AddArray(const char* name, bool status)
 {
   (*this)[name] = status;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkADIOS2ArraySelection::ArrayIsEnabled(const char* name)
 {
   vtkADIOS2ArraySelection::iterator iter = this->find(name);
@@ -35,26 +35,26 @@ bool vtkADIOS2ArraySelection::ArrayIsEnabled(const char* name)
   return true;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkADIOS2ArraySelection::HasArray(const char* name)
 {
   vtkADIOS2ArraySelection::iterator iter = this->find(name);
   return (iter != this->end());
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkADIOS2ArraySelection::GetArrayStatus(const char* name)
 {
   return this->ArrayIsEnabled(name) ? 1 : 0;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkADIOS2ArraySelection::SetArrayStatus(const char* name, bool status)
 {
   (*this)[std::string(name)] = status;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkADIOS2ArraySelection::GetArrayName(int index)
 {
   int cc = 0;
@@ -69,7 +69,7 @@ const char* vtkADIOS2ArraySelection::GetArrayName(int index)
   return nullptr;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkADIOS2ArraySelection::GetNumberOfArrays()
 {
   return static_cast<int>(this->size());

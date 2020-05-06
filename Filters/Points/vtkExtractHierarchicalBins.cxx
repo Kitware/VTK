@@ -24,12 +24,12 @@
 vtkStandardNewMacro(vtkExtractHierarchicalBins);
 vtkCxxSetObjectMacro(vtkExtractHierarchicalBins, BinningFilter, vtkHierarchicalBinningFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Helper classes to support efficient computing, and threaded execution.
 namespace
 {
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Mark points to be extracted
 static void MaskPoints(vtkIdType numPts, vtkIdType* map, vtkIdType offset, vtkIdType numFill)
 {
@@ -41,7 +41,7 @@ static void MaskPoints(vtkIdType numPts, vtkIdType* map, vtkIdType offset, vtkId
 } // anonymous namespace
 
 //================= Begin class proper =======================================
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractHierarchicalBins::vtkExtractHierarchicalBins()
 {
   this->Level = 0;
@@ -49,7 +49,7 @@ vtkExtractHierarchicalBins::vtkExtractHierarchicalBins()
   this->BinningFilter = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractHierarchicalBins::~vtkExtractHierarchicalBins()
 {
   this->SetBinningFilter(nullptr);
@@ -62,7 +62,7 @@ void vtkExtractHierarchicalBins::ReportReferences(vtkGarbageCollector* collector
   vtkGarbageCollectorReport(collector, this->BinningFilter, "Binning Filter");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Traverse all the input points and extract points that are contained within
 // and implicit function.
 int vtkExtractHierarchicalBins::FilterPoints(vtkPointSet* input)
@@ -103,7 +103,7 @@ int vtkExtractHierarchicalBins::FilterPoints(vtkPointSet* input)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractHierarchicalBins::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

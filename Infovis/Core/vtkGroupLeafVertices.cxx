@@ -45,7 +45,7 @@ vtkStandardNewMacro(vtkGroupLeafVertices);
 // Forward function reference (definition at bottom :)
 static int splitString(const vtkStdString& input, std::vector<vtkStdString>& results);
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkGroupLeafVerticesCompare
 {
 public:
@@ -60,14 +60,14 @@ public:
   }
 };
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <typename T>
 vtkVariant vtkGroupLeafVerticesGetValue(T* arr, vtkIdType index)
 {
   return vtkVariant(arr[index]);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static vtkVariant vtkGroupLeafVerticesGetVariant(vtkAbstractArray* arr, vtkIdType i)
 {
   vtkVariant val;
@@ -375,7 +375,7 @@ int vtkGroupLeafVertices::RequestData(
   return 1;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 static int splitString(const vtkStdString& input, std::vector<vtkStdString>& results)
 {

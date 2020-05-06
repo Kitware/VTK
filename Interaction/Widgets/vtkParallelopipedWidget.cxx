@@ -34,7 +34,7 @@
 
 vtkStandardNewMacro(vtkParallelopipedWidget);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParallelopipedWidget::vtkParallelopipedWidget()
 {
   // Allow chairs to be created.
@@ -74,7 +74,7 @@ vtkParallelopipedWidget::vtkParallelopipedWidget()
   this->WidgetSet = nullptr;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParallelopipedWidget::~vtkParallelopipedWidget()
 {
   for (int i = 0; i < 8; i++)
@@ -84,7 +84,7 @@ vtkParallelopipedWidget::~vtkParallelopipedWidget()
   delete[] this->HandleWidgets;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelopipedWidget::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)
@@ -94,7 +94,7 @@ void vtkParallelopipedWidget::CreateDefaultRepresentation()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelopipedWidget::SetEnabled(int enabling)
 {
   if (enabling) //----------------
@@ -212,7 +212,7 @@ void vtkParallelopipedWidget::SetEnabled(int enabling)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelopipedWidget::RequestResizeCallback(vtkAbstractWidget* w)
 {
   vtkParallelopipedWidget* self = reinterpret_cast<vtkParallelopipedWidget*>(w);
@@ -240,7 +240,7 @@ void vtkParallelopipedWidget::RequestResizeCallback(vtkAbstractWidget* w)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelopipedWidget ::RequestResizeAlongAnAxisCallback(vtkAbstractWidget* w)
 {
   vtkParallelopipedWidget* self = reinterpret_cast<vtkParallelopipedWidget*>(w);
@@ -277,7 +277,7 @@ void vtkParallelopipedWidget ::RequestResizeAlongAnAxisCallback(vtkAbstractWidge
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelopipedWidget::RequestChairModeCallback(vtkAbstractWidget* w)
 {
   vtkParallelopipedWidget* self = reinterpret_cast<vtkParallelopipedWidget*>(w);
@@ -313,7 +313,7 @@ void vtkParallelopipedWidget::RequestChairModeCallback(vtkAbstractWidget* w)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelopipedWidget::TranslateCallback(vtkAbstractWidget* w)
 {
   vtkParallelopipedWidget* self = reinterpret_cast<vtkParallelopipedWidget*>(w);
@@ -336,7 +336,7 @@ void vtkParallelopipedWidget::TranslateCallback(vtkAbstractWidget* w)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelopipedWidget ::BeginTranslateAction(vtkParallelopipedWidget* vtkNotUsed(dispatcher))
 {
   vtkParallelopipedRepresentation* rep =
@@ -353,7 +353,7 @@ void vtkParallelopipedWidget ::BeginTranslateAction(vtkParallelopipedWidget* vtk
   this->Interactor->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelopipedWidget ::TranslateAction(vtkParallelopipedWidget* vtkNotUsed(dispatcher))
 {
   vtkParallelopipedRepresentation* rep =
@@ -361,7 +361,7 @@ void vtkParallelopipedWidget ::TranslateAction(vtkParallelopipedWidget* vtkNotUs
   rep->Translate(this->Interactor->GetEventPosition()[0], this->Interactor->GetEventPosition()[1]);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelopipedWidget::OnLeftButtonUpCallback(vtkAbstractWidget* w)
 {
   vtkParallelopipedWidget* self = reinterpret_cast<vtkParallelopipedWidget*>(w);
@@ -389,7 +389,7 @@ void vtkParallelopipedWidget::OnLeftButtonUpCallback(vtkAbstractWidget* w)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelopipedWidget::OnMouseMoveCallback(vtkAbstractWidget* w)
 {
   vtkParallelopipedWidget* self = reinterpret_cast<vtkParallelopipedWidget*>(w);
@@ -434,7 +434,7 @@ void vtkParallelopipedWidget::OnMouseMoveCallback(vtkAbstractWidget* w)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelopipedWidget::SetCursor(int state)
 {
   switch (state)
@@ -448,7 +448,7 @@ void vtkParallelopipedWidget::SetCursor(int state)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelopipedWidget::SetProcessEvents(vtkTypeBool pe)
 {
   this->Superclass::SetProcessEvents(pe);
@@ -458,14 +458,14 @@ void vtkParallelopipedWidget::SetProcessEvents(vtkTypeBool pe)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelopipedWidget::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
   vtkGarbageCollectorReport(collector, this->WidgetSet, "WidgetSet");
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelopipedWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

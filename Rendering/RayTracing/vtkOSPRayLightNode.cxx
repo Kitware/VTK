@@ -35,16 +35,16 @@ vtkInformationKeyMacro(vtkOSPRayLightNode, RADIUS, Double);
 //============================================================================
 double vtkOSPRayLightNode::LightScale = 1.0;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOSPRayLightNode);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOSPRayLightNode::vtkOSPRayLightNode()
 {
   this->OLight = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOSPRayLightNode::~vtkOSPRayLightNode()
 {
   vtkOSPRayRendererNode* orn = vtkOSPRayRendererNode::GetRendererNode(this);
@@ -56,19 +56,19 @@ vtkOSPRayLightNode::~vtkOSPRayLightNode()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayLightNode::SetLightScale(double s)
 {
   vtkOSPRayLightNode::LightScale = s;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkOSPRayLightNode::GetLightScale()
 {
   return vtkOSPRayLightNode::LightScale;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayLightNode::SetIsAmbient(int value, vtkLight* light)
 {
   if (!light)
@@ -79,7 +79,7 @@ void vtkOSPRayLightNode::SetIsAmbient(int value, vtkLight* light)
   info->Set(vtkOSPRayLightNode::IS_AMBIENT(), value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkOSPRayLightNode::GetIsAmbient(vtkLight* light)
 {
   if (!light)
@@ -94,7 +94,7 @@ int vtkOSPRayLightNode::GetIsAmbient(vtkLight* light)
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayLightNode::SetRadius(double value, vtkLight* light)
 {
   if (!light)
@@ -105,7 +105,7 @@ void vtkOSPRayLightNode::SetRadius(double value, vtkLight* light)
   info->Set(vtkOSPRayLightNode::RADIUS(), value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkOSPRayLightNode::GetRadius(vtkLight* light)
 {
   if (!light)
@@ -120,13 +120,13 @@ double vtkOSPRayLightNode::GetRadius(vtkLight* light)
   return 0.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayLightNode::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayLightNode::Render(bool prepass)
 {
   if (prepass)

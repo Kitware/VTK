@@ -336,7 +336,7 @@ struct TemplateCastRayWorker
 
 } // end anon namespace
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 // This is an internal hidden class.
 
@@ -476,7 +476,7 @@ vtkIdType vtkUnstructuredGridBunykRayCastIterator::GetNextIntersections(vtkIdLis
   return numIntersections;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 // Constructor - initially everything to null, and create a matrix for use later
 vtkUnstructuredGridBunykRayCastFunction::vtkUnstructuredGridBunykRayCastFunction()
@@ -1180,7 +1180,7 @@ void vtkUnstructuredGridBunykRayCastFunction::Finalize()
   this->Valid = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkUnstructuredGridBunykRayCastFunction::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

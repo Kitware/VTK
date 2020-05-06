@@ -35,7 +35,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkTexture.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestPBRHdrEnvironment(int argc, char* argv[])
 {
   vtkNew<vtkOpenGLRenderer> renderer;

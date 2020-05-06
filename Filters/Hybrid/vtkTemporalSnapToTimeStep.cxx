@@ -24,17 +24,17 @@
 
 vtkStandardNewMacro(vtkTemporalSnapToTimeStep);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTemporalSnapToTimeStep::vtkTemporalSnapToTimeStep()
 {
   this->HasDiscrete = 0;
   this->SnapMode = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTemporalSnapToTimeStep::~vtkTemporalSnapToTimeStep() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkTemporalSnapToTimeStep::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -48,7 +48,7 @@ vtkTypeBool vtkTemporalSnapToTimeStep::ProcessRequest(
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Change the information
 int vtkTemporalSnapToTimeStep::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -83,7 +83,7 @@ int vtkTemporalSnapToTimeStep::RequestInformation(vtkInformation* vtkNotUsed(req
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method simply copies by reference the input data to the output.
 int vtkTemporalSnapToTimeStep::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -112,7 +112,7 @@ int vtkTemporalSnapToTimeStep::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTemporalSnapToTimeStep::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -181,11 +181,11 @@ int vtkTemporalSnapToTimeStep::RequestUpdateExtent(vtkInformation* vtkNotUsed(re
 
   return 1;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTemporalSnapToTimeStep::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "SnapMode: " << this->SnapMode << endl;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------

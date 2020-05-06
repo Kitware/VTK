@@ -26,62 +26,62 @@
 
 vtkStandardNewMacro(vtkXMLStructuredGridWriter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLStructuredGridWriter::vtkXMLStructuredGridWriter()
 {
   this->PointsOM = new OffsetsManagerGroup;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLStructuredGridWriter::~vtkXMLStructuredGridWriter()
 {
   delete this->PointsOM;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLStructuredGridWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStructuredGrid* vtkXMLStructuredGridWriter::GetInput()
 {
   return static_cast<vtkStructuredGrid*>(this->Superclass::GetInput());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLStructuredGridWriter::GetInputExtent(int* extent)
 {
   this->GetInput()->GetExtent(extent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXMLStructuredGridWriter::GetDataSetName()
 {
   return "StructuredGrid";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXMLStructuredGridWriter::GetDefaultFileExtension()
 {
   return "vts";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLStructuredGridWriter::AllocatePositionArrays()
 {
   this->Superclass::AllocatePositionArrays();
   this->PointsOM->Allocate(this->NumberOfPieces, this->NumberOfTimeSteps);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLStructuredGridWriter::DeletePositionArrays()
 {
   this->Superclass::DeletePositionArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLStructuredGridWriter::WriteAppendedPiece(int index, vtkIndent indent)
 {
   this->Superclass::WriteAppendedPiece(index, indent);
@@ -93,7 +93,7 @@ void vtkXMLStructuredGridWriter::WriteAppendedPiece(int index, vtkIndent indent)
     this->GetInput()->GetPoints(), indent, &this->PointsOM->GetPiece(index));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLStructuredGridWriter::WriteAppendedPieceData(int index)
 {
   // Split progress range by the approximate fractions of data written
@@ -121,7 +121,7 @@ void vtkXMLStructuredGridWriter::WriteAppendedPieceData(int index)
     this->GetInput()->GetPoints(), this->CurrentTimeIndex, &this->PointsOM->GetPiece(index));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLStructuredGridWriter::WriteInlinePiece(vtkIndent indent)
 {
   // Split progress range by the approximate fractions of data written
@@ -148,7 +148,7 @@ void vtkXMLStructuredGridWriter::WriteInlinePiece(vtkIndent indent)
   this->WritePointsInline(this->GetInput()->GetPoints(), indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLStructuredGridWriter::CalculateSuperclassFraction(float* fractions)
 {
   // The amount of data written by the superclass comes from the
@@ -165,7 +165,7 @@ void vtkXMLStructuredGridWriter::CalculateSuperclassFraction(float* fractions)
   fractions[2] = 1.0f;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLStructuredGridWriter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkStructuredGrid");

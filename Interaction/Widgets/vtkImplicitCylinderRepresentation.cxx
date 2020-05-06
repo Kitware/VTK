@@ -55,7 +55,7 @@
 
 vtkStandardNewMacro(vtkImplicitCylinderRepresentation);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImplicitCylinderRepresentation::vtkImplicitCylinderRepresentation()
 {
   this->AlongXAxis = 0;
@@ -214,7 +214,7 @@ vtkImplicitCylinderRepresentation::vtkImplicitCylinderRepresentation()
   this->TranslationAxis = Axis::NONE;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImplicitCylinderRepresentation::~vtkImplicitCylinderRepresentation()
 {
   this->Cylinder->Delete();
@@ -267,7 +267,7 @@ vtkImplicitCylinderRepresentation::~vtkImplicitCylinderRepresentation()
   this->BoundingBox->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImplicitCylinderRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUsed(modify))
 {
   // See if anything has been selected
@@ -337,7 +337,7 @@ int vtkImplicitCylinderRepresentation::ComputeInteractionState(int X, int Y, int
   return this->InteractionState;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::SetRepresentationState(int state)
 {
   if (this->RepresentationState == state)
@@ -390,7 +390,7 @@ void vtkImplicitCylinderRepresentation::SetRepresentationState(int state)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::StartWidgetInteraction(double e[2])
 {
   this->StartEventPosition[0] = e[0];
@@ -402,7 +402,7 @@ void vtkImplicitCylinderRepresentation::StartWidgetInteraction(double e[2])
   this->LastEventPosition[2] = 0.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::WidgetInteraction(double e[2])
 {
   // Do different things depending on state
@@ -458,13 +458,13 @@ void vtkImplicitCylinderRepresentation::WidgetInteraction(double e[2])
   this->LastEventPosition[2] = 0.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::EndWidgetInteraction(double vtkNotUsed(e)[2])
 {
   this->SetRepresentationState(vtkImplicitCylinderRepresentation::Outside);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkImplicitCylinderRepresentation::GetBounds()
 {
   this->BuildRepresentation();
@@ -480,7 +480,7 @@ double* vtkImplicitCylinderRepresentation::GetBounds()
   return this->BoundingBox->GetBounds();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::GetActors(vtkPropCollection* pc)
 {
   this->OutlineActor->GetActors(pc);
@@ -493,7 +493,7 @@ void vtkImplicitCylinderRepresentation::GetActors(vtkPropCollection* pc)
   this->SphereActor->GetActors(pc);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->OutlineActor->ReleaseGraphicsResources(w);
@@ -506,7 +506,7 @@ void vtkImplicitCylinderRepresentation::ReleaseGraphicsResources(vtkWindow* w)
   this->SphereActor->ReleaseGraphicsResources(w);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImplicitCylinderRepresentation::RenderOpaqueGeometry(vtkViewport* v)
 {
   int count = 0;
@@ -527,7 +527,7 @@ int vtkImplicitCylinderRepresentation::RenderOpaqueGeometry(vtkViewport* v)
   return count;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImplicitCylinderRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport* v)
 {
   int count = 0;
@@ -548,7 +548,7 @@ int vtkImplicitCylinderRepresentation::RenderTranslucentPolygonalGeometry(vtkVie
   return count;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkImplicitCylinderRepresentation::HasTranslucentPolygonalGeometry()
 {
   int result = 0;
@@ -568,7 +568,7 @@ vtkTypeBool vtkImplicitCylinderRepresentation::HasTranslucentPolygonalGeometry()
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -688,7 +688,7 @@ void vtkImplicitCylinderRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   // this is commented to avoid PrintSelf errors
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::HighlightNormal(int highlight)
 {
   if (highlight)
@@ -709,7 +709,7 @@ void vtkImplicitCylinderRepresentation::HighlightNormal(int highlight)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::HighlightCylinder(int highlight)
 {
   if (highlight)
@@ -722,7 +722,7 @@ void vtkImplicitCylinderRepresentation::HighlightCylinder(int highlight)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::HighlightOutline(int highlight)
 {
   if (highlight)
@@ -735,7 +735,7 @@ void vtkImplicitCylinderRepresentation::HighlightOutline(int highlight)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::Rotate(
   double X, double Y, double* p1, double* p2, double* vpn)
 {
@@ -774,7 +774,7 @@ void vtkImplicitCylinderRepresentation::Rotate(
   this->SetAxis(aNew);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Loop through all points and translate them
 void vtkImplicitCylinderRepresentation::TranslateOutline(double* p1, double* p2)
 {
@@ -813,7 +813,7 @@ void vtkImplicitCylinderRepresentation::TranslateOutline(double* p1, double* p2)
   this->BuildRepresentation();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Loop through all points and translate them
 void vtkImplicitCylinderRepresentation::TranslateCenter(double* p1, double* p2)
 {
@@ -847,7 +847,7 @@ void vtkImplicitCylinderRepresentation::TranslateCenter(double* p1, double* p2)
   this->BuildRepresentation();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Translate the center on the axis
 void vtkImplicitCylinderRepresentation::TranslateCenterOnAxis(double* p1, double* p2)
 {
@@ -887,7 +887,7 @@ void vtkImplicitCylinderRepresentation::TranslateCenterOnAxis(double* p1, double
   this->BuildRepresentation();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::Scale(
   double* p1, double* p2, double vtkNotUsed(X), double Y)
 {
@@ -932,7 +932,7 @@ void vtkImplicitCylinderRepresentation::Scale(
   this->BuildRepresentation();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::AdjustRadius(
   double vtkNotUsed(X), double Y, double* p1, double* p2)
 {
@@ -958,7 +958,7 @@ void vtkImplicitCylinderRepresentation::AdjustRadius(
   this->BuildRepresentation();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::CreateDefaultProperties()
 {
   // Cylinder properties
@@ -997,13 +997,13 @@ void vtkImplicitCylinderRepresentation::CreateDefaultProperties()
   this->EdgesProperty->SetAmbientColor(1.0, 1.0, 1.0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::SetEdgeColor(vtkLookupTable* lut)
 {
   this->EdgesMapper->SetLookupTable(lut);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::SetEdgeColor(double r, double g, double b)
 {
   vtkSmartPointer<vtkLookupTable> lookupTable = vtkSmartPointer<vtkLookupTable>::New();
@@ -1016,13 +1016,13 @@ void vtkImplicitCylinderRepresentation::SetEdgeColor(double r, double g, double 
   this->SetEdgeColor(lookupTable);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::SetEdgeColor(double c[3])
 {
   this->SetEdgeColor(c[0], c[1], c[2]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::PlaceWidget(double bds[6])
 {
   int i;
@@ -1066,7 +1066,7 @@ void vtkImplicitCylinderRepresentation::PlaceWidget(double bds[6])
   this->BuildRepresentation();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Set the center of the cylinder.
 void vtkImplicitCylinderRepresentation::SetCenter(double x, double y, double z)
 {
@@ -1077,7 +1077,7 @@ void vtkImplicitCylinderRepresentation::SetCenter(double x, double y, double z)
   this->SetCenter(center);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Set the center of the cylinder. Note that the center is clamped slightly inside
 // the bounding box or the cylinder tends to disappear as it hits the boundary.
 void vtkImplicitCylinderRepresentation::SetCenter(double x[3])
@@ -1086,20 +1086,20 @@ void vtkImplicitCylinderRepresentation::SetCenter(double x[3])
   this->BuildRepresentation();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the center of the cylinder.
 double* vtkImplicitCylinderRepresentation::GetCenter()
 {
   return this->Cylinder->GetCenter();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::GetCenter(double xyz[3])
 {
   return this->Cylinder->GetCenter(xyz);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Set the axis of the cylinder.
 void vtkImplicitCylinderRepresentation::SetAxis(double x, double y, double z)
 {
@@ -1117,27 +1117,27 @@ void vtkImplicitCylinderRepresentation::SetAxis(double x, double y, double z)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Set the axis the cylinder.
 void vtkImplicitCylinderRepresentation::SetAxis(double n[3])
 {
   this->SetAxis(n[0], n[1], n[2]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the axis of the cylinder.
 double* vtkImplicitCylinderRepresentation::GetAxis()
 {
   return this->Cylinder->GetAxis();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::GetAxis(double xyz[3])
 {
   return this->Cylinder->GetAxis(xyz);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Set the radius the cylinder. The radius must be a positive number.
 void vtkImplicitCylinderRepresentation::SetRadius(double radius)
 {
@@ -1152,14 +1152,14 @@ void vtkImplicitCylinderRepresentation::SetRadius(double radius)
   this->BuildRepresentation();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the radius the cylinder.
 double vtkImplicitCylinderRepresentation::GetRadius()
 {
   return this->Cylinder->GetRadius();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::SetDrawCylinder(vtkTypeBool drawCyl)
 {
   if (drawCyl == this->DrawCylinder)
@@ -1172,7 +1172,7 @@ void vtkImplicitCylinderRepresentation::SetDrawCylinder(vtkTypeBool drawCyl)
   this->BuildRepresentation();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::SetAlongXAxis(vtkTypeBool var)
 {
   if (this->AlongXAxis != var)
@@ -1187,7 +1187,7 @@ void vtkImplicitCylinderRepresentation::SetAlongXAxis(vtkTypeBool var)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::SetAlongYAxis(vtkTypeBool var)
 {
   if (this->AlongYAxis != var)
@@ -1202,7 +1202,7 @@ void vtkImplicitCylinderRepresentation::SetAlongYAxis(vtkTypeBool var)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::SetAlongZAxis(vtkTypeBool var)
 {
   if (this->AlongZAxis != var)
@@ -1217,13 +1217,13 @@ void vtkImplicitCylinderRepresentation::SetAlongZAxis(vtkTypeBool var)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::GetPolyData(vtkPolyData* pd)
 {
   pd->ShallowCopy(this->Cyl);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::GetCylinder(vtkCylinder* cyl)
 {
   if (cyl == nullptr)
@@ -1236,7 +1236,7 @@ void vtkImplicitCylinderRepresentation::GetCylinder(vtkCylinder* cyl)
   cyl->SetRadius(this->Cylinder->GetRadius());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::UpdatePlacement()
 {
   this->BuildRepresentation();
@@ -1244,7 +1244,7 @@ void vtkImplicitCylinderRepresentation::UpdatePlacement()
   this->Edges->Update();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::BumpCylinder(int dir, double factor)
 {
   // Compute the distance
@@ -1254,7 +1254,7 @@ void vtkImplicitCylinderRepresentation::BumpCylinder(int dir, double factor)
   this->PushCylinder((dir > 0 ? d : -d));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::PushCylinder(double d)
 {
   vtkCamera* camera = this->Renderer->GetActiveCamera();
@@ -1274,7 +1274,7 @@ void vtkImplicitCylinderRepresentation::PushCylinder(double d)
   this->BuildRepresentation();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::BuildRepresentation()
 {
   if (!this->Renderer || !this->Renderer->GetRenderWindow())
@@ -1411,7 +1411,7 @@ void vtkImplicitCylinderRepresentation::BuildRepresentation()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::SizeHandles()
 {
   double radius =
@@ -1427,7 +1427,7 @@ void vtkImplicitCylinderRepresentation::SizeHandles()
   this->EdgesTuber->SetRadius(0.25 * radius);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Create cylinder polydata.  Basically build an oriented cylinder of
 // specified resolution.  Trim cylinder facets by performing
 // intersection tests. Note that some facets may be outside the
@@ -1536,7 +1536,7 @@ void vtkImplicitCylinderRepresentation::BuildCylinder()
   polys->Modified();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::RegisterPickers()
 {
   vtkPickingManager* pm = this->GetPickingManager();

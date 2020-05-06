@@ -29,7 +29,7 @@
 
 vtkStandardNewMacro(vtkAppendLocationAttributes);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Generate points
 int vtkAppendLocationAttributes::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -93,14 +93,14 @@ int vtkAppendLocationAttributes::RequestData(vtkInformation* vtkNotUsed(request)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAppendLocationAttributes::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAppendLocationAttributes::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

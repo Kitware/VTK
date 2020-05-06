@@ -32,7 +32,7 @@ vtkStandardNewMacro(vtkHierarchicalBinningFilter);
 namespace
 {
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Number ^ index: power function for integers.
 static int power(int number, int level)
 {
@@ -48,7 +48,7 @@ static int power(int number, int level)
   return number;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static int GetLevelOffset(int level, int divs[3])
 {
   int block = divs[0] * divs[1] * divs[2];
@@ -60,7 +60,7 @@ static int GetLevelOffset(int level, int divs[3])
   return offset;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The hierarchy of uniform subdivided binning grids.
 struct UniformBinning
 {
@@ -158,7 +158,7 @@ struct UniformBinning
 
 } // anonymous namespace
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This non-templated class provides virtual functions to simplify the access
 // to the templated subclass. Note this is not in anonymous namespace because the
 // VTK class refers to it in the header file (PIMPLd).
@@ -280,12 +280,12 @@ struct vtkBinTree
   }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Helper classes to support efficient computing, and threaded execution.
 namespace
 {
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The following tuple is what is sorted in the map. Note that it is templated
 // because depending on the number of points / bins to process we may want
 // to use vtkIdType. Otherwise for performance reasons it's best to use an int
@@ -303,7 +303,7 @@ public:
   bool operator<(const BinTuple& tuple) const { return Bin < tuple.Bin; }
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This templated class manages the creation of the binning tree. It also
 // implements the operator() functors which are supplied to vtkSMPTools for
 // threaded processesing.
@@ -688,7 +688,7 @@ struct BinTree : public vtkBinTree
 } // anonymous namespace
 
 //================= Begin VTK class proper =======================================
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHierarchicalBinningFilter::vtkHierarchicalBinningFilter()
 {
 
@@ -702,7 +702,7 @@ vtkHierarchicalBinningFilter::vtkHierarchicalBinningFilter()
   this->Tree = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHierarchicalBinningFilter::~vtkHierarchicalBinningFilter()
 {
   if (this->Tree)
@@ -712,7 +712,7 @@ vtkHierarchicalBinningFilter::~vtkHierarchicalBinningFilter()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Produce the output data
 int vtkHierarchicalBinningFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -785,7 +785,7 @@ int vtkHierarchicalBinningFilter::RequestData(vtkInformation* vtkNotUsed(request
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkHierarchicalBinningFilter::GetNumberOfGlobalBins()
 {
   if (this->Tree)
@@ -798,7 +798,7 @@ int vtkHierarchicalBinningFilter::GetNumberOfGlobalBins()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkHierarchicalBinningFilter::GetNumberOfBins(int level)
 {
   if (this->Tree)
@@ -811,7 +811,7 @@ int vtkHierarchicalBinningFilter::GetNumberOfBins(int level)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkHierarchicalBinningFilter::GetLevelOffset(int level, vtkIdType& npts)
 {
   if (this->Tree)
@@ -824,7 +824,7 @@ vtkIdType vtkHierarchicalBinningFilter::GetLevelOffset(int level, vtkIdType& npt
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkHierarchicalBinningFilter::GetBinOffset(int globalBin, vtkIdType& npts)
 {
   if (this->Tree)
@@ -837,7 +837,7 @@ vtkIdType vtkHierarchicalBinningFilter::GetBinOffset(int globalBin, vtkIdType& n
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkHierarchicalBinningFilter::GetLocalBinOffset(int level, int localBin, vtkIdType& npts)
 {
   if (this->Tree)
@@ -850,7 +850,7 @@ vtkIdType vtkHierarchicalBinningFilter::GetLocalBinOffset(int level, int localBi
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHierarchicalBinningFilter::GetBinBounds(int globalBin, double bounds[6])
 {
   if (this->Tree)
@@ -863,7 +863,7 @@ void vtkHierarchicalBinningFilter::GetBinBounds(int globalBin, double bounds[6])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHierarchicalBinningFilter::GetLocalBinBounds(int level, int localBin, double bounds[6])
 {
   if (this->Tree)
@@ -876,14 +876,14 @@ void vtkHierarchicalBinningFilter::GetLocalBinBounds(int level, int localBin, do
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkHierarchicalBinningFilter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHierarchicalBinningFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

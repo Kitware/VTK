@@ -17,7 +17,7 @@
 using std::deque;
 using std::ostream;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPixelExtent vtkPixelExtent::Grow(
   const vtkPixelExtent& inputExt, const vtkPixelExtent& problemDomain, int n)
 {
@@ -26,7 +26,7 @@ vtkPixelExtent vtkPixelExtent::Grow(
   return outputExt;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPixelExtent vtkPixelExtent::Grow(const vtkPixelExtent& inputExt, int n)
 {
   vtkPixelExtent outputExt(inputExt);
@@ -35,7 +35,7 @@ vtkPixelExtent vtkPixelExtent::Grow(const vtkPixelExtent& inputExt, int n)
   return outputExt;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPixelExtent vtkPixelExtent::GrowLow(const vtkPixelExtent& inputExt, int q, int n)
 {
   vtkPixelExtent outputExt(inputExt);
@@ -43,7 +43,7 @@ vtkPixelExtent vtkPixelExtent::GrowLow(const vtkPixelExtent& inputExt, int q, in
   return outputExt;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPixelExtent vtkPixelExtent::GrowHigh(const vtkPixelExtent& inputExt, int q, int n)
 {
   vtkPixelExtent outputExt(inputExt);
@@ -51,13 +51,13 @@ vtkPixelExtent vtkPixelExtent::GrowHigh(const vtkPixelExtent& inputExt, int q, i
   return outputExt;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPixelExtent vtkPixelExtent::Shrink(const vtkPixelExtent& inputExt, int n)
 {
   return vtkPixelExtent::Grow(inputExt, -n);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPixelExtent vtkPixelExtent::Shrink(
   const vtkPixelExtent& inputExt, const vtkPixelExtent& problemDomain, int n)
 {
@@ -79,7 +79,7 @@ vtkPixelExtent vtkPixelExtent::Shrink(
   return outputExt;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPixelExtent vtkPixelExtent::CellToNode(const vtkPixelExtent& inputExt)
 {
   vtkPixelExtent outputExt(inputExt);
@@ -88,7 +88,7 @@ vtkPixelExtent vtkPixelExtent::CellToNode(const vtkPixelExtent& inputExt)
   return outputExt;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPixelExtent vtkPixelExtent::NodeToCell(const vtkPixelExtent& inputExt)
 {
   vtkPixelExtent outputExt(inputExt);
@@ -97,21 +97,21 @@ vtkPixelExtent vtkPixelExtent::NodeToCell(const vtkPixelExtent& inputExt)
   return outputExt;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPixelExtent::Shift(int* ij, int n)
 {
   ij[0] += n;
   ij[1] += n;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPixelExtent::Shift(int* ij, int* n)
 {
   ij[0] += n[0];
   ij[1] += n[1];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPixelExtent::Split(
   int i1, int j1, const vtkPixelExtent& ext, deque<vtkPixelExtent>& newExts)
 {
@@ -155,7 +155,7 @@ void vtkPixelExtent::Split(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPixelExtent::Subtract(
   const vtkPixelExtent& A, const vtkPixelExtent& B, deque<vtkPixelExtent>& C)
 {
@@ -208,7 +208,7 @@ void vtkPixelExtent::Subtract(
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPixelExtent::Merge(deque<vtkPixelExtent>& exts)
 {
   size_t ne = exts.size();

@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageAlgorithm::vtkImageAlgorithm()
 {
   this->SetNumberOfInputPorts(1);
@@ -35,16 +35,16 @@ vtkImageAlgorithm::vtkImageAlgorithm()
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageAlgorithm::~vtkImageAlgorithm() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This is the superclasses style of Execute method.  Convert it into
 // an imaging style Execute method.
 int vtkImageAlgorithm::RequestData(vtkInformation* request,
@@ -84,7 +84,7 @@ int vtkImageAlgorithm::RequestData(vtkInformation* request,
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkImageAlgorithm::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -114,7 +114,7 @@ void vtkImageAlgorithm::ExecuteDataWithInformation(vtkDataObject* dobj, vtkInfor
   this->ExecuteData(dobj);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Assume that any source that implements ExecuteData
 // can handle an empty extent.
 void vtkImageAlgorithm::ExecuteData(vtkDataObject*)
@@ -122,14 +122,14 @@ void vtkImageAlgorithm::ExecuteData(vtkDataObject*)
   this->Execute();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageAlgorithm::Execute()
 {
   vtkErrorMacro(<< "Definition of Execute() method should be in subclass and you should really use "
                    "the ExecuteData(vtkInformation *request,...) signature instead");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageAlgorithm::CopyInputArrayAttributesToOutput(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -160,7 +160,7 @@ void vtkImageAlgorithm::CopyInputArrayAttributesToOutput(vtkInformation* vtkNotU
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageAlgorithm::RequestInformation(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -169,7 +169,7 @@ int vtkImageAlgorithm::RequestInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageAlgorithm::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -177,7 +177,7 @@ int vtkImageAlgorithm::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageAlgorithm::AllocateOutputData(
   vtkImageData* output, vtkInformation* outInfo, int* uExtent)
 {
@@ -188,7 +188,7 @@ void vtkImageAlgorithm::AllocateOutputData(
   output->AllocateScalars(scalarType, numComponents);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageData* vtkImageAlgorithm::AllocateOutputData(vtkDataObject* output, vtkInformation* outInfo)
 {
   // set the extent to be the update extent
@@ -201,7 +201,7 @@ vtkImageData* vtkImageAlgorithm::AllocateOutputData(vtkDataObject* output, vtkIn
   return out;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // by default copy the attr from the first input to the first output
 void vtkImageAlgorithm::CopyAttributeData(
   vtkImageData* input, vtkImageData* output, vtkInformationVector** inputVector)
@@ -344,25 +344,25 @@ void vtkImageAlgorithm::CopyAttributeData(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageData* vtkImageAlgorithm::GetOutput()
 {
   return this->GetOutput(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageData* vtkImageAlgorithm::GetOutput(int port)
 {
   return vtkImageData::SafeDownCast(this->GetOutputDataObject(port));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageAlgorithm::SetOutput(vtkDataObject* d)
 {
   this->GetExecutive()->SetOutputData(0, d);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageAlgorithm::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   // now add our info
@@ -371,44 +371,44 @@ int vtkImageAlgorithm::FillOutputPortInformation(int vtkNotUsed(port), vtkInform
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageAlgorithm::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageAlgorithm::SetInputData(vtkDataObject* input)
 {
   this->SetInputData(0, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageAlgorithm::SetInputData(int index, vtkDataObject* input)
 {
   this->SetInputDataInternal(index, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject* vtkImageAlgorithm::GetInput(int port)
 {
   return this->GetExecutive()->GetInputData(port, 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageData* vtkImageAlgorithm::GetImageDataInput(int port)
 {
   return vtkImageData::SafeDownCast(this->GetInput(port));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageAlgorithm::AddInputData(vtkDataObject* input)
 {
   this->AddInputData(0, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageAlgorithm::AddInputData(int index, vtkDataObject* input)
 {
   this->AddInputDataInternal(index, input);

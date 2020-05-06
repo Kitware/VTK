@@ -40,7 +40,7 @@ template <typename T>
 int TestKernel(
   vtkSmartPointer<T> kernel, vtkIdType numberOfPoints, const std::string& description = "");
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int UnitTestKernels(int, char*[])
 {
   const vtkIdType numberOfPoints = 100000;

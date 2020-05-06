@@ -43,10 +43,10 @@
 #include <cassert>
 #include <vector>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkThreadedCompositeDataPipeline);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 namespace
 {
 static vtkInformationVector** Clone(vtkInformationVector** src, int n)
@@ -69,7 +69,7 @@ static void DeleteAll(vtkInformationVector** dst, int n)
 }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class ProcessBlockData : public vtkObjectBase
 {
 public:
@@ -108,7 +108,7 @@ protected:
   {
   }
 };
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class ProcessBlock
 {
 public:
@@ -198,19 +198,19 @@ protected:
   vtkSMPThreadLocalObject<vtkInformation> Requests;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkThreadedCompositeDataPipeline::vtkThreadedCompositeDataPipeline() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkThreadedCompositeDataPipeline::~vtkThreadedCompositeDataPipeline() = default;
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkThreadedCompositeDataPipeline::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkThreadedCompositeDataPipeline::ExecuteEach(vtkCompositeDataIterator* iter,
   vtkInformationVector** inInfoVec, vtkInformationVector* outInfoVec, int compositePort,
   int connection, vtkInformation* request,
@@ -268,7 +268,7 @@ void vtkThreadedCompositeDataPipeline::ExecuteEach(vtkCompositeDataIterator* ite
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkThreadedCompositeDataPipeline::CallAlgorithm(vtkInformation* request, int direction,
   vtkInformationVector** inInfo, vtkInformationVector* outInfo)
 {

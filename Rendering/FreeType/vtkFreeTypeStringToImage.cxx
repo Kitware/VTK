@@ -32,22 +32,22 @@ public:
   vtkFreeTypeTools* FreeType;
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkFreeTypeStringToImage);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFreeTypeStringToImage::vtkFreeTypeStringToImage()
 {
   this->Implementation = new Internals;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFreeTypeStringToImage::~vtkFreeTypeStringToImage()
 {
   delete this->Implementation;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkVector2i vtkFreeTypeStringToImage::GetBounds(
   vtkTextProperty* property, const vtkUnicodeString& string, int dpi)
 {
@@ -65,7 +65,7 @@ vtkVector2i vtkFreeTypeStringToImage::GetBounds(
   return recti;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkVector2i vtkFreeTypeStringToImage::GetBounds(
   vtkTextProperty* property, const vtkStdString& string, int dpi)
 {
@@ -83,31 +83,31 @@ vtkVector2i vtkFreeTypeStringToImage::GetBounds(
   return recti;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkFreeTypeStringToImage::RenderString(vtkTextProperty* property,
   const vtkUnicodeString& string, int dpi, vtkImageData* data, int textDims[2])
 {
   return this->Implementation->FreeType->RenderString(property, string, dpi, data, textDims);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkFreeTypeStringToImage::RenderString(vtkTextProperty* property, const vtkStdString& string,
   int dpi, vtkImageData* data, int textDims[2])
 {
   return this->Implementation->FreeType->RenderString(property, string, dpi, data, textDims);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFreeTypeStringToImage::SetScaleToPowerOfTwo(bool scale)
 {
   this->vtkStringToImage::SetScaleToPowerOfTwo(scale);
   this->Implementation->FreeType->SetScaleToPowerTwo(scale);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFreeTypeStringToImage::DeepCopy(vtkFreeTypeStringToImage*) {}
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFreeTypeStringToImage::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

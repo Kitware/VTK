@@ -35,11 +35,11 @@
 #include <functional>
 #include <map>
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkStandardNewMacro(vtkAdjacencyMatrixToEdgeTable);
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkAdjacencyMatrixToEdgeTable::vtkAdjacencyMatrixToEdgeTable()
   : SourceDimension(0)
@@ -53,14 +53,14 @@ vtkAdjacencyMatrixToEdgeTable::vtkAdjacencyMatrixToEdgeTable()
   this->SetNumberOfOutputPorts(1);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkAdjacencyMatrixToEdgeTable::~vtkAdjacencyMatrixToEdgeTable()
 {
   this->SetValueArrayName(nullptr);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkAdjacencyMatrixToEdgeTable::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -83,7 +83,7 @@ int vtkAdjacencyMatrixToEdgeTable::FillInputPortInformation(int port, vtkInforma
   return 0;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkAdjacencyMatrixToEdgeTable::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)

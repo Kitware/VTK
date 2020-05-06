@@ -154,11 +154,11 @@ struct vtkUnstructuredHierarchy : public vtkSphereTreeHierarchy
 };
 
 // Threaded helper functions placed in anonymous namespace
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 namespace
 {
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Compute bounds for each cell in any type of dataset
 struct DataSetSpheres
 {
@@ -341,7 +341,7 @@ struct DataSetSpheres
   }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Compute bounds for each cell in an unstructured grid
 struct UnstructuredSpheres : public DataSetSpheres
 {
@@ -416,7 +416,7 @@ struct UnstructuredSpheres : public DataSetSpheres
   }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Compute bounds for each cell in a structured grid
 struct StructuredSpheres : public DataSetSpheres
 {
@@ -482,7 +482,7 @@ struct StructuredSpheres : public DataSetSpheres
   }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Base class for selection of cells via geometric operations
 struct BaseCellSelect
 {
@@ -525,7 +525,7 @@ struct BaseCellSelect
   }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Select cells from point based on leaf-level spheres (default)
 struct DefaultPointSelect : public BaseCellSelect
 {
@@ -676,7 +676,7 @@ struct StructuredPointSelect : public DefaultPointSelect
   void Reduce() { DefaultPointSelect::Reduce(); }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Select cells from line based on leaf-level spheres (default)
 struct DefaultLineSelect : public BaseCellSelect
 {
@@ -834,7 +834,7 @@ struct StructuredLineSelect : public DefaultLineSelect
   void Reduce() { DefaultLineSelect::Reduce(); }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Select cells from plane based on leaf-level spheres (default)
 struct DefaultPlaneSelect : public BaseCellSelect
 {
@@ -996,7 +996,7 @@ struct StructuredPlaneSelect : public DefaultPlaneSelect
 } // anonymous namespace
 
 //================================Sphere Tree class proper===================
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct object.
 vtkSphereTree::vtkSphereTree()
 {
@@ -1014,7 +1014,7 @@ vtkSphereTree::vtkSphereTree()
   this->SphereBounds[3] = this->SphereBounds[4] = this->SphereBounds[5] = 0.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Destroy object.
 vtkSphereTree::~vtkSphereTree()
 {
@@ -1029,7 +1029,7 @@ vtkSphereTree::~vtkSphereTree()
 }
 
 //================General tree methods========================================
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereTree::Build()
 {
   if (!this->DataSet)
@@ -1042,7 +1042,7 @@ void vtkSphereTree::Build()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereTree::Build(vtkDataSet* input)
 {
   this->SetDataSet(input);
@@ -1063,7 +1063,7 @@ void vtkSphereTree::Build(vtkDataSet* input)
   this->BuildTime.Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Compute the sphere tree leafs (i.e., spheres around each cell)
 void vtkSphereTree::BuildTreeSpheres(vtkDataSet* input)
 {
@@ -1109,7 +1109,7 @@ void vtkSphereTree::BuildTreeSpheres(vtkDataSet* input)
   this->BuildTime.Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereTree::BuildTreeHierarchy(vtkDataSet* input)
 {
   if (input->GetDataObjectType() == VTK_STRUCTURED_GRID)
@@ -1132,7 +1132,7 @@ void vtkSphereTree::BuildTreeHierarchy(vtkDataSet* input)
 }
 
 //================Specialized methods for structured grids====================
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // From the leaf spheres, build a sphere tree. Use the structure of the grid
 // to control how the sphere tree hierarchy is constructed.
 void vtkSphereTree::BuildStructuredHierarchy(vtkStructuredGrid* input, double* tree)
@@ -1371,7 +1371,7 @@ void vtkSphereTree::BuildUnstructuredHierarchy(vtkDataSet* input, double* tree)
   }     // k
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Note that there is a long story behind these crude methods for selecting
 // cells based on a sphere tree. Initially there was a complex hierarchy of
 // iterators for different dataset types and geometric intersection entities
@@ -1422,7 +1422,7 @@ const unsigned char* vtkSphereTree::SelectPoint(double x[3], vtkIdType& numSelec
   return this->Selected;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Create selection mask based on intersection with an infinite line.
 const unsigned char* vtkSphereTree::SelectLine(
   double origin[3], double ray[3], vtkIdType& numSelected)
@@ -1466,7 +1466,7 @@ const unsigned char* vtkSphereTree::SelectLine(
   return this->Selected;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Create selection mask based on intersection with an infinite plane.
 const unsigned char* vtkSphereTree::SelectPlane(
   double origin[3], double normal[3], vtkIdType& numSelected)
@@ -1511,14 +1511,14 @@ const unsigned char* vtkSphereTree::SelectPlane(
   return this->Selected;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Simply return the leaf spheres
 const double* vtkSphereTree::GetCellSpheres()
 {
   return this->TreePtr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The number of levels is this->NumberOfLevels, with
 // (this->NumberOfLevels-1) the cell (leaf) spheres, and level 0 the root
 // level.
@@ -1558,7 +1558,7 @@ const double* vtkSphereTree::GetTreeSpheres(int level, vtkIdType& numSpheres)
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereTree::SelectPoint(double point[3], vtkIdList* cellIds)
 {
   vtkIdType numSelected;
@@ -1566,7 +1566,7 @@ void vtkSphereTree::SelectPoint(double point[3], vtkIdList* cellIds)
   this->ExtractCellIds(selected, cellIds, numSelected);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereTree::SelectLine(double origin[3], double ray[3], vtkIdList* cellIds)
 {
   vtkIdType numSelected;
@@ -1574,7 +1574,7 @@ void vtkSphereTree::SelectLine(double origin[3], double ray[3], vtkIdList* cellI
   this->ExtractCellIds(selected, cellIds, numSelected);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereTree::SelectPlane(double origin[3], double normal[3], vtkIdList* cellIds)
 {
   vtkIdType numSelected;
@@ -1582,7 +1582,7 @@ void vtkSphereTree::SelectPlane(double origin[3], double normal[3], vtkIdList* c
   this->ExtractCellIds(selected, cellIds, numSelected);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereTree::ExtractCellIds(
   const unsigned char* selected, vtkIdList* cellIds, vtkIdType numSelected)
 {
@@ -1607,7 +1607,7 @@ void vtkSphereTree::ExtractCellIds(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereTree::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

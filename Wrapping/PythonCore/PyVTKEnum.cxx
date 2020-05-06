@@ -18,10 +18,10 @@
 
 #include <cstddef>
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // C API
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Add a wrapped enum type
 PyTypeObject* PyVTKEnum_Add(PyTypeObject* pytype, const char* name)
 {
@@ -31,7 +31,7 @@ PyTypeObject* PyVTKEnum_Add(PyTypeObject* pytype, const char* name)
   return pytype;
 }
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 PyObject* PyVTKEnum_New(PyTypeObject* pytype, int val)
 {
   // our enums are subtypes of Python's int() type

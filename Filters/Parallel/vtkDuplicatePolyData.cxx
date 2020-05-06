@@ -30,7 +30,7 @@ vtkStandardNewMacro(vtkDuplicatePolyData);
 vtkCxxSetObjectMacro(vtkDuplicatePolyData, Controller, vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkDuplicatePolyData, SocketController, vtkSocketController);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDuplicatePolyData::vtkDuplicatePolyData()
 {
   // Controller keeps a reference to this object as well.
@@ -47,7 +47,7 @@ vtkDuplicatePolyData::vtkDuplicatePolyData()
   this->MemorySize = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDuplicatePolyData::~vtkDuplicatePolyData()
 {
   this->SetController(nullptr);
@@ -72,7 +72,7 @@ static inline int vtkDPDLog2(int j, int& exact)
   return counter - 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDuplicatePolyData::InitializeSchedule(int numProcs)
 {
   int i, j, k, exact;
@@ -166,7 +166,7 @@ void vtkDuplicatePolyData::InitializeSchedule(int numProcs)
   procFlags = nullptr;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDuplicatePolyData::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -184,7 +184,7 @@ int vtkDuplicatePolyData::RequestUpdateExtent(vtkInformation* vtkNotUsed(request
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDuplicatePolyData::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -279,7 +279,7 @@ int vtkDuplicatePolyData::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDuplicatePolyData::ClientExecute(vtkPolyData* output)
 {
   vtkPolyData* tmp = vtkPolyData::New();
@@ -292,7 +292,7 @@ void vtkDuplicatePolyData::ClientExecute(vtkPolyData* output)
   output->GetCellData()->PassData(tmp->GetCellData());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDuplicatePolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

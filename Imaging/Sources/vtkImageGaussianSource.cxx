@@ -24,7 +24,7 @@
 
 vtkStandardNewMacro(vtkImageGaussianSource);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageGaussianSource::vtkImageGaussianSource()
 {
   this->SetNumberOfInputPorts(0);
@@ -42,7 +42,7 @@ vtkImageGaussianSource::vtkImageGaussianSource()
   this->StandardDeviation = 100.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageGaussianSource::SetWholeExtent(
   int xMin, int xMax, int yMin, int yMax, int zMin, int zMax)
 {
@@ -84,7 +84,7 @@ void vtkImageGaussianSource::SetWholeExtent(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageGaussianSource::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -98,7 +98,7 @@ int vtkImageGaussianSource::RequestInformation(vtkInformation* vtkNotUsed(reques
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageGaussianSource::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {

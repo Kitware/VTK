@@ -27,7 +27,7 @@
 vtkStandardNewMacro(vtkImplicitFunctionToImageStencil);
 vtkCxxSetObjectMacro(vtkImplicitFunctionToImageStencil, Input, vtkImplicitFunction);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImplicitFunctionToImageStencil::vtkImplicitFunctionToImageStencil()
 {
   this->SetNumberOfInputPorts(0);
@@ -36,13 +36,13 @@ vtkImplicitFunctionToImageStencil::vtkImplicitFunctionToImageStencil()
   this->Input = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImplicitFunctionToImageStencil::~vtkImplicitFunctionToImageStencil()
 {
   this->SetInput(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitFunctionToImageStencil::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -51,7 +51,7 @@ void vtkImplicitFunctionToImageStencil::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Threshold: " << this->Threshold << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkImplicitFunctionToImageStencil::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
@@ -65,7 +65,7 @@ vtkMTimeType vtkImplicitFunctionToImageStencil::GetMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // set up the clipping extents from an implicit function by brute force
 // (i.e. by evaluating the function at each and every voxel)
 int vtkImplicitFunctionToImageStencil::RequestData(

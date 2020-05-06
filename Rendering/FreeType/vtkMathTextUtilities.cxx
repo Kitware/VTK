@@ -25,25 +25,25 @@
 
 #include <algorithm>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The singleton, and the singleton cleanup
 vtkMathTextUtilities* vtkMathTextUtilities::Instance = nullptr;
 vtkMathTextUtilitiesCleanup vtkMathTextUtilities::Cleanup;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Create the singleton cleanup
 // Register our singleton cleanup callback against the FTLibrary so that
 // it might be called before the FTLibrary singleton is destroyed.
 vtkMathTextUtilitiesCleanup::vtkMathTextUtilitiesCleanup() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Delete the singleton cleanup
 vtkMathTextUtilitiesCleanup::~vtkMathTextUtilitiesCleanup()
 {
   vtkMathTextUtilities::SetInstance(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMathTextUtilities* vtkMathTextUtilities::GetInstance()
 {
   if (!vtkMathTextUtilities::Instance)
@@ -55,7 +55,7 @@ vtkMathTextUtilities* vtkMathTextUtilities::GetInstance()
   return vtkMathTextUtilities::Instance;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMathTextUtilities::SetInstance(vtkMathTextUtilities* instance)
 {
   if (vtkMathTextUtilities::Instance == instance)
@@ -77,7 +77,7 @@ void vtkMathTextUtilities::SetInstance(vtkMathTextUtilities* instance)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMathTextUtilities::GetConstrainedFontSize(
   const char* str, vtkTextProperty* tprop, int targetWidth, int targetHeight, int dpi)
 {
@@ -139,7 +139,7 @@ int vtkMathTextUtilities::GetConstrainedFontSize(
   return fontSize;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMathTextUtilities* vtkMathTextUtilities::New()
 {
   vtkMathTextUtilities* ret = vtkMathTextUtilities::GetInstance();
@@ -150,13 +150,13 @@ vtkMathTextUtilities* vtkMathTextUtilities::New()
   return ret;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMathTextUtilities::vtkMathTextUtilities() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMathTextUtilities::~vtkMathTextUtilities() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMathTextUtilities::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

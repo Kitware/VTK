@@ -28,10 +28,10 @@
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPolyLineRepresentation);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyLineRepresentation::vtkPolyLineRepresentation()
 {
   // Build the representation of the widget
@@ -70,19 +70,19 @@ vtkPolyLineRepresentation::vtkPolyLineRepresentation()
   lineMapper->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyLineRepresentation::~vtkPolyLineRepresentation()
 {
   this->PolyLineSource->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDoubleArray* vtkPolyLineRepresentation::GetHandlePositions()
 {
   return vtkArrayDownCast<vtkDoubleArray>(this->PolyLineSource->GetPoints()->GetData());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyLineRepresentation::BuildRepresentation()
 {
   this->ValidPick = 1;
@@ -123,7 +123,7 @@ void vtkPolyLineRepresentation::BuildRepresentation()
     (bounds[5] - bounds[4]) * (bounds[5] - bounds[4]));
   this->SizeHandles();
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyLineRepresentation::SetNumberOfHandles(int npts)
 {
   if (this->NumberOfHandles == npts)
@@ -192,14 +192,14 @@ void vtkPolyLineRepresentation::SetNumberOfHandles(int npts)
   this->BuildRepresentation();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyLineRepresentation::GetPolyData(vtkPolyData* pd)
 {
   this->PolyLineSource->Update();
   pd->ShallowCopy(this->PolyLineSource->GetOutput());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkPolyLineRepresentation::GetSummedLength()
 {
   vtkPoints* points = this->PolyLineSource->GetOutput()->GetPoints();
@@ -235,7 +235,7 @@ double vtkPolyLineRepresentation::GetSummedLength()
   return sum;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPolyLineRepresentation::InsertHandleOnLine(double* pos)
 {
   if (this->NumberOfHandles < 2)
@@ -286,7 +286,7 @@ int vtkPolyLineRepresentation::InsertHandleOnLine(double* pos)
   return insert_index;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyLineRepresentation::InitializeHandles(vtkPoints* points)
 {
   if (!points)
@@ -320,7 +320,7 @@ void vtkPolyLineRepresentation::InitializeHandles(vtkPoints* points)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyLineRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

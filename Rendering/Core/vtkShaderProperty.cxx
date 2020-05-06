@@ -64,7 +64,7 @@ bool vtkShaderProperty::HasGeometryShaderCode()
   return this->GeometryShaderCode && *this->GeometryShaderCode;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkShaderProperty::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -32,7 +32,7 @@
 #include <sstream>
 #include <string>
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Helper function
 template <class T>
 int TestSPHKernel(vtkSmartPointer<T> kernel, const std::string& description)
@@ -105,7 +105,7 @@ int TestSPHKernel(vtkSmartPointer<T> kernel, const std::string& description)
   return status;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestSPHKernels(int, char*[])
 {
   int status = EXIT_SUCCESS;

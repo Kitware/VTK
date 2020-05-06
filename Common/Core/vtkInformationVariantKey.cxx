@@ -17,23 +17,23 @@
 #include "vtkInformation.h"
 #include "vtkVariant.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationVariantKey::vtkInformationVariantKey(const char* name, const char* location)
   : vtkInformationKey(name, location)
 {
   vtkCommonInformationKeyManager::Register(this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationVariantKey::~vtkInformationVariantKey() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationVariantKey::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkInformationVariantValue : public vtkObjectBase
 {
 public:
@@ -44,7 +44,7 @@ public:
 
 vtkVariant vtkInformationVariantValue::Invalid;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationVariantKey::Set(vtkInformation* info, const vtkVariant& value)
 {
   if (vtkInformationVariantValue* oldv =
@@ -71,7 +71,7 @@ void vtkInformationVariantKey::Set(vtkInformation* info, const vtkVariant& value
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const vtkVariant& vtkInformationVariantKey::Get(vtkInformation* info)
 {
   vtkInformationVariantValue* v =
@@ -79,7 +79,7 @@ const vtkVariant& vtkInformationVariantKey::Get(vtkInformation* info)
   return v ? v->Value : vtkInformationVariantValue::Invalid;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationVariantKey::ShallowCopy(vtkInformation* from, vtkInformation* to)
 {
   if (this->Has(from))
@@ -92,7 +92,7 @@ void vtkInformationVariantKey::ShallowCopy(vtkInformation* from, vtkInformation*
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationVariantKey::Print(ostream& os, vtkInformation* info)
 {
   // Print the value.
@@ -102,7 +102,7 @@ void vtkInformationVariantKey::Print(ostream& os, vtkInformation* info)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkVariant* vtkInformationVariantKey::GetWatchAddress(vtkInformation* info)
 {
   if (vtkInformationVariantValue* v =

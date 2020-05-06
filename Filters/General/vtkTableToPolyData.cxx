@@ -24,7 +24,7 @@
 #include "vtkTable.h"
 
 vtkStandardNewMacro(vtkTableToPolyData);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTableToPolyData::vtkTableToPolyData()
 {
   this->XColumn = nullptr;
@@ -40,7 +40,7 @@ vtkTableToPolyData::vtkTableToPolyData()
   this->PreserveCoordinateColumnsAsDataArrays = false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTableToPolyData::~vtkTableToPolyData()
 {
   this->SetXColumn(nullptr);
@@ -48,14 +48,14 @@ vtkTableToPolyData::~vtkTableToPolyData()
   this->SetZColumn(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTableToPolyData::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTableToPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -172,7 +172,7 @@ int vtkTableToPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTableToPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

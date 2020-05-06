@@ -30,7 +30,7 @@ vtkStandardNewMacro(vtkProp3DFollower);
 
 vtkCxxSetObjectMacro(vtkProp3DFollower, Camera, vtkCamera);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Creates a follower with no camera set
 vtkProp3DFollower::vtkProp3DFollower()
 {
@@ -40,7 +40,7 @@ vtkProp3DFollower::vtkProp3DFollower()
   this->InternalMatrix = vtkMatrix4x4::New();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProp3DFollower::~vtkProp3DFollower()
 {
   if (this->Camera)
@@ -56,7 +56,7 @@ vtkProp3DFollower::~vtkProp3DFollower()
   this->InternalMatrix->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProp3DFollower::SetProp3D(vtkProp3D* prop)
 {
   if (this->Device != prop)
@@ -74,13 +74,13 @@ void vtkProp3DFollower::SetProp3D(vtkProp3D* prop)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProp3D* vtkProp3DFollower::GetProp3D()
 {
   return this->Device;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProp3DFollower::ComputeMatrix()
 {
   if (this->GetMTime() > this->MatrixMTime ||
@@ -174,7 +174,7 @@ void vtkProp3DFollower::ComputeMatrix()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkProp3DFollower::GetBounds()
 {
   if (this->Device)
@@ -189,7 +189,7 @@ double* vtkProp3DFollower::GetBounds()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProp3DFollower::ReleaseGraphicsResources(vtkWindow* w)
 {
   if (this->Device)
@@ -198,7 +198,7 @@ void vtkProp3DFollower::ReleaseGraphicsResources(vtkWindow* w)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry?
 vtkTypeBool vtkProp3DFollower::HasTranslucentPolygonalGeometry()
@@ -213,7 +213,7 @@ vtkTypeBool vtkProp3DFollower::HasTranslucentPolygonalGeometry()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkProp3DFollower::RenderOpaqueGeometry(vtkViewport* vp)
 {
   if (this->Device)
@@ -232,7 +232,7 @@ int vtkProp3DFollower::RenderOpaqueGeometry(vtkViewport* vp)
   return 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkProp3DFollower::RenderTranslucentPolygonalGeometry(vtkViewport* vp)
 {
   if (this->Device)
@@ -251,7 +251,7 @@ int vtkProp3DFollower::RenderTranslucentPolygonalGeometry(vtkViewport* vp)
   return 0;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkProp3DFollower::RenderVolumetricGeometry(vtkViewport* vp)
 {
   if (this->Device)
@@ -270,7 +270,7 @@ int vtkProp3DFollower::RenderVolumetricGeometry(vtkViewport* vp)
   return 0;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProp3DFollower::ShallowCopy(vtkProp* prop)
 {
   vtkProp3DFollower* f = vtkProp3DFollower::SafeDownCast(prop);
@@ -283,7 +283,7 @@ void vtkProp3DFollower::ShallowCopy(vtkProp* prop)
   this->vtkProp3D::ShallowCopy(prop);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProp3DFollower::InitPathTraversal()
 {
   if (this->Device)
@@ -292,7 +292,7 @@ void vtkProp3DFollower::InitPathTraversal()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAssemblyPath* vtkProp3DFollower::GetNextPath()
 {
   if (this->Device)
@@ -305,7 +305,7 @@ vtkAssemblyPath* vtkProp3DFollower::GetNextPath()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProp3DFollower::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

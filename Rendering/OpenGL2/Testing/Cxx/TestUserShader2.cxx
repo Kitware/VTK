@@ -32,7 +32,7 @@
 
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-// -----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Update a uniform in the shader for each render. We do this with a
 // callback for the UpdateShaderEvent
 class vtkShaderCallback : public vtkCommand
@@ -82,7 +82,7 @@ public:
   vtkShaderCallback() { this->Renderer = nullptr; }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestUserShader2(int argc, char* argv[])
 {
   vtkNew<vtkActor> actor;

@@ -30,7 +30,7 @@
 
 vtkStandardNewMacro(vtkImageViewer2);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageViewer2::vtkImageViewer2()
 {
   this->RenderWindow = nullptr;
@@ -57,7 +57,7 @@ vtkImageViewer2::vtkImageViewer2()
   this->InstallPipeline();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageViewer2::~vtkImageViewer2()
 {
   if (this->WindowLevel)
@@ -97,7 +97,7 @@ vtkImageViewer2::~vtkImageViewer2()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageViewer2::SetupInteractor(vtkRenderWindowInteractor* arg)
 {
   if (this->Interactor == arg)
@@ -127,7 +127,7 @@ void vtkImageViewer2::SetupInteractor(vtkRenderWindowInteractor* arg)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageViewer2::SetRenderWindow(vtkRenderWindow* arg)
 {
   if (this->RenderWindow == arg)
@@ -152,7 +152,7 @@ void vtkImageViewer2::SetRenderWindow(vtkRenderWindow* arg)
   this->InstallPipeline();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageViewer2::SetRenderer(vtkRenderer* arg)
 {
   if (this->Renderer == arg)
@@ -178,19 +178,19 @@ void vtkImageViewer2::SetRenderer(vtkRenderer* arg)
   this->UpdateOrientation();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageViewer2::SetSize(int width, int height)
 {
   this->RenderWindow->SetSize(width, height);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int* vtkImageViewer2::GetSize()
 {
   return this->RenderWindow->GetSize();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageViewer2::GetSliceRange(int& min, int& max)
 {
   vtkAlgorithm* input = this->GetInputAlgorithm();
@@ -204,7 +204,7 @@ void vtkImageViewer2::GetSliceRange(int& min, int& max)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int* vtkImageViewer2::GetSliceRange()
 {
   vtkAlgorithm* input = this->GetInputAlgorithm();
@@ -217,7 +217,7 @@ int* vtkImageViewer2::GetSliceRange()
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageViewer2::GetSliceMin()
 {
   int* range = this->GetSliceRange();
@@ -228,7 +228,7 @@ int vtkImageViewer2::GetSliceMin()
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageViewer2::GetSliceMax()
 {
   int* range = this->GetSliceRange();
@@ -239,7 +239,7 @@ int vtkImageViewer2::GetSliceMax()
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageViewer2::SetSlice(int slice)
 {
   int* range = this->GetSliceRange();
@@ -267,7 +267,7 @@ void vtkImageViewer2::SetSlice(int slice)
   this->Render();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageViewer2::SetSliceOrientation(int orientation)
 {
   if (orientation < vtkImageViewer2::SLICE_ORIENTATION_YZ ||
@@ -305,7 +305,7 @@ void vtkImageViewer2::SetSliceOrientation(int orientation)
   this->Render();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageViewer2::UpdateOrientation()
 {
   // Set the camera position
@@ -336,7 +336,7 @@ void vtkImageViewer2::UpdateOrientation()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageViewer2::UpdateDisplayExtent()
 {
   vtkAlgorithm* input = this->GetInputAlgorithm();
@@ -404,61 +404,61 @@ void vtkImageViewer2::UpdateDisplayExtent()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageViewer2::SetPosition(int x, int y)
 {
   this->RenderWindow->SetPosition(x, y);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int* vtkImageViewer2::GetPosition()
 {
   return this->RenderWindow->GetPosition();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageViewer2::SetDisplayId(void* a)
 {
   this->RenderWindow->SetDisplayId(a);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageViewer2::SetWindowId(void* a)
 {
   this->RenderWindow->SetWindowId(a);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageViewer2::SetParentId(void* a)
 {
   this->RenderWindow->SetParentId(a);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkImageViewer2::GetColorWindow()
 {
   return this->WindowLevel->GetWindow();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkImageViewer2::GetColorLevel()
 {
   return this->WindowLevel->GetLevel();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageViewer2::SetColorWindow(double s)
 {
   this->WindowLevel->SetWindow(s);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageViewer2::SetColorLevel(double s)
 {
   this->WindowLevel->SetLevel(s);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkImageViewer2Callback : public vtkCommand
 {
 public:
@@ -564,7 +564,7 @@ public:
   double InitialLevel;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageViewer2::InstallPipeline()
 {
   if (this->RenderWindow && this->Renderer)
@@ -600,7 +600,7 @@ void vtkImageViewer2::InstallPipeline()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageViewer2::UnInstallPipeline()
 {
   if (this->ImageActor)
@@ -625,7 +625,7 @@ void vtkImageViewer2::UnInstallPipeline()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageViewer2::Render()
 {
   if (this->FirstRender)
@@ -679,54 +679,54 @@ void vtkImageViewer2::Render()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkImageViewer2::GetWindowName()
 {
   return this->RenderWindow->GetWindowName();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageViewer2::SetOffScreenRendering(vtkTypeBool i)
 {
   this->RenderWindow->SetOffScreenRendering(i);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkImageViewer2::GetOffScreenRendering()
 {
   return this->RenderWindow->GetOffScreenRendering();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageViewer2::SetInputData(vtkImageData* in)
 {
   this->WindowLevel->SetInputData(in);
   this->UpdateDisplayExtent();
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageData* vtkImageViewer2::GetInput()
 {
   return vtkImageData::SafeDownCast(this->WindowLevel->GetInput());
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformation* vtkImageViewer2::GetInputInformation()
 {
   return this->WindowLevel->GetInputInformation();
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAlgorithm* vtkImageViewer2::GetInputAlgorithm()
 {
   return this->WindowLevel->GetInputAlgorithm();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageViewer2::SetInputConnection(vtkAlgorithmOutput* input)
 {
   this->WindowLevel->SetInputConnection(input);
   this->UpdateDisplayExtent();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageViewer2::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

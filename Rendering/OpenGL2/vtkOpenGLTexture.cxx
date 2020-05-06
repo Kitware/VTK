@@ -32,10 +32,10 @@
 
 #include <cmath>
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOpenGLTexture);
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenGLTexture::vtkOpenGLTexture()
 {
   this->RenderWindow = nullptr;
@@ -45,7 +45,7 @@ vtkOpenGLTexture::vtkOpenGLTexture()
   this->TextureObject = nullptr;
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenGLTexture::~vtkOpenGLTexture()
 {
   if (this->RenderWindow)
@@ -60,7 +60,7 @@ vtkOpenGLTexture::~vtkOpenGLTexture()
   }
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Release the graphics resources used by this texture.
 void vtkOpenGLTexture::ReleaseGraphicsResources(vtkWindow* win)
 {
@@ -73,7 +73,7 @@ void vtkOpenGLTexture::ReleaseGraphicsResources(vtkWindow* win)
   this->Modified();
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLTexture::SetTextureObject(vtkTextureObject* textureObject)
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting TextureObject to "
@@ -95,7 +95,7 @@ void vtkOpenGLTexture::SetTextureObject(vtkTextureObject* textureObject)
   }
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkOpenGLTexture::GetTextureUnit()
 {
   if (this->TextureObject)
@@ -105,13 +105,13 @@ int vtkOpenGLTexture::GetTextureUnit()
   return -1;
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLTexture::CopyTexImage(int x, int y, int width, int height)
 {
   this->TextureObject->CopyFromFrameBuffer(x, y, x, y, width, height);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Implement base class method.
 void vtkOpenGLTexture::Render(vtkRenderer* ren)
 {
@@ -124,7 +124,7 @@ void vtkOpenGLTexture::Render(vtkRenderer* ren)
   this->Superclass::Render(ren);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Implement base class method.
 void vtkOpenGLTexture::Load(vtkRenderer* ren)
 {
@@ -401,7 +401,7 @@ void vtkOpenGLTexture::Load(vtkRenderer* ren)
   vtkOpenGLCheckErrorMacro("failed after Load");
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLTexture::PostRender(vtkRenderer* ren)
 {
   if (this->TextureObject)
@@ -418,7 +418,7 @@ void vtkOpenGLTexture::PostRender(vtkRenderer* ren)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static int FindPowerOfTwo(int i, int maxDimGL)
 {
   int size = vtkMath::NearestPowerOfTwo(i);
@@ -436,7 +436,7 @@ static int FindPowerOfTwo(int i, int maxDimGL)
   return size;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Creates resampled unsigned char texture map that is a power of two in both
 // x and y.
 unsigned char* vtkOpenGLTexture::ResampleToPowerOfTwo(
@@ -540,13 +540,13 @@ unsigned char* vtkOpenGLTexture::ResampleToPowerOfTwo(
   return tptr;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLTexture::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkOpenGLTexture::IsTranslucent()
 {
   if (this->ExternalTextureObject && this->TextureObject)

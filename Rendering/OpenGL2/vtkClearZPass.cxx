@@ -23,16 +23,16 @@
 
 vtkStandardNewMacro(vtkClearZPass);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkClearZPass::vtkClearZPass()
 {
   this->Depth = 1.0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkClearZPass::~vtkClearZPass() = default;
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkClearZPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -40,7 +40,7 @@ void vtkClearZPass::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Depth:" << this->Depth << endl;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Perform rendering according to a render state \p s.
 // \pre s_exists: s!=0

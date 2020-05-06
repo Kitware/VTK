@@ -35,38 +35,38 @@
 
 vtkStandardNewMacro(vtkXMLHyperTreeGridWriter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLHyperTreeGridWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHyperTreeGrid* vtkXMLHyperTreeGridWriter::GetInput()
 {
   return static_cast<vtkHyperTreeGrid*>(this->Superclass::GetInput());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXMLHyperTreeGridWriter::GetDefaultFileExtension()
 {
   return "htg";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXMLHyperTreeGridWriter::GetDataSetName()
 {
   return "HyperTreeGrid";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLHyperTreeGridWriter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkHyperTreeGrid");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLHyperTreeGridWriter::WriteData()
 {
   // write XML header and VTK file header and file attributes
@@ -220,7 +220,7 @@ int vtkXMLHyperTreeGridWriter::WriteData()
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLHyperTreeGridWriter::StartPrimaryElement(vtkIndent indent)
 {
   ostream& os = *(this->Stream);
@@ -228,7 +228,7 @@ int vtkXMLHyperTreeGridWriter::StartPrimaryElement(vtkIndent indent)
   return (!this->WritePrimaryElement(os, indent)) ? 0 : 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLHyperTreeGridWriter::WritePrimaryElementAttributes(ostream& os, vtkIndent indent)
 {
   this->Superclass::WritePrimaryElementAttributes(os, indent);
@@ -262,7 +262,7 @@ void vtkXMLHyperTreeGridWriter::WritePrimaryElementAttributes(ostream& os, vtkIn
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLHyperTreeGridWriter::WriteGrid(vtkIndent indent)
 {
   vtkHyperTreeGrid* input = this->GetInput();
@@ -304,7 +304,7 @@ int vtkXMLHyperTreeGridWriter::WriteGrid(vtkIndent indent)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLHyperTreeGridWriter::vtkXMLHyperTreeGridWriter()
   : CoordsOMG(new OffsetsManagerGroup)
   , DescriptorOMG(new OffsetsManagerGroup)
@@ -317,7 +317,7 @@ vtkXMLHyperTreeGridWriter::vtkXMLHyperTreeGridWriter()
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLHyperTreeGridWriter::~vtkXMLHyperTreeGridWriter()
 {
   delete this->CoordsOMG;
@@ -343,7 +343,7 @@ vtkXMLHyperTreeGridWriter::~vtkXMLHyperTreeGridWriter()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 namespace
 {
 //
@@ -388,7 +388,7 @@ void BuildDescriptor(vtkHyperTreeGridNonOrientedCursor* inCursor, int level, boo
 }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLHyperTreeGridWriter::WriteTrees_0(vtkIndent indent)
 {
   vtkHyperTreeGrid* input = this->GetInput();
@@ -576,7 +576,7 @@ int vtkXMLHyperTreeGridWriter::WriteTrees_0(vtkIndent indent)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLHyperTreeGridWriter::WriteTrees_1(vtkIndent indent)
 {
   vtkHyperTreeGrid* input = this->GetInput();
@@ -718,7 +718,7 @@ int vtkXMLHyperTreeGridWriter::WriteTrees_1(vtkIndent indent)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLHyperTreeGridWriter::FinishPrimaryElement(vtkIndent indent)
 {
   ostream& os = *(this->Stream);
@@ -735,7 +735,7 @@ int vtkXMLHyperTreeGridWriter::FinishPrimaryElement(vtkIndent indent)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLHyperTreeGridWriter::WriteAppendedArrayDataHelper(
   vtkAbstractArray* array, OffsetsManager& offsets)
 {
@@ -753,7 +753,7 @@ void vtkXMLHyperTreeGridWriter::WriteAppendedArrayDataHelper(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLHyperTreeGridWriter::WriteCellDataAppendedArrayDataHelper(
   vtkAbstractArray* a, vtkIdType numberOfVertices, OffsetsManager& offsets, vtkHyperTree* tree)
 {

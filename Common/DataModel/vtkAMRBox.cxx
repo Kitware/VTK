@@ -27,13 +27,13 @@
 #include <fstream>
 #include <sstream>
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAMRBox::vtkAMRBox()
 {
   this->Initialize();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAMRBox::vtkAMRBox(const double* origin, const int* dimensions, const double* spacing,
   const double* globalOrigin, int gridDescription)
 {
@@ -54,25 +54,25 @@ vtkAMRBox::vtkAMRBox(const double* origin, const int* dimensions, const double* 
   this->SetDimensions(lo, hi, gridDescription);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAMRBox::vtkAMRBox(int ilo, int jlo, int klo, int ihi, int jhi, int khi)
 {
   this->BuildAMRBox(ilo, jlo, klo, ihi, jhi, khi);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAMRBox::vtkAMRBox(const int* lo, const int* hi)
 {
   this->BuildAMRBox(lo[0], lo[1], lo[2], hi[0], hi[1], hi[2]);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAMRBox::vtkAMRBox(const int* dims)
 {
   this->BuildAMRBox(dims[0], dims[2], dims[4], dims[1], dims[3], dims[5]);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAMRBox::BuildAMRBox(
   const int ilo, const int jlo, const int klo, const int ihi, const int jhi, const int khi)
 {
@@ -80,13 +80,13 @@ void vtkAMRBox::BuildAMRBox(
   this->SetDimensions(ilo, jlo, klo, ihi, jhi, khi);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAMRBox::vtkAMRBox(const vtkAMRBox& other)
 {
   *this = other;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAMRBox& vtkAMRBox::operator=(const vtkAMRBox& other)
 {
   assert("pre: AMR Box instance is invalid" && !other.IsInvalid());
@@ -101,7 +101,7 @@ vtkAMRBox& vtkAMRBox::operator=(const vtkAMRBox& other)
   return *this;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAMRBox::Initialize()
 {
   for (int i = 0; i < 3; ++i)
@@ -111,7 +111,7 @@ void vtkAMRBox::Initialize()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAMRBox::SetDimensions(int ilo, int jlo, int klo, int ihi, int jhi, int khi, int desc)
 {
   assert(ihi - ilo >= -1 && jhi - jlo >= -1 && khi - klo >= -1);
@@ -136,19 +136,19 @@ void vtkAMRBox::SetDimensions(int ilo, int jlo, int klo, int ihi, int jhi, int k
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAMRBox::SetDimensions(const int* lo, const int* hi, int desc)
 {
   this->SetDimensions(lo[0], lo[1], lo[2], hi[0], hi[1], hi[2], desc);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAMRBox::SetDimensions(const int* dims, int desc)
 {
   this->SetDimensions(dims[0], dims[2], dims[4], dims[1], dims[3], dims[5], desc);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAMRBox::GetDimensions(int* lo, int* hi) const
 {
   assert("pre: AMR Box instance is invalid" && !this->IsInvalid());
@@ -159,7 +159,7 @@ void vtkAMRBox::GetDimensions(int* lo, int* hi) const
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAMRBox::GetDimensions(int dims[6]) const
 {
   assert("pre: AMR Box instance is invalid" && !this->IsInvalid());
@@ -171,7 +171,7 @@ void vtkAMRBox::GetDimensions(int dims[6]) const
   dims[5] = this->HiCorner[2];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAMRBox::GetValidHiCorner(int* hi) const
 {
   assert("pre: AMR Box instance is invalid" && !this->IsInvalid());
@@ -181,7 +181,7 @@ void vtkAMRBox::GetValidHiCorner(int* hi) const
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAMRBox::GetBoxOrigin(
   const vtkAMRBox& extent, const double X0[3], const double spacing[3], double x0[3])
 {
@@ -194,7 +194,7 @@ void vtkAMRBox::GetBoxOrigin(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAMRBox::GetBounds(
   const vtkAMRBox& extent, const double origin[3], const double spacing[3], double bounds[6])
 {
@@ -206,7 +206,7 @@ void vtkAMRBox::GetBounds(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkAMRBox::HasPoint(const vtkAMRBox& box, const double origin[3], const double spacing[3],
   double x, double y, double z)
 {
@@ -224,7 +224,7 @@ bool vtkAMRBox::HasPoint(const vtkAMRBox& box, const double origin[3], const dou
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkAMRBox::operator==(const vtkAMRBox& other) const
 {
   if ((this->Empty() && other.Empty()) ||
@@ -237,7 +237,7 @@ bool vtkAMRBox::operator==(const vtkAMRBox& other) const
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 ostream& vtkAMRBox::Print(ostream& os) const
 {
   os << "-D AMR box => "
@@ -247,7 +247,7 @@ ostream& vtkAMRBox::Print(ostream& os) const
   return os;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAMRBox::Serialize(unsigned char*& buffer, vtkIdType& bytesize)
 {
   assert("pre: input buffer is expected to be nullptr" && (buffer == nullptr));
@@ -267,14 +267,14 @@ void vtkAMRBox::Serialize(unsigned char*& buffer, vtkIdType& bytesize)
   std::memcpy(ptr, &(this->HiCorner), 3 * sizeof(int));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAMRBox::Serialize(int* buffer) const
 {
   memcpy(buffer, this->LoCorner, 3 * sizeof(int));
   memcpy(buffer + 3, this->HiCorner, 3 * sizeof(int));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAMRBox::Deserialize(unsigned char* buffer, const vtkIdType& vtkNotUsed(bytesize))
 {
   assert("pre: input buffer is nullptr" && (buffer != nullptr));
@@ -290,7 +290,7 @@ void vtkAMRBox::Deserialize(unsigned char* buffer, const vtkIdType& vtkNotUsed(b
   std::memcpy(&(this->HiCorner), ptr, 3 * sizeof(int));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkAMRBox::IntersectBoxAlongDimension(const vtkAMRBox& other, const int q)
 {
   assert("pre: dimension is out-of-bounds!" && (q >= 0) && (q <= 2));
@@ -413,7 +413,7 @@ void vtkAMRBox::Refine(int r)
   assert("post: Refined AMR Box instance is invalid" && !this->IsInvalid());
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkAMRBox::DoesBoxIntersectAlongDimension(const vtkAMRBox& other, const int q) const
 {
   if (this->EmptyDimension(q) && other.EmptyDimension(q))
@@ -644,14 +644,14 @@ vtkIdType vtkAMRBox::GetNumberOfCells() const
   return (numCells);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkAMRBox::Contains(int i, int j, int k) const
 {
   int ijk[3] = { i, j, k };
   return this->Contains(ijk);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkAMRBox::Contains(const int* I) const
 {
   bool res(true);
@@ -665,7 +665,7 @@ bool vtkAMRBox::Contains(const int* I) const
   return res;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkAMRBox::Contains(const vtkAMRBox& other) const
 {
   const int* lo = other.LoCorner;
@@ -681,7 +681,7 @@ void vtkAMRBox::GetNumberOfNodes(int* ext) const
   assert(ext[0] >= 1 && ext[1] >= 1 && ext[2] >= 1);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkAMRBox::GetNumberOfNodes() const
 {
   assert("pre: AMR Box instance is invalid" && !this->IsInvalid());
@@ -702,14 +702,14 @@ vtkIdType vtkAMRBox::GetNumberOfNodes() const
   return (numNodes);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAMRBox::Shift(int i, int j, int k)
 {
   int ijk[3] = { i, j, k };
   this->Shift(ijk);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAMRBox::Shift(const int* ijk)
 {
   for (int q = 0; q < 3; ++q)
@@ -719,7 +719,7 @@ void vtkAMRBox::Shift(const int* ijk)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAMRBox::Grow(int byN)
 {
   assert("pre: AMR Box instance is invalid" && !this->IsInvalid());
@@ -737,7 +737,7 @@ void vtkAMRBox::Grow(int byN)
   assert("post: Grown AMR Box instance is invalid" && !this->IsInvalid());
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAMRBox::Shrink(int byN)
 {
   assert("pre: AMR Box instance is invalid" && !this->IsInvalid());

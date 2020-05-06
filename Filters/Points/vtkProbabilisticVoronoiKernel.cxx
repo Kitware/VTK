@@ -24,13 +24,13 @@
 
 vtkStandardNewMacro(vtkProbabilisticVoronoiKernel);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProbabilisticVoronoiKernel::vtkProbabilisticVoronoiKernel() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProbabilisticVoronoiKernel::~vtkProbabilisticVoronoiKernel() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkProbabilisticVoronoiKernel::ComputeWeights(
   double x[3], vtkIdList* pIds, vtkDoubleArray* prob, vtkDoubleArray* weights)
 {
@@ -82,7 +82,7 @@ vtkIdType vtkProbabilisticVoronoiKernel::ComputeWeights(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProbabilisticVoronoiKernel::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

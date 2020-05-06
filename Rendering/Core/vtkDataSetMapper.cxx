@@ -26,14 +26,14 @@
 
 vtkStandardNewMacro(vtkDataSetMapper);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataSetMapper::vtkDataSetMapper()
 {
   this->GeometryExtractor = nullptr;
   this->PolyDataMapper = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataSetMapper::~vtkDataSetMapper()
 {
   // delete internally created objects.
@@ -47,19 +47,19 @@ vtkDataSetMapper::~vtkDataSetMapper()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataSetMapper::SetInputData(vtkDataSet* input)
 {
   this->SetInputDataInternal(0, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataSet* vtkDataSetMapper::GetInput()
 {
   return this->Superclass::GetInputAsDataSet();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataSetMapper::ReleaseGraphicsResources(vtkWindow* renWin)
 {
   if (this->PolyDataMapper)
@@ -68,7 +68,7 @@ void vtkDataSetMapper::ReleaseGraphicsResources(vtkWindow* renWin)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Receives from Actor -> maps data to primitives
 //
 void vtkDataSetMapper::Render(vtkRenderer* ren, vtkActor* act)
@@ -157,7 +157,7 @@ void vtkDataSetMapper::Render(vtkRenderer* ren, vtkActor* act)
   this->TimeToDraw = this->PolyDataMapper->GetTimeToDraw();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataSetMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -181,7 +181,7 @@ void vtkDataSetMapper::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkDataSetMapper::GetMTime()
 {
   vtkMTimeType mTime = this->vtkMapper::GetMTime();
@@ -196,14 +196,14 @@ vtkMTimeType vtkDataSetMapper::GetMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataSetMapper::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataSetMapper::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);

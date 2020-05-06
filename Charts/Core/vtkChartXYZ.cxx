@@ -44,7 +44,7 @@
 
 vtkStandardNewMacro(vtkChartXYZ);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkChartXYZ::vtkChartXYZ()
   : Geometry(0, 0, 10, 10)
   , IsX(false)
@@ -75,34 +75,34 @@ vtkChartXYZ::vtkChartXYZ()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkChartXYZ::~vtkChartXYZ() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartXYZ::SetAngle(double angle)
 {
   this->Angle = angle;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartXYZ::SetAroundX(bool IsX_)
 {
   this->IsX = IsX_;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartXYZ::SetAutoRotate(bool b)
 {
   this->AutoRotate = b;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartXYZ::SetDecorateAxes(bool b)
 {
   this->DrawAxesDecoration = b;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartXYZ::SetAnnotationLink(vtkAnnotationLink* link)
 {
   if (this->Link != link)
@@ -112,34 +112,34 @@ void vtkChartXYZ::SetAnnotationLink(vtkAnnotationLink* link)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAxis* vtkChartXYZ::GetAxis(int axis)
 {
   assert(axis >= 0 && axis < 3);
   return this->Axes[axis];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartXYZ::SetAxis(int axisIndex, vtkAxis* axis)
 {
   assert(axisIndex >= 0 && axisIndex < 3);
   this->Axes[axisIndex] = axis;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartXYZ::SetAxisColor(const vtkColor4ub& color)
 {
   this->AxisPen->SetColor(color);
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkColor4ub vtkChartXYZ::GetAxisColor()
 {
   return this->AxisPen->GetColorObject();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartXYZ::SetGeometry(const vtkRectf& bounds)
 {
   this->Geometry = bounds;
@@ -164,7 +164,7 @@ void vtkChartXYZ::SetGeometry(const vtkRectf& bounds)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartXYZ::RecalculateBounds()
 {
   if (this->Plots.empty())
@@ -204,13 +204,13 @@ void vtkChartXYZ::RecalculateBounds()
   this->RecalculateTransform();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartXYZ::PrintSelf(ostream& os, vtkIndent indent)
 {
   Superclass::PrintSelf(os, indent);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartXYZ::Update()
 {
   if (this->Link)
@@ -228,7 +228,7 @@ void vtkChartXYZ::Update()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkChartXYZ::Paint(vtkContext2D* painter)
 {
   if (!this->Visible)
@@ -297,7 +297,7 @@ bool vtkChartXYZ::Paint(vtkContext2D* painter)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartXYZ::DrawAxes(vtkContext3D* context)
 {
   context->PushMatrix();
@@ -327,7 +327,7 @@ void vtkChartXYZ::DrawAxes(vtkContext3D* context)
   context->DrawLine(vtkVector3f(1, 1, 0), vtkVector3f(1, 1, 1));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartXYZ::ComputeDataBounds()
 {
   double xMin = VTK_DOUBLE_MAX;
@@ -370,7 +370,7 @@ void vtkChartXYZ::ComputeDataBounds()
   this->DataBounds[3] = yMax;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartXYZ::DrawAxesLabels(vtkContext2D* painter)
 {
   vtkContext3D* context = painter->GetContext3D();
@@ -466,7 +466,7 @@ void vtkChartXYZ::DrawAxesLabels(vtkContext2D* painter)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartXYZ::GetOffsetForAxisLabel(int axis, float* bounds, float* offset)
 {
   offset[0] = 0;
@@ -528,7 +528,7 @@ void vtkChartXYZ::GetOffsetForAxisLabel(int axis, float* bounds, float* offset)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartXYZ::DrawTickMarks(vtkContext2D* painter)
 {
   vtkContext3D* context = painter->GetContext3D();
@@ -661,7 +661,7 @@ void vtkChartXYZ::DrawTickMarks(vtkContext2D* painter)
   context->ApplyPen(this->AxisPen);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartXYZ::DetermineWhichAxesToLabel()
 {
   // for each dimension (XYZ)
@@ -857,7 +857,7 @@ void vtkChartXYZ::DetermineWhichAxesToLabel()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkChartXYZ::Hit(const vtkContextMouseEvent& vtkNotUsed(mouse))
 {
   if (!this->Interactive || !this->Visible || this->AutoRotate)
@@ -868,7 +868,7 @@ bool vtkChartXYZ::Hit(const vtkContextMouseEvent& vtkNotUsed(mouse))
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkChartXYZ::MouseButtonPressEvent(const vtkContextMouseEvent& mouse)
 {
   if (mouse.GetButton() == vtkContextMouseEvent::LEFT_BUTTON)
@@ -878,7 +878,7 @@ bool vtkChartXYZ::MouseButtonPressEvent(const vtkContextMouseEvent& mouse)
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkChartXYZ::MouseMoveEvent(const vtkContextMouseEvent& mouse)
 {
   if (mouse.GetButton() == vtkContextMouseEvent::LEFT_BUTTON)
@@ -906,7 +906,7 @@ bool vtkChartXYZ::MouseMoveEvent(const vtkContextMouseEvent& mouse)
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkChartXYZ::MouseWheelEvent(const vtkContextMouseEvent&, int delta)
 {
   // Ten "wheels" to double/halve zoom level
@@ -920,7 +920,7 @@ bool vtkChartXYZ::MouseWheelEvent(const vtkContextMouseEvent&, int delta)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartXYZ::ZoomAxes(int delta)
 {
   float scaling = pow(2.0f, delta / 10.0f);
@@ -930,7 +930,7 @@ void vtkChartXYZ::ZoomAxes(int delta)
   this->Scene->SetDirty(true);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkChartXYZ::Rotate(const vtkContextMouseEvent& mouse)
 {
   // avoid NaNs in our transformation matrix if the scene has not yet been
@@ -963,7 +963,7 @@ bool vtkChartXYZ::Rotate(const vtkContextMouseEvent& mouse)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkChartXYZ::Pan(const vtkContextMouseEvent& mouse)
 {
   // Figure out how much the mouse has moved in plot coordinates
@@ -982,7 +982,7 @@ bool vtkChartXYZ::Pan(const vtkContextMouseEvent& mouse)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkChartXYZ::Zoom(const vtkContextMouseEvent& mouse)
 {
   // Figure out how much the mouse has moved and scale accordingly
@@ -1007,7 +1007,7 @@ bool vtkChartXYZ::Zoom(const vtkContextMouseEvent& mouse)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkChartXYZ::Spin(const vtkContextMouseEvent& mouse)
 {
   // Figure out how much the mouse has moved in plot coordinates
@@ -1026,7 +1026,7 @@ bool vtkChartXYZ::Spin(const vtkContextMouseEvent& mouse)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkChartXYZ::KeyPressEvent(const vtkContextKeyEvent& key)
 {
   switch (key.GetKeyCode())
@@ -1057,7 +1057,7 @@ bool vtkChartXYZ::KeyPressEvent(const vtkContextKeyEvent& key)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartXYZ::LookDownX()
 {
   this->InvokeEvent(vtkCommand::InteractionEvent);
@@ -1066,7 +1066,7 @@ void vtkChartXYZ::LookDownX()
   this->Scene->SetDirty(true);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartXYZ::LookDownY()
 {
   this->Rotation->Identity();
@@ -1075,7 +1075,7 @@ void vtkChartXYZ::LookDownY()
   this->Scene->SetDirty(true);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartXYZ::LookDownZ()
 {
   this->Rotation->Identity();
@@ -1083,7 +1083,7 @@ void vtkChartXYZ::LookDownZ()
   this->Scene->SetDirty(true);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartXYZ::LookUpX()
 {
   this->InvokeEvent(vtkCommand::InteractionEvent);
@@ -1092,7 +1092,7 @@ void vtkChartXYZ::LookUpX()
   this->Scene->SetDirty(true);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartXYZ::LookUpY()
 {
   this->Rotation->Identity();
@@ -1101,7 +1101,7 @@ void vtkChartXYZ::LookUpY()
   this->Scene->SetDirty(true);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartXYZ::LookUpZ()
 {
   this->Rotation->Identity();
@@ -1110,7 +1110,7 @@ void vtkChartXYZ::LookUpZ()
   this->Scene->SetDirty(true);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartXYZ::CalculateTransforms()
 {
   // Calculate the correct translation vector so that rotation and scale
@@ -1259,7 +1259,7 @@ void vtkChartXYZ::CalculateTransforms()
   this->BoundingCube->AddItem(face6);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartXYZ::ScaleUpAxes()
 {
   float point[3];
@@ -1305,7 +1305,7 @@ void vtkChartXYZ::ScaleUpAxes()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartXYZ::ScaleDownAxes()
 {
   float point[3];
@@ -1349,7 +1349,7 @@ void vtkChartXYZ::ScaleDownAxes()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartXYZ::InitializeFutureBox()
 {
   double scale[3] = { 300, 300, 300 };
@@ -1374,7 +1374,7 @@ void vtkChartXYZ::InitializeFutureBox()
     this->Axes[2]->GetPosition1()[1]);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkChartXYZ::CheckForSceneResize()
 {
   int currentWidth = this->Scene->GetSceneWidth();
@@ -1425,7 +1425,7 @@ bool vtkChartXYZ::CheckForSceneResize()
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartXYZ::RescaleAxes()
 {
   int currentWidth = this->Scene->GetSceneWidth();
@@ -1443,7 +1443,7 @@ void vtkChartXYZ::RescaleAxes()
   this->SceneHeight = currentHeight;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartXYZ::InitializeAxesBoundaryPoints()
 {
   int currentPoint = 0;
@@ -1476,7 +1476,7 @@ void vtkChartXYZ::InitializeAxesBoundaryPoints()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkChartXYZ::CalculateNiceMinMax(double& min, double& max, int axis)
 {
   // Calculate an upper limit on the number of tick marks - at least 30 pixels
@@ -1494,13 +1494,13 @@ double vtkChartXYZ::CalculateNiceMinMax(double& min, double& max, int axis)
   return vtkAxis::NiceMinMax(min, max, pixelRange, 30.0f);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartXYZ::RecalculateTransform()
 {
   this->CalculatePlotTransform(this->Axes[0], this->Axes[1], this->Axes[2], this->PlotTransform);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkChartXYZ::CalculatePlotTransform(
   vtkAxis* x, vtkAxis* y, vtkAxis* z, vtkTransform* transform)
 {
@@ -1544,7 +1544,7 @@ bool vtkChartXYZ::CalculatePlotTransform(
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkChartXYZ::AddPlot(vtkPlot3D* plot)
 {
   if (plot == nullptr)
@@ -1574,20 +1574,20 @@ vtkIdType vtkChartXYZ::AddPlot(vtkPlot3D* plot)
   return plotIndex;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartXYZ::ClearPlots()
 {
   this->ClearItems();
   this->Plots.clear();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartXYZ::SetFitToScene(bool b)
 {
   this->FitToScene = b;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartXYZ::GetClippingPlaneEquation(int i, double* planeEquation)
 {
   int n = this->BoundingCube->GetNumberOfItems();

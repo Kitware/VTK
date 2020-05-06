@@ -41,7 +41,7 @@ vtkStandardNewMacro(vtkSPHInterpolator);
 vtkCxxSetObjectMacro(vtkSPHInterpolator, Locator, vtkAbstractPointLocator);
 vtkCxxSetObjectMacro(vtkSPHInterpolator, Kernel, vtkSPHKernel);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Helper classes to support efficient computing, and threaded execution.
 namespace
 {
@@ -238,7 +238,7 @@ struct NormalizeArray
 } // anonymous namespace
 
 //================= Begin class proper =======================================
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSPHInterpolator::vtkSPHInterpolator()
 {
   this->SetNumberOfInputPorts(2);
@@ -270,26 +270,26 @@ vtkSPHInterpolator::vtkSPHInterpolator()
   this->ShepardNormalization = false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSPHInterpolator::~vtkSPHInterpolator()
 {
   this->SetLocator(nullptr);
   this->SetKernel(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSPHInterpolator::SetSourceConnection(vtkAlgorithmOutput* algOutput)
 {
   this->SetInputConnection(1, algOutput);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSPHInterpolator::SetSourceData(vtkDataObject* input)
 {
   this->SetInputData(1, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject* vtkSPHInterpolator::GetSource()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
@@ -300,7 +300,7 @@ vtkDataObject* vtkSPHInterpolator::GetSource()
   return this->GetExecutive()->GetInputData(1, 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The driver of the algorithm
 void vtkSPHInterpolator::Probe(vtkDataSet* input, vtkDataSet* source, vtkDataSet* output)
 {
@@ -397,7 +397,7 @@ void vtkSPHInterpolator::Probe(vtkDataSet* input, vtkDataSet* source, vtkDataSet
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSPHInterpolator::PassAttributeData(
   vtkDataSet* input, vtkDataObject* vtkNotUsed(source), vtkDataSet* output)
 {
@@ -431,7 +431,7 @@ void vtkSPHInterpolator::PassAttributeData(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSPHInterpolator::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -465,7 +465,7 @@ int vtkSPHInterpolator::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSPHInterpolator::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -495,7 +495,7 @@ int vtkSPHInterpolator::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSPHInterpolator::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -519,7 +519,7 @@ int vtkSPHInterpolator::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkSPHInterpolator::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
@@ -537,7 +537,7 @@ vtkMTimeType vtkSPHInterpolator::GetMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSPHInterpolator::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataObject* source = this->GetSource();

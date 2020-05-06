@@ -29,10 +29,10 @@
 #include <cstring>
 
 #include <sstream>
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkXYZMolReader2);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXYZMolReader2::vtkXYZMolReader2()
   : FileName(nullptr)
 {
@@ -41,19 +41,19 @@ vtkXYZMolReader2::vtkXYZMolReader2()
   this->NumberOfAtoms = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXYZMolReader2::~vtkXYZMolReader2()
 {
   this->SetFileName(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMolecule* vtkXYZMolReader2::GetOutput()
 {
   return vtkMolecule::SafeDownCast(this->GetOutputDataObject(0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYZMolReader2::SetOutput(vtkMolecule* output)
 {
   this->GetExecutive()->SetOutputData(0, output);
@@ -248,7 +248,7 @@ int vtkXYZMolReader2::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXYZMolReader2::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

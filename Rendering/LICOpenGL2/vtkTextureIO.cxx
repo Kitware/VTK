@@ -33,7 +33,7 @@ using std::deque;
 using std::ostringstream;
 using std::string;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static vtkFloatArray* DownloadTexture(vtkTextureObject* texture, const unsigned int* sub)
 {
   int tt = texture->GetVTKDataType();
@@ -65,7 +65,7 @@ static vtkFloatArray* DownloadTexture(vtkTextureObject* texture, const unsigned 
   return ta;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextureIO::Write(
   const char* filename, vtkTextureObject* texture, const unsigned int* subset, const double* origin)
 {
@@ -107,7 +107,7 @@ void vtkTextureIO::Write(
   w->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextureIO::Write(const char* filename, vtkTextureObject* texture,
   const deque<vtkPixelExtent>& exts, const double* origin)
 {

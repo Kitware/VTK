@@ -40,7 +40,7 @@
 
 vtkStandardNewMacro(vtkResliceImageViewer);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This class is used to scroll slices with the scroll bar. In the case of MPR
 // view, it moves one "normalized spacing" in the direction of the normal to
 // the resliced plane, provided the new center will continue to lie within the
@@ -82,7 +82,7 @@ public:
   vtkResliceImageViewer* Viewer;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkResliceImageViewer::vtkResliceImageViewer()
 {
   // Default is to not use the reslice cursor widget, ie use fast
@@ -116,7 +116,7 @@ vtkResliceImageViewer::vtkResliceImageViewer()
   this->InstallPipeline();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkResliceImageViewer::~vtkResliceImageViewer()
 {
   this->Measurements->Delete();
@@ -131,7 +131,7 @@ vtkResliceImageViewer::~vtkResliceImageViewer()
   this->ScrollCallback->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceImageViewer::SetThickMode(int t)
 {
   vtkSmartPointer<vtkResliceCursor> rc = this->GetResliceCursor();
@@ -172,7 +172,7 @@ void vtkResliceImageViewer::SetThickMode(int t)
   this->ResliceCursorWidget->SetEnabled(e);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceImageViewer::SetResliceCursor(vtkResliceCursor* rc)
 {
   vtkResliceCursorRepresentation* rep = vtkResliceCursorRepresentation::SafeDownCast(
@@ -183,7 +183,7 @@ void vtkResliceImageViewer::SetResliceCursor(vtkResliceCursor* rc)
   this->Measurements->SetResliceImageViewer(this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkResliceImageViewer::GetThickMode()
 {
   return (vtkResliceCursorThickLineRepresentation::SafeDownCast(
@@ -192,7 +192,7 @@ int vtkResliceImageViewer::GetThickMode()
     : 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceImageViewer::SetLookupTable(vtkScalarsToColors* l)
 {
   if (vtkResliceCursorRepresentation* rep = vtkResliceCursorRepresentation::SafeDownCast(
@@ -209,7 +209,7 @@ void vtkResliceImageViewer::SetLookupTable(vtkScalarsToColors* l)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkScalarsToColors* vtkResliceImageViewer::GetLookupTable()
 {
   if (vtkResliceCursorRepresentation* rep = vtkResliceCursorRepresentation::SafeDownCast(
@@ -221,7 +221,7 @@ vtkScalarsToColors* vtkResliceImageViewer::GetLookupTable()
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceImageViewer::UpdateOrientation()
 {
   // Set the camera position
@@ -252,7 +252,7 @@ void vtkResliceImageViewer::UpdateOrientation()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceImageViewer::UpdateDisplayExtent()
 {
   // Only update the display extent in axis aligned mode
@@ -263,7 +263,7 @@ void vtkResliceImageViewer::UpdateDisplayExtent()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceImageViewer::InstallPipeline()
 {
   this->Superclass::InstallPipeline();
@@ -319,7 +319,7 @@ void vtkResliceImageViewer::InstallPipeline()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceImageViewer::UnInstallPipeline()
 {
   this->ResliceCursorWidget->SetEnabled(0);
@@ -332,7 +332,7 @@ void vtkResliceImageViewer::UnInstallPipeline()
   this->Superclass::UnInstallPipeline();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceImageViewer::UpdatePointPlacer()
 {
   if (this->ResliceMode == RESLICE_OBLIQUE)
@@ -395,7 +395,7 @@ void vtkResliceImageViewer::UpdatePointPlacer()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceImageViewer::Render()
 {
   if (!this->WindowLevel->GetInput())
@@ -408,7 +408,7 @@ void vtkResliceImageViewer::Render()
   this->Superclass::Render();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkResliceCursor* vtkResliceImageViewer::GetResliceCursor()
 {
   if (vtkResliceCursorRepresentation* rep = vtkResliceCursorRepresentation::SafeDownCast(
@@ -420,7 +420,7 @@ vtkResliceCursor* vtkResliceImageViewer::GetResliceCursor()
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceImageViewer::SetInputData(vtkImageData* in)
 {
   if (!in)
@@ -448,7 +448,7 @@ void vtkResliceImageViewer::SetInputData(vtkImageData* in)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceImageViewer::SetInputConnection(vtkAlgorithmOutput* input)
 {
   vtkErrorMacro(<< "Use SetInputData instead. ");
@@ -456,7 +456,7 @@ void vtkResliceImageViewer::SetInputConnection(vtkAlgorithmOutput* input)
   this->UpdateDisplayExtent();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceImageViewer::SetResliceMode(int r)
 {
   if (r == this->ResliceMode)
@@ -470,7 +470,7 @@ void vtkResliceImageViewer::SetResliceMode(int r)
   this->InstallPipeline();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceImageViewer::SetColorWindow(double w)
 {
   double rmin = this->GetColorLevel() - 0.5 * fabs(w);
@@ -485,7 +485,7 @@ void vtkResliceImageViewer::SetColorWindow(double w)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceImageViewer::SetColorLevel(double w)
 {
   double rmin = w - 0.5 * fabs(this->GetColorWindow());
@@ -500,13 +500,13 @@ void vtkResliceImageViewer::SetColorLevel(double w)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceImageViewer::Reset()
 {
   this->ResliceCursorWidget->ResetResliceCursor();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPlane* vtkResliceImageViewer::GetReslicePlane()
 {
   // Get the reslice plane
@@ -521,7 +521,7 @@ vtkPlane* vtkResliceImageViewer::GetReslicePlane()
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkResliceImageViewer::GetInterSliceSpacingInResliceMode()
 {
   double n[3], imageSpacing[3], resliceSpacing = 0;
@@ -536,7 +536,7 @@ double vtkResliceImageViewer::GetInterSliceSpacingInResliceMode()
   return resliceSpacing;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceImageViewer::IncrementSlice(int inc)
 {
   if (this->GetResliceMode() == vtkResliceImageViewer::RESLICE_AXIS_ALIGNED)
@@ -579,7 +579,7 @@ void vtkResliceImageViewer::IncrementSlice(int inc)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceImageViewer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -39,7 +39,7 @@
 vtkStandardNewMacro(vtkVoronoi2D);
 vtkCxxSetObjectMacro(vtkVoronoi2D, Transform, vtkAbstractTransform);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 namespace
 {
 
@@ -1049,7 +1049,7 @@ int vtkVoronoi2D::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This filter can process any explicit representation of points.
 int vtkVoronoi2D::FillInputPortInformation(int, vtkInformation* info)
 {
@@ -1057,7 +1057,7 @@ int vtkVoronoi2D::FillInputPortInformation(int, vtkInformation* info)
   return 1;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Since users have access to the locator we need to take into account the
 // locator's modified time.
 vtkMTimeType vtkVoronoi2D::GetMTime()
@@ -1067,7 +1067,7 @@ vtkMTimeType vtkVoronoi2D::GetMTime()
   return (time > mTime ? time : mTime);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVoronoi2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

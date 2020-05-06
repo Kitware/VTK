@@ -20,7 +20,7 @@ vtkStandardNewMacro(vtkPointData);
 vtkStandardExtendedNewMacro(vtkPointData);
 
 #ifndef VTK_LEGACY_REMOVE
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointData::NullPoint(vtkIdType ptId)
 {
   VTK_LEGACY_REPLACED_BODY(
@@ -29,7 +29,7 @@ void vtkPointData::NullPoint(vtkIdType ptId)
 }
 #endif
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

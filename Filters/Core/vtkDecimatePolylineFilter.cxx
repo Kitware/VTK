@@ -82,7 +82,7 @@ public:
   bool IsLoop;
 };
 
-//---------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Create object with specified reduction of 90%.
 vtkDecimatePolylineFilter::vtkDecimatePolylineFilter()
 {
@@ -92,10 +92,10 @@ vtkDecimatePolylineFilter::vtkDecimatePolylineFilter()
   this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
 }
 
-//---------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDecimatePolylineFilter::~vtkDecimatePolylineFilter() = default;
 
-//---------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkDecimatePolylineFilter::ComputeError(
   vtkPolyData* input, Polyline* polyline, vtkIdType idx)
 {
@@ -116,7 +116,7 @@ double vtkDecimatePolylineFilter::ComputeError(
   }
 }
 
-//---------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //  Reduce the number of points in a set of polylines
 //
 int vtkDecimatePolylineFilter::RequestData(vtkInformation* vtkNotUsed(request),
@@ -284,7 +284,7 @@ int vtkDecimatePolylineFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
   return 1;
 }
-//---------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDecimatePolylineFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

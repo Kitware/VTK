@@ -95,7 +95,7 @@ struct SampleDataSetWithGradients
 
 } // anonymous namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Okay define the VTK class proper
 vtkSampleImplicitFunctionFilter::vtkSampleImplicitFunctionFilter()
 {
@@ -110,7 +110,7 @@ vtkSampleImplicitFunctionFilter::vtkSampleImplicitFunctionFilter()
   this->SetGradientArrayName("Implicit gradients");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSampleImplicitFunctionFilter::~vtkSampleImplicitFunctionFilter()
 {
   this->SetImplicitFunction(nullptr);
@@ -118,7 +118,7 @@ vtkSampleImplicitFunctionFilter::~vtkSampleImplicitFunctionFilter()
   this->SetGradientArrayName(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Produce the output data
 int vtkSampleImplicitFunctionFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -203,14 +203,14 @@ int vtkSampleImplicitFunctionFilter::RequestData(vtkInformation* vtkNotUsed(requ
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSampleImplicitFunctionFilter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkSampleImplicitFunctionFilter::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
@@ -225,14 +225,14 @@ vtkMTimeType vtkSampleImplicitFunctionFilter::GetMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSampleImplicitFunctionFilter::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
   vtkGarbageCollectorReport(collector, this->ImplicitFunction, "ImplicitFunction");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSampleImplicitFunctionFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

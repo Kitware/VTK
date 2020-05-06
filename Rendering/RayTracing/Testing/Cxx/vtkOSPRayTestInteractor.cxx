@@ -34,7 +34,7 @@ namespace
 static std::vector<std::string> ActorNames;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkOSPRayTestLooper : public vtkCommand
 {
   // for progressive rendering
@@ -74,10 +74,10 @@ public:
   int ProgressiveCount;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOSPRayTestInteractor);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOSPRayTestInteractor::vtkOSPRayTestInteractor()
 {
   this->SetPipelineControlPoints(nullptr, nullptr, nullptr);
@@ -86,13 +86,13 @@ vtkOSPRayTestInteractor::vtkOSPRayTestInteractor()
   this->Looper = vtkOSPRayTestLooper::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOSPRayTestInteractor::~vtkOSPRayTestInteractor()
 {
   this->Looper->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayTestInteractor::SetPipelineControlPoints(
   vtkRenderer* g, vtkRenderPass* _O, vtkRenderPass* _G)
 {
@@ -101,7 +101,7 @@ void vtkOSPRayTestInteractor::SetPipelineControlPoints(
   this->G = _G;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayTestInteractor::OnKeyPress()
 {
   if (this->GLRenderer == nullptr)

@@ -26,7 +26,7 @@
 #include "vtkTable.h"
 #include "vtkTextProperty.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestLinePlotAxisFonts(int, char*[])
 {
   // Set up a 2D scene, add an XY chart to it

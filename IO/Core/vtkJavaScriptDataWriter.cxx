@@ -37,7 +37,7 @@
 #include <vector>
 
 vtkStandardNewMacro(vtkJavaScriptDataWriter);
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkJavaScriptDataWriter::vtkJavaScriptDataWriter()
 {
   this->VariableName = nullptr;
@@ -48,7 +48,7 @@ vtkJavaScriptDataWriter::vtkJavaScriptDataWriter()
   this->SetVariableName("data"); // prepare the default.
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkJavaScriptDataWriter::~vtkJavaScriptDataWriter()
 {
   this->SetFileName(nullptr);
@@ -56,33 +56,33 @@ vtkJavaScriptDataWriter::~vtkJavaScriptDataWriter()
   this->CloseFile();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkJavaScriptDataWriter::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkJavaScriptDataWriter::SetOutputStream(ostream* output_stream)
 {
   this->OutputStream = output_stream;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 ostream* vtkJavaScriptDataWriter::GetOutputStream()
 {
   return this->OutputStream;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkJavaScriptDataWriter::CloseFile()
 {
   delete this->OutputFile;
   this->OutputFile = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkJavaScriptDataWriter::OpenFile()
 {
   if (!this->FileName)
@@ -107,7 +107,7 @@ bool vtkJavaScriptDataWriter::OpenFile()
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkJavaScriptDataWriter::WriteData()
 {
   vtkTable* input_table = vtkTable::SafeDownCast(this->GetInput());
@@ -134,7 +134,7 @@ void vtkJavaScriptDataWriter::WriteData()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkJavaScriptDataWriter::WriteTable(vtkTable* table, ostream* stream_ptr)
 {
   if (stream_ptr == nullptr)
@@ -203,7 +203,7 @@ void vtkJavaScriptDataWriter::WriteTable(vtkTable* table, ostream* stream_ptr)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkJavaScriptDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

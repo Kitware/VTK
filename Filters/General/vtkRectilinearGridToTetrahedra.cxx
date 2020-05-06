@@ -40,7 +40,7 @@ vtkStandardNewMacro(vtkRectilinearGridToTetrahedra);
 #define VTK_TETRAHEDRALIZE_12_CONFORM_FLIP 2
 #define VTK_TETRAHEDRALIZE_12 10
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkRectilinearGridToTetrahedra::vtkRectilinearGridToTetrahedra()
 {
@@ -48,7 +48,7 @@ vtkRectilinearGridToTetrahedra::vtkRectilinearGridToTetrahedra()
   this->RememberVoxelId = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkRectilinearGridToTetrahedra::SetInput(const double ExtentX, const double ExtentY,
   const double ExtentZ, const double SpacingX, const double SpacingY, const double SpacingZ,
@@ -65,7 +65,7 @@ void vtkRectilinearGridToTetrahedra::SetInput(const double ExtentX, const double
   this->SetInput(Extent, Spacing, tol);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 // Create an input for the filter
 void vtkRectilinearGridToTetrahedra::SetInput(
@@ -121,7 +121,7 @@ void vtkRectilinearGridToTetrahedra::SetInput(
   RectGrid->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 // Determine how to Divide each voxel in the vtkRectilinearGrid
 void vtkRectilinearGridToTetrahedra::DetermineGridDivisionTypes(
@@ -188,7 +188,7 @@ void vtkRectilinearGridToTetrahedra::DetermineGridDivisionTypes(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 // Take the grid and make it into a tetrahedral mesh.
 void vtkRectilinearGridToTetrahedra::GridToTetMesh(vtkRectilinearGrid* RectGrid,
@@ -301,7 +301,7 @@ void vtkRectilinearGridToTetrahedra::GridToTetMesh(vtkRectilinearGrid* RectGrid,
   TetMesh->Squeeze();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Helper Function for Tetrahedralize Voxel
 inline void vtkRectilinearGridToTetrahedra::TetrahedralizeAddCenterPoint(
   vtkIdList* VoxelCorners, vtkPoints* NodeList)
@@ -318,7 +318,7 @@ inline void vtkRectilinearGridToTetrahedra::TetrahedralizeAddCenterPoint(
   VoxelCorners->InsertId(8, NodeList->InsertNextPoint(center));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 // Split A Cube into Tetrahedrons
 // According to the DivisionType
@@ -518,7 +518,7 @@ int vtkRectilinearGridToTetrahedra::TetrahedralizeVoxel(
   return numTet;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkRectilinearGridToTetrahedra::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -575,7 +575,7 @@ int vtkRectilinearGridToTetrahedra::RequestData(vtkInformation* vtkNotUsed(reque
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkRectilinearGridToTetrahedra ::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (!this->Superclass::FillInputPortInformation(port, info))
@@ -586,7 +586,7 @@ int vtkRectilinearGridToTetrahedra ::FillInputPortInformation(int port, vtkInfor
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkRectilinearGridToTetrahedra::PrintSelf(ostream& os, vtkIndent indent)
 {

@@ -33,27 +33,27 @@
 
 vtkStandardNewMacro(vtkPKMeansStatistics);
 vtkCxxSetObjectMacro(vtkPKMeansStatistics, Controller, vtkMultiProcessController);
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPKMeansStatistics::vtkPKMeansStatistics()
 {
   this->Controller = 0;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPKMeansStatistics::~vtkPKMeansStatistics()
 {
   this->SetController(0);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPKMeansStatistics::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Controller: " << this->Controller << endl;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkPKMeansStatistics::GetTotalNumberOfObservations(vtkIdType numObservations)
 {
   int np = this->Controller->GetNumberOfProcesses();
@@ -74,7 +74,7 @@ vtkIdType vtkPKMeansStatistics::GetTotalNumberOfObservations(vtkIdType numObserv
   return totalNumObservations;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPKMeansStatistics::UpdateClusterCenters(vtkTable* newClusterElements,
   vtkTable* curClusterElements, vtkIdTypeArray* numMembershipChanges,
   vtkIdTypeArray* numDataElementsInCluster, vtkDoubleArray* error, vtkIdTypeArray* startRunID,
@@ -186,7 +186,7 @@ void vtkPKMeansStatistics::UpdateClusterCenters(vtkTable* newClusterElements,
   allNewClusterElements->Delete();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPKMeansStatistics::CreateInitialClusterCenters(vtkIdType numToAllocate,
   vtkIdTypeArray* numberOfClusters, vtkTable* inData, vtkTable* curClusterElements,
   vtkTable* newClusterElements)

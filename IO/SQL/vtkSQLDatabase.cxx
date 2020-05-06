@@ -66,13 +66,13 @@ static vtkSQLDatabaseCleanup vtkCleanupSQLDatabaseGlobal;
 
 vtkInformationKeyMacro(vtkSQLDatabase, DATABASE, ObjectBase);
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSQLDatabase::vtkSQLDatabase() = default;
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSQLDatabase::~vtkSQLDatabase() = default;
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSQLDatabase::RegisterCreateFromURLCallback(vtkSQLDatabase::CreateFunction func)
 {
   if (!vtkSQLDatabase::Callbacks)
@@ -83,7 +83,7 @@ void vtkSQLDatabase::RegisterCreateFromURLCallback(vtkSQLDatabase::CreateFunctio
   vtkSQLDatabase::Callbacks->push_back(func);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSQLDatabase::UnRegisterCreateFromURLCallback(vtkSQLDatabase::CreateFunction func)
 {
   if (vtkSQLDatabase::Callbacks)
@@ -101,20 +101,20 @@ void vtkSQLDatabase::UnRegisterCreateFromURLCallback(vtkSQLDatabase::CreateFunct
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSQLDatabase::UnRegisterAllCreateFromURLCallbacks()
 {
   delete vtkSQLDatabase::Callbacks;
   vtkSQLDatabase::Callbacks = nullptr;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSQLDatabase::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStdString vtkSQLDatabase::GetColumnSpecification(
   vtkSQLDatabaseSchema* schema, int tblHandle, int colHandle)
 {
@@ -245,7 +245,7 @@ vtkStdString vtkSQLDatabase::GetColumnSpecification(
   return queryStr.str();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStdString vtkSQLDatabase::GetIndexSpecification(
   vtkSQLDatabaseSchema* schema, int tblHandle, int idxHandle, bool& skipped)
 {
@@ -314,7 +314,7 @@ vtkStdString vtkSQLDatabase::GetIndexSpecification(
   return queryStr;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStdString vtkSQLDatabase::GetTriggerSpecification(
   vtkSQLDatabaseSchema* schema, int tblHandle, int trgHandle)
 {
@@ -355,7 +355,7 @@ vtkStdString vtkSQLDatabase::GetTriggerSpecification(
   return queryStr;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSQLDatabase* vtkSQLDatabase::CreateFromURL(const char* URL)
 {
   std::string urlstr(URL ? URL : "");
@@ -410,7 +410,7 @@ vtkSQLDatabase* vtkSQLDatabase::CreateFromURL(const char* URL)
   return db;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkSQLDatabase::EffectSchema(vtkSQLDatabaseSchema* schema, bool dropIfExists)
 {
   if (!this->IsOpen())

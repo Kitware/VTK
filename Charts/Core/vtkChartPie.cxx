@@ -38,10 +38,10 @@ public:
   vtkSmartPointer<vtkPlotPie> Plot;
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartPie);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkChartPie::vtkChartPie()
 {
   this->Legend = vtkChartLegend::New();
@@ -56,14 +56,14 @@ vtkChartPie::vtkChartPie()
   this->Private = new vtkChartPiePrivate();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkChartPie::~vtkChartPie()
 {
   this->Tooltip->Delete();
   delete this->Private;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartPie::Update()
 {
   if (this->Private->Plot && this->Private->Plot->GetVisible())
@@ -75,7 +75,7 @@ void vtkChartPie::Update()
   this->Legend->SetVisible(this->ShowLegend);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkChartPie::Paint(vtkContext2D* painter)
 {
   // This is where everything should be drawn, or dispatched to other methods.
@@ -127,14 +127,14 @@ bool vtkChartPie::Paint(vtkContext2D* painter)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartPie::SetScene(vtkContextScene* scene)
 {
   this->vtkAbstractContextItem::SetScene(scene);
   this->Tooltip->SetScene(scene);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPlot* vtkChartPie::AddPlot(int /* type */)
 {
   if (!this->Private->Plot)
@@ -145,7 +145,7 @@ vtkPlot* vtkChartPie::AddPlot(int /* type */)
   return this->Private->Plot;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPlot* vtkChartPie::GetPlot(vtkIdType index)
 {
   if (index == 0)
@@ -156,7 +156,7 @@ vtkPlot* vtkChartPie::GetPlot(vtkIdType index)
   return nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkChartPie::GetNumberOfPlots()
 {
   if (this->Private->Plot)
@@ -169,20 +169,20 @@ vtkIdType vtkChartPie::GetNumberOfPlots()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartPie::SetShowLegend(bool visible)
 {
   this->vtkChart::SetShowLegend(visible);
   this->Legend->SetVisible(visible);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkChartLegend* vtkChartPie::GetLegend()
 {
   return this->Legend;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkChartPie::Hit(const vtkContextMouseEvent& mouse)
 {
   vtkVector2i pos(mouse.GetScreenPos());
@@ -197,13 +197,13 @@ bool vtkChartPie::Hit(const vtkContextMouseEvent& mouse)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkChartPie::MouseEnterEvent(const vtkContextMouseEvent&)
 {
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkChartPie::MouseMoveEvent(const vtkContextMouseEvent& mouse)
 {
   if (mouse.GetButton() == vtkContextMouseEvent::NO_BUTTON)
@@ -215,25 +215,25 @@ bool vtkChartPie::MouseMoveEvent(const vtkContextMouseEvent& mouse)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkChartPie::MouseLeaveEvent(const vtkContextMouseEvent&)
 {
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkChartPie::MouseButtonPressEvent(const vtkContextMouseEvent& /*mouse*/)
 {
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkChartPie::MouseButtonReleaseEvent(const vtkContextMouseEvent& /*mouse*/)
 {
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkChartPie::MouseWheelEvent(const vtkContextMouseEvent&, int /*delta*/)
 {
   return true;
@@ -272,7 +272,7 @@ bool vtkChartPie::LocatePointInPlots(const vtkContextMouseEvent& mouse)
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartPie::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

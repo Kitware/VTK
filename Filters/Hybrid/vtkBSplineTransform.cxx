@@ -419,7 +419,7 @@ void vtkBSplineTransformFunction<T>::Cubic(const double point[3], double displac
 
 } // end anonymous namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBSplineTransform::vtkBSplineTransform()
 {
   this->ConnectionHolder = vtkBSplineTransformConnectionHolder::New();
@@ -430,14 +430,14 @@ vtkBSplineTransform::vtkBSplineTransform()
   this->GridPointer = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBSplineTransform::~vtkBSplineTransform()
 {
   this->ConnectionHolder->Delete();
   this->ConnectionHolder = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBSplineTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -446,7 +446,7 @@ void vtkBSplineTransform::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "DisplacementScale: " << this->DisplacementScale << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkBSplineTransform::GetBorderModeAsString()
 {
   switch (this->BorderMode)
@@ -464,7 +464,7 @@ const char* vtkBSplineTransform::GetBorderModeAsString()
   return "Unknown";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // need to check the input image data to determine MTime
 vtkMTimeType vtkBSplineTransform::GetMTime()
 {
@@ -484,7 +484,7 @@ vtkMTimeType vtkBSplineTransform::GetMTime()
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBSplineTransform::ForwardTransformPoint(const double inPoint[3], double outPoint[3])
 {
   if (!this->GridPointer || !this->CalculateSpline)
@@ -524,7 +524,7 @@ void vtkBSplineTransform::ForwardTransformPoint(const double inPoint[3], double 
   outPoint[2] = inPoint[2] + displacement[2] * scale;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // convert float to double, transform, and back again
 void vtkBSplineTransform::ForwardTransformPoint(const float point[3], float output[3])
 {
@@ -540,7 +540,7 @@ void vtkBSplineTransform::ForwardTransformPoint(const float point[3], float outp
   output[2] = static_cast<float>(fpoint[2]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // calculate the derivative of the transform
 void vtkBSplineTransform::ForwardTransformDerivative(
   const double inPoint[3], double outPoint[3], double derivative[3][3])
@@ -586,7 +586,7 @@ void vtkBSplineTransform::ForwardTransformDerivative(
   outPoint[2] = inPoint[2] + displacement[2] * scale;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // convert double to double
 void vtkBSplineTransform::ForwardTransformDerivative(
   const float point[3], float output[3], float derivative[3][3])
@@ -608,7 +608,7 @@ void vtkBSplineTransform::ForwardTransformDerivative(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // We use Newton's method to iteratively invert the transformation.
 // This is actually quite robust as long as the Jacobian matrix is never
 // singular.
@@ -768,7 +768,7 @@ void vtkBSplineTransform::InverseTransformDerivative(
   outPoint[2] = inverse[2] * spacing[2] + origin[2];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // convert double to double and back again
 void vtkBSplineTransform::InverseTransformDerivative(
   const float point[3], float output[3], float derivative[3][3])
@@ -790,7 +790,7 @@ void vtkBSplineTransform::InverseTransformDerivative(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBSplineTransform::InverseTransformPoint(const double point[3], double output[3])
 {
   // the derivative won't be used, but it is required for Newton's method
@@ -798,7 +798,7 @@ void vtkBSplineTransform::InverseTransformPoint(const double point[3], double ou
   this->InverseTransformDerivative(point, output, derivative);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // convert double to double and back again
 void vtkBSplineTransform::InverseTransformPoint(const float point[3], float output[3])
 {
@@ -815,7 +815,7 @@ void vtkBSplineTransform::InverseTransformPoint(const float point[3], float outp
   output[2] = static_cast<float>(fpoint[2]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBSplineTransform::InternalDeepCopy(vtkAbstractTransform* transform)
 {
   vtkBSplineTransform* gridTransform = (vtkBSplineTransform*)transform;
@@ -837,7 +837,7 @@ void vtkBSplineTransform::InternalDeepCopy(vtkAbstractTransform* transform)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBSplineTransform::InternalUpdate()
 {
   vtkImageData* grid = this->GetCoefficientData();
@@ -882,19 +882,19 @@ void vtkBSplineTransform::InternalUpdate()
   grid->GetIncrements(this->GridIncrements);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAbstractTransform* vtkBSplineTransform::MakeTransform()
 {
   return vtkBSplineTransform::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBSplineTransform::SetCoefficientConnection(vtkAlgorithmOutput* output)
 {
   this->ConnectionHolder->SetInputConnection(output);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBSplineTransform::SetCoefficientData(vtkImageData* grid)
 {
   vtkTrivialProducer* tp = vtkTrivialProducer::New();
@@ -903,7 +903,7 @@ void vtkBSplineTransform::SetCoefficientData(vtkImageData* grid)
   tp->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageData* vtkBSplineTransform::GetCoefficientData()
 {
   return vtkImageData::SafeDownCast(this->ConnectionHolder->GetInputDataObject(0, 0));

@@ -28,7 +28,7 @@
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestGPURayCastMapperBenchmark(int argc, char* argv[])
 {
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;

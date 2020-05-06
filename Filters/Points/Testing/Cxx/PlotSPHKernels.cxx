@@ -33,7 +33,7 @@
 #include <vtkSmartPointer.h>
 #include <vtkTable.h>
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Helper function
 template <class T>
 void AddKernelToPlot(vtkSmartPointer<T> kernel, vtkSmartPointer<vtkChartXY> chart,
@@ -87,7 +87,7 @@ void AddKernelToPlot(vtkSmartPointer<T> kernel, vtkSmartPointer<vtkChartXY> char
   line->SetWidth(1.0);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int PlotSPHKernels(int, char*[])
 {
   // Set up the view

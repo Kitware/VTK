@@ -37,14 +37,14 @@
 #include <QMap>
 #include <QPixmap>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkQtAnnotationLayersModelAdapter::vtkQtAnnotationLayersModelAdapter(QObject* p)
   : vtkQtAbstractModelAdapter(p)
 {
   this->Annotations = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkQtAnnotationLayersModelAdapter::vtkQtAnnotationLayersModelAdapter(
   vtkAnnotationLayers* t, QObject* p)
   : vtkQtAbstractModelAdapter(p)
@@ -56,7 +56,7 @@ vtkQtAnnotationLayersModelAdapter::vtkQtAnnotationLayersModelAdapter(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkQtAnnotationLayersModelAdapter::~vtkQtAnnotationLayersModelAdapter()
 {
   if (this->Annotations != nullptr)
@@ -65,7 +65,7 @@ vtkQtAnnotationLayersModelAdapter::~vtkQtAnnotationLayersModelAdapter()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtAnnotationLayersModelAdapter::SetKeyColumnName(const char* vtkNotUsed(name))
 {
   /*
@@ -88,10 +88,10 @@ void vtkQtAnnotationLayersModelAdapter::SetKeyColumnName(const char* vtkNotUsed(
       */
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtAnnotationLayersModelAdapter::SetColorColumnName(const char* vtkNotUsed(name)) {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtAnnotationLayersModelAdapter::SetVTKDataObject(vtkDataObject* obj)
 {
   vtkAnnotationLayers* t = vtkAnnotationLayers::SafeDownCast(obj);
@@ -105,13 +105,13 @@ void vtkQtAnnotationLayersModelAdapter::SetVTKDataObject(vtkDataObject* obj)
   this->setAnnotationLayers(t);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject* vtkQtAnnotationLayersModelAdapter::GetVTKDataObject() const
 {
   return this->Annotations;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtAnnotationLayersModelAdapter::setAnnotationLayers(vtkAnnotationLayers* t)
 {
   if (this->Annotations != nullptr)
@@ -134,7 +134,7 @@ void vtkQtAnnotationLayersModelAdapter::setAnnotationLayers(vtkAnnotationLayers*
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkQtAnnotationLayersModelAdapter::noAnnotationsCheck() const
 {
   if (this->Annotations == nullptr)
@@ -150,7 +150,7 @@ bool vtkQtAnnotationLayersModelAdapter::noAnnotationsCheck() const
   return false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Selection conversion from VTK land to Qt land
 vtkAnnotationLayers* vtkQtAnnotationLayersModelAdapter::QModelIndexListToVTKAnnotationLayers(
@@ -169,7 +169,7 @@ vtkAnnotationLayers* vtkQtAnnotationLayersModelAdapter::QModelIndexListToVTKAnno
   return annotations;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 QItemSelection vtkQtAnnotationLayersModelAdapter::VTKAnnotationLayersToQItemSelection(
   vtkAnnotationLayers* vtkNotUsed(vtkann)) const
 {
@@ -195,7 +195,7 @@ QItemSelection vtkQtAnnotationLayersModelAdapter::VTKAnnotationLayersToQItemSele
   return qis_list;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Selection conversion from VTK land to Qt land
 vtkSelection* vtkQtAnnotationLayersModelAdapter::QModelIndexListToVTKIndexSelection(
@@ -224,7 +224,7 @@ vtkSelection* vtkQtAnnotationLayersModelAdapter::QModelIndexListToVTKIndexSelect
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 QItemSelection vtkQtAnnotationLayersModelAdapter::VTKIndexSelectionToQItemSelection(
   vtkSelection* vtkNotUsed(vtksel)) const
 {
@@ -250,7 +250,7 @@ QItemSelection vtkQtAnnotationLayersModelAdapter::VTKIndexSelectionToQItemSelect
   return qis_list;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 QVariant vtkQtAnnotationLayersModelAdapter::data(const QModelIndex& idx, int role) const
 {
   if (this->noAnnotationsCheck())
@@ -309,7 +309,7 @@ QVariant vtkQtAnnotationLayersModelAdapter::data(const QModelIndex& idx, int rol
   return QVariant();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkQtAnnotationLayersModelAdapter::setData(
   const QModelIndex& vtkNotUsed(idx), const QVariant& vtkNotUsed(value), int vtkNotUsed(role))
 {
@@ -324,7 +324,7 @@ bool vtkQtAnnotationLayersModelAdapter::setData(
   return false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 Qt::ItemFlags vtkQtAnnotationLayersModelAdapter::flags(const QModelIndex& idx) const
 {
   if (!idx.isValid())
@@ -335,7 +335,7 @@ Qt::ItemFlags vtkQtAnnotationLayersModelAdapter::flags(const QModelIndex& idx) c
   return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDropEnabled | Qt::ItemIsDragEnabled;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 QVariant vtkQtAnnotationLayersModelAdapter::headerData(
   int section, Qt::Orientation orientation, int role) const
 {
@@ -362,20 +362,20 @@ QVariant vtkQtAnnotationLayersModelAdapter::headerData(
   return QVariant();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 QModelIndex vtkQtAnnotationLayersModelAdapter::index(
   int row, int column, const QModelIndex& vtkNotUsed(parentIdx)) const
 {
   return createIndex(row, column, row);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 QModelIndex vtkQtAnnotationLayersModelAdapter::parent(const QModelIndex& vtkNotUsed(idx)) const
 {
   return QModelIndex();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkQtAnnotationLayersModelAdapter::rowCount(const QModelIndex& mIndex) const
 {
   if (this->noAnnotationsCheck())
@@ -389,7 +389,7 @@ int vtkQtAnnotationLayersModelAdapter::rowCount(const QModelIndex& mIndex) const
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkQtAnnotationLayersModelAdapter::columnCount(const QModelIndex&) const
 {
   if (this->noAnnotationsCheck())

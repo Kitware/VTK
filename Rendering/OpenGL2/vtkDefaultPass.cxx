@@ -22,19 +22,19 @@
 
 vtkStandardNewMacro(vtkDefaultPass);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDefaultPass::vtkDefaultPass() = default;
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDefaultPass::~vtkDefaultPass() = default;
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDefaultPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Perform rendering according to a render state \p s.
 // \pre s_exists: s!=0
@@ -49,7 +49,7 @@ void vtkDefaultPass::Render(const vtkRenderState* s)
   this->RenderOverlay(s);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Opaque pass without key checking.
 // \pre s_exists: s!=0
@@ -67,7 +67,7 @@ void vtkDefaultPass::RenderOpaqueGeometry(const vtkRenderState* s)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Opaque pass with key checking.
 // \pre s_exists: s!=0
@@ -89,7 +89,7 @@ void vtkDefaultPass::RenderFilteredOpaqueGeometry(const vtkRenderState* s)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Translucent pass without key checking.
 // \pre s_exists: s!=0
@@ -108,7 +108,7 @@ void vtkDefaultPass::RenderTranslucentPolygonalGeometry(const vtkRenderState* s)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Translucent pass with key checking.
 // \pre s_exists: s!=0
@@ -131,7 +131,7 @@ void vtkDefaultPass::RenderFilteredTranslucentPolygonalGeometry(const vtkRenderS
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Volume pass without key checking.
 // \pre s_exists: s!=0
@@ -149,7 +149,7 @@ void vtkDefaultPass::RenderVolumetricGeometry(const vtkRenderState* s)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Translucent pass with key checking.
 // \pre s_exists: s!=0
@@ -171,7 +171,7 @@ void vtkDefaultPass::RenderFilteredVolumetricGeometry(const vtkRenderState* s)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Overlay pass without key checking.
 // \pre s_exists: s!=0
@@ -189,7 +189,7 @@ void vtkDefaultPass::RenderOverlay(const vtkRenderState* s)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Overlay pass with key checking.
 // \pre s_exists: s!=0

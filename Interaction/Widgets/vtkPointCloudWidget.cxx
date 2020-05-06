@@ -28,7 +28,7 @@
 
 vtkStandardNewMacro(vtkPointCloudWidget);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPointCloudWidget::vtkPointCloudWidget()
 {
   this->WidgetState = vtkPointCloudWidget::Start;
@@ -44,17 +44,17 @@ vtkPointCloudWidget::vtkPointCloudWidget()
     0, 0, nullptr, vtkWidgetEvent::EndSelect, this, vtkPointCloudWidget::EndSelectAction);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPointCloudWidget::~vtkPointCloudWidget() {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointCloudWidget::SetEnabled(int enabling)
 {
   // We do this step first because it sets the CurrentRenderer
   this->Superclass::SetEnabled(enabling);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointCloudWidget::MoveAction(vtkAbstractWidget* w)
 {
   vtkPointCloudWidget* self = reinterpret_cast<vtkPointCloudWidget*>(w);
@@ -91,7 +91,7 @@ void vtkPointCloudWidget::MoveAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointCloudWidget::SelectAction(vtkAbstractWidget* w)
 {
   // We are in a static method, cast to ourself
@@ -128,7 +128,7 @@ void vtkPointCloudWidget::SelectAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointCloudWidget::EndSelectAction(vtkAbstractWidget* w)
 {
   vtkPointCloudWidget* self = reinterpret_cast<vtkPointCloudWidget*>(w);
@@ -146,7 +146,7 @@ void vtkPointCloudWidget::EndSelectAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointCloudWidget::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)
@@ -155,7 +155,7 @@ void vtkPointCloudWidget::CreateDefaultRepresentation()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointCloudWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

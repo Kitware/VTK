@@ -19,25 +19,25 @@
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkMultiPieceDataSet);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiPieceDataSet::vtkMultiPieceDataSet() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiPieceDataSet::~vtkMultiPieceDataSet() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiPieceDataSet* vtkMultiPieceDataSet::GetData(vtkInformation* info)
 {
   return info ? vtkMultiPieceDataSet::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiPieceDataSet* vtkMultiPieceDataSet::GetData(vtkInformationVector* v, int i)
 {
   return vtkMultiPieceDataSet::GetData(v->GetInformationObject(i));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiPieceDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

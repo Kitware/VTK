@@ -45,7 +45,7 @@
 
 vtkStandardNewMacro(vtkGaussianBlurPass);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGaussianBlurPass::vtkGaussianBlurPass()
 {
   this->FrameBufferObject = nullptr;
@@ -54,7 +54,7 @@ vtkGaussianBlurPass::vtkGaussianBlurPass()
   this->BlurProgram = nullptr;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGaussianBlurPass::~vtkGaussianBlurPass()
 {
   if (this->FrameBufferObject != nullptr)
@@ -71,13 +71,13 @@ vtkGaussianBlurPass::~vtkGaussianBlurPass()
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGaussianBlurPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Perform rendering according to a render state \p s.
 // \pre s_exists: s!=0
@@ -355,7 +355,7 @@ void vtkGaussianBlurPass::Render(const vtkRenderState* s)
   vtkOpenGLCheckErrorMacro("failed after Render");
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Release graphics resources and ask components to release their own
 // resources.

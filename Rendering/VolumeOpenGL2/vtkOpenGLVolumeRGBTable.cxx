@@ -22,13 +22,13 @@
 
 vtkStandardNewMacro(vtkOpenGLVolumeRGBTable);
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenGLVolumeRGBTable::vtkOpenGLVolumeRGBTable()
 {
   this->NumberOfColorComponents = 3;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLVolumeRGBTable::InternalUpdate(vtkObject* func, int vtkNotUsed(blendMode),
   double vtkNotUsed(sampleDistance), double vtkNotUsed(unitDistance), int filterValue)
 {
@@ -46,7 +46,7 @@ void vtkOpenGLVolumeRGBTable::InternalUpdate(vtkObject* func, int vtkNotUsed(ble
     this->TextureWidth, 1, this->NumberOfColorComponents, VTK_FLOAT, this->Table);
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLVolumeRGBTable::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -30,7 +30,7 @@
 
 namespace
 {
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 inline static bool vtkReebGraphVertexSoS(
   const std::pair<int, double>& v0, const std::pair<int, double>& v1)
 {
@@ -40,7 +40,7 @@ inline static bool vtkReebGraphVertexSoS(
 
 vtkStandardNewMacro(vtkReebGraphToJoinSplitTreeFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkReebGraphToJoinSplitTreeFilter::vtkReebGraphToJoinSplitTreeFilter()
 {
   this->SetNumberOfInputPorts(2);
@@ -48,10 +48,10 @@ vtkReebGraphToJoinSplitTreeFilter::vtkReebGraphToJoinSplitTreeFilter()
   this->FieldId = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkReebGraphToJoinSplitTreeFilter::~vtkReebGraphToJoinSplitTreeFilter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkReebGraphToJoinSplitTreeFilter::FillInputPortInformation(
   int portNumber, vtkInformation* info)
 {
@@ -70,14 +70,14 @@ int vtkReebGraphToJoinSplitTreeFilter::FillInputPortInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkReebGraphToJoinSplitTreeFilter::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDirectedGraph::DATA_TYPE_NAME(), "vtkReebGraph");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkReebGraphToJoinSplitTreeFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -85,13 +85,13 @@ void vtkReebGraphToJoinSplitTreeFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Field Id: " << this->FieldId << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkReebGraph* vtkReebGraphToJoinSplitTreeFilter::GetOutput()
 {
   return vtkReebGraph::SafeDownCast(this->GetOutputDataObject(0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkReebGraphToJoinSplitTreeFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

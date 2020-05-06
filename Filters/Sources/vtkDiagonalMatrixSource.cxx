@@ -27,11 +27,11 @@
 #include "vtkSmartPointer.h"
 #include "vtkSparseArray.h"
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkStandardNewMacro(vtkDiagonalMatrixSource);
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkDiagonalMatrixSource::vtkDiagonalMatrixSource()
   : ArrayType(DENSE)
@@ -49,7 +49,7 @@ vtkDiagonalMatrixSource::vtkDiagonalMatrixSource()
   this->SetNumberOfOutputPorts(1);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkDiagonalMatrixSource::~vtkDiagonalMatrixSource()
 {
@@ -57,7 +57,7 @@ vtkDiagonalMatrixSource::~vtkDiagonalMatrixSource()
   this->SetColumnLabel(nullptr);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkDiagonalMatrixSource::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -71,7 +71,7 @@ void vtkDiagonalMatrixSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ColumnLabel: " << (this->ColumnLabel ? this->ColumnLabel : "") << endl;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkDiagonalMatrixSource::RequestData(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)

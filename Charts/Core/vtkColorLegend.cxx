@@ -28,10 +28,10 @@
 #include "vtkSmartPointer.h"
 #include "vtkTransform2D.h"
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkColorLegend);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkColorLegend::vtkColorLegend()
 {
   this->Interpolate = true;
@@ -55,17 +55,17 @@ vtkColorLegend::vtkColorLegend()
   this->DrawBorder = false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkColorLegend::~vtkColorLegend() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorLegend::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Interpolate: " << this->Interpolate << endl;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorLegend::GetBounds(double bounds[4])
 {
   if (this->TransferFunction)
@@ -82,7 +82,7 @@ void vtkColorLegend::GetBounds(double bounds[4])
   bounds[3] = 1.0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorLegend::Update()
 {
   if (this->ImageData == nullptr || this->ImageData->GetMTime() < this->GetMTime())
@@ -110,7 +110,7 @@ void vtkColorLegend::Update()
   this->Axis->Update();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkColorLegend::Paint(vtkContext2D* painter)
 {
   if (this->TransferFunction == nullptr)
@@ -136,26 +136,26 @@ bool vtkColorLegend::Paint(vtkContext2D* painter)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorLegend::SetTransferFunction(vtkScalarsToColors* transfer)
 {
   this->TransferFunction = transfer;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkScalarsToColors* vtkColorLegend::GetTransferFunction()
 {
   return this->TransferFunction;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorLegend::SetPoint(float x, float y)
 {
   this->Superclass::SetPoint(x, y);
   this->CustomPositionSet = false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorLegend::SetTextureSize(float w, float h)
 {
   this->Position.SetWidth(w);
@@ -164,7 +164,7 @@ void vtkColorLegend::SetTextureSize(float w, float h)
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorLegend::SetPosition(const vtkRectf& pos)
 {
   this->Position = pos;
@@ -173,13 +173,13 @@ void vtkColorLegend::SetPosition(const vtkRectf& pos)
   this->CustomPositionSet = true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRectf vtkColorLegend::GetPosition()
 {
   return this->Position;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRectf vtkColorLegend::GetBoundingRect(vtkContext2D* painter)
 {
   if (this->CacheBounds && this->RectTime > this->GetMTime() && this->RectTime > this->PlotTime &&
@@ -252,7 +252,7 @@ vtkRectf vtkColorLegend::GetBoundingRect(vtkContext2D* painter)
   return this->Rect;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorLegend::ComputeTexture()
 {
   if (this->TransferFunction == nullptr)
@@ -299,7 +299,7 @@ void vtkColorLegend::ComputeTexture()
   delete[] values;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorLegend::OnScalarsToColorsModified(
   vtkObject* caller, unsigned long eid, void* clientdata, void* calldata)
 {
@@ -307,14 +307,14 @@ void vtkColorLegend::OnScalarsToColorsModified(
   self->ScalarsToColorsModified(caller, eid, calldata);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorLegend::ScalarsToColorsModified(
   vtkObject* vtkNotUsed(object), unsigned long vtkNotUsed(eid), void* vtkNotUsed(calldata))
 {
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorLegend::SetOrientation(int orientation)
 {
   if (orientation < 0 || orientation > 1)
@@ -329,19 +329,19 @@ void vtkColorLegend::SetOrientation(int orientation)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorLegend::SetTitle(const vtkStdString& title)
 {
   this->Axis->SetTitle(title);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStdString vtkColorLegend::GetTitle()
 {
   return this->Axis->GetTitle();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorLegend::UpdateAxisPosition()
 {
   if (this->Orientation == vtkColorLegend::VERTICAL)
@@ -359,7 +359,7 @@ void vtkColorLegend::UpdateAxisPosition()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkColorLegend::MouseMoveEvent(const vtkContextMouseEvent& mouse)
 {
   bool retval = this->Superclass::MouseMoveEvent(mouse);

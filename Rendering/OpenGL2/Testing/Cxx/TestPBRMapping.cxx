@@ -44,7 +44,7 @@
 #include "vtkTexture.h"
 #include "vtkTriangleFilter.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestPBRMapping(int argc, char* argv[])
 {
   vtkNew<vtkOpenGLRenderer> renderer;

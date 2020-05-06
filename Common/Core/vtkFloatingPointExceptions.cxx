@@ -28,7 +28,7 @@
 #endif
 
 #if defined(VTK_USE_FENV)
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Signal handler for floating point exceptions in anonymous namespace
 namespace
 {
@@ -44,7 +44,7 @@ void signal_handler(int signal)
 } // End anonymous namespace
 #endif
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Enable floating point exceptions.
 void vtkFloatingPointExceptions::Enable()
@@ -61,7 +61,7 @@ void vtkFloatingPointExceptions::Enable()
 #endif
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Disable floating point exceptions.
 void vtkFloatingPointExceptions::Disable()

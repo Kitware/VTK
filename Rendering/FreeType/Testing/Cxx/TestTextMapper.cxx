@@ -54,7 +54,7 @@ void setupTextMapper(vtkTextMapper* mapper, vtkActor2D* actor, vtkPolyData* anch
 }
 } // end namespace vtkTestTextMapper
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestTextMapper(int, char*[])
 {
   using namespace vtkTestTextMapper;

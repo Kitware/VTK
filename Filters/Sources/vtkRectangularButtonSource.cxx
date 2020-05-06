@@ -27,7 +27,7 @@
 
 vtkStandardNewMacro(vtkRectangularButtonSource);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct
 vtkRectangularButtonSource::vtkRectangularButtonSource()
 {
@@ -42,7 +42,7 @@ vtkRectangularButtonSource::vtkRectangularButtonSource()
   this->OutputPointsPrecision = vtkAlgorithm::SINGLE_PRECISION;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // One half of the button is made up of nine (quad) polygons.
 //
 static vtkIdType vtkRButtonPolys[72] = {
@@ -66,7 +66,7 @@ static vtkIdType vtkRButtonPolys[72] = {
   25, 24, 27, 26  //
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Generate the button.
 //
 int vtkRectangularButtonSource::RequestData(vtkInformation* vtkNotUsed(request),
@@ -280,7 +280,7 @@ int vtkRectangularButtonSource::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRectangularButtonSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

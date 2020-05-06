@@ -27,19 +27,19 @@
 #include "vtkXMLDataElement.h"
 
 vtkStandardNewMacro(vtkXMLMultiBlockDataReader);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLMultiBlockDataReader::vtkXMLMultiBlockDataReader() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLMultiBlockDataReader::~vtkXMLMultiBlockDataReader() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLMultiBlockDataReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLMultiBlockDataReader::FillOutputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
@@ -47,13 +47,13 @@ int vtkXMLMultiBlockDataReader::FillOutputPortInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXMLMultiBlockDataReader::GetDataSetName()
 {
   return "vtkMultiBlockDataSet";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This version does not support multiblock of multiblocks, so our work is
 // simple.
 void vtkXMLMultiBlockDataReader::ReadVersion0(vtkXMLDataElement* element,
@@ -91,7 +91,7 @@ void vtkXMLMultiBlockDataReader::ReadVersion0(vtkXMLDataElement* element,
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLMultiBlockDataReader::ReadComposite(vtkXMLDataElement* element,
   vtkCompositeDataSet* composite, const char* filePath, unsigned int& dataSetIndex)
 {
@@ -226,7 +226,7 @@ vtkInformation* CreateMetaDataIfNecessary(
 
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLMultiBlockDataReader::FillMetaData(vtkCompositeDataSet* metadata,
   vtkXMLDataElement* element, const std::string& filePath, unsigned int& dataSetIndex)
 {
@@ -342,7 +342,7 @@ int vtkXMLMultiBlockDataReader::FillMetaData(vtkCompositeDataSet* metadata,
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLMultiBlockDataReader::RequestInformation(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

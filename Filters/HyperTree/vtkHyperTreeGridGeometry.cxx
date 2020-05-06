@@ -54,7 +54,7 @@ constexpr unsigned char FULL_WORK_FACES = std::numeric_limits<unsigned char>::ma
 
 vtkStandardNewMacro(vtkHyperTreeGridGeometry);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHyperTreeGridGeometry::vtkHyperTreeGridGeometry()
 {
   // Create storage for corners of leaf cells
@@ -95,7 +95,7 @@ vtkHyperTreeGridGeometry::vtkHyperTreeGridGeometry()
   this->EdgeFlags = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHyperTreeGridGeometry::~vtkHyperTreeGridGeometry()
 {
   if (this->Points)
@@ -147,7 +147,7 @@ vtkHyperTreeGridGeometry::~vtkHyperTreeGridGeometry()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridGeometry::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -262,14 +262,14 @@ void vtkHyperTreeGridGeometry::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkHyperTreeGridGeometry::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData");
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkHyperTreeGridGeometry::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObject* outputDO)
 {
   // Downcast output data object to polygonal data set
@@ -406,7 +406,7 @@ int vtkHyperTreeGridGeometry::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObjec
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridGeometry::RecursivelyProcessTreeNot3D(
   vtkHyperTreeGridNonOrientedGeometryCursor* cursor)
 {
@@ -444,7 +444,7 @@ void vtkHyperTreeGridGeometry::RecursivelyProcessTreeNot3D(
   } // ichild
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // JB Meme code que vtkAdaptativeDataSetSurfaceFiltre ??
 void vtkHyperTreeGridGeometry::ProcessLeaf1D(vtkHyperTreeGridNonOrientedGeometryCursor* cursor)
 {
@@ -484,7 +484,7 @@ void vtkHyperTreeGridGeometry::ProcessLeaf1D(vtkHyperTreeGridNonOrientedGeometry
   this->OutData->CopyData(this->InData, inId, outId);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // JB Meme code que vtkAdaptativeDataSetSurfaceFiltre ??
 void vtkHyperTreeGridGeometry::ProcessLeaf2D(vtkHyperTreeGridNonOrientedGeometryCursor* cursor)
 
@@ -508,7 +508,7 @@ void vtkHyperTreeGridGeometry::ProcessLeaf2D(vtkHyperTreeGridNonOrientedGeometry
   this->AddFace2(inId, inId, cursor->GetOrigin(), cursor->GetSize(), 0, this->Orientation);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridGeometry::RecursivelyProcessTree3D(
   vtkHyperTreeGridNonOrientedVonNeumannSuperCursor* cursor, unsigned char crtWorkFaces)
 {
@@ -599,7 +599,7 @@ void vtkHyperTreeGridGeometry::RecursivelyProcessTree3D(
   } // ichild
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // JB Meme code que vtkAdaptativeDataSetSurfaceFiltre ??
 void vtkHyperTreeGridGeometry::ProcessLeaf3D(
   vtkHyperTreeGridNonOrientedVonNeumannSuperCursor* superCursor)
@@ -823,7 +823,7 @@ void vtkHyperTreeGridGeometry::ProcessLeaf3D(
   }   // if ( this->HasInterface )
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridGeometry::AddFace(vtkIdType useId, const double* origin, const double* size,
   unsigned int offset, unsigned int orientation, unsigned char hideEdge)
 {
@@ -922,7 +922,7 @@ void vtkHyperTreeGridGeometry::AddFace(vtkIdType useId, const double* origin, co
   // Copy face data from that of the cell from which it comes
   this->OutData->CopyData(this->InData, useId, outId);
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridGeometry::AddFace2(vtkIdType inId, vtkIdType useId, const double* origin,
   const double* size, unsigned int offset, unsigned int orientation, bool create)
 {

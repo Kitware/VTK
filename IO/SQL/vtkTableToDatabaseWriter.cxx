@@ -28,16 +28,16 @@
 
 #include "vtkTableToDatabaseWriter.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTableToDatabaseWriter::vtkTableToDatabaseWriter()
 {
   this->Database = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTableToDatabaseWriter::~vtkTableToDatabaseWriter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkTableToDatabaseWriter::SetDatabase(vtkSQLDatabase* db)
 {
   if (!db)
@@ -59,7 +59,7 @@ bool vtkTableToDatabaseWriter::SetDatabase(vtkSQLDatabase* db)
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkTableToDatabaseWriter::SetTableName(const char* name)
 {
   std::string nameStr = name;
@@ -71,7 +71,7 @@ bool vtkTableToDatabaseWriter::SetTableName(const char* name)
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkTableToDatabaseWriter::TableNameIsNew()
 {
   if (this->Database == nullptr)
@@ -114,7 +114,7 @@ vtkTable* vtkTableToDatabaseWriter::GetInput(int port)
   return vtkTable::SafeDownCast(this->Superclass::GetInput(port));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTableToDatabaseWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -31,13 +31,13 @@
 
 vtkStandardNewMacro(vtkOBJReader);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOBJReader::vtkOBJReader()
 {
   this->Comment = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOBJReader::~vtkOBJReader()
 {
   this->SetComment(nullptr);
@@ -1011,7 +1011,7 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOBJReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

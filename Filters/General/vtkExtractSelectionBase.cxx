@@ -22,17 +22,17 @@
 #include "vtkTable.h"
 #include "vtkUnstructuredGrid.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractSelectionBase::vtkExtractSelectionBase()
 {
   this->PreserveTopology = 0;
   this->SetNumberOfInputPorts(2);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractSelectionBase::~vtkExtractSelectionBase() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSelectionBase::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
@@ -51,7 +51,7 @@ int vtkExtractSelectionBase::FillInputPortInformation(int port, vtkInformation* 
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Needed because parent class sets output type to input type
 // and we sometimes want to change it to make an UnstructuredGrid regardless of
 // input type
@@ -116,7 +116,7 @@ int vtkExtractSelectionBase::RequestDataObject(
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractSelectionBase::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

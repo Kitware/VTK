@@ -30,16 +30,16 @@
 
 vtkStandardNewMacro(vtkImageInterpolator);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageInterpolator::vtkImageInterpolator()
 {
   this->InterpolationMode = VTK_LINEAR_INTERPOLATION;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageInterpolator::~vtkImageInterpolator() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageInterpolator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -47,13 +47,13 @@ void vtkImageInterpolator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "InterpolationMode: " << this->GetInterpolationModeAsString() << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkImageInterpolator::IsSeparable()
 {
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageInterpolator::SetInterpolationMode(int mode)
 {
   mode = vtkMath::ClampValue(mode, VTK_NEAREST_INTERPOLATION, VTK_CUBIC_INTERPOLATION);
@@ -64,7 +64,7 @@ void vtkImageInterpolator::SetInterpolationMode(int mode)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkImageInterpolator::GetInterpolationModeAsString()
 {
   switch (this->InterpolationMode)
@@ -79,7 +79,7 @@ const char* vtkImageInterpolator::GetInterpolationModeAsString()
   return "";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageInterpolator::ComputeSupportSize(const double matrix[16], int size[3])
 {
   int s = 1;
@@ -128,7 +128,7 @@ void vtkImageInterpolator::ComputeSupportSize(const double matrix[16], int size[
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageInterpolator::InternalDeepCopy(vtkAbstractImageInterpolator* a)
 {
   vtkImageInterpolator* obj = vtkImageInterpolator::SafeDownCast(a);
@@ -138,22 +138,22 @@ void vtkImageInterpolator::InternalDeepCopy(vtkAbstractImageInterpolator* a)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageInterpolator::InternalUpdate()
 {
   vtkInterpolationInfo* info = this->InterpolationInfo;
   info->InterpolationMode = this->InterpolationMode;
 }
 
-//----------------------------------------------------------------------------
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //  Interpolation subroutines and associated code
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 namespace
 {
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class F, class T>
 struct vtkImageNLCInterpolate
 {
@@ -164,7 +164,7 @@ struct vtkImageNLCInterpolate
   static void Tricubic(vtkInterpolationInfo* info, const F point[3], F* outPtr);
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class F, class T>
 void vtkImageNLCInterpolate<F, T>::Nearest(vtkInterpolationInfo* info, const F point[3], F* outPtr)
 {
@@ -205,7 +205,7 @@ void vtkImageNLCInterpolate<F, T>::Nearest(vtkInterpolationInfo* info, const F p
   } while (--numscalars);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class F, class T>
 void vtkImageNLCInterpolate<F, T>::Trilinear(
   vtkInterpolationInfo* info, const F point[3], F* outPtr)
@@ -291,7 +291,7 @@ void vtkImageNLCInterpolate<F, T>::Trilinear(
   } while (--numscalars);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // cubic helper function: set up the lookup indices and the interpolation
 // coefficients
 
@@ -310,7 +310,7 @@ inline void vtkTricubicInterpWeights(T F[4], T f)
   F[3] = f * fd2 * fm1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // tricubic interpolation
 template <class F, class T>
 void vtkImageNLCInterpolate<F, T>::Tricubic(vtkInterpolationInfo* info, const F point[3], F* outPtr)
@@ -452,7 +452,7 @@ void vtkImageNLCInterpolate<F, T>::Tricubic(vtkInterpolationInfo* info, const F 
   } while (--numscalars);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the interpolation function for the specified data types
 template <class F>
 void vtkImageInterpolatorGetInterpolationFunc(
@@ -487,7 +487,7 @@ void vtkImageInterpolatorGetInterpolationFunc(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Interpolation for precomputed weights
 
 template <class F, class T>
@@ -503,7 +503,7 @@ struct vtkImageNLCRowInterpolate
     vtkInterpolationWeights* weights, int idX, int idY, int idZ, F* outPtr, int n);
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // helper function for nearest neighbor interpolation
 template <class F, class T>
 void vtkImageNLCRowInterpolate<F, T>::Nearest(
@@ -530,7 +530,7 @@ void vtkImageNLCRowInterpolate<F, T>::Nearest(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // helper function for linear interpolation
 template <class F, class T>
 void vtkImageNLCRowInterpolate<F, T>::Trilinear(
@@ -684,7 +684,7 @@ void vtkImageNLCRowInterpolate<F, T>::Trilinear(
   }
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // helper function for tricubic interpolation
 template <class F, class T>
 void vtkImageNLCRowInterpolate<F, T>::Tricubic(
@@ -770,7 +770,7 @@ void vtkImageNLCRowInterpolate<F, T>::Tricubic(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // get row interpolation function for different interpolation modes
 // and different scalar types
 template <class F>
@@ -807,7 +807,7 @@ void vtkImageInterpolatorGetRowInterpolationFunc(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class F>
 void vtkImageInterpolatorPrecomputeWeights(const F newmat[16], const int outExt[6], int clipExt[6],
   const F bounds[6], vtkInterpolationWeights* weights)
@@ -1003,10 +1003,10 @@ void vtkImageInterpolatorPrecomputeWeights(const F newmat[16], const int outExt[
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 } // ends anonymous namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageInterpolator::GetInterpolationFunc(
   void (**func)(vtkInterpolationInfo*, const double[3], double*))
 {
@@ -1014,7 +1014,7 @@ void vtkImageInterpolator::GetInterpolationFunc(
     func, this->InterpolationInfo->ScalarType, this->InterpolationMode);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageInterpolator::GetInterpolationFunc(
   void (**func)(vtkInterpolationInfo*, const float[3], float*))
 {
@@ -1022,7 +1022,7 @@ void vtkImageInterpolator::GetInterpolationFunc(
     func, this->InterpolationInfo->ScalarType, this->InterpolationMode);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageInterpolator::GetRowInterpolationFunc(
   void (**func)(vtkInterpolationWeights*, int, int, int, double*, int))
 {
@@ -1030,7 +1030,7 @@ void vtkImageInterpolator::GetRowInterpolationFunc(
     func, this->InterpolationInfo->ScalarType, this->InterpolationMode);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageInterpolator::GetRowInterpolationFunc(
   void (**func)(vtkInterpolationWeights*, int, int, int, float*, int))
 {
@@ -1038,7 +1038,7 @@ void vtkImageInterpolator::GetRowInterpolationFunc(
     func, this->InterpolationInfo->ScalarType, this->InterpolationMode);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageInterpolator::PrecomputeWeightsForExtent(
   const double matrix[16], const int extent[6], int newExtent[6], vtkInterpolationWeights*& weights)
 {
@@ -1048,7 +1048,7 @@ void vtkImageInterpolator::PrecomputeWeightsForExtent(
     matrix, extent, newExtent, this->StructuredBoundsDouble, weights);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageInterpolator::PrecomputeWeightsForExtent(
   const float matrix[16], const int extent[6], int newExtent[6], vtkInterpolationWeights*& weights)
 {
@@ -1058,7 +1058,7 @@ void vtkImageInterpolator::PrecomputeWeightsForExtent(
     matrix, extent, newExtent, this->StructuredBoundsFloat, weights);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageInterpolator::FreePrecomputedWeights(vtkInterpolationWeights*& weights)
 {
   this->Superclass::FreePrecomputedWeights(weights);

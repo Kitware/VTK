@@ -139,7 +139,7 @@ int vtkBoostKruskalMinimumSpanningTree::RequestData(vtkInformation* vtkNotUsed(r
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkBoostKruskalMinimumSpanningTree::FillInputPortInformation(int port, vtkInformation* info)
 {
   // now add our info
@@ -150,7 +150,7 @@ int vtkBoostKruskalMinimumSpanningTree::FillInputPortInformation(int port, vtkIn
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkBoostKruskalMinimumSpanningTree::FillOutputPortInformation(int port, vtkInformation* info)
 {
   // now add our info
@@ -161,7 +161,7 @@ int vtkBoostKruskalMinimumSpanningTree::FillOutputPortInformation(int port, vtkI
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoostKruskalMinimumSpanningTree::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

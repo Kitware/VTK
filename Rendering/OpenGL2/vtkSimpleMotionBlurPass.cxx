@@ -35,7 +35,7 @@
 
 vtkStandardNewMacro(vtkSimpleMotionBlurPass);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSimpleMotionBlurPass::vtkSimpleMotionBlurPass()
 {
   this->SubFrames = 30;
@@ -52,7 +52,7 @@ vtkSimpleMotionBlurPass::vtkSimpleMotionBlurPass()
   this->ColorFormat = vtkTextureObject::Fixed8;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSimpleMotionBlurPass::~vtkSimpleMotionBlurPass()
 {
   if (this->FrameBufferObject != nullptr)
@@ -81,7 +81,7 @@ vtkSimpleMotionBlurPass::~vtkSimpleMotionBlurPass()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSimpleMotionBlurPass::SetSubFrames(int subFrames)
 {
   if (this->SubFrames != subFrames)
@@ -97,14 +97,14 @@ void vtkSimpleMotionBlurPass::SetSubFrames(int subFrames)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSimpleMotionBlurPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "SubFrames: " << this->SubFrames << "\n";
   this->Superclass::PrintSelf(os, indent);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Perform rendering according to a render state \p s.
 // \pre s_exists: s!=0
@@ -282,7 +282,7 @@ void vtkSimpleMotionBlurPass::Render(const vtkRenderState* s)
   vtkOpenGLCheckErrorMacro("failed after Render");
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Release graphics resources and ask components to release their own
 // resources.

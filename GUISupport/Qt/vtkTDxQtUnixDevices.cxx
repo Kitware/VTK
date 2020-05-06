@@ -38,19 +38,19 @@ public:
   vtkWindowIdToDevice Map;
 };
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTDxQtUnixDevices::vtkTDxQtUnixDevices()
 {
   this->Private = new vtkTDxQtUnixDevicesPrivate;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTDxQtUnixDevices::~vtkTDxQtUnixDevices()
 {
   delete this->Private;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTDxQtUnixDevices::ProcessEvent(vtkTDxUnixDeviceXEvent* e)
 {
   const XEvent* event = static_cast<const XEvent*>(e);

@@ -21,7 +21,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageIterateFilter::vtkImageIterateFilter()
 {
   // for filters that execute multiple times
@@ -33,7 +33,7 @@ vtkImageIterateFilter::vtkImageIterateFilter()
   this->OutputVector = vtkInformationVector::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageIterateFilter::~vtkImageIterateFilter()
 {
   this->SetNumberOfIterations(0);
@@ -41,7 +41,7 @@ vtkImageIterateFilter::~vtkImageIterateFilter()
   this->OutputVector->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageIterateFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -53,7 +53,7 @@ void vtkImageIterateFilter::PrintSelf(ostream& os, vtkIndent indent)
   // this->Iteration
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageIterateFilter ::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -108,7 +108,7 @@ int vtkImageIterateFilter ::RequestInformation(vtkInformation* vtkNotUsed(reques
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageIterateFilter ::RequestUpdateExtent(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -140,7 +140,7 @@ int vtkImageIterateFilter ::RequestUpdateExtent(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageIterateFilter::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -183,7 +183,7 @@ int vtkImageIterateFilter::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Called by the above for each decomposition.  Subclass can modify
 // the defaults by implementing this method.
 int vtkImageIterateFilter::IterativeRequestInformation(vtkInformation*, vtkInformation*)
@@ -191,7 +191,7 @@ int vtkImageIterateFilter::IterativeRequestInformation(vtkInformation*, vtkInfor
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Called by the above for each decomposition.  Subclass can modify
 // the defaults by implementing this method.
 int vtkImageIterateFilter::IterativeRequestUpdateExtent(vtkInformation*, vtkInformation*)
@@ -199,7 +199,7 @@ int vtkImageIterateFilter::IterativeRequestUpdateExtent(vtkInformation*, vtkInfo
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Called by the above for each decomposition.  Subclass can modify
 // the defaults by implementing this method.
 int vtkImageIterateFilter::IterativeRequestData(
@@ -208,7 +208,7 @@ int vtkImageIterateFilter::IterativeRequestData(
   return this->Superclass::RequestData(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Filters that execute multiple times per update use this internal method.
 void vtkImageIterateFilter::SetNumberOfIterations(int num)
 {

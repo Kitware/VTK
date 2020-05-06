@@ -16,13 +16,13 @@
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkObjectFactoryNewMacro(vtkPointGaussianMapper);
 
 vtkCxxSetObjectMacro(vtkPointGaussianMapper, ScaleFunction, vtkPiecewiseFunction);
 vtkCxxSetObjectMacro(vtkPointGaussianMapper, ScalarOpacityFunction, vtkPiecewiseFunction);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPointGaussianMapper::vtkPointGaussianMapper()
 {
   this->ScaleArray = nullptr;
@@ -42,7 +42,7 @@ vtkPointGaussianMapper::vtkPointGaussianMapper()
   this->TriangleScale = 3.0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPointGaussianMapper::~vtkPointGaussianMapper()
 {
   this->SetScaleArray(nullptr);
@@ -52,7 +52,7 @@ vtkPointGaussianMapper::~vtkPointGaussianMapper()
   this->SetScaleFunction(nullptr);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointGaussianMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

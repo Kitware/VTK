@@ -136,7 +136,7 @@ private:
   LSDynaFamily::BufferingInfo& operator=(const LSDynaFamily::BufferingInfo&) = delete;
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 LSDynaFamily::LSDynaFamily()
 {
   this->FD = VTK_LSDYNA_BADFILE; // No file open
@@ -160,7 +160,7 @@ LSDynaFamily::LSDynaFamily()
   this->BufferInfo = new LSDynaFamily::BufferingInfo();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 LSDynaFamily::~LSDynaFamily()
 {
   if (!VTK_LSDYNA_ISBADFILE(this->FD))
@@ -173,7 +173,7 @@ LSDynaFamily::~LSDynaFamily()
   delete this->BufferInfo;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void LSDynaFamily::SetDatabaseDirectory(const std::string& dd)
 {
   this->DatabaseDirectory = dd;
@@ -183,7 +183,7 @@ std::string LSDynaFamily::GetDatabaseDirectory()
   return this->DatabaseDirectory;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void LSDynaFamily::SetDatabaseBaseName(const std::string& bn)
 {
   this->DatabaseBaseName = bn;
@@ -193,7 +193,7 @@ std::string LSDynaFamily::GetDatabaseBaseName()
   return this->DatabaseBaseName;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int LSDynaFamily::ScanDatabaseDirectory()
 {
   // FIXME: None of this need be cleared if we are trying to track a
@@ -246,13 +246,13 @@ int LSDynaFamily::ScanDatabaseDirectory()
   return this->Files.empty();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* LSDynaFamily::SectionTypeToString(SectionType s)
 {
   return SectionTypeNames[s];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int LSDynaFamily::SkipToWord(SectionType sType, vtkIdType sId, vtkIdType wordNumber)
 {
   LSDynaFamilySectionMark mark;
@@ -326,7 +326,7 @@ int LSDynaFamily::SkipToWord(SectionType sType, vtkIdType sId, vtkIdType wordNum
 // FIXME: Assumes there is a valid file open and that
 // lseek will return the byte just past the time value word.
 // the BufferChunks buffer).
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int LSDynaFamily::MarkTimeStep()
 {
   LSDynaFamilySectionMark mark;
@@ -337,7 +337,7 @@ int LSDynaFamily::MarkTimeStep()
   return 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int LSDynaFamily::SkipWords(vtkIdType numWords)
 {
   if (numWords <= 0)
@@ -390,7 +390,7 @@ int LSDynaFamily::SkipWords(vtkIdType numWords)
   return 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int LSDynaFamily::BufferChunk(WordType wType, vtkIdType chunkSizeInWords)
 {
   if (chunkSizeInWords == 0)
@@ -490,7 +490,7 @@ int LSDynaFamily::BufferChunk(WordType wType, vtkIdType chunkSizeInWords)
   return 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int LSDynaFamily::ClearBuffer()
 {
   if (this->Chunk)
@@ -505,7 +505,7 @@ int LSDynaFamily::ClearBuffer()
   return 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType LSDynaFamily::InitPartialChunkBuffering(
   const vtkIdType& numTuples, const vtkIdType& numComps)
 {
@@ -530,7 +530,7 @@ vtkIdType LSDynaFamily::InitPartialChunkBuffering(
   return numChunks;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType LSDynaFamily::GetNextChunk(const WordType& wType)
 {
   vtkIdType size;
@@ -552,7 +552,7 @@ vtkIdType LSDynaFamily::GetNextChunk(const WordType& wType)
   return size;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int LSDynaFamily::AdvanceFile()
 {
   if (this->FNum < 0 && VTK_LSDYNA_ISBADFILE(this->FD))
@@ -621,13 +621,13 @@ void LSDynaFamily::MarkSectionStart(int adaptLevel, SectionType m)
   // mark.Offset );
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int LSDynaFamily::JumpToMark(SectionType m)
 {
   return this->SkipToWord(m, this->TimeStep, 0);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int LSDynaFamily::DetermineStorageModel()
 {
   double test;
@@ -678,37 +678,37 @@ int LSDynaFamily::DetermineStorageModel()
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void LSDynaFamily::SetStateSize(vtkIdType sz)
 {
   this->StateSize = sz;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType LSDynaFamily::GetStateSize() const
 {
   return this->StateSize;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType LSDynaFamily::GetNumberOfFiles()
 {
   return static_cast<vtkIdType>(this->Files.size());
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::string LSDynaFamily::GetFileName(int i)
 {
   return this->Files[i];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType LSDynaFamily::GetFileSize(int i)
 {
   return this->FileSizes[i];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int LSDynaFamily::GetWordSize() const
 {
   return this->WordSize;
@@ -716,7 +716,7 @@ int LSDynaFamily::GetWordSize() const
 
 // Reset erases all information about the current database.
 // It does not free memory allocated for the current chunk.
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void LSDynaFamily::Reset()
 {
   if (!VTK_LSDYNA_ISBADFILE(this->FD))
@@ -744,7 +744,7 @@ void LSDynaFamily::Reset()
   this->BufferInfo = new LSDynaFamily::BufferingInfo();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void LSDynaFamily::DumpMarks(std::ostream& os)
 {
   int i, j;
@@ -777,7 +777,7 @@ void LSDynaFamily::DumpMarks(std::ostream& os)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void LSDynaFamily::CloseFileHandles()
 {
   if (!VTK_LSDYNA_ISBADFILE(this->FD) && !this->FileHandlesClosed)
@@ -789,7 +789,7 @@ void LSDynaFamily::CloseFileHandles()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void LSDynaFamily::OpenFileHandles()
 {
   if (VTK_LSDYNA_ISBADFILE(this->FD) && this->FileHandlesClosed)

@@ -20,10 +20,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointSet.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkCellLocatorStrategy);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCellLocatorStrategy::vtkCellLocatorStrategy()
 {
   // You may ask, why this OwnsLocator rigamarole. The reason is because the
@@ -34,7 +34,7 @@ vtkCellLocatorStrategy::vtkCellLocatorStrategy()
   this->CellLocator = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCellLocatorStrategy::~vtkCellLocatorStrategy()
 {
   if (this->OwnsLocator && this->CellLocator != nullptr)
@@ -44,7 +44,7 @@ vtkCellLocatorStrategy::~vtkCellLocatorStrategy()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellLocatorStrategy::SetCellLocator(vtkAbstractCellLocator* cL)
 {
   if (cL != this->CellLocator)
@@ -66,7 +66,7 @@ void vtkCellLocatorStrategy::SetCellLocator(vtkAbstractCellLocator* cL)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCellLocatorStrategy::Initialize(vtkPointSet* ps)
 {
   // See whether anything has changed. If not, just return.
@@ -112,7 +112,7 @@ int vtkCellLocatorStrategy::Initialize(vtkPointSet* ps)
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkCellLocatorStrategy::FindCell(double x[3], vtkCell* cell, vtkGenericCell* gencell,
   vtkIdType cellId, double tol2, int& subId, double pcoords[3], double* weights)
 {
@@ -133,7 +133,7 @@ vtkIdType vtkCellLocatorStrategy::FindCell(double x[3], vtkCell* cell, vtkGeneri
   return this->CellLocator->FindCell(x, tol2, gencell, pcoords, weights);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellLocatorStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

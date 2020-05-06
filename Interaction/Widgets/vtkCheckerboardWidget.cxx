@@ -55,7 +55,7 @@ public:
   vtkCheckerboardWidget* CheckerboardWidget;
 };
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCheckerboardWidget::vtkCheckerboardWidget()
 {
   this->TopSlider = vtkSliderWidget::New();
@@ -101,7 +101,7 @@ vtkCheckerboardWidget::vtkCheckerboardWidget()
   cwCallback3->Delete(); // okay reference counting
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCheckerboardWidget::~vtkCheckerboardWidget()
 {
   this->TopSlider->Delete();
@@ -110,7 +110,7 @@ vtkCheckerboardWidget::~vtkCheckerboardWidget()
   this->LeftSlider->Delete();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCheckerboardWidget::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)
@@ -119,7 +119,7 @@ void vtkCheckerboardWidget::CreateDefaultRepresentation()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCheckerboardWidget::SetEnabled(int enabling)
 {
   if (!this->Interactor)
@@ -207,28 +207,28 @@ void vtkCheckerboardWidget::SetEnabled(int enabling)
   this->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCheckerboardWidget::StartCheckerboardInteraction()
 {
   this->Superclass::StartInteraction();
   this->InvokeEvent(vtkCommand::StartInteractionEvent, nullptr);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCheckerboardWidget::CheckerboardInteraction(int sliderNum)
 {
   reinterpret_cast<vtkCheckerboardRepresentation*>(this->WidgetRep)->SliderValueChanged(sliderNum);
   this->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCheckerboardWidget::EndCheckerboardInteraction()
 {
   this->Superclass::EndInteraction();
   this->InvokeEvent(vtkCommand::EndInteractionEvent, nullptr);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCheckerboardWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h

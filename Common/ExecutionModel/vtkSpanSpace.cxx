@@ -100,7 +100,7 @@ struct ComputeRange
   }
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The following tuple is an interface between VTK class and internal class
 struct vtkSpanTuple
 {
@@ -124,7 +124,7 @@ struct vtkSpanTuple
 
 } // anonymous
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This class manages the span space, including methods to create, access, and
 // delete it.
 struct vtkInternalSpanSpace
@@ -202,7 +202,7 @@ struct vtkInternalSpanSpace
   }
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInternalSpanSpace::vtkInternalSpanSpace(
   vtkIdType dim, double sMin, double sMax, vtkIdType numCells)
 {
@@ -219,7 +219,7 @@ vtkInternalSpanSpace::vtkInternalSpanSpace(
   this->NumCandidates = 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInternalSpanSpace::~vtkInternalSpanSpace()
 {
   delete[] this->Offsets;
@@ -228,7 +228,7 @@ vtkInternalSpanSpace::~vtkInternalSpanSpace()
   delete[] this->CandidateCells;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The heart of the algorithm. The cells are sorted in i-j space into
 // a contiguous array. Then the offsets into the array are built.
 void vtkInternalSpanSpace::Build()
@@ -403,7 +403,7 @@ struct MapUGridToSpanSpace
 
 vtkStandardNewMacro(vtkSpanSpace);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Instantiate empty span space object.
 vtkSpanSpace::vtkSpanSpace()
 {
@@ -419,13 +419,13 @@ vtkSpanSpace::vtkSpanSpace()
   this->BatchSize = 100;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSpanSpace::~vtkSpanSpace()
 {
   this->Initialize();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Shallow copy enough information for a clone to produce the same result on
 // the same data.
 void vtkSpanSpace::ShallowCopy(vtkScalarTree* stree)
@@ -443,7 +443,7 @@ void vtkSpanSpace::ShallowCopy(vtkScalarTree* stree)
   this->Superclass::ShallowCopy(stree);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Frees memory and resets object as appropriate.
 void vtkSpanSpace::Initialize()
 {
@@ -454,7 +454,7 @@ void vtkSpanSpace::Initialize()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct the scalar tree / span space from the dataset
 // provided. Checks build times and modified time from input and
 // reconstructs the tree if necessary.
@@ -557,7 +557,7 @@ void vtkSpanSpace::BuildTree()
   this->BuildTime.Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Begin to traverse the cells based on a scalar value. Returned cells
 // will have scalar values that span the scalar value specified.
 void vtkSpanSpace::InitTraversal(double scalarValue)
@@ -575,7 +575,7 @@ void vtkSpanSpace::InitTraversal(double scalarValue)
   this->CurrentIdx = 0; // beginning of current span row
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Return the next cell that may contain scalar value specified to
 // initialize traversal. The value nullptr is returned if the list is
 // exhausted. Make sure that InitTraversal() has been invoked first or
@@ -613,7 +613,7 @@ vtkCell* vtkSpanSpace::GetNextCell(
   return cell;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Note the cell ids are copied into memory (CandidateCells) from
 // which batches are created. This is done for load balancing
 // purposes. The span space can often aggregate many cells in just a
@@ -676,7 +676,7 @@ vtkIdType vtkSpanSpace::GetNumberOfCellBatches(double scalarValue)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Call after GetNumberOfCellBatches(isoValue)
 const vtkIdType* vtkSpanSpace::GetCellBatch(vtkIdType batchNum, vtkIdType& numCells)
 {
@@ -704,7 +704,7 @@ const vtkIdType* vtkSpanSpace::GetCellBatch(vtkIdType batchNum, vtkIdType& numCe
   return sp->CandidateCells + pos;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSpanSpace::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

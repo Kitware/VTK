@@ -29,7 +29,7 @@
 
 vtkStandardNewMacro(vtkLinearCellExtrusionFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLinearCellExtrusionFilter::vtkLinearCellExtrusionFilter()
 {
   // set default array
@@ -37,7 +37,7 @@ vtkLinearCellExtrusionFilter::vtkLinearCellExtrusionFilter()
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, vtkDataSetAttributes::SCALARS);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkLinearCellExtrusionFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -210,7 +210,7 @@ int vtkLinearCellExtrusionFilter::RequestData(vtkInformation* vtkNotUsed(request
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLinearCellExtrusionFilter::CreateDefaultLocator()
 {
   if (!this->Locator)
@@ -219,7 +219,7 @@ void vtkLinearCellExtrusionFilter::CreateDefaultLocator()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLinearCellExtrusionFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -230,7 +230,7 @@ void vtkLinearCellExtrusionFilter::PrintSelf(ostream& os, vtkIndent indent)
      << indent << "MergeDuplicatePoints: " << (this->MergeDuplicatePoints ? "ON" : "OFF") << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkLinearCellExtrusionFilter::FillOutputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {

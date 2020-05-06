@@ -32,7 +32,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestCubeAxesWithZInnerGrids(int argc, char* argv[])
 {
   vtkNew<vtkBYUReader> fohe;

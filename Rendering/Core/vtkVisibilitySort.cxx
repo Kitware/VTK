@@ -29,12 +29,12 @@
 #include "vtkIdList.h"
 #include "vtkMatrix4x4.h"
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkCxxSetObjectMacro(vtkVisibilitySort, Camera, vtkCamera);
 vtkCxxSetObjectMacro(vtkVisibilitySort, Input, vtkDataSet);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkVisibilitySort::vtkVisibilitySort()
 {
@@ -51,7 +51,7 @@ vtkVisibilitySort::vtkVisibilitySort()
   this->MaxCellsReturned = VTK_INT_MAX;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkVisibilitySort::~vtkVisibilitySort()
 {
@@ -62,7 +62,7 @@ vtkVisibilitySort::~vtkVisibilitySort()
   this->SetInput(nullptr);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkVisibilitySort::Register(vtkObjectBase* o)
 {
@@ -80,7 +80,7 @@ void vtkVisibilitySort::ReportReferences(vtkGarbageCollector* collector)
   vtkGarbageCollectorReport(collector, this->Input, "Input");
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkVisibilitySort::SetModelTransform(vtkMatrix4x4* mat)
 {
@@ -101,7 +101,7 @@ void vtkVisibilitySort::SetModelTransform(vtkMatrix4x4* mat)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkVisibilitySort::PrintSelf(ostream& os, vtkIndent indent)
 {

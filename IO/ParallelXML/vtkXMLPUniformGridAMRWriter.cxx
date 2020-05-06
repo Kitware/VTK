@@ -18,12 +18,12 @@
 #include "vtkObjectFactory.h"
 #include <cassert>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkXMLPUniformGridAMRWriter);
 
 vtkCxxSetObjectMacro(vtkXMLPUniformGridAMRWriter, Controller, vtkMultiProcessController);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLPUniformGridAMRWriter::vtkXMLPUniformGridAMRWriter()
 {
   this->Controller = nullptr;
@@ -33,13 +33,13 @@ vtkXMLPUniformGridAMRWriter::vtkXMLPUniformGridAMRWriter()
   this->SetWriteMetaFile(1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLPUniformGridAMRWriter::~vtkXMLPUniformGridAMRWriter()
 {
   this->SetController(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPUniformGridAMRWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -55,7 +55,7 @@ void vtkXMLPUniformGridAMRWriter::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPUniformGridAMRWriter::SetWriteMetaFile(int flag)
 {
   this->Modified();
@@ -72,7 +72,7 @@ void vtkXMLPUniformGridAMRWriter::SetWriteMetaFile(int flag)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPUniformGridAMRWriter::FillDataTypes(vtkCompositeDataSet* cdInput)
 {
   this->Superclass::FillDataTypes(cdInput);

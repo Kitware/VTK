@@ -42,14 +42,14 @@
 
 vtkStandardNewMacro(vtkImageBSplineInterpolator);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageBSplineInterpolator::vtkImageBSplineInterpolator()
 {
   this->SplineDegree = 3;
   this->KernelLookupTable = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageBSplineInterpolator::~vtkImageBSplineInterpolator()
 {
   if (this->KernelLookupTable)
@@ -58,7 +58,7 @@ vtkImageBSplineInterpolator::~vtkImageBSplineInterpolator()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageBSplineInterpolator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -66,7 +66,7 @@ void vtkImageBSplineInterpolator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "SplineDegree: " << this->SplineDegree << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageBSplineInterpolator::ComputeSupportSize(
   const double vtkNotUsed(matrix)[16], int size[3])
 {
@@ -76,13 +76,13 @@ void vtkImageBSplineInterpolator::ComputeSupportSize(
   size[2] = n;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkImageBSplineInterpolator::IsSeparable()
 {
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageBSplineInterpolator::SetSplineDegree(int degree)
 {
   degree = vtkMath::ClampValue(degree, 0, VTK_IMAGE_BSPLINE_DEGREE_MAX);
@@ -93,7 +93,7 @@ void vtkImageBSplineInterpolator::SetSplineDegree(int degree)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageBSplineInterpolator::InternalDeepCopy(vtkAbstractImageInterpolator* a)
 {
   vtkImageBSplineInterpolator* obj = vtkImageBSplineInterpolator::SafeDownCast(a);
@@ -109,7 +109,7 @@ void vtkImageBSplineInterpolator::InternalDeepCopy(vtkAbstractImageInterpolator*
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageBSplineInterpolator::InternalUpdate()
 {
   int mode = this->SplineDegree;
@@ -123,16 +123,16 @@ void vtkImageBSplineInterpolator::InternalUpdate()
   this->InterpolationInfo->ExtraInfo = this->KernelLookupTable;
 }
 
-//----------------------------------------------------------------------------
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //  Interpolation subroutines and associated code
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 namespace
 {
 
 #ifdef VTK_BSPLINE_USE_KERNEL_TABLE
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // B-spline kernel computation: compute half of the symmetric kernel.
 // In the table, x=0.0 corresponds to index position zero, and each
 // "m" bins corresponds to a unit spacing.  The full size of the table
@@ -210,7 +210,7 @@ void vtkBSplineKernel::BSpline(F* kernel, int m, int n)
     } while (--j);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Use kernel lookup table, might improve performance for large kernels
 template <class T, class F>
 void vtkBSplineInterpWeights(T* kernel, F* fX, F fx, int m)
@@ -251,14 +251,14 @@ void vtkBSplineInterpWeights(T* kernel, F* fX, F fx, int m)
 }
 #endif
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class F, class T>
 struct vtkImageBSplineInterpolate
 {
   static void BSpline(vtkInterpolationInfo* info, const F point[3], F* outPtr);
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class F, class T>
 void vtkImageBSplineInterpolate<F, T>::BSpline(
   vtkInterpolationInfo* info, const F point[3], F* outPtr)
@@ -439,7 +439,7 @@ void vtkImageBSplineInterpolate<F, T>::BSpline(
   } while (--numscalars);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the interpolation function for the specified data types
 template <class F>
 void vtkImageBSplineInterpolatorGetInterpolationFunc(
@@ -454,7 +454,7 @@ void vtkImageBSplineInterpolatorGetInterpolationFunc(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Interpolation for precomputed weights
 
 template <class F, class T>
@@ -464,7 +464,7 @@ struct vtkImageBSplineRowInterpolate
     vtkInterpolationWeights* weights, int idX, int idY, int idZ, F* outPtr, int n);
 };
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // helper function for high-order interpolation
 template <class F, class T>
 void vtkImageBSplineRowInterpolate<F, T>::BSpline(
@@ -551,7 +551,7 @@ void vtkImageBSplineRowInterpolate<F, T>::BSpline(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // get row interpolation function for different interpolation modes
 // and different scalar types
 template <class F>
@@ -567,7 +567,7 @@ void vtkImageBSplineInterpolatorGetRowInterpolationFunc(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class F>
 void vtkImageBSplineInterpolatorPrecomputeWeights(const F newmat[16], const int outExt[6],
   int clipExt[6], const F bounds[6], vtkInterpolationWeights* weights)
@@ -747,10 +747,10 @@ void vtkImageBSplineInterpolatorPrecomputeWeights(const F newmat[16], const int 
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 } // ends anonymous namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageBSplineInterpolator::GetInterpolationFunc(
   void (**func)(vtkInterpolationInfo*, const double[3], double*))
 {
@@ -758,7 +758,7 @@ void vtkImageBSplineInterpolator::GetInterpolationFunc(
     func, this->InterpolationInfo->ScalarType, this->SplineDegree);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageBSplineInterpolator::GetInterpolationFunc(
   void (**func)(vtkInterpolationInfo*, const float[3], float*))
 {
@@ -766,7 +766,7 @@ void vtkImageBSplineInterpolator::GetInterpolationFunc(
     func, this->InterpolationInfo->ScalarType, this->SplineDegree);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageBSplineInterpolator::GetRowInterpolationFunc(
   void (**func)(vtkInterpolationWeights*, int, int, int, double*, int))
 {
@@ -774,7 +774,7 @@ void vtkImageBSplineInterpolator::GetRowInterpolationFunc(
     func, this->InterpolationInfo->ScalarType, this->SplineDegree);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageBSplineInterpolator::GetRowInterpolationFunc(
   void (**func)(vtkInterpolationWeights*, int, int, int, float*, int))
 {
@@ -782,7 +782,7 @@ void vtkImageBSplineInterpolator::GetRowInterpolationFunc(
     func, this->InterpolationInfo->ScalarType, this->SplineDegree);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageBSplineInterpolator::PrecomputeWeightsForExtent(
   const double matrix[16], const int extent[6], int newExtent[6], vtkInterpolationWeights*& weights)
 {
@@ -792,7 +792,7 @@ void vtkImageBSplineInterpolator::PrecomputeWeightsForExtent(
     matrix, extent, newExtent, this->StructuredBoundsDouble, weights);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageBSplineInterpolator::PrecomputeWeightsForExtent(
   const float matrix[16], const int extent[6], int newExtent[6], vtkInterpolationWeights*& weights)
 {
@@ -802,13 +802,13 @@ void vtkImageBSplineInterpolator::PrecomputeWeightsForExtent(
     matrix, extent, newExtent, this->StructuredBoundsFloat, weights);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageBSplineInterpolator::FreePrecomputedWeights(vtkInterpolationWeights*& weights)
 {
   this->Superclass::FreePrecomputedWeights(weights);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // build any tables required for the interpolation
 void vtkImageBSplineInterpolator::BuildKernelLookupTable()
 {
@@ -843,7 +843,7 @@ void vtkImageBSplineInterpolator::BuildKernelLookupTable()
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageBSplineInterpolator::FreeKernelLookupTable()
 {
 #ifdef VTK_BSPLINE_USE_KERNEL_TABLE

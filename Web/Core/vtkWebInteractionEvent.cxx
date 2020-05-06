@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkWebInteractionEvent);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkWebInteractionEvent::vtkWebInteractionEvent()
   : Buttons(0)
   , Modifiers(0)
@@ -29,10 +29,10 @@ vtkWebInteractionEvent::vtkWebInteractionEvent()
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkWebInteractionEvent::~vtkWebInteractionEvent() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWebInteractionEvent::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

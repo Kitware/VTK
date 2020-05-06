@@ -47,7 +47,7 @@
 
 vtkStandardNewMacro(vtkInformation);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformation::vtkInformation()
 {
   // Allocate the internal representation.
@@ -57,14 +57,14 @@ vtkInformation::vtkInformation()
   this->Request = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformation::~vtkInformation()
 {
   // Delete the internal representation.
   delete this->Internal;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -77,7 +77,7 @@ void vtkInformation::PrintSelf(ostream& os, vtkIndent indent)
   this->PrintKeys(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::PrintKeys(ostream& os, vtkIndent indent)
 {
   typedef vtkInformationInternals::MapType MapType;
@@ -93,14 +93,14 @@ void vtkInformation::PrintKeys(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // call modified on superclass
 void vtkInformation::Modified()
 {
   this->Superclass::Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Update MTime and invoke a modified event with
 // the information key as call data
 void vtkInformation::Modified(vtkInformationKey* key)
@@ -109,7 +109,7 @@ void vtkInformation::Modified(vtkInformationKey* key)
   this->InvokeEvent(vtkCommand::ModifiedEvent, key);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Return the number of keys as a result of iteration.
 int vtkInformation::GetNumberOfKeys()
 {
@@ -126,7 +126,7 @@ int vtkInformation::GetNumberOfKeys()
   return numberOfKeys;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::SetAsObjectBase(vtkInformationKey* key, vtkObjectBase* newvalue)
 {
   if (!key)
@@ -158,7 +158,7 @@ void vtkInformation::SetAsObjectBase(vtkInformationKey* key, vtkObjectBase* newv
   this->Modified(key);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const vtkObjectBase* vtkInformation::GetAsObjectBase(const vtkInformationKey* key) const
 {
   if (key)
@@ -173,7 +173,7 @@ const vtkObjectBase* vtkInformation::GetAsObjectBase(const vtkInformationKey* ke
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkObjectBase* vtkInformation::GetAsObjectBase(vtkInformationKey* key)
 {
   if (key)
@@ -188,13 +188,13 @@ vtkObjectBase* vtkInformation::GetAsObjectBase(vtkInformationKey* key)
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::Clear()
 {
   this->Copy(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::Copy(vtkInformation* from, int deep)
 {
   vtkInformationInternals* oldInternal = this->Internal;
@@ -211,7 +211,7 @@ void vtkInformation::Copy(vtkInformation* from, int deep)
   delete oldInternal;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::Append(vtkInformation* from, int deep)
 {
   if (from)
@@ -225,7 +225,7 @@ void vtkInformation::Append(vtkInformation* from, int deep)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationKey* key, int deep)
 {
   if (!deep)
@@ -238,7 +238,7 @@ void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationKey* key, int
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationDataObjectKey* key, int deep)
 {
   if (!deep)
@@ -251,7 +251,7 @@ void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationDataObjectKey
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationInformationKey* key, int deep)
 {
   if (!deep)
@@ -264,7 +264,7 @@ void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationInformationKe
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::CopyEntry(
   vtkInformation* from, vtkInformationInformationVectorKey* key, int deep)
 {
@@ -278,7 +278,7 @@ void vtkInformation::CopyEntry(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationIntegerKey* key, int deep)
 {
   if (!deep)
@@ -291,7 +291,7 @@ void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationIntegerKey* k
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationRequestKey* key, int deep)
 {
   if (!deep)
@@ -304,7 +304,7 @@ void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationRequestKey* k
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationIntegerVectorKey* key, int deep)
 {
   if (!deep)
@@ -317,7 +317,7 @@ void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationIntegerVector
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::CopyEntry(
   vtkInformation* from, vtkInformationObjectBaseVectorKey* key, int deep)
 {
@@ -331,7 +331,7 @@ void vtkInformation::CopyEntry(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationDoubleVectorKey* key, int deep)
 {
   if (!deep)
@@ -344,7 +344,7 @@ void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationDoubleVectorK
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationVariantKey* key, int deep)
 {
   if (!deep)
@@ -357,7 +357,7 @@ void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationVariantKey* k
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationVariantVectorKey* key, int deep)
 {
   if (!deep)
@@ -370,7 +370,7 @@ void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationVariantVector
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationStringKey* key, int deep)
 {
   if (!deep)
@@ -383,7 +383,7 @@ void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationStringKey* ke
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationUnsignedLongKey* key, int deep)
 {
   if (!deep)
@@ -396,7 +396,7 @@ void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationUnsignedLongK
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationStringVectorKey* key, int deep)
 {
   if (!deep)
@@ -409,7 +409,7 @@ void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationStringVectorK
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::CopyEntries(vtkInformation* from, vtkInformationKeyVectorKey* key, int deep)
 {
   int numberOfKeys = from->Length(key);
@@ -420,14 +420,14 @@ void vtkInformation::CopyEntries(vtkInformation* from, vtkInformationKeyVectorKe
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkInformation::Has(vtkInformationKey* key)
 {
   // Use the virtual interface in case this is a special-cased key.
   return key->Has(this) ? 1 : 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::Remove(vtkInformationKey* key)
 {
   // Use the virtual interface in case this is a special-cased key.
@@ -447,7 +447,7 @@ int vtkInformation::Has(vtkInformationRequestKey* key)
   return key->vtkInformationRequestKey::Has(this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 #define VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(name, type)                                         \
   void vtkInformation::Set(vtkInformation##name##Key* key, type value) { key->Set(this, value); }  \
   void vtkInformation::Remove(vtkInformation##name##Key* key)                                      \
@@ -471,7 +471,7 @@ VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(ObjectBase, vtkObjectBase*);
 VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(Variant, const vtkVariant&);
 #undef VTK_INFORMATION_DEFINE_SCALAR_PROPERTY
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 #define VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(name, type)                                         \
   void vtkInformation::Append(vtkInformation##name##VectorKey* key, type value)                    \
   {                                                                                                \
@@ -658,7 +658,7 @@ VTK_INFORMATION_DEFINE_VECTOR_VALUE2_PROPERTY(Variant, vtkVariant, const vtkVari
 
 #undef VTK_INFORMATION_DEFINE_VECTOR_PROPERTY
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 #define VTK_INFORMATION_DEFINE_POINTER_PROPERTY(name, type)                                        \
   void vtkInformation::Set(vtkInformation##name##PointerKey* key, type* value, int length)         \
   {                                                                                                \
@@ -681,256 +681,256 @@ VTK_INFORMATION_DEFINE_VECTOR_VALUE2_PROPERTY(Variant, vtkVariant, const vtkVari
 VTK_INFORMATION_DEFINE_POINTER_PROPERTY(Integer, int);
 #undef VTK_INFORMATION_DEFINE_POINTER_PROPERTY
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::Append(vtkInformationKeyVectorKey* key, vtkInformationDataObjectKey* value)
 {
   key->Append(this, value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::Append(vtkInformationKeyVectorKey* key, vtkInformationDoubleKey* value)
 {
   key->Append(this, value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::Append(vtkInformationKeyVectorKey* key, vtkInformationDoubleVectorKey* value)
 {
   key->Append(this, value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::Append(vtkInformationKeyVectorKey* key, vtkInformationInformationKey* value)
 {
   key->Append(this, value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::Remove(vtkInformationKeyVectorKey* key, vtkInformationKey* value)
 {
   key->RemoveItem(this, value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::Append(
   vtkInformationKeyVectorKey* key, vtkInformationInformationVectorKey* value)
 {
   key->Append(this, value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::Append(vtkInformationKeyVectorKey* key, vtkInformationIntegerKey* value)
 {
   key->Append(this, value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::Append(vtkInformationKeyVectorKey* key, vtkInformationIntegerVectorKey* value)
 {
   key->Append(this, value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::Append(vtkInformationKeyVectorKey* key, vtkInformationStringKey* value)
 {
   key->Append(this, value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::Append(vtkInformationKeyVectorKey* key, vtkInformationUnsignedLongKey* value)
 {
   key->Append(this, value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::Append(vtkInformationKeyVectorKey* key, vtkInformationObjectBaseKey* value)
 {
   key->Append(this, value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::Append(vtkInformationKeyVectorKey* key, vtkInformationStringVectorKey* value)
 {
   key->Append(this, value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::AppendUnique(
   vtkInformationKeyVectorKey* key, vtkInformationDataObjectKey* value)
 {
   key->AppendUnique(this, value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::AppendUnique(vtkInformationKeyVectorKey* key, vtkInformationKey* value)
 {
   key->AppendUnique(this, value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::AppendUnique(vtkInformationKeyVectorKey* key, vtkInformationDoubleKey* value)
 {
   key->AppendUnique(this, value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::AppendUnique(
   vtkInformationKeyVectorKey* key, vtkInformationDoubleVectorKey* value)
 {
   key->AppendUnique(this, value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::AppendUnique(
   vtkInformationKeyVectorKey* key, vtkInformationInformationKey* value)
 {
   key->AppendUnique(this, value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::AppendUnique(
   vtkInformationKeyVectorKey* key, vtkInformationInformationVectorKey* value)
 {
   key->AppendUnique(this, value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::AppendUnique(vtkInformationKeyVectorKey* key, vtkInformationIntegerKey* value)
 {
   key->AppendUnique(this, value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::AppendUnique(
   vtkInformationKeyVectorKey* key, vtkInformationIntegerVectorKey* value)
 {
   key->AppendUnique(this, value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::AppendUnique(vtkInformationKeyVectorKey* key, vtkInformationStringKey* value)
 {
   key->AppendUnique(this, value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::AppendUnique(
   vtkInformationKeyVectorKey* key, vtkInformationUnsignedLongKey* value)
 {
   key->AppendUnique(this, value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::AppendUnique(
   vtkInformationKeyVectorKey* key, vtkInformationObjectBaseKey* value)
 {
   key->AppendUnique(this, value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::AppendUnique(
   vtkInformationKeyVectorKey* key, vtkInformationStringVectorKey* value)
 {
   key->AppendUnique(this, value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationKey* vtkInformation::GetKey(vtkInformationKey* key)
 {
   return key;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationKey* vtkInformation::GetKey(vtkInformationDataObjectKey* key)
 {
   return key;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationKey* vtkInformation::GetKey(vtkInformationInformationKey* key)
 {
   return key;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationKey* vtkInformation::GetKey(vtkInformationInformationVectorKey* key)
 {
   return key;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationKey* vtkInformation::GetKey(vtkInformationIntegerKey* key)
 {
   return key;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationKey* vtkInformation::GetKey(vtkInformationRequestKey* key)
 {
   return key;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationKey* vtkInformation::GetKey(vtkInformationDoubleKey* key)
 {
   return key;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationKey* vtkInformation::GetKey(vtkInformationIntegerVectorKey* key)
 {
   return key;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationKey* vtkInformation::GetKey(vtkInformationDoubleVectorKey* key)
 {
   return key;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationKey* vtkInformation::GetKey(vtkInformationStringKey* key)
 {
   return key;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationKey* vtkInformation::GetKey(vtkInformationStringVectorKey* key)
 {
   return key;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationKey* vtkInformation::GetKey(vtkInformationUnsignedLongKey* key)
 {
   return key;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationKey* vtkInformation::GetKey(vtkInformationVariantKey* key)
 {
   return key;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationKey* vtkInformation::GetKey(vtkInformationVariantVectorKey* key)
 {
   return key;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::Register(vtkObjectBase* o)
 {
   this->RegisterInternal(o, 1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::UnRegister(vtkObjectBase* o)
 {
   this->UnRegisterInternal(o, 1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
@@ -942,7 +942,7 @@ void vtkInformation::ReportReferences(vtkGarbageCollector* collector)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::ReportAsObjectBase(vtkInformationKey* key, vtkGarbageCollector* collector)
 {
   if (key)
@@ -956,13 +956,13 @@ void vtkInformation::ReportAsObjectBase(vtkInformationKey* key, vtkGarbageCollec
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformation::SetRequest(vtkInformationRequestKey* request)
 {
   this->Request = request;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationRequestKey* vtkInformation::GetRequest()
 {
   return this->Request;

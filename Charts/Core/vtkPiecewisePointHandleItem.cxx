@@ -69,10 +69,10 @@ class vtkPiecewisePointHandleItem::InternalPiecewisePointHandleInfo
 public:
   PointHandle PointHandles[4];
 };
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPiecewisePointHandleItem);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPiecewisePointHandleItem::vtkPiecewisePointHandleItem()
 {
   this->MouseOverHandleIndex = -1;
@@ -85,7 +85,7 @@ vtkPiecewisePointHandleItem::vtkPiecewisePointHandleItem()
   this->Internal = new InternalPiecewisePointHandleInfo();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPiecewisePointHandleItem::~vtkPiecewisePointHandleItem()
 {
   this->SetPiecewiseFunction(nullptr);
@@ -96,7 +96,7 @@ vtkPiecewisePointHandleItem::~vtkPiecewisePointHandleItem()
   }
   delete this->Internal;
 }
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPiecewisePointHandleItem::SetParent(vtkAbstractContextItem* parent)
 {
   if (this->Parent == parent)
@@ -117,7 +117,7 @@ void vtkPiecewisePointHandleItem::SetParent(vtkAbstractContextItem* parent)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPiecewisePointHandleItem::Paint(vtkContext2D* painter)
 {
   vtkControlPointsItem* parentControl = vtkControlPointsItem::SafeDownCast(this->GetParent());
@@ -250,7 +250,7 @@ bool vtkPiecewisePointHandleItem::Paint(vtkContext2D* painter)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPiecewisePointHandleItem::Hit(const vtkContextMouseEvent& mouse)
 {
   float pos[2] = { mouse.GetScenePos().GetX(), mouse.GetScenePos().GetY() };
@@ -261,7 +261,7 @@ bool vtkPiecewisePointHandleItem::Hit(const vtkContextMouseEvent& mouse)
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPiecewisePointHandleItem::IsOverHandle(float* scenePos)
 {
   vtkControlPointsItem* parentControl = vtkControlPointsItem::SafeDownCast(this->GetParent());
@@ -289,7 +289,7 @@ int vtkPiecewisePointHandleItem::IsOverHandle(float* scenePos)
   return -1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPiecewisePointHandleItem::MouseMoveEvent(const vtkContextMouseEvent& mouse)
 {
   if (mouse.GetButton() == vtkContextMouseEvent::LEFT_BUTTON)
@@ -346,7 +346,7 @@ bool vtkPiecewisePointHandleItem::MouseMoveEvent(const vtkContextMouseEvent& mou
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPiecewisePointHandleItem::MouseButtonPressEvent(const vtkContextMouseEvent&)
 {
   if (this->MouseOverHandleIndex >= 0)
@@ -356,7 +356,7 @@ bool vtkPiecewisePointHandleItem::MouseButtonPressEvent(const vtkContextMouseEve
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPiecewisePointHandleItem::MouseButtonReleaseEvent(const vtkContextMouseEvent&)
 {
   if (this->MouseOverHandleIndex >= 0)
@@ -368,13 +368,13 @@ bool vtkPiecewisePointHandleItem::MouseButtonReleaseEvent(const vtkContextMouseE
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkWeakPointer<vtkPiecewiseFunction> vtkPiecewisePointHandleItem::GetPiecewiseFunction()
 {
   return this->PiecewiseFunction;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPiecewisePointHandleItem::SetPiecewiseFunction(vtkPiecewiseFunction* function)
 {
   if (function == this->PiecewiseFunction)
@@ -393,7 +393,7 @@ void vtkPiecewisePointHandleItem::SetPiecewiseFunction(vtkPiecewiseFunction* fun
   }
   this->Redraw();
 }
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPiecewisePointHandleItem::Redraw()
 {
   if (this->Scene)
@@ -401,7 +401,7 @@ void vtkPiecewisePointHandleItem::Redraw()
     this->Scene->SetDirty(true);
   }
 }
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPiecewisePointHandleItem::CallRedraw(
   vtkObject* vtkNotUsed(sender), unsigned long event, void* receiver, void* vtkNotUsed(params))
 {
@@ -418,7 +418,7 @@ void vtkPiecewisePointHandleItem::CallRedraw(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPiecewisePointHandleItem::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

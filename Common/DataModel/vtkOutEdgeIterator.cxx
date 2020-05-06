@@ -26,7 +26,7 @@
 
 vtkCxxSetObjectMacro(vtkOutEdgeIterator, Graph, vtkGraph);
 vtkStandardNewMacro(vtkOutEdgeIterator);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOutEdgeIterator::vtkOutEdgeIterator()
 {
   this->Vertex = 0;
@@ -36,7 +36,7 @@ vtkOutEdgeIterator::vtkOutEdgeIterator()
   this->GraphEdge = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOutEdgeIterator::~vtkOutEdgeIterator()
 {
   if (this->Graph)
@@ -49,7 +49,7 @@ vtkOutEdgeIterator::~vtkOutEdgeIterator()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOutEdgeIterator::Initialize(vtkGraph* graph, vtkIdType v)
 {
   this->SetGraph(graph);
@@ -59,7 +59,7 @@ void vtkOutEdgeIterator::Initialize(vtkGraph* graph, vtkIdType v)
   this->End = this->Current + nedges;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGraphEdge* vtkOutEdgeIterator::NextGraphEdge()
 {
   vtkOutEdgeType e = this->Next();
@@ -73,7 +73,7 @@ vtkGraphEdge* vtkOutEdgeIterator::NextGraphEdge()
   return this->GraphEdge;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOutEdgeIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

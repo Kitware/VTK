@@ -77,12 +77,12 @@ POSSIBILITY OF SUCH DAMAGES.
 #define VTK_BINARY 2
 #endif
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkMNIObjectReader);
 
 #define VTK_MNIOBJ_LINE_LENGTH 256
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMNIObjectReader::vtkMNIObjectReader()
 {
   this->SetNumberOfInputPorts(0);
@@ -102,7 +102,7 @@ vtkMNIObjectReader::vtkMNIObjectReader()
   this->CharPointer = this->LineText;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMNIObjectReader::~vtkMNIObjectReader()
 {
   if (this->Property)
@@ -113,7 +113,7 @@ vtkMNIObjectReader::~vtkMNIObjectReader()
   delete[] this->LineText;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMNIObjectReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -126,7 +126,7 @@ void vtkMNIObjectReader::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNIObjectReader::CanReadFile(const char* fname)
 {
   // First make sure the file exists.  This prevents an empty file
@@ -163,7 +163,7 @@ int vtkMNIObjectReader::CanReadFile(const char* fname)
   return status;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Internal function to read in a line up to 256 characters and then
 // skip to the next line in the file.
 int vtkMNIObjectReader::ReadLine(char* line, unsigned int maxlen)
@@ -193,7 +193,7 @@ int vtkMNIObjectReader::ReadLine(char* line, unsigned int maxlen)
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Skip all whitespace, reading additional lines if necessary
 int vtkMNIObjectReader::SkipWhitespace()
 {
@@ -223,7 +223,7 @@ int vtkMNIObjectReader::SkipWhitespace()
   return 0;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Read floating-point values into a vtkFloatArray.
 int vtkMNIObjectReader::ParseValues(vtkDataArray* array, vtkIdType n)
 {
@@ -317,7 +317,7 @@ int vtkMNIObjectReader::ParseValues(vtkDataArray* array, vtkIdType n)
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Read an integer value
 int vtkMNIObjectReader::ParseIdValue(vtkIdType* value)
 {
@@ -361,7 +361,7 @@ int vtkMNIObjectReader::ParseIdValue(vtkIdType* value)
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNIObjectReader::ReadProperty(vtkProperty* property)
 {
   vtkFloatArray* tmpArray = vtkFloatArray::New();
@@ -382,7 +382,7 @@ int vtkMNIObjectReader::ReadProperty(vtkProperty* property)
   return status;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNIObjectReader::ReadLineThickness(vtkProperty* property)
 {
   vtkFloatArray* tmpArray = vtkFloatArray::New();
@@ -399,7 +399,7 @@ int vtkMNIObjectReader::ReadLineThickness(vtkProperty* property)
   return status;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNIObjectReader::ReadNumberOfPoints(vtkIdType* numPoints)
 {
   int status = this->ParseIdValue(numPoints);
@@ -423,7 +423,7 @@ int vtkMNIObjectReader::ReadNumberOfPoints(vtkIdType* numPoints)
 
   return status;
 }
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNIObjectReader::ReadNumberOfCells(vtkIdType* numCells)
 {
   int status = this->ParseIdValue(numCells);
@@ -447,7 +447,7 @@ int vtkMNIObjectReader::ReadNumberOfCells(vtkIdType* numCells)
   return status;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNIObjectReader::ReadPoints(vtkPolyData* data, vtkIdType numPoints)
 {
   vtkPoints* points = vtkPoints::New();
@@ -463,7 +463,7 @@ int vtkMNIObjectReader::ReadPoints(vtkPolyData* data, vtkIdType numPoints)
   return status;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNIObjectReader::ReadNormals(vtkPolyData* data, vtkIdType numPoints)
 {
   vtkFloatArray* normals = vtkFloatArray::New();
@@ -480,7 +480,7 @@ int vtkMNIObjectReader::ReadNormals(vtkPolyData* data, vtkIdType numPoints)
   return status;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNIObjectReader::ReadColors(
   vtkProperty* property, vtkPolyData* data, vtkIdType numPoints, vtkIdType numCells)
 {
@@ -541,7 +541,7 @@ int vtkMNIObjectReader::ReadColors(
   return status;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNIObjectReader::ReadCells(vtkPolyData* data, vtkIdType numCells, int cellType)
 {
   vtkIntArray* endIndices = vtkIntArray::New();
@@ -611,7 +611,7 @@ int vtkMNIObjectReader::ReadCells(vtkPolyData* data, vtkIdType numCells, int cel
   return status;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNIObjectReader::ReadPolygonObject(vtkPolyData* output)
 {
   // Read the surface property
@@ -661,7 +661,7 @@ int vtkMNIObjectReader::ReadPolygonObject(vtkPolyData* output)
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNIObjectReader::ReadLineObject(vtkPolyData* output)
 {
   // Read the line thickness
@@ -705,7 +705,7 @@ int vtkMNIObjectReader::ReadLineObject(vtkPolyData* output)
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNIObjectReader::ReadFile(vtkPolyData* output)
 {
   // Initialize the property to default values
@@ -832,7 +832,7 @@ int vtkMNIObjectReader::ReadFile(vtkPolyData* output)
   return status;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNIObjectReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {

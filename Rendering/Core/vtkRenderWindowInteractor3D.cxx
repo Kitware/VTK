@@ -30,7 +30,7 @@
 
 vtkStandardNewMacro(vtkRenderWindowInteractor3D);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct object so that light follows camera motion.
 vtkRenderWindowInteractor3D::vtkRenderWindowInteractor3D()
 {
@@ -40,10 +40,10 @@ vtkRenderWindowInteractor3D::vtkRenderWindowInteractor3D()
   this->SetInteractorStyle(style);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRenderWindowInteractor3D::~vtkRenderWindowInteractor3D() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderWindowInteractor3D::Enable()
 {
   if (this->Enabled)
@@ -54,7 +54,7 @@ void vtkRenderWindowInteractor3D::Enable()
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderWindowInteractor3D::Disable()
 {
   if (!this->Enabled)
@@ -66,14 +66,14 @@ void vtkRenderWindowInteractor3D::Disable()
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderWindowInteractor3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "StartedMessageLoop: " << this->StartedMessageLoop << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderWindowInteractor3D::SetTranslation3D(double val[3])
 {
   this->LastTranslation3D[0] = this->Translation3D[0];
@@ -89,7 +89,7 @@ void vtkRenderWindowInteractor3D::SetTranslation3D(double val[3])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderWindowInteractor3D::RecognizeGesture(vtkCommand::EventIds event)
 {
   // we know we are in multitouch now, so start recognizing

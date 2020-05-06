@@ -29,37 +29,37 @@
 
 vtkStandardNewMacro(vtkXMLPTableWriter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLPTableWriter::vtkXMLPTableWriter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLPTableWriter::~vtkXMLPTableWriter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPTableWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTable* vtkXMLPTableWriter::GetInput()
 {
   return vtkTable::SafeDownCast(this->Superclass::GetInput());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXMLPTableWriter::GetDataSetName()
 {
   return "PTable";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXMLPTableWriter::GetDefaultFileExtension()
 {
   return "pvtt";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLWriter* vtkXMLPTableWriter::CreatePieceWriter(int index)
 {
   // Create the writer for the piece.
@@ -71,14 +71,14 @@ vtkXMLWriter* vtkXMLPTableWriter::CreatePieceWriter(int index)
   return pWriter;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPTableWriter::WritePData(vtkIndent indent)
 {
   vtkTable* input = this->GetInput();
   this->WritePRowData(input->GetRowData(), indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPTableWriter::WritePieceInternal()
 {
   int piece = this->GetCurrentPiece();
@@ -97,7 +97,7 @@ int vtkXMLPTableWriter::WritePieceInternal()
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPTableWriter::WritePiece(int index)
 {
   // Create the writer for the piece.  Its configuration should match
@@ -134,7 +134,7 @@ int vtkXMLPTableWriter::WritePiece(int index)
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPTableWriter::WritePRowData(vtkDataSetAttributes* ds, vtkIndent indent)
 {
   if (ds->GetNumberOfArrays() == 0)
@@ -173,7 +173,7 @@ void vtkXMLPTableWriter::WritePRowData(vtkDataSetAttributes* ds, vtkIndent inden
   this->DestroyStringArray(ds->GetNumberOfArrays(), names);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPTableWriter::SetupPieceFileNameExtension()
 {
   this->Superclass::SetupPieceFileNameExtension();
@@ -187,7 +187,7 @@ void vtkXMLPTableWriter::SetupPieceFileNameExtension()
   writer->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPTableWriter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");

@@ -21,7 +21,7 @@
 //============================================================================
 vtkStandardNewMacro(vtkWin32HardwareWindow);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkWin32HardwareWindow::vtkWin32HardwareWindow()
   : ApplicationInstance(0)
   , ParentId(0)
@@ -29,10 +29,10 @@ vtkWin32HardwareWindow::vtkWin32HardwareWindow()
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkWin32HardwareWindow::~vtkWin32HardwareWindow() {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWin32HardwareWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -78,7 +78,7 @@ void* vtkWin32HardwareWindow::GetGenericParentId()
   return this->ParentId;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 namespace
 {
 void AdjustWindowRectForBorders(

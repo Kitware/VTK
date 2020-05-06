@@ -28,7 +28,7 @@
 
 #include "vtkRenderWindowInteractor.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestSetZBuffer(int argc, char* argv[])
 {
   vtkNew<vtkActor> actor;

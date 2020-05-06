@@ -42,7 +42,7 @@
 vtkStandardNewMacro(vtkClipDataSet);
 vtkCxxSetObjectMacro(vtkClipDataSet, ClipFunction, vtkImplicitFunction);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct with user-specified implicit function; InsideOut turned off; value
 // set to 0.0; and generate clip scalars turned off.
 vtkClipDataSet::vtkClipDataSet(vtkImplicitFunction* cf)
@@ -73,7 +73,7 @@ vtkClipDataSet::vtkClipDataSet(vtkImplicitFunction* cf)
   this->InternalProgressObserver->SetClientData(this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkClipDataSet::~vtkClipDataSet()
 {
   if (this->Locator)
@@ -85,7 +85,7 @@ vtkClipDataSet::~vtkClipDataSet()
   this->InternalProgressObserver->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkClipDataSet::InternalProgressCallbackFunction(
   vtkObject* arg, unsigned long, void* clientdata, void*)
 {
@@ -93,7 +93,7 @@ void vtkClipDataSet::InternalProgressCallbackFunction(
     ->InternalProgressCallback(static_cast<vtkAlgorithm*>(arg));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkClipDataSet::InternalProgressCallback(vtkAlgorithm* algorithm)
 {
   float progress = algorithm->GetProgress();
@@ -104,7 +104,7 @@ void vtkClipDataSet::InternalProgressCallback(vtkAlgorithm* algorithm)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Overload standard modified time function. If Clip functions is modified,
 // then this object is modified as well.
 vtkMTimeType vtkClipDataSet::GetMTime()
@@ -126,7 +126,7 @@ vtkMTimeType vtkClipDataSet::GetMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUnstructuredGrid* vtkClipDataSet::GetClippedOutput()
 {
   if (!this->GenerateClippedOutput)
@@ -136,7 +136,7 @@ vtkUnstructuredGrid* vtkClipDataSet::GetClippedOutput()
   return vtkUnstructuredGrid::SafeDownCast(this->GetExecutive()->GetOutputData(1));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 // Clip through data generating surface.
 //
@@ -485,7 +485,7 @@ int vtkClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkClipDataSet::ClipPoints(
   vtkDataSet* input, vtkUnstructuredGrid* output, vtkInformationVector** inputVector)
 {
@@ -569,7 +569,7 @@ int vtkClipDataSet::ClipPoints(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify a spatial locator for merging points. By default,
 // an instance of vtkMergePoints is used.
 void vtkClipDataSet::SetLocator(vtkIncrementalPointLocator* locator)
@@ -594,7 +594,7 @@ void vtkClipDataSet::SetLocator(vtkIncrementalPointLocator* locator)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkClipDataSet::CreateDefaultLocator()
 {
   if (this->Locator == nullptr)
@@ -605,7 +605,7 @@ void vtkClipDataSet::CreateDefaultLocator()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkClipDataSet::ClipVolume(vtkDataSet* input, vtkUnstructuredGrid* output)
 {
   vtkClipVolume* clipVolume = vtkClipVolume::New();
@@ -643,14 +643,14 @@ void vtkClipDataSet::ClipVolume(vtkDataSet* input, vtkUnstructuredGrid* output)
   tmp->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkClipDataSet::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkClipDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

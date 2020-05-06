@@ -18,13 +18,13 @@
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLVertexBufferObject.h"
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOpenGLVertexBufferObjectCache);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenGLVertexBufferObjectCache::vtkOpenGLVertexBufferObjectCache() = default;
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenGLVertexBufferObjectCache::~vtkOpenGLVertexBufferObjectCache() = default;
 
 void vtkOpenGLVertexBufferObjectCache::RemoveVBO(vtkOpenGLVertexBufferObject* vbo)
@@ -44,7 +44,7 @@ void vtkOpenGLVertexBufferObjectCache::RemoveVBO(vtkOpenGLVertexBufferObject* vb
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenGLVertexBufferObject* vtkOpenGLVertexBufferObjectCache::GetVBO(
   vtkDataArray* array, int destType)
 {
@@ -77,7 +77,7 @@ vtkOpenGLVertexBufferObject* vtkOpenGLVertexBufferObjectCache::GetVBO(
   return vbo;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLVertexBufferObjectCache::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

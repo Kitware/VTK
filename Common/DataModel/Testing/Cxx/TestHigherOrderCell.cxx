@@ -33,7 +33,7 @@ static unsigned char HigherOrderCell[][depth] = {
     VTK_NUMBER_OF_CELL_TYPES }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Simply set the points to the pcoords coordinate
 // and the point id to the natural order
 void InitializeACell(vtkCell* cell)
@@ -52,7 +52,7 @@ void InitializeACell(vtkCell* cell)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // c1 is the reference cell. In the test this is the linear cell
 // and thus c2 is the higher order one. We need to check that result on c1
 // are consistent with result on c2 (but we cannot say anything after that)
@@ -87,7 +87,7 @@ int CompareHigherOrderCell(vtkCell* c1, vtkCell* c2)
   return rval;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestHigherOrderCell(int, char*[])
 {
   int rval = 0;

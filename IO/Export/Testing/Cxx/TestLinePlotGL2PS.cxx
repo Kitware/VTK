@@ -27,7 +27,7 @@
 #include "vtkTable.h"
 #include "vtkTestingInteractor.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestLinePlotGL2PS(int, char*[])
 {
   // Set up a 2D scene, add an XY chart to it

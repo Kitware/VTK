@@ -44,7 +44,7 @@ vtkStandardNewMacro(vtkContinuousScatterplot);
 // Each face of the fragment can be represented using a vtkIdList.
 typedef std::vector<vtkSmartPointer<vtkIdList>>* Polytope;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkContinuousScatterplot::vtkContinuousScatterplot()
 {
   // value for floating comparison. Suppose two floating values a and b:
@@ -62,36 +62,36 @@ vtkContinuousScatterplot::vtkContinuousScatterplot()
   output->Delete();
   this->Fields[0] = this->Fields[1] = nullptr;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContinuousScatterplot::SetField1(const char* nm, vtkIdType xRes)
 {
   this->Fields[0] = nm;
   this->ResX = xRes;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContinuousScatterplot::SetField2(const char* nm, vtkIdType yRes)
 {
   this->Fields[1] = nm;
   this->ResY = yRes;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContinuousScatterplot::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkContinuousScatterplot::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
   return 1;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkContinuousScatterplot::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageData");
   return 1;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkContinuousScatterplot::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

@@ -23,19 +23,19 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkXMLStructuredDataWriter.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLPStructuredDataWriter::vtkXMLPStructuredDataWriter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLPStructuredDataWriter::~vtkXMLPStructuredDataWriter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPStructuredDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPStructuredDataWriter::WriteInternal()
 {
   int retVal = this->Superclass::WriteInternal();
@@ -46,7 +46,7 @@ int vtkXMLPStructuredDataWriter::WriteInternal()
   return retVal;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPStructuredDataWriter::WritePrimaryElementAttributes(ostream& os, vtkIndent indent)
 {
   int* wExt =
@@ -55,7 +55,7 @@ void vtkXMLPStructuredDataWriter::WritePrimaryElementAttributes(ostream& os, vtk
   this->Superclass::WritePrimaryElementAttributes(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPStructuredDataWriter::WritePPieceAttributes(int index)
 {
   if (this->Extents.find(index) != this->Extents.end())
@@ -69,7 +69,7 @@ void vtkXMLPStructuredDataWriter::WritePPieceAttributes(int index)
   this->Superclass::WritePPieceAttributes(index);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLWriter* vtkXMLPStructuredDataWriter::CreatePieceWriter(int index)
 {
   vtkXMLStructuredDataWriter* pWriter = this->CreateStructuredPieceWriter();
@@ -80,7 +80,7 @@ vtkXMLWriter* vtkXMLPStructuredDataWriter::CreatePieceWriter(int index)
   return pWriter;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPStructuredDataWriter::PrepareSummaryFile()
 {
   this->Superclass::PrepareSummaryFile();
@@ -160,7 +160,7 @@ void vtkXMLPStructuredDataWriter::PrepareSummaryFile()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPStructuredDataWriter::WritePiece(int index)
 {
   int result = this->Superclass::WritePiece(index);

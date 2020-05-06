@@ -28,7 +28,7 @@
 
 #include "vtkRegressionTestImage.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestHeatmapCategoryLegend(int argc, char* argv[])
 {
   vtkNew<vtkTable> table;

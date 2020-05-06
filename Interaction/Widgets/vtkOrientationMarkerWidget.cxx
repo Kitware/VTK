@@ -53,7 +53,7 @@ public:
   vtkOrientationMarkerWidget* OrientationMarkerWidget;
 };
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOrientationMarkerWidget::vtkOrientationMarkerWidget()
 {
   this->StartEventObserverId = 0;
@@ -109,7 +109,7 @@ vtkOrientationMarkerWidget::vtkOrientationMarkerWidget()
   tcoord->Delete();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOrientationMarkerWidget::~vtkOrientationMarkerWidget()
 {
   if (this->Enabled)
@@ -126,7 +126,7 @@ vtkOrientationMarkerWidget::~vtkOrientationMarkerWidget()
   this->Outline->Delete();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientationMarkerWidget::SetEnabled(int value)
 {
   if (!this->Interactor)
@@ -171,7 +171,7 @@ void vtkOrientationMarkerWidget::SetEnabled(int value)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientationMarkerWidget::SetupWindowInteraction()
 {
   vtkRenderWindow* renwin = this->CurrentRenderer->GetRenderWindow();
@@ -213,7 +213,7 @@ void vtkOrientationMarkerWidget::SetupWindowInteraction()
     this->CurrentRenderer->AddObserver(vtkCommand::StartEvent, this->Observer, 1);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientationMarkerWidget::TearDownWindowInteraction()
 {
   if (this->StartEventObserverId != 0)
@@ -236,7 +236,7 @@ void vtkOrientationMarkerWidget::TearDownWindowInteraction()
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientationMarkerWidget::ExecuteCameraUpdateEvent(
   vtkObject* vtkNotUsed(o), unsigned long vtkNotUsed(event), void* vtkNotUsed(calldata))
 {
@@ -260,7 +260,7 @@ void vtkOrientationMarkerWidget::ExecuteCameraUpdateEvent(
   this->UpdateOutline();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkOrientationMarkerWidget::ComputeStateBasedOnPosition(int X, int Y, int* pos1, int* pos2)
 {
   if (X < (pos1[0] - this->Tolerance) || (pos2[0] + this->Tolerance) < X ||
@@ -323,7 +323,7 @@ int vtkOrientationMarkerWidget::ComputeStateBasedOnPosition(int X, int Y, int* p
   return result;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientationMarkerWidget::SetCursor(int state)
 {
   switch (state)
@@ -352,7 +352,7 @@ void vtkOrientationMarkerWidget::SetCursor(int state)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientationMarkerWidget::ProcessEvents(
   vtkObject* vtkNotUsed(object), unsigned long event, void* clientdata, void* vtkNotUsed(calldata))
 {
@@ -377,7 +377,7 @@ void vtkOrientationMarkerWidget::ProcessEvents(
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientationMarkerWidget::OnLeftButtonDown()
 {
   // We're only here if we are enabled
@@ -413,7 +413,7 @@ void vtkOrientationMarkerWidget::OnLeftButtonDown()
   this->InvokeEvent(vtkCommand::StartInteractionEvent, nullptr);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientationMarkerWidget::OnLeftButtonUp()
 {
   if (this->State == vtkOrientationMarkerWidget::Outside)
@@ -435,7 +435,7 @@ void vtkOrientationMarkerWidget::OnLeftButtonUp()
   this->Interactor->Render();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientationMarkerWidget::SquareRenderer()
 {
   int* size = this->Renderer->GetSize();
@@ -492,7 +492,7 @@ void vtkOrientationMarkerWidget::SquareRenderer()
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientationMarkerWidget::UpdateOutline()
 {
   double vp[4];
@@ -510,7 +510,7 @@ void vtkOrientationMarkerWidget::UpdateOutline()
   this->Outline->Modified();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientationMarkerWidget::SetInteractive(vtkTypeBool interact)
 {
   if (this->Interactor && this->Enabled)
@@ -545,7 +545,7 @@ void vtkOrientationMarkerWidget::SetInteractive(vtkTypeBool interact)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientationMarkerWidget::OnMouseMove()
 {
   // compute some info we need for all cases
@@ -600,7 +600,7 @@ void vtkOrientationMarkerWidget::OnMouseMove()
   this->Interactor->Render();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientationMarkerWidget::MoveWidget(int X, int Y)
 {
   int dx = X - this->StartPosition[0];
@@ -653,7 +653,7 @@ void vtkOrientationMarkerWidget::MoveWidget(int X, int Y)
   this->UpdateViewport();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientationMarkerWidget::ResizeTopLeft(int X, int Y)
 {
   int dx = X - this->StartPosition[0];
@@ -714,7 +714,7 @@ void vtkOrientationMarkerWidget::ResizeTopLeft(int X, int Y)
   this->UpdateViewport();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientationMarkerWidget::ResizeTopRight(int X, int Y)
 {
   int dx = X - this->StartPosition[0];
@@ -775,7 +775,7 @@ void vtkOrientationMarkerWidget::ResizeTopRight(int X, int Y)
   this->UpdateViewport();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientationMarkerWidget::ResizeBottomRight(int X, int Y)
 {
   int dx = X - this->StartPosition[0];
@@ -836,7 +836,7 @@ void vtkOrientationMarkerWidget::ResizeBottomRight(int X, int Y)
   this->UpdateViewport();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientationMarkerWidget::ResizeBottomLeft(int X, int Y)
 {
   int dx = X - this->StartPosition[0];
@@ -897,7 +897,7 @@ void vtkOrientationMarkerWidget::ResizeBottomLeft(int X, int Y)
   this->UpdateViewport();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientationMarkerWidget::SetOutlineColor(double r, double g, double b)
 {
   this->OutlineActor->GetProperty()->SetColor(r, g, b);
@@ -907,13 +907,13 @@ void vtkOrientationMarkerWidget::SetOutlineColor(double r, double g, double b)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkOrientationMarkerWidget::GetOutlineColor()
 {
   return this->OutlineActor->GetProperty()->GetColor();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientationMarkerWidget::UpdateViewport()
 {
   if (!this->CurrentRenderer)
@@ -935,7 +935,7 @@ void vtkOrientationMarkerWidget::UpdateViewport()
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientationMarkerWidget::UpdateInternalViewport()
 {
   if (!this->Renderer || !this->GetCurrentRenderer())
@@ -956,14 +956,14 @@ void vtkOrientationMarkerWidget::UpdateInternalViewport()
   this->Renderer->SetViewport(vp);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientationMarkerWidget::Modified()
 {
   this->UpdateInternalViewport();
   this->vtkInteractorObserver::Modified();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientationMarkerWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

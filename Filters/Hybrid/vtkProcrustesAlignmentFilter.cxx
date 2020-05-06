@@ -27,7 +27,7 @@
 
 vtkStandardNewMacro(vtkProcrustesAlignmentFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // protected
 vtkProcrustesAlignmentFilter::vtkProcrustesAlignmentFilter()
 {
@@ -39,7 +39,7 @@ vtkProcrustesAlignmentFilter::vtkProcrustesAlignmentFilter()
   this->MeanPoints = vtkPoints::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // protected
 vtkProcrustesAlignmentFilter::~vtkProcrustesAlignmentFilter()
 {
@@ -53,7 +53,7 @@ vtkProcrustesAlignmentFilter::~vtkProcrustesAlignmentFilter()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Calculate the centroid of a point cloud
 static inline void Centroid(vtkPoints* pd, double* cp)
 {
@@ -78,7 +78,7 @@ static inline void Centroid(vtkPoints* pd, double* cp)
   cp[2] /= np;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Calculate the centroid size of a point cloud
 static inline double CentroidSize(vtkPoints* pd, double* cp)
 {
@@ -95,7 +95,7 @@ static inline double CentroidSize(vtkPoints* pd, double* cp)
   return sqrt(S);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Translation of point cloud. Could be done using transformations
 static inline void TranslateShape(vtkPoints* pd, double* tp)
 {
@@ -107,7 +107,7 @@ static inline void TranslateShape(vtkPoints* pd, double* tp)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Scaling of point cloud. Could be done using transformations
 static inline void ScaleShape(vtkPoints* pd, double S)
 {
@@ -119,7 +119,7 @@ static inline void ScaleShape(vtkPoints* pd, double S)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Normalise a point cloud to have centroid (0,0,0) and centroid size 1
 static inline int NormaliseShape(vtkPoints* pd)
 {
@@ -137,7 +137,7 @@ static inline int NormaliseShape(vtkPoints* pd)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // protected
 int vtkProcrustesAlignmentFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -466,7 +466,7 @@ int vtkProcrustesAlignmentFilter::RequestData(vtkInformation* vtkNotUsed(request
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // public
 void vtkProcrustesAlignmentFilter::PrintSelf(ostream& os, vtkIndent indent)
 {

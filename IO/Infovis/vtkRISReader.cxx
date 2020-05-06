@@ -36,7 +36,7 @@ vtkStandardNewMacro(vtkRISReader);
 // we have to provide our own
 static istream& my_getline(istream& input, std::string& output, char delimiter = '\n');
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkRISReader::vtkRISReader()
   : FileName(nullptr)
@@ -49,7 +49,7 @@ vtkRISReader::vtkRISReader()
   this->SetNumberOfOutputPorts(1);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkRISReader::~vtkRISReader()
 {
@@ -57,7 +57,7 @@ vtkRISReader::~vtkRISReader()
   this->SetFileName(nullptr);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkRISReader::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -67,7 +67,7 @@ void vtkRISReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MaxRecords: " << this->MaxRecords << endl;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkRISReader::RequestData(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
@@ -260,7 +260,7 @@ int vtkRISReader::RequestData(
   return 1;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static istream& my_getline(istream& input, std::string& output, char delimiter)
 {
   output = "";

@@ -30,7 +30,7 @@ vtkStandardNewMacro(vtkProcessIdScalars);
 
 vtkCxxSetObjectMacro(vtkProcessIdScalars, Controller, vtkMultiProcessController);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProcessIdScalars::vtkProcessIdScalars()
 {
   this->CellScalarsFlag = 0;
@@ -43,7 +43,7 @@ vtkProcessIdScalars::vtkProcessIdScalars()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProcessIdScalars::~vtkProcessIdScalars()
 {
   if (this->Controller)
@@ -53,7 +53,7 @@ vtkProcessIdScalars::~vtkProcessIdScalars()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Append data sets into single unstructured grid
 int vtkProcessIdScalars::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -107,7 +107,7 @@ int vtkProcessIdScalars::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIntArray* vtkProcessIdScalars::MakeProcessIdScalars(int piece, vtkIdType num)
 {
   vtkIntArray* pieceColors = vtkIntArray::New();
@@ -121,7 +121,7 @@ vtkIntArray* vtkProcessIdScalars::MakeProcessIdScalars(int piece, vtkIdType num)
   return pieceColors;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFloatArray* vtkProcessIdScalars::MakeRandomScalars(int piece, vtkIdType num)
 {
   vtkMath::RandomSeed(piece);
@@ -138,7 +138,7 @@ vtkFloatArray* vtkProcessIdScalars::MakeRandomScalars(int piece, vtkIdType num)
   return pieceColors;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProcessIdScalars::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

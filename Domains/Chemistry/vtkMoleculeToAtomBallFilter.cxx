@@ -28,7 +28,7 @@
 
 vtkStandardNewMacro(vtkMoleculeToAtomBallFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMoleculeToAtomBallFilter::vtkMoleculeToAtomBallFilter()
   : Resolution(50)
   , RadiusScale(0.8)
@@ -36,10 +36,10 @@ vtkMoleculeToAtomBallFilter::vtkMoleculeToAtomBallFilter()
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMoleculeToAtomBallFilter::~vtkMoleculeToAtomBallFilter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMoleculeToAtomBallFilter::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -158,7 +158,7 @@ int vtkMoleculeToAtomBallFilter::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMoleculeToAtomBallFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

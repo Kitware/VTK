@@ -25,7 +25,7 @@ vtkAMRDataInternals::Block::Block(unsigned int i, vtkUniformGrid* g)
   this->Grid = g;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkAMRDataInternals::vtkAMRDataInternals()
   : InternalIndex(nullptr)

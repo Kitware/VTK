@@ -133,7 +133,7 @@ struct MapWorker
 } // end anon namespace
 
 //=================================Begin class proper=========================
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct object with scalar range (-1,1).
 vtkVectorDot::vtkVectorDot()
 {
@@ -146,7 +146,7 @@ vtkVectorDot::vtkVectorDot()
   this->ActualRange[1] = 1.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Compute dot product.
 //
 int vtkVectorDot::RequestData(vtkInformation* vtkNotUsed(request),
@@ -235,7 +235,7 @@ int vtkVectorDot::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVectorDot::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

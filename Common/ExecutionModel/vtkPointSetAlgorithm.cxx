@@ -26,7 +26,7 @@
 
 vtkStandardNewMacro(vtkPointSetAlgorithm);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Instantiate object so that cell data is not passed to output.
 vtkPointSetAlgorithm::vtkPointSetAlgorithm()
 {
@@ -34,94 +34,94 @@ vtkPointSetAlgorithm::vtkPointSetAlgorithm()
   this->SetNumberOfOutputPorts(1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPointSet* vtkPointSetAlgorithm::GetOutput()
 {
   return this->GetOutput(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPointSet* vtkPointSetAlgorithm::GetOutput(int port)
 {
   return vtkPointSet::SafeDownCast(this->GetOutputDataObject(port));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the output as vtkPolyData.
 vtkPolyData* vtkPointSetAlgorithm::GetPolyDataOutput()
 {
   return vtkPolyData::SafeDownCast(this->GetOutput());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the output as vtkStructuredGrid.
 vtkStructuredGrid* vtkPointSetAlgorithm::GetStructuredGridOutput()
 {
   return vtkStructuredGrid::SafeDownCast(this->GetOutput());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the output as vtkUnstructuredGrid.
 vtkUnstructuredGrid* vtkPointSetAlgorithm::GetUnstructuredGridOutput()
 {
   return vtkUnstructuredGrid::SafeDownCast(this->GetOutput());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointSetAlgorithm::SetInputData(vtkDataObject* input)
 {
   this->SetInputData(0, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointSetAlgorithm::SetInputData(int index, vtkDataObject* input)
 {
   this->SetInputDataInternal(index, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointSetAlgorithm::SetInputData(vtkPointSet* input)
 {
   this->SetInputData(0, static_cast<vtkDataObject*>(input));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointSetAlgorithm::SetInputData(int index, vtkPointSet* input)
 {
   this->SetInputData(index, static_cast<vtkDataObject*>(input));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointSetAlgorithm::AddInputData(vtkDataObject* input)
 {
   this->AddInputData(0, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointSetAlgorithm::AddInputData(int index, vtkDataObject* input)
 {
   this->AddInputDataInternal(index, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointSetAlgorithm::AddInputData(vtkPointSet* input)
 {
   this->AddInputData(0, static_cast<vtkDataObject*>(input));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointSetAlgorithm::AddInputData(int index, vtkPointSet* input)
 {
   this->AddInputData(index, static_cast<vtkDataObject*>(input));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject* vtkPointSetAlgorithm::GetInput()
 {
   return this->GetExecutive()->GetInputData(0, 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkPointSetAlgorithm::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -151,7 +151,7 @@ vtkTypeBool vtkPointSetAlgorithm::ProcessRequest(
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPointSetAlgorithm::RequestDataObject(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -182,7 +182,7 @@ int vtkPointSetAlgorithm::RequestDataObject(
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPointSetAlgorithm::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   // now add our info
@@ -190,14 +190,14 @@ int vtkPointSetAlgorithm::FillOutputPortInformation(int vtkNotUsed(port), vtkInf
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPointSetAlgorithm::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointSetAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

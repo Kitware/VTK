@@ -22,7 +22,7 @@ vtkStandardNewMacro(vtkImageProperty);
 
 vtkCxxSetObjectMacro(vtkImageProperty, LookupTable, vtkScalarsToColors);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct a new vtkImageProperty with default values
 vtkImageProperty::vtkImageProperty()
 {
@@ -52,7 +52,7 @@ vtkImageProperty::vtkImageProperty()
   this->BackingColor[2] = 0.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Destruct a vtkImageProperty
 vtkImageProperty::~vtkImageProperty()
 {
@@ -62,7 +62,7 @@ vtkImageProperty::~vtkImageProperty()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkImageProperty::GetInterpolationTypeAsString()
 {
   switch (this->InterpolationType)
@@ -77,7 +77,7 @@ const char* vtkImageProperty::GetInterpolationTypeAsString()
   return "";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageProperty::DeepCopy(vtkImageProperty* p)
 {
   if (p != nullptr)
@@ -107,7 +107,7 @@ void vtkImageProperty::DeepCopy(vtkImageProperty* p)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkImageProperty::GetMTime()
 {
   vtkMTimeType mTime = this->vtkObject::GetMTime();
@@ -122,7 +122,7 @@ vtkMTimeType vtkImageProperty::GetMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageProperty::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

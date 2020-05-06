@@ -136,7 +136,7 @@ vtkImageDifference::vtkImageDifference()
     }                                                                                              \
   }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This functor is used with vtkSMPTools to execute the algorithm in pieces
 // split over the extent of the data.
 class vtkImageDifferenceSMPFunctor
@@ -168,14 +168,14 @@ private:
   vtkIdType NumberOfPieces;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageDifferenceSMPFunctor::operator()(vtkIdType begin, vtkIdType end)
 {
   this->Algorithm->SMPRequestData(nullptr, nullptr, nullptr, this->Inputs, this->Outputs, begin,
     end, this->NumberOfPieces, this->Extent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Used with vtkSMPTools to compute the error
 void vtkImageDifferenceSMPFunctor::Reduce()
 {
@@ -200,7 +200,7 @@ void vtkImageDifferenceSMPFunctor::Reduce()
   this->Algorithm->ThresholdedError = thresholdedError;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method computes the input extent necessary to generate the output.
 int vtkImageDifference::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -260,7 +260,7 @@ int vtkImageDifference::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector),
   vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
@@ -469,7 +469,7 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
   threadData->ThresholdedError += thresholdedError;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Create thread-local objects before initiating the multithreading
 int vtkImageDifference::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -541,7 +541,7 @@ int vtkImageDifference::RequestData(
   return r;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Make the output the intersection of the inputs, of course the inputs better
 // be the same size
 int vtkImageDifference::RequestInformation(vtkInformation* vtkNotUsed(request),
@@ -590,7 +590,7 @@ int vtkImageDifference::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageData* vtkImageDifference::GetImage()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
@@ -600,7 +600,7 @@ vtkImageData* vtkImageDifference::GetImage()
   return vtkImageData::SafeDownCast(this->GetExecutive()->GetInputData(1, 0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageDifference::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

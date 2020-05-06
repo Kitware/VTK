@@ -25,7 +25,7 @@
 
 vtkStandardNewMacro(vtkPolyDataPointPlacer);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyDataPointPlacer::vtkPolyDataPointPlacer()
 {
   this->SurfaceProps = vtkPropCollection::New();
@@ -33,28 +33,28 @@ vtkPolyDataPointPlacer::vtkPolyDataPointPlacer()
   this->PropPicker->PickFromListOn();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyDataPointPlacer::~vtkPolyDataPointPlacer()
 {
   this->SurfaceProps->Delete();
   this->PropPicker->Delete();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyDataPointPlacer::AddProp(vtkProp* prop)
 {
   this->SurfaceProps->AddItem(prop);
   this->PropPicker->AddPickList(prop);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyDataPointPlacer::RemoveViewProp(vtkProp* prop)
 {
   this->SurfaceProps->RemoveItem(prop);
   this->PropPicker->DeletePickList(prop);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyDataPointPlacer::RemoveAllProps()
 {
   this->SurfaceProps->RemoveAllItems();
@@ -62,26 +62,26 @@ void vtkPolyDataPointPlacer::RemoveAllProps()
                                           // old props from it...
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPolyDataPointPlacer::HasProp(vtkProp* prop)
 {
   return this->SurfaceProps->IsItemPresent(prop);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPolyDataPointPlacer::GetNumberOfProps()
 {
   return this->SurfaceProps->GetNumberOfItems();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPolyDataPointPlacer::ComputeWorldPosition(vtkRenderer* ren, double displayPos[2],
   double* vtkNotUsed(refWorldPos), double worldPos[3], double worldOrient[9])
 {
   return this->ComputeWorldPosition(ren, displayPos, worldPos, worldOrient);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPolyDataPointPlacer::ComputeWorldPosition(
   vtkRenderer* ren, double displayPos[2], double worldPos[3], double vtkNotUsed(worldOrient)[9])
 {
@@ -135,20 +135,20 @@ int vtkPolyDataPointPlacer::ComputeWorldPosition(
   return 0;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPolyDataPointPlacer::ValidateWorldPosition(
   double worldPos[3], double* vtkNotUsed(worldOrient))
 {
   return this->ValidateWorldPosition(worldPos);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPolyDataPointPlacer::ValidateWorldPosition(double vtkNotUsed(worldPos)[3])
 {
   return 1;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPolyDataPointPlacer::ValidateDisplayPosition(vtkRenderer*, double vtkNotUsed(displayPos)[2])
 {
   // We could check here to ensure that the display point picks one of the
@@ -163,7 +163,7 @@ int vtkPolyDataPointPlacer::ValidateDisplayPosition(vtkRenderer*, double vtkNotU
   return 1;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyDataPointPlacer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -19,7 +19,7 @@
 
 vtkStandardNewMacro(vtkSPHQuarticKernel);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSPHQuarticKernel::vtkSPHQuarticKernel()
 {
   this->CutoffFactor = 2.5;
@@ -38,10 +38,10 @@ vtkSPHQuarticKernel::vtkSPHQuarticKernel()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSPHQuarticKernel::~vtkSPHQuarticKernel() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // At this point, the spatial step, the dimension of the kernel, and the cutoff
 // factor should be known.
 void vtkSPHQuarticKernel::Initialize(
@@ -64,7 +64,7 @@ void vtkSPHQuarticKernel::Initialize(
   this->Superclass::Initialize(loc, ds, attr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSPHQuarticKernel::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

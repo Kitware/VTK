@@ -23,10 +23,10 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool TestUnMapped();
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestProp3DButtonRepresentation(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   vtkObjectFactory::SetAllEnableFlags(false, "vtkRenderWindowInteractor", "vtkTestingInteractor");
@@ -35,7 +35,7 @@ int TestProp3DButtonRepresentation(int vtkNotUsed(argc), char* vtkNotUsed(argv)[
   return res ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool TestUnMapped()
 {
   vtkNew<vtkRenderWindow> renderWindow;

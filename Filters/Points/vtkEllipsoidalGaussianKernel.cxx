@@ -24,7 +24,7 @@
 
 vtkStandardNewMacro(vtkEllipsoidalGaussianKernel);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkEllipsoidalGaussianKernel::vtkEllipsoidalGaussianKernel()
 {
   this->UseNormals = true;
@@ -43,13 +43,13 @@ vtkEllipsoidalGaussianKernel::vtkEllipsoidalGaussianKernel()
   this->ScalarsArray = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkEllipsoidalGaussianKernel::~vtkEllipsoidalGaussianKernel()
 {
   this->FreeStructures();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkEllipsoidalGaussianKernel::FreeStructures()
 {
   this->Superclass::FreeStructures();
@@ -67,7 +67,7 @@ void vtkEllipsoidalGaussianKernel::FreeStructures()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkEllipsoidalGaussianKernel::Initialize(
   vtkAbstractPointLocator* loc, vtkDataSet* ds, vtkPointData* pd)
 {
@@ -115,7 +115,7 @@ void vtkEllipsoidalGaussianKernel::Initialize(
   this->E2 = this->Eccentricity * this->Eccentricity;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkEllipsoidalGaussianKernel::ComputeWeights(
   double x[3], vtkIdList* pIds, vtkDoubleArray* prob, vtkDoubleArray* weights)
 {
@@ -196,7 +196,7 @@ vtkIdType vtkEllipsoidalGaussianKernel::ComputeWeights(
   return numPts;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkEllipsoidalGaussianKernel::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

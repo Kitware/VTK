@@ -44,7 +44,7 @@ vtkStandardNewMacro(vtkGenericCutter);
 vtkCxxSetObjectMacro(vtkGenericCutter, CutFunction, vtkImplicitFunction);
 vtkCxxSetObjectMacro(vtkGenericCutter, Locator, vtkIncrementalPointLocator);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct with user-specified implicit function; initial value of 0.0; and
 // generating cut scalars turned off.
 //
@@ -60,7 +60,7 @@ vtkGenericCutter::vtkGenericCutter(vtkImplicitFunction* cf)
   this->SecondaryCD = vtkCellData::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGenericCutter::~vtkGenericCutter()
 {
   this->ContourValues->Delete();
@@ -75,7 +75,7 @@ vtkGenericCutter::~vtkGenericCutter()
   this->SecondaryCD->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Set a particular contour value at contour number i. The index i ranges
 // between 0<=i<NumberOfContours.
@@ -84,7 +84,7 @@ void vtkGenericCutter::SetValue(int i, double value)
   this->ContourValues->SetValue(i, value);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Get the ith contour value.
 double vtkGenericCutter::GetValue(int i)
@@ -92,7 +92,7 @@ double vtkGenericCutter::GetValue(int i)
   return this->ContourValues->GetValue(i);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Get a pointer to an array of contour values. There will be
 // GetNumberOfContours() values in the list.
@@ -101,7 +101,7 @@ double* vtkGenericCutter::GetValues()
   return this->ContourValues->GetValues();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Fill a supplied list with contour values. There will be
 // GetNumberOfContours() values in the list. Make sure you allocate
@@ -111,7 +111,7 @@ void vtkGenericCutter::GetValues(double* contourValues)
   this->ContourValues->GetValues(contourValues);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Set the number of contours to place into the list. You only really
 // need to use this method to reduce list size. The method SetValue()
@@ -121,7 +121,7 @@ void vtkGenericCutter::SetNumberOfContours(int number)
   this->ContourValues->SetNumberOfContours(number);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Get the number of contours in the list of contour values.
 vtkIdType vtkGenericCutter::GetNumberOfContours()
@@ -129,7 +129,7 @@ vtkIdType vtkGenericCutter::GetNumberOfContours()
   return this->ContourValues->GetNumberOfContours();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Generate numContours equally spaced contour values between specified
 // range. Contour values will include min/max range values.
@@ -146,7 +146,7 @@ void vtkGenericCutter::GenerateValues(int numContours, double rangeStart, double
   this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Overload standard modified time function. If cut functions is modified,
 // or contour values modified, then this object is modified as well.
 //
@@ -173,7 +173,7 @@ vtkMTimeType vtkGenericCutter::GetMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Cut through data generating surface.
 //
 int vtkGenericCutter::RequestData(vtkInformation* vtkNotUsed(request),
@@ -352,7 +352,7 @@ int vtkGenericCutter::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify a spatial locator for merging points. By default,
 // an instance of vtkMergePoints is used.
 void vtkGenericCutter::CreateDefaultLocator()
@@ -365,7 +365,7 @@ void vtkGenericCutter::CreateDefaultLocator()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenericCutter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -385,7 +385,7 @@ void vtkGenericCutter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Generate Cut Scalars: " << (this->GenerateCutScalars ? "On\n" : "Off\n");
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGenericCutter::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (!this->Superclass::FillInputPortInformation(port, info))

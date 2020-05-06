@@ -24,7 +24,7 @@
 
 vtkStandardNewMacro(vtkImageNoiseSource);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageNoiseSource::vtkImageNoiseSource()
 {
   this->Minimum = 0.0;
@@ -38,7 +38,7 @@ vtkImageNoiseSource::vtkImageNoiseSource()
   this->SetNumberOfInputPorts(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageNoiseSource::SetWholeExtent(int xMin, int xMax, int yMin, int yMax, int zMin, int zMax)
 {
   int modified = 0;
@@ -78,7 +78,7 @@ void vtkImageNoiseSource::SetWholeExtent(int xMin, int xMax, int yMin, int yMax,
     this->Modified();
   }
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageNoiseSource::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {

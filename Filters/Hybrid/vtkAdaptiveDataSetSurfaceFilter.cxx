@@ -38,7 +38,7 @@ static const unsigned int VonNeumannOffsets3D[] = { 0, 0, 0, 1, 1, 1 };
 
 vtkStandardNewMacro(vtkAdaptiveDataSetSurfaceFilter);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAdaptiveDataSetSurfaceFilter::vtkAdaptiveDataSetSurfaceFilter()
 {
   this->InData = nullptr;
@@ -77,10 +77,10 @@ vtkAdaptiveDataSetSurfaceFilter::vtkAdaptiveDataSetSurfaceFilter()
   this->Merging = false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAdaptiveDataSetSurfaceFilter::~vtkAdaptiveDataSetSurfaceFilter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAdaptiveDataSetSurfaceFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -143,7 +143,7 @@ void vtkAdaptiveDataSetSurfaceFilter::PrintSelf(ostream& os, vtkIndent indent)
      << this->LastCameraFocalPoint[1] << ", " << this->LastCameraFocalPoint[2] << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAdaptiveDataSetSurfaceFilter::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -164,7 +164,7 @@ int vtkAdaptiveDataSetSurfaceFilter::RequestData(
   return this->DataSetExecute(input, output);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAdaptiveDataSetSurfaceFilter::DataSetExecute(vtkDataObject* inputDS, vtkPolyData* output)
 {
   // Retrieve input grid
@@ -329,14 +329,14 @@ int vtkAdaptiveDataSetSurfaceFilter::DataSetExecute(vtkDataObject* inputDS, vtkP
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAdaptiveDataSetSurfaceFilter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAdaptiveDataSetSurfaceFilter::ProcessTrees(vtkHyperTreeGrid* input, vtkPolyData* output)
 {
   if (this->Points)
@@ -450,7 +450,7 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessTrees(vtkHyperTreeGrid* input, vtkP
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAdaptiveDataSetSurfaceFilter::RecursivelyProcessTreeNot3D(
   vtkHyperTreeGridNonOrientedGeometryCursor* cursor, int level)
 {
@@ -536,7 +536,7 @@ void vtkAdaptiveDataSetSurfaceFilter::RecursivelyProcessTreeNot3D(
   }     // if( insideBB )
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAdaptiveDataSetSurfaceFilter::ProcessLeaf1D(
   vtkHyperTreeGridNonOrientedGeometryCursor* cursor)
 {
@@ -568,7 +568,7 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessLeaf1D(
   this->Cells->InsertNextCell(2, id);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAdaptiveDataSetSurfaceFilter::ProcessLeaf2D(
   vtkHyperTreeGridNonOrientedGeometryCursor* cursor)
 
@@ -588,7 +588,7 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessLeaf2D(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAdaptiveDataSetSurfaceFilter::RecursivelyProcessTree3D(
   vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight* cursor, int level)
 {
@@ -611,7 +611,7 @@ void vtkAdaptiveDataSetSurfaceFilter::RecursivelyProcessTree3D(
   }   // else
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAdaptiveDataSetSurfaceFilter::ProcessLeaf3D(
   vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight* superCursor)
 {
@@ -653,7 +653,7 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessLeaf3D(
   } // c
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAdaptiveDataSetSurfaceFilter::AddFace(
   vtkIdType inId, const double* origin, const double* size, int offset, unsigned int orientation)
 {
@@ -711,7 +711,7 @@ void vtkAdaptiveDataSetSurfaceFilter::AddFace(
   this->OutData->CopyData(this->InData, inId, outId);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAdaptiveDataSetSurfaceFilter::SetRenderer(vtkRenderer* ren)
 {
   if (ren != this->Renderer)
@@ -721,7 +721,7 @@ void vtkAdaptiveDataSetSurfaceFilter::SetRenderer(vtkRenderer* ren)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkAdaptiveDataSetSurfaceFilter::GetMTime()
 {
   // Check for minimal changes

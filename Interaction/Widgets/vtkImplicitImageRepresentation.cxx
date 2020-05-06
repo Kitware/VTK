@@ -40,7 +40,7 @@
 vtkStandardNewMacro(vtkImplicitImageRepresentation);
 vtkCxxSetObjectMacro(vtkImplicitImageRepresentation, ColorMap, vtkImageMapToColors);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImplicitImageRepresentation::vtkImplicitImageRepresentation()
 {
   this->UserControlledLookupTable = false;
@@ -61,7 +61,7 @@ vtkImplicitImageRepresentation::vtkImplicitImageRepresentation()
   this->GenerateTexturePlane();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImplicitImageRepresentation::~vtkImplicitImageRepresentation()
 {
   if (this->LookupTable)
@@ -79,7 +79,7 @@ vtkImplicitImageRepresentation::~vtkImplicitImageRepresentation()
   this->TextureMapToPlane->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitImageRepresentation::PlaceImage(vtkAlgorithmOutput* aout)
 {
   vtkImageData* img =
@@ -89,7 +89,7 @@ void vtkImplicitImageRepresentation::PlaceImage(vtkAlgorithmOutput* aout)
   this->Reslice->SetInputConnection(aout);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitImageRepresentation::PlaceImage(vtkImageData* img)
 {
   this->ImageData = img;
@@ -140,7 +140,7 @@ void vtkImplicitImageRepresentation::PlaceImage(vtkImageData* img)
   this->Texture->SetInterpolate(this->TextureInterpolate);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitImageRepresentation::SetLookupTable(vtkLookupTable* table)
 {
   if (this->LookupTable != table)
@@ -178,7 +178,7 @@ void vtkImplicitImageRepresentation::SetLookupTable(vtkLookupTable* table)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitImageRepresentation::SetResliceInterpolate(int i)
 {
   if (this->ResliceInterpolate == i)
@@ -208,7 +208,7 @@ void vtkImplicitImageRepresentation::SetResliceInterpolate(int i)
   this->Texture->SetInterpolate(this->TextureInterpolate);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitImageRepresentation::CreateDefaultProperties()
 {
   // Use what's defined in the superclass
@@ -225,7 +225,7 @@ void vtkImplicitImageRepresentation::CreateDefaultProperties()
   this->SelectedPlaneProperty->SetOpacity(1.0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLookupTable* vtkImplicitImageRepresentation::CreateDefaultLookupTable()
 {
   vtkLookupTable* lut = vtkLookupTable::New();
@@ -240,7 +240,7 @@ vtkLookupTable* vtkImplicitImageRepresentation::CreateDefaultLookupTable()
   return lut;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitImageRepresentation::GenerateTexturePlane()
 {
   this->TextureMapToPlane = vtkTextureMapToPlane::New();
@@ -273,7 +273,7 @@ void vtkImplicitImageRepresentation::GenerateTexturePlane()
   this->CutActor->SetTexture(this->Texture);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitImageRepresentation::UpdatePlane()
 {
   if (!this->Reslice || !this->ImageData)
@@ -401,7 +401,7 @@ void vtkImplicitImageRepresentation::UpdatePlane()
   this->Reslice->SetOutputExtent(0, extentX - 1, 0, extentY - 1, 0, 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitImageRepresentation::BuildRepresentation()
 {
   // Make sure we're in a valid state
@@ -417,7 +417,7 @@ void vtkImplicitImageRepresentation::BuildRepresentation()
   this->UpdatePlane();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitImageRepresentation::SetCropPlaneToBoundingBox(bool val)
 {
   if (this->CropPlaneToBoundingBox == val)
@@ -440,7 +440,7 @@ void vtkImplicitImageRepresentation::SetCropPlaneToBoundingBox(bool val)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitImageRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

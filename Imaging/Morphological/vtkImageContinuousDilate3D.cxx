@@ -25,7 +25,7 @@
 
 vtkStandardNewMacro(vtkImageContinuousDilate3D);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct an instance of vtkImageContinuousDilate3D filter.
 // By default zero values are dilated.
 vtkImageContinuousDilate3D::vtkImageContinuousDilate3D()
@@ -40,7 +40,7 @@ vtkImageContinuousDilate3D::vtkImageContinuousDilate3D()
   this->SetKernelSize(1, 1, 1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageContinuousDilate3D::~vtkImageContinuousDilate3D()
 {
   if (this->Ellipse)
@@ -50,13 +50,13 @@ vtkImageContinuousDilate3D::~vtkImageContinuousDilate3D()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageContinuousDilate3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method sets the size of the neighborhood.  It also sets the
 // default middle of the neighborhood and computes the elliptical foot print.
 void vtkImageContinuousDilate3D::SetKernelSize(int size0, int size1, int size2)
@@ -101,7 +101,7 @@ void vtkImageContinuousDilate3D::SetKernelSize(int size0, int size1, int size2)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This templated function executes the filter on any region,
 // whether it needs boundary checking or not.
 // If the filter needs to be faster, the function could be duplicated
@@ -260,7 +260,7 @@ void vtkImageContinuousDilate3DExecute(vtkImageContinuousDilate3D* self, vtkImag
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method contains the first switch statement that calls the correct
 // templated function for the input and output Data types.
 // It handles image boundaries, so the image does not shrink.
@@ -315,7 +315,7 @@ void vtkImageContinuousDilate3D::ThreadedRequestData(vtkInformation* vtkNotUsed(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageContinuousDilate3D::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

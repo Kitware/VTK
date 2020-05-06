@@ -22,13 +22,13 @@
 
 vtkStandardNewMacro(vtkAndroidOutputWindow);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAndroidOutputWindow::vtkAndroidOutputWindow() {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAndroidOutputWindow::~vtkAndroidOutputWindow() {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAndroidOutputWindow::DisplayErrorText(const char* someText)
 {
   if (!someText)
@@ -45,7 +45,7 @@ void vtkAndroidOutputWindow::DisplayErrorText(const char* someText)
   this->InvokeEvent(vtkCommand::ErrorEvent, (void*)someText);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAndroidOutputWindow::DisplayWarningText(const char* someText)
 {
   if (!someText)
@@ -62,7 +62,7 @@ void vtkAndroidOutputWindow::DisplayWarningText(const char* someText)
   this->InvokeEvent(vtkCommand::WarningEvent, (void*)someText);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAndroidOutputWindow::DisplayGenericWarningText(const char* someText)
 {
   if (!someText)
@@ -78,7 +78,7 @@ void vtkAndroidOutputWindow::DisplayGenericWarningText(const char* someText)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAndroidOutputWindow::DisplayDebugText(const char* someText)
 {
   if (!someText)
@@ -94,7 +94,7 @@ void vtkAndroidOutputWindow::DisplayDebugText(const char* someText)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAndroidOutputWindow::DisplayText(const char* someText)
 {
   if (!someText)
@@ -110,7 +110,7 @@ void vtkAndroidOutputWindow::DisplayText(const char* someText)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAndroidOutputWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

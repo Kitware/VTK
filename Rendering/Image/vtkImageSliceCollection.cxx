@@ -20,14 +20,14 @@
 
 vtkStandardNewMacro(vtkImageSliceCollection);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // protected function to delete an element. Internal use only.
 void vtkImageSliceCollection::DeleteElement(vtkCollectionElement* e)
 {
   vtkCollection::DeleteElement(e);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Destructor for the vtkImageSliceCollection class. This removes all
 // objects from the collection.
 vtkImageSliceCollection::~vtkImageSliceCollection()
@@ -35,7 +35,7 @@ vtkImageSliceCollection::~vtkImageSliceCollection()
   this->RemoveAllItems();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Add an image to the list.  The new image is inserted in the
 // list according to it's layer number.
 void vtkImageSliceCollection::AddItem(vtkImageSlice* a)
@@ -79,7 +79,7 @@ void vtkImageSliceCollection::AddItem(vtkImageSlice* a)
   a->Register(this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // small helper struct
 class vtkImageSliceLayerPair
 {
@@ -88,7 +88,7 @@ public:
   int layer;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Sorts the vtkImageSliceCollection by layer number.  Smaller layer
 // numbers are first.  Layer numbers can be any integer value.
 void vtkImageSliceCollection::Sort()

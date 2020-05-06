@@ -34,7 +34,7 @@
 
 vtkStandardNewMacro(vtkTanglegramItem);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTanglegramItem::vtkTanglegramItem()
 {
   this->Dendrogram1 = vtkSmartPointer<vtkDendrogramItem>::New();
@@ -63,14 +63,14 @@ vtkTanglegramItem::vtkTanglegramItem()
   this->CorrespondenceLineWidth = 2.0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTanglegramItem::~vtkTanglegramItem()
 {
   delete[] this->Tree1Label;
   delete[] this->Tree2Label;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTanglegramItem::SetTree1(vtkTree* tree)
 {
   this->Dendrogram1->SetTree(tree);
@@ -79,7 +79,7 @@ void vtkTanglegramItem::SetTree1(vtkTree* tree)
   this->TreeReordered = false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTanglegramItem::SetTree2(vtkTree* tree)
 {
   this->Dendrogram2->SetTree(tree);
@@ -88,13 +88,13 @@ void vtkTanglegramItem::SetTree2(vtkTree* tree)
   this->TreeReordered = false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTable* vtkTanglegramItem::GetTable()
 {
   return this->Table;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTanglegramItem::SetTable(vtkTable* table)
 {
   if (table == nullptr)
@@ -109,7 +109,7 @@ void vtkTanglegramItem::SetTable(vtkTable* table)
   this->TreeReordered = false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkTanglegramItem::Paint(vtkContext2D* painter)
 {
   this->RefreshBuffers(painter);
@@ -143,7 +143,7 @@ bool vtkTanglegramItem::Paint(vtkContext2D* painter)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTanglegramItem::RefreshBuffers(vtkContext2D* painter)
 {
   this->Dendrogram1->PrepareToPaint(painter);
@@ -162,7 +162,7 @@ void vtkTanglegramItem::RefreshBuffers(vtkContext2D* painter)
     this->Dendrogram2->GetPrunedTree()->GetVertexData()->GetAbstractArray("node name"));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTanglegramItem::PositionTree2()
 {
   // values used to calculate the amount of space we should leave between
@@ -222,7 +222,7 @@ void vtkTanglegramItem::PositionTree2()
   this->PositionSet = true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTanglegramItem::PaintCorrespondenceLines(vtkContext2D* painter)
 {
   double textOrientation = painter->GetTextProp()->GetOrientation();
@@ -400,7 +400,7 @@ void vtkTanglegramItem::PaintCorrespondenceLines(vtkContext2D* painter)
   painter->GetPen()->SetWidth(previousWidth);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTanglegramItem::PaintTreeLabels(vtkContext2D* painter)
 {
   int fontSize = painter->GetTextProp()->GetFontSize();
@@ -489,7 +489,7 @@ void vtkTanglegramItem::PaintTreeLabels(vtkContext2D* painter)
   painter->GetTextProp()->BoldOff();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTanglegramItem::ReorderTree()
 {
   if (this->Dendrogram1->GetTree()->GetNumberOfVertices() == 0 ||
@@ -519,7 +519,7 @@ void vtkTanglegramItem::ReorderTree()
   this->TreeReordered = true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTanglegramItem::ReorderTreeAtVertex(vtkIdType parent, vtkTree* tree)
 {
   // Set up a priority queue to reorganize the vertices.  This queue sorts all
@@ -550,7 +550,7 @@ void vtkTanglegramItem::ReorderTreeAtVertex(vtkIdType parent, vtkTree* tree)
   tree->ReorderChildren(parent, newChildOrder);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkTanglegramItem::GetPositionScoreForVertex(vtkIdType vertex, vtkTree* tree)
 {
   // score will be the average "height" (y coordinate for unrotated tanglegram)
@@ -627,7 +627,7 @@ double vtkTanglegramItem::GetPositionScoreForVertex(vtkIdType vertex, vtkTree* t
   return sign * score / numLeafNodesFound;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTanglegramItem::SetOrientation(int orientation)
 {
   this->Orientation = orientation;
@@ -635,13 +635,13 @@ void vtkTanglegramItem::SetOrientation(int orientation)
   this->Dendrogram2->SetOrientation((this->Orientation + 2) % 4);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTanglegramItem::GetOrientation()
 {
   return this->Orientation;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTanglegramItem::GenerateLookupTable()
 {
   this->LookupTable->SetNumberOfTableValues(255);
@@ -679,7 +679,7 @@ void vtkTanglegramItem::GenerateLookupTable()
   this->LookupTable->SetRange(min, max);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkTanglegramItem::MouseDoubleClickEvent(const vtkContextMouseEvent& event)
 {
   bool tree1Changed = this->Dendrogram1->MouseDoubleClickEvent(event);
@@ -692,20 +692,20 @@ bool vtkTanglegramItem::MouseDoubleClickEvent(const vtkContextMouseEvent& event)
   return tree1Changed || tree2Changed;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 float vtkTanglegramItem::GetTreeLineWidth()
 {
   return this->Dendrogram1->GetLineWidth();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTanglegramItem::SetTreeLineWidth(float width)
 {
   this->Dendrogram1->SetLineWidth(width);
   this->Dendrogram2->SetLineWidth(width);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkTanglegramItem::Hit(const vtkContextMouseEvent& vtkNotUsed(mouse))
 {
   // If we are interactive, we want to catch anything that propagates to the
@@ -713,7 +713,7 @@ bool vtkTanglegramItem::Hit(const vtkContextMouseEvent& vtkNotUsed(mouse))
   return this->Interactive;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTanglegramItem::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

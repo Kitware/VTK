@@ -44,7 +44,7 @@ PURPOSE.  See the above copyright notice for more information.
 typedef std::map<vtkStdString, vtkIdType> StringCounts;
 typedef std::map<vtkIdType, double> Entropies;
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <typename TypeSpec, typename vtkType>
 class BivariateContingenciesAndInformationFunctor : public vtkStatisticsAlgorithm::AssessFunctor
 {
@@ -173,7 +173,7 @@ void Count(std::map<vtkStdString, std::map<vtkStdString, vtkIdType>>& table,
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <typename TypeSpec, typename vtkType>
 class ContingencyImpl
 {
@@ -907,7 +907,7 @@ private:
 
 vtkObjectFactoryNewMacro(vtkContingencyStatistics);
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkContingencyStatistics::vtkContingencyStatistics()
 {
   // This engine has 2 primary tables: summary and contingency table
@@ -920,16 +920,16 @@ vtkContingencyStatistics::vtkContingencyStatistics()
   this->AssessNames->SetValue(3, "PMI");
 };
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkContingencyStatistics::~vtkContingencyStatistics() = default;
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContingencyStatistics::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContingencyStatistics::Learn(
   vtkTable* inData, vtkTable* vtkNotUsed(inParameters), vtkMultiBlockDataSet* outMeta)
 {
@@ -1136,7 +1136,7 @@ void vtkContingencyStatistics::Learn(
   row2->Delete();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContingencyStatistics::Derive(vtkMultiBlockDataSet* inMeta)
 {
   if (!inMeta || inMeta->GetNumberOfBlocks() < 2)
@@ -1264,7 +1264,7 @@ void vtkContingencyStatistics::Derive(vtkMultiBlockDataSet* inMeta)
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContingencyStatistics::Assess(
   vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtkTable* outData)
 {
@@ -1388,7 +1388,7 @@ void vtkContingencyStatistics::Assess(
   }                     // rit
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContingencyStatistics::CalculatePValues(vtkTable* testTab)
 {
   vtkIdTypeArray* dimCol = vtkArrayDownCast<vtkIdTypeArray>(testTab->GetColumn(0));
@@ -1419,7 +1419,7 @@ void vtkContingencyStatistics::CalculatePValues(vtkTable* testTab)
   testChi2yCol->Delete();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContingencyStatistics::Test(
   vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtkTable* outMeta)
 {
@@ -1670,7 +1670,7 @@ void vtkContingencyStatistics::Test(
   testTab->Delete();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContingencyStatistics::SelectAssessFunctor(vtkTable* vtkNotUsed(outData),
   vtkDataObject* vtkNotUsed(inMetaDO), vtkStringArray* vtkNotUsed(rowNames),
   AssessFunctor*& vtkNotUsed(dfunc))
@@ -1679,7 +1679,7 @@ void vtkContingencyStatistics::SelectAssessFunctor(vtkTable* vtkNotUsed(outData)
   // for the passing of necessary parameters.
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContingencyStatistics::SelectAssessFunctor(vtkTable* outData, vtkMultiBlockDataSet* inMeta,
   vtkIdType pairKey, vtkStringArray* rowNames, AssessFunctor*& dfunc)
 {

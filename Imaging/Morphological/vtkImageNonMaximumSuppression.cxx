@@ -26,7 +26,7 @@
 
 vtkStandardNewMacro(vtkImageNonMaximumSuppression);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct an instance of vtkImageNonMaximumSuppression filter.
 vtkImageNonMaximumSuppression::vtkImageNonMaximumSuppression()
 {
@@ -35,7 +35,7 @@ vtkImageNonMaximumSuppression::vtkImageNonMaximumSuppression()
   this->SetNumberOfInputPorts(2);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method is passed a region that holds the image extent of this filters
 // input, and changes the region to hold the image extent of this filters
 // output.
@@ -65,7 +65,7 @@ int vtkImageNonMaximumSuppression::RequestInformation(vtkInformation* vtkNotUsed
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method computes the input extent necessary to generate the output.
 int vtkImageNonMaximumSuppression::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -107,7 +107,7 @@ int vtkImageNonMaximumSuppression::RequestUpdateExtent(vtkInformation* vtkNotUse
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 // Handles the two input operations
 template <class T>
@@ -273,7 +273,7 @@ void vtkImageNonMaximumSuppressionExecute(vtkImageNonMaximumSuppression* self,
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method is passed a input and output regions, and executes the filter
 // algorithm to fill the output from the inputs.
 // It just executes a switch statement to call the correct function for

@@ -35,16 +35,16 @@
 
 vtkStandardNewMacro(vtkExtractSelectedLocations);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractSelectedLocations::vtkExtractSelectedLocations()
 {
   this->SetNumberOfInputPorts(2);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractSelectedLocations::~vtkExtractSelectedLocations() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSelectedLocations::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -192,7 +192,7 @@ void vtkExtractSelectedLocationsCopyCells(
   ptIds->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSelectedLocations::ExtractCells(
   vtkSelectionNode* sel, vtkDataSet* input, vtkDataSet* output)
 {
@@ -342,7 +342,7 @@ int vtkExtractSelectedLocations::ExtractCells(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSelectedLocations::ExtractPoints(
   vtkSelectionNode* sel, vtkDataSet* input, vtkDataSet* output)
 {
@@ -535,7 +535,7 @@ int vtkExtractSelectedLocations::ExtractPoints(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractSelectedLocations::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

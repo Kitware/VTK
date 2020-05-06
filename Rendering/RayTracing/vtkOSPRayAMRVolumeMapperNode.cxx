@@ -66,7 +66,7 @@ using namespace ospray::amr;
 
 vtkStandardNewMacro(vtkOSPRayAMRVolumeMapperNode);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOSPRayAMRVolumeMapperNode::vtkOSPRayAMRVolumeMapperNode()
 {
   this->NumColors = 128;
@@ -75,7 +75,7 @@ vtkOSPRayAMRVolumeMapperNode::vtkOSPRayAMRVolumeMapperNode()
   this->OldSamplingRate = -1.f;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayAMRVolumeMapperNode::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

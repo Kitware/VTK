@@ -37,7 +37,7 @@
 #include <set>
 #include <vector>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This class manages topological information for a parallelopiped with a
 // chair etched out at any node.
 // README : Uncomment the line that reads "PrintTopology(cout) to
@@ -294,14 +294,14 @@ private:
   std::vector<CliqueType> m_Topology;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkParallelopipedRepresentation);
 
 vtkCxxSetObjectMacro(vtkParallelopipedRepresentation, HandleProperty, vtkProperty);
 vtkCxxSetObjectMacro(vtkParallelopipedRepresentation, SelectedHandleProperty, vtkProperty);
 vtkCxxSetObjectMacro(vtkParallelopipedRepresentation, HoveredHandleProperty, vtkProperty);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParallelopipedRepresentation::vtkParallelopipedRepresentation()
 {
   // This contains all the connectivity information.
@@ -398,7 +398,7 @@ vtkParallelopipedRepresentation::vtkParallelopipedRepresentation()
   this->PlaceWidget(bounds);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParallelopipedRepresentation::~vtkParallelopipedRepresentation()
 {
   this->HexActor->Delete();
@@ -423,13 +423,13 @@ vtkParallelopipedRepresentation::~vtkParallelopipedRepresentation()
   delete this->Topology;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHandleRepresentation* vtkParallelopipedRepresentation ::GetHandleRepresentation(int handleIndex)
 {
   return (handleIndex > 7) ? nullptr : this->HandleRepresentations[handleIndex];
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // You can swap the handle representation to one that you like.
 void vtkParallelopipedRepresentation ::SetHandleRepresentation(vtkHandleRepresentation* handle)
 {
@@ -486,7 +486,7 @@ void vtkParallelopipedRepresentation ::SetHandleRepresentation(vtkHandleRepresen
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Remove any existing chairs in the parallelopiped.
 void vtkParallelopipedRepresentation::RemoveExistingChairs()
 {
@@ -547,7 +547,7 @@ void vtkParallelopipedRepresentation::RemoveExistingChairs()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Node can be an integer within [0,7]. This will create a chair one one of
 // the handle corners. The '0 < scale < 1' value dicates the starting
 // depth of the cavity.
@@ -734,7 +734,7 @@ void vtkParallelopipedRepresentation::UpdateChairAtNode(int node)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This is where the bulk of the work is done.
 int vtkParallelopipedRepresentation ::ComputeInteractionState(int X, int Y, int vtkNotUsed(modify))
 {
@@ -1183,7 +1183,7 @@ int vtkParallelopipedRepresentation ::ComputeInteractionState(int X, int Y, int 
   return this->InteractionState;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelopipedRepresentation ::TranslatePoint(int id, const double translation[3])
 {
   double p[3];
@@ -1201,7 +1201,7 @@ void vtkParallelopipedRepresentation ::TranslatePoint(int id, const double trans
   this->PositionHandles();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the bounding planes of the object. The first 6 planes will
 // be bounding planes of the parallelopiped. If in chair mode, three
 // additional planes will be present. The last three planes will be those
@@ -1237,7 +1237,7 @@ void vtkParallelopipedRepresentation::GetBoundingPlanes(vtkPlaneCollection* pc)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Convenience method to get just the planes that define the parallelopiped.
 // If we aren't in chair mode, this will be the same as GetBoundingPlanes().
 // If we are in chair mode, this will be the first 6 planes from amongst
@@ -1257,7 +1257,7 @@ void vtkParallelopipedRepresentation ::GetParallelopipedBoundingPlanes(vtkPlaneC
   pc2->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Convenience method to populate a plane from 3 pointIds
 void vtkParallelopipedRepresentation::DefinePlane(
   vtkPlane* plane, vtkIdType id1, vtkIdType id2, vtkIdType id3)
@@ -1269,7 +1269,7 @@ void vtkParallelopipedRepresentation::DefinePlane(
   this->DefinePlane(plane, p);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Convenience method to populate a plane from 3 points.
 void vtkParallelopipedRepresentation::DefinePlane(vtkPlane* plane, double p[3][3])
 {
@@ -1282,7 +1282,7 @@ void vtkParallelopipedRepresentation::DefinePlane(vtkPlane* plane, double p[3][3
   plane->SetNormal(normal);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelopipedRepresentation::GetActors(vtkPropCollection* pc)
 {
   for (int i = 0; i < 8; i++)
@@ -1293,7 +1293,7 @@ void vtkParallelopipedRepresentation::GetActors(vtkPropCollection* pc)
   this->HexFaceActor->GetActors(pc);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelopipedRepresentation::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->HexActor->ReleaseGraphicsResources(w);
@@ -1304,7 +1304,7 @@ void vtkParallelopipedRepresentation::ReleaseGraphicsResources(vtkWindow* w)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkParallelopipedRepresentation::RenderOverlay(vtkViewport* v)
 {
   int count = 0;
@@ -1317,7 +1317,7 @@ int vtkParallelopipedRepresentation::RenderOverlay(vtkViewport* v)
   return count;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkParallelopipedRepresentation::RenderOpaqueGeometry(vtkViewport* viewport)
 {
   int count = 0;
@@ -1331,7 +1331,7 @@ int vtkParallelopipedRepresentation::RenderOpaqueGeometry(vtkViewport* viewport)
   return count;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelopipedRepresentation::PositionHandles()
 {
   for (int i = 0; i < 8; ++i)
@@ -1344,7 +1344,7 @@ void vtkParallelopipedRepresentation::PositionHandles()
   this->HexPolyData->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelopipedRepresentation::HandlesOn()
 {
   for (int i = 0; i < 8; this->HandleRepresentations[i++]->SetVisibility(1))
@@ -1353,7 +1353,7 @@ void vtkParallelopipedRepresentation::HandlesOn()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelopipedRepresentation::HandlesOff()
 {
   for (int i = 0; i < 8; this->HandleRepresentations[i++]->SetVisibility(0))
@@ -1362,7 +1362,7 @@ void vtkParallelopipedRepresentation::HandlesOff()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelopipedRepresentation::SetHandleHighlight(int handleIdx, vtkProperty* property)
 {
   if (handleIdx == -1)
@@ -1385,7 +1385,7 @@ void vtkParallelopipedRepresentation::SetHandleHighlight(int handleIdx, vtkPrope
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelopipedRepresentation ::SetFaceHighlight(vtkCellArray* face, vtkProperty* p)
 {
   if (face)
@@ -1395,7 +1395,7 @@ void vtkParallelopipedRepresentation ::SetFaceHighlight(vtkCellArray* face, vtkP
   this->HexFaceActor->SetProperty(p);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelopipedRepresentation::HighlightAllFaces()
 {
   vtkSmartPointer<vtkCellArray> cells = vtkSmartPointer<vtkCellArray>::New();
@@ -1403,13 +1403,13 @@ void vtkParallelopipedRepresentation::HighlightAllFaces()
   this->SetFaceHighlight(cells, this->SelectedFaceProperty);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelopipedRepresentation::UnHighlightAllFaces()
 {
   this->SetFaceHighlight(nullptr, this->FaceProperty);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Translate by a vector to be computed from the last Pick position and the
 // supplied event position
 void vtkParallelopipedRepresentation::Translate(int X, int Y)
@@ -1453,7 +1453,7 @@ void vtkParallelopipedRepresentation::Translate(int X, int Y)
   this->LastEventPosition[1] = Y;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Loop through all points and translate them
 void vtkParallelopipedRepresentation::Translate(double translation[3])
 {
@@ -1470,7 +1470,7 @@ void vtkParallelopipedRepresentation::Translate(double translation[3])
   this->PositionHandles();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelopipedRepresentation::Scale(int vtkNotUsed(X), int Y)
 {
   double* pts = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0);
@@ -1489,7 +1489,7 @@ void vtkParallelopipedRepresentation::Scale(int vtkNotUsed(X), int Y)
   this->PositionHandles();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelopipedRepresentation::PlaceWidget(double bounds[6])
 {
   double corners[8][3] = { { bounds[0], bounds[2], bounds[4] }, { bounds[1], bounds[2], bounds[4] },
@@ -1500,7 +1500,7 @@ void vtkParallelopipedRepresentation::PlaceWidget(double bounds[6])
   this->PlaceWidget(corners);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelopipedRepresentation::PlaceWidget(double corners[8][3])
 {
   // Scale the corners of parallelopiped according to the place factor.
@@ -1539,26 +1539,26 @@ void vtkParallelopipedRepresentation::PlaceWidget(double corners[8][3])
   this->PositionHandles();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelopipedRepresentation::GetPolyData(vtkPolyData* pd)
 {
   pd->SetPoints(this->HexPolyData->GetPoints());
   pd->SetPolys(this->HexPolyData->GetPolys());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkParallelopipedRepresentation::GetBounds()
 {
   return this->Points->GetBounds();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelopipedRepresentation::BuildRepresentation()
 {
   this->Points->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelopipedRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

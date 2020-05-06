@@ -34,7 +34,7 @@
 #include "vtkTableToGraph.h"
 #include "vtkUndirectedGraph.h"
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkSQLDatabaseGraphSource::implementation
 {
 public:
@@ -79,7 +79,7 @@ public:
 
 vtkStandardNewMacro(vtkSQLDatabaseGraphSource);
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSQLDatabaseGraphSource::vtkSQLDatabaseGraphSource()
   : Implementation(new implementation())
   , Directed(true)
@@ -98,7 +98,7 @@ vtkSQLDatabaseGraphSource::vtkSQLDatabaseGraphSource()
   this->Implementation->TableToGraph->AddObserver(vtkCommand::ProgressEvent, this->EventForwarder);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSQLDatabaseGraphSource::~vtkSQLDatabaseGraphSource()
 {
   delete this->Implementation;
@@ -106,7 +106,7 @@ vtkSQLDatabaseGraphSource::~vtkSQLDatabaseGraphSource()
   this->EventForwarder->Delete();
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSQLDatabaseGraphSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -232,7 +232,7 @@ void vtkSQLDatabaseGraphSource::ClearLinkEdges()
   this->Modified();
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSQLDatabaseGraphSource::RequestDataObject(
   vtkInformation*, vtkInformationVector**, vtkInformationVector*)
 {
@@ -251,7 +251,7 @@ int vtkSQLDatabaseGraphSource::RequestDataObject(
   return 1;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSQLDatabaseGraphSource::RequestData(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {

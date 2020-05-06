@@ -21,7 +21,7 @@
 
 vtkStandardNewMacro(vtkImageCacheFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageCacheFilter::vtkImageCacheFilter()
 {
   vtkExecutive* exec = this->CreateDefaultExecutive();
@@ -31,16 +31,16 @@ vtkImageCacheFilter::vtkImageCacheFilter()
   this->SetCacheSize(10);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageCacheFilter::~vtkImageCacheFilter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExecutive* vtkImageCacheFilter::CreateDefaultExecutive()
 {
   return vtkCachedStreamingDemandDrivenPipeline::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageCacheFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -48,7 +48,7 @@ void vtkImageCacheFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CacheSize: " << this->GetCacheSize() << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageCacheFilter::SetCacheSize(int size)
 {
   vtkCachedStreamingDemandDrivenPipeline* csddp =
@@ -59,7 +59,7 @@ void vtkImageCacheFilter::SetCacheSize(int size)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageCacheFilter::GetCacheSize()
 {
   vtkCachedStreamingDemandDrivenPipeline* csddp =
@@ -71,7 +71,7 @@ int vtkImageCacheFilter::GetCacheSize()
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method simply copies by reference the input data to the output.
 void vtkImageCacheFilter::ExecuteData(vtkDataObject*)
 {

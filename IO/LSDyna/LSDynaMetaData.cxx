@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "LSDynaMetaData.h"
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 LSDynaMetaData::LSDynaMetaData()
 {
   this->FileIsValid = 0;
@@ -43,7 +43,7 @@ LSDynaMetaData::LSDynaMetaData()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool LSDynaMetaData::AddPointArray(const std::string& name, int numComponents, int status)
 {
   for (unsigned i = 0; i < this->PointArrayNames.size(); ++i)
@@ -60,7 +60,7 @@ bool LSDynaMetaData::AddPointArray(const std::string& name, int numComponents, i
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool LSDynaMetaData::AddCellArray(
   int cellType, const std::string& name, int numComponents, int status)
 {
@@ -78,7 +78,7 @@ bool LSDynaMetaData::AddCellArray(
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType LSDynaMetaData::GetTotalMaterialCount()
 {
   return this->Dict["NUMMAT8"] + this->Dict["NUMMATT"] + this->Dict["NUMMAT4"] +
@@ -87,7 +87,7 @@ vtkIdType LSDynaMetaData::GetTotalMaterialCount()
   // FIXME: Should NSURF be in here at all? I don't have any datasets w/ NSURF > 0, so I can't test.
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void LSDynaMetaData::Reset()
 {
   this->FileIsValid = 0;

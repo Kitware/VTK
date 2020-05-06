@@ -22,14 +22,14 @@
 
 vtkStandardNewMacro(vtkImageCorrelation);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageCorrelation::vtkImageCorrelation()
 {
   this->Dimensionality = 2;
   this->SetNumberOfInputPorts(2);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Grow the output image
 int vtkImageCorrelation::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
@@ -40,7 +40,7 @@ int vtkImageCorrelation::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Grow
 int vtkImageCorrelation::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -79,7 +79,7 @@ int vtkImageCorrelation::RequestUpdateExtent(vtkInformation* vtkNotUsed(request)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 // Handles the two input operations
 template <class T>
@@ -186,7 +186,7 @@ void vtkImageCorrelationExecute(vtkImageCorrelation* self, vtkImageData* in1Data
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method is passed a input and output datas, and executes the filter
 // algorithm to fill the output from the inputs.
 // It just executes a switch statement to call the correct function for

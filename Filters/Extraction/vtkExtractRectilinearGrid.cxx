@@ -39,7 +39,7 @@ vtkExtractRectilinearGrid::vtkExtractRectilinearGrid()
   this->Internal = vtkExtractStructuredGridHelper::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractRectilinearGrid::~vtkExtractRectilinearGrid()
 {
   if (this->Internal != nullptr)
@@ -48,7 +48,7 @@ vtkExtractRectilinearGrid::~vtkExtractRectilinearGrid()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractRectilinearGrid::RequestUpdateExtent(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -108,7 +108,7 @@ int vtkExtractRectilinearGrid::RequestUpdateExtent(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractRectilinearGrid::RequestInformation(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -134,7 +134,7 @@ int vtkExtractRectilinearGrid::RequestInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractRectilinearGrid::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -158,7 +158,7 @@ int vtkExtractRectilinearGrid::RequestData(
   return this->RequestDataImpl(inputVector, outputVector) ? 1 : 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkExtractRectilinearGrid::RequestDataImpl(
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -230,7 +230,7 @@ bool vtkExtractRectilinearGrid::RequestDataImpl(
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractRectilinearGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

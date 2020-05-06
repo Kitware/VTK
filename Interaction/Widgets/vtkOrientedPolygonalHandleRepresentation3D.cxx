@@ -25,7 +25,7 @@
 
 vtkStandardNewMacro(vtkOrientedPolygonalHandleRepresentation3D);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOrientedPolygonalHandleRepresentation3D ::vtkOrientedPolygonalHandleRepresentation3D()
 {
   this->Actor = vtkFollower::New();
@@ -34,11 +34,11 @@ vtkOrientedPolygonalHandleRepresentation3D ::vtkOrientedPolygonalHandleRepresent
   this->HandlePicker->AddPickList(this->Actor);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOrientedPolygonalHandleRepresentation3D ::~vtkOrientedPolygonalHandleRepresentation3D() =
   default;
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientedPolygonalHandleRepresentation3D::UpdateHandle()
 {
   this->Superclass::UpdateHandle();
@@ -59,7 +59,7 @@ void vtkOrientedPolygonalHandleRepresentation3D::UpdateHandle()
   this->Actor->SetPosition(handlePosition);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientedPolygonalHandleRepresentation3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -36,10 +36,10 @@
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static void ShowResult(vtkRenderer* renderer, vtkAlgorithmOutput* input, const char* arrayName);
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TemporalStatistics(int argc, char* argv[])
 {
   // We have to use a composite pipeline to handle these composite data
@@ -98,7 +98,7 @@ int TemporalStatistics(int argc, char* argv[])
   return !retVal;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static void ShowResult(vtkRenderer* renderer, vtkAlgorithmOutput* input, const char* arrayName)
 {
   // Set up rendering classes

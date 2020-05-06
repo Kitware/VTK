@@ -28,7 +28,7 @@
 
 vtkStandardNewMacro(vtkHandleWidget);
 
-//----------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHandleWidget::vtkHandleWidget()
 {
   // Set the initial state
@@ -85,13 +85,13 @@ vtkHandleWidget::vtkHandleWidget()
   this->KeyEventCallbackCommand->SetCallback(vtkHandleWidget::ProcessKeyEvents);
 }
 
-//----------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHandleWidget::~vtkHandleWidget()
 {
   this->KeyEventCallbackCommand->Delete();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHandleWidget::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)
@@ -100,7 +100,7 @@ void vtkHandleWidget::CreateDefaultRepresentation()
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHandleWidget::SetCursor(int cState)
 {
   if (this->ManagesCursor)
@@ -116,7 +116,7 @@ void vtkHandleWidget::SetCursor(int cState)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHandleWidget::SelectAction(vtkAbstractWidget* w)
 {
   vtkHandleWidget* self = reinterpret_cast<vtkHandleWidget*>(w);
@@ -147,7 +147,7 @@ void vtkHandleWidget::SelectAction(vtkAbstractWidget* w)
   self->GenericAction(self);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHandleWidget::SelectAction3D(vtkAbstractWidget* w)
 {
   vtkHandleWidget* self = reinterpret_cast<vtkHandleWidget*>(w);
@@ -171,7 +171,7 @@ void vtkHandleWidget::SelectAction3D(vtkAbstractWidget* w)
   self->GenericAction(self);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHandleWidget::TranslateAction(vtkAbstractWidget* w)
 {
   vtkHandleWidget* self = reinterpret_cast<vtkHandleWidget*>(w);
@@ -194,7 +194,7 @@ void vtkHandleWidget::TranslateAction(vtkAbstractWidget* w)
   self->GenericAction(self);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHandleWidget::ScaleAction(vtkAbstractWidget* w)
 {
   vtkHandleWidget* self = reinterpret_cast<vtkHandleWidget*>(w);
@@ -221,7 +221,7 @@ void vtkHandleWidget::ScaleAction(vtkAbstractWidget* w)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHandleWidget::GenericAction(vtkHandleWidget* self)
 {
   // This is redundant but necessary on some systems (windows) because the
@@ -248,7 +248,7 @@ void vtkHandleWidget::GenericAction(vtkHandleWidget* self)
   self->Render();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHandleWidget::EndSelectAction(vtkAbstractWidget* w)
 {
   vtkHandleWidget* self = reinterpret_cast<vtkHandleWidget*>(w);
@@ -276,7 +276,7 @@ void vtkHandleWidget::EndSelectAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHandleWidget::MoveAction(vtkAbstractWidget* w)
 {
   vtkHandleWidget* self = reinterpret_cast<vtkHandleWidget*>(w);
@@ -317,7 +317,7 @@ void vtkHandleWidget::MoveAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHandleWidget::MoveAction3D(vtkAbstractWidget* w)
 {
   vtkHandleWidget* self = reinterpret_cast<vtkHandleWidget*>(w);
@@ -350,7 +350,7 @@ void vtkHandleWidget::MoveAction3D(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHandleWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
@@ -364,7 +364,7 @@ void vtkHandleWidget::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "WidgetState: " << this->WidgetState << endl;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHandleWidget::SetEnabled(int enabling)
 {
   int enabled = this->Enabled;
@@ -445,7 +445,7 @@ void vtkHandleWidget::SetEnabled(int enabling)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHandleWidget::ProcessKeyEvents(vtkObject*, unsigned long event, void* clientdata, void*)
 {
   vtkHandleWidget* self = static_cast<vtkHandleWidget*>(clientdata);

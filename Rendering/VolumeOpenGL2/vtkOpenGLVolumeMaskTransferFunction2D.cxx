@@ -26,13 +26,13 @@
 
 vtkStandardNewMacro(vtkOpenGLVolumeMaskTransferFunction2D);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenGLVolumeMaskTransferFunction2D::vtkOpenGLVolumeMaskTransferFunction2D()
 {
   this->NumberOfColorComponents = 4;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLVolumeMaskTransferFunction2D::InternalUpdate(vtkObject* func,
   int vtkNotUsed(blendMode), double vtkNotUsed(sampleDistance), double vtkNotUsed(unitDistance),
   int filterValue)
@@ -103,7 +103,7 @@ void vtkOpenGLVolumeMaskTransferFunction2D::InternalUpdate(vtkObject* func,
     this->TextureWidth, this->TextureHeight, this->NumberOfColorComponents, VTK_FLOAT, this->Table);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLVolumeMaskTransferFunction2D::ComputeIdealTextureSize(
   vtkObject* func, int& width, int& height, vtkOpenGLRenderWindow* vtkNotUsed(renWin))
 {
@@ -120,7 +120,7 @@ void vtkOpenGLVolumeMaskTransferFunction2D::ComputeIdealTextureSize(
   height = labels.empty() ? 1 : *(labels.crbegin()) + 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLVolumeMaskTransferFunction2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

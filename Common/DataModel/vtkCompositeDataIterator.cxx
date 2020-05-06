@@ -16,7 +16,7 @@
 #include "vtkCompositeDataSet.h"
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCompositeDataIterator::vtkCompositeDataIterator()
 {
   this->Reverse = 0;
@@ -24,13 +24,13 @@ vtkCompositeDataIterator::vtkCompositeDataIterator()
   this->DataSet = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCompositeDataIterator::~vtkCompositeDataIterator()
 {
   this->SetDataSet(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositeDataIterator::SetDataSet(vtkCompositeDataSet* ds)
 {
   vtkSetObjectBodyMacro(DataSet, vtkCompositeDataSet, ds);
@@ -40,21 +40,21 @@ void vtkCompositeDataIterator::SetDataSet(vtkCompositeDataSet* ds)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositeDataIterator::InitTraversal()
 {
   this->SetReverse(0);
   this->GoToFirstItem();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositeDataIterator::InitReverseTraversal()
 {
   this->SetReverse(1);
   this->GoToFirstItem();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositeDataIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

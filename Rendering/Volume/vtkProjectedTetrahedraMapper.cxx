@@ -46,14 +46,14 @@
 #include <algorithm>
 #include <cmath>
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkProjectedTetrahedraMapper, VisibilitySort, vtkVisibilitySort);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Return nullptr if no override is supplied.
 vtkAbstractObjectFactoryNewMacro(vtkProjectedTetrahedraMapper);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkProjectedTetrahedraMapper::vtkProjectedTetrahedraMapper()
 {
@@ -71,7 +71,7 @@ void vtkProjectedTetrahedraMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "VisibilitySort: " << this->VisibilitySort << endl;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkProjectedTetrahedraMapper::ReportReferences(vtkGarbageCollector* collector)
 {
@@ -80,7 +80,7 @@ void vtkProjectedTetrahedraMapper::ReportReferences(vtkGarbageCollector* collect
   vtkGarbageCollectorReport(collector, this->VisibilitySort, "VisibilitySort");
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 namespace
 {
 struct TransformPointsWorker
@@ -157,7 +157,7 @@ struct TransformPointsWorker
 };
 } // end anon namespace
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProjectedTetrahedraMapper::TransformPoints(vtkPoints* inPoints,
   const float projection_mat[16], const float modelview_mat[16], vtkFloatArray* outPoints)
 {
@@ -171,7 +171,7 @@ void vtkProjectedTetrahedraMapper::TransformPoints(vtkPoints* inPoints,
   vtkArrayDispatch::Dispatch::Execute(inPoints->GetData(), worker);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 namespace vtkProjectedTetrahedraMapperNamespace
 {
@@ -260,7 +260,7 @@ void vtkProjectedTetrahedraMapper::MapScalarsToColors(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 namespace vtkProjectedTetrahedraMapperNamespace
 {
 template <typename ColorArrayT, typename ScalarArrayT>

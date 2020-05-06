@@ -37,7 +37,7 @@ class vtkHandleList : public std::list<vtkHandleRepresentation*>
 };
 typedef std::list<vtkHandleRepresentation*>::iterator vtkHandleListIterator;
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSeedRepresentation::vtkSeedRepresentation()
 {
   this->HandleRepresentation = nullptr;
@@ -49,7 +49,7 @@ vtkSeedRepresentation::vtkSeedRepresentation()
   this->Tolerance = 5;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSeedRepresentation::~vtkSeedRepresentation()
 {
   if (this->HandleRepresentation)
@@ -66,7 +66,7 @@ vtkSeedRepresentation::~vtkSeedRepresentation()
   delete this->Handles;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHandleRepresentation* vtkSeedRepresentation ::GetHandleRepresentation(unsigned int num)
 {
   if (num < this->Handles->size())
@@ -90,7 +90,7 @@ vtkHandleRepresentation* vtkSeedRepresentation ::GetHandleRepresentation(unsigne
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSeedRepresentation::GetSeedWorldPosition(unsigned int seedNum, double pos[3])
 {
   if (seedNum >= this->Handles->size())
@@ -103,7 +103,7 @@ void vtkSeedRepresentation::GetSeedWorldPosition(unsigned int seedNum, double po
   (*iter)->GetWorldPosition(pos);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSeedRepresentation::SetSeedWorldPosition(unsigned int seedNum, double pos[3])
 {
   if (seedNum >= this->Handles->size())
@@ -116,7 +116,7 @@ void vtkSeedRepresentation::SetSeedWorldPosition(unsigned int seedNum, double po
   (*iter)->SetWorldPosition(pos);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSeedRepresentation::SetSeedDisplayPosition(unsigned int seedNum, double pos[3])
 {
   if (seedNum >= this->Handles->size())
@@ -129,7 +129,7 @@ void vtkSeedRepresentation::SetSeedDisplayPosition(unsigned int seedNum, double 
   (*iter)->SetDisplayPosition(pos);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSeedRepresentation::GetSeedDisplayPosition(unsigned int seedNum, double pos[3])
 {
   if (seedNum >= this->Handles->size())
@@ -142,13 +142,13 @@ void vtkSeedRepresentation::GetSeedDisplayPosition(unsigned int seedNum, double 
   (*iter)->GetDisplayPosition(pos);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSeedRepresentation::GetNumberOfSeeds()
 {
   return static_cast<int>(this->Handles->size());
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSeedRepresentation::ComputeInteractionState(
   int vtkNotUsed(X), int vtkNotUsed(Y), int vtkNotUsed(modify))
 {
@@ -173,13 +173,13 @@ int vtkSeedRepresentation::ComputeInteractionState(
   return this->InteractionState;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSeedRepresentation::GetActiveHandle()
 {
   return this->ActiveHandle;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSeedRepresentation::SetActiveHandle(int handleId)
 {
   if (handleId >= static_cast<int>(this->Handles->size()))
@@ -189,7 +189,7 @@ void vtkSeedRepresentation::SetActiveHandle(int handleId)
   this->ActiveHandle = handleId;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSeedRepresentation::CreateHandle(double e[2])
 {
   double pos[3];
@@ -210,7 +210,7 @@ int vtkSeedRepresentation::CreateHandle(double e[2])
   return this->ActiveHandle;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSeedRepresentation::RemoveLastHandle()
 {
   if (this->Handles->empty())
@@ -223,7 +223,7 @@ void vtkSeedRepresentation::RemoveLastHandle()
   this->Handles->pop_back();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSeedRepresentation::RemoveHandle(int n)
 {
   // Remove nth handle
@@ -246,7 +246,7 @@ void vtkSeedRepresentation::RemoveHandle(int n)
   hr->Delete();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSeedRepresentation::RemoveActiveHandle()
 {
   if (this->Handles->empty())
@@ -264,7 +264,7 @@ void vtkSeedRepresentation::RemoveActiveHandle()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSeedRepresentation::BuildRepresentation()
 {
   if (this->ActiveHandle >= 0 && this->ActiveHandle < static_cast<int>(this->Handles->size()))
@@ -277,7 +277,7 @@ void vtkSeedRepresentation::BuildRepresentation()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSeedRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h

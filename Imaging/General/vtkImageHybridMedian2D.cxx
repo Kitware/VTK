@@ -25,7 +25,7 @@
 
 vtkStandardNewMacro(vtkImageHybridMedian2D);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageHybridMedian2D::vtkImageHybridMedian2D()
 {
   this->KernelSize[0] = 5;

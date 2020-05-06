@@ -22,7 +22,7 @@
 
 vtkStandardNewMacro(vtkImplicitSum);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Constructor.
 vtkImplicitSum::vtkImplicitSum()
 {
@@ -33,14 +33,14 @@ vtkImplicitSum::vtkImplicitSum()
   this->NormalizeByWeight = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImplicitSum::~vtkImplicitSum()
 {
   this->FunctionList->Delete();
   this->Weights->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkImplicitSum::GetMTime()
 {
   vtkMTimeType fMtime;
@@ -66,7 +66,7 @@ vtkMTimeType vtkImplicitSum::GetMTime()
   return mtime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Add another implicit function to the list of functions.
 void vtkImplicitSum::AddFunction(vtkImplicitFunction* f, double scale)
 {
@@ -76,7 +76,7 @@ void vtkImplicitSum::AddFunction(vtkImplicitFunction* f, double scale)
   this->CalculateTotalWeight();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitSum::SetFunctionWeight(vtkImplicitFunction* f, double scale)
 {
   int loc = this->FunctionList->IsItemPresent(f);
@@ -95,7 +95,7 @@ void vtkImplicitSum::SetFunctionWeight(vtkImplicitFunction* f, double scale)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitSum::RemoveAllFunctions()
 {
   this->Modified();
@@ -104,7 +104,7 @@ void vtkImplicitSum::RemoveAllFunctions()
   this->TotalWeight = 0.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitSum::CalculateTotalWeight()
 {
   this->TotalWeight = 0.0;
@@ -115,7 +115,7 @@ void vtkImplicitSum::CalculateTotalWeight()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Evaluate sum of implicit functions.
 double vtkImplicitSum::EvaluateFunction(double x[3])
 {
@@ -142,7 +142,7 @@ double vtkImplicitSum::EvaluateFunction(double x[3])
   return sum;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Evaluate gradient of sum of functions (valid only if linear)
 void vtkImplicitSum::EvaluateGradient(double x[3], double g[3])
 {
@@ -175,7 +175,7 @@ void vtkImplicitSum::EvaluateGradient(double x[3], double g[3])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitSum::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

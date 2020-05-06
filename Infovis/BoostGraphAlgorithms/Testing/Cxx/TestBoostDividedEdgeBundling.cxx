@@ -38,7 +38,7 @@
 
 #include "vtkRegressionTestImage.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void BuildSampleGraph(vtkMutableDirectedGraph* graph)
 {
   vtkNew<vtkPoints> points;
@@ -75,7 +75,7 @@ void BuildSampleGraph(vtkMutableDirectedGraph* graph)
   graph->AddEdge(6, 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void BuildGraphMLGraph(vtkMutableDirectedGraph* graph, std::string file)
 {
   vtkNew<vtkXMLTreeReader> reader;
@@ -124,7 +124,7 @@ void BuildGraphMLGraph(vtkMutableDirectedGraph* graph, std::string file)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkBundledGraphItem : public vtkGraphItem
 {
 public:
@@ -139,23 +139,23 @@ protected:
   float EdgeWidth(vtkIdType line, vtkIdType point) override;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkBundledGraphItem);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkColor4ub vtkBundledGraphItem::EdgeColor(vtkIdType edgeIdx, vtkIdType pointIdx)
 {
   float fraction = static_cast<float>(pointIdx) / (this->NumberOfEdgePoints(edgeIdx) - 1);
   return vtkColor4ub(fraction * 255, 0, 255 - fraction * 255, 255);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 float vtkBundledGraphItem::EdgeWidth(vtkIdType vtkNotUsed(lineIdx), vtkIdType vtkNotUsed(pointIdx))
 {
   return 4.0f;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestBoostDividedEdgeBundling(int argc, char* argv[])
 {
   vtkNew<vtkMutableDirectedGraph> graph;

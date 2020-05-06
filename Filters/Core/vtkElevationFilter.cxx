@@ -90,7 +90,7 @@ struct vtkElevationAlgorithm
   }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Templated class is glue between VTK and templated algorithms.
 struct Elevate
 {
@@ -106,7 +106,7 @@ struct Elevate
 
 } // end anon namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Begin the class proper
 vtkElevationFilter::vtkElevationFilter()
 {
@@ -122,10 +122,10 @@ vtkElevationFilter::vtkElevationFilter()
   this->ScalarRange[1] = 1.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkElevationFilter::~vtkElevationFilter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkElevationFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -137,7 +137,7 @@ void vtkElevationFilter::PrintSelf(ostream& os, vtkIndent indent)
      << ")\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkElevationFilter::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

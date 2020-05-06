@@ -24,19 +24,19 @@
 
 #include <set>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkClosestNPointsStrategy);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkClosestNPointsStrategy::vtkClosestNPointsStrategy()
 {
   this->ClosestNPoints = 9;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkClosestNPointsStrategy::~vtkClosestNPointsStrategy() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkClosestNPointsStrategy::FindCell(double x[3], vtkCell* cell, vtkGenericCell* gencell,
   vtkIdType cellId, double tol2, int& subId, double pcoords[3], double* weights)
 {
@@ -86,7 +86,7 @@ vtkIdType vtkClosestNPointsStrategy::FindCell(double x[3], vtkCell* cell, vtkGen
   return -1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkClosestNPointsStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

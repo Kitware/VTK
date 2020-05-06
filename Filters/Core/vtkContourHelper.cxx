@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkPolygonBuilder.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkContourHelper::vtkContourHelper(vtkIncrementalPointLocator* locator, vtkCellArray* verts,
   vtkCellArray* lines, vtkCellArray* polys, vtkPointData* inPd, vtkCellData* inCd,
   vtkPointData* outPd, vtkCellData* outCd, int estimatedSize, bool outputTriangles)
@@ -47,7 +47,7 @@ vtkContourHelper::vtkContourHelper(vtkIncrementalPointLocator* locator, vtkCellA
   this->PolyCollection = vtkIdListCollection::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkContourHelper::~vtkContourHelper()
 {
   this->Tris->Delete();
@@ -55,7 +55,7 @@ vtkContourHelper::~vtkContourHelper()
   this->PolyCollection->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContourHelper::Contour(
   vtkCell* cell, double value, vtkDataArray* cellScalars, vtkIdType cellId)
 {

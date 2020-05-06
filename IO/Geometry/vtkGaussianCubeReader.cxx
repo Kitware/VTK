@@ -36,7 +36,7 @@
 
 vtkStandardNewMacro(vtkGaussianCubeReader);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct object with merging set to true.
 vtkGaussianCubeReader::vtkGaussianCubeReader()
 {
@@ -51,7 +51,7 @@ vtkGaussianCubeReader::vtkGaussianCubeReader()
   grid->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGaussianCubeReader::~vtkGaussianCubeReader()
 {
 
@@ -59,7 +59,7 @@ vtkGaussianCubeReader::~vtkGaussianCubeReader()
   // must delete the second output added
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGaussianCubeReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -230,7 +230,7 @@ int vtkGaussianCubeReader::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGaussianCubeReader::ReadSpecificMolecule(FILE* fp)
 {
   int i, j;
@@ -259,7 +259,7 @@ void vtkGaussianCubeReader::ReadSpecificMolecule(FILE* fp)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageData* vtkGaussianCubeReader::GetGridOutput()
 {
   if (this->GetNumberOfOutputPorts() < 2)
@@ -269,7 +269,7 @@ vtkImageData* vtkGaussianCubeReader::GetGridOutput()
   return vtkImageData::SafeDownCast(this->GetExecutive()->GetOutputData(1));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGaussianCubeReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -288,7 +288,7 @@ void vtkGaussianCubeReader::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Default implementation - copy information from first input to all outputs
 int vtkGaussianCubeReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
@@ -369,7 +369,7 @@ int vtkGaussianCubeReader::RequestInformation(vtkInformation* vtkNotUsed(request
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGaussianCubeReader::FillOutputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)

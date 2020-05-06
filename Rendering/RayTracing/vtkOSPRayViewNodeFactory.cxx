@@ -95,7 +95,7 @@ vtkViewNode* tetm_maker()
 //============================================================================
 vtkStandardNewMacro(vtkOSPRayViewNodeFactory);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOSPRayViewNodeFactory::vtkOSPRayViewNodeFactory()
 {
   // see vtkRenderWindow::GetRenderLibrary
@@ -121,10 +121,10 @@ vtkOSPRayViewNodeFactory::vtkOSPRayViewNodeFactory()
   this->RegisterOverride("vtkMoleculeMapper", molecule_maker);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOSPRayViewNodeFactory::~vtkOSPRayViewNodeFactory() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayViewNodeFactory::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

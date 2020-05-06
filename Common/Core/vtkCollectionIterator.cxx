@@ -18,20 +18,20 @@
 
 vtkStandardNewMacro(vtkCollectionIterator);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCollectionIterator::vtkCollectionIterator()
 {
   this->Element = nullptr;
   this->Collection = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCollectionIterator::~vtkCollectionIterator()
 {
   this->SetCollection(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCollectionIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -45,14 +45,14 @@ void vtkCollectionIterator::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCollectionIterator::SetCollection(vtkCollection* collection)
 {
   vtkSetObjectBodyMacro(Collection, vtkCollection, collection);
   this->GoToFirstItem();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCollectionIterator::GoToFirstItem()
 {
   if (this->Collection)
@@ -65,7 +65,7 @@ void vtkCollectionIterator::GoToFirstItem()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCollectionIterator::GoToNextItem()
 {
   if (this->Element)
@@ -74,13 +74,13 @@ void vtkCollectionIterator::GoToNextItem()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCollectionIterator::IsDoneWithTraversal()
 {
   return (this->Element ? 0 : 1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkObject* vtkCollectionIterator::GetCurrentObject()
 {
   if (this->Element)

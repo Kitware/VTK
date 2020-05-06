@@ -50,7 +50,7 @@ protected:
 
 vtkStandardNewMacro(vtkTextRepresentation);
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTextRepresentation::vtkTextRepresentation()
 {
   this->Observer = vtkTextRepresentationObserver::New();
@@ -64,7 +64,7 @@ vtkTextRepresentation::vtkTextRepresentation()
   this->WindowLocation = AnyLocation;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTextRepresentation::~vtkTextRepresentation()
 {
   this->SetTextActor(nullptr);
@@ -72,7 +72,7 @@ vtkTextRepresentation::~vtkTextRepresentation()
   this->Observer->Delete();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextRepresentation::SetTextActor(vtkTextActor* textActor)
 {
   if (textActor != this->TextActor)
@@ -94,7 +94,7 @@ void vtkTextRepresentation::SetTextActor(vtkTextActor* textActor)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextRepresentation::SetText(const char* text)
 {
   if (this->TextActor)
@@ -107,7 +107,7 @@ void vtkTextRepresentation::SetText(const char* text)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkTextRepresentation::GetText()
 {
   if (this->TextActor)
@@ -118,7 +118,7 @@ const char* vtkTextRepresentation::GetText()
   return nullptr;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextRepresentation::BuildRepresentation()
 {
   // Ask the superclass the size and set the text
@@ -135,21 +135,21 @@ void vtkTextRepresentation::BuildRepresentation()
   this->Superclass::BuildRepresentation();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextRepresentation::GetActors2D(vtkPropCollection* pc)
 {
   pc->AddItem(this->TextActor);
   this->Superclass::GetActors2D(pc);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextRepresentation::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->TextActor->ReleaseGraphicsResources(w);
   this->Superclass::ReleaseGraphicsResources(w);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTextRepresentation::RenderOverlay(vtkViewport* w)
 {
   int count = this->Superclass::RenderOverlay(w);
@@ -157,7 +157,7 @@ int vtkTextRepresentation::RenderOverlay(vtkViewport* w)
   return count;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTextRepresentation::RenderOpaqueGeometry(vtkViewport* w)
 {
   // CheckTextBoundary resize the text actor. This needs to happen before we
@@ -169,7 +169,7 @@ int vtkTextRepresentation::RenderOpaqueGeometry(vtkViewport* w)
   return count;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTextRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport* w)
 {
   int count = this->Superclass::RenderTranslucentPolygonalGeometry(w);
@@ -177,7 +177,7 @@ int vtkTextRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport* w)
   return count;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkTextRepresentation::HasTranslucentPolygonalGeometry()
 {
   int result = this->Superclass::HasTranslucentPolygonalGeometry();
@@ -185,7 +185,7 @@ vtkTypeBool vtkTextRepresentation::HasTranslucentPolygonalGeometry()
   return result;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextRepresentation::InitializeTextActor()
 {
   if (this->TextActor)
@@ -208,7 +208,7 @@ void vtkTextRepresentation::InitializeTextActor()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextRepresentation::ExecuteTextPropertyModifiedEvent(
   vtkObject* object, unsigned long enumEvent, void*)
 {
@@ -225,7 +225,7 @@ void vtkTextRepresentation::ExecuteTextPropertyModifiedEvent(
   this->CheckTextBoundary();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextRepresentation::ExecuteTextActorModifiedEvent(
   vtkObject* object, unsigned long enumEvent, void*)
 {
@@ -248,7 +248,7 @@ void vtkTextRepresentation::ExecuteTextActorModifiedEvent(
   this->CheckTextBoundary();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextRepresentation::CheckTextBoundary()
 {
   if (this->GetRenderer() &&
@@ -304,7 +304,7 @@ void vtkTextRepresentation::CheckTextBoundary()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextRepresentation::SetWindowLocation(int enumLocation)
 {
   if (this->WindowLocation == enumLocation)
@@ -317,7 +317,7 @@ void vtkTextRepresentation::SetWindowLocation(int enumLocation)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextRepresentation::SetPosition(double x, double y)
 {
   double* pos = this->PositionCoordinate->GetValue();
@@ -330,7 +330,7 @@ void vtkTextRepresentation::SetPosition(double x, double y)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextRepresentation::UpdateWindowLocation()
 {
   if (this->WindowLocation != AnyLocation)
@@ -362,7 +362,7 @@ void vtkTextRepresentation::UpdateWindowLocation()
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -20,17 +20,17 @@
 
 vtkStandardNewMacro(vtkReebGraphSimplificationMetric);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkReebGraphSimplificationMetric::vtkReebGraphSimplificationMetric()
 {
   this->LowerBound = 0;
   this->UpperBound = 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkReebGraphSimplificationMetric::~vtkReebGraphSimplificationMetric() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkReebGraphSimplificationMetric::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -38,7 +38,7 @@ void vtkReebGraphSimplificationMetric::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Lower Bound: " << this->LowerBound << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkReebGraphSimplificationMetric::ComputeMetric(vtkDataSet* vtkNotUsed(mesh),
   vtkDataArray* vtkNotUsed(scalarField), vtkIdType vtkNotUsed(startCriticalPoint),
   vtkAbstractArray* vtkNotUsed(vertexList), vtkIdType vtkNotUsed(endCriticalPoint))

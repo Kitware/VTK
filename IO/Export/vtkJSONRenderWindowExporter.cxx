@@ -72,11 +72,11 @@ vtkStandardNewMacro(vtkJSONDataSetArchiver);
 vtkCxxSetObjectMacro(vtkJSONDataSetArchiver, RenderWindowArchiver, vtkArchiver);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkJSONRenderWindowExporter);
 vtkCxxSetObjectMacro(vtkJSONRenderWindowExporter, Archiver, vtkArchiver);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkJSONRenderWindowExporter::vtkJSONRenderWindowExporter()
 {
   this->Serializer = vtkVtkJSSceneGraphSerializer::New();
@@ -86,7 +86,7 @@ vtkJSONRenderWindowExporter::vtkJSONRenderWindowExporter()
   this->CompactOutput = true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkJSONRenderWindowExporter::~vtkJSONRenderWindowExporter()
 {
   this->SetSerializer(nullptr);
@@ -94,7 +94,7 @@ vtkJSONRenderWindowExporter::~vtkJSONRenderWindowExporter()
   this->Factory->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkJSONRenderWindowExporter::SetSerializer(vtkVtkJSSceneGraphSerializer* args)
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting Serializer to " << args);
@@ -115,7 +115,7 @@ void vtkJSONRenderWindowExporter::SetSerializer(vtkVtkJSSceneGraphSerializer* ar
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkJSONRenderWindowExporter::WriteData()
 {
   if (this->GetSerializer() == nullptr)
@@ -197,7 +197,7 @@ void vtkJSONRenderWindowExporter::WriteData()
   this->GetArchiver()->CloseArchive();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkJSONRenderWindowExporter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
