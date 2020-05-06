@@ -19,6 +19,7 @@ set (VolumeCxxTests
   TestGPURayCastCompositeMaskBlend.cxx
   TestGPURayCastCompositeToMIP.cxx
   TestGPURayCastCropping.cxx
+  TestGPURayCastCropping1.cxx
   TestGPURayCastDataTypesMIP.cxx
   TestGPURayCastDataTypesMinIP.cxx
   TestGPURayCastDependentComponentsLightParameters.cxx
