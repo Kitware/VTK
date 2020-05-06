@@ -1558,8 +1558,21 @@ std::string ShadingSingleInput(vtkRenderer* vtkNotUsed(ren), vtkVolumeMapper* ma
       \n        vec4 dataPosWorldScaled = dataPosWorld * vec4(in_coordsScale, 1.0) + vec4(in_coordsBias, 1.0);\
       \n        for (int j = 0; j < 3; ++j)\
       \n          {\
-      \n          xPrev = texture1D(in_coordTexs[j], 0.0).r;\
-      \n          xNext = texture1D(in_coordTexs[j], (in_coordTexSizes[j] - 1) / in_coordTexSizes[j]).r;\
+      \n          switch (j)\
+      \n            {\
+      \n            case 0:\
+      \n              xPrev = texture1D(in_coordTexs[0], 0.0).r;\
+      \n              xNext = texture1D(in_coordTexs[0], (in_coordTexSizes[j] - 1) / in_coordTexSizes[j]).r;\
+      \n              break;\
+      \n            case 1:\
+      \n              xPrev = texture1D(in_coordTexs[1], 0.0).r;\
+      \n              xNext = texture1D(in_coordTexs[1], (in_coordTexSizes[j] - 1) / in_coordTexSizes[j]).r;\
+      \n              break;\
+      \n            case 2:\
+      \n              xPrev = texture1D(in_coordTexs[2], 0.0).r;\
+      \n              xNext = texture1D(in_coordTexs[2], (in_coordTexSizes[j] - 1) / in_coordTexSizes[j]).r;\
+      \n              break;\
+      \n            }\
       \n          float tmp;\
       \n          if (xNext < xPrev)\
       \n            {\
@@ -1569,7 +1582,18 @@ std::string ShadingSingleInput(vtkRenderer* vtkNotUsed(ren), vtkVolumeMapper* ma
       \n            }\
       \n          for (int i = 0; i < int(in_coordTexSizes[j]); i++)\
       \n            {\
-      \n            xNext = texture1D(in_coordTexs[j], (i + 0.5) / in_coordTexSizes[j]).r;\
+      \n            switch (j)\
+      \n              {\
+      \n              case 0:\
+      \n                xNext = texture1D(in_coordTexs[0], (i + 0.5) / in_coordTexSizes[j]).r;\
+      \n                break;\
+      \n              case 1:\
+      \n                xNext = texture1D(in_coordTexs[1], (i + 0.5) / in_coordTexSizes[j]).r;\
+      \n                break;\
+      \n              case 2:\
+      \n                xNext = texture1D(in_coordTexs[2], (i + 0.5) / in_coordTexSizes[j]).r;\
+      \n                break;\
+      \n              }\
       \n            if (dataPosWorldScaled[j] >= xPrev && dataPosWorldScaled[j] < xNext)\
       \n              {\
       \n              ijk[j] = i - 1;\

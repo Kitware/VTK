@@ -3204,7 +3204,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::BindTransformations(
         coordUnits[0] = volTex->XCoordsTex->GetTextureUnit();
         coordUnits[1] = volTex->YCoordsTex->GetTextureUnit();
         coordUnits[2] = volTex->ZCoordsTex->GetTextureUnit();
-        prog->SetUniform1iv("in_coordTexs", 3, reinterpret_cast<const int(*)>(coordUnits));
+        prog->SetUniform1iv("in_coordTexs", 3, coordUnits);
         float fvalue3[3];
         vtkInternal::ToFloat(volTex->CoordsTexSizes, fvalue3, 3);
         prog->SetUniform3fv("in_coordTexSizes", 1, &fvalue3);
