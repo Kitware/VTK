@@ -46,41 +46,57 @@ vtkVolumeMapper::~vtkVolumeMapper() = default;
 void vtkVolumeMapper::ConvertCroppingRegionPlanesToVoxels()
 {
   vtkDataSet* input = this->GetInput();
-  if (vtkImageData* imageData = vtkImageData::SafeDownCast(input))
+  const double* bds = this->GetInput()->GetBounds();
+  double physicalPt[3], ijk[3];
+  int dims[3];
+  vtkImageData* imageData = vtkImageData::SafeDownCast(input);
+  vtkRectilinearGrid* rectGrid = vtkRectilinearGrid::SafeDownCast(input);
+  if (imageData)
   {
-    double* spacing = imageData->GetSpacing();
-    int dimensions[3];
-    imageData->GetDimensions(dimensions);
-    double origin[3];
-    const double* bds = this->GetInput()->GetBounds();
-    origin[0] = bds[0];
-    origin[1] = bds[2];
-    origin[2] = bds[4];
-
-    for (int i = 0; i < 6; i++)
-    {
-      this->VoxelCroppingRegionPlanes[i] =
-        (this->CroppingRegionPlanes[i] - origin[i / 2]) / spacing[i / 2];
-
-      this->VoxelCroppingRegionPlanes[i] =
-        (this->VoxelCroppingRegionPlanes[i] < 0) ? (0) : (this->VoxelCroppingRegionPlanes[i]);
-
-      this->VoxelCroppingRegionPlanes[i] =
-        (this->VoxelCroppingRegionPlanes[i] > dimensions[i / 2] - 1)
-        ? (dimensions[i / 2] - 1)
-        : (this->VoxelCroppingRegionPlanes[i]);
-    }
+    imageData->GetDimensions(dims);
   }
-  else if (vtkRectilinearGrid* rectGrid = vtkRectilinearGrid::SafeDownCast(input))
+  else if (rectGrid)
   {
-    vtkNotUsed(rectGrid);
-    // TODO
-    // double bounds[6];
-    // rectGrid->GetBounds(bounds);
-    // double x[3];
-    // for (int i = 0; i < 6; i++)
-    // {
-    // }
+    rectGrid->GetDimensions(dims);
+  }
+  else
+  {
+    return;
+  }
+  for (int i = 0; i < 6; ++i)
+  {
+    for (int j = 0; j < 3; ++j)
+    {
+      physicalPt[j] = bds[2 * j];
+    }
+    physicalPt[i / 2] = this->CroppingRegionPlanes[i];
+    if (imageData)
+    {
+      imageData->TransformPhysicalPointToContinuousIndex(physicalPt, ijk);
+      ijk[i / 2] = ijk[i / 2] < 0 ? 0 : ijk[i / 2];
+      ijk[i / 2] = ijk[i / 2] > dims[i / 2] - 1 ? dims[i / 2] - 1 : ijk[i / 2];
+    }
+    else if (rectGrid)
+    {
+      int ijkI[3];
+      double pCoords[3];
+      if (!rectGrid->ComputeStructuredCoordinates(physicalPt, ijkI, pCoords))
+      {
+        if (physicalPt[i / 2] < bds[i / 2])
+        {
+          ijk[i / 2] = 0;
+        }
+        else
+        {
+          ijk[i / 2] = dims[i / 2] - 1;
+        }
+      }
+      else
+      {
+        ijk[i / 2] = static_cast<double>(ijkI[i / 2]);
+      }
+    }
+    this->VoxelCroppingRegionPlanes[i] = ijk[i / 2];
   }
 }
 
