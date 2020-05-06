@@ -121,6 +121,8 @@ protected:
    */
   void GetGaussCurvature(vtkPolyData* output);
 
+  void ComputeGaussCurvature(vtkCellArray* facets, vtkPolyData* output, double* gaussCurvatureData);
+
   // discrete Mean curvature (H) computation,
   // cf http://www-ipg.umds.ac.uk/p.batchelor/curvatures/curvatures.html
   void GetMeanCurvature(vtkPolyData* output);
