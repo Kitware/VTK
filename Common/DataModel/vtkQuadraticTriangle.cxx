@@ -247,16 +247,10 @@ int vtkQuadraticTriangle::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, v
 void vtkQuadraticTriangle::Derivatives(
   int vtkNotUsed(subId), const double pcoords[3], const double* values, int dim, double* derivs)
 {
-  double sum[3];
+  double sum[2], p[3];
   double functionDerivs[12];
-  double elemNodes[6][3];
   double *J[3], J0[3], J1[3], J2[3];
   double *JI[3], JI0[3], JI1[3], JI2[3];
-
-  for (int i = 0; i < 6; i++)
-  {
-    this->Points->GetPoint(i, elemNodes[i]);
-  }
 
   this->InterpolationDerivs(pcoords, functionDerivs);
 
@@ -274,11 +268,12 @@ void vtkQuadraticTriangle::Derivatives(
 
   for (int i = 0; i < 6; i++)
   {
+    this->Points->GetPoint(i, p);
     for (int j = 0; j < 2; j++)
     {
       for (int k = 0; k < 3; k++)
       {
-        J[j][k] += elemNodes[i][k] * functionDerivs[j * 6 + i];
+        J[j][k] += p[k] * functionDerivs[j * 6 + i];
       }
     }
   }
@@ -303,7 +298,7 @@ void vtkQuadraticTriangle::Derivatives(
   // First compute derivatives in local x'-y' coordinate system
   for (int j = 0; j < dim; j++)
   {
-    sum[0] = sum[1] = sum[2] = 0.0;
+    sum[0] = sum[1] = 0.0;
     for (int i = 0; i < 6; i++) // loop over interp. function derivatives
     {
       sum[0] += functionDerivs[i] * values[dim * i + j];
