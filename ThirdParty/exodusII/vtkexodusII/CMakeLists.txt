@@ -297,14 +297,19 @@ set(headers
   "${CMAKE_CURRENT_BINARY_DIR}/include/exodusII_cfg.h"
   "${CMAKE_CURRENT_BINARY_DIR}/include/exodus_config.h")
 
+vtk_module_find_package(PACKAGE Threads)
+
 vtk_module_add_module(VTK::exodusII
   SOURCES ${sources}
   HEADERS ${headers}
   HEADERS_SUBDIR "vtkexodusII/include")
-target_compile_definitions(exodusII
+vtk_module_definitions(VTK::exodusII
   PRIVATE
     exoIIc_EXPORTS)
-target_include_directories(exodusII
+vtk_module_include(VTK::exodusII
   PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>")
+vtk_module_link(VTK::exodusII
+  PRIVATE
+    Threads::Threads)
