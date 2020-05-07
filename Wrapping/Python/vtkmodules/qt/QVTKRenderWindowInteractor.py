@@ -384,6 +384,7 @@ class QVTKRenderWindowInteractor(QVTKRWIBaseClass):
         scale = self._getPixelRatio()
         w = int(round(scale*self.width()))
         h = int(round(scale*self.height()))
+        self._RenderWindow.SetDPI(int(round(72*scale)))
         vtkRenderWindow.SetSize(self._RenderWindow, w, h)
         self._Iren.SetSize(w, h)
         self._Iren.ConfigureEvent()
