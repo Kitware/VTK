@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2017 National Technology & Engineering Solutions
+ * Copyright (c) 2005-2017, 2020 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -94,10 +94,11 @@ error = ex_put_truth_table(exoid, EX_ELEM_BLOCK, num_elem_blk, num_ele_vars,
 int ex_put_truth_table(int exoid, ex_entity_type obj_type, int num_blk, int num_var, int *var_tab)
 {
   int    numelblkdim, numelvardim, timedim, dims[2], varid;
-  char * sta_type, *tab_type;
+  char * sta_type   = NULL;
+  char * tab_type   = NULL;
   size_t num_entity = 0;
   size_t num_var_db = 0;
-  int *  stat_vals;
+  int *  stat_vals  = NULL;
   int    i, j, k;
   int    status;
   char   errmsg[MAX_ERR_LENGTH];
@@ -190,6 +191,15 @@ int ex_put_truth_table(int exoid, ex_entity_type obj_type, int num_blk, int num_
     sta_type = VAR_ELS_STAT;
     tab_type = VAR_ELSET_TAB;
   }
+  else if (obj_type == EX_BLOB) {
+    ex__get_dimension(exoid, DIM_NUM_BLOB_VAR, "blob variables", &num_var_db, &numelvardim,
+                      __func__);
+    var_name = "vals_blob_var";
+    ent_type = "blob";
+    ent_size = "num_values_blob";
+    sta_type = "";
+    tab_type = VAR_BLOB_TAB;
+  }
 
   else { /* invalid variable type */
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: Invalid variable type %d specified in file id %d",
@@ -222,7 +232,12 @@ int ex_put_truth_table(int exoid, ex_entity_type obj_type, int num_blk, int num_
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
-  status = nc_inq_varid(exoid, sta_type, &varid);
+  if (strlen(sta_type) > 1) {
+    status = nc_inq_varid(exoid, sta_type, &varid);
+  }
+  else {
+    status = EX_FATAL; // Anything except EX_NOERR so hits `else` below
+  }
 
   /* get variable id of status array */
   if (status == NC_NOERR) {

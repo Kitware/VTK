@@ -69,6 +69,13 @@ int ex_get_names(int exoid, ex_entity_type obj_type, char **names)
   /* inquire previously defined dimensions and variables  */
 
   switch (obj_type) {
+    /* ======== ASSEMBLY ========= */
+  case EX_ASSEMBLY:
+    snprintf(errmsg, MAX_ERR_LENGTH,
+             "ERROR: Assembly names are read using `ex_get_assembly()` function");
+    ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
+    EX_FUNC_LEAVE(EX_FATAL);
+    break;
   /*  ======== BLOCKS ========= */
   case EX_EDGE_BLOCK:
     ex__get_dimension(exoid, DIM_NUM_ED_BLK, "edge block", &num_entity, &temp, __func__);

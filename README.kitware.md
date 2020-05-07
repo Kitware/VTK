@@ -8,5 +8,5 @@ process.
 
   * Add attributes to pass commit checks within VTK.
   * CMake code to integrate with VTK's module system.
-  * Mangle all exported symbols to have a `vtkexodusII_` prefix.
   * Use VTK's netcdf library
+  * Mangle all exported symbols to have a `vtkexodusII_` prefix.

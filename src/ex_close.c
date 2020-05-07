@@ -128,6 +128,8 @@ int ex_close(int exoid)
   ex__rm_file_item(exoid, ex__get_counter_list(EX_EDGE_MAP));
   ex__rm_file_item(exoid, ex__get_counter_list(EX_FACE_MAP));
   ex__rm_file_item(exoid, ex__get_counter_list(EX_ELEM_MAP));
+  ex__rm_file_item(exoid, ex__get_counter_list(EX_ASSEMBLY));
+  ex__rm_file_item(exoid, ex__get_counter_list(EX_BLOB));
 
   ex__rm_stat_ptr(exoid, &exoII_ed);
   ex__rm_stat_ptr(exoid, &exoII_fa);

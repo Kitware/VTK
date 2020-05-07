@@ -340,6 +340,28 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
     *ret_int = ldum;
     break;
 
+  case EX_INQ_ASSEMBLY:
+    /* returns the number of assemblies */
+    {
+      *ret_int                   = 0;
+      struct ex__file_item *file = ex__find_file_item(exoid);
+      if (file) {
+        *ret_int = file->assembly_count;
+      }
+    }
+    break;
+
+  case EX_INQ_BLOB:
+    /* returns the number of blobs */
+    {
+      *ret_int                   = 0;
+      struct ex__file_item *file = ex__find_file_item(exoid);
+      if (file) {
+        *ret_int = file->blob_count;
+      }
+    }
+    break;
+
   case EX_INQ_NODES:
     /* returns the number of nodes */
     if (ex__get_dimension(exoid, DIM_NUM_NODES, "nodes", &ldum, &dimid, NULL) != NC_NOERR) {
