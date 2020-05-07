@@ -25,7 +25,7 @@
 
 vtkStandardNewMacro(vtkEllipseArcSource);
 
-// --------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkEllipseArcSource::vtkEllipseArcSource()
 {
   // Default center is origin
@@ -60,7 +60,7 @@ vtkEllipseArcSource::vtkEllipseArcSource()
   this->SetNumberOfInputPorts(0);
 }
 
-// --------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEllipseArcSource::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -200,7 +200,7 @@ int vtkEllipseArcSource::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-// --------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkEllipseArcSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

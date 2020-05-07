@@ -38,19 +38,19 @@ public:
   vtkWindowIdToDevice Map;
 };
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTDxQtUnixDevices::vtkTDxQtUnixDevices()
 {
   this->Private = new vtkTDxQtUnixDevicesPrivate;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTDxQtUnixDevices::~vtkTDxQtUnixDevices()
 {
   delete this->Private;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTDxQtUnixDevices::ProcessEvent(vtkTDxUnixDeviceXEvent* e)
 {
   const XEvent* event = static_cast<const XEvent*>(e);
@@ -78,7 +78,7 @@ void vtkTDxQtUnixDevices::ProcessEvent(vtkTDxUnixDeviceXEvent* e)
       // not yet created.
       device = vtkSmartPointer<vtkTDxUnixDevice>::New();
       this->Private->Map.insert(
-        std::pair<const vtkTDxUnixDeviceWindow, vtkSmartPointer<vtkTDxUnixDevice> >(winId, device));
+        std::pair<const vtkTDxUnixDeviceWindow, vtkSmartPointer<vtkTDxUnixDevice>>(winId, device));
 
       device->SetDisplayId(event->xany.display);
       device->SetWindowId(winId);

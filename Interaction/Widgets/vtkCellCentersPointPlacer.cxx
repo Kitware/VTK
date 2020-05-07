@@ -28,7 +28,7 @@
 
 vtkStandardNewMacro(vtkCellCentersPointPlacer);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCellCentersPointPlacer::vtkCellCentersPointPlacer()
 {
   this->PickProps = vtkPropCollection::New();
@@ -38,28 +38,28 @@ vtkCellCentersPointPlacer::vtkCellCentersPointPlacer()
   this->Mode = vtkCellCentersPointPlacer::CellPointsMean;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCellCentersPointPlacer::~vtkCellCentersPointPlacer()
 {
   this->PickProps->Delete();
   this->CellPicker->Delete();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellCentersPointPlacer::AddProp(vtkProp* prop)
 {
   this->PickProps->AddItem(prop);
   this->CellPicker->AddPickList(prop);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellCentersPointPlacer::RemoveViewProp(vtkProp* prop)
 {
   this->PickProps->RemoveItem(prop);
   this->CellPicker->DeletePickList(prop);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellCentersPointPlacer::RemoveAllProps()
 {
   this->PickProps->RemoveAllItems();
@@ -67,26 +67,26 @@ void vtkCellCentersPointPlacer::RemoveAllProps()
                                           // old props from it...
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCellCentersPointPlacer::HasProp(vtkProp* prop)
 {
   return this->PickProps->IsItemPresent(prop);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCellCentersPointPlacer::GetNumberOfProps()
 {
   return this->PickProps->GetNumberOfItems();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCellCentersPointPlacer::ComputeWorldPosition(vtkRenderer* ren, double displayPos[2],
   double* vtkNotUsed(refWorldPos), double worldPos[3], double worldOrient[9])
 {
   return this->ComputeWorldPosition(ren, displayPos, worldPos, worldOrient);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCellCentersPointPlacer::ComputeWorldPosition(
   vtkRenderer* ren, double displayPos[2], double worldPos[3], double vtkNotUsed(worldOrient)[9])
 {
@@ -167,27 +167,27 @@ int vtkCellCentersPointPlacer::ComputeWorldPosition(
   return 0;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCellCentersPointPlacer::ValidateWorldPosition(
   double worldPos[3], double* vtkNotUsed(worldOrient))
 {
   return this->ValidateWorldPosition(worldPos);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCellCentersPointPlacer::ValidateWorldPosition(double vtkNotUsed(worldPos)[3])
 {
   return 1;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCellCentersPointPlacer::ValidateDisplayPosition(
   vtkRenderer*, double vtkNotUsed(displayPos)[2])
 {
   return 1;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellCentersPointPlacer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

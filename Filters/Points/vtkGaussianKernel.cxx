@@ -24,17 +24,17 @@
 
 vtkStandardNewMacro(vtkGaussianKernel);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGaussianKernel::vtkGaussianKernel()
 {
   this->Sharpness = 2.0;
   this->F2 = this->Sharpness / this->Radius;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGaussianKernel::~vtkGaussianKernel() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGaussianKernel::Initialize(vtkAbstractPointLocator* loc, vtkDataSet* ds, vtkPointData* pd)
 {
   this->Superclass::Initialize(loc, ds, pd);
@@ -43,7 +43,7 @@ void vtkGaussianKernel::Initialize(vtkAbstractPointLocator* loc, vtkDataSet* ds,
   this->F2 = this->F2 * this->F2;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkGaussianKernel::ComputeWeights(
   double x[3], vtkIdList* pIds, vtkDoubleArray* prob, vtkDoubleArray* weights)
 {
@@ -88,7 +88,7 @@ vtkIdType vtkGaussianKernel::ComputeWeights(
   return numPts;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGaussianKernel::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

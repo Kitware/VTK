@@ -321,7 +321,7 @@ void DICOMAppHelper::SeriesUIDCallback(
 
     newVector.push_back(parser->GetFileName());
     this->Implementation->SeriesUIDMap.insert(
-      dicom_stl::pair<const dicom_stl::string, dicom_stl::vector<dicom_stl::string> >(
+      dicom_stl::pair<const dicom_stl::string, dicom_stl::vector<dicom_stl::string>>(
         newStdString, newVector));
   }
   else
@@ -1022,7 +1022,7 @@ bool DICOMAppHelper::RescaledImageDataIsSigned()
 }
 
 void DICOMAppHelper::GetSliceNumberFilenamePairs(const dicom_stl::string& seriesUID,
-  dicom_stl::vector<dicom_stl::pair<int, dicom_stl::string> >& v, bool ascending)
+  dicom_stl::vector<dicom_stl::pair<int, dicom_stl::string>>& v, bool ascending)
 {
   v.clear();
 
@@ -1064,7 +1064,7 @@ void DICOMAppHelper::GetSliceNumberFilenamePairs(const dicom_stl::string& series
 }
 
 void DICOMAppHelper::GetSliceNumberFilenamePairs(
-  dicom_stl::vector<dicom_stl::pair<int, dicom_stl::string> >& v, bool ascending)
+  dicom_stl::vector<dicom_stl::pair<int, dicom_stl::string>>& v, bool ascending)
 {
   // Default to using the first series
   if (!this->Implementation->SeriesUIDMap.empty())
@@ -1079,7 +1079,7 @@ void DICOMAppHelper::GetSliceNumberFilenamePairs(
 }
 
 void DICOMAppHelper::GetSliceLocationFilenamePairs(const dicom_stl::string& seriesUID,
-  dicom_stl::vector<dicom_stl::pair<float, dicom_stl::string> >& v, bool ascending)
+  dicom_stl::vector<dicom_stl::pair<float, dicom_stl::string>>& v, bool ascending)
 {
   v.clear();
 
@@ -1121,7 +1121,7 @@ void DICOMAppHelper::GetSliceLocationFilenamePairs(const dicom_stl::string& seri
 }
 
 void DICOMAppHelper::GetSliceLocationFilenamePairs(
-  dicom_stl::vector<dicom_stl::pair<float, dicom_stl::string> >& v, bool ascending)
+  dicom_stl::vector<dicom_stl::pair<float, dicom_stl::string>>& v, bool ascending)
 {
   // Default to using the first series
   if (!this->Implementation->SeriesUIDMap.empty())
@@ -1136,7 +1136,7 @@ void DICOMAppHelper::GetSliceLocationFilenamePairs(
 }
 
 void DICOMAppHelper::GetImagePositionPatientFilenamePairs(const dicom_stl::string& seriesUID,
-  dicom_stl::vector<dicom_stl::pair<float, dicom_stl::string> >& v, bool ascending)
+  dicom_stl::vector<dicom_stl::pair<float, dicom_stl::string>>& v, bool ascending)
 {
   v.clear();
 
@@ -1199,7 +1199,7 @@ void DICOMAppHelper::GetImagePositionPatientFilenamePairs(const dicom_stl::strin
 }
 
 void DICOMAppHelper::GetImagePositionPatientFilenamePairs(
-  dicom_stl::vector<dicom_stl::pair<float, dicom_stl::string> >& v, bool ascending)
+  dicom_stl::vector<dicom_stl::pair<float, dicom_stl::string>>& v, bool ascending)
 {
   // Default to using the first series
   if (!this->Implementation->SeriesUIDMap.empty())

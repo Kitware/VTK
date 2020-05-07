@@ -47,7 +47,7 @@
 #include "vtkWin32OpenGLRenderWindow.h"
 #include "vtkWin32RenderWindowInteractor.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestDragon(int argc, char* argv[])
 {
   vtkNew<vtkOpenVRRenderer> renderer;

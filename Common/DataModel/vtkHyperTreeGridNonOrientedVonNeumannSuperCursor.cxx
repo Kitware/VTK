@@ -27,7 +27,7 @@ vtkStandardNewMacro(vtkHyperTreeGridNonOrientedVonNeumannSuperCursor);
 
 #include "vtkHyperTreeGridNonOrientedVonNeumannSuperCursorData.cxx"
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridNonOrientedVonNeumannSuperCursor::Initialize(
   vtkHyperTreeGrid* grid, vtkIdType treeIndex, bool create)
 {
@@ -300,15 +300,15 @@ void vtkHyperTreeGridNonOrientedVonNeumannSuperCursor::Initialize(
   } // switch Dimension
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridNonOrientedVonNeumannSuperCursor::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "--vtkHyperTreeGridNonOrientedVonNeumannSuperCursor--" << endl;
   vtkHyperTreeGridNonOrientedSuperCursor::PrintSelf(os, indent);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHyperTreeGridNonOrientedVonNeumannSuperCursor::
   ~vtkHyperTreeGridNonOrientedVonNeumannSuperCursor() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------

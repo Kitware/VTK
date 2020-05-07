@@ -139,7 +139,7 @@ void vtkProgrammableAttributeDataFilter::PrintSelf(ostream& os, vtkIndent indent
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProgrammableAttributeDataFilter ::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);

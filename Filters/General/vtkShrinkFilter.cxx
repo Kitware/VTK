@@ -26,23 +26,23 @@
 
 vtkStandardNewMacro(vtkShrinkFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkShrinkFilter::vtkShrinkFilter()
 {
   this->ShrinkFactor = 0.5;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkShrinkFilter::~vtkShrinkFilter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkShrinkFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Shrink Factor: " << this->ShrinkFactor << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkShrinkFilter::FillInputPortInformation(int, vtkInformation* info)
 {
   // This filter uses the vtkDataSet cell traversal methods so it
@@ -51,7 +51,7 @@ int vtkShrinkFilter::FillInputPortInformation(int, vtkInformation* info)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkShrinkFilter::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

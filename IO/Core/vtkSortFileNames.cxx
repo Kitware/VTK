@@ -34,7 +34,7 @@ vtkStandardNewMacro(vtkSortFileNames);
 class vtkStringArrayVector
 {
 public:
-  typedef std::vector<vtkSmartPointer<vtkStringArray> > VectorType;
+  typedef std::vector<vtkSmartPointer<vtkStringArray>> VectorType;
 
   static vtkStringArrayVector* New() { return new vtkStringArrayVector; }
 
@@ -64,7 +64,7 @@ private:
   VectorType Container;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSortFileNames::vtkSortFileNames()
 {
   this->InputFileNames = nullptr;

@@ -373,7 +373,7 @@ VTK_THREAD_RETURN_TYPE Worker(void* calldata)
 class vtkDataEncoder::vtkInternals
 {
 private:
-  std::map<vtkTypeUInt32, vtkSmartPointer<vtkUnsignedCharArray> > ClonedOutputs;
+  std::map<vtkTypeUInt32, vtkSmartPointer<vtkUnsignedCharArray>> ClonedOutputs;
   std::vector<int> RunningThreadIds;
 
 public:
@@ -445,7 +445,7 @@ public:
 };
 
 vtkStandardNewMacro(vtkDataEncoder);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataEncoder::vtkDataEncoder()
   : Internals(new vtkInternals())
 {
@@ -453,7 +453,7 @@ vtkDataEncoder::vtkDataEncoder()
   this->Initialize();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataEncoder::~vtkDataEncoder()
 {
   this->Internals->TerminateAllWorkers();
@@ -461,7 +461,7 @@ vtkDataEncoder::~vtkDataEncoder()
   this->Internals = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataEncoder::SetMaxThreads(vtkTypeUInt32 maxThreads)
 {
   if (maxThreads < MAX_NUMBER_OF_THREADS_IN_POOL && maxThreads > 0)
@@ -470,14 +470,14 @@ void vtkDataEncoder::SetMaxThreads(vtkTypeUInt32 maxThreads)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataEncoder::Initialize()
 {
   this->Internals->TerminateAllWorkers();
   this->Internals->SpawnWorkers(this->MaxThreads);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataEncoder::PushAndTakeReference(
   vtkTypeUInt32 key, vtkImageData*& data, int quality, int encoding)
 {
@@ -490,13 +490,13 @@ void vtkDataEncoder::PushAndTakeReference(
   assert(data == nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkDataEncoder::GetLatestOutput(vtkTypeUInt32 key, vtkSmartPointer<vtkUnsignedCharArray>& data)
 {
   return this->Internals->GetLatestOutput(key, data);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkDataEncoder::EncodeAsBase64Png(vtkImageData* img, int compressionLevel)
 {
   // Perform in-memory write of image as png
@@ -510,7 +510,7 @@ const char* vtkDataEncoder::EncodeAsBase64Png(vtkImageData* img, int compression
   return this->Internals->GetBase64EncodedImage(writer->GetResult());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkDataEncoder::EncodeAsBase64Jpg(vtkImageData* img, int quality)
 {
   // Perform in-memory write of image as jpg
@@ -524,7 +524,7 @@ const char* vtkDataEncoder::EncodeAsBase64Jpg(vtkImageData* img, int quality)
   return this->Internals->GetBase64EncodedImage(writer->GetResult());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataEncoder::Flush(vtkTypeUInt32 key)
 {
   vtkTypeUInt64 outputTS = this->Internals->SharedData.GetExpectedOutputStamp(key);
@@ -536,13 +536,13 @@ void vtkDataEncoder::Flush(vtkTypeUInt32 key)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataEncoder::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataEncoder::Finalize()
 {
   this->Internals->TerminateAllWorkers();

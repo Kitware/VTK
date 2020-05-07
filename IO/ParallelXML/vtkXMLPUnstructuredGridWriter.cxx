@@ -21,37 +21,37 @@
 
 vtkStandardNewMacro(vtkXMLPUnstructuredGridWriter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLPUnstructuredGridWriter::vtkXMLPUnstructuredGridWriter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLPUnstructuredGridWriter::~vtkXMLPUnstructuredGridWriter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPUnstructuredGridWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUnstructuredGridBase* vtkXMLPUnstructuredGridWriter::GetInput()
 {
   return static_cast<vtkUnstructuredGridBase*>(this->Superclass::GetInput());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXMLPUnstructuredGridWriter::GetDataSetName()
 {
   return "PUnstructuredGrid";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXMLPUnstructuredGridWriter::GetDefaultFileExtension()
 {
   return "pvtu";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLUnstructuredDataWriter* vtkXMLPUnstructuredGridWriter::CreateUnstructuredPieceWriter()
 {
   // Create the writer for the piece.
@@ -60,7 +60,7 @@ vtkXMLUnstructuredDataWriter* vtkXMLPUnstructuredGridWriter::CreateUnstructuredP
   return pWriter;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPUnstructuredGridWriter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGridBase");

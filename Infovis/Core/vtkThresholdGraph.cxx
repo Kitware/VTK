@@ -11,7 +11,7 @@
 
 vtkStandardNewMacro(vtkThresholdGraph);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkThresholdGraph::vtkThresholdGraph()
   : vtkGraphAlgorithm()
   , LowerThreshold(0.0)
@@ -19,13 +19,13 @@ vtkThresholdGraph::vtkThresholdGraph()
 {
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkThresholdGraph::~vtkThresholdGraph()
 {
   // Do nothing.
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkThresholdGraph::PrintSelf(ostream& os, vtkIndent indent)
 {
   // Base class print.
@@ -35,7 +35,7 @@ void vtkThresholdGraph::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "UpperThreshold: " << this->UpperThreshold << endl;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkThresholdGraph::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

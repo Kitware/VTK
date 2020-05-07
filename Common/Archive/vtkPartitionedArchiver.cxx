@@ -25,20 +25,20 @@
 
 struct vtkPartitionedArchiver::Internal
 {
-  std::map<std::string, std::pair<size_t, char*> > Buffers;
+  std::map<std::string, std::pair<size_t, char*>> Buffers;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPartitionedArchiver);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPartitionedArchiver::vtkPartitionedArchiver()
   : Internals(new vtkPartitionedArchiver::Internal)
 {
   this->SetArchiveName("");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPartitionedArchiver::~vtkPartitionedArchiver()
 {
   for (auto& bufferIt : this->Internals->Buffers)
@@ -48,13 +48,13 @@ vtkPartitionedArchiver::~vtkPartitionedArchiver()
   delete this->Internals;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPartitionedArchiver::OpenArchive() {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPartitionedArchiver::CloseArchive() {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPartitionedArchiver::InsertIntoArchive(
   const std::string& relativePath, const char* data, std::size_t size)
 {
@@ -119,13 +119,13 @@ void vtkPartitionedArchiver::InsertIntoArchive(
   this->Internals->Buffers[relativePath] = std::make_pair(used, b);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPartitionedArchiver::Contains(const std::string& relativePath)
 {
   return this->Internals->Buffers.find(relativePath) != this->Internals->Buffers.end();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkPartitionedArchiver::GetBuffer(const char* relativePath)
 {
   auto bufferIt = this->Internals->Buffers.find(std::string(relativePath));
@@ -136,7 +136,7 @@ const char* vtkPartitionedArchiver::GetBuffer(const char* relativePath)
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const void* vtkPartitionedArchiver::GetBufferAddress(const char* relativePath)
 {
   auto bufferIt = this->Internals->Buffers.find(std::string(relativePath));
@@ -147,7 +147,7 @@ const void* vtkPartitionedArchiver::GetBufferAddress(const char* relativePath)
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::size_t vtkPartitionedArchiver::GetBufferSize(const char* relativePath)
 {
   auto bufferIt = this->Internals->Buffers.find(std::string(relativePath));
@@ -158,13 +158,13 @@ std::size_t vtkPartitionedArchiver::GetBufferSize(const char* relativePath)
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::size_t vtkPartitionedArchiver::GetNumberOfBuffers()
 {
   return this->Internals->Buffers.size();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkPartitionedArchiver::GetBufferName(size_t i)
 {
   if (this->Internals->Buffers.size() <= i)
@@ -174,7 +174,7 @@ const char* vtkPartitionedArchiver::GetBufferName(size_t i)
   return std::next(this->Internals->Buffers.begin(), i)->first.c_str();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPartitionedArchiver::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

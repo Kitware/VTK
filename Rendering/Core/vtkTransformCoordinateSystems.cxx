@@ -23,7 +23,7 @@
 
 vtkStandardNewMacro(vtkTransformCoordinateSystems);
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTransformCoordinateSystems::vtkTransformCoordinateSystems()
 {
   this->TransformCoordinate = vtkCoordinate::New();
@@ -33,13 +33,13 @@ vtkTransformCoordinateSystems::vtkTransformCoordinateSystems()
   this->Viewport = nullptr;
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTransformCoordinateSystems::~vtkTransformCoordinateSystems()
 {
   this->TransformCoordinate->Delete();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Set the viewport. This is a raw pointer, not a weak pointer or a reference
 // counted object to avoid cycle reference loop between rendering classes
 // and filter classes.
@@ -52,7 +52,7 @@ void vtkTransformCoordinateSystems::SetViewport(vtkViewport* viewport)
   }
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTransformCoordinateSystems::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -144,7 +144,7 @@ int vtkTransformCoordinateSystems::RequestData(vtkInformation* vtkNotUsed(reques
   return 1;
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkTransformCoordinateSystems::GetMTime()
 {
   vtkMTimeType mTime = this->MTime.GetMTime();
@@ -159,7 +159,7 @@ vtkMTimeType vtkTransformCoordinateSystems::GetMTime()
   return mTime;
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTransformCoordinateSystems::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

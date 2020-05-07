@@ -42,7 +42,7 @@ vtkBooleanTexture::vtkBooleanTexture()
   this->OutOn[0] = this->OutOn[1] = 255;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkBooleanTexture::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {

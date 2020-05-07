@@ -111,13 +111,13 @@ public:
   typedef std::map<std::string, WebGLObjCacheValue> WebGLObjId2IndexMap;
   std::map<vtkWebGLExporter*, WebGLObjId2IndexMap> WebGLExporterObjIdMap;
   // map for <vtkRenderWindow, vtkWebGLExporter>
-  std::map<vtkRenderWindow*, vtkSmartPointer<vtkWebGLExporter> > ViewWebGLMap;
+  std::map<vtkRenderWindow*, vtkSmartPointer<vtkWebGLExporter>> ViewWebGLMap;
   std::string LastAllWebGLBinaryObjects;
   vtkNew<vtkObjectIdMap> ObjectIdMap;
 };
 
 vtkStandardNewMacro(vtkWebApplication);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkWebApplication::vtkWebApplication()
   : ImageEncoding(ENCODING_BASE64)
   , ImageCompression(COMPRESSION_JPEG)
@@ -125,47 +125,47 @@ vtkWebApplication::vtkWebApplication()
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkWebApplication::~vtkWebApplication()
 {
   delete this->Internals;
   this->Internals = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWebApplication::SetNumberOfEncoderThreads(vtkTypeUInt32 numThreads)
 {
   this->Internals->Encoder->SetMaxThreads(numThreads);
   this->Internals->Encoder->Initialize();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeUInt32 vtkWebApplication::GetNumberOfEncoderThreads()
 {
   return this->Internals->Encoder->GetMaxThreads();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkWebApplication::GetHasImagesBeingProcessed(vtkRenderWindow* view)
 {
   const vtkInternals::ImageCacheValueType& value = this->Internals->ImageCache[view];
   return value.HasImagesBeingProcessed;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUnsignedCharArray* vtkWebApplication::InteractiveRender(vtkRenderWindow* view, int quality)
 {
   // for now, just do the same as StillRender().
   return this->StillRender(view, quality);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWebApplication::InvalidateCache(vtkRenderWindow* view)
 {
   this->Internals->ImageCache[view].NeedsRender = true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUnsignedCharArray* vtkWebApplication::StillRender(vtkRenderWindow* view, int quality)
 {
   if (!view)
@@ -232,7 +232,7 @@ vtkUnsignedCharArray* vtkWebApplication::StillRender(vtkRenderWindow* view, int 
   return value.Data;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkWebApplication::StillRenderToString(
   vtkRenderWindow* view, vtkMTimeType time, int quality)
 {
@@ -246,7 +246,7 @@ const char* vtkWebApplication::StillRenderToString(
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUnsignedCharArray* vtkWebApplication::StillRenderToBuffer(
   vtkRenderWindow* view, vtkMTimeType time, int quality)
 {
@@ -259,7 +259,7 @@ vtkUnsignedCharArray* vtkWebApplication::StillRenderToBuffer(
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkWebApplication::HandleInteractionEvent(vtkRenderWindow* view, vtkWebInteractionEvent* event)
 {
   vtkRenderWindowInteractor* iren = nullptr;
@@ -355,7 +355,7 @@ bool vtkWebApplication::HandleInteractionEvent(vtkRenderWindow* view, vtkWebInte
   return needs_render;
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkWebApplication::GetWebGLSceneMetaData(vtkRenderWindow* view)
 {
   if (!view)
@@ -401,7 +401,7 @@ const char* vtkWebApplication::GetWebGLSceneMetaData(vtkRenderWindow* view)
   return webglExporter->GenerateMetadata();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkWebApplication::GetWebGLBinaryData(vtkRenderWindow* view, const char* id, int part)
 {
   if (!view)
@@ -454,7 +454,7 @@ const char* vtkWebApplication::GetWebGLBinaryData(vtkRenderWindow* view, const c
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWebApplication::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -462,13 +462,13 @@ void vtkWebApplication::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ImageCompression: " << this->ImageCompression << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkObjectIdMap* vtkWebApplication::GetObjectIdMap()
 {
   return this->Internals->ObjectIdMap;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::string vtkWebApplication::GetObjectId(vtkObject* obj)
 {
   std::ostringstream oss;

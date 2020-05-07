@@ -348,7 +348,7 @@ void RealDataDescriptiveStatistics(vtkMultiProcessController* controller, void* 
 
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestRealDataPDescriptiveStatisticsMPI(int argc, char* argv[])
 {
   // **************************** MPI Initialization ***************************

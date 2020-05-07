@@ -33,25 +33,25 @@
 
 vtkStandardNewMacro(vtkTimeSourceExample);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkTimeSourceExample::ValueFunction(double t)
 {
   return sin(2 * vtkMath::Pi() * t);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkTimeSourceExample::XFunction(double t)
 {
   return sin(2 * vtkMath::Pi() * t) * this->XAmplitude;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkTimeSourceExample::YFunction(double t)
 {
   return sin(2 * vtkMath::Pi() * t) * this->YAmplitude;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTimeSourceExample::LookupTimeAndValue(double& time, double& value)
 {
   double t = time;
@@ -98,7 +98,7 @@ void vtkTimeSourceExample::LookupTimeAndValue(double& time, double& value)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTimeSourceExample::NumCellsFunction(double t)
 {
   int numCells = 1;
@@ -112,7 +112,7 @@ int vtkTimeSourceExample::NumCellsFunction(double t)
   return numCells;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTimeSourceExample::vtkTimeSourceExample()
 {
   this->SetNumberOfInputPorts(0);
@@ -139,14 +139,14 @@ vtkTimeSourceExample::vtkTimeSourceExample()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTimeSourceExample::~vtkTimeSourceExample()
 {
   delete[] this->Steps;
   delete[] this->Values;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTimeSourceExample::RequestInformation(
   vtkInformation* reqInfo, vtkInformationVector** inVector, vtkInformationVector* outVector)
 {
@@ -180,7 +180,7 @@ int vtkTimeSourceExample::RequestInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTimeSourceExample::RequestData(vtkInformation* vtkNotUsed(reqInfo),
   vtkInformationVector** vtkNotUsed(inVector), vtkInformationVector* outVector)
 {
@@ -331,7 +331,7 @@ int vtkTimeSourceExample::RequestData(vtkInformation* vtkNotUsed(reqInfo),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTimeSourceExample::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

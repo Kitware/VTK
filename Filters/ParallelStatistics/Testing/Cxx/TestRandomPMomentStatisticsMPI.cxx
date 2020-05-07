@@ -799,7 +799,7 @@ void RandomSampleStatistics(vtkMultiProcessController* controller, void* arg)
 
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestRandomPMomentStatisticsMPI(int argc, char* argv[])
 {
   // **************************** MPI Initialization ***************************

@@ -230,29 +230,29 @@ public:
   public:
     ScopedglDepthMask(vtkOpenGLState* state);
   };
-  class VTKRENDERINGOPENGL2_EXPORT ScopedglClearColor : public ScopedValue<std::array<float, 4> >
+  class VTKRENDERINGOPENGL2_EXPORT ScopedglClearColor : public ScopedValue<std::array<float, 4>>
   {
   public:
     ScopedglClearColor(vtkOpenGLState* state);
   };
   class VTKRENDERINGOPENGL2_EXPORT ScopedglColorMask
-    : public ScopedValue<std::array<unsigned char, 4> >
+    : public ScopedValue<std::array<unsigned char, 4>>
   {
   public:
     ScopedglColorMask(vtkOpenGLState* state);
   };
-  class VTKRENDERINGOPENGL2_EXPORT ScopedglScissor : public ScopedValue<std::array<int, 4> >
+  class VTKRENDERINGOPENGL2_EXPORT ScopedglScissor : public ScopedValue<std::array<int, 4>>
   {
   public:
     ScopedglScissor(vtkOpenGLState* state);
   };
-  class VTKRENDERINGOPENGL2_EXPORT ScopedglViewport : public ScopedValue<std::array<int, 4> >
+  class VTKRENDERINGOPENGL2_EXPORT ScopedglViewport : public ScopedValue<std::array<int, 4>>
   {
   public:
     ScopedglViewport(vtkOpenGLState* state);
   };
   class VTKRENDERINGOPENGL2_EXPORT ScopedglBlendFuncSeparate
-    : public ScopedValue<std::array<unsigned int, 4> >
+    : public ScopedValue<std::array<unsigned int, 4>>
   {
   public:
     ScopedglBlendFuncSeparate(vtkOpenGLState* state);

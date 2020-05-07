@@ -31,10 +31,10 @@
 #include "vtkScalarsToColors.h"
 #include "vtkTable.h"
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotFunctionalBag);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPlotFunctionalBag::vtkPlotFunctionalBag()
 {
   this->LookupTable = nullptr;
@@ -43,7 +43,7 @@ vtkPlotFunctionalBag::vtkPlotFunctionalBag()
   this->LogY = false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPlotFunctionalBag::~vtkPlotFunctionalBag()
 {
   if (this->LookupTable)
@@ -52,20 +52,20 @@ vtkPlotFunctionalBag::~vtkPlotFunctionalBag()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPlotFunctionalBag::IsBag()
 {
   this->Update();
   return (this->BagPoints->GetNumberOfPoints() > 0);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPlotFunctionalBag::GetVisible()
 {
   return this->Superclass::GetVisible() || this->GetSelection() != nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlotFunctionalBag::Update()
 {
   if (!this->GetVisible())
@@ -97,7 +97,7 @@ void vtkPlotFunctionalBag::Update()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPlotFunctionalBag::UpdateTableCache(vtkTable* table)
 {
   if (!this->LookupTable)
@@ -170,7 +170,7 @@ bool vtkPlotFunctionalBag::UpdateTableCache(vtkTable* table)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPlotFunctionalBag::GetDataArrays(vtkTable* table, vtkDataArray* array[2])
 {
   if (!table)
@@ -202,7 +202,7 @@ bool vtkPlotFunctionalBag::GetDataArrays(vtkTable* table, vtkDataArray* array[2]
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPlotFunctionalBag::Paint(vtkContext2D* painter)
 {
   // This is where everything should be drawn, or dispatched to other methods.
@@ -236,7 +236,7 @@ bool vtkPlotFunctionalBag::Paint(vtkContext2D* painter)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPlotFunctionalBag::PaintLegend(vtkContext2D* painter, const vtkRectf& rect, int index)
 {
   if (this->BagPoints->GetNumberOfPoints() > 0)
@@ -255,7 +255,7 @@ bool vtkPlotFunctionalBag::PaintLegend(vtkContext2D* painter, const vtkRectf& re
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkPlotFunctionalBag::GetNearestPoint(
   const vtkVector2f& point, const vtkVector2f& tol, vtkVector2f* location, vtkIdType* segmentId)
 {
@@ -284,7 +284,7 @@ vtkIdType vtkPlotFunctionalBag::GetNearestPoint(
   return -1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPlotFunctionalBag::SelectPoints(const vtkVector2f& min, const vtkVector2f& max)
 {
   if (!this->IsBag())
@@ -294,7 +294,7 @@ bool vtkPlotFunctionalBag::SelectPoints(const vtkVector2f& min, const vtkVector2
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPlotFunctionalBag::SelectPointsInPolygon(const vtkContextPolygon& polygon)
 {
   if (!this->IsBag())
@@ -304,7 +304,7 @@ bool vtkPlotFunctionalBag::SelectPointsInPolygon(const vtkContextPolygon& polygo
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlotFunctionalBag::GetBounds(double bounds[4])
 {
   if (this->BagPoints->GetNumberOfPoints() > 0)
@@ -330,7 +330,7 @@ void vtkPlotFunctionalBag::GetBounds(double bounds[4])
                 << bounds[3]);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlotFunctionalBag::GetUnscaledInputBounds(double bounds[4])
 {
   if (this->BagPoints->GetNumberOfPoints() > 0)
@@ -346,13 +346,13 @@ void vtkPlotFunctionalBag::GetUnscaledInputBounds(double bounds[4])
                 << bounds[3]);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlotFunctionalBag::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlotFunctionalBag::SetLookupTable(vtkScalarsToColors* lut)
 {
   if (this->LookupTable != lut)
@@ -370,7 +370,7 @@ void vtkPlotFunctionalBag::SetLookupTable(vtkScalarsToColors* lut)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkScalarsToColors* vtkPlotFunctionalBag::GetLookupTable()
 {
   if (this->LookupTable == nullptr)
@@ -380,7 +380,7 @@ vtkScalarsToColors* vtkPlotFunctionalBag::GetLookupTable()
   return this->LookupTable;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlotFunctionalBag::CreateDefaultLookupTable()
 {
   if (this->LookupTable)

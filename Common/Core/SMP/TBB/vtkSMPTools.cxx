@@ -43,13 +43,13 @@ static bool vtkSMPToolsInitialized = 0;
 static int vtkTBBNumSpecifiedThreads = 0;
 static vtkSimpleCriticalSection vtkSMPToolsCS;
 
-//--------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkSMPTools::GetBackend()
 {
   return VTK_SMP_BACKEND;
 }
 
-//--------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSMPTools::Initialize(int numThreads)
 {
   vtkSMPToolsCS.Lock();
@@ -67,7 +67,7 @@ void vtkSMPTools::Initialize(int numThreads)
   vtkSMPToolsCS.Unlock();
 }
 
-//--------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSMPTools::GetEstimatedNumberOfThreads()
 {
   return vtkTBBNumSpecifiedThreads ? vtkTBBNumSpecifiedThreads

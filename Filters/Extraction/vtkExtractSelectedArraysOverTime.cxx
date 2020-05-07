@@ -29,7 +29,7 @@
 
 //****************************************************************************
 vtkStandardNewMacro(vtkExtractSelectedArraysOverTime);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractSelectedArraysOverTime::vtkExtractSelectedArraysOverTime()
   : NumberOfTimeSteps(0)
   , FieldType(vtkSelectionNode::CELL)
@@ -44,13 +44,13 @@ vtkExtractSelectedArraysOverTime::vtkExtractSelectedArraysOverTime()
   this->SelectionExtractor = vtkSmartPointer<vtkExtractSelection>::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractSelectedArraysOverTime::~vtkExtractSelectedArraysOverTime()
 {
   this->SetSelectionExtractor(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractSelectedArraysOverTime::SetSelectionExtractor(vtkExtractSelection* extractor)
 {
   if (this->SelectionExtractor != extractor)
@@ -60,13 +60,13 @@ void vtkExtractSelectedArraysOverTime::SetSelectionExtractor(vtkExtractSelection
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractSelection* vtkExtractSelectedArraysOverTime::GetSelectionExtractor()
 {
   return this->SelectionExtractor;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractSelectedArraysOverTime::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -75,7 +75,7 @@ void vtkExtractSelectedArraysOverTime::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ReportStatisticsOnly: " << (this->ReportStatisticsOnly ? "ON" : "OFF") << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSelectedArraysOverTime::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
@@ -91,7 +91,7 @@ int vtkExtractSelectedArraysOverTime::FillInputPortInformation(int port, vtkInfo
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSelectedArraysOverTime::RequestInformation(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -99,7 +99,7 @@ int vtkExtractSelectedArraysOverTime::RequestInformation(
   return this->ArraysExtractor->ProcessRequest(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSelectedArraysOverTime::RequestUpdateExtent(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -107,7 +107,7 @@ int vtkExtractSelectedArraysOverTime::RequestUpdateExtent(
   return this->ArraysExtractor->ProcessRequest(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSelectedArraysOverTime::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -192,14 +192,14 @@ int vtkExtractSelectedArraysOverTime::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractSelectedArraysOverTime::PostExecute(
   vtkInformation*, vtkInformationVector**, vtkInformationVector*)
 {
   // nothing to do.
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSmartPointer<vtkDataObject> vtkExtractSelectedArraysOverTime::Extract(
   vtkInformationVector** inputVector, vtkInformation* outInfo)
 {
@@ -240,7 +240,7 @@ vtkSmartPointer<vtkDataObject> vtkExtractSelectedArraysOverTime::Extract(
   return extractedData;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSelectedArraysOverTime::DetermineSelectionType(vtkSelection* sel)
 {
   int contentType = -1;

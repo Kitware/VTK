@@ -27,7 +27,7 @@
 
 vtkStandardNewMacro(vtkImageStencil);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageStencil::vtkImageStencil()
 {
   this->ReverseStencil = 0;
@@ -39,16 +39,16 @@ vtkImageStencil::vtkImageStencil()
   this->SetNumberOfInputPorts(3);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageStencil::~vtkImageStencil() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageStencil::SetStencilData(vtkImageStencilData* stencil)
 {
   this->SetInputData(2, stencil);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageStencilData* vtkImageStencil::GetStencil()
 {
   if (this->GetNumberOfInputConnections(2) < 1)
@@ -61,13 +61,13 @@ vtkImageStencilData* vtkImageStencil::GetStencil()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageStencil::SetBackgroundInputData(vtkImageData* data)
 {
   this->SetInputData(1, data);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageData* vtkImageStencil::GetBackgroundInput()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
@@ -80,11 +80,11 @@ vtkImageData* vtkImageStencil::GetBackgroundInput()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Some helper functions for 'ThreadedRequestData'
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // copy a pixel, advance the output pointer but not the input pointer
 
 template <class T>
@@ -96,7 +96,7 @@ inline void vtkCopyPixel(T*& out, const T* in, int numscalars)
   } while (--numscalars);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Convert background color from double to appropriate type
 
 template <class T>
@@ -128,7 +128,7 @@ void vtkAllocBackground(vtkImageStencil* self, T*& background, vtkInformation* o
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T>
 void vtkFreeBackground(vtkImageStencil* vtkNotUsed(self), T*& background)
 {
@@ -136,7 +136,7 @@ void vtkFreeBackground(vtkImageStencil* vtkNotUsed(self), T*& background)
   background = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T>
 void vtkImageStencilExecute(vtkImageStencil* self, vtkImageData* inData, T*, vtkImageData* inData2,
   T*, vtkImageData* outData, T*, int outExt[6], int id, vtkInformation* outInfo)
@@ -242,7 +242,7 @@ void vtkImageStencilExecute(vtkImageStencil* self, vtkImageData* inData, T*, vtk
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageStencil::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector, vtkImageData*** inData,
   vtkImageData** outData, int outExt[6], int id)
@@ -312,7 +312,7 @@ void vtkImageStencil::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageStencil::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 2)

@@ -147,7 +147,7 @@ void vtkCollisionDetectionFilter::SetInputData(int idx, vtkPolyData* input)
   this->SetNthInputConnection(idx, 0, input ? inputProducer->GetOutputPort() : nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyData* vtkCollisionDetectionFilter::GetInputData(int idx)
 {
   if (2 <= idx || idx < 0)

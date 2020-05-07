@@ -16,7 +16,7 @@
 =========================================================================*/
 #include "vtkUnstructuredGridVolumeRayCastIterator.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkUnstructuredGridVolumeRayCastIterator::vtkUnstructuredGridVolumeRayCastIterator()
 {

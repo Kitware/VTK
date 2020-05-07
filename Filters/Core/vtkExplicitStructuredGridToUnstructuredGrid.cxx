@@ -29,7 +29,7 @@
 
 vtkStandardNewMacro(vtkExplicitStructuredGridToUnstructuredGrid);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExplicitStructuredGridToUnstructuredGrid::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -111,7 +111,7 @@ int vtkExplicitStructuredGridToUnstructuredGrid::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExplicitStructuredGridToUnstructuredGrid::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {

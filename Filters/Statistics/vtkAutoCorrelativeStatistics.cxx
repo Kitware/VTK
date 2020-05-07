@@ -37,7 +37,7 @@
 
 vtkStandardNewMacro(vtkAutoCorrelativeStatistics);
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAutoCorrelativeStatistics::vtkAutoCorrelativeStatistics()
 {
   this->AssessNames->SetNumberOfValues(1);
@@ -46,17 +46,17 @@ vtkAutoCorrelativeStatistics::vtkAutoCorrelativeStatistics()
   this->SliceCardinality = 0; // Invalid value by default. Correct value must be specified.
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAutoCorrelativeStatistics::~vtkAutoCorrelativeStatistics() = default;
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAutoCorrelativeStatistics::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "SliceCardinality: " << this->SliceCardinality << "\n";
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAutoCorrelativeStatistics::Aggregate(
   vtkDataObjectCollection* inMetaColl, vtkMultiBlockDataSet* outMeta)
 {
@@ -220,7 +220,7 @@ void vtkAutoCorrelativeStatistics::Aggregate(
   } // b
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAutoCorrelativeStatistics::Learn(
   vtkTable* inData, vtkTable* inPara, vtkMultiBlockDataSet* outMeta)
 {
@@ -274,7 +274,7 @@ void vtkAutoCorrelativeStatistics::Learn(
   row->SetNumberOfValues(7);
 
   // Loop over requests
-  for (std::set<std::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
+  for (std::set<std::set<vtkStdString>>::const_iterator rit = this->Internals->Requests.begin();
        rit != this->Internals->Requests.end(); ++rit)
   {
     // Each request contains only one column of interest (if there are others, they are ignored)
@@ -385,7 +385,7 @@ void vtkAutoCorrelativeStatistics::Learn(
   row->Delete();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAutoCorrelativeStatistics::Derive(vtkMultiBlockDataSet* inMeta)
 {
   if (!inMeta || inMeta->GetNumberOfBlocks() < 1)
@@ -556,7 +556,7 @@ void vtkAutoCorrelativeStatistics::Derive(vtkMultiBlockDataSet* inMeta)
   timeTable->Delete();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Use the invalid value of -1 for p-values if R is absent
 vtkDoubleArray* vtkAutoCorrelativeStatistics::CalculatePValues(vtkDoubleArray* statCol)
 {
@@ -574,7 +574,7 @@ vtkDoubleArray* vtkAutoCorrelativeStatistics::CalculatePValues(vtkDoubleArray* s
   return testCol;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAutoCorrelativeStatistics::SelectAssessFunctor(
   vtkTable* outData, vtkDataObject* inMetaDO, vtkStringArray* rowNames, AssessFunctor*& dfunc)
 {

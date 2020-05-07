@@ -22,7 +22,7 @@
 
 vtkStandardNewMacro(vtkImageWrapPad);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Just clip the request.
 void vtkImageWrapPad::ComputeInputUpdateExtent(int inExt[6], int outExt[6], int wholeExtent[6])
 {
@@ -66,7 +66,7 @@ void vtkImageWrapPad::ComputeInputUpdateExtent(int inExt[6], int outExt[6], int 
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 template <class T>
 void vtkImageWrapPadExecute(vtkImageWrapPad* self, vtkImageData* inData, T* vtkNotUsed(inPtr),
@@ -190,7 +190,7 @@ void vtkImageWrapPadExecute(vtkImageWrapPad* self, vtkImageData* inData, T* vtkN
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method is passed a input and output data, and executes the filter
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for

@@ -105,7 +105,7 @@ private:
 #define TIMER(msg) TimeLog::StartEvent("KdTree: " msg, this->Timing)
 #define TIMERDONE(msg) TimeLog::EndEvent("KdTree: " msg, this->Timing)
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static void LastInputDeletedCallback(vtkObject* vtkNotUsed(caller), unsigned long vtkNotUsed(eid),
   void* _self, void* vtkNotUsed(calldata))
 {
@@ -131,7 +131,7 @@ public:
   {
     if (dist2 <= this->LargestDist2 || this->NumPoints < this->NumDesiredPoints)
     {
-      std::map<float, std::list<vtkIdType> >::iterator it = this->dist2ToIds.find(dist2);
+      std::map<float, std::list<vtkIdType>>::iterator it = this->dist2ToIds.find(dist2);
       this->NumPoints++;
       if (it == this->dist2ToIds.end())
       {
@@ -150,7 +150,7 @@ public:
         if ((this->NumPoints - it->second.size()) > this->NumDesiredPoints)
         {
           this->NumPoints -= it->second.size();
-          std::map<float, std::list<vtkIdType> >::iterator it2 = it;
+          std::map<float, std::list<vtkIdType>>::iterator it2 = it;
           --it2;
           this->LargestDist2 = it2->first;
           this->dist2ToIds.erase(it);
@@ -165,7 +165,7 @@ public:
       (this->NumDesiredPoints < this->NumPoints) ? this->NumDesiredPoints : this->NumPoints);
     ids->SetNumberOfIds(numIds);
     vtkIdType counter = 0;
-    std::map<float, std::list<vtkIdType> >::iterator it = this->dist2ToIds.begin();
+    std::map<float, std::list<vtkIdType>>::iterator it = this->dist2ToIds.begin();
     while (counter < numIds && it != this->dist2ToIds.end())
     {
       std::list<vtkIdType>::iterator lit = it->second.begin();
@@ -184,13 +184,13 @@ public:
 private:
   size_t NumDesiredPoints, NumPoints;
   float LargestDist2;
-  std::map<float, std::list<vtkIdType> > dist2ToIds; // map from dist^2 to a list of ids
+  std::map<float, std::list<vtkIdType>> dist2ToIds; // map from dist^2 to a list of ids
 };
 }
 
 vtkStandardNewMacro(vtkKdTree);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkKdTree::vtkKdTree()
 {
   this->FudgeFactor = 0;
@@ -238,7 +238,7 @@ vtkKdTree::vtkKdTree()
   this->ProgressScale = 1.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::DeleteAllDescendants(vtkKdNode* nd)
 {
   vtkKdNode* left = nd->GetLeft();
@@ -262,7 +262,7 @@ void vtkKdTree::DeleteAllDescendants(vtkKdNode* nd)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::InitializeCellLists()
 {
   this->CellList.dataSet = nullptr;
@@ -273,7 +273,7 @@ void vtkKdTree::InitializeCellLists()
   this->CellList.emptyList = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::DeleteCellLists()
 {
   int i;
@@ -308,7 +308,7 @@ void vtkKdTree::DeleteCellLists()
   this->InitializeCellLists();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkKdTree::~vtkKdTree()
 {
   if (this->DataSets)
@@ -334,7 +334,7 @@ vtkKdTree::~vtkKdTree()
   this->SetCalculator(nullptr);
   this->SetCuts(nullptr);
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::SetCalculator(vtkKdNode* kd)
 {
   if (this->BSPCalculator)
@@ -363,12 +363,12 @@ void vtkKdTree::SetCalculator(vtkKdNode* kd)
   this->BSPCalculator = vtkBSPIntersections::New();
   this->BSPCalculator->SetCuts(this->Cuts);
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::SetCuts(vtkBSPCuts* cuts)
 {
   this->SetCuts(cuts, 1);
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::SetCuts(vtkBSPCuts* cuts, int userDefined)
 {
   if (userDefined != 0)
@@ -414,7 +414,7 @@ void vtkKdTree::SetCuts(vtkBSPCuts* cuts, int userDefined)
     this->Cuts->Register(this);
   }
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Add and remove data sets.  We don't update this->Modify() here, because
 // changing the data sets doesn't necessarily require rebuilding the
 // k-d tree.  We only need to build a new k-d tree in BuildLocator if
@@ -458,7 +458,7 @@ void vtkKdTree::RemoveAllDataSets()
   this->DataSets->RemoveAllItems();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkKdTree::GetNumberOfDataSets()
 {
@@ -493,13 +493,13 @@ int vtkKdTree::GetDataSetsNumberOfCells(int from, int to)
   return numCells;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkKdTree::GetNumberOfCells()
 {
   return this->GetDataSetsNumberOfCells(0, this->GetNumberOfDataSets() - 1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::GetBounds(double* bounds)
 {
   if (this->Top)
@@ -508,7 +508,7 @@ void vtkKdTree::GetBounds(double* bounds)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::GetRegionBounds(int regionID, double bounds[6])
 {
   if ((regionID < 0) || (regionID >= this->NumberOfRegions))
@@ -522,7 +522,7 @@ void vtkKdTree::GetRegionBounds(int regionID, double bounds[6])
   node->GetBounds(bounds);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::GetRegionDataBounds(int regionID, double bounds[6])
 {
   if ((regionID < 0) || (regionID >= this->NumberOfRegions))
@@ -536,7 +536,7 @@ void vtkKdTree::GetRegionDataBounds(int regionID, double bounds[6])
   node->GetDataBounds(bounds);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkKdNode** vtkKdTree::_GetRegionsAtLevel(int level, vtkKdNode** nodes, vtkKdNode* kd)
 {
   if (level > 0)
@@ -553,7 +553,7 @@ vtkKdNode** vtkKdTree::_GetRegionsAtLevel(int level, vtkKdNode** nodes, vtkKdNod
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::GetRegionsAtLevel(int level, vtkKdNode** nodes)
 {
   if ((level < 0) || (level > this->Level))
@@ -564,7 +564,7 @@ void vtkKdTree::GetRegionsAtLevel(int level, vtkKdNode** nodes)
   vtkKdTree::_GetRegionsAtLevel(level, nodes, this->Top);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::GetLeafNodeIds(vtkKdNode* node, vtkIntArray* ids)
 {
   int id = node->GetID();
@@ -580,14 +580,14 @@ void vtkKdTree::GetLeafNodeIds(vtkKdNode* node, vtkIntArray* ids)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 float* vtkKdTree::ComputeCellCenters()
 {
   vtkDataSet* allSets = nullptr;
   return this->ComputeCellCenters(allSets);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 float* vtkKdTree::ComputeCellCenters(int set)
 {
   vtkDataSet* data = this->GetDataSet(set);
@@ -599,7 +599,7 @@ float* vtkKdTree::ComputeCellCenters(int set)
   return this->ComputeCellCenters(data);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 float* vtkKdTree::ComputeCellCenters(vtkDataSet* set)
 {
   SCOPETIMER("ComputeCellCenters");
@@ -695,7 +695,7 @@ float* vtkKdTree::ComputeCellCenters(vtkDataSet* set)
   return center;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::ComputeCellCenter(vtkDataSet* set, int cellId, float* center)
 {
   double dcenter[3];
@@ -707,7 +707,7 @@ void vtkKdTree::ComputeCellCenter(vtkDataSet* set, int cellId, float* center)
   center[2] = static_cast<float>(dcenter[2]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::ComputeCellCenter(vtkDataSet* set, int cellId, double* center)
 {
   int setNum;
@@ -740,7 +740,7 @@ void vtkKdTree::ComputeCellCenter(vtkDataSet* set, int cellId, double* center)
   delete[] weights;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::ComputeCellCenter(vtkCell* cell, double* center, double* weights)
 {
   double pcoords[3];
@@ -750,7 +750,7 @@ void vtkKdTree::ComputeCellCenter(vtkCell* cell, double* center, double* weights
   cell->EvaluateLocation(subId, pcoords, center, weights);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Build the kdtree structure based on location of cell centroids.
 //
 void vtkKdTree::BuildLocator()
@@ -973,7 +973,7 @@ int vtkKdTree::ProcessUserDefinedCuts(double* minBounds)
 
   return 0;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::ZeroNumberOfPoints(vtkKdNode* kd)
 {
   kd->SetNumberOfPoints(0);
@@ -984,7 +984,7 @@ void vtkKdTree::ZeroNumberOfPoints(vtkKdNode* kd)
     vtkKdTree::ZeroNumberOfPoints(kd->GetRight());
   }
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::SetNewBounds(double* bounds)
 {
   vtkKdNode* kd = this->Top;
@@ -1036,7 +1036,7 @@ void vtkKdTree::SetNewBounds(double* bounds)
     }
   }
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::_SetNewBounds(vtkKdNode* kd, double* b, int* fixDim)
 {
   int go = 0;
@@ -1072,7 +1072,7 @@ void vtkKdTree::_SetNewBounds(vtkKdNode* kd, double* b, int* fixDim)
     }
   }
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkKdNode* vtkKdTree::CopyTree(vtkKdNode* kd)
 {
   vtkKdNode* top = vtkKdNode::New();
@@ -1081,7 +1081,7 @@ vtkKdNode* vtkKdTree::CopyTree(vtkKdNode* kd)
 
   return top;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::CopyChildNodes(vtkKdNode* to, vtkKdNode* from)
 {
   if (from->GetLeft())
@@ -1098,7 +1098,7 @@ void vtkKdTree::CopyChildNodes(vtkKdNode* to, vtkKdNode* from)
     vtkKdTree::CopyChildNodes(to->GetRight(), from->GetRight());
   }
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::CopyKdNode(vtkKdNode* to, vtkKdNode* from)
 {
   to->SetMinBounds(from->GetMinBounds());
@@ -1112,7 +1112,7 @@ void vtkKdTree::CopyKdNode(vtkKdNode* to, vtkKdNode* from)
   to->SetDim(from->GetDim());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkKdTree::ComputeLevel(vtkKdNode* kd)
 {
   if (!kd)
@@ -1138,7 +1138,7 @@ int vtkKdTree::ComputeLevel(vtkKdNode* kd)
   }
   return iam;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::SetDataBoundsToSpatialBounds(vtkKdNode* kd)
 {
   kd->SetMinDataBounds(kd->GetMinBounds());
@@ -1150,7 +1150,7 @@ void vtkKdTree::SetDataBoundsToSpatialBounds(vtkKdNode* kd)
     vtkKdTree::SetDataBoundsToSpatialBounds(kd->GetRight());
   }
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkKdTree::SelectCutDirection(vtkKdNode* kd)
 {
   int dim = 0, i;
@@ -1206,7 +1206,7 @@ int vtkKdTree::SelectCutDirection(vtkKdNode* kd)
   }
   return dim;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkKdTree::DivideTest(int size, int level)
 {
   if (level >= this->MaxLevel)
@@ -1227,7 +1227,7 @@ int vtkKdTree::DivideTest(int size, int level)
 
   return 1;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkKdTree::DivideRegion(vtkKdNode* kd, float* c1, int* ids, int level)
 {
   int ok = this->DivideTest(kd->GetNumberOfPoints(), level);
@@ -1300,7 +1300,7 @@ int vtkKdTree::DivideRegion(vtkKdNode* kd, float* c1, int* ids, int level)
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Rearrange the point array.  Try dim1 first.  If there's a problem
 // go to dim2, then dim3.
 //
@@ -1336,7 +1336,7 @@ void vtkKdTree::DoMedianFind(vtkKdNode* kd, float* c1, int* ids, int dim1, int d
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::AddNewRegions(vtkKdNode* kd, float* c1, int midpt, int dim, double coord)
 {
   vtkKdNode* left = vtkKdNode::New();
@@ -1396,7 +1396,7 @@ void vtkKdTree::AddNewRegions(vtkKdNode* kd, float* c1, int midpt, int dim, doub
 
 #define sign(x) (((x) < 0) ? (-1) : (1))
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkKdTree::Select(int dim, float* c1, int* ids, int nvals, double& coord)
 {
   int left = 0;
@@ -1448,7 +1448,7 @@ int vtkKdTree::Select(int dim, float* c1, int* ids, int nvals, double& coord)
   return mid;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 float vtkKdTree::FindMaxLeftHalf(int dim, float* c1, int K)
 {
   int i;
@@ -1466,7 +1466,7 @@ float vtkKdTree::FindMaxLeftHalf(int dim, float* c1, int K)
   return max;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Note: The indices (L, R, X) into the point array should be vtkIdType rather
 // than ints, but this change causes the k-d tree build time to double.
 // _Select is the heart of this build, called for every sub-interval that
@@ -1601,7 +1601,7 @@ void vtkKdTree::_Select(int dim, float* X, int* ids, int L, int R, int K)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::SelfRegister(vtkKdNode* kd)
 {
   if (kd->GetLeft() == nullptr)
@@ -1615,7 +1615,7 @@ void vtkKdTree::SelfRegister(vtkKdNode* kd)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkKdTree::SelfOrder(int startId, vtkKdNode* kd)
 {
   int nextId;
@@ -1657,7 +1657,7 @@ void vtkKdTree::BuildRegionList()
   this->SelfRegister(this->Top);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // K-d tree from points, for finding duplicate and near-by points
 //
 void vtkKdTree::BuildLocatorFromPoints(vtkPointSet* pointset)
@@ -1670,7 +1670,7 @@ void vtkKdTree::BuildLocatorFromPoints(vtkPoints* ptArray)
   this->BuildLocatorFromPoints(&ptArray, 1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::BuildLocatorFromPoints(vtkPoints** ptArrays, int numPtArrays)
 {
   int ptId;
@@ -1871,7 +1871,7 @@ void vtkKdTree::BuildLocatorFromPoints(vtkPoints** ptArrays, int numPtArrays)
   TIMERDONE("Build tree");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Query functions subsequent to BuildLocatorFromPoints,
 // relating to duplicate and nearby points
 //
@@ -2011,7 +2011,7 @@ vtkIdTypeArray* vtkKdTree::BuildMapForDuplicatePoints(float tolerance = 0.0)
   return uniqueIds;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkKdTree::SearchRegionForDuplicate(float* point, int* pointsSoFar, int len, float tolerance2)
 {
   int duplicateFound = -1;
@@ -2034,7 +2034,7 @@ int vtkKdTree::SearchRegionForDuplicate(float* point, int* pointsSoFar, int len,
   return duplicateFound;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkKdTree::SearchNeighborsForDuplicate(
   int regionId, float* point, int** pointsSoFar, int* len, float tolerance, float tolerance2)
 {
@@ -2106,13 +2106,13 @@ int vtkKdTree::SearchNeighborsForDuplicate(
   return duplicateFound;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkKdTree::FindPoint(double x[3])
 {
   return this->FindPoint(x[0], x[1], x[2]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkKdTree::FindPoint(double x, double y, double z)
 {
   if (!this->LocatorPoints)
@@ -2152,7 +2152,7 @@ vtkIdType vtkKdTree::FindPoint(double x, double y, double z)
   return ptId;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkKdTree::FindClosestPoint(double x[3], double& dist2)
 {
   vtkIdType id = this->FindClosestPoint(x[0], x[1], x[2], dist2);
@@ -2160,7 +2160,7 @@ vtkIdType vtkKdTree::FindClosestPoint(double x[3], double& dist2)
   return id;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkKdTree::FindClosestPoint(double x, double y, double z, double& dist2)
 {
   if (!this->LocatorPoints)
@@ -2260,7 +2260,7 @@ vtkIdType vtkKdTree::FindClosestPoint(double x, double y, double z, double& dist
   return closePointId;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkKdTree::FindClosestPointWithinRadius(double radius, const double x[3], double& dist2)
 {
   int localCloseId = this->FindClosestPointInSphere(x[0], x[1], x[2], radius, -1, dist2);
@@ -2271,13 +2271,13 @@ vtkIdType vtkKdTree::FindClosestPointWithinRadius(double radius, const double x[
   return -1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkKdTree::FindClosestPointInRegion(int regionId, double* x, double& dist2)
 {
   return this->FindClosestPointInRegion(regionId, x[0], x[1], x[2], dist2);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkKdTree::FindClosestPointInRegion(
   int regionId, double x, double y, double z, double& dist2)
 {
@@ -2298,7 +2298,7 @@ vtkIdType vtkKdTree::FindClosestPointInRegion(
   return originalId;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkKdTree::_FindClosestPointInRegion(int regionId, double x, double y, double z, double& dist2)
 {
   int minId = 0;
@@ -2343,7 +2343,7 @@ int vtkKdTree::_FindClosestPointInRegion(int regionId, double x, double y, doubl
   return minId;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkKdTree::FindClosestPointInSphere(
   double x, double y, double z, double radius, int skipRegion, double& dist2)
 {
@@ -2395,7 +2395,7 @@ int vtkKdTree::FindClosestPointInSphere(
   return localCloseId;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::FindPointsWithinRadius(double R, const double x[3], vtkIdList* result)
 {
   result->Reset();
@@ -2403,7 +2403,7 @@ void vtkKdTree::FindPointsWithinRadius(double R, const double x[3], vtkIdList* r
   this->FindPointsWithinRadius(this->Top, R * R, x, result);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::FindPointsWithinRadius(
   vtkKdNode* node, double R2, const double x[3], vtkIdList* result)
 
@@ -2516,7 +2516,7 @@ void vtkKdTree::FindPointsWithinRadius(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::FindClosestNPoints(int N, const double x[3], vtkIdList* result)
 {
   result->Reset();
@@ -2683,7 +2683,7 @@ void vtkKdTree::FindClosestNPoints(int N, const double x[3], vtkIdList* result)
   orderedPoints.GetSortedIds(result);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdTypeArray* vtkKdTree::GetPointsInRegion(int regionId)
 {
   if ((regionId < 0) || (regionId >= this->NumberOfRegions))
@@ -2714,7 +2714,7 @@ vtkIdTypeArray* vtkKdTree::GetPointsInRegion(int regionId)
   return ptIds;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Code to save state/time of last k-d tree build, and to
 // determine if a data set's geometry has changed since the
 // last build.
@@ -2730,7 +2730,7 @@ void vtkKdTree::InvalidateGeometry()
   this->LastNumDataSets = 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::ClearLastBuildCache()
 {
   this->InvalidateGeometry();
@@ -2756,7 +2756,7 @@ void vtkKdTree::ClearLastBuildCache()
   this->LastNumCells = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::UpdateBuildTime()
 {
   this->BuildTime.Modified();
@@ -2838,7 +2838,7 @@ void vtkKdTree::UpdateBuildTime()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::SetInputDataInfo(int i, int dims[3], double origin[3], double spacing[3])
 {
   int idx = 9 * i;
@@ -2853,7 +2853,7 @@ void vtkKdTree::SetInputDataInfo(int i, int dims[3], double origin[3], double sp
   this->LastInputDataInfo[idx++] = spacing[2];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkKdTree::CheckInputDataInfo(int i, int dims[3], double origin[3], double spacing[3])
 {
   int sameValues = 1;
@@ -2875,7 +2875,7 @@ int vtkKdTree::CheckInputDataInfo(int i, int dims[3], double origin[3], double s
   return sameValues;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkKdTree::NewGeometry()
 {
   if (this->GetNumberOfDataSets() != this->LastNumDataSets)
@@ -3029,7 +3029,7 @@ int vtkKdTree::NewGeometry(vtkDataSet** sets, int numSets)
   return newGeometry;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::__printTree(vtkKdNode* kd, int depth, int v)
 {
   if (v)
@@ -3051,31 +3051,31 @@ void vtkKdTree::__printTree(vtkKdNode* kd, int depth, int v)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::_printTree(int v)
 {
   vtkKdTree::__printTree(this->Top, 0, v);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::PrintRegion(int id)
 {
   this->RegionList[id]->PrintNode(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::PrintTree()
 {
   _printTree(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::PrintVerboseTree()
 {
   _printTree(1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::FreeSearchStructure()
 {
   SCOPETIMER("FreeSearchStructure");
@@ -3108,7 +3108,7 @@ void vtkKdTree::FreeSearchStructure()
   this->LocatorRegionLocation = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // build PolyData representation of all spacial regions------------
 //
 void vtkKdTree::GenerateRepresentation(int level, vtkPolyData* pd)
@@ -3123,7 +3123,7 @@ void vtkKdTree::GenerateRepresentation(int level, vtkPolyData* pd)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::GenerateRepresentationWholeSpace(int level, vtkPolyData* pd)
 {
   int i;
@@ -3256,7 +3256,7 @@ void vtkKdTree::GenerateRepresentationWholeSpace(int level, vtkPolyData* pd)
   pd->Squeeze();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::_generateRepresentationWholeSpace(
   vtkKdNode* kd, vtkPoints* pts, vtkCellArray* polys, int level)
 {
@@ -3338,7 +3338,7 @@ void vtkKdTree::_generateRepresentationWholeSpace(
   this->_generateRepresentationWholeSpace(kd->GetRight(), pts, polys, level - 1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::GenerateRepresentationDataBounds(int level, vtkPolyData* pd)
 {
   int i;
@@ -3380,7 +3380,7 @@ void vtkKdTree::GenerateRepresentationDataBounds(int level, vtkPolyData* pd)
   pd->Squeeze();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::_generateRepresentationDataBounds(
   vtkKdNode* kd, vtkPoints* pts, vtkCellArray* polys, int level)
 {
@@ -3397,7 +3397,7 @@ void vtkKdTree::_generateRepresentationDataBounds(
   vtkKdTree::AddPolys(kd, pts, polys);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // PolyData rep. of all spacial regions, shrunk to data bounds-------
 //
 void vtkKdTree::AddPolys(vtkKdNode* kd, vtkPoints* pts, vtkCellArray* polys)
@@ -3497,7 +3497,7 @@ void vtkKdTree::AddPolys(vtkKdNode* kd, vtkPoints* pts, vtkCellArray* polys)
   polys->InsertNextCell(4, idList);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // PolyData representation of a list of spacial regions------------
 //
 void vtkKdTree::GenerateRepresentation(int* regions, int len, vtkPolyData* pd)
@@ -3537,7 +3537,7 @@ void vtkKdTree::GenerateRepresentation(int* regions, int len, vtkPolyData* pd)
   pd->Squeeze();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //  Cell ID lists
 //
 #define SORTLIST(l, lsize) std::sort(l, (l) + (lsize))
@@ -3560,7 +3560,7 @@ void vtkKdTree::GenerateRepresentation(int* regions, int len, vtkPolyData* pd)
     newsize = jj;                                                                                  \
   }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkKdTree::FoundId(vtkIntArray* idArray, int id)
 {
   // This is a simple linear search, because I think it is rare that
@@ -3581,14 +3581,14 @@ int vtkKdTree::FoundId(vtkIntArray* idArray, int id)
   return found;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkKdTree::findRegion(vtkKdNode* node, float x, float y, float z)
 {
   return vtkKdTree::findRegion(
     node, static_cast<double>(x), static_cast<double>(y), static_cast<double>(z));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkKdTree::findRegion(vtkKdNode* node, double x, double y, double z)
 {
   int regionId;
@@ -3615,19 +3615,19 @@ int vtkKdTree::findRegion(vtkKdNode* node, double x, double y, double z)
   return regionId;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::CreateCellLists()
 {
   this->CreateCellLists(static_cast<int*>(nullptr), 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::CreateCellLists(int* regionList, int listSize)
 {
   this->CreateCellLists(this->GetDataSet(), regionList, listSize);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::CreateCellLists(int dataSetIndex, int* regionList, int listSize)
 {
   vtkDataSet* dataSet = this->GetDataSet(dataSetIndex);
@@ -3640,7 +3640,7 @@ void vtkKdTree::CreateCellLists(int dataSetIndex, int* regionList, int listSize)
   this->CreateCellLists(dataSet, regionList, listSize);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::CreateCellLists(vtkDataSet* set, int* regionList, int listSize)
 {
   int i, AllRegions;
@@ -3841,7 +3841,7 @@ void vtkKdTree::CreateCellLists(vtkDataSet* set, int* regionList, int listSize)
   delete[] idlist;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdList* vtkKdTree::GetList(int regionId, vtkIdList** which)
 {
   int i;
@@ -3871,19 +3871,19 @@ vtkIdList* vtkKdTree::GetList(int regionId, vtkIdList** which)
   return cellIds;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdList* vtkKdTree::GetCellList(int regionID)
 {
   return this->GetList(regionID, this->CellList.cells);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdList* vtkKdTree::GetBoundaryCellList(int regionID)
 {
   return this->GetList(regionID, this->CellList.boundaryCells);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkKdTree::GetCellLists(
   vtkIntArray* regions, int setIndex, vtkIdList* inRegionCells, vtkIdList* onBoundaryCells)
 {
@@ -3896,14 +3896,14 @@ vtkIdType vtkKdTree::GetCellLists(
   return this->GetCellLists(regions, set, inRegionCells, onBoundaryCells);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkKdTree::GetCellLists(
   vtkIntArray* regions, vtkIdList* inRegionCells, vtkIdList* onBoundaryCells)
 {
   return this->GetCellLists(regions, this->GetDataSet(), inRegionCells, onBoundaryCells);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkKdTree::GetCellLists(
   vtkIntArray* regions, vtkDataSet* set, vtkIdList* inRegionCells, vtkIdList* onBoundaryCells)
 {
@@ -4081,13 +4081,13 @@ vtkIdType vtkKdTree::GetCellLists(
   return totalCells;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkKdTree::GetRegionContainingCell(vtkIdType cellID)
 {
   return this->GetRegionContainingCell(this->GetDataSet(), cellID);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkKdTree::GetRegionContainingCell(int setIndex, vtkIdType cellID)
 {
   vtkDataSet* set = this->GetDataSet(setIndex);
@@ -4099,7 +4099,7 @@ int vtkKdTree::GetRegionContainingCell(int setIndex, vtkIdType cellID)
   return this->GetRegionContainingCell(set, cellID);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkKdTree::GetRegionContainingCell(vtkDataSet* set, vtkIdType cellID)
 {
   int regionID = -1;
@@ -4138,7 +4138,7 @@ int vtkKdTree::GetRegionContainingCell(vtkDataSet* set, vtkIdType cellID)
   return regionID;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int* vtkKdTree::AllGetRegionContainingCell()
 {
   if (this->CellRegionList)
@@ -4181,12 +4181,12 @@ int* vtkKdTree::AllGetRegionContainingCell()
   return this->CellRegionList;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkKdTree::GetRegionContainingPoint(double x, double y, double z)
 {
   return vtkKdTree::findRegion(this->Top, x, y, z);
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkKdTree::MinimalNumberOfConvexSubRegions(vtkIntArray* regionIdList, double** convexSubRegions)
 {
   int nids = 0;
@@ -4254,7 +4254,7 @@ int vtkKdTree::MinimalNumberOfConvexSubRegions(vtkIntArray* regionIdList, double
 
   return nregions;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkKdTree::__ConvexSubRegions(int* ids, int len, vtkKdNode* tree, vtkKdNode** nodes)
 {
   int nregions = tree->GetMaxID() - tree->GetMinID() + 1;
@@ -4309,7 +4309,7 @@ int vtkKdTree::__ConvexSubRegions(int* ids, int len, vtkKdNode* tree, vtkKdNode*
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkKdTree::ViewOrderRegionsInDirection(
   vtkIntArray* regionIds, const double directionOfProjection[3], vtkIntArray* orderedList)
 {
@@ -4352,14 +4352,14 @@ int vtkKdTree::ViewOrderRegionsInDirection(
   return size;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkKdTree::ViewOrderAllRegionsInDirection(
   const double directionOfProjection[3], vtkIntArray* orderedList)
 {
   return this->_ViewOrderRegionsInDirection(nullptr, directionOfProjection, orderedList);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkKdTree::ViewOrderRegionsFromPosition(
   vtkIntArray* regionIds, const double cameraPosition[3], vtkIntArray* orderedList)
 {
@@ -4402,14 +4402,14 @@ int vtkKdTree::ViewOrderRegionsFromPosition(
   return size;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkKdTree::ViewOrderAllRegionsFromPosition(
   const double cameraPosition[3], vtkIntArray* orderedList)
 {
   return this->_ViewOrderRegionsFromPosition(nullptr, cameraPosition, orderedList);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkKdTree::_ViewOrderRegionsInDirection(
   vtkIntArray* IdsOfInterest, const double dir[3], vtkIntArray* orderedList)
 {
@@ -4431,7 +4431,7 @@ int vtkKdTree::_ViewOrderRegionsInDirection(
 
   return size;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkKdTree::__ViewOrderRegionsInDirection(
   vtkKdNode* node, vtkIntArray* list, vtkIntArray* IdsOfInterest, const double dir[3], int nextId)
 {
@@ -4472,7 +4472,7 @@ int vtkKdTree::__ViewOrderRegionsInDirection(
   return nextNextId;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkKdTree::_ViewOrderRegionsFromPosition(
   vtkIntArray* IdsOfInterest, const double pos[3], vtkIntArray* orderedList)
 {
@@ -4494,7 +4494,7 @@ int vtkKdTree::_ViewOrderRegionsFromPosition(
 
   return size;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkKdTree::__ViewOrderRegionsFromPosition(
   vtkKdNode* node, vtkIntArray* list, vtkIntArray* IdsOfInterest, const double pos[3], int nextId)
 {
@@ -4535,7 +4535,7 @@ int vtkKdTree::__ViewOrderRegionsFromPosition(
   return nextNextId;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // These requests change the boundaries of the k-d tree, so must
 // update the MTime.
 //
@@ -4548,69 +4548,69 @@ void vtkKdTree::NewPartitioningRequest(int req)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::OmitXPartitioning()
 {
   this->NewPartitioningRequest((1 << vtkKdTree::YDIM) | (1 << vtkKdTree::ZDIM));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::OmitYPartitioning()
 {
   this->NewPartitioningRequest((1 << vtkKdTree::ZDIM) | (1 << vtkKdTree::XDIM));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::OmitZPartitioning()
 {
   this->NewPartitioningRequest((1 << vtkKdTree::XDIM) | (1 << vtkKdTree::YDIM));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::OmitXYPartitioning()
 {
   this->NewPartitioningRequest((1 << vtkKdTree::ZDIM));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::OmitYZPartitioning()
 {
   this->NewPartitioningRequest((1 << vtkKdTree::XDIM));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::OmitZXPartitioning()
 {
   this->NewPartitioningRequest((1 << vtkKdTree::YDIM));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::OmitNoPartitioning()
 {
   int req = ((1 << vtkKdTree::XDIM) | (1 << vtkKdTree::YDIM) | (1 << vtkKdTree::ZDIM));
   this->NewPartitioningRequest(req);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::PrintTiming(ostream& os, vtkIndent)
 {
   vtkTimerLog::DumpLogWithIndents(&os, 0.0f);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::UpdateProgress(double amt)
 {
   this->Progress = amt;
   this->InvokeEvent(vtkCommand::ProgressEvent, static_cast<void*>(&amt));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::UpdateSubOperationProgress(double amt)
 {
   this->UpdateProgress(this->ProgressOffset + this->ProgressScale * amt);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::FindPointsInArea(double* area, vtkIdTypeArray* ids, bool clearArray)
 {
   if (clearArray)
@@ -4625,7 +4625,7 @@ void vtkKdTree::FindPointsInArea(double* area, vtkIdTypeArray* ids, bool clearAr
   this->FindPointsInArea(this->Top, area, ids);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::FindPointsInArea(vtkKdNode* node, double* area, vtkIdTypeArray* ids)
 {
   double b[6];
@@ -4675,7 +4675,7 @@ void vtkKdTree::FindPointsInArea(vtkKdNode* node, double* area, vtkIdTypeArray* 
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::AddAllPointsInRegion(vtkKdNode* node, vtkIdTypeArray* ids)
 {
   if (node->GetLeft() == nullptr)
@@ -4696,7 +4696,7 @@ void vtkKdTree::AddAllPointsInRegion(vtkKdNode* node, vtkIdTypeArray* ids)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::AddAllPointsInRegion(vtkKdNode* node, vtkIdList* ids)
 {
   if (node->GetLeft() == nullptr)
@@ -4717,7 +4717,7 @@ void vtkKdTree::AddAllPointsInRegion(vtkKdNode* node, vtkIdList* ids)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKdTree::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

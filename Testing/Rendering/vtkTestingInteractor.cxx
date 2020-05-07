@@ -26,7 +26,7 @@ std::string vtkTestingInteractor::ValidBaseline;
 std::string vtkTestingInteractor::TempDirectory;
 std::string vtkTestingInteractor::DataDirectory;
 
-//----------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Start normally starts an event loop. This iterator uses vtkTesting
 // to grab the render window and compare the results to a baseline image
 void vtkTestingInteractor::Start()
@@ -56,7 +56,7 @@ void vtkTestingInteractor::Start()
   }
 }
 
-//----------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTestingInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h

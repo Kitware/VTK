@@ -44,7 +44,7 @@
 
 vtkStandardNewMacro(vtkSMPContourGrid);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct object with initial range (0,1) and single contour value
 // of 0.0.
 vtkSMPContourGrid::vtkSMPContourGrid()
@@ -52,10 +52,10 @@ vtkSMPContourGrid::vtkSMPContourGrid()
   this->MergePieces = true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSMPContourGrid::~vtkSMPContourGrid() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This is to support parallel processing and potential polydata merging.
 namespace
 {
@@ -77,7 +77,7 @@ struct vtkLocalDataType
   }
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This functor uses thread local storage to create one vtkPolyData per
 // thread. Each execution of the functor adds to the vtkPolyData that is
 // local to the thread it is running on.
@@ -481,7 +481,7 @@ public:
   }
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <typename T>
 void DoContour(vtkSMPContourGrid* filter, vtkUnstructuredGrid* input, vtkIdType numCells,
   vtkDataArray* inScalars, int numContours, double* values, vtkDataObject* output)
@@ -535,7 +535,7 @@ void DoContour(vtkSMPContourGrid* filter, vtkUnstructuredGrid* input, vtkIdType 
 
 } // end namespace
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSMPContourGrid::RequestDataObject(
   vtkInformation* vtkNotUsed(request), vtkInformationVector**, vtkInformationVector* outputVector)
 {
@@ -563,7 +563,7 @@ int vtkSMPContourGrid::RequestDataObject(
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSMPContourGrid::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -620,14 +620,14 @@ int vtkSMPContourGrid::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSMPContourGrid::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkDataObject");
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkSMPContourGrid::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -640,7 +640,7 @@ vtkTypeBool vtkSMPContourGrid::ProcessRequest(
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSMPContourGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

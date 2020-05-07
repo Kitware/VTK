@@ -20,7 +20,7 @@
 #include "vtkTkRenderWidget.h"
 #include "vtkVersionMacros.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Vtkrenderingtk_Init
 // Called upon system startup to create the widget commands.
 extern "C"

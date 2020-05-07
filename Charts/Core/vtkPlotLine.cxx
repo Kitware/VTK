@@ -23,20 +23,20 @@
 
 #include "vtkObjectFactory.h"
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotLine);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPlotLine::vtkPlotLine()
 {
   this->MarkerStyle = vtkPlotPoints::NONE;
   this->PolyLine = true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPlotLine::~vtkPlotLine() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPlotLine::Paint(vtkContext2D* painter)
 {
   // This is where everything should be drawn, or dispatched to other methods.
@@ -106,7 +106,7 @@ bool vtkPlotLine::Paint(vtkContext2D* painter)
   return this->vtkPlotPoints::Paint(painter);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPlotLine::PaintLegend(vtkContext2D* painter, const vtkRectf& rect, int)
 {
   painter->ApplyPen(this->Pen);
@@ -115,7 +115,7 @@ bool vtkPlotLine::PaintLegend(vtkContext2D* painter, const vtkRectf& rect, int)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlotLine::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

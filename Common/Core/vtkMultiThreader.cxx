@@ -157,7 +157,7 @@ vtkMultiThreader::~vtkMultiThreader()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMultiThreader::GetNumberOfThreads()
 {
   int num = this->NumberOfThreads;
@@ -341,7 +341,7 @@ void vtkMultiThreader::MultipleMethodExecute()
 
   for (thread_loop = 0; thread_loop < this->NumberOfThreads; thread_loop++)
   {
-    if (this->MultipleMethod[thread_loop] == (vtkThreadFunctionType)nullptr)
+    if (this->MultipleMethod[thread_loop] == (vtkThreadFunctionType) nullptr)
     {
       vtkErrorMacro(<< "No multiple method set for: " << thread_loop);
       return;
@@ -568,7 +568,7 @@ void vtkMultiThreader::TerminateThread(int threadId)
   this->SpawnedThreadActiveFlagLock[threadId] = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiThreaderIDType vtkMultiThreader::GetCurrentThreadID()
 {
 #if defined(VTK_USE_PTHREADS)
@@ -608,7 +608,7 @@ vtkTypeBool vtkMultiThreader::IsThreadActive(int threadId)
   return val;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkMultiThreader::ThreadsEqual(vtkMultiThreaderIDType t1, vtkMultiThreaderIDType t2)
 {
 #if defined(VTK_USE_PTHREADS)

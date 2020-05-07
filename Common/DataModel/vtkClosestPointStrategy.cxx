@@ -23,10 +23,10 @@
 
 #include <set>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkClosestPointStrategy);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkClosestPointStrategy::vtkClosestPointStrategy()
 {
   // Preallocate for performance
@@ -47,7 +47,7 @@ vtkClosestPointStrategy::vtkClosestPointStrategy()
   this->PointLocator = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkClosestPointStrategy::~vtkClosestPointStrategy()
 {
   this->PointIds->Delete();
@@ -62,7 +62,7 @@ vtkClosestPointStrategy::~vtkClosestPointStrategy()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkClosestPointStrategy::SetPointLocator(vtkAbstractPointLocator* pL)
 {
   if (pL != this->PointLocator)
@@ -84,7 +84,7 @@ void vtkClosestPointStrategy::SetPointLocator(vtkAbstractPointLocator* pL)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkClosestPointStrategy::Initialize(vtkPointSet* ps)
 {
   // See whether anything has changed. If not, just return.
@@ -130,11 +130,11 @@ int vtkClosestPointStrategy::Initialize(vtkPointSet* ps)
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 namespace
 {
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Used internally by FindCell to walk through neighbors from a starting cell.
 // The arguments are the same as those for FindCell.  In addition, visitedCells
 // keeps a list of cells already traversed.  If we run into such already
@@ -181,7 +181,7 @@ vtkIdType FindCellWalk(vtkClosestPointStrategy* self, vtkPointSet* ps, double x[
   return -1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType FindCellWalk(vtkClosestPointStrategy* self, vtkPointSet* ps, double x[3],
   vtkGenericCell* gencell, vtkIdList* cellIds, double tol2, int& subId, double pcoords[3],
   double* weights, std::set<vtkIdType>& visitedCells, vtkIdList* ptIds, vtkIdList* neighbors)
@@ -202,7 +202,7 @@ vtkIdType FindCellWalk(vtkClosestPointStrategy* self, vtkPointSet* ps, double x[
 
 } // anonymous namespace
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkClosestPointStrategy::FindCell(double x[3], vtkCell* cell, vtkGenericCell* gencell,
   vtkIdType cellId, double tol2, int& subId, double pcoords[3], double* weights)
 {
@@ -273,7 +273,7 @@ vtkIdType vtkClosestPointStrategy::FindCell(double x[3], vtkCell* cell, vtkGener
   return -1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkClosestPointStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

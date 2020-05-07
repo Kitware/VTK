@@ -47,7 +47,7 @@ static inline void LinearTransformPoint(double mtx[4][4], double in[3], double o
   out[2] = mtx[2][0] * in[0] + mtx[2][1] * in[1] + mtx[2][2] * in[2] + mtx[2][3];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkWeightedTransformFilter::vtkWeightedTransformFilter()
 {
   this->AddInputValues = 0;
@@ -60,7 +60,7 @@ vtkWeightedTransformFilter::vtkWeightedTransformFilter()
   this->TransformIndexArray = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkWeightedTransformFilter::~vtkWeightedTransformFilter()
 {
   int i;
@@ -84,7 +84,7 @@ vtkWeightedTransformFilter::~vtkWeightedTransformFilter()
   this->SetTransformIndexArray(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWeightedTransformFilter::SetNumberOfTransforms(int num)
 {
   int i;
@@ -154,7 +154,7 @@ void vtkWeightedTransformFilter::SetNumberOfTransforms(int num)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWeightedTransformFilter::SetTransform(vtkAbstractTransform* trans, int num)
 {
   if (num < 0)
@@ -180,7 +180,7 @@ void vtkWeightedTransformFilter::SetTransform(vtkAbstractTransform* trans, int n
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAbstractTransform* vtkWeightedTransformFilter::GetTransform(int num)
 {
   if (num < 0)
@@ -198,7 +198,7 @@ vtkAbstractTransform* vtkWeightedTransformFilter::GetTransform(int num)
   return this->Transforms[num];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkWeightedTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -263,8 +263,8 @@ int vtkWeightedTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
     return 1;
   }
 
-  std::vector<double*> linearPtMtx(this->NumberOfTransforms, nullptr);       // non-owning ptr
-  std::vector<std::vector<double> > linearNormMtx(this->NumberOfTransforms); // owns data
+  std::vector<double*> linearPtMtx(this->NumberOfTransforms, nullptr);      // non-owning ptr
+  std::vector<std::vector<double>> linearNormMtx(this->NumberOfTransforms); // owns data
   allLinear = 1;
   for (c = 0; c < this->NumberOfTransforms; c++)
   {
@@ -785,7 +785,7 @@ int vtkWeightedTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkWeightedTransformFilter::GetMTime()
 {
   int i;
@@ -807,7 +807,7 @@ vtkMTimeType vtkWeightedTransformFilter::GetMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWeightedTransformFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   int i;

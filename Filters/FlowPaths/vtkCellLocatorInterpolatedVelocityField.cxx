@@ -28,13 +28,13 @@ vtkStandardNewMacro(vtkCellLocatorInterpolatedVelocityField);
 vtkCxxSetObjectMacro(
   vtkCellLocatorInterpolatedVelocityField, CellLocatorPrototype, vtkAbstractCellLocator);
 
-//----------------------------------------------------------------------------
-typedef std::vector<vtkSmartPointer<vtkAbstractCellLocator> > CellLocatorsTypeBase;
+//------------------------------------------------------------------------------
+typedef std::vector<vtkSmartPointer<vtkAbstractCellLocator>> CellLocatorsTypeBase;
 class vtkCellLocatorInterpolatedVelocityFieldCellLocatorsType : public CellLocatorsTypeBase
 {
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCellLocatorInterpolatedVelocityField::vtkCellLocatorInterpolatedVelocityField()
 {
   this->LastCellLocator = nullptr;
@@ -42,7 +42,7 @@ vtkCellLocatorInterpolatedVelocityField::vtkCellLocatorInterpolatedVelocityField
   this->CellLocators = new vtkCellLocatorInterpolatedVelocityFieldCellLocatorsType;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCellLocatorInterpolatedVelocityField::~vtkCellLocatorInterpolatedVelocityField()
 {
   this->LastCellLocator = nullptr;
@@ -52,7 +52,7 @@ vtkCellLocatorInterpolatedVelocityField::~vtkCellLocatorInterpolatedVelocityFiel
   this->CellLocators = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellLocatorInterpolatedVelocityField::SetLastCellId(vtkIdType c, int dataindex)
 {
   this->LastCellId = c;
@@ -68,7 +68,7 @@ void vtkCellLocatorInterpolatedVelocityField::SetLastCellId(vtkIdType c, int dat
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCellLocatorInterpolatedVelocityField::FunctionValues(double* x, double* f)
 {
   vtkDataSet* vds = nullptr;
@@ -148,7 +148,7 @@ int vtkCellLocatorInterpolatedVelocityField::FunctionValues(double* x, double* f
   return retVal;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCellLocatorInterpolatedVelocityField::FunctionValues(
   vtkDataSet* dataset, vtkAbstractCellLocator* loc, double* x, double* f)
 {
@@ -212,7 +212,7 @@ int vtkCellLocatorInterpolatedVelocityField::FunctionValues(
   return bFound;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellLocatorInterpolatedVelocityField::AddDataSet(vtkDataSet* dataset)
 {
   if (!dataset)
@@ -259,7 +259,7 @@ void vtkCellLocatorInterpolatedVelocityField::AddDataSet(vtkDataSet* dataset)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellLocatorInterpolatedVelocityField::CopyParameters(
   vtkAbstractInterpolatedVelocityField* from)
 {
@@ -272,7 +272,7 @@ void vtkCellLocatorInterpolatedVelocityField::CopyParameters(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellLocatorInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

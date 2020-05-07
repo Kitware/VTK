@@ -43,7 +43,7 @@ vtkCxxSetObjectMacro(vtkPointSmoothingFilter, FrameFieldArray, vtkDataArray);
 vtkCxxSetObjectMacro(vtkPointSmoothingFilter, Locator, vtkAbstractPointLocator);
 vtkCxxSetObjectMacro(vtkPointSmoothingFilter, Plane, vtkPlane);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 namespace
 {
 // Used when tensors need to be padded out to 9-components
@@ -76,7 +76,7 @@ struct PadFrameFieldArray
   }
 };
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Machinery for extracting eigenfunctions. Needed if smoothing mode is set
 // to Tensors.
 template <typename DataT>
@@ -344,7 +344,7 @@ void CharacterizeTensor(vtkDataArray* tensors, vtkIdType numPts, double detRange
   detRange[1] = tensorWorker.Range[1];
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // These classes compute the forced displacement of a point within a
 // neighborhood of points. Besides geometric proximity, attribute
 // data (e.g., scalars, tensors) may also affect the displacement.
@@ -636,7 +636,7 @@ struct TensorDisplacement : public DisplacePoint
   }
 };
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // For each point, build the connectivity array to nearby points. The number
 // of neighbors is given by the specified neighborhood size.
 template <typename PointsT>
@@ -724,7 +724,7 @@ void UpdateConnectivity(
   }
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Constrain point movement depending on classification. The point can move
 // freely, on a plane, or is fixed.
 struct PointConstraints
@@ -970,7 +970,7 @@ struct MeshWorker
   }
 }; // MeshWorker
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Smoothing operation based on double buffering (simplifies threading). In
 // general the types of points (input and output buffers) can be different.
 template <typename PointsT1, typename PointsT2>
@@ -1103,7 +1103,7 @@ struct SmoothWorker
 } // anonymous namespace
 
 //================= Begin class proper =======================================
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPointSmoothingFilter::vtkPointSmoothingFilter()
 {
   this->NeighborhoodSize = 8; // works well for 2D
@@ -1131,7 +1131,7 @@ vtkPointSmoothingFilter::vtkPointSmoothingFilter()
   this->Plane = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPointSmoothingFilter::~vtkPointSmoothingFilter()
 {
   this->SetFrameFieldArray(nullptr);
@@ -1139,7 +1139,7 @@ vtkPointSmoothingFilter::~vtkPointSmoothingFilter()
   this->SetPlane(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPointSmoothingFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -1350,14 +1350,14 @@ int vtkPointSmoothingFilter::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPointSmoothingFilter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointSmoothingFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -71,12 +71,12 @@ POSSIBILITY OF SUCH DAMAGES.
 #include <sstream>
 #include <string>
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // A container for mapping attribute names to arrays
 class vtkMINCImageAttributeMap
 {
 public:
-  typedef std::map<std::string, vtkSmartPointer<vtkObject> > MapType;
+  typedef std::map<std::string, vtkSmartPointer<vtkObject>> MapType;
 
   static vtkMINCImageAttributeMap* New() { return new vtkMINCImageAttributeMap; }
 
@@ -131,13 +131,13 @@ private:
   MapType Map;
 };
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkMINCImageAttributes);
 
 vtkCxxSetObjectMacro(vtkMINCImageAttributes, ImageMin, vtkDoubleArray);
 vtkCxxSetObjectMacro(vtkMINCImageAttributes, ImageMax, vtkDoubleArray);
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMINCImageAttributes::vtkMINCImageAttributes()
 {
   this->DimensionNames = vtkStringArray::New();
@@ -165,7 +165,7 @@ vtkMINCImageAttributes::vtkMINCImageAttributes()
   this->ValidateAttributes = 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMINCImageAttributes::~vtkMINCImageAttributes()
 {
   this->SetName(nullptr);
@@ -212,7 +212,7 @@ vtkMINCImageAttributes::~vtkMINCImageAttributes()
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMINCImageAttributes::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -228,7 +228,7 @@ void vtkMINCImageAttributes::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ValidateAttributes: " << (this->ValidateAttributes ? "On\n" : "Off\n");
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMINCImageAttributes::Reset()
 {
   this->SetName(nullptr);
@@ -253,12 +253,12 @@ void vtkMINCImageAttributes::Reset()
   tmparray->Delete();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Allowed dimension variable names
 static const char* vtkMINCDimVarNames[] = { MIxspace, MIyspace, MIzspace, MItime, MIxfrequency,
   MIyfrequency, MIzfrequency, MItfrequency, nullptr };
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMINCImageAttributes::AddDimension(const char* dimension, vtkIdType length)
 {
   // Check for duplicates
@@ -290,7 +290,7 @@ void vtkMINCImageAttributes::AddDimension(const char* dimension, vtkIdType lengt
   this->DimensionLengths->InsertNextTuple1(length);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method also has to store the resulting string internally.
 const char* vtkMINCImageAttributes::ConvertDataArrayToString(vtkDataArray* array)
 {
@@ -389,13 +389,13 @@ const char* vtkMINCImageAttributes::ConvertDataArrayToString(vtkDataArray* array
   return result;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMINCImageAttributes::PrintFileHeader()
 {
   this->PrintFileHeader(cout);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMINCImageAttributes::PrintFileHeader(ostream& os)
 {
   const char* name = "unknown";
@@ -659,7 +659,7 @@ void vtkMINCImageAttributes::PrintFileHeader(ostream& os)
   os << "}\n";
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStringArray* vtkMINCImageAttributes::GetAttributeNames(const char* variable)
 {
   // If variable is null, use empty string to get global attributes
@@ -671,13 +671,13 @@ vtkStringArray* vtkMINCImageAttributes::GetAttributeNames(const char* variable)
   return this->AttributeNames->GetStringArray(variable);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMINCImageAttributes::HasAttribute(const char* variable, const char* attribute)
 {
   return (this->GetAttributeValueAsArray(variable, attribute) != nullptr);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataArray* vtkMINCImageAttributes::GetAttributeValueAsArray(
   const char* variable, const char* attribute)
 {
@@ -693,7 +693,7 @@ vtkDataArray* vtkMINCImageAttributes::GetAttributeValueAsArray(
   return this->AttributeValues->GetDataArray(path.c_str());
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkMINCImageAttributes::GetAttributeValueAsString(
   const char* variable, const char* attribute)
 {
@@ -709,7 +709,7 @@ const char* vtkMINCImageAttributes::GetAttributeValueAsString(
   return this->ConvertDataArrayToString(array);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMINCImageAttributes::GetAttributeValueAsInt(const char* variable, const char* attribute)
 {
   vtkDataArray* array = this->GetAttributeValueAsArray(variable, attribute);
@@ -750,7 +750,7 @@ int vtkMINCImageAttributes::GetAttributeValueAsInt(const char* variable, const c
   return static_cast<int>(array->GetComponent(0, 0));
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkMINCImageAttributes::GetAttributeValueAsDouble(
   const char* variable, const char* attribute)
 {
@@ -799,7 +799,7 @@ double vtkMINCImageAttributes::GetAttributeValueAsDouble(
   return array->GetComponent(0, 0);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMINCImageAttributes::SetAttributeValueAsArray(
   const char* variable, const char* attribute, vtkDataArray* array)
 {
@@ -866,7 +866,7 @@ void vtkMINCImageAttributes::SetAttributeValueAsArray(
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMINCImageAttributes::SetAttributeValueAsString(
   const char* variable, const char* attribute, const char* value)
 {
@@ -882,7 +882,7 @@ void vtkMINCImageAttributes::SetAttributeValueAsString(
   array->Delete();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMINCImageAttributes::SetAttributeValueAsInt(
   const char* variable, const char* attribute, int value)
 {
@@ -895,7 +895,7 @@ void vtkMINCImageAttributes::SetAttributeValueAsInt(
   array->Delete();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMINCImageAttributes::SetAttributeValueAsDouble(
   const char* variable, const char* attribute, double value)
 {
@@ -908,13 +908,13 @@ void vtkMINCImageAttributes::SetAttributeValueAsDouble(
   array->Delete();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // These validation methods have three return values:
 // 0 means that the attribute should be skipped
 // 1 means that the attribute should be set
 // 2 means that the attribute wasn't recognized
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMINCImageAttributes::ValidateGlobalAttribute(
   const char* attname, vtkDataArray* vtkNotUsed(array))
 {
@@ -943,7 +943,7 @@ int vtkMINCImageAttributes::ValidateGlobalAttribute(
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMINCImageAttributes::ValidateGeneralAttribute(
   const char* varname, const char* attname, vtkDataArray* array)
 {
@@ -990,7 +990,7 @@ int vtkMINCImageAttributes::ValidateGeneralAttribute(
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMINCImageAttributes::ValidateDimensionAttribute(
   const char* varname, const char* attname, vtkDataArray* array)
 {
@@ -1056,7 +1056,7 @@ int vtkMINCImageAttributes::ValidateDimensionAttribute(
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMINCImageAttributes::ValidateImageAttribute(
   const char* vtkNotUsed(varname), const char* attname, vtkDataArray* vtkNotUsed(array))
 {
@@ -1092,7 +1092,7 @@ int vtkMINCImageAttributes::ValidateImageAttribute(
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMINCImageAttributes::ValidateImageMinMaxAttribute(
   const char* varname, const char* attname, vtkDataArray* array)
 {
@@ -1135,7 +1135,7 @@ int vtkMINCImageAttributes::ValidateImageMinMaxAttribute(
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMINCImageAttributes::ValidatePatientAttribute(
   const char* vtkNotUsed(varname), const char* attname, vtkDataArray* vtkNotUsed(array))
 {
@@ -1171,7 +1171,7 @@ int vtkMINCImageAttributes::ValidatePatientAttribute(
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMINCImageAttributes::ValidateStudyAttribute(
   const char* vtkNotUsed(varname), const char* attname, vtkDataArray* vtkNotUsed(array))
 {
@@ -1210,7 +1210,7 @@ int vtkMINCImageAttributes::ValidateStudyAttribute(
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMINCImageAttributes::ValidateAcquisitionAttribute(
   const char* vtkNotUsed(varname), const char* attname, vtkDataArray* vtkNotUsed(array))
 {
@@ -1249,7 +1249,7 @@ int vtkMINCImageAttributes::ValidateAcquisitionAttribute(
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMINCImageAttributes::ValidateAttribute(
   const char* varname, const char* attname, vtkDataArray* array)
 {
@@ -1324,7 +1324,7 @@ int vtkMINCImageAttributes::ValidateAttribute(
   return result;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMINCImageAttributes::FindValidRange(double range[2])
 {
   // Find the valid range. Start with the default.
@@ -1412,7 +1412,7 @@ void vtkMINCImageAttributes::FindValidRange(double range[2])
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMINCImageAttributes::FindImageRange(double range[2])
 {
   // Initialize to the default values
@@ -1433,7 +1433,7 @@ void vtkMINCImageAttributes::FindImageRange(double range[2])
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMINCImageAttributes::ShallowCopy(vtkMINCImageAttributes* source)
 {
   this->SetName(source->GetName());

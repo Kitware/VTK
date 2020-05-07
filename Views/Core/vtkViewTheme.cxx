@@ -104,7 +104,7 @@ vtkViewTheme::~vtkViewTheme()
   }
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkViewTheme::SetPointHueRange(double mn, double mx)
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->PointLookupTable))
@@ -148,7 +148,7 @@ void vtkViewTheme::GetPointHueRange(double rng[2])
   }
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkViewTheme::SetPointSaturationRange(double mn, double mx)
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->PointLookupTable))
@@ -192,7 +192,7 @@ void vtkViewTheme::GetPointSaturationRange(double rng[2])
   }
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkViewTheme::SetPointValueRange(double mn, double mx)
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->PointLookupTable))
@@ -236,7 +236,7 @@ void vtkViewTheme::GetPointValueRange(double rng[2])
   }
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkViewTheme::SetPointAlphaRange(double mn, double mx)
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->PointLookupTable))
@@ -280,7 +280,7 @@ void vtkViewTheme::GetPointAlphaRange(double rng[2])
   }
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkViewTheme::SetCellHueRange(double mn, double mx)
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->CellLookupTable))
@@ -324,7 +324,7 @@ void vtkViewTheme::GetCellHueRange(double rng[2])
   }
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkViewTheme::SetCellSaturationRange(double mn, double mx)
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->CellLookupTable))
@@ -368,7 +368,7 @@ void vtkViewTheme::GetCellSaturationRange(double rng[2])
   }
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkViewTheme::SetCellValueRange(double mn, double mx)
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->CellLookupTable))
@@ -412,7 +412,7 @@ void vtkViewTheme::GetCellValueRange(double rng[2])
   }
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkViewTheme::SetCellAlphaRange(double mn, double mx)
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->CellLookupTable))

@@ -23,7 +23,7 @@
 
 vtkStandardNewMacro(vtkImageTranslateExtent);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageTranslateExtent::vtkImageTranslateExtent()
 {
   int idx;
@@ -34,7 +34,7 @@ vtkImageTranslateExtent::vtkImageTranslateExtent()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageTranslateExtent::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -43,7 +43,7 @@ void vtkImageTranslateExtent::PrintSelf(ostream& os, vtkIndent indent)
      << this->Translation[2] << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Change the WholeExtent
 int vtkImageTranslateExtent::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -75,7 +75,7 @@ int vtkImageTranslateExtent::RequestInformation(vtkInformation* vtkNotUsed(reque
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method simply copies by reference the input data to the output.
 int vtkImageTranslateExtent::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -100,7 +100,7 @@ int vtkImageTranslateExtent::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageTranslateExtent::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

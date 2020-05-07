@@ -53,7 +53,7 @@
 // mode might not be used. Fortunately, this test is fast enough.
 #define INC_OCT_PNT_LOC_TESTS_ZERO 0.00000000000001
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Meta information of the test data
 //
 // number of grid points           = 2288
@@ -66,7 +66,7 @@
 // min squared distance = 1.036624e-005 (for zero-tolerance unique points)
 // max squared distance = 3.391319e+001
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Swap an array of (or a single) int, double, or vtkIdType values when
 // loading little-endian / Win-based disk files on big-endian platforms.
 // Note the two data files for this test are in little-endian binary format.
@@ -94,7 +94,7 @@ void SwapForBigEndian(unsigned char* theArray, int tupleSiz, int numTuple)
   tmpChar1 = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestIncrementalOctreePointLocator(int argc, char* argv[])
 {
   // specifications
@@ -550,7 +550,7 @@ int TestIncrementalOctreePointLocator(int argc, char* argv[])
       ptIdList->Reset();
       octLocat->FindClosestNPoints(nClzNpts, pLocPnts + (i << 1) + i, ptIdList);
 
-// ---------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // verify the result in brute force mode
 #ifdef _BRUTE_FORCE_VERIFICATION_
 
@@ -595,7 +595,7 @@ int TestIncrementalOctreePointLocator(int argc, char* argv[])
 // ---------------------------------------------------------------------//
 // ---------------------------------------------------------------------//
 
-// -----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // rapid point index-based verification
 #ifndef _BRUTE_FORCE_VERIFICATION_
     numInsrt = nClzNpts * nLocPnts; // data has been read at the beginning
@@ -636,7 +636,7 @@ int TestIncrementalOctreePointLocator(int argc, char* argv[])
       resltIds[j + 2] =
         octLocat->FindClosestPointWithinRadius(fTempRad * 1.5, pLocPnts + j, tmpDist2);
 
-// -----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // verify the result in brute force mode
 #ifdef _BRUTE_FORCE_VERIFICATION_
       if (((minDist2[i] > INC_OCT_PNT_LOC_TESTS_ZERO) && (resltIds[j] != -1)) ||
@@ -650,7 +650,7 @@ int TestIncrementalOctreePointLocator(int argc, char* argv[])
 #endif
     }
 
-// -----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // rapid point index-based verification
 #ifndef _BRUTE_FORCE_VERIFICATION_
     n = fread(&numInsrt, sizeof(int), 1, diskFile);
@@ -727,7 +727,7 @@ int TestIncrementalOctreePointLocator(int argc, char* argv[])
         }
       }
 
-// ---------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // verify the result in brute force mode
 #ifdef _BRUTE_FORCE_VERIFICATION_
 
@@ -808,7 +808,7 @@ int TestIncrementalOctreePointLocator(int argc, char* argv[])
       // -------------------------------------------------------------------//
     }
 
-// -----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // rapid point index-based verification
 #ifndef _BRUTE_FORCE_VERIFICATION_
     n = fread(&numInsrt, sizeof(int), 1, diskFile);

@@ -31,12 +31,12 @@
 #include "vtkStaticPointLocator.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Helper classes to support efficient computing, and threaded execution.
 namespace
 {
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Map input points to output. Basically the third pass of the algorithm.
 struct MapPoints
 {
@@ -64,7 +64,7 @@ struct MapPoints
   }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Map outlier points to second output. This is an optional pass of the
 // algorithm.
 struct MapOutliers
@@ -97,7 +97,7 @@ struct MapOutliers
 } // anonymous namespace
 
 //================= Begin class proper =======================================
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPointCloudFilter::vtkPointCloudFilter()
 {
   this->PointMap = nullptr;
@@ -109,25 +109,25 @@ vtkPointCloudFilter::vtkPointCloudFilter()
   this->SetNumberOfOutputPorts(2);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPointCloudFilter::~vtkPointCloudFilter()
 {
   delete[] this->PointMap;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const vtkIdType* vtkPointCloudFilter::GetPointMap()
 {
   return this->PointMap;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkPointCloudFilter::GetNumberOfPointsRemoved()
 {
   return this->NumberOfPointsRemoved;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // There are three high level passes. First we traverse all the input points
 // to see how many neighbors each point has within a specified radius, and a
 // map is created indicating whether an input point is to be copied to the
@@ -268,7 +268,7 @@ int vtkPointCloudFilter::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointCloudFilter::GenerateVerticesIfRequested(vtkPolyData* output)
 {
   vtkIdType numPts;
@@ -292,14 +292,14 @@ void vtkPointCloudFilter::GenerateVerticesIfRequested(vtkPolyData* output)
   verts->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPointCloudFilter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointCloudFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

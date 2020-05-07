@@ -113,7 +113,7 @@ static int CheckExtractedUGrid( vtkExtractSelection* extract,
 }
 #endif
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestLinearSelector2D(int argc, char* argv[])
 {
   // Initialize test value

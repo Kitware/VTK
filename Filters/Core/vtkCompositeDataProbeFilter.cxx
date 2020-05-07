@@ -28,16 +28,16 @@
 #include "vtkSmartPointer.h"
 
 vtkStandardNewMacro(vtkCompositeDataProbeFilter);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCompositeDataProbeFilter::vtkCompositeDataProbeFilter()
 {
   this->PassPartialArrays = false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCompositeDataProbeFilter::~vtkCompositeDataProbeFilter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCompositeDataProbeFilter::FillInputPortInformation(int port, vtkInformation* info)
 {
   this->Superclass::FillInputPortInformation(port, info);
@@ -51,13 +51,13 @@ int vtkCompositeDataProbeFilter::FillInputPortInformation(int port, vtkInformati
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExecutive* vtkCompositeDataProbeFilter::CreateDefaultExecutive()
 {
   return vtkCompositeDataPipeline::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCompositeDataProbeFilter::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -127,7 +127,7 @@ int vtkCompositeDataProbeFilter::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositeDataProbeFilter::InitializeOutputArrays(vtkPointData* outPD, vtkIdType numPts)
 {
   if (!this->PassPartialArrays)
@@ -153,7 +153,7 @@ void vtkCompositeDataProbeFilter::InitializeOutputArrays(vtkPointData* outPD, vt
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCompositeDataProbeFilter::BuildFieldList(vtkCompositeDataSet* source)
 {
   delete this->PointList;
@@ -232,7 +232,7 @@ int vtkCompositeDataProbeFilter::BuildFieldList(vtkCompositeDataSet* source)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositeDataProbeFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -23,7 +23,7 @@
 
 vtkStandardNewMacro(vtkImageChangeInformation);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageChangeInformation::vtkImageChangeInformation()
 {
   this->CenterImage = 0;
@@ -62,10 +62,10 @@ vtkImageData* vtkImageChangeInformation::GetInformationInput()
   return vtkImageData::SafeDownCast(this->GetExecutive()->GetInputData(1, 0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageChangeInformation::~vtkImageChangeInformation() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageChangeInformation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -94,7 +94,7 @@ void vtkImageChangeInformation::PrintSelf(ostream& os, vtkIndent indent)
      << this->OriginTranslation[1] << "," << this->OriginTranslation[2] << ")" << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Change the information
 int vtkImageChangeInformation::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -172,7 +172,7 @@ int vtkImageChangeInformation::RequestInformation(vtkInformation* vtkNotUsed(req
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method simply copies by reference the input data to the output.
 int vtkImageChangeInformation::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -203,7 +203,7 @@ int vtkImageChangeInformation::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageChangeInformation::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

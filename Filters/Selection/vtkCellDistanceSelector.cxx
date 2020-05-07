@@ -38,7 +38,7 @@
 
 vtkStandardNewMacro(vtkCellDistanceSelector);
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCellDistanceSelector::vtkCellDistanceSelector()
 {
   this->Distance = 1;
@@ -47,16 +47,16 @@ vtkCellDistanceSelector::vtkCellDistanceSelector()
   this->SetNumberOfInputPorts(2);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCellDistanceSelector::~vtkCellDistanceSelector() = default;
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellDistanceSelector::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCellDistanceSelector::FillInputPortInformation(int port, vtkInformation* info)
 {
   switch (port)
@@ -71,7 +71,7 @@ int vtkCellDistanceSelector::FillInputPortInformation(int port, vtkInformation* 
   return 1;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCellDistanceSelector::AddSelectionNode(
   vtkSelection* output, vtkSmartPointer<vtkDataArray> outIndices, int composite_index, int d)
 {
@@ -85,7 +85,7 @@ void vtkCellDistanceSelector::AddSelectionNode(
   output->AddNode(outSelNode);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCellDistanceSelector::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -116,7 +116,7 @@ int vtkCellDistanceSelector::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
-  std::map<int, std::vector<vtkSelectionNode*> > partSelections;
+  std::map<int, std::vector<vtkSelectionNode*>> partSelections;
   int nSelNodes = inputSelection->GetNumberOfNodes();
   for (int i = 0; i < nSelNodes; ++i)
   {

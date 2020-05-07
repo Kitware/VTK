@@ -119,7 +119,7 @@ bool RegressionTest_17233(vtkBillboardTextActor3D* actor)
 
 } // end namespace vtkTestBillboardTextActor3D
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestBillboardTextActor3D(int, char*[])
 {
   using namespace vtkTestBillboardTextActor3D;

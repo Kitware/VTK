@@ -333,7 +333,7 @@ protected:
   /**
    * The 3 axes of this chart.
    */
-  std::vector<vtkSmartPointer<vtkAxis> > Axes;
+  std::vector<vtkSmartPointer<vtkAxis>> Axes;
 
   /**
    * This boolean indicates whether or not we're using this chart to rotate

@@ -26,11 +26,11 @@
 
 #include <vector>
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkCachingInterpolatedVelocityField);
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const double IVFDataSetInfo::TOLERANCE_SCALE = 1.0E-8;
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 IVFDataSetInfo::IVFDataSetInfo()
 {
   this->VelocityFloat = nullptr;
@@ -41,7 +41,7 @@ IVFDataSetInfo::IVFDataSetInfo()
   this->Tolerance = 0.0;
   this->StaticDataSet = false;
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void IVFDataSetInfo::SetDataSet(
   vtkDataSet* data, char* velocity, bool staticdataset, vtkAbstractCellLocator* locator)
 {
@@ -81,7 +81,7 @@ void IVFDataSetInfo::SetDataSet(
     vtkGenericWarningMacro("We only support float/double velocity vectors at the current time");
   }
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 IVFDataSetInfo::IVFDataSetInfo(const IVFDataSetInfo& ivfci)
 {
   this->VelocityFloat = ivfci.VelocityFloat;
@@ -95,7 +95,7 @@ IVFDataSetInfo::IVFDataSetInfo(const IVFDataSetInfo& ivfci)
   this->PCoords[1] = ivfci.PCoords[1];
   this->PCoords[2] = ivfci.PCoords[2];
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 IVFDataSetInfo& IVFDataSetInfo::operator=(const IVFDataSetInfo& ivfci)
 {
   this->VelocityFloat = ivfci.VelocityFloat;
@@ -110,9 +110,9 @@ IVFDataSetInfo& IVFDataSetInfo::operator=(const IVFDataSetInfo& ivfci)
   this->PCoords[2] = ivfci.PCoords[2];
   return *this;
 }
-//---------------------------------------------------------------------------
-//---------------------------------------------------------------------------
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCachingInterpolatedVelocityField::vtkCachingInterpolatedVelocityField()
 {
   this->NumFuncs = 3;     // u, v, w
@@ -126,7 +126,7 @@ vtkCachingInterpolatedVelocityField::vtkCachingInterpolatedVelocityField()
   this->Cache = nullptr;
   this->LastCellId = -1;
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCachingInterpolatedVelocityField::~vtkCachingInterpolatedVelocityField()
 {
   this->NumFuncs = 0;
@@ -134,7 +134,7 @@ vtkCachingInterpolatedVelocityField::~vtkCachingInterpolatedVelocityField()
   this->TempCell->Delete();
   this->SetVectorsSelection(nullptr);
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCachingInterpolatedVelocityField::SetDataSet(
   int I, vtkDataSet* dataset, bool staticdataset, vtkAbstractCellLocator* locator)
 {
@@ -145,7 +145,7 @@ void vtkCachingInterpolatedVelocityField::SetDataSet(
   int maxsize = vtkMath::Max(static_cast<int>(this->Weights.size()), dataset->GetMaxCellSize());
   this->Weights.assign(maxsize, 0.0);
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCachingInterpolatedVelocityField::SetLastCellInfo(vtkIdType c, int datasetindex)
 {
   if ((this->LastCacheIndex != datasetindex) || (this->LastCellId != c))
@@ -163,13 +163,13 @@ void vtkCachingInterpolatedVelocityField::SetLastCellInfo(vtkIdType c, int datas
     }
   }
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCachingInterpolatedVelocityField::ClearLastCellInfo()
 {
   this->Cache = nullptr;
   this->LastCellId = -1;
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGenericCell* vtkCachingInterpolatedVelocityField::GetLastCell()
 {
   if (this->Cache)
@@ -178,7 +178,7 @@ vtkGenericCell* vtkCachingInterpolatedVelocityField::GetLastCell()
   }
   return nullptr;
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Evaluate {u,v,w} at {x,y,z,t}
 int vtkCachingInterpolatedVelocityField::FunctionValues(double* x, double* f)
 {
@@ -217,7 +217,7 @@ int vtkCachingInterpolatedVelocityField::FunctionValues(double* x, double* f)
   this->LastCacheIndex = oldCacheIndex;
   return 0;
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // same as FunctionValues, but only testing in/out of cells
 int vtkCachingInterpolatedVelocityField::InsideTest(double* x)
 {
@@ -260,7 +260,7 @@ int vtkCachingInterpolatedVelocityField::InsideTest(double* x)
   this->ClearLastCellInfo();
   return 0;
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCachingInterpolatedVelocityField::InsideTest(IVFDataSetInfo* data, double* x)
 {
   int cellId =
@@ -272,7 +272,7 @@ int vtkCachingInterpolatedVelocityField::InsideTest(IVFDataSetInfo* data, double
   }
   return 0;
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Evaluate {u,v,w} at {x,y,z,t}
 int vtkCachingInterpolatedVelocityField::FunctionValues(IVFDataSetInfo* data, double* x, double* f)
 {
@@ -330,7 +330,7 @@ int vtkCachingInterpolatedVelocityField::FunctionValues(IVFDataSetInfo* data, do
 
   return 1;
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCachingInterpolatedVelocityField::FastCompute(IVFDataSetInfo* data, double f[3])
 {
   f[0] = f[1] = f[2] = 0.0;
@@ -359,7 +359,7 @@ void vtkCachingInterpolatedVelocityField::FastCompute(IVFDataSetInfo* data, doub
     }
   }
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkCachingInterpolatedVelocityField::InterpolatePoint(vtkPointData* outPD, vtkIdType outIndex)
 {
   if (!this->Cache || !this->Cache->DataSet)
@@ -370,7 +370,7 @@ bool vtkCachingInterpolatedVelocityField::InterpolatePoint(vtkPointData* outPD, 
     this->Cache->DataSet->GetPointData(), outIndex, this->Cache->Cell->PointIds, &this->Weights[0]);
   return true;
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkCachingInterpolatedVelocityField::InterpolatePoint(
   vtkCachingInterpolatedVelocityField* inCIVF, vtkPointData* outPD, vtkIdType outIndex)
 {
@@ -382,7 +382,7 @@ bool vtkCachingInterpolatedVelocityField::InterpolatePoint(
   outPD->InterpolatePoint(inPD, outIndex, this->Cache->Cell->PointIds, &this->Weights[0]);
   return true;
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCachingInterpolatedVelocityField::GetLastWeights(double* w)
 {
   // If last cell is valid, fill w with the interpolation weights
@@ -402,7 +402,7 @@ int vtkCachingInterpolatedVelocityField::GetLastWeights(double* w)
     return 0;
   }
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCachingInterpolatedVelocityField::GetLastLocalCoordinates(double pcoords[3])
 {
   // If last cell is valid, fill p with the local coordinates
@@ -421,7 +421,7 @@ int vtkCachingInterpolatedVelocityField::GetLastLocalCoordinates(double pcoords[
     return 0;
   }
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCachingInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -453,4 +453,4 @@ void vtkCachingInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent inden
 
   os << indent << "LastCacheIndex : " << this->LastCacheIndex << endl;
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------

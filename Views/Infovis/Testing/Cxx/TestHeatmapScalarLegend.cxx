@@ -29,7 +29,7 @@
 
 #include "vtkRegressionTestImage.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestHeatmapScalarLegend(int argc, char* argv[])
 {
   vtkNew<vtkTable> table;

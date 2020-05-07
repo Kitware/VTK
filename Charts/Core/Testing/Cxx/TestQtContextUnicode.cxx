@@ -28,7 +28,7 @@
 
 #include <QApplication>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class QtContextUnicode : public vtkContextItem
 {
 public:
@@ -38,7 +38,7 @@ public:
   virtual bool Paint(vtkContext2D* painter);
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestQtContextUnicode(int argc, char* argv[])
 {
   QApplication app(argc, argv);

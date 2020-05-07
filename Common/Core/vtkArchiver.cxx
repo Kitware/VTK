@@ -20,22 +20,22 @@
 #include <fstream>
 #include <sstream>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkArchiver);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkArchiver::vtkArchiver()
 {
   this->ArchiveName = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkArchiver::~vtkArchiver()
 {
   this->SetArchiveName(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkArchiver::OpenArchive()
 {
   if (this->ArchiveName == nullptr)
@@ -51,10 +51,10 @@ void vtkArchiver::OpenArchive()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkArchiver::CloseArchive() {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkArchiver::InsertIntoArchive(
   const std::string& relativePath, const char* data, std::size_t size)
 {
@@ -68,7 +68,7 @@ void vtkArchiver::InsertIntoArchive(
   out.close();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkArchiver::Contains(const std::string& relativePath)
 {
   std::stringstream path;
@@ -77,7 +77,7 @@ bool vtkArchiver::Contains(const std::string& relativePath)
   return vtksys::SystemTools::FileExists(vtksys::SystemTools::GetFilenamePath(path.str()), true);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkArchiver::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

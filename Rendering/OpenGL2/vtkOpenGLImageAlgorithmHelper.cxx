@@ -30,13 +30,13 @@
 
 vtkStandardNewMacro(vtkOpenGLImageAlgorithmHelper);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenGLImageAlgorithmHelper::vtkOpenGLImageAlgorithmHelper()
 {
   this->RenderWindow = nullptr;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenGLImageAlgorithmHelper::~vtkOpenGLImageAlgorithmHelper()
 {
   this->SetRenderWindow(nullptr);
@@ -189,7 +189,7 @@ void vtkOpenGLImageAlgorithmHelper::Execute(vtkOpenGLImageAlgorithmCallback* cb,
   delete[] ftmp;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLImageAlgorithmHelper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

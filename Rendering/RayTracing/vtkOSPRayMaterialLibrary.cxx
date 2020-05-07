@@ -38,7 +38,7 @@
 
 namespace
 {
-const std::map<std::string, std::map<std::string, std::string> > Aliases = {
+const std::map<std::string, std::map<std::string, std::string>> Aliases = {
   { "OBJMaterial",
     { { "colorMap", "map_Kd" }, { "map_kd", "map_Kd" }, { "map_ks", "map_Ks" },
       { "map_ns", "map_Ns" }, { "map_bump", "map_Bump" }, { "normalMap", "map_Bump" },
@@ -67,8 +67,8 @@ std::string FindRealName(const std::string& materialType, const std::string& ali
 }
 }
 
-typedef std::map<std::string, std::vector<double> > NamedVariables;
-typedef std::map<std::string, vtkSmartPointer<vtkTexture> > NamedTextures;
+typedef std::map<std::string, std::vector<double>> NamedVariables;
+typedef std::map<std::string, vtkSmartPointer<vtkTexture>> NamedTextures;
 
 class vtkOSPRayMaterialLibraryInternals
 {
@@ -82,22 +82,22 @@ public:
   std::map<std::string, NamedTextures> TexturesFor;
 };
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOSPRayMaterialLibrary);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOSPRayMaterialLibrary::vtkOSPRayMaterialLibrary()
 {
   this->Internal = new vtkOSPRayMaterialLibraryInternals;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOSPRayMaterialLibrary::~vtkOSPRayMaterialLibrary()
 {
   delete this->Internal;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayMaterialLibrary::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -112,7 +112,7 @@ void vtkOSPRayMaterialLibrary::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayMaterialLibrary::AddMaterial(const std::string& nickname, const std::string& implname)
 {
   auto& dic = vtkOSPRayMaterialLibrary::GetParametersDictionary();
@@ -129,7 +129,7 @@ void vtkOSPRayMaterialLibrary::AddMaterial(const std::string& nickname, const st
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayMaterialLibrary::RemoveMaterial(const std::string& nickname)
 {
   this->Internal->NickNames.erase(nickname);
@@ -138,7 +138,7 @@ void vtkOSPRayMaterialLibrary::RemoveMaterial(const std::string& nickname)
   this->Internal->TexturesFor.erase(nickname);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayMaterialLibrary::AddTexture(
   const std::string& nickname, const std::string& texname, vtkTexture* tex)
 {
@@ -158,7 +158,7 @@ void vtkOSPRayMaterialLibrary::AddTexture(
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayMaterialLibrary::RemoveTexture(
   const std::string& nickname, const std::string& texname)
 {
@@ -166,13 +166,13 @@ void vtkOSPRayMaterialLibrary::RemoveTexture(
   this->Internal->TexturesFor[nickname].erase(realname);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayMaterialLibrary::RemoveAllTextures(const std::string& nickname)
 {
   this->Internal->TexturesFor[nickname].clear();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayMaterialLibrary::AddShaderVariable(
   const std::string& nickname, const std::string& varname, int numVars, const double* x)
 {
@@ -195,7 +195,7 @@ void vtkOSPRayMaterialLibrary::AddShaderVariable(
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayMaterialLibrary::RemoveShaderVariable(
   const std::string& nickname, const std::string& varname)
 {
@@ -203,25 +203,25 @@ void vtkOSPRayMaterialLibrary::RemoveShaderVariable(
   this->Internal->VariablesFor[nickname].erase(realname);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayMaterialLibrary::RemoveAllShaderVariables(const std::string& nickname)
 {
   this->Internal->VariablesFor[nickname].clear();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkOSPRayMaterialLibrary::ReadFile(const char* filename)
 {
   return this->InternalParse(filename, true);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkOSPRayMaterialLibrary::ReadBuffer(const char* filename)
 {
   return this->InternalParse(filename, false);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkOSPRayMaterialLibrary::InternalParse(const char* filename, bool fromfile)
 {
   if (!filename)
@@ -255,7 +255,7 @@ bool vtkOSPRayMaterialLibrary::InternalParse(const char* filename, bool fromfile
   return retOK;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkOSPRayMaterialLibrary::InternalParseJSON(
   const char* filename, bool fromfile, std::istream* doc)
 {
@@ -395,7 +395,7 @@ static std::string trim(std::string s)
 }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkOSPRayMaterialLibrary::InternalParseMTL(
   const char* filename, bool fromfile, std::istream* doc)
 {
@@ -575,7 +575,7 @@ bool vtkOSPRayMaterialLibrary::InternalParseMTL(
   return true;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkOSPRayMaterialLibrary::WriteBuffer()
 {
   Json::Value root;
@@ -657,25 +657,25 @@ const char* vtkOSPRayMaterialLibrary::WriteBuffer()
   return nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayMaterialLibrary::Fire()
 {
   this->InvokeEvent(vtkCommand::UpdateDataEvent);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::set<std::string> vtkOSPRayMaterialLibrary::GetMaterialNames()
 {
   return this->Internal->NickNames;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::string vtkOSPRayMaterialLibrary::LookupImplName(const std::string& nickname)
 {
   return this->Internal->ImplNames[nickname];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTexture* vtkOSPRayMaterialLibrary::GetTexture(
   const std::string& nickname, const std::string& texturename)
 {
@@ -689,7 +689,7 @@ vtkTexture* vtkOSPRayMaterialLibrary::GetTexture(
   return nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::vector<double> vtkOSPRayMaterialLibrary::GetDoubleShaderVariable(
   const std::string& nickname, const std::string& varname)
 {
@@ -702,7 +702,7 @@ std::vector<double> vtkOSPRayMaterialLibrary::GetDoubleShaderVariable(
   return std::vector<double>();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::vector<std::string> vtkOSPRayMaterialLibrary::GetDoubleShaderVariableList(
   const std::string& nickname)
 {
@@ -717,7 +717,7 @@ std::vector<std::string> vtkOSPRayMaterialLibrary::GetDoubleShaderVariableList(
   return variableNames;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::vector<std::string> vtkOSPRayMaterialLibrary::GetTextureList(const std::string& nickname)
 {
   std::vector<std::string> texNames;
@@ -731,7 +731,7 @@ std::vector<std::string> vtkOSPRayMaterialLibrary::GetTextureList(const std::str
   return texNames;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const std::map<std::string, vtkOSPRayMaterialLibrary::ParametersMap>&
 vtkOSPRayMaterialLibrary::GetParametersDictionary()
 {

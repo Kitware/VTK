@@ -85,7 +85,7 @@ bool parseCommaSepList(const std::string& input, std::vector<T>& data)
 // [number of commaSepLists], ([commaSepList]) ([commaSepList]) ...
 template <typename T>
 bool parseVariableLists(
-  const std::string& input, std::vector<std::vector<T> >& data, RegEx* parenExtract)
+  const std::string& input, std::vector<std::vector<T>>& data, RegEx* parenExtract)
 {
   std::istringstream in(input);
   size_t nLists;
@@ -477,8 +477,8 @@ bool vtkVASPTessellationReader::ReadTimeStep(
   std::vector<vtkIdType> pointIds;
   std::set<vtkIdType> uniquePointIds;
   // parse as doubles for locator API, but store as floats:
-  std::vector<std::vector<double> > pointData;
-  std::vector<std::vector<vtkIdType> > faceData;
+  std::vector<std::vector<double>> pointData;
+  std::vector<std::vector<vtkIdType>> faceData;
 
   for (vtkIdType atomEntry = 0; atomEntry < nAtoms; ++atomEntry)
   {

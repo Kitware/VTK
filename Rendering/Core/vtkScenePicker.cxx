@@ -63,7 +63,7 @@ protected:
 
 vtkStandardNewMacro(vtkScenePicker);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkScenePicker::vtkScenePicker()
 {
   this->EnableVertexPicking = 1;
@@ -78,7 +78,7 @@ vtkScenePicker::vtkScenePicker()
   this->SelectionRenderCommand->m_Picker = this;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkScenePicker::~vtkScenePicker()
 {
   this->SetRenderer(nullptr);
@@ -86,7 +86,7 @@ vtkScenePicker::~vtkScenePicker()
   this->SelectionRenderCommand->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkScenePicker::SetRenderer(vtkRenderer* r)
 {
   vtkRenderWindowInteractor* rwi = nullptr;
@@ -122,7 +122,7 @@ void vtkScenePicker::SetRenderer(vtkRenderer* r)
   this->Selector->SetRenderer(this->Renderer);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkScenePicker::SetInteractor(vtkRenderWindowInteractor* rwi)
 {
   if (this->Interactor == rwi)
@@ -145,7 +145,7 @@ void vtkScenePicker::SetInteractor(vtkRenderWindowInteractor* rwi)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Do a selection render.. for caching object selection stuff.
 // This is used for Object selection . We have to perform
 // "select" and "mouse over" and "mouse out" as the mouse moves around the
@@ -177,7 +177,7 @@ void vtkScenePicker::PickRender()
   this->PickRender(rx1, ry1, rx2, ry2);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Do a selection render.. for caching object selection stuff.
 void vtkScenePicker::PickRender(int x0, int y0, int x1, int y1)
 {
@@ -203,7 +203,7 @@ void vtkScenePicker::PickRender(int x0, int y0, int x1, int y1)
     vtkCommand::EndEvent, this->SelectionRenderCommand, 0.01);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkScenePicker::GetCellId(int displayPos[2])
 {
   if (this->EnableVertexPicking)
@@ -214,14 +214,14 @@ vtkIdType vtkScenePicker::GetCellId(int displayPos[2])
   return this->CellId;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProp* vtkScenePicker::GetViewProp(int displayPos[2])
 {
   this->Update(displayPos);
   return this->Prop;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkScenePicker::GetVertexId(int displayPos[2])
 {
   if (!this->EnableVertexPicking)
@@ -232,7 +232,7 @@ vtkIdType vtkScenePicker::GetVertexId(int displayPos[2])
   return this->CellId;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkScenePicker::Update(int displayPos[2])
 {
   if (this->PickRenderTime <= this->GetMTime())
@@ -259,7 +259,7 @@ void vtkScenePicker::Update(int displayPos[2])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkScenePicker::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

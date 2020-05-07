@@ -41,8 +41,7 @@ int TestArrayVariants(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   try
   {
     // Exercise the API that gets/sets variants ...
-    vtkSmartPointer<vtkDenseArray<double> > concrete =
-      vtkSmartPointer<vtkDenseArray<double> >::New();
+    vtkSmartPointer<vtkDenseArray<double>> concrete = vtkSmartPointer<vtkDenseArray<double>>::New();
     concrete->Resize(3, 2);
     vtkTypedArray<double>* const typed = concrete;
     vtkArray* const abstract = concrete;

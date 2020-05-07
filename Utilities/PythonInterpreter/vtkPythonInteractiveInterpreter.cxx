@@ -129,7 +129,7 @@ public:
 };
 
 vtkStandardNewMacro(vtkPythonInteractiveInterpreter);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPythonInteractiveInterpreter::vtkPythonInteractiveInterpreter()
   : Internals(new vtkPythonInteractiveInterpreter::vtkInternals())
 {
@@ -138,14 +138,14 @@ vtkPythonInteractiveInterpreter::vtkPythonInteractiveInterpreter()
     vtkCommand::AnyEvent, this, &vtkPythonInteractiveInterpreter::HandleEvents);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPythonInteractiveInterpreter::~vtkPythonInteractiveInterpreter()
 {
   delete this->Internals;
   this->Internals = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPythonInteractiveInterpreter::HandleEvents(
   vtkObject* vtkNotUsed(caller), unsigned long eventid, void* calldata)
 {
@@ -157,7 +157,7 @@ void vtkPythonInteractiveInterpreter::HandleEvents(
   this->InvokeEvent(eventid, calldata);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPythonInteractiveInterpreter::Push(const char* const code)
 {
   PyObject* console = this->Internals->GetInteractiveConsole();
@@ -202,7 +202,7 @@ bool vtkPythonInteractiveInterpreter::Push(const char* const code)
   return ret_value;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPythonInteractiveInterpreter::RunStringWithConsoleLocals(const char* script)
 {
   // The implementation of this method is modeled after
@@ -239,25 +239,25 @@ int vtkPythonInteractiveInterpreter::RunStringWithConsoleLocals(const char* scri
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPythonInteractiveInterpreter::Reset()
 {
   this->Internals->CleanupPythonObjects();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void* vtkPythonInteractiveInterpreter::GetInteractiveConsolePyObject()
 {
   return this->Internals->GetInteractiveConsolePyObject();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void* vtkPythonInteractiveInterpreter::GetInteractiveConsoleLocalsPyObject()
 {
   return this->Internals->GetInteractiveConsoleLocalsPyObject();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPythonInteractiveInterpreter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

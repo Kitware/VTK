@@ -139,7 +139,7 @@ static vtkSmartPointer<vtkBezierQuadrilateral> MakeBezierQuadrilateral();
 static vtkSmartPointer<vtkBezierTetra> MakeBezierTetra();
 static vtkSmartPointer<vtkBezierHexahedron> MakeBezierHexahedron();
 static vtkSmartPointer<vtkBezierWedge> MakeBezierWedge();
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int TestCellValidator(int, char*[])
 {

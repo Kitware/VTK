@@ -70,10 +70,10 @@ public:
   }
 };
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOpenGLShaderCache);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenGLShaderCache::vtkOpenGLShaderCache()
   : Internal(new Private)
 {
@@ -82,7 +82,7 @@ vtkOpenGLShaderCache::vtkOpenGLShaderCache()
   this->OpenGLMinorVersion = 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenGLShaderCache::~vtkOpenGLShaderCache()
 {
   typedef std::map<std::string, vtkShaderProgram*>::const_iterator SMapIter;
@@ -388,7 +388,7 @@ int vtkOpenGLShaderCache::BindShader(vtkShaderProgram* shader)
   return 1;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLShaderCache::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

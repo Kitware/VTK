@@ -23,19 +23,19 @@
 
 vtkStandardNewMacro(vtkPProjectSphereFilter);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPProjectSphereFilter::vtkPProjectSphereFilter() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPProjectSphereFilter::~vtkPProjectSphereFilter() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPProjectSphereFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPProjectSphereFilter::ComputePointsClosestToCenterLine(
   double minDist2ToCenterLine, vtkIdList* polePointIds)
 {
@@ -54,7 +54,7 @@ void vtkPProjectSphereFilter::ComputePointsClosestToCenterLine(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkPProjectSphereFilter::GetZTranslation(vtkPointSet* input)
 {
   double localMax = this->Superclass::GetZTranslation(input);

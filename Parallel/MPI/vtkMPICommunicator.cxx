@@ -53,7 +53,7 @@ MPI_Comm* vtkMPICommunicatorOpaqueComm::GetHandle()
   return this->Handle;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This MPI error handler basically does the same thing as the default error
 // handler, but also provides a convenient place to attach a debugger
 // breakpoint.
@@ -69,7 +69,7 @@ extern "C" void vtkMPICommunicatorMPIErrorHandler(MPI_Comm* comm, int* errorcode
   MPI_Abort(*comm, *errorcode);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // I wish I could think of a better way to convert a VTK type enum to an MPI
 // type enum and back.
 
@@ -212,7 +212,7 @@ inline int vtkMPICommunicatorCheckSize(vtkIdType length)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T>
 int vtkMPICommunicatorSendData(const T* data, int length, int sizeoftype, int remoteProcessId,
   int tag, MPI_Datatype datatype, MPI_Comm* Handle, int useCopy, int useSsend)
@@ -246,7 +246,7 @@ int vtkMPICommunicatorSendData(const T* data, int length, int sizeoftype, int re
     }
   }
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::ReceiveDataInternal(char* data, int length, int sizeoftype,
   int remoteProcessId, int tag, vtkMPICommunicatorReceiveDataInfo* info, int useCopy, int& senderId)
 {
@@ -278,7 +278,7 @@ int vtkMPICommunicator::ReceiveDataInternal(char* data, int length, int sizeofty
   return retVal;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T>
 int vtkMPICommunicatorNoBlockSendData(const T* data, int length, int remoteProcessId, int tag,
   MPI_Datatype datatype, vtkMPICommunicator::Request& req, MPI_Comm* Handle)
@@ -286,7 +286,7 @@ int vtkMPICommunicatorNoBlockSendData(const T* data, int length, int remoteProce
   return MPI_Isend(
     const_cast<T*>(data), length, datatype, remoteProcessId, tag, *(Handle), &req.Req->Handle);
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T>
 int vtkMPICommunicatorNoBlockReceiveData(T* data, int length, int remoteProcessId, int tag,
   MPI_Datatype datatype, vtkMPICommunicator::Request& req, MPI_Comm* Handle)
@@ -298,7 +298,7 @@ int vtkMPICommunicatorNoBlockReceiveData(T* data, int length, int remoteProcessI
 
   return MPI_Irecv(data, length, datatype, remoteProcessId, tag, *(Handle), &req.Req->Handle);
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicatorReduceData(const void* sendBuffer, void* recvBuffer, vtkIdType length,
   int type, MPI_Op operation, int destProcessId, MPI_Comm* comm)
 {
@@ -308,7 +308,7 @@ int vtkMPICommunicatorReduceData(const void* sendBuffer, void* recvBuffer, vtkId
   return MPI_Reduce(
     const_cast<void*>(sendBuffer), recvBuffer, length, mpiType, operation, destProcessId, *comm);
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicatorAllReduceData(const void* sendBuffer, void* recvBuffer, vtkIdType length,
   int type, MPI_Op operation, MPI_Comm* comm)
 {
@@ -319,7 +319,7 @@ int vtkMPICommunicatorAllReduceData(const void* sendBuffer, void* recvBuffer, vt
     const_cast<void*>(sendBuffer), recvBuffer, length, mpiType, operation, *comm);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicatorIprobe(int source, int tag, int* flag, int* actualSource,
   MPI_Datatype datatype, int* size, MPI_Comm* handle)
 {
@@ -343,7 +343,7 @@ int vtkMPICommunicatorIprobe(int source, int tag, int* flag, int* actualSource,
   return retVal;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Method for converting an MPI operation to a
 // vtkMultiProcessController::Operation.
 // MPIAPI is defined in the microsoft mpi.h which decorates
@@ -361,7 +361,7 @@ extern "C" void vtkMPICommunicatorUserFunction(
   CurrentOperation->Function(invec, inoutvec, *len, vtkType);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Return the world communicator (i.e. MPI_COMM_WORLD).
 // Create one if necessary (singleton).
 vtkMPICommunicator* vtkMPICommunicator::GetWorldCommunicator()
@@ -402,7 +402,7 @@ vtkMPICommunicator* vtkMPICommunicator::GetWorldCommunicator()
   return vtkMPICommunicator::WorldCommunicator;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMPICommunicator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -435,7 +435,7 @@ void vtkMPICommunicator::PrintSelf(ostream& os, vtkIndent indent)
   return;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMPICommunicator::vtkMPICommunicator()
 {
   this->MPIComm = new vtkMPICommunicatorOpaqueComm;
@@ -445,7 +445,7 @@ vtkMPICommunicator::vtkMPICommunicator()
   this->UseSsend = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMPICommunicator::~vtkMPICommunicator()
 {
   // Free the handle if required and asked for.
@@ -463,7 +463,7 @@ vtkMPICommunicator::~vtkMPICommunicator()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::Initialize(vtkProcessGroup* group)
 {
   if (this->Initialized)
@@ -575,7 +575,7 @@ int vtkMPICommunicator::Initialize(vtkProcessGroup* group)
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::SplitInitialize(vtkCommunicator* oldcomm, int color, int key)
 {
   if (this->Initialized)
@@ -635,7 +635,7 @@ int vtkMPICommunicator::InitializeExternal(vtkMPICommunicatorOpaqueComm* comm)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Start the copying process
 void vtkMPICommunicator::InitializeCopy(vtkMPICommunicator* source)
 {
@@ -658,7 +658,7 @@ void vtkMPICommunicator::InitializeCopy(vtkMPICommunicator* source)
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Set the number of processes and maximum number of processes
 // to the size obtained from MPI.
 int vtkMPICommunicator::InitializeNumberOfProcesses()
@@ -688,7 +688,7 @@ int vtkMPICommunicator::InitializeNumberOfProcesses()
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Copy the MPI handle
 void vtkMPICommunicator::CopyFrom(vtkMPICommunicator* source)
 {
@@ -702,7 +702,7 @@ void vtkMPICommunicator::CopyFrom(vtkMPICommunicator* source)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Duplicate the MPI handle
 void vtkMPICommunicator::Duplicate(vtkMPICommunicator* source)
 {
@@ -723,7 +723,7 @@ void vtkMPICommunicator::Duplicate(vtkMPICommunicator* source)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 char* vtkMPICommunicator::Allocate(size_t size)
 {
 #ifdef MPIPROALLOC
@@ -735,7 +735,7 @@ char* vtkMPICommunicator::Allocate(size_t size)
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMPICommunicator::Free(char* ptr)
 {
 #ifdef MPIPROALLOC
@@ -745,7 +745,7 @@ void vtkMPICommunicator::Free(char* ptr)
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::CheckForMPIError(int err)
 {
 
@@ -762,7 +762,7 @@ int vtkMPICommunicator::CheckForMPIError(int err)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::SendVoidArray(
   const void* data, vtkIdType length, int type, int remoteProcessId, int tag)
 {
@@ -794,13 +794,13 @@ int vtkMPICommunicator::SendVoidArray(
     tag, mpiType, this->MPIComm->Handle, vtkCommunicator::UseCopy, this->UseSsend));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 inline vtkIdType vtkMPICommunicatorMin(vtkIdType a, vtkIdType b)
 {
   return (a > b) ? b : a;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::ReceiveVoidArray(
   void* data, vtkIdType maxlength, int type, int remoteProcessId, int tag)
 {
@@ -853,7 +853,7 @@ int vtkMPICommunicator::ReceiveVoidArray(
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::NoBlockSend(
   const int* data, int length, int remoteProcessId, int tag, Request& req)
 {
@@ -861,7 +861,7 @@ int vtkMPICommunicator::NoBlockSend(
   return CheckForMPIError(vtkMPICommunicatorNoBlockSendData(
     data, length, remoteProcessId, tag, MPI_INT, req, this->MPIComm->Handle));
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::NoBlockSend(
   const unsigned long* data, int length, int remoteProcessId, int tag, Request& req)
 {
@@ -869,7 +869,7 @@ int vtkMPICommunicator::NoBlockSend(
   return CheckForMPIError(vtkMPICommunicatorNoBlockSendData(
     data, length, remoteProcessId, tag, MPI_UNSIGNED_LONG, req, this->MPIComm->Handle));
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::NoBlockSend(
   const char* data, int length, int remoteProcessId, int tag, Request& req)
 {
@@ -877,7 +877,7 @@ int vtkMPICommunicator::NoBlockSend(
   return CheckForMPIError(vtkMPICommunicatorNoBlockSendData(
     data, length, remoteProcessId, tag, MPI_CHAR, req, this->MPIComm->Handle));
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::NoBlockSend(
   const unsigned char* data, int length, int remoteProcessId, int tag, Request& req)
 {
@@ -885,7 +885,7 @@ int vtkMPICommunicator::NoBlockSend(
   return CheckForMPIError(vtkMPICommunicatorNoBlockSendData(
     data, length, remoteProcessId, tag, MPI_UNSIGNED_CHAR, req, this->MPIComm->Handle));
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::NoBlockSend(
   const float* data, int length, int remoteProcessId, int tag, Request& req)
 {
@@ -893,7 +893,7 @@ int vtkMPICommunicator::NoBlockSend(
   return CheckForMPIError(vtkMPICommunicatorNoBlockSendData(
     data, length, remoteProcessId, tag, MPI_FLOAT, req, this->MPIComm->Handle));
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::NoBlockSend(
   const double* data, int length, int remoteProcessId, int tag, Request& req)
 {
@@ -902,7 +902,7 @@ int vtkMPICommunicator::NoBlockSend(
     data, length, remoteProcessId, tag, MPI_DOUBLE, req, this->MPIComm->Handle));
 }
 #ifdef VTK_USE_64BIT_IDS
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::NoBlockSend(
   const vtkIdType* data, int length, int remoteProcessId, int tag, Request& req)
 {
@@ -912,7 +912,7 @@ int vtkMPICommunicator::NoBlockSend(
 }
 #endif
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::NoBlockReceive(
   int* data, int length, int remoteProcessId, int tag, Request& req)
 {
@@ -920,7 +920,7 @@ int vtkMPICommunicator::NoBlockReceive(
   return CheckForMPIError(vtkMPICommunicatorNoBlockReceiveData(
     data, length, remoteProcessId, tag, MPI_INT, req, this->MPIComm->Handle));
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::NoBlockReceive(
   unsigned long* data, int length, int remoteProcessId, int tag, Request& req)
 {
@@ -928,7 +928,7 @@ int vtkMPICommunicator::NoBlockReceive(
   return CheckForMPIError(vtkMPICommunicatorNoBlockReceiveData(
     data, length, remoteProcessId, tag, MPI_UNSIGNED_LONG, req, this->MPIComm->Handle));
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::NoBlockReceive(
   char* data, int length, int remoteProcessId, int tag, Request& req)
 {
@@ -936,7 +936,7 @@ int vtkMPICommunicator::NoBlockReceive(
   return CheckForMPIError(vtkMPICommunicatorNoBlockReceiveData(
     data, length, remoteProcessId, tag, MPI_CHAR, req, this->MPIComm->Handle));
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::NoBlockReceive(
   unsigned char* data, int length, int remoteProcessId, int tag, Request& req)
 {
@@ -944,7 +944,7 @@ int vtkMPICommunicator::NoBlockReceive(
   return CheckForMPIError(vtkMPICommunicatorNoBlockReceiveData(
     data, length, remoteProcessId, tag, MPI_UNSIGNED_CHAR, req, this->MPIComm->Handle));
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::NoBlockReceive(
   float* data, int length, int remoteProcessId, int tag, Request& req)
 {
@@ -952,7 +952,7 @@ int vtkMPICommunicator::NoBlockReceive(
   return CheckForMPIError(vtkMPICommunicatorNoBlockReceiveData(
     data, length, remoteProcessId, tag, MPI_FLOAT, req, this->MPIComm->Handle));
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::NoBlockReceive(
   double* data, int length, int remoteProcessId, int tag, Request& req)
 {
@@ -961,7 +961,7 @@ int vtkMPICommunicator::NoBlockReceive(
     data, length, remoteProcessId, tag, MPI_DOUBLE, req, this->MPIComm->Handle));
 }
 #ifdef VTK_USE_64BIT_IDS
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::NoBlockReceive(
   vtkIdType* data, int length, int remoteProcessId, int tag, Request& req)
 {
@@ -971,20 +971,20 @@ int vtkMPICommunicator::NoBlockReceive(
 }
 #endif
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMPICommunicator::Request::Request()
 {
   this->Req = new vtkMPICommunicatorOpaqueRequest;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMPICommunicator::Request::Request(const vtkMPICommunicator::Request& src)
 {
   this->Req = new vtkMPICommunicatorOpaqueRequest;
   this->Req->Handle = src.Req->Handle;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMPICommunicator::Request& vtkMPICommunicator::Request::operator=(
   const vtkMPICommunicator::Request& src)
 {
@@ -996,13 +996,13 @@ vtkMPICommunicator::Request& vtkMPICommunicator::Request::operator=(
   return *this;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMPICommunicator::Request::~Request()
 {
   delete this->Req;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::Request::Test()
 {
   MPI_Status status;
@@ -1023,7 +1023,7 @@ int vtkMPICommunicator::Request::Test()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMPICommunicator::Request::Wait()
 {
   MPI_Status status;
@@ -1038,7 +1038,7 @@ void vtkMPICommunicator::Request::Wait()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMPICommunicator::Request::Cancel()
 {
   int err = MPI_Cancel(&this->Req->Handle);
@@ -1060,13 +1060,13 @@ void vtkMPICommunicator::Request::Cancel()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMPICommunicator::Barrier()
 {
   CheckForMPIError(MPI_Barrier(*this->MPIComm->Handle));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::BroadcastVoidArray(void* data, vtkIdType length, int type, int root)
 {
   vtkMPICommunicatorDebugBarrier(this->MPIComm->Handle);
@@ -1076,7 +1076,7 @@ int vtkMPICommunicator::BroadcastVoidArray(void* data, vtkIdType length, int typ
     MPI_Bcast(data, length, vtkMPICommunicatorGetMPIType(type), root, *this->MPIComm->Handle));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::GatherVoidArray(
   const void* sendBuffer, void* recvBuffer, vtkIdType length, int type, int destProcessId)
 {
@@ -1090,7 +1090,7 @@ int vtkMPICommunicator::GatherVoidArray(
     length, mpiType, destProcessId, *this->MPIComm->Handle));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::GatherVVoidArray(const void* sendBuffer, void* recvBuffer,
   vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets, int type, int destProcessId)
 {
@@ -1144,7 +1144,7 @@ int vtkMPICommunicator::GatherVVoidArray(const void* sendBuffer, void* recvBuffe
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::ScatterVoidArray(
   const void* sendBuffer, void* recvBuffer, vtkIdType length, int type, int srcProcessId)
 {
@@ -1156,7 +1156,7 @@ int vtkMPICommunicator::ScatterVoidArray(
     length, mpiType, srcProcessId, *this->MPIComm->Handle));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::ScatterVVoidArray(const void* sendBuffer, void* recvBuffer,
   vtkIdType* sendLengths, vtkIdType* offsets, vtkIdType recvLength, int type, int srcProcessId)
 {
@@ -1210,7 +1210,7 @@ int vtkMPICommunicator::ScatterVVoidArray(const void* sendBuffer, void* recvBuff
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::AllGatherVoidArray(
   const void* sendBuffer, void* recvBuffer, vtkIdType length, int type)
 {
@@ -1224,7 +1224,7 @@ int vtkMPICommunicator::AllGatherVoidArray(
     length, mpiType, *this->MPIComm->Handle));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::AllGatherVVoidArray(const void* sendBuffer, void* recvBuffer,
   vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets, int type)
 {
@@ -1282,7 +1282,7 @@ int vtkMPICommunicator::AllGatherVVoidArray(const void* sendBuffer, void* recvBu
     recvBuffer, &mpiRecvLengths[0], &mpiOffsets[0], mpiType, *this->MPIComm->Handle));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::ReduceVoidArray(const void* sendBuffer, void* recvBuffer, vtkIdType length,
   int type, int operation, int destProcessId)
 {
@@ -1328,7 +1328,7 @@ int vtkMPICommunicator::ReduceVoidArray(const void* sendBuffer, void* recvBuffer
     sendBuffer, recvBuffer, length, type, mpiOp, destProcessId, this->MPIComm->Handle));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::ReduceVoidArray(const void* sendBuffer, void* recvBuffer, vtkIdType length,
   int type, Operation* operation, int destProcessId)
 {
@@ -1348,7 +1348,7 @@ int vtkMPICommunicator::ReduceVoidArray(const void* sendBuffer, void* recvBuffer
   return res;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::AllReduceVoidArray(
   const void* sendBuffer, void* recvBuffer, vtkIdType length, int type, int operation)
 {
@@ -1394,7 +1394,7 @@ int vtkMPICommunicator::AllReduceVoidArray(
     sendBuffer, recvBuffer, length, type, mpiOp, this->MPIComm->Handle));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::AllReduceVoidArray(
   const void* sendBuffer, void* recvBuffer, vtkIdType length, int type, Operation* operation)
 {
@@ -1414,7 +1414,7 @@ int vtkMPICommunicator::AllReduceVoidArray(
   return res;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::WaitAll(const int count, Request requests[])
 {
   if (count < 1)
@@ -1433,7 +1433,7 @@ int vtkMPICommunicator::WaitAll(const int count, Request requests[])
   return rc;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::WaitAny(const int count, Request requests[], int& idx)
 {
   if (count < 1)
@@ -1453,7 +1453,7 @@ int vtkMPICommunicator::WaitAny(const int count, Request requests[], int& idx)
   return (rc);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::WaitSome(
   const int count, Request requests[], int& NCompleted, int* completed)
 {
@@ -1473,7 +1473,7 @@ int vtkMPICommunicator::WaitSome(
   return (rc);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::TestAll(const int count, vtkMPICommunicator::Request requests[], int& flag)
 {
   if (count < 1)
@@ -1493,7 +1493,7 @@ int vtkMPICommunicator::TestAll(const int count, vtkMPICommunicator::Request req
   return (rc);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::TestAny(
   const int count, vtkMPICommunicator::Request requests[], int& idx, int& flag)
 {
@@ -1514,7 +1514,7 @@ int vtkMPICommunicator::TestAny(
   return (rc);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::TestSome(
   const int count, Request requests[], int& NCompleted, int* completed)
 {
@@ -1535,14 +1535,14 @@ int vtkMPICommunicator::TestSome(
   return (rc);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::Iprobe(int source, int tag, int* flag, int* actualSource)
 {
   return CheckForMPIError(vtkMPICommunicatorIprobe(
     source, tag, flag, actualSource, MPI_INT, NULL, this->MPIComm->Handle));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::Iprobe(
   int source, int tag, int* flag, int* actualSource, int* vtkNotUsed(type), int* size)
 {
@@ -1550,7 +1550,7 @@ int vtkMPICommunicator::Iprobe(
     source, tag, flag, actualSource, MPI_INT, size, this->MPIComm->Handle));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::Iprobe(
   int source, int tag, int* flag, int* actualSource, unsigned long* vtkNotUsed(type), int* size)
 {
@@ -1558,7 +1558,7 @@ int vtkMPICommunicator::Iprobe(
     source, tag, flag, actualSource, MPI_UNSIGNED_LONG, size, this->MPIComm->Handle));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::Iprobe(
   int source, int tag, int* flag, int* actualSource, const char* vtkNotUsed(type), int* size)
 {
@@ -1566,7 +1566,7 @@ int vtkMPICommunicator::Iprobe(
     source, tag, flag, actualSource, MPI_CHAR, size, this->MPIComm->Handle));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::Iprobe(
   int source, int tag, int* flag, int* actualSource, float* vtkNotUsed(type), int* size)
 {
@@ -1574,7 +1574,7 @@ int vtkMPICommunicator::Iprobe(
     source, tag, flag, actualSource, MPI_FLOAT, size, this->MPIComm->Handle));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::Iprobe(
   int source, int tag, int* flag, int* actualSource, double* vtkNotUsed(type), int* size)
 {

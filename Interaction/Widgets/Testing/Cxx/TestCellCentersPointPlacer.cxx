@@ -53,7 +53,7 @@
 
 #include <vector>
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char TestCellCentersPointPlacerEventLog[] = "# StreamVersion 1\n"
                                                   "EnterEvent 384 226 0 0 0 0 0\n"
                                                   "MouseMoveEvent 384 226 0 0 0 0 0\n"
@@ -1033,7 +1033,7 @@ const char TestCellCentersPointPlacerEventLog[] = "# StreamVersion 1\n"
                                                   "CharEvent 369 155 0 0 113 1 q\n"
                                                   "ExitEvent 369 155 0 0 113 1 q\n";
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Create cells of various types
 void CreateHexahedronActor(vtkActor* actor);
 void CreatePentagonalPrismActor(vtkActor* actor);
@@ -1042,10 +1042,10 @@ void CreateTetraActor(vtkActor* actor);
 void CreateVoxelActor(vtkActor* actor);
 void CreateWedgeActor(vtkActor* actor);
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestCellCentersPointPlacer(int argc, char* argv[])
 {
-  std::vector<vtkSmartPointer<vtkActor> > actors;
+  std::vector<vtkSmartPointer<vtkActor>> actors;
 
   vtkSmartPointer<vtkActor> hexahedronActor = vtkSmartPointer<vtkActor>::New();
   CreateHexahedronActor(hexahedronActor);
@@ -1180,7 +1180,7 @@ int TestCellCentersPointPlacer(int argc, char* argv[])
     argc, argv, renderWindowInteractor, TestCellCentersPointPlacerEventLog);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void CreateHexahedronActor(vtkActor* actor)
 {
   // Setup the coordinates of eight points
@@ -1224,7 +1224,7 @@ void CreateHexahedronActor(vtkActor* actor)
   actor->SetMapper(mapper);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void CreatePentagonalPrismActor(vtkActor* actor)
 {
   // Create the points
@@ -1268,7 +1268,7 @@ void CreatePentagonalPrismActor(vtkActor* actor)
   actor->SetMapper(mapper);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void CreatePyramidActor(vtkActor* actor)
 {
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
@@ -1306,7 +1306,7 @@ void CreatePyramidActor(vtkActor* actor)
   actor->SetMapper(mapper);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void CreateTetraActor(vtkActor* actor)
 {
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
@@ -1340,7 +1340,7 @@ void CreateTetraActor(vtkActor* actor)
   actor->SetMapper(mapper);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void CreateVoxelActor(vtkActor* actor)
 {
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
@@ -1377,7 +1377,7 @@ void CreateVoxelActor(vtkActor* actor)
   actor->SetMapper(mapper);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void CreateWedgeActor(vtkActor* actor)
 {
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();

@@ -37,7 +37,7 @@
 
 vtkStandardNewMacro(vtkImageHistogram);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Data needed for each thread.
 class vtkImageHistogramThreadData
 {
@@ -58,7 +58,7 @@ public:
   typedef vtkSMPThreadLocal<vtkImageHistogramThreadData>::iterator iterator;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Constructor sets default values
 vtkImageHistogram::vtkImageHistogram()
 {
@@ -84,7 +84,7 @@ vtkImageHistogram::vtkImageHistogram()
   this->SetNumberOfOutputPorts(1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageHistogram::~vtkImageHistogram()
 {
   if (this->Histogram)
@@ -93,7 +93,7 @@ vtkImageHistogram::~vtkImageHistogram()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageHistogram::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -118,7 +118,7 @@ void vtkImageHistogram::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Histogram: " << this->Histogram << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkImageHistogram::GetHistogramImageScaleAsString()
 {
   const char* s = "Unknown";
@@ -139,25 +139,25 @@ const char* vtkImageHistogram::GetHistogramImageScaleAsString()
   return s;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdTypeArray* vtkImageHistogram::GetHistogram()
 {
   return this->Histogram;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageHistogram::SetStencilData(vtkImageStencilData* stencil)
 {
   this->SetInputData(1, stencil);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageHistogram::SetStencilConnection(vtkAlgorithmOutput* algOutput)
 {
   this->SetInputConnection(1, algOutput);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageStencilData* vtkImageHistogram::GetStencil()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
@@ -167,7 +167,7 @@ vtkImageStencilData* vtkImageHistogram::GetStencil()
   return vtkImageStencilData::SafeDownCast(this->GetExecutive()->GetInputData(1, 0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageHistogram::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
@@ -183,7 +183,7 @@ int vtkImageHistogram::FillInputPortInformation(int port, vtkInformation* info)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageHistogram::FillOutputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
@@ -194,7 +194,7 @@ int vtkImageHistogram::FillOutputPortInformation(int port, vtkInformation* info)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageHistogram::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -239,7 +239,7 @@ int vtkImageHistogram::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageHistogram::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -259,7 +259,7 @@ int vtkImageHistogram::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // anonymous namespace for internal classes and functions
 namespace
 {
@@ -273,7 +273,7 @@ struct vtkImageHistogramThreadStruct
   int* UpdateExtent;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // override from vtkThreadedImageAlgorithm to split input extent, instead
 // of splitting the output extent
 VTK_THREAD_RETURN_TYPE vtkImageHistogramThreadedExecute(void* arg)
@@ -297,7 +297,7 @@ VTK_THREAD_RETURN_TYPE vtkImageHistogramThreadedExecute(void* arg)
   return VTK_THREAD_RETURN_VALUE;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T>
 void vtkImageHistogramExecuteRange(vtkImageData* inData, vtkImageStencilData* stencil, T* inPtr,
   int extent[6], double range[2], int component)
@@ -331,8 +331,13 @@ void vtkImageHistogramExecuteRange(vtkImageData* inData, vtkImageStencilData* st
         {
           T x = *inPtr;
 
-          xmin = (xmin < x ? xmin : x);
-          xmax = (xmax > x ? xmax : x);
+          // x may be NaN but we don't want xmin and xmax
+          // to be ever end up being set to NaN.
+          // Therefore x must be used as a second operand
+          // of the ternary operator (because result of comparing
+          // NaN to any other value is always false).
+          xmin = (xmin >= x ? x : xmin);
+          xmax = (xmax <= x ? x : xmax);
 
           inPtr += nc;
         } while (--n);
@@ -345,7 +350,7 @@ void vtkImageHistogramExecuteRange(vtkImageData* inData, vtkImageStencilData* st
   range[1] = xmax;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T>
 void vtkImageHistogramExecute(vtkImageHistogram* self, vtkImageData* inData,
   vtkImageStencilData* stencil, T* inPtr, int extent[6], vtkIdType* outPtr, int binRange[2],
@@ -388,6 +393,11 @@ void vtkImageHistogramExecute(vtkImageHistogram* self, vtkImageData* inData,
           x += xshift;
           x *= xscale;
 
+          // x may be NaN but we don't want xmin and xmax
+          // to be ever end up being set to NaN.
+          // Therefore x must be used as a second operand
+          // of the ternary operator (because result of comparing
+          // NaN to any other value is always false).
           x = (x > xmin ? x : xmin);
           x = (x < xmax ? x : xmax);
 
@@ -403,7 +413,7 @@ void vtkImageHistogramExecute(vtkImageHistogram* self, vtkImageData* inData,
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T>
 void vtkImageHistogramExecuteInt(vtkImageHistogram* self, vtkImageData* inData,
   vtkImageStencilData* stencil, T* inPtr, int extent[6], vtkIdType* outPtr, int component,
@@ -456,7 +466,7 @@ void vtkImageHistogramExecuteInt(
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageHistogramGenerateImage(
   vtkIdType* histogram, int nx, unsigned char* outPtr, int scale, int size[2], int extent[6])
 {
@@ -621,7 +631,7 @@ void vtkImageHistogramFunctor::Reduce()
   (*this->Total) = total;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // override from vtkThreadedImageAlgorithm to customize the multithreading
 int vtkImageHistogram::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -814,7 +824,7 @@ int vtkImageHistogram::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method is passed a input and output region, and executes the filter
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
@@ -868,12 +878,12 @@ void vtkImageHistogram::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   double scale = 1.0 / binSpacing;
   double minBinRange = (scalarRange[0] - binOrigin) * scale;
   double maxBinRange = (scalarRange[1] - binOrigin) * scale;
-  if (minBinRange < 0)
+  if (minBinRange < 0 || vtkMath::IsNan(minBinRange))
   {
     minBinRange = 0;
     useFastExecute = false;
   }
-  if (maxBinRange > maxBin)
+  if (maxBinRange > maxBin || vtkMath::IsNan(maxBinRange))
   {
     maxBinRange = maxBin;
     useFastExecute = false;
@@ -973,7 +983,7 @@ void vtkImageHistogram::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageHistogram::ComputeImageScalarRange(vtkImageData* data, double range[2])
 {
   if (data->GetNumberOfScalarComponents() == 1)

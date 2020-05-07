@@ -51,7 +51,7 @@
 
 vtkStandardNewMacro(vtkDynamic2DLabelMapper);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Creates a new label mapper
 
 vtkDynamic2DLabelMapper::vtkDynamic2DLabelMapper()
@@ -80,7 +80,7 @@ vtkDynamic2DLabelMapper::vtkDynamic2DLabelMapper()
   prop->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDynamic2DLabelMapper::~vtkDynamic2DLabelMapper()
 {
   delete[] this->LabelWidth;
@@ -88,13 +88,13 @@ vtkDynamic2DLabelMapper::~vtkDynamic2DLabelMapper()
   delete[] this->Cutoff;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDynamic2DLabelMapper::SetPriorityArrayName(const char* name)
 {
   this->SetInputArrayToProcess(1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, name);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <typename T>
 void vtkDynamic2DLabelMapper_PrintComponent(
   char* output, size_t outputSize, const char* format, int index, const T* array)
@@ -102,7 +102,7 @@ void vtkDynamic2DLabelMapper_PrintComponent(
   snprintf(output, outputSize, format, array[index]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport* viewport, vtkActor2D* actor)
 {
   int i, j, numComp = 0, pointIdLabels, activeComp = 0;
@@ -622,7 +622,7 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport* viewport, vtkAct
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkDynamic2DLabelMapper::GetCurrentScale(vtkViewport* viewport)
 {
   // The current scale is the size on the screen of 1 unit in the xy plane
@@ -652,7 +652,7 @@ double vtkDynamic2DLabelMapper::GetCurrentScale(vtkViewport* viewport)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDynamic2DLabelMapper::RenderOverlay(vtkViewport* viewport, vtkActor2D* actor)
 {
   int i;
@@ -712,7 +712,7 @@ void vtkDynamic2DLabelMapper::RenderOverlay(vtkViewport* viewport, vtkActor2D* a
   timer->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDynamic2DLabelMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

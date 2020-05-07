@@ -28,7 +28,7 @@
 
 vtkStandardNewMacro(vtkButtonWidget);
 
-//----------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkButtonWidget::vtkButtonWidget()
 {
   // Set the initial state
@@ -43,7 +43,7 @@ vtkButtonWidget::vtkButtonWidget()
     vtkWidgetEvent::EndSelect, this, vtkButtonWidget::EndSelectAction);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkButtonWidget::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)
@@ -52,7 +52,7 @@ void vtkButtonWidget::CreateDefaultRepresentation()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkButtonWidget::SetEnabled(int enabling)
 {
   if (enabling) //----------------
@@ -76,7 +76,7 @@ void vtkButtonWidget::SetEnabled(int enabling)
   Superclass::SetEnabled(enabling);
 }
 
-//----------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkButtonWidget::MoveAction(vtkAbstractWidget* w)
 {
   vtkButtonWidget* self = reinterpret_cast<vtkButtonWidget*>(w);
@@ -128,7 +128,7 @@ void vtkButtonWidget::MoveAction(vtkAbstractWidget* w)
   }
 }
 
-//----------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkButtonWidget::SelectAction(vtkAbstractWidget* w)
 {
   vtkButtonWidget* self = reinterpret_cast<vtkButtonWidget*>(w);
@@ -157,7 +157,7 @@ void vtkButtonWidget::SelectAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkButtonWidget::EndSelectAction(vtkAbstractWidget* w)
 {
   vtkButtonWidget* self = reinterpret_cast<vtkButtonWidget*>(w);
@@ -197,7 +197,7 @@ void vtkButtonWidget::EndSelectAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkButtonWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h

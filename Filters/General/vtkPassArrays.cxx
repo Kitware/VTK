@@ -38,7 +38,7 @@ vtkStandardNewMacro(vtkPassArrays);
 namespace
 {
 // returns true if modified
-typedef std::vector<std::pair<int, std::string> > ArraysType;
+typedef std::vector<std::pair<int, std::string>> ArraysType;
 bool ClearArraysOfType(int type, ArraysType& arrays)
 {
   bool retVal = false;
@@ -290,7 +290,7 @@ int vtkPassArrays::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkPassArrays::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -302,7 +302,7 @@ vtkTypeBool vtkPassArrays::ProcessRequest(
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPassArrays::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
@@ -320,7 +320,7 @@ int vtkPassArrays::FillInputPortInformation(int port, vtkInformation* info)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPassArrays::RequestDataObject(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

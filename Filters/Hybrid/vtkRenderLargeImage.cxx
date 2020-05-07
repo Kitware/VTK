@@ -29,11 +29,11 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <vector>
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkRenderLargeImage);
 
 vtkCxxSetObjectMacro(vtkRenderLargeImage, Input, vtkRenderer);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // 2D Actors need to be rescaled and shifted about for each tile
 // use this helper class to make life easier.
 class vtkRenderLargeImage2DHelperClass
@@ -45,8 +45,8 @@ public:
   vtkCollection* Coord1s;
   vtkCollection* Coord2s;
   // Store the display coords for adjustment during tiling
-  std::vector<std::pair<int, int> > Coords1;
-  std::vector<std::pair<int, int> > Coords2;
+  std::vector<std::pair<int, int>> Coords1;
+  std::vector<std::pair<int, int>> Coords2;
   //
   vtkRenderLargeImage2DHelperClass()
   {
@@ -64,7 +64,7 @@ public:
     this->StoredActors->Delete();
   }
 };
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRenderLargeImage::vtkRenderLargeImage()
 {
   this->Input = nullptr;
@@ -73,7 +73,7 @@ vtkRenderLargeImage::vtkRenderLargeImage()
   this->SetNumberOfOutputPorts(1);
   this->StoredData = new vtkRenderLargeImage2DHelperClass();
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRenderLargeImage::~vtkRenderLargeImage()
 {
   if (this->Input)
@@ -84,7 +84,7 @@ vtkRenderLargeImage::~vtkRenderLargeImage()
   delete this->StoredData;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderLargeImage::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -102,13 +102,13 @@ void vtkRenderLargeImage::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Magnification: " << this->Magnification << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageData* vtkRenderLargeImage::GetOutput()
 {
   return vtkImageData::SafeDownCast(this->GetOutputDataObject(0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkRenderLargeImage::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -129,7 +129,7 @@ vtkTypeBool vtkRenderLargeImage::ProcessRequest(
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // This method returns the largest region that can be generated.
 void vtkRenderLargeImage::RequestInformation(vtkInformation* vtkNotUsed(request),
@@ -165,7 +165,7 @@ void vtkRenderLargeImage::RequestInformation(vtkInformation* vtkNotUsed(request)
   vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_UNSIGNED_CHAR, 3);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // This function reads a region from a file.  The regions extent/axes
 // are assumed to be the same as the file extent/order.
@@ -333,17 +333,17 @@ void vtkRenderLargeImage::RequestData(vtkInformation* vtkNotUsed(request),
     this->Input->SetBackground2(background2);
   }
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkRenderLargeImage::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   // now add our info
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageData");
   return 1;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This code is designed to handle multiple renders even though
 // RenderLargeImage currently only handles one explicitly.
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderLargeImage::Rescale2DActors()
 {
   vtkActor2D* actor;
@@ -409,7 +409,7 @@ void vtkRenderLargeImage::Rescale2DActors()
     }
   }
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // On each tile we must subtract the origin of each actor to ensure
 // it appears in the correct relative location
 void vtkRenderLargeImage::Shift2DActors(int x, int y)
@@ -434,7 +434,7 @@ void vtkRenderLargeImage::Shift2DActors(int x, int y)
     c2->SetValue(d2);
   }
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // On each tile we must subtract the origin of each actor to ensure
 // it appears in the corrrect relative location
 void vtkRenderLargeImage::Restore2DActors()
@@ -463,4 +463,4 @@ void vtkRenderLargeImage::Restore2DActors()
   this->StoredData->Coord2s->RemoveAllItems();
   this->StoredData->StoredActors->RemoveAllItems();
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------

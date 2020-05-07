@@ -33,7 +33,7 @@
 
 vtkStandardNewMacro(vtkAnnotatedCubeActor);
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAnnotatedCubeActor::vtkAnnotatedCubeActor()
 {
   this->FaceTextScale = 0.5;
@@ -173,7 +173,7 @@ vtkAnnotatedCubeActor::vtkAnnotatedCubeActor()
   this->UpdateProps();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAnnotatedCubeActor::~vtkAnnotatedCubeActor()
 {
   this->CubeSource->Delete();
@@ -210,21 +210,21 @@ vtkAnnotatedCubeActor::~vtkAnnotatedCubeActor()
   this->Assembly->Delete();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAnnotatedCubeActor::SetTextEdgesVisibility(int vis)
 {
   this->TextEdgesActor->SetVisibility(vis);
   this->Assembly->Modified();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAnnotatedCubeActor::SetCubeVisibility(int vis)
 {
   this->CubeActor->SetVisibility(vis);
   this->Assembly->Modified();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAnnotatedCubeActor::SetFaceTextVisibility(int vis)
 {
   this->XPlusFaceActor->SetVisibility(vis);
@@ -236,26 +236,26 @@ void vtkAnnotatedCubeActor::SetFaceTextVisibility(int vis)
   this->Assembly->Modified();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAnnotatedCubeActor::GetTextEdgesVisibility()
 {
   return this->TextEdgesActor->GetVisibility();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAnnotatedCubeActor::GetCubeVisibility()
 {
   return this->CubeActor->GetVisibility();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAnnotatedCubeActor::GetFaceTextVisibility()
 {
   // either they are all visible or not, so one response will do
   return this->XPlusFaceActor->GetVisibility();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Shallow copy of a vtkAnnotatedCubeActor.
 void vtkAnnotatedCubeActor::ShallowCopy(vtkProp* prop)
 {
@@ -275,13 +275,13 @@ void vtkAnnotatedCubeActor::ShallowCopy(vtkProp* prop)
   this->vtkProp3D::ShallowCopy(prop);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAnnotatedCubeActor::GetActors(vtkPropCollection* ac)
 {
   this->Assembly->GetActors(ac);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAnnotatedCubeActor::RenderOpaqueGeometry(vtkViewport* vp)
 {
   this->UpdateProps();
@@ -289,7 +289,7 @@ int vtkAnnotatedCubeActor::RenderOpaqueGeometry(vtkViewport* vp)
   return this->Assembly->RenderOpaqueGeometry(vp);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAnnotatedCubeActor::RenderTranslucentPolygonalGeometry(vtkViewport* vp)
 {
   this->UpdateProps();
@@ -297,7 +297,7 @@ int vtkAnnotatedCubeActor::RenderTranslucentPolygonalGeometry(vtkViewport* vp)
   return this->Assembly->RenderTranslucentPolygonalGeometry(vp);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry?
 vtkTypeBool vtkAnnotatedCubeActor::HasTranslucentPolygonalGeometry()
@@ -307,80 +307,80 @@ vtkTypeBool vtkAnnotatedCubeActor::HasTranslucentPolygonalGeometry()
   return this->Assembly->HasTranslucentPolygonalGeometry();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAnnotatedCubeActor::ReleaseGraphicsResources(vtkWindow* win)
 {
   this->Assembly->ReleaseGraphicsResources(win);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAnnotatedCubeActor::GetBounds(double bounds[6])
 {
   this->Assembly->GetBounds(bounds);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
 double* vtkAnnotatedCubeActor::GetBounds()
 {
   return this->Assembly->GetBounds();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkAnnotatedCubeActor::GetMTime()
 {
   return this->Assembly->GetMTime();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProperty* vtkAnnotatedCubeActor::GetXPlusFaceProperty()
 {
   return this->XPlusFaceActor->GetProperty();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProperty* vtkAnnotatedCubeActor::GetXMinusFaceProperty()
 {
   return this->XMinusFaceActor->GetProperty();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProperty* vtkAnnotatedCubeActor::GetYPlusFaceProperty()
 {
   return this->YPlusFaceActor->GetProperty();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProperty* vtkAnnotatedCubeActor::GetYMinusFaceProperty()
 {
   return this->YMinusFaceActor->GetProperty();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProperty* vtkAnnotatedCubeActor::GetZPlusFaceProperty()
 {
   return this->ZPlusFaceActor->GetProperty();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProperty* vtkAnnotatedCubeActor::GetZMinusFaceProperty()
 {
   return this->ZMinusFaceActor->GetProperty();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProperty* vtkAnnotatedCubeActor::GetCubeProperty()
 {
   return this->CubeActor->GetProperty();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProperty* vtkAnnotatedCubeActor::GetTextEdgesProperty()
 {
   return this->TextEdgesActor->GetProperty();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAnnotatedCubeActor::SetFaceTextScale(double scale)
 {
   if (this->FaceTextScale == scale)
@@ -391,7 +391,7 @@ void vtkAnnotatedCubeActor::SetFaceTextScale(double scale)
   this->UpdateProps();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAnnotatedCubeActor::UpdateProps()
 {
   this->XPlusFaceVectorText->SetText(this->XPlusFaceText);
@@ -534,7 +534,7 @@ void vtkAnnotatedCubeActor::UpdateProps()
   edges->CopyStructure(this->InternalTransformFilter->GetOutput());
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAnnotatedCubeActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

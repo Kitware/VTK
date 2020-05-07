@@ -32,16 +32,16 @@
 #include "vtkTable.h"
 
 vtkStandardNewMacro(vtkDataObjectToTable);
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObjectToTable::vtkDataObjectToTable()
 {
   this->FieldType = POINT_DATA;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObjectToTable::~vtkDataObjectToTable() = default;
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObjectToTable::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
@@ -51,7 +51,7 @@ int vtkDataObjectToTable::FillInputPortInformation(int vtkNotUsed(port), vtkInfo
   return 1;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObjectToTable::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -123,7 +123,7 @@ int vtkDataObjectToTable::RequestData(
   return 1;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObjectToTable::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

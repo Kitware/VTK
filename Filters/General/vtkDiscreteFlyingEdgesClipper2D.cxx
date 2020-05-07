@@ -917,7 +917,7 @@ const unsigned char vtkDiscreteClipperAlgorithm<T>::VertCases[256][23] = {
   { 4, 20, 1, 4, 0, 10, 100, 12, 4, 1, 13, 100, 10, 4, 3, 11, 100, 13, 4, 2, 12, 100, 11 },
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Instantiate and initialize key data members. Mostly we build some
 // acceleration structures from the case table.
 template <class T>
@@ -976,7 +976,7 @@ vtkDiscreteClipperAlgorithm<T>::vtkDiscreteClipperAlgorithm()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Generate the output points
 template <class T>
 void vtkDiscreteClipperAlgorithm<T>::GenerateDyadPoints(
@@ -1024,7 +1024,7 @@ void vtkDiscreteClipperAlgorithm<T>::GenerateDyadPoints(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Generate the output points along the upper edge of the image boundary.
 template <class T>
 void vtkDiscreteClipperAlgorithm<T>::GenerateXDyadPoints(
@@ -1057,7 +1057,7 @@ void vtkDiscreteClipperAlgorithm<T>::GenerateXDyadPoints(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Generate the output points along the right edge of the image boundary.
 template <class T>
 void vtkDiscreteClipperAlgorithm<T>::GenerateYDyadPoints(
@@ -1090,7 +1090,7 @@ void vtkDiscreteClipperAlgorithm<T>::GenerateYDyadPoints(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Generate the output point at the origin of the dyad. This method may be
 // invoked once per execution, and it is invoked by a pixel below and to the
 // left.
@@ -1108,7 +1108,7 @@ void vtkDiscreteClipperAlgorithm<T>::GenerateOriginDyadPoint(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Cell scalars are produced. The pointer to the scalar field s is positioned
 // at the lower left corner of a pixel. The number of scalars to produce is
 // indicated by numPolys; the cellScalars
@@ -1149,7 +1149,7 @@ void vtkDiscreteClipperAlgorithm<T>::GenerateScalars(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // PASS 1: Process a single x-row and associated dyads for each pixel. Start
 // building cell contour case table, determine the number of intersections,
 // and trim intersections along the row. Note that dyads at the +x,y
@@ -1218,7 +1218,7 @@ void vtkDiscreteClipperAlgorithm<T>::ClassifyXEdges(T* inPtr, vtkIdType row)
   eMD[5] = (maxInt < nxcells ? maxInt : nxcells - 1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // PASS 2: Classify the y-axis portion of the dyads along a single x-row.
 // Determine whether an interior point is needed for the tessellation.
 template <class T>
@@ -1310,7 +1310,7 @@ void vtkDiscreteClipperAlgorithm<T>::ClassifyYEdges(T* inPtr0, vtkIdType row)
   } // for all pixels along this x-edge
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // PASS 4: Process the x-row dyads to generate output primitives, including
 // point coordinates and polygon primitives. This is the fourth pass of the
 // algorithm.
@@ -1409,7 +1409,7 @@ void vtkDiscreteClipperAlgorithm<T>::GenerateOutput(T* rowPtr, vtkIdType row)
   } // for all non-trimmed pixels along this x-edge
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Contouring filter specialized for images. This templated function interfaces the
 // vtkDiscreteFlyingEdgesClipper2D class with the templated algorithm class. It also invokes
 // the three passes of the Flying Edges algorithm.
@@ -1594,7 +1594,7 @@ void vtkDiscreteClipperAlgorithm<T>::ContourImage(vtkDiscreteFlyingEdgesClipper2
 } // anonymous namespace
 
 //============================================================================
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Here is the VTK class proper.
 vtkDiscreteFlyingEdgesClipper2D::vtkDiscreteFlyingEdgesClipper2D()
 {
@@ -1608,13 +1608,13 @@ vtkDiscreteFlyingEdgesClipper2D::vtkDiscreteFlyingEdgesClipper2D()
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDiscreteFlyingEdgesClipper2D::~vtkDiscreteFlyingEdgesClipper2D()
 {
   this->ContourValues->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Overload standard modified time function. If contour values are modified,
 // then this object is modified as well.
@@ -1626,7 +1626,7 @@ vtkMTimeType vtkDiscreteFlyingEdgesClipper2D::GetMTime()
   return (mTime2 > mTime ? mTime2 : mTime);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Contouring filter specialized for images (or slices from images)
 //
 int vtkDiscreteFlyingEdgesClipper2D::RequestData(vtkInformation* vtkNotUsed(request),
@@ -1709,14 +1709,14 @@ int vtkDiscreteFlyingEdgesClipper2D::RequestData(vtkInformation* vtkNotUsed(requ
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDiscreteFlyingEdgesClipper2D::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDiscreteFlyingEdgesClipper2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -29,17 +29,17 @@
 
 vtkStandardNewMacro(vtkAppendSelection);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAppendSelection::vtkAppendSelection()
 {
   this->UserManagedInputs = 0;
   this->AppendByUnion = 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAppendSelection::~vtkAppendSelection() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Add a dataset to the list of data to append.
 void vtkAppendSelection::AddInputData(vtkSelection* ds)
 {
@@ -51,7 +51,7 @@ void vtkAppendSelection::AddInputData(vtkSelection* ds)
   this->AddInputDataInternal(0, ds);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Remove a dataset from the list of data to append.
 void vtkAppendSelection::RemoveInputData(vtkSelection* ds)
 {
@@ -75,7 +75,7 @@ void vtkAppendSelection::RemoveInputData(vtkSelection* ds)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // make ProcessObject function visible
 // should only be used when UserManagedInputs is true.
 void vtkAppendSelection::SetNumberOfInputs(int num)
@@ -90,7 +90,7 @@ void vtkAppendSelection::SetNumberOfInputs(int num)
   this->SetNumberOfInputConnections(0, num);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Set Nth input, should only be used when UserManagedInputs is true.
 void vtkAppendSelection::SetInputConnectionByNumber(int num, vtkAlgorithmOutput* input)
 {
@@ -104,7 +104,7 @@ void vtkAppendSelection::SetInputConnectionByNumber(int num, vtkAlgorithmOutput*
   this->SetNthInputConnection(0, num, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAppendSelection::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -174,13 +174,13 @@ int vtkAppendSelection::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSelection* vtkAppendSelection::GetInput(int idx)
 {
   return vtkSelection::SafeDownCast(this->GetExecutive()->GetInputData(0, idx));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAppendSelection::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (!this->Superclass::FillInputPortInformation(port, info))
@@ -191,7 +191,7 @@ int vtkAppendSelection::FillInputPortInformation(int port, vtkInformation* info)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAppendSelection::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

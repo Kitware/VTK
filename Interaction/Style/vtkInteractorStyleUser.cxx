@@ -21,7 +21,7 @@
 
 vtkStandardNewMacro(vtkInteractorStyleUser);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInteractorStyleUser::vtkInteractorStyleUser()
 {
   // Tell the parent class not to handle observers
@@ -36,10 +36,10 @@ vtkInteractorStyleUser::vtkInteractorStyleUser()
   this->Button = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInteractorStyleUser::~vtkInteractorStyleUser() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleUser::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -53,7 +53,7 @@ void vtkInteractorStyleUser::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Button: " << this->Button << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // checks for USERINTERACTION state, then defers to the superclass modes
 void vtkInteractorStyleUser::OnTimer()
 {
@@ -92,7 +92,7 @@ void vtkInteractorStyleUser::OnTimer()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleUser::OnKeyPress()
 {
   if (this->HasObserver(vtkCommand::KeyPressEvent))
@@ -105,7 +105,7 @@ void vtkInteractorStyleUser::OnKeyPress()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleUser::OnKeyRelease()
 {
   if (this->HasObserver(vtkCommand::KeyReleaseEvent))
@@ -119,7 +119,7 @@ void vtkInteractorStyleUser::OnKeyRelease()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleUser::OnChar()
 {
   // otherwise pass the OnChar to the vtkInteractorStyle.
@@ -137,7 +137,7 @@ void vtkInteractorStyleUser::OnChar()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleUser::OnRightButtonDown()
 {
   this->Button = 3;
@@ -159,7 +159,7 @@ void vtkInteractorStyleUser::OnRightButtonDown()
     this->vtkInteractorStyle::OnRightButtonDown();
   }
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleUser::OnRightButtonUp()
 {
   if (this->HasObserver(vtkCommand::RightButtonReleaseEvent))
@@ -185,7 +185,7 @@ void vtkInteractorStyleUser::OnRightButtonUp()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleUser::OnMouseWheelForward()
 {
   if (this->HasObserver(vtkCommand::MouseWheelForwardEvent))
@@ -206,7 +206,7 @@ void vtkInteractorStyleUser::OnMouseWheelForward()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleUser::OnMouseWheelBackward()
 {
   if (this->HasObserver(vtkCommand::MouseWheelBackwardEvent))
@@ -227,7 +227,7 @@ void vtkInteractorStyleUser::OnMouseWheelBackward()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleUser::OnMiddleButtonDown()
 {
   this->Button = 2;
@@ -249,7 +249,7 @@ void vtkInteractorStyleUser::OnMiddleButtonDown()
     this->vtkInteractorStyle::OnMiddleButtonDown();
   }
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleUser::OnMiddleButtonUp()
 {
   if (this->HasObserver(vtkCommand::MiddleButtonReleaseEvent))
@@ -275,7 +275,7 @@ void vtkInteractorStyleUser::OnMiddleButtonUp()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleUser::OnLeftButtonDown()
 {
   this->Button = 1;
@@ -297,7 +297,7 @@ void vtkInteractorStyleUser::OnLeftButtonDown()
     this->vtkInteractorStyle::OnLeftButtonDown();
   }
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleUser::OnLeftButtonUp()
 {
   if (this->HasObserver(vtkCommand::LeftButtonReleaseEvent))
@@ -323,7 +323,7 @@ void vtkInteractorStyleUser::OnLeftButtonUp()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleUser::OnMouseMove()
 {
   this->vtkInteractorStyle::OnMouseMove();
@@ -343,7 +343,7 @@ void vtkInteractorStyleUser::OnMouseMove()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleUser::OnExpose()
 {
   if (this->HasObserver(vtkCommand::ExposeEvent))
@@ -352,7 +352,7 @@ void vtkInteractorStyleUser::OnExpose()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleUser::OnConfigure()
 {
   if (this->HasObserver(vtkCommand::ConfigureEvent))
@@ -361,7 +361,7 @@ void vtkInteractorStyleUser::OnConfigure()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleUser::OnEnter()
 {
   if (this->HasObserver(vtkCommand::EnterEvent))
@@ -372,7 +372,7 @@ void vtkInteractorStyleUser::OnEnter()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleUser::OnLeave()
 {
   if (this->HasObserver(vtkCommand::LeaveEvent))

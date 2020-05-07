@@ -58,8 +58,8 @@ int main(int argc, char* argv[])
   double delta = (scalarRange[1] - scalarRange[0]) / static_cast<double>(numberOfContours - 1);
 
   // Keep the clippers alive
-  std::vector<vtkSmartPointer<vtkClipPolyData> > clippersLo;
-  std::vector<vtkSmartPointer<vtkClipPolyData> > clippersHi;
+  std::vector<vtkSmartPointer<vtkClipPolyData>> clippersLo;
+  std::vector<vtkSmartPointer<vtkClipPolyData>> clippersHi;
 
   for (int i = 0; i < numberOfContours; i++)
   {

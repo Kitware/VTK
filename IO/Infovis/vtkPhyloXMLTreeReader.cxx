@@ -43,7 +43,7 @@
 
 vtkStandardNewMacro(vtkPhyloXMLTreeReader);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPhyloXMLTreeReader::vtkPhyloXMLTreeReader()
 {
   vtkTree* output = vtkTree::New();
@@ -57,40 +57,40 @@ vtkPhyloXMLTreeReader::vtkPhyloXMLTreeReader()
   this->HasBranchColor = false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPhyloXMLTreeReader::~vtkPhyloXMLTreeReader() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTree* vtkPhyloXMLTreeReader::GetOutput()
 {
   return this->GetOutput(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTree* vtkPhyloXMLTreeReader::GetOutput(int idx)
 {
   return vtkTree::SafeDownCast(this->GetOutputDataObject(idx));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPhyloXMLTreeReader::SetOutput(vtkTree* output)
 {
   this->GetExecutive()->SetOutputData(0, output);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkPhyloXMLTreeReader::GetDataSetName()
 {
   return "phylogeny";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPhyloXMLTreeReader::SetupEmptyOutput()
 {
   this->GetOutput()->Initialize();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPhyloXMLTreeReader::ReadXMLData()
 {
   vtkXMLDataElement* rootElement = this->XMLParser->GetRootElement();
@@ -165,7 +165,7 @@ void vtkPhyloXMLTreeReader::ReadXMLData()
   output->GetVertexData()->AddArray(nodeWeights);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPhyloXMLTreeReader::CountNodes(vtkXMLDataElement* element)
 {
   if (strcmp(element->GetName(), "clade") == 0)
@@ -180,7 +180,7 @@ void vtkPhyloXMLTreeReader::CountNodes(vtkXMLDataElement* element)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPhyloXMLTreeReader::ReadXMLElement(
   vtkXMLDataElement* element, vtkMutableDirectedGraph* g, vtkIdType vertex)
 {
@@ -240,7 +240,7 @@ void vtkPhyloXMLTreeReader::ReadXMLElement(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkPhyloXMLTreeReader::ReadCladeElement(
   vtkXMLDataElement* element, vtkMutableDirectedGraph* g, vtkIdType parent)
 {
@@ -267,7 +267,7 @@ vtkIdType vtkPhyloXMLTreeReader::ReadCladeElement(
   return vertex;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPhyloXMLTreeReader::ReadNameElement(
   vtkXMLDataElement* element, vtkMutableDirectedGraph* g, vtkIdType vertex)
 {
@@ -292,7 +292,7 @@ void vtkPhyloXMLTreeReader::ReadNameElement(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPhyloXMLTreeReader::ReadDescriptionElement(
   vtkXMLDataElement* element, vtkMutableDirectedGraph* g)
 {
@@ -309,7 +309,7 @@ void vtkPhyloXMLTreeReader::ReadDescriptionElement(
   g->GetVertexData()->AddArray(treeDescription);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPhyloXMLTreeReader::ReadPropertyElement(
   vtkXMLDataElement* element, vtkMutableDirectedGraph* g, vtkIdType vertex)
 {
@@ -568,7 +568,7 @@ void vtkPhyloXMLTreeReader::ReadPropertyElement(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPhyloXMLTreeReader::ReadBranchLengthElement(
   vtkXMLDataElement* element, vtkMutableDirectedGraph* g, vtkIdType vertex)
 {
@@ -582,7 +582,7 @@ void vtkPhyloXMLTreeReader::ReadBranchLengthElement(
     g->GetInEdge(vertex, 0).Id, vtkVariant(weight));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPhyloXMLTreeReader::ReadConfidenceElement(
   vtkXMLDataElement* element, vtkMutableDirectedGraph* g, vtkIdType vertex)
 {
@@ -635,7 +635,7 @@ void vtkPhyloXMLTreeReader::ReadConfidenceElement(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPhyloXMLTreeReader::ReadColorElement(
   vtkXMLDataElement* element, vtkMutableDirectedGraph* g, vtkIdType vertex)
 {
@@ -701,7 +701,7 @@ void vtkPhyloXMLTreeReader::ReadColorElement(
   this->ColoredVertices->SetValue(vertex, 1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPhyloXMLTreeReader::PropagateBranchColor(vtkTree* tree)
 {
   if (!this->HasBranchColor)
@@ -727,7 +727,7 @@ void vtkPhyloXMLTreeReader::PropagateBranchColor(vtkTree* tree)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::string vtkPhyloXMLTreeReader::GetTrimmedString(const char* input)
 {
   std::string trimmedString;
@@ -742,7 +742,7 @@ std::string vtkPhyloXMLTreeReader::GetTrimmedString(const char* input)
   return trimmedString;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::string vtkPhyloXMLTreeReader::GetStringBeforeColon(const char* input)
 {
   std::string fullStr(input);
@@ -751,7 +751,7 @@ std::string vtkPhyloXMLTreeReader::GetStringBeforeColon(const char* input)
   return retStr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::string vtkPhyloXMLTreeReader::GetStringAfterColon(const char* input)
 {
   std::string fullStr(input);
@@ -760,14 +760,14 @@ std::string vtkPhyloXMLTreeReader::GetStringAfterColon(const char* input)
   return retStr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPhyloXMLTreeReader::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTree");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPhyloXMLTreeReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -28,10 +28,10 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vector>
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkSQLDatabaseSchema);
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkSQLDatabaseSchemaInternals
 {
 public: // NB: use of string instead of char* here to avoid leaks on destruction.
@@ -84,21 +84,21 @@ public: // NB: use of string instead of char* here to avoid leaks on destruction
   std::vector<Table> Tables;
 };
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSQLDatabaseSchema::vtkSQLDatabaseSchema()
 {
   this->Name = nullptr;
   this->Internals = new vtkSQLDatabaseSchemaInternals;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSQLDatabaseSchema::~vtkSQLDatabaseSchema()
 {
   this->SetName(nullptr);
   delete this->Internals;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSQLDatabaseSchema::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -115,7 +115,7 @@ void vtkSQLDatabaseSchema::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Internals: " << this->Internals << "\n";
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSQLDatabaseSchema::AddPreamble(
   const char* preName, const char* preAction, const char* preBackend)
 {
@@ -134,7 +134,7 @@ int vtkSQLDatabaseSchema::AddPreamble(
   return preHandle;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSQLDatabaseSchema::AddTable(const char* tblName)
 {
   if (!tblName)
@@ -150,7 +150,7 @@ int vtkSQLDatabaseSchema::AddTable(const char* tblName)
   return tblHandle;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSQLDatabaseSchema::AddColumnToIndex(int tblHandle, int idxHandle, int colHandle)
 {
   if (tblHandle < 0 || tblHandle >= this->GetNumberOfTables())
@@ -177,7 +177,7 @@ int vtkSQLDatabaseSchema::AddColumnToIndex(int tblHandle, int idxHandle, int col
   return static_cast<int>(table->Indices[idxHandle].ColumnNames.size() - 1);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSQLDatabaseSchema::AddColumnToTable(
   int tblHandle, int colType, const char* colName, int colSize, const char* colOpts)
 {
@@ -205,7 +205,7 @@ int vtkSQLDatabaseSchema::AddColumnToTable(
   return colHandle;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSQLDatabaseSchema::AddIndexToTable(int tblHandle, int idxType, const char* idxName)
 {
   if (tblHandle < 0 || tblHandle >= this->GetNumberOfTables())
@@ -223,7 +223,7 @@ int vtkSQLDatabaseSchema::AddIndexToTable(int tblHandle, int idxType, const char
   return idxHandle;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSQLDatabaseSchema::AddTriggerToTable(
   int tblHandle, int trgType, const char* trgName, const char* trgAction, const char* trgBackend)
 {
@@ -250,7 +250,7 @@ int vtkSQLDatabaseSchema::AddTriggerToTable(
   return trgHandle;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSQLDatabaseSchema::AddOptionToTable(
   int tblHandle, const char* optText, const char* optBackend)
 {
@@ -275,7 +275,7 @@ int vtkSQLDatabaseSchema::AddOptionToTable(
   return optHandle;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSQLDatabaseSchema::GetPreambleHandleFromName(const char* preName)
 {
   int i;
@@ -291,7 +291,7 @@ int vtkSQLDatabaseSchema::GetPreambleHandleFromName(const char* preName)
   return -1;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkSQLDatabaseSchema::GetPreambleNameFromHandle(int preHandle)
 {
   if (preHandle < 0 || preHandle >= this->GetNumberOfPreambles())
@@ -303,7 +303,7 @@ const char* vtkSQLDatabaseSchema::GetPreambleNameFromHandle(int preHandle)
   return this->Internals->Preambles[preHandle].Name;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkSQLDatabaseSchema::GetPreambleActionFromHandle(int preHandle)
 {
   if (preHandle < 0 || preHandle >= this->GetNumberOfPreambles())
@@ -315,7 +315,7 @@ const char* vtkSQLDatabaseSchema::GetPreambleActionFromHandle(int preHandle)
   return this->Internals->Preambles[preHandle].Action;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkSQLDatabaseSchema::GetPreambleBackendFromHandle(int preHandle)
 {
   if (preHandle < 0 || preHandle >= this->GetNumberOfPreambles())
@@ -327,7 +327,7 @@ const char* vtkSQLDatabaseSchema::GetPreambleBackendFromHandle(int preHandle)
   return this->Internals->Preambles[preHandle].Backend;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSQLDatabaseSchema::GetTableHandleFromName(const char* tblName)
 {
   int i;
@@ -343,7 +343,7 @@ int vtkSQLDatabaseSchema::GetTableHandleFromName(const char* tblName)
   return -1;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkSQLDatabaseSchema::GetTableNameFromHandle(int tblHandle)
 {
   if (tblHandle < 0 || tblHandle >= this->GetNumberOfTables())
@@ -355,7 +355,7 @@ const char* vtkSQLDatabaseSchema::GetTableNameFromHandle(int tblHandle)
   return this->Internals->Tables[tblHandle].Name;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSQLDatabaseSchema::GetIndexHandleFromName(const char* tblName, const char* idxName)
 {
   int tblHandle = this->GetTableHandleFromName(tblName);
@@ -377,7 +377,7 @@ int vtkSQLDatabaseSchema::GetIndexHandleFromName(const char* tblName, const char
   return -1;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkSQLDatabaseSchema::GetIndexNameFromHandle(int tblHandle, int idxHandle)
 {
   if (tblHandle < 0 || tblHandle >= this->GetNumberOfTables())
@@ -397,7 +397,7 @@ const char* vtkSQLDatabaseSchema::GetIndexNameFromHandle(int tblHandle, int idxH
   return this->Internals->Tables[tblHandle].Indices[idxHandle].Name;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSQLDatabaseSchema::GetIndexTypeFromHandle(int tblHandle, int idxHandle)
 {
   if (tblHandle < 0 || tblHandle >= this->GetNumberOfTables())
@@ -417,7 +417,7 @@ int vtkSQLDatabaseSchema::GetIndexTypeFromHandle(int tblHandle, int idxHandle)
   return static_cast<int>(this->Internals->Tables[tblHandle].Indices[idxHandle].Type);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkSQLDatabaseSchema::GetIndexColumnNameFromHandle(
   int tblHandle, int idxHandle, int cnmHandle)
 {
@@ -447,7 +447,7 @@ const char* vtkSQLDatabaseSchema::GetIndexColumnNameFromHandle(
   return this->Internals->Tables[tblHandle].Indices[idxHandle].ColumnNames[cnmHandle];
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSQLDatabaseSchema::GetColumnHandleFromName(const char* tblName, const char* colName)
 {
   int tblHandle = this->GetTableHandleFromName(tblName);
@@ -469,7 +469,7 @@ int vtkSQLDatabaseSchema::GetColumnHandleFromName(const char* tblName, const cha
   return -1;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkSQLDatabaseSchema::GetColumnNameFromHandle(int tblHandle, int colHandle)
 {
   if (tblHandle < 0 || tblHandle >= this->GetNumberOfTables())
@@ -489,7 +489,7 @@ const char* vtkSQLDatabaseSchema::GetColumnNameFromHandle(int tblHandle, int col
   return this->Internals->Tables[tblHandle].Columns[colHandle].Name;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSQLDatabaseSchema::GetColumnTypeFromHandle(int tblHandle, int colHandle)
 {
   if (tblHandle < 0 || tblHandle >= this->GetNumberOfTables())
@@ -509,7 +509,7 @@ int vtkSQLDatabaseSchema::GetColumnTypeFromHandle(int tblHandle, int colHandle)
   return static_cast<int>(this->Internals->Tables[tblHandle].Columns[colHandle].Type);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSQLDatabaseSchema::GetColumnSizeFromHandle(int tblHandle, int colHandle)
 {
   if (tblHandle < 0 || tblHandle >= this->GetNumberOfTables())
@@ -529,7 +529,7 @@ int vtkSQLDatabaseSchema::GetColumnSizeFromHandle(int tblHandle, int colHandle)
   return static_cast<int>(this->Internals->Tables[tblHandle].Columns[colHandle].Size);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkSQLDatabaseSchema::GetColumnAttributesFromHandle(int tblHandle, int colHandle)
 {
   if (tblHandle < 0 || tblHandle >= this->GetNumberOfTables())
@@ -549,7 +549,7 @@ const char* vtkSQLDatabaseSchema::GetColumnAttributesFromHandle(int tblHandle, i
   return this->Internals->Tables[tblHandle].Columns[colHandle].Attributes;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSQLDatabaseSchema::GetTriggerHandleFromName(const char* tblName, const char* trgName)
 {
   int tblHandle = this->GetTableHandleFromName(tblName);
@@ -571,7 +571,7 @@ int vtkSQLDatabaseSchema::GetTriggerHandleFromName(const char* tblName, const ch
   return -1;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkSQLDatabaseSchema::GetTriggerNameFromHandle(int tblHandle, int trgHandle)
 {
   if (tblHandle < 0 || tblHandle >= this->GetNumberOfTables())
@@ -591,7 +591,7 @@ const char* vtkSQLDatabaseSchema::GetTriggerNameFromHandle(int tblHandle, int tr
   return this->Internals->Tables[tblHandle].Triggers[trgHandle].Name;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSQLDatabaseSchema::GetTriggerTypeFromHandle(int tblHandle, int trgHandle)
 {
   if (tblHandle < 0 || tblHandle >= this->GetNumberOfTables())
@@ -611,7 +611,7 @@ int vtkSQLDatabaseSchema::GetTriggerTypeFromHandle(int tblHandle, int trgHandle)
   return this->Internals->Tables[tblHandle].Triggers[trgHandle].Type;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkSQLDatabaseSchema::GetTriggerActionFromHandle(int tblHandle, int trgHandle)
 {
   if (tblHandle < 0 || tblHandle >= this->GetNumberOfTables())
@@ -631,7 +631,7 @@ const char* vtkSQLDatabaseSchema::GetTriggerActionFromHandle(int tblHandle, int 
   return this->Internals->Tables[tblHandle].Triggers[trgHandle].Action;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkSQLDatabaseSchema::GetTriggerBackendFromHandle(int tblHandle, int trgHandle)
 {
   if (tblHandle < 0 || tblHandle >= this->GetNumberOfTables())
@@ -651,7 +651,7 @@ const char* vtkSQLDatabaseSchema::GetTriggerBackendFromHandle(int tblHandle, int
   return this->Internals->Tables[tblHandle].Triggers[trgHandle].Backend;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkSQLDatabaseSchema::GetOptionTextFromHandle(int tblHandle, int optHandle)
 {
   if (tblHandle < 0 || tblHandle >= this->GetNumberOfTables())
@@ -671,7 +671,7 @@ const char* vtkSQLDatabaseSchema::GetOptionTextFromHandle(int tblHandle, int opt
   return this->Internals->Tables[tblHandle].Options[optHandle].Text.c_str();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkSQLDatabaseSchema::GetOptionBackendFromHandle(int tblHandle, int optHandle)
 {
   if (tblHandle < 0 || tblHandle >= this->GetNumberOfTables())
@@ -691,7 +691,7 @@ const char* vtkSQLDatabaseSchema::GetOptionBackendFromHandle(int tblHandle, int 
   return this->Internals->Tables[tblHandle].Options[optHandle].Backend.c_str();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSQLDatabaseSchema::AddTableMultipleArguments(const char* tblName, ...)
 {
   int tblHandle = this->AddTable(tblName);
@@ -751,25 +751,25 @@ int vtkSQLDatabaseSchema::AddTableMultipleArguments(const char* tblName, ...)
   return tblHandle;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSQLDatabaseSchema::Reset()
 {
   this->Internals->Tables.clear();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSQLDatabaseSchema::GetNumberOfPreambles()
 {
   return static_cast<int>(this->Internals->Preambles.size());
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSQLDatabaseSchema::GetNumberOfTables()
 {
   return static_cast<int>(this->Internals->Tables.size());
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSQLDatabaseSchema::GetNumberOfColumnsInTable(int tblHandle)
 {
   if (tblHandle < 0 || tblHandle >= this->GetNumberOfTables())
@@ -781,7 +781,7 @@ int vtkSQLDatabaseSchema::GetNumberOfColumnsInTable(int tblHandle)
   return static_cast<int>(this->Internals->Tables[tblHandle].Columns.size());
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSQLDatabaseSchema::GetNumberOfIndicesInTable(int tblHandle)
 {
   if (tblHandle < 0 || tblHandle >= this->GetNumberOfTables())
@@ -793,7 +793,7 @@ int vtkSQLDatabaseSchema::GetNumberOfIndicesInTable(int tblHandle)
   return static_cast<int>(this->Internals->Tables[tblHandle].Indices.size());
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSQLDatabaseSchema::GetNumberOfColumnNamesInIndex(int tblHandle, int idxHandle)
 {
   if (tblHandle < 0 || tblHandle >= this->GetNumberOfTables())
@@ -814,7 +814,7 @@ int vtkSQLDatabaseSchema::GetNumberOfColumnNamesInIndex(int tblHandle, int idxHa
   return static_cast<int>(this->Internals->Tables[tblHandle].Indices[idxHandle].ColumnNames.size());
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSQLDatabaseSchema::GetNumberOfTriggersInTable(int tblHandle)
 {
   if (tblHandle < 0 || tblHandle >= this->GetNumberOfTables())
@@ -826,7 +826,7 @@ int vtkSQLDatabaseSchema::GetNumberOfTriggersInTable(int tblHandle)
   return static_cast<int>(this->Internals->Tables[tblHandle].Triggers.size());
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSQLDatabaseSchema::GetNumberOfOptionsInTable(int tblHandle)
 {
   if (tblHandle < 0 || tblHandle >= this->GetNumberOfTables())

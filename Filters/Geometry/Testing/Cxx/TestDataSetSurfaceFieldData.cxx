@@ -30,7 +30,7 @@
 namespace
 {
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestDataSet(vtkDataSet* ds, int expectedValue)
 {
   vtkNew<vtkDataSetSurfaceFilter> surfacer;
@@ -85,7 +85,7 @@ int TestDataSet(vtkDataSet* ds, int expectedValue)
   return EXIT_SUCCESS;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void AddFieldData(vtkDataSet* ds, int id)
 {
   vtkNew<vtkIntArray> array;
@@ -97,7 +97,7 @@ void AddFieldData(vtkDataSet* ds, int id)
   ds->GetFieldData()->AddArray(array);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestImageData()
 {
   // Create image data
@@ -121,7 +121,7 @@ int TestImageData()
   return TestDataSet(imageData, id);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestPolyData()
 {
   // Create polydata
@@ -134,7 +134,7 @@ int TestPolyData()
   return TestDataSet(polyData, id);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestStructuredGrid()
 {
   // Create structured grid data
@@ -147,7 +147,7 @@ int TestStructuredGrid()
   return TestDataSet(structuredGrid, id);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestUnstructuredGrid()
 {
   // Create unstructured grid data
@@ -162,7 +162,7 @@ int TestUnstructuredGrid()
 
 } // end anonymous namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestDataSetSurfaceFieldData(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   if (TestImageData() != EXIT_SUCCESS)

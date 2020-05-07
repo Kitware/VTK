@@ -38,7 +38,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkTextProperty.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestContextAreaFixedAspect(int argc, char* argv[])
 {
   // Prepare some data for plotting:

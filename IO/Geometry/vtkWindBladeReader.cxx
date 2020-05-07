@@ -65,9 +65,9 @@ public:
   FILE* FilePtr;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Constructor for WindBlade Reader
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkWindBladeReader::vtkWindBladeReader()
 {
   this->Filename = nullptr;
@@ -135,9 +135,9 @@ vtkWindBladeReader::vtkWindBladeReader()
   this->VariableOffset = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Destructor for WindBlade Reader
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkWindBladeReader::~vtkWindBladeReader()
 {
   this->SetFilename(nullptr);
@@ -185,7 +185,7 @@ vtkWindBladeReader::~vtkWindBladeReader()
   delete[] this->VariableOffset;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkWindBladeReader::ProcessRequest(
   vtkInformation* reqInfo, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -215,9 +215,9 @@ vtkTypeBool vtkWindBladeReader::ProcessRequest(
   return this->Superclass::ProcessRequest(reqInfo, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // RequestInformation supplies global meta information
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkWindBladeReader::RequestInformation(vtkInformation* reqInfo,
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -354,9 +354,9 @@ int vtkWindBladeReader::RequestInformation(vtkInformation* reqInfo,
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Print information about WindBlade Reader
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWindBladeReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -373,11 +373,11 @@ void vtkWindBladeReader::PrintSelf(ostream& os, vtkIndent indent)
   this->PointDataArraySelection->PrintSelf(os, indent.GetNextIndent());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // RequestData populates the output object with data for rendering
 // Uses three output ports (field, turbine blades, and ground).
 // Field data is parallel, blade and ground only on processor 0
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkWindBladeReader::RequestData(vtkInformation* reqInfo,
   vtkInformationVector** vtkNotUsed(inVector), vtkInformationVector* outVector)
 {
@@ -420,9 +420,9 @@ int vtkWindBladeReader::RequestData(vtkInformation* reqInfo,
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Divide data variable by density for display
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWindBladeReader::DivideByDensity(const char* varName)
 {
   int var = this->PointDataArraySelection->GetArrayIndex(varName);
@@ -444,11 +444,11 @@ void vtkWindBladeReader::DivideByDensity(const char* varName)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Calculate pressure from tempg and density
 // Calculate pressure - pre from pressure in first z position
 // Requires that all data be present
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWindBladeReader::CalculatePressure(int pressure, int prespre, int tempg, int density)
 {
   float *pressureData = nullptr, *prespreData = nullptr;
@@ -483,10 +483,10 @@ void vtkWindBladeReader::CalculatePressure(int pressure, int prespre, int tempg,
   delete[] densityData;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Calculate vorticity from UVW
 // Requires ghost cell information so fetch all data from files for now
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWindBladeReader::CalculateVorticity(int vort, int uvw, int density)
 {
   // Set the number of components and tuples for the requested data
@@ -534,9 +534,9 @@ void vtkWindBladeReader::CalculateVorticity(int vort, int uvw, int density)
   delete[] densityData;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Load one variable data array of BLOCK structure into ParaView
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWindBladeReader::LoadVariableData(int var)
 {
   this->Data[var]->Delete();
@@ -585,9 +585,9 @@ void vtkWindBladeReader::LoadVariableData(int var)
   delete[] block;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Load one variable data array of BLOCK structure into ParaView
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkWindBladeReader::ReadGlobalData()
 {
   // kwsys_stl::string fileName = this->Filename;
@@ -601,11 +601,11 @@ bool vtkWindBladeReader::ReadGlobalData()
   return this->SetUpGlobalData(fileName, inStr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 // Read the field variable information
 //
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWindBladeReader::ReadDataVariables(istream& inStr)
 {
   char inBuf[LINE_SIZE];
@@ -709,13 +709,13 @@ void vtkWindBladeReader::ReadDataVariables(istream& inStr)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 // Open the first data file and verify that the data is where is should be
 // Each data block is enclosed by two ints which record the number of bytes
 // Save the file offset for each variable
 //
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkWindBladeReader::FindVariableOffsets()
 {
   // Open the first data file
@@ -765,9 +765,9 @@ bool vtkWindBladeReader::FindVariableOffsets()
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Fill in the rectilinear points for the requested subextents
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWindBladeReader::FillCoordinates()
 {
   this->Points->Delete();
@@ -816,9 +816,9 @@ void vtkWindBladeReader::FillCoordinates()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Fill in the rectilinear points for the requested subextents
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWindBladeReader::FillGroundCoordinates()
 {
   this->GPoints->Delete();
@@ -874,10 +874,10 @@ void vtkWindBladeReader::FillGroundCoordinates()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Calculate the Points for flat Rectilinear type grid or topographic
 // generalized StructuredGrid which is what is being created here
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWindBladeReader::CreateCoordinates()
 {
   // If dataset is flat, x and y are constant spacing, z is stretched
@@ -936,9 +936,9 @@ void vtkWindBladeReader::CreateCoordinates()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Create the z topography from 2D (x,y) elevations and return in zData
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWindBladeReader::CreateZTopography(float* zValues)
 {
   // Read the x,y topography data file
@@ -964,14 +964,14 @@ void vtkWindBladeReader::CreateZTopography(float* zValues)
   fclose(filePtr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 // Stretch the Z coordinate for flat topography
 // If flag = 0 compute gdeform(z)
 // If flag = 1 compute derivative of gdeform(z)
 // Return cubic polynomial fit
 //
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 float vtkWindBladeReader::GDeform(float sigma, float sigmaMax, int flag)
 {
   float sigma_2 = sigma * sigma;
@@ -996,7 +996,7 @@ float vtkWindBladeReader::GDeform(float sigma, float sigmaMax, int flag)
   return zcoord;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Cubic spline from Numerical Recipes (altered for zero based arrays)
 // Called only once to process entire tabulated function
 //
@@ -1007,7 +1007,7 @@ float vtkWindBladeReader::GDeform(float sigma, float sigmaMax, int flag)
 // derivatives of the interpolating function.  If yp1 or ypn > e30
 // the rougine is signaled to set the corresponding boundary condition
 // for a natural spline, with zero second derivative on that boundary.
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWindBladeReader::Spline(float* x, float* y, // arrays
   int n,                                            // size of arrays
   float yp1, float ypn,                             // boundary condition
@@ -1062,11 +1062,11 @@ void vtkWindBladeReader::Spline(float* x, float* y, // arrays
   delete[] u;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Cubic spline interpolation from Numerical Recipes
 // Called succeeding times after spline is called once
 // Given x, y and y2 arrays from spline return cubic spline interpolated
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWindBladeReader::Splint(float* xa, float* ya, // arrays sent to Spline()
   float* y2a,                                         // result from Spline()
   int n,                                              // size of arrays
@@ -1106,10 +1106,10 @@ void vtkWindBladeReader::Splint(float* xa, float* ya, // arrays sent to Spline()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Build the turbine towers
 // Parse a blade file to set the number of cells and points in blades
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWindBladeReader::SetupBladeData()
 {
   // Load the tower information
@@ -1189,9 +1189,9 @@ void vtkWindBladeReader::SetupBladeData()
   this->NumberOfBladeCells += this->NumberOfBladeTowers;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Build the turbine blades
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWindBladeReader::LoadBladeData(int timeStep)
 {
   this->BPoints->Delete();
@@ -1209,7 +1209,7 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
   this->ReadBladeData(inStrSS);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWindBladeReader::InitFieldData(
   vtkInformationVector* outVector, std::ostringstream& fileName, vtkStructuredGrid* field)
 {
@@ -1258,7 +1258,7 @@ void vtkWindBladeReader::InitFieldData(
            << this->TimeSteps[timeStep];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWindBladeReader::SetUpFieldVars(vtkStructuredGrid* field)
 {
   // Some variables depend on others, so force their loading
@@ -1314,7 +1314,7 @@ void vtkWindBladeReader::SetUpFieldVars(vtkStructuredGrid* field)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWindBladeReader::InitBladeData(vtkInformationVector* outVector)
 {
   vtkInformation* bladeInfo = outVector->GetInformationObject(1);
@@ -1342,7 +1342,7 @@ void vtkWindBladeReader::InitBladeData(vtkInformationVector* outVector)
   this->LoadBladeData(timeStep);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWindBladeReader::SetUpGroundData(vtkInformationVector* outVector)
 {
   vtkInformation* groundInfo = outVector->GetInformationObject(2);
@@ -1357,7 +1357,7 @@ void vtkWindBladeReader::SetUpGroundData(vtkInformationVector* outVector)
   ground->SetPoints(this->GPoints);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWindBladeReader::InitPressureData(
   int pressure, int prespre, float*& pressureData, float*& prespreData)
 {
@@ -1371,7 +1371,7 @@ void vtkWindBladeReader::InitPressureData(
   prespreData = this->Data[prespre]->GetPointer(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWindBladeReader::SetUpPressureData(
   float* pressureData, float* prespreData, const float* tempgData, const float* densityData)
 {
@@ -1411,7 +1411,7 @@ void vtkWindBladeReader::SetUpPressureData(
   delete[] firstPressure;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWindBladeReader::SetUpVorticityData(
   float* uData, float* vData, const float* densityData, float* vortData)
 {
@@ -1474,7 +1474,7 @@ void vtkWindBladeReader::SetUpVorticityData(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWindBladeReader::InitVariableData(
   int var, int& numberOfComponents, float*& varData, int& planeSize, int& rowSize)
 {
@@ -1504,7 +1504,7 @@ void vtkWindBladeReader::InitVariableData(
   rowSize = this->Dimension[0];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkWindBladeReader::SetUpGlobalData(const std::string& fileName, std::stringstream& inStr)
 {
   char inBuf[LINE_SIZE];
@@ -1644,7 +1644,7 @@ bool vtkWindBladeReader::SetUpGlobalData(const std::string& fileName, std::strin
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWindBladeReader::ProcessZCoords(float* topoData, float* zValues)
 {
   // Initial z coordinate processing
@@ -1708,7 +1708,7 @@ void vtkWindBladeReader::ProcessZCoords(float* topoData, float* zValues)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWindBladeReader::ReadBladeHeader(
   const std::string& fileName, std::stringstream& inStr, int& numColumns)
 {
@@ -1764,7 +1764,7 @@ void vtkWindBladeReader::ReadBladeHeader(
   this->NumberOfBladeTowers = XPosition->GetNumberOfTuples();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWindBladeReader::ReadBladeData(std::stringstream& inStr)
 {
   char inBuf[LINE_SIZE];
@@ -2014,44 +2014,44 @@ void vtkWindBladeReader::ReadBladeData(std::stringstream& inStr)
   bladeLiftUVW->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWindBladeReader::SelectionCallback(
   vtkObject*, unsigned long vtkNotUsed(eventid), void* clientdata, void* vtkNotUsed(calldata))
 {
   static_cast<vtkWindBladeReader*>(clientdata)->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkWindBladeReader::GetNumberOfPointArrays()
 {
   return this->PointDataArraySelection->GetNumberOfArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWindBladeReader::EnableAllPointArrays()
 {
   this->PointDataArraySelection->EnableAllArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWindBladeReader::DisableAllPointArrays()
 {
   this->PointDataArraySelection->DisableAllArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkWindBladeReader::GetPointArrayName(int index)
 {
   return this->VariableName[index].c_str();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkWindBladeReader::GetPointArrayStatus(const char* name)
 {
   return this->PointDataArraySelection->ArrayIsEnabled(name);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWindBladeReader::SetPointArrayStatus(const char* name, int status)
 {
   if (status)
@@ -2064,13 +2064,13 @@ void vtkWindBladeReader::SetPointArrayStatus(const char* name, int status)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStructuredGrid* vtkWindBladeReader::GetFieldOutput()
 {
   return vtkStructuredGrid::SafeDownCast(this->GetExecutive()->GetOutputData(0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUnstructuredGrid* vtkWindBladeReader::GetBladeOutput()
 {
   if (this->GetNumberOfOutputPorts() < 2)
@@ -2080,7 +2080,7 @@ vtkUnstructuredGrid* vtkWindBladeReader::GetBladeOutput()
   return vtkUnstructuredGrid::SafeDownCast(this->GetExecutive()->GetOutputData(1));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStructuredGrid* vtkWindBladeReader::GetGroundOutput()
 {
   if (this->GetNumberOfOutputPorts() < 3)
@@ -2090,7 +2090,7 @@ vtkStructuredGrid* vtkWindBladeReader::GetGroundOutput()
   return vtkStructuredGrid::SafeDownCast(this->GetExecutive()->GetOutputData(2));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkWindBladeReader::FillOutputPortInformation(int port, vtkInformation* info)
 {
   // Field data

@@ -87,7 +87,7 @@ private:
   float previousLineWidth;
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyDataItem::vtkPolyDataItem()
   : PolyData(nullptr)
   , MappedColors(nullptr)
@@ -97,7 +97,7 @@ vtkPolyDataItem::vtkPolyDataItem()
   this->HintHelper = new vtkPolyDataItem::DrawHintsHelper();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyDataItem::~vtkPolyDataItem()
 {
   this->SetPolyData(nullptr);
@@ -105,7 +105,7 @@ vtkPolyDataItem::~vtkPolyDataItem()
   delete this->HintHelper;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPolyDataItem::Paint(vtkContext2D* painter)
 {
   if (this->PolyData && this->MappedColors)
@@ -122,7 +122,7 @@ bool vtkPolyDataItem::Paint(vtkContext2D* painter)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyDataItem::PrintSelf(ostream& os, vtkIndent indent)
 {
   Superclass::PrintSelf(os, indent);

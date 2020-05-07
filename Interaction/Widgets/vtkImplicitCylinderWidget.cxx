@@ -29,7 +29,7 @@
 
 vtkStandardNewMacro(vtkImplicitCylinderWidget);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImplicitCylinderWidget::vtkImplicitCylinderWidget()
 {
   this->WidgetState = vtkImplicitCylinderWidget::Start;
@@ -83,7 +83,7 @@ vtkImplicitCylinderWidget::vtkImplicitCylinderWidget()
     1, "Z", vtkWidgetEvent::Reset, this, vtkImplicitCylinderWidget::TranslationAxisUnLock);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderWidget::SelectAction(vtkAbstractWidget* w)
 {
   vtkImplicitCylinderWidget* self = reinterpret_cast<vtkImplicitCylinderWidget*>(w);
@@ -124,7 +124,7 @@ void vtkImplicitCylinderWidget::SelectAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderWidget::TranslateAction(vtkAbstractWidget* w)
 {
   vtkImplicitCylinderWidget* self = reinterpret_cast<vtkImplicitCylinderWidget*>(w);
@@ -158,7 +158,7 @@ void vtkImplicitCylinderWidget::TranslateAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderWidget::ScaleAction(vtkAbstractWidget* w)
 {
   vtkImplicitCylinderWidget* self = reinterpret_cast<vtkImplicitCylinderWidget*>(w);
@@ -192,7 +192,7 @@ void vtkImplicitCylinderWidget::ScaleAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderWidget::MoveAction(vtkAbstractWidget* w)
 {
   vtkImplicitCylinderWidget* self = reinterpret_cast<vtkImplicitCylinderWidget*>(w);
@@ -241,7 +241,7 @@ void vtkImplicitCylinderWidget::MoveAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderWidget::EndSelectAction(vtkAbstractWidget* w)
 {
   vtkImplicitCylinderWidget* self = reinterpret_cast<vtkImplicitCylinderWidget*>(w);
@@ -268,7 +268,7 @@ void vtkImplicitCylinderWidget::EndSelectAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderWidget::MoveCylinderAction(vtkAbstractWidget* w)
 {
   vtkImplicitCylinderWidget* self = reinterpret_cast<vtkImplicitCylinderWidget*>(w);
@@ -307,7 +307,7 @@ void vtkImplicitCylinderWidget::MoveCylinderAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderWidget::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)
@@ -316,13 +316,13 @@ void vtkImplicitCylinderWidget::CreateDefaultRepresentation()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderWidget::SetRepresentation(vtkImplicitCylinderRepresentation* rep)
 {
   this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(rep));
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImplicitCylinderWidget::UpdateCursorShape(int state)
 {
   // So as to change the cursor shape when the mouse is poised over
@@ -346,7 +346,7 @@ int vtkImplicitCylinderWidget::UpdateCursorShape(int state)
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderWidget::TranslationAxisLock(vtkAbstractWidget* widget)
 {
   vtkImplicitCylinderWidget* self = reinterpret_cast<vtkImplicitCylinderWidget*>(widget);
@@ -366,14 +366,14 @@ void vtkImplicitCylinderWidget::TranslationAxisLock(vtkAbstractWidget* widget)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderWidget::TranslationAxisUnLock(vtkAbstractWidget* widget)
 {
   vtkImplicitCylinderWidget* self = reinterpret_cast<vtkImplicitCylinderWidget*>(widget);
   vtkImplicitCylinderRepresentation::SafeDownCast(self->WidgetRep)->SetTranslationAxisOff();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitCylinderWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -46,7 +46,7 @@
 using vtksystools = vtksys::SystemTools;
 
 vtkStandardNewMacro(vtkAMReXGridReader);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAMReXGridReader::vtkAMReXGridReader()
 {
   this->IsReady = false;
@@ -54,14 +54,14 @@ vtkAMReXGridReader::vtkAMReXGridReader()
   this->Initialize();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAMReXGridReader::~vtkAMReXGridReader()
 {
   delete this->Internal;
   this->Internal = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAMReXGridReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -92,7 +92,7 @@ void vtkAMReXGridReader::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAMReXGridReader::SetFileName(const char* fileName)
 {
   if (fileName && strcmp(fileName, "") &&
@@ -121,7 +121,7 @@ void vtkAMReXGridReader::ReadMetaData()
   this->Internal->ReadMetaData();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAMReXGridReader::FillMetaData()
 {
   this->ReadMetaData();
@@ -204,7 +204,7 @@ int vtkAMReXGridReader::FillMetaData()
   // TODO: Need to handle Ghost Cells - Patrick O'Leary
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUniformGrid* vtkAMReXGridReader::GetAMRGrid(const int blockIdx)
 {
   if (!this->Internal->headersAreRead)
@@ -252,19 +252,19 @@ vtkUniformGrid* vtkAMReXGridReader::GetAMRGrid(const int blockIdx)
   // TODO: Need to handle Ghost Cells - Patrick O'Leary
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAMReXGridReader::GetDimension()
 {
   return this->Internal->headersAreRead ? this->Internal->Header->dim : -1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAMReXGridReader::GetNumberOfLevels()
 {
   return this->Internal->headersAreRead ? this->Internal->Header->finestLevel : -1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAMReXGridReader::GetNumberOfBlocks()
 {
   if (!this->Internal->headersAreRead)
@@ -281,7 +281,7 @@ int vtkAMReXGridReader::GetNumberOfBlocks()
   return (numberOfBlocks);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAMReXGridReader::GetBlockLevel(const int blockIdx)
 {
   if (!this->Internal->headersAreRead)
@@ -304,7 +304,7 @@ int vtkAMReXGridReader::GetBlockLevel(const int blockIdx)
   return (-1);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAMReXGridReader::GetLevelBlockID(const int blockIdx)
 {
   if (!this->Internal->headersAreRead)
@@ -327,7 +327,7 @@ int vtkAMReXGridReader::GetLevelBlockID(const int blockIdx)
   return (-1);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAMReXGridReader::GetAMRGridData(
   const int blockIdx, vtkUniformGrid* block, const char* field)
 {
@@ -338,7 +338,7 @@ void vtkAMReXGridReader::GetAMRGridData(
   this->Internal->GetBlockAttribute(field, blockIdx, block);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAMReXGridReader::SetUpDataArraySelections()
 {
   if (!this->Internal->headersAreRead)

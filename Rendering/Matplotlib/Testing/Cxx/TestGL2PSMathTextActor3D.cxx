@@ -53,7 +53,7 @@ void setupTextActor3D(vtkTextActor3D* actor, vtkPolyData* anchor)
 }
 } // end namespace vtkTestGL2PSMathTextActor3D
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestGL2PSMathTextActor3D(int, char*[])
 {
   using namespace vtkTestGL2PSMathTextActor3D;

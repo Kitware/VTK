@@ -26,13 +26,13 @@
 #include <cassert>
 
 vtkStandardNewMacro(vtkOverlappingAMRLevelIdScalars);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOverlappingAMRLevelIdScalars::vtkOverlappingAMRLevelIdScalars() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOverlappingAMRLevelIdScalars::~vtkOverlappingAMRLevelIdScalars() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOverlappingAMRLevelIdScalars::AddColorLevels(
   vtkUniformGridAMR* input, vtkUniformGridAMR* output)
 {
@@ -57,7 +57,7 @@ void vtkOverlappingAMRLevelIdScalars::AddColorLevels(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Map ids into attribute data
 int vtkOverlappingAMRLevelIdScalars::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -82,7 +82,7 @@ int vtkOverlappingAMRLevelIdScalars::RequestData(vtkInformation* vtkNotUsed(requ
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUniformGrid* vtkOverlappingAMRLevelIdScalars::ColorLevel(vtkUniformGrid* input, int group)
 {
   vtkUniformGrid* output = input->NewInstance();
@@ -101,7 +101,7 @@ vtkUniformGrid* vtkOverlappingAMRLevelIdScalars::ColorLevel(vtkUniformGrid* inpu
   return output;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOverlappingAMRLevelIdScalars::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

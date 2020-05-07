@@ -47,7 +47,7 @@
 
 vtkStandardNewMacro(vtkSobelGradientMagnitudePass);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSobelGradientMagnitudePass::vtkSobelGradientMagnitudePass()
 {
   this->FrameBufferObject = nullptr;
@@ -58,7 +58,7 @@ vtkSobelGradientMagnitudePass::vtkSobelGradientMagnitudePass()
   this->Program2 = nullptr;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSobelGradientMagnitudePass::~vtkSobelGradientMagnitudePass()
 {
   if (this->FrameBufferObject != nullptr)
@@ -79,13 +79,13 @@ vtkSobelGradientMagnitudePass::~vtkSobelGradientMagnitudePass()
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSobelGradientMagnitudePass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Perform rendering according to a render state \p s.
 // \pre s_exists: s!=0
@@ -459,7 +459,7 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState* s)
   vtkOpenGLCheckErrorMacro("failed after Render");
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Release graphics resources and ask components to release their own
 // resources.

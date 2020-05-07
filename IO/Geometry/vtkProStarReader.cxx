@@ -42,7 +42,7 @@ struct vtkProStarReader::idMapping : public std::map<vtkIdType, vtkIdType>
 {
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProStarReader::vtkProStarReader()
 {
   this->FileName = nullptr;
@@ -51,13 +51,13 @@ vtkProStarReader::vtkProStarReader()
   this->SetNumberOfInputPorts(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProStarReader::~vtkProStarReader()
 {
   delete[] this->FileName;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkProStarReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -88,7 +88,7 @@ int vtkProStarReader::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProStarReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -96,7 +96,7 @@ void vtkProStarReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ScaleFactor: " << this->ScaleFactor << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkProStarReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -110,7 +110,7 @@ int vtkProStarReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 FILE* vtkProStarReader::OpenFile(const char* ext)
 {
   std::string fullName = this->FileName;

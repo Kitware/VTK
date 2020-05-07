@@ -38,32 +38,32 @@
 #endif
 
 vtkStandardNewMacro(vtkCompositeDataWriter);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCompositeDataWriter::vtkCompositeDataWriter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCompositeDataWriter::~vtkCompositeDataWriter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCompositeDataSet* vtkCompositeDataWriter::GetInput()
 {
   return this->GetInput(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCompositeDataSet* vtkCompositeDataWriter::GetInput(int port)
 {
   return vtkCompositeDataSet::SafeDownCast(this->GetInputDataObject(port, 0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCompositeDataWriter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositeDataWriter::WriteData()
 {
   ostream* fp;
@@ -160,7 +160,7 @@ void vtkCompositeDataWriter::WriteData()
   this->CloseVTKFile(fp);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkMultiBlockDataSet* mb)
 {
   *fp << "CHILDREN " << mb->GetNumberOfBlocks() << "\n";
@@ -188,7 +188,7 @@ bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkMultiBlockDataSe
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkMultiPieceDataSet* mp)
 {
   *fp << "CHILDREN " << mp->GetNumberOfPieces() << "\n";
@@ -216,7 +216,7 @@ bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkMultiPieceDataSe
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkPartitionedDataSet* pd)
 {
   *fp << "CHILDREN " << pd->GetNumberOfPartitions() << "\n";
@@ -239,7 +239,7 @@ bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkPartitionedDataS
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkPartitionedDataSetCollection* pd)
 {
   *fp << "CHILDREN " << pd->GetNumberOfPartitionedDataSets() << "\n";
@@ -262,7 +262,7 @@ bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkPartitionedDataS
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkHierarchicalBoxDataSet* hb)
 {
   (void)fp;
@@ -271,7 +271,7 @@ bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkHierarchicalBoxD
   return false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkOverlappingAMR* oamr)
 {
   vtkAMRInformation* amrInfo = oamr->GetAMRInfo();
@@ -345,7 +345,7 @@ bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkOverlappingAMR* 
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkNonOverlappingAMR* hb)
 {
   (void)fp;
@@ -354,7 +354,7 @@ bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkNonOverlappingAM
   return false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkCompositeDataWriter::WriteBlock(ostream* fp, vtkDataObject* block)
 {
   bool success = false;
@@ -372,7 +372,7 @@ bool vtkCompositeDataWriter::WriteBlock(ostream* fp, vtkDataObject* block)
   return success;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositeDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

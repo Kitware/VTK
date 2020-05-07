@@ -178,7 +178,7 @@ vtkTypeBool vtkWin32OpenGLRenderWindow::GetEventPending()
   return 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkWin32OpenGLRenderWindow::InitializeFromCurrentContext()
 {
   HGLRC currentContext = wglGetCurrentContext();
@@ -192,7 +192,7 @@ bool vtkWin32OpenGLRenderWindow::InitializeFromCurrentContext()
   return false;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWin32OpenGLRenderWindow::MakeCurrent()
 {
   // Try to avoid doing anything (for performance).
@@ -253,7 +253,7 @@ void vtkWin32OpenGLRenderWindow::PopContext()
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Tells if this window is the current OpenGL context for the calling thread.
 bool vtkWin32OpenGLRenderWindow::IsCurrent()
@@ -283,7 +283,7 @@ bool vtkWin32OpenGLRenderWindow::SetSwapControl(int i)
   return true;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 namespace
 {
 void AdjustWindowRectForBorders(
@@ -305,7 +305,7 @@ void AdjustWindowRectForBorders(
 }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWin32OpenGLRenderWindow::SetSize(int width, int height)
 {
   static bool resizing = false;
@@ -1354,7 +1354,7 @@ void vtkWin32OpenGLRenderWindow::SetNextWindowId(void* arg)
   this->SetNextWindowId((HWND)arg);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWin32OpenGLRenderWindow::HideCursor()
 {
   if (this->CursorHidden)
@@ -1366,7 +1366,7 @@ void vtkWin32OpenGLRenderWindow::HideCursor()
   ::ShowCursor(!this->CursorHidden);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWin32OpenGLRenderWindow::ShowCursor()
 {
   if (!this->CursorHidden)
@@ -1378,7 +1378,7 @@ void vtkWin32OpenGLRenderWindow::ShowCursor()
   ::ShowCursor(!this->CursorHidden);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWin32OpenGLRenderWindow::SetCursorPosition(int x, int y)
 {
   const int* size = this->GetSize();
@@ -1393,7 +1393,7 @@ void vtkWin32OpenGLRenderWindow::SetCursorPosition(int x, int y)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWin32OpenGLRenderWindow::SetCurrentCursor(int shape)
 {
   if (this->InvokeEvent(vtkCommand::CursorChangedEvent, &shape))
@@ -1444,7 +1444,7 @@ void vtkWin32OpenGLRenderWindow::SetCurrentCursor(int shape)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkWin32OpenGLRenderWindow::DetectDPI()
 {
   this->SetDPI(GetDeviceCaps(this->DeviceContext, LOGPIXELSY));

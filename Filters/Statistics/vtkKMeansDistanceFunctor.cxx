@@ -9,26 +9,26 @@
 
 vtkStandardNewMacro(vtkKMeansDistanceFunctor);
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkKMeansDistanceFunctor::vtkKMeansDistanceFunctor()
 {
   this->EmptyTuple = vtkVariantArray::New();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkKMeansDistanceFunctor::~vtkKMeansDistanceFunctor()
 {
   this->EmptyTuple->Delete();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKMeansDistanceFunctor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "EmptyTuple: " << this->EmptyTuple << "\n";
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkVariantArray* vtkKMeansDistanceFunctor::GetEmptyTuple(vtkIdType dimension)
 {
   if (this->EmptyTuple->GetNumberOfValues() != dimension)
@@ -42,7 +42,7 @@ vtkVariantArray* vtkKMeansDistanceFunctor::GetEmptyTuple(vtkIdType dimension)
   return this->EmptyTuple;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKMeansDistanceFunctor::operator()(
   double& distance, vtkVariantArray* clusterCoord, vtkVariantArray* dataCoord)
 {
@@ -60,7 +60,7 @@ void vtkKMeansDistanceFunctor::operator()(
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKMeansDistanceFunctor::PairwiseUpdate(vtkTable* clusterCoords, vtkIdType rowIndex,
   vtkVariantArray* dataCoord, vtkIdType dataCoordCardinality, vtkIdType totalCardinality)
 {
@@ -83,7 +83,7 @@ void vtkKMeansDistanceFunctor::PairwiseUpdate(vtkTable* clusterCoords, vtkIdType
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKMeansDistanceFunctor::PerturbElement(vtkTable* newClusterElements,
   vtkTable* curClusterElements, vtkIdType changeID, vtkIdType startRunID, vtkIdType endRunID,
   double alpha)
@@ -117,25 +117,25 @@ void vtkKMeansDistanceFunctor::PerturbElement(vtkTable* newClusterElements,
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void* vtkKMeansDistanceFunctor::AllocateElementArray(vtkIdType size)
 {
   return new double[size];
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKMeansDistanceFunctor::DeallocateElementArray(void* array)
 {
   delete[] static_cast<double*>(array);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAbstractArray* vtkKMeansDistanceFunctor::CreateCoordinateArray()
 {
   return vtkDoubleArray::New();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKMeansDistanceFunctor::PackElements(vtkTable* curTable, void* vElements)
 {
   vtkIdType numCols = curTable->GetNumberOfColumns();
@@ -149,7 +149,7 @@ void vtkKMeansDistanceFunctor::PackElements(vtkTable* curTable, void* vElements)
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKMeansDistanceFunctor::UnPackElements(
   vtkTable* curTable, void* vLocalElements, vtkIdType numRows, vtkIdType numCols)
 {
@@ -166,7 +166,7 @@ void vtkKMeansDistanceFunctor::UnPackElements(
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKMeansDistanceFunctor::UnPackElements(
   vtkTable* curTable, vtkTable* newTable, void* vLocalElements, void* vGlobalElements, int np)
 {
@@ -193,7 +193,7 @@ void vtkKMeansDistanceFunctor::UnPackElements(
   delete[] globalElements;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkKMeansDistanceFunctor::GetDataType()
 {
   return VTK_DOUBLE;

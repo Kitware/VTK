@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkUnstructuredGridVolumeRayCastFunction.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkUnstructuredGridVolumeRayCastFunction::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

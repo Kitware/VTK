@@ -24,7 +24,7 @@
 #include "vtkTable.h"
 
 vtkStandardNewMacro(vtkTableToStructuredGrid);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTableToStructuredGrid::vtkTableToStructuredGrid()
 {
   this->XColumn = nullptr;
@@ -37,7 +37,7 @@ vtkTableToStructuredGrid::vtkTableToStructuredGrid()
     this->WholeExtent[4] = this->WholeExtent[5] = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTableToStructuredGrid::~vtkTableToStructuredGrid()
 {
   this->SetXColumn(nullptr);
@@ -45,14 +45,14 @@ vtkTableToStructuredGrid::~vtkTableToStructuredGrid()
   this->SetZColumn(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTableToStructuredGrid::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
   return 1;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTableToStructuredGrid::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -63,7 +63,7 @@ int vtkTableToStructuredGrid::RequestInformation(vtkInformation* vtkNotUsed(requ
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTableToStructuredGrid::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -77,7 +77,7 @@ int vtkTableToStructuredGrid::RequestData(vtkInformation* vtkNotUsed(request),
   return this->Convert(input, output, extent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTableToStructuredGrid::Convert(vtkTable* input, vtkStructuredGrid* output, int extent[6])
 {
   int num_values =
@@ -140,7 +140,7 @@ int vtkTableToStructuredGrid::Convert(vtkTable* input, vtkStructuredGrid* output
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTableToStructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

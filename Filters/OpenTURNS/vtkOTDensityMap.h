@@ -153,7 +153,7 @@ protected:
   void ClearCache();
   void BuildContours(vtkPolyData* contourPd, int numContours, const double* contourValues,
     const double* densityPDFContourValues, const char* xArrayName, const char* yArrayName,
-    std::multimap<double, vtkSmartPointer<vtkTable> >& contoursMap);
+    std::multimap<double, vtkSmartPointer<vtkTable>>& contoursMap);
 
   // Cache
   class OTDensityCache;

@@ -113,7 +113,7 @@ void vtkImporter::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::string vtkImporter::GetArrayDescription(vtkAbstractArray* array, vtkIndent indent)
 {
   std::stringstream ss;
@@ -152,7 +152,7 @@ std::string vtkImporter::GetArrayDescription(vtkAbstractArray* array, vtkIndent 
   return ss.str();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::string vtkImporter::GetDataSetDescription(vtkDataSet* ds, vtkIndent indent)
 {
   std::stringstream ss;
@@ -204,13 +204,13 @@ std::string vtkImporter::GetDataSetDescription(vtkDataSet* ds, vtkIndent indent)
   return ss.str();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkImporter::GetNumberOfAnimations()
 {
   return -1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkImporter::GetTemporalInformation(vtkIdType vtkNotUsed(animationIdx),
   int& vtkNotUsed(nbTimeSteps), double vtkNotUsed(timeRange)[2],
   vtkDoubleArray* vtkNotUsed(timeSteps))
@@ -218,7 +218,7 @@ bool vtkImporter::GetTemporalInformation(vtkIdType vtkNotUsed(animationIdx),
   return false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImporter::UpdateTimeStep(double vtkNotUsed(timeStep))
 {
   this->Update();

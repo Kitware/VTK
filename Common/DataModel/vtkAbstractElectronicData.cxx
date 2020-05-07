@@ -15,23 +15,23 @@
 
 #include "vtkAbstractElectronicData.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAbstractElectronicData::vtkAbstractElectronicData()
   : Padding(0.0)
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAbstractElectronicData::~vtkAbstractElectronicData() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractElectronicData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Padding: " << this->Padding << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractElectronicData::DeepCopy(vtkDataObject* obj)
 {
   vtkAbstractElectronicData* aed = vtkAbstractElectronicData::SafeDownCast(obj);

@@ -67,7 +67,7 @@ void vtkMPIController::CreateOutputWindow()
 
 vtkStandardNewMacro(vtkMPIController);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMPIController::vtkMPIController()
 {
   // If MPI was already initialized obtain rank and size.
@@ -84,7 +84,7 @@ vtkMPIController::vtkMPIController()
   this->OutputWindow = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMPIController::~vtkMPIController()
 {
   this->SetCommunicator(0);
@@ -94,7 +94,7 @@ vtkMPIController::~vtkMPIController()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMPIController::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -103,7 +103,7 @@ void vtkMPIController::PrintSelf(ostream& os, vtkIndent indent)
 
 vtkMPICommunicator* vtkMPIController::WorldRMICommunicator = 0;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMPIController::TriggerRMIInternal(
   int remoteProcessId, void* arg, int argLength, int rmiTag, bool propagate)
 {
@@ -122,13 +122,13 @@ void vtkMPIController::TriggerRMIInternal(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMPIController::Initialize()
 {
   this->Initialize(0, 0, 1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMPIController::Initialize(int* argc, char*** argv, int initializedExternally)
 {
   if (vtkMPIController::Initialized)
@@ -237,7 +237,7 @@ void vtkMPIController::SetCommunicator(vtkMPICommunicator* comm)
   this->InitializeRMICommunicator();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Execute the method set as the SingleMethod.
 void vtkMPIController::SingleMethodExecute()
 {
@@ -261,7 +261,7 @@ void vtkMPIController::SingleMethodExecute()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Execute the methods set as the MultipleMethods.
 void vtkMPIController::MultipleMethodExecute()
 {
@@ -298,7 +298,7 @@ char* vtkMPIController::ErrorString(int err)
   return buffer;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMPIController* vtkMPIController::CreateSubController(vtkProcessGroup* group)
 {
   VTK_CREATE(vtkMPICommunicator, subcomm);
@@ -324,7 +324,7 @@ vtkMPIController* vtkMPIController::CreateSubController(vtkProcessGroup* group)
   return controller;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMPIController* vtkMPIController::PartitionController(int localColor, int localKey)
 {
   VTK_CREATE(vtkMPICommunicator, subcomm);
@@ -339,7 +339,7 @@ vtkMPIController* vtkMPIController::PartitionController(int localColor, int loca
   return controller;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPIController::WaitSome(
   const int count, vtkMPICommunicator::Request rqsts[], vtkIntArray* completed)
 {
@@ -361,7 +361,7 @@ int vtkMPIController::WaitSome(
   return (rc);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkMPIController::TestAll(const int count, vtkMPICommunicator::Request requests[])
 {
   int flag = 0;
@@ -377,7 +377,7 @@ bool vtkMPIController::TestAll(const int count, vtkMPICommunicator::Request requ
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkMPIController::TestAny(const int count, vtkMPICommunicator::Request requests[], int& idx)
 {
   int flag = 0;
@@ -393,7 +393,7 @@ bool vtkMPIController::TestAny(const int count, vtkMPICommunicator::Request requ
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkMPIController::TestSome(
   const int count, vtkMPICommunicator::Request requests[], vtkIntArray* completed)
 {

@@ -26,7 +26,7 @@ vtkStandardNewMacro(vtkTransformToGrid);
 
 vtkCxxSetObjectMacro(vtkTransformToGrid, Input, vtkAbstractTransform);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTransformToGrid::vtkTransformToGrid()
 {
   this->Input = nullptr;
@@ -46,13 +46,13 @@ vtkTransformToGrid::vtkTransformToGrid()
   this->SetNumberOfOutputPorts(1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTransformToGrid::~vtkTransformToGrid()
 {
   this->SetInput(static_cast<vtkAbstractTransform*>(nullptr));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTransformToGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   int i;
@@ -90,7 +90,7 @@ void vtkTransformToGrid::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "DisplacementShift: " << this->DisplacementShift << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method returns the largest data that can be generated.
 void vtkTransformToGrid::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
@@ -114,7 +114,7 @@ void vtkTransformToGrid::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkDataObject::SetPointDataActiveScalarInfo(outInfo, this->GridScalarType, 3);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Return the maximum absolute displacement of the transform over
 // the entire grid extent -- this is extremely robust and extremely
 // inefficient, it should be possible to do much better than this.
@@ -170,7 +170,7 @@ static void vtkTransformToGridMinMax(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTransformToGrid::UpdateShiftScale()
 {
   int gridType = this->GridScalarType;
@@ -238,7 +238,7 @@ void vtkTransformToGrid::UpdateShiftScale()
   this->ShiftScaleTime.Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // macros to ensure proper round-to-nearest behaviour
 
 inline void vtkGridRound(double val, unsigned char& rnd)
@@ -271,7 +271,7 @@ inline void vtkGridRound(double val, double& rnd)
   rnd = (double)(val);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T>
 void vtkTransformToGridExecute(vtkTransformToGrid* self, vtkImageData* grid, T* gridPtr,
   int extent[6], double shift, double scale, int id)
@@ -344,7 +344,7 @@ void vtkTransformToGridExecute(vtkTransformToGrid* self, vtkImageData* grid, T* 
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTransformToGrid::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -391,7 +391,7 @@ void vtkTransformToGrid::RequestData(vtkInformation* vtkNotUsed(request),
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkTransformToGrid::GetMTime()
 {
   vtkMTimeType mtime = this->Superclass::GetMTime();
@@ -408,7 +408,7 @@ vtkMTimeType vtkTransformToGrid::GetMTime()
   return mtime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkTransformToGrid::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -448,7 +448,7 @@ vtkTypeBool vtkTransformToGrid::ProcessRequest(
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageData* vtkTransformToGrid::GetOutput()
 {
   return vtkImageData::SafeDownCast(this->GetOutputDataObject(0));

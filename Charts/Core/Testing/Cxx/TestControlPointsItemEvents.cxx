@@ -32,7 +32,7 @@
 #include <iostream>
 #include <map>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkTFCallback : public vtkCommand
 {
 public:
@@ -57,7 +57,7 @@ public:
   std::map<unsigned long, int> EventSpy;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestControlPointsItemEvents(int, char*[])
 {
   vtkNew<vtkColorTransferFunction> transferFunction;

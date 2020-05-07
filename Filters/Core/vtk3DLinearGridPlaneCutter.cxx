@@ -54,7 +54,7 @@
 vtkStandardNewMacro(vtk3DLinearGridPlaneCutter);
 vtkCxxSetObjectMacro(vtk3DLinearGridPlaneCutter, Plane, vtkPlane);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Classes to support threaded execution. Note that there is only one
 // strategy at this time: a path that pre-computes plane function values and
 // uses these to cull non-intersected cells. Sphere trees may be supported in
@@ -172,7 +172,7 @@ struct ClassifyPoints : public Classify
 template <typename IDType, typename TIP>
 struct ExtractEdgesBase
 {
-  typedef std::vector<EdgeTuple<IDType, float> > EdgeVectorType;
+  typedef std::vector<EdgeTuple<IDType, float>> EdgeVectorType;
 
   // Track local data on a per-thread basis. In the Reduce() method this
   // information will be used to composite the data from each thread.
@@ -807,7 +807,7 @@ struct ComputePointNormals
 
 } // anonymous namespace
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct an instance of the class.
 vtk3DLinearGridPlaneCutter::vtk3DLinearGridPlaneCutter()
 {
@@ -821,13 +821,13 @@ vtk3DLinearGridPlaneCutter::vtk3DLinearGridPlaneCutter()
   this->LargeIds = false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtk3DLinearGridPlaneCutter::~vtk3DLinearGridPlaneCutter()
 {
   this->SetPlane(nullptr);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Overload standard modified time function. If the plane definition is modified,
 // then this object is modified as well.
 vtkMTimeType vtk3DLinearGridPlaneCutter::GetMTime()
@@ -844,7 +844,7 @@ vtkMTimeType vtk3DLinearGridPlaneCutter::GetMTime()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specialized plane cutting filter to handle unstructured grids with 3D
 // linear cells (tetrahedras, hexes, wedges, pyradmids, voxels)
 //
@@ -963,7 +963,7 @@ int vtk3DLinearGridPlaneCutter::ProcessPiece(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The output dataset type varies dependingon the input type.
 int vtk3DLinearGridPlaneCutter::RequestDataObject(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -1007,7 +1007,7 @@ int vtk3DLinearGridPlaneCutter::RequestDataObject(
   return 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specialized plane cutting filter to handle unstructured grids with 3D
 // linear cells (tetrahedras, hexes, wedges, pyradmids, voxels)
 //
@@ -1080,20 +1080,20 @@ int vtk3DLinearGridPlaneCutter::RequestData(
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtk3DLinearGridPlaneCutter::SetOutputPointsPrecision(int precision)
 {
   this->OutputPointsPrecision = precision;
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtk3DLinearGridPlaneCutter::GetOutputPointsPrecision() const
 {
   return this->OutputPointsPrecision;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtk3DLinearGridPlaneCutter::CanFullyProcessDataObject(vtkDataObject* object)
 {
   auto ug = vtkUnstructuredGrid::SafeDownCast(object);
@@ -1139,7 +1139,7 @@ bool vtk3DLinearGridPlaneCutter::CanFullyProcessDataObject(vtkDataObject* object
   return false; // not a vtkUnstructuredGrid nor a composite dataset
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtk3DLinearGridPlaneCutter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
@@ -1147,7 +1147,7 @@ int vtk3DLinearGridPlaneCutter::FillInputPortInformation(int, vtkInformation* in
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtk3DLinearGridPlaneCutter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

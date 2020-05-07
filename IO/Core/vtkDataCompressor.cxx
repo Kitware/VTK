@@ -15,33 +15,33 @@
 #include "vtkDataCompressor.h"
 #include "vtkUnsignedCharArray.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataCompressor::vtkDataCompressor() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataCompressor::~vtkDataCompressor() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataCompressor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 size_t vtkDataCompressor::Compress(unsigned char const* uncompressedData, size_t uncompressedSize,
   unsigned char* compressedData, size_t compressionSpace)
 {
   return this->CompressBuffer(uncompressedData, uncompressedSize, compressedData, compressionSpace);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 size_t vtkDataCompressor::Uncompress(unsigned char const* compressedData, size_t compressedSize,
   unsigned char* uncompressedData, size_t uncompressedSize)
 {
   return this->UncompressBuffer(compressedData, compressedSize, uncompressedData, uncompressedSize);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUnsignedCharArray* vtkDataCompressor::Compress(
   unsigned char const* uncompressedData, size_t uncompressedSize)
 {
@@ -71,7 +71,7 @@ vtkUnsignedCharArray* vtkDataCompressor::Compress(
   return outputArray;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUnsignedCharArray* vtkDataCompressor::Uncompress(
   unsigned char const* compressedData, size_t compressedSize, size_t uncompressedSize)
 {

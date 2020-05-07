@@ -22,11 +22,11 @@
 
 vtkStandardNewMacro(vtkCardinalSpline);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct a Cardinal Spline.
 vtkCardinalSpline::vtkCardinalSpline() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Evaluate a 1D Spline
 double vtkCardinalSpline::Evaluate(double t)
 {
@@ -78,7 +78,7 @@ double vtkCardinalSpline::Evaluate(double t)
     *(coefficients + index * 4));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Compute Cardinal Splines for each dependent variable
 void vtkCardinalSpline::Compute()
 {
@@ -183,7 +183,7 @@ void vtkCardinalSpline::Compute()
   this->ComputeTime = this->GetMTime();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Compute the coefficients for a 1D spline. The spline is open.
 void vtkCardinalSpline::Fit1D(int size, double* x, double* y, double* work,
   double coefficients[][4], int leftConstraint, double leftValue, int rightConstraint,
@@ -314,7 +314,7 @@ void vtkCardinalSpline::Fit1D(int size, double* x, double* y, double* work,
   coefficients[size - 1][3] = coefficients[size - 2][3];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Compute the coefficients for a 1D spline. The spline is closed
 // (i.e., the first and last point are assumed the same) and the
 // spline is continuous in value and derivatives.
@@ -403,7 +403,7 @@ void vtkCardinalSpline::FitClosed1D(
   coefficients[N][3] = coefficients[0][3];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCardinalSpline::DeepCopy(vtkSpline* s)
 {
   vtkCardinalSpline* spline = vtkCardinalSpline::SafeDownCast(s);
@@ -417,7 +417,7 @@ void vtkCardinalSpline::DeepCopy(vtkSpline* s)
   this->vtkSpline::DeepCopy(s);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCardinalSpline::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

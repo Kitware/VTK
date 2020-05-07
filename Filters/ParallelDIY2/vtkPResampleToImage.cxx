@@ -54,7 +54,7 @@ vtkCxxSetObjectMacro(vtkPResampleToImage, Controller, vtkMultiProcessController)
 namespace
 {
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <typename T, std::size_t Len>
 struct Array
 {
@@ -73,7 +73,7 @@ private:
   T Data[Len];
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 struct FieldMetaData
 {
   std::string Name;
@@ -146,7 +146,7 @@ inline void InitializeFieldData(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 struct SerializeWorklet
 {
   template <typename ArrayType>
@@ -207,7 +207,7 @@ inline void DeserializeFieldData(diy::MemoryBuffer& bb, vtkFieldData* field, vtk
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // A structure representing a list of points from an ImageData. Stores the
 // points' 3D indices (Indices) and serialized point data (Data) and they
 // should be stored in the same order.
@@ -236,7 +236,7 @@ inline vtkIdType ComputeSerializedFieldDataSize(const std::vector<FieldMetaData>
   return static_cast<vtkIdType>(bb.buffer.size());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 struct Block
 {
   PointList Points;
@@ -253,7 +253,7 @@ inline void DestroyBlock(void* blockp)
   delete static_cast<Block*>(blockp);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Creates a PointList of all the valid points in img
 inline void GetPointsFromImage(vtkImageData* img, const char* maskArrayName, PointList* points)
 {
@@ -312,7 +312,7 @@ void SetPointsToImage(
   points.Indices.clear(); // reset the points structure to a valid empty state
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 inline void ComputeGlobalBounds(
   diy::mpi::communicator& comm, const double lbounds[6], double gbounds[6])
 {
@@ -359,7 +359,7 @@ inline void GetGlobalFieldMetaData(
   }
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void Redistribute(
   void* blockp, const diy::ReduceProxy& srp, const diy::RegularSwapPartners& partners)
 {
@@ -446,20 +446,20 @@ void Redistribute(
 
 } // anonymous namespace
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPResampleToImage::vtkPResampleToImage()
   : Controller(nullptr)
 {
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPResampleToImage::~vtkPResampleToImage()
 {
   this->SetController(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPResampleToImage::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -469,7 +469,7 @@ void vtkPResampleToImage::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPResampleToImage::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -543,7 +543,7 @@ int vtkPResampleToImage::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 namespace diy
 {
 
@@ -553,7 +553,7 @@ namespace detail
 {
 
 template <class T, std::size_t Len>
-struct mpi_datatype<Array<T, Len> >
+struct mpi_datatype<Array<T, Len>>
 {
   typedef Array<T, Len> ArrayType;
 

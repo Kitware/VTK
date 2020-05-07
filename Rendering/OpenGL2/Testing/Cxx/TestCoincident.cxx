@@ -31,7 +31,7 @@
 
 #include "vtkRenderWindowInteractor.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestCoincident(int argc, char* argv[])
 {
   vtkNew<vtkRenderer> renderer;

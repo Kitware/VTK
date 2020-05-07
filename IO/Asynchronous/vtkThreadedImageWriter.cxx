@@ -161,21 +161,21 @@ public:
 };
 
 vtkStandardNewMacro(vtkThreadedImageWriter);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkThreadedImageWriter::vtkThreadedImageWriter()
   : Internals(new vtkInternals())
 {
   this->MaxThreads = MAX_NUMBER_OF_THREADS_IN_POOL;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkThreadedImageWriter::~vtkThreadedImageWriter()
 {
   delete this->Internals;
   this->Internals = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkThreadedImageWriter::SetMaxThreads(vtkTypeUInt32 maxThreads)
 {
   if (maxThreads < MAX_NUMBER_OF_THREADS_IN_POOL && maxThreads > 0)
@@ -184,7 +184,7 @@ void vtkThreadedImageWriter::SetMaxThreads(vtkTypeUInt32 maxThreads)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkThreadedImageWriter::Initialize()
 {
   // Stop any started thread first
@@ -196,7 +196,7 @@ void vtkThreadedImageWriter::Initialize()
   this->Internals->SpawnWorkers(this->MaxThreads);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkThreadedImageWriter::EncodeAndWrite(vtkImageData* image, const char* fileName)
 {
   // Error checking
@@ -215,13 +215,13 @@ void vtkThreadedImageWriter::EncodeAndWrite(vtkImageData* image, const char* fil
   this->Internals->PushImageToQueue(std::move(img), std::string(fileName));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkThreadedImageWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkThreadedImageWriter::Finalize()
 {
   this->Internals->TerminateAllWorkers();

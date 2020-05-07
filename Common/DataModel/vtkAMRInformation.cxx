@@ -45,7 +45,7 @@ inline bool Inside(double q[3], double gbounds[6])
 // and contents
 class DataSetBinner
 {
-  std::vector<std::vector<unsigned int> > Bins;
+  std::vector<std::vector<unsigned int>> Bins;
   unsigned int NBins[3];
   unsigned int LoCorner[3];
   // Binsize in "extent coordinates"
@@ -122,7 +122,7 @@ public:
 };
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkAMRInformation::vtkAMRInformation()
   : NumBlocks(1, 0)
@@ -634,8 +634,7 @@ void vtkAMRInformation::GetSpacing(unsigned int level, double spacing[3])
 }
 
 void vtkAMRInformation::CalculateParentChildRelationShip(unsigned int level,
-  std::vector<std::vector<unsigned int> >& children,
-  std::vector<std::vector<unsigned int> >& parents)
+  std::vector<std::vector<unsigned int>>& children, std::vector<std::vector<unsigned int>>& parents)
 {
   if (level == 0 || level > this->GetNumberOfLevels())
   {

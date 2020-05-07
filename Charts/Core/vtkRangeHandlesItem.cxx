@@ -27,12 +27,12 @@
 #include "vtkRenderer.h"
 #include "vtkTransform2D.h"
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkRangeHandlesItem);
 vtkSetObjectImplementationMacro(
   vtkRangeHandlesItem, ColorTransferFunction, vtkColorTransferFunction);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRangeHandlesItem::vtkRangeHandlesItem()
 {
   this->Brush->SetColor(125, 135, 144, 200);
@@ -40,7 +40,7 @@ vtkRangeHandlesItem::vtkRangeHandlesItem()
   this->RangeLabelBrush->SetColor(255, 255, 255, 200);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRangeHandlesItem::~vtkRangeHandlesItem()
 {
   if (this->ColorTransferFunction)
@@ -49,7 +49,7 @@ vtkRangeHandlesItem::~vtkRangeHandlesItem()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRangeHandlesItem::ComputeHandlesDrawRange()
 {
   double screenBounds[4];
@@ -87,7 +87,7 @@ void vtkRangeHandlesItem::ComputeHandlesDrawRange()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkRangeHandlesItem::Paint(vtkContext2D* painter)
 {
   if (!this->Visible || !this->ColorTransferFunction)
@@ -161,7 +161,7 @@ bool vtkRangeHandlesItem::Paint(vtkContext2D* painter)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRangeHandlesItem::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -183,7 +183,7 @@ void vtkRangeHandlesItem::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ActiveHandleRangeValue: " << this->ActiveHandleRangeValue << endl;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRangeHandlesItem::GetBounds(double* bounds)
 {
   if (!this->ColorTransferFunction)
@@ -201,7 +201,7 @@ void vtkRangeHandlesItem::GetBounds(double* bounds)
   bounds[3] = 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkRangeHandlesItem::Hit(const vtkContextMouseEvent& mouse)
 {
   // Add more tolerance than the mouse interaction to make sure handles do
@@ -211,7 +211,7 @@ bool vtkRangeHandlesItem::Hit(const vtkContextMouseEvent& mouse)
   return this->FindRangeHandle(vpos, tolerance) != vtkRangeHandlesItem::NO_HANDLE;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkRangeHandlesItem::MouseButtonPressEvent(const vtkContextMouseEvent& mouse)
 {
   vtkVector2f vpos = mouse.GetPos();
@@ -229,7 +229,7 @@ bool vtkRangeHandlesItem::MouseButtonPressEvent(const vtkContextMouseEvent& mous
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkRangeHandlesItem::MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse)
 {
   if (this->ActiveHandle != vtkRangeHandlesItem::NO_HANDLE)
@@ -253,7 +253,7 @@ bool vtkRangeHandlesItem::MouseButtonReleaseEvent(const vtkContextMouseEvent& mo
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkRangeHandlesItem::MouseMoveEvent(const vtkContextMouseEvent& mouse)
 {
   if (this->ActiveHandle != vtkRangeHandlesItem::NO_HANDLE)
@@ -267,7 +267,7 @@ bool vtkRangeHandlesItem::MouseMoveEvent(const vtkContextMouseEvent& mouse)
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkRangeHandlesItem::MouseEnterEvent(const vtkContextMouseEvent& mouse)
 {
   vtkVector2f vpos = mouse.GetPos();
@@ -282,7 +282,7 @@ bool vtkRangeHandlesItem::MouseEnterEvent(const vtkContextMouseEvent& mouse)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkRangeHandlesItem::MouseLeaveEvent(const vtkContextMouseEvent& vtkNotUsed(mouse))
 {
   if (this->HoveredHandle == vtkRangeHandlesItem::NO_HANDLE)
@@ -301,7 +301,7 @@ bool vtkRangeHandlesItem::MouseLeaveEvent(const vtkContextMouseEvent& vtkNotUsed
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkRangeHandlesItem::MouseDoubleClickEvent(const vtkContextMouseEvent& mouse)
 {
   if (mouse.GetButton() == vtkContextMouseEvent::LEFT_BUTTON)
@@ -314,7 +314,7 @@ bool vtkRangeHandlesItem::MouseDoubleClickEvent(const vtkContextMouseEvent& mous
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkRangeHandlesItem::FindRangeHandle(const vtkVector2f& point, const vtkVector2f& tolerance)
 {
   double pos[2];
@@ -336,7 +336,7 @@ int vtkRangeHandlesItem::FindRangeHandle(const vtkVector2f& point, const vtkVect
   return vtkRangeHandlesItem::NO_HANDLE;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRangeHandlesItem::GetHandlesRange(double range[2])
 {
   this->ColorTransferFunction->GetRange(range);
@@ -346,7 +346,7 @@ void vtkRangeHandlesItem::GetHandlesRange(double range[2])
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRangeHandlesItem::SetActiveHandlePosition(double position)
 {
   if (this->ActiveHandle != vtkRangeHandlesItem::NO_HANDLE)
@@ -388,7 +388,7 @@ void vtkRangeHandlesItem::SetActiveHandlePosition(double position)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkRangeHandlesItem::IsActiveHandleMoved(double tolerance)
 {
   if (this->ActiveHandle == vtkRangeHandlesItem::NO_HANDLE)
@@ -405,7 +405,7 @@ bool vtkRangeHandlesItem::IsActiveHandleMoved(double tolerance)
     position <= bounds[this->ActiveHandle] + tolerance);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRangeHandlesItem::SetCursor(int cursor)
 {
   vtkRenderer* renderer = this->GetScene()->GetRenderer();

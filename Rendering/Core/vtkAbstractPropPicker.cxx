@@ -49,7 +49,7 @@ void vtkAbstractPropPicker::Initialize()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProp* vtkAbstractPropPicker::GetViewProp()
 {
   if (this->Path != nullptr)

@@ -81,7 +81,7 @@ protected:
   std::string FileName;
 };
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 FileStreamReader::FileStreamReader()
   : Open(false)
   , Eof(true)
@@ -91,13 +91,13 @@ FileStreamReader::FileStreamReader()
 {
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 FileStreamReader::~FileStreamReader()
 {
   this->close();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool FileStreamReader::open(const char* fileName)
 {
   if (!this->Open)
@@ -124,7 +124,7 @@ bool FileStreamReader::open(const char* fileName)
   }
   return this->Open;
 }
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int FileStreamReader::get()
 {
   if (!this->is_open() || this->eof())
@@ -150,7 +150,7 @@ int FileStreamReader::get()
   return this->buff[this->Pos++];
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void FileStreamReader::rewind()
 {
   if (this->Open)
@@ -164,7 +164,7 @@ void FileStreamReader::rewind()
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void FileStreamReader::close()
 {
   if (this->Open)
@@ -179,7 +179,7 @@ void FileStreamReader::close()
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool FileStreamReader::operator!() const
 {
   return this->Eof;
@@ -377,11 +377,11 @@ private:
 };
 // ==========================================================================//
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //                         Supporting Functions (begin)
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static int GetCoord(const std::string& theToken)
 {
   if (theToken == "X" || theToken == "x" || theToken == "I" || theToken == "CoordinateX")
@@ -402,7 +402,7 @@ static int GetCoord(const std::string& theToken)
   return -1;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static int GuessCoord(const std::string& theToken)
 {
   int guessVal = GetCoord(theToken);
@@ -420,7 +420,7 @@ static int GuessCoord(const std::string& theToken)
   return guessVal;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static std::string SimplifyWhitespace(const std::string& s)
 {
   int headIndx = 0;
@@ -439,11 +439,11 @@ static std::string SimplifyWhitespace(const std::string& s)
   return s.substr(headIndx, tailIndx - headIndx + 1);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //                         Supporting Functions ( end )
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTecplotReader::vtkTecplotReader()
 {
   this->SelectionObserver = vtkCallbackCommand::New();
@@ -460,7 +460,7 @@ vtkTecplotReader::vtkTecplotReader()
   this->Init();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTecplotReader::~vtkTecplotReader()
 {
   this->Init();
@@ -481,7 +481,7 @@ vtkTecplotReader::~vtkTecplotReader()
   this->SelectionObserver = nullptr;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTecplotReader::Init()
 {
   // do NOT address this->FileName in this function !!!
@@ -495,7 +495,7 @@ void vtkTecplotReader::Init()
   this->Internal->Init();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTecplotReader::SetFileName(const char* fileName)
 {
   if (fileName && strcmp(fileName, "") &&
@@ -511,20 +511,20 @@ void vtkTecplotReader::SetFileName(const char* fileName)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTecplotReader::SelectionModifiedCallback(vtkObject*, unsigned long, void* tpReader, void*)
 {
   static_cast<vtkTecplotReader*>(tpReader)->Modified();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTecplotReader::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet");
   return 1;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTecplotReader::RequestInformation(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -538,7 +538,7 @@ int vtkTecplotReader::RequestInformation(
   return 1;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTecplotReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -554,19 +554,19 @@ int vtkTecplotReader::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkTecplotReader::GetDataTitle()
 {
   return this->DataTitle.c_str();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTecplotReader::GetNumberOfBlocks()
 {
   return int(this->ZoneNames.size());
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkTecplotReader::GetBlockName(int blockIdx)
 {
   if (blockIdx < 0 || blockIdx >= int(this->ZoneNames.size()))
@@ -577,14 +577,14 @@ const char* vtkTecplotReader::GetBlockName(int blockIdx)
   return this->ZoneNames[blockIdx].c_str();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTecplotReader::GetNumberOfDataAttributes()
 {
   return this->NumberOfVariables - (!(!(this->Internal->XIdInList + 1))) -
     (!(!(this->Internal->YIdInList + 1))) - (!(!(this->Internal->ZIdInList + 1)));
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkTecplotReader::GetDataAttributeName(int attrIndx)
 {
   if (attrIndx < 0 && attrIndx >= this->GetNumberOfDataAttributes())
@@ -596,7 +596,7 @@ const char* vtkTecplotReader::GetDataAttributeName(int attrIndx)
     .c_str();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTecplotReader::IsDataAttributeCellBased(int attrIndx)
 {
   int cellBasd = -1;
@@ -610,7 +610,7 @@ int vtkTecplotReader::IsDataAttributeCellBased(int attrIndx)
   return cellBasd;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTecplotReader::IsDataAttributeCellBased(const char* attrName)
 {
   int cellBased = -1;
@@ -633,25 +633,25 @@ int vtkTecplotReader::IsDataAttributeCellBased(const char* attrName)
   return cellBased;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTecplotReader::GetNumberOfDataArrays()
 {
   return this->DataArraySelection->GetNumberOfArrays();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkTecplotReader::GetDataArrayName(int arrayIdx)
 {
   return this->DataArraySelection->GetArrayName(arrayIdx);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTecplotReader::GetDataArrayStatus(const char* arayName)
 {
   return this->DataArraySelection->ArrayIsEnabled(arayName);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTecplotReader::SetDataArrayStatus(const char* arayName, int bChecked)
 {
   vtkDebugMacro("Set cell array \"" << arayName << "\" status to: " << bChecked);
@@ -666,7 +666,7 @@ void vtkTecplotReader::SetDataArrayStatus(const char* arayName, int bChecked)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTecplotReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -678,7 +678,7 @@ void vtkTecplotReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NumberOfVariables: " << this->NumberOfVariables << endl;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTecplotReader::GetArraysFromPointPackingZone(
   int numNodes, vtkPoints* theNodes, vtkPointData* nodeData)
 {
@@ -796,7 +796,7 @@ void vtkTecplotReader::GetArraysFromPointPackingZone(
   zoneData.clear();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTecplotReader::GetArraysFromBlockPackingZone(
   int numNodes, int numCells, vtkPoints* theNodes, vtkPointData* nodeData, vtkCellData* cellData)
 {
@@ -917,7 +917,7 @@ void vtkTecplotReader::GetArraysFromBlockPackingZone(
   attribute[0] = attribute[1] = nullptr;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTecplotReader::GetStructuredGridFromBlockPackingZone(int iDimSize, int jDimSize,
   int kDimSize, int zoneIndx, const char* zoneName, vtkMultiBlockDataSet* multZone)
 {
@@ -967,7 +967,7 @@ void vtkTecplotReader::GetStructuredGridFromBlockPackingZone(int iDimSize, int j
   strcGrid = nullptr;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTecplotReader::GetStructuredGridFromPointPackingZone(int iDimSize, int jDimSize,
   int kDimSize, int zoneIndx, const char* zoneName, vtkMultiBlockDataSet* multZone)
 {
@@ -1061,7 +1061,7 @@ void vtkTecplotReader::GetPolyhedralGridFromBlockPackingZone(int numNodes, int n
   unstruct = nullptr;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTecplotReader::GetUnstructuredGridFromBlockPackingZone(int numNodes, int numCells,
   const char* cellType, int zoneIndx, const char* zoneName, vtkMultiBlockDataSet* multZone)
 {
@@ -1091,7 +1091,7 @@ void vtkTecplotReader::GetUnstructuredGridFromBlockPackingZone(int numNodes, int
   unstruct = nullptr;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTecplotReader::GetUnstructuredGridFromPointPackingZone(int numNodes, int numCells,
   const char* cellType, int zoneIndx, const char* zoneName, vtkMultiBlockDataSet* multZone)
 {
@@ -1142,7 +1142,7 @@ void vtkTecplotReader::GetPolyhedralGridCells(
     nodeCountPerFace.push_back(static_cast<size_t>(atoi(tok.c_str())));
   }
 
-  std::vector<std::vector<vtkIdType> > faces;
+  std::vector<std::vector<vtkIdType>> faces;
   for (vtkIdType i = 0; i < numFaces; ++i)
   {
     const size_t nodeCount = nodeCountPerFace[i];
@@ -1163,7 +1163,7 @@ void vtkTecplotReader::GetPolyhedralGridCells(
     faces.push_back(face);
   }
 
-  std::map<vtkIdType, std::vector<vtkIdType> > polyhedra;
+  std::map<vtkIdType, std::vector<vtkIdType>> polyhedra;
 
   for (vtkIdType i = 0; i < numFaces; ++i)
   {
@@ -1219,7 +1219,7 @@ void vtkTecplotReader::GetPolyhedralGridCells(
 }
 
 void OrderEdges(const std::vector<vtkIdType>& faceEdges,
-  const std::vector<std::pair<vtkIdType, vtkIdType> >& allEdges, vtkIdList* face)
+  const std::vector<std::pair<vtkIdType, vtkIdType>>& allEdges, vtkIdList* face)
 {
   face->Reset();
   if (faceEdges.empty())
@@ -1269,7 +1269,7 @@ void OrderEdges(const std::vector<vtkIdType>& faceEdges,
 void vtkTecplotReader::GetPolygonalGridCells(
   int numFaces, int numEdges, vtkUnstructuredGrid* unstruct) const
 {
-  std::vector<std::pair<vtkIdType, vtkIdType> > edges;
+  std::vector<std::pair<vtkIdType, vtkIdType>> edges;
 
   for (int i = 0; i < numEdges; ++i)
   {
@@ -1289,7 +1289,7 @@ void vtkTecplotReader::GetPolygonalGridCells(
     edges.emplace_back(e1 - 1, e2 - 1); // convert from FORTRAN to C-indexing
   }
 
-  std::map<vtkIdType, std::vector<vtkIdType> > faceEdges;
+  std::map<vtkIdType, std::vector<vtkIdType>> faceEdges;
 
   for (int i = 0; i < numEdges; ++i)
   {
@@ -1334,7 +1334,7 @@ void vtkTecplotReader::GetPolygonalGridCells(
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTecplotReader::GetUnstructuredGridCells(
   int numberCells, const char* cellTypeStr, vtkUnstructuredGrid* unstrctGrid)
 {
@@ -1427,7 +1427,7 @@ void vtkTecplotReader::GetUnstructuredGridCells(
   cellTypeList = nullptr;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTecplotReader::GetDataArraysList()
 {
   if ((this->Internal->Completed == 1) || (this->DataArraySelection->GetNumberOfArrays() > 0) ||
@@ -1608,7 +1608,7 @@ void vtkTecplotReader::GetDataArraysList()
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTecplotReader::ReadFile(vtkMultiBlockDataSet* multZone)
 {
   if ((this->Internal->Completed == 1) || (this->FileName == nullptr) ||

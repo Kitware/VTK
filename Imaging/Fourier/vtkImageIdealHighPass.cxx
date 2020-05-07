@@ -23,13 +23,13 @@
 
 vtkStandardNewMacro(vtkImageIdealHighPass);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageIdealHighPass::vtkImageIdealHighPass()
 {
   this->CutOff[0] = this->CutOff[1] = this->CutOff[2] = VTK_DOUBLE_MAX;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageIdealHighPass::SetXCutOff(double cutOff)
 {
   if (cutOff == this->CutOff[0])
@@ -40,7 +40,7 @@ void vtkImageIdealHighPass::SetXCutOff(double cutOff)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageIdealHighPass::SetYCutOff(double cutOff)
 {
   if (cutOff == this->CutOff[1])
@@ -51,7 +51,7 @@ void vtkImageIdealHighPass::SetYCutOff(double cutOff)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageIdealHighPass::SetZCutOff(double cutOff)
 {
   if (cutOff == this->CutOff[2])
@@ -62,7 +62,7 @@ void vtkImageIdealHighPass::SetZCutOff(double cutOff)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageIdealHighPass::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector),
   vtkImageData*** inData, vtkImageData** outData, int ext[6], int id)

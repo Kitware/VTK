@@ -30,7 +30,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkTextProperty.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestPieChartActor(int argc, char* argv[])
 {
   int numTuples = 6;

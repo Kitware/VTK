@@ -82,7 +82,7 @@ int vtkGraphWeightFilter::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphWeightFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkGraphAlgorithm::PrintSelf(os, indent);

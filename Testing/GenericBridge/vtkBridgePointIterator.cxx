@@ -33,7 +33,7 @@
 
 vtkStandardNewMacro(vtkBridgePointIterator);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Default constructor.
 vtkBridgePointIterator::vtkBridgePointIterator()
@@ -44,7 +44,7 @@ vtkBridgePointIterator::vtkBridgePointIterator()
   this->IteratorOnCell = vtkBridgePointIteratorOnCell::New();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Destructor.
 vtkBridgePointIterator::~vtkBridgePointIterator()
@@ -54,13 +54,13 @@ vtkBridgePointIterator::~vtkBridgePointIterator()
   this->IteratorOnCell->Delete();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBridgePointIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Move iterator to first position if any (loop initialization).
 void vtkBridgePointIterator::Begin()
@@ -71,7 +71,7 @@ void vtkBridgePointIterator::Begin()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Is there no point at iterator position? (exit condition).
 vtkTypeBool vtkBridgePointIterator::IsAtEnd()
@@ -85,7 +85,7 @@ vtkTypeBool vtkBridgePointIterator::IsAtEnd()
   return result;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Move iterator to next position. (loop progression).
 // \pre not_off: !IsAtEnd()
@@ -95,7 +95,7 @@ void vtkBridgePointIterator::Next()
   this->CurrentIterator->Next();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Point at iterator position.
 // \pre not_off: !IsAtEnd()
@@ -110,7 +110,7 @@ double* vtkBridgePointIterator::GetPosition()
   return result;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Point at iterator position.
 // \pre not_off: !IsAtEnd()
@@ -122,7 +122,7 @@ void vtkBridgePointIterator::GetPosition(double x[3])
   this->CurrentIterator->GetPosition(x);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Unique identifier for the point, could be non-contiguous
 // \pre not_off: !IsAtEnd()
@@ -133,7 +133,7 @@ vtkIdType vtkBridgePointIterator::GetId()
   return this->CurrentIterator->GetId();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Used internally by vtkBridgeDataSet.
 // Iterate over points of `ds'.
@@ -146,7 +146,7 @@ void vtkBridgePointIterator::InitWithDataSet(vtkBridgeDataSet* ds)
   this->CurrentIterator = this->IteratorOnDataSet;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Used internally by vtkBridgeDataSet.
 // Iterate over one point of identifier `id' on dataset `ds'.
@@ -161,7 +161,7 @@ void vtkBridgePointIterator::InitWithOnePoint(vtkBridgeDataSet* ds, vtkIdType id
   this->CurrentIterator = this->IteratorOne;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // The iterator will iterate over the point of a cell
 // \pre cell_exists: cell!=0

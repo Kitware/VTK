@@ -31,11 +31,11 @@
 
 vtkCxxSetObjectMacro(vtkImageSliceMapper, Points, vtkPoints);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Return nullptr if no override is supplied.
 vtkObjectFactoryNewMacro(vtkImageSliceMapper);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageSliceMapper::vtkImageSliceMapper()
 {
   this->SliceNumber = 0;
@@ -61,7 +61,7 @@ vtkImageSliceMapper::vtkImageSliceMapper()
   this->SetNumberOfOutputPorts(1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageSliceMapper::~vtkImageSliceMapper()
 {
   if (this->Points)
@@ -70,19 +70,19 @@ vtkImageSliceMapper::~vtkImageSliceMapper()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSliceMapper::ReleaseGraphicsResources(vtkWindow*)
 {
   // see OpenGL subclass for implementation
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSliceMapper::Render(vtkRenderer*, vtkImageSlice*)
 {
   // see OpenGL subclass for implementation
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkImageSliceMapper::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -263,7 +263,7 @@ vtkTypeBool vtkImageSliceMapper::ProcessRequest(
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSliceMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -279,7 +279,7 @@ void vtkImageSliceMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Points: " << this->Points << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkImageSliceMapper::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
@@ -308,7 +308,7 @@ vtkMTimeType vtkImageSliceMapper::GetMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSliceMapper::SetSliceNumber(int i)
 {
   if (i != this->SliceNumber)
@@ -318,27 +318,27 @@ void vtkImageSliceMapper::SetSliceNumber(int i)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageSliceMapper::GetSliceNumber()
 {
   return this->SliceNumber;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageSliceMapper::GetSliceNumberMinValue()
 {
   this->UpdateInformation();
   return this->SliceNumberMinValue;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageSliceMapper::GetSliceNumberMaxValue()
 {
   this->UpdateInformation();
   return this->SliceNumberMaxValue;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSliceMapper::GetIndexBounds(double extent[6])
 {
   if (!this->GetInput())
@@ -374,7 +374,7 @@ void vtkImageSliceMapper::GetIndexBounds(double extent[6])
   extent[5] += borders[2];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkImageSliceMapper::GetBounds()
 {
   if (!this->GetInput())
@@ -428,7 +428,7 @@ double* vtkImageSliceMapper::GetBounds()
   return this->Bounds;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageSliceMapper::GetOrientationFromCamera(double const* propMatrix, vtkCamera* camera)
 {
   double normal[4] = { 0, 0, -1, 0 };
@@ -458,7 +458,7 @@ int vtkImageSliceMapper::GetOrientationFromCamera(double const* propMatrix, vtkC
   return maxIdx + (maxDot < 0.0 ? 3 : 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageSliceMapper::GetSliceFromCamera(double const* propMatrix, vtkCamera* camera)
 {
   int orientation = this->Orientation;
@@ -476,7 +476,7 @@ int vtkImageSliceMapper::GetSliceFromCamera(double const* propMatrix, vtkCamera*
   return vtkMath::Floor(slicepos + (0.5 + 7.62939453125e-06));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSliceMapper::GetSlicePlaneInDataCoords(
   vtkMatrix4x4* vtkNotUsed(propMatrix), double normal[4])
 {
@@ -496,7 +496,7 @@ void vtkImageSliceMapper::GetSlicePlaneInDataCoords(
     scale;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSliceMapper::GetDimensionIndices(int orientation, int& xdim, int& ydim)
 {
   orientation = orientation % 3;

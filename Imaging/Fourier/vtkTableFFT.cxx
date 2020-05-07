@@ -40,7 +40,7 @@ using namespace vtksys;
 //=============================================================================
 vtkStandardNewMacro(vtkTableFFT);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTableFFT::vtkTableFFT() = default;
 
 vtkTableFFT::~vtkTableFFT() = default;
@@ -50,7 +50,7 @@ void vtkTableFFT::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTableFFT::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -94,7 +94,7 @@ int vtkTableFFT::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSmartPointer<vtkDataArray> vtkTableFFT::DoFFT(vtkDataArray* input)
 {
   // Build an image data containing the input data.

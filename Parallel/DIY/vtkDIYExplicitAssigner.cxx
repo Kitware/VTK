@@ -22,7 +22,7 @@
 #include <iterator>
 #include <numeric>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDIYExplicitAssigner::vtkDIYExplicitAssigner(
   diy::mpi::communicator comm, int local_blocks, bool force_power_of_two /*=false*/)
   : diy::StaticAssigner(comm.size(), local_blocks)
@@ -73,7 +73,7 @@ vtkDIYExplicitAssigner::vtkDIYExplicitAssigner(
     force_power_of_two == false || vtkMath::NearestPowerOfTwo(this->nblocks()) == this->nblocks());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDIYExplicitAssigner::rank(int gid) const
 {
   auto iter =
@@ -82,7 +82,7 @@ int vtkDIYExplicitAssigner::rank(int gid) const
   return static_cast<int>(std::distance(this->IScanBlockCounts.begin(), iter));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDIYExplicitAssigner::local_gids(int rank, std::vector<int>& gids) const
 {
   const auto min = rank == 0 ? 0 : this->IScanBlockCounts[rank - 1];

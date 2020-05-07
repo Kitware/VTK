@@ -232,12 +232,12 @@ void PassAttributesInformation(vtkDataSetAttributes* input, vtkDataSetAttributes
 bool Convert(const vtkm::cont::DataSet& vtkmOut, vtkRectilinearGrid* output, vtkDataSet* input)
 {
   using ListCellSetStructured = vtkm::List<vtkm::cont::CellSetStructured<1>,
-    vtkm::cont::CellSetStructured<2>, vtkm::cont::CellSetStructured<3> >;
+    vtkm::cont::CellSetStructured<2>, vtkm::cont::CellSetStructured<3>>;
   auto cellSet = vtkmOut.GetCellSet().ResetCellSetList(ListCellSetStructured{});
 
   using coordType =
     vtkm::cont::ArrayHandleCartesianProduct<vtkm::cont::ArrayHandle<vtkm::FloatDefault>,
-      vtkm::cont::ArrayHandle<vtkm::FloatDefault>, vtkm::cont::ArrayHandle<vtkm::FloatDefault> >;
+      vtkm::cont::ArrayHandle<vtkm::FloatDefault>, vtkm::cont::ArrayHandle<vtkm::FloatDefault>>;
   auto coordsArray = vtkm::cont::Cast<coordType>(vtkmOut.GetCoordinateSystem().GetData());
 
   vtkSmartPointer<vtkDataArray> xArray =
@@ -279,7 +279,7 @@ bool Convert(const vtkm::cont::DataSet& vtkmOut, vtkRectilinearGrid* output, vtk
 bool Convert(const vtkm::cont::DataSet& vtkmOut, vtkStructuredGrid* output, vtkDataSet* input)
 {
   using ListCellSetStructured = vtkm::List<vtkm::cont::CellSetStructured<1>,
-    vtkm::cont::CellSetStructured<2>, vtkm::cont::CellSetStructured<3> >;
+    vtkm::cont::CellSetStructured<2>, vtkm::cont::CellSetStructured<3>>;
   auto cellSet = vtkmOut.GetCellSet().ResetCellSetList(ListCellSetStructured{});
 
   int extents[6];

@@ -24,7 +24,7 @@
 
 vtkStandardNewMacro(vtkImageEuclideanDistance);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This defines the default values for the EDT parameters
 vtkImageEuclideanDistance::vtkImageEuclideanDistance()
 {
@@ -34,7 +34,7 @@ vtkImageEuclideanDistance::vtkImageEuclideanDistance()
   this->Algorithm = VTK_EDT_SAITO;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This extent of the components changes to real and imaginary values.
 int vtkImageEuclideanDistance::IterativeRequestInformation(
   vtkInformation* vtkNotUsed(input), vtkInformation* output)
@@ -43,7 +43,7 @@ int vtkImageEuclideanDistance::IterativeRequestInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method tells the superclass that the whole input array is needed
 // to compute any output region.
 int vtkImageEuclideanDistance::IterativeRequestUpdateExtent(
@@ -55,7 +55,7 @@ int vtkImageEuclideanDistance::IterativeRequestUpdateExtent(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This templated execute method handles any type input, but the output
 // is always doubles.
 template <class TT>
@@ -101,7 +101,7 @@ void vtkImageEuclideanDistanceCopyData(vtkImageEuclideanDistance* self, vtkImage
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This templated execute method handles any type input, but the output
 // is always doubles.
 template <class T>
@@ -171,7 +171,7 @@ void vtkImageEuclideanDistanceInitialize(vtkImageEuclideanDistance* self, vtkIma
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Execute Saito's algorithm.
 //
 // T. Saito and J.I. Toriwaki. New algorithms for Euclidean distance
@@ -388,7 +388,7 @@ static void vtkImageEuclideanDistanceExecuteSaito(
   free(sq);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Execute Saito's algorithm, modified for Cache Efficiency
 //
 static void vtkImageEuclideanDistanceExecuteSaitoCached(
@@ -611,7 +611,7 @@ static void vtkImageEuclideanDistanceExecuteSaitoCached(
   free(temp);
   free(sq);
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageEuclideanDistance::AllocateOutputScalars(
   vtkImageData* outData, int outExt[6], vtkInformation* outInfo)
 {
@@ -619,7 +619,7 @@ void vtkImageEuclideanDistance::AllocateOutputScalars(
   outData->AllocateScalars(outInfo);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method is passed input and output Datas, and executes the
 // EuclideanDistance algorithm to fill the output from the input.
 int vtkImageEuclideanDistance::IterativeRequestData(vtkInformation* vtkNotUsed(request),
@@ -714,7 +714,7 @@ int vtkImageEuclideanDistance::IterativeRequestData(vtkInformation* vtkNotUsed(r
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageEuclideanDistance::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

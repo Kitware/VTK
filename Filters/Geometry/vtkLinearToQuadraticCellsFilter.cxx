@@ -123,14 +123,14 @@ void DegreeElevate(vtkCell* lowerOrderCell, vtkIncrementalPointLocator* pointLoc
 
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLinearToQuadraticCellsFilter::vtkLinearToQuadraticCellsFilter()
 {
   this->Locator = nullptr;
   this->OutputPointsPrecision = DEFAULT_PRECISION;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLinearToQuadraticCellsFilter::~vtkLinearToQuadraticCellsFilter()
 {
   if (this->Locator)
@@ -140,7 +140,7 @@ vtkLinearToQuadraticCellsFilter::~vtkLinearToQuadraticCellsFilter()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify a spatial locator for merging points. By default,
 // an instance of vtkMergePoints is used.
 void vtkLinearToQuadraticCellsFilter::SetLocator(vtkIncrementalPointLocator* locator)
@@ -165,7 +165,7 @@ void vtkLinearToQuadraticCellsFilter::SetLocator(vtkIncrementalPointLocator* loc
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLinearToQuadraticCellsFilter::CreateDefaultLocator()
 {
   if (this->Locator == nullptr)
@@ -174,7 +174,7 @@ void vtkLinearToQuadraticCellsFilter::CreateDefaultLocator()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Overload standard modified time function.
 vtkMTimeType vtkLinearToQuadraticCellsFilter::GetMTime()
 {
@@ -190,7 +190,7 @@ vtkMTimeType vtkLinearToQuadraticCellsFilter::GetMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkLinearToQuadraticCellsFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -261,7 +261,7 @@ int vtkLinearToQuadraticCellsFilter::RequestData(vtkInformation* vtkNotUsed(requ
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLinearToQuadraticCellsFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

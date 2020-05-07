@@ -39,27 +39,27 @@ vtkStandardNewMacro(vtkDistributedPointCloudFilter);
 vtkSetObjectImplementationMacro(
   vtkDistributedPointCloudFilter, Controller, vtkMultiProcessController);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDistributedPointCloudFilter::vtkDistributedPointCloudFilter()
 {
   this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDistributedPointCloudFilter::~vtkDistributedPointCloudFilter()
 {
   this->SetController(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDistributedPointCloudFilter::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDistributedPointCloudFilter::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -107,7 +107,7 @@ int vtkDistributedPointCloudFilter::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkDistributedPointCloudFilter::InitializeKdTree(std::vector<vtkMPIController*>& kdTreeRounds)
 {
   this->Controller->Register(this);
@@ -136,7 +136,7 @@ bool vtkDistributedPointCloudFilter::InitializeKdTree(std::vector<vtkMPIControll
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkDistributedPointCloudFilter::OptimizeBoundingBox(
   std::vector<vtkMPIController*>& kdTreeRounds, vtkPointSet* pointCloud, double regionBounds[6])
 {
@@ -393,7 +393,7 @@ bool vtkDistributedPointCloudFilter::OptimizeBoundingBox(
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistributedPointCloudFilter::GetPointsInsideBounds(vtkMPIController* controller,
   vtkPointSet* input, vtkPointSet* output, const double outterBounds[6])
 {
@@ -432,7 +432,7 @@ void vtkDistributedPointCloudFilter::GetPointsInsideBounds(vtkMPIController* con
 
   // array of point ids
   vtkNew<vtkIdTypeArray> idArray;
-  std::vector<vtkSmartPointer<vtkCharArray> > dataToSend;
+  std::vector<vtkSmartPointer<vtkCharArray>> dataToSend;
   dataToSend.resize(np);
 
   // we will need a locator to search points inside each processor assigned regions
@@ -482,7 +482,7 @@ void vtkDistributedPointCloudFilter::GetPointsInsideBounds(vtkMPIController* con
     messagesSize[partner] = dataToSend[partner]->GetNumberOfValues();
   }
 
-  std::vector<vtkSmartPointer<vtkCharArray> > dataToReceive(np);
+  std::vector<vtkSmartPointer<vtkCharArray>> dataToReceive(np);
   std::vector<vtkMPICommunicator::Request> receiveRequests(np);
 
   // Calculate size of messages to receive
@@ -606,7 +606,7 @@ void vtkDistributedPointCloudFilter::GetPointsInsideBounds(vtkMPIController* con
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistributedPointCloudFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

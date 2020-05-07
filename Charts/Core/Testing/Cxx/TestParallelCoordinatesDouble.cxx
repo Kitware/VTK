@@ -24,7 +24,7 @@
 #include "vtkRenderer.h"
 #include "vtkTable.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestParallelCoordinatesDouble(int, char*[])
 {
   // Set up a 2D scene, add an XY chart to it

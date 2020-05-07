@@ -20,26 +20,26 @@
 
 vtkStandardNewMacro(vtkBoxMuellerRandomSequence);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBoxMuellerRandomSequence::vtkBoxMuellerRandomSequence()
 {
   this->UniformSequence = vtkMinimalStandardRandomSequence::New();
   this->Value = 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBoxMuellerRandomSequence::~vtkBoxMuellerRandomSequence()
 {
   this->UniformSequence->Delete();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkBoxMuellerRandomSequence::GetValue()
 {
   return this->Value;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxMuellerRandomSequence::Next()
 {
   this->UniformSequence->Next();
@@ -64,14 +64,14 @@ void vtkBoxMuellerRandomSequence::Next()
   this->Value = sqrt(-2.0 * log(x)) * cos(2.0 * vtkMath::Pi() * y);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRandomSequence* vtkBoxMuellerRandomSequence::GetUniformSequence()
 {
   assert("post: result_exists" && this->UniformSequence != nullptr);
   return this->UniformSequence;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Set the uniformly distributed sequence of random numbers.
 // Default is a .
@@ -89,7 +89,7 @@ void vtkBoxMuellerRandomSequence::SetUniformSequence(vtkRandomSequence* uniformS
   assert("post: assigned" && uniformSequence == this->GetUniformSequence());
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxMuellerRandomSequence::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

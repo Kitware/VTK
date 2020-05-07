@@ -27,7 +27,7 @@
 
 vtkStandardNewMacro(vtkTreeHeatmapItem);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTreeHeatmapItem::vtkTreeHeatmapItem()
 {
   this->Interactive = true;
@@ -52,10 +52,10 @@ vtkTreeHeatmapItem::vtkTreeHeatmapItem()
   this->ColumnDendrogram->SetLeafSpacing(this->Heatmap->GetCellWidth());
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTreeHeatmapItem::~vtkTreeHeatmapItem() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeHeatmapItem::SetTree(vtkTree* tree)
 {
   this->Dendrogram->SetTree(tree);
@@ -77,7 +77,7 @@ void vtkTreeHeatmapItem::SetTree(vtkTree* tree)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeHeatmapItem::SetTable(vtkTable* table)
 {
   this->Heatmap->SetTable(table);
@@ -146,7 +146,7 @@ void vtkTreeHeatmapItem::SetTable(vtkTable* table)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeHeatmapItem::SetColumnTree(vtkTree* tree)
 {
   this->ColumnDendrogram->SetTree(tree);
@@ -168,49 +168,49 @@ void vtkTreeHeatmapItem::SetColumnTree(vtkTree* tree)
   this->ColumnDendrogram->SetVisible(true);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTree* vtkTreeHeatmapItem::GetColumnTree()
 {
   return this->ColumnDendrogram->GetTree();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDendrogramItem* vtkTreeHeatmapItem::GetDendrogram()
 {
   return this->Dendrogram;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeHeatmapItem::SetDendrogram(vtkDendrogramItem* dendrogram)
 {
   this->Dendrogram = dendrogram;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHeatmapItem* vtkTreeHeatmapItem::GetHeatmap()
 {
   return this->Heatmap;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeHeatmapItem::SetHeatmap(vtkHeatmapItem* heatmap)
 {
   this->Heatmap = heatmap;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTree* vtkTreeHeatmapItem::GetTree()
 {
   return this->Dendrogram->GetTree();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTable* vtkTreeHeatmapItem::GetTable()
 {
   return this->Heatmap->GetTable();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeHeatmapItem::ReorderTable()
 {
   // make a copy of our table.
@@ -276,7 +276,7 @@ void vtkTreeHeatmapItem::ReorderTable()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeHeatmapItem::ReverseTableRows()
 {
   // make a copy of our table and then empty out the original.
@@ -294,7 +294,7 @@ void vtkTreeHeatmapItem::ReverseTableRows()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeHeatmapItem::ReverseTableColumns()
 {
   // make a copy of our table and then empty out the original.
@@ -312,7 +312,7 @@ void vtkTreeHeatmapItem::ReverseTableColumns()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkTreeHeatmapItem::Paint(vtkContext2D* painter)
 {
   this->Dendrogram->Paint(painter);
@@ -393,7 +393,7 @@ bool vtkTreeHeatmapItem::Paint(vtkContext2D* painter)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkTreeHeatmapItem::MouseDoubleClickEvent(const vtkContextMouseEvent& event)
 {
   bool treeChanged = this->Dendrogram->MouseDoubleClickEvent(event);
@@ -414,7 +414,7 @@ bool vtkTreeHeatmapItem::MouseDoubleClickEvent(const vtkContextMouseEvent& event
   return treeChanged;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeHeatmapItem::CollapseHeatmapRows()
 {
   vtkBitArray* collapsedRowsArray =
@@ -445,7 +445,7 @@ void vtkTreeHeatmapItem::CollapseHeatmapRows()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeHeatmapItem::CollapseHeatmapColumns()
 {
   vtkBitArray* collapsedColumnsArray =
@@ -471,7 +471,7 @@ void vtkTreeHeatmapItem::CollapseHeatmapColumns()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeHeatmapItem::SetOrientation(int orientation)
 {
   int previousOrientation = this->Orientation;
@@ -507,13 +507,13 @@ void vtkTreeHeatmapItem::SetOrientation(int orientation)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTreeHeatmapItem::GetOrientation()
 {
   return this->Orientation;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeHeatmapItem::GetBounds(double bounds[4])
 {
   double treeBounds[4] = { VTK_DOUBLE_MAX, VTK_DOUBLE_MIN, VTK_DOUBLE_MAX, VTK_DOUBLE_MIN };
@@ -547,7 +547,7 @@ void vtkTreeHeatmapItem::GetBounds(double bounds[4])
   bounds[3] = yMax;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeHeatmapItem::GetCenter(double center[2])
 {
   double bounds[4];
@@ -557,7 +557,7 @@ void vtkTreeHeatmapItem::GetCenter(double center[2])
   center[1] = bounds[2] + (bounds[3] - bounds[2]) / 2.0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeHeatmapItem::GetSize(double size[2])
 {
   double bounds[4];
@@ -567,39 +567,39 @@ void vtkTreeHeatmapItem::GetSize(double size[2])
   size[1] = fabs(bounds[3] - bounds[2]);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeHeatmapItem::SetTreeColorArray(const char* arrayName)
 {
   this->Dendrogram->SetColorArray(arrayName);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeHeatmapItem::CollapseToNumberOfLeafNodes(unsigned int n)
 {
   this->Dendrogram->CollapseToNumberOfLeafNodes(n);
   this->CollapseHeatmapRows();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 float vtkTreeHeatmapItem::GetTreeLineWidth()
 {
   return this->Dendrogram->GetLineWidth();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeHeatmapItem::SetTreeLineWidth(float width)
 {
   this->Dendrogram->SetLineWidth(width);
   this->ColumnDendrogram->SetLineWidth(width);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTree* vtkTreeHeatmapItem::GetPrunedTree()
 {
   return this->Dendrogram->GetPrunedTree();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkTreeHeatmapItem::Hit(const vtkContextMouseEvent& vtkNotUsed(mouse))
 {
   // If we are interactive, we want to catch anything that propagates to the
@@ -607,7 +607,7 @@ bool vtkTreeHeatmapItem::Hit(const vtkContextMouseEvent& vtkNotUsed(mouse))
   return this->Interactive;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeHeatmapItem::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

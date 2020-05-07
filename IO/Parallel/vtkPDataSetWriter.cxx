@@ -31,7 +31,7 @@ vtkStandardNewMacro(vtkPDataSetWriter);
 
 vtkCxxSetObjectMacro(vtkPDataSetWriter, Controller, vtkMultiProcessController);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPDataSetWriter::vtkPDataSetWriter()
 {
   this->StartPiece = 0;
@@ -47,14 +47,14 @@ vtkPDataSetWriter::vtkPDataSetWriter()
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPDataSetWriter::~vtkPDataSetWriter()
 {
   this->SetFilePattern(nullptr);
   this->SetController(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPDataSetWriter::SetNumberOfPieces(int num)
 {
   if (num == this->NumberOfPieces)
@@ -70,7 +70,7 @@ void vtkPDataSetWriter::SetNumberOfPieces(int num)
   this->EndPiece = num - 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPDataSetWriter::Write()
 {
   int i;
@@ -284,7 +284,7 @@ int vtkPDataSetWriter::Write()
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPDataSetWriter::WriteUnstructuredMetaData(
   vtkDataSet* input, char* root, char* str, size_t strSize, ostream* fptr)
 {
@@ -309,7 +309,7 @@ int vtkPDataSetWriter::WriteUnstructuredMetaData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPDataSetWriter::WriteImageMetaData(
   vtkImageData* input, char* root, char* str, size_t strSize, ostream* fptr)
 {
@@ -419,7 +419,7 @@ int vtkPDataSetWriter::WriteImageMetaData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPDataSetWriter::WriteRectilinearGridMetaData(
   vtkRectilinearGrid* input, char* root, char* str, size_t strSize, ostream* fptr)
 {
@@ -454,7 +454,7 @@ int vtkPDataSetWriter::WriteRectilinearGridMetaData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPDataSetWriter::WriteStructuredGridMetaData(
   vtkStructuredGrid* input, char* root, char* str, size_t strSize, ostream* fptr)
 {
@@ -489,7 +489,7 @@ int vtkPDataSetWriter::WriteStructuredGridMetaData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Open a vtk data file. Returns nullptr if error.
 ostream* vtkPDataSetWriter::OpenFile()
 {
@@ -563,7 +563,7 @@ void vtkPDataSetWriter::DeleteFiles()
   remove(this->FileName);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPDataSetWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

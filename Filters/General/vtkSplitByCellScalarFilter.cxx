@@ -34,7 +34,7 @@
 
 vtkStandardNewMacro(vtkSplitByCellScalarFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSplitByCellScalarFilter::vtkSplitByCellScalarFilter()
 {
   this->PassAllPoints = true;
@@ -43,10 +43,10 @@ vtkSplitByCellScalarFilter::vtkSplitByCellScalarFilter()
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, vtkDataSetAttributes::SCALARS);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSplitByCellScalarFilter::~vtkSplitByCellScalarFilter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSplitByCellScalarFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -127,7 +127,7 @@ int vtkSplitByCellScalarFilter::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   vtkSmartPointer<vtkIdList> newCellPts = vtkSmartPointer<vtkIdList>::New();
-  std::vector<std::map<vtkIdType, vtkIdType> > pointMaps(nbBlocks);
+  std::vector<std::map<vtkIdType, vtkIdType>> pointMaps(nbBlocks);
 
   int abortExecute = this->GetAbortExecute();
   vtkIdType progressInterval = nbCells / 100;
@@ -223,14 +223,14 @@ int vtkSplitByCellScalarFilter::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSplitByCellScalarFilter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSplitByCellScalarFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

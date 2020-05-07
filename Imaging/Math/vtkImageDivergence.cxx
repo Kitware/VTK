@@ -31,7 +31,7 @@ vtkImageDivergence::vtkImageDivergence()
   this->SetNumberOfOutputPorts(1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method tells the superclass that the first axis will collapse.
 int vtkImageDivergence::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
@@ -40,7 +40,7 @@ int vtkImageDivergence::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Just clip the request.  The subclass may need to overwrite this method.
 int vtkImageDivergence::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -100,7 +100,7 @@ int vtkImageDivergence::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This execute method handles boundaries.
 // it handles boundaries. Pixels are just replicated to get values
 // out of extent.
@@ -189,7 +189,7 @@ void vtkImageDivergenceExecute(vtkImageDivergence* self, vtkImageData* inData, T
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method contains a switch statement that calls the correct
 // templated function for the input data type.  The output data
 // must match input type.  This method does handle boundary conditions.

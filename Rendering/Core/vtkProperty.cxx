@@ -29,7 +29,7 @@
 
 vtkCxxSetObjectMacro(vtkProperty, Information, vtkInformation);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Return nullptr if no override is supplied.
 vtkObjectFactoryNewMacro(vtkProperty);
 
@@ -103,7 +103,7 @@ vtkProperty::vtkProperty()
   this->Information->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProperty::~vtkProperty()
 {
   this->RemoveAllTextures();
@@ -112,7 +112,7 @@ vtkProperty::~vtkProperty()
   this->SetInformation(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Assign one property to another.
 void vtkProperty::DeepCopy(vtkProperty* p)
 {
@@ -154,7 +154,7 @@ void vtkProperty::DeepCopy(vtkProperty* p)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProperty::SetColor(double r, double g, double b)
 {
   double newColor[3] = { r, g, b };
@@ -183,13 +183,13 @@ void vtkProperty::SetColor(double r, double g, double b)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProperty::SetColor(double a[3])
 {
   this->SetColor(a[0], a[1], a[2]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProperty::ComputeCompositeColor(double result[3], double ambient,
   const double ambient_color[3], double diffuse, const double diffuse_color[3], double specular,
   const double specular_color[3])
@@ -208,7 +208,7 @@ void vtkProperty::ComputeCompositeColor(double result[3], double ambient,
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Return composite color of object (ambient + diffuse + specular). Return value
 // is a pointer to rgb values.
 double* vtkProperty::GetColor()
@@ -218,7 +218,7 @@ double* vtkProperty::GetColor()
   return this->Color;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Copy composite color of object (ambient + diffuse + specular) into array
 // provided.
 void vtkProperty::GetColor(double rgb[3])
@@ -229,7 +229,7 @@ void vtkProperty::GetColor(double rgb[3])
   rgb[2] = this->Color[2];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProperty::GetColor(double& r, double& g, double& b)
 {
   this->GetColor();
@@ -238,7 +238,7 @@ void vtkProperty::GetColor(double& r, double& g, double& b)
   b = this->Color[2];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProperty::SetTexture(const char* name, vtkTexture* tex)
 {
   if (tex == nullptr)
@@ -277,7 +277,7 @@ void vtkProperty::SetTexture(const char* name, vtkTexture* tex)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTexture* vtkProperty::GetTexture(const char* name)
 {
   auto iter = this->Textures.find(std::string(name));
@@ -289,13 +289,13 @@ vtkTexture* vtkProperty::GetTexture(const char* name)
   return iter->second;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkProperty::GetNumberOfTextures()
 {
   return static_cast<int>(this->Textures.size());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProperty::RemoveTexture(const char* name)
 {
   auto iter = this->Textures.find(std::string(name));
@@ -307,7 +307,7 @@ void vtkProperty::RemoveTexture(const char* name)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProperty::RemoveAllTextures()
 {
   while (!this->Textures.empty())
@@ -319,7 +319,7 @@ void vtkProperty::RemoveAllTextures()
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProperty::Render(vtkActor*, vtkRenderer* renderer)
 {
   // subclass would have renderer the property already.
@@ -332,7 +332,7 @@ void vtkProperty::Render(vtkActor*, vtkRenderer* renderer)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProperty::PostRender(vtkActor*, vtkRenderer* renderer)
 {
   if (renderer->GetSelector())
@@ -342,23 +342,23 @@ void vtkProperty::PostRender(vtkActor*, vtkRenderer* renderer)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProperty::AddShaderVariable(const char*, int, int*) {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProperty::AddShaderVariable(const char*, int, float*) {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProperty::AddShaderVariable(const char*, int, double*) {}
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProperty::ReleaseGraphicsResources(vtkWindow*)
 {
   // vtkOpenGLRenderer releases texture resources, so we don't need to release
   // them here.
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProperty::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

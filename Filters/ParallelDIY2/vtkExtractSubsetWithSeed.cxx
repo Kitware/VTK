@@ -75,13 +75,13 @@ struct BlockT
 {
   vtkSmartPointer<vtkStructuredGrid> Input;
   vtkNew<vtkStaticCellLocator> CellLocator;
-  std::set<vtkVector<int, 6> > Regions;
+  std::set<vtkVector<int, 6>> Regions;
 
   // used to debugging, empty otherwise.
-  std::vector<vtkSmartPointer<vtkDataSet> > Seeds;
+  std::vector<vtkSmartPointer<vtkDataSet>> Seeds;
 
   // these are generated in GenerateExtracts.
-  std::vector<vtkSmartPointer<vtkDataSet> > Extracts;
+  std::vector<vtkSmartPointer<vtkDataSet>> Extracts;
 
   void GenerateExtracts();
 
@@ -336,7 +336,7 @@ vtkPartitionedDataSet* vtkSafeGet(V& vec, SizeT off)
 }
 
 void GenerateOutput(vtkMultiBlockDataSet* input, vtkMultiBlockDataSet* output,
-  const std::vector<vtkSmartPointer<vtkPartitionedDataSet> >& parts, unsigned int& flat_index)
+  const std::vector<vtkSmartPointer<vtkPartitionedDataSet>>& parts, unsigned int& flat_index)
 {
   auto max = input->GetNumberOfBlocks();
   output->SetNumberOfBlocks(max);
@@ -393,19 +393,19 @@ void GenerateOutput(vtkMultiBlockDataSet* input, vtkMultiBlockDataSet* output,
 
 vtkStandardNewMacro(vtkExtractSubsetWithSeed);
 vtkCxxSetObjectMacro(vtkExtractSubsetWithSeed, Controller, vtkMultiProcessController);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractSubsetWithSeed::vtkExtractSubsetWithSeed()
 {
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractSubsetWithSeed::~vtkExtractSubsetWithSeed()
 {
   this->SetController(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractSubsetWithSeed::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -437,7 +437,7 @@ void vtkExtractSubsetWithSeed::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSubsetWithSeed::RequestDataObject(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -468,7 +468,7 @@ int vtkExtractSubsetWithSeed::RequestDataObject(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSubsetWithSeed::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -522,7 +522,7 @@ int vtkExtractSubsetWithSeed::RequestData(
 
   // exchange bounding boxes to determine neighbours.
   vtkLogStartScope(TRACE, "populate block neighbours");
-  std::map<int, std::vector<int> > neighbors;
+  std::map<int, std::vector<int>> neighbors;
   diy::all_to_all(master, assigner, [&neighbors](BlockT* b, const diy::ReduceProxy& rp) {
     vtkBoundingBox bbox;
     if (b->Input)
@@ -740,7 +740,7 @@ int vtkExtractSubsetWithSeed::RequestData(
     std::vector<size_t> global_counts(global_num_counts);
     diy::mpi::all_reduce(comm, counts, global_counts, diy::mpi::maximum<size_t>());
 
-    std::vector<vtkSmartPointer<vtkPartitionedDataSet> > parts(global_num_counts);
+    std::vector<vtkSmartPointer<vtkPartitionedDataSet>> parts(global_num_counts);
     lid = 0;
     citer->SkipEmptyNodesOff();
     for (citer->InitTraversal(); !citer->IsDoneWithTraversal(); citer->GoToNextItem())
@@ -792,7 +792,7 @@ int vtkExtractSubsetWithSeed::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSubsetWithSeed::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet");
@@ -802,7 +802,7 @@ int vtkExtractSubsetWithSeed::FillInputPortInformation(int, vtkInformation* info
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSubsetWithSeed::RequestInformation(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {

@@ -31,7 +31,7 @@
 vtkStandardNewMacro(vtkSplitColumnComponents);
 vtkInformationKeyMacro(vtkSplitColumnComponents, ORIGINAL_ARRAY_NAME, String);
 vtkInformationKeyMacro(vtkSplitColumnComponents, ORIGINAL_COMPONENT_NUMBER, Integer);
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSplitColumnComponents::vtkSplitColumnComponents()
   : CalculateMagnitudes(true)
   , NamingMode(vtkSplitColumnComponents::NUMBERS_WITH_PARENS)
@@ -40,10 +40,10 @@ vtkSplitColumnComponents::vtkSplitColumnComponents()
   this->SetNumberOfOutputPorts(1);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSplitColumnComponents::~vtkSplitColumnComponents() = default;
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Templated function in an anonymous namespace to copy the data from the
 // specified component in one column to a single component column
 namespace
@@ -74,7 +74,7 @@ void CalculateMagnitude(T* source, T* destination, int components, unsigned int 
 
 } // End of anonymous namespace
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSplitColumnComponents::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -158,7 +158,7 @@ int vtkSplitColumnComponents::RequestData(
 
 namespace
 {
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::string vtkDefaultComponentName(int componentNumber, int componentCount)
 {
   if (componentCount <= 1)
@@ -198,7 +198,7 @@ std::string vtkGetComponentName(vtkAbstractArray* array, int component_no)
 }
 };
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::string vtkSplitColumnComponents::GetComponentLabel(vtkAbstractArray* array, int component_no)
 {
   std::ostringstream stream;
@@ -240,7 +240,7 @@ std::string vtkSplitColumnComponents::GetComponentLabel(vtkAbstractArray* array,
   return stream.str();
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSplitColumnComponents::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

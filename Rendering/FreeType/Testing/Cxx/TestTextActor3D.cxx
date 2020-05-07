@@ -53,7 +53,7 @@ void setupTextActor3D(vtkTextActor3D* actor, vtkPolyData* anchor)
 }
 } // end namespace vtkTestTextActor3D
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestTextActor3D(int, char*[])
 {
   using namespace vtkTestTextActor3D;

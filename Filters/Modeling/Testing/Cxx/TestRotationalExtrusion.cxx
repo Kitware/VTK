@@ -28,7 +28,7 @@
 #include "vtkRotationalExtrusionFilter.h"
 #include "vtkTestUtilities.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestRotationalExtrusion(int argc, char* argv[])
 {
   // Create a line source

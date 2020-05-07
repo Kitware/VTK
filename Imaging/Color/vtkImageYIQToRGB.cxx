@@ -21,7 +21,7 @@
 
 vtkStandardNewMacro(vtkImageYIQToRGB);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageYIQToRGB::vtkImageYIQToRGB()
 {
   this->Maximum = 255.0;
@@ -29,7 +29,7 @@ vtkImageYIQToRGB::vtkImageYIQToRGB()
   this->SetNumberOfOutputPorts(1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 template <class T>
 void vtkImageYIQToRGBExecute(
@@ -105,7 +105,7 @@ void vtkImageYIQToRGBExecute(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageYIQToRGB::ThreadedExecute(
   vtkImageData* inData, vtkImageData* outData, int outExt[6], int id)
 {

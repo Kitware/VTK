@@ -42,7 +42,7 @@ double decodeMultiplier(short multiplier)
 }
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSegYReaderInternal::vtkSegYReaderInternal()
   : SampleInterval(0)
   , FormatCode(0)
@@ -53,7 +53,7 @@ vtkSegYReaderInternal::vtkSegYReaderInternal()
   this->TraceReader = new vtkSegYTraceReader();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSegYReaderInternal::~vtkSegYReaderInternal()
 {
   delete this->BinaryHeaderBytesPos;
@@ -64,19 +64,19 @@ vtkSegYReaderInternal::~vtkSegYReaderInternal()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSegYReaderInternal::SetXYCoordBytePositions(int x, int y)
 {
   this->TraceReader->SetXYCoordBytePositions(x, y);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSegYReaderInternal::SetVerticalCRS(int v)
 {
   this->VerticalCRS = v > 0 ? 1 : 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSegYReaderInternal::LoadTraces(int* extent)
 {
   std::streamoff traceStartPos = FIRST_TRACE_START_POS;
@@ -102,7 +102,7 @@ void vtkSegYReaderInternal::LoadTraces(int* extent)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkSegYReaderInternal::ReadHeader()
 {
   this->SampleInterval = vtkSegYIOUtils::Instance()->readShortInteger(
@@ -114,7 +114,7 @@ bool vtkSegYReaderInternal::ReadHeader()
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkSegYReaderInternal::Is3DComputeParameters(
   int* extent, double origin[3], double spacing[3][3], int* spacingSign, bool force2D)
 {
@@ -150,7 +150,7 @@ bool vtkSegYReaderInternal::Is3DComputeParameters(
   // look at all the traces and compute the set of inline
   // and crossline indicies
   std::set<int> crossLines;
-  std::map<int, std::array<double, 3> > crossCoordinates;
+  std::map<int, std::array<double, 3>> crossCoordinates;
   std::set<int> inLines;
   int basisPointCount = 0;
   double basisCoords[3][3];
@@ -294,7 +294,7 @@ bool vtkSegYReaderInternal::Is3DComputeParameters(
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSegYReaderInternal::ExportData(
   vtkImageData* imageData, int* extent, double origin[3], double spacing[3][3], int* spacingSign)
 {
@@ -327,7 +327,7 @@ void vtkSegYReaderInternal::ExportData(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSegYReaderInternal::ExportData(
   vtkStructuredGrid* grid, int* extent, double origin[3], double spacing[3][3])
 {

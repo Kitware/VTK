@@ -23,10 +23,10 @@
 
 vtkStandardNewMacro(vtkMPI4PyCommunicator);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMPI4PyCommunicator::vtkMPI4PyCommunicator() {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 PyObject* vtkMPI4PyCommunicator::ConvertToPython(vtkMPICommunicator* comm)
 {
   // Import mpi4py if it does not exist.
@@ -46,7 +46,7 @@ PyObject* vtkMPI4PyCommunicator::ConvertToPython(vtkMPICommunicator* comm)
   return PyMPIComm_New(*comm->GetMPIComm()->GetHandle());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMPICommunicator* vtkMPI4PyCommunicator::ConvertToVTK(PyObject* comm)
 {
   // Import mpi4py if it does not exist.
@@ -75,7 +75,7 @@ vtkMPICommunicator* vtkMPI4PyCommunicator::ConvertToVTK(PyObject* comm)
   return vtkComm;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMPI4PyCommunicator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -33,7 +33,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkTextProperty.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestCubeAxesWithXLines(int argc, char* argv[])
 {
   vtkNew<vtkBYUReader> fohe;

@@ -3,7 +3,7 @@
 #include "vtkOverlappingAMR.h"
 #include "vtkUniformGrid.h"
 #include <cassert>
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 namespace
 {
 bool Inside(double q[3], double gbounds[6])

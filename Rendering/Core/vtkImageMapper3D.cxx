@@ -34,7 +34,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTemplateAliasMacro.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageMapper3D::vtkImageMapper3D()
 {
   // Default color conversion
@@ -78,7 +78,7 @@ vtkImageMapper3D::vtkImageMapper3D()
   this->DataWholeExtent[5] = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageMapper3D::~vtkImageMapper3D()
 {
   if (this->DefaultLookupTable)
@@ -99,13 +99,13 @@ vtkImageMapper3D::~vtkImageMapper3D()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageMapper3D::SetInputData(vtkImageData* input)
 {
   this->SetInputDataInternal(0, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageData* vtkImageMapper3D::GetInput()
 {
   if (this->GetNumberOfInputConnections(0) < 1)
@@ -115,19 +115,19 @@ vtkImageData* vtkImageMapper3D::GetInput()
   return vtkImageData::SafeDownCast(this->GetExecutive()->GetInputData(0, 0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageMapper3D::ReleaseGraphicsResources(vtkWindow*)
 {
   // see subclass for implementation
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageMapper3D::Render(vtkRenderer*, vtkImageSlice*)
 {
   // see subclass for implementation
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkImageMapper3D::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -152,7 +152,7 @@ vtkTypeBool vtkImageMapper3D::ProcessRequest(
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageMapper3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -166,7 +166,7 @@ void vtkImageMapper3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Streaming: " << (this->Streaming ? "On\n" : "Off\n");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject* vtkImageMapper3D::GetDataObjectInput()
 {
   if (this->GetNumberOfInputConnections(0) < 1)
@@ -176,7 +176,7 @@ vtkDataObject* vtkImageMapper3D::GetDataObjectInput()
   return this->GetInputDataObject(0, 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataSet* vtkImageMapper3D::GetDataSetInput()
 {
   if (this->GetNumberOfInputConnections(0) < 1)
@@ -186,21 +186,21 @@ vtkDataSet* vtkImageMapper3D::GetDataSetInput()
   return vtkDataSet::SafeDownCast(this->GetInputDataObject(0, 0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageMapper3D::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageMapper3D::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageData");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static vtkRenderer* vtkImageMapper3DFindRenderer(vtkProp* prop, int& count)
 {
   vtkRenderer* ren = nullptr;
@@ -223,7 +223,7 @@ static vtkRenderer* vtkImageMapper3DFindRenderer(vtkProp* prop, int& count)
   return ren;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static void vtkImageMapper3DComputeMatrix(vtkProp* prop, double mat[16])
 {
   vtkMatrix4x4* propmat = prop->GetMatrix();
@@ -245,7 +245,7 @@ static void vtkImageMapper3DComputeMatrix(vtkProp* prop, double mat[16])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRenderer* vtkImageMapper3D::GetCurrentRenderer()
 {
   vtkImageSlice* prop = this->CurrentProp;
@@ -274,7 +274,7 @@ vtkRenderer* vtkImageMapper3D::GetCurrentRenderer()
   return ren;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMatrix4x4* vtkImageMapper3D::GetDataToWorldMatrix()
 {
   vtkProp3D* prop = this->CurrentProp;
@@ -296,7 +296,7 @@ vtkMatrix4x4* vtkImageMapper3D::GetDataToWorldMatrix()
   return this->DataToWorldMatrix;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Convert char data without changing format
 static void vtkImageMapperCopy(const unsigned char* inPtr, unsigned char* outPtr, int ncols,
   int nrows, int numComp, vtkIdType inIncX, vtkIdType inIncY, vtkIdType outIncY)
@@ -366,7 +366,7 @@ static void vtkImageMapperCopy(const unsigned char* inPtr, unsigned char* outPtr
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Convert char data to RGBA
 static void vtkImageMapperConvertToRGBA(const unsigned char* inPtr, unsigned char* outPtr,
   int ncols, int nrows, int numComp, vtkIdType inIncX, vtkIdType inIncY, vtkIdType outIncY)
@@ -447,7 +447,7 @@ static void vtkImageMapperConvertToRGBA(const unsigned char* inPtr, unsigned cha
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Convert data to unsigned char
 
 template <class F>
@@ -565,7 +565,7 @@ void vtkImageMapperShiftScale(const T* inPtr, unsigned char* outPtr, int ncols, 
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static void vtkImageMapperConvertImageScalarsToRGBA(void* inPtr, unsigned char* outPtr, int ncols,
   int nrows, int numComp, vtkIdType inIncX, vtkIdType inIncY, vtkIdType outIncY, int scalarType,
   double scalarRange[2])
@@ -601,7 +601,7 @@ static void vtkImageMapperConvertImageScalarsToRGBA(void* inPtr, unsigned char* 
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T>
 void vtkImageMapperMakeContiguous(
   const T* inPtr, T* outPtr, int ncols, int numComp, vtkIdType inIncX)
@@ -701,7 +701,7 @@ static void vtkImageMapperApplyLookupTableToImageScalars(void* inPtr, unsigned c
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 struct vtkImageMapperThreadStruct
 {
   void* InputPtr;
@@ -764,7 +764,7 @@ static VTK_THREAD_RETURN_TYPE vtkImageMapperMapColors(void* arg)
   return VTK_THREAD_RETURN_VALUE;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Given an image and an extent that describes a single slice, this method
 // will return a contiguous block of unsigned char data that can be loaded
 // into a texture.
@@ -925,7 +925,7 @@ unsigned char* vtkImageMapper3D::MakeTextureData(vtkImageProperty* property, vtk
   return outPtr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Compute the coords and tcoords for the image
 void vtkImageMapper3D::MakeTextureGeometry(
   const int extent[6], double coords[12], double tcoords[8])
@@ -983,7 +983,7 @@ void vtkImageMapper3D::MakeTextureGeometry(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageMapper3D::ComputeTextureSize(
   const int extent[6], int& xdim, int& ydim, int imageSize[2], int textureSize[2])
 {
@@ -1008,7 +1008,7 @@ void vtkImageMapper3D::ComputeTextureSize(
   textureSize[1] = imageSize[1];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageMapper3D::GetSlicePlaneInDataCoords(vtkMatrix4x4* propMatrix, double normal[4])
 {
   double point[3];
@@ -1042,7 +1042,7 @@ void vtkImageMapper3D::GetSlicePlaneInDataCoords(vtkMatrix4x4* propMatrix, doubl
   normal[3] /= l;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageMapper3D::GetBackgroundColor(vtkImageProperty* property, double color[4])
 {
   color[0] = 0.0;
@@ -1066,7 +1066,7 @@ void vtkImageMapper3D::GetBackgroundColor(vtkImageProperty* property, double col
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageMapper3D::CheckerboardRGBA(unsigned char* data, int xsize, int ysize, double originx,
   double originy, double spacingx, double spacingy)
 {

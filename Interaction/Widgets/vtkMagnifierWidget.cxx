@@ -27,7 +27,7 @@
 
 vtkStandardNewMacro(vtkMagnifierWidget);
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMagnifierWidget::vtkMagnifierWidget()
 {
   // Change activation value inherited from superclass
@@ -47,10 +47,10 @@ vtkMagnifierWidget::vtkMagnifierWidget()
     vtkCommand::CharEvent, vtkWidgetEvent::Down, this, vtkMagnifierWidget::CharAction);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMagnifierWidget::~vtkMagnifierWidget() = default;
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMagnifierWidget::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)
@@ -59,7 +59,7 @@ void vtkMagnifierWidget::CreateDefaultRepresentation()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMagnifierWidget::SetEnabled(int enabling)
 {
   int enabled = this->Enabled;
@@ -88,7 +88,7 @@ void vtkMagnifierWidget::SetEnabled(int enabling)
   this->Render();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMagnifierWidget::MoveAction(vtkAbstractWidget* w)
 {
   vtkMagnifierWidget* self = reinterpret_cast<vtkMagnifierWidget*>(w);
@@ -111,7 +111,7 @@ void vtkMagnifierWidget::MoveAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMagnifierWidget::CharAction(vtkAbstractWidget* w)
 {
   vtkMagnifierWidget* self = reinterpret_cast<vtkMagnifierWidget*>(w);
@@ -138,7 +138,7 @@ void vtkMagnifierWidget::CharAction(vtkAbstractWidget* w)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMagnifierWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

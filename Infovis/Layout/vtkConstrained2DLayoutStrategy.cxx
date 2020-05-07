@@ -49,7 +49,7 @@ static inline float CoolDown(float t, float r)
   return t - (t / r);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkConstrained2DLayoutStrategy::vtkConstrained2DLayoutStrategy()
 {
@@ -74,7 +74,7 @@ vtkConstrained2DLayoutStrategy::vtkConstrained2DLayoutStrategy()
   this->SetInputArrayName("constraint");
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkConstrained2DLayoutStrategy::~vtkConstrained2DLayoutStrategy()
 {
@@ -147,7 +147,7 @@ void vtkConstrained2DLayoutStrategy::GenerateGaussianSplat(vtkImageData* splat, 
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Set the graph that will be laid out
 void vtkConstrained2DLayoutStrategy::Initialize()
 {
@@ -261,7 +261,7 @@ void vtkConstrained2DLayoutStrategy::Initialize()
   this->DensityGrid->SetOutputDimensions(100, 100, 1);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 // Simple graph layout method
 void vtkConstrained2DLayoutStrategy::Layout()

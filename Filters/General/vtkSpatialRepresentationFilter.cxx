@@ -118,7 +118,7 @@ void vtkSpatialRepresentationFilter::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSpatialRepresentationFilter::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
@@ -127,7 +127,7 @@ void vtkSpatialRepresentationFilter::ReportReferences(vtkGarbageCollector* colle
   vtkGarbageCollectorReport(collector, this->SpatialRepresentation, "SpatialRepresentation");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSpatialRepresentationFilter::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (!this->Superclass::FillInputPortInformation(port, info))

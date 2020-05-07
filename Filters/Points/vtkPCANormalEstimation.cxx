@@ -34,7 +34,7 @@ vtkCxxSetObjectMacro(vtkPCANormalEstimation, Locator, vtkAbstractPointLocator);
 namespace
 {
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The threaded core of the algorithm.
 template <typename T>
 struct GenerateNormals
@@ -185,7 +185,7 @@ struct GenerateNormals
 } // anonymous namespace
 
 //================= Begin VTK class proper =======================================
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPCANormalEstimation::vtkPCANormalEstimation()
 {
 
@@ -196,13 +196,13 @@ vtkPCANormalEstimation::vtkPCANormalEstimation()
   this->FlipNormals = false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPCANormalEstimation::~vtkPCANormalEstimation()
 {
   this->SetLocator(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Produce the output data
 int vtkPCANormalEstimation::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -286,7 +286,7 @@ int vtkPCANormalEstimation::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Mark current point as visited and assign cluster number.  Note:
 // traversal occurs across proximally located points.
 //
@@ -336,14 +336,14 @@ void vtkPCANormalEstimation::TraverseAndFlip(
   neighborPointIds->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPCANormalEstimation::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPCANormalEstimation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

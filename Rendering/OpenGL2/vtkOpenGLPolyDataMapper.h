@@ -387,7 +387,7 @@ protected:
   //  ColorInternalTexture
   //  Actors texture
   //  Properties textures
-  virtual std::vector<std::pair<vtkTexture*, std::string> > GetTextures(vtkActor* actor);
+  virtual std::vector<std::pair<vtkTexture*, std::string>> GetTextures(vtkActor* actor);
 
   // do we have textures coordinates that require special handling
   virtual bool HaveTCoords(vtkPolyData* poly);

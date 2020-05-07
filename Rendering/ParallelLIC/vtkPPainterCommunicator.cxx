@@ -48,13 +48,13 @@ public:
   MPI_Comm Communicator;
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPPainterCommunicatorInternals::~vtkPPainterCommunicatorInternals()
 {
   this->SetCommunicator(MPI_COMM_NULL);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPPainterCommunicatorInternals::SetCommunicator(MPI_Comm comm, bool ownership)
 {
   // avoid unnecessary operations
@@ -77,7 +77,7 @@ void vtkPPainterCommunicatorInternals::SetCommunicator(MPI_Comm comm, bool owner
   this->Communicator = comm;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPPainterCommunicatorInternals::DuplicateCommunicator(MPI_Comm comm)
 {
   // avoid unnecessary operations
@@ -102,19 +102,19 @@ void vtkPPainterCommunicatorInternals::DuplicateCommunicator(MPI_Comm comm)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPPainterCommunicator::vtkPPainterCommunicator()
 {
   this->Internals = new ::vtkPPainterCommunicatorInternals;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPPainterCommunicator::~vtkPPainterCommunicator()
 {
   delete this->Internals;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPPainterCommunicator::Copy(const vtkPainterCommunicator* other, bool ownership)
 {
   const vtkPPainterCommunicator* pOther = dynamic_cast<const vtkPPainterCommunicator*>(other);
@@ -125,7 +125,7 @@ void vtkPPainterCommunicator::Copy(const vtkPainterCommunicator* other, bool own
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPPainterCommunicator::Duplicate(const vtkPainterCommunicator* comm)
 {
   const vtkPPainterCommunicator* pcomm = dynamic_cast<const vtkPPainterCommunicator*>(comm);
@@ -136,25 +136,25 @@ void vtkPPainterCommunicator::Duplicate(const vtkPainterCommunicator* comm)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPPainterCommunicator::SetCommunicator(vtkMPICommunicatorOpaqueComm* comm)
 {
   this->Internals->SetCommunicator(*comm->GetHandle());
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPPainterCommunicator::GetCommunicator(vtkMPICommunicatorOpaqueComm* comm)
 {
   *comm = &this->Internals->Communicator;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void* vtkPPainterCommunicator::GetCommunicator()
 {
   return &this->Internals->Communicator;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPPainterCommunicator::GetRank()
 {
   if (!this->MPIInitialized() || this->MPIFinalized())
@@ -166,7 +166,7 @@ int vtkPPainterCommunicator::GetRank()
   return rank;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPPainterCommunicator::GetSize()
 {
   if (!this->MPIInitialized() || this->MPIFinalized())
@@ -178,7 +178,7 @@ int vtkPPainterCommunicator::GetSize()
   return size;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPPainterCommunicator::GetWorldRank()
 {
   if (!this->MPIInitialized() || this->MPIFinalized())
@@ -190,7 +190,7 @@ int vtkPPainterCommunicator::GetWorldRank()
   return rank;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPPainterCommunicator::GetWorldSize()
 {
   if (!this->MPIInitialized() || this->MPIFinalized())
@@ -202,7 +202,7 @@ int vtkPPainterCommunicator::GetWorldSize()
   return size;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMPICommunicatorOpaqueComm* vtkPPainterCommunicator::GetGlobalCommunicator()
 {
   static vtkMPICommunicatorOpaqueComm* globalComm = nullptr;
@@ -229,7 +229,7 @@ vtkMPICommunicatorOpaqueComm* vtkPPainterCommunicator::GetGlobalCommunicator()
   return globalComm;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPPainterCommunicator::MPIInitialized()
 {
   int initialized;
@@ -237,7 +237,7 @@ bool vtkPPainterCommunicator::MPIInitialized()
   return initialized == 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPPainterCommunicator::MPIFinalized()
 {
   int finished;
@@ -245,13 +245,13 @@ bool vtkPPainterCommunicator::MPIFinalized()
   return finished == 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPPainterCommunicator::GetIsNull()
 {
   return this->Internals->Communicator == MPI_COMM_NULL;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPPainterCommunicator::SubsetCommunicator(vtkMPICommunicatorOpaqueComm* comm, int include)
 {
 #if defined(vtkPPainterCommunicatorDEBUG)

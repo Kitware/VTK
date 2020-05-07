@@ -16,23 +16,23 @@
 
 #include "vtkInformation.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationIntegerKey::vtkInformationIntegerKey(const char* name, const char* location)
   : vtkInformationKey(name, location)
 {
   vtkCommonInformationKeyManager::Register(this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationIntegerKey::~vtkInformationIntegerKey() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationIntegerKey::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkInformationIntegerValue : public vtkObjectBase
 {
 public:
@@ -40,7 +40,7 @@ public:
   int Value;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationIntegerKey::Set(vtkInformation* info, int value)
 {
   if (vtkInformationIntegerValue* oldv =
@@ -67,7 +67,7 @@ void vtkInformationIntegerKey::Set(vtkInformation* info, int value)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkInformationIntegerKey::Get(vtkInformation* info)
 {
   vtkInformationIntegerValue* v =
@@ -75,7 +75,7 @@ int vtkInformationIntegerKey::Get(vtkInformation* info)
   return v ? v->Value : 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationIntegerKey::ShallowCopy(vtkInformation* from, vtkInformation* to)
 {
   if (this->Has(from))
@@ -88,7 +88,7 @@ void vtkInformationIntegerKey::ShallowCopy(vtkInformation* from, vtkInformation*
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationIntegerKey::Print(ostream& os, vtkInformation* info)
 {
   // Print the value.
@@ -98,7 +98,7 @@ void vtkInformationIntegerKey::Print(ostream& os, vtkInformation* info)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int* vtkInformationIntegerKey::GetWatchAddress(vtkInformation* info)
 {
   if (vtkInformationIntegerValue* v =

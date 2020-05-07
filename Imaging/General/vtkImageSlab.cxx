@@ -35,7 +35,7 @@
 
 vtkStandardNewMacro(vtkImageSlab);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageSlab::vtkImageSlab()
 {
   this->Operation = VTK_IMAGE_SLAB_MEAN;
@@ -47,10 +47,10 @@ vtkImageSlab::vtkImageSlab()
   this->MultiSliceOutput = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageSlab::~vtkImageSlab() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageSlab::RequestInformation(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -117,7 +117,7 @@ int vtkImageSlab::RequestInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageSlab::RequestUpdateExtent(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -168,7 +168,7 @@ int vtkImageSlab::RequestUpdateExtent(
 namespace
 {
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // rounding functions for each type
 
 template <class T>
@@ -195,7 +195,7 @@ void vtkSlabRound<vtkTypeFloat64>(double val, vtkTypeFloat64& rnd)
   rnd = val;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // clamping functions for each type
 
 template <class T>
@@ -220,7 +220,7 @@ void vtkSlabClamp<vtkTypeFloat64>(double val, double& clamp)
   clamp = val;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T1, class T2>
 void vtkImageSlabExecute(vtkImageSlab* self, vtkImageData* inData, T1* inPtr, vtkImageData* outData,
   T2* outPtr, int outExt[6], int id)
@@ -437,7 +437,7 @@ void vtkImageSlabExecute(vtkImageSlab* self, vtkImageData* inData, T1* inPtr, vt
 
 } // end of anonymous namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSlab::ThreadedRequestData(vtkInformation*, vtkInformationVector** inVector,
   vtkInformationVector*, vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
 {
@@ -527,7 +527,7 @@ void vtkImageSlab::ThreadedRequestData(vtkInformation*, vtkInformationVector** i
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSlab::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -541,7 +541,7 @@ void vtkImageSlab::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MultiSliceOutput: " << (this->MultiSliceOutput ? "On\n" : "Off\n");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkImageSlab::GetOperationAsString()
 {
   switch (this->Operation)

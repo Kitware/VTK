@@ -45,7 +45,7 @@ vtkEquirectangularToCubeMapTexture::~vtkEquirectangularToCubeMapTexture()
   }
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Release the graphics resources used by this texture.
 void vtkEquirectangularToCubeMapTexture::ReleaseGraphicsResources(vtkWindow* win)
 {

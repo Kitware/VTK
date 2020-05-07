@@ -39,7 +39,7 @@
 
 vtkStandardNewMacro(vtkQtRecordView);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkQtRecordView::vtkQtRecordView()
 {
   this->TextWidget = new QTextEdit();
@@ -52,19 +52,19 @@ vtkQtRecordView::vtkQtRecordView()
   this->LastMTime = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkQtRecordView::~vtkQtRecordView()
 {
   delete this->TextWidget;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 QWidget* vtkQtRecordView::GetWidget()
 {
   return this->TextWidget;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtRecordView::SetFieldType(int type)
 {
   this->DataObjectToTable->SetFieldType(type);
@@ -90,7 +90,7 @@ void vtkQtRecordView::RemoveRepresentationInternal(vtkDataRepresentation* rep)
   this->DataObjectToTable->RemoveInputConnection(0, conn);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtRecordView::Update()
 {
   vtkDataRepresentation* rep = this->GetRepresentation();
@@ -157,7 +157,7 @@ void vtkQtRecordView::Update()
   this->TextWidget->setHtml(html.c_str());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtRecordView::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

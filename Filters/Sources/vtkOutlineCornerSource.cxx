@@ -23,14 +23,14 @@
 
 vtkStandardNewMacro(vtkOutlineCornerSource);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOutlineCornerSource::vtkOutlineCornerSource()
   : vtkOutlineSource()
 {
   this->CornerFactor = 0.2;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkOutlineCornerSource::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -125,7 +125,7 @@ int vtkOutlineCornerSource::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOutlineCornerSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

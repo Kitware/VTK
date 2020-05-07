@@ -26,13 +26,13 @@ struct vtkFilteringInformationKeyManagerKeysType : public std::vector<vtkInforma
   typedef Superclass::iterator iterator;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Must NOT be initialized.  Default initialization to zero is
 // necessary.
 static unsigned int vtkFilteringInformationKeyManagerCount;
 static vtkFilteringInformationKeyManagerKeysType* vtkFilteringInformationKeyManagerKeys;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFilteringInformationKeyManager::vtkFilteringInformationKeyManager()
 {
   if (++vtkFilteringInformationKeyManagerCount == 1)
@@ -41,7 +41,7 @@ vtkFilteringInformationKeyManager::vtkFilteringInformationKeyManager()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFilteringInformationKeyManager::~vtkFilteringInformationKeyManager()
 {
   if (--vtkFilteringInformationKeyManagerCount == 0)
@@ -50,14 +50,14 @@ vtkFilteringInformationKeyManager::~vtkFilteringInformationKeyManager()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFilteringInformationKeyManager::Register(vtkInformationKey* key)
 {
   // Register this instance for deletion by the singleton.
   vtkFilteringInformationKeyManagerKeys->push_back(key);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFilteringInformationKeyManager::ClassInitialize()
 {
   // Allocate the singleton storing pointers to information keys.
@@ -70,7 +70,7 @@ void vtkFilteringInformationKeyManager::ClassInitialize()
   vtkFilteringInformationKeyManagerKeys = new (keys) vtkFilteringInformationKeyManagerKeysType;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFilteringInformationKeyManager::ClassFinalize()
 {
   if (vtkFilteringInformationKeyManagerKeys)

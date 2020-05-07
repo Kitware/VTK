@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkUnstructuredGridVolumeRayIntegrator.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUnstructuredGridVolumeRayIntegrator::vtkUnstructuredGridVolumeRayIntegrator() = default;
 
 vtkUnstructuredGridVolumeRayIntegrator::~vtkUnstructuredGridVolumeRayIntegrator() = default;

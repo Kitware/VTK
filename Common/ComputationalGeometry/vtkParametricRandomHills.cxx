@@ -22,7 +22,7 @@
 
 vtkStandardNewMacro(vtkParametricRandomHills);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParametricRandomHills::vtkParametricRandomHills()
   : NumberOfHills(30)
   , HillXVariance(2.5)
@@ -64,21 +64,21 @@ vtkParametricRandomHills::vtkParametricRandomHills()
   this->randomSequenceGenerator->SetSeed(this->RandomSeed);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParametricRandomHills::~vtkParametricRandomHills()
 {
   this->hillData->Delete();
   this->randomSequenceGenerator->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParametricRandomHills::InitRNG(int randomSeed)
 {
   (randomSeed < 0) ? this->randomSequenceGenerator->SetSeed(static_cast<int>(time(nullptr)))
                    : this->randomSequenceGenerator->SetSeed(randomSeed);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkParametricRandomHills::Rand()
 {
   double x = this->randomSequenceGenerator->GetValue();
@@ -86,7 +86,7 @@ double vtkParametricRandomHills::Rand()
   return x;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParametricRandomHills::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
 {
   // If parameters have changed then regenerate the hills.
@@ -121,7 +121,7 @@ void vtkParametricRandomHills::Evaluate(double uvw[3], double Pt[3], double Duvw
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkParametricRandomHills::EvaluateScalar(
   double* vtkNotUsed(uv[3]), double* vtkNotUsed(Pt[3]), double* vtkNotUsed(Duv[9]))
 {
@@ -189,7 +189,7 @@ void vtkParametricRandomHills::MakeTheHillData()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkParametricRandomHills::ParametersChanged()
 {
   if (this->previousNumberOfHills != this->NumberOfHills)
@@ -240,7 +240,7 @@ bool vtkParametricRandomHills::ParametersChanged()
   return false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParametricRandomHills::CopyParameters()
 {
   this->previousNumberOfHills = this->NumberOfHills;
@@ -254,7 +254,7 @@ void vtkParametricRandomHills::CopyParameters()
   this->previousAllowRandomGeneration = this->AllowRandomGeneration;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParametricRandomHills::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

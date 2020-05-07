@@ -63,12 +63,12 @@ public:
   float SelectedColumnDelta;
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartBox);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkChartBox::vtkChartBox()
 {
   this->Storage = new vtkChartBox::Private;
@@ -89,7 +89,7 @@ vtkChartBox::vtkChartBox()
   this->SetActionToButton(vtkChart::SELECT, vtkContextMouseEvent::LEFT_BUTTON);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkChartBox::~vtkChartBox()
 {
   this->Storage->Plot->SetSelection(nullptr);
@@ -98,7 +98,7 @@ vtkChartBox::~vtkChartBox()
   this->VisibleColumns->Delete();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartBox::Update()
 {
   vtkTable* table = this->Storage->Plot->GetData()->GetInput();
@@ -144,7 +144,7 @@ void vtkChartBox::Update()
   this->BuildTime.Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkChartBox::Paint(vtkContext2D* painter)
 {
   if (this->GetScene()->GetViewWidth() == 0 || this->GetScene()->GetViewHeight() == 0 ||
@@ -223,7 +223,7 @@ bool vtkChartBox::Paint(vtkContext2D* painter)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartBox::SetColumnVisibility(const vtkStdString& name, bool visible)
 {
   if (visible)
@@ -267,7 +267,7 @@ void vtkChartBox::SetColumnVisibility(const vtkStdString& name, bool visible)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartBox::SetColumnVisibility(vtkIdType column, bool visible)
 {
   vtkPlot* plot = this->GetPlot(0);
@@ -282,7 +282,7 @@ void vtkChartBox::SetColumnVisibility(vtkIdType column, bool visible)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartBox::SetColumnVisibilityAll(bool visible)
 {
   // We always need to clear the current visible columns.
@@ -303,7 +303,7 @@ void vtkChartBox::SetColumnVisibilityAll(bool visible)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkChartBox::GetColumnVisibility(const vtkStdString& name)
 {
   for (vtkIdType i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
@@ -316,7 +316,7 @@ bool vtkChartBox::GetColumnVisibility(const vtkStdString& name)
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkChartBox::GetColumnVisibility(vtkIdType column)
 {
   vtkPlot* plot = this->GetPlot(0);
@@ -328,13 +328,13 @@ bool vtkChartBox::GetColumnVisibility(vtkIdType column)
   return this->GetColumnVisibility(table->GetColumnName(column));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkChartBox::GetNumberOfVisibleColumns()
 {
   return this->VisibleColumns->GetNumberOfTuples();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkChartBox::GetColumnId(const vtkStdString& name)
 {
   vtkPlot* plot = this->GetPlot(0);
@@ -354,13 +354,13 @@ vtkIdType vtkChartBox::GetColumnId(const vtkStdString& name)
   return -1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAxis* vtkChartBox::GetYAxis()
 {
   return this->Storage->YAxis;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartBox::SetPlot(vtkPlotBox* plot)
 {
   this->Storage->Plot = plot;
@@ -368,19 +368,19 @@ void vtkChartBox::SetPlot(vtkPlotBox* plot)
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPlot* vtkChartBox::GetPlot(vtkIdType)
 {
   return this->Storage->Plot;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkChartBox::GetNumberOfPlots()
 {
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 float vtkChartBox::GetXPosition(int index)
 {
   return (index < static_cast<int>(this->Storage->XPosition.size()))
@@ -388,7 +388,7 @@ float vtkChartBox::GetXPosition(int index)
     : 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartBox::UpdateGeometry(vtkContext2D* painter)
 {
   vtkVector2i geometry(this->GetScene()->GetViewWidth(), this->GetScene()->GetViewHeight());
@@ -446,7 +446,7 @@ void vtkChartBox::UpdateGeometry(vtkContext2D* painter)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartBox::CalculatePlotTransform()
 {
   // In the case of box plots everything is plotted in a normalized
@@ -470,7 +470,7 @@ void vtkChartBox::CalculatePlotTransform()
   this->Storage->Transform->Scale(1.0, 1.0 / yScale);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkChartBox::Hit(const vtkContextMouseEvent& mouse)
 {
   vtkVector2i pos(mouse.GetScreenPos());
@@ -479,7 +479,7 @@ bool vtkChartBox::Hit(const vtkContextMouseEvent& mouse)
     pos[1] > this->Point1[1] && pos[1] < this->Point2[1];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkChartBox::MouseMoveEvent(const vtkContextMouseEvent& mouse)
 {
   if (mouse.GetButton() == this->Actions.Pan() && this->SelectedColumn >= 0)
@@ -525,7 +525,7 @@ bool vtkChartBox::MouseMoveEvent(const vtkContextMouseEvent& mouse)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkChartBox::MouseButtonPressEvent(const vtkContextMouseEvent& mouse)
 {
   if (mouse.GetButton() == this->Actions.Pan())
@@ -556,7 +556,7 @@ bool vtkChartBox::MouseButtonPressEvent(const vtkContextMouseEvent& mouse)
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkChartBox::MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse)
 {
   this->SelectedColumn = -1;
@@ -592,7 +592,7 @@ bool vtkChartBox::MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkChartBox::LocatePointInPlot(const vtkVector2f& position, const vtkVector2f& tolerance,
   vtkVector2f& plotPos, vtkPlot* plot, vtkIdType& segmentId)
 {
@@ -603,7 +603,7 @@ int vtkChartBox::LocatePointInPlot(const vtkVector2f& position, const vtkVector2
   return -1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkChartBox::LocatePointInPlots(const vtkContextMouseEvent& mouse, int invokeEvent)
 {
   vtkVector2i pos(mouse.GetScreenPos());
@@ -643,7 +643,7 @@ bool vtkChartBox::LocatePointInPlots(const vtkContextMouseEvent& mouse, int invo
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartBox::SetTooltip(vtkTooltipItem* tooltip)
 {
   if (tooltip == this->Tooltip)
@@ -667,13 +667,13 @@ void vtkChartBox::SetTooltip(vtkTooltipItem* tooltip)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTooltipItem* vtkChartBox::GetTooltip()
 {
   return this->Tooltip;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartBox::SetTooltipInfo(const vtkContextMouseEvent& mouse, const vtkVector2d& plotPos,
   vtkIdType seriesIndex, vtkPlot* plot, vtkIdType segmentIndex)
 {
@@ -690,13 +690,13 @@ void vtkChartBox::SetTooltipInfo(const vtkContextMouseEvent& mouse, const vtkVec
   this->Tooltip->SetPosition(mouse.GetScreenPos()[0] + 2, mouse.GetScreenPos()[1] + 2);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartBox::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartBox::SwapAxes(int a1, int a2)
 {
   vtkStdString colTmp = this->VisibleColumns->GetValue(a1);

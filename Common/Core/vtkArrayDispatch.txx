@@ -51,7 +51,7 @@ struct Dispatch<vtkTypeList::NullType>
 
 // Recursive case:
 template <typename ArrayHead, typename ArrayTail>
-struct Dispatch<vtkTypeList::TypeList<ArrayHead, ArrayTail> >
+struct Dispatch<vtkTypeList::TypeList<ArrayHead, ArrayTail>>
 {
   template <typename Worker, typename... Params>
   static bool Execute(vtkDataArray* inArray, Worker&& worker, Params&&... params)
@@ -135,7 +135,7 @@ struct Dispatch2Trampoline<Array1T, vtkTypeList::NullType>
 
 // Dispatch2 Trampoline recursive case:
 template <typename Array1T, typename Array2Head, typename Array2Tail>
-struct Dispatch2Trampoline<Array1T, vtkTypeList::TypeList<Array2Head, Array2Tail> >
+struct Dispatch2Trampoline<Array1T, vtkTypeList::TypeList<Array2Head, Array2Tail>>
 {
   typedef Dispatch2Trampoline<Array1T, Array2Tail> NextDispatch;
 
@@ -315,7 +315,7 @@ struct Dispatch3Trampoline2<Array1T, Array2T, vtkTypeList::NullType>
 
 // Dispatch3 Trampoline2 recursive case:
 template <typename Array1T, typename Array2T, typename ArrayHead, typename ArrayTail>
-struct Dispatch3Trampoline2<Array1T, Array2T, vtkTypeList::TypeList<ArrayHead, ArrayTail> >
+struct Dispatch3Trampoline2<Array1T, Array2T, vtkTypeList::TypeList<ArrayHead, ArrayTail>>
 {
 private:
   typedef Dispatch3Trampoline2<Array1T, Array2T, ArrayTail> NextDispatch;
@@ -425,7 +425,7 @@ public:
 //------------------------------------------------------------------------------
 // Preprocess and pass off to impl::Dispatch:
 template <typename ArrayHead, typename ArrayTail>
-struct DispatchByArray<vtkTypeList::TypeList<ArrayHead, ArrayTail> >
+struct DispatchByArray<vtkTypeList::TypeList<ArrayHead, ArrayTail>>
 {
 private:
   typedef vtkTypeList::TypeList<ArrayHead, ArrayTail> ArrayList;
@@ -465,7 +465,7 @@ public:
 //------------------------------------------------------------------------------
 // Preprocess and pass off to impl::Dispatch
 template <typename ValueTypeHead, typename ValueTypeTail>
-struct DispatchByValueType<vtkTypeList::TypeList<ValueTypeHead, ValueTypeTail> >
+struct DispatchByValueType<vtkTypeList::TypeList<ValueTypeHead, ValueTypeTail>>
 {
 private:
   typedef vtkTypeList::TypeList<ValueTypeHead, ValueTypeTail> ValueTypeList;

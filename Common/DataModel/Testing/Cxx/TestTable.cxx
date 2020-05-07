@@ -28,7 +28,7 @@
 #include <vector>
 using namespace std;
 
-void CheckEqual(vtkTable* table, vector<vector<double> >& stdTable)
+void CheckEqual(vtkTable* table, vector<vector<double>>& stdTable)
 {
   // Check sizes
   if (table->GetNumberOfRows() != static_cast<vtkIdType>(stdTable[0].size()))
@@ -131,7 +131,7 @@ int TestTable(int, char*[])
 
   // Make a table and a parallel vector of vectors
   vtkTable* table = vtkTable::New();
-  vector<vector<double> > stdTable;
+  vector<vector<double>> stdTable;
 
   int size = 100;
   double prob = 1.0 - 1.0 / size;
@@ -265,7 +265,7 @@ int TestTable(int, char*[])
       table->RemoveColumnByName(table->GetColumnName(col));
     }
 
-    vector<vector<double> >::iterator colIt = stdTable.begin() + col;
+    vector<vector<double>>::iterator colIt = stdTable.begin() + col;
     stdTable.erase(colIt);
   }
 

@@ -22,7 +22,7 @@
 
 vtkStandardNewMacro(vtkUnstructuredGridBaseAlgorithm);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUnstructuredGridBaseAlgorithm::vtkUnstructuredGridBaseAlgorithm()
 {
   // by default assume filters have one input and one output
@@ -31,34 +31,34 @@ vtkUnstructuredGridBaseAlgorithm::vtkUnstructuredGridBaseAlgorithm()
   this->SetNumberOfOutputPorts(1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUnstructuredGridBaseAlgorithm::~vtkUnstructuredGridBaseAlgorithm() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkUnstructuredGridBaseAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUnstructuredGridBase* vtkUnstructuredGridBaseAlgorithm::GetOutput()
 {
   return this->GetOutput(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUnstructuredGridBase* vtkUnstructuredGridBaseAlgorithm::GetOutput(int port)
 {
   return vtkUnstructuredGridBase::SafeDownCast(this->GetOutputDataObject(port));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkUnstructuredGridBaseAlgorithm::SetOutput(vtkDataObject* d)
 {
   this->GetExecutive()->SetOutputData(0, d);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkUnstructuredGridBaseAlgorithm::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -89,7 +89,7 @@ vtkTypeBool vtkUnstructuredGridBaseAlgorithm::ProcessRequest(
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkUnstructuredGridBaseAlgorithm::FillOutputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
@@ -98,7 +98,7 @@ int vtkUnstructuredGridBaseAlgorithm::FillOutputPortInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkUnstructuredGridBaseAlgorithm::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
@@ -106,7 +106,7 @@ int vtkUnstructuredGridBaseAlgorithm::FillInputPortInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkUnstructuredGridBaseAlgorithm::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -114,7 +114,7 @@ int vtkUnstructuredGridBaseAlgorithm::RequestInformation(vtkInformation* vtkNotU
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkUnstructuredGridBaseAlgorithm::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -131,7 +131,7 @@ int vtkUnstructuredGridBaseAlgorithm::RequestUpdateExtent(vtkInformation* vtkNot
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This is the superclasses style of Execute method.  Convert it into
 // an imaging style Execute method.
 int vtkUnstructuredGridBaseAlgorithm::RequestData(vtkInformation* vtkNotUsed(request),
@@ -140,7 +140,7 @@ int vtkUnstructuredGridBaseAlgorithm::RequestData(vtkInformation* vtkNotUsed(req
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkUnstructuredGridBaseAlgorithm::RequestDataObject(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -173,25 +173,25 @@ int vtkUnstructuredGridBaseAlgorithm::RequestDataObject(
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkUnstructuredGridBaseAlgorithm::SetInputData(vtkDataObject* input)
 {
   this->SetInputData(0, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkUnstructuredGridBaseAlgorithm::SetInputData(int index, vtkDataObject* input)
 {
   this->SetInputDataInternal(index, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkUnstructuredGridBaseAlgorithm::AddInputData(vtkDataObject* input)
 {
   this->AddInputData(0, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkUnstructuredGridBaseAlgorithm::AddInputData(int index, vtkDataObject* input)
 {
   this->AddInputDataInternal(index, input);

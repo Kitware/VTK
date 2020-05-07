@@ -31,10 +31,10 @@
 #include <cassert>
 #include <limits>
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkColorTransferControlPointsItem);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkColorTransferControlPointsItem::~vtkColorTransferControlPointsItem()
 {
   if (this->ColorTransferFunction)
@@ -45,7 +45,7 @@ vtkColorTransferControlPointsItem::~vtkColorTransferControlPointsItem()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorTransferControlPointsItem::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -61,7 +61,7 @@ void vtkColorTransferControlPointsItem::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorTransferControlPointsItem::emitEvent(unsigned long event, void* params)
 {
   if (this->ColorTransferFunction)
@@ -70,7 +70,7 @@ void vtkColorTransferControlPointsItem::emitEvent(unsigned long event, void* par
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkColorTransferControlPointsItem::GetControlPointsMTime()
 {
   if (this->ColorTransferFunction)
@@ -80,7 +80,7 @@ vtkMTimeType vtkColorTransferControlPointsItem::GetControlPointsMTime()
   return this->GetMTime();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorTransferControlPointsItem::SetColorTransferFunction(vtkColorTransferFunction* t)
 {
   if (t == this->ColorTransferFunction)
@@ -102,7 +102,7 @@ void vtkColorTransferControlPointsItem::SetColorTransferFunction(vtkColorTransfe
   this->ComputePoints();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorTransferControlPointsItem::DrawPoint(vtkContext2D* painter, vtkIdType index)
 {
   assert(index != -1);
@@ -115,7 +115,7 @@ void vtkColorTransferControlPointsItem::DrawPoint(vtkContext2D* painter, vtkIdTy
   this->vtkControlPointsItem::DrawPoint(painter, index);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkColorTransferControlPointsItem::GetNumberOfPoints() const
 {
   return this->ColorTransferFunction
@@ -123,7 +123,7 @@ vtkIdType vtkColorTransferControlPointsItem::GetNumberOfPoints() const
     : 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorTransferControlPointsItem::GetControlPoint(vtkIdType index, double* pos) const
 {
   double xrgbms[6];
@@ -140,7 +140,7 @@ void vtkColorTransferControlPointsItem::GetControlPoint(vtkIdType index, double*
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorTransferControlPointsItem::SetControlPoint(vtkIdType index, double* newPos)
 {
   double xrgbms[6];
@@ -156,7 +156,7 @@ void vtkColorTransferControlPointsItem::SetControlPoint(vtkIdType index, double*
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorTransferControlPointsItem::EditPoint(float tX, float tY)
 {
   if (!this->ColorTransferFunction)
@@ -182,7 +182,7 @@ void vtkColorTransferControlPointsItem::EditPoint(float tX, float tY)
   this->EndChanges();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkColorTransferControlPointsItem::AddPoint(double* newPos)
 {
   if (!this->ColorTransferFunction)
@@ -202,7 +202,7 @@ vtkIdType vtkColorTransferControlPointsItem::AddPoint(double* newPos)
   return addedPoint;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkColorTransferControlPointsItem::RemovePoint(double* currentPoint)
 {
   if (!this->ColorTransferFunction ||
@@ -224,7 +224,7 @@ vtkIdType vtkColorTransferControlPointsItem::RemovePoint(double* currentPoint)
   return removedPoint;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkColorTransferControlPointsItem::ComputeBounds(double* bounds)
 {
   if (this->ColorTransferFunction)

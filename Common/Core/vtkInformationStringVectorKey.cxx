@@ -20,7 +20,7 @@
 #include <algorithm>
 #include <vector>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationStringVectorKey ::vtkInformationStringVectorKey(
   const char* name, const char* location, int length)
   : vtkInformationKey(name, location)
@@ -29,16 +29,16 @@ vtkInformationStringVectorKey ::vtkInformationStringVectorKey(
   vtkCommonInformationKeyManager::Register(this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationStringVectorKey::~vtkInformationStringVectorKey() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationStringVectorKey::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkInformationStringVectorValue : public vtkObjectBase
 {
 public:
@@ -46,7 +46,7 @@ public:
   std::vector<std::string> Value;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationStringVectorKey::Append(vtkInformation* info, const char* value)
 {
   vtkInformationStringVectorValue* v =
@@ -61,7 +61,7 @@ void vtkInformationStringVectorKey::Append(vtkInformation* info, const char* val
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationStringVectorKey::Set(vtkInformation* info, const char* value, int index)
 {
   vtkInformationStringVectorValue* oldv =
@@ -95,19 +95,19 @@ void vtkInformationStringVectorKey::Set(vtkInformation* info, const char* value,
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationStringVectorKey::Append(vtkInformation* info, const std::string& value)
 {
   this->Append(info, value.c_str());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationStringVectorKey::Set(vtkInformation* info, const std::string& value, int idx)
 {
   this->Set(info, value.c_str(), idx);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkInformationStringVectorKey::Get(vtkInformation* info, int idx)
 {
   if (idx < 0 || idx >= this->Length(info))
@@ -119,7 +119,7 @@ const char* vtkInformationStringVectorKey::Get(vtkInformation* info, int idx)
   return v->Value[idx].c_str();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkInformationStringVectorKey::Length(vtkInformation* info)
 {
   vtkInformationStringVectorValue* v =
@@ -127,7 +127,7 @@ int vtkInformationStringVectorKey::Length(vtkInformation* info)
   return v ? static_cast<int>(v->Value.size()) : 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationStringVectorKey::ShallowCopy(vtkInformation* from, vtkInformation* to)
 {
   int length = this->Length(from);
@@ -137,7 +137,7 @@ void vtkInformationStringVectorKey::ShallowCopy(vtkInformation* from, vtkInforma
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationStringVectorKey::Print(ostream& os, vtkInformation* info)
 {
   // Print the value.

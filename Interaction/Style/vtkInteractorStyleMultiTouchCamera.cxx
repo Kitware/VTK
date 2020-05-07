@@ -26,19 +26,19 @@
 
 vtkStandardNewMacro(vtkInteractorStyleMultiTouchCamera);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInteractorStyleMultiTouchCamera::vtkInteractorStyleMultiTouchCamera() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInteractorStyleMultiTouchCamera::~vtkInteractorStyleMultiTouchCamera() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleMultiTouchCamera::OnStartRotate()
 {
   this->StartGesture();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleMultiTouchCamera::OnRotate()
 {
   if (this->State != VTKIS_GESTURE)
@@ -93,19 +93,19 @@ void vtkInteractorStyleMultiTouchCamera::OnRotate()
   this->Interactor->Render();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleMultiTouchCamera::OnEndRotate()
 {
   this->EndGesture();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleMultiTouchCamera::OnStartPinch()
 {
   this->StartGesture();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleMultiTouchCamera::OnPinch()
 {
   if (this->State != VTKIS_GESTURE)
@@ -179,19 +179,19 @@ void vtkInteractorStyleMultiTouchCamera::OnPinch()
   this->Interactor->Render();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleMultiTouchCamera::OnEndPinch()
 {
   this->EndGesture();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleMultiTouchCamera::OnStartPan()
 {
   this->StartGesture();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleMultiTouchCamera::OnPan()
 {
   if (this->State != VTKIS_GESTURE)
@@ -252,13 +252,13 @@ void vtkInteractorStyleMultiTouchCamera::OnPan()
   rwi->Render();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleMultiTouchCamera::OnEndPan()
 {
   this->EndGesture();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleMultiTouchCamera::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

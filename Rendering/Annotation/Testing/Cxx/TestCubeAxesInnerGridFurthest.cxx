@@ -31,7 +31,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkTextProperty.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestCubeAxesInnerGridFurthest(int argc, char* argv[])
 {
   vtkNew<vtkCamera> camera;

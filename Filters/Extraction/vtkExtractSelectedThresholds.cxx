@@ -38,16 +38,16 @@
 
 vtkStandardNewMacro(vtkExtractSelectedThresholds);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractSelectedThresholds::vtkExtractSelectedThresholds()
 {
   this->SetNumberOfInputPorts(2);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractSelectedThresholds::~vtkExtractSelectedThresholds() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSelectedThresholds::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -130,7 +130,7 @@ int vtkExtractSelectedThresholds::RequestData(vtkInformation* vtkNotUsed(request
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSelectedThresholds::ExtractCells(
   vtkSelectionNode* sel, vtkDataSet* input, vtkDataSet* output, int usePointScalars)
 {
@@ -390,7 +390,7 @@ int vtkExtractSelectedThresholds::ExtractCells(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSelectedThresholds::ExtractPoints(
   vtkSelectionNode* sel, vtkDataSet* input, vtkDataSet* output)
 {
@@ -529,7 +529,7 @@ int vtkExtractSelectedThresholds::ExtractPoints(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSelectedThresholds::ExtractRows(
   vtkSelectionNode* sel, vtkTable* input, vtkTable* output)
 {
@@ -639,7 +639,7 @@ int vtkExtractSelectedThresholds::ExtractRows(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractSelectedThresholds::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -694,7 +694,7 @@ struct TestItem
 };
 } // namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSelectedThresholds::EvaluateValue(
   vtkDataArray* scalars, int comp_no, vtkIdType id, vtkDataArray* lims)
 {
@@ -726,7 +726,7 @@ int vtkExtractSelectedThresholds::EvaluateValue(
   return keepCell;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSelectedThresholds::EvaluateValue(vtkDataArray* scalars, int comp_no, vtkIdType id,
   vtkDataArray* lims, int* AboveCount, int* BelowCount, int* InsideCount)
 {

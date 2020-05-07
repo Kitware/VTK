@@ -121,7 +121,7 @@ class BoxClipTriangulateFailed
 {
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 static void CheckWinding(vtkBoxClipDataSet* alg)
 {
@@ -175,7 +175,7 @@ static void CheckWinding(vtkBoxClipDataSet* alg)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 static vtkSmartPointer<vtkUnstructuredGrid> BuildInput(
   int type, vtkIdType numcells, const vtkIdType* cells)
@@ -230,7 +230,7 @@ static vtkSmartPointer<vtkUnstructuredGrid> BuildInput(
   return input;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 static void Check2DPrimitive(int type, vtkIdType numcells, const vtkIdType* cells)
 {
@@ -273,7 +273,7 @@ static void Check2DPrimitive(int type, vtkIdType numcells, const vtkIdType* cell
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 static void Check3DPrimitive(
   int type, vtkIdType numcells, const vtkIdType* cells, vtkIdType numSurfacePolys)
@@ -325,7 +325,7 @@ static void Check3DPrimitive(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int BoxClipTriangulate(int, char*[])
 {

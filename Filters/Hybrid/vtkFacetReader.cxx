@@ -79,20 +79,20 @@ static bool GetLineFromStream(istream& is, std::string& line, bool* has_newline 
   return haveData;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFacetReader::vtkFacetReader()
 {
   this->FileName = nullptr;
   this->SetNumberOfInputPorts(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFacetReader::~vtkFacetReader()
 {
   delete[] this->FileName;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkFacetReader::CanReadFile(const char* filename)
 {
   vtksys::SystemTools::Stat_t fs;
@@ -121,7 +121,7 @@ int vtkFacetReader::CanReadFile(const char* filename)
   return (line.find("FACET FILE") == 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkFacetReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -395,7 +395,7 @@ int vtkFacetReader::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFacetReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -26,7 +26,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkXMLPolyDataReader.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestScalarsToTexture(int argc, char* argv[])
 {
   vtkNew<vtkXMLPolyDataReader> reader;

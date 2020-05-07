@@ -19,13 +19,13 @@
 
 vtkStandardNewMacro(vtkPlaybackWidget);
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPlaybackWidget::vtkPlaybackWidget() = default;
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPlaybackWidget::~vtkPlaybackWidget() = default;
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlaybackWidget::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)
@@ -34,7 +34,7 @@ void vtkPlaybackWidget::CreateDefaultRepresentation()
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlaybackWidget::SelectRegion(double eventPos[2])
 {
   if (!this->WidgetRep)
@@ -69,7 +69,7 @@ void vtkPlaybackWidget::SelectRegion(double eventPos[2])
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlaybackWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

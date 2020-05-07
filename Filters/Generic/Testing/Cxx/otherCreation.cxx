@@ -37,26 +37,26 @@
 #include <sstream>
 #include <string>
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Display message for a test result and return the test value
 int TestAssertion(ostream& strm, vtkIndent indent, const char* label, int assertion);
 
 int TestEmpty(ostream& strm);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // a dataset with points but no cells, and no pointdata and no celldata
 int TestWithPoints(ostream& strm);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // a dataset with points and cells, and no pointdata and no celldata
 int TestWithPointsAndCells(ostream& strm);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // a dataset with points and cells, pointdata but no celldata
 int TestWithPointsAndCellsAndPointData(ostream& strm);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Display message for a test result and return the test value
 int TestAssertion(ostream& strm, vtkIndent indent, const char* label, int assertion)
@@ -73,7 +73,7 @@ int TestAssertion(ostream& strm, vtkIndent indent, const char* label, int assert
   return assertion;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Call TestAssertion() and return with 1 if it fails, do nothing otherwise.
 // void TestAssertion(ostream &strm,
@@ -84,7 +84,7 @@ int TestAssertion(ostream& strm, vtkIndent indent, const char* label, int assert
   if (!TestAssertion(strm, indent, label, assertion))                                              \
   return 1
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestEmpty(ostream& strm)
 {
   vtkIndent indent;
@@ -263,7 +263,7 @@ int TestEmpty(ostream& strm)
   return 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // a dataset with points but no cells, and no pointdata and no celldata
 int TestWithPoints(ostream& strm)
 {
@@ -469,7 +469,7 @@ int TestWithPoints(ostream& strm)
   return 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // a dataset with points and cells, and no pointdata and no celldata
 int TestWithPointsAndCells(ostream& strm)
 {
@@ -984,7 +984,7 @@ int TestWithPointsAndCells(ostream& strm)
   return 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // a dataset with points and cells, pointdata but no celldata
 int TestWithPointsAndCellsAndPointData(ostream& strm)
 {

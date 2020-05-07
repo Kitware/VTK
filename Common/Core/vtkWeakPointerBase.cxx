@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkWeakPointerBase.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkWeakPointerBaseToObjectBaseFriendship
 {
 public:
@@ -24,7 +24,7 @@ public:
     vtkObjectBase* r, vtkWeakPointerBase* bad, vtkWeakPointerBase* good) noexcept;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWeakPointerBaseToObjectBaseFriendship::AddWeakPointer(
   vtkObjectBase* r, vtkWeakPointerBase* p)
 {
@@ -65,7 +65,7 @@ void vtkWeakPointerBaseToObjectBaseFriendship::AddWeakPointer(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWeakPointerBaseToObjectBaseFriendship::RemoveWeakPointer(
   vtkObjectBase* r, vtkWeakPointerBase* p) noexcept
 {
@@ -93,7 +93,7 @@ void vtkWeakPointerBaseToObjectBaseFriendship::RemoveWeakPointer(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWeakPointerBaseToObjectBaseFriendship::ReplaceWeakPointer(
   vtkObjectBase* r, vtkWeakPointerBase* bad, vtkWeakPointerBase* good) noexcept
 {
@@ -114,28 +114,29 @@ void vtkWeakPointerBaseToObjectBaseFriendship::ReplaceWeakPointer(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkWeakPointerBase::vtkWeakPointerBase(vtkObjectBase* r)
   : Object(r)
 {
   vtkWeakPointerBaseToObjectBaseFriendship::AddWeakPointer(r, this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkWeakPointerBase::vtkWeakPointerBase(const vtkWeakPointerBase& r)
   : Object(r.Object)
 {
   vtkWeakPointerBaseToObjectBaseFriendship::AddWeakPointer(r.Object, this);
 }
 
-//----------------------------------------------------------------------------
-vtkWeakPointerBase::vtkWeakPointerBase(vtkWeakPointerBase&& r) noexcept : Object(r.Object)
+//------------------------------------------------------------------------------
+vtkWeakPointerBase::vtkWeakPointerBase(vtkWeakPointerBase&& r) noexcept
+  : Object(r.Object)
 {
   r.Object = nullptr;
   vtkWeakPointerBaseToObjectBaseFriendship::ReplaceWeakPointer(this->Object, &r, this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkWeakPointerBase::~vtkWeakPointerBase()
 {
   vtkWeakPointerBaseToObjectBaseFriendship::RemoveWeakPointer(this->Object, this);
@@ -143,7 +144,7 @@ vtkWeakPointerBase::~vtkWeakPointerBase()
   this->Object = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkWeakPointerBase& vtkWeakPointerBase::operator=(vtkObjectBase* r)
 {
   if (this->Object != r)
@@ -158,7 +159,7 @@ vtkWeakPointerBase& vtkWeakPointerBase::operator=(vtkObjectBase* r)
   return *this;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkWeakPointerBase& vtkWeakPointerBase::operator=(const vtkWeakPointerBase& r)
 {
   if (this != &r)
@@ -176,7 +177,7 @@ vtkWeakPointerBase& vtkWeakPointerBase::operator=(const vtkWeakPointerBase& r)
   return *this;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkWeakPointerBase& vtkWeakPointerBase::operator=(vtkWeakPointerBase&& r) noexcept
 {
   if (this != &r)
@@ -196,7 +197,7 @@ vtkWeakPointerBase& vtkWeakPointerBase::operator=(vtkWeakPointerBase&& r) noexce
   return *this;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 ostream& operator<<(ostream& os, const vtkWeakPointerBase& p)
 {
   // Just print the pointer value into the stream.

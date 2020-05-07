@@ -27,7 +27,7 @@
 
 vtkStandardNewMacro(vtkScalarBarWidget);
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkScalarBarWidget::vtkScalarBarWidget()
 {
   this->Selectable = 0;
@@ -38,16 +38,16 @@ vtkScalarBarWidget::vtkScalarBarWidget()
     vtkCommand::MouseMoveEvent, vtkWidgetEvent::Move, this, vtkScalarBarWidget::MoveAction);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkScalarBarWidget::~vtkScalarBarWidget() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkScalarBarWidget::SetRepresentation(vtkScalarBarRepresentation* rep)
 {
   this->SetWidgetRepresentation(rep);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkScalarBarWidget::SetScalarBarActor(vtkScalarBarActor* actor)
 {
   vtkScalarBarRepresentation* rep = this->GetScalarBarRepresentation();
@@ -64,7 +64,7 @@ void vtkScalarBarWidget::SetScalarBarActor(vtkScalarBarActor* actor)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkScalarBarActor* vtkScalarBarWidget::GetScalarBarActor()
 {
   vtkScalarBarRepresentation* rep = this->GetScalarBarRepresentation();
@@ -77,7 +77,7 @@ vtkScalarBarActor* vtkScalarBarWidget::GetScalarBarActor()
   return rep->GetScalarBarActor();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkScalarBarWidget::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)
@@ -88,7 +88,7 @@ void vtkScalarBarWidget::CreateDefaultRepresentation()
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkScalarBarWidget::SetCursor(int cState)
 {
   if (!this->Repositionable && !this->Selectable && cState == vtkBorderRepresentation::Inside)
@@ -102,7 +102,7 @@ void vtkScalarBarWidget::SetCursor(int cState)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkScalarBarWidget::MoveAction(vtkAbstractWidget* w)
 {
   // The superclass handle most stuff.
@@ -119,7 +119,7 @@ void vtkScalarBarWidget::MoveAction(vtkAbstractWidget* w)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkScalarBarWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

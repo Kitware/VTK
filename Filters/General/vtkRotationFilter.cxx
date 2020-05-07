@@ -27,7 +27,7 @@
 
 vtkStandardNewMacro(vtkRotationFilter);
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRotationFilter::vtkRotationFilter()
 {
   this->Axis = 2;
@@ -37,10 +37,10 @@ vtkRotationFilter::vtkRotationFilter()
   this->Angle = 0;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRotationFilter::~vtkRotationFilter() = default;
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRotationFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -53,7 +53,7 @@ void vtkRotationFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Angle: " << this->Angle << endl;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkRotationFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

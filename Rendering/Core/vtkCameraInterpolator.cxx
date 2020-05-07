@@ -75,7 +75,7 @@ class vtkCameraList : public std::list<vtkICamera>
 };
 typedef vtkCameraList::iterator CameraListIterator;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCameraInterpolator::vtkCameraInterpolator()
 {
   // Set up the interpolation
@@ -94,7 +94,7 @@ vtkCameraInterpolator::vtkCameraInterpolator()
   this->Initialized = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCameraInterpolator::~vtkCameraInterpolator()
 {
   delete this->CameraList;
@@ -107,7 +107,7 @@ vtkCameraInterpolator::~vtkCameraInterpolator()
   this->SetClippingRangeInterpolator(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkCameraInterpolator::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
@@ -147,13 +147,13 @@ vtkMTimeType vtkCameraInterpolator::GetMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCameraInterpolator::GetNumberOfCameras()
 {
   return static_cast<int>(this->CameraList->size());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkCameraInterpolator::GetMinimumT()
 {
   if (this->CameraList->empty())
@@ -166,7 +166,7 @@ double vtkCameraInterpolator::GetMinimumT()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkCameraInterpolator::GetMaximumT()
 {
   if (this->CameraList->empty())
@@ -179,14 +179,14 @@ double vtkCameraInterpolator::GetMaximumT()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCameraInterpolator::Initialize()
 {
   this->CameraList->clear();
   this->Initialized = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCameraInterpolator::AddCamera(double t, vtkCamera* camera)
 {
   int size = static_cast<int>(this->CameraList->size());
@@ -226,7 +226,7 @@ void vtkCameraInterpolator::AddCamera(double t, vtkCamera* camera)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCameraInterpolator::RemoveCamera(double t)
 {
   if (t < this->CameraList->front().Time || t > this->CameraList->back().Time)
@@ -244,7 +244,7 @@ void vtkCameraInterpolator::RemoveCamera(double t)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCameraInterpolator::SetPositionInterpolator(vtkTupleInterpolator* pi)
 {
   if (this->PositionInterpolator != pi)
@@ -262,7 +262,7 @@ void vtkCameraInterpolator::SetPositionInterpolator(vtkTupleInterpolator* pi)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCameraInterpolator::SetFocalPointInterpolator(vtkTupleInterpolator* fpi)
 {
   if (this->FocalPointInterpolator != fpi)
@@ -280,7 +280,7 @@ void vtkCameraInterpolator::SetFocalPointInterpolator(vtkTupleInterpolator* fpi)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCameraInterpolator::SetViewUpInterpolator(vtkTupleInterpolator* vupi)
 {
   if (this->ViewUpInterpolator != vupi)
@@ -298,7 +298,7 @@ void vtkCameraInterpolator::SetViewUpInterpolator(vtkTupleInterpolator* vupi)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCameraInterpolator::SetClippingRangeInterpolator(vtkTupleInterpolator* cri)
 {
   if (this->ClippingRangeInterpolator != cri)
@@ -316,7 +316,7 @@ void vtkCameraInterpolator::SetClippingRangeInterpolator(vtkTupleInterpolator* c
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCameraInterpolator::SetParallelScaleInterpolator(vtkTupleInterpolator* psi)
 {
   if (this->ParallelScaleInterpolator != psi)
@@ -334,7 +334,7 @@ void vtkCameraInterpolator::SetParallelScaleInterpolator(vtkTupleInterpolator* p
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCameraInterpolator::SetViewAngleInterpolator(vtkTupleInterpolator* vai)
 {
   if (this->ViewAngleInterpolator != vai)
@@ -352,7 +352,7 @@ void vtkCameraInterpolator::SetViewAngleInterpolator(vtkTupleInterpolator* vai)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCameraInterpolator::InitializeInterpolation()
 {
   if (this->CameraList->empty())
@@ -442,7 +442,7 @@ void vtkCameraInterpolator::InitializeInterpolation()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCameraInterpolator::InterpolateCamera(double t, vtkCamera* camera)
 {
   if (this->CameraList->empty())
@@ -480,7 +480,7 @@ void vtkCameraInterpolator::InterpolateCamera(double t, vtkCamera* camera)
   camera->SetParallelScale(PS[0]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCameraInterpolator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -36,7 +36,7 @@ vtkCxxSetObjectMacro(vtkRectilinearGrid, XCoordinates, vtkDataArray);
 vtkCxxSetObjectMacro(vtkRectilinearGrid, YCoordinates, vtkDataArray);
 vtkCxxSetObjectMacro(vtkRectilinearGrid, ZCoordinates, vtkDataArray);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRectilinearGrid::vtkRectilinearGrid()
 {
   this->Vertex = vtkVertex::New();
@@ -72,7 +72,7 @@ vtkRectilinearGrid::vtkRectilinearGrid()
   this->PointReturn[2] = 0.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRectilinearGrid::~vtkRectilinearGrid()
 {
   this->Cleanup();
@@ -83,7 +83,7 @@ vtkRectilinearGrid::~vtkRectilinearGrid()
   this->Voxel->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRectilinearGrid::Cleanup()
 {
   if (this->XCoordinates)
@@ -105,7 +105,7 @@ void vtkRectilinearGrid::Cleanup()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRectilinearGrid::Initialize()
 {
   this->Superclass::Initialize();
@@ -118,7 +118,7 @@ void vtkRectilinearGrid::Initialize()
   this->Cleanup();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Copy the geometric and topological structure of an input rectilinear grid
 // object.
 void vtkRectilinearGrid::CopyStructure(vtkDataSet* ds)
@@ -139,7 +139,7 @@ void vtkRectilinearGrid::CopyStructure(vtkDataSet* ds)
   this->SetZCoordinates(rGrid->ZCoordinates);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCell* vtkRectilinearGrid::GetCell(vtkIdType cellId)
 {
   vtkCell* cell = nullptr;
@@ -239,7 +239,7 @@ vtkCell* vtkRectilinearGrid::GetCell(vtkIdType cellId)
   return cell;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCell* vtkRectilinearGrid::GetCell(int iMin, int jMin, int kMin)
 {
   vtkCell* cell = nullptr;
@@ -336,7 +336,7 @@ vtkCell* vtkRectilinearGrid::GetCell(int iMin, int jMin, int kMin)
   return cell;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRectilinearGrid::GetCell(vtkIdType cellId, vtkGenericCell* cell)
 {
   vtkIdType idx, npts;
@@ -428,7 +428,7 @@ void vtkRectilinearGrid::GetCell(vtkIdType cellId, vtkGenericCell* cell)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Fast implementation of GetCellBounds().  Bounds are calculated without
 // constructing a cell.
 void vtkRectilinearGrid::GetCellBounds(vtkIdType cellId, double bounds[6])
@@ -518,7 +518,7 @@ void vtkRectilinearGrid::GetCellBounds(vtkIdType cellId, double bounds[6])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRectilinearGrid::GetPoints(vtkPoints* pnts)
 {
   assert("pre: points object should not be nullptr" && (pnts != nullptr));
@@ -532,7 +532,7 @@ void vtkRectilinearGrid::GetPoints(vtkPoints* pnts)
   } // END for all points
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkRectilinearGrid::GetPoint(vtkIdType ptId)
 {
   int loc[3];
@@ -669,7 +669,7 @@ void vtkRectilinearGrid::GetPoint(vtkIdType ptId, double x[3])
   x[2] = this->ZCoordinates->GetComponent(loc[2], 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRectilinearGrid::GetPoint(const int i, const int j, const int k, double p[3])
 {
   int ijk[3];
@@ -681,7 +681,7 @@ void vtkRectilinearGrid::GetPoint(const int i, const int j, const int k, double 
   this->GetPoint(pntIdx, p);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkRectilinearGrid::FindPoint(double x[3])
 {
   int i, j, loc[3];
@@ -734,7 +734,7 @@ vtkIdType vtkRectilinearGrid::FindCell(double x[3], vtkCell* vtkNotUsed(cell),
   return this->FindCell(x, static_cast<vtkCell*>(nullptr), 0, 0.0, subId, pcoords, weights);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkRectilinearGrid::FindCell(double x[3], vtkCell* vtkNotUsed(cell),
   vtkIdType vtkNotUsed(cellId), double vtkNotUsed(tol2), int& subId, double pcoords[3],
   double* weights)
@@ -755,7 +755,7 @@ vtkIdType vtkRectilinearGrid::FindCell(double x[3], vtkCell* vtkNotUsed(cell),
   return this->ComputeCellId(loc);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCell* vtkRectilinearGrid::FindAndGetCell(double x[3], vtkCell* vtkNotUsed(cell),
   vtkIdType vtkNotUsed(cellId), double vtkNotUsed(tol2), int& subId, double pcoords[3],
   double* weights)
@@ -780,7 +780,7 @@ vtkCell* vtkRectilinearGrid::FindAndGetCell(double x[3], vtkCell* vtkNotUsed(cel
   return vtkRectilinearGrid::GetCell(cellId);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkRectilinearGrid::GetCellType(vtkIdType vtkNotUsed(cellId))
 {
   switch (this->DataDescription)
@@ -810,7 +810,7 @@ int vtkRectilinearGrid::GetCellType(vtkIdType vtkNotUsed(cellId))
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRectilinearGrid::ComputeBounds()
 {
   double tmp;
@@ -851,21 +851,21 @@ void vtkRectilinearGrid::ComputeBounds()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Set dimensions of rectilinear grid dataset.
 void vtkRectilinearGrid::SetDimensions(int i, int j, int k)
 {
   this->SetExtent(0, i - 1, 0, j - 1, 0, k - 1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Set dimensions of rectilinear grid dataset.
 void vtkRectilinearGrid::SetDimensions(const int dim[3])
 {
   this->SetExtent(0, dim[0] - 1, 0, dim[1] - 1, 0, dim[2] - 1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRectilinearGrid::SetExtent(int extent[6])
 {
   int description;
@@ -889,7 +889,7 @@ void vtkRectilinearGrid::SetExtent(int extent[6])
   this->Dimensions[2] = extent[5] - extent[4] + 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRectilinearGrid::SetExtent(int xMin, int xMax, int yMin, int yMax, int zMin, int zMax)
 {
   int extent[6];
@@ -904,7 +904,7 @@ void vtkRectilinearGrid::SetExtent(int xMin, int xMax, int yMin, int yMax, int z
   this->SetExtent(extent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Convenience function computes the structured coordinates for a point x[3].
 // The cell is specified by the array ijk[3], and the parametric coordinates
 // in the cell are specified with pcoords[3]. The function returns a 0 if the
@@ -966,7 +966,7 @@ int vtkRectilinearGrid::ComputeStructuredCoordinates(double x[3], int ijk[3], do
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 unsigned long vtkRectilinearGrid::GetActualMemorySize()
 {
   unsigned long size = this->vtkDataSet::GetActualMemorySize();
@@ -989,7 +989,7 @@ unsigned long vtkRectilinearGrid::GetActualMemorySize()
   return size;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRectilinearGrid::GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdList* cellIds)
 {
   int numPtIds = ptIds->GetNumberOfIds();
@@ -1011,7 +1011,7 @@ void vtkRectilinearGrid::GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vt
       this->vtkDataSet::GetCellNeighbors(cellId, ptIds, cellIds);
   }
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRectilinearGrid::ShallowCopy(vtkDataObject* dataObject)
 {
   vtkRectilinearGrid* grid = vtkRectilinearGrid::SafeDownCast(dataObject);
@@ -1031,7 +1031,7 @@ void vtkRectilinearGrid::ShallowCopy(vtkDataObject* dataObject)
   this->vtkDataSet::ShallowCopy(dataObject);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRectilinearGrid::DeepCopy(vtkDataObject* dataObject)
 {
   auto mkhold = vtkMemkindRAII(this->GetIsInMemkind());
@@ -1062,7 +1062,7 @@ void vtkRectilinearGrid::DeepCopy(vtkDataObject* dataObject)
   this->vtkDataSet::DeepCopy(dataObject);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRectilinearGrid::Crop(const int* updateExtent)
 {
   // Do nothing for empty datasets:
@@ -1222,19 +1222,19 @@ void vtkRectilinearGrid::Crop(const int* updateExtent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRectilinearGrid* vtkRectilinearGrid::GetData(vtkInformation* info)
 {
   return info ? vtkRectilinearGrid::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRectilinearGrid* vtkRectilinearGrid::GetData(vtkInformationVector* v, int i)
 {
   return vtkRectilinearGrid::GetData(v->GetInformationObject(i));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRectilinearGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -327,7 +327,7 @@ void vtkEncodedGradientEstimator::PrintSelf(ostream& os, vtkIndent indent)
   //    << this->InputAspect << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkEncodedGradientEstimator::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);

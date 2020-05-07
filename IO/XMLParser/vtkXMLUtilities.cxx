@@ -37,7 +37,7 @@ vtkStandardNewMacro(vtkXMLUtilities);
 #define VTK_XML_UTILITIES_FACTORED_NAME "Factored"
 #define VTK_XML_UTILITIES_FACTORED_REF_NAME "FactoredRef"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 inline int vtkXMLUtilitiesEncodeEntities(unsigned char c, ostream& output)
 {
   switch (c)
@@ -66,7 +66,7 @@ inline int vtkXMLUtilitiesEncodeEntities(unsigned char c, ostream& output)
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLUtilities::EncodeString(
   const char* input, int input_encoding, ostream& output, int output_encoding, int special_entities)
 {
@@ -220,7 +220,7 @@ void vtkXMLUtilities::EncodeString(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLUtilities::CollateAttributes(vtkXMLDataElement* elem, ostream& os, const char* sep)
 {
   if (!elem)
@@ -250,7 +250,7 @@ void vtkXMLUtilities::CollateAttributes(vtkXMLDataElement* elem, ostream& os, co
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLUtilities::FlattenElement(
   vtkXMLDataElement* elem, ostream& os, vtkIndent* indent, int indent_attributes)
 {
@@ -354,7 +354,7 @@ void vtkXMLUtilities::FlattenElement(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLUtilities::WriteElementToFile(
   vtkXMLDataElement* elem, const char* filename, vtkIndent* indent)
 {
@@ -376,7 +376,7 @@ int vtkXMLUtilities::WriteElementToFile(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLDataElement* vtkXMLUtilities::ReadElementFromStream(istream& is, int encoding)
 {
   vtkXMLDataElement* res = nullptr;
@@ -397,7 +397,7 @@ vtkXMLDataElement* vtkXMLUtilities::ReadElementFromStream(istream& is, int encod
   return res;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLDataElement* vtkXMLUtilities::ReadElementFromString(const char* str, int encoding)
 {
   if (!str)
@@ -412,7 +412,7 @@ vtkXMLDataElement* vtkXMLUtilities::ReadElementFromString(const char* str, int e
   return res;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLDataElement* vtkXMLUtilities::ReadElementFromFile(const char* filename, int encoding)
 {
   if (!filename)
@@ -424,7 +424,7 @@ vtkXMLDataElement* vtkXMLUtilities::ReadElementFromFile(const char* filename, in
   return vtkXMLUtilities::ReadElementFromStream(is, encoding);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLUtilities::ReadElementFromAttributeArray(
   vtkXMLDataElement* element, const char** atts, int encoding)
 {
@@ -460,7 +460,7 @@ void vtkXMLUtilities::ReadElementFromAttributeArray(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static void vtkXMLUtilitiesFindSimilarElementsInternal(
   vtkXMLDataElement* elem, vtkXMLDataElement* tree, vtkXMLUtilitiesDataElementContainer* results)
 {
@@ -485,7 +485,7 @@ static void vtkXMLUtilitiesFindSimilarElementsInternal(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLUtilities::FindSimilarElements(
   vtkXMLDataElement* elem, vtkXMLDataElement* tree, vtkXMLDataElement*** results)
 {
@@ -528,7 +528,7 @@ int vtkXMLUtilities::FindSimilarElements(
   return size;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLUtilities::FactorElements(vtkXMLDataElement* tree)
 {
   if (!tree)
@@ -562,7 +562,7 @@ void vtkXMLUtilities::FactorElements(vtkXMLDataElement* tree)
   pool->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLUtilities::FactorElementsInternal(
   vtkXMLDataElement* tree, vtkXMLDataElement* root, vtkXMLDataElement* pool)
 {
@@ -635,7 +635,7 @@ int vtkXMLUtilities::FactorElementsInternal(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLUtilities::UnFactorElements(vtkXMLDataElement* tree)
 {
   if (!tree)
@@ -666,7 +666,7 @@ void vtkXMLUtilities::UnFactorElements(vtkXMLDataElement* tree)
   pool->UnRegister(tree);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLUtilities::UnFactorElementsInternal(vtkXMLDataElement* tree, vtkXMLDataElement* pool)
 {
   if (!tree || !pool)

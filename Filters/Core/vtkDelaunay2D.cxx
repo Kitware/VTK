@@ -58,13 +58,13 @@ vtkDelaunay2D::~vtkDelaunay2D()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDelaunay2D::SetSourceData(vtkPolyData* input)
 {
   this->Superclass::SetInputData(1, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify the input data or filter. New style.
 void vtkDelaunay2D::SetSourceConnection(vtkAlgorithmOutput* algOutput)
 {
@@ -1085,7 +1085,7 @@ int vtkDelaunay2D::RecoverEdge(vtkPolyData* source, vtkIdType p1, vtkIdType p2)
   leftTriPts->Allocate(64);
 
   // Container for the edges (2 ids in a set, the order does not matter) we won't check
-  std::set<std::set<vtkIdType> > polysEdges;
+  std::set<std::set<vtkIdType>> polysEdges;
   // Container for the cells & point ids for the edge that need to be checked
   std::vector<vtkIdType> newEdges;
 
@@ -1496,7 +1496,7 @@ void vtkDelaunay2D::FillPolygons(vtkCellArray* polys, int* triUse)
   neis->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDelaunay2D::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
@@ -1511,7 +1511,7 @@ int vtkDelaunay2D::FillInputPortInformation(int port, vtkInformation* info)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAbstractTransform* vtkDelaunay2D::ComputeBestFittingPlane(vtkPointSet* input)
 {
   vtkIdType numPts = input->GetNumberOfPoints();
@@ -1631,7 +1631,7 @@ vtkAbstractTransform* vtkDelaunay2D::ComputeBestFittingPlane(vtkPointSet* input)
   return transform;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDelaunay2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

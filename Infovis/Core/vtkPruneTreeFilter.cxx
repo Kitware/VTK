@@ -82,7 +82,7 @@ int vtkPruneTreeFilter::RequestData(
   builder->GetFieldData()->DeepCopy(inputTree->GetFieldData());
 
   // Build a copy of the tree, skipping the parent vertex to remove.
-  std::vector<std::pair<vtkIdType, vtkIdType> > vertStack;
+  std::vector<std::pair<vtkIdType, vtkIdType>> vertStack;
   if (inputTree->GetRoot() != this->ParentVertex)
   {
     vertStack.emplace_back(inputTree->GetRoot(), builder->AddVertex());

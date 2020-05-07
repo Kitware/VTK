@@ -154,7 +154,10 @@ struct GenericTupleSize<DynamicTupleSize>
 {
   using value_type = ComponentIdType;
 
-  VTK_ITER_INLINE GenericTupleSize() noexcept : value(0) {}
+  VTK_ITER_INLINE GenericTupleSize() noexcept
+    : value(0)
+  {
+  }
   VTK_ITER_INLINE explicit GenericTupleSize(vtkDataArray* array)
     : value(array->GetNumberOfComponents())
   {
@@ -181,7 +184,7 @@ struct GetAPITypeImpl<vtkDataArray>
 
 //------------------------------------------------------------------------------
 // Typedef for double if vtkDataArray, or the array's ValueType for subclasses.
-template <typename ArrayType, typename = detail::EnableIfVtkDataArray<ArrayType> >
+template <typename ArrayType, typename = detail::EnableIfVtkDataArray<ArrayType>>
 using GetAPIType = typename detail::GetAPITypeImpl<ArrayType>::APIType;
 
 //------------------------------------------------------------------------------

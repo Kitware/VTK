@@ -27,13 +27,13 @@
 #include "vtkTetra.h"
 
 vtkStandardNewMacro(vtkBezierTetra);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBezierTetra::vtkBezierTetra()
   : vtkHigherOrderTetra()
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBezierTetra::~vtkBezierTetra() = default;
 
 void vtkBezierTetra::PrintSelf(ostream& os, vtkIndent indent)
@@ -102,7 +102,7 @@ void vtkBezierTetra::SetRationalWeightsFromPointData(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBezierTetra::InterpolateFunctions(const double pcoords[3], double* weights)
 {
   const int dim = 3;
@@ -134,7 +134,7 @@ void vtkBezierTetra::InterpolateFunctions(const double pcoords[3], double* weigh
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBezierTetra::InterpolateDerivs(const double pcoords[3], double* derivs)
 {
   const int dim = 3;

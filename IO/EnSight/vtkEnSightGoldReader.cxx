@@ -39,7 +39,7 @@ vtkStandardNewMacro(vtkEnSightGoldReader);
 class vtkEnSightGoldReader::FileOffsetMapInternal
 {
 public:
-  std::map<std::string, std::map<int, long> > Map;
+  std::map<std::string, std::map<int, long>> Map;
 };
 class vtkEnSightGoldReader::UndefPartialInternal
 {
@@ -52,7 +52,7 @@ public:
   std::vector<vtkIdType> PartialElementTypes;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkEnSightGoldReader::vtkEnSightGoldReader()
 {
   this->UndefPartial = new vtkEnSightGoldReader::UndefPartialInternal;
@@ -62,7 +62,7 @@ vtkEnSightGoldReader::vtkEnSightGoldReader()
   this->ElementIdsListed = 0;
   // this->DebugOn();
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkEnSightGoldReader::~vtkEnSightGoldReader()
 {
@@ -70,7 +70,7 @@ vtkEnSightGoldReader::~vtkEnSightGoldReader()
   delete this->FileOffsets;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightGoldReader::ReadGeometryFile(
   const char* fileName, int timeStep, vtkMultiBlockDataSet* output)
 {
@@ -274,7 +274,7 @@ int vtkEnSightGoldReader::ReadGeometryFile(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightGoldReader::ReadMeasuredGeometryFile(
   const char* fileName, int timeStep, vtkMultiBlockDataSet* output)
 {
@@ -416,7 +416,7 @@ int vtkEnSightGoldReader::ReadMeasuredGeometryFile(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightGoldReader::ReadScalarsPerNode(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput, int measured, int numberOfComponents,
   int component)
@@ -625,7 +625,7 @@ int vtkEnSightGoldReader::ReadScalarsPerNode(const char* fileName, const char* d
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightGoldReader::ReadVectorsPerNode(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput, int measured)
 {
@@ -791,7 +791,7 @@ int vtkEnSightGoldReader::ReadVectorsPerNode(const char* fileName, const char* d
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightGoldReader::ReadTensorsPerNode(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput)
 {
@@ -908,7 +908,7 @@ int vtkEnSightGoldReader::ReadTensorsPerNode(const char* fileName, const char* d
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightGoldReader::ReadScalarsPerElement(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput, int numberOfComponents, int component)
 {
@@ -1107,7 +1107,7 @@ int vtkEnSightGoldReader::ReadScalarsPerElement(const char* fileName, const char
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightGoldReader::ReadVectorsPerElement(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput)
 {
@@ -1269,7 +1269,7 @@ int vtkEnSightGoldReader::ReadVectorsPerElement(const char* fileName, const char
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightGoldReader::ReadTensorsPerElement(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput)
 {
@@ -1429,7 +1429,7 @@ int vtkEnSightGoldReader::ReadTensorsPerElement(const char* fileName, const char
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightGoldReader::CreateUnstructuredGridOutput(
   int partId, char line[256], const char* name, vtkMultiBlockDataSet* compositeOutput)
 {
@@ -2589,7 +2589,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(
   return lineRead;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightGoldReader::CreateStructuredGridOutput(
   int partId, char line[256], const char* name, vtkMultiBlockDataSet* compositeOutput)
 {
@@ -2668,7 +2668,7 @@ int vtkEnSightGoldReader::CreateStructuredGridOutput(
   return lineRead;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightGoldReader::CreateRectilinearGridOutput(
   int partId, char line[256], const char* name, vtkMultiBlockDataSet* compositeOutput)
 {
@@ -2757,7 +2757,7 @@ int vtkEnSightGoldReader::CreateRectilinearGridOutput(
   return lineRead;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightGoldReader::CreateImageDataOutput(
   int partId, char line[256], const char* name, vtkMultiBlockDataSet* compositeOutput)
 {
@@ -2828,7 +2828,7 @@ int vtkEnSightGoldReader::CreateImageDataOutput(
   return lineRead;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightGoldReader::CheckForUndefOrPartial(const char* line)
 {
   char undefvar[16];
@@ -2904,7 +2904,7 @@ int vtkEnSightGoldReader::CheckForUndefOrPartial(const char* line)
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkEnSightGoldReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

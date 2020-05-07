@@ -35,7 +35,7 @@
 #include <vector>
 
 vtkStandardNewMacro(vtkDelimitedTextWriter);
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDelimitedTextWriter::vtkDelimitedTextWriter()
 {
   this->StringDelimiter = nullptr;
@@ -49,7 +49,7 @@ vtkDelimitedTextWriter::vtkDelimitedTextWriter()
   this->OutputString = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDelimitedTextWriter::~vtkDelimitedTextWriter()
 {
   this->SetStringDelimiter(nullptr);
@@ -59,14 +59,14 @@ vtkDelimitedTextWriter::~vtkDelimitedTextWriter()
   delete[] this->OutputString;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDelimitedTextWriter::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkDelimitedTextWriter::OpenStream()
 {
   if (this->WriteToOutputString)
@@ -100,7 +100,7 @@ bool vtkDelimitedTextWriter::OpenStream()
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class iterT>
 void vtkDelimitedTextWriterGetDataString(
   iterT* iter, vtkIdType tupleIndex, ostream* stream, vtkDelimitedTextWriter* writer, bool* first)
@@ -129,7 +129,7 @@ void vtkDelimitedTextWriterGetDataString(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <>
 void vtkDelimitedTextWriterGetDataString(vtkArrayIteratorTemplate<vtkStdString>* iter,
   vtkIdType tupleIndex, ostream* stream, vtkDelimitedTextWriter* writer, bool* first)
@@ -158,7 +158,7 @@ void vtkDelimitedTextWriterGetDataString(vtkArrayIteratorTemplate<vtkStdString>*
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStdString vtkDelimitedTextWriter::GetString(vtkStdString string)
 {
   if (this->UseStringDelimiter && this->StringDelimiter)
@@ -170,7 +170,7 @@ vtkStdString vtkDelimitedTextWriter::GetString(vtkStdString string)
   return string;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDelimitedTextWriter::WriteData()
 {
   vtkTable* rg = vtkTable::SafeDownCast(this->GetInput());
@@ -184,7 +184,7 @@ void vtkDelimitedTextWriter::WriteData()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDelimitedTextWriter::WriteTable(vtkTable* table)
 {
   vtkIdType numRows = table->GetNumberOfRows();
@@ -194,7 +194,7 @@ void vtkDelimitedTextWriter::WriteTable(vtkTable* table)
     return;
   }
 
-  std::vector<vtkSmartPointer<vtkArrayIterator> > columnsIters;
+  std::vector<vtkSmartPointer<vtkArrayIterator>> columnsIters;
 
   int cc;
   int numArrays = dsa->GetNumberOfArrays();
@@ -228,7 +228,7 @@ void vtkDelimitedTextWriter::WriteTable(vtkTable* table)
   for (vtkIdType index = 0; index < numRows; index++)
   {
     first = true;
-    std::vector<vtkSmartPointer<vtkArrayIterator> >::iterator iter;
+    std::vector<vtkSmartPointer<vtkArrayIterator>>::iterator iter;
     for (iter = columnsIters.begin(); iter != columnsIters.end(); ++iter)
     {
       switch ((*iter)->GetDataType())
@@ -260,7 +260,7 @@ void vtkDelimitedTextWriter::WriteTable(vtkTable* table)
   this->Stream = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 char* vtkDelimitedTextWriter::RegisterAndGetOutputString()
 {
   char* tmp = this->OutputString;
@@ -269,7 +269,7 @@ char* vtkDelimitedTextWriter::RegisterAndGetOutputString()
   return tmp;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDelimitedTextWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

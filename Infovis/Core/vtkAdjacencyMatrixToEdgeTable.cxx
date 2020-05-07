@@ -35,11 +35,11 @@
 #include <functional>
 #include <map>
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkStandardNewMacro(vtkAdjacencyMatrixToEdgeTable);
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkAdjacencyMatrixToEdgeTable::vtkAdjacencyMatrixToEdgeTable()
   : SourceDimension(0)
@@ -53,14 +53,14 @@ vtkAdjacencyMatrixToEdgeTable::vtkAdjacencyMatrixToEdgeTable()
   this->SetNumberOfOutputPorts(1);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkAdjacencyMatrixToEdgeTable::~vtkAdjacencyMatrixToEdgeTable()
 {
   this->SetValueArrayName(nullptr);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkAdjacencyMatrixToEdgeTable::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -83,7 +83,7 @@ int vtkAdjacencyMatrixToEdgeTable::FillInputPortInformation(int port, vtkInforma
   return 0;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkAdjacencyMatrixToEdgeTable::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -134,7 +134,7 @@ int vtkAdjacencyMatrixToEdgeTable::RequestData(
     coordinates[source_dimension] = i;
 
     // Create a sorted list of source values ...
-    typedef std::multimap<double, vtkIdType, std::greater<double> > sorted_values_t;
+    typedef std::multimap<double, vtkIdType, std::greater<double>> sorted_values_t;
     sorted_values_t sorted_values;
     for (vtkIdType j = input_extents[target_dimension].GetBegin();
          j != input_extents[target_dimension].GetEnd(); ++j)

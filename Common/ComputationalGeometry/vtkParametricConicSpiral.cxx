@@ -18,7 +18,7 @@
 
 vtkStandardNewMacro(vtkParametricConicSpiral);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParametricConicSpiral::vtkParametricConicSpiral()
 {
   // Preset triangulation parameters
@@ -41,10 +41,10 @@ vtkParametricConicSpiral::vtkParametricConicSpiral()
   this->N = 2;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParametricConicSpiral::~vtkParametricConicSpiral() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParametricConicSpiral::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
 {
   double u = uvw[0];
@@ -75,13 +75,13 @@ void vtkParametricConicSpiral::Evaluate(double uvw[3], double Pt[3], double Duvw
   Dv[2] = this->B * inv2pi - this->A * inv2pi * su;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkParametricConicSpiral::EvaluateScalar(double*, double*, double*)
 {
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParametricConicSpiral::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

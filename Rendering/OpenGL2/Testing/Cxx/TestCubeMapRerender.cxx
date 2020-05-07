@@ -33,7 +33,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkTexture.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestCubeMapRerender(int argc, char* argv[])
 {
   vtkNew<vtkRenderer> renderer;

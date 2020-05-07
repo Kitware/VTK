@@ -25,7 +25,7 @@
 #include "vtkRandomPool.h"
 #include <vtkMath.h>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Test the first four moments to ensure our random number generator conforms
 // to a flat random distribution between 0 and 1.
 int MomentCheck(double min, double max, std::size_t nValues)
@@ -105,7 +105,7 @@ int MomentCheck(double min, double max, std::size_t nValues)
   return EXIT_SUCCESS;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct two instances of vtkMersenneTwister, each with <nThreads>
 // independent sequence generators. Extract <nValues> values from each of the
 // the sequences, using a different order for each of the two instances. Compare
@@ -179,7 +179,7 @@ int ThreadCheck(std::size_t nThreads, std::size_t nValues)
   return retVal;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct an instance of vtkMersenneTwister and initialize two sequences,
 // both seeded with the value 0, and an instance that initializes one sequence
 // seeded with the value 1. Ensure that the sequence with sequence id = 0 and
@@ -228,7 +228,7 @@ int ConsistencyCheck()
   return EXIT_SUCCESS;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Simply generate a sequence and make sure every value is set, and that
 // serial and parallel execution both work.
 #define VTK_SEQUENCE_TEST_SIZE 10000
@@ -270,7 +270,7 @@ int SequenceCheck()
   return EXIT_SUCCESS;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestMersenneTwister(int, char*[])
 {
   if (MomentCheck(0., 1., 1.e6) != EXIT_SUCCESS)

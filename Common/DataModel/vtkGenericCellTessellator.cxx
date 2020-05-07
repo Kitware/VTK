@@ -34,7 +34,7 @@
 
 vtkCxxSetObjectMacro(vtkGenericCellTessellator, ErrorMetrics, vtkCollection);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Create the tessellator helper with a default of 0.25 for threshold
 vtkGenericCellTessellator::vtkGenericCellTessellator()
 {
@@ -45,14 +45,14 @@ vtkGenericCellTessellator::vtkGenericCellTessellator()
   this->Measurement = 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGenericCellTessellator::~vtkGenericCellTessellator()
 {
   this->SetErrorMetrics(nullptr);
   delete[] this->MaxErrors;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenericCellTessellator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -63,7 +63,7 @@ void vtkGenericCellTessellator::PrintSelf(ostream& os, vtkIndent indent)
   /* this->MaxErrors */
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Does the edge need to be subdivided according to at least one error
 // metric? The edge is defined by its `leftPoint' and its `rightPoint'.
@@ -105,7 +105,7 @@ int vtkGenericCellTessellator::RequiresEdgeSubdivision(
   return result;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Update the max error of each error metric according to the error at the
 // mid-point. The type of error depends on the state
@@ -145,7 +145,7 @@ void vtkGenericCellTessellator::UpdateMaxError(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Init the error metric with the dataset. Should be called in each filter
 // before any tessellation of any cell.
@@ -168,7 +168,7 @@ void vtkGenericCellTessellator::InitErrorMetrics(vtkGenericDataSet* ds)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Reset the maximal error of each error metric. The purpose of the maximal
 // error is to measure the quality of a fixed subdivision.
@@ -190,7 +190,7 @@ void vtkGenericCellTessellator::ResetMaxErrors()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Get the maximum error measured after the fixed subdivision.
 // \pre errors_exists: errors!=0
@@ -206,7 +206,7 @@ void vtkGenericCellTessellator::GetMaxErrors(double* errors)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Send the current cell to error metrics. Should be called at the beginning
 // of the implementation of Tessellate(), Triangulate()

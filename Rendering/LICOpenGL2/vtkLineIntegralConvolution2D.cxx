@@ -69,7 +69,7 @@ using std::vector;
 #include "vtkTextureIO.h"
 #include <sstream>
 using std::ostringstream;
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static string mpifn(int rank, const char* fn)
 {
   ostringstream oss;
@@ -871,10 +871,10 @@ void StreamingFindMinMax(vtkOpenGLFramebufferObject* fbo, vtkTextureObject* tex,
 };
 using namespace vtkLineIntegralConvolution2DUtil;
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkObjectFactoryNewMacro(vtkLineIntegralConvolution2D);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLineIntegralConvolution2D::vtkLineIntegralConvolution2D()
 {
   this->Comm = nullptr;
@@ -909,7 +909,7 @@ vtkLineIntegralConvolution2D::vtkLineIntegralConvolution2D()
   this->TransformVectors = 1;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLineIntegralConvolution2D::~vtkLineIntegralConvolution2D()
 {
   delete this->Comm;
@@ -959,13 +959,13 @@ vtkLineIntegralConvolution2D::~vtkLineIntegralConvolution2D()
   this->FBO->Delete();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenGLRenderWindow* vtkLineIntegralConvolution2D::GetContext()
 {
   return this->Context;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLineIntegralConvolution2D::SetContext(vtkOpenGLRenderWindow* renWin)
 {
   if (this->Context == renWin)
@@ -984,7 +984,7 @@ void vtkLineIntegralConvolution2D::SetContext(vtkOpenGLRenderWindow* renWin)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkLineIntegralConvolution2D::IsSupported(vtkRenderWindow* renWin)
 {
   vtkOpenGLRenderWindow* context = vtkOpenGLRenderWindow::SafeDownCast(renWin);
@@ -997,7 +997,7 @@ bool vtkLineIntegralConvolution2D::IsSupported(vtkRenderWindow* renWin)
     vtkOpenGLFramebufferObject::IsSupported(context) && vtkPixelBufferObject::IsSupported(context);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLineIntegralConvolution2D::SetNoiseTexParameters(vtkTextureObject* tex)
 {
   tex->SetBaseLevel(0);
@@ -1011,7 +1011,7 @@ void vtkLineIntegralConvolution2D::SetNoiseTexParameters(vtkTextureObject* tex)
   tex->Bind();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLineIntegralConvolution2D::SetVectorTexParameters(vtkTextureObject* tex)
 {
   tex->SetBaseLevel(0);
@@ -1026,7 +1026,7 @@ void vtkLineIntegralConvolution2D::SetVectorTexParameters(vtkTextureObject* tex)
   tex->Bind();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLineIntegralConvolution2D::SetComponentIds(int c0, int c1)
 {
   if ((this->ComponentIds[0] == c0) && (this->ComponentIds[1] == c1))
@@ -1039,7 +1039,7 @@ void vtkLineIntegralConvolution2D::SetComponentIds(int c0, int c1)
   this->Modified();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLineIntegralConvolution2D::SetTransformVectors(int val)
 {
   val = val < 0 ? 0 : val;
@@ -1053,7 +1053,7 @@ void vtkLineIntegralConvolution2D::SetTransformVectors(int val)
   this->Modified();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLineIntegralConvolution2D::SetNormalizeVectors(int val)
 {
   val = val < 0 ? 0 : val;
@@ -1067,7 +1067,7 @@ void vtkLineIntegralConvolution2D::SetNormalizeVectors(int val)
   this->Modified();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLineIntegralConvolution2D::SetVTShader(vtkShaderProgram* prog)
 {
   if (this->VTShader)
@@ -1076,7 +1076,7 @@ void vtkLineIntegralConvolution2D::SetVTShader(vtkShaderProgram* prog)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLineIntegralConvolution2D::SetLIC0Shader(vtkShaderProgram* prog)
 {
   if (this->LIC0Shader)
@@ -1085,7 +1085,7 @@ void vtkLineIntegralConvolution2D::SetLIC0Shader(vtkShaderProgram* prog)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLineIntegralConvolution2D::SetLICIShader(vtkShaderProgram* prog)
 {
   if (this->LICIShader)
@@ -1094,7 +1094,7 @@ void vtkLineIntegralConvolution2D::SetLICIShader(vtkShaderProgram* prog)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLineIntegralConvolution2D::SetLICNShader(vtkShaderProgram* prog)
 {
   if (this->LICNShader)
@@ -1103,7 +1103,7 @@ void vtkLineIntegralConvolution2D::SetLICNShader(vtkShaderProgram* prog)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLineIntegralConvolution2D::SetEEShader(vtkShaderProgram* prog)
 {
   if (this->EEShader)
@@ -1112,7 +1112,7 @@ void vtkLineIntegralConvolution2D::SetEEShader(vtkShaderProgram* prog)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLineIntegralConvolution2D::SetCEShader(vtkShaderProgram* prog)
 {
   if (this->CEShader)
@@ -1121,7 +1121,7 @@ void vtkLineIntegralConvolution2D::SetCEShader(vtkShaderProgram* prog)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLineIntegralConvolution2D::SetAAHShader(vtkShaderProgram* prog)
 {
   if (this->AAHShader)
@@ -1130,7 +1130,7 @@ void vtkLineIntegralConvolution2D::SetAAHShader(vtkShaderProgram* prog)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLineIntegralConvolution2D::SetAAVShader(vtkShaderProgram* prog)
 {
   if (this->AAVShader)
@@ -1158,7 +1158,7 @@ void BuildAShader(vtkOpenGLRenderWindow* renWin, vtkOpenGLHelper** cbor, const c
 }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLineIntegralConvolution2D::BuildShaders()
 {
   vtkOpenGLRenderWindow* renWin = this->Context;
@@ -1183,7 +1183,7 @@ void vtkLineIntegralConvolution2D::BuildShaders()
   BuildAShader(renWin, &this->AAVShader, vtkLineIntegralConvolution2D_AAV);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPainterCommunicator* vtkLineIntegralConvolution2D::GetCommunicator()
 {
   if (this->Comm == nullptr)
@@ -1193,7 +1193,7 @@ vtkPainterCommunicator* vtkLineIntegralConvolution2D::GetCommunicator()
   return this->Comm;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTextureObject* vtkLineIntegralConvolution2D::Execute(
   vtkTextureObject* vectorTex, vtkTextureObject* noiseTex)
 {
@@ -1205,7 +1205,7 @@ vtkTextureObject* vtkLineIntegralConvolution2D::Execute(
   return this->Execute(vectorTexExtent.GetData(), vectorTex, noiseTex);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTextureObject* vtkLineIntegralConvolution2D::Execute(
   const int ext[4], vtkTextureObject* vectorTex, vtkTextureObject* noiseTex)
 {
@@ -1233,7 +1233,7 @@ vtkTextureObject* vtkLineIntegralConvolution2D::Execute(
   return this->Execute(vectorTexExtent, vectorExtents, licExtents, vectorTex, nullptr, noiseTex);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTextureObject* vtkLineIntegralConvolution2D::Execute(
   const vtkPixelExtent& inputTexExtent,       // screen space extent of the input texture
   const deque<vtkPixelExtent>& vectorExtents, // disjoint set describing vector extents
@@ -1904,7 +1904,7 @@ vtkTextureObject* vtkLineIntegralConvolution2D::Execute(
   return outputTex;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLineIntegralConvolution2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

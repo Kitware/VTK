@@ -23,7 +23,7 @@
 
 vtkStandardNewMacro(vtkXMLParser);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLParser::vtkXMLParser()
 {
   this->Stream = nullptr;
@@ -36,7 +36,7 @@ vtkXMLParser::vtkXMLParser()
   this->IgnoreCharacterData = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLParser::~vtkXMLParser()
 {
   this->SetStream(nullptr);
@@ -44,7 +44,7 @@ vtkXMLParser::~vtkXMLParser()
   this->SetEncoding(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLParser::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -61,7 +61,7 @@ void vtkXMLParser::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Encoding: " << (this->Encoding ? this->Encoding : "(none)") << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static int vtkXMLParserFail(istream* stream)
 {
   // The fail() method returns true if either the failbit or badbit is set.
@@ -73,7 +73,7 @@ static int vtkXMLParserFail(istream* stream)
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeInt64 vtkXMLParser::TellG()
 {
   // Standard tellg returns -1 if fail() is true.
@@ -84,7 +84,7 @@ vtkTypeInt64 vtkXMLParser::TellG()
   return this->Stream->tellg();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLParser::SeekG(vtkTypeInt64 position)
 {
   // Standard seekg does nothing if fail() is true.
@@ -95,7 +95,7 @@ void vtkXMLParser::SeekG(vtkTypeInt64 position)
   this->Stream->seekg(std::streampos(position));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLParser::Parse(const char* inputString)
 {
   this->InputString = inputString;
@@ -105,7 +105,7 @@ int vtkXMLParser::Parse(const char* inputString)
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLParser::Parse(const char* inputString, unsigned int length)
 {
   this->InputString = inputString;
@@ -116,7 +116,7 @@ int vtkXMLParser::Parse(const char* inputString, unsigned int length)
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLParser::Parse()
 {
   // Select source of XML
@@ -185,7 +185,7 @@ int vtkXMLParser::Parse()
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLParser::CreateParser()
 {
   if (this->Parser)
@@ -198,7 +198,7 @@ int vtkXMLParser::CreateParser()
   return this->Parser ? 1 : 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLParser::InitializeParser()
 {
   // Create the expat XML parser.
@@ -225,7 +225,7 @@ int vtkXMLParser::InitializeParser()
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLParser::ParseChunk(const char* inputString, unsigned int length)
 {
   if (!this->Parser)
@@ -243,7 +243,7 @@ int vtkXMLParser::ParseChunk(const char* inputString, unsigned int length)
   return res;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLParser::CleanupParser()
 {
   if (!this->Parser)
@@ -270,7 +270,7 @@ int vtkXMLParser::CleanupParser()
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLParser::ParseXML()
 {
   // Parsing of message
@@ -324,52 +324,52 @@ int vtkXMLParser::ParseXML()
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLParser::ParsingComplete()
 {
   // Default behavior is to parse to end of stream.
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLParser::StartElement(const char* name, const char** vtkNotUsed(atts))
 {
   this->ReportUnknownElement(name);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLParser::EndElement(const char* vtkNotUsed(name)) {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLParser::CharacterDataHandler(const char* vtkNotUsed(inData), int vtkNotUsed(inLength)) {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLParser::ReportStrayAttribute(const char* element, const char* attr, const char* value)
 {
   vtkWarningMacro("Stray attribute in XML stream: Element " << element << " has " << attr << "=\""
                                                             << value << "\"");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLParser::ReportMissingAttribute(const char* element, const char* attr)
 {
   vtkErrorMacro("Missing attribute in XML stream: Element " << element << " is missing " << attr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLParser::ReportBadAttribute(const char* element, const char* attr, const char* value)
 {
   vtkErrorMacro("Bad attribute value in XML stream: Element " << element << " has " << attr << "=\""
                                                               << value << "\"");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLParser::ReportUnknownElement(const char* element)
 {
   vtkErrorMacro("Unknown element in XML stream: " << element);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLParser::ReportXmlParseError()
 {
   vtkErrorMacro("Error parsing XML in stream at line "
@@ -379,13 +379,13 @@ void vtkXMLParser::ReportXmlParseError()
     << XML_ErrorString(XML_GetErrorCode(static_cast<XML_Parser>(this->Parser))));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeInt64 vtkXMLParser::GetXMLByteIndex()
 {
   return XML_GetCurrentByteIndex(static_cast<XML_Parser>(this->Parser));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLParser::ParseBuffer(const char* buffer, unsigned int count)
 {
   // Pass the buffer to the expat XML parser.
@@ -397,19 +397,19 @@ int vtkXMLParser::ParseBuffer(const char* buffer, unsigned int count)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLParser::ParseBuffer(const char* buffer)
 {
   return this->ParseBuffer(buffer, static_cast<int>(strlen(buffer)));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLParser::IsSpace(char c)
 {
   return isspace(c);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLParserStartElement(void* parser, const char* name, const char** atts)
 {
   // Begin element handler that is registered with the XML_Parser.
@@ -418,7 +418,7 @@ void vtkXMLParserStartElement(void* parser, const char* name, const char** atts)
   static_cast<vtkXMLParser*>(parser)->StartElement(name, atts);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLParserEndElement(void* parser, const char* name)
 {
   // End element handler that is registered with the XML_Parser.  This

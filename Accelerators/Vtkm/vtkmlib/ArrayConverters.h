@@ -51,7 +51,7 @@ template <typename T, vtkm::IdComponent NumComponents>
 struct DataArrayToArrayHandle<vtkAOSDataArrayTemplate<T>, NumComponents>
 {
   using ValueType =
-    typename std::conditional<NumComponents == 1, T, vtkm::Vec<T, NumComponents> >::type;
+    typename std::conditional<NumComponents == 1, T, vtkm::Vec<T, NumComponents>>::type;
   using StorageType = vtkm::cont::internal::Storage<ValueType, vtkm::cont::StorageTagBasic>;
   using ArrayHandleType = vtkm::cont::ArrayHandle<ValueType, vtkm::cont::StorageTagBasic>;
 

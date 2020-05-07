@@ -41,7 +41,7 @@ vtkContextDevice2D::vtkContextDevice2D()
   this->TextProp = vtkTextProperty::New();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkContextDevice2D::~vtkContextDevice2D()
 {
   this->Pen->Delete();
@@ -49,13 +49,13 @@ vtkContextDevice2D::~vtkContextDevice2D()
   this->TextProp->Delete();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkContextDevice2D::MathTextIsSupported()
 {
   return vtkMathTextUtilities::GetInstance() != nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContextDevice2D::DrawPolyData(
   float p[2], float scale, vtkPolyData* polyData, vtkUnsignedCharArray* colors, int scalarMode)
 {
@@ -126,32 +126,32 @@ void vtkContextDevice2D::DrawPolyData(
   cell->Delete();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContextDevice2D::ApplyPen(vtkPen* pen)
 {
   this->Pen->DeepCopy(pen);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContextDevice2D::ApplyBrush(vtkBrush* brush)
 {
   this->Brush->DeepCopy(brush);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContextDevice2D::ApplyTextProp(vtkTextProperty* prop)
 {
   // This is a deep copy, but is called shallow for some reason...
   this->TextProp->ShallowCopy(prop);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkContextDevice2D::GetBufferIdMode() const
 {
   return this->BufferId != nullptr;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContextDevice2D::BufferIdModeBegin(vtkAbstractContextBufferId* bufferId)
 {
   assert("pre: not_yet" && !this->GetBufferIdMode());
@@ -162,7 +162,7 @@ void vtkContextDevice2D::BufferIdModeBegin(vtkAbstractContextBufferId* bufferId)
   assert("post: started" && this->GetBufferIdMode());
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContextDevice2D::BufferIdModeEnd()
 {
   assert("pre: started" && this->GetBufferIdMode());
@@ -172,7 +172,7 @@ void vtkContextDevice2D::BufferIdModeEnd()
   assert("post: done" && !this->GetBufferIdMode());
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContextDevice2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -184,10 +184,10 @@ void vtkContextDevice2D::PrintSelf(ostream& os, vtkIndent indent)
   this->TextProp->PrintSelf(os, indent.GetNextIndent());
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContextDevice2D::DrawMarkers(int, bool, float*, int, unsigned char*, int) {}
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContextDevice2D::DrawColoredPolygon(float*, int, unsigned char*, int)
 {
   vtkErrorMacro("DrawColoredPolygon not implemented on this device.");

@@ -26,7 +26,7 @@
 
 #include <vector>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestAxes(int, char*[])
 {
   int status = EXIT_SUCCESS;
@@ -47,7 +47,7 @@ int TestAxes(int, char*[])
   labels->InsertNextValue("99");
 
   // Let's create a few axes, and place them on the scene.
-  std::vector<vtkSmartPointer<vtkAxis> > axesVertical(4);
+  std::vector<vtkSmartPointer<vtkAxis>> axesVertical(4);
 
   for (size_t i = 0; i < axesVertical.size(); ++i)
   {
@@ -89,7 +89,7 @@ int TestAxes(int, char*[])
   }
 
   // Let's create a few axes, and place them on the scene.
-  std::vector<vtkSmartPointer<vtkAxis> > axesHorizontal(6);
+  std::vector<vtkSmartPointer<vtkAxis>> axesHorizontal(6);
 
   for (size_t i = 0; i < axesHorizontal.size(); ++i)
   {

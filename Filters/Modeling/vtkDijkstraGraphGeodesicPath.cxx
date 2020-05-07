@@ -29,7 +29,7 @@
 vtkStandardNewMacro(vtkDijkstraGraphGeodesicPath);
 vtkCxxSetObjectMacro(vtkDijkstraGraphGeodesicPath, RepelVertices, vtkPoints);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDijkstraGraphGeodesicPath::vtkDijkstraGraphGeodesicPath()
 {
   this->IdList = vtkIdList::New();
@@ -41,7 +41,7 @@ vtkDijkstraGraphGeodesicPath::vtkDijkstraGraphGeodesicPath()
   this->RepelVertices = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDijkstraGraphGeodesicPath::~vtkDijkstraGraphGeodesicPath()
 {
   if (this->IdList)
@@ -52,7 +52,7 @@ vtkDijkstraGraphGeodesicPath::~vtkDijkstraGraphGeodesicPath()
   this->SetRepelVertices(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDijkstraGraphGeodesicPath::GetCumulativeWeights(vtkDoubleArray* weights)
 {
   if (!weights)
@@ -68,7 +68,7 @@ void vtkDijkstraGraphGeodesicPath::GetCumulativeWeights(vtkDoubleArray* weights)
     weightsArray, static_cast<vtkIdType>(this->Internals->CumulativeWeights.size()), 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDijkstraGraphGeodesicPath::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -106,7 +106,7 @@ int vtkDijkstraGraphGeodesicPath::RequestData(vtkInformation* vtkNotUsed(request
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDijkstraGraphGeodesicPath::Initialize(vtkDataSet* inData)
 {
   this->NumberOfVertices = inData->GetNumberOfPoints();
@@ -126,7 +126,7 @@ void vtkDijkstraGraphGeodesicPath::Initialize(vtkDataSet* inData)
   this->BuildAdjacency(inData);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDijkstraGraphGeodesicPath::Reset()
 {
   std::fill(
@@ -144,7 +144,7 @@ void vtkDijkstraGraphGeodesicPath::Reset()
   this->Internals->ResetHeap();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkDijkstraGraphGeodesicPath::CalculateStaticEdgeCost(
   vtkDataSet* inData, vtkIdType u, vtkIdType v)
 {
@@ -177,7 +177,7 @@ double vtkDijkstraGraphGeodesicPath::CalculateStaticEdgeCost(
   return w;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This is probably a horribly inefficient way to do it.
 void vtkDijkstraGraphGeodesicPath::BuildAdjacency(vtkDataSet* inData)
 {
@@ -227,7 +227,7 @@ void vtkDijkstraGraphGeodesicPath::BuildAdjacency(vtkDataSet* inData)
   this->AdjacencyBuildTime.Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDijkstraGraphGeodesicPath::TraceShortestPath(
   vtkDataSet* inData, vtkPolyData* outPoly, vtkIdType startv, vtkIdType endv)
 {
@@ -278,7 +278,7 @@ void vtkDijkstraGraphGeodesicPath::TraceShortestPath(
   lines->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDijkstraGraphGeodesicPath::Relax(const int& u, const int& v, const double& w)
 {
   double du = this->Internals->CumulativeWeights[u] + w;
@@ -291,7 +291,7 @@ void vtkDijkstraGraphGeodesicPath::Relax(const int& u, const int& v, const doubl
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDijkstraGraphGeodesicPath::ShortestPath(vtkDataSet* inData, int startv, int endv)
 {
   int u, v;
@@ -372,7 +372,7 @@ void vtkDijkstraGraphGeodesicPath::ShortestPath(vtkDataSet* inData, int startv, 
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDijkstraGraphGeodesicPath::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

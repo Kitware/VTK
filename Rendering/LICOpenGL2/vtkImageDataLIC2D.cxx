@@ -55,10 +55,10 @@ using std::deque;
 #define PRINTEXTENT(ext)                                                                           \
   ext[0] << ", " << ext[1] << ", " << ext[2] << ", " << ext[3] << ", " << ext[4] << ", " << ext[5]
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkImageDataLIC2D);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageDataLIC2D::vtkImageDataLIC2D()
 {
   this->Context = nullptr;
@@ -85,7 +85,7 @@ vtkImageDataLIC2D::vtkImageDataLIC2D()
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::VECTORS);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageDataLIC2D::~vtkImageDataLIC2D()
 {
   this->NoiseSource->Delete();
@@ -93,7 +93,7 @@ vtkImageDataLIC2D::~vtkImageDataLIC2D()
   this->SetContext(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageDataLIC2D::SetContext(vtkRenderWindow* renWin)
 {
   vtkOpenGLRenderWindow* rw = vtkOpenGLRenderWindow::SafeDownCast(renWin);
@@ -136,13 +136,13 @@ int vtkImageDataLIC2D::SetContext(vtkRenderWindow* renWin)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRenderWindow* vtkImageDataLIC2D::GetContext()
 {
   return this->Context;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageDataLIC2D::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (!this->Superclass::FillInputPortInformation(port, info))
@@ -158,7 +158,7 @@ int vtkImageDataLIC2D::FillInputPortInformation(int port, vtkInformation* info)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageDataLIC2D::TranslateInputExtent(
   const int* inExt, const int* inWholeExt, int* resultExt)
 {
@@ -184,7 +184,7 @@ void vtkImageDataLIC2D::TranslateInputExtent(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageDataLIC2D::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -213,7 +213,7 @@ int vtkImageDataLIC2D::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageDataLIC2D::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -253,7 +253,7 @@ int vtkImageDataLIC2D::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageDataLIC2D::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -607,7 +607,7 @@ int vtkImageDataLIC2D::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageDataLIC2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

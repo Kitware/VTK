@@ -51,7 +51,7 @@ static const float MIN_LIGHT_ATTENUATION = 0.01;
 /**
  * Builds a new vtkCamera object with properties from a glTF Camera struct
  */
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSmartPointer<vtkCamera> GLTFCameraToVTKCamera(const vtkGLTFDocumentLoader::Camera& gltfCam)
 {
   vtkNew<vtkCamera> vtkCam;
@@ -72,10 +72,10 @@ vtkSmartPointer<vtkCamera> GLTFCameraToVTKCamera(const vtkGLTFDocumentLoader::Ca
 /**
  * Create a vtkTexture object with a glTF texture as model. Sampling options are approximated.
  */
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSmartPointer<vtkTexture> CreateVTKTextureFromGLTFTexture(
   std::shared_ptr<vtkGLTFDocumentLoader::Model> model, int textureIndex,
-  std::map<int, vtkSmartPointer<vtkTexture> >& existingTextures)
+  std::map<int, vtkSmartPointer<vtkTexture>>& existingTextures)
 {
 
   if (existingTextures.count(textureIndex))
@@ -156,7 +156,7 @@ vtkSmartPointer<vtkTexture> CreateVTKTextureFromGLTFTexture(
   return texture;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool MaterialHasMultipleUVs(const vtkGLTFDocumentLoader::Material& material)
 {
   int firstUV = material.PbrMetallicRoughness.BaseColorTexture.TexCoord;
@@ -167,7 +167,7 @@ bool MaterialHasMultipleUVs(const vtkGLTFDocumentLoader::Material& material)
       material.PbrMetallicRoughness.MetallicRoughnessTexture.TexCoord != firstUV);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool PrimitiveNeedsTangents(const std::shared_ptr<vtkGLTFDocumentLoader::Model> model,
   const vtkGLTFDocumentLoader::Primitive& primitive)
 {
@@ -182,10 +182,10 @@ bool PrimitiveNeedsTangents(const std::shared_ptr<vtkGLTFDocumentLoader::Model> 
   return normalMapIndex >= 0 && normalMapIndex < static_cast<int>(model->Textures.size());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void ApplyGLTFMaterialToVTKActor(std::shared_ptr<vtkGLTFDocumentLoader::Model> model,
   vtkGLTFDocumentLoader::Primitive& primitive, vtkSmartPointer<vtkActor> actor,
-  std::map<int, vtkSmartPointer<vtkTexture> >& existingTextures)
+  std::map<int, vtkSmartPointer<vtkTexture>>& existingTextures)
 {
   vtkGLTFDocumentLoader::Material& material = model->Materials[primitive.Material];
 
@@ -312,7 +312,7 @@ void ApplyGLTFMaterialToVTKActor(std::shared_ptr<vtkGLTFDocumentLoader::Model> m
   }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void ApplyTransformToCamera(vtkSmartPointer<vtkCamera> cam, vtkSmartPointer<vtkTransform> transform)
 {
   if (!cam || !transform)
@@ -337,13 +337,13 @@ void ApplyTransformToCamera(vtkSmartPointer<vtkCamera> cam, vtkSmartPointer<vtkT
 }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGLTFImporter::~vtkGLTFImporter()
 {
   this->SetFileName(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGLTFImporter::ImportBegin()
 {
   // Make sure we have a file to read.
@@ -392,7 +392,7 @@ int vtkGLTFImporter::ImportBegin()
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGLTFImporter::ImportActors(vtkRenderer* renderer)
 {
   auto model = this->Loader->GetInternalModel();
@@ -472,7 +472,7 @@ void vtkGLTFImporter::ImportActors(vtkRenderer* renderer)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGLTFImporter::ImportCameras(vtkRenderer* renderer)
 {
   auto model = this->Loader->GetInternalModel();
@@ -517,7 +517,7 @@ void vtkGLTFImporter::ImportCameras(vtkRenderer* renderer)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGLTFImporter::ImportLights(vtkRenderer* renderer)
 {
   // Check that lights extension is enabled
@@ -589,14 +589,14 @@ void vtkGLTFImporter::ImportLights(vtkRenderer* renderer)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGLTFImporter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "File Name: " << (this->FileName ? this->FileName : "(none)") << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSmartPointer<vtkCamera> vtkGLTFImporter::GetCamera(unsigned int id)
 {
   if (id >= this->Cameras.size())
@@ -607,7 +607,7 @@ vtkSmartPointer<vtkCamera> vtkGLTFImporter::GetCamera(unsigned int id)
   return this->Cameras[id];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 size_t vtkGLTFImporter::GetNumberOfCameras()
 {
   return this->Cameras.size();

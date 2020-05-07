@@ -1,4 +1,4 @@
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Super cursor traversal table to retrieve the child index for each cursor
 // of the parent node. There are (2*d+1)*f^d entries in the table.
 // d = 1 f = 2
@@ -80,7 +80,7 @@ static const unsigned int* VonNeumannChildCursorToParentCursorTable[3][2] = {
   {VonNeumannChildCursorToParentCursorTable32,
    VonNeumannChildCursorToParentCursorTable33}
 };
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Super cursor traversal table to go retrieve the child index for each cursor
 // of the child node. There are (2*d+1)*f^d entries in the table.
 // d = 1 f = 2
@@ -162,4 +162,4 @@ static const unsigned int* VonNeumannChildCursorToChildTable[3][2] = {
   {VonNeumannChildCursorToChildTable32,
    VonNeumannChildCursorToChildTable33}
 };
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------

@@ -24,15 +24,15 @@
 #include <vector>
 
 // PIMPL'd std::vector
-class StdVectorOfImageDataPointers : public std::vector<vtkSmartPointer<vtkImageData> >
+class StdVectorOfImageDataPointers : public std::vector<vtkSmartPointer<vtkImageData>>
 {
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkProgrammableElectronicData);
 vtkCxxSetObjectMacro(vtkProgrammableElectronicData, ElectronDensity, vtkImageData);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProgrammableElectronicData::vtkProgrammableElectronicData()
   : NumberOfElectrons(0)
   , MOs(new StdVectorOfImageDataPointers)
@@ -40,7 +40,7 @@ vtkProgrammableElectronicData::vtkProgrammableElectronicData()
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProgrammableElectronicData::~vtkProgrammableElectronicData()
 {
   delete this->MOs;
@@ -49,7 +49,7 @@ vtkProgrammableElectronicData::~vtkProgrammableElectronicData()
   this->SetElectronDensity(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProgrammableElectronicData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -73,13 +73,13 @@ void vtkProgrammableElectronicData::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Padding: " << this->Padding << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkProgrammableElectronicData::GetNumberOfMOs()
 {
   return static_cast<vtkIdType>(this->MOs->size());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProgrammableElectronicData::SetNumberOfMOs(vtkIdType size)
 {
   if (size == static_cast<vtkIdType>(this->MOs->size()))
@@ -93,7 +93,7 @@ void vtkProgrammableElectronicData::SetNumberOfMOs(vtkIdType size)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageData* vtkProgrammableElectronicData::GetMO(vtkIdType orbitalNumber)
 {
   if (orbitalNumber <= 0)
@@ -114,7 +114,7 @@ vtkImageData* vtkProgrammableElectronicData::GetMO(vtkIdType orbitalNumber)
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProgrammableElectronicData::SetMO(vtkIdType orbitalNumber, vtkImageData* data)
 {
   if (orbitalNumber <= 0)
@@ -139,7 +139,7 @@ void vtkProgrammableElectronicData::SetMO(vtkIdType orbitalNumber, vtkImageData*
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProgrammableElectronicData::DeepCopy(vtkDataObject* obj)
 {
   vtkProgrammableElectronicData* source = vtkProgrammableElectronicData::SafeDownCast(obj);

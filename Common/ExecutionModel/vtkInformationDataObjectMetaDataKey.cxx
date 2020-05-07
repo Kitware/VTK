@@ -17,17 +17,17 @@
 #include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationDataObjectMetaDataKey::vtkInformationDataObjectMetaDataKey(
   const char* name, const char* location)
   : vtkInformationDataObjectKey(name, location)
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationDataObjectMetaDataKey::~vtkInformationDataObjectMetaDataKey() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationDataObjectMetaDataKey::CopyDefaultInformation(
   vtkInformation* request, vtkInformation* fromInfo, vtkInformation* toInfo)
 {
@@ -37,7 +37,7 @@ void vtkInformationDataObjectMetaDataKey::CopyDefaultInformation(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationDataObjectMetaDataKey::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -34,12 +34,12 @@
 
 #include <cassert>
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkQtTableRepresentation, ColorTable, vtkLookupTable);
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkQtTableRepresentation::vtkQtTableRepresentation()
 {
   this->ModelAdapter = new vtkQtTableModelAdapter;
@@ -62,7 +62,7 @@ vtkQtTableRepresentation::vtkQtTableRepresentation()
   this->LastDataColumn = nullptr;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkQtTableRepresentation::~vtkQtTableRepresentation()
 {
@@ -74,7 +74,7 @@ vtkQtTableRepresentation::~vtkQtTableRepresentation()
   this->SetLastDataColumn(nullptr);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkQtTableRepresentation::RequestData(
   vtkInformation*, vtkInformationVector**, vtkInformationVector*)
@@ -83,7 +83,7 @@ int vtkQtTableRepresentation::RequestData(
   return 1;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkQtTableRepresentation::SetKeyColumn(const char* col)
 {
@@ -102,14 +102,14 @@ void vtkQtTableRepresentation::SetKeyColumn(const char* col)
   // this->Update();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 char* vtkQtTableRepresentation::GetKeyColumn()
 {
   return this->GetKeyColumnInternal();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTableRepresentation::UpdateTable()
 {
   this->ResetModel();
@@ -186,7 +186,7 @@ void vtkQtTableRepresentation::UpdateTable()
   this->CreateSeriesColors();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkQtTableRepresentation::ResetModel()
 {
@@ -203,7 +203,7 @@ void vtkQtTableRepresentation::ResetModel()
   this->SeriesColors->SetNumberOfComponents(4);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkQtTableRepresentation::CreateSeriesColors()
 {
@@ -242,7 +242,7 @@ void vtkQtTableRepresentation::CreateSeriesColors()
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkQtTableRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {

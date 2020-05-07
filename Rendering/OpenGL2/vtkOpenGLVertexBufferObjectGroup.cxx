@@ -28,18 +28,18 @@
 // STL headers
 #include <algorithm>
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOpenGLVertexBufferObjectGroup);
 
 typedef std::map<std::string, vtkOpenGLVertexBufferObject*>::iterator vboIter;
 
 // typedef std::map<const std::string, vtkDataArray *>::iterator arrayIter;
-typedef std::map<std::string, std::vector<vtkDataArray*> >::iterator arrayIter;
+typedef std::map<std::string, std::vector<vtkDataArray*>>::iterator arrayIter;
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenGLVertexBufferObjectGroup::vtkOpenGLVertexBufferObjectGroup() = default;
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenGLVertexBufferObjectGroup::~vtkOpenGLVertexBufferObjectGroup()
 {
   for (vboIter i = this->UsedVBOs.begin(); i != this->UsedVBOs.end(); ++i)
@@ -318,7 +318,7 @@ void vtkOpenGLVertexBufferObjectGroup::BuildAllVBOs(vtkViewport* vp)
   this->BuildAllVBOs(cache);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLVertexBufferObjectGroup::BuildAllVBOs(vtkOpenGLVertexBufferObjectCache*)
 {
   // free any VBOs for unused attributes
@@ -381,7 +381,7 @@ void vtkOpenGLVertexBufferObjectGroup::BuildAllVBOs(vtkOpenGLVertexBufferObjectC
   this->ClearAllDataArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkOpenGLVertexBufferObjectGroup::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
@@ -398,7 +398,7 @@ vtkMTimeType vtkOpenGLVertexBufferObjectGroup::GetMTime()
   return mTime;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLVertexBufferObjectGroup::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

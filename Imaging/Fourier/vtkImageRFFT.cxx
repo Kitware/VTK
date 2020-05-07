@@ -24,7 +24,7 @@
 
 vtkStandardNewMacro(vtkImageRFFT);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This extent of the components changes to real and imaginary values.
 int vtkImageRFFT::IterativeRequestInformation(
   vtkInformation* vtkNotUsed(input), vtkInformation* output)
@@ -41,7 +41,7 @@ static void vtkImageRFFTInternalRequestUpdateExtent(
   inExt[iteration * 2 + 1] = wExt[iteration * 2 + 1];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method tells the superclass that the whole input array is needed
 // to compute any output region.
 int vtkImageRFFT::IterativeRequestUpdateExtent(vtkInformation* input, vtkInformation* output)
@@ -55,7 +55,7 @@ int vtkImageRFFT::IterativeRequestUpdateExtent(vtkInformation* input, vtkInforma
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This templated execute method handles any type input, but the output
 // is always doubles.
 template <class T>
@@ -161,7 +161,7 @@ void vtkImageRFFTExecute(vtkImageRFFT* self, vtkImageData* inData, int inExt[6],
   delete[] outComplex;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method is passed input and output Datas, and executes the RFFT
 // algorithm to fill the output from the input.
 // Not threaded yet.

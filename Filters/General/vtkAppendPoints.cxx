@@ -30,20 +30,20 @@
 
 vtkStandardNewMacro(vtkAppendPoints);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAppendPoints::vtkAppendPoints()
 {
   this->InputIdArrayName = nullptr;
   this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAppendPoints::~vtkAppendPoints()
 {
   this->SetInputIdArrayName(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method is much too long, and has to be broken up!
 // Append data sets into single polygonal data set.
 int vtkAppendPoints::RequestData(vtkInformation* vtkNotUsed(request),
@@ -94,7 +94,7 @@ int vtkAppendPoints::RequestData(vtkInformation* vtkNotUsed(request),
     }
   }
 
-  std::vector<vtkSmartPointer<vtkPolyData> > inputs;
+  std::vector<vtkSmartPointer<vtkPolyData>> inputs;
   for (int idx = 0; idx < numInputs; ++idx)
   {
     vtkInformation* inInfo = inputVector[0]->GetInformationObject(idx);
@@ -189,7 +189,7 @@ int vtkAppendPoints::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAppendPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -198,7 +198,7 @@ void vtkAppendPoints::PrintSelf(ostream& os, vtkIndent indent)
      << indent << "Output Points Precision: " << this->OutputPointsPrecision << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAppendPoints::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (!this->Superclass::FillInputPortInformation(port, info))

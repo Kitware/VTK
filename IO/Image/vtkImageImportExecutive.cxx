@@ -26,7 +26,7 @@
 
 vtkStandardNewMacro(vtkImageImportExecutive);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkImageImportExecutive::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inInfoVec, vtkInformationVector* outInfoVec)
 {

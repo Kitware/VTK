@@ -333,9 +333,9 @@ private:
   // basic tables - each region is the responsibility of one process, but
   //                one process may be assigned many regions
 
-  std::vector<int> RegionAssignmentMap;                // indexed by region ID
-  std::vector<std::vector<int> > ProcessAssignmentMap; // indexed by process ID
-  std::vector<int> NumRegionsAssigned;                 // indexed by process ID
+  std::vector<int> RegionAssignmentMap;               // indexed by region ID
+  std::vector<std::vector<int>> ProcessAssignmentMap; // indexed by process ID
+  std::vector<int> NumRegionsAssigned;                // indexed by process ID
 
   int UpdateRegionAssignment();
 
@@ -344,13 +344,13 @@ private:
 
   std::vector<char> DataLocationMap; // by process, by region
 
-  std::vector<int> NumProcessesInRegion;      // indexed by region ID
-  std::vector<std::vector<int> > ProcessList; // indexed by region ID
+  std::vector<int> NumProcessesInRegion;     // indexed by region ID
+  std::vector<std::vector<int>> ProcessList; // indexed by region ID
 
-  std::vector<int> NumRegionsInProcess;              // indexed by process ID
-  std::vector<std::vector<int> > ParallelRegionList; // indexed by process ID
+  std::vector<int> NumRegionsInProcess;             // indexed by process ID
+  std::vector<std::vector<int>> ParallelRegionList; // indexed by process ID
 
-  std::vector<std::vector<vtkIdType> > CellCountList; // indexed by region ID
+  std::vector<std::vector<vtkIdType>> CellCountList; // indexed by region ID
 
   std::vector<double> CellDataMin; // global range for data arrays
   std::vector<double> CellDataMax;

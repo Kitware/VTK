@@ -27,23 +27,23 @@
 
 vtkStandardNewMacro(vtkBlankStructuredGridWithImage);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBlankStructuredGridWithImage::vtkBlankStructuredGridWithImage()
 {
   this->SetNumberOfInputPorts(2);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBlankStructuredGridWithImage::~vtkBlankStructuredGridWithImage() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify the input data or filter.
 void vtkBlankStructuredGridWithImage::SetBlankingInputData(vtkImageData* input)
 {
   this->SetInputData(1, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify the input data or filter.
 vtkImageData* vtkBlankStructuredGridWithImage::GetBlankingInput()
 {
@@ -55,7 +55,7 @@ vtkImageData* vtkBlankStructuredGridWithImage::GetBlankingInput()
   return vtkImageData::SafeDownCast(this->GetExecutive()->GetInputData(1, 0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkBlankStructuredGridWithImage::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -120,7 +120,7 @@ int vtkBlankStructuredGridWithImage::RequestData(vtkInformation* vtkNotUsed(requ
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkBlankStructuredGridWithImage::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
@@ -131,7 +131,7 @@ int vtkBlankStructuredGridWithImage::FillInputPortInformation(int port, vtkInfor
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBlankStructuredGridWithImage::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -27,7 +27,7 @@ ostream& operator<<(ostream& os, const vtkPPixelTransfer& pt)
   return os;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPPixelTransfer::Execute(MPI_Comm comm, int rank, int nComps, int srcType, void* srcData,
   int destType, void* destData, vector<MPI_Request>& reqs, deque<MPI_Datatype>& types, int tag)
 {
@@ -40,7 +40,7 @@ int vtkPPixelTransfer::Execute(MPI_Comm comm, int rank, int nComps, int srcType,
   return 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPPixelTransfer::Blit(int nComps, int srcType, void* srcData, int destType, void* destData)
 {
   return vtkPixelTransfer::Blit(this->SrcWholeExt, this->SrcExt, this->DestWholeExt, this->DestExt,

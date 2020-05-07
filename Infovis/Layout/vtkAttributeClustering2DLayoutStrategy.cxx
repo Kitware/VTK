@@ -69,7 +69,7 @@ static inline float CoolDown(float t, float r)
   return t - (t / r);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkAttributeClustering2DLayoutStrategy::vtkAttributeClustering2DLayoutStrategy()
   : Implementation(new Internals())
@@ -95,7 +95,7 @@ vtkAttributeClustering2DLayoutStrategy::vtkAttributeClustering2DLayoutStrategy()
   this->VertexAttribute = nullptr;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkAttributeClustering2DLayoutStrategy::~vtkAttributeClustering2DLayoutStrategy()
 {
@@ -207,7 +207,7 @@ void vtkAttributeClustering2DLayoutStrategy::GenerateGaussianSplat(
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Set the graph that will be laid out
 void vtkAttributeClustering2DLayoutStrategy::Initialize()
 {
@@ -313,7 +313,7 @@ void vtkAttributeClustering2DLayoutStrategy::Initialize()
   this->DensityGrid->SetOutputDimensions(100, 100, 1);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 // Simple graph layout method
 void vtkAttributeClustering2DLayoutStrategy::Layout()

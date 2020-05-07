@@ -28,16 +28,16 @@
 
 vtkStandardNewMacro(vtkExtractSelectedPolyDataIds);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractSelectedPolyDataIds::vtkExtractSelectedPolyDataIds()
 {
   this->SetNumberOfInputPorts(2);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractSelectedPolyDataIds::~vtkExtractSelectedPolyDataIds() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSelectedPolyDataIds::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -123,13 +123,13 @@ int vtkExtractSelectedPolyDataIds::RequestData(vtkInformation* vtkNotUsed(reques
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractSelectedPolyDataIds::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSelectedPolyDataIds::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)

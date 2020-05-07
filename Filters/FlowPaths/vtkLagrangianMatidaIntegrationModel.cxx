@@ -28,7 +28,7 @@
 
 vtkObjectFactoryNewMacro(vtkLagrangianMatidaIntegrationModel);
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLagrangianMatidaIntegrationModel::vtkLagrangianMatidaIntegrationModel()
 {
   // Fill the helper array
@@ -43,16 +43,16 @@ vtkLagrangianMatidaIntegrationModel::vtkLagrangianMatidaIntegrationModel()
   this->NumIndepVars = 7; // x, y, z, u, v, w, t
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLagrangianMatidaIntegrationModel::~vtkLagrangianMatidaIntegrationModel() = default;
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLagrangianMatidaIntegrationModel::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkLagrangianMatidaIntegrationModel::FunctionValues(vtkLagrangianParticle* particle,
   vtkDataSet* dataSet, vtkIdType cellId, double* weights, double* x, double* f)
 {
@@ -154,7 +154,7 @@ int vtkLagrangianMatidaIntegrationModel::FunctionValues(vtkLagrangianParticle* p
   return 1;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkLagrangianMatidaIntegrationModel::GetRelaxationTime(
   double dynVisc, double diameter, double density)
 {
@@ -162,7 +162,7 @@ double vtkLagrangianMatidaIntegrationModel::GetRelaxationTime(
                         : (density * diameter * diameter) / (18.0 * dynVisc);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkLagrangianMatidaIntegrationModel::GetDragCoefficient(const double* flowVelocity,
   const double* particleVelocity, double dynVisc, double particleDiameter, double flowDensity)
 {

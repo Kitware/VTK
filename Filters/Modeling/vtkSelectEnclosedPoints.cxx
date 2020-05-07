@@ -37,13 +37,13 @@
 
 vtkStandardNewMacro(vtkSelectEnclosedPoints);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Classes support threading. Each point can be processed separately, so the
 // in/out containment check is threaded.
 namespace
 {
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The threaded core of the algorithm. Thread on point type.
 struct SelectInOutCheck
 {
@@ -138,7 +138,7 @@ struct SelectInOutCheck
 
 } // anonymous namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct object.
 vtkSelectEnclosedPoints::vtkSelectEnclosedPoints()
 {
@@ -156,7 +156,7 @@ vtkSelectEnclosedPoints::vtkSelectEnclosedPoints()
   this->Cell = vtkGenericCell::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSelectEnclosedPoints::~vtkSelectEnclosedPoints()
 {
   if (this->InsideOutsideArray)
@@ -175,7 +175,7 @@ vtkSelectEnclosedPoints::~vtkSelectEnclosedPoints()
   this->Cell->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSelectEnclosedPoints::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -232,7 +232,7 @@ int vtkSelectEnclosedPoints::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSelectEnclosedPoints::IsSurfaceClosed(vtkPolyData* surface)
 {
   vtkPolyData* checker = vtkPolyData::New();
@@ -260,7 +260,7 @@ int vtkSelectEnclosedPoints::IsSurfaceClosed(vtkPolyData* surface)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelectEnclosedPoints::Initialize(vtkPolyData* surface)
 {
   if (!this->CellLocator)
@@ -277,7 +277,7 @@ void vtkSelectEnclosedPoints::Initialize(vtkPolyData* surface)
   this->CellLocator->BuildLocator();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSelectEnclosedPoints::IsInside(vtkIdType inputPtId)
 {
   if (!this->InsideOutsideArray || this->InsideOutsideArray->GetValue(inputPtId) == 0)
@@ -290,7 +290,7 @@ int vtkSelectEnclosedPoints::IsInside(vtkIdType inputPtId)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSelectEnclosedPoints::IsInsideSurface(double x, double y, double z)
 {
   double xyz[3];
@@ -300,7 +300,7 @@ int vtkSelectEnclosedPoints::IsInsideSurface(double x, double y, double z)
   return this->IsInsideSurface(xyz);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This is done to preserve backward compatibility. However it is not thread
 // safe due to the use of the data member CellIds and Cell.
 int vtkSelectEnclosedPoints::IsInsideSurface(double x[3])
@@ -311,7 +311,7 @@ int vtkSelectEnclosedPoints::IsInsideSurface(double x[3])
     this->CellLocator, this->CellIds, this->Cell, counter);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // General method uses ray casting to determine in/out. Since this is a
 // numerically delicate operation, we use a crude "statistical" method (based
 // on voting) to provide a better answer. Plus there is a process to merge
@@ -432,28 +432,28 @@ int vtkSelectEnclosedPoints::IsInsideSurface(double x[3], vtkPolyData* surface, 
 #undef VTK_MAX_ITER
 #undef VTK_VOTE_THRESHOLD
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify the second enclosing surface input via a connection
 void vtkSelectEnclosedPoints::SetSurfaceConnection(vtkAlgorithmOutput* algOutput)
 {
   this->SetInputConnection(1, algOutput);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify the second enclosing surface input data
 void vtkSelectEnclosedPoints::SetSurfaceData(vtkPolyData* pd)
 {
   this->SetInputData(1, pd);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Return the enclosing surface
 vtkPolyData* vtkSelectEnclosedPoints::GetSurface()
 {
   return vtkPolyData::SafeDownCast(this->GetExecutive()->GetInputData(1, 0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyData* vtkSelectEnclosedPoints::GetSurface(vtkInformationVector* sourceInfo)
 {
   vtkInformation* info = sourceInfo->GetInformationObject(1);
@@ -464,7 +464,7 @@ vtkPolyData* vtkSelectEnclosedPoints::GetSurface(vtkInformationVector* sourceInf
   return vtkPolyData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSelectEnclosedPoints::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
@@ -481,13 +481,13 @@ int vtkSelectEnclosedPoints::FillInputPortInformation(int port, vtkInformation* 
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelectEnclosedPoints::Complete()
 {
   this->CellLocator->FreeSearchStructure();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelectEnclosedPoints::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
@@ -496,7 +496,7 @@ void vtkSelectEnclosedPoints::ReportReferences(vtkGarbageCollector* collector)
   vtkGarbageCollectorReport(collector, this->CellLocator, "CellLocator");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelectEnclosedPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

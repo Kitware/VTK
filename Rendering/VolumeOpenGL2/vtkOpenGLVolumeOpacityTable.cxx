@@ -22,7 +22,7 @@
 vtkStandardNewMacro(vtkOpenGLVolumeOpacityTable);
 
 // Update opacity transfer function texture.
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLVolumeOpacityTable::InternalUpdate(
   vtkObject* func, int blendMode, double sampleDistance, double unitDistance, int filterValue)
 {
@@ -75,7 +75,7 @@ void vtkOpenGLVolumeOpacityTable::InternalUpdate(
     this->TextureWidth, 1, this->NumberOfColorComponents, VTK_FLOAT, this->Table);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkOpenGLVolumeOpacityTable::NeedsUpdate(
   vtkObject* func, double scalarRange[2], int blendMode, double sampleDistance)
 {
@@ -89,7 +89,7 @@ bool vtkOpenGLVolumeOpacityTable::NeedsUpdate(
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLVolumeOpacityTable::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

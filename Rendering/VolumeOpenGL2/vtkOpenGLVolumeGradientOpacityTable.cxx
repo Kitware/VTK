@@ -22,7 +22,7 @@
 vtkStandardNewMacro(vtkOpenGLVolumeGradientOpacityTable);
 
 // Update opacity transfer function texture.
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLVolumeGradientOpacityTable::InternalUpdate(vtkObject* func, int vtkNotUsed(blendMode),
   double vtkNotUsed(sampleDistance), double vtkNotUsed(unitDistance), int filterValue)
 {
@@ -43,7 +43,7 @@ void vtkOpenGLVolumeGradientOpacityTable::InternalUpdate(vtkObject* func, int vt
   this->BuildTime.Modified();
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLVolumeGradientOpacityTable::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

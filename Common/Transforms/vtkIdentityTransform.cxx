@@ -21,31 +21,31 @@
 
 vtkStandardNewMacro(vtkIdentityTransform);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdentityTransform::vtkIdentityTransform() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdentityTransform::~vtkIdentityTransform() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkIdentityTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkIdentityTransform::InternalDeepCopy(vtkAbstractTransform*)
 {
   // nothin' to do
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAbstractTransform* vtkIdentityTransform::MakeTransform()
 {
   return vtkIdentityTransform::New();
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T2, class T3>
 void vtkIdentityTransformPoint(T2 in[3], T3 out[3])
 {
@@ -54,7 +54,7 @@ void vtkIdentityTransformPoint(T2 in[3], T3 out[3])
   out[2] = in[2];
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T2, class T3, class T4>
 void vtkIdentityTransformDerivative(T2 in[3], T3 out[3], T4 derivative[3][3])
 {
@@ -65,59 +65,59 @@ void vtkIdentityTransformDerivative(T2 in[3], T3 out[3], T4 derivative[3][3])
   vtkMath::Identity3x3(derivative);
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkIdentityTransform::InternalTransformPoint(const float in[3], float out[3])
 {
   vtkIdentityTransformPoint(in, out);
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkIdentityTransform::InternalTransformPoint(const double in[3], double out[3])
 {
   vtkIdentityTransformPoint(in, out);
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkIdentityTransform::InternalTransformNormal(const float in[3], float out[3])
 {
   vtkIdentityTransformPoint(in, out);
   vtkMath::Normalize(out);
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkIdentityTransform::InternalTransformNormal(const double in[3], double out[3])
 {
   vtkIdentityTransformPoint(in, out);
   vtkMath::Normalize(out);
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkIdentityTransform::InternalTransformVector(const float in[3], float out[3])
 {
   vtkIdentityTransformPoint(in, out);
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkIdentityTransform::InternalTransformVector(const double in[3], double out[3])
 {
   vtkIdentityTransformPoint(in, out);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkIdentityTransform::InternalTransformDerivative(
   const float in[3], float out[3], float derivative[3][3])
 {
   vtkIdentityTransformDerivative(in, out, derivative);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkIdentityTransform::InternalTransformDerivative(
   const double in[3], double out[3], double derivative[3][3])
 {
   vtkIdentityTransformDerivative(in, out, derivative);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Transform the normals and vectors using the derivative of the
 // transformation.  Either inNms or inVrs can be set to nullptr.
 // Normals are multiplied by the inverse transpose of the transform
@@ -146,7 +146,7 @@ void vtkIdentityTransform::TransformPointsNormalsVectors(vtkPoints* inPts, vtkPo
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkIdentityTransform::TransformPoints(vtkPoints* inPts, vtkPoints* outPts)
 {
   vtkIdType n = inPts->GetNumberOfPoints();
@@ -159,7 +159,7 @@ void vtkIdentityTransform::TransformPoints(vtkPoints* inPts, vtkPoints* outPts)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkIdentityTransform::TransformNormals(vtkDataArray* inNms, vtkDataArray* outNms)
 {
   vtkIdType n = inNms->GetNumberOfTuples();
@@ -172,7 +172,7 @@ void vtkIdentityTransform::TransformNormals(vtkDataArray* inNms, vtkDataArray* o
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkIdentityTransform::TransformVectors(vtkDataArray* inNms, vtkDataArray* outNms)
 {
   vtkIdType n = inNms->GetNumberOfTuples();

@@ -336,7 +336,7 @@ void vtkYoungsMaterialInterface::SetMaterialArrays(int M, const char* volume, co
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkYoungsMaterialInterface::SetMaterialNormalArray(const char* volume, const char* normal)
 {
   // not sure why this is done, but all SetMaterialNormalArray(int,..) variants
@@ -349,7 +349,7 @@ void vtkYoungsMaterialInterface::SetMaterialNormalArray(const char* volume, cons
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkYoungsMaterialInterface::SetMaterialOrderingArray(const char* volume, const char* ordering)
 {
   // not sure why this is done, but all SetMaterialOrderingArray(int,..) variants
@@ -362,7 +362,7 @@ void vtkYoungsMaterialInterface::SetMaterialOrderingArray(const char* volume, co
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkYoungsMaterialInterface::RemoveAllMaterials()
 {
   this->NumberOfDomains = -1;
@@ -417,7 +417,7 @@ struct vtkYoungsMaterialInterface_Mat
 
 static inline void vtkYoungsMaterialInterface_GetPointData(int nPointData,
   vtkDataArray** inPointArrays, vtkDataSet* input,
-  std::vector<std::pair<int, vtkIdType> >& prevPointsMap, int vtkNotUsed(nmat),
+  std::vector<std::pair<int, vtkIdType>>& prevPointsMap, int vtkNotUsed(nmat),
   vtkYoungsMaterialInterface_Mat* Mats, int a, vtkIdType i, double* t)
 {
   if ((i) >= 0)
@@ -518,7 +518,7 @@ void vtkYoungsMaterialInterface::UpdateBlockMapping()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkYoungsMaterialInterface::Aggregate(int nmat, int* inputsPerMaterial)
 {
   // Calculate number of domains
@@ -537,7 +537,7 @@ void vtkYoungsMaterialInterface::Aggregate(int nmat, int* inputsPerMaterial)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkYoungsMaterialInterface::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -623,7 +623,7 @@ int vtkYoungsMaterialInterface::RequestData(vtkInformation* vtkNotUsed(request),
   this->Aggregate(nmat, inputsPerMaterial);
 
   // map containing output blocks
-  std::map<int, vtkSmartPointer<vtkUnstructuredGrid> > outputBlocks;
+  std::map<int, vtkSmartPointer<vtkUnstructuredGrid>> outputBlocks;
 
   // iterate over input blocks
   inputIterator->InitTraversal();
@@ -799,7 +799,7 @@ int vtkYoungsMaterialInterface::RequestData(vtkInformation* vtkNotUsed(request),
     vtkYoungsMaterialInterface_IndexedValue* matOrdering =
       new vtkYoungsMaterialInterface_IndexedValue[nmat];
 
-    std::vector<std::pair<int, vtkIdType> > prevPointsMap;
+    std::vector<std::pair<int, vtkIdType>> prevPointsMap;
     prevPointsMap.reserve(MAX_CELL_POINTS * nmat);
 
     for (vtkIdType ci = 0; ci < nCells; ci++)
@@ -1559,7 +1559,7 @@ int vtkYoungsMaterialInterface::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   int blockIndex = 0;
-  for (std::map<int, vtkSmartPointer<vtkUnstructuredGrid> >::iterator it = outputBlocks.begin();
+  for (std::map<int, vtkSmartPointer<vtkUnstructuredGrid>>::iterator it = outputBlocks.begin();
        it != outputBlocks.end(); ++it, ++blockIndex)
   {
     if (it->second->GetNumberOfCells() > 0)

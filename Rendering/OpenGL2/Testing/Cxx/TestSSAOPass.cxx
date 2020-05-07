@@ -27,7 +27,7 @@
 #include "vtkSSAOPass.h"
 #include "vtkTestUtilities.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestSSAOPass(int argc, char* argv[])
 {
   vtkNew<vtkRenderer> renderer;

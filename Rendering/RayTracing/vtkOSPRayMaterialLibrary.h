@@ -31,6 +31,7 @@
 #include <initializer_list> //for initializer_list!
 #include <map>              //for map!
 #include <set>              //for set!
+#include <string>           //for string!
 #include <vector>           //for vector!
 
 class vtkOSPRayMaterialLibraryInternals;

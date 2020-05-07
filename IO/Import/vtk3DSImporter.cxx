@@ -146,7 +146,7 @@ void vtk3DSImporter::ImportEnd()
   this->FileFD = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::string vtk3DSImporter::GetOutputsDescription()
 {
   std::stringstream ss;

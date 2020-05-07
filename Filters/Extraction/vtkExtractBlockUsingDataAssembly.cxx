@@ -34,7 +34,7 @@ public:
 };
 
 vtkStandardNewMacro(vtkExtractBlockUsingDataAssembly);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractBlockUsingDataAssembly::vtkExtractBlockUsingDataAssembly()
   : Internals(new vtkExtractBlockUsingDataAssembly::vtkInternals())
   , SelectSubtrees(true)
@@ -44,13 +44,13 @@ vtkExtractBlockUsingDataAssembly::vtkExtractBlockUsingDataAssembly()
   this->SetNumberOfOutputPorts(1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractBlockUsingDataAssembly::~vtkExtractBlockUsingDataAssembly()
 {
   delete this->Internals;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkExtractBlockUsingDataAssembly::AddNodePath(const char* path)
 {
   if (path)
@@ -65,7 +65,7 @@ bool vtkExtractBlockUsingDataAssembly::AddNodePath(const char* path)
   return false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractBlockUsingDataAssembly::ClearNodePaths()
 {
   auto& internals = *this->Internals;
@@ -76,7 +76,7 @@ void vtkExtractBlockUsingDataAssembly::ClearNodePaths()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractBlockUsingDataAssembly::SetNodePath(const char* path)
 {
   if (path)
@@ -92,14 +92,14 @@ void vtkExtractBlockUsingDataAssembly::SetNodePath(const char* path)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractBlockUsingDataAssembly::GetNumberOfPaths() const
 {
   auto& internals = *this->Internals;
   return static_cast<int>(internals.Paths.size());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkExtractBlockUsingDataAssembly::GetNodePath(int index) const
 {
   const auto& internals = *this->Internals;
@@ -113,21 +113,21 @@ const char* vtkExtractBlockUsingDataAssembly::GetNodePath(int index) const
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractBlockUsingDataAssembly::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPartitionedDataSetCollection");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractBlockUsingDataAssembly::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPartitionedDataSetCollection");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractBlockUsingDataAssembly::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -195,7 +195,7 @@ int vtkExtractBlockUsingDataAssembly::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractBlockUsingDataAssembly::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

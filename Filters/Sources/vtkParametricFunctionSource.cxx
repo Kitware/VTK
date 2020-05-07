@@ -33,7 +33,7 @@
 vtkStandardNewMacro(vtkParametricFunctionSource);
 vtkCxxSetObjectMacro(vtkParametricFunctionSource, ParametricFunction, vtkParametricFunction);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParametricFunctionSource::vtkParametricFunctionSource()
   : ParametricFunction(nullptr)
   , UResolution(50)
@@ -47,7 +47,7 @@ vtkParametricFunctionSource::vtkParametricFunctionSource()
   this->GenerateNormals = 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParametricFunctionSource::~vtkParametricFunctionSource()
 {
   this->SetParametricFunction(nullptr);
@@ -86,7 +86,7 @@ void AddTriCells(vtkCellArray* cellArray, int id1, int id2, int id3, int id4, bo
 
 } // anonymous namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParametricFunctionSource::MakeTriangles(vtkCellArray* cells, int PtsU, int PtsV)
 {
   int id1 = 0;
@@ -191,7 +191,7 @@ void vtkParametricFunctionSource::MakeTriangles(vtkCellArray* cells, int PtsU, i
   vtkDebugMacro(<< "MakeTriangles() finished.");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkParametricFunctionSource::RequestData(vtkInformation* vtkNotUsed(info),
   vtkInformationVector** vtkNotUsed(inputV), vtkInformationVector* output)
 {
@@ -220,7 +220,7 @@ int vtkParametricFunctionSource::RequestData(vtkInformation* vtkNotUsed(info),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParametricFunctionSource::Produce1DOutput(vtkInformationVector* output)
 {
   vtkIdType numPts = this->UResolution + 1;
@@ -259,7 +259,7 @@ void vtkParametricFunctionSource::Produce1DOutput(vtkInformationVector* output)
   outData->SetLines(lines);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector* output)
 {
   // Adjust so the ranges:
@@ -549,7 +549,7 @@ void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector* output)
   outData->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkParametricFunctionSource::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
@@ -564,7 +564,7 @@ vtkMTimeType vtkParametricFunctionSource::GetMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParametricFunctionSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

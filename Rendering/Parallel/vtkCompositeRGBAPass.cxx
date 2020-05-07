@@ -54,7 +54,7 @@ vtkStandardNewMacro(vtkCompositeRGBAPass);
 vtkCxxSetObjectMacro(vtkCompositeRGBAPass, Controller, vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkCompositeRGBAPass, Kdtree, vtkPKdTree);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCompositeRGBAPass::vtkCompositeRGBAPass()
 {
   this->Controller = nullptr;
@@ -66,7 +66,7 @@ vtkCompositeRGBAPass::vtkCompositeRGBAPass()
   this->RawRGBABufferSize = 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCompositeRGBAPass::~vtkCompositeRGBAPass()
 {
   if (this->Controller != nullptr)
@@ -92,7 +92,7 @@ vtkCompositeRGBAPass::~vtkCompositeRGBAPass()
   delete[] this->RawRGBABuffer;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositeRGBAPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -117,13 +117,13 @@ void vtkCompositeRGBAPass::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkCompositeRGBAPass::IsSupported(vtkOpenGLRenderWindow* context)
 {
   return (context != nullptr);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Perform rendering according to a render state \p s.
 // \pre s_exists: s!=0
@@ -522,7 +522,7 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState* s)
 #endif
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Release graphics resources and ask components to release their own
 // resources.

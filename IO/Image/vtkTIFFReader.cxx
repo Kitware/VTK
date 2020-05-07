@@ -136,7 +136,7 @@ bool ReadTemplatedImage(T* out, Flip flip, int startCol, int endCol, int startRo
 }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkTIFFReader);
 extern "C"
 {
@@ -148,7 +148,7 @@ extern "C"
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkTIFFReader::vtkTIFFReaderInternal::Open(const char* filename)
 {
   this->Clean();
@@ -173,7 +173,7 @@ bool vtkTIFFReader::vtkTIFFReaderInternal::Open(const char* filename)
   return true;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTIFFReader::vtkTIFFReaderInternal::Clean()
 {
   if (this->Image)
@@ -205,7 +205,7 @@ void vtkTIFFReader::vtkTIFFReaderInternal::Clean()
   this->IsOpen = false;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTIFFReader::vtkTIFFReaderInternal::vtkTIFFReaderInternal()
 {
   this->Image = nullptr;
@@ -215,7 +215,7 @@ vtkTIFFReader::vtkTIFFReaderInternal::vtkTIFFReaderInternal()
   this->Clean();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkTIFFReader::vtkTIFFReaderInternal::Initialize()
 {
   if (this->Image)
@@ -336,7 +336,7 @@ bool vtkTIFFReader::vtkTIFFReaderInternal::Initialize()
   return true;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkTIFFReader::vtkTIFFReaderInternal::CanRead()
 {
   return (this->Image && (this->Width > 0) && (this->Height > 0) && (this->SamplesPerPixel > 0) &&
@@ -349,7 +349,7 @@ bool vtkTIFFReader::vtkTIFFReaderInternal::CanRead()
     (this->BitsPerSample == 8 || this->BitsPerSample == 16 || this->BitsPerSample == 32));
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTIFFReader::vtkTIFFReader()
 {
   this->Initialize();
@@ -373,13 +373,13 @@ vtkTIFFReader::vtkTIFFReader()
   this->IgnoreColorMap = false;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTIFFReader::~vtkTIFFReader()
 {
   delete this->InternalImage;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTIFFReader::ExecuteInformation()
 {
   this->Initialize();
@@ -579,7 +579,7 @@ void vtkTIFFReader::SetOrientationType(unsigned int orientationType)
   this->OrientationTypeSpecifiedFlag = true;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class OT>
 void vtkTIFFReader::Process2(OT* outPtr, int*)
 {
@@ -598,7 +598,7 @@ void vtkTIFFReader::Process2(OT* outPtr, int*)
   this->ReadImageInternal(outPtr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This function reads in one data of data.
 // templated to handle different data types.
 template <class OT>
@@ -641,7 +641,7 @@ void vtkTIFFReader::Process(OT* outPtr, int outExtent[6], vtkIdType outIncr[3])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This function reads a data from a file.  The datas extent/axes
 // are assumed to be the same as the file extent/order.
 void vtkTIFFReader::ExecuteDataWithInformation(vtkDataObject* output, vtkInformation* outInfo)
@@ -671,7 +671,7 @@ void vtkTIFFReader::ExecuteDataWithInformation(vtkDataObject* output, vtkInforma
   data->GetPointData()->GetScalars()->SetName("Tiff Scalars");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 unsigned int vtkTIFFReader::GetFormat()
 {
   if (this->ImageFormat != vtkTIFFReader::NOFORMAT)
@@ -714,7 +714,7 @@ unsigned int vtkTIFFReader::GetFormat()
   return this->ImageFormat;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTIFFReader::GetColor(
   int index, unsigned short* red, unsigned short* green, unsigned short* blue)
 {
@@ -788,7 +788,7 @@ void vtkTIFFReader::GetColor(
   *blue = *(blue_orig + index);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTIFFReader::Initialize()
 {
   this->ColorRed = nullptr;
@@ -798,7 +798,7 @@ void vtkTIFFReader::Initialize()
   this->ImageFormat = vtkTIFFReader::NOFORMAT;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <typename T>
 void vtkTIFFReader::ReadVolume(T* buffer)
 {
@@ -1242,7 +1242,7 @@ void vtkTIFFReader::ReadGenericImage(T* out, unsigned int, unsigned int height)
   this->TotalColors = -1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <typename T>
 void vtkTIFFReader::ReadImageInternal(T* outPtr)
 {
@@ -1309,7 +1309,7 @@ void vtkTIFFReader::ReadImageInternal(T* outPtr)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <typename T>
 int vtkTIFFReader::EvaluateImageAt(T* out, T* in)
 {
@@ -1374,7 +1374,7 @@ int vtkTIFFReader::EvaluateImageAt(T* out, T* in)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTIFFReader::CanReadFile(const char* fname)
 {
   vtkTIFFReaderInternal tf;
@@ -1387,7 +1387,7 @@ int vtkTIFFReader::CanReadFile(const char* fname)
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTIFFReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

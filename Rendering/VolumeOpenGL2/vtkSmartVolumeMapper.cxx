@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkFixedPointRayCastImage.cxx
+  Module:    vtkSmartVolumeMapper.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -39,9 +39,9 @@
 
 vtkStandardNewMacro(vtkSmartVolumeMapper);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Constructor
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSmartVolumeMapper::vtkSmartVolumeMapper()
   : VectorMode(DISABLED)
 {
@@ -138,9 +138,9 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
   this->OSPRayMapper = nullptr;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Destructor
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSmartVolumeMapper::~vtkSmartVolumeMapper()
 {
   if (this->RayCastMapper)
@@ -180,11 +180,11 @@ vtkSmartVolumeMapper::~vtkSmartVolumeMapper()
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The Render method will determine the render mode and then render using the
 // appropriate mapper. If the render mode is invalid (the user explicitly
 // chooses something that is not supported) the render will silently fail.
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSmartVolumeMapper::Render(vtkRenderer* ren, vtkVolume* vol)
 {
   // Compute the render mode based on the requested
@@ -245,13 +245,13 @@ void vtkSmartVolumeMapper::Render(vtkRenderer* ren, vtkVolume* vol)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Initialize the render
 // We need to determine whether the GPU or CPU mapper are supported
 // First we need to know what input scalar field we are working with to find
 // out how many components it has. If it has more than one and we are considering
 // them to be independent components, then only GPU Mapper will be supported.
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSmartVolumeMapper::Initialize(vtkRenderer* ren, vtkVolume* vol)
 {
   vtkDataSet* input = this->GetInput();
@@ -296,10 +296,10 @@ void vtkSmartVolumeMapper::Initialize(vtkRenderer* ren, vtkVolume* vol)
   this->SupportStatusCheckTime.Modified();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Compute the render mode based on what hardware is available, what the user
 // requested as a render mode, and the desired update rate of the render window
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer* ren, vtkVolume* vol)
 {
   // If we are already initialized, and the volume,
@@ -510,7 +510,7 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer* ren, vtkVolume* vol)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSmartVolumeMapper::ComputeMagnitudeCellData(vtkDataSet* input, vtkDataArray* arr)
 {
   vtkImageData* imData = vtkImageData::SafeDownCast(input);
@@ -550,7 +550,7 @@ void vtkSmartVolumeMapper::ComputeMagnitudeCellData(vtkDataSet* input, vtkDataAr
   this->InputDataMagnitude->ShallowCopy(pointsToCells->GetOutput());
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSmartVolumeMapper::ComputeMagnitudePointData(vtkDataSet* input, vtkDataArray* arr)
 {
   vtkImageData* imData = vtkImageData::SafeDownCast(input);
@@ -575,7 +575,7 @@ void vtkSmartVolumeMapper::ComputeMagnitudePointData(vtkDataSet* input, vtkDataA
   this->InputDataMagnitude->ShallowCopy(this->ImageMagnitude->GetOutput());
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSmartVolumeMapper::SetupVectorMode(vtkVolume* vol)
 {
   vtkDataSet* input = this->GetInput();
@@ -692,7 +692,7 @@ void vtkSmartVolumeMapper::SetupVectorMode(vtkVolume* vol)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSmartVolumeMapper::ConnectMapperInput(vtkVolumeMapper* m)
 {
   assert("pre: m_exists" && m != nullptr);
@@ -727,7 +727,7 @@ void vtkSmartVolumeMapper::ConnectMapperInput(vtkVolumeMapper* m)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSmartVolumeMapper::ConnectFilterInput(vtkImageResample* f)
 {
   assert("pre: f_exists" && f != nullptr);
@@ -753,7 +753,7 @@ void vtkSmartVolumeMapper::ConnectFilterInput(vtkImageResample* f)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSmartVolumeMapper::SetRequestedRenderMode(int mode)
 {
   // If we aren't actually changing it, just return
@@ -774,31 +774,31 @@ void vtkSmartVolumeMapper::SetRequestedRenderMode(int mode)
   this->Modified();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSmartVolumeMapper::SetRequestedRenderModeToDefault()
 {
   this->SetRequestedRenderMode(vtkSmartVolumeMapper::DefaultRenderMode);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSmartVolumeMapper::SetRequestedRenderModeToRayCast()
 {
   this->SetRequestedRenderMode(vtkSmartVolumeMapper::RayCastRenderMode);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSmartVolumeMapper::SetRequestedRenderModeToGPU()
 {
   this->SetRequestedRenderMode(vtkSmartVolumeMapper::GPURenderMode);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSmartVolumeMapper::SetRequestedRenderModeToOSPRay()
 {
   this->SetRequestedRenderMode(vtkSmartVolumeMapper::OSPRayRenderMode);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSmartVolumeMapper::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->RayCastMapper->ReleaseGraphicsResources(w);
@@ -810,25 +810,25 @@ void vtkSmartVolumeMapper::ReleaseGraphicsResources(vtkWindow* w)
   this->RayCastSupported = 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSmartVolumeMapper::SetInterpolationModeToNearestNeighbor()
 {
   this->SetInterpolationMode(VTK_RESLICE_NEAREST);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSmartVolumeMapper::SetInterpolationModeToLinear()
 {
   this->SetInterpolationMode(VTK_RESLICE_LINEAR);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSmartVolumeMapper::SetInterpolationModeToCubic()
 {
   this->SetInterpolationMode(VTK_RESLICE_CUBIC);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSmartVolumeMapper::CreateCanonicalView(vtkRenderer* ren, vtkVolume* volume,
   vtkVolume* volume2, vtkImageData* image, int blend_mode, double viewDirection[3],
   double viewUp[3])
@@ -858,13 +858,13 @@ void vtkSmartVolumeMapper::CreateCanonicalView(vtkRenderer* ren, vtkVolume* volu
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSmartVolumeMapper::GetLastUsedRenderMode()
 {
   return this->CurrentRenderMode;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSmartVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -881,7 +881,7 @@ void vtkSmartVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "SampleDistance: " << this->SampleDistance << endl;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSmartVolumeMapper::SetVectorMode(int mode)
 {
   int const clampedMode = mode < -1 ? -1 : (mode > 1 ? 1 : mode);

@@ -38,7 +38,7 @@
 
 vtkStandardNewMacro(vtkAreaPicker);
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAreaPicker::vtkAreaPicker()
 {
   this->FrustumExtractor = vtkExtractSelectedFrustum::New();
@@ -58,7 +58,7 @@ vtkAreaPicker::vtkAreaPicker()
   this->Y1 = 0.0;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAreaPicker::~vtkAreaPicker()
 {
   this->Prop3Ds->Delete();
@@ -67,7 +67,7 @@ vtkAreaPicker::~vtkAreaPicker()
   this->FrustumExtractor->Delete();
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Initialize the picking process.
 void vtkAreaPicker::Initialize()
 {
@@ -76,12 +76,12 @@ void vtkAreaPicker::Initialize()
   this->Mapper = nullptr;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAreaPicker::SetRenderer(vtkRenderer* renderer)
 {
   this->Renderer = renderer;
 }
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAreaPicker::SetPickCoords(double x0, double y0, double x1, double y1)
 {
   this->X0 = x0;
@@ -89,13 +89,13 @@ void vtkAreaPicker::SetPickCoords(double x0, double y0, double x1, double y1)
   this->X1 = x1;
   this->Y1 = y1;
 }
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAreaPicker::Pick()
 {
   return this->AreaPick(this->X0, this->Y0, this->X1, this->Y1, this->Renderer);
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Does what this class is meant to do.
 int vtkAreaPicker::AreaPick(double x0, double y0, double x1, double y1, vtkRenderer* renderer)
 {
@@ -124,7 +124,7 @@ int vtkAreaPicker::AreaPick(double x0, double y0, double x1, double y1, vtkRende
   return this->PickProps(this->Renderer);
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Converts the given screen rectangle into a selection frustum.
 // Saves the results in ClipPoints and Frustum.
 void vtkAreaPicker::DefineFrustum(double x0, double y0, double x1, double y1, vtkRenderer* renderer)
@@ -193,7 +193,7 @@ void vtkAreaPicker::DefineFrustum(double x0, double y0, double x1, double y1, vt
   this->FrustumExtractor->CreateFrustum(verts);
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Decides which props are within the frustum.
 // Adds each to the prop3d list and fires pick events.
 // Remembers the dataset, mapper, and assembly path for the nearest.
@@ -367,7 +367,7 @@ int vtkAreaPicker::TypeDecipher(vtkProp* propCandidate, vtkAbstractMapper3D** ma
   return pickable;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Intersect the bbox represented by the bounds with the clipping frustum.
 // Return true if partially inside.
 // Also return a distance to the near plane.
@@ -412,7 +412,7 @@ int vtkAreaPicker::ABoxFrustumIsect(double* bounds, double& mindist)
   return this->FrustumExtractor->OverallBoundsTest(bounds);
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAreaPicker::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

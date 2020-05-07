@@ -33,7 +33,7 @@
 
 vtkStandardNewMacro(vtkAppendFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAppendFilter::vtkAppendFilter()
 {
   this->InputList = nullptr;
@@ -43,7 +43,7 @@ vtkAppendFilter::vtkAppendFilter()
   this->ToleranceIsAbsolute = true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAppendFilter::~vtkAppendFilter()
 {
   if (this->InputList != nullptr)
@@ -53,7 +53,7 @@ vtkAppendFilter::~vtkAppendFilter()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataSet* vtkAppendFilter::GetInput(int idx)
 {
   if (idx >= this->GetNumberOfInputConnections(0) || idx < 0)
@@ -64,7 +64,7 @@ vtkDataSet* vtkAppendFilter::GetInput(int idx)
   return vtkDataSet::SafeDownCast(this->GetExecutive()->GetInputData(0, idx));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Remove a dataset from the list of data to append.
 void vtkAppendFilter::RemoveInputData(vtkDataSet* ds)
 {
@@ -82,7 +82,7 @@ void vtkAppendFilter::RemoveInputData(vtkDataSet* ds)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataSetCollection* vtkAppendFilter::GetInputList()
 {
   if (this->InputList)
@@ -102,7 +102,7 @@ vtkDataSetCollection* vtkAppendFilter::GetInputList()
   return this->InputList;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Append data sets into single unstructured grid
 int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -363,7 +363,7 @@ int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataSetCollection* vtkAppendFilter::GetNonEmptyInputs(vtkInformationVector** inputVector)
 {
   vtkDataSetCollection* collection = vtkDataSetCollection::New();
@@ -389,7 +389,7 @@ vtkDataSetCollection* vtkAppendFilter::GetNonEmptyInputs(vtkInformationVector** 
   return collection;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAppendFilter::AppendArrays(int attributesType, vtkInformationVector** inputVector,
   vtkIdType* globalIds, vtkUnstructuredGrid* output, vtkIdType totalNumberOfElements)
 {
@@ -442,7 +442,7 @@ void vtkAppendFilter::AppendArrays(int attributesType, vtkInformationVector** in
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAppendFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -464,7 +464,7 @@ int vtkAppendFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAppendFilter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
@@ -472,7 +472,7 @@ int vtkAppendFilter::FillInputPortInformation(int, vtkInformation* info)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAppendFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -66,7 +66,7 @@ struct vtkmDataSet::DataMembers
   VtkmLocator<vtkm::cont::CellLocator> CellLocator;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkmDataSet::vtkmDataSet()
   : Internals(new DataMembers)
 {
@@ -84,7 +84,7 @@ void vtkmDataSet::PrintSelf(ostream& os, vtkIndent indent)
   this->Internals->Coordinates.PrintSummary(os);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkmDataSet::SetVtkmDataSet(const vtkm::cont::DataSet& ds)
 {
   this->Internals->CellSet = ds.GetCellSet();
@@ -102,7 +102,7 @@ vtkm::cont::DataSet vtkmDataSet::GetVtkmDataSet() const
   return ds;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkmDataSet::CopyStructure(vtkDataSet* ds)
 {
   auto vtkmds = vtkmDataSet::SafeDownCast(ds);
@@ -168,7 +168,7 @@ void vtkmDataSet::GetCellBounds(vtkIdType cellId, double bounds[6])
 {
   if (this->Internals->Coordinates.GetData()
         .IsType<vtkm::cont::ArrayHandleUniformPointCoordinates>() &&
-    this->Internals->CellSet.IsType<vtkm::cont::CellSetStructured<3> >())
+    this->Internals->CellSet.IsType<vtkm::cont::CellSetStructured<3>>())
   {
     auto portal = this->Internals->Coordinates.GetData()
                     .Cast<vtkm::cont::ArrayHandleUniformPointCoordinates>()

@@ -29,32 +29,32 @@ struct vtkParallelReaderInternal
   FileNamesType FileNames;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParallelReader::vtkParallelReader()
 {
   this->Internal = new vtkParallelReaderInternal;
   this->CurrentFileIndex = -1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParallelReader::~vtkParallelReader()
 {
   delete this->Internal;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExecutive* vtkParallelReader::CreateDefaultExecutive()
 {
   return vtkReaderExecutive::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelReader::AddFileName(const char* fname)
 {
   if (fname == nullptr || strlen(fname) == 0)
@@ -65,26 +65,26 @@ void vtkParallelReader::AddFileName(const char* fname)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelReader::ClearFileNames()
 {
   this->Internal->FileNames.clear();
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkParallelReader::GetNumberOfFileNames() const
 {
   return static_cast<int>(this->Internal->FileNames.size());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkParallelReader::GetFileName(int i) const
 {
   return this->Internal->FileNames[i].c_str();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkParallelReader::GetCurrentFileName() const
 {
   if (this->CurrentFileIndex < 0 || this->CurrentFileIndex >= (int)this->Internal->FileNames.size())
@@ -94,7 +94,7 @@ const char* vtkParallelReader::GetCurrentFileName() const
   return this->Internal->FileNames[this->CurrentFileIndex].c_str();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkParallelReader::ReadMetaData(vtkInformation* metadata)
 {
   metadata->Set(vtkAlgorithm::CAN_HANDLE_PIECE_REQUEST(), 1);
@@ -137,7 +137,7 @@ int vtkParallelReader::ReadMetaData(vtkInformation* metadata)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkParallelReader::ReadMesh(
   int piece, int npieces, int nghosts, int timestep, vtkDataObject* output)
 {
@@ -157,7 +157,7 @@ int vtkParallelReader::ReadMesh(
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkParallelReader::ReadPoints(
   int piece, int npieces, int nghosts, int timestep, vtkDataObject* output)
 {
@@ -172,7 +172,7 @@ int vtkParallelReader::ReadPoints(
   return this->ReadPoints(this->Internal->FileNames[timestep], piece, npieces, nghosts, output);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkParallelReader::ReadArrays(
   int piece, int npieces, int nghosts, int timestep, vtkDataObject* output)
 {
@@ -187,7 +187,7 @@ int vtkParallelReader::ReadArrays(
   return this->ReadArrays(this->Internal->FileNames[timestep], piece, npieces, nghosts, output);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkParallelReader::GetTimeValue(const std::string&)
 {
   return vtkMath::Nan();

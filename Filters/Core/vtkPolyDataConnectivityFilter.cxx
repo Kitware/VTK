@@ -502,7 +502,7 @@ void vtkPolyDataConnectivityFilter::TraverseAndMark()
   } // while wave is not empty
 }
 
-// --------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPolyDataConnectivityFilter::IsScalarConnected(vtkIdType cellId)
 {
   double s;
@@ -553,7 +553,7 @@ int vtkPolyDataConnectivityFilter::IsScalarConnected(vtkIdType cellId)
   return 0;
 }
 
-// --------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Obtain the number of connected regions.
 int vtkPolyDataConnectivityFilter::GetNumberOfExtractedRegions()
 {

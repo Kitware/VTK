@@ -19,10 +19,10 @@
 
 vtkStandardNewMacro(vtkWidgetSet);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkWidgetSet::vtkWidgetSet() = default;
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkWidgetSet::~vtkWidgetSet()
 {
   for (WidgetIteratorType it = this->Widget.begin(); it != this->Widget.end(); ++it)
@@ -31,7 +31,7 @@ vtkWidgetSet::~vtkWidgetSet()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWidgetSet::SetEnabled(vtkTypeBool enabling)
 {
   for (WidgetIteratorType it = this->Widget.begin(); it != this->Widget.end(); ++it)
@@ -40,7 +40,7 @@ void vtkWidgetSet::SetEnabled(vtkTypeBool enabling)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWidgetSet::AddWidget(vtkAbstractWidget* w)
 {
   for (unsigned int i = 0; i < this->Widget.size(); i++)
@@ -58,7 +58,7 @@ void vtkWidgetSet::AddWidget(vtkAbstractWidget* w)
   static_cast<vtkParallelopipedWidget*>(w)->WidgetSet = this;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWidgetSet::RemoveWidget(vtkAbstractWidget* w)
 {
   for (WidgetIteratorType it = this->Widget.begin(); it != this->Widget.end(); ++it)
@@ -73,19 +73,19 @@ void vtkWidgetSet::RemoveWidget(vtkAbstractWidget* w)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAbstractWidget* vtkWidgetSet::GetNthWidget(unsigned int i)
 {
   return this->Widget[i];
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 unsigned int vtkWidgetSet::GetNumberOfWidgets()
 {
   return static_cast<unsigned int>(this->Widget.size());
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWidgetSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h

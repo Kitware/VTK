@@ -27,20 +27,20 @@
 
 vtkStandardNewMacro(vtkTDxInteractorStyleCamera);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTDxInteractorStyleCamera::vtkTDxInteractorStyleCamera()
 {
   this->Transform = vtkTransform::New();
   //  this->DebugOn();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTDxInteractorStyleCamera::~vtkTDxInteractorStyleCamera()
 {
   this->Transform->Delete();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTDxInteractorStyleCamera::OnMotionEvent(vtkTDxMotionEventInfo* motionInfo)
 {
   assert("pre: motionInfo_exist" && motionInfo != nullptr);
@@ -148,7 +148,7 @@ void vtkTDxInteractorStyleCamera::OnMotionEvent(vtkTDxMotionEventInfo* motionInf
   i->Render();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTDxInteractorStyleCamera::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

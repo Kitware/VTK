@@ -52,7 +52,7 @@ vtkCompassWidget::vtkCompassWidget()
     vtkCommand::TimerEvent, vtkWidgetEvent::TimedOut, this, vtkCompassWidget::TimerAction);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompassWidget::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)

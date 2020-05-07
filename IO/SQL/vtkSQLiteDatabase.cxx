@@ -35,7 +35,7 @@
 
 vtkStandardNewMacro(vtkSQLiteDatabase);
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSQLiteDatabase::vtkSQLiteDatabase()
 {
   this->Internal = new vtkSQLiteDatabaseInternals;
@@ -51,7 +51,7 @@ vtkSQLiteDatabase::vtkSQLiteDatabase()
   this->DatabaseFileName = nullptr;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSQLiteDatabase::~vtkSQLiteDatabase()
 {
   if (this->IsOpen())
@@ -70,7 +70,7 @@ vtkSQLiteDatabase::~vtkSQLiteDatabase()
   delete this->Internal;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSQLiteDatabase::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -90,7 +90,7 @@ void vtkSQLiteDatabase::PrintSelf(ostream& os, vtkIndent indent)
      << endl;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStdString vtkSQLiteDatabase::GetColumnSpecification(
   vtkSQLDatabaseSchema* schema, int tblHandle, int colHandle)
 {
@@ -220,7 +220,7 @@ vtkStdString vtkSQLiteDatabase::GetColumnSpecification(
   return queryStr.str();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkSQLiteDatabase::IsSupported(int feature)
 {
   switch (feature)
@@ -248,13 +248,13 @@ bool vtkSQLiteDatabase::IsSupported(int feature)
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkSQLiteDatabase::Open(const char* password)
 {
   return this->Open(password, USE_EXISTING);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkSQLiteDatabase::Open(const char* password, int mode)
 {
   if (this->IsOpen())
@@ -328,7 +328,7 @@ bool vtkSQLiteDatabase::Open(const char* password, int mode)
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSQLiteDatabase::Close()
 {
   if (this->Internal->SQLiteInstance == nullptr)
@@ -346,13 +346,13 @@ void vtkSQLiteDatabase::Close()
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkSQLiteDatabase::IsOpen()
 {
   return (this->Internal->SQLiteInstance != nullptr);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSQLQuery* vtkSQLiteDatabase::GetQueryInstance()
 {
   vtkSQLiteQuery* query = vtkSQLiteQuery::New();
@@ -360,7 +360,7 @@ vtkSQLQuery* vtkSQLiteDatabase::GetQueryInstance()
   return query;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStringArray* vtkSQLiteDatabase::GetTables()
 {
   this->Tables->Resize(0);
@@ -393,7 +393,7 @@ vtkStringArray* vtkSQLiteDatabase::GetTables()
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStringArray* vtkSQLiteDatabase::GetRecord(const char* table)
 {
   vtkSQLQuery* query = this->GetQueryInstance();
@@ -432,7 +432,7 @@ vtkStringArray* vtkSQLiteDatabase::GetRecord(const char* table)
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStdString vtkSQLiteDatabase::GetURL()
 {
   const char* fname = this->GetDatabaseFileName();
@@ -445,7 +445,7 @@ vtkStdString vtkSQLiteDatabase::GetURL()
   return this->TempURL;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkSQLiteDatabase::ParseURL(const char* URL)
 {
   std::string urlstr(URL ? URL : "");
@@ -467,7 +467,7 @@ bool vtkSQLiteDatabase::ParseURL(const char* URL)
   return false;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkSQLiteDatabase::HasError()
 {
   return (sqlite3_errcode(this->Internal->SQLiteInstance) != SQLITE_OK);

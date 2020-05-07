@@ -31,7 +31,7 @@
 vtkStandardNewMacro(vtkLineSource);
 vtkCxxSetObjectMacro(vtkLineSource, Points, vtkPoints);
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLineSource::vtkLineSource(int res)
 {
   this->Point1[0] = -.5;
@@ -50,13 +50,13 @@ vtkLineSource::vtkLineSource(int res)
   this->SetNumberOfInputPorts(0);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLineSource::~vtkLineSource()
 {
   this->SetPoints(nullptr);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLineSource::SetNumberOfRefinementRatios(int val)
 {
   if (val < 0)
@@ -70,7 +70,7 @@ void vtkLineSource::SetNumberOfRefinementRatios(int val)
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLineSource::SetRefinementRatio(int index, double value)
 {
   if (index >= 0 && index < static_cast<int>(this->RefinementRatios.size()))
@@ -87,13 +87,13 @@ void vtkLineSource::SetRefinementRatio(int index, double value)
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkLineSource::GetNumberOfRefinementRatios()
 {
   return static_cast<int>(this->RefinementRatios.size());
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkLineSource::GetRefinementRatio(int index)
 {
   if (index >= 0 && index < static_cast<int>(this->RefinementRatios.size()))
@@ -104,7 +104,7 @@ double vtkLineSource::GetRefinementRatio(int index)
   return 0.0;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkLineSource::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -114,7 +114,7 @@ int vtkLineSource::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkLineSource::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -265,7 +265,7 @@ int vtkLineSource::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLineSource::SetPoint1(float point1f[3])
 {
   double point1d[3];
@@ -275,7 +275,7 @@ void vtkLineSource::SetPoint1(float point1f[3])
   SetPoint1(point1d);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLineSource::SetPoint2(float point2f[3])
 {
   double point2d[3];
@@ -285,7 +285,7 @@ void vtkLineSource::SetPoint2(float point2f[3])
   SetPoint2(point2d);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLineSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

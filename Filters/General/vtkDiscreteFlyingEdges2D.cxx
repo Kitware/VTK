@@ -276,7 +276,7 @@ public:
     vtkDataArray* newScalars, vtkCellArray* newLines, vtkImageData* input, int* updateExt);
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify the points that define each edge.
 template <class T>
 const unsigned char vtkDiscreteFlyingEdges2DAlgorithm<T>::VertMap[4][2] = {
@@ -286,7 +286,7 @@ const unsigned char vtkDiscreteFlyingEdges2DAlgorithm<T>::VertMap[4][2] = {
   { 1, 3 },
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The offsets of each vertex (in index space) from the pixel axes origin.
 template <class T>
 const unsigned char vtkDiscreteFlyingEdges2DAlgorithm<T>::VertOffsets[4][2] = {
@@ -317,7 +317,7 @@ const unsigned char vtkDiscreteFlyingEdges2DAlgorithm<T>::EdgeCases[16][5] = {
   { 0, 0, 0, 0, 0 },
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Instantiate and initialize key data members. Mostly we build some
 // acceleration structures from the case table.
 template <class T>
@@ -358,7 +358,7 @@ vtkDiscreteFlyingEdges2DAlgorithm<T>::vtkDiscreteFlyingEdges2DAlgorithm()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Interpolate a new point along a boundary edge. Make sure to consider
 // proximity to boundary when computing gradients, etc.
 template <class T>
@@ -392,7 +392,7 @@ void vtkDiscreteFlyingEdges2DAlgorithm<T>::InterpolateEdge(double vtkNotUsed(val
   xPtr[2] = this->K;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Generate the output points and optionally normals, gradients and
 // interpolate attributes.
 template <class T>
@@ -438,7 +438,7 @@ void vtkDiscreteFlyingEdges2DAlgorithm<T>::GeneratePoints(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // PASS 1: Process a single x-row (and all of the pixel edges that compose
 // the row).  Start building cell contour case table, determine the number of
 // intersections, figure out where intersections along row begin and end
@@ -490,7 +490,7 @@ void vtkDiscreteFlyingEdges2DAlgorithm<T>::ProcessXEdge(double value, T* inPtr, 
   eMD[4] = maxInt; // where intersections end along x edge
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // PASS 2: Process the y-cell edges (that form the cell axes) along a single
 // x-row.  Continue building cell contour case table, and determine the
 // number of cell y-edge intersections. Use computational trimming to reduce
@@ -591,7 +591,7 @@ void vtkDiscreteFlyingEdges2DAlgorithm<T>::ProcessYEdges(vtkIdType row)
   } // for all pixels along this x-edge
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // PASS 4: Process the x-row cells to generate output primitives, including
 // point coordinates and line segments. This is the fourth pass of the
 // algorithm.
@@ -664,7 +664,7 @@ void vtkDiscreteFlyingEdges2DAlgorithm<T>::GenerateOutput(double value, T* rowPt
   } // for all non-trimmed cells along this x-edge
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Contouring filter specialized for images. This templated function interfaces the
 // vtkDiscreteFlyingEdges2D class with the templated algorithm class. It also invokes
 // the three passes of the Flying Edges algorithm.
@@ -833,7 +833,7 @@ void vtkDiscreteFlyingEdges2DAlgorithm<T>::ContourImage(vtkDiscreteFlyingEdges2D
   delete[] algo.EdgeMetaData;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Here is the VTK class proper.
 // Construct object with initial contour value of 0.0.
 vtkDiscreteFlyingEdges2D::vtkDiscreteFlyingEdges2D()
@@ -848,13 +848,13 @@ vtkDiscreteFlyingEdges2D::vtkDiscreteFlyingEdges2D()
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDiscreteFlyingEdges2D::~vtkDiscreteFlyingEdges2D()
 {
   this->ContourValues->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Overload standard modified time function. If contour values are modified,
 // then this object is modified as well.
@@ -866,7 +866,7 @@ vtkMTimeType vtkDiscreteFlyingEdges2D::GetMTime()
   return (mTime2 > mTime ? mTime2 : mTime);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Contouring filter specialized for images (or slices from images)
 //
 int vtkDiscreteFlyingEdges2D::RequestData(vtkInformation* vtkNotUsed(request),
@@ -947,14 +947,14 @@ int vtkDiscreteFlyingEdges2D::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDiscreteFlyingEdges2D::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDiscreteFlyingEdges2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

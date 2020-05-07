@@ -30,7 +30,7 @@
 
 namespace
 {
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 inline static bool vtkReebGraphVertexSoS(
   const std::pair<int, double>& v0, const std::pair<int, double>& v1)
 {
@@ -40,7 +40,7 @@ inline static bool vtkReebGraphVertexSoS(
 
 vtkStandardNewMacro(vtkReebGraphToJoinSplitTreeFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkReebGraphToJoinSplitTreeFilter::vtkReebGraphToJoinSplitTreeFilter()
 {
   this->SetNumberOfInputPorts(2);
@@ -48,10 +48,10 @@ vtkReebGraphToJoinSplitTreeFilter::vtkReebGraphToJoinSplitTreeFilter()
   this->FieldId = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkReebGraphToJoinSplitTreeFilter::~vtkReebGraphToJoinSplitTreeFilter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkReebGraphToJoinSplitTreeFilter::FillInputPortInformation(
   int portNumber, vtkInformation* info)
 {
@@ -70,14 +70,14 @@ int vtkReebGraphToJoinSplitTreeFilter::FillInputPortInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkReebGraphToJoinSplitTreeFilter::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDirectedGraph::DATA_TYPE_NAME(), "vtkReebGraph");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkReebGraphToJoinSplitTreeFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -85,13 +85,13 @@ void vtkReebGraphToJoinSplitTreeFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Field Id: " << this->FieldId << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkReebGraph* vtkReebGraphToJoinSplitTreeFilter::GetOutput()
 {
   return vtkReebGraph::SafeDownCast(this->GetOutputDataObject(0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkReebGraphToJoinSplitTreeFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -136,7 +136,7 @@ int vtkReebGraphToJoinSplitTreeFilter::RequestData(vtkInformation* vtkNotUsed(re
 
       // first, uncompress the input Reeb graph.
       vtkMutableDirectedGraph* unCompressedGraph = vtkMutableDirectedGraph::New();
-      std::vector<std::pair<int, double> > vertexList;
+      std::vector<std::pair<int, double>> vertexList;
       for (int i = 0; i < vertexInfo->GetNumberOfTuples(); i++)
       {
         int vertexId = (int)*(vertexInfo->GetTuple(i));
@@ -221,7 +221,7 @@ int vtkReebGraphToJoinSplitTreeFilter::RequestData(vtkInformation* vtkNotUsed(re
       if (IsSplitTree)
       {
         // reverse the list of vertices
-        std::vector<std::pair<int, double> > tmpVector(vertexList);
+        std::vector<std::pair<int, double>> tmpVector(vertexList);
         for (int i = static_cast<int>(tmpVector.size()) - 1; i >= 0; i--)
         {
           vertexList[vertexList.size() - i - 1] = tmpVector[i];
@@ -229,7 +229,7 @@ int vtkReebGraphToJoinSplitTreeFilter::RequestData(vtkInformation* vtkNotUsed(re
       }
 
       // then, prepare the necessary adjacency information
-      std::vector<std::vector<int> > halfStars(vertexList.size());
+      std::vector<std::vector<int>> halfStars(vertexList.size());
 
       vertexInfo = vtkArrayDownCast<vtkDataArray>(
         unCompressedGraph->GetVertexData()->GetAbstractArray("Vertex Ids"));
@@ -254,7 +254,7 @@ int vtkReebGraphToJoinSplitTreeFilter::RequestData(vtkInformation* vtkNotUsed(re
       unCompressedGraph->Delete();
 
       // prepare the intermediate data-structure
-      std::vector<std::pair<std::pair<int, int>, std::vector<int> > > edgeList(vertexList.size());
+      std::vector<std::pair<std::pair<int, int>, std::vector<int>>> edgeList(vertexList.size());
       for (unsigned int i = 0; i < edgeList.size(); i++)
       {
         edgeList[i].first.first = -1;

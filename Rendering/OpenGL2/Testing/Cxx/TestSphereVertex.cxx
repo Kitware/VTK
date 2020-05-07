@@ -27,7 +27,7 @@
 
 #include "vtkOpenGLRenderWindow.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestSphereVertex(int argc, char* argv[])
 {
   vtkNew<vtkRenderer> renderer;

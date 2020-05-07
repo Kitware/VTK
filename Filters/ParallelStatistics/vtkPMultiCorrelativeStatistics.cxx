@@ -37,27 +37,27 @@
 
 vtkStandardNewMacro(vtkPMultiCorrelativeStatistics);
 vtkCxxSetObjectMacro(vtkPMultiCorrelativeStatistics, Controller, vtkMultiProcessController);
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPMultiCorrelativeStatistics::vtkPMultiCorrelativeStatistics()
 {
   this->Controller = 0;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPMultiCorrelativeStatistics::~vtkPMultiCorrelativeStatistics()
 {
   this->SetController(0);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPMultiCorrelativeStatistics::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Controller: " << this->Controller << endl;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPMultiCorrelativeStatistics::Learn(
   vtkTable* inData, vtkTable* inParameters, vtkMultiBlockDataSet* outMeta)
 {
@@ -82,7 +82,7 @@ void vtkPMultiCorrelativeStatistics::Learn(
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPMultiCorrelativeStatistics::GatherStatistics(
   vtkMultiProcessController* curController, vtkTable* sparseCov)
 {
@@ -134,7 +134,7 @@ void vtkPMultiCorrelativeStatistics::GatherStatistics(
   vtkIdType nMeans = static_cast<vtkIdType>(meanIndex.size());
 
   // Second, load all MXYs and create an index-to-index-pair lookup table
-  std::map<vtkIdType, std::pair<vtkIdType, vtkIdType> > covToMeans;
+  std::map<vtkIdType, std::pair<vtkIdType, vtkIdType>> covToMeans;
   for (vtkIdType r = 1; r < nRow; ++r)
   {
     vtkStdString col2 = sparseCov->GetValueByName(r, "Column2").ToString();
@@ -217,7 +217,7 @@ void vtkPMultiCorrelativeStatistics::GatherStatistics(
   delete[] n_g;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOrderStatistics* vtkPMultiCorrelativeStatistics::CreateOrderStatisticsInstance()
 {
   return vtkPOrderStatistics::New();

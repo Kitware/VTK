@@ -29,13 +29,13 @@
 
 vtkStandardNewMacro(vtkMoleculeToBondStickFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMoleculeToBondStickFilter::vtkMoleculeToBondStickFilter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMoleculeToBondStickFilter::~vtkMoleculeToBondStickFilter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMoleculeToBondStickFilter::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -206,7 +206,7 @@ int vtkMoleculeToBondStickFilter::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMoleculeToBondStickFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

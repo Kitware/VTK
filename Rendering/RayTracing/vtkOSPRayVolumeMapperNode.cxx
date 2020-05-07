@@ -37,7 +37,7 @@
 //============================================================================
 vtkStandardNewMacro(vtkOSPRayVolumeMapperNode);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOSPRayVolumeMapperNode::vtkOSPRayVolumeMapperNode()
 {
   this->SamplingRate = 0.0;
@@ -51,7 +51,7 @@ vtkOSPRayVolumeMapperNode::vtkOSPRayVolumeMapperNode()
   this->Shade = false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOSPRayVolumeMapperNode::~vtkOSPRayVolumeMapperNode()
 {
   vtkOSPRayRendererNode* orn =
@@ -72,13 +72,13 @@ vtkOSPRayVolumeMapperNode::~vtkOSPRayVolumeMapperNode()
   delete this->Cache;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayVolumeMapperNode::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayVolumeMapperNode::Render(bool prepass)
 {
   if (prepass)

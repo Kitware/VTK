@@ -27,7 +27,7 @@
 vtkStandardNewMacro(vtkImageMapToColors);
 vtkCxxSetObjectMacro(vtkImageMapToColors, LookupTable, vtkScalarsToColors);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Constructor sets default values
 vtkImageMapToColors::vtkImageMapToColors()
 {
@@ -44,7 +44,7 @@ vtkImageMapToColors::vtkImageMapToColors()
   this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::POINT, vtkDataSetAttributes::SCALARS);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageMapToColors::~vtkImageMapToColors()
 {
   if (this->LookupTable != nullptr)
@@ -53,7 +53,7 @@ vtkImageMapToColors::~vtkImageMapToColors()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkImageMapToColors::GetMTime()
 {
   vtkMTimeType t1, t2;
@@ -70,7 +70,7 @@ vtkMTimeType vtkImageMapToColors::GetMTime()
   return t1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method checks to see if we can simply reference the input data
 int vtkImageMapToColors::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -107,7 +107,7 @@ int vtkImageMapToColors::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageMapToColors::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -159,7 +159,7 @@ int vtkImageMapToColors::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This non-templated function executes the filter for any type of data.
 // All the data to process should be achieved outside this method as
 // we can not always rely on the ActiveScalar information.
@@ -284,7 +284,7 @@ static void vtkImageMapToColorsExecute(vtkImageMapToColors* self, vtkImageData* 
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method is passed a input and output data, and executes the filter
 // algorithm to fill the output from the input.
 
@@ -302,7 +302,7 @@ void vtkImageMapToColors::ThreadedRequestData(vtkInformation* vtkNotUsed(request
     this, inData[0][0], inArray, maskArray, outData[0], outArray, outExt, id, this->NaNColor);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageMapToColors::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

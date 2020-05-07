@@ -24,13 +24,13 @@
 #include "vtkPolyData.h"
 
 vtkStandardNewMacro(vtkAppendArcLength);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAppendArcLength::vtkAppendArcLength() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAppendArcLength::~vtkAppendArcLength() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAppendArcLength::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -88,7 +88,7 @@ int vtkAppendArcLength::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAppendArcLength::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

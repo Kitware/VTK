@@ -41,7 +41,7 @@
 // This will be set to the python type struct for vtkObjectBase
 static PyTypeObject* PyVTKObject_Type = nullptr;
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 PyVTKClass::PyVTKClass(
   PyTypeObject* typeobj, PyMethodDef* methods, const char* classname, vtknewfunc constructor)
 {
@@ -51,10 +51,10 @@ PyVTKClass::PyVTKClass(
   this->vtk_new = constructor;
 }
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // C API
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Add a class, add methods and members to its type object.  A return
 // value of nullptr signifies that the class was already added.
 PyTypeObject* PyVTKClass_Add(
@@ -95,16 +95,16 @@ PyTypeObject* PyVTKClass_Add(
   return pytype;
 }
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int PyVTKObject_Check(PyObject* op)
 {
   return PyObject_TypeCheck(op, PyVTKObject_Type);
 }
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Object protocol
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 PyObject* PyVTKObject_String(PyObject* op)
 {
   std::ostringstream vtkmsg_with_warning_C4701;
@@ -114,7 +114,7 @@ PyObject* PyVTKObject_String(PyObject* op)
   return res;
 }
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 PyObject* PyVTKObject_Repr(PyObject* op)
 {
   char buf[255];
@@ -123,7 +123,7 @@ PyObject* PyVTKObject_Repr(PyObject* op)
   return PyString_FromString(buf);
 }
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int PyVTKObject_Traverse(PyObject* o, visitproc visit, void* arg)
 {
   PyVTKObject* self = (PyVTKObject*)o;
@@ -160,7 +160,7 @@ int PyVTKObject_Traverse(PyObject* o, visitproc visit, void* arg)
   return err;
 }
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 PyObject* PyVTKObject_New(PyTypeObject* tp, PyObject* args, PyObject* kwds)
 {
   // If type was subclassed within python, then skip arg checks and
@@ -190,7 +190,7 @@ PyObject* PyVTKObject_New(PyTypeObject* tp, PyObject* args, PyObject* kwds)
   return PyVTKObject_FromPointer(tp, nullptr, nullptr);
 }
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void PyVTKObject_Delete(PyObject* op)
 {
   PyVTKObject* self = (PyVTKObject*)op;
@@ -213,7 +213,7 @@ void PyVTKObject_Delete(PyObject* op)
   PyObject_GC_Del(op);
 }
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This defines any special attributes of wrapped VTK objects.
 
 static PyObject* PyVTKObject_GetDict(PyObject* op, void*)
@@ -259,13 +259,13 @@ PyGetSetDef PyVTKObject_GetSet[] = {
   { nullptr, nullptr, nullptr, nullptr, nullptr }
 };
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The following methods and struct define the "buffer" protocol
 // for PyVTKObject, so that python can read from a vtkDataArray.
 // This is particularly useful for NumPy.
 
 #ifndef VTK_PY3K
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static Py_ssize_t PyVTKObject_AsBuffer_GetSegCount(PyObject* op, Py_ssize_t* lenp)
 {
   PyVTKObject* self = (PyVTKObject*)op;
@@ -287,7 +287,7 @@ static Py_ssize_t PyVTKObject_AsBuffer_GetSegCount(PyObject* op, Py_ssize_t* len
   return 0;
 }
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static Py_ssize_t PyVTKObject_AsBuffer_GetReadBuf(PyObject* op, Py_ssize_t segment, void** ptrptr)
 {
   if (segment != 0)
@@ -307,7 +307,7 @@ static Py_ssize_t PyVTKObject_AsBuffer_GetReadBuf(PyObject* op, Py_ssize_t segme
   return -1;
 }
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static Py_ssize_t PyVTKObject_AsBuffer_GetWriteBuf(PyObject* op, Py_ssize_t segment, void** ptrptr)
 {
   return PyVTKObject_AsBuffer_GetReadBuf(op, segment, ptrptr);
@@ -317,7 +317,7 @@ static Py_ssize_t PyVTKObject_AsBuffer_GetWriteBuf(PyObject* op, Py_ssize_t segm
 
 #if PY_VERSION_HEX >= 0x02060000
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Convert a VTK type to a python type char (struct module)
 static const char* pythonTypeFormat(int t)
 {
@@ -378,7 +378,7 @@ static const char* pythonTypeFormat(int t)
   return b;
 }
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static int PyVTKObject_AsBuffer_GetBuffer(PyObject* obj, Py_buffer* view, int flags)
 {
   PyVTKObject* self = (PyVTKObject*)obj;
@@ -464,7 +464,7 @@ static int PyVTKObject_AsBuffer_GetBuffer(PyObject* obj, Py_buffer* view, int fl
   return -1;
 }
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static void PyVTKObject_AsBuffer_ReleaseBuffer(PyObject* obj, Py_buffer* view)
 {
   // nothing to do, the caller will decref the obj
@@ -474,7 +474,7 @@ static void PyVTKObject_AsBuffer_ReleaseBuffer(PyObject* obj, Py_buffer* view)
 
 #endif
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 PyBufferProcs PyVTKObject_AsBuffer = {
 #ifndef VTK_PY3K
   PyVTKObject_AsBuffer_GetReadBuf,  // bf_getreadbuffer
@@ -488,7 +488,7 @@ PyBufferProcs PyVTKObject_AsBuffer = {
 #endif
 };
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 PyObject* PyVTKObject_FromPointer(PyTypeObject* pytype, PyObject* pydict, vtkObjectBase* ptr)
 {
   // This will be set if we create a new C++ object

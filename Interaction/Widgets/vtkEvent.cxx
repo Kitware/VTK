@@ -74,7 +74,7 @@ bool vtkEvent::operator==(vtkEvent* e)
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEvent::GetModifier(vtkRenderWindowInteractor* i)
 {
   int modifier = 0;
@@ -85,7 +85,7 @@ int vtkEvent::GetModifier(vtkRenderWindowInteractor* i)
   return modifier;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkEvent::PrintSelf(ostream& os, vtkIndent indent)
 {
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h

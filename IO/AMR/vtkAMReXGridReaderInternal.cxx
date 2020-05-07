@@ -689,7 +689,7 @@ void vtkAMReXGridReaderInternal::SetFileName(char* fName)
   this->headersAreRead = false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAMReXGridReaderInternal::ReadMetaData()
 {
   if (!this->headersAreRead)
@@ -704,7 +704,7 @@ void vtkAMReXGridReaderInternal::ReadMetaData()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkAMReXGridReaderInternal::ReadHeader()
 {
   this->DestroyHeader();
@@ -727,7 +727,7 @@ bool vtkAMReXGridReaderInternal::ReadHeader()
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkAMReXGridReaderInternal::ReadLevelHeader()
 {
   this->DestroyLevelHeader();

@@ -17,17 +17,17 @@
 #include "vtkCellArray.h"
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAbstractCellLinks::vtkAbstractCellLinks()
 {
   this->SequentialProcessing = false;
   this->Type = vtkAbstractCellLinks::LINKS_NOT_DEFINED;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAbstractCellLinks::~vtkAbstractCellLinks() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAbstractCellLinks::ComputeType(vtkIdType maxPtId, vtkIdType maxCellId, vtkCellArray* ca)
 {
   vtkIdType numEntries = ca->GetNumberOfConnectivityIds();
@@ -49,7 +49,7 @@ int vtkAbstractCellLinks::ComputeType(vtkIdType maxPtId, vtkIdType maxCellId, vt
   return vtkAbstractCellLinks::STATIC_CELL_LINKS_IDTYPE;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractCellLinks::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

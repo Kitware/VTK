@@ -19,14 +19,14 @@
 
 #include <atomic>
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTimeStamp* vtkTimeStamp::New()
 {
   // If the factory was unable to create the object, then create it here.
   return new vtkTimeStamp;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTimeStamp::Modified()
 {
   // Here because of a static destruction error? You're not the first. After

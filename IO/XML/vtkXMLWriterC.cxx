@@ -586,7 +586,7 @@ extern "C"
 
 } /* extern "C" */
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static vtkSmartPointer<vtkDataArray> vtkXMLWriterC_NewDataArray(const char* method,
   const char* name, int dataType, void* data, vtkIdType numTuples, int numComponents)
 {
@@ -616,7 +616,7 @@ static vtkSmartPointer<vtkDataArray> vtkXMLWriterC_NewDataArray(const char* meth
   return array;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static vtkSmartPointer<vtkCellArray> vtkXMLWriterC_NewCellArray(
   const char* method, vtkIdType ncells, vtkIdType* cells, vtkIdType cellsSize)
 {
@@ -641,7 +641,7 @@ static vtkSmartPointer<vtkCellArray> vtkXMLWriterC_NewCellArray(
   return cellArray;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static void vtkXMLWriterC_SetDataInternal(vtkXMLWriterC* self, const char* name, int dataType,
   void* data, vtkIdType numTuples, int numComponents, const char* role, const char* method,
   int isPoints)

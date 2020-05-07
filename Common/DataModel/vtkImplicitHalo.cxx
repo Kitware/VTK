@@ -20,7 +20,7 @@
 
 vtkStandardNewMacro(vtkImplicitHalo);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImplicitHalo::vtkImplicitHalo()
 {
   this->Center[0] = 0.0;
@@ -30,10 +30,10 @@ vtkImplicitHalo::vtkImplicitHalo()
   this->FadeOut = 0.01;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImplicitHalo::~vtkImplicitHalo() = default;
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkImplicitHalo::EvaluateFunction(double x[3])
 {
   double result;
@@ -59,13 +59,13 @@ double vtkImplicitHalo::EvaluateFunction(double x[3])
   return result;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitHalo::EvaluateGradient(double vtkNotUsed(x)[3], double vtkNotUsed(g)[3])
 {
   assert("check: TODO" && false);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitHalo::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

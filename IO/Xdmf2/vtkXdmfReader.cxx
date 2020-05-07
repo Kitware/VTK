@@ -94,7 +94,7 @@ private:
 vtkStandardNewMacro(vtkXdmfReaderTester);
 
 vtkStandardNewMacro(vtkXdmfReader);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXdmfReader::vtkXdmfReader()
 {
   this->DomainName = 0;
@@ -118,7 +118,7 @@ vtkXdmfReader::vtkXdmfReader()
   this->SetNumberOfInputPorts(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXdmfReader::~vtkXdmfReader()
 {
   this->SetDomainName(0);
@@ -136,7 +136,7 @@ vtkXdmfReader::~vtkXdmfReader()
   delete[] this->InputString;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXdmfReader::SetInputString(const char* in)
 {
   int len = 0;
@@ -147,13 +147,13 @@ void vtkXdmfReader::SetInputString(const char* in)
   this->SetInputString(in, len);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXdmfReader::SetBinaryInputString(const char* in, int len)
 {
   this->SetInputString(in, len);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXdmfReader::SetInputString(const char* in, int len)
 {
   if (this->Debug)
@@ -188,7 +188,7 @@ void vtkXdmfReader::SetInputString(const char* in, int len)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmfReader::CanReadFile(const char* filename)
 {
   vtkXdmfReaderTester* tester = vtkXdmfReaderTester::New();
@@ -198,14 +198,14 @@ int vtkXdmfReader::CanReadFile(const char* filename)
   return res;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmfReader::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkDataObject");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkXdmfReader::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -218,7 +218,7 @@ vtkTypeBool vtkXdmfReader::ProcessRequest(
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkXdmfReader::PrepareDocument()
 {
   // Calling this method repeatedly is okay. It does work only when something
@@ -296,7 +296,7 @@ bool vtkXdmfReader::PrepareDocument()
   return (this->XdmfDocument->GetActiveDomain() != 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmfReader::RequestDataObjectInternal(vtkInformationVector* outputVector)
 {
   if (!this->PrepareDocument())
@@ -323,7 +323,7 @@ int vtkXdmfReader::RequestDataObjectInternal(vtkInformationVector* outputVector)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmfReader::RequestInformation(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
@@ -402,7 +402,7 @@ int vtkXdmfReader::RequestInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmfReader::RequestData(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
@@ -501,7 +501,7 @@ int vtkXdmfReader::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmfReader::ChooseTimeStep(vtkInformation* outInfo)
 {
   if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
@@ -516,7 +516,7 @@ int vtkXdmfReader::ChooseTimeStep(vtkInformation* outInfo)
   return this->LastTimeIndex;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXdmfArraySelection* vtkXdmfReader::GetPointArraySelection()
 {
   return this->XdmfDocument->GetActiveDomain()
@@ -524,7 +524,7 @@ vtkXdmfArraySelection* vtkXdmfReader::GetPointArraySelection()
     : this->PointArraysCache;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXdmfArraySelection* vtkXdmfReader::GetCellArraySelection()
 {
   return this->XdmfDocument->GetActiveDomain()
@@ -532,7 +532,7 @@ vtkXdmfArraySelection* vtkXdmfReader::GetCellArraySelection()
     : this->CellArraysCache;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXdmfArraySelection* vtkXdmfReader::GetGridSelection()
 {
   return this->XdmfDocument->GetActiveDomain()
@@ -540,7 +540,7 @@ vtkXdmfArraySelection* vtkXdmfReader::GetGridSelection()
     : this->GridsCache;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXdmfArraySelection* vtkXdmfReader::GetSetsSelection()
 {
   return this->XdmfDocument->GetActiveDomain()
@@ -548,107 +548,107 @@ vtkXdmfArraySelection* vtkXdmfReader::GetSetsSelection()
     : this->SetsCache;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmfReader::GetNumberOfGrids()
 {
   return this->GetGridSelection()->GetNumberOfArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXdmfReader::SetGridStatus(const char* gridname, int status)
 {
   this->GetGridSelection()->SetArrayStatus(gridname, status != 0);
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmfReader::GetGridStatus(const char* arrayname)
 {
   return this->GetGridSelection()->GetArraySetting(arrayname);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXdmfReader::GetGridName(int index)
 {
   return this->GetGridSelection()->GetArrayName(index);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmfReader::GetNumberOfPointArrays()
 {
   return this->GetPointArraySelection()->GetNumberOfArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXdmfReader::SetPointArrayStatus(const char* arrayname, int status)
 {
   this->GetPointArraySelection()->SetArrayStatus(arrayname, status != 0);
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmfReader::GetPointArrayStatus(const char* arrayname)
 {
   return this->GetPointArraySelection()->GetArraySetting(arrayname);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXdmfReader::GetPointArrayName(int index)
 {
   return this->GetPointArraySelection()->GetArrayName(index);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmfReader::GetNumberOfCellArrays()
 {
   return this->GetCellArraySelection()->GetNumberOfArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXdmfReader::SetCellArrayStatus(const char* arrayname, int status)
 {
   this->GetCellArraySelection()->SetArrayStatus(arrayname, status != 0);
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmfReader::GetCellArrayStatus(const char* arrayname)
 {
   return this->GetCellArraySelection()->GetArraySetting(arrayname);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXdmfReader::GetCellArrayName(int index)
 {
   return this->GetCellArraySelection()->GetArrayName(index);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmfReader::GetNumberOfSets()
 {
   return this->GetSetsSelection()->GetNumberOfArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXdmfReader::SetSetStatus(const char* arrayname, int status)
 {
   this->GetSetsSelection()->SetArrayStatus(arrayname, status != 0);
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmfReader::GetSetStatus(const char* arrayname)
 {
   return this->GetSetsSelection()->GetArraySetting(arrayname);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXdmfReader::GetSetName(int index)
 {
   return this->GetSetsSelection()->GetArrayName(index);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXdmfReader::PassCachedSelections()
 {
   if (!this->XdmfDocument->GetActiveDomain())
@@ -668,7 +668,7 @@ void vtkXdmfReader::PassCachedSelections()
   this->SetsCache->clear();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXdmfReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "ReadFromInputString: " << (this->ReadFromInputString ? "On\n" : "Off\n");
@@ -686,7 +686,7 @@ void vtkXdmfReader::PrintSelf(ostream& os, vtkIndent indent)
 
   this->Superclass::PrintSelf(os, indent);
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGraph* vtkXdmfReader::GetSIL()
 {
   if (vtkXdmfDomain* domain = this->XdmfDocument->GetActiveDomain())
@@ -696,7 +696,7 @@ vtkGraph* vtkXdmfReader::GetSIL()
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXdmfReader::ClearDataSetCache()
 {
   XdmfReaderCachedData::iterator it = this->DataSetCache.begin();
@@ -711,7 +711,7 @@ void vtkXdmfReader::ClearDataSetCache()
   this->DataSetCache.clear();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXdmfReader::XdmfReaderCachedData& vtkXdmfReader::GetDataSetCache()
 {
   return this->DataSetCache;

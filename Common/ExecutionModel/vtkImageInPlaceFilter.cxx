@@ -22,13 +22,13 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageInPlaceFilter::vtkImageInPlaceFilter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageInPlaceFilter::~vtkImageInPlaceFilter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkImageInPlaceFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -110,7 +110,7 @@ void vtkImageInPlaceFilter::CopyData(vtkImageData* inData, vtkImageData* outData
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageInPlaceFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

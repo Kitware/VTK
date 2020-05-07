@@ -37,7 +37,7 @@
 vtkStandardNewMacro(vtkImageResliceToColors);
 vtkCxxSetObjectMacro(vtkImageResliceToColors, LookupTable, vtkScalarsToColors);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageResliceToColors::vtkImageResliceToColors()
 {
   this->HasConvertScalars = 1;
@@ -47,7 +47,7 @@ vtkImageResliceToColors::vtkImageResliceToColors()
   this->Bypass = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageResliceToColors::~vtkImageResliceToColors()
 {
   if (this->LookupTable)
@@ -60,7 +60,7 @@ vtkImageResliceToColors::~vtkImageResliceToColors()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageResliceToColors::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -78,7 +78,7 @@ void vtkImageResliceToColors::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Bypass: " << (this->Bypass ? "On\n" : "Off\n");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkImageResliceToColors::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
@@ -92,7 +92,7 @@ vtkMTimeType vtkImageResliceToColors::GetMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageResliceToColors::SetBypass(int bypass)
 {
   bypass = (bypass != 0);
@@ -112,7 +112,7 @@ void vtkImageResliceToColors::SetBypass(int bypass)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageResliceToColors::ConvertScalarInfo(int& scalarType, int& numComponents)
 {
   switch (this->OutputFormat)
@@ -150,7 +150,7 @@ int vtkImageResliceToColors::ConvertScalarInfo(int& scalarType, int& numComponen
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageResliceToColors::ConvertScalars(void* inPtr, void* outPtr, int inputType,
   int inputComponents, int count, int vtkNotUsed(idX), int vtkNotUsed(idY), int vtkNotUsed(idZ),
   int vtkNotUsed(threadId))

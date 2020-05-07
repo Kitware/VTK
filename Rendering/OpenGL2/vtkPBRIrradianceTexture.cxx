@@ -48,7 +48,7 @@ void vtkPBRIrradianceTexture::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "IrradianceSize: " << this->IrradianceSize << endl;
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Release the graphics resources used by this texture.
 void vtkPBRIrradianceTexture::ReleaseGraphicsResources(vtkWindow* win)
 {

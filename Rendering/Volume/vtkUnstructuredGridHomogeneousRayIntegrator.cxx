@@ -35,11 +35,11 @@
 
 #include <cmath>
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkStandardNewMacro(vtkUnstructuredGridHomogeneousRayIntegrator);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkUnstructuredGridHomogeneousRayIntegrator::vtkUnstructuredGridHomogeneousRayIntegrator()
 {
@@ -76,7 +76,7 @@ void vtkUnstructuredGridHomogeneousRayIntegrator::PrintSelf(ostream& os, vtkInde
   os << indent << "TransferFunctionTableSize: " << this->TransferFunctionTableSize << endl;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkUnstructuredGridHomogeneousRayIntegrator::GetTransferFunctionTables(vtkDataArray* scalars)
 {
@@ -144,7 +144,7 @@ void vtkUnstructuredGridHomogeneousRayIntegrator::GetTransferFunctionTables(vtkD
   this->TablesBuilt.Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkUnstructuredGridHomogeneousRayIntegrator::Initialize(
   vtkVolume* volume, vtkDataArray* scalars)
@@ -167,7 +167,7 @@ void vtkUnstructuredGridHomogeneousRayIntegrator::Initialize(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkUnstructuredGridHomogeneousRayIntegrator::Integrate(vtkDoubleArray* intersectionLengths,
   vtkDataArray* nearIntersections, vtkDataArray* vtkNotUsed(farIntersections), float color[4])

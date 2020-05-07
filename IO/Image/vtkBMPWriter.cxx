@@ -204,7 +204,7 @@ void vtkBMPWriter::MemoryWrite(int dim, vtkImageData* input, int wExt[6], vtkInf
   delete oss;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBMPWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -348,7 +348,7 @@ public:
     void Reset() { this->Labels.clear(); }
     void Insert(const LabelRect& rect) { this->Labels.push_back(rect); }
   };
-  std::vector<std::vector<ScreenTile> > Tiles;
+  std::vector<std::vector<ScreenTile>> Tiles;
   float ScreenOrigin[2];
   float TileSize[2];
   int NumTiles[2];
@@ -458,7 +458,7 @@ vtkStandardNewMacro(vtkLabelPlacementMapper);
 vtkCxxSetObjectMacro(vtkLabelPlacementMapper, AnchorTransform, vtkCoordinate);
 vtkCxxSetObjectMacro(vtkLabelPlacementMapper, RenderStrategy, vtkLabelRenderStrategy);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLabelPlacementMapper::vtkLabelPlacementMapper()
 {
   this->AnchorTransform = vtkCoordinate::New();
@@ -502,7 +502,7 @@ vtkLabelPlacementMapper::vtkLabelPlacementMapper()
   this->SetRenderStrategy(s);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLabelPlacementMapper::~vtkLabelPlacementMapper()
 {
   this->AnchorTransform->Delete();
@@ -514,7 +514,7 @@ vtkLabelPlacementMapper::~vtkLabelPlacementMapper()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkLabelPlacementMapper::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkLabelHierarchy");
@@ -523,7 +523,7 @@ int vtkLabelPlacementMapper::FillInputPortInformation(int vtkNotUsed(port), vtkI
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLabelPlacementMapper::RenderOverlay(vtkViewport* viewport, vtkActor2D* vtkNotUsed(actor))
 {
   vtkSmartPointer<vtkTimerLog> log = vtkSmartPointer<vtkTimerLog>::New();
@@ -911,13 +911,13 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport* viewport, vtkActor2D* v
   // cerr << log->GetElapsedTime() << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLabelPlacementMapper::ReleaseGraphicsResources(vtkWindow* win)
 {
   this->RenderStrategy->ReleaseGraphicsResources(win);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLabelPlacementMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

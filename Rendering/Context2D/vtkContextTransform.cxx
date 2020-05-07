@@ -26,7 +26,7 @@
 
 vtkStandardNewMacro(vtkContextTransform);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkContextTransform::vtkContextTransform()
   : ZoomAnchor(0.0f, 0.0f)
 {
@@ -46,10 +46,10 @@ vtkContextTransform::vtkContextTransform()
   this->Interactive = false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkContextTransform::~vtkContextTransform() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkContextTransform::Paint(vtkContext2D* painter)
 {
   painter->PushMatrix();
@@ -59,42 +59,42 @@ bool vtkContextTransform::Paint(vtkContext2D* painter)
   return result;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContextTransform::Identity()
 {
   this->Transform->Identity();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContextTransform::Update() {}
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContextTransform::Translate(float dx, float dy)
 {
   float d[] = { dx, dy };
   this->Transform->Translate(d);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContextTransform::Scale(float dx, float dy)
 {
   float d[] = { dx, dy };
   this->Transform->Scale(d);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContextTransform::Rotate(float angle)
 {
   this->Transform->Rotate(double(angle));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTransform2D* vtkContextTransform::GetTransform()
 {
   return this->Transform;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkVector2f vtkContextTransform::MapToParent(const vtkVector2f& point)
 {
   vtkVector2f p;
@@ -102,7 +102,7 @@ vtkVector2f vtkContextTransform::MapToParent(const vtkVector2f& point)
   return p;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkVector2f vtkContextTransform::MapFromParent(const vtkVector2f& point)
 {
   vtkVector2f p;
@@ -110,7 +110,7 @@ vtkVector2f vtkContextTransform::MapFromParent(const vtkVector2f& point)
   return p;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkContextTransform::Hit(const vtkContextMouseEvent& vtkNotUsed(mouse))
 {
   // If we are interactive, we want to catch anything that propagates to the
@@ -118,7 +118,7 @@ bool vtkContextTransform::Hit(const vtkContextMouseEvent& vtkNotUsed(mouse))
   return this->Interactive;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkContextTransform::MouseButtonPressEvent(const vtkContextMouseEvent& mouse)
 {
   if (!this->Interactive)
@@ -142,7 +142,7 @@ bool vtkContextTransform::MouseButtonPressEvent(const vtkContextMouseEvent& mous
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkContextTransform::MouseMoveEvent(const vtkContextMouseEvent& mouse)
 {
   if (!this->Interactive)
@@ -205,7 +205,7 @@ bool vtkContextTransform::MouseMoveEvent(const vtkContextMouseEvent& mouse)
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkContextTransform::MouseWheelEvent(const vtkContextMouseEvent& mouse, int delta)
 {
   if (!this->Interactive)
@@ -249,7 +249,7 @@ bool vtkContextTransform::MouseWheelEvent(const vtkContextMouseEvent& mouse, int
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContextTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

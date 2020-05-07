@@ -25,7 +25,7 @@
 vtkStandardNewMacro(vtkImageDataStreamer);
 vtkCxxSetObjectMacro(vtkImageDataStreamer, ExtentTranslator, vtkExtentTranslator);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageDataStreamer::vtkImageDataStreamer()
 {
   // default to 10 divisions
@@ -47,7 +47,7 @@ vtkImageDataStreamer::~vtkImageDataStreamer()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageDataStreamer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -64,7 +64,7 @@ void vtkImageDataStreamer::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkImageDataStreamer::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

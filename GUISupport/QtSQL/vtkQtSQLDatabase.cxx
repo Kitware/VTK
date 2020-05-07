@@ -260,7 +260,7 @@ void vtkQtSQLDatabase::PrintSelf(ostream& os, vtkIndent indent)
      << endl;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkQtSQLDatabase::ParseURL(const char* URL)
 {
   std::string protocol;
@@ -305,7 +305,7 @@ bool vtkQtSQLDatabase::ParseURL(const char* URL)
   return true;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSQLDatabase* vtkQtSQLDatabase::CreateFromURL(const char* URL)
 {
   vtkQtSQLDatabase* qt_db = vtkQtSQLDatabase::New();
@@ -317,7 +317,7 @@ vtkSQLDatabase* vtkQtSQLDatabase::CreateFromURL(const char* URL)
   return nullptr;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStdString vtkQtSQLDatabase::GetURL()
 {
   vtkStdString url;

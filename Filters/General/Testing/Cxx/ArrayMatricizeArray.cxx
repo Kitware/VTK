@@ -39,8 +39,7 @@ int ArrayMatricizeArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   try
   {
     // Create an array ...
-    vtkSmartPointer<vtkSparseArray<double> > array =
-      vtkSmartPointer<vtkSparseArray<double> >::New();
+    vtkSmartPointer<vtkSparseArray<double>> array = vtkSmartPointer<vtkSparseArray<double>>::New();
     array->Resize(vtkArrayExtents(2, 2, 2));
 
     double value = 0;

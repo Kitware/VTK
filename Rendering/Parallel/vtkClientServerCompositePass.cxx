@@ -23,7 +23,7 @@ vtkStandardNewMacro(vtkClientServerCompositePass);
 vtkCxxSetObjectMacro(vtkClientServerCompositePass, Controller, vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkClientServerCompositePass, RenderPass, vtkRenderPass);
 vtkCxxSetObjectMacro(vtkClientServerCompositePass, PostProcessingRenderPass, vtkRenderPass);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkClientServerCompositePass::vtkClientServerCompositePass()
 {
   this->Controller = nullptr;
@@ -33,7 +33,7 @@ vtkClientServerCompositePass::vtkClientServerCompositePass()
   this->ProcessIsServer = false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkClientServerCompositePass::~vtkClientServerCompositePass()
 {
   this->SetController(nullptr);
@@ -41,7 +41,7 @@ vtkClientServerCompositePass::~vtkClientServerCompositePass()
   this->SetPostProcessingRenderPass(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkClientServerCompositePass::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->Superclass::ReleaseGraphicsResources(w);
@@ -55,7 +55,7 @@ void vtkClientServerCompositePass::ReleaseGraphicsResources(vtkWindow* w)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkClientServerCompositePass::Render(const vtkRenderState* s)
 {
   if (!this->ServerSideRendering || this->ProcessIsServer)
@@ -115,7 +115,7 @@ void vtkClientServerCompositePass::Render(const vtkRenderState* s)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkClientServerCompositePass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

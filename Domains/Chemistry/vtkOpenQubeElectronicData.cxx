@@ -73,10 +73,10 @@ private:
 };
 vtkStandardNewMacro(OQEDImageData);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOpenQubeElectronicData);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenQubeElectronicData::vtkOpenQubeElectronicData()
   : BasisSet(nullptr)
   , Spacing(0.1)
@@ -84,10 +84,10 @@ vtkOpenQubeElectronicData::vtkOpenQubeElectronicData()
   this->Padding = 2.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenQubeElectronicData::~vtkOpenQubeElectronicData() {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenQubeElectronicData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -162,7 +162,7 @@ void vtkOpenQubeElectronicData::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkOpenQubeElectronicData::GetNumberOfMOs()
 {
   if (!this->BasisSet || !this->BasisSet->isValid())
@@ -173,7 +173,7 @@ vtkIdType vtkOpenQubeElectronicData::GetNumberOfMOs()
   return this->BasisSet->numMOs();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 unsigned int vtkOpenQubeElectronicData::GetNumberOfElectrons()
 {
   if (!this->BasisSet || !this->BasisSet->isValid())
@@ -184,7 +184,7 @@ unsigned int vtkOpenQubeElectronicData::GetNumberOfElectrons()
   return this->BasisSet->numElectrons();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageData* vtkOpenQubeElectronicData::GetMO(vtkIdType orbitalNumber)
 {
   vtkDebugMacro(<< "Searching for MO " << orbitalNumber);
@@ -223,7 +223,7 @@ vtkImageData* vtkOpenQubeElectronicData::GetMO(vtkIdType orbitalNumber)
   return this->CalculateMO(orbitalNumber);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageData* vtkOpenQubeElectronicData::GetElectronDensity()
 {
   // First check if there is an existing image for this orbital
@@ -254,7 +254,7 @@ vtkImageData* vtkOpenQubeElectronicData::GetElectronDensity()
   return this->CalculateElectronDensity();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenQubeElectronicData::DeepCopy(vtkDataObject* obj)
 {
   vtkOpenQubeElectronicData* oqed = vtkOpenQubeElectronicData::SafeDownCast(obj);
@@ -290,7 +290,7 @@ void vtkOpenQubeElectronicData::DeepCopy(vtkDataObject* obj)
   this->Spacing = oqed->Spacing;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageData* vtkOpenQubeElectronicData::CalculateMO(vtkIdType orbitalNumber)
 {
   vtkDebugMacro(<< "Calculating MO " << orbitalNumber);
@@ -332,7 +332,7 @@ vtkImageData* vtkOpenQubeElectronicData::CalculateMO(vtkIdType orbitalNumber)
   return image;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageData* vtkOpenQubeElectronicData::CalculateElectronDensity()
 {
   vtkDebugMacro(<< "Calculating electron density...");
@@ -373,7 +373,7 @@ vtkImageData* vtkOpenQubeElectronicData::CalculateElectronDensity()
   return image;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenQubeElectronicData::FillImageDataFromQube(OpenQube::Cube* qube, vtkImageData* image)
 {
   Eigen::Vector3i dim = qube->dimensions();

@@ -17,16 +17,16 @@
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkClientSocket);
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkClientSocket::vtkClientSocket()
 {
   this->ConnectingSide = false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkClientSocket::~vtkClientSocket() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkClientSocket::ConnectToServer(const char* hostName, int port)
 {
   if (this->SocketDescriptor != -1)
@@ -56,7 +56,7 @@ int vtkClientSocket::ConnectToServer(const char* hostName, int port)
   return 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkClientSocket::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

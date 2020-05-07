@@ -33,7 +33,7 @@ vtkStandardNewMacro(vtkContextView);
 vtkCxxSetObjectMacro(vtkContextView, Context, vtkContext2D);
 vtkCxxSetObjectMacro(vtkContextView, Scene, vtkContextScene);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkContextView::vtkContextView()
 {
   this->Context = vtkSmartPointer<vtkContext2D>::New();
@@ -56,22 +56,22 @@ vtkContextView::vtkContextView()
   this->Renderer->SetBackground(1.0, 1.0, 1.0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkContextView::~vtkContextView() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkContext2D* vtkContextView::GetContext()
 {
   return this->Context;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkContextScene* vtkContextView::GetScene()
 {
   return this->Scene;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContextView::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

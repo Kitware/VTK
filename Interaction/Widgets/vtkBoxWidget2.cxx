@@ -28,7 +28,7 @@
 
 vtkStandardNewMacro(vtkBoxWidget2);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBoxWidget2::vtkBoxWidget2()
 {
   this->WidgetState = vtkBoxWidget2::Start;
@@ -96,13 +96,13 @@ vtkBoxWidget2::vtkBoxWidget2()
   this->KeyEventCallbackCommand->SetCallback(vtkBoxWidget2::ProcessKeyEvents);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBoxWidget2::~vtkBoxWidget2()
 {
   this->KeyEventCallbackCommand->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxWidget2::SetEnabled(int enabling)
 {
   int enabled = this->Enabled;
@@ -141,7 +141,7 @@ void vtkBoxWidget2::SetEnabled(int enabling)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxWidget2::SelectAction(vtkAbstractWidget* w)
 {
   // We are in a static method, cast to ourself
@@ -210,7 +210,7 @@ void vtkBoxWidget2::SelectAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxWidget2::SelectAction3D(vtkAbstractWidget* w)
 {
   vtkBoxWidget2* self = reinterpret_cast<vtkBoxWidget2*>(w);
@@ -265,7 +265,7 @@ void vtkBoxWidget2::SelectAction3D(vtkAbstractWidget* w)
   self->InvokeEvent(vtkCommand::StartInteractionEvent, nullptr);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxWidget2::TranslateAction(vtkAbstractWidget* w)
 {
   // We are in a static method, cast to ourself
@@ -312,7 +312,7 @@ void vtkBoxWidget2::TranslateAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxWidget2::ScaleAction(vtkAbstractWidget* w)
 {
   // We are in a static method, cast to ourself
@@ -359,7 +359,7 @@ void vtkBoxWidget2::ScaleAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxWidget2::MoveAction(vtkAbstractWidget* w)
 {
   vtkBoxWidget2* self = reinterpret_cast<vtkBoxWidget2*>(w);
@@ -386,7 +386,7 @@ void vtkBoxWidget2::MoveAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxWidget2::MoveAction3D(vtkAbstractWidget* w)
 {
   vtkBoxWidget2* self = reinterpret_cast<vtkBoxWidget2*>(w);
@@ -406,7 +406,7 @@ void vtkBoxWidget2::MoveAction3D(vtkAbstractWidget* w)
   self->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxWidget2::EndSelectAction(vtkAbstractWidget* w)
 {
   vtkBoxWidget2* self = reinterpret_cast<vtkBoxWidget2*>(w);
@@ -427,7 +427,7 @@ void vtkBoxWidget2::EndSelectAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxWidget2::EndSelectAction3D(vtkAbstractWidget* w)
 {
   vtkBoxWidget2* self = reinterpret_cast<vtkBoxWidget2*>(w);
@@ -453,7 +453,7 @@ void vtkBoxWidget2::EndSelectAction3D(vtkAbstractWidget* w)
   self->InvokeEvent(vtkCommand::EndInteractionEvent, nullptr);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxWidget2::StepAction3D(vtkAbstractWidget* w)
 {
   vtkBoxWidget2* self = reinterpret_cast<vtkBoxWidget2*>(w);
@@ -478,7 +478,7 @@ void vtkBoxWidget2::StepAction3D(vtkAbstractWidget* w)
   self->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxWidget2::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)
@@ -487,7 +487,7 @@ void vtkBoxWidget2::CreateDefaultRepresentation()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxWidget2::ProcessKeyEvents(vtkObject*, unsigned long event, void* clientdata, void*)
 {
   vtkBoxWidget2* self = static_cast<vtkBoxWidget2*>(clientdata);
@@ -534,7 +534,7 @@ void vtkBoxWidget2::ProcessKeyEvents(vtkObject*, unsigned long event, void* clie
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxWidget2::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -229,7 +229,7 @@ vtkSmartPointer<vtkPolyData> GeneratePolyData()
   return pd;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestVolumeOfRevolutionFilter(int argc, char* argv[])
 {
   vtkSmartPointer<vtkPolyData> pd = GeneratePolyData();

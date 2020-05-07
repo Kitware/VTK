@@ -25,7 +25,7 @@
 #include "vtkTable.h"
 #include "vtkTestUtilities.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestScatterPlotMatrixVehiclesDensity(int argc, char* argv[])
 {
   // Get the file name, and read the CSV file.

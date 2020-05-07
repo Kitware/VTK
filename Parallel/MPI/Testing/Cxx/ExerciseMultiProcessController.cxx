@@ -55,7 +55,7 @@ struct ExerciseMultiProcessControllerArgs
   int retval;
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // A class to throw in the case of an error.
 class ExerciseMultiProcessControllerError
 {
@@ -155,7 +155,7 @@ static void CheckSuccess(vtkMultiProcessController* controller, int success)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T>
 int CompareArrays(const T* A, const T* B, vtkIdType length)
 {
@@ -327,7 +327,7 @@ static int CompareDataObjects(vtkDataObject* obj1, vtkDataObject* obj2)
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class baseType, class arrayType>
 void ExerciseType(vtkMultiProcessController* controller)
 {
@@ -351,7 +351,7 @@ void ExerciseType(vtkMultiProcessController* controller)
   // Fill up some random arrays.  Note that here and elsewhere we are careful to
   // have each process request the same random numbers.  The pseudorandomness
   // gives us the same values on all processes.
-  std::vector<vtkSmartPointer<arrayType> > sourceArrays;
+  std::vector<vtkSmartPointer<arrayType>> sourceArrays;
   sourceArrays.resize(numProc);
   for (i = 0; i < numProc; i++)
   {
@@ -999,7 +999,7 @@ void ExerciseType(vtkMultiProcessController* controller)
   CheckSuccess(controller, result);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Check the functions that transfer a data object.
 static void ExerciseDataObject(
   vtkMultiProcessController* controller, vtkDataObject* source, vtkDataObject* buffer)
@@ -1060,7 +1060,7 @@ static void ExerciseDataObject(
   CheckSuccess(controller, result);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static void Run(vtkMultiProcessController* controller, void* _args)
 {
   ExerciseMultiProcessControllerArgs* args =
@@ -1096,7 +1096,7 @@ static void Run(vtkMultiProcessController* controller, void* _args)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int ExerciseMultiProcessController(vtkMultiProcessController* controller)
 {
   controller->CreateOutputWindow();

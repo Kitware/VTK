@@ -28,7 +28,7 @@
 vtkStandardNewMacro(vtkAdaptiveSubdivisionFilter);
 vtkCxxSetObjectMacro(vtkAdaptiveSubdivisionFilter, Locator, vtkIncrementalPointLocator);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct object
 vtkAdaptiveSubdivisionFilter::vtkAdaptiveSubdivisionFilter()
 {
@@ -40,14 +40,14 @@ vtkAdaptiveSubdivisionFilter::vtkAdaptiveSubdivisionFilter()
   this->OutputPointsPrecision = DEFAULT_PRECISION;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct object with number of subdivisions set to 1.
 vtkAdaptiveSubdivisionFilter::~vtkAdaptiveSubdivisionFilter()
 {
   this->SetLocator(nullptr);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAdaptiveSubdivisionFilter::CreateDefaultLocator()
 {
   if (this->Locator == nullptr)
@@ -58,7 +58,7 @@ void vtkAdaptiveSubdivisionFilter::CreateDefaultLocator()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Overload standard modified time function.
 vtkMTimeType vtkAdaptiveSubdivisionFilter::GetMTime()
 {
@@ -136,7 +136,7 @@ vtkIdType* SelectTessellation(unsigned char subCase, vtkIdType* ptIds, vtkPoints
 
 } // anonymous namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This uses a very simple, serial implementation that makes repeated passes
 // over the triangles using a swap buffer approach.
 int vtkAdaptiveSubdivisionFilter::RequestData(vtkInformation* vtkNotUsed(request),
@@ -374,7 +374,7 @@ int vtkAdaptiveSubdivisionFilter::RequestData(vtkInformation* vtkNotUsed(request
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAdaptiveSubdivisionFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

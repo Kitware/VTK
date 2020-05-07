@@ -43,7 +43,7 @@ vtkStandardNewMacro(vtkImageImport);
     vtkErrorMacro(<< "Unknown exception.");                                                        \
   }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageImport::vtkImageImport()
 {
   int idx;
@@ -91,7 +91,7 @@ vtkImageImport::vtkImageImport()
   this->SetScalarArrayName("scalars");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageImport::~vtkImageImport()
 {
   if (!this->SaveUserArray)
@@ -101,7 +101,7 @@ vtkImageImport::~vtkImageImport()
   this->SetScalarArrayName(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageImport::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -195,7 +195,7 @@ void vtkImageImport::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageImport::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -212,7 +212,7 @@ int vtkImageImport::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageImport::ComputePipelineMTime(vtkInformation* request, vtkInformationVector** inInfoVec,
   vtkInformationVector* outInfoVec, int requestFromOutputPort, vtkMTimeType* mtime)
 {
@@ -225,7 +225,7 @@ int vtkImageImport::ComputePipelineMTime(vtkInformation* request, vtkInformation
     request, inInfoVec, outInfoVec, requestFromOutputPort, mtime);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageImport::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -256,7 +256,7 @@ int vtkImageImport::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageImport::ExecuteDataWithInformation(vtkDataObject* output, vtkInformation* outInfo)
 {
   // If set, use the callbacks to prepare our input data.
@@ -276,7 +276,7 @@ void vtkImageImport::ExecuteDataWithInformation(vtkDataObject* output, vtkInform
   data->GetPointData()->GetScalars()->SetName(this->ScalarArrayName);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageImport::CopyImportVoidPointer(void* ptr, vtkIdType size)
 {
   unsigned char* mem = new unsigned char[size];
@@ -284,13 +284,13 @@ void vtkImageImport::CopyImportVoidPointer(void* ptr, vtkIdType size)
   this->SetImportVoidPointer(mem, 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageImport::SetImportVoidPointer(void* ptr)
 {
   this->SetImportVoidPointer(ptr, 1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageImport::SetImportVoidPointer(void* ptr, int save)
 {
   if (ptr != this->ImportVoidPointer)
@@ -310,7 +310,7 @@ void vtkImageImport::SetImportVoidPointer(void* ptr, int save)
   this->ImportVoidPointer = ptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageImport::InvokePipelineModifiedCallbacks()
 {
   if (this->PipelineModifiedCallback)
@@ -344,7 +344,7 @@ int vtkImageImport::InvokePipelineModifiedCallbacks()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageImport::InvokeUpdateInformationCallbacks()
 {
   if (this->UpdateInformationCallback)
@@ -359,7 +359,7 @@ void vtkImageImport::InvokeUpdateInformationCallbacks()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageImport::InvokeExecuteInformationCallbacks()
 {
   if (this->WholeExtentCallback)
@@ -441,7 +441,7 @@ void vtkImageImport::InvokeExecuteInformationCallbacks()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageImport::InvokeExecuteDataCallbacks()
 {
   if (this->UpdateDataCallback)
@@ -461,7 +461,7 @@ void vtkImageImport::InvokeExecuteDataCallbacks()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // In the past, this class made no distinction between whole extent and
 // buffered extent, so only SetDataExtent also set the whole extent of
 // the output.  Now, there is a separate SetWholeExtent which should be

@@ -35,7 +35,7 @@
 
 vtkStandardNewMacro(vtkMySQLDatabase);
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMySQLDatabase::vtkMySQLDatabase()
   : Private(new vtkMySQLDatabasePrivate())
 {
@@ -56,7 +56,7 @@ vtkMySQLDatabase::vtkMySQLDatabase()
   this->ServerPort = VTK_MYSQL_DEFAULT_PORT;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMySQLDatabase::~vtkMySQLDatabase()
 {
   if (this->IsOpen())
@@ -74,7 +74,7 @@ vtkMySQLDatabase::~vtkMySQLDatabase()
   delete this->Private;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMySQLDatabase::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -87,7 +87,7 @@ void vtkMySQLDatabase::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Reconnect: " << (this->Reconnect ? "ON" : "OFF") << endl;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkMySQLDatabase::IsSupported(int feature)
 {
   switch (feature)
@@ -133,7 +133,7 @@ bool vtkMySQLDatabase::IsSupported(int feature)
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkMySQLDatabase::Open(const char* password)
 {
   if (this->IsOpen())
@@ -174,7 +174,7 @@ bool vtkMySQLDatabase::Open(const char* password)
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMySQLDatabase::Close()
 {
   if (!this->IsOpen())
@@ -188,13 +188,13 @@ void vtkMySQLDatabase::Close()
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkMySQLDatabase::IsOpen()
 {
   return (this->Private->Connection != nullptr);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSQLQuery* vtkMySQLDatabase::GetQueryInstance()
 {
   vtkMySQLQuery* query = vtkMySQLQuery::New();
@@ -202,7 +202,7 @@ vtkSQLQuery* vtkMySQLDatabase::GetQueryInstance()
   return query;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStringArray* vtkMySQLDatabase::GetTables()
 {
   this->Tables->Resize(0);
@@ -244,7 +244,7 @@ vtkStringArray* vtkMySQLDatabase::GetTables()
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStringArray* vtkMySQLDatabase::GetRecord(const char* table)
 {
   vtkStringArray* results = vtkStringArray::New();
@@ -301,7 +301,7 @@ const char* vtkMySQLDatabase::GetLastErrorText()
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStdString vtkMySQLDatabase::GetURL()
 {
   vtkStdString url;
@@ -332,7 +332,7 @@ vtkStdString vtkMySQLDatabase::GetURL()
   return url;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkMySQLDatabase::ParseURL(const char* URL)
 {
   std::string urlstr(URL ? URL : "");
@@ -371,7 +371,7 @@ bool vtkMySQLDatabase::ParseURL(const char* URL)
   return false;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStdString vtkMySQLDatabase::GetColumnSpecification(
   vtkSQLDatabaseSchema* schema, int tblHandle, int colHandle)
 {
@@ -516,7 +516,7 @@ vtkStdString vtkMySQLDatabase::GetColumnSpecification(
   return queryStr.str();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStdString vtkMySQLDatabase::GetIndexSpecification(
   vtkSQLDatabaseSchema* schema, int tblHandle, int idxHandle, bool& skipped)
 {

@@ -87,7 +87,7 @@ public:
   }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // set default values
 vtkPNetCDFPOPReader::vtkPNetCDFPOPReader()
 {
@@ -108,7 +108,7 @@ vtkPNetCDFPOPReader::vtkPNetCDFPOPReader()
   this->NCDFFD = -1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // delete filename and netcdf file descriptor
 vtkPNetCDFPOPReader::~vtkPNetCDFPOPReader()
 {
@@ -128,7 +128,7 @@ vtkPNetCDFPOPReader::~vtkPNetCDFPOPReader()
   this->Internals = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPNetCDFPOPReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -152,7 +152,7 @@ void vtkPNetCDFPOPReader::PrintSelf(ostream& os, vtkIndent indent)
   this->Internals->VariableArraySelection->PrintSelf(os, indent.GetNextIndent());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // RequestInformation supplies global meta information
 // This should return the reality of what the reader is going to supply.
 // This retrieve the extents for the rectilinear grid
@@ -277,7 +277,7 @@ int vtkPNetCDFPOPReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Setting extents of the rectilinear grid
 int vtkPNetCDFPOPReader::RequestData(vtkInformation* request,
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
@@ -472,7 +472,7 @@ int vtkPNetCDFPOPReader::RequestData(vtkInformation* request,
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // following 5 functions are used for paraview user interface
 void vtkPNetCDFPOPReader::SelectionModifiedCallback(
   vtkObject*, unsigned long, void* clientdata, void*)
@@ -480,13 +480,13 @@ void vtkPNetCDFPOPReader::SelectionModifiedCallback(
   static_cast<vtkPNetCDFPOPReader*>(clientdata)->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPNetCDFPOPReader::GetNumberOfVariableArrays()
 {
   return this->Internals->VariableArraySelection->GetNumberOfArrays();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkPNetCDFPOPReader::GetVariableArrayName(int index)
 {
   if (index < 0 || index >= this->GetNumberOfVariableArrays())
@@ -496,13 +496,13 @@ const char* vtkPNetCDFPOPReader::GetVariableArrayName(int index)
   return this->Internals->VariableArraySelection->GetArrayName(index);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPNetCDFPOPReader::GetVariableArrayStatus(const char* name)
 {
   return this->Internals->VariableArraySelection->ArrayIsEnabled(name);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPNetCDFPOPReader::SetVariableArrayStatus(const char* name, int status)
 {
   vtkDebugMacro("Set cell array \"" << name << "\" status to: " << status);
@@ -535,7 +535,7 @@ void swap(int& A, int& B)
 }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Helper function for RequestData.  Reads one or more depth arrays from the
 // netCDF file and sends sub-arrays out to all ranks that need that data
 int vtkPNetCDFPOPReader::ReadAndSend(vtkInformation* outInfo, int varID)
@@ -633,7 +633,7 @@ int vtkPNetCDFPOPReader::ReadAndSend(vtkInformation* outInfo, int varID)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Sets the ranks that will actually open and read the netcdf file.  If the
 // ranks pointer is null, picks a default set.  The end result is an updated
 // readerRanks vector in the Internals object.
@@ -691,7 +691,7 @@ void vtkPNetCDFPOPReader::SetReaderRanks(vtkIdList* ranks)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Returns the rank (relative to our controller) for the process that will
 // read the specified depth
 int vtkPNetCDFPOPReader::ReaderForDepth(unsigned depth)
@@ -703,7 +703,7 @@ int vtkPNetCDFPOPReader::ReaderForDepth(unsigned depth)
   return this->Internals->ReaderRanks[(depth % numReaders)];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Returns true if the calling process should read data from the netCDF file
 bool vtkPNetCDFPOPReader::IsReaderRank()
 {
@@ -719,7 +719,7 @@ bool vtkPNetCDFPOPReader::IsReaderRank()
   return false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Similar to above, but returns true only if the calling process is the first
 // rank in the readerRanks vector.  (This function exists because much of the
 // file metadata is read by a single rank and broadcast to all the others.)
@@ -733,7 +733,7 @@ bool vtkPNetCDFPOPReader::IsFirstReaderRank()
   int rank = this->Controller->GetLocalProcessId();
   return (rank == this->Internals->ReaderRanks[0]);
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void vtkPNetCDFPOPReader::SetController(vtkMPIController* controller)
 {

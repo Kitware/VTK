@@ -90,8 +90,8 @@ void PNGReadCallback(png_structp pngPtr, png_bytep output, png_size_t length)
 class vtkPNGReader::vtkInternals
 {
 public:
-  std::vector<std::pair<std::string, std::string> > TextKeyValue;
-  typedef std::vector<std::pair<std::string, std::string> >::iterator TextKeyValueIterator;
+  std::vector<std::pair<std::string, std::string>> TextKeyValue;
+  typedef std::vector<std::pair<std::string, std::string>>::iterator TextKeyValueIterator;
   void ReadTextChunks(png_structp png_ptr, png_infop info_ptr)
   {
     png_textp text_ptr;
@@ -162,7 +162,7 @@ public:
 
   bool CreateLibPngStructs(png_structp& pngPtr, png_infop& infoPtr, png_infop& endInfo)
   {
-    pngPtr = png_create_read_struct(PNG_LIBPNG_VER_STRING, (png_voidp)nullptr, nullptr, nullptr);
+    pngPtr = png_create_read_struct(PNG_LIBPNG_VER_STRING, (png_voidp) nullptr, nullptr, nullptr);
     if (!pngPtr)
     {
       vtkErrorWithObjectMacro(nullptr, "Out of memory.");
@@ -171,14 +171,14 @@ public:
     infoPtr = png_create_info_struct(pngPtr);
     if (!infoPtr)
     {
-      png_destroy_read_struct(&pngPtr, (png_infopp)nullptr, (png_infopp)nullptr);
+      png_destroy_read_struct(&pngPtr, (png_infopp) nullptr, (png_infopp) nullptr);
       vtkErrorWithObjectMacro(nullptr, "Out of memory.");
       return false;
     }
     endInfo = png_create_info_struct(pngPtr);
     if (!endInfo)
     {
-      png_destroy_read_struct(&pngPtr, &infoPtr, (png_infopp)nullptr);
+      png_destroy_read_struct(&pngPtr, &infoPtr, (png_infopp) nullptr);
       vtkErrorWithObjectMacro(nullptr, "Unable to read PNG file!");
       return false;
     }
@@ -210,7 +210,7 @@ public:
   {
     if (setjmp(png_jmpbuf(pngPtr)))
     {
-      png_destroy_read_struct(&pngPtr, &infoPtr, (png_infopp)nullptr);
+      png_destroy_read_struct(&pngPtr, &infoPtr, (png_infopp) nullptr);
       if (fp)
       {
         fclose(fp);
@@ -219,20 +219,20 @@ public:
   }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPNGReader::vtkPNGReader()
 {
   this->Internals = new vtkInternals();
   this->ReadSpacingFromFile = false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPNGReader::~vtkPNGReader()
 {
   delete this->Internals;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPNGReader::ExecuteInformation()
 {
   vtkInternals* impl = this->Internals;
@@ -359,7 +359,7 @@ void vtkPNGReader::ExecuteInformation()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class OT>
 void vtkPNGReader::vtkPNGReaderUpdate2(OT* outPtr, int* outExt, vtkIdType* outInc, long pixSize)
 {
@@ -485,7 +485,7 @@ void vtkPNGReader::vtkPNGReaderUpdate2(OT* outPtr, int* outExt, vtkIdType* outIn
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This function reads in one data of data.
 // templated to handle different data types.
 template <class OT>
@@ -512,7 +512,7 @@ void vtkPNGReader::vtkPNGReaderUpdate(vtkImageData* data, OT* outPtr)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This function reads a data from a file.  The datas extent/axes
 // are assumed to be the same as the file extent/order.
 void vtkPNGReader::ExecuteDataWithInformation(vtkDataObject* output, vtkInformation* outInfo)
@@ -542,7 +542,7 @@ void vtkPNGReader::ExecuteDataWithInformation(vtkDataObject* output, vtkInformat
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPNGReader::CanReadFile(const char* fname)
 {
   FILE* fp = vtksys::SystemTools::Fopen(fname, "rb");
@@ -563,7 +563,7 @@ int vtkPNGReader::CanReadFile(const char* fname)
     return 0;
   }
   png_structp png_ptr =
-    png_create_read_struct(PNG_LIBPNG_VER_STRING, (png_voidp)nullptr, nullptr, nullptr);
+    png_create_read_struct(PNG_LIBPNG_VER_STRING, (png_voidp) nullptr, nullptr, nullptr);
   if (!png_ptr)
   {
     fclose(fp);
@@ -573,7 +573,7 @@ int vtkPNGReader::CanReadFile(const char* fname)
   png_infop info_ptr = png_create_info_struct(png_ptr);
   if (!info_ptr)
   {
-    png_destroy_read_struct(&png_ptr, (png_infopp)nullptr, (png_infopp)nullptr);
+    png_destroy_read_struct(&png_ptr, (png_infopp) nullptr, (png_infopp) nullptr);
     fclose(fp);
     return 0;
   }
@@ -581,7 +581,7 @@ int vtkPNGReader::CanReadFile(const char* fname)
   png_infop end_info = png_create_info_struct(png_ptr);
   if (!end_info)
   {
-    png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)nullptr);
+    png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp) nullptr);
     fclose(fp);
     return 0;
   }
@@ -595,7 +595,7 @@ int vtkPNGReader::CanReadFile(const char* fname)
 #pragma warning(default : 4611)
 #endif
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPNGReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -603,19 +603,19 @@ void vtkPNGReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Read Spacing From File: " << (this->ReadSpacingFromFile ? "On\n" : "Off\n");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPNGReader::GetTextChunks(const char* key, int beginEndIndex[2])
 {
   this->Internals->GetTextChunks(key, beginEndIndex);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkPNGReader::GetTextKey(int index)
 {
   return this->Internals->TextKeyValue[index].first.c_str();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkPNGReader::GetTextValue(int index)
 {
   return this->Internals->TextKeyValue[index].second.c_str();

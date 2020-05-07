@@ -43,7 +43,7 @@ namespace
 {
 double Tolerance = 0.00001;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void CreateCellData(vtkDataSet* grid, int numberOfComponents, int offset, const char* arrayName)
 {
   vtkIdType numberOfCells = grid->GetNumberOfCells();
@@ -68,7 +68,7 @@ void CreateCellData(vtkDataSet* grid, int numberOfComponents, int offset, const 
   grid->GetCellData()->AddArray(array);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void CreatePointData(vtkDataSet* grid, int numberOfComponents, int offset, const char* arrayName)
 {
   vtkIdType numberOfPoints = grid->GetNumberOfPoints();
@@ -90,7 +90,7 @@ void CreatePointData(vtkDataSet* grid, int numberOfComponents, int offset, const
   grid->GetPointData()->AddArray(array);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int IsGradientCorrect(vtkDoubleArray* gradients, vtkDoubleArray* correct)
 {
   int numberOfComponents = gradients->GetNumberOfComponents();
@@ -144,7 +144,7 @@ int IsGradientCorrect(vtkDoubleArray* gradients, vtkDoubleArray* correct)
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // we assume that the gradients are correct and so we can compute the "real"
 // vorticity from it
 int IsVorticityCorrect(vtkDoubleArray* gradients, vtkDoubleArray* vorticity)
@@ -181,7 +181,7 @@ int IsVorticityCorrect(vtkDoubleArray* gradients, vtkDoubleArray* vorticity)
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // we assume that the gradients are correct and so we can compute the "real"
 // Q criterion from it
 int IsQCriterionCorrect(vtkDoubleArray* gradients, vtkDoubleArray* qCriterion)
@@ -216,7 +216,7 @@ int IsQCriterionCorrect(vtkDoubleArray* gradients, vtkDoubleArray* qCriterion)
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // we assume that the gradients are correct and so we can compute the "real"
 // divergence from it
 int IsDivergenceCorrect(vtkDoubleArray* gradients, vtkDoubleArray* divergence)
@@ -243,7 +243,7 @@ int IsDivergenceCorrect(vtkDoubleArray* gradients, vtkDoubleArray* divergence)
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int PerformTest(vtkDataSet* grid)
 {
   // Cleaning out the existing field data so that I can replace it with
@@ -371,7 +371,7 @@ int PerformTest(vtkDataSet* grid)
 }
 } // end local namespace
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestVTKMGradientAndVorticity(int argc, char* argv[])
 {
   int i;

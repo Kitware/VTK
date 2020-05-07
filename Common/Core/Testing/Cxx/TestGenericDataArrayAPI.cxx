@@ -98,59 +98,57 @@ int TestGenericDataArrayAPI(int, char*[])
   errors += ExerciseGenericDataArray<vtkIdType, vtkIdTypeArray>();
 
   // Explicit AoS arrays:
-  errors += ExerciseGenericDataArray<char, vtkAOSDataArrayTemplate<char> >();
-  errors += ExerciseGenericDataArray<double, vtkAOSDataArrayTemplate<double> >();
-  errors += ExerciseGenericDataArray<float, vtkAOSDataArrayTemplate<float> >();
-  errors += ExerciseGenericDataArray<int, vtkAOSDataArrayTemplate<int> >();
-  errors += ExerciseGenericDataArray<long, vtkAOSDataArrayTemplate<long> >();
-  errors += ExerciseGenericDataArray<long long, vtkAOSDataArrayTemplate<long long> >();
-  errors += ExerciseGenericDataArray<short, vtkAOSDataArrayTemplate<short> >();
-  errors += ExerciseGenericDataArray<signed char, vtkAOSDataArrayTemplate<signed char> >();
-  errors += ExerciseGenericDataArray<unsigned char, vtkAOSDataArrayTemplate<unsigned char> >();
-  errors += ExerciseGenericDataArray<unsigned int, vtkAOSDataArrayTemplate<unsigned int> >();
-  errors += ExerciseGenericDataArray<unsigned long, vtkAOSDataArrayTemplate<unsigned long> >();
+  errors += ExerciseGenericDataArray<char, vtkAOSDataArrayTemplate<char>>();
+  errors += ExerciseGenericDataArray<double, vtkAOSDataArrayTemplate<double>>();
+  errors += ExerciseGenericDataArray<float, vtkAOSDataArrayTemplate<float>>();
+  errors += ExerciseGenericDataArray<int, vtkAOSDataArrayTemplate<int>>();
+  errors += ExerciseGenericDataArray<long, vtkAOSDataArrayTemplate<long>>();
+  errors += ExerciseGenericDataArray<long long, vtkAOSDataArrayTemplate<long long>>();
+  errors += ExerciseGenericDataArray<short, vtkAOSDataArrayTemplate<short>>();
+  errors += ExerciseGenericDataArray<signed char, vtkAOSDataArrayTemplate<signed char>>();
+  errors += ExerciseGenericDataArray<unsigned char, vtkAOSDataArrayTemplate<unsigned char>>();
+  errors += ExerciseGenericDataArray<unsigned int, vtkAOSDataArrayTemplate<unsigned int>>();
+  errors += ExerciseGenericDataArray<unsigned long, vtkAOSDataArrayTemplate<unsigned long>>();
   errors +=
-    ExerciseGenericDataArray<unsigned long long, vtkAOSDataArrayTemplate<unsigned long long> >();
-  errors += ExerciseGenericDataArray<unsigned short, vtkAOSDataArrayTemplate<unsigned short> >();
-  errors += ExerciseGenericDataArray<vtkIdType, vtkAOSDataArrayTemplate<vtkIdType> >();
+    ExerciseGenericDataArray<unsigned long long, vtkAOSDataArrayTemplate<unsigned long long>>();
+  errors += ExerciseGenericDataArray<unsigned short, vtkAOSDataArrayTemplate<unsigned short>>();
+  errors += ExerciseGenericDataArray<vtkIdType, vtkAOSDataArrayTemplate<vtkIdType>>();
 
   // Explicit SoA arrays:
-  errors += ExerciseGenericDataArray<char, vtkSOADataArrayTemplate<char> >();
-  errors += ExerciseGenericDataArray<double, vtkSOADataArrayTemplate<double> >();
-  errors += ExerciseGenericDataArray<float, vtkSOADataArrayTemplate<float> >();
-  errors += ExerciseGenericDataArray<int, vtkSOADataArrayTemplate<int> >();
-  errors += ExerciseGenericDataArray<long, vtkSOADataArrayTemplate<long> >();
-  errors += ExerciseGenericDataArray<long long, vtkSOADataArrayTemplate<long long> >();
-  errors += ExerciseGenericDataArray<short, vtkSOADataArrayTemplate<short> >();
-  errors += ExerciseGenericDataArray<signed char, vtkSOADataArrayTemplate<signed char> >();
-  errors += ExerciseGenericDataArray<unsigned char, vtkSOADataArrayTemplate<unsigned char> >();
-  errors += ExerciseGenericDataArray<unsigned int, vtkSOADataArrayTemplate<unsigned int> >();
-  errors += ExerciseGenericDataArray<unsigned long, vtkSOADataArrayTemplate<unsigned long> >();
+  errors += ExerciseGenericDataArray<char, vtkSOADataArrayTemplate<char>>();
+  errors += ExerciseGenericDataArray<double, vtkSOADataArrayTemplate<double>>();
+  errors += ExerciseGenericDataArray<float, vtkSOADataArrayTemplate<float>>();
+  errors += ExerciseGenericDataArray<int, vtkSOADataArrayTemplate<int>>();
+  errors += ExerciseGenericDataArray<long, vtkSOADataArrayTemplate<long>>();
+  errors += ExerciseGenericDataArray<long long, vtkSOADataArrayTemplate<long long>>();
+  errors += ExerciseGenericDataArray<short, vtkSOADataArrayTemplate<short>>();
+  errors += ExerciseGenericDataArray<signed char, vtkSOADataArrayTemplate<signed char>>();
+  errors += ExerciseGenericDataArray<unsigned char, vtkSOADataArrayTemplate<unsigned char>>();
+  errors += ExerciseGenericDataArray<unsigned int, vtkSOADataArrayTemplate<unsigned int>>();
+  errors += ExerciseGenericDataArray<unsigned long, vtkSOADataArrayTemplate<unsigned long>>();
   errors +=
-    ExerciseGenericDataArray<unsigned long long, vtkSOADataArrayTemplate<unsigned long long> >();
-  errors += ExerciseGenericDataArray<unsigned short, vtkSOADataArrayTemplate<unsigned short> >();
-  errors += ExerciseGenericDataArray<vtkIdType, vtkSOADataArrayTemplate<vtkIdType> >();
+    ExerciseGenericDataArray<unsigned long long, vtkSOADataArrayTemplate<unsigned long long>>();
+  errors += ExerciseGenericDataArray<unsigned short, vtkSOADataArrayTemplate<unsigned short>>();
+  errors += ExerciseGenericDataArray<vtkIdType, vtkSOADataArrayTemplate<vtkIdType>>();
 
   // Explicit scale SoA arrays:
 #ifdef VTK_USE_SCALED_SOA_ARRAYS
-  errors += ExerciseGenericDataArray<char, vtkScaledSOADataArrayTemplate<char> >();
-  errors += ExerciseGenericDataArray<double, vtkScaledSOADataArrayTemplate<double> >();
-  errors += ExerciseGenericDataArray<float, vtkScaledSOADataArrayTemplate<float> >();
-  errors += ExerciseGenericDataArray<int, vtkScaledSOADataArrayTemplate<int> >();
-  errors += ExerciseGenericDataArray<long, vtkScaledSOADataArrayTemplate<long> >();
-  errors += ExerciseGenericDataArray<long long, vtkScaledSOADataArrayTemplate<long long> >();
-  errors += ExerciseGenericDataArray<short, vtkScaledSOADataArrayTemplate<short> >();
-  errors += ExerciseGenericDataArray<signed char, vtkScaledSOADataArrayTemplate<signed char> >();
-  errors +=
-    ExerciseGenericDataArray<unsigned char, vtkScaledSOADataArrayTemplate<unsigned char> >();
-  errors += ExerciseGenericDataArray<unsigned int, vtkScaledSOADataArrayTemplate<unsigned int> >();
-  errors +=
-    ExerciseGenericDataArray<unsigned long, vtkScaledSOADataArrayTemplate<unsigned long> >();
+  errors += ExerciseGenericDataArray<char, vtkScaledSOADataArrayTemplate<char>>();
+  errors += ExerciseGenericDataArray<double, vtkScaledSOADataArrayTemplate<double>>();
+  errors += ExerciseGenericDataArray<float, vtkScaledSOADataArrayTemplate<float>>();
+  errors += ExerciseGenericDataArray<int, vtkScaledSOADataArrayTemplate<int>>();
+  errors += ExerciseGenericDataArray<long, vtkScaledSOADataArrayTemplate<long>>();
+  errors += ExerciseGenericDataArray<long long, vtkScaledSOADataArrayTemplate<long long>>();
+  errors += ExerciseGenericDataArray<short, vtkScaledSOADataArrayTemplate<short>>();
+  errors += ExerciseGenericDataArray<signed char, vtkScaledSOADataArrayTemplate<signed char>>();
+  errors += ExerciseGenericDataArray<unsigned char, vtkScaledSOADataArrayTemplate<unsigned char>>();
+  errors += ExerciseGenericDataArray<unsigned int, vtkScaledSOADataArrayTemplate<unsigned int>>();
+  errors += ExerciseGenericDataArray<unsigned long, vtkScaledSOADataArrayTemplate<unsigned long>>();
   errors += ExerciseGenericDataArray<unsigned long long,
-    vtkScaledSOADataArrayTemplate<unsigned long long> >();
+    vtkScaledSOADataArrayTemplate<unsigned long long>>();
   errors +=
-    ExerciseGenericDataArray<unsigned short, vtkScaledSOADataArrayTemplate<unsigned short> >();
-  errors += ExerciseGenericDataArray<vtkIdType, vtkScaledSOADataArrayTemplate<vtkIdType> >();
+    ExerciseGenericDataArray<unsigned short, vtkScaledSOADataArrayTemplate<unsigned short>>();
+  errors += ExerciseGenericDataArray<vtkIdType, vtkScaledSOADataArrayTemplate<vtkIdType>>();
 #endif
 
   if (errors > 0)

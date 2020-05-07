@@ -34,10 +34,10 @@
 
 vtkStandardNewMacro(vtkInteractorStyle3D);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkInteractorStyle3D, InteractionPicker, vtkAbstractPropPicker);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInteractorStyle3D::vtkInteractorStyle3D()
 {
   this->InteractionProp = nullptr;
@@ -51,7 +51,7 @@ vtkInteractorStyle3D::vtkInteractorStyle3D()
   this->DollyPhysicalSpeed = 1.6666;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInteractorStyle3D::~vtkInteractorStyle3D()
 {
   this->InteractionPicker->Delete();
@@ -60,7 +60,7 @@ vtkInteractorStyle3D::~vtkInteractorStyle3D()
   this->TempTransform->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // We handle all adjustments here
 void vtkInteractorStyle3D::PositionProp(vtkEventData* ed)
 {
@@ -129,13 +129,13 @@ void vtkInteractorStyle3D::PositionProp(vtkEventData* ed)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyle3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyle3D::FindPickedActor(double pos[3], double orient[4])
 {
   if (!orient)
@@ -157,7 +157,7 @@ void vtkInteractorStyle3D::FindPickedActor(double pos[3], double orient[4])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyle3D::Prop3DTransform(
   vtkProp3D* prop3D, double* boxCenter, int numRotation, double** rotate, double* scale)
 {

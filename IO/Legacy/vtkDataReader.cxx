@@ -3914,7 +3914,7 @@ static int my_getline(istream& in, vtkStdString& out, char delimiter)
   return numCharactersRead;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataReader::SetScalarLut(const char* sl)
 {
   if (!this->ScalarLut && !sl)

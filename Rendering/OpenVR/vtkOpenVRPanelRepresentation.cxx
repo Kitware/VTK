@@ -35,7 +35,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 vtkStandardNewMacro(vtkOpenVRPanelRepresentation);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenVRPanelRepresentation::vtkOpenVRPanelRepresentation()
 {
   this->TextActor = vtkTextActor3D::New();
@@ -60,7 +60,7 @@ vtkOpenVRPanelRepresentation::vtkOpenVRPanelRepresentation()
   this->AllowAdjustment = true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenVRPanelRepresentation::~vtkOpenVRPanelRepresentation()
 {
   this->TextActor->Delete();
@@ -192,7 +192,7 @@ void vtkOpenVRPanelRepresentation::EndComplexInteraction(
   this->InteractionState = vtkOpenVRPanelRepresentation::Outside;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Loop through all points and translate and rotate them
 void vtkOpenVRPanelRepresentation::UpdatePose(
   double* p1, double* orient1, double* p2, double* orient2)
@@ -327,13 +327,13 @@ void vtkOpenVRPanelRepresentation::UpdatePose(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRPanelRepresentation::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->TextActor->ReleaseGraphicsResources(w);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRPanelRepresentation::ComputeMatrix(vtkRenderer* ren)
 {
   // check whether or not need to rebuild the matrix
@@ -393,7 +393,7 @@ void vtkOpenVRPanelRepresentation::ComputeMatrix(vtkRenderer* ren)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkOpenVRPanelRepresentation::RenderOpaqueGeometry(vtkViewport* v)
 {
   if (!this->GetVisibility())
@@ -412,7 +412,7 @@ int vtkOpenVRPanelRepresentation::RenderOpaqueGeometry(vtkViewport* v)
   return count;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkOpenVRPanelRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport* v)
 {
   if (!this->GetVisibility())
@@ -425,7 +425,7 @@ int vtkOpenVRPanelRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport
   return count;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkOpenVRPanelRepresentation::HasTranslucentPolygonalGeometry()
 {
   if (!this->GetVisibility())
@@ -440,7 +440,7 @@ vtkTypeBool vtkOpenVRPanelRepresentation::HasTranslucentPolygonalGeometry()
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRPanelRepresentation::PlaceWidget(double bds[6])
 {
   this->TextActor->GetUserMatrix()->Identity();
@@ -542,7 +542,7 @@ void vtkOpenVRPanelRepresentation::PlaceWidgetExtended(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRPanelRepresentation::BuildRepresentation()
 {
   // if (this->GetMTime() > this->BuildTime)
@@ -561,13 +561,13 @@ void vtkOpenVRPanelRepresentation::BuildRepresentation()
   // }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRPanelRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRPanelRepresentation::SetText(const char* text)
 {
   if (this->Text == text)

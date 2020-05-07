@@ -35,7 +35,7 @@
 vtkStandardNewMacro(vtkClipPolyData);
 vtkCxxSetObjectMacro(vtkClipPolyData, ClipFunction, vtkImplicitFunction);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct with user-specified implicit function; InsideOut turned off; value
 // set to 0.0; and generate clip scalars turned off.
 vtkClipPolyData::vtkClipPolyData(vtkImplicitFunction* cf)
@@ -55,7 +55,7 @@ vtkClipPolyData::vtkClipPolyData(vtkImplicitFunction* cf)
   output2->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkClipPolyData::~vtkClipPolyData()
 {
   if (this->Locator)
@@ -66,7 +66,7 @@ vtkClipPolyData::~vtkClipPolyData()
   this->SetClipFunction(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Overload standard modified time function. If Clip functions is modified,
 // then this object is modified as well.
 vtkMTimeType vtkClipPolyData::GetMTime()
@@ -93,7 +93,7 @@ vtkPolyData* vtkClipPolyData::GetClippedOutput()
   return vtkPolyData::SafeDownCast(this->GetExecutive()->GetOutputData(1));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 // Clip through data generating surface.
 //
@@ -368,7 +368,7 @@ int vtkClipPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify a spatial locator for merging points. By default,
 // an instance of vtkMergePoints is used.
 void vtkClipPolyData::SetLocator(vtkIncrementalPointLocator* locator)
@@ -393,7 +393,7 @@ void vtkClipPolyData::SetLocator(vtkIncrementalPointLocator* locator)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkClipPolyData::CreateDefaultLocator()
 {
   if (this->Locator == nullptr)
@@ -402,7 +402,7 @@ void vtkClipPolyData::CreateDefaultLocator()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkClipPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

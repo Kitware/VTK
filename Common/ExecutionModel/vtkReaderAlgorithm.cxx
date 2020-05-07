@@ -16,7 +16,7 @@
 
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkReaderAlgorithm::vtkReaderAlgorithm()
 {
   // by default assume filters have one input and one output
@@ -24,10 +24,10 @@ vtkReaderAlgorithm::vtkReaderAlgorithm()
   this->SetNumberOfOutputPorts(1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkReaderAlgorithm::~vtkReaderAlgorithm() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkReaderAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

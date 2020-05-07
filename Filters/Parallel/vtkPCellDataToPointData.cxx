@@ -22,13 +22,13 @@
 
 vtkStandardNewMacro(vtkPCellDataToPointData);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPCellDataToPointData::vtkPCellDataToPointData()
 {
   this->PieceInvariant = 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPCellDataToPointData::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -47,7 +47,7 @@ int vtkPCellDataToPointData::RequestData(
   return 1;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPCellDataToPointData::RequestUpdateExtent(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -83,7 +83,7 @@ int vtkPCellDataToPointData::RequestUpdateExtent(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPCellDataToPointData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

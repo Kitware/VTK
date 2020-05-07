@@ -17,7 +17,7 @@
 #include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationIntegerRequestKey::vtkInformationIntegerRequestKey(
   const char* name, const char* location)
   : vtkInformationIntegerKey(name, location)
@@ -25,10 +25,10 @@ vtkInformationIntegerRequestKey::vtkInformationIntegerRequestKey(
   this->DataKey = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationIntegerRequestKey::~vtkInformationIntegerRequestKey() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationIntegerRequestKey::CopyDefaultInformation(
   vtkInformation* request, vtkInformation* fromInfo, vtkInformation* toInfo)
 {
@@ -38,7 +38,7 @@ void vtkInformationIntegerRequestKey::CopyDefaultInformation(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkInformationIntegerRequestKey::NeedToExecute(
   vtkInformation* pipelineInfo, vtkInformation* dobjInfo)
 {
@@ -49,14 +49,14 @@ bool vtkInformationIntegerRequestKey::NeedToExecute(
   return false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationIntegerRequestKey::StoreMetaData(
   vtkInformation*, vtkInformation* pipelineInfo, vtkInformation* dobjInfo)
 {
   dobjInfo->Set(this->DataKey, pipelineInfo->Get(this));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationIntegerRequestKey::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

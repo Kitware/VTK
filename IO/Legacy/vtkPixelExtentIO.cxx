@@ -27,7 +27,7 @@
 
 using std::deque;
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUnstructuredGrid& operator<<(vtkUnstructuredGrid& data, const vtkPixelExtent& ext)
 {
   // initialize empty dataset
@@ -75,9 +75,9 @@ vtkUnstructuredGrid& operator<<(vtkUnstructuredGrid& data, const vtkPixelExtent&
   return data;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPixelExtentIO::Write(
-  int commRank, const char* fileName, const deque<deque<vtkPixelExtent> >& exts)
+  int commRank, const char* fileName, const deque<deque<vtkPixelExtent>>& exts)
 {
   if (commRank != 0)
   {
@@ -121,7 +121,7 @@ void vtkPixelExtentIO::Write(
   data->Delete();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPixelExtentIO::Write(int commRank, const char* fileName, const deque<vtkPixelExtent>& exts)
 {
   if (commRank != 0)
@@ -158,7 +158,7 @@ void vtkPixelExtentIO::Write(int commRank, const char* fileName, const deque<vtk
   data->Delete();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPixelExtentIO::Write(int commRank, const char* fileName, const vtkPixelExtent& ext)
 {
   vtkUnstructuredGrid* data = vtkUnstructuredGrid::New();

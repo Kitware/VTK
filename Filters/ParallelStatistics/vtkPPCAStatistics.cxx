@@ -35,27 +35,27 @@
 
 vtkStandardNewMacro(vtkPPCAStatistics);
 vtkCxxSetObjectMacro(vtkPPCAStatistics, Controller, vtkMultiProcessController);
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPPCAStatistics::vtkPPCAStatistics()
 {
   this->Controller = 0;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPPCAStatistics::~vtkPPCAStatistics()
 {
   this->SetController(0);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPPCAStatistics::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Controller: " << this->Controller << endl;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPPCAStatistics::Learn(
   vtkTable* inData, vtkTable* inParameters, vtkMultiBlockDataSet* outMeta)
 {
@@ -80,7 +80,7 @@ void vtkPPCAStatistics::Learn(
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPPCAStatistics::Test(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtkTable* outMeta)
 {
   if (this->Controller->GetNumberOfProcesses() > 1)
@@ -92,7 +92,7 @@ void vtkPPCAStatistics::Test(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtk
   this->Superclass::Test(inData, inMeta, outMeta);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOrderStatistics* vtkPPCAStatistics::CreateOrderStatisticsInstance()
 {
   return vtkPOrderStatistics::New();

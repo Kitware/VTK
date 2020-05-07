@@ -29,7 +29,7 @@
 
 vtkStandardNewMacro(vtkTableAlgorithm);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTableAlgorithm::vtkTableAlgorithm()
 {
   // by default assume filters have one input and one output
@@ -38,16 +38,16 @@ vtkTableAlgorithm::vtkTableAlgorithm()
   this->SetNumberOfOutputPorts(1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTableAlgorithm::~vtkTableAlgorithm() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTableAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkTableAlgorithm::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -71,7 +71,7 @@ vtkTypeBool vtkTableAlgorithm::ProcessRequest(
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTableAlgorithm::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   // now add our info
@@ -79,26 +79,26 @@ int vtkTableAlgorithm::FillOutputPortInformation(int vtkNotUsed(port), vtkInform
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTableAlgorithm::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTable* vtkTableAlgorithm::GetOutput(int index)
 {
   return vtkTable::SafeDownCast(this->GetOutputDataObject(index));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTableAlgorithm::SetInputData(int index, vtkDataObject* input)
 {
   this->SetInputDataInternal(index, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTableAlgorithm::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -106,7 +106,7 @@ int vtkTableAlgorithm::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTableAlgorithm::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -123,7 +123,7 @@ int vtkTableAlgorithm::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This is the superclasses style of Execute method.  Convert it into
 // an imaging style Execute method.
 int vtkTableAlgorithm::RequestData(vtkInformation* vtkNotUsed(request),

@@ -67,15 +67,15 @@
 #include <istream>  // istringStream
 #include <string>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Helper functions
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 bool StringEndsWith(const std::string& a, const std::string& b)
 {
   return a.size() >= b.size() && a.compare(a.size() - b.size(), b.size(), b) == 0;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkADIOS2CoreImageReader);
 namespace
 {
@@ -92,7 +92,7 @@ inline std::vector<int> parseDimensions(const std::string& dimsStr)
 }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 struct vtkADIOS2CoreImageReader::vtkADIOS2CoreImageReaderImpl
 {
 
@@ -109,7 +109,7 @@ struct vtkADIOS2CoreImageReader::vtkADIOS2CoreImageReaderImpl
 
   size_t BlockStart{ 0 };
   size_t BlockCount{ 0 };
-  std::vector<std::array<int, 6> > BlockExtents;
+  std::vector<std::array<int, 6>> BlockExtents;
 
   // VTK variables
   bool HasReadMetaData{ false };
@@ -178,13 +178,13 @@ vtkNew<vtkMultiPieceDataSet> vtkADIOS2CoreImageReader::vtkADIOS2CoreImageReaderI
   return mpds;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkADIOS2CoreImageReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkADIOS2CoreImageReader::CanReadFile(const std::string& name)
 {
   if (!vtksys::SystemTools::FileExists(name))
@@ -198,101 +198,101 @@ int vtkADIOS2CoreImageReader::CanReadFile(const std::string& name)
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkADIOS2CoreImageReader::CanReadFile(const char* fileName)
 {
   return this->CanReadFile(std::string(fileName));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkADIOS2CoreImageReader::SetFileName(const char* fileName)
 {
   this->FileName = std::string(fileName);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkADIOS2CoreImageReader::GetNumberOfArrays()
 {
   return this->Impl->ArraySelection.GetNumberOfArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkADIOS2CoreImageReader::GetArrayName(int index)
 {
   return this->Impl->ArraySelection.GetArrayName(index);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkADIOS2CoreImageReader::SetArrayStatus(const char* name, int status)
 {
   this->Impl->ArraySelection.SetArrayStatus(name, status);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkADIOS2CoreImageReader::GetArrayStatus(const char* name)
 {
   return this->Impl->ArraySelection.GetArrayStatus(name);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStringArray* vtkADIOS2CoreImageReader::GetAllDimensionArrays()
 {
   return this->Impl->AvailableArray;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStringArray* vtkADIOS2CoreImageReader::GetAllTimeStepArrays()
 {
   return this->Impl->AvailableArray;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkADIOS2CoreImageReader::SetActiveScalar(const std::pair<std::string, VarType>& as)
 {
   this->Impl->ActiveScalar = as;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::pair<std::string, vtkADIOS2CoreImageReader::VarType>&
 vtkADIOS2CoreImageReader::GetActiveScalar()
 {
   return this->Impl->ActiveScalar;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const std::pair<std::string, vtkADIOS2CoreImageReader::VarType>&
 vtkADIOS2CoreImageReader::GetActiveScalar() const
 {
   return this->Impl->ActiveScalar;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkADIOS2CoreImageReader::StringToParams& vtkADIOS2CoreImageReader::GetAvilableVariables()
 {
   return this->Impl->AvailVars;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const vtkADIOS2CoreImageReader::StringToParams& vtkADIOS2CoreImageReader::GetAvilableVariables()
   const
 {
   return this->Impl->AvailVars;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkADIOS2CoreImageReader::StringToParams& vtkADIOS2CoreImageReader::GetAvailableAttributes()
 {
   return this->Impl->AvailAtts;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const vtkADIOS2CoreImageReader::StringToParams& vtkADIOS2CoreImageReader::GetAvailableAttributes()
   const
 {
   return this->Impl->AvailAtts;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkADIOS2CoreImageReader::SetController(vtkMultiProcessController* controller)
 {
 #ifdef IOADIOS2_HAVE_MPI
@@ -309,7 +309,7 @@ void vtkADIOS2CoreImageReader::SetController(vtkMultiProcessController* controll
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkADIOS2CoreImageReader::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -321,7 +321,7 @@ int vtkADIOS2CoreImageReader::ProcessRequest(
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkADIOS2CoreImageReader::RequestDataObjectInternal(vtkInformationVector* outputVector)
 {
   vtkSmartPointer<vtkDataObject> output = vtkDataObject::GetData(outputVector, 0);
@@ -334,7 +334,7 @@ int vtkADIOS2CoreImageReader::RequestDataObjectInternal(vtkInformationVector* ou
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkADIOS2CoreImageReader::OpenAndReadMetaData()
 {
   // Is name valid
@@ -407,7 +407,7 @@ bool vtkADIOS2CoreImageReader::OpenAndReadMetaData()
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkADIOS2CoreImageReader::vtkADIOS2CoreImageReader()
   : DimensionArrayAsCell(true)
   , IsColumnMajor(false)
@@ -420,13 +420,13 @@ vtkADIOS2CoreImageReader::vtkADIOS2CoreImageReader()
   this->Spacing[0] = this->Spacing[1] = this->Spacing[2] = 1.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkADIOS2CoreImageReader::~vtkADIOS2CoreImageReader()
 {
   this->SetController(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkADIOS2CoreImageReader::RequestInformation(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -483,7 +483,7 @@ int vtkADIOS2CoreImageReader::RequestInformation(
   return this->Superclass::RequestInformation(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkADIOS2CoreImageReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -539,7 +539,7 @@ int vtkADIOS2CoreImageReader::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkADIOS2CoreImageReader::InitWorkDistribution()
 {
   try
@@ -602,11 +602,11 @@ bool vtkADIOS2CoreImageReader::InitWorkDistribution()
     }
     else if (typeStr == "float complex")
     {
-      this->CalculateWorkDistribution<std::complex<float> >(varName);
+      this->CalculateWorkDistribution<std::complex<float>>(varName);
     }
     else if (typeStr == "double complex")
     {
-      this->CalculateWorkDistribution<std::complex<double> >(varName);
+      this->CalculateWorkDistribution<std::complex<double>>(varName);
     }
   }
   catch (std::exception& e)
@@ -617,14 +617,14 @@ bool vtkADIOS2CoreImageReader::InitWorkDistribution()
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::string vtkADIOS2CoreImageReader::FetchTypeStringFromVarName(const std::string& name)
 {
   return (this->Impl->AvailVars.find(name) == this->Impl->AvailVars.end())
     ? std::string{}
     : this->Impl->AvailVars[name]["Type"];
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkADIOS2CoreImageReader::UpdateDimensionFromDimensionArray()
 {
   if (this->Impl->AvailVars.find(this->DimensionArray) == this->Impl->AvailVars.end())
@@ -653,7 +653,7 @@ void vtkADIOS2CoreImageReader::UpdateDimensionFromDimensionArray()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkADIOS2CoreImageReader::ConvertArraySelectionToInqVar()
 {
   InquireVariablesType inqVars;
@@ -696,7 +696,7 @@ void vtkADIOS2CoreImageReader::ConvertArraySelectionToInqVar()
   this->Impl->InquiredVars = inqVars;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkADIOS2CoreImageReader::ReadImageBlocks(vtkMultiBlockDataSet* mbds)
 {
   try
@@ -849,7 +849,7 @@ void vtkADIOS2CoreImageReader::ReadImageBlocks(vtkMultiBlockDataSet* mbds)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkADIOS2CoreImageReader::GatherTimeSteps()
 {
 
@@ -910,7 +910,7 @@ bool vtkADIOS2CoreImageReader::GatherTimeSteps()
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <typename T>
 void vtkADIOS2CoreImageReader::CalculateWorkDistribution(const std::string& varName)
 {
@@ -967,7 +967,7 @@ void vtkADIOS2CoreImageReader::CalculateWorkDistribution(const std::string& varN
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <typename T, template <typename...> class U>
 vtkSmartPointer<vtkAbstractArray> vtkADIOS2CoreImageReader::PopulateDataArrayFromVar(
   const std::string& varName, size_t blockIndex)
@@ -991,7 +991,7 @@ vtkSmartPointer<vtkAbstractArray> vtkADIOS2CoreImageReader::PopulateDataArrayFro
   return array;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <typename T>
 void vtkADIOS2CoreImageReader::GatherTimeStepsFromADIOSTimeArray()
 {

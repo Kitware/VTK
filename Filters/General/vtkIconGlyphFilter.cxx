@@ -30,7 +30,7 @@
 
 vtkStandardNewMacro(vtkIconGlyphFilter);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIconGlyphFilter::vtkIconGlyphFilter()
 {
   this->IconSize[0] = 1;
@@ -49,10 +49,10 @@ vtkIconGlyphFilter::vtkIconGlyphFilter()
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIconGlyphFilter::~vtkIconGlyphFilter() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkIconGlyphFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -68,7 +68,7 @@ void vtkIconGlyphFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Icon Scaling: " << this->IconScaling << endl;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkIconGlyphFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

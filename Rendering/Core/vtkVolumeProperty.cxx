@@ -25,7 +25,7 @@
 
 vtkStandardNewMacro(vtkVolumeProperty);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct a new vtkVolumeProperty with default values
 vtkVolumeProperty::vtkVolumeProperty()
 {
@@ -60,7 +60,7 @@ vtkVolumeProperty::vtkVolumeProperty()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Destruct a vtkVolumeProperty
 vtkVolumeProperty::~vtkVolumeProperty()
 {
@@ -119,7 +119,7 @@ vtkVolumeProperty::~vtkVolumeProperty()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeProperty::DeepCopy(vtkVolumeProperty* p)
 {
   if (!p)
@@ -171,7 +171,7 @@ void vtkVolumeProperty::DeepCopy(vtkVolumeProperty* p)
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeProperty::UpdateMTimes()
 {
   this->Modified();
@@ -189,7 +189,7 @@ void vtkVolumeProperty::UpdateMTimes()
   this->LabelGradientOpacityMTime.Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkVolumeProperty::GetMTime()
 {
   vtkMTimeType mTime = this->vtkObject::GetMTime();
@@ -279,7 +279,7 @@ vtkMTimeType vtkVolumeProperty::GetMTime()
   return mTime;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkVolumeProperty::GetColorChannels(int index)
 {
   if (index < 0 || index > 3)
@@ -291,7 +291,7 @@ int vtkVolumeProperty::GetColorChannels(int index)
   return this->ColorChannels[index];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Set the color of a volume to a gray transfer function
 void vtkVolumeProperty::SetColor(int index, vtkPiecewiseFunction* function)
 {
@@ -319,7 +319,7 @@ void vtkVolumeProperty::SetColor(int index, vtkPiecewiseFunction* function)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the currently set gray transfer function. Create one if none set.
 vtkPiecewiseFunction* vtkVolumeProperty::GetGrayTransferFunction(int index)
 {
@@ -340,7 +340,7 @@ vtkPiecewiseFunction* vtkVolumeProperty::GetGrayTransferFunction(int index)
   return this->GrayTransferFunction[index];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Set the color of a volume to an RGB transfer function
 void vtkVolumeProperty::SetColor(int index, vtkColorTransferFunction* function)
 {
@@ -367,7 +367,7 @@ void vtkVolumeProperty::SetColor(int index, vtkColorTransferFunction* function)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the currently set RGB transfer function. Create one if none set.
 vtkColorTransferFunction* vtkVolumeProperty::GetRGBTransferFunction(int index)
 {
@@ -388,7 +388,7 @@ vtkColorTransferFunction* vtkVolumeProperty::GetRGBTransferFunction(int index)
   return this->RGBTransferFunction[index];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Set the scalar opacity of a volume to a transfer function
 void vtkVolumeProperty::SetScalarOpacity(int index, vtkPiecewiseFunction* function)
 {
@@ -410,7 +410,7 @@ void vtkVolumeProperty::SetScalarOpacity(int index, vtkPiecewiseFunction* functi
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the scalar opacity transfer function. Create one if none set.
 vtkPiecewiseFunction* vtkVolumeProperty::GetScalarOpacity(int index)
 {
@@ -426,7 +426,7 @@ vtkPiecewiseFunction* vtkVolumeProperty::GetScalarOpacity(int index)
   return this->ScalarOpacity[index];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeProperty::SetScalarOpacityUnitDistance(int index, double distance)
 {
   if (index < 0 || index > 3)
@@ -442,7 +442,7 @@ void vtkVolumeProperty::SetScalarOpacityUnitDistance(int index, double distance)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkVolumeProperty::GetScalarOpacityUnitDistance(int index)
 {
   if (index < 0 || index > 3)
@@ -454,7 +454,7 @@ double vtkVolumeProperty::GetScalarOpacityUnitDistance(int index)
   return this->ScalarOpacityUnitDistance[index];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Set the gradient opacity transfer function
 void vtkVolumeProperty::SetGradientOpacity(int index, vtkPiecewiseFunction* function)
 {
@@ -476,7 +476,7 @@ void vtkVolumeProperty::SetGradientOpacity(int index, vtkPiecewiseFunction* func
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeProperty::CreateDefaultGradientOpacity(int index)
 {
   if (this->DefaultGradientOpacity[index] == nullptr)
@@ -491,7 +491,7 @@ void vtkVolumeProperty::CreateDefaultGradientOpacity(int index)
   this->DefaultGradientOpacity[index]->AddPoint(255, 1.0);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPiecewiseFunction* vtkVolumeProperty::GetGradientOpacity(int index)
 {
   if (this->DisableGradientOpacity[index])
@@ -506,7 +506,7 @@ vtkPiecewiseFunction* vtkVolumeProperty::GetGradientOpacity(int index)
   return this->GetStoredGradientOpacity(index);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeProperty::SetTransferFunction2D(int index, vtkImageData* function)
 {
   if (this->TransferFunction2D[index] != function)
@@ -548,13 +548,13 @@ void vtkVolumeProperty::SetTransferFunction2D(int index, vtkImageData* function)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageData* vtkVolumeProperty::GetTransferFunction2D(int index)
 {
   return this->TransferFunction2D[index];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the gradient opacity transfer function. Create one if none set.
 vtkPiecewiseFunction* vtkVolumeProperty::GetStoredGradientOpacity(int index)
 {
@@ -570,7 +570,7 @@ vtkPiecewiseFunction* vtkVolumeProperty::GetStoredGradientOpacity(int index)
   return this->GradientOpacity[index];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeProperty::SetDisableGradientOpacity(int index, int value)
 {
   if (this->DisableGradientOpacity[index] == value)
@@ -597,7 +597,7 @@ void vtkVolumeProperty::SetDisableGradientOpacity(int index, int value)
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkVolumeProperty::GetDisableGradientOpacity(int index)
 {
   return this->DisableGradientOpacity[index];
@@ -619,7 +619,7 @@ void vtkVolumeProperty::SetComponentWeight(int index, double value)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkVolumeProperty::GetComponentWeight(int index)
 {
   if (index < 0 || index >= VTK_MAX_VRCOMP)
@@ -631,7 +631,7 @@ double vtkVolumeProperty::GetComponentWeight(int index)
   return this->ComponentWeight[index];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeProperty::SetShade(int index, int value)
 {
   if (value != 0 && value != 1)
@@ -647,25 +647,25 @@ void vtkVolumeProperty::SetShade(int index, int value)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeProperty::ShadeOn(int index)
 {
   this->SetShade(index, 1);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeProperty::ShadeOff(int index)
 {
   this->SetShade(index, 0);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkVolumeProperty::GetShade(int index)
 {
   return this->Shade[index];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeProperty::SetAmbient(int index, double value)
 {
   if (this->Ambient[index] != value)
@@ -675,13 +675,13 @@ void vtkVolumeProperty::SetAmbient(int index, double value)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkVolumeProperty::GetAmbient(int index)
 {
   return this->Ambient[index];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeProperty::SetDiffuse(int index, double value)
 {
   if (this->Diffuse[index] != value)
@@ -691,13 +691,13 @@ void vtkVolumeProperty::SetDiffuse(int index, double value)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkVolumeProperty::GetDiffuse(int index)
 {
   return this->Diffuse[index];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeProperty::SetSpecular(int index, double value)
 {
   if (this->Specular[index] != value)
@@ -707,13 +707,13 @@ void vtkVolumeProperty::SetSpecular(int index, double value)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkVolumeProperty::GetSpecular(int index)
 {
   return this->Specular[index];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeProperty::SetSpecularPower(int index, double value)
 {
   if (this->SpecularPower[index] != value)
@@ -723,49 +723,49 @@ void vtkVolumeProperty::SetSpecularPower(int index, double value)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkVolumeProperty::GetSpecularPower(int index)
 {
   return this->SpecularPower[index];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTimeStamp vtkVolumeProperty::GetScalarOpacityMTime(int index)
 {
   return this->ScalarOpacityMTime[index];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTimeStamp vtkVolumeProperty::GetGradientOpacityMTime(int index)
 {
   return this->GradientOpacityMTime[index];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTimeStamp vtkVolumeProperty::GetRGBTransferFunctionMTime(int index)
 {
   return this->RGBTransferFunctionMTime[index];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTimeStamp vtkVolumeProperty::GetTransferFunction2DMTime(int index)
 {
   return this->TransferFunction2DMTime[index];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTimeStamp vtkVolumeProperty::GetGrayTransferFunctionMTime(int index)
 {
   return this->GrayTransferFunctionMTime[index];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkContourValues* vtkVolumeProperty::GetIsoSurfaceValues()
 {
   return this->IsoSurfaceValues;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeProperty::SetLabelColor(int label, vtkColorTransferFunction* color)
 {
   if (label == 0)
@@ -794,7 +794,7 @@ void vtkVolumeProperty::SetLabelColor(int label, vtkColorTransferFunction* color
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkColorTransferFunction* vtkVolumeProperty::GetLabelColor(int label)
 {
   if (this->LabelColor.count(label) == 0)
@@ -804,7 +804,7 @@ vtkColorTransferFunction* vtkVolumeProperty::GetLabelColor(int label)
   return this->LabelColor[label];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeProperty::SetLabelScalarOpacity(int label, vtkPiecewiseFunction* function)
 {
   if (label == 0)
@@ -833,7 +833,7 @@ void vtkVolumeProperty::SetLabelScalarOpacity(int label, vtkPiecewiseFunction* f
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPiecewiseFunction* vtkVolumeProperty::GetLabelScalarOpacity(int label)
 {
   if (this->LabelScalarOpacity.count(label) == 0)
@@ -843,7 +843,7 @@ vtkPiecewiseFunction* vtkVolumeProperty::GetLabelScalarOpacity(int label)
   return this->LabelScalarOpacity[label];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeProperty::SetLabelGradientOpacity(int label, vtkPiecewiseFunction* function)
 {
   if (label == 0)
@@ -872,7 +872,7 @@ void vtkVolumeProperty::SetLabelGradientOpacity(int label, vtkPiecewiseFunction*
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPiecewiseFunction* vtkVolumeProperty::GetLabelGradientOpacity(int label)
 {
   if (this->LabelGradientOpacity.count(label) == 0)
@@ -882,13 +882,13 @@ vtkPiecewiseFunction* vtkVolumeProperty::GetLabelGradientOpacity(int label)
   return this->LabelGradientOpacity[label];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::size_t vtkVolumeProperty::GetNumberOfLabels()
 {
   return this->GetLabelMapLabels().size();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::set<int> vtkVolumeProperty::GetLabelMapLabels()
 {
   // Erase labels that were added re-assigned to null pointers
@@ -907,7 +907,7 @@ std::set<int> vtkVolumeProperty::GetLabelMapLabels()
   return this->LabelMapLabels;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Print the state of the volume property.
 void vtkVolumeProperty::PrintSelf(ostream& os, vtkIndent indent)
 {

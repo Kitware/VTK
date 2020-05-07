@@ -1113,7 +1113,7 @@ int vtkFieldDataToAttributeDataFilter::UpdateComponentRange(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkFieldDataToAttributeDataFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

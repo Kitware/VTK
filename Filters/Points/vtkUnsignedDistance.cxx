@@ -32,7 +32,7 @@
 vtkStandardNewMacro(vtkUnsignedDistance);
 vtkCxxSetObjectMacro(vtkUnsignedDistance, Locator, vtkAbstractPointLocator);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Helper classes to support efficient computing, and threaded execution.
 namespace
 {
@@ -215,7 +215,7 @@ void Cap(int dims[3], T* s, double capValue)
 } // anonymous namespace
 
 //================= Begin class proper =======================================
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct with sample dimensions=(256,256,256), and so that model bounds are
 // automatically computed from the input.
 vtkUnsignedDistance::vtkUnsignedDistance()
@@ -244,13 +244,13 @@ vtkUnsignedDistance::vtkUnsignedDistance()
   this->Initialized = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUnsignedDistance::~vtkUnsignedDistance()
 {
   this->SetLocator(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Initialize the filter for appending data. You must invoke the
 // StartAppend() method before doing successive Appends(). It's also a
 // good idea to manually specify the model bounds; otherwise the input
@@ -299,7 +299,7 @@ void vtkUnsignedDistance::StartAppend()
   this->Initialized = 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Append a data set to the existing output. To use this function,
 // you'll have to invoke the StartAppend() method before doing
 // successive appends. It's also a good idea to specify the model
@@ -342,7 +342,7 @@ void vtkUnsignedDistance::Append(vtkPolyData* input)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Method completes the append process (does the capping if requested).
 void vtkUnsignedDistance::EndAppend()
 {
@@ -368,7 +368,7 @@ void vtkUnsignedDistance::EndAppend()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkUnsignedDistance::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -398,7 +398,7 @@ int vtkUnsignedDistance::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkUnsignedDistance::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -422,7 +422,7 @@ int vtkUnsignedDistance::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Set the i-j-k dimensions on which to sample the distance function.
 void vtkUnsignedDistance::SetDimensions(int i, int j, int k)
 {
@@ -435,7 +435,7 @@ void vtkUnsignedDistance::SetDimensions(int i, int j, int k)
   this->SetDimensions(dim);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkUnsignedDistance::SetDimensions(const int dim[3])
 {
   int dataDim, i;
@@ -474,7 +474,7 @@ void vtkUnsignedDistance::SetDimensions(const int dim[3])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkUnsignedDistance::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
@@ -482,7 +482,7 @@ int vtkUnsignedDistance::FillInputPortInformation(int vtkNotUsed(port), vtkInfor
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkUnsignedDistance::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -507,7 +507,7 @@ vtkTypeBool vtkUnsignedDistance::ProcessRequest(
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkUnsignedDistance::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

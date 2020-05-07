@@ -22,37 +22,37 @@
 
 vtkStandardNewMacro(vtkXMLPRectilinearGridWriter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLPRectilinearGridWriter::vtkXMLPRectilinearGridWriter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLPRectilinearGridWriter::~vtkXMLPRectilinearGridWriter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPRectilinearGridWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRectilinearGrid* vtkXMLPRectilinearGridWriter::GetInput()
 {
   return static_cast<vtkRectilinearGrid*>(this->Superclass::GetInput());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXMLPRectilinearGridWriter::GetDataSetName()
 {
   return "PRectilinearGrid";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXMLPRectilinearGridWriter::GetDefaultFileExtension()
 {
   return "pvtr";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLStructuredDataWriter* vtkXMLPRectilinearGridWriter::CreateStructuredPieceWriter()
 {
   // Create the writer for the piece.
@@ -61,7 +61,7 @@ vtkXMLStructuredDataWriter* vtkXMLPRectilinearGridWriter::CreateStructuredPieceW
   return pWriter;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPRectilinearGridWriter::WritePData(vtkIndent indent)
 {
   this->Superclass::WritePData(indent);

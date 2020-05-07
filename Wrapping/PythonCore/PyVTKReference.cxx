@@ -30,7 +30,7 @@
 #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 static const char* PyVTKReference_Doc =
   "A simple container that acts as a reference to its contents.\n\n"
@@ -39,7 +39,7 @@ static const char* PyVTKReference_Doc =
   "\"m = vtk.reference(a)\" on a value, you can create a proxy to\n"
   "that value.  The value can be changed by calling \"m.set(b)\".\n";
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // helper method: make sure than an object is usable
 static PyObject* PyVTKReference_CompatibleObject(PyObject* self, PyObject* opn)
 {
@@ -148,7 +148,7 @@ static PyObject* PyVTKReference_CompatibleObject(PyObject* self, PyObject* opn)
   return nullptr;
 }
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // methods from C
 
 PyObject* PyVTKReference_GetValue(PyObject* self)
@@ -188,7 +188,7 @@ int PyVTKReference_SetValue(PyObject* self, PyObject* val)
   return -1;
 }
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // methods from python
 
 static PyObject* PyVTKReference_Get(PyObject* self, PyObject* args)
@@ -295,7 +295,7 @@ static PyMethodDef PyVTKReference_Methods[] = { { "get", PyVTKReference_Get, MET
 #endif
   { nullptr, nullptr, 0, nullptr } };
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Macros used for defining protocol methods
 
 #define REFOBJECT_INTFUNC(prot, op)                                                                \
@@ -449,7 +449,7 @@ static PyMethodDef PyVTKReference_Methods[] = { { "get", PyVTKReference_Get, MET
     return 0;                                                                                      \
   }
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Number protocol
 
 static int PyVTKReference_NonZero(PyObject* ob)
@@ -549,7 +549,7 @@ REFOBJECT_INPLACEFUNC(Number, TrueDivide)
 
 REFOBJECT_UNARYFUNC(Number, Index)
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static PyNumberMethods PyVTKReference_AsNumber = {
   PyVTKReference_Add,      // nb_add
   PyVTKReference_Subtract, // nb_subtract
@@ -607,7 +607,7 @@ static PyNumberMethods PyVTKReference_AsNumber = {
 #endif
 };
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static PyNumberMethods PyVTKStringReference_AsNumber = {
   nullptr, // nb_add
   nullptr, // nb_subtract
@@ -665,7 +665,7 @@ static PyNumberMethods PyVTKStringReference_AsNumber = {
 #endif
 };
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Sequence protocol
 
 REFOBJECT_SIZEFUNC(Sequence, Size)
@@ -677,7 +677,7 @@ REFOBJECT_SLICEFUNC(Sequence, GetSlice)
 #endif
 REFOBJECT_INTFUNC2(Sequence, Contains)
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static PySequenceMethods PyVTKReference_AsSequence = {
   PyVTKReference_Size,    // sq_length
   PyVTKReference_Concat,  // sq_concat
@@ -695,7 +695,7 @@ static PySequenceMethods PyVTKReference_AsSequence = {
   nullptr,                 // sq_inplace_repeat
 };
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Mapping protocol
 
 static PyObject* PyVTKReference_GetMapItem(PyObject* ob, PyObject* key)
@@ -704,14 +704,14 @@ static PyObject* PyVTKReference_GetMapItem(PyObject* ob, PyObject* key)
   return PyObject_GetItem(ob, key);
 }
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static PyMappingMethods PyVTKReference_AsMapping = {
   PyVTKReference_Size,       // mp_length
   PyVTKReference_GetMapItem, // mp_subscript
   nullptr,                   // mp_ass_subscript
 };
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Buffer protocol
 
 #ifndef VTK_PY3K
@@ -820,7 +820,7 @@ static PyBufferProcs PyVTKReference_AsBuffer = {
 #endif
 };
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Object protocol
 
 static void PyVTKReference_Delete(PyObject* ob)
@@ -971,7 +971,7 @@ static PyObject* PyVTKReference_New(PyTypeObject*, PyObject* args, PyObject* kwd
 }
 
 // clang-format off
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 PyTypeObject PyVTKReference_Type = {
   PyVarObject_HEAD_INIT(&PyType_Type, 0)
   "vtkmodules.vtkCommonCore.reference", // tp_name
@@ -1031,7 +1031,7 @@ PyTypeObject PyVTKReference_Type = {
   nullptr,                    // tp_weaklist
   VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED };
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 PyTypeObject PyVTKNumberReference_Type = {
   PyVarObject_HEAD_INIT(&PyType_Type, 0)
   "vtkmodules.vtkCommonCore.number_reference", // tp_name
@@ -1091,7 +1091,7 @@ PyTypeObject PyVTKNumberReference_Type = {
   nullptr,                             // tp_weaklist
   VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED };
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 PyTypeObject PyVTKStringReference_Type = {
   PyVarObject_HEAD_INIT(&PyType_Type, 0)
   "vtkmodules.vtkCommonCore.string_reference", // tp_name
@@ -1151,7 +1151,7 @@ PyTypeObject PyVTKStringReference_Type = {
   nullptr,                             // tp_weaklist
   VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED };
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 PyTypeObject PyVTKTupleReference_Type = {
   PyVarObject_HEAD_INIT(&PyType_Type, 0)
   "vtkmodules.vtkCommonCore.tuple_reference", // tp_name

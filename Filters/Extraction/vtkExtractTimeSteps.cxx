@@ -35,7 +35,7 @@ vtkExtractTimeSteps::vtkExtractTimeSteps()
   this->Range[1] = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractTimeSteps::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -79,7 +79,7 @@ void vtkExtractTimeSteps::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractTimeSteps::AddTimeStepIndex(int timeStepIndex)
 {
   if (this->TimeStepIndices.insert(timeStepIndex).second)
@@ -149,7 +149,7 @@ void getTimeSteps(vtkInformation* inInfo, const std::set<int>& timeStepIndices, 
 
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractTimeSteps::RequestInformation(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -177,7 +177,7 @@ int vtkExtractTimeSteps::RequestInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractTimeSteps::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -243,7 +243,7 @@ int vtkExtractTimeSteps::RequestUpdateExtent(vtkInformation* vtkNotUsed(request)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractTimeSteps::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

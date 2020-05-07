@@ -26,7 +26,7 @@
 
 vtkStandardNewMacro(vtkImplicitPolyDataDistance);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImplicitPolyDataDistance::vtkImplicitPolyDataDistance()
 {
   this->NoClosestPoint[0] = 0.0;
@@ -44,7 +44,7 @@ vtkImplicitPolyDataDistance::vtkImplicitPolyDataDistance()
   this->Tolerance = 1e-12;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPolyDataDistance::SetInput(vtkPolyData* input)
 {
   if (this->Input != input)
@@ -74,7 +74,7 @@ void vtkImplicitPolyDataDistance::SetInput(vtkPolyData* input)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkImplicitPolyDataDistance::GetMTime()
 {
   vtkMTimeType mTime = this->vtkImplicitFunction::GetMTime();
@@ -89,7 +89,7 @@ vtkMTimeType vtkImplicitPolyDataDistance::GetMTime()
   return mTime;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImplicitPolyDataDistance::~vtkImplicitPolyDataDistance()
 {
   if (this->Locator)
@@ -99,7 +99,7 @@ vtkImplicitPolyDataDistance::~vtkImplicitPolyDataDistance()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPolyDataDistance::CreateDefaultLocator()
 {
   if (this->Locator == nullptr)
@@ -108,7 +108,7 @@ void vtkImplicitPolyDataDistance::CreateDefaultLocator()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkImplicitPolyDataDistance::EvaluateFunction(double x[3])
 {
   double g[3];
@@ -117,7 +117,7 @@ double vtkImplicitPolyDataDistance::EvaluateFunction(double x[3])
     x, g, p); // get distance value returned, normal and closest point not used
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkImplicitPolyDataDistance::EvaluateFunctionAndGetClosestPoint(
   double x[3], double closestPoint[3])
 {
@@ -126,7 +126,7 @@ double vtkImplicitPolyDataDistance::EvaluateFunctionAndGetClosestPoint(
                                                    // vtkPolyData stored in p (normal not used).
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPolyDataDistance::EvaluateGradient(double x[3], double g[3])
 {
   double p[3];
@@ -134,7 +134,7 @@ void vtkImplicitPolyDataDistance::EvaluateGradient(double x[3], double g[3])
     x, g, p); // get normal, returned distance value not used and closest point not used
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkImplicitPolyDataDistance::SharedEvaluate(double x[3], double g[3], double closestPoint[3])
 {
   // Set defaults
@@ -335,7 +335,7 @@ double vtkImplicitPolyDataDistance::SharedEvaluate(double x[3], double g[3], dou
   return ret;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPolyDataDistance::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImplicitFunction::PrintSelf(os, indent);

@@ -66,7 +66,7 @@ using std::vector;
 #include <sstream>
 using std::ostringstream;
 using std::string;
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static string mpifn(int rank, const char* fn)
 {
   ostringstream oss;
@@ -160,13 +160,13 @@ private:
   MPI_Op Union;
 };
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPPixelExtentOps::~vtkPPixelExtentOps()
 {
   this->DeleteOps();
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPPixelExtentOps::CreateOps()
 {
   if ((this->Union == MPI_OP_NULL) && vtkPPainterCommunicator::MPIInitialized())
@@ -175,7 +175,7 @@ void vtkPPixelExtentOps::CreateOps()
   }
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPPixelExtentOps::DeleteOps()
 {
   if ((this->Union != MPI_OP_NULL) && vtkPPainterCommunicator::MPIInitialized() &&
@@ -196,7 +196,7 @@ void MPITypeFree(deque<MPI_Datatype>& types)
 }
 
 // ****************************************************************************
-static size_t Size(deque<deque<vtkPixelExtent> > exts)
+static size_t Size(deque<deque<vtkPixelExtent>> exts)
 {
   size_t np = 0;
   size_t nr = exts.size();
@@ -214,7 +214,7 @@ static size_t Size(deque<deque<vtkPixelExtent> > exts)
 
 #if vtkPSurfaceLICCompositeDEBUG >= 1 || defined(vtkSurfaceLICPainterTIME)
 // ****************************************************************************
-static int NumberOfExtents(deque<deque<vtkPixelExtent> > exts)
+static int NumberOfExtents(deque<deque<vtkPixelExtent>> exts)
 {
   size_t ne = 0;
   size_t nr = exts.size();
@@ -243,7 +243,7 @@ static ostream& operator<<(ostream& os, const vector<float>& vf)
 }
 
 // ****************************************************************************
-static ostream& operator<<(ostream& os, const vector<vector<float> >& vvf)
+static ostream& operator<<(ostream& os, const vector<vector<float>>& vvf)
 {
   size_t n = vvf.size();
   for (size_t i = 0; i < n; ++i)
@@ -275,10 +275,10 @@ static int ScanMPIStatusForError(vector<MPI_Status>& stat)
 }
 #endif
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPSurfaceLICComposite);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPSurfaceLICComposite::vtkPSurfaceLICComposite()
   : vtkSurfaceLICComposite()
   , PainterComm(nullptr)
@@ -293,7 +293,7 @@ vtkPSurfaceLICComposite::vtkPSurfaceLICComposite()
   this->PixelOps = new vtkPPixelExtentOps;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPSurfaceLICComposite::~vtkPSurfaceLICComposite()
 {
   delete this->PainterComm;
@@ -309,7 +309,7 @@ vtkPSurfaceLICComposite::~vtkPSurfaceLICComposite()
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPSurfaceLICComposite::SetCommunicator(vtkPainterCommunicator* comm)
 {
 #if DUPLICATE_COMMUNICATOR
@@ -324,7 +324,7 @@ void vtkPSurfaceLICComposite::SetCommunicator(vtkPainterCommunicator* comm)
   this->PixelOps->CreateOps();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPSurfaceLICComposite::SetContext(vtkOpenGLRenderWindow* rwin)
 {
   if (this->Context == rwin)
@@ -362,9 +362,9 @@ void vtkPSurfaceLICComposite::SetContext(vtkOpenGLRenderWindow* rwin)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPSurfaceLICComposite::AllGatherExtents(const deque<vtkPixelExtent>& localExts,
-  deque<deque<vtkPixelExtent> >& remoteExts, vtkPixelExtent& dataSetExt)
+  deque<deque<vtkPixelExtent>>& remoteExts, vtkPixelExtent& dataSetExt)
 {
 #if vtkPSurfaceLICCompositeDEBUG >= 2
   cerr << "=====vtkPSurfaceLICComposite::AllGatherExtents" << endl;
@@ -428,11 +428,11 @@ int vtkPSurfaceLICComposite::AllGatherExtents(const deque<vtkPixelExtent>& local
   return 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPSurfaceLICComposite::AllReduceVectorMax(
-  const deque<vtkPixelExtent>& originalExts,    // local data
-  const deque<deque<vtkPixelExtent> >& newExts, // all composited regions
-  float* vectors, vector<vector<float> >& vectorMax)
+  const deque<vtkPixelExtent>& originalExts,   // local data
+  const deque<deque<vtkPixelExtent>>& newExts, // all composited regions
+  float* vectors, vector<vector<float>>& vectorMax)
 {
 #if vtkPSurfaceLICCompositeDEBUG >= 2
   cerr << "=====vtkPSurfaceLICComposite::AllReduceVectorMax" << endl;
@@ -444,7 +444,7 @@ int vtkPSurfaceLICComposite::AllReduceVectorMax(
   // the true value.
   size_t nOriginal = originalExts.size();
   MPI_Comm comm = *(static_cast<MPI_Comm*>(this->PainterComm->GetCommunicator()));
-  vector<vector<float> > tmpMax(this->CommSize);
+  vector<vector<float>> tmpMax(this->CommSize);
   for (int r = 0; r < this->CommSize; ++r)
   {
     // check the intersection of each new extent with that of each
@@ -512,7 +512,7 @@ int vtkPSurfaceLICComposite::AllReduceVectorMax(
   return 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPSurfaceLICComposite::DecomposeExtent(
   vtkPixelExtent& in, int nPieces, list<vtkPixelExtent>& out)
 {
@@ -580,9 +580,9 @@ int vtkPSurfaceLICComposite::DecomposeExtent(
   return 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPSurfaceLICComposite::DecomposeScreenExtent(
-  deque<deque<vtkPixelExtent> >& newExts, float* vectors)
+  deque<deque<vtkPixelExtent>>& newExts, float* vectors)
 {
 #if vtkPSurfaceLICCompositeDEBUG >= 2
   cerr << "=====vtkPSurfaceLICComposite::DecomposeWindowExtent" << endl;
@@ -613,7 +613,7 @@ int vtkPSurfaceLICComposite::DecomposeScreenExtent(
   int nPer = nPieces / this->CommSize;
   int nLarge = nPieces % this->CommSize;
 
-  deque<deque<vtkPixelExtent> > tmpOut1;
+  deque<deque<vtkPixelExtent>> tmpOut1;
   tmpOut1.resize(this->CommSize);
 
   int N = static_cast<int>(tmpOut0.size());
@@ -641,9 +641,9 @@ int vtkPSurfaceLICComposite::DecomposeScreenExtent(
   return 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPSurfaceLICComposite::MakeDecompLocallyDisjoint(
-  const deque<deque<vtkPixelExtent> >& in, deque<deque<vtkPixelExtent> >& out)
+  const deque<deque<vtkPixelExtent>>& in, deque<deque<vtkPixelExtent>>& out)
 {
   size_t nr = in.size();
   out.clear();
@@ -656,12 +656,12 @@ int vtkPSurfaceLICComposite::MakeDecompLocallyDisjoint(
   return 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPSurfaceLICComposite::MakeDecompDisjoint(
-  const deque<deque<vtkPixelExtent> >& in, deque<deque<vtkPixelExtent> >& out, float* vectors)
+  const deque<deque<vtkPixelExtent>>& in, deque<deque<vtkPixelExtent>>& out, float* vectors)
 {
   // flatten
-  deque<pair<int, vtkPixelExtent> > tmpIn;
+  deque<pair<int, vtkPixelExtent>> tmpIn;
   for (int r = 0; r < this->CommSize; ++r)
   {
     const deque<vtkPixelExtent>& blocks = in[r];
@@ -677,7 +677,7 @@ int vtkPSurfaceLICComposite::MakeDecompDisjoint(
 
   // from largest to smallest, make it disjoint
   // to others
-  deque<pair<int, vtkPixelExtent> > tmpOut0;
+  deque<pair<int, vtkPixelExtent>> tmpOut0;
 
   while (!tmpIn.empty())
   {
@@ -720,7 +720,7 @@ int vtkPSurfaceLICComposite::MakeDecompDisjoint(
   const deque<vtkPixelExtent>& inR = in[this->CommRank];
   size_t ni = inR.size();
 
-  deque<pair<int, vtkPixelExtent> > tmpOut1(tmpOut0);
+  deque<pair<int, vtkPixelExtent>> tmpOut1(tmpOut0);
   size_t ne = tmpOut1.size();
   for (size_t e = 0; e < ne; ++e)
   {
@@ -774,9 +774,9 @@ int vtkPSurfaceLICComposite::MakeDecompDisjoint(
   return 0;
 }
 
-// ----------------------------------------------------------------------------
-int vtkPSurfaceLICComposite::AddGuardPixels(const deque<deque<vtkPixelExtent> >& exts,
-  deque<deque<vtkPixelExtent> >& guardExts, deque<deque<vtkPixelExtent> >& disjointGuardExts,
+//------------------------------------------------------------------------------
+int vtkPSurfaceLICComposite::AddGuardPixels(const deque<deque<vtkPixelExtent>>& exts,
+  deque<deque<vtkPixelExtent>>& guardExts, deque<deque<vtkPixelExtent>>& disjointGuardExts,
   float* vectors)
 {
 #if vtkPSurfaceLICCompositeDEBUG >= 2
@@ -831,7 +831,7 @@ int vtkPSurfaceLICComposite::AddGuardPixels(const deque<deque<vtkPixelExtent> >&
     // when not normailzing during integration we need max(V) on the LIC
     // decomp. Each domain has the potential to require a unique number
     // of guard cells.
-    vector<vector<float> > vectorMax;
+    vector<vector<float>> vectorMax;
     this->AllReduceVectorMax(this->BlockExts, exts, vectors, vectorMax);
 
 #ifdef vtkSurfaceLICPainterTIME
@@ -874,9 +874,9 @@ int vtkPSurfaceLICComposite::AddGuardPixels(const deque<deque<vtkPixelExtent> >&
   return 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkPSurfaceLICComposite::EstimateCommunicationCost(
-  const deque<deque<vtkPixelExtent> >& srcExts, const deque<deque<vtkPixelExtent> >& destExts)
+  const deque<deque<vtkPixelExtent>>& srcExts, const deque<deque<vtkPixelExtent>>& destExts)
 {
   // compute the number off rank overlapping pixels, this is the
   // the number of pixels that need to be communicated. This is
@@ -919,9 +919,9 @@ double vtkPSurfaceLICComposite::EstimateCommunicationCost(
   return (static_cast<double>(overlap)) / (static_cast<double>(total));
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkPSurfaceLICComposite::EstimateDecompEfficiency(
-  const deque<deque<vtkPixelExtent> >& exts, const deque<deque<vtkPixelExtent> >& guardExts)
+  const deque<deque<vtkPixelExtent>>& exts, const deque<deque<vtkPixelExtent>>& guardExts)
 {
   // number of pixels in the domain decomp
   double ne = static_cast<double>(Size(exts));
@@ -932,7 +932,7 @@ double vtkPSurfaceLICComposite::EstimateDecompEfficiency(
   return ne / fabs(ne - nge);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPSurfaceLICComposite::BuildProgram(float* vectors)
 {
 #if vtkPSurfaceLICCompositeDEBUG >= 2
@@ -944,7 +944,7 @@ int vtkPSurfaceLICComposite::BuildProgram(float* vectors)
 #endif
 
   // gather current geometry extents, compute the whole extent
-  deque<deque<vtkPixelExtent> > allBlockExts;
+  deque<deque<vtkPixelExtent>> allBlockExts;
   this->AllGatherExtents(this->BlockExts, allBlockExts, this->DataSetExt);
 
   if (this->Strategy == COMPOSITE_AUTO)
@@ -979,7 +979,7 @@ int vtkPSurfaceLICComposite::BuildProgram(float* vectors)
   }
 
   // decompose the screen
-  deque<deque<vtkPixelExtent> > newExts;
+  deque<deque<vtkPixelExtent>> newExts;
   switch (this->Strategy)
   {
     case COMPOSITE_INPLACE:
@@ -1058,8 +1058,8 @@ int vtkPSurfaceLICComposite::BuildProgram(float* vectors)
 #endif
 
   // add guard cells to the new decomp that prevent artifacts
-  deque<deque<vtkPixelExtent> > guardExts;
-  deque<deque<vtkPixelExtent> > disjointGuardExts;
+  deque<deque<vtkPixelExtent>> guardExts;
+  deque<deque<vtkPixelExtent>> disjointGuardExts;
   this->AddGuardPixels(newExts, guardExts, disjointGuardExts, vectors);
 
 #if vtkPSurfaceLICCompositeDEBUG >= 1
@@ -1130,7 +1130,7 @@ int vtkPSurfaceLICComposite::BuildProgram(float* vectors)
   return 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPSurfaceLICComposite::Gather(
   void* pSendPBO, int dataType, int nComps, vtkTextureObject*& newImage)
 {
@@ -1432,7 +1432,7 @@ int vtkPSurfaceLICComposite::Gather(
   return 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPSurfaceLICComposite::ExecuteShader(const vtkPixelExtent& ext, vtkTextureObject* tex)
 {
   // cell to node
@@ -1463,7 +1463,7 @@ int vtkPSurfaceLICComposite::ExecuteShader(const vtkPixelExtent& ext, vtkTexture
   return 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPSurfaceLICComposite::Scatter(
   void* pSendPBO, int dataType, int nComps, vtkTextureObject*& newImage)
 {
@@ -1649,7 +1649,7 @@ int vtkPSurfaceLICComposite::Scatter(
   return 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPSurfaceLICComposite::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os, indent);

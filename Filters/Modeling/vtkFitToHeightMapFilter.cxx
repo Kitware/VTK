@@ -42,7 +42,7 @@ vtkStandardNewMacro(vtkFitToHeightMapFilter);
 namespace
 {
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The threaded core of the algorithm for projecting points.
 template <typename TPoints, typename TScalars>
 struct FitPoints
@@ -151,7 +151,7 @@ struct FitPoints
   }
 }; // FitPoints
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The threaded core of the algorithm when projecting cells.
 template <typename TScalars>
 struct FitCells
@@ -331,7 +331,7 @@ struct FitCells
 
 } // anonymous namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct object. Two inputs are mandatory.
 vtkFitToHeightMapFilter::vtkFitToHeightMapFilter()
 {
@@ -342,10 +342,10 @@ vtkFitToHeightMapFilter::vtkFitToHeightMapFilter()
   this->Offset = 0.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFitToHeightMapFilter::~vtkFitToHeightMapFilter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkFitToHeightMapFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -480,7 +480,7 @@ int vtkFitToHeightMapFilter::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Based on the fitting strategy, adjust the point coordinates.
 void vtkFitToHeightMapFilter::AdjustPoints(
   vtkPolyData* output, vtkIdType numCells, vtkPoints* newPts)
@@ -563,7 +563,7 @@ void vtkFitToHeightMapFilter::AdjustPoints(
   } // for all cells
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Based on the fitting strategy, adjust the points based on cell height
 // information.
 void vtkFitToHeightMapFilter::AdjustCells(
@@ -590,28 +590,28 @@ void vtkFitToHeightMapFilter::AdjustCells(
   } // for all cells
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify the height map connection
 void vtkFitToHeightMapFilter::SetHeightMapConnection(vtkAlgorithmOutput* algOutput)
 {
   this->SetInputConnection(1, algOutput);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify the height map data
 void vtkFitToHeightMapFilter::SetHeightMapData(vtkImageData* id)
 {
   this->SetInputData(1, id);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get a pointer to a source object at a specified table location.
 vtkImageData* vtkFitToHeightMapFilter::GetHeightMap()
 {
   return vtkImageData::SafeDownCast(this->GetExecutive()->GetInputData(1, 0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageData* vtkFitToHeightMapFilter::GetHeightMap(vtkInformationVector* sourceInfo)
 {
   vtkInformation* info = sourceInfo->GetInformationObject(1);
@@ -622,7 +622,7 @@ vtkImageData* vtkFitToHeightMapFilter::GetHeightMap(vtkInformationVector* source
   return vtkImageData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkFitToHeightMapFilter::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
@@ -641,7 +641,7 @@ int vtkFitToHeightMapFilter::FillInputPortInformation(int port, vtkInformation* 
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFitToHeightMapFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

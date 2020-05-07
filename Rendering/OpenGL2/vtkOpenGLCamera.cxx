@@ -79,7 +79,7 @@ void vtkOpenGLCamera::Render(vtkRenderer* ren)
   vtkOpenGLCheckErrorMacro("failed after Render");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLCamera::UpdateViewport(vtkRenderer* ren)
 {
   vtkOpenGLClearErrorMacro();
@@ -106,7 +106,7 @@ void vtkOpenGLCamera::UpdateViewport(vtkRenderer* ren)
   vtkOpenGLCheckErrorMacro("failed after UpdateViewport");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLCamera::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

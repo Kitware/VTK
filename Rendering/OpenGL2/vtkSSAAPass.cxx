@@ -36,7 +36,7 @@ vtkStandardNewMacro(vtkSSAAPass);
 
 vtkCxxSetObjectMacro(vtkSSAAPass, DelegatePass, vtkRenderPass);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSSAAPass::vtkSSAAPass()
 {
   this->FrameBufferObject = nullptr;
@@ -46,7 +46,7 @@ vtkSSAAPass::vtkSSAAPass()
   this->DelegatePass = nullptr;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSSAAPass::~vtkSSAAPass()
 {
   if (this->DelegatePass != nullptr)
@@ -72,7 +72,7 @@ vtkSSAAPass::~vtkSSAAPass()
   delete this->SSAAProgram;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSSAAPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -88,7 +88,7 @@ void vtkSSAAPass::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Perform rendering according to a render state \p s.
 // \pre s_exists: s!=0
@@ -259,7 +259,7 @@ void vtkSSAAPass::Render(const vtkRenderState* s)
   vtkOpenGLCheckErrorMacro("failed after Render");
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Release graphics resources and ask components to release their own
 // resources.

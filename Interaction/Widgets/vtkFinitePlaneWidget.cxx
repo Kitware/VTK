@@ -27,7 +27,7 @@
 
 vtkStandardNewMacro(vtkFinitePlaneWidget);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFinitePlaneWidget::vtkFinitePlaneWidget()
 {
   this->WidgetState = vtkFinitePlaneWidget::Start;
@@ -43,22 +43,22 @@ vtkFinitePlaneWidget::vtkFinitePlaneWidget()
     vtkCommand::MouseMoveEvent, vtkWidgetEvent::Move, this, vtkFinitePlaneWidget::MoveAction);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFinitePlaneWidget::~vtkFinitePlaneWidget() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFinitePlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFinitePlaneWidget::SetRepresentation(vtkFinitePlaneRepresentation* r)
 {
   this->Superclass::SetWidgetRepresentation(r);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFinitePlaneWidget::SelectAction(vtkAbstractWidget* w)
 {
   // We are in a static method, cast to ourself
@@ -93,7 +93,7 @@ void vtkFinitePlaneWidget::SelectAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFinitePlaneWidget::MoveAction(vtkAbstractWidget* w)
 {
   vtkFinitePlaneWidget* self = reinterpret_cast<vtkFinitePlaneWidget*>(w);
@@ -142,7 +142,7 @@ void vtkFinitePlaneWidget::MoveAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFinitePlaneWidget::EndSelectAction(vtkAbstractWidget* w)
 {
   vtkFinitePlaneWidget* self = reinterpret_cast<vtkFinitePlaneWidget*>(w);
@@ -169,7 +169,7 @@ void vtkFinitePlaneWidget::EndSelectAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFinitePlaneWidget::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)
@@ -178,7 +178,7 @@ void vtkFinitePlaneWidget::CreateDefaultRepresentation()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkFinitePlaneWidget::UpdateCursorShape(int state)
 {
   // So as to change the cursor shape when the mouse is poised over

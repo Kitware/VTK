@@ -21,19 +21,19 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPolyLineSource);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyLineSource::vtkPolyLineSource()
 {
   this->Closed = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyLineSource::~vtkPolyLineSource() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPolyLineSource::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -64,7 +64,7 @@ int vtkPolyLineSource::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyLineSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -1499,7 +1499,7 @@ static const char* TestChartXYInvertedAxisLog = "# StreamVersion 1\n"
                                                 "MouseMoveEvent 121 195 0 0 0 0 0\n"
                                                 "TimerEvent 121 195 0 0 0 0 0\n";
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestChartXYInvertedAxis(int argc, char* argv[])
 {
   // Set up a 2D scene, add an XY chart to it

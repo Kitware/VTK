@@ -31,22 +31,22 @@
 #include "vtkUniformGridAMR.h"
 #include "vtkUniformGridAMRDataIterator.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSelector::vtkSelector()
   : InsidednessArrayName()
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSelector::~vtkSelector() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelector::Initialize(vtkSelectionNode* node)
 {
   this->Node = node;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelector::ProcessBlock(
   vtkDataObject* inputBlock, vtkDataObject* outputBlock, bool forceFalse)
 {
@@ -82,7 +82,7 @@ void vtkSelector::ProcessBlock(
   }
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelector::Execute(vtkDataObject* input, vtkDataObject* output)
 {
   if (vtkCompositeDataSet::SafeDownCast(input))
@@ -113,7 +113,7 @@ void vtkSelector::Execute(vtkDataObject* input, vtkDataObject* output)
   this->ExpandToConnectedElements(output);
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelector::ExpandToConnectedElements(vtkDataObject* output)
 {
   // Expand layers, if requested.
@@ -144,7 +144,7 @@ void vtkSelector::ExpandToConnectedElements(vtkDataObject* output)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelector::ProcessDataObjectTree(vtkDataObjectTree* input, vtkDataObjectTree* output,
   vtkSelector::SelectionMode mode, unsigned int compositeIndex)
 {
@@ -178,7 +178,7 @@ void vtkSelector::ProcessDataObjectTree(vtkDataObjectTree* input, vtkDataObjectT
   iter->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelector::ProcessAMR(vtkUniformGridAMR* input, vtkCompositeDataSet* output)
 {
   auto iter = vtkUniformGridAMRDataIterator::SafeDownCast(input->NewIterator());
@@ -202,7 +202,7 @@ void vtkSelector::ProcessAMR(vtkUniformGridAMR* input, vtkCompositeDataSet* outp
   iter->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSelector::SelectionMode vtkSelector::GetAMRBlockSelection(unsigned int level, unsigned int index)
 {
   auto properties = this->Node->GetProperties();
@@ -232,7 +232,7 @@ vtkSelector::SelectionMode vtkSelector::GetAMRBlockSelection(unsigned int level,
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSelector::SelectionMode vtkSelector::GetBlockSelection(unsigned int compositeIndex)
 {
   auto properties = this->Node->GetProperties();
@@ -260,7 +260,7 @@ vtkSelector::SelectionMode vtkSelector::GetBlockSelection(unsigned int composite
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Creates a new insidedness array with the given number of elements.
 vtkSmartPointer<vtkSignedCharArray> vtkSelector::CreateInsidednessArray(vtkIdType numElems)
 {
@@ -271,7 +271,7 @@ vtkSmartPointer<vtkSignedCharArray> vtkSelector::CreateInsidednessArray(vtkIdTyp
   return darray;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSmartPointer<vtkSignedCharArray> vtkSelector::ComputeCellsContainingSelectedPoints(
   vtkDataObject* data, vtkSignedCharArray* selectedPoints)
 {
@@ -315,7 +315,7 @@ vtkSmartPointer<vtkSignedCharArray> vtkSelector::ComputeCellsContainingSelectedP
   return selectedCells;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelector::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

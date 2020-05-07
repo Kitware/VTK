@@ -25,7 +25,7 @@ vtkOpenVRFollower::vtkOpenVRFollower() {}
 
 vtkOpenVRFollower::~vtkOpenVRFollower() {}
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This causes the actor to be rendered. It, in turn, will render the actor's
 // property and then mapper.
 void vtkOpenVRFollower::Render(vtkRenderer* ren)
@@ -36,7 +36,7 @@ void vtkOpenVRFollower::Render(vtkRenderer* ren)
   this->Superclass::Render(ren);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRFollower::ComputeMatrix()
 {
   // check whether or not need to rebuild the matrix

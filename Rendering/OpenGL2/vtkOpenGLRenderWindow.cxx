@@ -142,7 +142,7 @@ private:
 };
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLRenderWindow::SetGlobalMaximumNumberOfMultiSamples(int val)
 {
   if (val == vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples)
@@ -152,19 +152,19 @@ void vtkOpenGLRenderWindow::SetGlobalMaximumNumberOfMultiSamples(int val)
   vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples = val;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkOpenGLRenderWindow::GetGlobalMaximumNumberOfMultiSamples()
 {
   return vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkOpenGLRenderWindow::GetRenderingBackend()
 {
   return "OpenGL2";
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
 {
   this->State = vtkOpenGLState::New();
@@ -210,7 +210,7 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
 }
 
 // free up memory & close the window
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
 {
   if (this->OffScreenFramebuffer)
@@ -284,7 +284,7 @@ const char* vtkOpenGLRenderWindow::ReportCapabilities()
   return this->Capabilities;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLRenderWindow::ReleaseGraphicsResources(vtkWindow* renWin)
 {
   this->PushContext();
@@ -340,25 +340,25 @@ void vtkOpenGLRenderWindow::ReleaseGraphicsResources(vtkWindow* renWin)
   this->Initialized = false;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkOpenGLRenderWindow::GetContextCreationTime()
 {
   return this->ContextCreationTime.GetMTime();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenGLShaderCache* vtkOpenGLRenderWindow::GetShaderCache()
 {
   return this->GetState()->GetShaderCache();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenGLVertexBufferObjectCache* vtkOpenGLRenderWindow::GetVBOCache()
 {
   return this->GetState()->GetVBOCache();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Return the OpenGL name of the back left buffer.
 // It is GL_BACK_LEFT if GL is bound to the window-system-provided
@@ -370,7 +370,7 @@ unsigned int vtkOpenGLRenderWindow::GetBackLeftBuffer()
   return this->BackLeftBuffer;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Return the OpenGL name of the back right buffer.
 // It is GL_BACK_RIGHT if GL is bound to the window-system-provided
@@ -382,7 +382,7 @@ unsigned int vtkOpenGLRenderWindow::GetBackRightBuffer()
   return this->BackRightBuffer;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Return the OpenGL name of the front left buffer.
 // It is GL_FRONT_LEFT if GL is bound to the window-system-provided
@@ -394,7 +394,7 @@ unsigned int vtkOpenGLRenderWindow::GetFrontLeftBuffer()
   return this->FrontLeftBuffer;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Return the OpenGL name of the front right buffer.
 // It is GL_FRONT_RIGHT if GL is bound to the window-system-provided
@@ -406,7 +406,7 @@ unsigned int vtkOpenGLRenderWindow::GetFrontRightBuffer()
   return this->FrontRightBuffer;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Return the OpenGL name of the back left buffer.
 // It is GL_BACK if GL is bound to the window-system-provided
@@ -418,7 +418,7 @@ unsigned int vtkOpenGLRenderWindow::GetBackBuffer()
   return this->BackLeftBuffer;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Return the OpenGL name of the front left buffer.
 // It is GL_FRONT if GL is bound to the window-system-provided
@@ -516,7 +516,7 @@ void vtkOpenGLRenderWindow::GetOpenGLVersion(int& major, int& minor)
   minor = glMinorVersion;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkOpenGLRenderWindow::InitializeFromCurrentContext()
 {
   int frameBufferBinding = 0;
@@ -552,7 +552,7 @@ bool vtkOpenGLRenderWindow::InitializeFromCurrentContext()
   return true;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLRenderWindow::OpenGLInitContext()
 {
   this->ContextCreationTime.Modified();
@@ -1798,7 +1798,7 @@ int vtkOpenGLRenderWindow::GetTextureUnitForTexture(vtkTextureObject* texture)
   return this->GetState()->GetTextureUnitForTexture(texture);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Create an offScreen window based on OpenGL framebuffer extension.
 // Return if the creation was successful or not.
@@ -1852,7 +1852,7 @@ int vtkOpenGLRenderWindow::CreateOffScreenFramebuffer(int width, int height)
   return 1;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Returns its texture unit manager object. A new one will be created if one
 // hasn't already been set up.
@@ -1861,7 +1861,7 @@ vtkTextureUnitManager* vtkOpenGLRenderWindow::GetTextureUnitManager()
   return this->GetState()->GetTextureUnitManager();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Block the thread until the actual rendering is finished().
 // Useful for measurement only.
@@ -1870,7 +1870,7 @@ void vtkOpenGLRenderWindow::WaitForCompletion()
   glFinish();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLRenderWindow::SaveGLState()
 {
   // For now just query the active texture unit
@@ -1888,7 +1888,7 @@ void vtkOpenGLRenderWindow::SaveGLState()
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLRenderWindow::RestoreGLState()
 {
   // Prevent making GL calls unless we have a valid context
@@ -1902,7 +1902,7 @@ void vtkOpenGLRenderWindow::RestoreGLState()
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkOpenGLRenderWindow::SupportsOpenGL()
 {
   if (this->OpenGLSupportTested)

@@ -17,13 +17,13 @@
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkXMLMultiGroupDataReader);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLMultiGroupDataReader::vtkXMLMultiGroupDataReader() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLMultiGroupDataReader::~vtkXMLMultiGroupDataReader() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLMultiGroupDataReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

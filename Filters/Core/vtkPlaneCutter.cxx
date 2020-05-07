@@ -56,7 +56,7 @@
 vtkObjectFactoryNewMacro(vtkPlaneCutter);
 vtkCxxSetObjectMacro(vtkPlaneCutter, Plane, vtkPlane);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 namespace // begin anonymous namespace
 {
 
@@ -1253,7 +1253,7 @@ static vtkPlaneCutCases VTK_PLANE_CUT_CASES_TRIANGLES[] = {
   { { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 }; /* 255 0 */
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static int edges[12][2] = { { 0, 1 }, { 1, 2 }, { 3, 2 }, { 0, 3 }, { 4, 5 }, { 5, 6 }, { 7, 6 },
   { 4, 7 }, { 0, 4 }, { 1, 5 }, { 3, 7 }, { 2, 6 } };
 
@@ -1622,7 +1622,7 @@ struct RectilinearFunctor : public CuttingFunctor
 
 } // anonymous namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Here is the VTK class proper.
 // Construct object with a single contour value of 0.0.
 vtkPlaneCutter::vtkPlaneCutter()
@@ -1635,13 +1635,13 @@ vtkPlaneCutter::vtkPlaneCutter()
   this->BuildHierarchy = true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPlaneCutter::~vtkPlaneCutter()
 {
   this->SetPlane(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Overload standard modified time function. If the plane definition is modified,
 // then this object is modified as well.
 vtkMTimeType vtkPlaneCutter::GetMTime()
@@ -1658,7 +1658,7 @@ vtkMTimeType vtkPlaneCutter::GetMTime()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Always create multiblock, although it is necessary only with Threading enabled
 int vtkPlaneCutter::RequestDataObject(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
@@ -1674,7 +1674,7 @@ int vtkPlaneCutter::RequestDataObject(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkPlaneCutter::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -1687,7 +1687,7 @@ vtkTypeBool vtkPlaneCutter::ProcessRequest(
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPlaneCutter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -1696,21 +1696,21 @@ int vtkPlaneCutter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPlaneCutter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPlaneCutter::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkDataObject");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method delegates to the appropriate algorithm
 int vtkPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -1774,7 +1774,7 @@ int vtkPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method delegates to the appropriate algorithm
 int vtkPlaneCutter::ExecuteDataSet(
   vtkDataSet* input, vtkSphereTree* tree, vtkMultiPieceDataSet* output)
@@ -1911,7 +1911,7 @@ int vtkPlaneCutter::ExecuteDataSet(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlaneCutter::AddNormalArray(double* planeNormal, vtkDataSet* ds)
 {
   vtkNew<vtkFloatArray> newNormals;
@@ -1925,7 +1925,7 @@ void vtkPlaneCutter::AddNormalArray(double* planeNormal, vtkDataSet* ds)
   ds->GetPointData()->AddArray(newNormals);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlaneCutter::InitializeOutput(vtkMultiPieceDataSet* output)
 {
   // Initialize the multipiece output with as many filler as needed,
@@ -1939,7 +1939,7 @@ void vtkPlaneCutter::InitializeOutput(vtkMultiPieceDataSet* output)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlaneCutter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

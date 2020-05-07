@@ -23,7 +23,7 @@
 
 vtkStandardNewMacro(vtkImageResample);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Constructor: Sets default filter to be identity.
 vtkImageResample::vtkImageResample()
 {
@@ -37,7 +37,7 @@ vtkImageResample::vtkImageResample()
   this->Dimensionality = 3;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageResample::SetOutputSpacing(double sx, double sy, double sz)
 {
   const double spacing[3] = { sx, sy, sz };
@@ -64,7 +64,7 @@ void vtkImageResample::SetOutputSpacing(double sx, double sy, double sz)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageResample::SetAxisOutputSpacing(int axis, double s)
 {
   if (axis < 0 || axis > 2)
@@ -80,7 +80,7 @@ void vtkImageResample::SetAxisOutputSpacing(int axis, double s)
   this->SetOutputSpacing(spacing);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageResample::SetMagnificationFactors(double fx, double fy, double fz)
 {
   const double factors[3] = { fx, fy, fz };
@@ -103,7 +103,7 @@ void vtkImageResample::SetMagnificationFactors(double fx, double fy, double fz)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageResample::SetAxisMagnificationFactor(int axis, double factor)
 {
   if (axis < 0 || axis > 2)
@@ -119,7 +119,7 @@ void vtkImageResample::SetAxisMagnificationFactor(int axis, double factor)
   this->SetMagnificationFactors(factors);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkImageResample::GetAxisMagnificationFactor(int axis, vtkInformation* inInfo)
 {
   if (axis < 0 || axis > 2)
@@ -151,7 +151,7 @@ double vtkImageResample::GetAxisMagnificationFactor(int axis, vtkInformation* in
   return this->MagnificationFactors[axis];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Computes any global image information associated with regions.
 int vtkImageResample::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)

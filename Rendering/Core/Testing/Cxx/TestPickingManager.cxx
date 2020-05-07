@@ -59,7 +59,7 @@ public:
   void PrintErrorMessage(int line, const char* errorStr);
 
 protected:
-  std::pair<vtkSmartPointer<vtkPicker>, vtkSmartPointer<vtkObject> > AddPickerObject(
+  std::pair<vtkSmartPointer<vtkPicker>, vtkSmartPointer<vtkObject>> AddPickerObject(
     int pickerType, int objectType);
 
   bool AddPicker(int pickerType, int objectType, int numberOfPickers, int numberOfObjectsLinked);
@@ -343,7 +343,7 @@ bool PickingManagerTest::TestObjectOwnership()
 }
 
 //------------------------------------------------------------------------------
-std::pair<vtkSmartPointer<vtkPicker>, vtkSmartPointer<vtkObject> >
+std::pair<vtkSmartPointer<vtkPicker>, vtkSmartPointer<vtkObject>>
 PickingManagerTest::AddPickerObject(int pickerType, int objectType)
 {
   vtkSmartPointer<vtkPicker> picker =
@@ -353,7 +353,7 @@ PickingManagerTest::AddPickerObject(int pickerType, int objectType)
 
   this->PickingManager->AddPicker(picker, object);
 
-  return std::pair<vtkSmartPointer<vtkPicker>, vtkSmartPointer<vtkObject> >(picker, object);
+  return std::pair<vtkSmartPointer<vtkPicker>, vtkSmartPointer<vtkObject>>(picker, object);
 }
 
 //------------------------------------------------------------------------------
@@ -428,7 +428,7 @@ bool PickingManagerTest::RemoveObject(
 {
   this->PickingManager = vtkSmartPointer<vtkPickingManager>::New();
 
-  std::pair<vtkSmartPointer<vtkPicker>, vtkSmartPointer<vtkObject> > pickerObject =
+  std::pair<vtkSmartPointer<vtkPicker>, vtkSmartPointer<vtkObject>> pickerObject =
     this->AddPickerObject(pickerType, objectType);
 
   this->PickingManager->RemoveObject(pickerObject.second);

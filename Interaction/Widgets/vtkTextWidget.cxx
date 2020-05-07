@@ -19,13 +19,13 @@
 
 vtkStandardNewMacro(vtkTextWidget);
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTextWidget::vtkTextWidget() = default;
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTextWidget::~vtkTextWidget() = default;
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextWidget::SetTextActor(vtkTextActor* textActor)
 {
   vtkTextRepresentation* textRep = reinterpret_cast<vtkTextRepresentation*>(this->WidgetRep);
@@ -42,7 +42,7 @@ void vtkTextWidget::SetTextActor(vtkTextActor* textActor)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTextActor* vtkTextWidget::GetTextActor()
 {
   vtkTextRepresentation* textRep = reinterpret_cast<vtkTextRepresentation*>(this->WidgetRep);
@@ -56,7 +56,7 @@ vtkTextActor* vtkTextWidget::GetTextActor()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextWidget::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)
@@ -65,7 +65,7 @@ void vtkTextWidget::CreateDefaultRepresentation()
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

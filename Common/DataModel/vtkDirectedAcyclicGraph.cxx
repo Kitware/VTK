@@ -29,19 +29,19 @@
 #include <vector>
 
 vtkStandardNewMacro(vtkDirectedAcyclicGraph);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDirectedAcyclicGraph::vtkDirectedAcyclicGraph() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDirectedAcyclicGraph::~vtkDirectedAcyclicGraph() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDirectedAcyclicGraph* vtkDirectedAcyclicGraph::GetData(vtkInformation* info)
 {
   return info ? vtkDirectedAcyclicGraph::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDirectedAcyclicGraph* vtkDirectedAcyclicGraph::GetData(vtkInformationVector* v, int i)
 {
   return vtkDirectedAcyclicGraph::GetData(v->GetInformationObject(i));
@@ -54,7 +54,7 @@ enum
   DFS_BLACK
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static bool vtkDirectedAcyclicGraphDFSVisit(
   vtkGraph* g, vtkIdType u, std::vector<int> color, vtkOutEdgeIterator* adj)
 {
@@ -79,7 +79,7 @@ static bool vtkDirectedAcyclicGraphDFSVisit(
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkDirectedAcyclicGraph::IsStructureValid(vtkGraph* g)
 {
   if (!g)
@@ -117,7 +117,7 @@ bool vtkDirectedAcyclicGraph::IsStructureValid(vtkGraph* g)
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDirectedAcyclicGraph::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

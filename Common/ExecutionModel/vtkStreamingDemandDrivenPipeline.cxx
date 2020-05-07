@@ -65,7 +65,7 @@ vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, TIME_RANGE, DoubleVecto
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, BOUNDS, DoubleVector);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, TIME_DEPENDENT_INFORMATION, Integer);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkStreamingDemandDrivenPipelineToDataObjectFriendship
 {
 public:
@@ -89,7 +89,7 @@ void vtkSDDPSetUpdateExtentToWholeExtent(vtkInformation* info)
 }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStreamingDemandDrivenPipeline::vtkStreamingDemandDrivenPipeline()
 {
   this->ContinueExecuting = 0;
@@ -101,7 +101,7 @@ vtkStreamingDemandDrivenPipeline::vtkStreamingDemandDrivenPipeline()
   this->LastPropogateUpdateExtentShortCircuited = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStreamingDemandDrivenPipeline::~vtkStreamingDemandDrivenPipeline()
 {
   if (this->UpdateExtentRequest)
@@ -119,13 +119,13 @@ vtkStreamingDemandDrivenPipeline::~vtkStreamingDemandDrivenPipeline()
   this->InformationIterator->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkStreamingDemandDrivenPipeline::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkStreamingDemandDrivenPipeline ::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inInfoVec, vtkInformationVector* outInfoVec)
 {
@@ -368,19 +368,19 @@ vtkTypeBool vtkStreamingDemandDrivenPipeline ::ProcessRequest(
   return this->Superclass::ProcessRequest(request, inInfoVec, outInfoVec);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkStreamingDemandDrivenPipeline::Update()
 {
   return this->Superclass::Update();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkStreamingDemandDrivenPipeline::Update(int port)
 {
   return this->Update(port, nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkStreamingDemandDrivenPipeline::Update(int port, vtkInformationVector* requests)
 {
   if (!this->UpdateInformation())
@@ -425,7 +425,7 @@ vtkTypeBool vtkStreamingDemandDrivenPipeline::Update(int port, vtkInformationVec
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkStreamingDemandDrivenPipeline::UpdateWholeExtent()
 {
   this->UpdateInformation();
@@ -453,7 +453,7 @@ vtkTypeBool vtkStreamingDemandDrivenPipeline::UpdateWholeExtent()
   return this->Update();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline ::ExecuteInformation(
   vtkInformation* request, vtkInformationVector** inInfoVec, vtkInformationVector* outInfoVec)
 {
@@ -491,7 +491,7 @@ int vtkStreamingDemandDrivenPipeline ::ExecuteInformation(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkStreamingDemandDrivenPipeline ::CopyDefaultInformation(vtkInformation* request,
   int direction, vtkInformationVector** inInfoVec, vtkInformationVector* outInfoVec)
 {
@@ -654,7 +654,7 @@ void vtkStreamingDemandDrivenPipeline ::CopyDefaultInformation(vtkInformation* r
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkStreamingDemandDrivenPipeline ::ResetPipelineInformation(int port, vtkInformation* info)
 {
   this->Superclass::ResetPipelineInformation(port, info);
@@ -673,7 +673,7 @@ void vtkStreamingDemandDrivenPipeline ::ResetPipelineInformation(int port, vtkIn
   info->Remove(vtkAlgorithm::CAN_PRODUCE_SUB_EXTENT());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline::PropagateUpdateExtent(int outputPort)
 {
   // The algorithm should not invoke anything on the executive.
@@ -710,7 +710,7 @@ int vtkStreamingDemandDrivenPipeline::PropagateUpdateExtent(int outputPort)
     this->UpdateExtentRequest, this->GetInputInformation(), this->GetOutputInformation());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline::PropagateTime(int outputPort)
 {
   // The algorithm should not invoke anything on the executive.
@@ -746,7 +746,7 @@ int vtkStreamingDemandDrivenPipeline::PropagateTime(int outputPort)
     this->UpdateTimeRequest, this->GetInputInformation(), this->GetOutputInformation());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline::UpdateTimeDependentInformation(int port)
 {
   // The algorithm should not invoke anything on the executive.
@@ -774,7 +774,7 @@ int vtkStreamingDemandDrivenPipeline::UpdateTimeDependentInformation(int port)
     this->GetOutputInformation());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline ::VerifyOutputInformation(
   int outputPort, vtkInformationVector** inInfoVec, vtkInformationVector* outInfoVec)
 {
@@ -884,7 +884,7 @@ int vtkStreamingDemandDrivenPipeline ::VerifyOutputInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkStreamingDemandDrivenPipeline ::ExecuteDataStart(
   vtkInformation* request, vtkInformationVector** inInfoVec, vtkInformationVector* outInfoVec)
 {
@@ -944,7 +944,7 @@ void vtkStreamingDemandDrivenPipeline ::ExecuteDataStart(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkStreamingDemandDrivenPipeline ::ExecuteDataEnd(
   vtkInformation* request, vtkInformationVector** inInfoVec, vtkInformationVector* outInfoVec)
 {
@@ -1024,7 +1024,7 @@ void vtkStreamingDemandDrivenPipeline ::ExecuteDataEnd(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkStreamingDemandDrivenPipeline ::MarkOutputsGenerated(
   vtkInformation* request, vtkInformationVector** inInfoVec, vtkInformationVector* outInfoVec)
 {
@@ -1154,7 +1154,7 @@ void vtkStreamingDemandDrivenPipeline ::MarkOutputsGenerated(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline ::NeedToExecuteData(
   int outputPort, vtkInformationVector** inInfoVec, vtkInformationVector* outInfoVec)
 {
@@ -1288,7 +1288,7 @@ int vtkStreamingDemandDrivenPipeline ::NeedToExecuteData(
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline::NeedToExecuteBasedOnTime(
   vtkInformation* outInfo, vtkDataObject* dataObject)
 {
@@ -1351,7 +1351,7 @@ int vtkStreamingDemandDrivenPipeline::NeedToExecuteBasedOnTime(
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline ::SetWholeExtent(vtkInformation* info, int extent[6])
 {
   if (!info)
@@ -1371,7 +1371,7 @@ int vtkStreamingDemandDrivenPipeline ::SetWholeExtent(vtkInformation* info, int 
   return modified;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkStreamingDemandDrivenPipeline ::GetWholeExtent(vtkInformation* info, int extent[6])
 {
   static int emptyExtent[6] = { 0, -1, 0, -1, 0, -1 };
@@ -1387,7 +1387,7 @@ void vtkStreamingDemandDrivenPipeline ::GetWholeExtent(vtkInformation* info, int
   info->Get(WHOLE_EXTENT(), extent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int* vtkStreamingDemandDrivenPipeline::GetWholeExtent(vtkInformation* info)
 {
   static int emptyExtent[6] = { 0, -1, 0, -1, 0, -1 };
@@ -1412,7 +1412,7 @@ int* vtkStreamingDemandDrivenPipeline::GetWholeExtent(vtkInformation* info)
 #pragma warning(disable : 4996)
 #endif
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkStreamingDemandDrivenPipeline ::GetUpdateExtent(vtkInformation* info, int extent[6])
 {
   static int emptyExtent[6] = { 0, -1, 0, -1, 0, -1 };
@@ -1429,7 +1429,7 @@ void vtkStreamingDemandDrivenPipeline ::GetUpdateExtent(vtkInformation* info, in
   info->Get(UPDATE_EXTENT(), extent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int* vtkStreamingDemandDrivenPipeline ::GetUpdateExtent(vtkInformation* info)
 {
   static int emptyExtent[6] = { 0, -1, 0, -1, 0, -1 };
@@ -1445,7 +1445,7 @@ int* vtkStreamingDemandDrivenPipeline ::GetUpdateExtent(vtkInformation* info)
   return info->Get(UPDATE_EXTENT());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline ::GetUpdatePiece(vtkInformation* info)
 {
   if (!info)
@@ -1460,7 +1460,7 @@ int vtkStreamingDemandDrivenPipeline ::GetUpdatePiece(vtkInformation* info)
   return info->Get(UPDATE_PIECE_NUMBER());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline ::GetUpdateNumberOfPieces(vtkInformation* info)
 {
   if (!info)
@@ -1475,7 +1475,7 @@ int vtkStreamingDemandDrivenPipeline ::GetUpdateNumberOfPieces(vtkInformation* i
   return info->Get(UPDATE_NUMBER_OF_PIECES());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline ::GetUpdateGhostLevel(vtkInformation* info)
 {
   if (!info)
@@ -1490,7 +1490,7 @@ int vtkStreamingDemandDrivenPipeline ::GetUpdateGhostLevel(vtkInformation* info)
   return info->Get(UPDATE_NUMBER_OF_GHOST_LEVELS());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline::SetRequestExactExtent(int port, int flag)
 {
   if (!this->OutputPortIndexInRange(port, "set request exact extent flag on"))
@@ -1506,7 +1506,7 @@ int vtkStreamingDemandDrivenPipeline::SetRequestExactExtent(int port, int flag)
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline::GetRequestExactExtent(int port)
 {
   if (!this->OutputPortIndexInRange(port, "get request exact extent flag from"))

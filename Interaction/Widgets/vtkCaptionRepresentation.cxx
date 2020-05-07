@@ -28,7 +28,7 @@
 
 vtkStandardNewMacro(vtkCaptionRepresentation);
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCaptionRepresentation::vtkCaptionRepresentation()
 {
   this->AnchorRepresentation = vtkPointHandleRepresentation3D::New();
@@ -60,7 +60,7 @@ vtkCaptionRepresentation::vtkCaptionRepresentation()
   this->FontFactor = 1.0;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCaptionRepresentation::~vtkCaptionRepresentation()
 {
   this->SetCaptionActor2D(nullptr);
@@ -68,7 +68,7 @@ vtkCaptionRepresentation::~vtkCaptionRepresentation()
   this->SetAnchorRepresentation(nullptr);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCaptionRepresentation::SetCaptionActor2D(vtkCaptionActor2D* capActor)
 {
   if (capActor != this->CaptionActor2D)
@@ -97,7 +97,7 @@ void vtkCaptionRepresentation::SetCaptionActor2D(vtkCaptionActor2D* capActor)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCaptionRepresentation::SetAnchorRepresentation(vtkPointHandleRepresentation3D* rep)
 {
   if (rep != this->AnchorRepresentation)
@@ -115,20 +115,20 @@ void vtkCaptionRepresentation::SetAnchorRepresentation(vtkPointHandleRepresentat
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCaptionRepresentation::SetAnchorPosition(double pos[3])
 {
   this->CaptionActor2D->GetAttachmentPointCoordinate()->SetValue(pos);
   this->AnchorRepresentation->SetWorldPosition(pos);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCaptionRepresentation::GetAnchorPosition(double pos[3])
 {
   this->CaptionActor2D->GetAttachmentPointCoordinate()->GetValue(pos);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCaptionRepresentation::BuildRepresentation()
 {
   if (this->GetMTime() > this->BuildTime || this->CaptionActor2D->GetMTime() > this->BuildTime ||
@@ -174,7 +174,7 @@ void vtkCaptionRepresentation::BuildRepresentation()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCaptionRepresentation::AdjustCaptionBoundary()
 {
   if (this->CaptionActor2D->GetCaption())
@@ -225,21 +225,21 @@ void vtkCaptionRepresentation::AdjustCaptionBoundary()
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCaptionRepresentation::GetActors2D(vtkPropCollection* pc)
 {
   pc->AddItem(this->CaptionActor2D);
   this->Superclass::GetActors2D(pc);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCaptionRepresentation::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->CaptionActor2D->ReleaseGraphicsResources(w);
   this->Superclass::ReleaseGraphicsResources(w);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCaptionRepresentation::RenderOverlay(vtkViewport* w)
 {
   this->BuildRepresentation();
@@ -248,7 +248,7 @@ int vtkCaptionRepresentation::RenderOverlay(vtkViewport* w)
   return count;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCaptionRepresentation::RenderOpaqueGeometry(vtkViewport* w)
 {
   this->BuildRepresentation();
@@ -257,7 +257,7 @@ int vtkCaptionRepresentation::RenderOpaqueGeometry(vtkViewport* w)
   return count;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCaptionRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport* w)
 {
   this->BuildRepresentation();
@@ -266,7 +266,7 @@ int vtkCaptionRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport* w)
   return count;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry?
 vtkTypeBool vtkCaptionRepresentation::HasTranslucentPolygonalGeometry()
@@ -277,7 +277,7 @@ vtkTypeBool vtkCaptionRepresentation::HasTranslucentPolygonalGeometry()
   return result;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCaptionRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

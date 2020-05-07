@@ -63,26 +63,26 @@ private:
 
 vtkStandardNewMacro(vtkCMLMoleculeReader);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCMLMoleculeReader::vtkCMLMoleculeReader()
   : FileName(nullptr)
 {
   this->SetNumberOfInputPorts(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCMLMoleculeReader::~vtkCMLMoleculeReader()
 {
   this->SetFileName(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMolecule* vtkCMLMoleculeReader::GetOutput()
 {
   return vtkMolecule::SafeDownCast(this->GetOutputDataObject(0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCMLMoleculeReader::SetOutput(vtkMolecule* output)
 {
   this->GetExecutive()->SetOutputData(0, output);

@@ -23,7 +23,7 @@
 
 #include <map>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkSynchronizedRenderWindows::vtkObserver : public vtkCommand
 {
 public:
@@ -58,10 +58,10 @@ public:
   vtkSynchronizedRenderWindows* Target;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 namespace
 {
-typedef std::map<unsigned int, vtkWeakPointer<vtkSynchronizedRenderWindows> >
+typedef std::map<unsigned int, vtkWeakPointer<vtkSynchronizedRenderWindows>>
   GlobalSynRenderWindowsMapType;
 GlobalSynRenderWindowsMapType GlobalSynRenderWindowsMap;
 
@@ -81,10 +81,10 @@ void RenderRMI(
 }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkStandardNewMacro(vtkSynchronizedRenderWindows);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSynchronizedRenderWindows::vtkSynchronizedRenderWindows()
 {
   this->Observer = vtkSynchronizedRenderWindows::vtkObserver::New();
@@ -98,7 +98,7 @@ vtkSynchronizedRenderWindows::vtkSynchronizedRenderWindows()
   this->RootProcessId = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSynchronizedRenderWindows::~vtkSynchronizedRenderWindows()
 {
   this->SetIdentifier(0);
@@ -111,7 +111,7 @@ vtkSynchronizedRenderWindows::~vtkSynchronizedRenderWindows()
   this->Observer = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSynchronizedRenderWindows::SetIdentifier(unsigned int id)
 {
   if (this->Identifier == id)
@@ -139,7 +139,7 @@ void vtkSynchronizedRenderWindows::SetIdentifier(unsigned int id)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSynchronizedRenderWindows::SetRenderWindow(vtkRenderWindow* renWin)
 {
   if (this->RenderWindow != renWin)
@@ -158,7 +158,7 @@ void vtkSynchronizedRenderWindows::SetRenderWindow(vtkRenderWindow* renWin)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSynchronizedRenderWindows::SetParallelController(vtkMultiProcessController* controller)
 {
   if (this->ParallelController == controller)
@@ -175,7 +175,7 @@ void vtkSynchronizedRenderWindows::SetParallelController(vtkMultiProcessControll
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSynchronizedRenderWindows::AbortRender()
 {
   if (this->ParallelRendering && this->ParallelController &&
@@ -185,7 +185,7 @@ void vtkSynchronizedRenderWindows::AbortRender()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSynchronizedRenderWindows::HandleStartRender()
 {
   if (!this->RenderWindow || !this->ParallelRendering || !this->ParallelController ||
@@ -204,7 +204,7 @@ void vtkSynchronizedRenderWindows::HandleStartRender()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSynchronizedRenderWindows::MasterStartRender()
 {
   if (this->RenderEventPropagation)
@@ -227,7 +227,7 @@ void vtkSynchronizedRenderWindows::MasterStartRender()
   this->ParallelController->Broadcast(stream, this->RootProcessId);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSynchronizedRenderWindows::SlaveStartRender()
 {
   vtkMultiProcessStream stream;
@@ -238,7 +238,7 @@ void vtkSynchronizedRenderWindows::SlaveStartRender()
   windowInfo.CopyTo(this->RenderWindow);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSynchronizedRenderWindows::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -266,9 +266,9 @@ void vtkSynchronizedRenderWindows::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // ********* INFO OBJECT METHODS ***************************
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSynchronizedRenderWindows::RenderWindowInfo::Save(vtkMultiProcessStream& stream)
 {
   stream << 1208 << this->WindowSize[0] << this->WindowSize[1] << this->TileScale[0]
@@ -276,7 +276,7 @@ void vtkSynchronizedRenderWindows::RenderWindowInfo::Save(vtkMultiProcessStream&
          << this->TileViewport[2] << this->TileViewport[3] << this->DesiredUpdateRate;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkSynchronizedRenderWindows::RenderWindowInfo::Restore(vtkMultiProcessStream& stream)
 {
   int tag;
@@ -292,7 +292,7 @@ bool vtkSynchronizedRenderWindows::RenderWindowInfo::Restore(vtkMultiProcessStre
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSynchronizedRenderWindows::RenderWindowInfo::CopyFrom(vtkRenderWindow* win)
 {
   this->WindowSize[0] = win->GetActualSize()[0];
@@ -302,7 +302,7 @@ void vtkSynchronizedRenderWindows::RenderWindowInfo::CopyFrom(vtkRenderWindow* w
   win->GetTileViewport(this->TileViewport);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSynchronizedRenderWindows::RenderWindowInfo::CopyTo(vtkRenderWindow* win)
 {
   win->SetSize(this->WindowSize[0], this->WindowSize[1]);

@@ -33,25 +33,25 @@ public:
 //============================================================================
 vtkStandardNewMacro(vtkViewNodeFactory);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkViewNodeFactory::vtkViewNodeFactory()
 {
   this->Internals = new vtkInternals;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkViewNodeFactory::~vtkViewNodeFactory()
 {
   delete this->Internals;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkViewNodeFactory::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkViewNode* vtkViewNodeFactory::CreateNode(vtkObject* who)
 {
   if (!who)
@@ -105,7 +105,7 @@ vtkViewNode* vtkViewNodeFactory::CreateNode(vtkObject* who)
   return vn;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkViewNodeFactory::RegisterOverride(const char* name, vtkViewNode* (*func)())
 {
   this->Internals->Overrides[name] = func;

@@ -26,7 +26,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTestUtilities.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestLegendBoxActor2(int argc, char* argv[])
 {
   // Create the RenderWindow, Renderer and both Actors

@@ -28,17 +28,17 @@
 
 #include "vtkDatabaseToTableReader.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDatabaseToTableReader::vtkDatabaseToTableReader()
 {
   this->Database = nullptr;
   this->SetNumberOfInputPorts(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDatabaseToTableReader::~vtkDatabaseToTableReader() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkDatabaseToTableReader::SetDatabase(vtkSQLDatabase* db)
 {
   if (!db)
@@ -60,7 +60,7 @@ bool vtkDatabaseToTableReader::SetDatabase(vtkSQLDatabase* db)
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkDatabaseToTableReader::SetTableName(const char* name)
 {
   std::string nameStr = name;
@@ -72,7 +72,7 @@ bool vtkDatabaseToTableReader::SetTableName(const char* name)
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkDatabaseToTableReader::CheckIfTableExists()
 {
   if (!this->Database->IsOpen())
@@ -96,7 +96,7 @@ bool vtkDatabaseToTableReader::CheckIfTableExists()
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDatabaseToTableReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

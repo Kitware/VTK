@@ -21,7 +21,7 @@
 
 vtkStandardNewMacro(vtkNewickTreeWriter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkNewickTreeWriter::vtkNewickTreeWriter()
 {
   this->SetFileTypeToASCII();
@@ -33,7 +33,7 @@ vtkNewickTreeWriter::vtkNewickTreeWriter()
   this->NodeNameArray = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNewickTreeWriter::WriteData()
 {
   vtkDebugMacro(<< "Writing vtk tree data...");
@@ -59,7 +59,7 @@ void vtkNewickTreeWriter::WriteData()
   this->CloseVTKFile(fp);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNewickTreeWriter::WriteVertex(ostream* fp, vtkTree* const input, vtkIdType vertex)
 {
   vtkIdType numChildren = input->GetNumberOfChildren(vertex);
@@ -101,26 +101,26 @@ void vtkNewickTreeWriter::WriteVertex(ostream* fp, vtkTree* const input, vtkIdTy
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkNewickTreeWriter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTree");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTree* vtkNewickTreeWriter::GetInput()
 {
   return vtkTree::SafeDownCast(this->Superclass::GetInput());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTree* vtkNewickTreeWriter::GetInput(int port)
 {
   return vtkTree::SafeDownCast(this->Superclass::GetInput(port));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNewickTreeWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

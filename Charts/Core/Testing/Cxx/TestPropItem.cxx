@@ -39,7 +39,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkTextProperty.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestPropItem(int argc, char* argv[])
 {
   // Prepare some data for plotting:

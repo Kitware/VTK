@@ -28,7 +28,7 @@ using std::string;
 
 vtkStandardNewMacro(vtkXMLDataElement);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLDataElement::vtkXMLDataElement()
 {
   this->Name = nullptr;
@@ -59,7 +59,7 @@ vtkXMLDataElement::vtkXMLDataElement()
   this->IgnoreCharacterData = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLDataElement::~vtkXMLDataElement()
 {
   this->SetName(nullptr);
@@ -75,7 +75,7 @@ vtkXMLDataElement::~vtkXMLDataElement()
   free(this->CharacterData);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLDataElement::RemoveAttribute(const char* name)
 {
   if (!name || !name[0])
@@ -113,7 +113,7 @@ void vtkXMLDataElement::RemoveAttribute(const char* name)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLDataElement::RemoveAllAttributes()
 {
   for (int i = 0; i < this->NumberOfAttributes; ++i)
@@ -124,7 +124,7 @@ void vtkXMLDataElement::RemoveAllAttributes()
   this->NumberOfAttributes = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLDataElement::RemoveAllNestedElements()
 {
   for (int i = 0; i < this->NumberOfNestedElements; ++i)
@@ -134,7 +134,7 @@ void vtkXMLDataElement::RemoveAllNestedElements()
   this->NumberOfNestedElements = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLDataElement::SetName(const char* _arg)
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting Name to "
@@ -174,7 +174,7 @@ void vtkXMLDataElement::SetName(const char* _arg)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLDataElement::SetCharacterData(const char* data, int length)
 {
   // Sanity check.
@@ -204,7 +204,7 @@ void vtkXMLDataElement::SetCharacterData(const char* data, int length)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLDataElement::SetAttribute(const char* name, const char* value)
 {
   if (!name || !name[0] || !value || !value[0])
@@ -257,7 +257,7 @@ void vtkXMLDataElement::SetAttribute(const char* name, const char* value)
   strcpy(this->AttributeValues[i], value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLDataElement::AddNestedElement(vtkXMLDataElement* element)
 {
   if (!element)
@@ -285,7 +285,7 @@ void vtkXMLDataElement::AddNestedElement(vtkXMLDataElement* element)
   element->SetParent(this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLDataElement::RemoveNestedElement(vtkXMLDataElement* element)
 {
   if (!element)
@@ -308,7 +308,7 @@ void vtkXMLDataElement::RemoveNestedElement(vtkXMLDataElement* element)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXMLDataElement::GetAttribute(const char* name)
 {
   if (!name)
@@ -327,7 +327,7 @@ const char* vtkXMLDataElement::GetAttribute(const char* name)
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXMLDataElement::GetAttributeName(int idx)
 {
   if (idx < 0 || idx >= this->NumberOfAttributes)
@@ -338,7 +338,7 @@ const char* vtkXMLDataElement::GetAttributeName(int idx)
   return this->AttributeNames[idx];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXMLDataElement::GetAttributeValue(int idx)
 {
   if (idx < 0 || idx >= this->NumberOfAttributes)
@@ -349,7 +349,7 @@ const char* vtkXMLDataElement::GetAttributeValue(int idx)
   return this->AttributeValues[idx];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Limits the width of a stream of character data,
 // by inserting new lines and indenting properly.
 void vtkXMLDataElement::PrintCharacterData(ostream& os, vtkIndent indent)
@@ -398,7 +398,7 @@ void vtkXMLDataElement::PrintCharacterData(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // print out data while replacing XML special characters <, >, &, ", ' with
 // &lt;, &gt;, &amp;, &quot;, &apos;, respectively.
 void vtkXMLDataElement::PrintWithEscapedData(ostream& os, const char* data)
@@ -440,7 +440,7 @@ void vtkXMLDataElement::PrintWithEscapedData(ostream& os, const char* data)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLDataElement::PrintXML(const char* fname)
 {
   vtksys::ofstream of(fname);
@@ -448,7 +448,7 @@ void vtkXMLDataElement::PrintXML(const char* fname)
   this->PrintXML(of, vtkIndent());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLDataElement::PrintXML(ostream& os, vtkIndent indent)
 {
   vtkIndent nextIndent = indent.GetNextIndent();
@@ -484,19 +484,19 @@ void vtkXMLDataElement::PrintXML(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLDataElement::SetParent(vtkXMLDataElement* parent)
 {
   this->Parent = parent;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLDataElement* vtkXMLDataElement::GetParent()
 {
   return this->Parent;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLDataElement* vtkXMLDataElement::GetRoot()
 {
   if (!this->Parent)
@@ -506,13 +506,13 @@ vtkXMLDataElement* vtkXMLDataElement::GetRoot()
   return this->Parent->GetRoot();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLDataElement::GetNumberOfNestedElements()
 {
   return this->NumberOfNestedElements;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLDataElement* vtkXMLDataElement::GetNestedElement(int index)
 {
   if (index >= 0 && index < this->NumberOfNestedElements)
@@ -522,7 +522,7 @@ vtkXMLDataElement* vtkXMLDataElement::GetNestedElement(int index)
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLDataElement* vtkXMLDataElement::FindNestedElementWithName(const char* name)
 {
   if (!name)
@@ -542,7 +542,7 @@ vtkXMLDataElement* vtkXMLDataElement::FindNestedElementWithName(const char* name
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLDataElement* vtkXMLDataElement::FindNestedElementWithNameAndId(
   const char* name, const char* id)
 {
@@ -564,7 +564,7 @@ vtkXMLDataElement* vtkXMLDataElement::FindNestedElementWithNameAndId(
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLDataElement* vtkXMLDataElement::FindNestedElementWithNameAndAttribute(
   const char* name, const char* att_name, const char* att_value)
 {
@@ -589,13 +589,13 @@ vtkXMLDataElement* vtkXMLDataElement::FindNestedElementWithNameAndAttribute(
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLDataElement* vtkXMLDataElement::LookupElement(const char* id)
 {
   return this->LookupElementUpScope(id);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLDataElement* vtkXMLDataElement::FindNestedElement(const char* id)
 {
   if (!id)
@@ -615,7 +615,7 @@ vtkXMLDataElement* vtkXMLDataElement::FindNestedElement(const char* id)
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLDataElement* vtkXMLDataElement::LookupElementInScope(const char* id)
 {
   if (!id)
@@ -644,7 +644,7 @@ vtkXMLDataElement* vtkXMLDataElement::LookupElementInScope(const char* id)
   return next;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLDataElement* vtkXMLDataElement::LookupElementUpScope(const char* id)
 {
   if (!id)
@@ -678,7 +678,7 @@ vtkXMLDataElement* vtkXMLDataElement::LookupElementUpScope(const char* id)
   return start;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLDataElement* vtkXMLDataElement::LookupElementWithName(const char* name)
 {
   if (!name)
@@ -703,37 +703,37 @@ vtkXMLDataElement* vtkXMLDataElement::LookupElementWithName(const char* name)
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLDataElement::GetScalarAttribute(const char* name, int& value)
 {
   return this->GetVectorAttribute(name, 1, &value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLDataElement::GetScalarAttribute(const char* name, float& value)
 {
   return this->GetVectorAttribute(name, 1, &value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLDataElement::GetScalarAttribute(const char* name, double& value)
 {
   return this->GetVectorAttribute(name, 1, &value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLDataElement::GetScalarAttribute(const char* name, long& value)
 {
   return this->GetVectorAttribute(name, 1, &value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLDataElement::GetScalarAttribute(const char* name, unsigned long& value)
 {
   return this->GetVectorAttribute(name, 1, &value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLDataElement::GetScalarAttribute(const char* name, long long& value)
 {
   return this->GetVectorAttribute(name, 1, &value);
@@ -743,7 +743,7 @@ int vtkXMLDataElement::GetScalarAttribute(const char* name, unsigned long long& 
   return this->GetVectorAttribute(name, 1, &value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T>
 int vtkXMLDataElementVectorAttributeParse(const char* str, int length, T* data)
 {
@@ -771,37 +771,37 @@ int vtkXMLDataElementVectorAttributeParse(const char* str, int length, T* data)
   return length;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLDataElement::GetVectorAttribute(const char* name, int length, int* data)
 {
   return vtkXMLDataElementVectorAttributeParse(this->GetAttribute(name), length, data);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLDataElement::GetVectorAttribute(const char* name, int length, float* data)
 {
   return vtkXMLDataElementVectorAttributeParse(this->GetAttribute(name), length, data);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLDataElement::GetVectorAttribute(const char* name, int length, double* data)
 {
   return vtkXMLDataElementVectorAttributeParse(this->GetAttribute(name), length, data);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLDataElement::GetVectorAttribute(const char* name, int length, long* data)
 {
   return vtkXMLDataElementVectorAttributeParse(this->GetAttribute(name), length, data);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLDataElement::GetVectorAttribute(const char* name, int length, unsigned long* data)
 {
   return vtkXMLDataElementVectorAttributeParse(this->GetAttribute(name), length, data);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLDataElement::GetVectorAttribute(const char* name, int length, long long* data)
 {
   return vtkXMLDataElementVectorAttributeParse(this->GetAttribute(name), length, data);
@@ -811,7 +811,7 @@ int vtkXMLDataElement::GetVectorAttribute(const char* name, int length, unsigned
   return vtkXMLDataElementVectorAttributeParse(this->GetAttribute(name), length, data);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLDataElement::GetWordTypeAttribute(const char* name, int& value)
 {
   // These string values must match vtkXMLWriter::GetWordTypeName().
@@ -985,31 +985,31 @@ int vtkXMLDataElement::GetWordTypeAttribute(const char* name, int& value)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLDataElement::SetIntAttribute(const char* name, int value)
 {
   this->SetVectorAttribute(name, 1, &value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLDataElement::SetFloatAttribute(const char* name, float value)
 {
   this->SetVectorAttribute(name, 1, &value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLDataElement::SetDoubleAttribute(const char* name, double value)
 {
   this->SetVectorAttribute(name, 1, &value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLDataElement::SetUnsignedLongAttribute(const char* name, unsigned long value)
 {
   this->SetVectorAttribute(name, 1, &value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T>
 void vtkXMLDataElementVectorAttributeSet(
   vtkXMLDataElement* elem, const char* name, int length, const T* data)
@@ -1029,31 +1029,31 @@ void vtkXMLDataElementVectorAttributeSet(
   elem->SetAttribute(name, vstr.str().c_str());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLDataElement::SetVectorAttribute(const char* name, int length, const int* data)
 {
   vtkXMLDataElementVectorAttributeSet(this, name, length, data);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLDataElement::SetVectorAttribute(const char* name, int length, const float* data)
 {
   vtkXMLDataElementVectorAttributeSet(this, name, length, data);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLDataElement::SetVectorAttribute(const char* name, int length, const double* data)
 {
   vtkXMLDataElementVectorAttributeSet(this, name, length, data);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLDataElement::SetVectorAttribute(const char* name, int length, const unsigned long* data)
 {
   vtkXMLDataElementVectorAttributeSet(this, name, length, data);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLDataElement::SetVectorAttribute(const char* name, int length, long long const* data)
 {
   vtkXMLDataElementVectorAttributeSet(this, name, length, data);
@@ -1064,13 +1064,13 @@ void vtkXMLDataElement::SetVectorAttribute(
   vtkXMLDataElementVectorAttributeSet(this, name, length, data);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLDataElement::IsSpace(char c)
 {
   return isspace(c);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLDataElement::IsEqualTo(vtkXMLDataElement* elem)
 {
   if (this == elem)
@@ -1119,7 +1119,7 @@ int vtkXMLDataElement::IsEqualTo(vtkXMLDataElement* elem)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLDataElement::DeepCopy(vtkXMLDataElement* elem)
 {
   if (!elem)
@@ -1159,7 +1159,7 @@ void vtkXMLDataElement::DeepCopy(vtkXMLDataElement* elem)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLDataElement::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

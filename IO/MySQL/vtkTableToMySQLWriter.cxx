@@ -23,19 +23,19 @@
 
 #include "vtkTableToMySQLWriter.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkTableToMySQLWriter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTableToMySQLWriter::vtkTableToMySQLWriter()
 {
   this->Database = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTableToMySQLWriter::~vtkTableToMySQLWriter() {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTableToMySQLWriter::WriteData()
 {
   // Make sure we have all the information we need to create a MySQL table
@@ -140,26 +140,26 @@ void vtkTableToMySQLWriter::WriteData()
   return;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTableToMySQLWriter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTable* vtkTableToMySQLWriter::GetInput()
 {
   return vtkTable::SafeDownCast(this->Superclass::GetInput());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTable* vtkTableToMySQLWriter::GetInput(int port)
 {
   return vtkTable::SafeDownCast(this->Superclass::GetInput(port));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTableToMySQLWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

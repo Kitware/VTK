@@ -490,7 +490,7 @@ protected:
   unsigned int SelectionColorId;
 
   bool CullingAndLOD = false; // Disable culling
-  std::vector<std::pair<float, float> > LODs;
+  std::vector<std::pair<float, float>> LODs;
   bool LODColoring = false;
 
 private:

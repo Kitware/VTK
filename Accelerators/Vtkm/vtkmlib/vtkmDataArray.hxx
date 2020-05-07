@@ -262,7 +262,7 @@ private:
   using ArrayHandleType = vtkm::cont::ArrayHandle<T>;
   using PortalType = typename ArrayHandleType::PortalControl;
   using VtkmArrayType = vtkm::cont::ArrayHandleGroupVecVariable<ArrayHandleType,
-    vtkm::cont::ArrayHandleCounting<vtkm::Id> >;
+    vtkm::cont::ArrayHandleCounting<vtkm::Id>>;
 
 public:
   explicit ArrayHandleWrapperFlatSOA(const ArrayHandleType& handle, int numberOfComponents)
@@ -366,7 +366,7 @@ template <typename T, typename S>
 ArrayHandleWrapperBase<typename FlattenVec<T>::ComponentType>* MakeArrayHandleWrapper(
   const vtkm::cont::ArrayHandle<T, S>& ah)
 {
-  return WrapArrayHandle(ah, typename IsReadOnly<vtkm::cont::ArrayHandle<T, S> >::type{});
+  return WrapArrayHandle(ah, typename IsReadOnly<vtkm::cont::ArrayHandle<T, S>>::type{});
 }
 
 template <typename T>
@@ -382,19 +382,19 @@ ArrayHandleWrapperBase<T>* MakeArrayHandleWrapper(vtkIdType numberOfTuples, int 
     }
     case 2:
     {
-      vtkm::cont::ArrayHandle<vtkm::Vec<T, 2> > ah;
+      vtkm::cont::ArrayHandle<vtkm::Vec<T, 2>> ah;
       ah.Allocate(numberOfTuples);
       return MakeArrayHandleWrapper(ah);
     }
     case 3:
     {
-      vtkm::cont::ArrayHandle<vtkm::Vec<T, 3> > ah;
+      vtkm::cont::ArrayHandle<vtkm::Vec<T, 3>> ah;
       ah.Allocate(numberOfTuples);
       return MakeArrayHandleWrapper(ah);
     }
     case 4:
     {
-      vtkm::cont::ArrayHandle<vtkm::Vec<T, 4> > ah;
+      vtkm::cont::ArrayHandle<vtkm::Vec<T, 4>> ah;
       ah.Allocate(numberOfTuples);
       return MakeArrayHandleWrapper(ah);
     }

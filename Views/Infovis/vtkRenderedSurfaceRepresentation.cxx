@@ -44,7 +44,7 @@
 #include "vtkViewTheme.h"
 
 vtkStandardNewMacro(vtkRenderedSurfaceRepresentation);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRenderedSurfaceRepresentation::vtkRenderedSurfaceRepresentation()
 {
   this->TransformFilter = vtkTransformFilter::New();
@@ -73,7 +73,7 @@ vtkRenderedSurfaceRepresentation::vtkRenderedSurfaceRepresentation()
   this->ApplyViewTheme(theme);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRenderedSurfaceRepresentation::~vtkRenderedSurfaceRepresentation()
 {
   this->TransformFilter->Delete();
@@ -84,7 +84,7 @@ vtkRenderedSurfaceRepresentation::~vtkRenderedSurfaceRepresentation()
   this->SetCellColorArrayNameInternal(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkRenderedSurfaceRepresentation::RequestData(
   vtkInformation*, vtkInformationVector**, vtkInformationVector*)
 {
@@ -93,14 +93,14 @@ int vtkRenderedSurfaceRepresentation::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderedSurfaceRepresentation::PrepareForRendering(vtkRenderView* view)
 {
   this->Superclass::PrepareForRendering(view);
   this->TransformFilter->SetTransform(view->GetTransform());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkRenderedSurfaceRepresentation::AddToView(vtkView* view)
 {
   vtkRenderView* rv = vtkRenderView::SafeDownCast(view);
@@ -113,7 +113,7 @@ bool vtkRenderedSurfaceRepresentation::AddToView(vtkView* view)
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkRenderedSurfaceRepresentation::RemoveFromView(vtkView* view)
 {
   vtkRenderView* rv = vtkRenderView::SafeDownCast(view);
@@ -125,7 +125,7 @@ bool vtkRenderedSurfaceRepresentation::RemoveFromView(vtkView* view)
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSelection* vtkRenderedSurfaceRepresentation::ConvertSelection(
   vtkView* vtkNotUsed(view), vtkSelection* selection)
 {
@@ -176,7 +176,7 @@ vtkSelection* vtkRenderedSurfaceRepresentation::ConvertSelection(
   return converted;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderedSurfaceRepresentation::SetCellColorArrayName(const char* arrayName)
 {
   this->SetCellColorArrayNameInternal(arrayName);
@@ -184,7 +184,7 @@ void vtkRenderedSurfaceRepresentation::SetCellColorArrayName(const char* arrayNa
     1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, arrayName);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderedSurfaceRepresentation::ApplyViewTheme(vtkViewTheme* theme)
 {
   this->Superclass::ApplyViewTheme(theme);
@@ -214,7 +214,7 @@ void vtkRenderedSurfaceRepresentation::ApplyViewTheme(vtkViewTheme* theme)
   // this->EdgeTextProperty->SetColor(theme->GetEdgeLabelColor());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderedSurfaceRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

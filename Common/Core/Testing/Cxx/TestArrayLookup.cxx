@@ -51,7 +51,7 @@ vtkIdType LookupValue(std::multimap<int, vtkIdType>& lookup, int value)
   return -1;
 }
 
-vtkIdType LookupValue(std::vector<std::pair<int, vtkIdType> >& lookup, int value)
+vtkIdType LookupValue(std::vector<std::pair<int, vtkIdType>>& lookup, int value)
 {
   NodeCompare comp;
   std::pair<int, vtkIdType> val(value, 0);
@@ -638,7 +638,7 @@ int TestArrayLookupInt(vtkIdType numVal, bool runComparison)
     // Time lookup creation
     timer->StartTimer();
     ptr = arr->GetPointer(0);
-    std::vector<std::pair<int, vtkIdType> > vec(arrSize);
+    std::vector<std::pair<int, vtkIdType>> vec(arrSize);
     for (vtkIdType i = 0; i < arrSize; ++i, ++ptr)
     {
       vec[i] = std::pair<int, vtkIdType>(*ptr, i);

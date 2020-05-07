@@ -33,7 +33,7 @@
 #include <set>
 #include <sstream>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkTRUCHASReader::Internal
 {
 public:
@@ -713,7 +713,7 @@ public:
   std::map<std::string, bool> array_isFloat;
   vtkPointData* PointData;
 
-  std::map<int, std::vector<int> > part_to_blocks; // part id to list of blocks
+  std::map<int, std::vector<int>> part_to_blocks; // part id to list of blocks
 
 private:
   hid_t FileIndx;
@@ -734,10 +734,10 @@ private:
   hid_t ArrayNameFileIndx;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkTRUCHASReader);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTRUCHASReader::vtkTRUCHASReader()
   : vtkMultiBlockDataSetAlgorithm()
 {
@@ -751,7 +751,7 @@ vtkTRUCHASReader::vtkTRUCHASReader()
   this->SetNumberOfOutputPorts(1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTRUCHASReader::~vtkTRUCHASReader()
 {
   delete this->Internals;
@@ -762,7 +762,7 @@ vtkTRUCHASReader::~vtkTRUCHASReader()
   this->CellArrayChoices->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTRUCHASReader::RequestInformation(
   vtkInformation* reqInfo, vtkInformationVector** inVector, vtkInformationVector* outVector)
 {
@@ -804,7 +804,7 @@ int vtkTRUCHASReader::RequestInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTRUCHASReader::RequestData(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
@@ -1160,7 +1160,7 @@ int vtkTRUCHASReader::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTRUCHASReader::CanReadFile(const char* filename)
 {
   size_t len = strlen(filename);
@@ -1225,20 +1225,20 @@ int vtkTRUCHASReader::CanReadFile(const char* filename)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTRUCHASReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "File Name: " << (this->FileName ? this->FileName : "(none)") << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTRUCHASReader::GetNumberOfBlockArrays()
 {
   return this->BlockChoices->GetNumberOfArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTRUCHASReader::SetBlockArrayStatus(const char* gridname, int status)
 {
   if (status != 0)
@@ -1252,25 +1252,25 @@ void vtkTRUCHASReader::SetBlockArrayStatus(const char* gridname, int status)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTRUCHASReader::GetBlockArrayStatus(const char* arrayname)
 {
   return this->BlockChoices->ArrayIsEnabled(arrayname);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkTRUCHASReader::GetBlockArrayName(int index)
 {
   return this->BlockChoices->GetArrayName(index);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTRUCHASReader::GetNumberOfPointArrays()
 {
   return this->PointArrayChoices->GetNumberOfArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTRUCHASReader::SetPointArrayStatus(const char* gridname, int status)
 {
   if (status != 0)
@@ -1284,25 +1284,25 @@ void vtkTRUCHASReader::SetPointArrayStatus(const char* gridname, int status)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTRUCHASReader::GetPointArrayStatus(const char* arrayname)
 {
   return this->PointArrayChoices->ArrayIsEnabled(arrayname);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkTRUCHASReader::GetPointArrayName(int index)
 {
   return this->PointArrayChoices->GetArrayName(index);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTRUCHASReader::GetNumberOfCellArrays()
 {
   return this->CellArrayChoices->GetNumberOfArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTRUCHASReader::SetCellArrayStatus(const char* gridname, int status)
 {
   if (status != 0)
@@ -1316,13 +1316,13 @@ void vtkTRUCHASReader::SetCellArrayStatus(const char* gridname, int status)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTRUCHASReader::GetCellArrayStatus(const char* arrayname)
 {
   return this->CellArrayChoices->ArrayIsEnabled(arrayname);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkTRUCHASReader::GetCellArrayName(int index)
 {
   return this->CellArrayChoices->GetArrayName(index);

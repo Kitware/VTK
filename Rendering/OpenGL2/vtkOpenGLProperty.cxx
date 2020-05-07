@@ -32,7 +32,7 @@ vtkOpenGLProperty::vtkOpenGLProperty() = default;
 
 vtkOpenGLProperty::~vtkOpenGLProperty() = default;
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Implement base class method.
 void vtkOpenGLProperty::Render(vtkActor* anActor, vtkRenderer* ren)
 {
@@ -57,7 +57,7 @@ void vtkOpenGLProperty::Render(vtkActor* anActor, vtkRenderer* ren)
   this->Superclass::Render(anActor, ren);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkOpenGLProperty::RenderTextures(vtkActor*, vtkRenderer* ren)
 {
   // render any textures.
@@ -72,7 +72,7 @@ bool vtkOpenGLProperty::RenderTextures(vtkActor*, vtkRenderer* ren)
   return (!textures.empty());
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLProperty::PostRender(vtkActor* actor, vtkRenderer* renderer)
 {
   vtkOpenGLClearErrorMacro();
@@ -95,13 +95,13 @@ void vtkOpenGLProperty::PostRender(vtkActor* actor, vtkRenderer* renderer)
   vtkOpenGLCheckErrorMacro("failed after PostRender");
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Implement base class method.
 void vtkOpenGLProperty::BackfaceRender(vtkActor* vtkNotUsed(anActor), vtkRenderer* vtkNotUsed(ren))
 {
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLProperty::ReleaseGraphicsResources(vtkWindow* win)
 {
   // release any textures.
@@ -114,7 +114,7 @@ void vtkOpenGLProperty::ReleaseGraphicsResources(vtkWindow* win)
   this->Superclass::ReleaseGraphicsResources(win);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLProperty::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

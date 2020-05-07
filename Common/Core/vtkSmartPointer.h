@@ -59,7 +59,10 @@ public:
   /**
    * Initialize smart pointer to nullptr.
    */
-  vtkSmartPointer() noexcept : vtkSmartPointerBase() {}
+  vtkSmartPointer() noexcept
+    : vtkSmartPointerBase()
+  {
+  }
 
   /**
    * Initialize smart pointer with a new reference to the same object
@@ -85,10 +88,14 @@ public:
    * @{
    */
   // Need both overloads because the move-constructor must be non-templated:
-  vtkSmartPointer(vtkSmartPointer&& r) noexcept : vtkSmartPointerBase(std::move(r)) {}
+  vtkSmartPointer(vtkSmartPointer&& r) noexcept
+    : vtkSmartPointerBase(std::move(r))
+  {
+  }
 
   template <class U>
-  vtkSmartPointer(vtkSmartPointer<U>&& r) noexcept : vtkSmartPointerBase(std::move(r))
+  vtkSmartPointer(vtkSmartPointer<U>&& r) noexcept
+    : vtkSmartPointerBase(std::move(r))
   {
     vtkSmartPointer::CheckTypes<U>();
   }

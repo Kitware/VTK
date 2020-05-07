@@ -33,7 +33,7 @@
 
 vtkStandardNewMacro(vtkFastSplatter);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkFastSplatter::vtkFastSplatter()
 {
@@ -79,7 +79,7 @@ void vtkFastSplatter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NumberOfPointsSplatted: " << this->NumberOfPointsSplatted << endl;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkFastSplatter::FillInputPortInformation(int port, vtkInformation* info)
 {
@@ -97,7 +97,7 @@ int vtkFastSplatter::FillInputPortInformation(int port, vtkInformation* info)
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 // For those familiar with the old pipeline, this is equivalent to the
 // ExecuteInformation method.
@@ -154,7 +154,7 @@ int vtkFastSplatter::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkFastSplatter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -197,7 +197,7 @@ int vtkFastSplatter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 template <class T>
 void vtkFastSplatterBucketPoints(const T* points, vtkIdType numPoints, unsigned int* buckets,
@@ -229,7 +229,7 @@ void vtkFastSplatterBucketPoints(const T* points, vtkIdType numPoints, unsigned 
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 template <class T>
 void vtkFastSplatterConvolve(T* splat, const int splatDims[3], unsigned int* buckets, T* output,
@@ -317,7 +317,7 @@ void vtkFastSplatterConvolve(T* splat, const int splatDims[3], unsigned int* buc
   *numPointsSplatted = numPoints;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 // For those of you familiar with the old pipeline, this is equivalent to the
 // Execute method.

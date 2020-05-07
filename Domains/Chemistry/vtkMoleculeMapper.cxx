@@ -50,7 +50,7 @@
 // also check that class for impacts.
 vtkObjectFactoryNewMacro(vtkMoleculeMapper);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMoleculeMapper::vtkMoleculeMapper()
   : RenderAtoms(true)
   , AtomicRadiusType(VDWRadius)
@@ -135,26 +135,26 @@ vtkMoleculeMapper::vtkMoleculeMapper()
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, "Atomic Numbers");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMoleculeMapper::~vtkMoleculeMapper()
 {
   this->SetLookupTable(nullptr);
   this->SetAtomicRadiusArrayName(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMoleculeMapper::SetInputData(vtkMolecule* input)
 {
   this->SetInputDataInternal(0, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMolecule* vtkMoleculeMapper::GetInput()
 {
   return vtkMolecule::SafeDownCast(this->GetExecutive()->GetInputData(0, 0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMoleculeMapper::UseBallAndStickSettings()
 {
   this->SetRenderAtoms(true);
@@ -167,7 +167,7 @@ void vtkMoleculeMapper::UseBallAndStickSettings()
   this->SetBondRadius(0.075);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMoleculeMapper::UseVDWSpheresSettings()
 {
   this->SetRenderAtoms(true);
@@ -180,7 +180,7 @@ void vtkMoleculeMapper::UseVDWSpheresSettings()
   this->SetBondRadius(0.075);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMoleculeMapper::UseLiquoriceStickSettings()
 {
   this->SetRenderAtoms(true);
@@ -193,7 +193,7 @@ void vtkMoleculeMapper::UseLiquoriceStickSettings()
   this->SetBondRadius(0.15);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMoleculeMapper::UseFastSettings()
 {
   this->SetRenderAtoms(true);
@@ -207,7 +207,7 @@ void vtkMoleculeMapper::UseFastSettings()
   this->SetBondRadius(0.075);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkMoleculeMapper::GetAtomicRadiusTypeAsString()
 {
   switch (this->AtomicRadiusType)
@@ -225,7 +225,7 @@ const char* vtkMoleculeMapper::GetAtomicRadiusTypeAsString()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkMoleculeMapper::GetBondColorModeAsString()
 {
   switch (this->BondColorMode)
@@ -239,7 +239,7 @@ const char* vtkMoleculeMapper::GetBondColorModeAsString()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMoleculeMapper::GetSelectedAtomsAndBonds(
   vtkSelection* selection, vtkIdTypeArray* atomIds, vtkIdTypeArray* bondIds)
 {
@@ -298,14 +298,14 @@ void vtkMoleculeMapper::GetSelectedAtomsAndBonds(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMoleculeMapper::Render(vtkRenderer* ren, vtkActor* act)
 {
   // If we add more rendering backend (e.g. point sprites), add a switch here.
   this->GlyphRender(ren, act);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMoleculeMapper::GlyphRender(vtkRenderer* ren, vtkActor* act)
 {
   // Update cached polydata if needed
@@ -328,7 +328,7 @@ void vtkMoleculeMapper::GlyphRender(vtkRenderer* ren, vtkActor* act)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMoleculeMapper::UpdateGlyphPolyData()
 {
   vtkMolecule* molecule = this->GetInput();
@@ -362,7 +362,7 @@ void vtkMoleculeMapper::UpdateGlyphPolyData()
   this->GlyphDataInitialized = true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Generate scale and position information for each atom sphere
 void vtkMoleculeMapper::UpdateAtomGlyphPolyData()
 {
@@ -518,7 +518,7 @@ void vtkMoleculeMapper::UpdateAtomGlyphPolyData()
   this->AtomGlyphMapper->SetScaleArray("Scale Factors");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Generate position, scale, and orientation vectors for each bond cylinder
 void vtkMoleculeMapper::UpdateBondGlyphPolyData()
 {
@@ -818,7 +818,7 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
   this->BondGlyphMapper->UseSelectionIdsOn();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMoleculeMapper::UpdateLatticePolyData()
 {
   this->LatticePolyData->Initialize();
@@ -900,7 +900,7 @@ void vtkMoleculeMapper::UpdateLatticePolyData()
   this->LatticePolyData->SetLines(lines);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMoleculeMapper::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->AtomGlyphMapper->ReleaseGraphicsResources(w);
@@ -932,14 +932,14 @@ double* vtkMoleculeMapper::GetBounds()
   return this->Bounds;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMoleculeMapper::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMolecule");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMoleculeMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -951,7 +951,7 @@ void vtkMoleculeMapper::PrintSelf(ostream& os, vtkIndent indent)
   this->BondGlyphMapper->PrintSelf(os, indent.GetNextIndent());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMoleculeMapper::SetMapScalars(bool map)
 {
   this->AtomGlyphMapper->SetColorMode(

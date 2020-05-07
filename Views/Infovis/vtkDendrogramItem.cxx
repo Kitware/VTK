@@ -42,7 +42,7 @@
 
 vtkStandardNewMacro(vtkDendrogramItem);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDendrogramItem::vtkDendrogramItem()
   : PositionVector(0, 0)
 {
@@ -84,23 +84,23 @@ vtkDendrogramItem::vtkDendrogramItem()
   this->AddItem(this->ColorLegend);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDendrogramItem::~vtkDendrogramItem() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDendrogramItem::SetPosition(const vtkVector2f& pos)
 {
   this->PositionVector = pos;
   this->DendrogramBuildTime = 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkVector2f vtkDendrogramItem::GetPositionVector()
 {
   return this->PositionVector;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDendrogramItem::SetTree(vtkTree* tree)
 {
   if (tree == nullptr || tree->GetNumberOfVertices() == 0)
@@ -165,19 +165,19 @@ void vtkDendrogramItem::SetTree(vtkTree* tree)
   this->TriangleLookupTable->Build();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTree* vtkDendrogramItem::GetTree()
 {
   return this->Tree;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTree* vtkDendrogramItem::GetPrunedTree()
 {
   return this->PrunedTree;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkDendrogramItem::Paint(vtkContext2D* painter)
 {
   if (this->Tree->GetNumberOfVertices() == 0)
@@ -191,7 +191,7 @@ bool vtkDendrogramItem::Paint(vtkContext2D* painter)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDendrogramItem::PrepareToPaint(vtkContext2D* painter)
 {
   if (this->IsDirty())
@@ -201,7 +201,7 @@ void vtkDendrogramItem::PrepareToPaint(vtkContext2D* painter)
   this->ComputeLabelWidth(painter);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkDendrogramItem::IsDirty()
 {
   if (this->Tree->GetNumberOfVertices() == 0)
@@ -223,7 +223,7 @@ bool vtkDendrogramItem::IsDirty()
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDendrogramItem::RebuildBuffers()
 {
   if (this->Tree->GetNumberOfVertices() == 0)
@@ -275,7 +275,7 @@ void vtkDendrogramItem::RebuildBuffers()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDendrogramItem::ComputeMultipliers()
 {
   double xMax = 1;
@@ -314,7 +314,7 @@ void vtkDendrogramItem::ComputeMultipliers()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDendrogramItem::ComputeBounds()
 {
   this->MinX = VTK_DOUBLE_MAX;
@@ -372,7 +372,7 @@ void vtkDendrogramItem::ComputeBounds()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDendrogramItem::CountLeafNodes()
 {
   // figure out how many leaf nodes we have.
@@ -387,7 +387,7 @@ void vtkDendrogramItem::CountLeafNodes()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDendrogramItem::CountLeafNodes(vtkIdType vertex)
 {
   // figure out how many leaf nodes descend from vertex.
@@ -407,7 +407,7 @@ int vtkDendrogramItem::CountLeafNodes(vtkIdType vertex)
   return numLeaves;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDendrogramItem::PaintBuffers(vtkContext2D* painter)
 {
   // Calculate the extent of the data that is visible within the window.
@@ -715,7 +715,7 @@ void vtkDendrogramItem::PaintBuffers(vtkContext2D* painter)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDendrogramItem::UpdateVisibleSceneExtent(vtkContext2D* painter)
 {
   float position[2];
@@ -733,7 +733,7 @@ void vtkDendrogramItem::UpdateVisibleSceneExtent(vtkContext2D* painter)
   inverse->MultiplyPoint(this->SceneTopRight, this->SceneTopRight);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkDendrogramItem::LineIsVisible(double x0, double y0, double x1, double y1)
 {
   // is the line degenerate, if so skip
@@ -797,7 +797,7 @@ bool vtkDendrogramItem::LineIsVisible(double x0, double y0, double x1, double y1
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkDendrogramItem::MouseDoubleClickEvent(const vtkContextMouseEvent& event)
 {
   // get the position of the double click and convert it to scene coordinates
@@ -842,7 +842,7 @@ bool vtkDendrogramItem::MouseDoubleClickEvent(const vtkContextMouseEvent& event)
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkDendrogramItem::GetClickedCollapsedSubTree(double x, double y)
 {
   // iterate over all the collapsed subtrees to see if this click refers
@@ -940,7 +940,7 @@ vtkIdType vtkDendrogramItem::GetClickedCollapsedSubTree(double x, double y)
   return -1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkDendrogramItem::GetClosestVertex(double x, double y)
 {
   double minDistance = VTK_DOUBLE_MAX;
@@ -964,7 +964,7 @@ vtkIdType vtkDendrogramItem::GetClosestVertex(double x, double y)
   return closestVertex;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDendrogramItem::CollapseSubTree(vtkIdType vertex)
 {
   // no removing the root of the tree
@@ -1011,7 +1011,7 @@ void vtkDendrogramItem::CollapseSubTree(vtkIdType vertex)
   this->PrunedTree = this->PruneFilter->GetOutput();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDendrogramItem::ExpandSubTree(vtkIdType vertex)
 {
   // mark this vertex as "not pruned"
@@ -1045,7 +1045,7 @@ void vtkDendrogramItem::ExpandSubTree(vtkIdType vertex)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkDendrogramItem::GetOriginalId(vtkIdType vertex)
 {
   vtkIdTypeArray* originalIdArray =
@@ -1053,7 +1053,7 @@ vtkIdType vtkDendrogramItem::GetOriginalId(vtkIdType vertex)
   return originalIdArray->GetValue(vertex);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkDendrogramItem::GetPrunedIdForOriginalId(vtkIdType originalId)
 {
   vtkIdTypeArray* originalIdArray =
@@ -1068,7 +1068,7 @@ vtkIdType vtkDendrogramItem::GetPrunedIdForOriginalId(vtkIdType originalId)
   return -1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDendrogramItem::CollapseToNumberOfLeafNodes(unsigned int n)
 {
   // check that the number requested is actually smaller than the number of
@@ -1169,7 +1169,7 @@ void vtkDendrogramItem::CollapseToNumberOfLeafNodes(unsigned int n)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDendrogramItem::SetColorArray(const char* arrayName)
 {
   this->ColorArray =
@@ -1242,7 +1242,7 @@ void vtkDendrogramItem::SetColorArray(const char* arrayName)
   this->PositionColorLegend();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDendrogramItem::PositionColorLegend()
 {
   // bail out early if we don't have meaningful bounds yet.
@@ -1283,13 +1283,13 @@ void vtkDendrogramItem::PositionColorLegend()
   this->LegendPositionSet = true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDendrogramItem::SetOrientation(int orientation)
 {
   this->SetOrientation(this->Tree, orientation);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDendrogramItem::SetOrientation(vtkTree* tree, int orientation)
 {
   vtkIntArray* existingArray =
@@ -1314,7 +1314,7 @@ void vtkDendrogramItem::SetOrientation(vtkTree* tree, int orientation)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDendrogramItem::GetOrientation()
 {
   vtkIntArray* orientationArray =
@@ -1326,7 +1326,7 @@ int vtkDendrogramItem::GetOrientation()
   return vtkDendrogramItem::LEFT_TO_RIGHT;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkDendrogramItem::GetAngleForOrientation(int orientation)
 {
   switch (orientation)
@@ -1346,7 +1346,7 @@ double vtkDendrogramItem::GetAngleForOrientation(int orientation)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkDendrogramItem::GetTextAngleForOrientation(int orientation)
 {
   switch (orientation)
@@ -1366,7 +1366,7 @@ double vtkDendrogramItem::GetTextAngleForOrientation(int orientation)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDendrogramItem::GetBounds(double bounds[4])
 {
   bounds[0] = this->MinX;
@@ -1402,13 +1402,13 @@ void vtkDendrogramItem::GetBounds(double bounds[4])
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 float vtkDendrogramItem::GetLabelWidth()
 {
   return this->LabelWidth;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDendrogramItem::ComputeLabelWidth(vtkContext2D* painter)
 {
   this->LabelWidth = 0.0;
@@ -1444,7 +1444,7 @@ void vtkDendrogramItem::ComputeLabelWidth(vtkContext2D* painter)
   painter->GetTextProp()->SetOrientation(orientation);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkDendrogramItem::GetPositionOfVertex(const std::string& vertexName, double position[2])
 {
   vtkStringArray* vertexNames = vtkArrayDownCast<vtkStringArray>(
@@ -1465,7 +1465,7 @@ bool vtkDendrogramItem::GetPositionOfVertex(const std::string& vertexName, doubl
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkDendrogramItem::Hit(const vtkContextMouseEvent& vtkNotUsed(mouse))
 {
   // If we are interactive, we want to catch anything that propagates to the
@@ -1473,7 +1473,7 @@ bool vtkDendrogramItem::Hit(const vtkContextMouseEvent& vtkNotUsed(mouse))
   return this->Interactive;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDendrogramItem::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -43,7 +43,7 @@
 
 vtkStandardNewMacro(vtkRandomAttributeGenerator);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRandomAttributeGenerator::vtkRandomAttributeGenerator()
 {
   this->DataType = VTK_FLOAT;
@@ -70,7 +70,7 @@ vtkRandomAttributeGenerator::vtkRandomAttributeGenerator()
   this->AttributesConstantPerBlock = false;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T>
 void GenerateRandomTuple(
   T* data, vtkIdType i, int numComp, int minComp, int maxComp, double min, double max)
@@ -82,7 +82,7 @@ void GenerateRandomTuple(
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void GenerateRandomTupleBit(vtkDataArray* data, vtkIdType i, int minComp, int maxComp)
 {
   for (int comp = minComp; comp <= maxComp; comp++)
@@ -92,13 +92,13 @@ void GenerateRandomTupleBit(vtkDataArray* data, vtkIdType i, int minComp, int ma
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T>
 void CopyTupleFrom0(T* data, vtkIdType i, int numComp, int minComp, int maxComp)
 {
   memcpy(data + i * numComp + minComp, data + minComp, (maxComp - minComp + 1) * sizeof(T));
 }
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void CopyTupleFrom0Bit(vtkDataArray* data, vtkIdType i, int minComp, int maxComp)
 {
   for (int comp = minComp; comp <= maxComp; comp++)
@@ -107,7 +107,7 @@ void CopyTupleFrom0Bit(vtkDataArray* data, vtkIdType i, int minComp, int maxComp
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This function template creates random attributes within a given range. It is
 // assumed that the input data array may have a variable number of components.
 template <class T>
@@ -141,7 +141,7 @@ void vtkRandomAttributeGenerator::GenerateRandomTuples(
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method does the data type allocation and switching for various types.
 vtkDataArray* vtkRandomAttributeGenerator::GenerateData(
   int dataType, vtkIdType numTuples, int numComp, int minComp, int maxComp, double min, double max)
@@ -307,7 +307,7 @@ vtkDataArray* vtkRandomAttributeGenerator::GenerateData(
   return dataArray;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkRandomAttributeGenerator::RequestData(
   vtkCompositeDataSet* input, vtkCompositeDataSet* output)
 {
@@ -330,7 +330,7 @@ int vtkRandomAttributeGenerator::RequestData(
   return 1;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkRandomAttributeGenerator::RequestData(vtkDataSet* input, vtkDataSet* output)
 {
   vtkDebugMacro(<< "Producing random attributes");
@@ -504,7 +504,7 @@ int vtkRandomAttributeGenerator::RequestData(vtkDataSet* input, vtkDataSet* outp
   return 1;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkRandomAttributeGenerator::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -527,7 +527,7 @@ int vtkRandomAttributeGenerator::RequestData(vtkInformation* vtkNotUsed(request)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRandomAttributeGenerator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

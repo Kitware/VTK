@@ -141,7 +141,7 @@ private:
 // for some reason the X11 def of KeySym is getting messed up
 typedef XID vtkKeySym;
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXRenderWindowInteractor::vtkXRenderWindowInteractor()
 {
   this->Internal = new vtkXRenderWindowInteractorInternals;
@@ -156,7 +156,7 @@ vtkXRenderWindowInteractor::vtkXRenderWindowInteractor()
   this->XdndFinishedAtom = 0;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXRenderWindowInteractor::~vtkXRenderWindowInteractor()
 {
   this->Disable();
@@ -164,7 +164,7 @@ vtkXRenderWindowInteractor::~vtkXRenderWindowInteractor()
   delete this->Internal;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // TerminateApp() notifies the event loop to exit.
 // The event loop is started by Start() or by one own's method.
 // This results in Start() returning to its caller.
@@ -206,7 +206,7 @@ void vtkXRenderWindowInteractor::ProcessEvents()
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This will start up the X event loop. If you
 // call this method it will loop processing X events until the
 // loop is exited.
@@ -244,7 +244,7 @@ void vtkXRenderWindowInteractor::StartEventLoop()
   } while (!this->Done);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Initializes the event handlers without an XtAppContext.  This is
 // good for when you don't have a user interface, but you still
 // want to have mouse interaction.
@@ -300,7 +300,7 @@ void vtkXRenderWindowInteractor::Initialize()
   this->Size[1] = size[1];
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXRenderWindowInteractor::Enable()
 {
   // avoid cycles of calling Initialize() and Enable()
@@ -340,7 +340,7 @@ void vtkXRenderWindowInteractor::Enable()
   this->Modified();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXRenderWindowInteractor::Disable()
 {
   if (!this->Enabled)
@@ -353,13 +353,13 @@ void vtkXRenderWindowInteractor::Disable()
   this->Modified();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXRenderWindowInteractor::UpdateSize(int x, int y)
 {
   // if the size changed send this on to the RenderWindow
@@ -371,7 +371,7 @@ void vtkXRenderWindowInteractor::UpdateSize(int x, int y)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXRenderWindowInteractor::UpdateSizeNoXResize(int x, int y)
 {
   // if the size changed send this on to the RenderWindow
@@ -384,7 +384,7 @@ void vtkXRenderWindowInteractor::UpdateSizeNoXResize(int x, int y)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXRenderWindowInteractor::FireTimers()
 {
   if (this->GetEnabled())
@@ -393,7 +393,7 @@ void vtkXRenderWindowInteractor::FireTimers()
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // X always creates one shot timers
 int vtkXRenderWindowInteractor::InternalCreateTimer(
   int vtkNotUsed(timerId), int vtkNotUsed(timerType), unsigned long duration)
@@ -403,14 +403,14 @@ int vtkXRenderWindowInteractor::InternalCreateTimer(
   return platformTimerId;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXRenderWindowInteractor::InternalDestroyTimer(int platformTimerId)
 {
   this->Internal->DestroyLocalTimer(platformTimerId);
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
 {
   int xp, yp;
@@ -793,7 +793,7 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXRenderWindowInteractor::GetMousePosition(int* x, int* y)
 {
   Window root, child;
@@ -805,13 +805,13 @@ void vtkXRenderWindowInteractor::GetMousePosition(int* x, int* y)
   *y = this->Size[1] - *y - 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // void vtkXRenderWindowInteractor::Timer(XtPointer client_data, XtIntervalId* id)
 // {
 //   vtkXRenderWindowInteractorTimer(client_data, id);
 // }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // void vtkXRenderWindowInteractor::Callback(
 //   Widget w, XtPointer client_data, XEvent* event, Boolean* ctd)
 // {

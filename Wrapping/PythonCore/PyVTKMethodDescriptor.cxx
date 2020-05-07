@@ -31,7 +31,7 @@
 #define PyDescr_NAME(x) (((PyDescrObject*)(x))->d_name)
 #endif
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // C API
 
 PyObject* PyVTKMethodDescriptor_New(PyTypeObject* pytype, PyMethodDef* meth)
@@ -56,7 +56,7 @@ PyObject* PyVTKMethodDescriptor_New(PyTypeObject* pytype, PyMethodDef* meth)
   return (PyObject*)descr;
 }
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Object protocol
 
 static void PyVTKMethodDescriptor_Delete(PyObject* ob)
@@ -164,7 +164,7 @@ static PyMemberDef PyVTKMethodDescriptor_Members[] = {
   { nullptr, 0, 0, 0, nullptr }
 };
 
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // clang-format off
 PyTypeObject PyVTKMethodDescriptor_Type = {
   PyVarObject_HEAD_INIT(&PyType_Type, 0)

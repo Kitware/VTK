@@ -23,7 +23,7 @@
 #include "vtkExecutive.h"
 #include "vtkTestErrorObserver.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestComputeQuartiles(int, char*[])
 {
   vtkNew<vtkDoubleArray> arrFirstVariable;

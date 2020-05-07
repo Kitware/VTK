@@ -26,12 +26,12 @@
 vtkStandardNewMacro(vtkRadiusOutlierRemoval);
 vtkCxxSetObjectMacro(vtkRadiusOutlierRemoval, Locator, vtkAbstractPointLocator);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Helper classes to support efficient computing, and threaded execution.
 namespace
 {
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The threaded core of the algorithm (first pass)
 template <typename T>
 struct RemoveOutliers
@@ -98,7 +98,7 @@ struct RemoveOutliers
 } // anonymous namespace
 
 //================= Begin class proper =======================================
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRadiusOutlierRemoval::vtkRadiusOutlierRemoval()
 {
   this->Radius = 1.0;
@@ -106,13 +106,13 @@ vtkRadiusOutlierRemoval::vtkRadiusOutlierRemoval()
   this->Locator = vtkStaticPointLocator::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRadiusOutlierRemoval::~vtkRadiusOutlierRemoval()
 {
   this->SetLocator(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Traverse all the input points to see how many neighbors each point has
 // within a specified radius, and populate the map which indicates how points
 // are to be copied to the output.
@@ -140,7 +140,7 @@ int vtkRadiusOutlierRemoval::FilterPoints(vtkPointSet* input)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRadiusOutlierRemoval::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

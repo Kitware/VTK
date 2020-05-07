@@ -27,13 +27,13 @@
 #include "vtkTreeRingToPolyData.h"
 
 vtkStandardNewMacro(vtkTreeRingView);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTreeRingView::vtkTreeRingView() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTreeRingView::~vtkTreeRingView() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeRingView::SetRootAngles(double start, double end)
 {
   vtkStackedTreeLayoutStrategy* s =
@@ -45,7 +45,7 @@ void vtkTreeRingView::SetRootAngles(double start, double end)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeRingView::SetRootAtCenter(bool center)
 {
   vtkStackedTreeLayoutStrategy* st =
@@ -56,7 +56,7 @@ void vtkTreeRingView::SetRootAtCenter(bool center)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkTreeRingView::GetRootAtCenter()
 {
   vtkStackedTreeLayoutStrategy* st =
@@ -68,7 +68,7 @@ bool vtkTreeRingView::GetRootAtCenter()
   return false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeRingView::SetLayerThickness(double thickness)
 {
   vtkStackedTreeLayoutStrategy* st =
@@ -79,7 +79,7 @@ void vtkTreeRingView::SetLayerThickness(double thickness)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkTreeRingView::GetLayerThickness()
 {
   vtkStackedTreeLayoutStrategy* st =
@@ -91,7 +91,7 @@ double vtkTreeRingView::GetLayerThickness()
   return 0.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeRingView::SetInteriorRadius(double rad)
 {
   vtkStackedTreeLayoutStrategy* st =
@@ -102,7 +102,7 @@ void vtkTreeRingView::SetInteriorRadius(double rad)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkTreeRingView::GetInteriorRadius()
 {
   vtkStackedTreeLayoutStrategy* st =
@@ -114,7 +114,7 @@ double vtkTreeRingView::GetInteriorRadius()
   return 0.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeRingView::SetInteriorLogSpacingValue(double value)
 {
   vtkStackedTreeLayoutStrategy* st =
@@ -125,7 +125,7 @@ void vtkTreeRingView::SetInteriorLogSpacingValue(double value)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkTreeRingView::GetInteriorLogSpacingValue()
 {
   vtkStackedTreeLayoutStrategy* st =
@@ -137,7 +137,7 @@ double vtkTreeRingView::GetInteriorLogSpacingValue()
   return 0.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeRingView::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

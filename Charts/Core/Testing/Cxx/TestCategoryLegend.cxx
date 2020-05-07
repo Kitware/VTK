@@ -29,7 +29,7 @@
 
 #include "vtkRegressionTestImage.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestCategoryLegend(int argc, char* argv[])
 {
   vtkNew<vtkVariantArray> values;

@@ -33,16 +33,16 @@
 #include <cassert>
 #include <limits>
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkCompositeControlPointsItem);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCompositeControlPointsItem::vtkCompositeControlPointsItem()
 {
   this->SetColorFill(true);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCompositeControlPointsItem::~vtkCompositeControlPointsItem()
 {
   if (this->OpacityFunction)
@@ -58,7 +58,7 @@ vtkCompositeControlPointsItem::~vtkCompositeControlPointsItem()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositeControlPointsItem::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -85,7 +85,7 @@ void vtkCompositeControlPointsItem::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "UseOpacityPointHandles: " << this->UseOpacityPointHandles << endl;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositeControlPointsItem::emitEvent(unsigned long event, void* params)
 {
   if (this->OpacityFunction)
@@ -95,7 +95,7 @@ void vtkCompositeControlPointsItem::emitEvent(unsigned long event, void* params)
   this->Superclass::emitEvent(event, params);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkCompositeControlPointsItem::GetControlPointsMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetControlPointsMTime();
@@ -106,7 +106,7 @@ vtkMTimeType vtkCompositeControlPointsItem::GetControlPointsMTime()
   return mTime;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositeControlPointsItem::SetOpacityFunction(vtkPiecewiseFunction* function)
 {
   if (function == this->OpacityFunction)
@@ -132,7 +132,7 @@ void vtkCompositeControlPointsItem::SetOpacityFunction(vtkPiecewiseFunction* fun
   this->ComputePoints();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositeControlPointsItem::SetColorTransferFunction(vtkColorTransferFunction* c)
 {
   if (c == this->ColorTransferFunction)
@@ -149,7 +149,7 @@ void vtkCompositeControlPointsItem::SetColorTransferFunction(vtkColorTransferFun
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositeControlPointsItem::DrawPoint(vtkContext2D* painter, vtkIdType index)
 {
   if (this->PointsFunction == ColorPointsFunction ||
@@ -169,7 +169,7 @@ void vtkCompositeControlPointsItem::DrawPoint(vtkContext2D* painter, vtkIdType i
   this->vtkControlPointsItem::DrawPoint(painter, index);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkCompositeControlPointsItem::GetNumberOfPoints() const
 {
   if (this->ColorTransferFunction &&
@@ -187,7 +187,7 @@ vtkIdType vtkCompositeControlPointsItem::GetNumberOfPoints() const
   return 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositeControlPointsItem::SetControlPoint(vtkIdType index, double* newPos)
 {
   if (this->PointsFunction == ColorPointsFunction ||
@@ -205,7 +205,7 @@ void vtkCompositeControlPointsItem::SetControlPoint(vtkIdType index, double* new
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositeControlPointsItem::GetControlPoint(vtkIdType index, double* pos) const
 {
   if (!this->OpacityFunction || this->PointsFunction == ColorPointsFunction)
@@ -220,7 +220,7 @@ void vtkCompositeControlPointsItem::GetControlPoint(vtkIdType index, double* pos
   const_cast<vtkPiecewiseFunction*>(this->OpacityFunction)->GetNodeValue(index, pos);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositeControlPointsItem::EditPoint(float tX, float tY)
 {
   if (this->PointsFunction == ColorPointsFunction ||
@@ -250,7 +250,7 @@ void vtkCompositeControlPointsItem::EditPoint(float tX, float tY)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkCompositeControlPointsItem::AddPoint(double* newPos)
 {
   vtkIdType addedPoint = -1;
@@ -274,7 +274,7 @@ vtkIdType vtkCompositeControlPointsItem::AddPoint(double* newPos)
   return addedPoint;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkCompositeControlPointsItem::RemovePoint(double* currentPoint)
 {
   vtkIdType removedPoint = -1;
@@ -305,7 +305,7 @@ vtkIdType vtkCompositeControlPointsItem::RemovePoint(double* currentPoint)
   return removedPoint;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositeControlPointsItem::MergeTransferFunctions()
 {
   if (!this->ColorTransferFunction || !this->OpacityFunction)
@@ -339,7 +339,7 @@ void vtkCompositeControlPointsItem::MergeTransferFunctions()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositeControlPointsItem::SilentMergeTransferFunctions()
 {
   this->StartChanges();
@@ -347,7 +347,7 @@ void vtkCompositeControlPointsItem::SilentMergeTransferFunctions()
   this->EndChanges();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkCompositeControlPointsItem::MouseButtonPressEvent(const vtkContextMouseEvent& mouse)
 {
   bool result = false;
@@ -367,7 +367,7 @@ bool vtkCompositeControlPointsItem::MouseButtonPressEvent(const vtkContextMouseE
   return result;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkCompositeControlPointsItem::MouseDoubleClickEvent(const vtkContextMouseEvent& mouse)
 {
   bool superRes = this->Superclass::MouseDoubleClickEvent(mouse);
@@ -379,7 +379,7 @@ bool vtkCompositeControlPointsItem::MouseDoubleClickEvent(const vtkContextMouseE
   return superRes;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkCompositeControlPointsItem::MouseMoveEvent(const vtkContextMouseEvent& mouse)
 {
   bool result = false;
@@ -394,7 +394,7 @@ bool vtkCompositeControlPointsItem::MouseMoveEvent(const vtkContextMouseEvent& m
   return result;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCompositeControlPointsItem::EditPointCurve(vtkIdType index)
 {
   if (index < 0 || index >= this->GetNumberOfPoints())

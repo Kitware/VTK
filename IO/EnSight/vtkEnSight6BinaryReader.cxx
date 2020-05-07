@@ -52,7 +52,7 @@
 
 vtkStandardNewMacro(vtkEnSight6BinaryReader);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkEnSight6BinaryReader::vtkEnSight6BinaryReader()
 {
   this->NumberOfUnstructuredPoints = 0;
@@ -66,7 +66,7 @@ vtkEnSight6BinaryReader::vtkEnSight6BinaryReader()
   this->ElementIdsListed = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkEnSight6BinaryReader::~vtkEnSight6BinaryReader()
 {
   if (this->UnstructuredNodeIds)
@@ -84,7 +84,7 @@ vtkEnSight6BinaryReader::~vtkEnSight6BinaryReader()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSight6BinaryReader::OpenFile(const char* filename)
 {
   if (!filename)
@@ -123,7 +123,7 @@ int vtkEnSight6BinaryReader::OpenFile(const char* filename)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSight6BinaryReader::ReadGeometryFile(
   const char* fileName, int timeStep, vtkMultiBlockDataSet* output)
 {
@@ -302,7 +302,7 @@ int vtkEnSight6BinaryReader::ReadGeometryFile(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSight6BinaryReader::SkipTimeStep()
 {
   char line[80], subLine[80];
@@ -382,7 +382,7 @@ int vtkEnSight6BinaryReader::SkipTimeStep()
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSight6BinaryReader::SkipStructuredGrid(char line[256])
 {
   char subLine[80];
@@ -427,7 +427,7 @@ int vtkEnSight6BinaryReader::SkipStructuredGrid(char line[256])
   return lineRead;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSight6BinaryReader::SkipUnstructuredGrid(char line[256])
 {
   int lineRead = 1;
@@ -706,7 +706,7 @@ int vtkEnSight6BinaryReader::SkipUnstructuredGrid(char line[256])
   return lineRead;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSight6BinaryReader::ReadMeasuredGeometryFile(
   const char* fileName, int timeStep, vtkMultiBlockDataSet* output)
 {
@@ -861,7 +861,7 @@ int vtkEnSight6BinaryReader::ReadMeasuredGeometryFile(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSight6BinaryReader::ReadScalarsPerNode(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput, int measured, int numberOfComponents,
   int component)
@@ -1111,7 +1111,7 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(const char* fileName, const char
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSight6BinaryReader::ReadVectorsPerNode(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput, int measured)
 {
@@ -1308,7 +1308,7 @@ int vtkEnSight6BinaryReader::ReadVectorsPerNode(const char* fileName, const char
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSight6BinaryReader::ReadTensorsPerNode(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput)
 {
@@ -1470,7 +1470,7 @@ int vtkEnSight6BinaryReader::ReadTensorsPerNode(const char* fileName, const char
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSight6BinaryReader::ReadScalarsPerElement(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput, int numberOfComponents, int component)
 {
@@ -1661,7 +1661,7 @@ int vtkEnSight6BinaryReader::ReadScalarsPerElement(const char* fileName, const c
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSight6BinaryReader::ReadVectorsPerElement(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput)
 {
@@ -1839,7 +1839,7 @@ int vtkEnSight6BinaryReader::ReadVectorsPerElement(const char* fileName, const c
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSight6BinaryReader::ReadTensorsPerElement(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput)
 {
@@ -2021,7 +2021,7 @@ int vtkEnSight6BinaryReader::ReadTensorsPerElement(const char* fileName, const c
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(
   int partId, char line[80], const char* name, vtkMultiBlockDataSet* compositeOutput)
 {
@@ -2587,7 +2587,7 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(
   return lineRead;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSight6BinaryReader::CreateStructuredGridOutput(
   int partId, char line[80], const char* name, vtkMultiBlockDataSet* compositeOutput)
 {
@@ -2822,7 +2822,7 @@ int vtkEnSight6BinaryReader::ReadFloatArray(float* result, int numFloats)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkEnSight6BinaryReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

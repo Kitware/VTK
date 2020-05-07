@@ -78,7 +78,7 @@ vtkInformationKeyMacro(vtkSelectionNode, INVERSE, Integer);
 vtkInformationKeyMacro(vtkSelectionNode, INDEXED_VERTICES, Integer);
 vtkInformationKeyMacro(vtkSelectionNode, COMPONENT_NUMBER, Integer);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSelectionNode::vtkSelectionNode()
 {
   this->SelectionData = vtkDataSetAttributes::New();
@@ -86,7 +86,7 @@ vtkSelectionNode::vtkSelectionNode()
   this->QueryString = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSelectionNode::~vtkSelectionNode()
 {
   this->Properties->Delete();
@@ -97,7 +97,7 @@ vtkSelectionNode::~vtkSelectionNode()
   this->SetQueryString(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelectionNode::Initialize()
 {
   this->Properties->Clear();
@@ -108,7 +108,7 @@ void vtkSelectionNode::Initialize()
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAbstractArray* vtkSelectionNode::GetSelectionList()
 {
   if (this->SelectionData && this->SelectionData->GetNumberOfArrays() > 0)
@@ -118,7 +118,7 @@ vtkAbstractArray* vtkSelectionNode::GetSelectionList()
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelectionNode::SetSelectionList(vtkAbstractArray* arr)
 {
   if (!this->SelectionData)
@@ -129,7 +129,7 @@ void vtkSelectionNode::SetSelectionList(vtkAbstractArray* arr)
   this->SelectionData->AddArray(arr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelectionNode::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -169,7 +169,7 @@ void vtkSelectionNode::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "QueryString: " << (this->QueryString ? this->QueryString : "nullptr") << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelectionNode::ShallowCopy(vtkSelectionNode* input)
 {
   if (!input)
@@ -183,7 +183,7 @@ void vtkSelectionNode::ShallowCopy(vtkSelectionNode* input)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelectionNode::DeepCopy(vtkSelectionNode* input)
 {
   if (!input)
@@ -197,13 +197,13 @@ void vtkSelectionNode::DeepCopy(vtkSelectionNode* input)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelectionNode::SetContentType(int type)
 {
   this->GetProperties()->Set(vtkSelectionNode::CONTENT_TYPE(), type);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSelectionNode::GetContentType()
 {
   if (this->GetProperties()->Has(vtkSelectionNode::CONTENT_TYPE()))
@@ -213,19 +213,19 @@ int vtkSelectionNode::GetContentType()
   return -1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkSelectionNode::GetContentTypeAsString(int type)
 {
   return vtkSelectionNode::ContentTypeNames[type];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelectionNode::SetFieldType(int type)
 {
   this->GetProperties()->Set(vtkSelectionNode::FIELD_TYPE(), type);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSelectionNode::GetFieldType()
 {
   if (this->GetProperties()->Has(vtkSelectionNode::FIELD_TYPE()))
@@ -235,13 +235,13 @@ int vtkSelectionNode::GetFieldType()
   return -1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkSelectionNode::GetFieldTypeAsString(int type)
 {
   return vtkSelectionNode::FieldTypeNames[type];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkSelectionNode::EqualProperties(vtkSelectionNode* other, bool fullcompare /*=true*/)
 {
   if (!other)
@@ -314,7 +314,7 @@ bool vtkSelectionNode::EqualProperties(vtkSelectionNode* other, bool fullcompare
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelectionNode::UnionSelectionList(vtkSelectionNode* other)
 {
   int type = this->Properties->Get(CONTENT_TYPE());
@@ -392,7 +392,7 @@ void vtkSelectionNode::UnionSelectionList(vtkSelectionNode* other)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelectionNode::SubtractSelectionList(vtkSelectionNode* other)
 {
   int type = this->Properties->Get(CONTENT_TYPE());
@@ -466,7 +466,7 @@ void vtkSelectionNode::SubtractSelectionList(vtkSelectionNode* other)
   };
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkSelectionNode::GetMTime()
 {
   vtkMTimeType mTime = this->MTime.GetMTime();
@@ -485,7 +485,7 @@ vtkMTimeType vtkSelectionNode::GetMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSelectionNode::ConvertSelectionFieldToAttributeType(int selectionField)
 {
   switch (selectionField)
@@ -508,7 +508,7 @@ int vtkSelectionNode::ConvertSelectionFieldToAttributeType(int selectionField)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSelectionNode::ConvertAttributeTypeToSelectionField(int attrType)
 {
   switch (attrType)

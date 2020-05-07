@@ -24,13 +24,13 @@
 #include "vtkTetra.h"
 
 vtkStandardNewMacro(vtkLagrangeTetra);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLagrangeTetra::vtkLagrangeTetra()
   : vtkHigherOrderTetra()
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLagrangeTetra::~vtkLagrangeTetra() = default;
 
 void vtkLagrangeTetra::PrintSelf(ostream& os, vtkIndent indent)
@@ -52,7 +52,7 @@ vtkCell* vtkLagrangeTetra::GetFace(int faceId)
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLagrangeTetra::InterpolateFunctions(const double pcoords[3], double* weights)
 {
   // Adapted from P. Silvester, "High-Order Polynomial Triangular Finite
@@ -128,7 +128,7 @@ void vtkLagrangeTetra::InterpolateFunctions(const double pcoords[3], double* wei
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLagrangeTetra::InterpolateDerivs(const double pcoords[3], double* derivs)
 {
   // Analytic differentiation of the tetra shape functions, as adapted from

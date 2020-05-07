@@ -32,7 +32,7 @@
 
 vtkStandardNewMacro(vtkPointPicker);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Accelerated methods for picking points
 namespace
 { // anonymous
@@ -183,7 +183,7 @@ struct PickPoints
 
 } // anonymous namespace
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 inline vtkCellArray* GET_CELLS(int cell_type, vtkPolyData* poly_input)
 {
   switch (cell_type)
@@ -200,14 +200,14 @@ inline vtkCellArray* GET_CELLS(int cell_type, vtkPolyData* poly_input)
   return nullptr;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPointPicker::vtkPointPicker()
 {
   this->PointId = -1;
   this->UseCells = 0;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkPointPicker::IntersectWithLine(const double p1[3], const double p2[3], double tol,
   vtkAssemblyPath* path, vtkProp3D* p, vtkAbstractMapper3D* m)
 {
@@ -363,7 +363,7 @@ double vtkPointPicker::IntersectWithLine(const double p1[3], const double p2[3],
   return tMin;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkPointPicker::IntersectDataSetWithLine(const double p1[3], double ray[3],
   double rayFactor, double tol, vtkDataSet* dataSet, double& tMin, double minXYZ[3])
 {
@@ -441,14 +441,14 @@ vtkIdType vtkPointPicker::IntersectDataSetWithLine(const double p1[3], double ra
   return minPtId;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointPicker::Initialize()
 {
   this->PointId = (-1);
   this->vtkPicker::Initialize();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointPicker::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

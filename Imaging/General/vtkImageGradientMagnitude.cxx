@@ -26,7 +26,7 @@
 
 vtkStandardNewMacro(vtkImageGradientMagnitude);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct an instance of vtkImageGradientMagnitude filter.
 vtkImageGradientMagnitude::vtkImageGradientMagnitude()
 {
@@ -36,7 +36,7 @@ vtkImageGradientMagnitude::vtkImageGradientMagnitude()
   this->HandleBoundaries = 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageGradientMagnitude::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -44,7 +44,7 @@ void vtkImageGradientMagnitude::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Dimensionality: " << this->Dimensionality << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method is passed a region that holds the image extent of this filters
 // input, and changes the region to hold the image extent of this filters
 // output.
@@ -76,7 +76,7 @@ int vtkImageGradientMagnitude::RequestInformation(vtkInformation* vtkNotUsed(req
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method computes the input extent necessary to generate the output.
 int vtkImageGradientMagnitude::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -116,7 +116,7 @@ int vtkImageGradientMagnitude::RequestUpdateExtent(vtkInformation* vtkNotUsed(re
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This execute method handles boundaries.
 // it handles boundaries. Pixels are just replicated to get values
 // out of extent.
@@ -220,7 +220,7 @@ void vtkImageGradientMagnitudeExecute(vtkImageGradientMagnitude* self, vtkImageD
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method contains a switch statement that calls the correct
 // templated function for the input data type.  The output data
 // must match input type.  This method does handle boundary conditions.

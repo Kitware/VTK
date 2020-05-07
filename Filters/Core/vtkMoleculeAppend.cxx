@@ -32,13 +32,13 @@
 
 vtkStandardNewMacro(vtkMoleculeAppend);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMoleculeAppend::vtkMoleculeAppend()
   : MergeCoincidentAtoms(true)
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject* vtkMoleculeAppend::GetInput(int idx)
 {
   if (this->GetNumberOfInputConnections(0) <= idx)
@@ -48,7 +48,7 @@ vtkDataObject* vtkMoleculeAppend::GetInput(int idx)
   return vtkMolecule::SafeDownCast(this->GetExecutive()->GetInputData(0, idx));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMoleculeAppend::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -72,7 +72,7 @@ int vtkMoleculeAppend::RequestData(
   vtkNew<vtkPoints> uniquePointsList;
   double bounds[6] = { 0., 0., 0., 0., 0., 0. };
   uniquePoints->InitPointInsertion(uniquePointsList, bounds, 0);
-  std::set<std::pair<vtkIdType, vtkIdType> > uniqueBonds;
+  std::set<std::pair<vtkIdType, vtkIdType>> uniqueBonds;
 
   // ********************
   // Process each input
@@ -243,14 +243,14 @@ int vtkMoleculeAppend::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMoleculeAppend::FillInputPortInformation(int i, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
   return this->Superclass::FillInputPortInformation(i, info);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkMoleculeAppend::CheckArrays(vtkAbstractArray* array1, vtkAbstractArray* array2)
 {
   if (strcmp(array1->GetName(), array2->GetName()))

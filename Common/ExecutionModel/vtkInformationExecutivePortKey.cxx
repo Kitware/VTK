@@ -18,7 +18,7 @@
 #include "vtkInformation.h"
 #include "vtkSmartPointer.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationExecutivePortKey::vtkInformationExecutivePortKey(
   const char* name, const char* location)
   : vtkInformationKey(name, location)
@@ -26,16 +26,16 @@ vtkInformationExecutivePortKey::vtkInformationExecutivePortKey(
   vtkFilteringInformationKeyManager::Register(this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationExecutivePortKey::~vtkInformationExecutivePortKey() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationExecutivePortKey::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkInformationExecutivePortValue : public vtkObjectBase
 {
 public:
@@ -44,7 +44,7 @@ public:
   int Port;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationExecutivePortKey::Set(vtkInformation* info, vtkExecutive* executive, int port)
 {
   if (executive)
@@ -91,7 +91,7 @@ void vtkInformationExecutivePortKey::Get(vtkInformation* info, vtkExecutive*& ex
   port = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExecutive* vtkInformationExecutivePortKey::GetExecutive(vtkInformation* info)
 {
   if (vtkInformationExecutivePortValue* v =
@@ -102,7 +102,7 @@ vtkExecutive* vtkInformationExecutivePortKey::GetExecutive(vtkInformation* info)
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkInformationExecutivePortKey::GetPort(vtkInformation* info)
 {
   vtkInformationExecutivePortValue* v =
@@ -110,13 +110,13 @@ int vtkInformationExecutivePortKey::GetPort(vtkInformation* info)
   return v ? v->Port : 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationExecutivePortKey::ShallowCopy(vtkInformation* from, vtkInformation* to)
 {
   this->Set(to, this->GetExecutive(from), this->GetPort(from));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationExecutivePortKey::Print(ostream& os, vtkInformation* info)
 {
   // Print the value.
@@ -135,7 +135,7 @@ void vtkInformationExecutivePortKey::Print(ostream& os, vtkInformation* info)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationExecutivePortKey::Report(vtkInformation* info, vtkGarbageCollector* collector)
 {
   if (vtkInformationExecutivePortValue* v =

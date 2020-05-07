@@ -24,7 +24,7 @@
 
 vtkStandardNewMacro(vtkImageStencilToImage);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageStencilToImage::vtkImageStencilToImage()
 {
   this->OutsideValue = 0;
@@ -34,10 +34,10 @@ vtkImageStencilToImage::vtkImageStencilToImage()
   this->SetNumberOfInputPorts(1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageStencilToImage::~vtkImageStencilToImage() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageStencilToImage::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -62,7 +62,7 @@ int vtkImageStencilToImage::RequestInformation(vtkInformation* vtkNotUsed(reques
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T>
 void vtkImageStencilToImageExecute(vtkImageStencilToImage* self, vtkImageStencilData* stencil,
   vtkImageData* outData, T*, int outExt[6], int id)
@@ -120,7 +120,7 @@ void vtkImageStencilToImageExecute(vtkImageStencilToImage* self, vtkImageStencil
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageStencilToImage::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -146,7 +146,7 @@ int vtkImageStencilToImage::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageStencilToImage::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
@@ -157,7 +157,7 @@ int vtkImageStencilToImage::FillInputPortInformation(int port, vtkInformation* i
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageStencilToImage::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

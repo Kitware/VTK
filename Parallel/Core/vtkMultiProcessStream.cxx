@@ -129,7 +129,7 @@ public:
   }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiProcessStream::vtkMultiProcessStream()
 {
   this->Internals = new vtkMultiProcessStream::vtkInternals();
@@ -140,14 +140,14 @@ vtkMultiProcessStream::vtkMultiProcessStream()
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiProcessStream::~vtkMultiProcessStream()
 {
   delete this->Internals;
   this->Internals = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiProcessStream::vtkMultiProcessStream(const vtkMultiProcessStream& other)
 {
   this->Internals = new vtkMultiProcessStream::vtkInternals();
@@ -155,7 +155,7 @@ vtkMultiProcessStream::vtkMultiProcessStream(const vtkMultiProcessStream& other)
   this->Endianness = other.Endianness;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiProcessStream& vtkMultiProcessStream::operator=(const vtkMultiProcessStream& other)
 {
   this->Internals->Data = other.Internals->Data;
@@ -163,25 +163,25 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator=(const vtkMultiProcessStr
   return (*this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiProcessStream::Reset()
 {
   this->Internals->Data.clear();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMultiProcessStream::Size()
 {
   return (static_cast<int>(this->Internals->Data.size()));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkMultiProcessStream::Empty()
 {
   return (this->Internals->Data.empty());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiProcessStream::Push(double array[], unsigned int size)
 {
   assert("pre: array is nullptr!" && (array != nullptr));
@@ -190,7 +190,7 @@ void vtkMultiProcessStream::Push(double array[], unsigned int size)
   this->Internals->Push(reinterpret_cast<unsigned char*>(array), sizeof(double) * size);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiProcessStream::Push(float array[], unsigned int size)
 {
   assert("pre: array is nullptr!" && (array != nullptr));
@@ -199,7 +199,7 @@ void vtkMultiProcessStream::Push(float array[], unsigned int size)
   this->Internals->Push(reinterpret_cast<unsigned char*>(array), sizeof(float) * size);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiProcessStream::Push(int array[], unsigned int size)
 {
   assert("pre: array is nullptr!" && (array != nullptr));
@@ -208,7 +208,7 @@ void vtkMultiProcessStream::Push(int array[], unsigned int size)
   this->Internals->Push(reinterpret_cast<unsigned char*>(array), sizeof(int) * size);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiProcessStream::Push(char array[], unsigned int size)
 {
   assert("pre: array is nullptr!" && (array != nullptr));
@@ -217,7 +217,7 @@ void vtkMultiProcessStream::Push(char array[], unsigned int size)
   this->Internals->Push(reinterpret_cast<unsigned char*>(array), sizeof(char) * size);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiProcessStream::Push(unsigned int array[], unsigned int size)
 {
   assert("pre: array is nullptr!" && (array != nullptr));
@@ -226,7 +226,7 @@ void vtkMultiProcessStream::Push(unsigned int array[], unsigned int size)
   this->Internals->Push(reinterpret_cast<unsigned char*>(array), sizeof(unsigned int) * size);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiProcessStream::Push(unsigned char array[], unsigned int size)
 {
   assert("pre: array is nullptr!" && (array != nullptr));
@@ -235,7 +235,7 @@ void vtkMultiProcessStream::Push(unsigned char array[], unsigned int size)
   this->Internals->Push(array, size);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiProcessStream::Push(vtkTypeInt64 array[], unsigned int size)
 {
   assert("pre: array is nullptr!" && (array != nullptr));
@@ -244,7 +244,7 @@ void vtkMultiProcessStream::Push(vtkTypeInt64 array[], unsigned int size)
   this->Internals->Push(reinterpret_cast<unsigned char*>(array), sizeof(vtkTypeUInt64) * size);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiProcessStream::Push(vtkTypeUInt64 array[], unsigned int size)
 {
   assert("pre: array is nullptr!" && (array != nullptr));
@@ -253,7 +253,7 @@ void vtkMultiProcessStream::Push(vtkTypeUInt64 array[], unsigned int size)
   this->Internals->Push(reinterpret_cast<unsigned char*>(array), sizeof(vtkTypeUInt64) * size);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiProcessStream::Pop(double*& array, unsigned int& size)
 {
   assert("pre: stream data must be double" &&
@@ -282,7 +282,7 @@ void vtkMultiProcessStream::Pop(double*& array, unsigned int& size)
   this->Internals->Pop(reinterpret_cast<unsigned char*>(array), sizeof(double) * size);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiProcessStream::Pop(float*& array, unsigned int& size)
 {
   assert(
@@ -311,7 +311,7 @@ void vtkMultiProcessStream::Pop(float*& array, unsigned int& size)
   this->Internals->Pop(reinterpret_cast<unsigned char*>(array), sizeof(float) * size);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiProcessStream::Pop(int*& array, unsigned int& size)
 {
   assert(
@@ -340,7 +340,7 @@ void vtkMultiProcessStream::Pop(int*& array, unsigned int& size)
   this->Internals->Pop(reinterpret_cast<unsigned char*>(array), sizeof(int) * size);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiProcessStream::Pop(char*& array, unsigned int& size)
 {
   assert("pre: stream data must be of type char" &&
@@ -369,7 +369,7 @@ void vtkMultiProcessStream::Pop(char*& array, unsigned int& size)
   this->Internals->Pop(reinterpret_cast<unsigned char*>(array), sizeof(char) * size);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiProcessStream::Pop(unsigned int*& array, unsigned int& size)
 {
   assert("pre: stream data must be of type unsigned int" &&
@@ -398,7 +398,7 @@ void vtkMultiProcessStream::Pop(unsigned int*& array, unsigned int& size)
   this->Internals->Pop(reinterpret_cast<unsigned char*>(array), sizeof(unsigned int) * size);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiProcessStream::Pop(unsigned char*& array, unsigned int& size)
 {
   assert("pre: stream data must be of type unsigned char" &&
@@ -427,7 +427,7 @@ void vtkMultiProcessStream::Pop(unsigned char*& array, unsigned int& size)
   this->Internals->Pop(array, size);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiProcessStream::Pop(vtkTypeInt64*& array, unsigned int& size)
 {
   assert("pre: stream data must be of type vtkTypeInt64" &&
@@ -456,7 +456,7 @@ void vtkMultiProcessStream::Pop(vtkTypeInt64*& array, unsigned int& size)
   this->Internals->Pop(reinterpret_cast<unsigned char*>(array), sizeof(vtkTypeInt64) * size);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiProcessStream::Pop(vtkTypeUInt64*& array, unsigned int& size)
 {
   assert("pre: stream data must be of type vtkTypeUInt64" &&
@@ -485,7 +485,7 @@ void vtkMultiProcessStream::Pop(vtkTypeUInt64*& array, unsigned int& size)
   this->Internals->Pop(reinterpret_cast<unsigned char*>(array), sizeof(vtkTypeUInt64) * size);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiProcessStream& vtkMultiProcessStream::operator<<(double value)
 {
   this->Internals->Data.push_back(vtkInternals::double_value);
@@ -493,7 +493,7 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator<<(double value)
   return (*this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiProcessStream& vtkMultiProcessStream::operator<<(float value)
 {
   this->Internals->Data.push_back(vtkInternals::float_value);
@@ -501,7 +501,7 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator<<(float value)
   return (*this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiProcessStream& vtkMultiProcessStream::operator<<(int value)
 {
   this->Internals->Data.push_back(vtkInternals::int32_value);
@@ -509,7 +509,7 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator<<(int value)
   return (*this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiProcessStream& vtkMultiProcessStream::operator<<(char value)
 {
   this->Internals->Data.push_back(vtkInternals::char_value);
@@ -517,7 +517,7 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator<<(char value)
   return (*this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiProcessStream& vtkMultiProcessStream::operator<<(bool v)
 {
   char value = v;
@@ -526,7 +526,7 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator<<(bool v)
   return (*this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiProcessStream& vtkMultiProcessStream::operator<<(unsigned int value)
 {
   this->Internals->Data.push_back(vtkInternals::uint32_value);
@@ -534,7 +534,7 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator<<(unsigned int value)
   return (*this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiProcessStream& vtkMultiProcessStream::operator<<(unsigned char value)
 {
   this->Internals->Data.push_back(vtkInternals::uchar_value);
@@ -542,7 +542,7 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator<<(unsigned char value)
   return (*this);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiProcessStream& vtkMultiProcessStream::operator<<(vtkTypeInt64 value)
 {
   this->Internals->Data.push_back(vtkInternals::int64_value);
@@ -550,7 +550,7 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator<<(vtkTypeInt64 value)
   return (*this);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiProcessStream& vtkMultiProcessStream::operator<<(vtkTypeUInt64 value)
 {
   this->Internals->Data.push_back(vtkInternals::uint64_value);
@@ -558,14 +558,14 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator<<(vtkTypeUInt64 value)
   return (*this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiProcessStream& vtkMultiProcessStream::operator<<(const char* value)
 {
   this->operator<<(std::string(value));
   return *this;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiProcessStream& vtkMultiProcessStream::operator<<(const std::string& value)
 {
   // Find the real string size
@@ -585,7 +585,7 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator<<(const std::string& valu
   return (*this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiProcessStream& vtkMultiProcessStream::operator<<(const vtkMultiProcessStream& value)
 {
   unsigned int size = static_cast<unsigned int>(value.Internals->Data.size());
@@ -598,7 +598,7 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator<<(const vtkMultiProcessSt
   return (*this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiProcessStream& vtkMultiProcessStream::operator>>(vtkMultiProcessStream& value)
 {
   assert(this->Internals->Data.front() == vtkInternals::stream_value);
@@ -616,7 +616,7 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator>>(vtkMultiProcessStream& 
   return (*this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiProcessStream& vtkMultiProcessStream::operator>>(double& value)
 {
   assert(this->Internals->Data.front() == vtkInternals::double_value);
@@ -625,7 +625,7 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator>>(double& value)
   return (*this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiProcessStream& vtkMultiProcessStream::operator>>(float& value)
 {
   assert(this->Internals->Data.front() == vtkInternals::float_value);
@@ -634,7 +634,7 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator>>(float& value)
   return (*this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiProcessStream& vtkMultiProcessStream::operator>>(int& value)
 {
   // Automatically convert 64 bit values in case we are trying to transfer
@@ -652,7 +652,7 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator>>(int& value)
   return (*this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiProcessStream& vtkMultiProcessStream::operator>>(char& value)
 {
   assert(this->Internals->Data.front() == vtkInternals::char_value);
@@ -661,7 +661,7 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator>>(char& value)
   return (*this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiProcessStream& vtkMultiProcessStream::operator>>(bool& v)
 {
   char value;
@@ -672,7 +672,7 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator>>(bool& v)
   return (*this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiProcessStream& vtkMultiProcessStream::operator>>(unsigned int& value)
 {
   assert(this->Internals->Data.front() == vtkInternals::uint32_value);
@@ -681,7 +681,7 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator>>(unsigned int& value)
   return (*this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiProcessStream& vtkMultiProcessStream::operator>>(unsigned char& value)
 {
   assert(this->Internals->Data.front() == vtkInternals::uchar_value);
@@ -690,7 +690,7 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator>>(unsigned char& value)
   return (*this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiProcessStream& vtkMultiProcessStream::operator>>(vtkTypeInt64& value)
 {
   // Automatically convert 64 bit values in case we are trying to transfer
@@ -708,7 +708,7 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator>>(vtkTypeInt64& value)
   return (*this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiProcessStream& vtkMultiProcessStream::operator>>(vtkTypeUInt64& value)
 {
   assert(this->Internals->Data.front() == vtkInternals::uint64_value);
@@ -717,7 +717,7 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator>>(vtkTypeUInt64& value)
   return (*this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiProcessStream& vtkMultiProcessStream::operator>>(std::string& value)
 {
   value = "";
@@ -734,7 +734,7 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator>>(std::string& value)
   return (*this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::vector<unsigned char> vtkMultiProcessStream::GetRawData() const
 {
   std::vector<unsigned char> data;
@@ -742,7 +742,7 @@ std::vector<unsigned char> vtkMultiProcessStream::GetRawData() const
   return data;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiProcessStream::GetRawData(std::vector<unsigned char>& data) const
 {
   data.clear();
@@ -756,7 +756,7 @@ void vtkMultiProcessStream::GetRawData(std::vector<unsigned char>& data) const
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiProcessStream::SetRawData(const std::vector<unsigned char>& data)
 {
   this->Internals->Data.clear();
@@ -775,7 +775,7 @@ void vtkMultiProcessStream::SetRawData(const std::vector<unsigned char>& data)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiProcessStream::GetRawData(unsigned char*& data, unsigned int& size)
 {
   delete[] data;
@@ -792,7 +792,7 @@ void vtkMultiProcessStream::GetRawData(unsigned char*& data, unsigned int& size)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiProcessStream::SetRawData(const unsigned char* data, unsigned int size)
 {
   this->Internals->Data.clear();

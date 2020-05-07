@@ -28,14 +28,14 @@
 
 vtkStandardNewMacro(vtkUnstructuredGridToExplicitStructuredGrid);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUnstructuredGridToExplicitStructuredGrid::vtkUnstructuredGridToExplicitStructuredGrid()
 {
   this->WholeExtent[0] = this->WholeExtent[1] = this->WholeExtent[2] = this->WholeExtent[3] =
     this->WholeExtent[4] = this->WholeExtent[5] = 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkUnstructuredGridToExplicitStructuredGrid::RequestInformation(
   vtkInformation* vtkNotUsed(request), vtkInformationVector** vtkNotUsed(inputVector),
   vtkInformationVector* outputVector)
@@ -46,7 +46,7 @@ int vtkUnstructuredGridToExplicitStructuredGrid::RequestInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkUnstructuredGridToExplicitStructuredGrid::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -179,7 +179,7 @@ int vtkUnstructuredGridToExplicitStructuredGrid::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkUnstructuredGridToExplicitStructuredGrid::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {

@@ -239,7 +239,7 @@ void WriteBPFile3DVars(const std::string& fileName, const size_t steps, const in
   const bool isAttribute, const bool /*hasTime*/, const bool unsignedType,
   const std::string& engineType)
 {
-    const std::string unstructureGridSchema = R"(
+  const std::string unstructureGridSchema = R"(
         <VTKFile type="UnstructuredGrid">
           <UnstructuredGrid>
             <Piece>
@@ -260,52 +260,52 @@ void WriteBPFile3DVars(const std::string& fileName, const size_t steps, const in
           </UnstructuredGrid>
         </VTKFile>)";
 
-    std::vector<double> sol(45);
+  std::vector<double> sol(45);
 
-    adios2::fstream fs(fileName, adios2::fstream::out, MPI_COMM_SELF, engineType);
+  adios2::fstream fs(fileName, adios2::fstream::out, MPI_COMM_SELF, engineType);
 
-    for (size_t s = 0; s < steps; ++s)
+  for (size_t s = 0; s < steps; ++s)
+  {
+    if (s == 0 && rank == 0)
     {
-      if (s == 0 && rank == 0)
+      if (unsignedType)
       {
-        if (unsignedType)
-        {
-          fs.write<uint32_t>("types", 11);
-        }
-        else
-        {
-          fs.write<int32_t>("types", 11);
-        }
-
-        fs.write("connectivity", connectivity.data(), {}, {}, { 16, 9 });
-        fs.write("vertices", vertices.data(), {}, {}, { 45, 3 });
-        if (isAttribute)
-        {
-          fs.write_attribute("vtk.xml", unstructureGridSchema);
-        }
+        fs.write<uint32_t>("types", 11);
+      }
+      else
+      {
+        fs.write<int32_t>("types", 11);
       }
 
-      if (rank == 0)
+      fs.write("connectivity", connectivity.data(), {}, {}, { 16, 9 });
+      fs.write("vertices", vertices.data(), {}, {}, { 45, 3 });
+      if (isAttribute)
       {
-        fs.write("steps", s);
+        fs.write_attribute("vtk.xml", unstructureGridSchema);
       }
-
-      TStep(sol, s, rank);
-      fs.write("sol", sol.data(), {}, {}, { sol.size() });
-      fs.end_step();
     }
-    fs.close();
 
-    if (!isAttribute && rank == 0)
+    if (rank == 0)
     {
-      const std::string vtkFileName = vtksys::SystemTools::FileIsDirectory(fileName)
-        ? fileName + "/vtk.xml"
-        : fileName + ".dir/vtk.xml";
-
-      vtksys::ofstream fxml(vtkFileName, vtksys::ofstream::out);
-      fxml << unstructureGridSchema << "\n";
-      fxml.close();
+      fs.write("steps", s);
     }
+
+    TStep(sol, s, rank);
+    fs.write("sol", sol.data(), {}, {}, { sol.size() });
+    fs.end_step();
+  }
+  fs.close();
+
+  if (!isAttribute && rank == 0)
+  {
+    const std::string vtkFileName = vtksys::SystemTools::FileIsDirectory(fileName)
+      ? fileName + "/vtk.xml"
+      : fileName + ".dir/vtk.xml";
+
+    vtksys::ofstream fxml(vtkFileName, vtksys::ofstream::out);
+    fxml << unstructureGridSchema << "\n";
+    fxml.close();
+  }
 }
 
 } // end empty namespace

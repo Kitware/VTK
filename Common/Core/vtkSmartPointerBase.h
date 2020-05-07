@@ -51,7 +51,11 @@ public:
   /**
    * Move the pointee from @a r into @a this and reset @ r.
    */
-  vtkSmartPointerBase(vtkSmartPointerBase&& r) noexcept : Object(r.Object) { r.Object = nullptr; }
+  vtkSmartPointerBase(vtkSmartPointerBase&& r) noexcept
+    : Object(r.Object)
+  {
+    r.Object = nullptr;
+  }
 
   /**
    * Destroy smart pointer and remove the reference to its object.

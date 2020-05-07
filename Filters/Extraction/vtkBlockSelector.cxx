@@ -47,7 +47,7 @@ public:
 
   // This functor is only needed for vtkArrayDispatch to correctly fill it up.
   // otherwise, it'd simply be a set.
-  class AMRIdsT : public std::set<std::pair<unsigned int, unsigned int> >
+  class AMRIdsT : public std::set<std::pair<unsigned int, unsigned int>>
   {
   public:
     template <typename ArrayType>
@@ -68,19 +68,19 @@ public:
 
 vtkStandardNewMacro(vtkBlockSelector);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBlockSelector::vtkBlockSelector()
 {
   this->Internals = new vtkInternals;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBlockSelector::~vtkBlockSelector()
 {
   delete this->Internals;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBlockSelector::Initialize(vtkSelectionNode* node)
 {
   this->Superclass::Initialize(node);
@@ -105,7 +105,7 @@ void vtkBlockSelector::Initialize(vtkSelectionNode* node)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkBlockSelector::ComputeSelectedElements(
   vtkDataObject* vtkNotUsed(input), vtkSignedCharArray* insidednessArray)
 {
@@ -113,7 +113,7 @@ bool vtkBlockSelector::ComputeSelectedElements(
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSelector::SelectionMode vtkBlockSelector::GetAMRBlockSelection(
   unsigned int level, unsigned int index)
 {
@@ -128,7 +128,7 @@ vtkSelector::SelectionMode vtkBlockSelector::GetAMRBlockSelection(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSelector::SelectionMode vtkBlockSelector::GetBlockSelection(unsigned int compositeIndex)
 {
   auto& internals = (*this->Internals);
@@ -142,7 +142,7 @@ vtkSelector::SelectionMode vtkBlockSelector::GetBlockSelection(unsigned int comp
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBlockSelector::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

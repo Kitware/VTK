@@ -29,7 +29,7 @@
 
 // vtkStandardNewMacro(vtkHigherOrderInterpolation);
 
-// -----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static constexpr double hexCorner[8][3] = { { 0., 0., 0. }, { +1., 0., 0. }, { +1., +1., 0. },
   { 0., +1., 0. }, { 0., 0., +1. }, { +1., 0., +1. }, { +1., +1., +1. }, { 0., +1., +1. } };
 
@@ -62,7 +62,7 @@ static constexpr int hexFaceEdges[6][4] = {
   { 0, 1, 2, 3 },
   { 4, 5, 6, 7 },
 };
-// -----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static constexpr double wedgeCorner[6][3] = { { 0., 0., 0. }, { +1., 0., 0. }, { 0., +1., 0. },
   { 0., 0., +1. }, { +1., 0., +1. }, { 0., +1., +1. } };
 
@@ -98,7 +98,7 @@ static constexpr int wedgeFaceEdges[5][5] = {
   { 1, 8, 4, 7, 0 },
   { 2, 8, 5, 6, 0 },
 };
-// -----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkHigherOrderInterpolation::vtkHigherOrderInterpolation() = default;
 
@@ -184,7 +184,7 @@ int vtkHigherOrderInterpolation::Tensor2ShapeFunctions(const int order[2], const
 
 // Quadrilateral shape-function derivatives
 int vtkHigherOrderInterpolation::Tensor2ShapeDerivatives(const int order[2],
-  const double pcoords[2], double* deriv,
+  const double pcoords[3], double* deriv,
   void (*function_evaluate_shape_and_gradient)(int, double, double*, double*))
 {
   std::array<std::vector<double>, 2> ll;

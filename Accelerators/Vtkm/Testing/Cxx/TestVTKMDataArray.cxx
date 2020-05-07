@@ -10,7 +10,7 @@
 namespace
 {
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class TestError
 {
 public:
@@ -41,7 +41,7 @@ inline bool IsEqualFloat(double a, double b, double e = 1e-6f)
   return (std::abs(a - b) <= e);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <typename ArrayHandleType>
 void TestWithArrayHandle(const ArrayHandleType& vtkmArray)
 {
@@ -78,7 +78,7 @@ void TestWithArrayHandle(const ArrayHandleType& vtkmArray)
 
 } // anonymous namespace
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestVTKMDataArray(int, char*[])
 try
 {

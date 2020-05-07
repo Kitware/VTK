@@ -1326,41 +1326,41 @@ struct UnitTestEdgeCases
     TestSpecializations();
 
     std::cerr << "SOA<float> <--> AOS<float>\n";
-    DispatchValueCompat<vtkSOADataArrayTemplate<float>, vtkAOSDataArrayTemplate<float> >();
+    DispatchValueCompat<vtkSOADataArrayTemplate<float>, vtkAOSDataArrayTemplate<float>>();
 
     std::cerr << "AOS<float> <--> SOA<float>\n";
-    DispatchValueCompat<vtkAOSDataArrayTemplate<float>, vtkSOADataArrayTemplate<float> >();
+    DispatchValueCompat<vtkAOSDataArrayTemplate<float>, vtkSOADataArrayTemplate<float>>();
 
     std::cerr << "SOA<double> <--> AOS<float>\n";
-    DispatchValueCompat<vtkSOADataArrayTemplate<double>, vtkAOSDataArrayTemplate<float> >();
+    DispatchValueCompat<vtkSOADataArrayTemplate<double>, vtkAOSDataArrayTemplate<float>>();
 
     std::cerr << "AOS<float> <--> SOA<double>\n";
-    DispatchValueCompat<vtkAOSDataArrayTemplate<float>, vtkSOADataArrayTemplate<double> >();
+    DispatchValueCompat<vtkAOSDataArrayTemplate<float>, vtkSOADataArrayTemplate<double>>();
 
     std::cerr << "SOA<int> <--> AOS<float>\n";
-    DispatchValueCompat<vtkSOADataArrayTemplate<int>, vtkAOSDataArrayTemplate<float> >();
+    DispatchValueCompat<vtkSOADataArrayTemplate<int>, vtkAOSDataArrayTemplate<float>>();
 
     std::cerr << "AOS<float> <--> SOA<int>\n";
-    DispatchValueCompat<vtkAOSDataArrayTemplate<float>, vtkSOADataArrayTemplate<int> >();
+    DispatchValueCompat<vtkAOSDataArrayTemplate<float>, vtkSOADataArrayTemplate<int>>();
 
 #ifdef VTK_USE_SCALED_SOA_ARRAYS
     std::cerr << "ScaleSOA<float> <--> AOS<float>\n";
-    DispatchValueCompat<vtkScaledSOADataArrayTemplate<float>, vtkAOSDataArrayTemplate<float> >();
+    DispatchValueCompat<vtkScaledSOADataArrayTemplate<float>, vtkAOSDataArrayTemplate<float>>();
 
     std::cerr << "AOS<float> <--> ScaleSOA<float>\n";
-    DispatchValueCompat<vtkAOSDataArrayTemplate<float>, vtkScaledSOADataArrayTemplate<float> >();
+    DispatchValueCompat<vtkAOSDataArrayTemplate<float>, vtkScaledSOADataArrayTemplate<float>>();
 
     std::cerr << "ScaleSOA<double> <--> AOS<float>\n";
-    DispatchValueCompat<vtkScaledSOADataArrayTemplate<double>, vtkAOSDataArrayTemplate<float> >();
+    DispatchValueCompat<vtkScaledSOADataArrayTemplate<double>, vtkAOSDataArrayTemplate<float>>();
 
     std::cerr << "AOS<float> <--> ScaleSOA<double>\n";
-    DispatchValueCompat<vtkAOSDataArrayTemplate<float>, vtkScaledSOADataArrayTemplate<double> >();
+    DispatchValueCompat<vtkAOSDataArrayTemplate<float>, vtkScaledSOADataArrayTemplate<double>>();
 
     std::cerr << "ScaleSOA<int> <--> AOS<float>\n";
-    DispatchValueCompat<vtkScaledSOADataArrayTemplate<int>, vtkAOSDataArrayTemplate<float> >();
+    DispatchValueCompat<vtkScaledSOADataArrayTemplate<int>, vtkAOSDataArrayTemplate<float>>();
 
     std::cerr << "AOS<float> <--> ScaleSOA<int>\n";
-    DispatchValueCompat<vtkAOSDataArrayTemplate<float>, vtkScaledSOADataArrayTemplate<int> >();
+    DispatchValueCompat<vtkAOSDataArrayTemplate<float>, vtkScaledSOADataArrayTemplate<int>>();
 #endif
   }
 
@@ -1370,7 +1370,7 @@ struct UnitTestEdgeCases
 #ifndef VTK_DEBUG_RANGE_ITERATORS
     // These should use the objects in vtkDataArrayTupleRange_AOS.h, which
     // end up using ValueType* pointers for component iterators.
-    TestAOSSpecialization<vtkAOSDataArrayTemplate<float> >();
+    TestAOSSpecialization<vtkAOSDataArrayTemplate<float>>();
     TestAOSSpecialization<vtkFloatArray>();
 #endif
   }
@@ -1734,12 +1734,12 @@ void RunTestsForArray()
 int TestDataArrayValueRange(int, char*[])
 {
   std::cerr << "AOS:\n";
-  RunTestsForArray<vtkAOSDataArrayTemplate<float> >();
+  RunTestsForArray<vtkAOSDataArrayTemplate<float>>();
   std::cerr << "SOA:\n";
-  RunTestsForArray<vtkSOADataArrayTemplate<float> >();
+  RunTestsForArray<vtkSOADataArrayTemplate<float>>();
 #ifdef VTK_USE_SCALED_SOA_ARRAYS
   std::cerr << "ScaleSOA:\n";
-  RunTestsForArray<vtkScaledSOADataArrayTemplate<float> >();
+  RunTestsForArray<vtkScaledSOADataArrayTemplate<float>>();
 #endif
   std::cerr << "vtkFloatArray:\n";
   RunTestsForArray<vtkFloatArray>();

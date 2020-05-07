@@ -78,7 +78,7 @@ struct BlockT
   vtkSmartPointer<vtkStaticPointLocator> Locator;
   vtkNew<vtkSignedCharArray> MarkedArray;
   vtkNew<vtkIntArray> UpdateFlags;
-  std::vector<std::pair<diy::BlockID, vtkBoundingBox> > Neighbors;
+  std::vector<std::pair<diy::BlockID, vtkBoundingBox>> Neighbors;
 
   void BuildLocator();
   void EnqueueAndExpand(int assoc, int round, const diy::Master::ProxyWithLink& cp);
@@ -221,7 +221,7 @@ void BlockT::Expand(int assoc, int round, const std::set<vtkIdType>& ptids)
 
 vtkStandardNewMacro(vtkExpandMarkedElements);
 vtkCxxSetObjectMacro(vtkExpandMarkedElements, Controller, vtkMultiProcessController);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExpandMarkedElements::vtkExpandMarkedElements()
 {
   this->SetController(vtkMultiProcessController::GetGlobalController());
@@ -229,13 +229,13 @@ vtkExpandMarkedElements::vtkExpandMarkedElements()
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, vtkDataSetAttributes::SCALARS);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExpandMarkedElements::~vtkExpandMarkedElements()
 {
   this->SetController(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExpandMarkedElements::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -364,7 +364,7 @@ int vtkExpandMarkedElements::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExpandMarkedElements::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

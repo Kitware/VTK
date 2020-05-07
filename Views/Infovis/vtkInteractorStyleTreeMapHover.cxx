@@ -43,7 +43,7 @@
 
 vtkStandardNewMacro(vtkInteractorStyleTreeMapHover);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkInteractorStyleTreeMapHover::vtkInteractorStyleTreeMapHover()
 {
@@ -102,7 +102,7 @@ vtkInteractorStyleTreeMapHover::vtkInteractorStyleTreeMapHover()
   highMap->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkInteractorStyleTreeMapHover::~vtkInteractorStyleTreeMapHover()
 {
@@ -157,7 +157,7 @@ void vtkInteractorStyleTreeMapHover::SetInteractor(vtkRenderWindowInteractor* rw
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkInteractorStyleTreeMapHover::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -321,7 +321,7 @@ double vtkInteractorStyleTreeMapHover::GetSelectionWidth()
   return this->SelectionActor->GetProperty()->GetLineWidth();
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleTreeMapHover::OnLeftButtonUp()
 {
   // Get the id of the object underneath the mouse

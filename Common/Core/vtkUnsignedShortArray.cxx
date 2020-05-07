@@ -21,17 +21,17 @@ VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATE(unsigned short);
 
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkUnsignedShortArray);
 vtkStandardExtendedNewMacro(vtkUnsignedShortArray);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUnsignedShortArray::vtkUnsignedShortArray() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUnsignedShortArray::~vtkUnsignedShortArray() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkUnsignedShortArray::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->RealSuperclass::PrintSelf(os, indent);

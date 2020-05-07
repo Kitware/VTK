@@ -683,7 +683,7 @@ void vtkClipVolume::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Mixed 3D Cell Type: " << (this->Mixed3DCellGeneration ? "On\n" : "Off\n");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkClipVolume::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);

@@ -105,7 +105,7 @@ protected:
   int Index;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Instantiate object with nullptr filename.
 vtkPExodusIIReader::vtkPExodusIIReader()
@@ -132,7 +132,7 @@ vtkPExodusIIReader::vtkPExodusIIReader()
   this->VariableCacheSize = 100;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPExodusIIReader::~vtkPExodusIIReader()
 {
   this->SetController(nullptr);
@@ -165,7 +165,7 @@ vtkPExodusIIReader::~vtkPExodusIIReader()
   delete[] this->MultiFileName;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPExodusIIReader::SetController(vtkMultiProcessController* c)
 {
   if (this->Controller == c)
@@ -196,7 +196,7 @@ void vtkPExodusIIReader::SetController(vtkMultiProcessController* c)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPExodusIIReader::RequestInformation(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -349,7 +349,7 @@ int vtkPExodusIIReader::RequestInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPExodusIIReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -711,7 +711,7 @@ int vtkPExodusIIReader::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPExodusIIReader::SetFileRange(int min, int max)
 {
   if (min == this->FileRange[0] && max == this->FileRange[1])
@@ -723,7 +723,7 @@ void vtkPExodusIIReader::SetFileRange(int min, int max)
   this->NumberOfFiles = max - min + 1;
   this->Modified();
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPExodusIIReader::SetFileName(const char* name)
 {
   this->SetFileNames(1, &name);
@@ -757,7 +757,7 @@ void vtkPExodusIIReader::SetFileNames(int nfiles, const char** names)
   this->Superclass::SetFileName(names[0]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPExodusIIReader::DetermineFileId(const char* file)
 {
   // Assume the file number is the last digits found in the file name.
@@ -929,7 +929,7 @@ int vtkPExodusIIReader::DeterminePattern(const char* file)
   return VTK_OK;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPExodusIIReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkExodusIIReader::PrintSelf(os, indent);
@@ -1198,13 +1198,13 @@ static void BroadcastArrayInfoVector(vtkMultiProcessController* controller,
 }
 
 static void BroadcastSortedObjectIndices(
-  vtkMultiProcessController* controller, std::map<int, std::vector<int> >& oidx, int rank)
+  vtkMultiProcessController* controller, std::map<int, std::vector<int>>& oidx, int rank)
 {
   unsigned long len = static_cast<unsigned long>(oidx.size());
   controller->Broadcast(&len, 1, 0);
   if (rank == 0)
   {
-    std::map<int, std::vector<int> >::iterator it;
+    std::map<int, std::vector<int>>::iterator it;
     int tmp;
     for (it = oidx.begin(); it != oidx.end(); ++it)
     {
@@ -1228,14 +1228,14 @@ static void BroadcastSortedObjectIndices(
 }
 
 static void BroadcastArrayInfoMap(vtkMultiProcessController* controller,
-  std::map<int, std::vector<vtkExodusIIReaderPrivate::ArrayInfoType> >& oidx, int rank)
+  std::map<int, std::vector<vtkExodusIIReaderPrivate::ArrayInfoType>>& oidx, int rank)
 {
   unsigned long len = static_cast<unsigned long>(oidx.size());
   controller->Broadcast(&len, 1, 0);
   if (rank == 0)
   {
     int tmp;
-    std::map<int, std::vector<vtkExodusIIReaderPrivate::ArrayInfoType> >::iterator it;
+    std::map<int, std::vector<vtkExodusIIReaderPrivate::ArrayInfoType>>::iterator it;
     for (it = oidx.begin(); it != oidx.end(); ++it)
     {
       tmp = it->first;
@@ -1295,14 +1295,14 @@ static void BroadcastBlockInfoVector(vtkMultiProcessController* controller,
 }
 
 static void BroadcastBlockInfoMap(vtkMultiProcessController* controller,
-  std::map<int, std::vector<vtkExodusIIReaderPrivate::BlockInfoType> >& binfo, int rank)
+  std::map<int, std::vector<vtkExodusIIReaderPrivate::BlockInfoType>>& binfo, int rank)
 {
   unsigned long len = static_cast<unsigned long>(binfo.size());
   controller->Broadcast(&len, 1, 0);
   int tmp;
   if (rank == 0)
   {
-    std::map<int, std::vector<vtkExodusIIReaderPrivate::BlockInfoType> >::iterator it;
+    std::map<int, std::vector<vtkExodusIIReaderPrivate::BlockInfoType>>::iterator it;
     for (it = binfo.begin(); it != binfo.end(); ++it)
     {
       tmp = it->first;
@@ -1338,14 +1338,14 @@ static void BroadcastSetInfoVector(vtkMultiProcessController* controller,
 }
 
 static void BroadcastSetInfoMap(vtkMultiProcessController* controller,
-  std::map<int, std::vector<vtkExodusIIReaderPrivate::SetInfoType> >& sinfo, int rank)
+  std::map<int, std::vector<vtkExodusIIReaderPrivate::SetInfoType>>& sinfo, int rank)
 {
   unsigned long len = static_cast<unsigned long>(sinfo.size());
   controller->Broadcast(&len, 1, 0);
   int tmp;
   if (rank == 0)
   {
-    std::map<int, std::vector<vtkExodusIIReaderPrivate::SetInfoType> >::iterator it;
+    std::map<int, std::vector<vtkExodusIIReaderPrivate::SetInfoType>>::iterator it;
     for (it = sinfo.begin(); it != sinfo.end(); ++it)
     {
       tmp = it->first;
@@ -1381,14 +1381,14 @@ static void BroadcastMapInfoVector(vtkMultiProcessController* controller,
 }
 
 static void BroadcastMapInfoMap(vtkMultiProcessController* controller,
-  std::map<int, std::vector<vtkExodusIIReaderPrivate::MapInfoType> >& minfo, int rank)
+  std::map<int, std::vector<vtkExodusIIReaderPrivate::MapInfoType>>& minfo, int rank)
 {
   unsigned long len = static_cast<unsigned long>(minfo.size());
   controller->Broadcast(&len, 1, 0);
   int tmp;
   if (rank == 0)
   {
-    std::map<int, std::vector<vtkExodusIIReaderPrivate::MapInfoType> >::iterator it;
+    std::map<int, std::vector<vtkExodusIIReaderPrivate::MapInfoType>>::iterator it;
     for (it = minfo.begin(); it != minfo.end(); ++it)
     {
       tmp = it->first;

@@ -27,7 +27,7 @@
 
 vtkStandardNewMacro(vtkROIStencilSource);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkROIStencilSource::vtkROIStencilSource()
 {
   this->SetNumberOfInputPorts(0);
@@ -42,10 +42,10 @@ vtkROIStencilSource::vtkROIStencilSource()
   this->Bounds[5] = 0.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkROIStencilSource::~vtkROIStencilSource() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkROIStencilSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -55,7 +55,7 @@ void vtkROIStencilSource::PrintSelf(ostream& os, vtkIndent indent)
      << " " << this->Bounds[3] << " " << this->Bounds[4] << " " << this->Bounds[5] << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkROIStencilSource::GetShapeAsString()
 {
   switch (this->Shape)
@@ -74,12 +74,12 @@ const char* vtkROIStencilSource::GetShapeAsString()
   return "";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // tolerance for stencil operations
 
 #define VTK_STENCIL_TOL 7.62939453125e-06
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Compute a reduced extent based on the Center and Size of the shape.
 //
 // Also returns the center and radius in voxel-index units.
@@ -127,7 +127,7 @@ static void vtkROIStencilSourceSubExtent(vtkROIStencilSource* self, const double
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static int vtkROIStencilSourceBox(vtkROIStencilSource* self, vtkImageStencilData* data,
   const int extent[6], const double origin[3], const double spacing[3])
 {
@@ -166,7 +166,7 @@ static int vtkROIStencilSourceBox(vtkROIStencilSource* self, vtkImageStencilData
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static int vtkROIStencilSourceEllipsoid(vtkROIStencilSource* self, vtkImageStencilData* data,
   const int extent[6], const double origin[3], const double spacing[3])
 {
@@ -226,7 +226,7 @@ static int vtkROIStencilSourceEllipsoid(vtkROIStencilSource* self, vtkImageStenc
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static int vtkROIStencilSourceCylinderX(vtkROIStencilSource* self, vtkImageStencilData* data,
   const int extent[6], const double origin[3], const double spacing[3])
 {
@@ -273,7 +273,7 @@ static int vtkROIStencilSourceCylinderX(vtkROIStencilSource* self, vtkImageStenc
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static int vtkROIStencilSourceCylinderY(vtkROIStencilSource* self, vtkImageStencilData* data,
   int extent[6], double origin[3], double spacing[3])
 {
@@ -332,7 +332,7 @@ static int vtkROIStencilSourceCylinderY(vtkROIStencilSource* self, vtkImageStenc
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static int vtkROIStencilSourceCylinderZ(vtkROIStencilSource* self, vtkImageStencilData* data,
   int extent[6], double origin[3], double spacing[3])
 {
@@ -390,7 +390,7 @@ static int vtkROIStencilSourceCylinderZ(vtkROIStencilSource* self, vtkImageStenc
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkROIStencilSource::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

@@ -21,7 +21,7 @@
 
 vtkStandardNewMacro(vtkImageCursor3D);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageCursor3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -38,7 +38,7 @@ void vtkImageCursor3D::PrintSelf(ostream& os, vtkIndent indent)
   os << ")\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageCursor3D::vtkImageCursor3D()
 {
   this->CursorPosition[0] = 0;
@@ -102,7 +102,7 @@ void vtkImageCursor3DExecute(vtkImageCursor3D* self, vtkImageData* outData, T* p
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Split up into finished and border datas.  Fill the border datas.
 int vtkImageCursor3D::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)

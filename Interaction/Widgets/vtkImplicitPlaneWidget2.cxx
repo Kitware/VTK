@@ -49,7 +49,7 @@ public:
   vtkImplicitPlaneWidget2* ImplicitPlaneWidget;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImplicitPlaneWidget2::vtkImplicitPlaneWidget2()
 {
   this->WidgetState = vtkImplicitPlaneWidget2::Start;
@@ -131,13 +131,13 @@ vtkImplicitPlaneWidget2::vtkImplicitPlaneWidget2()
   this->InteractionCallback->ImplicitPlaneWidget = this;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImplicitPlaneWidget2::~vtkImplicitPlaneWidget2()
 {
   this->InteractionCallback->Delete();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget2::SelectAction(vtkAbstractWidget* w)
 {
   vtkImplicitPlaneWidget2* self = reinterpret_cast<vtkImplicitPlaneWidget2*>(w);
@@ -171,7 +171,7 @@ void vtkImplicitPlaneWidget2::SelectAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget2::SelectAction3D(vtkAbstractWidget* w)
 {
   vtkImplicitPlaneWidget2* self = reinterpret_cast<vtkImplicitPlaneWidget2*>(w);
@@ -203,7 +203,7 @@ void vtkImplicitPlaneWidget2::SelectAction3D(vtkAbstractWidget* w)
   self->InvokeEvent(vtkCommand::StartInteractionEvent, nullptr);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget2::TranslateAction(vtkAbstractWidget* w)
 {
   vtkImplicitPlaneWidget2* self = reinterpret_cast<vtkImplicitPlaneWidget2*>(w);
@@ -237,7 +237,7 @@ void vtkImplicitPlaneWidget2::TranslateAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget2::ScaleAction(vtkAbstractWidget* w)
 {
   vtkImplicitPlaneWidget2* self = reinterpret_cast<vtkImplicitPlaneWidget2*>(w);
@@ -271,7 +271,7 @@ void vtkImplicitPlaneWidget2::ScaleAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget2::MoveAction(vtkAbstractWidget* w)
 {
   vtkImplicitPlaneWidget2* self = reinterpret_cast<vtkImplicitPlaneWidget2*>(w);
@@ -320,7 +320,7 @@ void vtkImplicitPlaneWidget2::MoveAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget2::MoveAction3D(vtkAbstractWidget* w)
 {
   vtkImplicitPlaneWidget2* self = reinterpret_cast<vtkImplicitPlaneWidget2*>(w);
@@ -340,7 +340,7 @@ void vtkImplicitPlaneWidget2::MoveAction3D(vtkAbstractWidget* w)
   self->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget2::EndSelectAction(vtkAbstractWidget* w)
 {
   vtkImplicitPlaneWidget2* self = reinterpret_cast<vtkImplicitPlaneWidget2*>(w);
@@ -367,7 +367,7 @@ void vtkImplicitPlaneWidget2::EndSelectAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget2::EndSelectAction3D(vtkAbstractWidget* w)
 {
   vtkImplicitPlaneWidget2* self = reinterpret_cast<vtkImplicitPlaneWidget2*>(w);
@@ -393,7 +393,7 @@ void vtkImplicitPlaneWidget2::EndSelectAction3D(vtkAbstractWidget* w)
   self->InvokeEvent(vtkCommand::EndInteractionEvent, nullptr);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget2::MovePlaneAction(vtkAbstractWidget* w)
 {
   vtkImplicitPlaneWidget2* self = reinterpret_cast<vtkImplicitPlaneWidget2*>(w);
@@ -431,7 +431,7 @@ void vtkImplicitPlaneWidget2::MovePlaneAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget2::SetEnabled(int enabling)
 {
   if (this->Enabled == enabling)
@@ -447,7 +447,7 @@ void vtkImplicitPlaneWidget2::SetEnabled(int enabling)
   Superclass::SetEnabled(enabling);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget2::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)
@@ -456,13 +456,13 @@ void vtkImplicitPlaneWidget2::CreateDefaultRepresentation()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget2::SetRepresentation(vtkImplicitPlaneRepresentation* rep)
 {
   this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(rep));
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImplicitPlaneWidget2::UpdateCursorShape(int state)
 {
   // So as to change the cursor shape when the mouse is poised over
@@ -486,7 +486,7 @@ int vtkImplicitPlaneWidget2::UpdateCursorShape(int state)
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget2::SetLockNormalToCamera(int lock)
 {
   if (!this->GetImplicitPlaneRepresentation() || !this->Enabled || !this->GetCurrentRenderer())
@@ -513,7 +513,7 @@ void vtkImplicitPlaneWidget2::SetLockNormalToCamera(int lock)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget2::InvokeInteractionCallback()
 {
   vtkMTimeType previousMtime;
@@ -532,7 +532,7 @@ void vtkImplicitPlaneWidget2::InvokeInteractionCallback()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget2::TranslationAxisLock(vtkAbstractWidget* widget)
 {
   vtkImplicitPlaneWidget2* self = reinterpret_cast<vtkImplicitPlaneWidget2*>(widget);
@@ -552,14 +552,14 @@ void vtkImplicitPlaneWidget2::TranslationAxisLock(vtkAbstractWidget* widget)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget2::TranslationAxisUnLock(vtkAbstractWidget* widget)
 {
   vtkImplicitPlaneWidget2* self = reinterpret_cast<vtkImplicitPlaneWidget2*>(widget);
   vtkImplicitPlaneRepresentation::SafeDownCast(self->WidgetRep)->SetTranslationAxisOff();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget2::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

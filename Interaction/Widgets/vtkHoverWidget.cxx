@@ -23,7 +23,7 @@
 
 vtkStandardNewMacro(vtkHoverWidget);
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHoverWidget::vtkHoverWidget()
 {
   this->WidgetState = Start;
@@ -50,10 +50,10 @@ vtkHoverWidget::vtkHoverWidget()
     "Return", vtkWidgetEvent::Select, this, vtkHoverWidget::SelectAction);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHoverWidget::~vtkHoverWidget() = default;
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHoverWidget::SetEnabled(int enabling)
 {
   if (enabling) //----------------
@@ -100,7 +100,7 @@ void vtkHoverWidget::SetEnabled(int enabling)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHoverWidget::MoveAction(vtkAbstractWidget* w)
 {
   vtkHoverWidget* self = reinterpret_cast<vtkHoverWidget*>(w);
@@ -117,7 +117,7 @@ void vtkHoverWidget::MoveAction(vtkAbstractWidget* w)
   self->TimerId = self->Interactor->CreateRepeatingTimer(self->TimerDuration);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHoverWidget::HoverAction(vtkAbstractWidget* w)
 {
   vtkHoverWidget* self = reinterpret_cast<vtkHoverWidget*>(w);
@@ -134,7 +134,7 @@ void vtkHoverWidget::HoverAction(vtkAbstractWidget* w)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHoverWidget::SelectAction(vtkAbstractWidget* w)
 {
   vtkHoverWidget* self = reinterpret_cast<vtkHoverWidget*>(w);
@@ -148,7 +148,7 @@ void vtkHoverWidget::SelectAction(vtkAbstractWidget* w)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHoverWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

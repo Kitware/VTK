@@ -139,11 +139,11 @@ struct vtkXdmfWriterInternal
     }
     CellType& operator=(const CellType& ct) = default;
   };
-  typedef std::map<CellType, vtkSmartPointer<vtkIdList> > MapOfCellTypes;
+  typedef std::map<CellType, vtkSmartPointer<vtkIdList>> MapOfCellTypes;
   static void DetermineCellTypes(vtkPointSet* t, MapOfCellTypes& vec);
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXdmfWriterInternal::DetermineCellTypes(
   vtkPointSet* t, vtkXdmfWriterInternal::MapOfCellTypes& vec)
 {
@@ -179,7 +179,7 @@ void vtkXdmfWriterInternal::DetermineCellTypes(
 
 vtkStandardNewMacro(vtkXdmfWriter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXdmfWriter::vtkXdmfWriter()
 {
   this->FileName = nullptr;
@@ -198,7 +198,7 @@ vtkXdmfWriter::vtkXdmfWriter()
   this->MeshStaticOverTime = false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXdmfWriter::~vtkXdmfWriter()
 {
   this->SetFileName(nullptr);
@@ -214,13 +214,13 @@ vtkXdmfWriter::~vtkXdmfWriter()
   // TODO: Verify memory isn't leaking
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExecutive* vtkXdmfWriter::CreateDefaultExecutive()
 {
   return vtkCompositeDataPipeline::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXdmfWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -286,7 +286,7 @@ int vtkXdmfWriter::Write()
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmfWriter::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -304,7 +304,7 @@ int vtkXdmfWriter::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmfWriter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -324,7 +324,7 @@ int vtkXdmfWriter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmfWriter::RequestData(vtkInformation* request, vtkInformationVector** inputVector,
   vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -495,7 +495,7 @@ int vtkXdmfWriter::WriteCompositeDataSet(vtkCompositeDataSet* dobj, xdmf2::XdmfG
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXdmfWriter::SetupDataArrayXML(XdmfElement* e, XdmfArray* a) const
 {
   std::stringstream ss;
@@ -932,7 +932,7 @@ int vtkXdmfWriter::CreateTopology(vtkDataSet* ds, xdmf2::XdmfGrid* grid, vtkIdTy
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmfWriter::CreateGeometry(vtkDataSet* ds, xdmf2::XdmfGrid* grid, void* staticdata)
 {
   // Geometry
@@ -1139,7 +1139,7 @@ int vtkXdmfWriter::WriteAtomicDataSet(vtkDataObject* dobj, xdmf2::XdmfGrid* grid
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXdmfWriter::WriteArrays(vtkFieldData* fd, xdmf2::XdmfGrid* grid, int association,
   vtkIdType rank, vtkIdType* dims, const char* name)
 {
@@ -1165,7 +1165,7 @@ int vtkXdmfWriter::WriteArrays(vtkFieldData* fd, xdmf2::XdmfGrid* grid, int asso
   // Sort alphabetically to avoid potential bad ordering problems
   //
   int nbOfArrays = fd->GetNumberOfArrays();
-  std::vector<std::pair<int, std::string> > attributeNames;
+  std::vector<std::pair<int, std::string>> attributeNames;
   attributeNames.reserve(nbOfArrays);
   for (int i = 0; i < nbOfArrays; i++)
   {

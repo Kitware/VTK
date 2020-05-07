@@ -210,8 +210,8 @@ protected:
   bool IgnoreMetaDataWarning;
 
   vtkDataObject* OriginalInput;
-  std::vector<vtkSmartPointer<vtkUnstructuredGrid> > FlattenedInput;
-  std::vector<vtkSmartPointer<vtkUnstructuredGrid> > NewFlattenedInput;
+  std::vector<vtkSmartPointer<vtkUnstructuredGrid>> FlattenedInput;
+  std::vector<vtkSmartPointer<vtkUnstructuredGrid>> NewFlattenedInput;
 
   std::vector<vtkStdString> FlattenedNames;
   std::vector<vtkStdString> NewFlattenedNames;
@@ -270,7 +270,7 @@ protected:
   int NumberOfScalarElementArrays;
   int NumberOfScalarNodeArrays;
 
-  std::vector<std::vector<int> > CellToElementOffset;
+  std::vector<std::vector<int>> CellToElementOffset;
 
   // By BlockId, and within block ID by element variable, with variables
   // appearing in the same order in which they appear in OutputElementArrayNames

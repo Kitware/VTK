@@ -53,7 +53,7 @@ public:
   std::vector<unsigned char> ClosedVertices;
 
   // Adjacency representation.
-  std::vector<std::map<int, double> > Adjacency;
+  std::vector<std::map<int, double>> Adjacency;
 
   // Path repelling by assigning high costs to flagged vertices.
   std::vector<unsigned char> BlockedVertices;

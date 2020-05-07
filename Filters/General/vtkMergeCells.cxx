@@ -59,7 +59,7 @@ public:
   std::map<vtkIdType, vtkIdType> IdTypeMap;
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMergeCells::vtkMergeCells()
 {
   this->TotalNumberOfDataSets = 0;
@@ -89,7 +89,7 @@ vtkMergeCells::vtkMergeCells()
   this->NextGrid = 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMergeCells::~vtkMergeCells()
 {
   this->FreeLists();
@@ -100,7 +100,7 @@ vtkMergeCells::~vtkMergeCells()
   this->SetUnstructuredGrid(nullptr);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMergeCells::FreeLists()
 {
   delete this->PointList;
@@ -110,7 +110,7 @@ void vtkMergeCells::FreeLists()
   this->CellList = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMergeCells::MergeDataSet(vtkDataSet* set)
 {
   vtkUnstructuredGrid* grid = this->UnstructuredGrid;
@@ -239,7 +239,7 @@ struct ProcessCellGIDsDataSet
 
 } // end anon namespace
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkMergeCells::AddNewCellsDataSet(vtkDataSet* set, vtkIdType* idMap)
 {
   vtkUnstructuredGrid* grid = this->UnstructuredGrid;
@@ -323,7 +323,7 @@ struct ProcessCellGIDsUG
 
 } // end anon namespace
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkMergeCells::AddNewCellsUnstructuredGrid(vtkDataSet* set, vtkIdType* idMap)
 {
   bool firstSet = (this->NextGrid == 0);
@@ -512,7 +512,7 @@ vtkIdType vtkMergeCells::AddNewCellsUnstructuredGrid(vtkDataSet* set, vtkIdType*
   return finalCellId;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMergeCells::StartUGrid(vtkDataSet* set)
 {
   vtkUnstructuredGrid* grid = this->UnstructuredGrid;
@@ -556,7 +556,7 @@ void vtkMergeCells::StartUGrid(vtkDataSet* set)
   grid->GetCellData()->CopyAllocate(*this->CellList, this->TotalNumberOfCells);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMergeCells::Finish()
 {
   this->FreeLists();
@@ -605,7 +605,7 @@ struct MapPointsUsingGIDsWorker
 
 } // end anon namespace
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Use an array of global node ids to map all points to
 // their new ids in the merged grid.
 vtkIdType* vtkMergeCells::MapPointsToIdsUsingGlobalIds(vtkDataSet* set)
@@ -631,7 +631,7 @@ vtkIdType* vtkMergeCells::MapPointsToIdsUsingGlobalIds(vtkDataSet* set)
   return idMap;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Use a spatial locator to filter out duplicate points and map
 // the new ids to their ids in the merged grid.
 vtkIdType* vtkMergeCells::MapPointsToIdsUsingLocator(vtkDataSet* set)
@@ -806,13 +806,13 @@ vtkIdType* vtkMergeCells::MapPointsToIdsUsingLocator(vtkDataSet* set)
   return idMap;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMergeCells::InvalidateCachedLocator()
 {
   this->Locator = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMergeCells::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

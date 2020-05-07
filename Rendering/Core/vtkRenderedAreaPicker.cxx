@@ -35,13 +35,13 @@
 
 vtkStandardNewMacro(vtkRenderedAreaPicker);
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRenderedAreaPicker::vtkRenderedAreaPicker() = default;
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRenderedAreaPicker::~vtkRenderedAreaPicker() = default;
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Does what this class is meant to do.
 int vtkRenderedAreaPicker::AreaPick(
   double x0, double y0, double x1, double y1, vtkRenderer* renderer)
@@ -143,7 +143,7 @@ int vtkRenderedAreaPicker::AreaPick(
   return picked;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderedAreaPicker::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

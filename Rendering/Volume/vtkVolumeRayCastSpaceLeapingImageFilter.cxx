@@ -34,11 +34,11 @@
 // Space leaping block size
 #define VTK_SL_BLK 4
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkVolumeRayCastSpaceLeapingImageFilter);
 vtkCxxSetObjectMacro(vtkVolumeRayCastSpaceLeapingImageFilter, CurrentScalars, vtkDataArray);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkVolumeRayCastSpaceLeapingImageFilter::vtkVolumeRayCastSpaceLeapingImageFilter()
 {
   this->ComputeMinMax = 0;
@@ -65,7 +65,7 @@ vtkVolumeRayCastSpaceLeapingImageFilter::vtkVolumeRayCastSpaceLeapingImageFilter
   this->SplitPathLength = 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkVolumeRayCastSpaceLeapingImageFilter::~vtkVolumeRayCastSpaceLeapingImageFilter()
 {
   this->SetCurrentScalars(nullptr);
@@ -73,7 +73,7 @@ vtkVolumeRayCastSpaceLeapingImageFilter::~vtkVolumeRayCastSpaceLeapingImageFilte
   delete[] this->MinNonZeroGradientMagnitudeIndex;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeRayCastSpaceLeapingImageFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -92,7 +92,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilter::PrintSelf(ostream& os, vtkIndent i
   // this->MinNonZeroGradientMagnitudeIndex
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkVolumeRayCastSpaceLeapingImageFilter::RequestUpdateExtent(
   vtkInformation* vtkNotUsed(request), vtkInformationVector** inputVector,
   vtkInformationVector* vtkNotUsed(outputVector))
@@ -109,14 +109,14 @@ int vtkVolumeRayCastSpaceLeapingImageFilter::RequestUpdateExtent(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeRayCastSpaceLeapingImageFilter ::SetCache(vtkImageData* cache)
 {
   // Do not reference count it to avoid reference counting loops
   this->Cache = cache;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeRayCastSpaceLeapingImageFilter ::InternalRequestUpdateExtent(
   int* inExt, int* wholeExtent)
 {
@@ -133,7 +133,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilter ::InternalRequestUpdateExtent(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static void vtkVolumeRayCastSpaceLeapingImageFilterClearOutput(
   vtkImageData* outData, int outExt[6], int nComponents)
 {
@@ -164,7 +164,7 @@ static void vtkVolumeRayCastSpaceLeapingImageFilterClearOutput(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeRayCastSpaceLeapingImageFilter ::ComputeInputExtentsForOutput(
   int inExt[6], int inDim[3], int outExt[6], vtkImageData* inData)
 {
@@ -193,7 +193,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilter ::ComputeInputExtentsForOutput(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Fill in the min-max space leaping information.
 template <class T>
 void vtkVolumeRayCastSpaceLeapingImageFilterMinMaxExecute(
@@ -341,7 +341,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilterMinMaxExecute(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Fill in the maximum gradient magnitude space leaping information.
 template <class T>
 void vtkVolumeRayCastSpaceLeapingImageFilterMaxGradientMagnitudeExecute(
@@ -480,7 +480,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilterMaxGradientMagnitudeExecute(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Optimized method that does both the following in one pass
 // - Fill in the min-max space leaping information.
 // - Fill in the maximum gradient magnitude space leaping information.
@@ -643,7 +643,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilterMinMaxAndMaxGradientMagnitudeExecute
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeRayCastSpaceLeapingImageFilter ::FillScalarAndGradientOpacityFlags(
   vtkImageData* outData, int outExt[6])
 {
@@ -727,7 +727,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilter ::FillScalarAndGradientOpacityFlags
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeRayCastSpaceLeapingImageFilter ::FillScalarOpacityFlags(
   vtkImageData* outData, int outExt[6])
 {
@@ -803,7 +803,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilter ::FillScalarOpacityFlags(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeRayCastSpaceLeapingImageFilter::ThreadedRequestData(
   vtkInformation* vtkNotUsed(request), vtkInformationVector** vtkNotUsed(inputVector),
   vtkInformationVector* vtkNotUsed(outputVector), vtkImageData*** inData, vtkImageData** outData,
@@ -894,7 +894,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilter::ThreadedRequestData(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Override superclass method to maintain a last successful execution time
 int vtkVolumeRayCastSpaceLeapingImageFilter::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -928,7 +928,7 @@ int vtkVolumeRayCastSpaceLeapingImageFilter::RequestData(
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkVolumeRayCastSpaceLeapingImageFilter::RequestInformation(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -957,7 +957,7 @@ int vtkVolumeRayCastSpaceLeapingImageFilter::RequestInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkVolumeRayCastSpaceLeapingImageFilter ::GetNumberOfIndependentComponents()
 {
   // the number of independent components for which we need to keep track of
@@ -970,7 +970,7 @@ int vtkVolumeRayCastSpaceLeapingImageFilter ::GetNumberOfIndependentComponents()
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeRayCastSpaceLeapingImageFilter ::ComputeFirstNonZeroOpacityIndices()
 {
   // Find the first non-zero scalar opacity and gradient opacity points on
@@ -1013,44 +1013,44 @@ void vtkVolumeRayCastSpaceLeapingImageFilter ::ComputeFirstNonZeroOpacityIndices
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 unsigned short* vtkVolumeRayCastSpaceLeapingImageFilter ::GetMinNonZeroScalarIndex()
 {
   return this->MinNonZeroScalarIndex;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 unsigned char* vtkVolumeRayCastSpaceLeapingImageFilter ::GetMinNonZeroGradientMagnitudeIndex()
 {
   return this->MinNonZeroGradientMagnitudeIndex;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeRayCastSpaceLeapingImageFilter ::SetGradientMagnitude(
   unsigned char** gradientMagnitude)
 {
   this->GradientMagnitude = gradientMagnitude;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 unsigned char** vtkVolumeRayCastSpaceLeapingImageFilter ::GetGradientMagnitude()
 {
   return this->GradientMagnitude;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeRayCastSpaceLeapingImageFilter ::SetScalarOpacityTable(int c, unsigned short* t)
 {
   this->ScalarOpacityTable[c] = t;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeRayCastSpaceLeapingImageFilter ::SetGradientOpacityTable(int c, unsigned short* t)
 {
   this->GradientOpacityTable[c] = t;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 unsigned short* vtkVolumeRayCastSpaceLeapingImageFilter ::GetMinMaxVolume(int size[4])
 {
   if (vtkImageData* output = this->GetOutput())
@@ -1067,7 +1067,7 @@ unsigned short* vtkVolumeRayCastSpaceLeapingImageFilter ::GetMinMaxVolume(int si
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Fill in the min-max space leaping information.
 vtkIdType vtkVolumeRayCastSpaceLeapingImageFilter ::ComputeOffset(
   const int ext[6], const int wholeExt[6], int nComponents)
@@ -1086,7 +1086,7 @@ vtkIdType vtkVolumeRayCastSpaceLeapingImageFilter ::ComputeOffset(
   return offset;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Allocate the output data, caching if necessary. Caching may result in
 // invalid outputs and should be turned on, only when this filter is used
 // as an internal ivar of the vtkFixedPointVolumeRayCastMapper.
@@ -1123,7 +1123,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilter ::AllocateOutputData(
   output->AllocateScalars(outInfo);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageData* vtkVolumeRayCastSpaceLeapingImageFilter ::AllocateOutputData(
   vtkDataObject* output, vtkInformation* outInfo)
 {
@@ -1131,7 +1131,7 @@ vtkImageData* vtkVolumeRayCastSpaceLeapingImageFilter ::AllocateOutputData(
   return vtkImageAlgorithm::AllocateOutputData(output, outInfo);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 #ifdef vtkVolumeRayCastSpaceLeapingImageFilter_DEBUG
 void vtkVolumeRayCastSpaceLeapingImageFilter ::WriteMinMaxVolume(
   int component, unsigned short* minMaxVolume, int minMaxVolumeSize[4], const char* filename)

@@ -27,7 +27,7 @@
 #include <sstream>
 #include <vector>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkXMLPMultiBlockDataWriter);
 
 vtkCxxSetObjectMacro(vtkXMLPMultiBlockDataWriter, Controller, vtkMultiProcessController);
@@ -67,7 +67,7 @@ public:
   int NumberOfProcesses;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLPMultiBlockDataWriter::vtkXMLPMultiBlockDataWriter()
 {
   this->StartPiece = 0;
@@ -78,14 +78,14 @@ vtkXMLPMultiBlockDataWriter::vtkXMLPMultiBlockDataWriter()
   this->SetWriteMetaFile(1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLPMultiBlockDataWriter::~vtkXMLPMultiBlockDataWriter()
 {
   this->SetController(nullptr);
   delete this->XMLPMultiBlockDataWriterInternal;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPMultiBlockDataWriter::SetWriteMetaFile(int flag)
 {
   this->Modified();
@@ -102,7 +102,7 @@ void vtkXMLPMultiBlockDataWriter::SetWriteMetaFile(int flag)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPMultiBlockDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -120,7 +120,7 @@ void vtkXMLPMultiBlockDataWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "StartPiece: " << this->StartPiece << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkXMLPMultiBlockDataWriter::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -136,7 +136,7 @@ vtkTypeBool vtkXMLPMultiBlockDataWriter::ProcessRequest(
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPMultiBlockDataWriter::FillDataTypes(vtkCompositeDataSet* hdInput)
 {
   // FillDataTypes is called before the actual data writing begins.
@@ -166,7 +166,7 @@ void vtkXMLPMultiBlockDataWriter::FillDataTypes(vtkCompositeDataSet* hdInput)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPMultiBlockDataWriter::WriteComposite(
   vtkCompositeDataSet* compositeData, vtkXMLDataElement* parentXML, int& currentFileIndex)
 {
@@ -253,7 +253,7 @@ int vtkXMLPMultiBlockDataWriter::WriteComposite(
   return retVal;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPMultiBlockDataWriter::ParallelWriteNonCompositeData(
   vtkDataObject* dObj, vtkXMLDataElement* parentXML, int currentFileIndex)
 {
@@ -317,7 +317,7 @@ int vtkXMLPMultiBlockDataWriter::ParallelWriteNonCompositeData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStdString vtkXMLPMultiBlockDataWriter::CreatePieceFileName(
   int currentFileIndex, int procId, int dataSetType)
 {
@@ -341,7 +341,7 @@ vtkStdString vtkXMLPMultiBlockDataWriter::CreatePieceFileName(
   return fname;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPMultiBlockDataWriter::RemoveWrittenFiles(const char* SubDirectory)
 {
   if (this->Controller->GetLocalProcessId() == 0)

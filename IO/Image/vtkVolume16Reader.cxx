@@ -30,7 +30,7 @@ vtkStandardNewMacro(vtkVolume16Reader);
 
 vtkCxxSetObjectMacro(vtkVolume16Reader, Transform, vtkTransform);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct object with nullptr file prefix; file pattern "%s.%d"; image range
 // set to (1,1); data origin (0,0,0); data spacing (1,1,1); no data mask;
 // header size 0; and byte swapping turned off.
@@ -43,13 +43,13 @@ vtkVolume16Reader::vtkVolume16Reader()
   this->Transform = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkVolume16Reader::~vtkVolume16Reader()
 {
   this->SetTransform(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolume16Reader::SetDataByteOrderToBigEndian()
 {
 #ifndef VTK_WORDS_BIGENDIAN
@@ -59,7 +59,7 @@ void vtkVolume16Reader::SetDataByteOrderToBigEndian()
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolume16Reader::SetDataByteOrderToLittleEndian()
 {
 #ifdef VTK_WORDS_BIGENDIAN
@@ -69,7 +69,7 @@ void vtkVolume16Reader::SetDataByteOrderToLittleEndian()
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolume16Reader::SetDataByteOrder(int byteOrder)
 {
   if (byteOrder == VTK_FILE_BYTE_ORDER_BIG_ENDIAN)
@@ -82,7 +82,7 @@ void vtkVolume16Reader::SetDataByteOrder(int byteOrder)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkVolume16Reader::GetDataByteOrder()
 {
 #ifdef VTK_WORDS_BIGENDIAN
@@ -106,7 +106,7 @@ int vtkVolume16Reader::GetDataByteOrder()
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkVolume16Reader::GetDataByteOrderAsString()
 {
 #ifdef VTK_WORDS_BIGENDIAN
@@ -130,7 +130,7 @@ const char* vtkVolume16Reader::GetDataByteOrderAsString()
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkVolume16Reader::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -150,7 +150,7 @@ int vtkVolume16Reader::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkVolume16Reader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -217,7 +217,7 @@ int vtkVolume16Reader::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageData* vtkVolume16Reader::GetImage(int ImageNumber)
 {
   vtkUnsignedShortArray* newScalars;
@@ -263,7 +263,7 @@ vtkImageData* vtkVolume16Reader::GetImage(int ImageNumber)
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Read a slice of volume data.
 void vtkVolume16Reader::ReadImage(int sliceNumber, vtkUnsignedShortArray* scalars)
 {
@@ -300,7 +300,7 @@ void vtkVolume16Reader::ReadImage(int sliceNumber, vtkUnsignedShortArray* scalar
   fclose(fp);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Read a volume of data.
 void vtkVolume16Reader::ReadVolume(int first, int last, vtkUnsignedShortArray* scalars)
 {
@@ -371,7 +371,7 @@ void vtkVolume16Reader::ReadVolume(int first, int last, vtkUnsignedShortArray* s
   delete[] slice;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkVolume16Reader::Read16BitImage(
   FILE* fp, unsigned short* pixels, int xsize, int ysize, int skip, int swapBytes)
 {
@@ -420,7 +420,7 @@ int vtkVolume16Reader::Read16BitImage(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolume16Reader::ComputeTransformedSpacing(double spacing[3])
 {
   if (!this->Transform)
@@ -442,7 +442,7 @@ void vtkVolume16Reader::ComputeTransformedSpacing(double spacing[3])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolume16Reader::ComputeTransformedOrigin(double origin[3])
 {
   if (!this->Transform)
@@ -464,7 +464,7 @@ void vtkVolume16Reader::ComputeTransformedOrigin(double origin[3])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolume16Reader::ComputeTransformedDimensions(int dimensions[3])
 {
   double transformedDimensions[4];
@@ -501,7 +501,7 @@ void vtkVolume16Reader::ComputeTransformedDimensions(int dimensions[3])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolume16Reader::ComputeTransformedBounds(int bounds[6])
 {
   double transformedBounds[4];
@@ -549,7 +549,7 @@ void vtkVolume16Reader::ComputeTransformedBounds(int bounds[6])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolume16Reader::AdjustSpacingAndOrigin(
   int dimensions[3], double spacing[3], double origin[3])
 {
@@ -565,7 +565,7 @@ void vtkVolume16Reader::AdjustSpacingAndOrigin(
   vtkDebugMacro("Adjusted origin " << origin[0] << ", " << origin[1] << ", " << origin[2]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolume16Reader::TransformSlice(
   unsigned short* slice, unsigned short* pixels, int k, int dimensions[3], int bounds[6])
 {
@@ -606,7 +606,7 @@ void vtkVolume16Reader::TransformSlice(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolume16Reader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -25,7 +25,7 @@
 
 vtkStandardNewMacro(vtkImageSinusoidSource);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageSinusoidSource::vtkImageSinusoidSource()
 {
   this->Direction[0] = 1.0;
@@ -81,7 +81,7 @@ void vtkImageSinusoidSource::SetDirection(double v0, double v1, double v2)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSinusoidSource::SetWholeExtent(
   int xMin, int xMax, int yMin, int yMax, int zMin, int zMax)
 {
@@ -123,7 +123,7 @@ void vtkImageSinusoidSource::SetWholeExtent(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageSinusoidSource::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -137,7 +137,7 @@ int vtkImageSinusoidSource::RequestInformation(vtkInformation* vtkNotUsed(reques
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSinusoidSource::ExecuteDataWithInformation(
   vtkDataObject* output, vtkInformation* outInfo)
 {
@@ -198,7 +198,7 @@ void vtkImageSinusoidSource::ExecuteDataWithInformation(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSinusoidSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

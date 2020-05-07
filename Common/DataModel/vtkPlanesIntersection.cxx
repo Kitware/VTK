@@ -130,10 +130,10 @@ int vtkPlanesIntersection::GetNumberOfRegionVertices()
   return this->RegionPts->GetNumberOfPoints();
 }
 
-//---------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Determine whether the axis aligned box provided intersects
 // the convex region bounded by the planes.
-//---------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkPlanesIntersection::IntersectsRegion(vtkPoints* R)
 {
@@ -417,10 +417,10 @@ int vtkPlanesIntersection::PolygonIntersectsBBox(double bounds[6], vtkPoints* pt
   return intersects;
 }
 
-//---------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Some convenience functions that build a vtkPlanesIntersection object
 // out of a convex region.
-//---------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 // a static convenience function that converts a 3D cell into a
 // vtkPlanesIntersection object
@@ -530,7 +530,7 @@ vtkPlanesIntersection* vtkPlanesIntersection::Convert3DCell(vtkCell* cell)
   return pi;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkPlanesIntersection::ComputeNormal(double* p1, double* p2, double* p3, double normal[3])
 {

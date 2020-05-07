@@ -81,7 +81,7 @@ public:
   vtkPiecewiseFunctionFindNodeOutOfRange FindNodeOutOfRange;
 };
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPiecewiseFunction::vtkPiecewiseFunction()
 {
   this->Clamping = 1;
@@ -96,7 +96,7 @@ vtkPiecewiseFunction::vtkPiecewiseFunction()
   this->Internal = new vtkPiecewiseFunctionInternals;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPiecewiseFunction::~vtkPiecewiseFunction()
 {
   delete[] this->Function;
@@ -109,7 +109,7 @@ vtkPiecewiseFunction::~vtkPiecewiseFunction()
   delete this->Internal;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPiecewiseFunction::DeepCopy(vtkDataObject* o)
 {
   vtkPiecewiseFunction* f = vtkPiecewiseFunction::SafeDownCast(o);
@@ -134,7 +134,7 @@ void vtkPiecewiseFunction::DeepCopy(vtkDataObject* o)
   this->Superclass::DeepCopy(o);
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPiecewiseFunction::ShallowCopy(vtkDataObject* o)
 {
   vtkPiecewiseFunction* f = vtkPiecewiseFunction::SafeDownCast(o);
@@ -159,19 +159,19 @@ void vtkPiecewiseFunction::ShallowCopy(vtkDataObject* o)
   this->vtkDataObject::ShallowCopy(o);
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPiecewiseFunction::Initialize()
 {
   this->RemoveAllPoints();
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPiecewiseFunction::GetSize()
 {
   return static_cast<int>(this->Internal->Nodes.size());
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkPiecewiseFunction::GetType()
 {
   unsigned int i;
@@ -245,7 +245,7 @@ const char* vtkPiecewiseFunction::GetType()
   return "Unknown";
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkPiecewiseFunction::GetDataPointer()
 {
   // Since we no longer store the data in an array, we must
@@ -269,7 +269,7 @@ double* vtkPiecewiseFunction::GetDataPointer()
   return this->Function;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkPiecewiseFunction::GetFirstNonZeroValue()
 {
   // Check if no points specified
@@ -322,7 +322,7 @@ double vtkPiecewiseFunction::GetFirstNonZeroValue()
   return x;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPiecewiseFunction::GetNodeValue(int index, double val[4])
 {
   int size = static_cast<int>(this->Internal->Nodes.size());
@@ -341,7 +341,7 @@ int vtkPiecewiseFunction::GetNodeValue(int index, double val[4])
   return 1;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPiecewiseFunction::SetNodeValue(int index, double val[4])
 {
   int size = static_cast<int>(this->Internal->Nodes.size());
@@ -374,13 +374,13 @@ int vtkPiecewiseFunction::SetNodeValue(int index, double val[4])
   return 1;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPiecewiseFunction::AddPoint(double x, double y)
 {
   return this->AddPoint(x, y, 0.5, 0.0);
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPiecewiseFunction::AddPoint(double x, double y, double midpoint, double sharpness)
 {
   // Error check
@@ -439,7 +439,7 @@ int vtkPiecewiseFunction::AddPoint(double x, double y, double midpoint, double s
   return retVal;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPiecewiseFunction::SortAndUpdateRange()
 {
   std::sort(
@@ -452,7 +452,7 @@ void vtkPiecewiseFunction::SortAndUpdateRange()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPiecewiseFunction::UpdateRange()
 {
   double oldRange[2];
@@ -480,7 +480,7 @@ bool vtkPiecewiseFunction::UpdateRange()
   return true;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPiecewiseFunction::RemovePoint(double x)
 {
   // First find the node since we need to know its
@@ -504,7 +504,7 @@ int vtkPiecewiseFunction::RemovePoint(double x)
   return static_cast<int>(i);
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPiecewiseFunction::RemovePoint(double x, double y)
 {
   size_t i;
@@ -526,7 +526,7 @@ int vtkPiecewiseFunction::RemovePoint(double x, double y)
   return static_cast<int>(i);
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPiecewiseFunction::RemovePointByIndex(size_t id)
 {
   if (id > this->Internal->Nodes.size())
@@ -550,7 +550,7 @@ bool vtkPiecewiseFunction::RemovePointByIndex(size_t id)
   return true;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPiecewiseFunction::RemoveAllPoints()
 {
   for (unsigned int i = 0; i < this->Internal->Nodes.size(); i++)
@@ -562,7 +562,7 @@ void vtkPiecewiseFunction::RemoveAllPoints()
   this->SortAndUpdateRange();
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPiecewiseFunction::AddSegment(double x1, double y1, double x2, double y2)
 {
   int done;
@@ -593,7 +593,7 @@ void vtkPiecewiseFunction::AddSegment(double x1, double y1, double x2, double y2
   this->AddPoint(x2, y2, 0.5, 0.0);
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkPiecewiseFunction::GetValue(double x)
 {
   double table[1];
@@ -601,7 +601,7 @@ double vtkPiecewiseFunction::GetValue(double x)
   return table[0];
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPiecewiseFunction::AdjustRange(double range[2])
 {
   if (!range)
@@ -659,7 +659,7 @@ int vtkPiecewiseFunction::AdjustRange(double range[2])
   return 1;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPiecewiseFunction::EstimateMinNumberOfSamples(double const& x1, double const& x2)
 {
   double const d = this->FindMinimumXDistance();
@@ -668,7 +668,7 @@ int vtkPiecewiseFunction::EstimateMinNumberOfSamples(double const& x1, double co
   return idealWidth;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkPiecewiseFunction::FindMinimumXDistance()
 {
   std::vector<vtkPiecewiseFunctionNode*> const& nodes = this->Internal->Nodes;
@@ -689,7 +689,7 @@ double vtkPiecewiseFunction::FindMinimumXDistance()
   return distance;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPiecewiseFunction::GetTable(
   double start, double end, int size, double* table, int stride, int logIncrements)
 {
@@ -896,7 +896,7 @@ void vtkPiecewiseFunction::GetTable(
   }
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPiecewiseFunction::GetTable(
   double xStart, double xEnd, int size, float* table, int stride, int logIncrements)
 {
@@ -917,7 +917,7 @@ void vtkPiecewiseFunction::GetTable(
   delete[] tmpTable;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPiecewiseFunction::BuildFunctionFromTable(
   double xStart, double xEnd, int size, double* table, int stride)
 {
@@ -947,7 +947,7 @@ void vtkPiecewiseFunction::BuildFunctionFromTable(
   this->SortAndUpdateRange();
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPiecewiseFunction::FillFromDataPointer(int nb, double* ptr)
 {
   if (nb <= 0 || !ptr)
@@ -975,19 +975,19 @@ void vtkPiecewiseFunction::FillFromDataPointer(int nb, double* ptr)
   this->SortAndUpdateRange();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPiecewiseFunction* vtkPiecewiseFunction::GetData(vtkInformation* info)
 {
   return info ? vtkPiecewiseFunction::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPiecewiseFunction* vtkPiecewiseFunction::GetData(vtkInformationVector* v, int i)
 {
   return vtkPiecewiseFunction::GetData(v->GetInformationObject(i));
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPiecewiseFunction::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

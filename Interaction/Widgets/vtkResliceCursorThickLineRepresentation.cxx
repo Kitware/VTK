@@ -26,16 +26,16 @@
 
 vtkStandardNewMacro(vtkResliceCursorThickLineRepresentation);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkResliceCursorThickLineRepresentation::vtkResliceCursorThickLineRepresentation()
 {
   this->CreateDefaultResliceAlgorithm();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkResliceCursorThickLineRepresentation::~vtkResliceCursorThickLineRepresentation() = default;
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceCursorThickLineRepresentation::CreateDefaultResliceAlgorithm()
 {
   if (this->Reslice)
@@ -47,7 +47,7 @@ void vtkResliceCursorThickLineRepresentation::CreateDefaultResliceAlgorithm()
   this->Reslice = vtkImageSlabReslice::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceCursorThickLineRepresentation ::SetResliceParameters(
   double outputSpacingX, double outputSpacingY, int extentX, int extentY)
 {
@@ -83,7 +83,7 @@ void vtkResliceCursorThickLineRepresentation ::SetResliceParameters(
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceCursorThickLineRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h

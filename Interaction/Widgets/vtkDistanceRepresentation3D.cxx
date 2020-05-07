@@ -40,7 +40,7 @@
 
 vtkStandardNewMacro(vtkDistanceRepresentation3D);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDistanceRepresentation3D::vtkDistanceRepresentation3D()
 {
   // By default, use one of these handles
@@ -111,7 +111,7 @@ vtkDistanceRepresentation3D::vtkDistanceRepresentation3D()
   this->MaximumNumberOfRulerTicks = 99;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDistanceRepresentation3D::~vtkDistanceRepresentation3D()
 {
   this->LinePoints->Delete();
@@ -135,7 +135,7 @@ vtkDistanceRepresentation3D::~vtkDistanceRepresentation3D()
   this->BoundingBox->Delete();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceRepresentation3D::SetLabelActor(vtkFollower* fol)
 {
   if (fol == this->LabelActor)
@@ -160,7 +160,7 @@ void vtkDistanceRepresentation3D::SetLabelActor(vtkFollower* fol)
   this->Modified();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceRepresentation3D::GetPoint1WorldPosition(double pos[3])
 {
   if (this->Point1Representation)
@@ -169,7 +169,7 @@ void vtkDistanceRepresentation3D::GetPoint1WorldPosition(double pos[3])
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceRepresentation3D::GetPoint2WorldPosition(double pos[3])
 {
   if (this->Point2Representation)
@@ -178,7 +178,7 @@ void vtkDistanceRepresentation3D::GetPoint2WorldPosition(double pos[3])
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkDistanceRepresentation3D::GetPoint1WorldPosition()
 {
   if (!this->Point1Representation)
@@ -189,7 +189,7 @@ double* vtkDistanceRepresentation3D::GetPoint1WorldPosition()
   return this->Point1Representation->GetWorldPosition();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkDistanceRepresentation3D::GetPoint2WorldPosition()
 {
   if (!this->Point2Representation)
@@ -200,7 +200,7 @@ double* vtkDistanceRepresentation3D::GetPoint2WorldPosition()
   return this->Point2Representation->GetWorldPosition();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceRepresentation3D::SetPoint1DisplayPosition(double x[3])
 {
   this->Point1Representation->SetDisplayPosition(x);
@@ -209,7 +209,7 @@ void vtkDistanceRepresentation3D::SetPoint1DisplayPosition(double x[3])
   this->Point1Representation->SetWorldPosition(p);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceRepresentation3D::SetPoint2DisplayPosition(double x[3])
 {
   this->Point2Representation->SetDisplayPosition(x);
@@ -218,7 +218,7 @@ void vtkDistanceRepresentation3D::SetPoint2DisplayPosition(double x[3])
   this->Point2Representation->SetWorldPosition(p);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceRepresentation3D::SetPoint1WorldPosition(double x[3])
 {
   if (this->Point1Representation)
@@ -227,7 +227,7 @@ void vtkDistanceRepresentation3D::SetPoint1WorldPosition(double x[3])
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceRepresentation3D::SetPoint2WorldPosition(double x[3])
 {
   if (this->Point2Representation)
@@ -236,7 +236,7 @@ void vtkDistanceRepresentation3D::SetPoint2WorldPosition(double x[3])
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceRepresentation3D::GetPoint1DisplayPosition(double pos[3])
 {
   if (this->Point1Representation)
@@ -246,7 +246,7 @@ void vtkDistanceRepresentation3D::GetPoint1DisplayPosition(double pos[3])
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceRepresentation3D::GetPoint2DisplayPosition(double pos[3])
 {
   if (this->Point2Representation)
@@ -256,7 +256,7 @@ void vtkDistanceRepresentation3D::GetPoint2DisplayPosition(double pos[3])
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkDistanceRepresentation3D::GetBounds()
 {
   if (this->Point1Representation && this->Point2Representation)
@@ -270,7 +270,7 @@ double* vtkDistanceRepresentation3D::GetBounds()
   return this->BoundingBox->GetBounds();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceRepresentation3D::BuildRepresentation()
 {
   if (this->GetMTime() > this->BuildTime || this->LabelActor->GetMTime() > this->BuildTime ||
@@ -359,7 +359,7 @@ void vtkDistanceRepresentation3D::BuildRepresentation()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceRepresentation3D::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->LineActor->ReleaseGraphicsResources(w);
@@ -367,7 +367,7 @@ void vtkDistanceRepresentation3D::ReleaseGraphicsResources(vtkWindow* w)
   this->GlyphActor->ReleaseGraphicsResources(w);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDistanceRepresentation3D::RenderOpaqueGeometry(vtkViewport* v)
 {
   this->BuildRepresentation();
@@ -379,7 +379,7 @@ int vtkDistanceRepresentation3D::RenderOpaqueGeometry(vtkViewport* v)
   return 3;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDistanceRepresentation3D::RenderTranslucentPolygonalGeometry(vtkViewport* v)
 {
   this->BuildRepresentation();
@@ -391,39 +391,39 @@ int vtkDistanceRepresentation3D::RenderTranslucentPolygonalGeometry(vtkViewport*
   return 3;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceRepresentation3D::SetLabelScale(double scale[3])
 {
   this->LabelActor->SetScale(scale);
   this->LabelScaleSpecified = true;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkDistanceRepresentation3D::GetLabelScale()
 {
   return this->LabelActor->GetScale();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProperty* vtkDistanceRepresentation3D::GetLabelProperty()
 {
   return this->LabelActor->GetProperty();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceRepresentation3D::SetGlyphScale(double scale)
 {
   this->GlyphScale = scale;
   this->GlyphScaleSpecified = true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProperty* vtkDistanceRepresentation3D::GetLineProperty()
 {
   return this->LineActor->GetProperty();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceRepresentation3D::SetLabelPosition(double labelPosition)
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting LabelPosition to "
@@ -440,7 +440,7 @@ void vtkDistanceRepresentation3D::SetLabelPosition(double labelPosition)
   this->UpdateLabelPosition();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceRepresentation3D::UpdateLabelPosition()
 {
   if (!this->Point1Representation || !this->Point2Representation)
@@ -467,7 +467,7 @@ void vtkDistanceRepresentation3D::UpdateLabelPosition()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistanceRepresentation3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h

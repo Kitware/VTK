@@ -32,7 +32,7 @@
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static const char* TestRemoveVolumeNonCurrentContextLog =
   "# StreamVersion 1\n"
   "EnterEvent 263 265 0 0 0 0 0\n"
@@ -526,7 +526,7 @@ static const char* TestRemoveVolumeNonCurrentContextLog =
   "MouseMoveEvent 277 140 0 0 0 0 9\n"
   "MouseMoveEvent 277 145 0 0 0 0 9\n";
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class TestRemoveVolumeNonCurrentContextCallback : public vtkCommand
 {
 public:
@@ -564,7 +564,7 @@ public:
   vtkRenderWindow* renderWindow2;
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestRemoveVolumeNonCurrentContext(int argc, char* argv[])
 {
   const char* volumeFile = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/ironProt.vtk");

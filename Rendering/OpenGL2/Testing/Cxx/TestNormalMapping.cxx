@@ -34,7 +34,7 @@
 #include "vtkTexture.h"
 #include "vtkTriangleFilter.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestNormalMapping(int argc, char* argv[])
 {
   vtkNew<vtkRenderer> renderer;

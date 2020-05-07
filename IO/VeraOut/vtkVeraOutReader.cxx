@@ -810,15 +810,15 @@ private:
   vtkSmartPointer<vtkDataArray> ZCoordinates;
   vtkSmartPointer<vtkDataArray> CoreMap;
 
-  std::vector<vtkSmartPointer<vtkDataArray> > CoreCellData;
+  std::vector<vtkSmartPointer<vtkDataArray>> CoreCellData;
 };
 //*****************************************************************************
 
 vtkStandardNewMacro(vtkVeraOutReader);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Constructor for vtkVeraOutReader
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkVeraOutReader::vtkVeraOutReader()
 {
   this->FileName = nullptr;
@@ -829,9 +829,9 @@ vtkVeraOutReader::vtkVeraOutReader()
   this->Internal = new Internals(this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Destructor for vtkVeraOutReader
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkVeraOutReader::~vtkVeraOutReader()
 {
   this->SetFileName(nullptr);
@@ -839,9 +839,9 @@ vtkVeraOutReader::~vtkVeraOutReader()
   this->Internal = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Verify that the file exists, get dimension sizes and variables
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkVeraOutReader::RequestInformation(
   vtkInformation* reqInfo, vtkInformationVector** inVector, vtkInformationVector* outVector)
 {
@@ -881,9 +881,9 @@ int vtkVeraOutReader::RequestInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Default method: Data is read into a vtkUnstructuredGrid
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkVeraOutReader::RequestData(vtkInformation* vtkNotUsed(reqInfo),
   vtkInformationVector** vtkNotUsed(inVector), vtkInformationVector* outVector)
 {
@@ -929,36 +929,36 @@ int vtkVeraOutReader::RequestData(vtkInformation* vtkNotUsed(reqInfo),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //  Print self.
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVeraOutReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "FileName: " << (this->FileName ? this->FileName : "NULL") << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Cell Array Selection
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkDataArraySelection* vtkVeraOutReader::GetCellDataArraySelection() const
 {
   return this->Internal->CellDataArraySelection;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Field Array Selection
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkDataArraySelection* vtkVeraOutReader::GetFieldDataArraySelection() const
 {
   return this->Internal->FieldDataArraySelection;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // MTime
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkMTimeType vtkVeraOutReader::GetMTime()
 {

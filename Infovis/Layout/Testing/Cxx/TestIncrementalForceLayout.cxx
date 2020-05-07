@@ -19,7 +19,7 @@
 #include "vtkPoints.h"
 #include "vtkRandomGraphSource.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestIncrementalForceLayout(int, char*[])
 {
   vtkNew<vtkRandomGraphSource> source;

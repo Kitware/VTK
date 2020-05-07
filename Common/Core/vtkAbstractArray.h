@@ -755,7 +755,7 @@ ArrayT* vtkArrayDownCast(vtkAbstractArray* array)
  */
 #define vtkArrayDownCast_TemplateFastCastMacro(ArrayT)                                             \
   template <typename ValueT>                                                                       \
-  struct vtkArrayDownCast_impl<ArrayT<ValueT> >                                                    \
+  struct vtkArrayDownCast_impl<ArrayT<ValueT>>                                                     \
   {                                                                                                \
     inline ArrayT<ValueT>* operator()(vtkAbstractArray* array)                                     \
     {                                                                                              \

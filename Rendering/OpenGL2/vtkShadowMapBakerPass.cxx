@@ -53,7 +53,7 @@ vtkStandardNewMacro(vtkShadowMapBakerPass);
 vtkCxxSetObjectMacro(vtkShadowMapBakerPass, OpaqueSequence, vtkRenderPass);
 vtkCxxSetObjectMacro(vtkShadowMapBakerPass, CompositeZPass, vtkRenderPass);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // helper function to compute the mNearest point in a given direction.
 // To be called several times, with initialized = false the first time.
 void vtkShadowMapBakerPass::PointNearFar(
@@ -82,7 +82,7 @@ void vtkShadowMapBakerPass::PointNearFar(
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // compute the min/max of the projection of a box in a given direction.
 void vtkShadowMapBakerPass::BoxNearFar(
   double* bb, double* pt, double* dir, double& mNear, double& mFar)
@@ -129,7 +129,7 @@ void vtkShadowMapBakerPass::BoxNearFar(
   PointNearFar(v, pt, dir, mNear, mFar, true);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkShadowMapBakerPass::vtkShadowMapBakerPass()
 {
   vtkNew<vtkCameraPass> camP;
@@ -157,7 +157,7 @@ vtkShadowMapBakerPass::vtkShadowMapBakerPass()
   this->NeedUpdate = true;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkShadowMapBakerPass::~vtkShadowMapBakerPass()
 {
   if (this->OpaqueSequence != nullptr)
@@ -185,7 +185,7 @@ vtkShadowMapBakerPass::~vtkShadowMapBakerPass()
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkShadowMapBakerPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -213,13 +213,13 @@ void vtkShadowMapBakerPass::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Resolution: " << this->Resolution << endl;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkShadowMapBakerPass::GetHasShadows()
 {
   return this->HasShadows;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkShadowMapBakerPass::LightCreatesShadow(vtkLight* l)
 {
   assert("pre: l_exists" && l != nullptr);
@@ -227,31 +227,31 @@ bool vtkShadowMapBakerPass::LightCreatesShadow(vtkLight* l)
   return !l->LightTypeIsHeadlight() && (!l->GetPositional() || l->GetConeAngle() < 90.0);
 }
 
-// ----------------------------------------------------------------------------
-std::vector<vtkSmartPointer<vtkTextureObject> >* vtkShadowMapBakerPass::GetShadowMaps()
+//------------------------------------------------------------------------------
+std::vector<vtkSmartPointer<vtkTextureObject>>* vtkShadowMapBakerPass::GetShadowMaps()
 {
   return this->ShadowMaps;
 }
 
-// ----------------------------------------------------------------------------
-std::vector<vtkSmartPointer<vtkCamera> >* vtkShadowMapBakerPass::GetLightCameras()
+//------------------------------------------------------------------------------
+std::vector<vtkSmartPointer<vtkCamera>>* vtkShadowMapBakerPass::GetLightCameras()
 {
   return this->LightCameras;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkShadowMapBakerPass::GetNeedUpdate()
 {
   return this->NeedUpdate;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkShadowMapBakerPass::SetUpToDate()
 {
   this->NeedUpdate = false;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Perform rendering according to a render state \p s.
 // \pre s_exists: s!=0
@@ -411,7 +411,7 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState* s)
 
       if (this->ShadowMaps == nullptr)
       {
-        this->ShadowMaps = new std::vector<vtkSmartPointer<vtkTextureObject> >();
+        this->ShadowMaps = new std::vector<vtkSmartPointer<vtkTextureObject>>();
         this->ShadowMaps->resize(numberOfShadowLights);
       }
 
@@ -423,7 +423,7 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState* s)
 
       if (this->LightCameras == nullptr)
       {
-        this->LightCameras = new std::vector<vtkSmartPointer<vtkCamera> >();
+        this->LightCameras = new std::vector<vtkSmartPointer<vtkCamera>>();
         this->LightCameras->resize(numberOfShadowLights);
       }
 
@@ -610,7 +610,7 @@ bool vtkShadowMapBakerPass::PreReplaceShaderValues(
   return true;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Build a camera from spot light parameters.
 // \pre light_exists: light!=0
@@ -683,7 +683,7 @@ void vtkShadowMapBakerPass::BuildCameraLight(
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Release graphics resources and ask components to release their own
 // resources.

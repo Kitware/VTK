@@ -27,12 +27,12 @@
 
 vtkStandardNewMacro(vtkMaskPointsFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Helper classes to support efficient computing, and threaded execution.
 namespace
 {
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The threaded core of the algorithm
 struct ExtractPoints
 {
@@ -90,7 +90,7 @@ struct ExtractPoints
 } // anonymous namespace
 
 //================= Begin class proper =======================================
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMaskPointsFilter::vtkMaskPointsFilter()
 {
   this->SetNumberOfInputPorts(2);
@@ -99,10 +99,10 @@ vtkMaskPointsFilter::vtkMaskPointsFilter()
   this->Mask = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMaskPointsFilter::~vtkMaskPointsFilter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMaskPointsFilter::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
@@ -118,19 +118,19 @@ int vtkMaskPointsFilter::FillInputPortInformation(int port, vtkInformation* info
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMaskPointsFilter::SetMaskConnection(vtkAlgorithmOutput* algOutput)
 {
   this->SetInputConnection(1, algOutput);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMaskPointsFilter::SetMaskData(vtkDataObject* input)
 {
   this->SetInputData(1, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject* vtkMaskPointsFilter::GetMask()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
@@ -141,7 +141,7 @@ vtkDataObject* vtkMaskPointsFilter::GetMask()
   return this->GetExecutive()->GetInputData(1, 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Traverse all the input points and extract points that are contained within
 // the mask.
 int vtkMaskPointsFilter::FilterPoints(vtkPointSet* input)
@@ -173,7 +173,7 @@ int vtkMaskPointsFilter::FilterPoints(vtkPointSet* input)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Due to the second input, retrieve it and then invoke the superclass
 // RequestData.
 int vtkMaskPointsFilter::RequestData(
@@ -200,7 +200,7 @@ int vtkMaskPointsFilter::RequestData(
   return this->Superclass::RequestData(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMaskPointsFilter::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -230,7 +230,7 @@ int vtkMaskPointsFilter::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMaskPointsFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -254,7 +254,7 @@ int vtkMaskPointsFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMaskPointsFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

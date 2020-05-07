@@ -53,7 +53,7 @@
 
 vtkStandardNewMacro(vtkTableToGraph);
 vtkCxxSetObjectMacro(vtkTableToGraph, LinkGraph, vtkMutableDirectedGraph);
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTableToGraph::vtkTableToGraph()
 {
   this->Directed = false;
@@ -62,13 +62,13 @@ vtkTableToGraph::vtkTableToGraph()
   this->SetNumberOfOutputPorts(1);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTableToGraph::~vtkTableToGraph()
 {
   this->SetLinkGraph(nullptr);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTableToGraph::ValidateLinkGraph()
 {
   if (!this->LinkGraph)
@@ -131,7 +131,7 @@ int vtkTableToGraph::ValidateLinkGraph()
   return 1;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTableToGraph::AddLinkVertex(const char* column, const char* domain, int hidden)
 {
   if (!column)
@@ -186,7 +186,7 @@ void vtkTableToGraph::AddLinkVertex(const char* column, const char* domain, int 
   this->Modified();
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTableToGraph::ClearLinkVertices()
 {
   this->ValidateLinkGraph();
@@ -199,7 +199,7 @@ void vtkTableToGraph::ClearLinkVertices()
   this->Modified();
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTableToGraph::AddLinkEdge(const char* column1, const char* column2)
 {
   if (!column1 || !column2)
@@ -236,7 +236,7 @@ void vtkTableToGraph::AddLinkEdge(const char* column1, const char* column2)
   this->Modified();
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTableToGraph::ClearLinkEdges()
 {
   VTK_CREATE(vtkMutableDirectedGraph, newLinkGraph);
@@ -248,7 +248,7 @@ void vtkTableToGraph::ClearLinkEdges()
   this->SetLinkGraph(newLinkGraph);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTableToGraph::LinkColumnPath(
   vtkStringArray* column, vtkStringArray* domain, vtkBitArray* hidden)
 {
@@ -277,7 +277,7 @@ void vtkTableToGraph::LinkColumnPath(
   g->Delete();
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTableToGraph::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
@@ -294,7 +294,7 @@ int vtkTableToGraph::FillInputPortInformation(int port, vtkInformation* info)
   return 0;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkTableToGraphCompare
 {
 public:
@@ -309,14 +309,14 @@ public:
   }
 };
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <typename T>
 vtkVariant vtkTableToGraphGetValue(T* arr, vtkIdType index)
 {
   return vtkVariant(arr[index]);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <typename T>
 void vtkTableToGraphFindVertices(T* arr, // The raw edge table column
   vtkIdType size,                        // The size of the edge table column
@@ -347,7 +347,7 @@ void vtkTableToGraphFindVertices(T* arr, // The raw edge table column
   }
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <typename T>
 void vtkTableToGraphFindHiddenVertices(T* arr, // The raw edge table column
   vtkIdType size,                              // The size of the edge table column
@@ -369,7 +369,7 @@ void vtkTableToGraphFindHiddenVertices(T* arr, // The raw edge table column
   }
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTableToGraph::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -698,8 +698,8 @@ int vtkTableToGraph::RequestData(
   VTK_CREATE(vtkDataSetAttributes, edgeTableData);
   edgeTableData->ShallowCopy(edgeTable->GetRowData());
   builder->GetEdgeData()->CopyAllocate(edgeTableData);
-  std::map<vtkIdType, std::vector<std::pair<vtkIdType, vtkIdType> > > hiddenInEdges;
-  std::map<vtkIdType, std::vector<vtkIdType> > hiddenOutEdges;
+  std::map<vtkIdType, std::vector<std::pair<vtkIdType, vtkIdType>>> hiddenInEdges;
+  std::map<vtkIdType, std::vector<vtkIdType>> hiddenOutEdges;
   int numHiddenToHiddenEdges = 0;
   VTK_CREATE(vtkEdgeListIterator, edges);
   for (vtkIdType r = 0; r < edgeTable->GetNumberOfRows(); r++)
@@ -815,7 +815,7 @@ int vtkTableToGraph::RequestData(
   }
 
   // Now add hidden edges.
-  std::map<vtkIdType, std::vector<vtkIdType> >::iterator out, outEnd;
+  std::map<vtkIdType, std::vector<vtkIdType>>::iterator out, outEnd;
   out = hiddenOutEdges.begin();
   outEnd = hiddenOutEdges.end();
   vtkIdType curHidden = 0;
@@ -823,7 +823,7 @@ int vtkTableToGraph::RequestData(
   for (; out != outEnd; ++out)
   {
     std::vector<vtkIdType> outVerts = out->second;
-    std::vector<std::pair<vtkIdType, vtkIdType> > inVerts = hiddenInEdges[out->first];
+    std::vector<std::pair<vtkIdType, vtkIdType>> inVerts = hiddenInEdges[out->first];
     std::vector<vtkIdType>::size_type i, j;
     for (i = 0; i < inVerts.size(); ++i)
     {
@@ -888,7 +888,7 @@ int vtkTableToGraph::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTableToGraph::RequestDataObject(
   vtkInformation*, vtkInformationVector**, vtkInformationVector*)
 {
@@ -907,7 +907,7 @@ int vtkTableToGraph::RequestDataObject(
   return 1;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkTableToGraph::GetMTime()
 {
   vtkMTimeType time = this->Superclass::GetMTime();
@@ -916,13 +916,13 @@ vtkMTimeType vtkTableToGraph::GetMTime()
   return time;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTableToGraph::SetVertexTableConnection(vtkAlgorithmOutput* in)
 {
   this->SetInputConnection(1, in);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTableToGraph::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

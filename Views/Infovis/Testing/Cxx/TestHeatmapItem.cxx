@@ -30,7 +30,7 @@
 
 #include "vtkRegressionTestImage.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestHeatmapItem(int argc, char* argv[])
 {
   vtkNew<vtkTable> table;

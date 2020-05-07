@@ -24,19 +24,19 @@
 
 vtkStandardNewMacro(vtkPassThroughLayoutStrategy);
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkPassThroughLayoutStrategy::vtkPassThroughLayoutStrategy() = default;
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkPassThroughLayoutStrategy::~vtkPassThroughLayoutStrategy() = default;
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Set the graph that will be laid out
 void vtkPassThroughLayoutStrategy::Initialize() {}
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 // Simple graph layout method
 void vtkPassThroughLayoutStrategy::Layout() {}

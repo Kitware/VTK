@@ -133,7 +133,7 @@ vtkQtTreeRingLabelMapper::~vtkQtTreeRingLabelMapper()
   delete this->QtImage;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTreeRingLabelMapper::RenderOverlay(vtkViewport* viewport, vtkActor2D* actor)
 {
   vtkRenderer* ren = vtkRenderer::SafeDownCast(viewport);
@@ -144,7 +144,7 @@ void vtkQtTreeRingLabelMapper::RenderOverlay(vtkViewport* viewport, vtkActor2D* 
   this->polyDataMapper->RenderOverlay(viewport, actor);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTreeRingLabelMapper::RenderOpaqueGeometry(vtkViewport* viewport, vtkActor2D* actor)
 {
   if (!QApplication::instance())
@@ -551,7 +551,7 @@ bool vtkQtTreeRingLabelMapper::PointInWindow(
   return return_value;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtTreeRingLabelMapper::SetSectorsArrayName(const char* name)
 {
   this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);

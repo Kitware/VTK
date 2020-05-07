@@ -112,8 +112,8 @@ private:
 
   std::function<R(Args...)> Worker;
 
-  std::unique_ptr<vtkThreadedTaskQueueInternals::TaskQueue<R> > Tasks;
-  std::unique_ptr<vtkThreadedTaskQueueInternals::ResultQueue<R> > Results;
+  std::unique_ptr<vtkThreadedTaskQueueInternals::TaskQueue<R>> Tasks;
+  std::unique_ptr<vtkThreadedTaskQueueInternals::ResultQueue<R>> Results;
 
   int NumberOfThreads;
   std::unique_ptr<std::thread[]> Threads;
@@ -149,7 +149,7 @@ private:
 
   std::function<void(Args...)> Worker;
 
-  std::unique_ptr<vtkThreadedTaskQueueInternals::TaskQueue<void> > Tasks;
+  std::unique_ptr<vtkThreadedTaskQueueInternals::TaskQueue<void>> Tasks;
 
   std::condition_variable ResultsCV;
   std::mutex NextResultIdMutex;

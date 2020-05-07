@@ -79,7 +79,10 @@ public:
   /**
    * Initialize smart pointer to nullptr.
    */
-  vtkWeakPointer() noexcept : vtkWeakPointerBase() {}
+  vtkWeakPointer() noexcept
+    : vtkWeakPointerBase()
+  {
+  }
 
   /**
    * Initialize smart pointer with the given smart pointer.
@@ -102,10 +105,14 @@ public:
    * Move r's object into the new weak pointer, setting r to nullptr.
    * @{
    */
-  vtkWeakPointer(vtkWeakPointer&& r) noexcept : vtkWeakPointerBase(std::move(r)) {}
+  vtkWeakPointer(vtkWeakPointer&& r) noexcept
+    : vtkWeakPointerBase(std::move(r))
+  {
+  }
 
   template <class U>
-  vtkWeakPointer(vtkWeakPointer<U>&& r) noexcept : vtkWeakPointerBase(std::move(r))
+  vtkWeakPointer(vtkWeakPointer<U>&& r) noexcept
+    : vtkWeakPointerBase(std::move(r))
   {
     vtkWeakPointer::CheckTypes<U>();
   }

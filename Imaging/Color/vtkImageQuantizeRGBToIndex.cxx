@@ -377,7 +377,7 @@ void vtkImageQuantizeRGBToIndexExecute(
   // by luminance (mapping the indices accordingly).
   if (self->GetSortIndexByLuminance())
   {
-    std::vector<std::pair<double, int> > luminance_index_map;
+    std::vector<std::pair<double, int>> luminance_index_map;
     double RGB[3];
     for (leaf = 0; leaf < numLeafNodes; leaf++)
     {

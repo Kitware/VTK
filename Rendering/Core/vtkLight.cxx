@@ -82,7 +82,7 @@ vtkLight::~vtkLight()
   this->SetInformation(nullptr);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLight* vtkLight::ShallowClone()
 {
   vtkLight* result = vtkLight::New();
@@ -116,7 +116,7 @@ vtkLight* vtkLight::ShallowClone()
   return result;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLight::SetDirectionAngle(double elevation, double azimuth)
 {
   elevation = vtkMath::RadiansFromDegrees(elevation);

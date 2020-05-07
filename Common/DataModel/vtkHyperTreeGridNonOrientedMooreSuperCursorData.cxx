@@ -1,4 +1,4 @@
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Super cursor traversal table to retrieve the child index for each cursor
 // of the parent node. There are (3*f)^d entries in the table.
 // d = 1 f = 2
@@ -82,10 +82,10 @@ static const unsigned int* MooreChildCursorToChildTable[3][2] = {
   {MooreChildCursorToChildTable32,
    MooreChildCursorToChildTable33}
 };
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Super cursor traversal table to go retrieve the child index for each cursor
 // of the child node. There are (3*f)^d entries in the table.
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // d = 1 f = 2
 static const unsigned int MooreChildCursorToParentCursorTable12[6] = {
   0, 1, 1,
@@ -167,10 +167,10 @@ static const unsigned int* MooreChildCursorToParentCursorTable[3][2] = {
   {MooreChildCursorToParentCursorTable32,
    MooreChildCursorToParentCursorTable33}
 };
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Corner/leaf traversal tables to retrieve the parent cursor indices of all
 // leaves touching a given corner of the parent node.
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static const int CornerNeighborCursorsTable1D0[2] = {
    0, 1, };
 static const int CornerNeighborCursorsTable1D1[2] = {
@@ -219,4 +219,4 @@ static const unsigned int* CornerNeighborCursorsTable3D[8] = {
   CornerNeighborCursorsTable3D6,
   CornerNeighborCursorsTable3D7,
 };
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------

@@ -26,7 +26,7 @@
 // STD includes
 #include <iostream>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestColorTransferControlPointsItem(int, char*[])
 {
   vtkNew<vtkColorTransferFunction> transferFunction;

@@ -28,7 +28,7 @@
 
 vtkStandardNewMacro(vtkGraphAlgorithm);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGraphAlgorithm::vtkGraphAlgorithm()
 {
   // by default assume filters have one input and one output
@@ -37,16 +37,16 @@ vtkGraphAlgorithm::vtkGraphAlgorithm()
   this->SetNumberOfOutputPorts(1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGraphAlgorithm::~vtkGraphAlgorithm() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkGraphAlgorithm::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -76,7 +76,7 @@ vtkTypeBool vtkGraphAlgorithm::ProcessRequest(
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGraphAlgorithm::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   // now add our info
@@ -84,26 +84,26 @@ int vtkGraphAlgorithm::FillOutputPortInformation(int vtkNotUsed(port), vtkInform
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGraphAlgorithm::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGraph* vtkGraphAlgorithm::GetOutput(int index)
 {
   return vtkGraph::SafeDownCast(this->GetOutputDataObject(index));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphAlgorithm::SetInputData(int index, vtkDataObject* input)
 {
   this->SetInputDataInternal(index, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGraphAlgorithm::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -111,7 +111,7 @@ int vtkGraphAlgorithm::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGraphAlgorithm::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -128,7 +128,7 @@ int vtkGraphAlgorithm::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This is the superclasses style of Execute method.  Convert it into
 // an imaging style Execute method.
 int vtkGraphAlgorithm::RequestData(vtkInformation* vtkNotUsed(request),
@@ -137,7 +137,7 @@ int vtkGraphAlgorithm::RequestData(vtkInformation* vtkNotUsed(request),
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGraphAlgorithm::RequestDataObject(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

@@ -21,7 +21,7 @@
 
 vtkStandardNewMacro(vtkEmptyCell);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEmptyCell::EvaluatePosition(const double vtkNotUsed(x)[3], double closestPoint[3],
   int& subId, double pcoords[3], double& dist2, double vtkNotUsed(weights)[])
 {
@@ -35,14 +35,14 @@ int vtkEmptyCell::EvaluatePosition(const double vtkNotUsed(x)[3], double closest
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkEmptyCell::EvaluateLocation(int& vtkNotUsed(subId), const double vtkNotUsed(pcoords)[3],
   double x[3], double* vtkNotUsed(weights))
 {
   x[0] = x[1] = x[2] = 0.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEmptyCell::CellBoundary(
   int vtkNotUsed(subId), const double vtkNotUsed(pcoords)[3], vtkIdList* pts)
 {
@@ -50,7 +50,7 @@ int vtkEmptyCell::CellBoundary(
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkEmptyCell::Contour(double vtkNotUsed(value), vtkDataArray* vtkNotUsed(cellScalars),
   vtkIncrementalPointLocator* vtkNotUsed(locator), vtkCellArray* vtkNotUsed(verts),
   vtkCellArray* vtkNotUsed(lines), vtkCellArray* vtkNotUsed(polys), vtkPointData* vtkNotUsed(inPd),
@@ -59,7 +59,7 @@ void vtkEmptyCell::Contour(double vtkNotUsed(value), vtkDataArray* vtkNotUsed(ce
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Project point on line. If it lies between 0<=t<=1 and distance off line
 // is less than tolerance, intersection detected.
 int vtkEmptyCell::IntersectWithLine(const double vtkNotUsed(p1)[3], const double vtkNotUsed(p2)[3],
@@ -69,7 +69,7 @@ int vtkEmptyCell::IntersectWithLine(const double vtkNotUsed(p1)[3], const double
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEmptyCell::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* pts)
 {
   pts->Reset();
@@ -77,13 +77,13 @@ int vtkEmptyCell::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkEmptyCell::Derivatives(int vtkNotUsed(subId), const double vtkNotUsed(pcoords)[3],
   const double* vtkNotUsed(values), int vtkNotUsed(dim), double* vtkNotUsed(derivs))
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkEmptyCell::Clip(double vtkNotUsed(value), vtkDataArray* vtkNotUsed(cellScalars),
   vtkIncrementalPointLocator* vtkNotUsed(locator), vtkCellArray* vtkNotUsed(verts),
   vtkPointData* vtkNotUsed(inPD), vtkPointData* vtkNotUsed(outPD), vtkCellData* vtkNotUsed(inCD),
@@ -91,7 +91,7 @@ void vtkEmptyCell::Clip(double vtkNotUsed(value), vtkDataArray* vtkNotUsed(cellS
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkEmptyCell::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

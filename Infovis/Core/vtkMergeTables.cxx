@@ -29,7 +29,7 @@
 #include "vtkTable.h"
 
 vtkStandardNewMacro(vtkMergeTables);
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMergeTables::vtkMergeTables()
 {
   this->FirstTablePrefix = nullptr;
@@ -42,14 +42,14 @@ vtkMergeTables::vtkMergeTables()
   this->SetNumberOfOutputPorts(1);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMergeTables::~vtkMergeTables()
 {
   this->SetFirstTablePrefix(nullptr);
   this->SetSecondTablePrefix(nullptr);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMergeTables::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -224,7 +224,7 @@ int vtkMergeTables::RequestData(
   return 1;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMergeTables::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

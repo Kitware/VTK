@@ -35,7 +35,7 @@ const char* vtkPCAStatistics::NormalizationSchemeEnumNames[NUM_NORMALIZATION_SCH
 const char* vtkPCAStatistics::BasisSchemeEnumNames[NUM_BASIS_SCHEMES + 1] = { "FullBasis",
   "FixedBasisSize", "FixedBasisEnergy", "InvalidBasisScheme" };
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPCAStatistics::GetEigenvalues(int request, vtkDoubleArray* eigenvalues)
 {
   vtkSmartPointer<vtkMultiBlockDataSet> outputMetaDS = vtkMultiBlockDataSet::SafeDownCast(
@@ -76,7 +76,7 @@ void vtkPCAStatistics::GetEigenvalues(int request, vtkDoubleArray* eigenvalues)
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkPCAStatistics::GetEigenvalue(int request, int i)
 {
   vtkSmartPointer<vtkDoubleArray> eigenvalues = vtkSmartPointer<vtkDoubleArray>::New();
@@ -84,19 +84,19 @@ double vtkPCAStatistics::GetEigenvalue(int request, int i)
   return eigenvalues->GetValue(i);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPCAStatistics::GetEigenvalues(vtkDoubleArray* eigenvalues)
 {
   this->GetEigenvalues(0, eigenvalues);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkPCAStatistics::GetEigenvalue(int i)
 {
   return this->GetEigenvalue(0, i);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPCAStatistics::GetEigenvectors(int request, vtkDoubleArray* eigenvectors)
 {
   // Count eigenvalues
@@ -151,13 +151,13 @@ void vtkPCAStatistics::GetEigenvectors(int request, vtkDoubleArray* eigenvectors
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPCAStatistics::GetEigenvectors(vtkDoubleArray* eigenvectors)
 {
   this->GetEigenvectors(0, eigenvectors);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPCAStatistics::GetEigenvector(int request, int i, vtkDoubleArray* eigenvector)
 {
   vtkSmartPointer<vtkDoubleArray> eigenvectors = vtkSmartPointer<vtkDoubleArray>::New();
@@ -172,7 +172,7 @@ void vtkPCAStatistics::GetEigenvector(int request, int i, vtkDoubleArray* eigenv
   eigenvector->InsertNextTypedTuple(evec.data());
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPCAStatistics::GetEigenvector(int i, vtkDoubleArray* eigenvector)
 {
   this->GetEigenvector(0, i, eigenvector);
@@ -192,17 +192,17 @@ public:
   void operator()(vtkDoubleArray* result, vtkIdType row) override;
 
   std::vector<double> EigenValues;
-  std::vector<std::vector<double> > EigenVectors;
+  std::vector<std::vector<double>> EigenVectors;
   vtkIdType BasisSize;
 };
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPCAAssessFunctor* vtkPCAAssessFunctor::New()
 {
   return new vtkPCAAssessFunctor;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPCAAssessFunctor::InitializePCA(vtkTable* inData, vtkTable* reqModel, int normScheme,
   int basisScheme, int fixedBasisSize, double fixedBasisEnergy)
 {
@@ -314,12 +314,12 @@ bool vtkPCAAssessFunctor::InitializePCA(vtkTable* inData, vtkTable* reqModel, in
   return true;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPCAAssessFunctor::operator()(vtkDoubleArray* result, vtkIdType row)
 {
   vtkIdType i;
   result->SetNumberOfValues(this->BasisSize);
-  std::vector<std::vector<double> >::iterator it;
+  std::vector<std::vector<double>>::iterator it;
   vtkIdType m = this->GetNumberOfColumns();
   for (i = 0; i < m; ++i)
   {
@@ -349,10 +349,10 @@ vtkPCAStatistics::vtkPCAStatistics()
   this->FixedBasisEnergy = 1.;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPCAStatistics::~vtkPCAStatistics() = default;
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPCAStatistics::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -364,7 +364,7 @@ void vtkPCAStatistics::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FixedBasisEnergy: " << this->FixedBasisEnergy << "\n";
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPCAStatistics::SetParameter(const char* parameter, int vtkNotUsed(index), vtkVariant value)
 {
   if (!strcmp(parameter, "NormalizationScheme"))
@@ -398,7 +398,7 @@ bool vtkPCAStatistics::SetParameter(const char* parameter, int vtkNotUsed(index)
   return false;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkPCAStatistics::GetNormalizationSchemeName(int schemeIndex)
 {
   if (schemeIndex < 0 || schemeIndex > NUM_NORMALIZATION_SCHEMES)
@@ -408,7 +408,7 @@ const char* vtkPCAStatistics::GetNormalizationSchemeName(int schemeIndex)
   return vtkPCAStatistics::NormalizationSchemeEnumNames[schemeIndex];
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPCAStatistics::SetNormalizationSchemeByName(const char* schemeName)
 {
   for (int i = 0; i < NUM_NORMALIZATION_SCHEMES; ++i)
@@ -422,7 +422,7 @@ void vtkPCAStatistics::SetNormalizationSchemeByName(const char* schemeName)
   vtkErrorMacro("Invalid normalization scheme name \"" << schemeName << "\" provided.");
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTable* vtkPCAStatistics::GetSpecifiedNormalization()
 {
   return vtkTable::SafeDownCast(this->GetInputDataObject(3, 0));
@@ -433,7 +433,7 @@ void vtkPCAStatistics::SetSpecifiedNormalization(vtkTable* normSpec)
   this->SetInputData(3, normSpec);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkPCAStatistics::GetBasisSchemeName(int schemeIndex)
 {
   if (schemeIndex < 0 || schemeIndex > NUM_BASIS_SCHEMES)
@@ -443,7 +443,7 @@ const char* vtkPCAStatistics::GetBasisSchemeName(int schemeIndex)
   return vtkPCAStatistics::BasisSchemeEnumNames[schemeIndex];
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPCAStatistics::SetBasisSchemeByName(const char* schemeName)
 {
   for (int i = 0; i < NUM_BASIS_SCHEMES; ++i)
@@ -457,7 +457,7 @@ void vtkPCAStatistics::SetBasisSchemeByName(const char* schemeName)
   vtkErrorMacro("Invalid basis scheme name \"" << schemeName << "\" provided.");
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPCAStatistics::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 3)
@@ -469,7 +469,7 @@ int vtkPCAStatistics::FillInputPortInformation(int port, vtkInformation* info)
   return this->Superclass::FillInputPortInformation(port, info);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static void vtkPCAStatisticsNormalizeSpec(vtkVariantArray* normData, Eigen::MatrixXd& cov,
   vtkTable* normSpec, vtkTable* reqModel, bool triangle)
 {
@@ -579,7 +579,7 @@ static void vtkPCAStatisticsNormalizeSpec(vtkVariantArray* normData, Eigen::Matr
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static void vtkPCAStatisticsNormalizeVariance(vtkVariantArray* normData, Eigen::MatrixXd& cov)
 {
   vtkIdType i, j;
@@ -604,7 +604,7 @@ static void vtkPCAStatisticsNormalizeVariance(vtkVariantArray* normData, Eigen::
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPCAStatistics::Derive(vtkMultiBlockDataSet* inMeta)
 {
   if (!inMeta)
@@ -745,7 +745,7 @@ vtkDoubleArray* vtkPCAStatistics::CalculatePValues(
   return testCol;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPCAStatistics::Test(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtkTable* outMeta)
 
 {
@@ -922,7 +922,7 @@ void vtkPCAStatistics::Test(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtkT
   statCol->Delete();
   dimCol->Delete();
 }
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPCAStatistics::Assess(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtkTable* outData)
 {
   if (!inData)
@@ -1001,7 +1001,7 @@ void vtkPCAStatistics::Assess(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vt
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPCAStatistics::SelectAssessFunctor(vtkTable* inData, vtkDataObject* inMetaDO,
   vtkStringArray* vtkNotUsed(rowNames), AssessFunctor*& dfunc)
 {

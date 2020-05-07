@@ -46,7 +46,7 @@
 
 vtkStandardNewMacro(vtkBoxRepresentation);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBoxRepresentation::vtkBoxRepresentation()
 {
   // The initial state
@@ -213,7 +213,7 @@ vtkBoxRepresentation::vtkBoxRepresentation()
   this->TranslationAxis = Axis::NONE;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBoxRepresentation::~vtkBoxRepresentation()
 {
   this->HexActor->Delete();
@@ -261,14 +261,14 @@ vtkBoxRepresentation::~vtkBoxRepresentation()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxRepresentation::GetPolyData(vtkPolyData* pd)
 {
   pd->SetPoints(this->HexPolyData->GetPoints());
   pd->SetPolys(this->HexPolyData->GetPolys());
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxRepresentation::StartWidgetInteraction(double e[2])
 {
   // Store the start position
@@ -336,7 +336,7 @@ void vtkBoxRepresentation::SetTwoPlaneMode(bool val)
   this->GenerateOutline();
   this->Modified();
 }
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxRepresentation::WidgetInteraction(double e[2])
 {
   // Convert events to appropriate coordinate systems
@@ -492,7 +492,7 @@ void vtkBoxRepresentation::EndComplexInteraction(
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxRepresentation::MoveFace(const double* p1, const double* p2, const double* dir,
   double* x1, double* x2, double* x3, double* x4, double* x5)
 {
@@ -521,7 +521,7 @@ void vtkBoxRepresentation::MoveFace(const double* p1, const double* p2, const do
   this->PositionHandles();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxRepresentation::GetDirection(
   const double Nx[3], const double Ny[3], const double Nz[3], double dir[3])
 {
@@ -561,7 +561,7 @@ void vtkBoxRepresentation::GetDirection(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxRepresentation::MovePlusXFace(const double* p1, const double* p2)
 {
   double* pts = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0);
@@ -579,7 +579,7 @@ void vtkBoxRepresentation::MovePlusXFace(const double* p1, const double* p2)
   this->MoveFace(p1, p2, dir, x1, x2, x3, x4, h1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxRepresentation::MoveMinusXFace(const double* p1, const double* p2)
 {
   double* pts = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0);
@@ -598,7 +598,7 @@ void vtkBoxRepresentation::MoveMinusXFace(const double* p1, const double* p2)
   this->MoveFace(p1, p2, dir, x1, x2, x3, x4, h1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxRepresentation::MovePlusYFace(const double* p1, const double* p2)
 {
   double* pts = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0);
@@ -617,7 +617,7 @@ void vtkBoxRepresentation::MovePlusYFace(const double* p1, const double* p2)
   this->MoveFace(p1, p2, dir, x1, x2, x3, x4, h1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxRepresentation::MoveMinusYFace(const double* p1, const double* p2)
 {
   double* pts = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0);
@@ -636,7 +636,7 @@ void vtkBoxRepresentation::MoveMinusYFace(const double* p1, const double* p2)
   this->MoveFace(p1, p2, dir, x1, x2, x3, x4, h1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxRepresentation::MovePlusZFace(const double* p1, const double* p2)
 {
   double* pts = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0);
@@ -655,7 +655,7 @@ void vtkBoxRepresentation::MovePlusZFace(const double* p1, const double* p2)
   this->MoveFace(p1, p2, dir, x1, x2, x3, x4, h1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxRepresentation::MoveMinusZFace(const double* p1, const double* p2)
 {
   double* pts = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0);
@@ -674,7 +674,7 @@ void vtkBoxRepresentation::MoveMinusZFace(const double* p1, const double* p2)
   this->MoveFace(p1, p2, dir, x1, x2, x3, x4, h1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Loop through all points and translate them
 void vtkBoxRepresentation::Translate(const double* p1, const double* p2)
 {
@@ -704,7 +704,7 @@ void vtkBoxRepresentation::Translate(const double* p1, const double* p2)
   this->PositionHandles();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxRepresentation::Scale(
   const double* vtkNotUsed(p1), const double* vtkNotUsed(p2), int vtkNotUsed(X), int Y)
 {
@@ -731,7 +731,7 @@ void vtkBoxRepresentation::Scale(
   this->PositionHandles();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxRepresentation::ComputeNormals()
 {
   double* pts = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0);
@@ -758,7 +758,7 @@ void vtkBoxRepresentation::ComputeNormals()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxRepresentation::GetPlanes(vtkPlanes* planes)
 {
   if (!planes)
@@ -782,7 +782,7 @@ void vtkBoxRepresentation::GetPlanes(vtkPlanes* planes)
   planes->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxRepresentation::Rotate(
   int X, int Y, const double* p1, const double* p2, const double* vpn)
 {
@@ -991,7 +991,7 @@ void vtkBoxRepresentation::UpdatePose(
   this->PositionHandles();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxRepresentation::CreateDefaultProperties()
 {
   // Handle properties
@@ -1024,7 +1024,7 @@ void vtkBoxRepresentation::CreateDefaultProperties()
   this->SelectedOutlineProperty->SetLineWidth(2.0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxRepresentation::PlaceWidget(double bds[6])
 {
   int i;
@@ -1055,7 +1055,7 @@ void vtkBoxRepresentation::PlaceWidget(double bds[6])
   this->SizeHandles();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxRepresentation::GetTransform(vtkTransform* t)
 {
   double* pts = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0);
@@ -1124,7 +1124,7 @@ void vtkBoxRepresentation::GetTransform(vtkTransform* t)
   t->Translate(-InitialCenter[0], -InitialCenter[1], -InitialCenter[2]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxRepresentation::SetTransform(vtkTransform* t)
 {
   if (!t)
@@ -1185,7 +1185,7 @@ void vtkBoxRepresentation::SetTransform(vtkTransform* t)
   this->PositionHandles();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxRepresentation::SetOutlineFaceWires(int newValue)
 {
   if (this->OutlineFaceWires != newValue)
@@ -1197,7 +1197,7 @@ void vtkBoxRepresentation::SetOutlineFaceWires(int newValue)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxRepresentation::SetOutlineCursorWires(int newValue)
 {
   if (this->OutlineCursorWires != newValue)
@@ -1209,7 +1209,7 @@ void vtkBoxRepresentation::SetOutlineCursorWires(int newValue)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxRepresentation::GenerateOutline()
 {
   // Whatever the case may be, we have to reset the Lines of the
@@ -1291,7 +1291,7 @@ void vtkBoxRepresentation::GenerateOutline()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkBoxRepresentation::ComputeInteractionState(int X, int Y, int modify)
 {
   // Okay, we can process this. Try to pick handles first;
@@ -1438,7 +1438,7 @@ int vtkBoxRepresentation::ComputeComplexInteractionState(
   return this->InteractionState;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxRepresentation::SetInteractionState(int state)
 {
   // Clamp to allowable values
@@ -1479,7 +1479,7 @@ void vtkBoxRepresentation::SetInteractionState(int state)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkBoxRepresentation::GetBounds()
 {
   this->BuildRepresentation();
@@ -1487,7 +1487,7 @@ double* vtkBoxRepresentation::GetBounds()
   return this->BoundingBox->GetBounds();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxRepresentation::BuildRepresentation()
 {
   // Rebuild only if necessary
@@ -1501,7 +1501,7 @@ void vtkBoxRepresentation::BuildRepresentation()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxRepresentation::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->HexActor->ReleaseGraphicsResources(w);
@@ -1514,7 +1514,7 @@ void vtkBoxRepresentation::ReleaseGraphicsResources(vtkWindow* w)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkBoxRepresentation::RenderOpaqueGeometry(vtkViewport* v)
 {
   int count = 0;
@@ -1539,7 +1539,7 @@ int vtkBoxRepresentation::RenderOpaqueGeometry(vtkViewport* v)
   return count;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkBoxRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport* v)
 {
   int count = 0;
@@ -1564,7 +1564,7 @@ int vtkBoxRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport* v)
   return count;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkBoxRepresentation::HasTranslucentPolygonalGeometry()
 {
   int result = 0;
@@ -1595,7 +1595,7 @@ vtkTypeBool vtkBoxRepresentation::HasTranslucentPolygonalGeometry()
   c[1] = (a[1] + b[1]) / 2.0;                                                                      \
   c[2] = (a[2] + b[2]) / 2.0;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxRepresentation::PositionHandles()
 {
   double* pts = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0);
@@ -1647,7 +1647,7 @@ void vtkBoxRepresentation::PositionHandles()
 }
 #undef VTK_AVERAGE
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxRepresentation::HandlesOn()
 {
   if (this->TwoPlaneMode)
@@ -1665,7 +1665,7 @@ void vtkBoxRepresentation::HandlesOn()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxRepresentation::HandlesOff()
 {
   for (int i = 0; i < 7; i++)
@@ -1674,7 +1674,7 @@ void vtkBoxRepresentation::HandlesOff()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxRepresentation::SizeHandles()
 {
   double* center = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(3 * 14);
@@ -1685,7 +1685,7 @@ void vtkBoxRepresentation::SizeHandles()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkBoxRepresentation::HighlightHandle(vtkProp* prop)
 {
   // first unhighlight anything picked
@@ -1718,7 +1718,7 @@ int vtkBoxRepresentation::HighlightHandle(vtkProp* prop)
   return -1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxRepresentation::HighlightFace(int cellId)
 {
   if (cellId >= 0)
@@ -1744,7 +1744,7 @@ void vtkBoxRepresentation::HighlightFace(int cellId)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxRepresentation::HighlightOutline(int highlight)
 {
   if (highlight)
@@ -1771,7 +1771,7 @@ void vtkBoxRepresentation::RegisterPickers()
   pm->AddPicker(this->HexPicker, this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoxRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

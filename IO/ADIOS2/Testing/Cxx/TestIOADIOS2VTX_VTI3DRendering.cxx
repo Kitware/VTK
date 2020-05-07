@@ -100,12 +100,14 @@ void WriteBPFile3DVars(const std::string& fileName, const adios2::Dims& shape,
   const std::string extent = "0 " + std::to_string(shape[0]) + " " + "0 " +
     std::to_string(shape[1]) + " " + "0 " + std::to_string(shape[2]);
 
-    const std::string imageSchema = R"( <?xml version="1.0"?>
+  const std::string imageSchema = R"( <?xml version="1.0"?>
       <VTKFile type="ImageData" version="0.1" byte_order="LittleEndian">
-        <ImageData WholeExtent=")" + extent +
-                                    R"(" Origin="0 0 0" Spacing="1 1 1">
-          <Piece Extent=")" + extent +
-                                    R"(">
+        <ImageData WholeExtent=")" +
+    extent +
+    R"(" Origin="0 0 0" Spacing="1 1 1">
+          <Piece Extent=")" +
+    extent +
+    R"(">
             <CellData>
               <DataArray Name="T" />
               <DataArray Name="TIME">
@@ -116,15 +118,15 @@ void WriteBPFile3DVars(const std::string& fileName, const adios2::Dims& shape,
         </ImageData>
       </VTKFile>)";
 
-    // using adios2 C++ high-level API
-    std::vector<double> T(totalElements);
-    std::iota(T.begin(), T.end(), static_cast<double>(rank * totalElements));
+  // using adios2 C++ high-level API
+  std::vector<double> T(totalElements);
+  std::iota(T.begin(), T.end(), static_cast<double>(rank * totalElements));
 
-    adios2::fstream fw(fileName, adios2::fstream::out, MPIGetComm());
-    fw.write_attribute("vtk.xml", imageSchema);
-    fw.write("time", 0);
-    fw.write("T", T.data(), shape, start, count);
-    fw.close();
+  adios2::fstream fw(fileName, adios2::fstream::out, MPIGetComm());
+  fw.write_attribute("vtk.xml", imageSchema);
+  fw.write("time", 0);
+  fw.write("T", T.data(), shape, start, count);
+  fw.close();
 }
 
 } // end empty namespace

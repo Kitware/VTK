@@ -27,7 +27,7 @@
 #include "vtkStringArray.h"
 #include "vtkTree.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestExtractSelectedTree(int, char*[])
 {
   vtkNew<vtkMutableDirectedGraph> graph;

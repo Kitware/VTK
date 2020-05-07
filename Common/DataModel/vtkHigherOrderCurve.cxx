@@ -245,7 +245,9 @@ int vtkHigherOrderCurve::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vt
 void vtkHigherOrderCurve::Derivatives(int vtkNotUsed(subId), const double vtkNotUsed(pcoords)[3],
   const double* vtkNotUsed(values), int vtkNotUsed(dim), double* vtkNotUsed(derivs))
 {
-  // TODO: Fill me in?
+  // TODO - if the effort is justified, someone should implement a correct
+  // version of this method
+  vtkErrorMacro("Derivatives() is not implemented for vtkHigherOrderCurve.");
 }
 
 void vtkHigherOrderCurve::SetParametricCoords()

@@ -21,14 +21,14 @@
 
 vtkCxxSetObjectMacro(vtkTDxInteractorStyle, Settings, vtkTDxInteractorStyleSettings);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTDxInteractorStyle::vtkTDxInteractorStyle()
 {
   this->Renderer = nullptr;
   this->Settings = vtkTDxInteractorStyleSettings::New();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTDxInteractorStyle::~vtkTDxInteractorStyle()
 {
   if (this->Settings != nullptr)
@@ -37,7 +37,7 @@ vtkTDxInteractorStyle::~vtkTDxInteractorStyle()
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTDxInteractorStyle::ProcessEvent(vtkRenderer* renderer, unsigned long event, void* calldata)
 {
   vtkDebugMacro(<< "vtkTDxInteractorStyle::ProcessEvent()");
@@ -66,25 +66,25 @@ void vtkTDxInteractorStyle::ProcessEvent(vtkRenderer* renderer, unsigned long ev
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTDxInteractorStyle::OnMotionEvent(vtkTDxMotionEventInfo* vtkNotUsed(motionInfo))
 {
   vtkDebugMacro(<< "vtkTDxInteractorStyle::OnMotionEvent()");
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTDxInteractorStyle::OnButtonPressedEvent(int vtkNotUsed(button))
 {
   vtkDebugMacro(<< "vtkTDxInteractorStyle::OnButtonPressedEvent()");
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTDxInteractorStyle::OnButtonReleasedEvent(int vtkNotUsed(button))
 {
   vtkDebugMacro(<< "vtkTDxInteractorStyle::OnButtonReleasedEvent()");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTDxInteractorStyle::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -74,7 +74,7 @@
       return errorcode;                                                                            \
   }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 #ifdef VTK_USE_64BIT_IDS
 //#ifdef NC_INT64
 //// This may or may not work with the netCDF 4 library reading in netCDF 3 files.
@@ -145,7 +145,7 @@ static int nc_get_vars_vtkIdType(int ncid, int varid, const size_t start[], cons
 #define nc_get_vars_vtkIdType nc_get_vars_int
 #endif // VTK_USE_64BIT_IDS
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This convenience function gets a scalar variable as a double, doing the
 // appropriate checks.
 static int nc_get_scalar_double(int ncid, const char* name, double* dp)
@@ -312,7 +312,7 @@ public:
   }
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkSLACReader::MidpointCoordinateMap::vtkInternal
 {
 public:
@@ -371,7 +371,7 @@ vtkSLACReader::MidpointCoordinates* vtkSLACReader::MidpointCoordinateMap::FindMi
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkSLACReader::MidpointIdMap::vtkInternal
 {
 public:
@@ -454,7 +454,7 @@ vtkInformationKeyMacro(vtkSLACReader, IS_EXTERNAL_SURFACE, Integer);
 vtkInformationKeyMacro(vtkSLACReader, POINTS, ObjectBase);
 vtkInformationKeyMacro(vtkSLACReader, POINT_DATA, ObjectBase);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The internals class mostly holds templated ivars that we don't want to
 // expose in the header file.
 class vtkSLACReader::vtkInternal
@@ -500,7 +500,7 @@ public:
   vtkNew<vtkDoubleArray> PhaseShiftsArray;
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSLACReader::vtkSLACReader()
 {
   this->Internal = new vtkSLACReader::vtkInternal;
@@ -559,7 +559,7 @@ void vtkSLACReader::PrintSelf(ostream& os, vtkIndent indent)
   this->Internal->VariableArraySelection->PrintSelf(os, indent.GetNextIndent());
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSLACReader::CanReadFile(const char* filename)
 {
   vtkSLACReaderAutoCloseNetCDF ncFD(filename, NC_NOWRITE, true);
@@ -578,7 +578,7 @@ int vtkSLACReader::CanReadFile(const char* filename)
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSLACReader::AddModeFileName(const char* fname)
 {
   this->Internal->ModeFileNames.emplace_back(fname);
@@ -601,7 +601,7 @@ const char* vtkSLACReader::GetModeFileName(unsigned int idx)
   return this->Internal->ModeFileNames[idx].c_str();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkSLACReader::GetNumTuplesInVariable(int ncFD, int varId, int expectedNumComponents)
 {
   int numDims;
@@ -631,7 +631,7 @@ vtkIdType vtkSLACReader::GetNumTuplesInVariable(int ncFD, int varId, int expecte
   return static_cast<vtkIdType>(dimLength);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSLACReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -820,7 +820,7 @@ int vtkSLACReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSLACReader::RequestData(vtkInformation* request,
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -1028,31 +1028,31 @@ int vtkSLACReader::RequestData(vtkInformation* request,
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSLACReader::SelectionModifiedCallback(vtkObject*, unsigned long, void* clientdata, void*)
 {
   static_cast<vtkSLACReader*>(clientdata)->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSLACReader::GetNumberOfVariableArrays()
 {
   return this->Internal->VariableArraySelection->GetNumberOfArrays();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkSLACReader::GetVariableArrayName(int index)
 {
   return this->Internal->VariableArraySelection->GetArrayName(index);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSLACReader::GetVariableArrayStatus(const char* name)
 {
   return this->Internal->VariableArraySelection->ArrayIsEnabled(name);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSLACReader::SetVariableArrayStatus(const char* name, int status)
 {
   vtkDebugMacro("Set cell array \"" << name << "\" status to: " << status);
@@ -1066,13 +1066,13 @@ void vtkSLACReader::SetVariableArrayStatus(const char* name, int status)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSLACReader::ResetFrequencyScales()
 {
   std::fill(this->Internal->FrequencyScales.begin(), this->Internal->FrequencyScales.end(), 1.0);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSLACReader::SetFrequencyScale(int index, double scale)
 {
   if ((index < 0) || (static_cast<size_t>(index) >= this->Internal->FrequencyScales.size()))
@@ -1083,7 +1083,7 @@ void vtkSLACReader::SetFrequencyScale(int index, double scale)
   this->Internal->FrequencyScales[index] = scale;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDoubleArray* vtkSLACReader::GetFrequencyScales()
 {
   this->Internal->FrequencyScalesArray->SetNumberOfTuples(
@@ -1098,13 +1098,13 @@ vtkDoubleArray* vtkSLACReader::GetFrequencyScales()
   return this->Internal->FrequencyScalesArray;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSLACReader::ResetPhaseShifts()
 {
   std::fill(this->Internal->PhaseShifts.begin(), this->Internal->PhaseShifts.end(), 0.0);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSLACReader::SetPhaseShift(int index, double scale)
 {
   if ((index < 0) || (static_cast<size_t>(index) >= this->Internal->PhaseShifts.size()))
@@ -1115,7 +1115,7 @@ void vtkSLACReader::SetPhaseShift(int index, double scale)
   this->Internal->PhaseShifts[index] = scale;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDoubleArray* vtkSLACReader::GetPhaseShifts()
 {
   this->Internal->PhaseShiftsArray->SetNumberOfTuples(
@@ -1130,7 +1130,7 @@ vtkDoubleArray* vtkSLACReader::GetPhaseShifts()
   return this->Internal->PhaseShiftsArray;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSLACReader::ReadTetrahedronInteriorArray(int meshFD, vtkIdTypeArray* connectivity)
 {
   int tetInteriorVarId;
@@ -1145,7 +1145,7 @@ int vtkSLACReader::ReadTetrahedronInteriorArray(int meshFD, vtkIdTypeArray* conn
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSLACReader::ReadTetrahedronExteriorArray(int meshFD, vtkIdTypeArray* connectivity)
 {
   int tetExteriorVarId;
@@ -1160,7 +1160,7 @@ int vtkSLACReader::ReadTetrahedronExteriorArray(int meshFD, vtkIdTypeArray* conn
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSLACReader::CheckTetrahedraWinding(int meshFD)
 {
   int i;
@@ -1213,7 +1213,7 @@ int vtkSLACReader::CheckTetrahedraWinding(int meshFD)
   return (dir >= 0.0);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSLACReader::ReadConnectivity(
   int meshFD, vtkMultiBlockDataSet* surfaceOutput, vtkMultiBlockDataSet* volumeOutput)
 {
@@ -1298,7 +1298,7 @@ int vtkSLACReader::ReadConnectivity(
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSmartPointer<vtkDataArray> vtkSLACReader::ReadPointDataArray(int ncFD, int varId)
 {
   // Get the dimension info.  We should only need to worry about 1 or 2D arrays.
@@ -1347,7 +1347,7 @@ vtkSmartPointer<vtkDataArray> vtkSLACReader::ReadPointDataArray(int ncFD, int va
   return dataArray;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSLACReader::ReadCoordinates(int meshFD, vtkMultiBlockDataSet* output)
 {
   // Read in the point coordinates.  The coordinates are 3-tuples in an array
@@ -1372,7 +1372,7 @@ int vtkSLACReader::ReadCoordinates(int meshFD, vtkMultiBlockDataSet* output)
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSLACReader::ReadFieldData(
   const int* modeFDArray, int numModeFDs, vtkMultiBlockDataSet* output)
 {
@@ -1556,7 +1556,7 @@ int vtkSLACReader::ReadFieldData(
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSLACReader::ReadMidpointCoordinates(
   int meshFD, vtkMultiBlockDataSet* output, vtkSLACReader::MidpointCoordinateMap& map)
 {
@@ -1589,7 +1589,7 @@ int vtkSLACReader::ReadMidpointCoordinates(
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSLACReader::ReadMidpointData(
   int meshFD, vtkMultiBlockDataSet* output, MidpointIdMap& midpointIds)
 {
@@ -1692,7 +1692,7 @@ int vtkSLACReader::ReadMidpointData(
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSLACReader::InterpolateMidpointData(
   vtkMultiBlockDataSet* output, vtkSLACReader::MidpointIdMap& map)
 {
@@ -1721,7 +1721,7 @@ int vtkSLACReader::InterpolateMidpointData(
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSLACReader::MeshUpToDate()
 {
   if (this->MeshReadTime < this->GetMTime())
@@ -1735,7 +1735,7 @@ int vtkSLACReader::MeshUpToDate()
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSLACReader::RestoreMeshCache(vtkMultiBlockDataSet* surfaceOutput,
   vtkMultiBlockDataSet* volumeOutput, vtkMultiBlockDataSet* compositeOutput)
 {

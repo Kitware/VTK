@@ -24,7 +24,7 @@
 
 vtkStandardNewMacro(vtkImageShrink3D);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Constructor: Sets default filter to be identity.
 vtkImageShrink3D::vtkImageShrink3D()
 {
@@ -101,7 +101,7 @@ void vtkImageShrink3D::SetAveraging(vtkTypeBool value)
   this->SetMean(value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageShrink3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -136,7 +136,7 @@ void vtkImageShrink3D::InternalRequestUpdateExtent(int* inExt, int* outExt)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method computes the Region of input necessary to generate outRegion.
 int vtkImageShrink3D::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -155,7 +155,7 @@ int vtkImageShrink3D::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Computes any global image information associated with regions.
 // Any problems with roundoff or negative numbers ???
 int vtkImageShrink3D::RequestInformation(vtkInformation* vtkNotUsed(request),
@@ -228,7 +228,7 @@ extern "C"
   typedef int (*vtkCompareFunction)(const void*, const void*);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The templated execute function handles all the data types.
 template <class T>
 void vtkImageShrink3DExecute(vtkImageShrink3D* self, vtkImageData* inData, T* inPtr,
@@ -548,7 +548,7 @@ void vtkImageShrink3DExecute(vtkImageShrink3D* self, vtkImageData* inData, T* in
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method uses the input data to fill the output data.
 // It can handle any type data, but the two datas must have the same
 // data type.

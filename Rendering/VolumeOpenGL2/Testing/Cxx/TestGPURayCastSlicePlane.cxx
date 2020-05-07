@@ -11,7 +11,7 @@
 #include <vtkVolume.h>
 #include <vtkVolumeProperty.h>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestGPURayCastSlicePlane(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   vtkNew<vtkRTAnalyticSource> data;

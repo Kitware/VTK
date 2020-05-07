@@ -18,16 +18,16 @@
 
 vtkStandardNewMacro(vtkLZMADataCompressor);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLZMADataCompressor::vtkLZMADataCompressor()
 {
   this->CompressionLevel = 5;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLZMADataCompressor::~vtkLZMADataCompressor() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLZMADataCompressor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -35,7 +35,7 @@ void vtkLZMADataCompressor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CompressionLevel: " << this->CompressionLevel << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 size_t vtkLZMADataCompressor::CompressBuffer(unsigned char const* uncompressedData,
   size_t uncompressedSize, unsigned char* compressedData, size_t compressionSpace)
 {
@@ -71,7 +71,7 @@ size_t vtkLZMADataCompressor::CompressBuffer(unsigned char const* uncompressedDa
   return static_cast<size_t>(out_pos);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 size_t vtkLZMADataCompressor::UncompressBuffer(unsigned char const* compressedData,
   size_t compressedSize, unsigned char* uncompressedData, size_t uncompressedSize)
 {
@@ -121,14 +121,14 @@ size_t vtkLZMADataCompressor::UncompressBuffer(unsigned char const* compressedDa
 
   return static_cast<size_t>(out_pos);
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkLZMADataCompressor::GetCompressionLevel()
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning CompressionLevel "
                 << this->CompressionLevel);
   return this->CompressionLevel;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLZMADataCompressor::SetCompressionLevel(int compressionLevel)
 {
   int min = 1;
@@ -144,7 +144,7 @@ void vtkLZMADataCompressor::SetCompressionLevel(int compressionLevel)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 size_t vtkLZMADataCompressor::GetMaximumCompressionSpace(size_t size)
 {
   return static_cast<size_t>(size + (size >> 2) + 128);

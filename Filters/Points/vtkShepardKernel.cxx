@@ -24,16 +24,16 @@
 
 vtkStandardNewMacro(vtkShepardKernel);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkShepardKernel::vtkShepardKernel()
 {
   this->PowerParameter = 2.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkShepardKernel::~vtkShepardKernel() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkShepardKernel::ComputeWeights(
   double x[3], vtkIdList* pIds, vtkDoubleArray* prob, vtkDoubleArray* weights)
 {
@@ -83,7 +83,7 @@ vtkIdType vtkShepardKernel::ComputeWeights(
   return numPts;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkShepardKernel::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

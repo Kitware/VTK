@@ -28,11 +28,11 @@
 
 #include <boost/random.hpp>
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkStandardNewMacro(vtkBoostRandomSparseArraySource);
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkBoostRandomSparseArraySource::vtkBoostRandomSparseArraySource()
   : Extents(2, 2)
@@ -46,11 +46,11 @@ vtkBoostRandomSparseArraySource::vtkBoostRandomSparseArraySource()
   this->SetNumberOfOutputPorts(1);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkBoostRandomSparseArraySource::~vtkBoostRandomSparseArraySource() = default;
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkBoostRandomSparseArraySource::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -77,19 +77,19 @@ vtkArrayExtents vtkBoostRandomSparseArraySource::GetExtents()
   return this->Extents;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkBoostRandomSparseArraySource::RequestData(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
   boost::mt19937 pattern_generator(static_cast<boost::uint32_t>(this->ElementProbabilitySeed));
   boost::bernoulli_distribution<> pattern_distribution(this->ElementProbability);
-  boost::variate_generator<boost::mt19937&, boost::bernoulli_distribution<> > pattern(
+  boost::variate_generator<boost::mt19937&, boost::bernoulli_distribution<>> pattern(
     pattern_generator, pattern_distribution);
 
   boost::mt19937 value_generator(static_cast<boost::uint32_t>(this->ElementValueSeed));
   boost::uniform_real<> value_distribution(this->MinValue, this->MaxValue);
-  boost::variate_generator<boost::mt19937&, boost::uniform_real<> > values(
+  boost::variate_generator<boost::mt19937&, boost::uniform_real<>> values(
     value_generator, value_distribution);
 
   vtkSparseArray<double>* const array = vtkSparseArray<double>::New();

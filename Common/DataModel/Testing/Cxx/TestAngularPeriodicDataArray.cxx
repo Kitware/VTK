@@ -22,8 +22,8 @@ int TestAngularPeriodicDataArray(int, char*[])
 {
   vtkNew<vtkDoubleArray> array;
   vtkNew<vtkFloatArray> floatArray;
-  vtkNew<vtkAngularPeriodicDataArray<double> > angularPeriodicDataArray;
-  vtkNew<vtkAngularPeriodicDataArray<float> > angularPeriodicDataArray2;
+  vtkNew<vtkAngularPeriodicDataArray<double>> angularPeriodicDataArray;
+  vtkNew<vtkAngularPeriodicDataArray<float>> angularPeriodicDataArray2;
   array->SetNumberOfComponents(3);
   floatArray->SetNumberOfComponents(3);
 
@@ -95,7 +95,7 @@ int TestAngularPeriodicDataArray(int, char*[])
   }
 
   vtkNew<vtkDoubleArray> tensorArray;
-  vtkNew<vtkAngularPeriodicDataArray<double> > tensorPArray;
+  vtkNew<vtkAngularPeriodicDataArray<double>> tensorPArray;
 
   tensorArray->SetNumberOfComponents(9);
 
@@ -142,7 +142,7 @@ int TestAngularPeriodicDataArray(int, char*[])
   }
 
   vtkNew<vtkDoubleArray> symTensorArray;
-  vtkNew<vtkAngularPeriodicDataArray<double> > symTensorPArray;
+  vtkNew<vtkAngularPeriodicDataArray<double>> symTensorPArray;
 
   symTensorArray->SetNumberOfComponents(6);
 

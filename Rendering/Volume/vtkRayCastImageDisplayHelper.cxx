@@ -15,10 +15,10 @@
 #include "vtkRayCastImageDisplayHelper.h"
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Return nullptr if no override is supplied.
 vtkAbstractObjectFactoryNewMacro(vtkRayCastImageDisplayHelper);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 // Construct a new vtkRayCastImageDisplayHelper with default values
 vtkRayCastImageDisplayHelper::vtkRayCastImageDisplayHelper()

@@ -24,17 +24,17 @@
 
 vtkStandardNewMacro(vtkUnstructuredGridToReebGraphFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUnstructuredGridToReebGraphFilter::vtkUnstructuredGridToReebGraphFilter()
 {
   FieldId = 0;
   this->SetNumberOfInputPorts(1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUnstructuredGridToReebGraphFilter::~vtkUnstructuredGridToReebGraphFilter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkUnstructuredGridToReebGraphFilter::FillInputPortInformation(
   int vtkNotUsed(portNumber), vtkInformation* info)
 {
@@ -43,27 +43,27 @@ int vtkUnstructuredGridToReebGraphFilter::FillInputPortInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkUnstructuredGridToReebGraphFilter::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDirectedGraph::DATA_TYPE_NAME(), "vtkReebGraph");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkUnstructuredGridToReebGraphFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Field Id: " << this->FieldId << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkReebGraph* vtkUnstructuredGridToReebGraphFilter::GetOutput()
 {
   return vtkReebGraph::SafeDownCast(this->GetOutputDataObject(0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkUnstructuredGridToReebGraphFilter::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

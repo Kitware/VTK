@@ -28,7 +28,7 @@ vtkStandardNewMacro(vtkTransmitUnstructuredGridPiece);
 
 vtkCxxSetObjectMacro(vtkTransmitUnstructuredGridPiece, Controller, vtkMultiProcessController);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTransmitUnstructuredGridPiece::vtkTransmitUnstructuredGridPiece()
 {
   this->CreateGhostCells = 1;
@@ -38,13 +38,13 @@ vtkTransmitUnstructuredGridPiece::vtkTransmitUnstructuredGridPiece()
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTransmitUnstructuredGridPiece::~vtkTransmitUnstructuredGridPiece()
 {
   this->SetController(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTransmitUnstructuredGridPiece::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -81,7 +81,7 @@ int vtkTransmitUnstructuredGridPiece::RequestData(vtkInformation* vtkNotUsed(req
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTransmitUnstructuredGridPiece::RootExecute(
   vtkUnstructuredGrid* input, vtkUnstructuredGrid* output, vtkInformation* outInfo)
 {
@@ -143,7 +143,7 @@ void vtkTransmitUnstructuredGridPiece::RootExecute(
   extract->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTransmitUnstructuredGridPiece::SatelliteExecute(
   int, vtkUnstructuredGrid* output, vtkInformation* outInfo)
 {
@@ -165,7 +165,7 @@ void vtkTransmitUnstructuredGridPiece::SatelliteExecute(
   tmp->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTransmitUnstructuredGridPiece::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

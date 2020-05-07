@@ -175,7 +175,7 @@ void Process2(vtkMultiProcessController* contr, void* vtkNotUsed(arg))
 
   vtkNew<vtkSphereSource> sphereSource;
   sphereSource->Update();
-  std::vector<vtkSmartPointer<vtkDataObject> > rdata;
+  std::vector<vtkSmartPointer<vtkDataObject>> rdata;
   if (!comm->Gather(sphereSource->GetOutputDataObject(0), rdata, 0))
   {
     cerr << "Server error: Error gathering data." << endl;
@@ -300,7 +300,7 @@ void Process1(vtkMultiProcessController* contr, void* arg)
 
   vtkNew<vtkSphereSource> sphereSource;
   sphereSource->Update();
-  std::vector<vtkSmartPointer<vtkDataObject> > rdata;
+  std::vector<vtkSmartPointer<vtkDataObject>> rdata;
   if (!comm->Gather(sphereSource->GetOutputDataObject(0), rdata, 0))
   {
     cerr << "Client error: Error gathering data." << endl;

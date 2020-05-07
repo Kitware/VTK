@@ -66,7 +66,7 @@ For singleton pattern
 vtkParallelTimer* vtkParallelTimer::GlobalInstance = 0;
 vtkParallelTimer::vtkParallelTimerDestructor vtkParallelTimer::GlobalInstanceDestructor;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParallelTimer::vtkParallelTimerDestructor::~vtkParallelTimerDestructor()
 {
   if (this->Log)
@@ -140,7 +140,7 @@ private:
   char* Data;
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <size_t N>
 vtkParallelTimerBuffer& vtkParallelTimerBuffer::operator<<(const char v[N])
 {
@@ -150,7 +150,7 @@ vtkParallelTimerBuffer& vtkParallelTimerBuffer::operator<<(const char v[N])
   return *this;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParallelTimerBuffer::vtkParallelTimerBuffer()
   : Size(0)
   , At(0)
@@ -159,13 +159,13 @@ vtkParallelTimerBuffer::vtkParallelTimerBuffer()
 {
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParallelTimerBuffer::~vtkParallelTimerBuffer()
 {
   free(this->Data);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParallelTimerBuffer::vtkParallelTimerBuffer(const vtkParallelTimerBuffer& other)
   : Size(0)
   , At(0)
@@ -175,7 +175,7 @@ vtkParallelTimerBuffer::vtkParallelTimerBuffer(const vtkParallelTimerBuffer& oth
   *this = other;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParallelTimerBuffer& vtkParallelTimerBuffer::operator=(const vtkParallelTimerBuffer& other)
 {
   if (this == &other)
@@ -188,7 +188,7 @@ vtkParallelTimerBuffer& vtkParallelTimerBuffer::operator=(const vtkParallelTimer
   return *this;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelTimerBuffer::ClearForReal()
 {
   this->At = 0;
@@ -197,7 +197,7 @@ void vtkParallelTimerBuffer::ClearForReal()
   this->Data = 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParallelTimerBuffer& vtkParallelTimerBuffer::operator<<(const int v)
 {
   const char c = 'i';
@@ -206,7 +206,7 @@ vtkParallelTimerBuffer& vtkParallelTimerBuffer::operator<<(const int v)
   return *this;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParallelTimerBuffer& vtkParallelTimerBuffer::operator<<(const long long v)
 {
   const char c = 'l';
@@ -215,7 +215,7 @@ vtkParallelTimerBuffer& vtkParallelTimerBuffer::operator<<(const long long v)
   return *this;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParallelTimerBuffer& vtkParallelTimerBuffer::operator<<(const double v)
 {
   const char c = 'd';
@@ -224,7 +224,7 @@ vtkParallelTimerBuffer& vtkParallelTimerBuffer::operator<<(const double v)
   return *this;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParallelTimerBuffer& vtkParallelTimerBuffer::operator<<(const char* v)
 {
   const char c = 's';
@@ -234,7 +234,7 @@ vtkParallelTimerBuffer& vtkParallelTimerBuffer::operator<<(const char* v)
   return *this;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParallelTimerBuffer& vtkParallelTimerBuffer::operator>>(ostringstream& s)
 {
   size_t i = 0;
@@ -290,7 +290,7 @@ vtkParallelTimerBuffer& vtkParallelTimerBuffer::operator>>(ostringstream& s)
   return *this;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelTimerBuffer::Gather(int rootRank)
 {
   int mpiOk;
@@ -344,7 +344,7 @@ void vtkParallelTimerBuffer::Gather(int rootRank)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelTimerBuffer::PushBack(const void* data, size_t n)
 {
   size_t nextAt = this->At + n;
@@ -353,7 +353,7 @@ void vtkParallelTimerBuffer::PushBack(const void* data, size_t n)
   this->At = nextAt;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelTimerBuffer::Resize(size_t newSize)
 {
 #if defined(vtkParallelTimerBufferDEBUG)
@@ -373,10 +373,10 @@ void vtkParallelTimerBuffer::Resize(size_t newSize)
 #endif
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkParallelTimer);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParallelTimer::vtkParallelTimer()
   : GlobalLevel(0)
   , WorldRank(0)
@@ -398,7 +398,7 @@ vtkParallelTimer::vtkParallelTimer()
   this->Log = new vtkParallelTimerBuffer;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParallelTimer::~vtkParallelTimer()
 {
 #if vtkParallelTimerDEBUG > 1
@@ -429,7 +429,7 @@ vtkParallelTimer::~vtkParallelTimer()
   delete this->Log;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParallelTimer* vtkParallelTimer::GetGlobalInstance()
 {
 #if vtkParallelTimerDEBUG > 1
@@ -453,7 +453,7 @@ vtkParallelTimer* vtkParallelTimer::GetGlobalInstance()
   return vtkParallelTimer::GlobalInstance;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelTimer::DeleteGlobalInstance()
 {
 #if vtkParallelTimerDEBUG > 1
@@ -469,7 +469,7 @@ void vtkParallelTimer::DeleteGlobalInstance()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelTimer::Clear()
 {
 #if vtkParallelTimerDEBUG > 1
@@ -480,7 +480,7 @@ void vtkParallelTimer::Clear()
   this->HeaderBuffer.str("");
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelTimer::StartEvent(int rank, const char* event)
 {
 #if vtkParallelTimerDEBUG > 2
@@ -494,7 +494,7 @@ void vtkParallelTimer::StartEvent(int rank, const char* event)
   this->StartEvent(event);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelTimer::StartEvent(const char* event)
 {
 #if vtkParallelTimerDEBUG > 1
@@ -512,7 +512,7 @@ void vtkParallelTimer::StartEvent(const char* event)
   this->StartTime.push_back(walls);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelTimer::EndEvent(int rank, const char* event)
 {
 #if vtkParallelTimerDEBUG > 2
@@ -526,7 +526,7 @@ void vtkParallelTimer::EndEvent(int rank, const char* event)
   this->EndEvent(event);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelTimer::EndEvent(const char* event)
 {
 #if vtkParallelTimerDEBUG > 1
@@ -562,7 +562,7 @@ void vtkParallelTimer::EndEvent(const char* event)
 #endif
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelTimer::EndEventSynch(int rank, const char* event)
 {
 #if vtkParallelTimerDEBUG > 1
@@ -580,7 +580,7 @@ void vtkParallelTimer::EndEventSynch(int rank, const char* event)
   this->EndEvent(event);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelTimer::EndEventSynch(const char* event)
 {
 #if vtkParallelTimerDEBUG > 1
@@ -594,7 +594,7 @@ void vtkParallelTimer::EndEventSynch(const char* event)
   this->EndEvent(event);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelTimer::Update()
 {
 #if vtkParallelTimerDEBUG > 1
@@ -607,7 +607,7 @@ void vtkParallelTimer::Update()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkParallelTimer::Write()
 {
 #if vtkParallelTimerDEBUG > 1
@@ -634,7 +634,7 @@ int vtkParallelTimer::Write()
   return 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelTimer::PrintSelf(ostream& os, vtkIndent)
 {
   time_t t;

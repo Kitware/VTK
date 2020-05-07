@@ -130,12 +130,12 @@ char* vtk_Py_EncodeLocale(const wchar_t* arg, size_t* size)
 }
 #endif
 
-static std::vector<vtkWeakPointer<vtkPythonInterpreter> >* GlobalInterpreters;
+static std::vector<vtkWeakPointer<vtkPythonInterpreter>>* GlobalInterpreters;
 static std::vector<std::string> PythonPaths;
 
 void NotifyInterpreters(unsigned long eventid, void* calldata = nullptr)
 {
-  std::vector<vtkWeakPointer<vtkPythonInterpreter> >::iterator iter;
+  std::vector<vtkWeakPointer<vtkPythonInterpreter>>::iterator iter;
   for (iter = GlobalInterpreters->begin(); iter != GlobalInterpreters->end(); ++iter)
   {
     if (iter->GetPointer())
@@ -172,7 +172,7 @@ vtkPythonGlobalInterpreters::vtkPythonGlobalInterpreters()
 {
   if (vtkPythonInterpretersCounter++ == 0)
   {
-    GlobalInterpreters = new std::vector<vtkWeakPointer<vtkPythonInterpreter> >();
+    GlobalInterpreters = new std::vector<vtkWeakPointer<vtkPythonInterpreter>>();
   };
 }
 
@@ -193,13 +193,13 @@ std::string vtkPythonInterpreter::StdOutBuffer;
 int vtkPythonInterpreter::LogVerbosity = vtkLogger::VERBOSITY_TRACE;
 
 vtkStandardNewMacro(vtkPythonInterpreter);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPythonInterpreter::vtkPythonInterpreter()
 {
   GlobalInterpreters->push_back(this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPythonInterpreter::~vtkPythonInterpreter()
 {
   // We need to check that GlobalInterpreters has not been deleted yet. It can be
@@ -211,7 +211,7 @@ vtkPythonInterpreter::~vtkPythonInterpreter()
   {
     return;
   }
-  std::vector<vtkWeakPointer<vtkPythonInterpreter> >::iterator iter;
+  std::vector<vtkWeakPointer<vtkPythonInterpreter>>::iterator iter;
   for (iter = GlobalInterpreters->begin(); iter != GlobalInterpreters->end(); ++iter)
   {
     if (*iter == this)
@@ -222,19 +222,19 @@ vtkPythonInterpreter::~vtkPythonInterpreter()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPythonInterpreter::IsInitialized()
 {
   return (Py_IsInitialized() != 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPythonInterpreter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPythonInterpreter::Initialize(int initsigs /*=0*/)
 {
   if (Py_IsInitialized() == 0)
@@ -325,7 +325,7 @@ static void CloseDLLDirectoryCookie()
 }
 #endif
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPythonInterpreter::Finalize()
 {
   if (Py_IsInitialized() != 0)
@@ -340,7 +340,7 @@ void vtkPythonInterpreter::Finalize()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPythonInterpreter::SetProgramName(const char* programname)
 {
   if (programname)
@@ -372,7 +372,7 @@ void vtkPythonInterpreter::SetProgramName(const char* programname)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPythonInterpreter::PrependPythonPath(const char* dir)
 {
   if (!dir)
@@ -398,7 +398,7 @@ void vtkPythonInterpreter::PrependPythonPath(const char* dir)
   vtkPrependPythonPath(out_dir.c_str());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPythonInterpreter::PrependPythonPath(
   const char* anchor, const char* landmark, bool add_landmark)
 {
@@ -426,7 +426,7 @@ void vtkPythonInterpreter::PrependPythonPath(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPythonInterpreter::PyMain(int argc, char** argv)
 {
   vtksys::SystemTools::EnableMSVCDebugHook();
@@ -586,7 +586,7 @@ int vtkPythonInterpreter::PyMain(int argc, char** argv)
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPythonInterpreter::RunSimpleString(const char* script)
 {
   vtkPythonInterpreter::Initialize(1);
@@ -623,19 +623,19 @@ int vtkPythonInterpreter::RunSimpleString(const char* script)
   return pyReturn;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPythonInterpreter::SetCaptureStdin(bool val)
 {
   vtkPythonInterpreter::CaptureStdin = val;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPythonInterpreter::GetCaptureStdin()
 {
   return vtkPythonInterpreter::CaptureStdin;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPythonInterpreter::WriteStdOut(const char* txt)
 {
   if (vtkPythonInterpreter::ConsoleBuffering)
@@ -649,10 +649,10 @@ void vtkPythonInterpreter::WriteStdOut(const char* txt)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPythonInterpreter::FlushStdOut() {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPythonInterpreter::WriteStdErr(const char* txt)
 {
   if (vtkPythonInterpreter::ConsoleBuffering)
@@ -666,10 +666,10 @@ void vtkPythonInterpreter::WriteStdErr(const char* txt)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPythonInterpreter::FlushStdErr() {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStdString vtkPythonInterpreter::ReadStdin()
 {
   if (!vtkPythonInterpreter::CaptureStdin)
@@ -683,7 +683,7 @@ vtkStdString vtkPythonInterpreter::ReadStdin()
   return string;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPythonInterpreter::SetupPythonPrefix()
 {
   using systools = vtksys::SystemTools;
@@ -717,7 +717,7 @@ void vtkPythonInterpreter::SetupPythonPrefix()
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPythonInterpreter::SetupVTKPythonPaths()
 {
   // Check Py_FrozenFlag global variable defined by Python to see if we're using
@@ -799,20 +799,20 @@ void vtkPythonInterpreter::SetupVTKPythonPaths()
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPythonInterpreter::SetLogVerbosity(int val)
 {
   vtkPythonInterpreter::LogVerbosity = vtkLogger::ConvertToVerbosity(val);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPythonInterpreter::GetLogVerbosity()
 {
   return vtkPythonInterpreter::LogVerbosity;
 }
 
 #if !defined(VTK_LEGACY_REMOVE)
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPythonInterpreter::GetPythonVerboseFlag()
 {
   VTK_LEGACY_REPLACED_BODY(

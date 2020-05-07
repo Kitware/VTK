@@ -42,7 +42,7 @@
 
 vtkStandardNewMacro(vtkMFIXReader);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMFIXReader::vtkMFIXReader()
 {
   this->FileName = nullptr;
@@ -111,7 +111,7 @@ vtkMFIXReader::vtkMFIXReader()
   this->TimeStepWasReadOnce = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMFIXReader::~vtkMFIXReader()
 {
   delete[] this->FileName;
@@ -153,7 +153,7 @@ vtkMFIXReader::~vtkMFIXReader()
   this->SPXTimestepIndexTable->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMFIXReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -199,7 +199,7 @@ int vtkMFIXReader::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMFIXReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -213,7 +213,7 @@ void vtkMFIXReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number of Time Steps: " << this->NumberOfTimeSteps << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMFIXReader::MakeMesh(vtkUnstructuredGrid* output)
 {
   output->Allocate();
@@ -605,7 +605,7 @@ void vtkMFIXReader::MakeMesh(vtkUnstructuredGrid* output)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMFIXReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -645,25 +645,25 @@ int vtkMFIXReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMFIXReader::GetNumberOfCellArrays()
 {
   return this->CellDataArraySelection->GetNumberOfArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkMFIXReader::GetCellArrayName(int index)
 {
   return this->CellDataArraySelection->GetArrayName(index);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMFIXReader::GetCellArrayStatus(const char* name)
 {
   return this->CellDataArraySelection->ArrayIsEnabled(name);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMFIXReader::SetCellArrayStatus(const char* name, int status)
 {
   if (status)
@@ -676,26 +676,26 @@ void vtkMFIXReader::SetCellArrayStatus(const char* name, int status)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMFIXReader::DisableAllCellArrays()
 {
   this->CellDataArraySelection->DisableAllArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMFIXReader::EnableAllCellArrays()
 {
   this->CellDataArraySelection->EnableAllArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMFIXReader::GetCellDataRange(int cellComp, float* min, float* max)
 {
   *min = this->Minimum->GetValue(cellComp);
   *max = this->Maximum->GetValue(cellComp);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMFIXReader::SetProjectName(const char* infile)
 {
   int len = static_cast<int>(strlen(infile));
@@ -703,7 +703,7 @@ void vtkMFIXReader::SetProjectName(const char* infile)
   this->RunName[len - 4] = '\0';
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMFIXReader::RestartVersionNumber(const char* buffer)
 {
   char s1[512];
@@ -712,14 +712,14 @@ void vtkMFIXReader::RestartVersionNumber(const char* buffer)
   strncpy(this->Version, buffer, 100);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMFIXReader::GetInt(istream& in, int& val)
 {
   in.read((char*)&val, sizeof(int));
   this->SwapInt(val);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMFIXReader::SwapInt(int& value)
 {
   int result = ((value & 0x00FF) << 24) | ((value & 0xFF00) << 8) | ((value >> 8) & 0xFF00) |
@@ -727,7 +727,7 @@ void vtkMFIXReader::SwapInt(int& value)
   value = result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMFIXReader::SwapDouble(double& value)
 {
   union Swap {
@@ -751,7 +751,7 @@ void vtkMFIXReader::SwapDouble(double& value)
   value = result.valDouble;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMFIXReader::SwapFloat(float& value)
 {
   union Swap {
@@ -771,20 +771,20 @@ void vtkMFIXReader::SwapFloat(float& value)
   value = result.valFloat;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMFIXReader::GetDouble(istream& in, double& val)
 {
   in.read((char*)&val, sizeof(double));
   this->SwapDouble(val);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMFIXReader::SkipBytes(istream& in, int n)
 {
   in.read(this->DataBuffer, n); // maybe seekg instead
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMFIXReader::GetBlockOfDoubles(istream& in, vtkDoubleArray* v, int n)
 {
   const int numberOfDoublesInBlock = 512 / sizeof(double);
@@ -817,7 +817,7 @@ void vtkMFIXReader::GetBlockOfDoubles(istream& in, vtkDoubleArray* v, int n)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMFIXReader::GetBlockOfInts(istream& in, vtkIntArray* v, int n)
 {
   const int numberOfIntsInBlock = 512 / sizeof(int);
@@ -850,7 +850,7 @@ void vtkMFIXReader::GetBlockOfInts(istream& in, vtkIntArray* v, int n)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMFIXReader::GetBlockOfFloats(istream& in, vtkFloatArray* v, int n)
 {
   const int numberOfFloatsInBlock = 512 / sizeof(float);
@@ -895,7 +895,7 @@ void vtkMFIXReader::GetBlockOfFloats(istream& in, vtkFloatArray* v, int n)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMFIXReader::ReadRestartFile()
 {
   int dimensionUsr = 5;
@@ -1542,7 +1542,7 @@ void vtkMFIXReader::ReadRestartFile()
   in.close();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMFIXReader::CreateVariableNames()
 {
   char fileName[VTK_MAXPATH];
@@ -1870,7 +1870,7 @@ void vtkMFIXReader::CreateVariableNames()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMFIXReader::GetTimeSteps()
 {
   int nextRecord, numberOfRecords;
@@ -2032,7 +2032,7 @@ void vtkMFIXReader::GetTimeSteps()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMFIXReader::MakeTimeStepTable(int numberOfVariables)
 {
   this->VariableTimestepTable->SetNumberOfComponents(numberOfVariables);
@@ -2060,7 +2060,7 @@ void vtkMFIXReader::MakeTimeStepTable(int numberOfVariables)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMFIXReader::GetVariableAtTimestep(int vari, int tstep, vtkFloatArray* v)
 {
   // This routine opens and closes the file for each request.
@@ -2144,7 +2144,7 @@ void vtkMFIXReader::GetVariableAtTimestep(int vari, int tstep, vtkFloatArray* v)
   in.close();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMFIXReader::MakeSPXTimeStepIndexTable(int nvars)
 {
 
@@ -2169,7 +2169,7 @@ void vtkMFIXReader::MakeSPXTimeStepIndexTable(int nvars)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMFIXReader::CalculateMaxTimeStep()
 {
   this->MaximumTimestep = 0;
@@ -2182,7 +2182,7 @@ void vtkMFIXReader::CalculateMaxTimeStep()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMFIXReader::GetNumberOfVariablesInSPXFiles()
 {
   int NumberOfVariablesInSPX = 0;
@@ -2213,7 +2213,7 @@ void vtkMFIXReader::GetNumberOfVariablesInSPXFiles()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMFIXReader::FillVectorVariable(int xindex, int yindex, int zindex, vtkFloatArray* v)
 {
   for (int i = 0; i <= this->CellDataArray[xindex]->GetMaxId(); i++)
@@ -2225,7 +2225,7 @@ void vtkMFIXReader::FillVectorVariable(int xindex, int yindex, int zindex, vtkFl
   v->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMFIXReader::ConvertVectorFromCylindricalToCartesian(int xindex, int zindex)
 {
   int count = 0;
@@ -2261,7 +2261,7 @@ void vtkMFIXReader::ConvertVectorFromCylindricalToCartesian(int xindex, int zind
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMFIXReader::GetAllTimes(vtkInformationVector* outputVector)
 {
   int max = 0;

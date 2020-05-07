@@ -65,7 +65,7 @@ static void build_array(const char* name, vtkIntArray* array, const int c_array[
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestStackedBarGraph(int, char*[])
 {
   // Set up a 2D scene, add an XY chart to it

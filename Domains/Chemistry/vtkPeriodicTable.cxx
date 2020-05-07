@@ -35,10 +35,10 @@
 // Setup static variables
 vtkNew<vtkBlueObeliskData> vtkPeriodicTable::BlueObeliskData;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPeriodicTable);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPeriodicTable::vtkPeriodicTable()
 {
   this->BlueObeliskData->GetWriteMutex()->Lock();
@@ -51,10 +51,10 @@ vtkPeriodicTable::vtkPeriodicTable()
   this->BlueObeliskData->GetWriteMutex()->Unlock();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPeriodicTable::~vtkPeriodicTable() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPeriodicTable::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -63,13 +63,13 @@ void vtkPeriodicTable::PrintSelf(ostream& os, vtkIndent indent)
   this->BlueObeliskData->PrintSelf(os, indent.GetNextIndent());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 unsigned short vtkPeriodicTable::GetNumberOfElements()
 {
   return this->BlueObeliskData->GetNumberOfElements();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkPeriodicTable::GetSymbol(unsigned short atomicNum)
 {
   if (atomicNum > this->GetNumberOfElements())
@@ -81,7 +81,7 @@ const char* vtkPeriodicTable::GetSymbol(unsigned short atomicNum)
   return this->BlueObeliskData->GetSymbols()->GetValue(atomicNum).c_str();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkPeriodicTable::GetElementName(unsigned short atomicNum)
 {
   if (atomicNum > this->GetNumberOfElements())
@@ -93,13 +93,13 @@ const char* vtkPeriodicTable::GetElementName(unsigned short atomicNum)
   return this->BlueObeliskData->GetNames()->GetValue(atomicNum).c_str();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 unsigned short vtkPeriodicTable::GetAtomicNumber(const vtkStdString& str)
 {
   return this->GetAtomicNumber(str.c_str());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 unsigned short vtkPeriodicTable::GetAtomicNumber(const char* str)
 {
   // If the string is null or the BODR object is not initialized, just
@@ -158,7 +158,7 @@ unsigned short vtkPeriodicTable::GetAtomicNumber(const char* str)
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 float vtkPeriodicTable::GetCovalentRadius(unsigned short atomicNum)
 {
   if (atomicNum > this->GetNumberOfElements())
@@ -170,7 +170,7 @@ float vtkPeriodicTable::GetCovalentRadius(unsigned short atomicNum)
   return this->BlueObeliskData->GetCovalentRadii()->GetValue(atomicNum);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 float vtkPeriodicTable::GetVDWRadius(unsigned short atomicNum)
 {
   if (atomicNum > this->GetNumberOfElements())
@@ -182,7 +182,7 @@ float vtkPeriodicTable::GetVDWRadius(unsigned short atomicNum)
   return this->BlueObeliskData->GetVDWRadii()->GetValue(atomicNum);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 float vtkPeriodicTable::GetMaxVDWRadius()
 {
   float maxRadius = 0;
@@ -193,7 +193,7 @@ float vtkPeriodicTable::GetMaxVDWRadius()
   return maxRadius;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPeriodicTable::GetDefaultLUT(vtkLookupTable* lut)
 {
   const unsigned short numColors = this->GetNumberOfElements() + 1;
@@ -209,13 +209,13 @@ void vtkPeriodicTable::GetDefaultLUT(vtkLookupTable* lut)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPeriodicTable::GetDefaultRGBTuple(unsigned short atomicNum, float rgb[3])
 {
   this->BlueObeliskData->GetDefaultColors()->GetTypedTuple(atomicNum, rgb);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkColor3f vtkPeriodicTable::GetDefaultRGBTuple(unsigned short atomicNum)
 {
   vtkColor3f result;

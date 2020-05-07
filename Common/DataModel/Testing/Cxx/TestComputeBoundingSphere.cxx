@@ -154,7 +154,7 @@ int TestComputeBoundingSphere(int, char*[])
 
   {
     std::cout << "Testing 1 sphere...";
-    std::vector<std::vector<float> > floatPoints;
+    std::vector<std::vector<float>> floatPoints;
     for (size_t i = 0; i < 1; ++i)
     {
       std::vector<float> xyzr(4);
@@ -185,7 +185,7 @@ int TestComputeBoundingSphere(int, char*[])
 
   {
     std::cout << "Testing ComputeBoundingSphere(float) " << numberOfSpheres << " spheres...";
-    std::vector<std::vector<float> > floatPoints;
+    std::vector<std::vector<float>> floatPoints;
     for (size_t i = 0; i < numberOfSpheres; ++i)
     {
       std::vector<float> xyzr(4);
@@ -213,7 +213,7 @@ int TestComputeBoundingSphere(int, char*[])
 
   {
     std::cout << "Testing ComputeBoundingSphere(double) " << numberOfSpheres << " spheres...";
-    std::vector<std::vector<double> > doublePoints;
+    std::vector<std::vector<double>> doublePoints;
     std::vector<double> xyzr(4);
     xyzr[0] = -100.0;
     xyzr[1] = 0.0;

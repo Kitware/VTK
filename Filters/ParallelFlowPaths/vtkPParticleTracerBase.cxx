@@ -41,14 +41,14 @@ vtkPParticleTracerBase::vtkPParticleTracerBase()
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPParticleTracerBase::~vtkPParticleTracerBase()
 {
   this->SetController(nullptr);
   this->SetParticleWriter(nullptr);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyData* vtkPParticleTracerBase::Execute(vtkInformationVector** inputVector)
 {
   vtkDebugMacro(<< "Clear MPI send list ");
@@ -66,7 +66,7 @@ vtkPolyData* vtkPParticleTracerBase::Execute(vtkInformationVector** inputVector)
   return vtkParticleTracerBase::Execute(inputVector);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPParticleTracerBase::SendParticleToAnotherProcess(
   ParticleInformation& info, ParticleInformation& previousInfo, vtkPointData* pd)
 {
@@ -129,7 +129,7 @@ bool vtkPParticleTracerBase::SendParticleToAnotherProcess(
   return true;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPParticleTracerBase::AssignSeedsToProcessors(double t, vtkDataSet* source, int sourceID,
   int ptId, ParticleVector& localSeedPoints, int& localAssignedCount)
 {
@@ -210,7 +210,7 @@ void vtkPParticleTracerBase::AssignSeedsToProcessors(double t, vtkDataSet* sourc
   this->AssignUniqueIds(localSeedPoints);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPParticleTracerBase::AssignUniqueIds(
   vtkParticleTracerBaseNamespace::ParticleVector& localSeedPoints)
 {
@@ -255,7 +255,7 @@ void vtkPParticleTracerBase::AssignUniqueIds(
   }
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPParticleTracerBase::SendReceiveParticles(
   RemoteParticleVector& sParticles, RemoteParticleVector& rParticles)
 {
@@ -400,7 +400,7 @@ bool vtkPParticleTracerBase::SendReceiveParticles(
   return particlesMoved;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPParticleTracerBase::RequestUpdateExtent(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -418,7 +418,7 @@ int vtkPParticleTracerBase::RequestUpdateExtent(
   return Superclass::RequestUpdateExtent(request, inputVector, outputVector);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPParticleTracerBase::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -426,7 +426,7 @@ void vtkPParticleTracerBase::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Controller: " << this->Controller << endl;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPParticleTracerBase::UpdateParticleListFromOtherProcesses()
 {
   if (!this->Controller)
@@ -454,7 +454,7 @@ bool vtkPParticleTracerBase::UpdateParticleListFromOtherProcesses()
   return particlesMoved;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPParticleTracerBase::IsPointDataValid(vtkDataObject* input)
 {
   if (this->Controller->GetNumberOfProcesses() == 1)
@@ -526,6 +526,6 @@ bool vtkPParticleTracerBase::IsPointDataValid(vtkDataObject* input)
   return (retVal != 0);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkPParticleTracerBase, Controller, vtkMultiProcessController);
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------

@@ -23,7 +23,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkTable.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestLinePlotDouble2(int, char*[])
 {
   // Set up a 2D scene, add an XY chart to it

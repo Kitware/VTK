@@ -45,7 +45,7 @@ vtkStandardNewMacro(vtkGroupLeafVertices);
 // Forward function reference (definition at bottom :)
 static int splitString(const vtkStdString& input, std::vector<vtkStdString>& results);
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkGroupLeafVerticesCompare
 {
 public:
@@ -60,14 +60,14 @@ public:
   }
 };
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <typename T>
 vtkVariant vtkGroupLeafVerticesGetValue(T* arr, vtkIdType index)
 {
   return vtkVariant(arr[index]);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static vtkVariant vtkGroupLeafVerticesGetVariant(vtkAbstractArray* arr, vtkIdType i)
 {
   vtkVariant val;
@@ -230,7 +230,7 @@ int vtkGroupLeafVertices::RequestData(
   // Copy everything into the new tree, adding group nodes.
   // Make a map of (parent id, group-by string) -> group vertex id.
   std::map<std::pair<vtkIdType, vtkVariant>, vtkIdType, vtkGroupLeafVerticesCompare> group_vertices;
-  std::vector<std::pair<vtkIdType, vtkIdType> > vertStack;
+  std::vector<std::pair<vtkIdType, vtkIdType>> vertStack;
   vertStack.emplace_back(input->GetRoot(), builder->AddVertex());
   vtkSmartPointer<vtkOutEdgeIterator> it = vtkSmartPointer<vtkOutEdgeIterator>::New();
 
@@ -375,7 +375,7 @@ int vtkGroupLeafVertices::RequestData(
   return 1;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 static int splitString(const vtkStdString& input, std::vector<vtkStdString>& results)
 {

@@ -35,7 +35,7 @@ void vtkActorCollection::ApplyProperties(vtkProperty* p)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkActorCollection::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

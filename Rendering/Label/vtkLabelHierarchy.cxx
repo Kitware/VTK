@@ -74,7 +74,7 @@
 //
 vtkLabelHierarchy* vtkLabelHierarchy::Implementation::Current;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // vtkLabelHierarchyFrustumIterator - an iterator with no-initial processing
 //
 // An iterator that has no initial processing, but looks for possible
@@ -516,7 +516,7 @@ bool vtkLabelHierarchyFrustumIterator::IsCursorInFrustum()
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // vtkLabelHierarchyFullSortIterator - a simple up-front-sorting iterator
 //
 // An iterator that first sorts the octree nodes based on level and
@@ -774,7 +774,7 @@ vtkLabelHierarchyFullSortIterator::~vtkLabelHierarchyFullSortIterator()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // vtkLabelHierarchyQuadtreeIterator - a simple breadth-first iterator
 //
 // This iterator maintains a queue of nodes to be visited. When a node is
@@ -1094,7 +1094,7 @@ void vtkLabelHierarchyQuadtreeIterator::QueueChildren()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // vtkLabelHierarchyOctreeQueueIterator - a simple breadth-first iterator
 //
 // This iterator maintains a queue of nodes to be visited. When a node is
@@ -1487,7 +1487,7 @@ void vtkLabelHierarchyOctreeQueueIterator::QueueChildren()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // vtkLabelHierarchy3DepthFirstIterator - a simple up-front-sorting iterator
 //
 // An iterator that first sorts the octree nodes based on level and
@@ -1524,7 +1524,7 @@ protected:
   vtkLabelHierarchy::Implementation::LabelSet::iterator LabelIterator;
   vtkLabelHierarchy::Implementation::HierarchyCursor3 Cursor;
   std::vector<int> Path;
-  std::vector<std::vector<int> >
+  std::vector<std::vector<int>>
     Order;             // visibility sorted order of children at each level of the tree.
   float BucketSize[2]; // size of label placer buckets in pixels
   double SizeLimit;    // square of smallest allowable distance-normalized octree node size.
@@ -1823,7 +1823,7 @@ void vtkLabelHierarchy3DepthFirstIterator::ReorderChildrenForView(int* order)
   delete[] nodeDistances;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // vtkLabelHierarchy
 
 vtkStandardNewMacro(vtkLabelHierarchy);

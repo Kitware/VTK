@@ -39,7 +39,7 @@
 
 vtkStandardNewMacro(vtkPointInterpolator2D);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Helper classes to support efficient computing, and threaded execution.
 namespace
 {
@@ -195,17 +195,17 @@ struct ProbePoints
 } // anonymous namespace
 
 //================= Begin class proper =======================================
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPointInterpolator2D::vtkPointInterpolator2D()
 {
   this->InterpolateZ = true;
   this->ZArrayName = "Elevation";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPointInterpolator2D::~vtkPointInterpolator2D() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The driver of the algorithm
 void vtkPointInterpolator2D::Probe(vtkDataSet* input, vtkDataSet* source, vtkDataSet* output)
 {
@@ -292,7 +292,7 @@ void vtkPointInterpolator2D::Probe(vtkDataSet* input, vtkDataSet* source, vtkDat
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointInterpolator2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

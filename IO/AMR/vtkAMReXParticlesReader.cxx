@@ -106,7 +106,7 @@ class vtkAMReXParticlesReader::AMReXParticleHeader
     auto selection = self->GetPointDataArraySelection();
 
     // read integer data.
-    vtkNew<vtkAOSDataArrayTemplate<IntType> > istuff;
+    vtkNew<vtkAOSDataArrayTemplate<IntType>> istuff;
     if (this->is_checkpoint)
     {
       istuff->SetNumberOfComponents(this->num_int);
@@ -119,7 +119,7 @@ class vtkAMReXParticlesReader::AMReXParticleHeader
     }
 
     // read real data.
-    vtkNew<vtkAOSDataArrayTemplate<RealType> > rstuff;
+    vtkNew<vtkAOSDataArrayTemplate<RealType>> rstuff;
     rstuff->SetNumberOfComponents(this->num_real);
     rstuff->SetNumberOfTuples(count);
     if (!ifp.read(reinterpret_cast<char*>(rstuff->GetPointer(0)),
@@ -157,7 +157,7 @@ class vtkAMReXParticlesReader::AMReXParticleHeader
         }
         else
         {
-          vtkNew<vtkAOSDataArrayTemplate<IntType> > iarray;
+          vtkNew<vtkAOSDataArrayTemplate<IntType>> iarray;
           iarray->SetName(name.c_str());
           iarray->SetNumberOfComponents(1);
           iarray->SetNumberOfTuples(count);
@@ -187,7 +187,7 @@ class vtkAMReXParticlesReader::AMReXParticleHeader
       std::vector<RealType*> rptrs(this->num_real, nullptr);
 
       assert(this->num_real_base == this->dim);
-      vtkNew<vtkAOSDataArrayTemplate<RealType> > coords;
+      vtkNew<vtkAOSDataArrayTemplate<RealType>> coords;
       coords->SetName("Points");
       coords->SetNumberOfComponents(this->num_real_base);
       coords->SetNumberOfTuples(count);
@@ -200,7 +200,7 @@ class vtkAMReXParticlesReader::AMReXParticleHeader
         {
           continue;
         }
-        vtkNew<vtkAOSDataArrayTemplate<RealType> > rarray;
+        vtkNew<vtkAOSDataArrayTemplate<RealType>> rarray;
         rarray->SetName(name.c_str());
         rarray->SetNumberOfComponents(1);
         rarray->SetNumberOfTuples(count);
@@ -232,7 +232,7 @@ class vtkAMReXParticlesReader::AMReXParticleHeader
       else
       {
         // convert to 3-components.
-        vtkNew<vtkAOSDataArrayTemplate<RealType> > newcoords;
+        vtkNew<vtkAOSDataArrayTemplate<RealType>> newcoords;
         newcoords->SetName("Points");
         newcoords->SetNumberOfComponents(3);
         newcoords->SetNumberOfTuples(count);
@@ -326,7 +326,7 @@ public:
   int finest_level;
   int num_levels;
   std::vector<int> grids_per_level;
-  std::vector<std::vector<GridInfo> > grids;
+  std::vector<std::vector<GridInfo>> grids;
 
   AMReXParticleHeader()
     : DataFormatZeroFill(5)
@@ -593,7 +593,7 @@ public:
 
 vtkStandardNewMacro(vtkAMReXParticlesReader);
 vtkCxxSetObjectMacro(vtkAMReXParticlesReader, Controller, vtkMultiProcessController);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAMReXParticlesReader::vtkAMReXParticlesReader()
   : Controller(nullptr)
   , PlotFileName()
@@ -609,14 +609,14 @@ vtkAMReXParticlesReader::vtkAMReXParticlesReader()
     vtkCommand::ModifiedEvent, this, &vtkAMReXParticlesReader::Modified);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAMReXParticlesReader::~vtkAMReXParticlesReader()
 {
   this->SetController(nullptr);
   delete this->Header;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAMReXParticlesReader::SetPlotFileName(const char* fname)
 {
   const std::string filename(fname == nullptr ? "" : fname);
@@ -628,7 +628,7 @@ void vtkAMReXParticlesReader::SetPlotFileName(const char* fname)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAMReXParticlesReader::SetParticleType(const std::string& str)
 {
   if (this->ParticleType != str)
@@ -639,13 +639,13 @@ void vtkAMReXParticlesReader::SetParticleType(const std::string& str)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataArraySelection* vtkAMReXParticlesReader::GetPointDataArraySelection() const
 {
   return this->PointDataArraySelection;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAMReXParticlesReader::CanReadFile(const char* fname, const char* particleType)
 {
   if (fname && vtksystools::FileIsDirectory(fname))
@@ -687,13 +687,13 @@ int vtkAMReXParticlesReader::CanReadFile(const char* fname, const char* particle
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkAMReXParticlesReader::GetPlotFileName() const
 {
   return (this->PlotFileName.empty() ? nullptr : this->PlotFileName.c_str());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAMReXParticlesReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -711,7 +711,7 @@ void vtkAMReXParticlesReader::PrintSelf(ostream& os, vtkIndent indent)
   this->PointDataArraySelection->PrintSelf(os, indent.GetNextIndent());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAMReXParticlesReader::RequestInformation(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -726,7 +726,7 @@ int vtkAMReXParticlesReader::RequestInformation(
   return this->Superclass::RequestInformation(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAMReXParticlesReader::RequestData(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
@@ -767,7 +767,7 @@ int vtkAMReXParticlesReader::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkAMReXParticlesReader::ReadMetaData()
 {
   if (this->MetaDataMTime > this->PlotFileNameMTime)
@@ -810,7 +810,7 @@ bool vtkAMReXParticlesReader::ReadMetaData()
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkAMReXParticlesReader::ReadLevel(
   const int level, vtkMultiPieceDataSet* levelDS, const int piece_idx, const int num_pieces) const
 {

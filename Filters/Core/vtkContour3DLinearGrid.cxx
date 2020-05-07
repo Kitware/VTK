@@ -59,7 +59,7 @@
 vtkStandardNewMacro(vtkContour3DLinearGrid);
 vtkCxxSetObjectMacro(vtkContour3DLinearGrid, ScalarTree, vtkScalarTree);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Classes to support threaded execution. Note that there are different
 // strategies implemented here: 1) a fast path that just produces output
 // triangles and points, and 2) more general approach that supports point
@@ -499,8 +499,8 @@ void ProcessFastPath(vtkIdType numCells, vtkPoints* inPts, CellIter* cellIter, T
 template <typename IDType, typename TS>
 struct ExtractEdgesBase
 {
-  typedef std::vector<EdgeTuple<IDType, float> > EdgeVectorType;
-  typedef std::vector<MergeTuple<IDType, float> > MergeVectorType;
+  typedef std::vector<EdgeTuple<IDType, float>> EdgeVectorType;
+  typedef std::vector<MergeTuple<IDType, float>> MergeVectorType;
 
   // Track local data on a per-thread basis. In the Reduce() method this
   // information will be used to composite the data from each thread.
@@ -1169,7 +1169,7 @@ struct vtkScalarTreeMap : public std::map<vtkUnstructuredGrid*, vtkScalarTree*>
 {
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct an instance of the class.
 vtkContour3DLinearGrid::vtkContour3DLinearGrid()
 {
@@ -1193,7 +1193,7 @@ vtkContour3DLinearGrid::vtkContour3DLinearGrid()
   this->ScalarTreeMap = new vtkScalarTreeMap;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkContour3DLinearGrid::~vtkContour3DLinearGrid()
 {
   this->ContourValues->Delete();
@@ -1220,7 +1220,7 @@ vtkContour3DLinearGrid::~vtkContour3DLinearGrid()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Overload standard modified time function. If contour values are modified,
 // then this object is modified as well.
 vtkMTimeType vtkContour3DLinearGrid::GetMTime()
@@ -1244,7 +1244,7 @@ vtkMTimeType vtkContour3DLinearGrid::GetMTime()
       newPolys, this->SequentialProcessing, this->NumberOfThreadsUsed, totalPts, totalTris);       \
     break;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specialized contouring filter to handle unstructured grids with 3D linear
 // cells (tetrahedras, hexes, wedges, pyradmids, voxels).
 //
@@ -1436,7 +1436,7 @@ void vtkContour3DLinearGrid::ProcessPiece(
   newPolys->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The output dataset type varies dependingon the input type.
 int vtkContour3DLinearGrid::RequestDataObject(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -1480,7 +1480,7 @@ int vtkContour3DLinearGrid::RequestDataObject(
   return 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // RequestData checks the input, manages composite data, and handles the
 // (optional) scalar tree. For each input vtkUnstructuredGrid, it produces an
 // output vtkPolyData piece by performing contouring on the input dataset.
@@ -1580,7 +1580,7 @@ int vtkContour3DLinearGrid::RequestData(
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContour3DLinearGrid::SetOutputPointsPrecision(int precision)
 {
   if (this->OutputPointsPrecision != precision)
@@ -1590,13 +1590,13 @@ void vtkContour3DLinearGrid::SetOutputPointsPrecision(int precision)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkContour3DLinearGrid::GetOutputPointsPrecision() const
 {
   return this->OutputPointsPrecision;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkContour3DLinearGrid::CanFullyProcessDataObject(
   vtkDataObject* object, const char* scalarArrayName)
 {
@@ -1657,7 +1657,7 @@ bool vtkContour3DLinearGrid::CanFullyProcessDataObject(
   return false; // not a vtkUnstructuredGrid nor a composite dataset
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkContour3DLinearGrid::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
@@ -1665,7 +1665,7 @@ int vtkContour3DLinearGrid::FillInputPortInformation(int, vtkInformation* info)
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContour3DLinearGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

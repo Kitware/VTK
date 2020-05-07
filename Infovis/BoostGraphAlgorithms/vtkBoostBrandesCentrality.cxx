@@ -43,7 +43,7 @@ using namespace boost;
 
 vtkStandardNewMacro(vtkBoostBrandesCentrality);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBoostBrandesCentrality::vtkBoostBrandesCentrality()
   : UseEdgeWeightArray(false)
   , InvertEdgeWeightArray(false)
@@ -51,13 +51,13 @@ vtkBoostBrandesCentrality::vtkBoostBrandesCentrality()
 {
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBoostBrandesCentrality::~vtkBoostBrandesCentrality()
 {
   this->SetEdgeWeightArrayName(nullptr);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBoostBrandesCentrality::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -70,7 +70,7 @@ void vtkBoostBrandesCentrality::PrintSelf(ostream& os, vtkIndent indent)
      << (this->EdgeWeightArrayName ? this->EdgeWeightArrayName : "nullptr") << endl;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkBoostBrandesCentrality::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

@@ -22,7 +22,7 @@
 //============================================================================
 vtkStandardNewMacro(vtkOSPRayVolumeMapper);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOSPRayVolumeMapper::vtkOSPRayVolumeMapper()
 {
   this->InternalRenderer = nullptr;
@@ -30,7 +30,7 @@ vtkOSPRayVolumeMapper::vtkOSPRayVolumeMapper()
   this->Initialized = false;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOSPRayVolumeMapper::~vtkOSPRayVolumeMapper()
 {
   if (this->InternalRenderer)
@@ -44,13 +44,13 @@ vtkOSPRayVolumeMapper::~vtkOSPRayVolumeMapper()
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayVolumeMapper::Init()
 {
   this->InternalOSPRayPass = vtkOSPRayPass::New();
@@ -60,7 +60,7 @@ void vtkOSPRayVolumeMapper::Init()
   this->Initialized = true;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Render the volume
 void vtkOSPRayVolumeMapper::Render(vtkRenderer* ren, vtkVolume* vol)
 {
@@ -89,7 +89,7 @@ void vtkOSPRayVolumeMapper::Render(vtkRenderer* ren, vtkVolume* vol)
   this->InternalRenderer->RemoveVolume(vol); // prevent a mem leak
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Release any graphics resources that are being consumed by this mapper.
 // The parameter window could be used to determine which graphic
 // resources to release.

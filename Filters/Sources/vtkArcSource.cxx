@@ -29,7 +29,7 @@
 
 vtkStandardNewMacro(vtkArcSource);
 
-// --------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkArcSource::vtkArcSource(int res)
 {
   // Default first point
@@ -77,7 +77,7 @@ vtkArcSource::vtkArcSource(int res)
   this->SetNumberOfInputPorts(0);
 }
 
-// --------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkArcSource::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -88,7 +88,7 @@ int vtkArcSource::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-// --------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkArcSource::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -216,7 +216,7 @@ int vtkArcSource::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-// --------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkArcSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

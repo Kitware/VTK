@@ -56,7 +56,7 @@ vtkCxxSetObjectMacro(vtkConvertSelection, ArrayNames, vtkStringArray);
 vtkCxxSetObjectMacro(vtkConvertSelection, SelectionExtractor, vtkExtractSelection);
 
 vtkStandardNewMacro(vtkConvertSelection);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkConvertSelection::vtkConvertSelection()
 {
   this->SetNumberOfInputPorts(2);
@@ -68,14 +68,14 @@ vtkConvertSelection::vtkConvertSelection()
   this->SelectionExtractor = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkConvertSelection::~vtkConvertSelection()
 {
   this->SetArrayNames(nullptr);
   this->SetSelectionExtractor(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkConvertSelection::AddArrayName(const char* name)
 {
   if (!this->ArrayNames)
@@ -85,7 +85,7 @@ void vtkConvertSelection::AddArrayName(const char* name)
   this->ArrayNames->InsertNextValue(name);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkConvertSelection::ClearArrayNames()
 {
   if (this->ArrayNames)
@@ -94,7 +94,7 @@ void vtkConvertSelection::ClearArrayNames()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkConvertSelection::SetArrayName(const char* name)
 {
   if (!this->ArrayNames)
@@ -105,7 +105,7 @@ void vtkConvertSelection::SetArrayName(const char* name)
   this->ArrayNames->InsertNextValue(name);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkConvertSelection::GetArrayName()
 {
   if (this->ArrayNames && this->ArrayNames->GetNumberOfValues() > 0)
@@ -115,7 +115,7 @@ const char* vtkConvertSelection::GetArrayName()
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkConvertSelection::SelectTableFromTable(
   vtkTable* selTable, vtkTable* dataTable, vtkIdTypeArray* indices)
 {
@@ -162,7 +162,7 @@ int vtkConvertSelection::SelectTableFromTable(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkConvertSelection::ConvertToIndexSelection(
   vtkSelectionNode* input, vtkDataSet* data, vtkSelectionNode* output)
 {
@@ -216,7 +216,7 @@ int vtkConvertSelection::ConvertToIndexSelection(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkConvertSelection::ConvertToBlockSelection(
   vtkSelection* input, vtkCompositeDataSet* data, vtkSelection* output)
 {
@@ -270,7 +270,7 @@ int vtkConvertSelection::ConvertToBlockSelection(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkConvertSelection::ConvertCompositeDataSet(
   vtkSelection* input, vtkCompositeDataSet* data, vtkSelection* output)
 {
@@ -375,7 +375,7 @@ int vtkConvertSelection::ConvertCompositeDataSet(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkConvertSelection::ConvertFromQueryNodeCompositeDataSet(
   vtkSelectionNode* inputNode, vtkCompositeDataSet* data, vtkSelection* output)
 {
@@ -461,7 +461,7 @@ int vtkConvertSelection::ConvertFromQueryNodeCompositeDataSet(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkConvertSelection::Convert(vtkSelection* input, vtkDataObject* data, vtkSelection* output)
 {
   for (unsigned int n = 0; n < input->GetNumberOfNodes(); ++n)
@@ -835,7 +835,7 @@ int vtkConvertSelection::Convert(vtkSelection* input, vtkDataObject* data, vtkSe
         }
       }
 
-      std::map<vtkStdString, vtkSmartPointer<vtkAbstractArray> > domainArrays;
+      std::map<vtkStdString, vtkSmartPointer<vtkAbstractArray>> domainArrays;
       vtkIdType numTuples = outputDataArr->GetNumberOfTuples();
       vtkIdType numIndices = indices->GetNumberOfTuples();
       for (vtkIdType i = 0; i < numIndices; ++i)
@@ -860,7 +860,7 @@ int vtkConvertSelection::Convert(vtkSelection* input, vtkDataObject* data, vtkSe
           this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
         }
       }
-      std::map<vtkStdString, vtkSmartPointer<vtkAbstractArray> >::iterator it, itEnd;
+      std::map<vtkStdString, vtkSmartPointer<vtkAbstractArray>>::iterator it, itEnd;
       it = domainArrays.begin();
       itEnd = domainArrays.end();
       for (; it != itEnd; ++it)
@@ -957,7 +957,7 @@ int vtkConvertSelection::Convert(vtkSelection* input, vtkDataObject* data, vtkSe
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkConvertSelection::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -993,13 +993,13 @@ int vtkConvertSelection::RequestData(vtkInformation* vtkNotUsed(request),
   return this->Convert(input, data, output);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkConvertSelection::SetDataObjectConnection(vtkAlgorithmOutput* in)
 {
   this->SetInputConnection(1, in);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkConvertSelection::FillInputPortInformation(int port, vtkInformation* info)
 {
   // now add our info
@@ -1019,7 +1019,7 @@ int vtkConvertSelection::FillInputPortInformation(int port, vtkInformation* info
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkConvertSelection::GetSelectedItems(
   vtkSelection* input, vtkDataObject* data, int fieldType, vtkIdTypeArray* indices)
 {
@@ -1045,60 +1045,60 @@ void vtkConvertSelection::GetSelectedItems(
   indexSel->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkConvertSelection::GetSelectedVertices(
   vtkSelection* input, vtkGraph* data, vtkIdTypeArray* indices)
 {
   vtkConvertSelection::GetSelectedItems(input, data, vtkSelectionNode::VERTEX, indices);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkConvertSelection::GetSelectedEdges(
   vtkSelection* input, vtkGraph* data, vtkIdTypeArray* indices)
 {
   vtkConvertSelection::GetSelectedItems(input, data, vtkSelectionNode::EDGE, indices);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkConvertSelection::GetSelectedPoints(
   vtkSelection* input, vtkDataSet* data, vtkIdTypeArray* indices)
 {
   vtkConvertSelection::GetSelectedItems(input, data, vtkSelectionNode::POINT, indices);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkConvertSelection::GetSelectedCells(
   vtkSelection* input, vtkDataSet* data, vtkIdTypeArray* indices)
 {
   vtkConvertSelection::GetSelectedItems(input, data, vtkSelectionNode::CELL, indices);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkConvertSelection::GetSelectedRows(
   vtkSelection* input, vtkTable* data, vtkIdTypeArray* indices)
 {
   vtkConvertSelection::GetSelectedItems(input, data, vtkSelectionNode::ROW, indices);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSelection* vtkConvertSelection::ToIndexSelection(vtkSelection* input, vtkDataObject* data)
 {
   return vtkConvertSelection::ToSelectionType(input, data, vtkSelectionNode::INDICES);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSelection* vtkConvertSelection::ToGlobalIdSelection(vtkSelection* input, vtkDataObject* data)
 {
   return vtkConvertSelection::ToSelectionType(input, data, vtkSelectionNode::GLOBALIDS);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSelection* vtkConvertSelection::ToPedigreeIdSelection(vtkSelection* input, vtkDataObject* data)
 {
   return vtkConvertSelection::ToSelectionType(input, data, vtkSelectionNode::PEDIGREEIDS);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSelection* vtkConvertSelection::ToValueSelection(
   vtkSelection* input, vtkDataObject* data, const char* arrayName)
 {
@@ -1107,14 +1107,14 @@ vtkSelection* vtkConvertSelection::ToValueSelection(
   return vtkConvertSelection::ToSelectionType(input, data, vtkSelectionNode::VALUES, names);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSelection* vtkConvertSelection::ToValueSelection(
   vtkSelection* input, vtkDataObject* data, vtkStringArray* arrayNames)
 {
   return vtkConvertSelection::ToSelectionType(input, data, vtkSelectionNode::VALUES, arrayNames);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSelection* vtkConvertSelection::ToSelectionType(vtkSelection* input, vtkDataObject* data,
   int type, vtkStringArray* arrayNames, int inputFieldType, bool allowMissingArray)
 {
@@ -1136,7 +1136,7 @@ vtkSelection* vtkConvertSelection::ToSelectionType(vtkSelection* input, vtkDataO
   return output;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkConvertSelection::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

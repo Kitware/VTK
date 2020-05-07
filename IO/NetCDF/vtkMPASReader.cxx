@@ -192,15 +192,15 @@ int nc_get_vara(int ncid, int varid, size_t start[], size_t count[], signed char
 
 } // end anon namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Internal class to avoid name pollution
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 class vtkMPASReader::Internal
 {
 public:
   // variableIndex --> vtkDataArray
-  typedef std::map<int, vtkSmartPointer<vtkDataArray> > ArrayMap;
+  typedef std::map<int, vtkSmartPointer<vtkDataArray>> ArrayMap;
   typedef std::map<std::string, DimMetaData> DimMetaDataMap;
   Internal(vtkMPASReader* r)
     : ncFile(-1)
@@ -822,9 +822,9 @@ int vtkMPASReader::Internal::LoadCellVarDataImpl(int nc_var, vtkDataArray* array
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Function to check if there is a NetCDF variable by that name
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkMPASReader::Internal::nc_var_id(const char* name, bool msg_on_err) const
 {
@@ -836,9 +836,9 @@ int vtkMPASReader::Internal::nc_var_id(const char* name, bool msg_on_err) const
   return varid;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Check if there is a NetCDF dimension by that name
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkMPASReader::Internal::nc_dim_id(const char* name, bool msg_on_err) const
 {
@@ -850,9 +850,9 @@ int vtkMPASReader::Internal::nc_dim_id(const char* name, bool msg_on_err) const
   return dimid;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Check if there is a NetCDF attribute by that name
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkMPASReader::Internal::nc_att_id(const char* name, bool msg_on_err) const
 {
@@ -864,9 +864,9 @@ int vtkMPASReader::Internal::nc_att_id(const char* name, bool msg_on_err) const
   return attid;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //  Macro to check if the named NetCDF dimension exists
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 #define CHECK_DIM(name, out)                                                                       \
   if ((out = this->Internals->nc_dim_id(name)) == -1)                                              \
@@ -875,9 +875,9 @@ int vtkMPASReader::Internal::nc_att_id(const char* name, bool msg_on_err) const
     return 0;                                                                                      \
   }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Macro to check if the named NetCDF variable exists
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 #define CHECK_VAR(name, out)                                                                       \
   if ((out = this->Internals->nc_var_id(name)) == -1)                                              \
@@ -886,10 +886,10 @@ int vtkMPASReader::Internal::nc_att_id(const char* name, bool msg_on_err) const
     return 0;                                                                                      \
   }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //  Function to convert cartesian coordinates to spherical, for use in
 //  computing points in different layers of multilayer spherical view
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 static int CartesianToSpherical(
   double x, double y, double z, double* rho, double* phi, double* theta)
@@ -909,10 +909,10 @@ static int CartesianToSpherical(
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //  Function to convert spherical coordinates to cartesian, for use in
 //  computing points in different layers of multilayer spherical view
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 static int SphericalToCartesian(
   double rho, double phi, double theta, double* x, double* y, double* z)
@@ -936,9 +936,9 @@ static int SphericalToCartesian(
 
 vtkStandardNewMacro(vtkMPASReader);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Constructor for vtkMPASReader
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkMPASReader::vtkMPASReader()
 {
@@ -965,10 +965,10 @@ vtkMPASReader::vtkMPASReader()
   vtkDebugMacro(<< "Created vtkMPASReader" << endl);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //  Destroys data stored for variables, points, and cells, but
 //  doesn't destroy the list of variables or toplevel cell/pointVarDataArray.
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkMPASReader::DestroyData()
 
@@ -988,9 +988,9 @@ void vtkMPASReader::DestroyData()
   this->MaximumLevelPoint = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Destructor for MPAS Reader
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkMPASReader::~vtkMPASReader()
 {
@@ -1024,7 +1024,7 @@ vtkMPASReader::~vtkMPASReader()
   vtkDebugMacro(<< "Destructed vtkMPASReader" << endl);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMPASReader::ReleaseNcData()
 {
   this->Internals->pointVars.clear();
@@ -1057,9 +1057,9 @@ void vtkMPASReader::ReleaseNcData()
   this->Internals->close();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Verify that the file exists, get dimension sizes and variables
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkMPASReader::RequestInformation(
   vtkInformation* reqInfo, vtkInformationVector** inVector, vtkInformationVector* outVector)
@@ -1144,9 +1144,9 @@ int vtkMPASReader::RequestInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Data is read into a vtkUnstructuredGrid
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkMPASReader::RequestData(vtkInformation* vtkNotUsed(reqInfo),
   vtkInformationVector** vtkNotUsed(inVector), vtkInformationVector* outVector)
@@ -1223,9 +1223,9 @@ int vtkMPASReader::RequestData(vtkInformation* vtkNotUsed(reqInfo),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Set defaults for various parameters and initialize some variables
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkMPASReader::SetDefaults()
 {
@@ -1274,9 +1274,9 @@ void vtkMPASReader::SetDefaults()
   this->MaximumCells = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get dimensions of key NetCDF variables
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkMPASReader::GetNcDims()
 {
@@ -1325,7 +1325,7 @@ int vtkMPASReader::GetNcDims()
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPASReader::GetNcAtts()
 {
   int attid = -1;
@@ -1359,9 +1359,9 @@ int vtkMPASReader::GetNcAtts()
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //  Check parameters are valid
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkMPASReader::CheckParams()
 {
@@ -1398,9 +1398,9 @@ int vtkMPASReader::CheckParams()
   return (1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the NetCDF variables on cell or vertex
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkMPASReader::GetNcVars(const char* cellDimName, const char* pointDimName)
 {
@@ -1495,9 +1495,9 @@ int vtkMPASReader::GetNcVars(const char* cellDimName, const char* pointDimName)
   return (1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Build the selection Arrays for points and cells in the GUI.
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkMPASReader::BuildVarArrays()
 {
@@ -1582,10 +1582,10 @@ int vtkMPASReader::BuildVarArrays()
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //  Read the data from the ncfile, allocate the geometry and create the
 //  vtk data structures for points and cells.
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkMPASReader::ReadAndOutputGrid()
 {
@@ -1631,9 +1631,9 @@ int vtkMPASReader::ReadAndOutputGrid()
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Allocate into sphere view of dual geometry
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkMPASReader::AllocSphericalGeometry()
 {
@@ -1734,9 +1734,9 @@ int vtkMPASReader::AllocSphericalGeometry()
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Allocate the lat/lon projection of dual geometry.
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkMPASReader::AllocProjectedGeometry()
 {
@@ -1937,9 +1937,9 @@ int vtkMPASReader::AllocPlanarGeometry()
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //  Shift data if center longitude needs to change.
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkMPASReader::ShiftLonData()
 {
@@ -1981,10 +1981,10 @@ void vtkMPASReader::ShiftLonData()
   vtkDebugMacro(<< "Leaving ShiftLonData..." << endl);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //  Add a "mirror point" -- a point on the opposite side of the lat/lon
 // projection.
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkMPASReader::AddMirrorPoint(int index, double dividerX, double offset)
 {
@@ -2015,9 +2015,9 @@ int vtkMPASReader::AddMirrorPoint(int index, double dividerX, double offset)
   return static_cast<int>(mirrorPoint);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Check for out-of-range values and do bugfix
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkMPASReader::FixPoints()
 {
@@ -2065,9 +2065,9 @@ void vtkMPASReader::FixPoints()
   vtkDebugMacro(<< "Leaving FixPoints..." << endl);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Eliminate wraparound at east/west edges of lat/lon projection
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkMPASReader::EliminateXWrap()
 {
@@ -2225,9 +2225,9 @@ int vtkMPASReader::EliminateXWrap()
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //  Add points to vtk data structures
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkMPASReader::OutputPoints()
 {
@@ -2325,10 +2325,10 @@ void vtkMPASReader::OutputPoints()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Determine if cell is one of VTK_TRIANGLE, VTK_WEDGE, VTK_QUAD or
 // VTK_HEXAHEDRON
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 unsigned char vtkMPASReader::GetCellType()
 {
@@ -2362,9 +2362,9 @@ unsigned char vtkMPASReader::GetCellType()
   return cellType;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //  Add cells to vtk data structures
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkMPASReader::OutputCells()
 {
@@ -2499,9 +2499,9 @@ void vtkMPASReader::OutputCells()
   vtkDebugMacro(<< "Leaving OutputCells..." << endl);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //  Load the data for a point variable
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataArray* vtkMPASReader::LoadPointVarData(int variableIndex)
 {
   int varid = this->Internals->pointVars[variableIndex];
@@ -2544,9 +2544,9 @@ vtkDataArray* vtkMPASReader::LoadPointVarData(int variableIndex)
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //  Load the data for a cell variable
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkDataArray* vtkMPASReader::LoadCellVarData(int variableIndex)
 {
@@ -2682,9 +2682,9 @@ void vtkMPASReader::LoadTimeFieldData(vtkUnstructuredGrid* dataset)
   array->SetValue(0, time);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //  Callback if the user selects a variable.
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkMPASReader::SelectionCallback(
   vtkObject*, unsigned long vtkNotUsed(eventid), void* clientdata, void* vtkNotUsed(calldata))
@@ -2692,7 +2692,7 @@ void vtkMPASReader::SelectionCallback(
   static_cast<vtkMPASReader*>(clientdata)->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMPASReader::UpdateDimensions(bool force)
 {
   if (!force && this->Internals->dimMetaDataTime < this->Internals->extraDimTime)
@@ -2730,18 +2730,18 @@ void vtkMPASReader::UpdateDimensions(bool force)
   this->Internals->extraDimTime.Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //  Return the output.
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkUnstructuredGrid* vtkMPASReader::GetOutput()
 {
   return this->GetOutput(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //  Returns the output given an id.
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkUnstructuredGrid* vtkMPASReader::GetOutput(int idx)
 {
@@ -2755,80 +2755,80 @@ vtkUnstructuredGrid* vtkMPASReader::GetOutput(int idx)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //  Get number of point arrays.
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkMPASReader::GetNumberOfPointArrays()
 {
   return this->PointDataArraySelection->GetNumberOfArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get number of cell arrays.
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkMPASReader::GetNumberOfCellArrays()
 {
   return this->CellDataArraySelection->GetNumberOfArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Make all point selections available.
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMPASReader::EnableAllPointArrays()
 {
   this->PointDataArraySelection->EnableAllArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Make all point selections unavailable.
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkMPASReader::DisableAllPointArrays()
 {
   this->PointDataArraySelection->DisableAllArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Make all cell selections available.
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkMPASReader::EnableAllCellArrays()
 {
   this->CellDataArraySelection->EnableAllArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Make all cell selections unavailable.
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkMPASReader::DisableAllCellArrays()
 {
   this->CellDataArraySelection->DisableAllArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get name of indexed point variable
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 const char* vtkMPASReader::GetPointArrayName(int index)
 {
   return this->PointDataArraySelection->GetArrayName(index);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get status of named point variable selection
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkMPASReader::GetPointArrayStatus(const char* name)
 {
   return this->PointDataArraySelection->ArrayIsEnabled(name);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Set status of named point variable selection.
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkMPASReader::SetPointArrayStatus(const char* name, int status)
 {
@@ -2842,27 +2842,27 @@ void vtkMPASReader::SetPointArrayStatus(const char* name, int status)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get name of indexed cell variable
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 const char* vtkMPASReader::GetCellArrayName(int index)
 {
   return this->CellDataArraySelection->GetArrayName(index);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get status of named cell variable selection.
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkMPASReader::GetCellArrayStatus(const char* name)
 {
   return this->CellDataArraySelection->ArrayIsEnabled(name);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Set status of named cell variable selection.
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkMPASReader::SetCellArrayStatus(const char* name, int status)
 {
@@ -2876,28 +2876,28 @@ void vtkMPASReader::SetCellArrayStatus(const char* name, int status)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkMPASReader::GetNumberOfDimensions()
 {
   this->UpdateDimensions();
   return this->Internals->extraDims->GetNumberOfTuples();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::string vtkMPASReader::GetDimensionName(int idx)
 {
   this->UpdateDimensions();
   return this->Internals->extraDims->GetValue(idx);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStringArray* vtkMPASReader::GetAllDimensions()
 {
   this->UpdateDimensions();
   return this->Internals->extraDims;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPASReader::GetDimensionCurrentIndex(const std::string& dim)
 {
   this->UpdateDimensions();
@@ -2911,7 +2911,7 @@ int vtkMPASReader::GetDimensionCurrentIndex(const std::string& dim)
   return static_cast<int>(it->second.curIdx);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMPASReader::SetDimensionCurrentIndex(const std::string& dim, int idx)
 {
   this->UpdateDimensions();
@@ -2925,7 +2925,7 @@ void vtkMPASReader::SetDimensionCurrentIndex(const std::string& dim, int idx)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPASReader::GetDimensionSize(const std::string& dim)
 {
   this->UpdateDimensions();
@@ -2939,9 +2939,9 @@ int vtkMPASReader::GetDimensionSize(const std::string& dim)
   return static_cast<int>(it->second.dimSize);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //  Set vertical level to be viewed.
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkMPASReader::SetVerticalLevel(int level)
 {
@@ -2954,9 +2954,9 @@ int vtkMPASReader::GetVerticalLevel()
   return this->GetDimensionCurrentIndex(this->VerticalDimension);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //  Set center longitude for lat/lon projection
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkMPASReader::SetCenterLon(int val)
 {
@@ -2972,10 +2972,10 @@ void vtkMPASReader::SetCenterLon(int val)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //  Determine if this reader can read the given file (if it is an MPAS format)
 // NetCDF file
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkMPASReader::CanReadFile(const char* filename)
 {
@@ -3006,9 +3006,9 @@ vtkMTimeType vtkMPASReader::GetMTime()
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //  Print self.
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkMPASReader::PrintSelf(ostream& os, vtkIndent indent)
 {

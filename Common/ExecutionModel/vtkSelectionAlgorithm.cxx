@@ -23,7 +23,7 @@
 
 vtkStandardNewMacro(vtkSelectionAlgorithm);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSelectionAlgorithm::vtkSelectionAlgorithm()
 {
   // by default assume filters have one input and one output
@@ -32,16 +32,16 @@ vtkSelectionAlgorithm::vtkSelectionAlgorithm()
   this->SetNumberOfOutputPorts(1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSelectionAlgorithm::~vtkSelectionAlgorithm() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelectionAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkSelectionAlgorithm::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -65,7 +65,7 @@ vtkTypeBool vtkSelectionAlgorithm::ProcessRequest(
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSelectionAlgorithm::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   // now add our info
@@ -73,26 +73,26 @@ int vtkSelectionAlgorithm::FillOutputPortInformation(int vtkNotUsed(port), vtkIn
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSelectionAlgorithm::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkSelection");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSelection* vtkSelectionAlgorithm::GetOutput(int index)
 {
   return vtkSelection::SafeDownCast(this->GetOutputDataObject(index));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelectionAlgorithm::SetInputData(int index, vtkDataObject* input)
 {
   this->SetInputDataInternal(index, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSelectionAlgorithm::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -100,7 +100,7 @@ int vtkSelectionAlgorithm::RequestInformation(vtkInformation* vtkNotUsed(request
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSelectionAlgorithm::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -117,7 +117,7 @@ int vtkSelectionAlgorithm::RequestUpdateExtent(vtkInformation* vtkNotUsed(reques
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This is the superclasses style of Execute method.  Convert it into
 // an imaging style Execute method.
 int vtkSelectionAlgorithm::RequestData(vtkInformation* vtkNotUsed(request),

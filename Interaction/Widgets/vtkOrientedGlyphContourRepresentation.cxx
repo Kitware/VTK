@@ -42,7 +42,7 @@
 
 vtkStandardNewMacro(vtkOrientedGlyphContourRepresentation);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOrientedGlyphContourRepresentation::vtkOrientedGlyphContourRepresentation()
 {
   // Initialize state
@@ -200,7 +200,7 @@ vtkOrientedGlyphContourRepresentation::vtkOrientedGlyphContourRepresentation()
   this->SelectedNodesActor = nullptr;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOrientedGlyphContourRepresentation::~vtkOrientedGlyphContourRepresentation()
 {
   this->FocalPoint->Delete();
@@ -255,7 +255,7 @@ vtkOrientedGlyphContourRepresentation::~vtkOrientedGlyphContourRepresentation()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientedGlyphContourRepresentation::SetCursorShape(vtkPolyData* shape)
 {
   if (shape != this->CursorShape)
@@ -277,13 +277,13 @@ void vtkOrientedGlyphContourRepresentation::SetCursorShape(vtkPolyData* shape)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyData* vtkOrientedGlyphContourRepresentation::GetCursorShape()
 {
   return this->CursorShape;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientedGlyphContourRepresentation::SetActiveCursorShape(vtkPolyData* shape)
 {
   if (shape != this->ActiveCursorShape)
@@ -305,20 +305,20 @@ void vtkOrientedGlyphContourRepresentation::SetActiveCursorShape(vtkPolyData* sh
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyData* vtkOrientedGlyphContourRepresentation::GetActiveCursorShape()
 {
   return this->ActiveCursorShape;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientedGlyphContourRepresentation::SetRenderer(vtkRenderer* ren)
 {
   //  this->WorldPosition->SetViewport(ren);
   this->Superclass::SetRenderer(ren);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkOrientedGlyphContourRepresentation::ComputeInteractionState(
   int X, int Y, int vtkNotUsed(modified))
 {
@@ -356,7 +356,7 @@ int vtkOrientedGlyphContourRepresentation::ComputeInteractionState(
   return this->InteractionState;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Record the current event position, and the rectilinear wipe position.
 void vtkOrientedGlyphContourRepresentation::StartWidgetInteraction(double startEventPos[2])
 {
@@ -379,7 +379,7 @@ void vtkOrientedGlyphContourRepresentation::StartWidgetInteraction(double startE
   this->InteractionOffset[1] = pos[1] - startEventPos[1];
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Based on the displacement vector (computed in display coordinates) and
 // the cursor state (which corresponds to which part of the widget has been
 // selected), the widget points are modified.
@@ -406,7 +406,7 @@ void vtkOrientedGlyphContourRepresentation::WidgetInteraction(double eventPos[2]
   this->LastEventPosition[1] = eventPos[1];
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Translate everything
 void vtkOrientedGlyphContourRepresentation::Translate(double eventPos[2])
 {
@@ -435,7 +435,7 @@ void vtkOrientedGlyphContourRepresentation::Translate(double eventPos[2])
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientedGlyphContourRepresentation::ShiftContour(double eventPos[2])
 {
   double ref[3];
@@ -476,7 +476,7 @@ void vtkOrientedGlyphContourRepresentation::ShiftContour(double eventPos[2])
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientedGlyphContourRepresentation::ScaleContour(double eventPos[2])
 {
   double ref[3];
@@ -521,7 +521,7 @@ void vtkOrientedGlyphContourRepresentation::ScaleContour(double eventPos[2])
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientedGlyphContourRepresentation::ComputeCentroid(double* ioCentroid)
 {
   double p[3];
@@ -542,7 +542,7 @@ void vtkOrientedGlyphContourRepresentation::ComputeCentroid(double* ioCentroid)
   ioCentroid[2] *= inv_N;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientedGlyphContourRepresentation::Scale(double eventPos[2])
 {
   // Get the current scale factor
@@ -561,7 +561,7 @@ void vtkOrientedGlyphContourRepresentation::Scale(double eventPos[2])
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientedGlyphContourRepresentation::CreateDefaultProperties()
 {
   this->Property = vtkProperty::New();
@@ -585,7 +585,7 @@ void vtkOrientedGlyphContourRepresentation::CreateDefaultProperties()
   this->LinesProperty->SetLineWidth(1);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientedGlyphContourRepresentation::BuildLines()
 {
   vtkPoints* points = vtkPoints::New();
@@ -652,14 +652,14 @@ void vtkOrientedGlyphContourRepresentation::BuildLines()
   lines->Delete();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyData* vtkOrientedGlyphContourRepresentation::GetContourRepresentationAsPolyData()
 {
   // Get the points in this contour as a vtkPolyData.
   return this->Lines;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientedGlyphContourRepresentation::BuildRepresentation()
 {
   // Make sure we are up to date with any changes made in the placer
@@ -822,7 +822,7 @@ void vtkOrientedGlyphContourRepresentation::BuildRepresentation()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientedGlyphContourRepresentation::GetActors(vtkPropCollection* pc)
 {
   this->Actor->GetActors(pc);
@@ -834,7 +834,7 @@ void vtkOrientedGlyphContourRepresentation::GetActors(vtkPropCollection* pc)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientedGlyphContourRepresentation::ReleaseGraphicsResources(vtkWindow* win)
 {
   this->Actor->ReleaseGraphicsResources(win);
@@ -842,7 +842,7 @@ void vtkOrientedGlyphContourRepresentation::ReleaseGraphicsResources(vtkWindow* 
   this->LinesActor->ReleaseGraphicsResources(win);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkOrientedGlyphContourRepresentation::RenderOverlay(vtkViewport* viewport)
 {
   int count = 0;
@@ -858,7 +858,7 @@ int vtkOrientedGlyphContourRepresentation::RenderOverlay(vtkViewport* viewport)
   return count;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkOrientedGlyphContourRepresentation::RenderOpaqueGeometry(vtkViewport* viewport)
 {
   // Since we know RenderOpaqueGeometry gets called first, will do the
@@ -884,7 +884,7 @@ int vtkOrientedGlyphContourRepresentation::RenderOpaqueGeometry(vtkViewport* vie
   return count;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkOrientedGlyphContourRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport* viewport)
 {
   int count = 0;
@@ -900,7 +900,7 @@ int vtkOrientedGlyphContourRepresentation::RenderTranslucentPolygonalGeometry(vt
   return count;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkOrientedGlyphContourRepresentation::HasTranslucentPolygonalGeometry()
 {
   int result = 0;
@@ -916,7 +916,7 @@ vtkTypeBool vtkOrientedGlyphContourRepresentation::HasTranslucentPolygonalGeomet
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientedGlyphContourRepresentation::SetLineColor(double r, double g, double b)
 {
   if (this->GetLinesProperty())
@@ -925,7 +925,7 @@ void vtkOrientedGlyphContourRepresentation::SetLineColor(double r, double g, dou
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientedGlyphContourRepresentation::SetShowSelectedNodes(vtkTypeBool flag)
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting ShowSelectedNodes to "
@@ -956,13 +956,13 @@ void vtkOrientedGlyphContourRepresentation::SetShowSelectedNodes(vtkTypeBool fla
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkOrientedGlyphContourRepresentation::GetBounds()
 {
   return this->Lines->GetPoints() ? this->Lines->GetPoints()->GetBounds() : nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientedGlyphContourRepresentation::CreateSelectedNodesRepresentation()
 {
   vtkSphereSource* sphere = vtkSphereSource::New();
@@ -1016,7 +1016,7 @@ void vtkOrientedGlyphContourRepresentation::CreateSelectedNodesRepresentation()
   selProperty->Delete();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrientedGlyphContourRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h

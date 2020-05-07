@@ -42,17 +42,17 @@
 #include <set>
 
 vtkStandardNewMacro(vtkConvertSelectionDomain);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkConvertSelectionDomain::vtkConvertSelectionDomain()
 {
   this->SetNumberOfInputPorts(3);
   this->SetNumberOfOutputPorts(2);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkConvertSelectionDomain::~vtkConvertSelectionDomain() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static void vtkConvertSelectionDomainFindDomains(
   vtkDataSetAttributes* dsa, std::set<vtkStdString>& domains)
 {
@@ -206,7 +206,7 @@ static void vtkConvertSelectionDomainConvertAnnotationDomain(vtkAnnotation* annI
   annOut->SetSelection(outputSel);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkConvertSelectionDomain::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -319,7 +319,7 @@ int vtkConvertSelectionDomain::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkConvertSelectionDomain::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
@@ -343,7 +343,7 @@ int vtkConvertSelectionDomain::FillInputPortInformation(int port, vtkInformation
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkConvertSelectionDomain::FillOutputPortInformation(int port, vtkInformation* info)
 {
   this->Superclass::FillOutputPortInformation(port, info);
@@ -354,7 +354,7 @@ int vtkConvertSelectionDomain::FillOutputPortInformation(int port, vtkInformatio
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkConvertSelectionDomain::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -212,7 +212,7 @@ int vtkOpenGLRenderer::UpdateLights()
   return this->LightingCount;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Is rendering at translucent geometry stage using depth peeling and
 // rendering a layer other than the first one? (Boolean value)
@@ -223,7 +223,7 @@ int vtkOpenGLRenderer::GetDepthPeelingHigherLayer()
   return this->DepthPeelingHigherLayer;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Concrete open gl render method.
 void vtkOpenGLRenderer::DeviceRender()
 {
@@ -416,7 +416,7 @@ int vtkOpenGLRenderer::UpdateGeometry(vtkFrameBufferObjectBase* fbo)
   return this->NumberOfPropsRendered;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTexture* vtkOpenGLRenderer::GetCurrentTexturedBackground()
 {
   if (!this->GetRenderWindow()->GetStereoRender() && this->BackgroundTexture)
@@ -438,7 +438,7 @@ vtkTexture* vtkOpenGLRenderer::GetCurrentTexturedBackground()
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLRenderer::DeviceRenderOpaqueGeometry(vtkFrameBufferObjectBase* fbo)
 {
   // Do we need hidden line removal?
@@ -460,7 +460,7 @@ void vtkOpenGLRenderer::DeviceRenderOpaqueGeometry(vtkFrameBufferObjectBase* fbo
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Render translucent polygonal geometry. Default implementation just call
 // UpdateTranslucentPolygonalGeometry().
@@ -566,7 +566,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry(vtkFrameBufferO
   vtkOpenGLCheckErrorMacro("failed after DeviceRenderTranslucentPolygonalGeometry");
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLRenderer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -1034,19 +1034,19 @@ void vtkOpenGLRenderer::UpdateLightingUniforms(vtkShaderProgram* program)
   program->SetUniformGroupUpdateTime(vtkShaderProgram::LightingGroup, ltime);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLRenderer::SetUserLightTransform(vtkTransform* transform)
 {
   this->UserLightTransform = transform;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTransform* vtkOpenGLRenderer::GetUserLightTransform()
 {
   return this->UserLightTransform;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLRenderer::SetEnvironmentTexture(vtkTexture* texture, bool isSRGB)
 {
   this->Superclass::SetEnvironmentTexture(texture);
@@ -1068,7 +1068,7 @@ void vtkOpenGLRenderer::SetEnvironmentTexture(vtkTexture* texture, bool isSRGB)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPBRLUTTexture* vtkOpenGLRenderer::GetEnvMapLookupTable()
 {
   if (!this->EnvMapLookupTable)
@@ -1078,7 +1078,7 @@ vtkPBRLUTTexture* vtkOpenGLRenderer::GetEnvMapLookupTable()
   return this->EnvMapLookupTable;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPBRIrradianceTexture* vtkOpenGLRenderer::GetEnvMapIrradiance()
 {
   if (!this->EnvMapIrradiance)
@@ -1088,7 +1088,7 @@ vtkPBRIrradianceTexture* vtkOpenGLRenderer::GetEnvMapIrradiance()
   return this->EnvMapIrradiance;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPBRPrefilterTexture* vtkOpenGLRenderer::GetEnvMapPrefiltered()
 {
   if (!this->EnvMapPrefiltered)

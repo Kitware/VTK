@@ -26,13 +26,13 @@
 
 vtkStandardNewMacro(vtkExtractPointCloudPiece);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractPointCloudPiece::vtkExtractPointCloudPiece()
 {
   this->ModuloOrdering = true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractPointCloudPiece::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -46,7 +46,7 @@ int vtkExtractPointCloudPiece::RequestUpdateExtent(vtkInformation* vtkNotUsed(re
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractPointCloudPiece::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -124,7 +124,7 @@ int vtkExtractPointCloudPiece::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractPointCloudPiece::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

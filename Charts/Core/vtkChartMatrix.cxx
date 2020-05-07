@@ -35,7 +35,7 @@ public:
   ~PIMPL() = default;
 
   // Container for the vtkChart objects that make up the matrix.
-  std::vector<vtkSmartPointer<vtkChart> > Charts;
+  std::vector<vtkSmartPointer<vtkChart>> Charts;
   // Spans of the charts in the matrix, default is 1x1.
   std::vector<vtkVector2i> Spans;
   vtkVector2i Geometry;

@@ -71,11 +71,11 @@ static bool Convert(vtkArray* Array, const char* ValueColumn, vtkTable* Table)
   return true;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkStandardNewMacro(vtkSparseArrayToTable);
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkSparseArrayToTable::vtkSparseArrayToTable()
   : ValueColumn(nullptr)
@@ -86,14 +86,14 @@ vtkSparseArrayToTable::vtkSparseArrayToTable()
   this->SetNumberOfOutputPorts(1);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkSparseArrayToTable::~vtkSparseArrayToTable()
 {
   this->SetValueColumn(nullptr);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkSparseArrayToTable::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -113,7 +113,7 @@ int vtkSparseArrayToTable::FillInputPortInformation(int port, vtkInformation* in
   return 0;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkSparseArrayToTable::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)

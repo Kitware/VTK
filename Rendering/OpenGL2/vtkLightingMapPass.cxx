@@ -30,22 +30,22 @@ vtkStandardNewMacro(vtkLightingMapPass);
 vtkInformationKeyMacro(vtkLightingMapPass, RENDER_LUMINANCE, Integer);
 vtkInformationKeyMacro(vtkLightingMapPass, RENDER_NORMALS, Integer);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLightingMapPass::vtkLightingMapPass()
 {
   this->RenderType = LUMINANCE;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLightingMapPass::~vtkLightingMapPass() = default;
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLightingMapPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Perform rendering according to a render state \p s.
 // \pre s_exists: s!=0
@@ -63,7 +63,7 @@ void vtkLightingMapPass::Render(const vtkRenderState* s)
   this->RenderOpaqueGeometry(s);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Opaque pass with key checking.
 // \pre s_exists: s!=0

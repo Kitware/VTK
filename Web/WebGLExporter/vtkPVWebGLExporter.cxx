@@ -32,19 +32,19 @@
 #include <vtksys/SystemTools.hxx>
 
 vtkStandardNewMacro(vtkPVWebGLExporter);
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPVWebGLExporter::vtkPVWebGLExporter()
 {
   this->FileName = nullptr;
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPVWebGLExporter::~vtkPVWebGLExporter()
 {
   this->SetFileName(nullptr);
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPVWebGLExporter::WriteData()
 {
   // make sure the user specified a FileName or FilePointer
@@ -120,7 +120,7 @@ void vtkPVWebGLExporter::WriteData()
   htmlFile += ".html";
   exporter->exportStaticScene(this->RenderWindow->GetRenderers(), 300, 300, htmlFile);
 }
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPVWebGLExporter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

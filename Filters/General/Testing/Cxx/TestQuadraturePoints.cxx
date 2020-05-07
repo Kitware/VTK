@@ -266,7 +266,7 @@ int TestQuadraturePoints(int argc, char* argv[])
   return EXIT_SUCCESS;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int GenerateWarpVector(vtkUnstructuredGrid* usg)
 {
   vtkDoubleArray* pts = vtkArrayDownCast<vtkDoubleArray>(usg->GetPoints()->GetData());
@@ -306,7 +306,7 @@ int GenerateWarpVector(vtkUnstructuredGrid* usg)
   }
   return idx;
 }
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int GenerateThresholdScalar(vtkUnstructuredGrid* usg)
 {
   vtkDoubleArray* pts = vtkArrayDownCast<vtkDoubleArray>(usg->GetPoints()->GetData());

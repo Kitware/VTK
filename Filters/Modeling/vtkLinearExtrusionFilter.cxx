@@ -27,7 +27,7 @@
 
 vtkStandardNewMacro(vtkLinearExtrusionFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Create object with normal extrusion type, capping on, scale factor=1.0,
 // vector (0,0,1), and extrusion point (0,0,0).
 vtkLinearExtrusionFilter::vtkLinearExtrusionFilter()
@@ -40,7 +40,7 @@ vtkLinearExtrusionFilter::vtkLinearExtrusionFilter()
   this->ExtrusionPoint[0] = this->ExtrusionPoint[1] = this->ExtrusionPoint[2] = 0.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLinearExtrusionFilter::ViaNormal(double x[3], vtkIdType id, vtkDataArray* n)
 {
   double normal[3];
@@ -52,7 +52,7 @@ void vtkLinearExtrusionFilter::ViaNormal(double x[3], vtkIdType id, vtkDataArray
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLinearExtrusionFilter::ViaVector(
   double x[3], vtkIdType vtkNotUsed(id), vtkDataArray* vtkNotUsed(n))
 {
@@ -62,7 +62,7 @@ void vtkLinearExtrusionFilter::ViaVector(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLinearExtrusionFilter::ViaPoint(
   double x[3], vtkIdType vtkNotUsed(id), vtkDataArray* vtkNotUsed(n))
 {
@@ -72,7 +72,7 @@ void vtkLinearExtrusionFilter::ViaPoint(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkLinearExtrusionFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -379,7 +379,7 @@ int vtkLinearExtrusionFilter::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLinearExtrusionFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

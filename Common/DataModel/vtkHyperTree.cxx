@@ -28,13 +28,13 @@ PURPOSE.  See the above copyright notice for more information.
 #include <memory>
 #include <vector>
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHyperTree::vtkHyperTree()
 {
   this->InitializeBase(2, 3, 8);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTree::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -77,7 +77,7 @@ void vtkHyperTree::InitializeBase(
 
   this->Scales = nullptr;
 }
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTree::Initialize(
   unsigned char branchFactor, unsigned char dimension, unsigned char numberOfChildren)
 {
@@ -85,7 +85,7 @@ void vtkHyperTree::Initialize(
   this->InitializePrivate();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkHyperTree::CopyStructure(vtkHyperTree* ht)
 {
@@ -100,7 +100,7 @@ void vtkHyperTree::CopyStructure(vtkHyperTree* ht)
   this->CopyStructurePrivate(ht);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 std::shared_ptr<vtkHyperTreeGridScales> vtkHyperTree::InitializeScales(
   const double* scales, bool reinitialize) const
@@ -112,7 +112,7 @@ std::shared_ptr<vtkHyperTreeGridScales> vtkHyperTree::InitializeScales(
   return this->Scales;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkHyperTree::GetScale(double s[3]) const
 {
@@ -121,7 +121,7 @@ void vtkHyperTree::GetScale(double s[3]) const
   memcpy(s, scale, 3 * sizeof(double));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 double vtkHyperTree::GetScale(unsigned int d) const
 {
@@ -151,8 +151,8 @@ public:
 
   //---------------------------------------------------------------------------
   void RecursiveGetByLevelForWriter(vtkBitArray* inIsMasked, int level, vtkIdType index,
-    std::vector<std::vector<bool> >& descByLevel, std::vector<std::vector<bool> >& maskByLevel,
-    std::vector<std::vector<uint64_t> >& globalIdByLevel)
+    std::vector<std::vector<bool>>& descByLevel, std::vector<std::vector<bool>>& maskByLevel,
+    std::vector<std::vector<uint64_t>>& globalIdByLevel)
   {
     vtkIdType idg = this->GetGlobalIndexFromLocal(index);
     bool mask = (inIsMasked != nullptr) && (inIsMasked->GetNumberOfValues() > 0) &&
@@ -179,9 +179,9 @@ public:
     vtkBitArray* isParent, vtkBitArray* isMasked, vtkIdList* ids) override
   {
     int maxLevels = this->GetNumberOfLevels();
-    std::vector<std::vector<bool> > descByLevel(maxLevels);
-    std::vector<std::vector<bool> > maskByLevel(maxLevels);
-    std::vector<std::vector<uint64_t> > globalIdByLevel(maxLevels);
+    std::vector<std::vector<bool>> descByLevel(maxLevels);
+    std::vector<std::vector<bool>> maskByLevel(maxLevels);
+    std::vector<std::vector<uint64_t>> globalIdByLevel(maxLevels);
     // Build information by levels
     RecursiveGetByLevelForWriter(inIsMasked, 0, 0, descByLevel, maskByLevel, globalIdByLevel);
     // nbVerticesByLevel
@@ -586,7 +586,7 @@ private:
   vtkCompactHyperTree(const vtkCompactHyperTree&) = delete;
   void operator=(const vtkCompactHyperTree&) = delete;
 };
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkCompactHyperTree);
 //=============================================================================
 

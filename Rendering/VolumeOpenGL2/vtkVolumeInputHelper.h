@@ -80,11 +80,11 @@ public:
   /**
    * Transfer function internal structures and helpers.
    */
-  vtkSmartPointer<vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeGradientOpacityTable> >
+  vtkSmartPointer<vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeGradientOpacityTable>>
     GradientOpacityTables;
-  vtkSmartPointer<vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeOpacityTable> > OpacityTables;
-  vtkSmartPointer<vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeRGBTable> > RGBTables;
-  vtkSmartPointer<vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeTransferFunction2D> >
+  vtkSmartPointer<vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeOpacityTable>> OpacityTables;
+  vtkSmartPointer<vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeRGBTable>> RGBTables;
+  vtkSmartPointer<vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeTransferFunction2D>>
     TransferFunctions2D;
 
   /**

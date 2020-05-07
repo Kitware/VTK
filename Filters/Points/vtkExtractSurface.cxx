@@ -34,7 +34,7 @@
 
 vtkStandardNewMacro(vtkExtractSurface);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 // This templated class implements the heart of the algorithm.
 // vtkExtractSurface populates the information in this class and
@@ -415,25 +415,25 @@ public:
     vtkFloatArray* newGradients);
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Map MC edges numbering to use the saner FlyingEdges edge numbering scheme.
 template <class T>
 const unsigned char vtkExtractSurfaceAlgorithm<T>::EdgeMap[12] = { 0, 5, 1, 4, 2, 7, 3, 6, 8, 9, 10,
   11 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Map MC edges numbering to use the saner FlyingEdges edge numbering scheme.
 template <class T>
 const unsigned char vtkExtractSurfaceAlgorithm<T>::VertMap[12][2] = { { 0, 1 }, { 2, 3 }, { 4, 5 },
   { 6, 7 }, { 0, 2 }, { 1, 3 }, { 4, 6 }, { 5, 7 }, { 0, 4 }, { 1, 5 }, { 2, 6 }, { 3, 7 } };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The offsets of each vertex (in index space) from the voxel axes origin.
 template <class T>
 const unsigned char vtkExtractSurfaceAlgorithm<T>::VertOffsets[8][3] = { { 0, 0, 0 }, { 1, 0, 0 },
   { 0, 1, 0 }, { 1, 1, 0 }, { 0, 0, 1 }, { 1, 0, 1 }, { 0, 1, 1 }, { 1, 1, 1 } };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Instantiate and initialize key data members. Mostly we build the
 // edge-based case table, and associated acceleration structures, from the
 // marching cubes case table. Some of this code is borrowed shamelessly from
@@ -536,7 +536,7 @@ vtkExtractSurfaceAlgorithm<T>::vtkExtractSurfaceAlgorithm()
   } // for all cases
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Count intersections along voxel axes. When traversing the volume across
 // x-edges, the voxel axes on the boundary may be undefined near boundaries
 // (because there are no fully-formed cells). Thus the voxel axes on the
@@ -586,7 +586,7 @@ void vtkExtractSurfaceAlgorithm<T>::CountBoundaryYZInts(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Compute the gradient when the point may be near the boundary of the
 // volume.
 template <class T>
@@ -636,7 +636,7 @@ void vtkExtractSurfaceAlgorithm<T>::ComputeBoundaryGradient(vtkIdType ijk[3],
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Interpolate a new point along a boundary edge. Make sure to consider
 // proximity to the boundary when computing gradients, etc.
 template <class T>
@@ -705,7 +705,7 @@ void vtkExtractSurfaceAlgorithm<T>::InterpolateEdge(double value, vtkIdType ijk[
   } // if normals or gradients required
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Generate the output points and optionally normals, gradients and
 // interpolate attributes.
 template <class T>
@@ -811,7 +811,7 @@ void vtkExtractSurfaceAlgorithm<T>::GeneratePoints(double value, unsigned char l
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // PASS 1: Process a single volume x-row (and all of the voxel edges that
 // compose the row). Determine the x-edges case classification, count the
 // number of x-edge intersections, and figure out where intersections along
@@ -881,7 +881,7 @@ void vtkExtractSurfaceAlgorithm<T>::ProcessXEdge(
   edgeMetaData[5] = maxInt; // where intersections end along x edge
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // PASS 2: Process a single x-row of voxels. Count the number of y- and
 // z-intersections by topological reasoning from x-edge cases. Determine the
 // number of primitives (i.e., triangles) generated from this row. Use
@@ -1017,7 +1017,7 @@ void vtkExtractSurfaceAlgorithm<T>::ProcessYZEdges(vtkIdType row, vtkIdType slic
   } // for all voxels along this x-edge
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // PASS 4: Process the x-row cells to generate output primitives, including
 // point coordinates and triangles. This is the fourth and final pass of the
 // algorithm.
@@ -1121,7 +1121,7 @@ void vtkExtractSurfaceAlgorithm<T>::GenerateOutput(
   } // for all non-trimmed cells along this x-edge
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Contouring filter specialized for 3D volumes. This templated function
 // interfaces the vtkExtractSurface class with the templated algorithm
 // class. It also invokes the three passes of the Flying Edges algorithm.
@@ -1268,7 +1268,7 @@ void vtkExtractSurfaceAlgorithm<T>::Contour(vtkExtractSurface* self, vtkImageDat
   delete[] algo.EdgeMetaData;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Here is the VTK class proper.
 // Construct object with a single contour value of 0.0.
 vtkExtractSurface::vtkExtractSurface()
@@ -1283,10 +1283,10 @@ vtkExtractSurface::vtkExtractSurface()
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractSurface::~vtkExtractSurface() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSurface::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -1304,7 +1304,7 @@ int vtkExtractSurface::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSurface::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -1409,14 +1409,14 @@ int vtkExtractSurface::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSurface::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractSurface::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -28,25 +28,25 @@ vtkStandardNewMacro(vtkRectilinearGridReader);
 vtkRectilinearGridReader::vtkRectilinearGridReader() = default;
 vtkRectilinearGridReader::~vtkRectilinearGridReader() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRectilinearGrid* vtkRectilinearGridReader::GetOutput()
 {
   return this->GetOutput(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRectilinearGrid* vtkRectilinearGridReader::GetOutput(int idx)
 {
   return vtkRectilinearGrid::SafeDownCast(this->GetOutputDataObject(idx));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRectilinearGridReader::SetOutput(vtkRectilinearGrid* output)
 {
   this->GetExecutive()->SetOutputData(0, output);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkRectilinearGridReader::ReadMetaDataSimple(const std::string& fname, vtkInformation* outInfo)
 {
   char line[256];
@@ -138,7 +138,7 @@ int vtkRectilinearGridReader::ReadMetaDataSimple(const std::string& fname, vtkIn
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkRectilinearGridReader::ReadMeshSimple(const std::string& fname, vtkDataObject* doOutput)
 {
   vtkIdType numPts = 0, npts, ncoords, numCells = 0, ncells;
@@ -372,14 +372,14 @@ int vtkRectilinearGridReader::ReadMeshSimple(const std::string& fname, vtkDataOb
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkRectilinearGridReader::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkRectilinearGrid");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRectilinearGridReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

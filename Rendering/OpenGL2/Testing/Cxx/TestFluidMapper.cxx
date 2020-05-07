@@ -57,14 +57,14 @@ constexpr static double g_DragonPos[3]{ 2, -0.5, 3 };
 
 constexpr static float g_ParticleRadius = 0.03f;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Enable this for interactive demonstration
 //#define INTERACTIVE_DEMO
 #ifdef INTERACTIVE_DEMO
 #include "TestFluidDemo.cxx"
 #endif
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestFluidMapper(int argc, char* argv[])
 {
   vtkNew<vtkOpenGLRenderer> renderer;

@@ -27,7 +27,7 @@
 #include "vtkRegressionTestImage.h"
 #include "vtkTestUtilities.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestVBOPointsLines(int, char*[])
 {
   // Initialize everything

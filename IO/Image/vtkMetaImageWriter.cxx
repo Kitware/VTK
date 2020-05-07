@@ -39,10 +39,10 @@
 
 #include <sys/stat.h>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkMetaImageWriter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMetaImageWriter::vtkMetaImageWriter()
 {
   this->MHDFileName = nullptr;
@@ -52,33 +52,33 @@ vtkMetaImageWriter::vtkMetaImageWriter()
   this->Compress = true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMetaImageWriter::~vtkMetaImageWriter()
 {
   this->SetFileName(nullptr);
   delete this->MetaImagePtr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMetaImageWriter::SetFileName(const char* fname)
 {
   this->SetMHDFileName(fname);
   this->Superclass::SetFileName(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMetaImageWriter::SetRAWFileName(const char* fname)
 {
   this->Superclass::SetFileName(fname);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 char* vtkMetaImageWriter::GetRAWFileName()
 {
   return this->Superclass::GetFileName();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMetaImageWriter::Write()
 {
   this->SetErrorCode(vtkErrorCode::NoError);
@@ -194,7 +194,7 @@ void vtkMetaImageWriter::Write()
   this->InvokeEvent(vtkCommand::EndEvent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMetaImageWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

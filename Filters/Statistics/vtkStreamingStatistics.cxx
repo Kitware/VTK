@@ -31,7 +31,7 @@ vtkStandardNewMacro(vtkStreamingStatistics);
 
 vtkCxxSetObjectMacro(vtkStreamingStatistics, StatisticsAlgorithm, vtkStatisticsAlgorithm);
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStreamingStatistics::vtkStreamingStatistics()
 {
   // Setup input/output ports
@@ -46,7 +46,7 @@ vtkStreamingStatistics::vtkStreamingStatistics()
   this->InternalModel = vtkMultiBlockDataSet::New();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStreamingStatistics::~vtkStreamingStatistics()
 {
   // Release/delete internal stats algorithm
@@ -58,7 +58,7 @@ vtkStreamingStatistics::~vtkStreamingStatistics()
   this->InternalModel = nullptr;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkStreamingStatistics::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == INPUT_DATA)
@@ -83,7 +83,7 @@ int vtkStreamingStatistics::FillInputPortInformation(int port, vtkInformation* i
   return 0;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkStreamingStatistics::FillOutputPortInformation(int port, vtkInformation* info)
 {
   if (port == OUTPUT_DATA)
@@ -105,7 +105,7 @@ int vtkStreamingStatistics::FillOutputPortInformation(int port, vtkInformation* 
   return 0;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkStreamingStatistics::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -153,7 +153,7 @@ int vtkStreamingStatistics::RequestData(
   return 1;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkStreamingStatistics::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

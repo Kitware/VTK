@@ -36,7 +36,7 @@ vtkCxxSetObjectMacro(vtkImageReader, Transform, vtkTransform);
 #undef close
 #endif
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageReader::vtkImageReader()
 {
   int idx;
@@ -53,14 +53,14 @@ vtkImageReader::vtkImageReader()
   this->SetScalarArrayName("ImageFile");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageReader::~vtkImageReader()
 {
   this->SetTransform(nullptr);
   this->SetScalarArrayName(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   int idx;
@@ -180,7 +180,7 @@ int vtkImageReader::OpenAndSeekFile(int dataExtent[6], int idx)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This function reads in one data of data.
 // templated to handle different data types.
 template <class IT, class OT>
@@ -345,7 +345,7 @@ void vtkImageReaderUpdate2(vtkImageReader* self, vtkImageData* data, IT* inPtr, 
   delete[] buf;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This function reads in one data of one slice.
 // templated to handle different data types.
 template <class T>
@@ -362,7 +362,7 @@ void vtkImageReaderUpdate1(vtkImageReader* self, vtkImageData* data, T* inPtr)
       vtkGenericWarningMacro("Update1: Unknown data type\n");
   }
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This function reads a data from a file.  The datas extent/axes
 // are assumed to be the same as the file extent/order.
 void vtkImageReader::ExecuteDataWithInformation(vtkDataObject* output, vtkInformation* outInfo)

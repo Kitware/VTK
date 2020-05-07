@@ -17,16 +17,16 @@
 #include "vtkPythonUtil.h"
 #include "vtkSmartPyObject.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPythonArchiver);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPythonArchiver::vtkPythonArchiver()
 {
   this->Object = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPythonArchiver::~vtkPythonArchiver()
 {
   // we check if Python is still initialized since the Python interpreter may
@@ -38,7 +38,7 @@ vtkPythonArchiver::~vtkPythonArchiver()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This macro gets the method passed in as the parameter method
 // from the PyObject passed in as the parameter obj and creates a
 // vtkSmartPyObject variable with the name passed in as the parameter
@@ -70,14 +70,14 @@ vtkPythonArchiver::~vtkPythonArchiver()
     return failValue;                                                                              \
   }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 /// Return value: New reference.
 static PyObject* VTKToPython(vtkObjectBase* obj)
 {
   return vtkPythonUtil::GetObjectFromPointer(obj);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPythonArchiver::CheckResult(const char* method, const vtkSmartPyObject& res)
 {
   vtkPythonScopeGilEnsurer gilEnsurer;
@@ -101,7 +101,7 @@ int vtkPythonArchiver::CheckResult(const char* method, const vtkSmartPyObject& r
   return code;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPythonArchiver::SetPythonObject(PyObject* obj)
 {
   vtkPythonScopeGilEnsurer gilEnsurer;
@@ -117,7 +117,7 @@ void vtkPythonArchiver::SetPythonObject(PyObject* obj)
   Py_INCREF(this->Object);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPythonArchiver::OpenArchive()
 {
   vtkPythonScopeGilEnsurer gilEnsurer;
@@ -134,7 +134,7 @@ void vtkPythonArchiver::OpenArchive()
   CheckResult(mname, result);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPythonArchiver::CloseArchive()
 {
   vtkPythonScopeGilEnsurer gilEnsurer;
@@ -151,7 +151,7 @@ void vtkPythonArchiver::CloseArchive()
   CheckResult(mname, result);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPythonArchiver::InsertIntoArchive(
   const std::string& relativePath, const char* data, std::size_t size)
 {
@@ -183,7 +183,7 @@ void vtkPythonArchiver::InsertIntoArchive(
   CheckResult(mname, result);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPythonArchiver::Contains(const std::string& relativePath)
 {
   vtkPythonScopeGilEnsurer gilEnsurer;
@@ -203,7 +203,7 @@ bool vtkPythonArchiver::Contains(const std::string& relativePath)
   return (CheckResult(mname, result) != 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPythonArchiver::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -28,7 +28,7 @@
 
 #include "vtkOpenGLRenderWindow.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestSpherePoints(int argc, char* argv[])
 {
   vtkNew<vtkRenderer> renderer;

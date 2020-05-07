@@ -389,7 +389,7 @@ protected:
   std::vector<std::string> ScalarVariableNames;
   std::vector<std::string> VectorVariableNames;
   std::vector<double> ScalarVariableValues;
-  std::vector<vtkTuple<double, 3> > VectorVariableValues;
+  std::vector<vtkTuple<double, 3>> VectorVariableValues;
   std::vector<bool> ScalarVariableNeeded;
   std::vector<bool> VectorVariableNeeded;
 

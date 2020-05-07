@@ -23,7 +23,7 @@
 
 vtkStandardNewMacro(vtkForceTime);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkForceTime::vtkForceTime()
 {
   this->ForcedTime = 0.0;
@@ -33,7 +33,7 @@ vtkForceTime::vtkForceTime()
   this->PipelineTimeFlag = false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkForceTime::~vtkForceTime()
 {
   if (this->Cache != nullptr)
@@ -43,7 +43,7 @@ vtkForceTime::~vtkForceTime()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkForceTime::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -52,7 +52,7 @@ void vtkForceTime::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "IgnorePipelineTime: " << this->IgnorePipelineTime << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkForceTime::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -106,7 +106,7 @@ int vtkForceTime::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkForceTime::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -143,7 +143,7 @@ int vtkForceTime::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkForceTime::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {

@@ -25,7 +25,7 @@
 
 vtkStandardNewMacro(vtkPolyDataStreamer);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyDataStreamer::vtkPolyDataStreamer()
 {
   this->SetNumberOfInputPorts(1);
@@ -37,14 +37,14 @@ vtkPolyDataStreamer::vtkPolyDataStreamer()
   this->Append = vtkAppendPolyData::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyDataStreamer::~vtkPolyDataStreamer()
 {
   this->Append->Delete();
   this->Append = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyDataStreamer::SetNumberOfStreamDivisions(int num)
 {
   if (this->NumberOfPasses == (unsigned int)num)
@@ -56,7 +56,7 @@ void vtkPolyDataStreamer::SetNumberOfStreamDivisions(int num)
   this->NumberOfPasses = num;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPolyDataStreamer::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -75,7 +75,7 @@ int vtkPolyDataStreamer::RequestUpdateExtent(vtkInformation* vtkNotUsed(request)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPolyDataStreamer::ExecutePass(
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -110,7 +110,7 @@ int vtkPolyDataStreamer::ExecutePass(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPolyDataStreamer::PostExecute(
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -126,7 +126,7 @@ int vtkPolyDataStreamer::PostExecute(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyDataStreamer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -135,7 +135,7 @@ void vtkPolyDataStreamer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ColorByPiece: " << this->ColorByPiece << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPolyDataStreamer::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   // now add our info
@@ -143,7 +143,7 @@ int vtkPolyDataStreamer::FillOutputPortInformation(int vtkNotUsed(port), vtkInfo
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPolyDataStreamer::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");

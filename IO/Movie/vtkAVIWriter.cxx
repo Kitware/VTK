@@ -42,10 +42,10 @@ public:
   HANDLE hDIB;             // handle to DIB, temp handle
 };
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAVIWriter);
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAVIWriter::vtkAVIWriter()
 {
   this->Internals = new vtkAVIWriterInternal;
@@ -61,7 +61,7 @@ vtkAVIWriter::vtkAVIWriter()
   this->SetCompressorFourCC("MSVC");
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAVIWriter::~vtkAVIWriter()
 {
   if (this->Internals->AVIFile)
@@ -72,7 +72,7 @@ vtkAVIWriter::~vtkAVIWriter()
   this->SetCompressorFourCC(nullptr);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAVIWriter::Start()
 {
   // Error checking
@@ -210,7 +210,7 @@ void vtkAVIWriter::Start()
   this->Time = 0;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAVIWriter::Write()
 {
   if (this->Error)
@@ -255,7 +255,7 @@ void vtkAVIWriter::Write()
   this->Time++;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAVIWriter::End()
 {
   ::GlobalUnlock(this->Internals->hDIB);
@@ -280,7 +280,7 @@ void vtkAVIWriter::End()
   AVIFileExit(); // releases AVIFile library
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAVIWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

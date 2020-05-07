@@ -19,7 +19,7 @@
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestVector(int, char*[])
 {
   // Store up any errors, return non-zero if something fails.

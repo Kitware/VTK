@@ -26,7 +26,7 @@
 
 vtkStandardNewMacro(vtkImageViewer);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageViewer::vtkImageViewer()
 {
   this->RenderWindow = vtkRenderWindow::New();
@@ -45,7 +45,7 @@ vtkImageViewer::vtkImageViewer()
   this->InteractorStyle = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageViewer::~vtkImageViewer()
 {
   this->ImageMapper->Delete();
@@ -63,7 +63,7 @@ vtkImageViewer::~vtkImageViewer()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageViewer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -77,18 +77,18 @@ void vtkImageViewer::PrintSelf(ostream& os, vtkIndent indent)
   this->Actor2D->PrintSelf(os, indent.GetNextIndent());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageViewer::SetSize(int a[2])
 {
   this->SetSize(a[0], a[1]);
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageViewer::SetPosition(int a[2])
 {
   this->SetPosition(a[0], a[1]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkImageViewerCallback : public vtkCommand
 {
 public:
@@ -194,7 +194,7 @@ public:
   double InitialLevel;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageViewer::SetupInteractor(vtkRenderWindowInteractor* rwi)
 {
   if (this->Interactor && rwi != this->Interactor)
@@ -221,7 +221,7 @@ void vtkImageViewer::SetupInteractor(vtkRenderWindowInteractor* rwi)
   this->Interactor->SetRenderWindow(this->RenderWindow);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageViewer::Render()
 {
   if (this->FirstRender)
@@ -243,37 +243,37 @@ void vtkImageViewer::Render()
   this->RenderWindow->Render();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageViewer::SetOffScreenRendering(vtkTypeBool i)
 {
   this->RenderWindow->SetOffScreenRendering(i);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkImageViewer::GetOffScreenRendering()
 {
   return this->RenderWindow->GetOffScreenRendering();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageViewer::OffScreenRenderingOn()
 {
   this->SetOffScreenRendering(1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageViewer::OffScreenRenderingOff()
 {
   this->SetOffScreenRendering(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAlgorithm* vtkImageViewer::GetInputAlgorithm()
 {
   return this->ImageMapper->GetInputAlgorithm();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageViewer::SetRenderWindow(vtkRenderWindow* renWin)
 {
   vtkSetObjectBodyMacro(RenderWindow, vtkRenderWindow, renWin);

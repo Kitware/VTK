@@ -27,7 +27,7 @@
 vtkStandardNewMacro(vtkImageWeightedSum);
 
 vtkCxxSetObjectMacro(vtkImageWeightedSum, Weights, vtkDoubleArray);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Constructor sets default values
 vtkImageWeightedSum::vtkImageWeightedSum()
@@ -40,20 +40,20 @@ vtkImageWeightedSum::vtkImageWeightedSum()
   this->NormalizeByWeight = 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageWeightedSum::~vtkImageWeightedSum()
 {
   this->Weights->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageWeightedSum::SetWeight(vtkIdType id, double weight)
 {
   // Reallocate if needed and pass the new weight
   this->Weights->InsertValue(id, weight);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkImageWeightedSum::CalculateTotalWeight()
 {
   double totalWeight = 0.0;
@@ -65,7 +65,7 @@ double vtkImageWeightedSum::CalculateTotalWeight()
   return totalWeight;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // This templated function executes the filter for any type of data.
 template <class T>
@@ -140,7 +140,7 @@ void vtkImageWeightedSumExecute(vtkImageWeightedSum* self, vtkImageData** inData
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageWeightedSum::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -181,7 +181,7 @@ int vtkImageWeightedSum::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // This method is passed a input and output data, and executes the filter
 // algorithm to fill the output from the input.
@@ -241,14 +241,14 @@ void vtkImageWeightedSum::ThreadedRequestData(vtkInformation* vtkNotUsed(request
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageWeightedSum::FillInputPortInformation(int i, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
   return this->Superclass::FillInputPortInformation(i, info);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageWeightedSum::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

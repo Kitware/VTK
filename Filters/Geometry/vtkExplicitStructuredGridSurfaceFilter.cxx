@@ -21,7 +21,7 @@
 
 vtkStandardNewMacro(vtkExplicitStructuredGridSurfaceFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExplicitStructuredGridSurfaceFilter::vtkExplicitStructuredGridSurfaceFilter()
 {
   this->PieceInvariant = 0;
@@ -36,14 +36,14 @@ vtkExplicitStructuredGridSurfaceFilter::vtkExplicitStructuredGridSurfaceFilter()
   this->SetOriginalPointIdsName("vtkOriginalPointIds");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExplicitStructuredGridSurfaceFilter::~vtkExplicitStructuredGridSurfaceFilter()
 {
   this->SetOriginalCellIdsName(nullptr);
   this->SetOriginalPointIdsName(nullptr);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExplicitStructuredGridSurfaceFilter::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -52,7 +52,7 @@ int vtkExplicitStructuredGridSurfaceFilter::RequestInformation(vtkInformation* v
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExplicitStructuredGridSurfaceFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -69,7 +69,7 @@ int vtkExplicitStructuredGridSurfaceFilter::RequestUpdateExtent(vtkInformation* 
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExplicitStructuredGridSurfaceFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -99,7 +99,7 @@ static int hexaFaces[6][4] = {
   { 4, 5, 6, 7 },
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExplicitStructuredGridSurfaceFilter::ExtractSurface(
   vtkExplicitStructuredGrid* input, vtkPolyData* output)
 {
@@ -247,14 +247,14 @@ int vtkExplicitStructuredGridSurfaceFilter::ExtractSurface(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExplicitStructuredGridSurfaceFilter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkExplicitStructuredGrid");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExplicitStructuredGridSurfaceFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

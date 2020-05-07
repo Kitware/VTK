@@ -21,7 +21,7 @@
 vtkStandardNewMacro(vtkKMeansStatistics);
 vtkCxxSetObjectMacro(vtkKMeansStatistics, DistanceFunctor, vtkKMeansDistanceFunctor);
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkKMeansStatistics::vtkKMeansStatistics()
 {
   this->AssessNames->SetNumberOfValues(2);
@@ -35,14 +35,14 @@ vtkKMeansStatistics::vtkKMeansStatistics()
   this->DistanceFunctor = vtkKMeansDistanceFunctor::New();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkKMeansStatistics::~vtkKMeansStatistics()
 {
   this->SetKValuesArrayName(nullptr);
   this->SetDistanceFunctor(nullptr);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKMeansStatistics::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -54,12 +54,12 @@ void vtkKMeansStatistics::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "DistanceFunctor: " << this->DistanceFunctor << endl;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkKMeansStatistics::InitializeDataAndClusterCenters(vtkTable* inParameters, vtkTable* inData,
   vtkTable* dataElements, vtkIdTypeArray* numberOfClusters, vtkTable* curClusterElements,
   vtkTable* newClusterElements, vtkIdTypeArray* startRunID, vtkIdTypeArray* endRunID)
 {
-  std::set<std::set<vtkStdString> >::const_iterator reqIt;
+  std::set<std::set<vtkStdString>>::const_iterator reqIt;
   if (this->Internals->Requests.size() > 1)
   {
     static int num = 0;
@@ -171,12 +171,12 @@ int vtkKMeansStatistics::InitializeDataAndClusterCenters(vtkTable* inParameters,
   return numRuns;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKMeansStatistics::CreateInitialClusterCenters(vtkIdType numToAllocate,
   vtkIdTypeArray* numberOfClusters, vtkTable* inData, vtkTable* curClusterElements,
   vtkTable* newClusterElements)
 {
-  std::set<std::set<vtkStdString> >::const_iterator reqIt;
+  std::set<std::set<vtkStdString>>::const_iterator reqIt;
   if (this->Internals->Requests.size() > 1)
   {
     static int num = 0;
@@ -214,13 +214,13 @@ void vtkKMeansStatistics::CreateInitialClusterCenters(vtkIdType numToAllocate,
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkKMeansStatistics::GetTotalNumberOfObservations(vtkIdType numObservations)
 {
   return numObservations;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKMeansStatistics::UpdateClusterCenters(vtkTable* newClusterElements,
   vtkTable* curClusterElements, vtkIdTypeArray* vtkNotUsed(numMembershipChanges),
   vtkIdTypeArray* numDataElementsInCluster, vtkDoubleArray* vtkNotUsed(error),
@@ -244,7 +244,7 @@ void vtkKMeansStatistics::UpdateClusterCenters(vtkTable* newClusterElements,
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkKMeansStatistics::SetParameter(
   const char* parameter, int vtkNotUsed(index), vtkVariant value)
 {
@@ -282,7 +282,7 @@ bool vtkKMeansStatistics::SetParameter(
   return false;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKMeansStatistics::Learn(
   vtkTable* inData, vtkTable* inParameters, vtkMultiBlockDataSet* outMeta)
 {
@@ -495,7 +495,7 @@ void vtkKMeansStatistics::Learn(
   numMembershipChanges->Delete();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKMeansStatistics::Derive(vtkMultiBlockDataSet* outMeta)
 {
   vtkTable* outTable;
@@ -533,7 +533,7 @@ void vtkKMeansStatistics::Derive(vtkMultiBlockDataSet* outMeta)
   localRank->SetName("Local Rank");
 
   std::multimap<double, vtkIdType> globalErrorMap;
-  std::map<vtkIdType, std::multimap<double, vtkIdType> > localErrorMap;
+  std::map<vtkIdType, std::multimap<double, vtkIdType>> localErrorMap;
 
   vtkIdType curRow = 0;
   while (curRow < outTable->GetNumberOfRows())
@@ -563,7 +563,7 @@ void vtkKMeansStatistics::Derive(vtkMultiBlockDataSet* outMeta)
   {
     globalRank->SetValue(itr->second, rankID++);
   }
-  for (std::map<vtkIdType, std::multimap<double, vtkIdType> >::iterator itr = localErrorMap.begin();
+  for (std::map<vtkIdType, std::multimap<double, vtkIdType>>::iterator itr = localErrorMap.begin();
        itr != localErrorMap.end(); ++itr)
   {
     rankID = 1;
@@ -594,7 +594,7 @@ void vtkKMeansStatistics::Derive(vtkMultiBlockDataSet* outMeta)
   totalNumIterations->Delete();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKMeansStatistics::Assess(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtkTable* outData)
 {
   if (!inData)
@@ -675,7 +675,7 @@ void vtkKMeansStatistics::Assess(vtkTable* inData, vtkMultiBlockDataSet* inMeta,
   delete dfunc;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKMeansStatistics::SelectAssessFunctor(vtkTable* inData, vtkDataObject* inMetaDO,
   vtkStringArray* vtkNotUsed(rowNames), AssessFunctor*& dfunc)
 {
@@ -704,20 +704,20 @@ void vtkKMeansStatistics::SelectAssessFunctor(vtkTable* inData, vtkDataObject* i
   dfunc = kmfunc;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkKMeansAssessFunctor* vtkKMeansAssessFunctor::New()
 {
   return new vtkKMeansAssessFunctor;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkKMeansAssessFunctor::~vtkKMeansAssessFunctor()
 {
   this->ClusterMemberIDs->Delete();
   this->Distances->Delete();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkKMeansAssessFunctor::Initialize(
   vtkTable* inData, vtkTable* inModel, vtkKMeansDistanceFunctor* dfunc)
 {
@@ -789,7 +789,7 @@ bool vtkKMeansAssessFunctor::Initialize(
   return true;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkKMeansAssessFunctor::operator()(vtkDoubleArray* result, vtkIdType row)
 {
 

@@ -40,7 +40,7 @@ typedef vtkTypeList::Unique<                //
     vtkSOADataArrayTemplate<int>,           //
     vtkSOADataArrayTemplate<unsigned char>, //
     vtkSOADataArrayTemplate<vtkIdType>      //
-    > >::Result Arrays;
+    >>::Result Arrays;
 } // end namespace vtkArrayDispatch
 
 #include "vtkArrayDispatch.h"
@@ -582,7 +582,7 @@ int TestDispatch3ByArray()
   // Array2: AoS
   // Array3: AoS/SoA float arrays
   using Dispatcher = vtkArrayDispatch::Dispatch3ByArray<SoAArrayList, AoSArrayList,
-    vtkTypeList::Create<vtkAOSDataArrayTemplate<float>, vtkSOADataArrayTemplate<float> > >;
+    vtkTypeList::Create<vtkAOSDataArrayTemplate<float>, vtkSOADataArrayTemplate<float>>>;
   TestWorker worker;
   ForwardedParams paramTester;
 
@@ -645,7 +645,7 @@ int TestDispatch3ByValueType()
   // Array2: Must be integer type.
   // Array3: Must be unsigned char type.
   using Dispatcher = vtkArrayDispatch::Dispatch3ByValueType<vtkArrayDispatch::Reals,
-    vtkArrayDispatch::Integrals, vtkTypeList::Create<unsigned char> >;
+    vtkArrayDispatch::Integrals, vtkTypeList::Create<unsigned char>>;
   TestWorker worker;
   ForwardedParams paramTester;
 

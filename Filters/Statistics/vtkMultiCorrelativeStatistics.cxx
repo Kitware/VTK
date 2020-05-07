@@ -28,7 +28,7 @@
 
 vtkStandardNewMacro(vtkMultiCorrelativeStatistics);
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiCorrelativeStatistics::vtkMultiCorrelativeStatistics()
 {
   this->AssessNames->SetNumberOfValues(1);
@@ -36,16 +36,16 @@ vtkMultiCorrelativeStatistics::vtkMultiCorrelativeStatistics()
   this->MedianAbsoluteDeviation = false;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiCorrelativeStatistics::~vtkMultiCorrelativeStatistics() = default;
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiCorrelativeStatistics::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static void vtkMultiCorrelativeInvertCholesky(std::vector<double*>& chol, std::vector<double>& inv)
 {
   vtkIdType m = static_cast<vtkIdType>(chol.size());
@@ -74,7 +74,7 @@ static void vtkMultiCorrelativeInvertCholesky(std::vector<double*>& chol, std::v
   // don't reference them.
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static void vtkMultiCorrelativeTransposeTriangular(std::vector<double>& a, vtkIdType m)
 {
   std::vector<double> b(a.begin(), a.end());
@@ -104,7 +104,7 @@ static void vtkMultiCorrelativeTransposeTriangular(std::vector<double>& a, vtkId
   //                                 J                            G H I J
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiCorrelativeAssessFunctor::operator()(vtkDoubleArray* result, vtkIdType row)
 {
   vtkIdType m = static_cast<vtkIdType>(this->Columns.size());
@@ -137,7 +137,7 @@ void vtkMultiCorrelativeAssessFunctor::operator()(vtkDoubleArray* result, vtkIdT
   result->SetValue(0, r);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiCorrelativeStatistics::Aggregate(
   vtkDataObjectCollection* inMetaColl, vtkMultiBlockDataSet* outMeta)
 {
@@ -269,7 +269,7 @@ void vtkMultiCorrelativeStatistics::Aggregate(
   outCov->Delete();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiCorrelativeStatistics::Learn(
   vtkTable* inData, vtkTable* vtkNotUsed(inParameters), vtkMultiBlockDataSet* outMeta)
 {
@@ -300,9 +300,9 @@ void vtkMultiCorrelativeStatistics::Learn(
   sparseCov->AddColumn(col3);
   col3->Delete();
 
-  std::set<std::set<vtkStdString> >::const_iterator reqIt;
+  std::set<std::set<vtkStdString>>::const_iterator reqIt;
   std::set<vtkStdString>::const_iterator colIt;
-  std::set<std::pair<vtkStdString, vtkDataArray*> > allColumns;
+  std::set<std::pair<vtkStdString, vtkDataArray*>> allColumns;
   std::map<std::pair<vtkIdType, vtkIdType>, vtkIdType> colPairs;
   std::map<std::pair<vtkIdType, vtkIdType>, vtkIdType>::iterator cpIt;
   std::map<vtkStdString, vtkIdType> colNameToIdx;
@@ -327,7 +327,7 @@ void vtkMultiCorrelativeStatistics::Learn(
   // Now make a map from input column name to output column index (colNameToIdx):
   vtkIdType i = 0;
   vtkIdType m = static_cast<vtkIdType>(allColumns.size());
-  std::set<std::pair<vtkStdString, vtkDataArray*> >::const_iterator acIt;
+  std::set<std::pair<vtkStdString, vtkDataArray*>>::const_iterator acIt;
   vtkStdString empty;
   col1->InsertNextValue("Cardinality");
   col2->InsertNextValue(empty);
@@ -484,7 +484,7 @@ void vtkMultiCorrelativeStatistics::Learn(
   sparseCov->Delete();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static void vtkMultiCorrelativeCholesky(std::vector<double*>& a, vtkIdType m)
 {
   // First define some macros to make the Cholevsky decomposition algorithm legible:
@@ -520,7 +520,7 @@ static void vtkMultiCorrelativeCholesky(std::vector<double*>& a, vtkIdType m)
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiCorrelativeStatistics::Derive(vtkMultiBlockDataSet* outMeta)
 {
   vtkTable* sparseCov;
@@ -538,7 +538,7 @@ void vtkMultiCorrelativeStatistics::Derive(vtkMultiBlockDataSet* outMeta)
     return;
   }
 
-  std::set<std::set<vtkStdString> >::const_iterator reqIt;
+  std::set<std::set<vtkStdString>>::const_iterator reqIt;
   std::set<vtkStdString>::const_iterator colIt;
   std::map<std::pair<vtkIdType, vtkIdType>, vtkIdType> colPairs;
   std::map<vtkStdString, vtkIdType> colNameToIdx;
@@ -661,7 +661,7 @@ void vtkMultiCorrelativeStatistics::Derive(vtkMultiBlockDataSet* outMeta)
   } //  reqIt, b
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiCorrelativeStatistics::Assess(
   vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtkTable* outData)
 {
@@ -746,7 +746,7 @@ void vtkMultiCorrelativeStatistics::Assess(
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiCorrelativeStatistics::ComputeMedian(vtkTable* inData, vtkTable* outData)
 {
   vtkOrderStatistics* orderStats = this->CreateOrderStatisticsInstance();
@@ -773,19 +773,19 @@ void vtkMultiCorrelativeStatistics::ComputeMedian(vtkTable* inData, vtkTable* ou
   orderStats->Delete();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOrderStatistics* vtkMultiCorrelativeStatistics::CreateOrderStatisticsInstance()
 {
   return vtkOrderStatistics::New();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiCorrelativeAssessFunctor* vtkMultiCorrelativeAssessFunctor::New()
 {
   return new vtkMultiCorrelativeAssessFunctor;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkMultiCorrelativeAssessFunctor::Initialize(
   vtkTable* inData, vtkTable* reqModel, bool cholesky)
 {
@@ -871,7 +871,7 @@ bool vtkMultiCorrelativeAssessFunctor::Initialize(
   return true;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMultiCorrelativeStatistics::SelectAssessFunctor(vtkTable* inData, vtkDataObject* inMetaDO,
   vtkStringArray* vtkNotUsed(rowNames), AssessFunctor*& dfunc)
 {

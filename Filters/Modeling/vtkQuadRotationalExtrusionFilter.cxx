@@ -30,7 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 vtkStandardNewMacro(vtkQuadRotationalExtrusionFilter);
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Create object with capping on, angle of 360 degrees, resolution = 12, and
 // no translation along z-axis.
 // vector (0,0,1), and point (0,0,0).
@@ -44,7 +44,7 @@ vtkQuadRotationalExtrusionFilter::vtkQuadRotationalExtrusionFilter()
   this->Resolution = 12; // 30 degree increments
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkQuadRotationalExtrusionFilter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
@@ -52,7 +52,7 @@ int vtkQuadRotationalExtrusionFilter::FillInputPortInformation(int, vtkInformati
   return 1;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkQuadRotationalExtrusionFilter::RotateAroundAxis(double blockAngle, vtkIdType numPts,
   vtkPoints* inPts, vtkPoints* newPts, vtkPointData* pd, vtkPointData* outPD)
 {
@@ -155,7 +155,7 @@ int vtkQuadRotationalExtrusionFilter::RotateAroundAxis(double blockAngle, vtkIdT
   return 1;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkQuadRotationalExtrusionFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -497,7 +497,7 @@ int vtkQuadRotationalExtrusionFilter::RequestData(vtkInformation* vtkNotUsed(req
   return 1;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQuadRotationalExtrusionFilter::RemoveAllPerBlockAngles()
 {
   vtkDebugMacro(<< "RemoveAllPerBlockAngles\n");
@@ -505,7 +505,7 @@ void vtkQuadRotationalExtrusionFilter::RemoveAllPerBlockAngles()
   this->Modified();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQuadRotationalExtrusionFilter::AddPerBlockAngle(vtkIdType blockId, double angle)
 {
   vtkDebugMacro(<< "PerBlockAngles[" << blockId << "]=" << angle << "\n");
@@ -513,7 +513,7 @@ void vtkQuadRotationalExtrusionFilter::AddPerBlockAngle(vtkIdType blockId, doubl
   this->Modified();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQuadRotationalExtrusionFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

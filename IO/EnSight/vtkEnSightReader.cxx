@@ -34,13 +34,13 @@
 #include <string>
 #include <vector>
 
-//----------------------------------------------------------------------------
-typedef std::vector<vtkSmartPointer<vtkIdList> > vtkEnSightReaderCellIdsTypeBase;
+//------------------------------------------------------------------------------
+typedef std::vector<vtkSmartPointer<vtkIdList>> vtkEnSightReaderCellIdsTypeBase;
 class vtkEnSightReaderCellIdsType : public vtkEnSightReaderCellIdsTypeBase
 {
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkEnSightReader::vtkEnSightReader()
 {
   this->MeasuredFileName = nullptr;
@@ -93,7 +93,7 @@ vtkEnSightReader::vtkEnSightReader()
   this->NumberOfNewOutputs = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkEnSightReader::~vtkEnSightReader()
 {
   int i;
@@ -160,14 +160,14 @@ vtkEnSightReader::~vtkEnSightReader()
   this->ActualTimeValue = 0.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkEnSightReader::ClearForNewCaseFileName()
 {
   this->UnstructuredPartIds->Reset();
   vtkGenericEnSightReader::ClearForNewCaseFileName();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -395,7 +395,7 @@ int vtkEnSightReader::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -440,7 +440,7 @@ int vtkEnSightReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   return this->CaseFileRead;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightReader::ReadCaseFileGeometry(char* line)
 {
   char subLine[256];
@@ -508,7 +508,7 @@ int vtkEnSightReader::ReadCaseFileGeometry(char* line)
   return lineRead;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightReader::ReadCaseFileVariable(char* line)
 {
   char subLine[256], subLine2[256];
@@ -925,7 +925,7 @@ int vtkEnSightReader::ReadCaseFileVariable(char* line)
   return lineRead;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightReader::ReadCaseFileTime(char* line)
 {
   char formatLine[256];
@@ -1195,7 +1195,7 @@ int vtkEnSightReader::ReadCaseFileTime(char* line)
   return lineRead;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightReader::ReadCaseFileFile(char* line)
 {
   int fileSet, numTimeSteps, filenameNum, lineRead;
@@ -1241,7 +1241,7 @@ int vtkEnSightReader::ReadCaseFileFile(char* line)
   return lineRead;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightReader::ReadCaseFile()
 {
   char line[256];
@@ -1400,7 +1400,7 @@ int vtkEnSightReader::ReadCaseFile()
   //  return ret;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightReader::ReadVariableFiles(vtkMultiBlockDataSet* output)
 {
   int i, j;
@@ -1700,7 +1700,7 @@ int vtkEnSightReader::ReadVariableFiles(vtkMultiBlockDataSet* output)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkEnSightReader::AddVariableFileName(const char* fileName1, const char* fileName2)
 {
   int size;
@@ -1775,7 +1775,7 @@ void vtkEnSightReader::AddVariableFileName(const char* fileName1, const char* fi
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkEnSightReader::AddVariableDescription(const char* description)
 {
   int size;
@@ -1847,7 +1847,7 @@ void vtkEnSightReader::AddVariableDescription(const char* description)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkEnSightReader::AddVariableType()
 {
   int size;
@@ -1905,7 +1905,7 @@ void vtkEnSightReader::AddVariableType()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightReader::GetSectionType(const char* line)
 {
   if (strncmp(line, "coordinates", 5) == 0)
@@ -1926,7 +1926,7 @@ int vtkEnSightReader::GetSectionType(const char* line)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSightReader::GetElementType(const char* line)
 {
   if (strncmp(line, "point", 5) == 0)
@@ -2043,7 +2043,7 @@ void vtkEnSightReader::ReplaceWildcards(char* filename, int num)
   strcpy(filename, filenameTmp);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkEnSightReader::RemoveLeadingBlanks(char* line)
 {
   int count = 0;
@@ -2054,7 +2054,7 @@ void vtkEnSightReader::RemoveLeadingBlanks(char* line)
   memmove(line, line + count, strlen(line + count) + 1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdList* vtkEnSightReader::GetCellIds(int index, int cellType)
 {
   // Check argument range.
@@ -2098,7 +2098,7 @@ vtkIdList* vtkEnSightReader::GetCellIds(int index, int cellType)
   return (*this->CellIds)[cellIdsIndex];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkEnSightReader::AddToBlock(
   vtkMultiBlockDataSet* output, unsigned int blockNo, vtkDataSet* dataset)
 {
@@ -2112,21 +2112,21 @@ void vtkEnSightReader::AddToBlock(
   output->SetBlock(blockNo, dataset);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataSet* vtkEnSightReader::GetDataSetFromBlock(
   vtkMultiBlockDataSet* output, unsigned int blockno)
 {
   return vtkDataSet::SafeDownCast(output->GetBlock(blockno));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkEnSightReader::SetBlockName(
   vtkMultiBlockDataSet* output, unsigned int blockNo, const char* name)
 {
   output->GetMetaData(blockNo)->Set(vtkCompositeDataSet::NAME(), name);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkEnSightReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

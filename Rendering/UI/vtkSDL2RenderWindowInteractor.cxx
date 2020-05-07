@@ -34,17 +34,17 @@
 
 vtkStandardNewMacro(vtkSDL2RenderWindowInteractor);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct object so that light follows camera motion.
 vtkSDL2RenderWindowInteractor::vtkSDL2RenderWindowInteractor()
   : StartedMessageLoop(false)
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSDL2RenderWindowInteractor::~vtkSDL2RenderWindowInteractor() {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSDL2RenderWindowInteractor::ProcessEvents()
 {
   // No need to do anything if this is a 'mapped' interactor
@@ -225,7 +225,7 @@ void mainLoopCallback(void* arg)
 }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSDL2RenderWindowInteractor::StartEventLoop()
 {
   // No need to do anything if this is a 'mapped' interactor
@@ -245,7 +245,7 @@ void vtkSDL2RenderWindowInteractor::StartEventLoop()
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSDL2RenderWindowInteractor::AddEventHandler()
 {
   // No need to do anything if this is a 'mapped' interactor
@@ -261,7 +261,7 @@ void vtkSDL2RenderWindowInteractor::AddEventHandler()
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Begin processing keyboard strokes.
 void vtkSDL2RenderWindowInteractor::Initialize()
 {
@@ -291,7 +291,7 @@ void vtkSDL2RenderWindowInteractor::Initialize()
   this->Size[1] = size[1];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSDL2RenderWindowInteractor::TerminateApp(void)
 {
   this->Done = true;
@@ -325,7 +325,7 @@ Uint32 timerCallback(Uint32 interval, void* param)
 }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSDL2RenderWindowInteractor::InternalCreateTimer(
   int timerId, int vtkNotUsed(timerType), unsigned long duration)
 {
@@ -334,7 +334,7 @@ int vtkSDL2RenderWindowInteractor::InternalCreateTimer(
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSDL2RenderWindowInteractor::InternalDestroyTimer(int platformTimerId)
 {
   int tid = this->GetVTKTimerId(platformTimerId);
@@ -343,14 +343,14 @@ int vtkSDL2RenderWindowInteractor::InternalDestroyTimer(int platformTimerId)
   return SDL_RemoveTimer(platformTimerId);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSDL2RenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "StartedMessageLoop: " << this->StartedMessageLoop << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSDL2RenderWindowInteractor::ExitCallback()
 {
   if (this->HasObserver(vtkCommand::ExitEvent))

@@ -56,7 +56,7 @@ vtkStandardNewMacro(vtkCutter);
 vtkCxxSetObjectMacro(vtkCutter, CutFunction, vtkImplicitFunction);
 vtkCxxSetObjectMacro(vtkCutter, Locator, vtkIncrementalPointLocator);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct with user-specified implicit function; initial value of 0.0; and
 // generating cut scalars turned off.
 vtkCutter::vtkCutter(vtkImplicitFunction* cf)
@@ -75,7 +75,7 @@ vtkCutter::vtkCutter(vtkImplicitFunction* cf)
   this->RectilinearSynchronizedTemplates = vtkRectilinearSynchronizedTemplates::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCutter::~vtkCutter()
 {
   this->ContourValues->Delete();
@@ -88,7 +88,7 @@ vtkCutter::~vtkCutter()
   this->RectilinearSynchronizedTemplates->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Overload standard modified time function. If cut functions is modified,
 // or contour values modified, then this object is modified as well.
 vtkMTimeType vtkCutter::GetMTime()
@@ -108,7 +108,7 @@ vtkMTimeType vtkCutter::GetMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCutter::StructuredPointsCutter(vtkDataSet* dataSetInput, vtkPolyData* thisOutput,
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -183,7 +183,7 @@ void vtkCutter::StructuredPointsCutter(vtkDataSet* dataSetInput, vtkPolyData* th
   contourData->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCutter::StructuredGridCutter(vtkDataSet* dataSetInput, vtkPolyData* thisOutput)
 {
   vtkStructuredGrid* input = vtkStructuredGrid::SafeDownCast(dataSetInput);
@@ -238,7 +238,7 @@ void vtkCutter::StructuredGridCutter(vtkDataSet* dataSetInput, vtkPolyData* this
   contourData->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCutter::RectilinearGridCutter(vtkDataSet* dataSetInput, vtkPolyData* thisOutput)
 {
   vtkRectilinearGrid* input = vtkRectilinearGrid::SafeDownCast(dataSetInput);
@@ -298,7 +298,7 @@ void vtkCutter::RectilinearGridCutter(vtkDataSet* dataSetInput, vtkPolyData* thi
 
 namespace
 {
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Find the first visible cell in a vtkStructuredGrid.
 //
 vtkIdType GetFirstVisibleCell(vtkDataSet* DataSetInput)
@@ -322,7 +322,7 @@ vtkIdType GetFirstVisibleCell(vtkDataSet* DataSetInput)
 }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Cut through data generating surface.
 //
 int vtkCutter::RequestData(
@@ -433,7 +433,7 @@ int vtkCutter::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCutter::GetCellTypeDimensions(unsigned char* cellTypeDimensions)
 {
   // Assume most cells will be 3d.
@@ -471,7 +471,7 @@ void vtkCutter::GetCellTypeDimensions(unsigned char* cellTypeDimensions)
   cellTypeDimensions[VTK_BEZIER_QUADRILATERAL] = 2;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCutter::DataSetCutter(vtkDataSet* input, vtkPolyData* output)
 {
   vtkIdType cellId;
@@ -723,7 +723,7 @@ void vtkCutter::DataSetCutter(vtkDataSet* input, vtkPolyData* output)
   output->Squeeze();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCutter::UnstructuredGridCutter(vtkDataSet* input, vtkPolyData* output)
 {
   vtkIdType i;
@@ -1031,7 +1031,7 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet* input, vtkPolyData* output)
   output->Squeeze();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify a spatial locator for merging points. By default,
 // an instance of vtkMergePoints is used.
 void vtkCutter::CreateDefaultLocator()
@@ -1044,7 +1044,7 @@ void vtkCutter::CreateDefaultLocator()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCutter::RequestUpdateExtent(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector*)
 {
@@ -1053,14 +1053,14 @@ int vtkCutter::RequestUpdateExtent(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCutter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCutter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

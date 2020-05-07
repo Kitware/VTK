@@ -24,7 +24,7 @@
 
 vtkStandardNewMacro(vtkStructuredGridOutlineFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // ComputeDivisionExtents has done most of the work for us.
 // Now just connect the points.
 int vtkStructuredGridOutlineFilter::RequestData(vtkInformation* vtkNotUsed(request),

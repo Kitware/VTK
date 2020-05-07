@@ -28,7 +28,7 @@
 
 #include "vtkRegressionTestImage.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class SystemFontRenderTest : public vtkContextItem
 {
 public:
@@ -38,7 +38,7 @@ public:
   bool Paint(vtkContext2D* painter) override;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestSystemFontRendering(int, char*[])
 {
   // Set up a 2D context view, context test object and add it to the scene

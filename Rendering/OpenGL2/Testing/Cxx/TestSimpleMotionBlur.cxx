@@ -31,7 +31,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkTextureObject.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestSimpleMotionBlur(int argc, char* argv[])
 {
   vtkNew<vtkRenderer> renderer;

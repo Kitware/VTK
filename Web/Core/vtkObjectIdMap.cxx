@@ -24,9 +24,9 @@
 
 struct vtkObjectIdMap::vtkInternals
 {
-  std::map<vtkTypeUInt32, vtkSmartPointer<vtkObject> > Object;
+  std::map<vtkTypeUInt32, vtkSmartPointer<vtkObject>> Object;
   std::map<vtkSmartPointer<vtkObject>, vtkTypeUInt32> GlobalId;
-  std::map<std::string, vtkWeakPointer<vtkObject> > ActiveObjects;
+  std::map<std::string, vtkWeakPointer<vtkObject>> ActiveObjects;
   vtkTypeUInt32 NextAvailableId;
 
   vtkInternals()
@@ -36,26 +36,26 @@ struct vtkObjectIdMap::vtkInternals
 };
 
 vtkStandardNewMacro(vtkObjectIdMap);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkObjectIdMap::vtkObjectIdMap()
   : Internals(new vtkInternals())
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkObjectIdMap::~vtkObjectIdMap()
 {
   delete this->Internals;
   this->Internals = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkObjectIdMap::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeUInt32 vtkObjectIdMap::GetGlobalId(vtkObject* obj)
 {
   if (obj == nullptr)
@@ -74,7 +74,7 @@ vtkTypeUInt32 vtkObjectIdMap::GetGlobalId(vtkObject* obj)
   return iter->second;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkObject* vtkObjectIdMap::GetVTKObject(vtkTypeUInt32 globalId)
 {
   auto iter = this->Internals->Object.find(globalId);
@@ -85,7 +85,7 @@ vtkObject* vtkObjectIdMap::GetVTKObject(vtkTypeUInt32 globalId)
   return iter->second;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeUInt32 vtkObjectIdMap::SetActiveObject(const char* objectType, vtkObject* obj)
 {
   if (objectType)
@@ -96,7 +96,7 @@ vtkTypeUInt32 vtkObjectIdMap::SetActiveObject(const char* objectType, vtkObject*
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkObject* vtkObjectIdMap::GetActiveObject(const char* objectType)
 {
   if (objectType)
@@ -106,7 +106,7 @@ vtkObject* vtkObjectIdMap::GetActiveObject(const char* objectType)
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkObjectIdMap::FreeObject(vtkObject* obj)
 {
   auto iter = this->Internals->GlobalId.find(obj);

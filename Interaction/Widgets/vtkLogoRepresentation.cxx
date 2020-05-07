@@ -34,7 +34,7 @@ vtkStandardNewMacro(vtkLogoRepresentation);
 vtkCxxSetObjectMacro(vtkLogoRepresentation, Image, vtkImageData);
 vtkCxxSetObjectMacro(vtkLogoRepresentation, ImageProperty, vtkProperty2D);
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLogoRepresentation::vtkLogoRepresentation()
 {
   // Initialize the data members
@@ -87,7 +87,7 @@ vtkLogoRepresentation::vtkLogoRepresentation()
   this->Position2Coordinate->SetValue(0.075, 0.075);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLogoRepresentation::~vtkLogoRepresentation()
 {
   if (this->Image)
@@ -102,7 +102,7 @@ vtkLogoRepresentation::~vtkLogoRepresentation()
   this->TextureActor->Delete();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLogoRepresentation::AdjustImageSize(double o[2], double borderSize[2], double imageSize[2])
 {
   // Scale the image to fit with in the border.
@@ -130,7 +130,7 @@ void vtkLogoRepresentation::AdjustImageSize(double o[2], double borderSize[2], d
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLogoRepresentation::BuildRepresentation()
 {
   if (this->GetMTime() > this->BuildTime ||
@@ -179,21 +179,21 @@ void vtkLogoRepresentation::BuildRepresentation()
   this->Superclass::BuildRepresentation();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLogoRepresentation::GetActors2D(vtkPropCollection* pc)
 {
   pc->AddItem(this->TextureActor);
   this->Superclass::GetActors2D(pc);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLogoRepresentation::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->TextureActor->ReleaseGraphicsResources(w);
   this->Superclass::ReleaseGraphicsResources(w);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkLogoRepresentation::RenderOverlay(vtkViewport* v)
 {
   int count = 0;
@@ -210,7 +210,7 @@ int vtkLogoRepresentation::RenderOverlay(vtkViewport* v)
   return count;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLogoRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

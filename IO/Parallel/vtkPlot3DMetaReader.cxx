@@ -67,7 +67,7 @@ struct vtkPlot3DMetaReaderInternals
   }
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPlot3DMetaReader::vtkPlot3DMetaReader()
 {
   this->SetNumberOfInputPorts(0);
@@ -95,7 +95,7 @@ vtkPlot3DMetaReader::vtkPlot3DMetaReader()
   this->Internal->FunctionMap["function-names"] = &vtkPlot3DMetaReader::SetFunctionNames;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPlot3DMetaReader::~vtkPlot3DMetaReader()
 {
   this->Reader->Delete();
@@ -105,7 +105,7 @@ vtkPlot3DMetaReader::~vtkPlot3DMetaReader()
   delete[] this->FileName;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlot3DMetaReader::SetAutoDetectFormat(Json::Value* val)
 {
   bool value = val->asBool();
@@ -119,7 +119,7 @@ void vtkPlot3DMetaReader::SetAutoDetectFormat(Json::Value* val)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlot3DMetaReader::SetByteOrder(Json::Value* val)
 {
   std::string value = val->asString();
@@ -140,7 +140,7 @@ void vtkPlot3DMetaReader::SetByteOrder(Json::Value* val)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlot3DMetaReader::SetLanguage(Json::Value* val)
 {
   std::string value = val->asString();
@@ -161,7 +161,7 @@ void vtkPlot3DMetaReader::SetLanguage(Json::Value* val)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlot3DMetaReader::SetPrecision(Json::Value* val)
 {
   int value = val->asInt();
@@ -182,7 +182,7 @@ void vtkPlot3DMetaReader::SetPrecision(Json::Value* val)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlot3DMetaReader::SetMultiGrid(Json::Value* val)
 {
   bool value = val->asBool();
@@ -196,7 +196,7 @@ void vtkPlot3DMetaReader::SetMultiGrid(Json::Value* val)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlot3DMetaReader::SetFormat(Json::Value* val)
 {
   std::string value = val->asString();
@@ -217,7 +217,7 @@ void vtkPlot3DMetaReader::SetFormat(Json::Value* val)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlot3DMetaReader::SetBlanking(Json::Value* val)
 {
   bool value = val->asBool();
@@ -231,7 +231,7 @@ void vtkPlot3DMetaReader::SetBlanking(Json::Value* val)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlot3DMetaReader::Set2D(Json::Value* val)
 {
   bool value = val->asBool();
@@ -245,21 +245,21 @@ void vtkPlot3DMetaReader::Set2D(Json::Value* val)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlot3DMetaReader::SetR(Json::Value* val)
 {
   double R = val->asDouble();
   this->Reader->SetR(R);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlot3DMetaReader::SetGamma(Json::Value* val)
 {
   double gamma = val->asDouble();
   this->Reader->SetGamma(gamma);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlot3DMetaReader::AddFunctions(Json::Value* val)
 {
   const Json::Value& functions = *val;
@@ -269,7 +269,7 @@ void vtkPlot3DMetaReader::AddFunctions(Json::Value* val)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlot3DMetaReader::SetFileNames(Json::Value* val)
 {
   const Json::Value& filenames = *val;
@@ -318,7 +318,7 @@ void vtkPlot3DMetaReader::SetFileNames(Json::Value* val)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlot3DMetaReader::SetFunctionNames(Json::Value* val)
 {
   const Json::Value& functionNames = *val;
@@ -328,7 +328,7 @@ void vtkPlot3DMetaReader::SetFunctionNames(Json::Value* val)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPlot3DMetaReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -402,7 +402,7 @@ int vtkPlot3DMetaReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPlot3DMetaReader::RequestData(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
@@ -481,7 +481,7 @@ int vtkPlot3DMetaReader::RequestData(
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlot3DMetaReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

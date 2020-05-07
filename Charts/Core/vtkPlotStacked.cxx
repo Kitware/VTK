@@ -38,7 +38,7 @@
 #include <map>
 #include <vector>
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 namespace
 {
 
@@ -442,7 +442,7 @@ public:
 
 vtkStandardNewMacro(vtkPlotStackedSegment);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 class vtkPlotStackedPrivate
 {
@@ -472,7 +472,7 @@ public:
   {
     int colorInSeries = 0;
     bool useColorSeries = this->Segments.size() > 1;
-    for (std::vector<vtkSmartPointer<vtkPlotStackedSegment> >::iterator it = this->Segments.begin();
+    for (std::vector<vtkSmartPointer<vtkPlotStackedSegment>>::iterator it = this->Segments.begin();
          it != this->Segments.end(); ++it)
     {
       if (useColorSeries && colorSeries)
@@ -486,7 +486,7 @@ public:
     // Depends on the fact that we check the segments in order. Each
     // Segment only worrys about its own total extent from the base.
     int index = 0;
-    for (std::vector<vtkSmartPointer<vtkPlotStackedSegment> >::iterator it = this->Segments.begin();
+    for (std::vector<vtkSmartPointer<vtkPlotStackedSegment>>::iterator it = this->Segments.begin();
          it != this->Segments.end(); ++it)
     {
       if ((*it)->GetNearestPoint(point, tol, location))
@@ -503,7 +503,7 @@ public:
     // Depends on the fact that we check the segments in order. Each
     // Segment only worrys about its own total extent from the base.
     double segment_bounds[4];
-    for (std::vector<vtkSmartPointer<vtkPlotStackedSegment> >::iterator it = this->Segments.begin();
+    for (std::vector<vtkSmartPointer<vtkPlotStackedSegment>>::iterator it = this->Segments.begin();
          it != this->Segments.end(); ++it)
     {
       (*it)->GetBounds(segment_bounds);
@@ -528,23 +528,23 @@ public:
 
   void SelectPoints(const vtkVector2f& min, const vtkVector2f& max, vtkIdTypeArray* selection)
   {
-    for (std::vector<vtkSmartPointer<vtkPlotStackedSegment> >::iterator it = this->Segments.begin();
+    for (std::vector<vtkSmartPointer<vtkPlotStackedSegment>>::iterator it = this->Segments.begin();
          it != this->Segments.end(); ++it)
     {
       (*it)->SelectPoints(min, max, selection);
     }
   }
 
-  std::vector<vtkSmartPointer<vtkPlotStackedSegment> > Segments;
+  std::vector<vtkSmartPointer<vtkPlotStackedSegment>> Segments;
   vtkPlotStacked* Stacked;
   std::map<int, std::string> AdditionalSeries;
   double UnscaledInputBounds[4];
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotStacked);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPlotStacked::vtkPlotStacked()
 {
   this->Private = new vtkPlotStackedPrivate(this);
@@ -556,7 +556,7 @@ vtkPlotStacked::vtkPlotStacked()
   this->LogY = false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPlotStacked::~vtkPlotStacked()
 {
   if (this->BaseBadPoints)
@@ -573,25 +573,25 @@ vtkPlotStacked::~vtkPlotStacked()
   delete this->Private;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlotStacked::SetColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
   this->Brush->SetColor(r, g, b, a);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlotStacked::SetColor(double r, double g, double b)
 {
   this->Brush->SetColorF(r, g, b);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlotStacked::GetColor(double rgb[3])
 {
   this->Brush->GetColorF(rgb);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlotStacked::Update()
 {
   if (!this->Visible)
@@ -622,7 +622,7 @@ void vtkPlotStacked::Update()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPlotStacked::Paint(vtkContext2D* painter)
 {
   // This is where everything should be drawn, or dispatched to other methods.
@@ -648,7 +648,7 @@ bool vtkPlotStacked::Paint(vtkContext2D* painter)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPlotStacked::PaintLegend(vtkContext2D* painter, const vtkRectf& rect, int legendIndex)
 {
   if (this->ColorSeries)
@@ -669,13 +669,13 @@ bool vtkPlotStacked::PaintLegend(vtkContext2D* painter, const vtkRectf& rect, in
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlotStacked::GetBounds(double bounds[4])
 {
   this->Private->GetBounds(bounds);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlotStacked::GetUnscaledInputBounds(double bounds[4])
 {
   for (int i = 0; i < 4; ++i)
@@ -684,7 +684,7 @@ void vtkPlotStacked::GetUnscaledInputBounds(double bounds[4])
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkPlotStacked::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tol,
   vtkVector2f* location, vtkIdType* vtkNotUsed(segmentId))
 {
@@ -709,7 +709,7 @@ vtkIdType vtkPlotStacked::GetNearestPoint(const vtkVector2f& point, const vtkVec
   return this->Private->GetNearestPoint(point, tol, location);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPlotStacked::SelectPoints(const vtkVector2f& min, const vtkVector2f& max)
 {
   if (!this->Selection)
@@ -723,7 +723,7 @@ bool vtkPlotStacked::SelectPoints(const vtkVector2f& min, const vtkVector2f& max
   return this->Selection->GetNumberOfTuples() > 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStringArray* vtkPlotStacked::GetLabels()
 {
   // If the label string is empty, return the y column name
@@ -755,7 +755,7 @@ vtkStringArray* vtkPlotStacked::GetLabels()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPlotStacked::UpdateTableCache(vtkTable* table)
 {
   // Get the x and ybase and yextent arrays (index 0 1 2 respectively)
@@ -804,13 +804,13 @@ bool vtkPlotStacked::UpdateTableCache(vtkTable* table)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlotStacked::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkPlotStacked::SetInputArray(int index, const vtkStdString& name)
 {
@@ -825,7 +825,7 @@ void vtkPlotStacked::SetInputArray(int index, const vtkStdString& name)
   this->AutoLabels = nullptr; // No longer valid
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlotStacked::SetColorSeries(vtkColorSeries* colorSeries)
 {
   if (this->ColorSeries == colorSeries)
@@ -836,7 +836,7 @@ void vtkPlotStacked::SetColorSeries(vtkColorSeries* colorSeries)
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkColorSeries* vtkPlotStacked::GetColorSeries()
 {
   return this->ColorSeries;

@@ -43,7 +43,7 @@ vtkCxxSetObjectMacro(
 
 const double vtkGenericStreamTracer::EPSILON = 1.0E-12;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGenericStreamTracer::vtkGenericStreamTracer()
 {
   this->SetNumberOfInputPorts(2);
@@ -84,7 +84,7 @@ vtkGenericStreamTracer::vtkGenericStreamTracer()
   this->InterpolatorPrototype = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGenericStreamTracer::~vtkGenericStreamTracer()
 {
   this->SetIntegrator(nullptr);
@@ -92,13 +92,13 @@ vtkGenericStreamTracer::~vtkGenericStreamTracer()
   this->SetInterpolatorPrototype(nullptr);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenericStreamTracer::SetSourceData(vtkDataSet* source)
 {
   this->SetInputDataInternal(1, source);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataSet* vtkGenericStreamTracer::GetSource()
 {
   if (this->GetNumberOfInputConnections(1) < 1) // because the port is optional
@@ -108,13 +108,13 @@ vtkDataSet* vtkGenericStreamTracer::GetSource()
   return static_cast<vtkDataSet*>(this->GetExecutive()->GetInputData(1, 0));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenericStreamTracer::AddInputData(vtkGenericDataSet* input)
 {
   this->Superclass::AddInputData(input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGenericStreamTracer ::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (!this->Superclass::FillInputPortInformation(port, info))
@@ -133,7 +133,7 @@ int vtkGenericStreamTracer ::FillInputPortInformation(int port, vtkInformation* 
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGenericStreamTracer::GetIntegratorType()
 {
   if (!this->Integrator)
@@ -155,7 +155,7 @@ int vtkGenericStreamTracer::GetIntegratorType()
   return UNKNOWN;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenericStreamTracer::SetIntegratorType(int type)
 {
   vtkInitialValueProblemSolver* ivp = nullptr;
@@ -181,7 +181,7 @@ void vtkGenericStreamTracer::SetIntegratorType(int type)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenericStreamTracer::SetIntervalInformation(
   int unit, vtkGenericStreamTracer::IntervalInformation& currentValues)
 {
@@ -203,7 +203,7 @@ void vtkGenericStreamTracer::SetIntervalInformation(
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenericStreamTracer::SetIntervalInformation(
   int unit, double interval, vtkGenericStreamTracer::IntervalInformation& currentValues)
 {
@@ -218,12 +218,12 @@ void vtkGenericStreamTracer::SetIntervalInformation(
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenericStreamTracer::SetMaximumPropagation(int unit, double max)
 {
   this->SetIntervalInformation(unit, max, this->MaximumPropagation);
 }
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenericStreamTracer::SetMaximumPropagation(double max)
 {
   if (max == this->MaximumPropagation.Interval)
@@ -233,33 +233,33 @@ void vtkGenericStreamTracer::SetMaximumPropagation(double max)
   this->MaximumPropagation.Interval = max;
   this->Modified();
 }
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenericStreamTracer::SetMaximumPropagationUnit(int unit)
 {
   this->SetIntervalInformation(unit, this->MaximumPropagation);
 }
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGenericStreamTracer::GetMaximumPropagationUnit()
 {
   return this->MaximumPropagation.Unit;
 }
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkGenericStreamTracer::GetMaximumPropagation()
 {
   return this->MaximumPropagation.Interval;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenericStreamTracer::SetMinimumIntegrationStep(int unit, double step)
 {
   this->SetIntervalInformation(unit, step, this->MinimumIntegrationStep);
 }
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenericStreamTracer::SetMinimumIntegrationStepUnit(int unit)
 {
   this->SetIntervalInformation(unit, this->MinimumIntegrationStep);
 }
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenericStreamTracer::SetMinimumIntegrationStep(double step)
 {
   if (step == this->MinimumIntegrationStep.Interval)
@@ -269,28 +269,28 @@ void vtkGenericStreamTracer::SetMinimumIntegrationStep(double step)
   this->MinimumIntegrationStep.Interval = step;
   this->Modified();
 }
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGenericStreamTracer::GetMinimumIntegrationStepUnit()
 {
   return this->MinimumIntegrationStep.Unit;
 }
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkGenericStreamTracer::GetMinimumIntegrationStep()
 {
   return this->MinimumIntegrationStep.Interval;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenericStreamTracer::SetMaximumIntegrationStep(int unit, double step)
 {
   this->SetIntervalInformation(unit, step, this->MaximumIntegrationStep);
 }
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenericStreamTracer::SetMaximumIntegrationStepUnit(int unit)
 {
   this->SetIntervalInformation(unit, this->MaximumIntegrationStep);
 }
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenericStreamTracer::SetMaximumIntegrationStep(double step)
 {
   if (step == this->MaximumIntegrationStep.Interval)
@@ -300,28 +300,28 @@ void vtkGenericStreamTracer::SetMaximumIntegrationStep(double step)
   this->MaximumIntegrationStep.Interval = step;
   this->Modified();
 }
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGenericStreamTracer::GetMaximumIntegrationStepUnit()
 {
   return this->MaximumIntegrationStep.Unit;
 }
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkGenericStreamTracer::GetMaximumIntegrationStep()
 {
   return this->MaximumIntegrationStep.Interval;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenericStreamTracer::SetInitialIntegrationStep(int unit, double step)
 {
   this->SetIntervalInformation(unit, step, this->InitialIntegrationStep);
 }
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenericStreamTracer::SetInitialIntegrationStepUnit(int unit)
 {
   this->SetIntervalInformation(unit, this->InitialIntegrationStep);
 }
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenericStreamTracer::SetInitialIntegrationStep(double step)
 {
   if (step == this->InitialIntegrationStep.Interval)
@@ -331,18 +331,18 @@ void vtkGenericStreamTracer::SetInitialIntegrationStep(double step)
   this->InitialIntegrationStep.Interval = step;
   this->Modified();
 }
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGenericStreamTracer::GetInitialIntegrationStepUnit()
 {
   return this->InitialIntegrationStep.Unit;
 }
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkGenericStreamTracer::GetInitialIntegrationStep()
 {
   return this->InitialIntegrationStep.Interval;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkGenericStreamTracer::ConvertToTime(
   vtkGenericStreamTracer::IntervalInformation& interval, double cellLength, double speed)
 {
@@ -362,7 +362,7 @@ double vtkGenericStreamTracer::ConvertToTime(
   return retVal;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkGenericStreamTracer::ConvertToLength(
   vtkGenericStreamTracer::IntervalInformation& interval, double cellLength, double speed)
 {
@@ -382,7 +382,7 @@ double vtkGenericStreamTracer::ConvertToLength(
   return retVal;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkGenericStreamTracer::ConvertToCellLength(
   vtkGenericStreamTracer::IntervalInformation& interval, double cellLength, double speed)
 {
@@ -402,7 +402,7 @@ double vtkGenericStreamTracer::ConvertToCellLength(
   return retVal;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkGenericStreamTracer::ConvertToUnit(
   vtkGenericStreamTracer::IntervalInformation& interval, int unit, double cellLength, double speed)
 {
@@ -422,7 +422,7 @@ double vtkGenericStreamTracer::ConvertToUnit(
   return retVal;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenericStreamTracer::ConvertIntervals(
   double& step, double& minStep, double& maxStep, int direction, double cellLength, double speed)
 {
@@ -445,7 +445,7 @@ void vtkGenericStreamTracer::ConvertIntervals(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenericStreamTracer::CalculateVorticity(vtkGenericAdaptorCell* cell, double pcoords[3],
   vtkGenericAttribute* attribute, double vorticity[3])
 {
@@ -461,7 +461,7 @@ void vtkGenericStreamTracer::CalculateVorticity(vtkGenericAdaptorCell* cell, dou
   vorticity[2] = derivs[3] - derivs[1];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenericStreamTracer::InitializeSeeds(
   vtkDataArray*& seeds, vtkIdList*& seedIds, vtkIntArray*& integrationDirections)
 {
@@ -553,7 +553,7 @@ void vtkGenericStreamTracer::InitializeSeeds(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGenericStreamTracer::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -594,7 +594,7 @@ int vtkGenericStreamTracer::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGenericStreamTracer::CheckInputs(
   vtkGenericInterpolatedVelocityField*& func, vtkInformationVector** inputVector)
 {
@@ -676,7 +676,7 @@ int vtkGenericStreamTracer::CheckInputs(
   return VTK_OK;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenericStreamTracer::Integrate(vtkGenericDataSet* input0, vtkPolyData* output,
   vtkDataArray* seedSource, vtkIdList* seedIds, vtkIntArray* integrationDirections,
   double lastPoint[3], vtkGenericInterpolatedVelocityField* func)
@@ -1124,7 +1124,7 @@ void vtkGenericStreamTracer::Integrate(vtkGenericDataSet* input0, vtkPolyData* o
   output->Squeeze();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenericStreamTracer::GenerateNormals(vtkPolyData* output, double* firstNormal)
 {
   // Useful pointers
@@ -1188,7 +1188,7 @@ void vtkGenericStreamTracer::GenerateNormals(vtkPolyData* output, double* firstN
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This is used by sub-classes in certain situations. It
 // does a lot less (for example, does not compute attributes)
 // than Integrate.
@@ -1255,7 +1255,7 @@ void vtkGenericStreamTracer::SimpleIntegrate(
   integrator->Delete();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenericStreamTracer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -1346,7 +1346,7 @@ void vtkGenericStreamTracer::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "InputVectorsSelection: " << this->InputVectorsSelection;
   }
 }
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenericStreamTracer::SetSourceConnection(vtkAlgorithmOutput* algOutput)
 {
   this->SetInputConnection(1, algOutput);

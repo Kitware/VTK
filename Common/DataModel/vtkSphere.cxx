@@ -18,7 +18,7 @@
 
 vtkStandardNewMacro(vtkSphere);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct sphere with center at (0,0,0) and radius=0.5.
 vtkSphere::vtkSphere()
 {
@@ -29,7 +29,7 @@ vtkSphere::vtkSphere()
   this->Center[2] = 0.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Evaluate sphere equation ((x-x0)^2 + (y-y0)^2 + (z-z0)^2) - R^2.
 double vtkSphere::EvaluateFunction(double x[3])
 {
@@ -39,7 +39,7 @@ double vtkSphere::EvaluateFunction(double x[3])
     this->Radius * this->Radius);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Evaluate sphere gradient.
 void vtkSphere::EvaluateGradient(double x[3], double n[3])
 {
@@ -56,7 +56,7 @@ void vtkSphere::EvaluateGradient(double x[3], double n[3])
     _x[1] = _y[1];                                                                                 \
     _x[2] = _y[2];                                                                                 \
   }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Inspired by Graphics Gems Vol. I ("An Efficient Bounding Sphere" by Jack Ritter).
 // The algorithm works in two parts: first an initial estimate of the largest sphere;
 // second an adjustment to the sphere to make sure that it includes all the points.
@@ -183,7 +183,7 @@ void vtkSphereComputeBoundingSphere(T* pts, vtkIdType numPts, T sphere[4], vtkId
 // grow the bounding sphere if the remaining spheres are not contained within
 // it. The hints[2] array indicates two spheres that are expected to be the
 // farthest apart.
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T>
 void vtkSphereComputeBoundingSphere(
   T** spheres, vtkIdType numSpheres, T sphere[4], vtkIdType hints[2])
@@ -330,32 +330,32 @@ void vtkSphereComputeBoundingSphere(
 #undef VTK_ASSIGN_SPHERE
 
 // Type specific wrappers for the templated functions below
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphere::ComputeBoundingSphere(
   float* pts, vtkIdType numPts, float sphere[4], vtkIdType hints[2])
 {
   vtkSphereComputeBoundingSphere(pts, numPts, sphere, hints);
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphere::ComputeBoundingSphere(
   double* pts, vtkIdType numPts, double sphere[4], vtkIdType hints[2])
 {
   vtkSphereComputeBoundingSphere(pts, numPts, sphere, hints);
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphere::ComputeBoundingSphere(
   float** spheres, vtkIdType numSpheres, float sphere[4], vtkIdType hints[2])
 {
   vtkSphereComputeBoundingSphere(spheres, numSpheres, sphere, hints);
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphere::ComputeBoundingSphere(
   double** spheres, vtkIdType numSpheres, double sphere[4], vtkIdType hints[2])
 {
   vtkSphereComputeBoundingSphere(spheres, numSpheres, sphere, hints);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphere::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

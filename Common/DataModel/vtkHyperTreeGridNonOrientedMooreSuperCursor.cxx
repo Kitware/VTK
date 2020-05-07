@@ -29,7 +29,7 @@ vtkStandardNewMacro(vtkHyperTreeGridNonOrientedMooreSuperCursor);
 
 #include "vtkHyperTreeGridNonOrientedMooreSuperCursorData.cxx"
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridNonOrientedMooreSuperCursor::Initialize(
   vtkHyperTreeGrid* grid, vtkIdType treeIndex, bool create)
 {
@@ -306,7 +306,7 @@ void vtkHyperTreeGridNonOrientedMooreSuperCursor::Initialize(
   } // switch Dimension
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkHyperTreeGridNonOrientedMooreSuperCursor::GetCornerCursors(
   unsigned int c, unsigned int l, vtkIdList* leaves)
 {
@@ -361,15 +361,15 @@ bool vtkHyperTreeGridNonOrientedMooreSuperCursor::GetCornerCursors(
   return owner;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridNonOrientedMooreSuperCursor::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "--vtkHyperTreeGridNonOrientedMooreSuperCursor--" << endl;
   vtkHyperTreeGridNonOrientedSuperCursor::PrintSelf(os, indent);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHyperTreeGridNonOrientedMooreSuperCursor::~vtkHyperTreeGridNonOrientedMooreSuperCursor() =
   default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------

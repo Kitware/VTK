@@ -27,9 +27,9 @@
 #include "vtkAppendPolyData.h"
 #include "vtkCubeSource.h"
 //
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkModifiedBSPTree);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 //
 enum
@@ -56,13 +56,13 @@ vtkModifiedBSPTree::vtkModifiedBSPTree()
   //
   this->npn = this->nln = this->tot_depth = 0;
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkModifiedBSPTree::~vtkModifiedBSPTree()
 {
   this->FreeSearchStructure();
   this->FreeCellBounds();
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkModifiedBSPTree::FreeSearchStructure()
 {
   delete this->mRoot;
@@ -70,7 +70,7 @@ void vtkModifiedBSPTree::FreeSearchStructure()
   this->Level = 0;
   this->npn = this->nln = this->tot_depth = 0;
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 //////////////////////////////////////////////////////////////////////////////
 // Here's the stuff for spatial subdivision
@@ -140,9 +140,9 @@ extern "C" int __compareMax(const void* pA, const void* B)
   }
 }
 
-//---------------------------------------------------------------------------
-//---------------------------------------------------------------------------
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkModifiedBSPTree::BuildLocator()
 {
   if (this->LazyEvaluation)
@@ -151,7 +151,7 @@ void vtkModifiedBSPTree::BuildLocator()
   }
   this->ForceBuildLocator();
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkModifiedBSPTree::BuildLocatorIfNeeded()
 {
   if (this->LazyEvaluation)
@@ -164,7 +164,7 @@ void vtkModifiedBSPTree::BuildLocatorIfNeeded()
     }
   }
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkModifiedBSPTree::ForceBuildLocator()
 {
   //
@@ -182,7 +182,7 @@ void vtkModifiedBSPTree::ForceBuildLocator()
   }
   this->BuildLocatorInternal();
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkModifiedBSPTree::BuildLocatorInternal()
 {
   //
@@ -252,7 +252,7 @@ void vtkModifiedBSPTree::BuildLocatorInternal()
                 << "Average Depth " << av_depth << " Original : " << numCells);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 // The main BSP subdivision routine : The code which does the division is only
 // a small part of this, the rest is just bookkeeping - it looks worse than it is.
@@ -541,9 +541,9 @@ public:
 };
 
 typedef std::vector<_box> boxlist;
-typedef std::stack<BSPNode*, std::vector<BSPNode*> > nodestack;
+typedef std::stack<BSPNode*, std::vector<BSPNode*>> nodestack;
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkModifiedBSPTree::GenerateRepresentation(int level, vtkPolyData* pd)
 {
   nodestack ns;
@@ -595,7 +595,7 @@ void vtkModifiedBSPTree::GenerateRepresentation(int level, vtkPolyData* pd)
   polys->Delete();
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkModifiedBSPTree::GenerateRepresentationLeafs(vtkPolyData* pd)
 {
   GenerateRepresentation(-1, pd);
@@ -631,7 +631,7 @@ static double _getMinDistNEG_Z(const double origin[3], const double dir[3], cons
   return ((B[5] - origin[2]) / dir[2]);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int BSPNode::getDominantAxis(const double dir[3])
 {
   double tX = (dir[0] > 0) ? dir[0] : -dir[0];
@@ -650,7 +650,7 @@ int BSPNode::getDominantAxis(const double dir[3])
     return ((dir[2] > 0) ? POS_Z : NEG_Z);
   }
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkModifiedBSPTree::IntersectWithLine(const double p1[3], const double p2[3], double tol,
   double& t, double x[3], double pcoords[3], int& subId, vtkIdType& cellId, vtkGenericCell* cell)
 {
@@ -661,7 +661,7 @@ int vtkModifiedBSPTree::IntersectWithLine(const double p1[3], const double p2[3]
   }
   return hit;
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkModifiedBSPTree::IntersectWithLine(const double p1[3], const double p2[3], double tol,
   double& t, double x[3], double pcoords[3], int& subId, vtkIdType& cellId)
 {
@@ -805,14 +805,14 @@ int vtkModifiedBSPTree::IntersectWithLine(const double p1[3], const double p2[3]
   //
   return HIT;
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 typedef std::pair<double, int> Intersection;
 //
 struct Isort : public std::binary_function<Intersection, Intersection, bool>
 {
   bool operator()(const Intersection& x, const Intersection& y) { return x.first < y.first; }
 };
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkModifiedBSPTree::IntersectWithLine(
   const double p1[3], const double p2[3], const double tol, vtkPoints* points, vtkIdList* cellIds)
 {
@@ -995,7 +995,7 @@ int vtkModifiedBSPTree::IntersectWithLine(
   //
   return HIT;
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkModifiedBSPTree::IntersectCellInternal(vtkIdType cell_ID, const double p1[3],
   const double p2[3], const double tol, double& t, double ipt[3], double pcoords[3], int& subId)
 {
@@ -1006,9 +1006,9 @@ int vtkModifiedBSPTree::IntersectCellInternal(vtkIdType cell_ID, const double p1
 //////////////////////////////////////////////////////////////////////////////
 // FindCell stuff
 //////////////////////////////////////////////////////////////////////////////
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkModifiedBSPTree_Inside(double bounds[6], double point[3]);
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkModifiedBSPTree::FindCell(
   double x[3], double, vtkGenericCell* cell, double pcoords[3], double* weights)
 {
@@ -1054,7 +1054,7 @@ vtkIdType vtkModifiedBSPTree::FindCell(
   }
   return -1;
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkModifiedBSPTree::InsideCellBounds(double x[3], vtkIdType cell_ID)
 {
   //
@@ -1062,7 +1062,7 @@ bool vtkModifiedBSPTree::InsideCellBounds(double x[3], vtkIdType cell_ID)
   //
   return vtkModifiedBSPTree_Inside(this->CellBounds[cell_ID], x);
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdListCollection* vtkModifiedBSPTree::GetLeafNodeCellInformation()
 {
   if (!this->mRoot)
@@ -1105,7 +1105,7 @@ vtkIdListCollection* vtkModifiedBSPTree::GetLeafNodeCellInformation()
   }
   return LeafCellsList;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkModifiedBSPTree::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -1149,7 +1149,7 @@ void BSPNode::Classify(const double origin[3], const double dir[3], double& rDis
   }
   rDist = (tDivDirection) ? tOriginToDivPlane / tDivDirection : VTK_FLOAT_MAX;
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Update the two t values for the ray against the box, return false if misses
 bool BSPNode::RayMinMaxT(
   const double origin[3], const double dir[3], double& rTmin, double& rTmax) const
@@ -1298,7 +1298,7 @@ bool BSPNode::RayMinMaxT(
   }
   return (true);
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Update the two t values for the ray against the box, return false if misses
 bool BSPNode::RayMinMaxT(
   const double bounds[6], const double origin[3], const double dir[3], double& rTmin, double& rTmax)
@@ -1445,7 +1445,7 @@ bool BSPNode::RayMinMaxT(
   }
   return (true);
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool BSPNode::Inside(double point[3]) const
 {
   if (point[0] < this->Bounds[0] || point[0] > this->Bounds[1] || point[1] < this->Bounds[2] ||
@@ -1455,7 +1455,7 @@ bool BSPNode::Inside(double point[3]) const
   }
   return true;
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkModifiedBSPTree_Inside(double bounds[6], double point[3])
 {
   if (point[0] < bounds[0] || point[0] > bounds[1] || point[1] < bounds[2] ||

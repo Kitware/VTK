@@ -22,7 +22,7 @@
 
 vtkStandardNewMacro(vtkImageMask);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageMask::vtkImageMask()
 {
   this->NotMask = 0;
@@ -33,25 +33,25 @@ vtkImageMask::vtkImageMask()
   this->SetNumberOfInputPorts(2);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageMask::~vtkImageMask()
 {
   delete[] this->MaskedOutputValue;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageMask::SetImageInputData(vtkImageData* in)
 {
   this->SetInput1Data(in);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageMask::SetMaskInputData(vtkImageData* in)
 {
   this->SetInput2Data(in);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageMask::SetMaskedOutputValue(int num, double* v)
 {
   int idx;
@@ -84,7 +84,7 @@ void vtkImageMask::SetMaskedOutputValue(int num, double* v)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 template <class T>
 void vtkImageMaskExecute(vtkImageMask* self, int ext[6], vtkImageData* in1Data, T* in1Ptr,
@@ -212,7 +212,7 @@ void vtkImageMaskExecute(vtkImageMask* self, int ext[6], vtkImageData* in1Data, 
   delete[] maskedValue;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method is passed a input and output Datas, and executes the filter
 // algorithm to fill the output from the inputs.
 // It just executes a switch statement to call the correct function for
@@ -264,7 +264,7 @@ void vtkImageMask::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The output extent is the intersection.
 int vtkImageMask::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)

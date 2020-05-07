@@ -101,7 +101,7 @@ static int NetCDFTypeToVTKType(nc_type type)
 //=============================================================================
 vtkStandardNewMacro(vtkNetCDFReader);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkNetCDFReader::vtkNetCDFReader()
 {
   this->SetNumberOfInputPorts(0);
@@ -155,7 +155,7 @@ void vtkNetCDFReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "AllDimensions: " << this->AllDimensions << endl;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkNetCDFReader::RequestDataObject(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -172,7 +172,7 @@ int vtkNetCDFReader::RequestDataObject(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkNetCDFReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -388,7 +388,7 @@ int vtkNetCDFReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkNetCDFReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -480,7 +480,7 @@ int vtkNetCDFReader::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNetCDFReader::SetFileName(const char* filename)
 {
   if (this->FileName == filename)
@@ -503,31 +503,31 @@ void vtkNetCDFReader::SetFileName(const char* filename)
   this->FileNameMTime.Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNetCDFReader::SelectionModifiedCallback(vtkObject*, unsigned long, void* clientdata, void*)
 {
   static_cast<vtkNetCDFReader*>(clientdata)->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkNetCDFReader::GetNumberOfVariableArrays()
 {
   return this->VariableArraySelection->GetNumberOfArrays();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkNetCDFReader::GetVariableArrayName(int index)
 {
   return this->VariableArraySelection->GetArrayName(index);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkNetCDFReader::GetVariableArrayStatus(const char* name)
 {
   return this->VariableArraySelection->ArrayIsEnabled(name);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNetCDFReader::SetVariableArrayStatus(const char* name, int status)
 {
   vtkDebugMacro("Set cell array \"" << name << "\" status to: " << status);
@@ -541,7 +541,7 @@ void vtkNetCDFReader::SetVariableArrayStatus(const char* name, int status)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStringArray* vtkNetCDFReader::GetAllVariableArrayNames()
 {
   int numArrays = this->GetNumberOfVariableArrays();
@@ -555,7 +555,7 @@ vtkStringArray* vtkNetCDFReader::GetAllVariableArrayNames()
   return this->AllVariableArrayNames;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkNetCDFReader::ComputeArraySelection()
 {
   if (this->VariableArraySelection->GetNumberOfArrays() == 0 || this->CurrentDimensions.empty())
@@ -579,14 +579,14 @@ bool vtkNetCDFReader::ComputeArraySelection()
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNetCDFReader::SetDimensions(const char* dimensions)
 {
   this->CurrentDimensions = dimensions;
   this->ComputeArraySelection();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkNetCDFReader::UpdateMetaData()
 {
   if (this->MetaDataMTime < this->FileNameMTime)
@@ -618,7 +618,7 @@ int vtkNetCDFReader::UpdateMetaData()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStdString vtkNetCDFReader::DescribeDimensions(int ncFD, const int* dimIds, int numDims)
 {
   vtkStdString description;
@@ -633,7 +633,7 @@ vtkStdString vtkNetCDFReader::DescribeDimensions(int ncFD, const int* dimIds, in
   return description;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkNetCDFReader::ReadMetaData(int ncFD)
 {
   vtkDebugMacro("ReadMetaData");
@@ -688,7 +688,7 @@ int vtkNetCDFReader::ReadMetaData(int ncFD)
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkNetCDFReader::FillVariableDimensions(int ncFD)
 {
   int numVar = this->GetNumberOfVariableArrays();
@@ -734,7 +734,7 @@ int vtkNetCDFReader::FillVariableDimensions(int ncFD)
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkNetCDFReader::IsTimeDimension(int ncFD, int dimId)
 {
   char name[NC_MAX_NAME + 1];
@@ -743,7 +743,7 @@ int vtkNetCDFReader::IsTimeDimension(int ncFD, int dimId)
   return (vtksys::SystemTools::Strucmp(name, "time") == 0);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSmartPointer<vtkDoubleArray> vtkNetCDFReader::GetTimeValues(int ncFD, int dimId)
 {
   VTK_CREATE(vtkDoubleArray, timeValues);
@@ -758,13 +758,13 @@ vtkSmartPointer<vtkDoubleArray> vtkNetCDFReader::GetTimeValues(int ncFD, int dim
   return timeValues;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkNetCDFReader::GetUpdateExtentForOutput(vtkDataSet*, int extent[6])
 {
   memcpy(extent, this->UpdateExtent, 6 * sizeof(int));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkNetCDFReader::LoadVariable(int ncFD, const char* varName, double time, vtkDataSet* output)
 {
   // Get the variable id.
@@ -938,7 +938,7 @@ int vtkNetCDFReader::LoadVariable(int ncFD, const char* varName, double time, vt
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::string vtkNetCDFReader::QueryArrayUnits(const char* name)
 {
   return this->Private->ArrayUnits[name];

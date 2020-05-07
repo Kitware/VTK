@@ -36,7 +36,7 @@
 #include <array>
 #include <deque>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 namespace
 {
 // Given a triangle with two vector fields (v0, v1, v2) and (w0, w1, w2) defined
@@ -117,7 +117,7 @@ bool fieldAlignmentPointForTriangle(const double v0[3], const double v1[3], cons
     return false;
   }
 
-  Eigen::EigenSolver<Eigen::Matrix<double, 3, 3> > eigensolver(M);
+  Eigen::EigenSolver<Eigen::Matrix<double, 3, 3>> eigensolver(M);
   Eigen::Matrix<std::complex<double>, 3, 3> eigenvectors = eigensolver.eigenvectors();
 
   for (int i = 0; i < 3; ++i)
@@ -331,7 +331,7 @@ struct PolyLineBuilder
   std::size_t MergeLimit;
 };
 
-bool surfaceTessellationForCell(vtkCell3D* cell, std::vector<std::array<vtkIdType, 3> >& triangles)
+bool surfaceTessellationForCell(vtkCell3D* cell, std::vector<std::array<vtkIdType, 3>>& triangles)
 {
   const vtkIdType* localPointIds;
 
@@ -409,36 +409,36 @@ bool surfaceTessellationForCell(vtkCell3D* cell, std::vector<std::array<vtkIdTyp
 }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkParallelVectors);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParallelVectors::vtkParallelVectors()
 {
   this->FirstVectorFieldName = nullptr;
   this->SecondVectorFieldName = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParallelVectors::~vtkParallelVectors()
 {
   this->SetFirstVectorFieldName(nullptr);
   this->SetSecondVectorFieldName(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkParallelVectors::AcceptSurfaceTriangle(const vtkIdType*)
 {
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkParallelVectors::ComputeAdditionalCriteria(const vtkIdType*, double, double)
 {
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkParallelVectors::RequestData(
   vtkInformation* info, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -538,7 +538,7 @@ int vtkParallelVectors::RequestData(
     polyLineBuilder.MergeLimit = static_cast<std::size_t>(std::cbrt(input->GetNumberOfCells()));
   }
 
-  std::vector<std::array<vtkIdType, 3> > surfaceTriangles;
+  std::vector<std::array<vtkIdType, 3>> surfaceTriangles;
 
   for (vtkIdType cellId = 0; cellId < input->GetNumberOfCells(); ++cellId)
   {
@@ -668,14 +668,14 @@ int vtkParallelVectors::RequestData(
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkParallelVectors::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParallelVectors::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

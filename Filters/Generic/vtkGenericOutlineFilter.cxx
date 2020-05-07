@@ -23,19 +23,19 @@
 
 vtkStandardNewMacro(vtkGenericOutlineFilter);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGenericOutlineFilter::vtkGenericOutlineFilter()
 {
   this->OutlineSource = vtkOutlineSource::New();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGenericOutlineFilter::~vtkGenericOutlineFilter()
 {
   this->OutlineSource->Delete();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGenericOutlineFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -63,7 +63,7 @@ int vtkGenericOutlineFilter::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGenericOutlineFilter::RequestInformation(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -84,7 +84,7 @@ int vtkGenericOutlineFilter::RequestInformation(
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGenericOutlineFilter::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (!this->Superclass::FillInputPortInformation(port, info))

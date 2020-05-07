@@ -36,7 +36,7 @@
 
 vtkStandardNewMacro(vtkTemporalInterpolator);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTemporalInterpolator::vtkTemporalInterpolator()
 {
   this->DiscreteTimeStepInterval = 0.0; // non value
@@ -52,10 +52,10 @@ vtkTemporalInterpolator::vtkTemporalInterpolator()
   this->NumberOfCacheEntries = 2;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTemporalInterpolator::~vtkTemporalInterpolator() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTemporalInterpolator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -64,7 +64,7 @@ void vtkTemporalInterpolator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "DiscreteTimeStepInterval: " << this->DiscreteTimeStepInterval << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTemporalInterpolator::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
@@ -74,14 +74,14 @@ int vtkTemporalInterpolator::FillInputPortInformation(int port, vtkInformation* 
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTemporalInterpolator::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkDataObject");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTemporalInterpolator::RequestDataObject(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -117,7 +117,7 @@ int vtkTemporalInterpolator::RequestDataObject(
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Change the information
 int vtkTemporalInterpolator::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -311,7 +311,7 @@ int vtkTemporalInterpolator::RequestUpdateExtent(vtkInformation* vtkNotUsed(requ
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTemporalInterpolator::ArrayMatch vtkTemporalInterpolator::VerifyArrays(
   vtkDataArray** arrays, int N)
 {
@@ -331,7 +331,7 @@ vtkTemporalInterpolator::ArrayMatch vtkTemporalInterpolator::VerifyArrays(
   return MATCHED;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObject* vtkTemporalInterpolator ::InterpolateDataObject(
   vtkDataObject* in1, vtkDataObject* in2, double ratio)
 {
@@ -390,7 +390,7 @@ vtkDataObject* vtkTemporalInterpolator ::InterpolateDataObject(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataSet* vtkTemporalInterpolator ::InterpolateDataSet(
   vtkDataSet* in1, vtkDataSet* in2, double ratio)
 {
@@ -589,7 +589,7 @@ struct vtkTemporalExecute
 };
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataArray* vtkTemporalInterpolator ::InterpolateDataArray(
   double ratio, vtkDataArray** arrays, vtkIdType numTuples)
 {

@@ -35,7 +35,7 @@
 
 vtkStandardNewMacro(vtkEnSight6Reader);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkEnSight6Reader::vtkEnSight6Reader()
 {
   this->NumberOfUnstructuredPoints = 0;
@@ -43,7 +43,7 @@ vtkEnSight6Reader::vtkEnSight6Reader()
   this->UnstructuredNodeIds = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkEnSight6Reader::~vtkEnSight6Reader()
 {
   if (this->UnstructuredNodeIds)
@@ -55,7 +55,7 @@ vtkEnSight6Reader::~vtkEnSight6Reader()
   this->UnstructuredPoints = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static void vtkEnSight6ReaderRead1(
   const char* line, const char*, int* pointId, float* point1, float* point2, float* point3)
 {
@@ -161,7 +161,7 @@ static void vtkEnSight6ReaderRead4(const char* line, float* point1)
   assert("post: all_items_match" && numEntries == 1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSight6Reader::ReadGeometryFile(
   const char* fileName, int timeStep, vtkMultiBlockDataSet* output)
 {
@@ -343,7 +343,7 @@ int vtkEnSight6Reader::ReadGeometryFile(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSight6Reader::ReadMeasuredGeometryFile(
   const char* fileName, int timeStep, vtkMultiBlockDataSet* output)
 {
@@ -460,7 +460,7 @@ int vtkEnSight6Reader::ReadMeasuredGeometryFile(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSight6Reader::ReadScalarsPerNode(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput, int measured, int numberOfComponents,
   int component)
@@ -691,7 +691,7 @@ int vtkEnSight6Reader::ReadScalarsPerNode(const char* fileName, const char* desc
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSight6Reader::ReadVectorsPerNode(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput, int measured)
 {
@@ -886,7 +886,7 @@ int vtkEnSight6Reader::ReadVectorsPerNode(const char* fileName, const char* desc
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSight6Reader::ReadTensorsPerNode(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput)
 {
@@ -1036,7 +1036,7 @@ int vtkEnSight6Reader::ReadTensorsPerNode(const char* fileName, const char* desc
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSight6Reader::ReadScalarsPerElement(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput, int numberOfComponents, int component)
 {
@@ -1209,7 +1209,7 @@ int vtkEnSight6Reader::ReadScalarsPerElement(const char* fileName, const char* d
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSight6Reader::ReadVectorsPerElement(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput)
 {
@@ -1372,7 +1372,7 @@ int vtkEnSight6Reader::ReadVectorsPerElement(const char* fileName, const char* d
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSight6Reader::ReadTensorsPerElement(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput)
 {
@@ -1517,7 +1517,7 @@ int vtkEnSight6Reader::ReadTensorsPerElement(const char* fileName, const char* d
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSight6Reader::CreateUnstructuredGridOutput(
   int partId, char line[256], const char* name, vtkMultiBlockDataSet* compositeOutput)
 {
@@ -2012,7 +2012,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(
   return lineRead;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkEnSight6Reader::CreateStructuredGridOutput(
   int partId, char line[256], const char* name, vtkMultiBlockDataSet* compositeOutput)
 {
@@ -2165,7 +2165,7 @@ int vtkEnSight6Reader::CreateStructuredGridOutput(
   return lineRead;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkEnSight6Reader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

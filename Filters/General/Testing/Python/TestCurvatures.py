@@ -22,15 +22,11 @@ torus.SetThetaRoundness(1.0)
 torus.SetThickness(0.5)
 torus.SetSize(0.5)
 torus.SetToroidal(1)
-# The quadric is made of strips, so pass it through a triangle filter as
-# the curvature filter only operates on polys
-tri = vtk.vtkTriangleFilter()
-tri.SetInputConnection(torus.GetOutputPort())
 # The quadric has nasty discontinuities from the way the edges are generated
 # so let's pass it though a CleanPolyDataFilter and merge any points which
 # are coincident, or very close
 cleaner = vtk.vtkCleanPolyData()
-cleaner.SetInputConnection(tri.GetOutputPort())
+cleaner.SetInputConnection(torus.GetOutputPort())
 cleaner.SetTolerance(0.005)
 curve1 = vtk.vtkCurvatures()
 curve1.SetInputConnection(cleaner.GetOutputPort())

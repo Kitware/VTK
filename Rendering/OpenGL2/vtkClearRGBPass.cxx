@@ -22,7 +22,7 @@
 
 vtkStandardNewMacro(vtkClearRGBPass);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkClearRGBPass::vtkClearRGBPass()
 {
   this->Background[0] = 0;
@@ -30,10 +30,10 @@ vtkClearRGBPass::vtkClearRGBPass()
   this->Background[2] = 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkClearRGBPass::~vtkClearRGBPass() = default;
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkClearRGBPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -42,7 +42,7 @@ void vtkClearRGBPass::PrintSelf(ostream& os, vtkIndent indent)
      << this->Background[2] << endl;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkClearRGBPass::Render(const vtkRenderState* s)
 {
   this->NumberOfRenderedProps = 0;

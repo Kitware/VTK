@@ -29,7 +29,7 @@ the U.S. Government retains certain rights in this software.
 #include "vtkOutEdgeIterator.h"
 #include "vtkSmartPointer.h"
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkStandardNewMacro(vtkStrahlerMetric);
 
@@ -46,7 +46,7 @@ vtkStrahlerMetric::~vtkStrahlerMetric()
   this->SetMetricArrayName(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 float vtkStrahlerMetric::CalculateStrahler(vtkIdType root, vtkFloatArray* metric, vtkTree* tree)
 {

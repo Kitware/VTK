@@ -284,33 +284,33 @@ public:
 
   /** Get the filenames for a series ordered by slice number. */
   void GetSliceNumberFilenamePairs(const dicom_stl::string& seriesUID,
-    dicom_stl::vector<dicom_stl::pair<int, dicom_stl::string> >& v, bool ascending = true);
+    dicom_stl::vector<dicom_stl::pair<int, dicom_stl::string>>& v, bool ascending = true);
 
   /** Get the filenames for a series order by slice number.  Use the
       first series by default. */
   void GetSliceNumberFilenamePairs(
-    dicom_stl::vector<dicom_stl::pair<int, dicom_stl::string> >& v, bool ascending = true);
+    dicom_stl::vector<dicom_stl::pair<int, dicom_stl::string>>& v, bool ascending = true);
 
   /* Get the filenames for a series ordered by slice location. */
   void GetSliceLocationFilenamePairs(const dicom_stl::string& seriesUID,
-    dicom_stl::vector<dicom_stl::pair<float, dicom_stl::string> >& v, bool ascending = true);
+    dicom_stl::vector<dicom_stl::pair<float, dicom_stl::string>>& v, bool ascending = true);
 
   /* Get the filenames for a series ordered by slice location. Use the
    * first series by default. */
   void GetSliceLocationFilenamePairs(
-    dicom_stl::vector<dicom_stl::pair<float, dicom_stl::string> >& v, bool ascending = true);
+    dicom_stl::vector<dicom_stl::pair<float, dicom_stl::string>>& v, bool ascending = true);
 
   /* Get the filenames for a series ordered by image position
      patient. This is the most reliable way to order the images in a
      series. */
   void GetImagePositionPatientFilenamePairs(const dicom_stl::string& seriesUID,
-    dicom_stl::vector<dicom_stl::pair<float, dicom_stl::string> >& v, bool ascending = true);
+    dicom_stl::vector<dicom_stl::pair<float, dicom_stl::string>>& v, bool ascending = true);
 
   /* Get the filenames for a series ordered by image position
      patient. This is the most reliable way to order the images in a
      series. Use the first series by default. */
   void GetImagePositionPatientFilenamePairs(
-    dicom_stl::vector<dicom_stl::pair<float, dicom_stl::string> >& v, bool ascending = true);
+    dicom_stl::vector<dicom_stl::pair<float, dicom_stl::string>>& v, bool ascending = true);
 
   float GetRescaleSlope() { return this->RescaleSlope; }
 

@@ -23,13 +23,13 @@
 
 vtkStandardNewMacro(vtkImageDotProduct);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageDotProduct::vtkImageDotProduct()
 {
   this->SetNumberOfInputPorts(2);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Colapse the first axis
 int vtkImageDotProduct::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
@@ -38,7 +38,7 @@ int vtkImageDotProduct::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 // Handles the two input operations
 template <class T>
@@ -80,7 +80,7 @@ void vtkImageDotProductExecute(vtkImageDotProduct* self, vtkImageData* in1Data,
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method is passed a input and output regions, and executes the filter
 // algorithm to fill the output from the inputs.
 // It just executes a switch statement to call the correct function for

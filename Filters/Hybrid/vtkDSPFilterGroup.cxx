@@ -45,7 +45,7 @@ public:
 class vtkDSPFilterGroupVectorVectorIntSTLCloak
 {
 public:
-  std::vector<std::vector<int> > m_vector;
+  std::vector<std::vector<int>> m_vector;
 };
 
 class vtkDSPFilterGroupVectorArraySTLCloak
@@ -56,7 +56,7 @@ public:
 class vtkDSPFilterGroupVectorVectorArraySTLCloak
 {
 public:
-  std::vector<std::vector<vtkFloatArray*> > m_vector;
+  std::vector<std::vector<vtkFloatArray*>> m_vector;
 };
 class vtkDSPFilterGroupVectorStringSTLCloak
 {
@@ -70,7 +70,7 @@ public:
   std::vector<vtkDSPFilterDefinition*> m_vector;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDSPFilterGroup::vtkDSPFilterGroup()
 {
   this->FilterDefinitions = new vtkDSPFilterGroupVectorDefinitionSTLCloak;
@@ -88,7 +88,7 @@ vtkDSPFilterGroup::vtkDSPFilterGroup()
   this->CachedOutputTimesteps->m_vector.resize(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDSPFilterGroup::~vtkDSPFilterGroup()
 {
   this->FilterDefinitions->m_vector.resize(0);
@@ -106,7 +106,7 @@ vtkDSPFilterGroup::~vtkDSPFilterGroup()
   delete this->CachedOutputTimesteps;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDSPFilterGroup::AddFilter(vtkDSPFilterDefinition* filter)
 {
   // XXX can't just add this filter, need to check for duplicates and removals?
@@ -142,13 +142,13 @@ void vtkDSPFilterGroup::AddFilter(vtkDSPFilterDefinition* filter)
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDSPFilterGroup::RemoveFilter(const char* a_outputVariableName)
 {
   std::vector<vtkDSPFilterDefinition*>::iterator l_iter;
-  std::vector<std::vector<vtkFloatArray*> >::iterator l_cachedOutputsIter =
+  std::vector<std::vector<vtkFloatArray*>>::iterator l_cachedOutputsIter =
     this->CachedOutputs->m_vector.begin();
-  std::vector<std::vector<int> >::iterator l_cachedOutputTimesIter =
+  std::vector<std::vector<int>>::iterator l_cachedOutputTimesIter =
     this->CachedOutputTimesteps->m_vector.begin();
 
   for (l_iter = this->FilterDefinitions->m_vector.begin();
@@ -185,18 +185,18 @@ void vtkDSPFilterGroup::RemoveFilter(const char* a_outputVariableName)
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDSPFilterGroup::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkDSPFilterGroup::GetInputVariableName(int a_whichFilter)
 {
   return this->FilterDefinitions->m_vector[a_whichFilter]->GetInputVariableName();
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkDSPFilterGroup::IsThisInputVariableInstanceNeeded(
   const char* a_name, int a_timestep, int a_outputTimestep)
 {
@@ -213,7 +213,7 @@ bool vtkDSPFilterGroup::IsThisInputVariableInstanceNeeded(
   }
   return (false);
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkDSPFilterGroup::IsThisInputVariableInstanceCached(const char* a_name, int a_timestep)
 {
   for (int i = 0; i < (int)this->CachedInputTimesteps->m_vector.size(); i++)
@@ -228,7 +228,7 @@ bool vtkDSPFilterGroup::IsThisInputVariableInstanceCached(const char* a_name, in
   }
   return (false);
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDSPFilterGroup::AddInputVariableInstance(
   const char* a_name, int a_timestep, vtkFloatArray* a_data)
 {
@@ -242,7 +242,7 @@ void vtkDSPFilterGroup::AddInputVariableInstance(
   this->CachedInputs->m_vector.push_back(l_array);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFloatArray* vtkDSPFilterGroup::GetCachedInput(int a_whichFilter, int a_whichTimestep)
 {
   std::string l_inputName =
@@ -260,7 +260,7 @@ vtkFloatArray* vtkDSPFilterGroup::GetCachedInput(int a_whichFilter, int a_whichT
   return (nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFloatArray* vtkDSPFilterGroup::GetCachedOutput(int a_whichFilter, int a_whichTimestep)
 {
   for (int i = 0; i < (int)this->CachedOutputs->m_vector[a_whichFilter].size(); i++)
@@ -286,25 +286,25 @@ vtkFloatArray* vtkDSPFilterGroup::GetCachedOutput(int a_whichFilter, int a_which
   return (nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDSPFilterGroup::Copy(vtkDSPFilterGroup* other)
 {
   this->FilterDefinitions->m_vector = other->FilterDefinitions->m_vector;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDSPFilterGroup::GetNumFilters()
 {
   return static_cast<int>(this->FilterDefinitions->m_vector.size());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDSPFilterDefinition* vtkDSPFilterGroup::GetFilter(int a_whichFilter)
 {
   return this->FilterDefinitions->m_vector[a_whichFilter];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFloatArray* vtkDSPFilterGroup::GetOutput(
   int a_whichFilter, int a_whichTimestep, int& a_instancesCalculated)
 {

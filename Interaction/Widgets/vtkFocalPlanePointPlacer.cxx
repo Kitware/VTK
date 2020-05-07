@@ -24,7 +24,7 @@
 
 vtkStandardNewMacro(vtkFocalPlanePointPlacer);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFocalPlanePointPlacer::vtkFocalPlanePointPlacer()
 {
   this->PointBounds[0] = this->PointBounds[2] = this->PointBounds[4] = 0;
@@ -32,10 +32,10 @@ vtkFocalPlanePointPlacer::vtkFocalPlanePointPlacer()
   this->Offset = 0.0;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFocalPlanePointPlacer::~vtkFocalPlanePointPlacer() = default;
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkFocalPlanePointPlacer::ComputeWorldPosition(
   vtkRenderer* ren, double displayPos[2], double worldPos[3], double worldOrient[9])
 {
@@ -100,7 +100,7 @@ int vtkFocalPlanePointPlacer::ComputeWorldPosition(
   return 1;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkFocalPlanePointPlacer::ComputeWorldPosition(vtkRenderer* ren, double displayPos[2],
   double refWorldPos[3], double worldPos[3], double worldOrient[9])
 {
@@ -165,7 +165,7 @@ int vtkFocalPlanePointPlacer::ComputeWorldPosition(vtkRenderer* ren, double disp
   return 1;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkFocalPlanePointPlacer::ValidateWorldPosition(double* worldPos)
 {
   double tolerance[3] = { 1e-12, 1e-12, 1e-12 };
@@ -178,7 +178,7 @@ int vtkFocalPlanePointPlacer::ValidateWorldPosition(double* worldPos)
   return 1;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkFocalPlanePointPlacer::ValidateWorldPosition(
   double* worldPos, double* vtkNotUsed(worldOrient))
 {
@@ -192,7 +192,7 @@ int vtkFocalPlanePointPlacer::ValidateWorldPosition(
   return 1;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFocalPlanePointPlacer::GetCurrentOrientation(double worldOrient[9])
 {
   double* x = worldOrient;
@@ -212,7 +212,7 @@ void vtkFocalPlanePointPlacer::GetCurrentOrientation(double worldOrient[9])
   z[2] = 1.0;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFocalPlanePointPlacer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

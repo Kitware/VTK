@@ -66,7 +66,7 @@ extern "C"
 static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget* self);
 extern int vtkImageViewerCommand(ClientData cd, Tcl_Interp* interp, int argc, char* argv[]);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // It's possible to change with this function or in a script some
 // options like width, height or the ImageViewer widget.
 int vtkTkImageViewerWidget_Configure(
@@ -96,7 +96,7 @@ int vtkTkImageViewerWidget_Configure(
   return TCL_OK;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This function is called when the ImageViewer widget name is
 // evaluated in a Tcl script.  It will compare string parameters
 // to choose the appropriate method to invoke.
@@ -183,7 +183,7 @@ extern "C"
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // vtkTkImageViewerWidget_Cmd
 // Called when vtkTkImageViewerWidget is executed
 // - creation of a vtkTkImageViewerWidget widget.
@@ -241,7 +241,7 @@ extern "C"
     // ...
     // Create command event handler
     Tcl_CreateCommand(interp, Tk_PathName(tkwin), vtkTkImageViewerWidget_Widget, (ClientData)self,
-      (void (*)(ClientData))nullptr);
+      (void (*)(ClientData)) nullptr);
     Tk_CreateEventHandler(tkwin, ExposureMask | StructureNotifyMask,
       vtkTkImageViewerWidget_EventProc, (ClientData)self);
 
@@ -266,19 +266,19 @@ extern "C"
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 char* vtkTkImageViewerWidget_IV(const struct vtkTkImageViewerWidget* self)
 {
   return self->IV;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTkImageViewerWidget_Width(const struct vtkTkImageViewerWidget* self)
 {
   return self->Width;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTkImageViewerWidget_Height(const struct vtkTkImageViewerWidget* self)
 {
   return self->Height;
@@ -316,7 +316,7 @@ extern "C"
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This gets called to handle vtkTkImageViewerWidget wind configuration events
 // Possibly X dependent
 extern "C"
@@ -410,7 +410,7 @@ extern "C"
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // vtkTkImageViewerWidget_Init
 // Called upon system startup to create vtkTkImageViewerWidget command.
 extern "C"
@@ -542,7 +542,7 @@ LRESULT APIENTRY vtkTkImageViewerWidgetProc(HWND hWnd, UINT message, WPARAM wPar
   return rval;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Creates a ImageViewer window and forces Tk to use the window.
 static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget* self)
 {
@@ -717,7 +717,7 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget*
 // now the Apple version for Cocoa APIs
 #else
 #if defined(VTK_USE_COCOA)
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Creates a ImageViewer window and forces Tk to use the window.
 static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget* self)
 {
@@ -793,7 +793,7 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget*
 // now the Xwindows version
 #else
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Creates a ImageViewer window and forces Tk to use the window.
 static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget* self)
 {
@@ -857,7 +857,7 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget*
   // get the window
   imgWindow = static_cast<vtkXOpenGLRenderWindow*>(imgViewer->GetRenderWindow());
   // If the imageviewer has already created it's window, throw up our hands and quit...
-  if (imgWindow->GetWindowId() != (Window)nullptr)
+  if (imgWindow->GetWindowId() != (Window) nullptr)
   {
     return TCL_ERROR;
   }

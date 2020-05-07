@@ -22,20 +22,20 @@
 #include "vtkXMLDataElement.h"
 
 vtkStandardNewMacro(vtkXMLMultiBlockDataWriter);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLMultiBlockDataWriter::vtkXMLMultiBlockDataWriter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLMultiBlockDataWriter::~vtkXMLMultiBlockDataWriter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLMultiBlockDataWriter::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLMultiBlockDataWriter::WriteComposite(
   vtkCompositeDataSet* compositeData, vtkXMLDataElement* parent, int& writerIdx)
 {
@@ -125,7 +125,7 @@ int vtkXMLMultiBlockDataWriter::WriteComposite(
   return RetVal;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLMultiBlockDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

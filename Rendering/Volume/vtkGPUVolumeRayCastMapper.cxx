@@ -108,7 +108,7 @@ vtkGPUVolumeRayCastMapper::vtkGPUVolumeRayCastMapper()
   this->SetNumberOfInputPorts(10);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGPUVolumeRayCastMapper::~vtkGPUVolumeRayCastMapper()
 {
   this->SetMaskInput(nullptr);
@@ -127,7 +127,7 @@ vtkGPUVolumeRayCastMapper::~vtkGPUVolumeRayCastMapper()
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The render method that is called from the volume. If this is a canonical
 // view render, a specialized version of this method will be called instead.
 // Otherwise we will
@@ -137,7 +137,7 @@ vtkGPUVolumeRayCastMapper::~vtkGPUVolumeRayCastMapper()
 //   - Render
 //   - Stop the timer and record results
 //   - Invoke an end event
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGPUVolumeRayCastMapper::Render(vtkRenderer* ren, vtkVolume* vol)
 {
   // Catch renders that are happening due to a canonical view render and
@@ -185,10 +185,10 @@ void vtkGPUVolumeRayCastMapper::Render(vtkRenderer* ren, vtkVolume* vol)
   this->InvokeEvent(vtkCommand::VolumeMapperRenderEndEvent, nullptr);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Special version for rendering a canonical view - we don't do things like
 // invoke start or end events, and we don't capture the render time.
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGPUVolumeRayCastMapper::CanonicalViewRender(vtkRenderer* ren, vtkVolume* vol)
 {
   // Make sure everything about this render is OK
@@ -199,7 +199,7 @@ void vtkGPUVolumeRayCastMapper::CanonicalViewRender(vtkRenderer* ren, vtkVolume*
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method us used by the render method to validate everything before
 // attempting to render. This method returns 0 if something is not right -
 // such as missing input, a null renderer or a null volume, no scalars, etc.
@@ -207,7 +207,7 @@ void vtkGPUVolumeRayCastMapper::CanonicalViewRender(vtkRenderer* ren, vtkVolume*
 // (for example, in the case of cropping planes that define a region with
 // a volume or 0 or less) it will fail silently. If everything is OK, it will
 // return with a value of 1.
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGPUVolumeRayCastMapper::ValidateRender(vtkRenderer* ren, vtkVolume* vol)
 {
   // Check that we have everything we need to render.
@@ -441,7 +441,7 @@ int vtkGPUVolumeRayCastMapper::ValidateInput(vtkVolumeProperty* property, const 
   return goodSoFar;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Called by the AMR Volume Mapper.
 // Set the flag that tells if the scalars are on point data (0) or
@@ -451,7 +451,7 @@ void vtkGPUVolumeRayCastMapper::SetCellFlag(int cellFlag)
   this->CellFlag = cellFlag;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGPUVolumeRayCastMapper::CreateCanonicalView(vtkRenderer* ren, vtkVolume* volume,
   vtkImageData* image, int vtkNotUsed(blend_mode), double viewDirection[3], double viewUp[3])
 {
@@ -586,7 +586,7 @@ void vtkGPUVolumeRayCastMapper::CreateCanonicalView(vtkRenderer* ren, vtkVolume*
   this->GeneratingCanonicalView = 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Print method for vtkGPUVolumeRayCastMapper
 void vtkGPUVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -607,7 +607,7 @@ void vtkGPUVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ReportProgress: " << this->ReportProgress << endl;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Compute the cropping planes clipped by the bounds of the volume.
 // The result is put into this->ClippedCroppingRegionPlanes.
@@ -665,19 +665,19 @@ void vtkGPUVolumeRayCastMapper::ClipCroppingRegionPlanes()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGPUVolumeRayCastMapper::SetMaskTypeToBinary()
 {
   this->MaskType = vtkGPUVolumeRayCastMapper::BinaryMaskType;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGPUVolumeRayCastMapper::SetMaskTypeToLabelMap()
 {
   this->MaskType = vtkGPUVolumeRayCastMapper::LabelMapMaskType;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkContourValues* vtkGPUVolumeRayCastMapper::GetDepthPassContourValues()
 {
   if (!this->DepthPassContourValues)
@@ -688,25 +688,25 @@ vtkContourValues* vtkGPUVolumeRayCastMapper::GetDepthPassContourValues()
   return this->DepthPassContourValues;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGPUVolumeRayCastMapper::SetDepthImageScalarTypeToUnsignedChar()
 {
   this->SetDepthImageScalarType(VTK_UNSIGNED_CHAR);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGPUVolumeRayCastMapper::SetDepthImageScalarTypeToUnsignedShort()
 {
   this->SetDepthImageScalarType(VTK_UNSIGNED_SHORT);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGPUVolumeRayCastMapper::SetDepthImageScalarTypeToFloat()
 {
   this->SetDepthImageScalarType(VTK_FLOAT);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGPUVolumeRayCastMapper::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port > 0)
@@ -717,13 +717,13 @@ int vtkGPUVolumeRayCastMapper::FillInputPortInformation(int port, vtkInformation
   return this->Superclass::FillInputPortInformation(port, info);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataSet* vtkGPUVolumeRayCastMapper::GetInput(const int port)
 {
   return static_cast<vtkDataSet*>(this->GetInputDataObject(port, 0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGPUVolumeRayCastMapper::TransformInput(const int port)
 {
   vtkDataSet* dataset = this->TransformedInputs[port];

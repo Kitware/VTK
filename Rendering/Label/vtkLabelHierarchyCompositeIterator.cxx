@@ -31,7 +31,7 @@ vtkStandardNewMacro(vtkLabelHierarchyCompositeIterator);
 class vtkLabelHierarchyCompositeIterator::Internal
 {
 public:
-  typedef std::vector<std::pair<vtkSmartPointer<vtkLabelHierarchyIterator>, int> > IteratorVector;
+  typedef std::vector<std::pair<vtkSmartPointer<vtkLabelHierarchyIterator>, int>> IteratorVector;
   IteratorVector Iterators;
   IteratorVector::size_type CurrentIterator;
   IteratorVector::size_type InitialTraversal;

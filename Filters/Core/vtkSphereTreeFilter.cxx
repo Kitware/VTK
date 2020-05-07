@@ -30,7 +30,7 @@ vtkStandardNewMacro(vtkSphereTreeFilter);
 vtkCxxSetObjectMacro(vtkSphereTreeFilter, SphereTree, vtkSphereTree);
 
 // Construct object.
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSphereTreeFilter::vtkSphereTreeFilter()
 {
   this->SphereTree = nullptr;
@@ -45,13 +45,13 @@ vtkSphereTreeFilter::vtkSphereTreeFilter()
   this->Normal[2] = 1.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSphereTreeFilter::~vtkSphereTreeFilter()
 {
   this->SetSphereTree(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Overload standard modified time function. If the sphere tree is modified,
 // then this object is modified as well.
 vtkMTimeType vtkSphereTreeFilter::GetMTime()
@@ -68,7 +68,7 @@ vtkMTimeType vtkSphereTreeFilter::GetMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Produce the sphere tree as requested
 int vtkSphereTreeFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -218,7 +218,7 @@ int vtkSphereTreeFilter::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSphereTreeFilter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
@@ -227,7 +227,7 @@ int vtkSphereTreeFilter::FillInputPortInformation(int, vtkInformation* info)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkSphereTreeFilter::GetExtractionModeAsString()
 {
   if (this->ExtractionMode == VTK_SPHERE_TREE_LEVELS)
@@ -248,7 +248,7 @@ const char* vtkSphereTreeFilter::GetExtractionModeAsString()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereTreeFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

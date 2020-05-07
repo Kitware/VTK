@@ -27,7 +27,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 vtkStandardNewMacro(vtkPYoungsMaterialInterface);
 vtkCxxSetObjectMacro(vtkPYoungsMaterialInterface, Controller, vtkMultiProcessController);
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPYoungsMaterialInterface::vtkPYoungsMaterialInterface()
 {
   this->Controller = nullptr;
@@ -36,20 +36,20 @@ vtkPYoungsMaterialInterface::vtkPYoungsMaterialInterface()
   vtkDebugMacro(<< "vtkPYoungsMaterialInterface::vtkPYoungsMaterialInterface() ok\n");
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPYoungsMaterialInterface::~vtkPYoungsMaterialInterface()
 {
   this->SetController(nullptr);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPYoungsMaterialInterface::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Controller: " << this->Controller << endl;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPYoungsMaterialInterface::Aggregate(int nmat, int* inputsPerMaterial)
 {
   vtkIdType nprocs = this->Controller->GetNumberOfProcesses();

@@ -26,20 +26,20 @@
 vtkStandardNewMacro(vtkBox);
 
 // Construct the box centered at the origin and each side length 1.0.
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBox::vtkBox()
 {
   this->BBox = new vtkBoundingBox;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Destroy the bounding box
 vtkBox::~vtkBox()
 {
   delete this->BBox;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Set the bounds in various ways
 void vtkBox::SetBounds(double xMin, double xMax, double yMin, double yMax, double zMin, double zMax)
 {
@@ -54,13 +54,13 @@ void vtkBox::SetBounds(double xMin, double xMax, double yMin, double yMax, doubl
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBox::SetBounds(const double bounds[6])
 {
   this->SetBounds(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBox::SetXMin(double x, double y, double z)
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting XMin to (" << x << "," << y
@@ -74,7 +74,7 @@ void vtkBox::SetXMin(double x, double y, double z)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBox::SetXMax(double x, double y, double z)
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting XMax to (" << x << "," << y
@@ -88,27 +88,27 @@ void vtkBox::SetXMax(double x, double y, double z)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBox::GetBounds(
   double& xMin, double& xMax, double& yMin, double& yMax, double& zMin, double& zMax)
 {
   this->BBox->GetBounds(xMin, xMax, yMin, yMax, zMin, zMax);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBox::GetBounds(double bounds[6])
 {
   this->BBox->GetBounds(bounds);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkBox::GetBounds()
 {
   this->BBox->GetBounds(this->Bounds);
   return this->Bounds;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBox::AddBounds(const double bounds[6])
 {
   vtkBoundingBox bbox(*(this->BBox));
@@ -120,7 +120,7 @@ void vtkBox::AddBounds(const double bounds[6])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Evaluate box equation. This differs from the similar vtkPlanes
 // (with six planes) because of the "rounded" nature of the corners.
 double vtkBox::EvaluateFunction(double x[3])
@@ -187,7 +187,7 @@ double vtkBox::EvaluateFunction(double x[3])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Evaluate box gradient.
 void vtkBox::EvaluateGradient(double x[3], double n[3])
 {
@@ -312,7 +312,7 @@ void vtkBox::EvaluateGradient(double x[3], double n[3])
 #define VTK_LEFT 1
 #define VTK_MIDDLE 2
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Bounding box intersection modified from Graphics Gems Vol I. The method
 // returns a non-zero value if the bounding box is hit. Origin[3] starts
 // the ray, dir[3] is the vector components of the ray in the x-y-z
@@ -419,7 +419,7 @@ char vtkBox::IntersectBox(
 #undef VTK_LEFT
 #undef VTK_MIDDLE
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Bounding box intersection code from David Gobbi.  Go through the
 // bounding planes one at a time and compute the parametric coordinate
 // of each intersection.
@@ -524,7 +524,7 @@ int vtkBox::IntersectWithLine(const double bounds[6], const double p1[3], const 
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkBox::IntersectWithInfiniteLine(const double bounds[6], const double p1[3],
   const double p2[3], double& t1, double& t2, double x1[3], double x2[3], int& plane1, int& plane2)
 {
@@ -586,7 +586,7 @@ bool vtkBox::IntersectWithInfiniteLine(const double bounds[6], const double p1[3
   return t1 != -std::numeric_limits<double>::infinity();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkBox::IntersectWithPlane(double bounds[6], double origin[3], double normal[3])
 {
   // Evaluate the eight points. If there is a sign change, then there is an
@@ -620,7 +620,7 @@ vtkTypeBool vtkBox::IntersectWithPlane(double bounds[6], double origin[3], doubl
   return 0; // no intersection
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Support for IntersectWithPlane
 namespace
 {
@@ -642,7 +642,7 @@ bool IntPointCompare(const IntPoint& a, const IntPoint& b)
 
 } // anonymous namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Return non-zero and generate polygon of intersection. Return 0 and there
 // is no intersection. An ordered list of intersection points is returned in
 // xout (ordered in the sense that they form a polygon). Note that the
@@ -786,7 +786,7 @@ vtkTypeBool vtkBox::IntersectWithPlane(
   return numOutInts;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBox::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -796,25 +796,25 @@ void vtkBox::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "XMin: (" << minP[0] << ", " << minP[1] << ", " << minP[2] << ")\n";
   os << indent << "XMax: (" << maxP[0] << ", " << maxP[1] << ", " << maxP[2] << ")\n";
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBox::GetXMin(double p[3])
 {
   this->BBox->GetMinPoint(p[0], p[1], p[2]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBox::GetXMin(double& x, double& y, double& z)
 {
   this->BBox->GetMinPoint(x, y, z);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBox::GetXMax(double p[3])
 {
   this->BBox->GetMaxPoint(p[0], p[1], p[2]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBox::GetXMax(double& x, double& y, double& z)
 {
   this->BBox->GetMaxPoint(x, y, z);

@@ -32,7 +32,7 @@
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkTrivialProducer.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static vtkSmartPointer<vtkImageStencilData> CreateBoxStencilData(double d1, double d2)
 {
   // Create two stencil data from polydata's
@@ -102,7 +102,7 @@ static vtkSmartPointer<vtkImageStencilData> CreateBoxStencilData(double d1, doub
   return stencilData;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static void GetStencilDataAsImageData(vtkImageStencilData* stencilData, vtkImageData* image)
 {
   int extent[6];
@@ -160,7 +160,7 @@ static void GetStencilDataAsImageData(vtkImageStencilData* stencilData, vtkImage
   }   // end for each scan line
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestImageStencilData(int argc, char* argv[])
 {
   vtkSmartPointer<vtkImageStencilData> stencil1 = CreateBoxStencilData(10.0, 30.0);

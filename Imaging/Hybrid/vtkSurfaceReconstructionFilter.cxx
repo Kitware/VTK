@@ -107,7 +107,7 @@ static void vtkSRMultiply(double** m, double f, long nrl, long nrh, long ncl, lo
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSurfaceReconstructionFilter::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
@@ -129,7 +129,7 @@ int vtkSurfaceReconstructionFilter::RequestInformation(vtkInformation* vtkNotUse
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 struct SurfacePoint
 {
   double loc[3];
@@ -151,7 +151,7 @@ struct SurfacePoint
   }
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSurfaceReconstructionFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

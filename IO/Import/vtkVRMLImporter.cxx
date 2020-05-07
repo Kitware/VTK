@@ -61,7 +61,7 @@
 
 #include "vtkVRMLImporter_Yacc.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkVRMLImporterInternal
 {
 public:
@@ -72,14 +72,14 @@ public:
   vtkVRMLVectorType<vtkObject*> Heap;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Heap to manage memory leaks
 vtkHeap* vtkVRMLAllocator::Heap = nullptr;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkVRMLImporter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkVRMLImporter::vtkVRMLImporter()
 {
   this->Internal = new vtkVRMLImporterInternal;
@@ -102,7 +102,7 @@ vtkVRMLImporter::vtkVRMLImporter()
   this->ShapeResolution = 12;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkVRMLImporter::~vtkVRMLImporter()
 {
   if (this->CurrentTransform)
@@ -140,7 +140,7 @@ vtkVRMLImporter::~vtkVRMLImporter()
   this->Parser = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVRMLImporter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -157,7 +157,7 @@ void vtkVRMLImporter::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Open an import file. Returns zero if error.
 int vtkVRMLImporter::OpenImportFile()
 {
@@ -177,7 +177,7 @@ int vtkVRMLImporter::OpenImportFile()
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPoints* vtkVRMLImporter::PointsNew()
 {
   vtkPoints* pts = vtkPoints::New();
@@ -185,7 +185,7 @@ vtkPoints* vtkVRMLImporter::PointsNew()
   return pts;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFloatArray* vtkVRMLImporter::FloatArrayNew()
 {
   vtkFloatArray* array = vtkFloatArray::New();
@@ -193,7 +193,7 @@ vtkFloatArray* vtkVRMLImporter::FloatArrayNew()
   return array;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdTypeArray* vtkVRMLImporter::IdTypeArrayNew()
 {
   vtkIdTypeArray* array = vtkIdTypeArray::New();
@@ -201,7 +201,7 @@ vtkIdTypeArray* vtkVRMLImporter::IdTypeArrayNew()
   return array;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVRMLImporter::DeleteObject(vtkObject* obj)
 {
   for (int i = 0; i < this->Internal->Heap.Count(); i++)
@@ -214,7 +214,7 @@ void vtkVRMLImporter::DeleteObject(vtkObject* obj)
   obj->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkVRMLImporter::ImportBegin()
 {
   int ret = 1;
@@ -304,7 +304,7 @@ int vtkVRMLImporter::ImportBegin()
   return ret;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVRMLImporter::ImportEnd()
 {
   delete this->Parser->typeList;
@@ -387,7 +387,7 @@ void vtkVRMLImporter::ImportEnd()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Yacc/lex routines to add stuff to the renderer.
 void vtkVRMLImporter::enterNode(const char* nodeType)
 {
@@ -530,7 +530,7 @@ void vtkVRMLImporter::enterNode(const char* nodeType)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVRMLImporter::exitNode()
 {
   VrmlNodeType::FieldRec* fr = this->Parser->currentField->Top();
@@ -817,7 +817,7 @@ void vtkVRMLImporter::exitNode()
   delete fr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVRMLImporter::enterField(const char* fieldName)
 {
   VrmlNodeType::FieldRec* fr = this->Parser->currentField->Top();
@@ -850,7 +850,7 @@ void vtkVRMLImporter::enterField(const char* fieldName)
   // else expect(ANY_FIELD);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVRMLImporter::exitField()
 {
   VrmlNodeType::FieldRec* fr = this->Parser->currentField->Top();
@@ -1301,7 +1301,7 @@ void vtkVRMLImporter::exitField()
   fr->fieldName = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVRMLImporter::useNode(const char* name)
 {
   vtkObject* useO = this->GetVRMLDEFObject(name);
@@ -1376,7 +1376,7 @@ void vtkVRMLImporter::useNode(const char* name)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Send in the name from the VRML file, get the VTK object.
 vtkObject* vtkVRMLImporter::GetVRMLDEFObject(const char* name)
 {
@@ -1393,7 +1393,7 @@ vtkObject* vtkVRMLImporter::GetVRMLDEFObject(const char* name)
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::string vtkVRMLImporter::GetOutputsDescription()
 {
   std::stringstream ss;

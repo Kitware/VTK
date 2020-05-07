@@ -36,22 +36,22 @@
 
 vtkStandardNewMacro(vtkDIYDataExchanger);
 vtkCxxSetObjectMacro(vtkDIYDataExchanger, Controller, vtkMultiProcessController);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDIYDataExchanger::vtkDIYDataExchanger()
   : Controller(nullptr)
 {
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDIYDataExchanger::~vtkDIYDataExchanger()
 {
   this->SetController(nullptr);
 }
 
-//----------------------------------------------------------------------------
-bool vtkDIYDataExchanger::AllToAll(const std::vector<vtkSmartPointer<vtkDataSet> >& sendBuffer,
-  const std::vector<int>& sendCounts, std::vector<vtkSmartPointer<vtkDataSet> >& recvBuffer,
+//------------------------------------------------------------------------------
+bool vtkDIYDataExchanger::AllToAll(const std::vector<vtkSmartPointer<vtkDataSet>>& sendBuffer,
+  const std::vector<int>& sendCounts, std::vector<vtkSmartPointer<vtkDataSet>>& recvBuffer,
   std::vector<int>& recvCounts)
 {
   if (this->Controller == nullptr || (this->Controller->GetNumberOfProcesses() <= 1))
@@ -80,10 +80,10 @@ bool vtkDIYDataExchanger::AllToAll(const std::vector<vtkSmartPointer<vtkDataSet>
 
   // collect information from all ranks about who has data from whom. this helps
   // us setup links.
-  std::vector<std::vector<int> > allCounts;
+  std::vector<std::vector<int>> allCounts;
   diy::mpi::all_gather(comm, sendCounts, allCounts);
 
-  using VectorOfDataSet = std::vector<vtkSmartPointer<vtkDataSet> >;
+  using VectorOfDataSet = std::vector<vtkSmartPointer<vtkDataSet>>;
   using VectorOfVectorOfDataSet = std::vector<VectorOfDataSet>;
   using BlockT = VectorOfVectorOfDataSet;
 
@@ -179,7 +179,7 @@ bool vtkDIYDataExchanger::AllToAll(const std::vector<vtkSmartPointer<vtkDataSet>
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDIYDataExchanger::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

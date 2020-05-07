@@ -67,13 +67,13 @@ public:
   }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenVRMenuRepresentation::vtkOpenVRMenuRepresentation()
 {
   this->VisibilityOff();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenVRMenuRepresentation::~vtkOpenVRMenuRepresentation()
 {
   this->RemoveAllMenuItems();
@@ -196,7 +196,7 @@ void vtkOpenVRMenuRepresentation::ComplexInteraction(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRMenuRepresentation::ReleaseGraphicsResources(vtkWindow* w)
 {
   for (auto& menu : this->Menus)
@@ -205,7 +205,7 @@ void vtkOpenVRMenuRepresentation::ReleaseGraphicsResources(vtkWindow* w)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkOpenVRMenuRepresentation::RenderOverlay(vtkViewport* v)
 {
   if (!this->GetVisibility())
@@ -228,13 +228,13 @@ int vtkOpenVRMenuRepresentation::RenderOverlay(vtkViewport* v)
   return static_cast<int>(this->Menus.size());
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkOpenVRMenuRepresentation::HasTranslucentPolygonalGeometry()
 {
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRMenuRepresentation::BuildRepresentation()
 {
   vtkOpenVRRenderWindow* renWin =
@@ -320,7 +320,7 @@ void vtkOpenVRMenuRepresentation::BuildRepresentation()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRMenuRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -49,7 +49,7 @@
 #include "vtkRegressionTestImage.h"
 #include "vtkTestUtilities.h"
 
-// --------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Callback for the widget interaction
 class vtkTestPolyPlaneCallback : public vtkCommand
 {
@@ -91,7 +91,7 @@ public:
   vtkCutter* Cutter;
 };
 
-// --------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestPolyPlane(int argc, char* argv[])
 {
   // Read height field.

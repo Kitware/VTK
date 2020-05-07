@@ -48,7 +48,7 @@ public:
 
 vtkStandardNewMacro(vtkCaptionActor2DConnection);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCaptionActor2D::vtkCaptionActor2D()
 {
   // Positioning information
@@ -172,7 +172,7 @@ vtkCaptionActor2D::vtkCaptionActor2D()
   this->LeaderActor3D->SetMapper(this->LeaderMapper3D);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCaptionActor2D::~vtkCaptionActor2D()
 {
   this->AttachmentPointCoordinate->Delete();
@@ -202,13 +202,13 @@ vtkCaptionActor2D::~vtkCaptionActor2D()
   this->SetCaptionTextProperty(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCaptionActor2D::SetLeaderGlyphConnection(vtkAlgorithmOutput* ao)
 {
   this->LeaderGlyphConnectionHolder->SetInputConnection(ao);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCaptionActor2D::SetLeaderGlyphData(vtkPolyData* leader)
 {
   vtkTrivialProducer* tp = vtkTrivialProducer::New();
@@ -217,7 +217,7 @@ void vtkCaptionActor2D::SetLeaderGlyphData(vtkPolyData* leader)
   tp->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyData* vtkCaptionActor2D::GetLeaderGlyph()
 {
   if (this->LeaderGlyphConnectionHolder->GetNumberOfInputConnections(0) < 1)
@@ -227,19 +227,19 @@ vtkPolyData* vtkCaptionActor2D::GetLeaderGlyph()
   return vtkPolyData::SafeDownCast(this->LeaderGlyphConnectionHolder->GetInputDataObject(0, 0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCaptionActor2D::SetCaption(const char* caption)
 {
   this->TextActor->SetInput(caption);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 char* vtkCaptionActor2D::GetCaption()
 {
   return this->TextActor->GetInput();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Release any graphics resources that are being consumed by this actor.
 // The parameter window could be used to determine which graphic
 // resources to release.
@@ -277,7 +277,7 @@ int vtkCaptionActor2D::RenderOverlay(vtkViewport* viewport)
   return renderedSomething;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport* viewport)
 {
   // Build the caption (almost always needed so we don't check mtime)
@@ -523,7 +523,7 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport* viewport)
   return renderedSomething;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry?
 vtkTypeBool vtkCaptionActor2D::HasTranslucentPolygonalGeometry()
@@ -531,7 +531,7 @@ vtkTypeBool vtkCaptionActor2D::HasTranslucentPolygonalGeometry()
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCaptionActor2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -574,7 +574,7 @@ void vtkCaptionActor2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "AttachEdgeOnly: " << (this->AttachEdgeOnly ? "On\n" : "Off\n");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCaptionActor2D::ShallowCopy(vtkProp* prop)
 {
   vtkCaptionActor2D* a = vtkCaptionActor2D::SafeDownCast(prop);

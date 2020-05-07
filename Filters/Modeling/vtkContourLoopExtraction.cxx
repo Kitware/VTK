@@ -34,7 +34,7 @@
 
 vtkStandardNewMacro(vtkContourLoopExtraction);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 namespace
 {
 // Note on the definition of parametric coordinates: Given a sequence of
@@ -211,7 +211,7 @@ void OutputPolygon(LoopPointType& sortedPoints, vtkPoints* inPts, vtkCellArray* 
 
 } // anonymous namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Instantiate object with empty loop.
 vtkContourLoopExtraction::vtkContourLoopExtraction()
 {
@@ -228,10 +228,10 @@ vtkContourLoopExtraction::vtkContourLoopExtraction()
   this->OutputMode = VTK_OUTPUT_POLYGONS;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkContourLoopExtraction::~vtkContourLoopExtraction() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkContourLoopExtraction::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -365,7 +365,7 @@ int vtkContourLoopExtraction::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkContourLoopExtraction::GetLoopClosureAsString()
 {
   if (this->LoopClosure == VTK_LOOP_CLOSURE_OFF)
@@ -382,7 +382,7 @@ const char* vtkContourLoopExtraction::GetLoopClosureAsString()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkContourLoopExtraction::GetOutputModeAsString()
 {
   if (this->OutputMode == VTK_OUTPUT_POLYGONS)
@@ -399,7 +399,7 @@ const char* vtkContourLoopExtraction::GetOutputModeAsString()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContourLoopExtraction::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

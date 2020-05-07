@@ -22,7 +22,7 @@
 
 vtkStandardNewMacro(vtkImageIslandRemoval2D);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Constructor: Sets default filter to be identity.
 vtkImageIslandRemoval2D::vtkImageIslandRemoval2D()
 {
@@ -36,7 +36,7 @@ vtkImageIslandRemoval2D::vtkImageIslandRemoval2D()
   this->SetIslandValue(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageIslandRemoval2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -53,7 +53,7 @@ void vtkImageIslandRemoval2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ReplaceValue: " << this->ReplaceValue;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The templated execute function handles all the data types.
 // Codes:  0 => unvisited. 1 => visited don't know.
 //         2 => visited keep.  3 => visited replace.
@@ -462,7 +462,7 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D* self, vtkImageData*
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method uses the input data to fill the output data.
 // It can handle any type data, but the two datas must have the same
 // data type.  Assumes that in and out have the same lower extent.

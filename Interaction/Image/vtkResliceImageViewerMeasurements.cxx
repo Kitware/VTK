@@ -49,7 +49,7 @@
 
 vtkStandardNewMacro(vtkResliceImageViewerMeasurements);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkResliceImageViewerMeasurements::vtkResliceImageViewerMeasurements()
 {
   this->ResliceImageViewer = nullptr;
@@ -64,7 +64,7 @@ vtkResliceImageViewerMeasurements::vtkResliceImageViewerMeasurements()
   this->Tolerance = 6;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkResliceImageViewerMeasurements::~vtkResliceImageViewerMeasurements()
 {
   // Remove any added observers
@@ -78,7 +78,7 @@ vtkResliceImageViewerMeasurements::~vtkResliceImageViewerMeasurements()
   this->EventCallbackCommand->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceImageViewerMeasurements ::SetResliceImageViewer(vtkResliceImageViewer* i)
 {
   // Weak reference. No need to delete
@@ -94,13 +94,13 @@ void vtkResliceImageViewerMeasurements ::SetResliceImageViewer(vtkResliceImageVi
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceImageViewerMeasurements::Render()
 {
   this->ResliceImageViewer->Render();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceImageViewerMeasurements ::ProcessEventsHandler(
   vtkObject*, unsigned long, void* clientdata, void*)
 {
@@ -116,7 +116,7 @@ void vtkResliceImageViewerMeasurements ::ProcessEventsHandler(
   self->Update();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceImageViewerMeasurements::Update()
 {
   if (this->ResliceImageViewer->GetResliceMode() != vtkResliceImageViewer::RESLICE_OBLIQUE)
@@ -141,7 +141,7 @@ void vtkResliceImageViewerMeasurements::Update()
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkResliceImageViewerMeasurements ::IsItemOnReslicedPlane(vtkAbstractWidget* w)
 {
 
@@ -177,7 +177,7 @@ bool vtkResliceImageViewerMeasurements ::IsItemOnReslicedPlane(vtkAbstractWidget
   return true;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkResliceImageViewerMeasurements ::IsWidgetOnReslicedPlane(vtkDistanceWidget* w)
 {
   if (w->GetWidgetState() != vtkDistanceWidget::Manipulate)
@@ -195,7 +195,7 @@ bool vtkResliceImageViewerMeasurements ::IsWidgetOnReslicedPlane(vtkDistanceWidg
   return true;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkResliceImageViewerMeasurements ::IsWidgetOnReslicedPlane(vtkAngleWidget* w)
 {
   if (w->GetWidgetState() != vtkAngleWidget::Manipulate)
@@ -213,7 +213,7 @@ bool vtkResliceImageViewerMeasurements ::IsWidgetOnReslicedPlane(vtkAngleWidget*
   return true;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkResliceImageViewerMeasurements ::IsWidgetOnReslicedPlane(vtkBiDimensionalWidget* w)
 {
   if (w->GetWidgetState() != vtkBiDimensionalWidget::Manipulate)
@@ -233,13 +233,13 @@ bool vtkResliceImageViewerMeasurements ::IsWidgetOnReslicedPlane(vtkBiDimensiona
   return true;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkResliceImageViewerMeasurements ::IsWidgetOnReslicedPlane(vtkHandleWidget* w)
 {
   return this->IsPointOnReslicedPlane(w->GetHandleRepresentation());
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkResliceImageViewerMeasurements ::IsWidgetOnReslicedPlane(vtkCaptionWidget* w)
 {
   if (vtkCaptionRepresentation* rep =
@@ -251,7 +251,7 @@ bool vtkResliceImageViewerMeasurements ::IsWidgetOnReslicedPlane(vtkCaptionWidge
   return true;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkResliceImageViewerMeasurements ::IsWidgetOnReslicedPlane(vtkContourWidget* w)
 {
   if (w->GetWidgetState() != vtkContourWidget::Manipulate)
@@ -277,7 +277,7 @@ bool vtkResliceImageViewerMeasurements ::IsWidgetOnReslicedPlane(vtkContourWidge
   return true;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkResliceImageViewerMeasurements ::IsWidgetOnReslicedPlane(vtkSeedWidget* w)
 {
   if (vtkSeedRepresentation* rep = vtkSeedRepresentation::SafeDownCast(w->GetRepresentation()))
@@ -293,7 +293,7 @@ bool vtkResliceImageViewerMeasurements ::IsWidgetOnReslicedPlane(vtkSeedWidget* 
   return true;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkResliceImageViewerMeasurements ::IsPointOnReslicedPlane(vtkHandleRepresentation* h)
 {
   double pos[3];
@@ -301,7 +301,7 @@ bool vtkResliceImageViewerMeasurements ::IsPointOnReslicedPlane(vtkHandleReprese
   return this->IsPositionOnReslicedPlane(pos);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkResliceImageViewerMeasurements ::IsPositionOnReslicedPlane(double p[3])
 {
   if (vtkResliceCursorRepresentation* rep = vtkResliceCursorRepresentation::SafeDownCast(
@@ -316,25 +316,25 @@ bool vtkResliceImageViewerMeasurements ::IsPositionOnReslicedPlane(double p[3])
   return true;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceImageViewerMeasurements::AddItem(vtkAbstractWidget* w)
 {
   this->WidgetCollection->AddItem(w);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceImageViewerMeasurements::RemoveItem(vtkAbstractWidget* w)
 {
   this->WidgetCollection->RemoveItem(w);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceImageViewerMeasurements::RemoveAllItems()
 {
   this->WidgetCollection->RemoveAllItems();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceImageViewerMeasurements::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

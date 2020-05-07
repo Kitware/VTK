@@ -54,7 +54,7 @@
 
 vtkStandardNewMacro(vtkPDALReader);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPDALReader::vtkPDALReader()
 {
   this->FileName = nullptr;
@@ -63,7 +63,7 @@ vtkPDALReader::vtkPDALReader()
   this->SetNumberOfOutputPorts(1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPDALReader::~vtkPDALReader()
 {
   if (this->FileName)
@@ -72,7 +72,7 @@ vtkPDALReader::~vtkPDALReader()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPDALReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(request), vtkInformationVector* outputVector)
 {
@@ -124,7 +124,7 @@ int vtkPDALReader::RequestData(vtkInformation* vtkNotUsed(request),
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPDALReader::ReadPointRecordData(pdal::Stage& reader, vtkPolyData* pointsPolyData)
 {
   vtkNew<vtkPoints> points;
@@ -396,7 +396,7 @@ void vtkPDALReader::ReadPointRecordData(pdal::Stage& reader, vtkPolyData* points
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPDALReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   Superclass::PrintSelf(os, indent);

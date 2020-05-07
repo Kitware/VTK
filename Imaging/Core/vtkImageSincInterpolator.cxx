@@ -45,7 +45,7 @@
 
 vtkStandardNewMacro(vtkImageSincInterpolator);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageSincInterpolator::vtkImageSincInterpolator()
 {
   this->WindowFunction = VTK_LANCZOS_WINDOW;
@@ -68,7 +68,7 @@ vtkImageSincInterpolator::vtkImageSincInterpolator()
   this->UseWindowParameter = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageSincInterpolator::~vtkImageSincInterpolator()
 {
   if (this->KernelLookupTable[0])
@@ -77,7 +77,7 @@ vtkImageSincInterpolator::~vtkImageSincInterpolator()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSincInterpolator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -92,7 +92,7 @@ void vtkImageSincInterpolator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Renormalization: " << (this->Renormalization ? "On\n" : "Off\n");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSincInterpolator::ComputeSupportSize(const double matrix[16], int size[3])
 {
   // compute the default support size for when matrix is null
@@ -196,13 +196,13 @@ void vtkImageSincInterpolator::ComputeSupportSize(const double matrix[16], int s
   this->InternalUpdate();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkImageSincInterpolator::IsSeparable()
 {
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSincInterpolator::SetWindowHalfWidth(int size)
 {
   size = vtkMath::ClampValue(size, 1, VTK_SINC_KERNEL_SIZE_MAX / 2);
@@ -216,7 +216,7 @@ void vtkImageSincInterpolator::SetWindowHalfWidth(int size)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSincInterpolator::SetWindowFunction(int mode)
 {
   mode = vtkMath::ClampValue(mode, VTK_LANCZOS_WINDOW, VTK_BLACKMAN_NUTTALL4);
@@ -227,7 +227,7 @@ void vtkImageSincInterpolator::SetWindowFunction(int mode)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkImageSincInterpolator::GetWindowFunctionAsString()
 {
   const char* result = "";
@@ -272,7 +272,7 @@ const char* vtkImageSincInterpolator::GetWindowFunctionAsString()
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSincInterpolator::SetUseWindowParameter(int val)
 {
   val = (val != 0);
@@ -283,7 +283,7 @@ void vtkImageSincInterpolator::SetUseWindowParameter(int val)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSincInterpolator::SetWindowParameter(double val)
 {
   if (this->WindowParameter != val)
@@ -293,7 +293,7 @@ void vtkImageSincInterpolator::SetWindowParameter(double val)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSincInterpolator::SetBlurFactors(double x, double y, double z)
 {
   if (this->BlurFactors[0] != x || this->BlurFactors[1] != y || this->BlurFactors[2] != z)
@@ -305,7 +305,7 @@ void vtkImageSincInterpolator::SetBlurFactors(double x, double y, double z)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSincInterpolator::SetAntialiasing(int val)
 {
   val = (val != 0);
@@ -316,7 +316,7 @@ void vtkImageSincInterpolator::SetAntialiasing(int val)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSincInterpolator::SetRenormalization(int val)
 {
   val = (val != 0);
@@ -327,7 +327,7 @@ void vtkImageSincInterpolator::SetRenormalization(int val)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSincInterpolator::InternalDeepCopy(vtkAbstractImageInterpolator* a)
 {
   vtkImageSincInterpolator* obj = vtkImageSincInterpolator::SafeDownCast(a);
@@ -359,7 +359,7 @@ void vtkImageSincInterpolator::InternalDeepCopy(vtkAbstractImageInterpolator* a)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSincInterpolator::InternalUpdate()
 {
   bool blurchange = false;
@@ -401,15 +401,15 @@ void vtkImageSincInterpolator::InternalUpdate()
   this->InterpolationInfo->ExtraInfo = this->KernelLookupTable;
 }
 
-//----------------------------------------------------------------------------
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //  Interpolation subroutines and associated code
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 namespace
 {
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Special functions
 
 // Compute the sinc function (leave undefined at x=0 for efficiency,
@@ -438,7 +438,7 @@ inline double vtkBesselI0(double x)
   return b;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Sinc window functions
 
 struct vtkSincWindow
@@ -485,7 +485,7 @@ double vtkSincWindow::Hamming(double x, const double* a)
   return y;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Sinc kernel computation: compute half of the interpolation kernel,
 // including n sinc lobes, to make a lookup table of size "size".
 // In the table, x=0.0 corresponds to index position zero, and
@@ -581,7 +581,7 @@ void vtkSincKernel::Hamming(F* kernel, int size, int n, double p, const double* 
   } while (--size);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T, class F>
 void vtkSincInterpWeights(T* kernel, F* fX, F fx, int m)
 {
@@ -621,7 +621,7 @@ void vtkSincInterpWeights(T* kernel, F* fX, F fx, int m)
   } while (--n);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Ensure that the set of n coefficients extracted from the kernel table
 // will always sum to unity.  This renormalization is needed to ensure that
 // the interpolation will not have a DC offset.  For the rationale, see e.g.
@@ -737,14 +737,14 @@ void vtkRenormalizeKernel(T* kernel, int m, int n)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class F, class T>
 struct vtkImageSincInterpolate
 {
   static void General(vtkInterpolationInfo* info, const F point[3], F* outPtr);
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class F, class T>
 void vtkImageSincInterpolate<F, T>::General(vtkInterpolationInfo* info, const F point[3], F* outPtr)
 {
@@ -906,7 +906,7 @@ void vtkImageSincInterpolate<F, T>::General(vtkInterpolationInfo* info, const F 
   } while (--numscalars);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the interpolation function for the specified data types
 template <class F>
 void vtkImageSincInterpolatorGetInterpolationFunc(
@@ -921,7 +921,7 @@ void vtkImageSincInterpolatorGetInterpolationFunc(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Interpolation for precomputed weights
 
 template <class F, class T>
@@ -931,7 +931,7 @@ struct vtkImageSincRowInterpolate
     vtkInterpolationWeights* weights, int idX, int idY, int idZ, F* outPtr, int n);
 };
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // helper function for high-order interpolation
 template <class F, class T>
 void vtkImageSincRowInterpolate<F, T>::General(
@@ -995,7 +995,7 @@ void vtkImageSincRowInterpolate<F, T>::General(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // get row interpolation function for different interpolation modes
 // and different scalar types
 template <class F>
@@ -1011,7 +1011,7 @@ void vtkImageSincInterpolatorGetRowInterpolationFunc(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class F>
 void vtkImageSincInterpolatorPrecomputeWeights(const F newmat[16], const int outExt[6],
   int clipExt[6], const F bounds[6], vtkInterpolationWeights* weights)
@@ -1203,10 +1203,10 @@ void vtkImageSincInterpolatorPrecomputeWeights(const F newmat[16], const int out
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 } // ends anonymous namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSincInterpolator::GetInterpolationFunc(
   void (**func)(vtkInterpolationInfo*, const double[3], double*))
 {
@@ -1214,7 +1214,7 @@ void vtkImageSincInterpolator::GetInterpolationFunc(
     func, this->InterpolationInfo->ScalarType, this->WindowFunction);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSincInterpolator::GetInterpolationFunc(
   void (**func)(vtkInterpolationInfo*, const float[3], float*))
 {
@@ -1222,7 +1222,7 @@ void vtkImageSincInterpolator::GetInterpolationFunc(
     func, this->InterpolationInfo->ScalarType, this->WindowFunction);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSincInterpolator::GetRowInterpolationFunc(
   void (**func)(vtkInterpolationWeights*, int, int, int, double*, int))
 {
@@ -1230,7 +1230,7 @@ void vtkImageSincInterpolator::GetRowInterpolationFunc(
     func, this->InterpolationInfo->ScalarType, this->WindowFunction);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSincInterpolator::GetRowInterpolationFunc(
   void (**func)(vtkInterpolationWeights*, int, int, int, float*, int))
 {
@@ -1238,7 +1238,7 @@ void vtkImageSincInterpolator::GetRowInterpolationFunc(
     func, this->InterpolationInfo->ScalarType, this->WindowFunction);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSincInterpolator::PrecomputeWeightsForExtent(
   const double matrix[16], const int extent[6], int newExtent[6], vtkInterpolationWeights*& weights)
 {
@@ -1248,7 +1248,7 @@ void vtkImageSincInterpolator::PrecomputeWeightsForExtent(
     matrix, extent, newExtent, this->StructuredBoundsDouble, weights);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSincInterpolator::PrecomputeWeightsForExtent(
   const float matrix[16], const int extent[6], int newExtent[6], vtkInterpolationWeights*& weights)
 {
@@ -1258,13 +1258,13 @@ void vtkImageSincInterpolator::PrecomputeWeightsForExtent(
     matrix, extent, newExtent, this->StructuredBoundsFloat, weights);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSincInterpolator::FreePrecomputedWeights(vtkInterpolationWeights*& weights)
 {
   this->Superclass::FreePrecomputedWeights(weights);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // build any tables required for the interpolation
 void vtkImageSincInterpolator::BuildKernelLookupTable()
 {
@@ -1402,7 +1402,7 @@ void vtkImageSincInterpolator::BuildKernelLookupTable()
   this->LastBlurFactors[2] = this->BlurFactors[2];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSincInterpolator::FreeKernelLookupTable()
 {
   float* kernel = this->KernelLookupTable[0];

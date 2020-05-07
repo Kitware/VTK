@@ -225,7 +225,7 @@ bool vtkSQLQuery::BindParameter(int index, vtkVariant data)
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 bool vtkSQLQuery::SetQuery(const char* queryString)
 {

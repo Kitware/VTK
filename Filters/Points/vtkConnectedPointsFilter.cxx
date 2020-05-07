@@ -30,7 +30,7 @@
 vtkStandardNewMacro(vtkConnectedPointsFilter);
 vtkCxxSetObjectMacro(vtkConnectedPointsFilter, Locator, vtkAbstractPointLocator);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct with default extraction mode to extract largest regions.
 vtkConnectedPointsFilter::vtkConnectedPointsFilter()
 {
@@ -74,7 +74,7 @@ vtkConnectedPointsFilter::vtkConnectedPointsFilter()
   this->Wave2 = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkConnectedPointsFilter::~vtkConnectedPointsFilter()
 {
   this->Seeds->Delete();
@@ -90,7 +90,7 @@ vtkConnectedPointsFilter::~vtkConnectedPointsFilter()
   this->SetLocator(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkConnectedPointsFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -319,7 +319,7 @@ int vtkConnectedPointsFilter::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Mark current points as visited and assign region number.  Note:
 // traversal occurs across neighboring points.
 //
@@ -391,14 +391,14 @@ void vtkConnectedPointsFilter::TraverseAndMark(
   } // while wave is not empty
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Obtain the number of connected regions.
 int vtkConnectedPointsFilter::GetNumberOfExtractedRegions()
 {
   return this->RegionSizes->GetMaxId() + 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Initialize list of point ids used to seed regions.
 void vtkConnectedPointsFilter::InitializeSeedList()
 {
@@ -406,7 +406,7 @@ void vtkConnectedPointsFilter::InitializeSeedList()
   this->Seeds->Reset();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Add a seed id (point id). Note: ids are 0-offset.
 void vtkConnectedPointsFilter::AddSeed(vtkIdType id)
 {
@@ -418,7 +418,7 @@ void vtkConnectedPointsFilter::AddSeed(vtkIdType id)
   this->Seeds->InsertNextId(id);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Delete a seed id (point or cell id). Note: ids are 0-offset.
 void vtkConnectedPointsFilter::DeleteSeed(vtkIdType id)
 {
@@ -426,7 +426,7 @@ void vtkConnectedPointsFilter::DeleteSeed(vtkIdType id)
   this->Seeds->DeleteId(id);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Initialize list of region ids to extract.
 void vtkConnectedPointsFilter::InitializeSpecifiedRegionList()
 {
@@ -434,7 +434,7 @@ void vtkConnectedPointsFilter::InitializeSpecifiedRegionList()
   this->SpecifiedRegionIds->Reset();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Add a region id to extract. Note: ids are 0-offset.
 void vtkConnectedPointsFilter::AddSpecifiedRegion(vtkIdType id)
 {
@@ -446,7 +446,7 @@ void vtkConnectedPointsFilter::AddSpecifiedRegion(vtkIdType id)
   this->SpecifiedRegionIds->InsertNextId(id);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Delete a region id to extract. Note: ids are 0-offset.
 void vtkConnectedPointsFilter::DeleteSpecifiedRegion(vtkIdType id)
 {
@@ -454,14 +454,14 @@ void vtkConnectedPointsFilter::DeleteSpecifiedRegion(vtkIdType id)
   this->SpecifiedRegionIds->DeleteId(id);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkConnectedPointsFilter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkConnectedPointsFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

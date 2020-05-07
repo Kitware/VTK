@@ -29,7 +29,7 @@
 
 vtkStandardNewMacro(vtkContourWidget);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkContourWidget::vtkContourWidget()
 {
   this->ManagesCursor = 0;
@@ -67,10 +67,10 @@ vtkContourWidget::vtkContourWidget()
   this->CreateDefaultRepresentation();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkContourWidget::~vtkContourWidget() = default;
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContourWidget::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)
@@ -98,7 +98,7 @@ void vtkContourWidget::CreateDefaultRepresentation()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContourWidget::CloseLoop()
 {
   vtkContourRepresentation* rep = reinterpret_cast<vtkContourRepresentation*>(this->WidgetRep);
@@ -110,7 +110,7 @@ void vtkContourWidget::CloseLoop()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContourWidget::SetEnabled(int enabling)
 {
   // The handle widgets are not actually enabled until they are placed.
@@ -131,7 +131,7 @@ void vtkContourWidget::SetEnabled(int enabling)
 }
 
 // The following methods are the callbacks that the contour widget responds to.
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContourWidget::SelectAction(vtkAbstractWidget* w)
 {
   vtkContourWidget* self = reinterpret_cast<vtkContourWidget*>(w);
@@ -203,7 +203,7 @@ void vtkContourWidget::SelectAction(vtkAbstractWidget* w)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContourWidget::AddFinalPointAction(vtkAbstractWidget* w)
 {
   vtkContourWidget* self = reinterpret_cast<vtkContourWidget*>(w);
@@ -235,7 +235,7 @@ void vtkContourWidget::AddFinalPointAction(vtkAbstractWidget* w)
   }
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContourWidget::AddNode()
 {
   int X = this->Interactor->GetEventPosition()[0];
@@ -292,7 +292,7 @@ void vtkContourWidget::AddNode()
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Note that if you select the contour at a location that is not moused over
 // a control point, the translate action makes the closest contour node
 // jump to the current mouse location. Perhaps we should either
@@ -348,7 +348,7 @@ void vtkContourWidget::TranslateContourAction(vtkAbstractWidget* w)
     rep->NeedToRenderOff();
   }
 }
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Note that if you select the contour at a location that is not moused over
 // a control point, the scale action makes the closest contour node
 // jump to the current mouse location. Perhaps we should either
@@ -403,7 +403,7 @@ void vtkContourWidget::ScaleContourAction(vtkAbstractWidget* w)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContourWidget::DeleteAction(vtkAbstractWidget* w)
 {
   vtkContourWidget* self = reinterpret_cast<vtkContourWidget*>(w);
@@ -450,7 +450,7 @@ void vtkContourWidget::DeleteAction(vtkAbstractWidget* w)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContourWidget::MoveAction(vtkAbstractWidget* w)
 {
   vtkContourWidget* self = reinterpret_cast<vtkContourWidget*>(w);
@@ -555,7 +555,7 @@ void vtkContourWidget::MoveAction(vtkAbstractWidget* w)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContourWidget::EndSelectAction(vtkAbstractWidget* w)
 {
   vtkContourWidget* self = reinterpret_cast<vtkContourWidget*>(w);
@@ -592,14 +592,14 @@ void vtkContourWidget::EndSelectAction(vtkAbstractWidget* w)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContourWidget::ResetAction(vtkAbstractWidget* w)
 {
   vtkContourWidget* self = reinterpret_cast<vtkContourWidget*>(w);
   self->Initialize(nullptr);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContourWidget::Initialize(vtkPolyData* pd, int state, vtkIdList* idList)
 {
   if (!this->GetEnabled())
@@ -632,7 +632,7 @@ void vtkContourWidget::Initialize(vtkPolyData* pd, int state, vtkIdList* idList)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContourWidget::SetAllowNodePicking(vtkTypeBool val)
 {
   if (this->AllowNodePicking == val)
@@ -647,7 +647,7 @@ void vtkContourWidget::SetAllowNodePicking(vtkTypeBool val)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContourWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h

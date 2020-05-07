@@ -19,7 +19,7 @@
 #include "vtkPruneTreeFilter.h"
 #include "vtkTree.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestPruneTreeFilter(int, char*[])
 {
   vtkNew<vtkMutableDirectedGraph> graph;

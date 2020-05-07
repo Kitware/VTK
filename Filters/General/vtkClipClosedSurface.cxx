@@ -47,7 +47,7 @@ vtkStandardNewMacro(vtkClipClosedSurface);
 
 vtkCxxSetObjectMacro(vtkClipClosedSurface, ClippingPlanes, vtkPlaneCollection);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkClipClosedSurface::vtkClipClosedSurface()
 {
   this->ClippingPlanes = nullptr;
@@ -77,7 +77,7 @@ vtkClipClosedSurface::vtkClipClosedSurface()
   this->IdList = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkClipClosedSurface::~vtkClipClosedSurface()
 {
   if (this->ClippingPlanes)
@@ -91,7 +91,7 @@ vtkClipClosedSurface::~vtkClipClosedSurface()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkClipClosedSurface::GetScalarModeAsString()
 {
   switch (this->ScalarMode)
@@ -106,7 +106,7 @@ const char* vtkClipClosedSurface::GetScalarModeAsString()
   return "";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkClipClosedSurface::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -146,7 +146,7 @@ void vtkClipClosedSurface::PrintSelf(ostream& os, vtkIndent indent)
      << "TriangulationErrorDisplay: " << (this->TriangulationErrorDisplay ? "On\n" : "Off\n");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkClipClosedSurface::ComputePipelineMTime(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector),
   int vtkNotUsed(requestFromOutputPort), vtkMTimeType* mtime)
@@ -181,7 +181,7 @@ int vtkClipClosedSurface::ComputePipelineMTime(vtkInformation* vtkNotUsed(reques
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // A helper class to quickly locate an edge, given the endpoint ids.
 // It uses an stl map rather than a table partitioning scheme, since
 // we have no idea how many entries there will be when we start.  So
@@ -308,7 +308,7 @@ vtkIdType* vtkCCSEdgeLocator::InsertUniqueEdge(vtkIdType i0, vtkIdType i1, vtkId
   return &node->edgeId;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkClipClosedSurface::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -778,7 +778,7 @@ int vtkClipClosedSurface::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkClipClosedSurface::SqueezeOutputPoints(
   vtkPolyData* output, vtkPoints* points, vtkPointData* pointData, int outputPointDataType)
 {
@@ -871,7 +871,7 @@ void vtkClipClosedSurface::SqueezeOutputPoints(
   delete[] pointMap;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkClipClosedSurface::CreateColorValues(const double color1[3], const double color2[3],
   const double color3[3], unsigned char colors[3][3])
 {
@@ -900,7 +900,7 @@ void vtkClipClosedSurface::CreateColorValues(const double color1[3], const doubl
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Point interpolation for clipping and contouring, given the scalar
 // values (v0, v1) for the two endpoints (p0, p1).  The use of this
 // function guarantees perfect consistency in the results.
@@ -969,7 +969,7 @@ int vtkClipClosedSurface::InterpolateEdge(vtkPoints* points, vtkPointData* point
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkClipClosedSurface::ClipLines(vtkPoints* points, vtkDoubleArray* pointScalars,
   vtkPointData* pointData, vtkCCSEdgeLocator* edgeLocator, vtkCellArray* inputCells,
   vtkCellArray* outputLines, vtkCellData* inCellData, vtkCellData* outLineData)
@@ -1022,7 +1022,7 @@ void vtkClipClosedSurface::ClipLines(vtkPoints* points, vtkDoubleArray* pointSca
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkClipClosedSurface::ClipAndContourPolys(vtkPoints* points, vtkDoubleArray* pointScalars,
   vtkPointData* pointData, vtkCCSEdgeLocator* edgeLocator, int triangulate,
   vtkCellArray* inputCells, vtkCellArray* outputPolys, vtkCellArray* outputLines,
@@ -1158,7 +1158,7 @@ void vtkClipClosedSurface::ClipAndContourPolys(vtkPoints* points, vtkDoubleArray
   idList->Initialize();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkClipClosedSurface::BreakPolylines(vtkCellArray* inputLines, vtkCellArray* lines,
   vtkUnsignedCharArray* inputScalars, vtkIdType firstLineScalar, vtkUnsignedCharArray* scalars,
   const unsigned char color[3])
@@ -1195,7 +1195,7 @@ void vtkClipClosedSurface::BreakPolylines(vtkCellArray* inputLines, vtkCellArray
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkClipClosedSurface::CopyPolygons(vtkCellArray* inputPolys, vtkCellArray* polys,
   vtkUnsignedCharArray* inputScalars, vtkIdType firstPolyScalar, vtkUnsignedCharArray* polyScalars,
   const unsigned char color[3])
@@ -1235,7 +1235,7 @@ void vtkClipClosedSurface::CopyPolygons(vtkCellArray* inputPolys, vtkCellArray* 
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkClipClosedSurface::BreakTriangleStrips(vtkCellArray* inputStrips, vtkCellArray* polys,
   vtkUnsignedCharArray* inputScalars, vtkIdType firstStripScalar, vtkUnsignedCharArray* polyScalars,
   const unsigned char color[3])
@@ -1283,7 +1283,7 @@ void vtkClipClosedSurface::BreakTriangleStrips(vtkCellArray* inputStrips, vtkCel
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkClipClosedSurface::TriangulateContours(vtkPolyData* data, vtkIdType firstLine,
   vtkIdType numLines, vtkCellArray* outputPolys, const double normal[3])
 {

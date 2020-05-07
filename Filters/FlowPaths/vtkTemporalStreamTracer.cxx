@@ -64,8 +64,8 @@ using namespace vtkTemporalStreamTracerNamespace;
 // We support up to 6th order hexahedra.
 #define VTK_MAXIMUM_NUMBER_OF_POINTS 216
 
-//----------------------------------------------------------------------------
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //#define JB_DEBUG__
 #if defined JB_DEBUG__
 #ifdef _WIN32
@@ -88,10 +88,10 @@ using namespace vtkTemporalStreamTracerNamespace;
 #define vtkErrorMacro(a) vtkDebugMacro(a)
 
 #endif
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkTemporalStreamTracer);
 vtkCxxSetObjectMacro(vtkTemporalStreamTracer, ParticleWriter, vtkAbstractParticleWriter);
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTemporalStreamTracer::vtkTemporalStreamTracer()
 {
   this->IntegrationDirection = FORWARD;
@@ -149,14 +149,14 @@ vtkTemporalStreamTracer::vtkTemporalStreamTracer()
   this->RequestIndex = 0;
   VTK_LEGACY_BODY(vtkTemporalStreamTracer::vtkTemporalStreamTracer, "VTK 9.0");
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTemporalStreamTracer::~vtkTemporalStreamTracer()
 {
   this->SetParticleWriter(nullptr);
   delete[] this->ParticleFileName;
   this->ParticleFileName = nullptr;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTemporalStreamTracer::FillInputPortInformation(int port, vtkInformation* info)
 {
   // port 0 must be a temporal collection of any type
@@ -176,17 +176,17 @@ int vtkTemporalStreamTracer::FillInputPortInformation(int port, vtkInformation* 
   }
   return 1;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTemporalStreamTracer::AddSourceConnection(vtkAlgorithmOutput* input)
 {
   this->AddInputConnection(1, input);
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTemporalStreamTracer::RemoveAllSources()
 {
   this->SetInputConnection(1, nullptr);
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkTemporalStreamTracer::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -204,7 +204,7 @@ vtkTypeBool vtkTemporalStreamTracer::ProcessRequest(
   }
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTemporalStreamTracer::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -245,7 +245,7 @@ int vtkTemporalStreamTracer::RequestInformation(vtkInformation* vtkNotUsed(reque
 
   return 1;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class WithinTolerance : public std::binary_function<double, double, bool>
 {
 public:
@@ -255,7 +255,7 @@ public:
     return (result_type)result;
   }
 };
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTemporalStreamTracer::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -326,7 +326,7 @@ int vtkTemporalStreamTracer::RequestUpdateExtent(vtkInformation* vtkNotUsed(requ
 
   return 1;
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTemporalStreamTracer::InitializeInterpolator()
 {
   if (!this->InputDataT[0] || !this->InputDataT[1])
@@ -488,7 +488,7 @@ int vtkTemporalStreamTracer::SetTemporalInput(vtkDataObject* data, int i)
   return 1;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkTemporalStreamTracer::InsideBounds(double point[])
 {
   double delta[3] = { 0.0, 0.0, 0.0 };
@@ -502,7 +502,7 @@ bool vtkTemporalStreamTracer::InsideBounds(double point[])
   }
   return false;
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTemporalStreamTracer::TestParticles(
   ParticleVector& candidates, ParticleVector& passed, int& count)
 {
@@ -546,7 +546,7 @@ void vtkTemporalStreamTracer::TestParticles(
     }
   }
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTemporalStreamTracer::AssignSeedsToProcessors(vtkDataSet* source, int sourceID, int ptId,
   ParticleVector& LocalSeedPoints, int& LocalAssignedCount)
 {
@@ -602,7 +602,7 @@ void vtkTemporalStreamTracer::AssignSeedsToProcessors(vtkDataSet* source, int so
   }
 #endif
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTemporalStreamTracer::AssignUniqueIds(
   vtkTemporalStreamTracerNamespace::ParticleVector& LocalSeedPoints)
 {
@@ -614,10 +614,10 @@ void vtkTemporalStreamTracer::AssignUniqueIds(
   }
   this->UniqueIdCounter += numParticles;
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTemporalStreamTracer::TransmitReceiveParticles(ParticleVector&, ParticleVector&, bool) {}
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTemporalStreamTracer::UpdateParticleList(ParticleVector& candidates)
 {
   int numSeedsNew = static_cast<int>(candidates.size());
@@ -1069,7 +1069,7 @@ int vtkTemporalStreamTracer::RequestData(
   //  vtkErrorMacro(<<"RequestData done");
   return 1;
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTemporalStreamTracer::IntegrateParticle(ParticleListIterator& it, double currenttime,
   double targettime, vtkInitialValueProblemSolver* integrator)
 {
@@ -1297,7 +1297,7 @@ void vtkTemporalStreamTracer::IntegrateParticle(ParticleListIterator& it, double
                   << point1[3]);
   }
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkTemporalStreamTracer::RetryWithPush(
   ParticleInformation& info, double velocity[3], double delT)
 {
@@ -1315,7 +1315,7 @@ bool vtkTemporalStreamTracer::RetryWithPush(
   }
   return false;
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkTemporalStreamTracer::SendParticleToAnotherProcess(
   ParticleInformation& info, double point1[4], double delT)
 {
@@ -1364,7 +1364,7 @@ bool vtkTemporalStreamTracer::SendParticleToAnotherProcess(
   this->AddParticleToMPISendList(info);
   return true;
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTemporalStreamTracer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -1382,7 +1382,7 @@ void vtkTemporalStreamTracer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "TerminationTimeUnit: " << this->TerminationTimeUnit << endl;
   os << indent << "StaticSeeds: " << this->StaticSeeds << endl;
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkTemporalStreamTracer::ComputeDomainExitLocation(
   double pos[4], double p2[4], double intersection[4], vtkGenericCell* cell)
 {
@@ -1405,7 +1405,7 @@ bool vtkTemporalStreamTracer::ComputeDomainExitLocation(
     return true;
   }
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTemporalStreamTracer::AddParticleToMPISendList(ParticleInformation& info)
 {
   double eps = (this->CurrentTimeSteps[1] - this->CurrentTimeSteps[0]) / 100;
@@ -1417,7 +1417,7 @@ void vtkTemporalStreamTracer::AddParticleToMPISendList(ParticleInformation& info
                   << info.CurrentPosition.x[3]);
   }
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 /*
   // Now try to compute the trajectory exit location from the cell on the edge
   if (this->Interpolator->GetLastValidCellId(0)!=-1) {

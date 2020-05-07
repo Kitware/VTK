@@ -47,7 +47,7 @@ struct vtkImplicitModellerAppendInfo
   double MaximumDistance;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct with sample dimensions=(50,50,50), and so that model bounds are
 // automatically computed from the input. Capping is turned on with CapValue
 // equal to a large positive number.
@@ -160,7 +160,7 @@ double vtkImplicitModeller::GetScalarTypeMax(int type)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Initialize the filter for appending data. You must invoke the
 // StartAppend() method before doing successive Appends(). It's also a
 // good idea to manually specify the model bounds; otherwise the input
@@ -237,7 +237,7 @@ void ConvertToDoubleDistance(
   distance2 = distance * distance;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Templated append for VTK_VOXEL_MODE process mode and any type of output data
 template <class OT>
 void vtkImplicitModellerAppendExecute(vtkImplicitModeller* self, vtkDataSet* input,
@@ -345,7 +345,7 @@ void vtkImplicitModellerAppendExecute(vtkImplicitModeller* self, vtkDataSet* inp
   delete[] weights;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This is the multithreaded piece of the append when doing per voxel
 // processing - it is called once for each thread, with each thread
 // taking a different slab of the output to work on.  The actual work is done
@@ -469,7 +469,7 @@ static VTK_THREAD_RETURN_TYPE vtkImplicitModeller_ThreadedAppend(void* arg)
   return VTK_THREAD_RETURN_VALUE;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Templated append for VTK_CELL_MODE process mode and any type of output data
 template <class OT>
 void vtkImplicitModellerAppendExecute(
@@ -794,7 +794,7 @@ void vtkImplicitModeller::Append(vtkDataSet* input)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Method completes the append process (does the capping if requested).
 void vtkImplicitModeller::EndAppend()
 {
@@ -814,7 +814,7 @@ void vtkImplicitModeller::EndAppend()
   this->UpdateProgress(1.0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImplicitModeller::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -848,7 +848,7 @@ int vtkImplicitModeller::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImplicitModeller::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -958,7 +958,7 @@ double vtkImplicitModeller::ComputeModelBounds(vtkDataSet* input)
   return maxDist;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Set the i-j-k dimensions on which to sample the distance function.
 void vtkImplicitModeller::SetSampleDimensions(int i, int j, int k)
 {
@@ -971,7 +971,7 @@ void vtkImplicitModeller::SetSampleDimensions(int i, int j, int k)
   this->SetSampleDimensions(dim);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitModeller::SetSampleDimensions(int dim[3])
 {
   int dataDim, i;
@@ -1011,7 +1011,7 @@ void vtkImplicitModeller::SetSampleDimensions(int dim[3])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitModeller::Cap(vtkDataArray* s)
 {
   int i, j, k;
@@ -1070,7 +1070,7 @@ void vtkImplicitModeller::Cap(vtkDataArray* s)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkImplicitModeller::GetProcessModeAsString()
 {
   if (this->ProcessMode == VTK_CELL_MODE)
@@ -1083,7 +1083,7 @@ const char* vtkImplicitModeller::GetProcessModeAsString()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImplicitModeller::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
@@ -1091,7 +1091,7 @@ int vtkImplicitModeller::FillInputPortInformation(int vtkNotUsed(port), vtkInfor
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkImplicitModeller::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

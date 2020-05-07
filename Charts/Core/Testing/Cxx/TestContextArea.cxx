@@ -38,7 +38,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkTextProperty.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestContextArea(int argc, char* argv[])
 {
   // Prepare some data for plotting:

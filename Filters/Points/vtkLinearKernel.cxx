@@ -20,13 +20,13 @@
 
 vtkStandardNewMacro(vtkLinearKernel);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLinearKernel::vtkLinearKernel() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLinearKernel::~vtkLinearKernel() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkLinearKernel::ComputeWeights(
   double*, vtkIdList* pIds, vtkDoubleArray* prob, vtkDoubleArray* weights)
 {
@@ -65,7 +65,7 @@ vtkIdType vtkLinearKernel::ComputeWeights(
   return numPts;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLinearKernel::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

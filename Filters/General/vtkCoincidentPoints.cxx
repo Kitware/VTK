@@ -30,7 +30,7 @@
 #include <set>
 #include <vector>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // vtkCoincidentPoints::implementation
 
 class vtkCoincidentPoints::implementation
@@ -78,16 +78,16 @@ public:
     }
   };
 
-  typedef std::map<Coord, vtkSmartPointer<vtkIdList> >::iterator MapCoordIter;
+  typedef std::map<Coord, vtkSmartPointer<vtkIdList>>::iterator MapCoordIter;
 
   vtkCoincidentPoints* Self;
 
-  std::map<Coord, vtkSmartPointer<vtkIdList> > CoordMap;
+  std::map<Coord, vtkSmartPointer<vtkIdList>> CoordMap;
   std::map<vtkIdType, vtkIdType> CoincidenceMap;
   MapCoordIter TraversalIterator;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // vtkCoincidentPoints
 
 vtkStandardNewMacro(vtkCoincidentPoints);
@@ -185,7 +185,7 @@ void vtkCoincidentPoints::InitTraversal()
   this->Implementation->TraversalIterator = this->Implementation->CoordMap.begin();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // vtkSpiralkVertices - calculate points at a regular interval along a parametric
 // spiral.
 void vtkCoincidentPoints::SpiralPoints(vtkIdType num, vtkPoints* offsets)

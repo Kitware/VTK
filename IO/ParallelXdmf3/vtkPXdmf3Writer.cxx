@@ -24,19 +24,19 @@
 
 vtkStandardNewMacro(vtkPXdmf3Writer);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPXdmf3Writer::vtkPXdmf3Writer() {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPXdmf3Writer::~vtkPXdmf3Writer() {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPXdmf3Writer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPXdmf3Writer::CheckParameters()
 {
   vtkMultiProcessController* c = vtkMultiProcessController::GetGlobalController();
@@ -46,7 +46,7 @@ int vtkPXdmf3Writer::CheckParameters()
   return this->Superclass::CheckParametersInternal(numberOfProcesses, myRank);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPXdmf3Writer::RequestUpdateExtent(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -64,7 +64,7 @@ int vtkPXdmf3Writer::RequestUpdateExtent(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPXdmf3Writer::GlobalContinueExecuting(int localContinue)
 {
   vtkMultiProcessController* c = vtkMultiProcessController::GetGlobalController();

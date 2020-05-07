@@ -163,7 +163,7 @@ private:
 //=============================================================================
 vtkStandardNewMacro(vtkSLACParticleReader);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSLACParticleReader::vtkSLACParticleReader()
 {
   this->SetNumberOfInputPorts(0);
@@ -190,7 +190,7 @@ void vtkSLACParticleReader::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSLACParticleReader::CanReadFile(const char* filename)
 {
   vtkSLACParticleReaderAutoCloseNetCDF ncFD(filename, NC_NOWRITE, true);
@@ -209,7 +209,7 @@ int vtkSLACParticleReader::CanReadFile(const char* filename)
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkSLACParticleReader::GetNumTuplesInVariable(
   int ncFD, int varId, int expectedNumComponents)
 {
@@ -240,7 +240,7 @@ vtkIdType vtkSLACParticleReader::GetNumTuplesInVariable(
   return static_cast<vtkIdType>(dimLength);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSLACParticleReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -268,7 +268,7 @@ int vtkSLACParticleReader::RequestInformation(vtkInformation* vtkNotUsed(request
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSLACParticleReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {

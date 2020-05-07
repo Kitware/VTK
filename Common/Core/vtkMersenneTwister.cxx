@@ -135,19 +135,19 @@ public:
 
 vtkStandardNewMacro(vtkMersenneTwister);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMersenneTwister::vtkMersenneTwister()
 {
   this->Internal = new vtkMersenneTwisterInternals();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMersenneTwister::~vtkMersenneTwister()
 {
   delete this->Internal;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMersenneTwister::InitializeSequence(
   vtkMersenneTwister::SequenceId id, vtkTypeUInt32 seed, int periodExp)
 {
@@ -167,7 +167,7 @@ void vtkMersenneTwister::InitializeSequence(
   this->Next(id);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMersenneTwister::SequenceId vtkMersenneTwister::InitializeNewSequence(
   vtkTypeUInt32 seed, int periodExp)
 {
@@ -188,7 +188,7 @@ vtkMersenneTwister::SequenceId vtkMersenneTwister::InitializeNewSequence(
   return id;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkMersenneTwister::GetValue(vtkMersenneTwister::SequenceId id)
 {
   vtkMersenneTwisterInternals::ValueIt it = this->Internal->Values.find(id);
@@ -200,7 +200,7 @@ double vtkMersenneTwister::GetValue(vtkMersenneTwister::SequenceId id)
   return this->Internal->Values.find(id)->second;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMersenneTwister::Next(vtkMersenneTwister::SequenceId id)
 {
   static const double norm = 1. / static_cast<double>(std::numeric_limits<vtkTypeUInt64>::max());
@@ -221,7 +221,7 @@ void vtkMersenneTwister::Next(vtkMersenneTwister::SequenceId id)
   it->second = this->Internal->Random64(id) * norm;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMersenneTwister::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

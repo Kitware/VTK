@@ -30,12 +30,12 @@
 
 vtkStandardNewMacro(vtkDensifyPointCloudFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Helper classes to support efficient computing, and threaded execution.
 namespace
 {
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Count the number of points that need generation
 template <typename T>
 struct CountPoints
@@ -132,7 +132,7 @@ struct CountPoints
 
 }; // CountPoints
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Count the number of points that need generation
 template <typename T>
 struct GeneratePoints
@@ -238,7 +238,7 @@ struct GeneratePoints
 } // anonymous namespace
 
 //================= Begin VTK class proper =======================================
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDensifyPointCloudFilter::vtkDensifyPointCloudFilter()
 {
 
@@ -251,10 +251,10 @@ vtkDensifyPointCloudFilter::vtkDensifyPointCloudFilter()
   this->MaximumNumberOfPoints = VTK_ID_MAX;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDensifyPointCloudFilter::~vtkDensifyPointCloudFilter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Produce the output data
 int vtkDensifyPointCloudFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -357,14 +357,14 @@ int vtkDensifyPointCloudFilter::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDensifyPointCloudFilter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDensifyPointCloudFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

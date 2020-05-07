@@ -1277,7 +1277,7 @@ void vtkRenderedGraphRepresentation::ApplyViewTheme(vtkViewTheme* theme)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderedGraphRepresentation::ComputeSelectedGraphBounds(double bounds[6])
 {
   // Bring the graph up to date

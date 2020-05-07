@@ -49,10 +49,10 @@
 #include <algorithm>
 #include <numeric>
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOpenGLGlyph3DHelper);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenGLGlyph3DHelper::vtkOpenGLGlyph3DHelper()
 {
   this->UsingInstancing = false;
@@ -66,7 +66,7 @@ vtkOpenGLGlyph3DHelper::vtkOpenGLGlyph3DHelper()
   this->SetVBOShiftScaleMethod(vtkOpenGLVertexBufferObject::DISABLE_SHIFT_SCALE);
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Release any graphics resources that are being consumed by this mapper.
 void vtkOpenGLGlyph3DHelper::ReleaseGraphicsResources(vtkWindow* window)
@@ -77,7 +77,7 @@ void vtkOpenGLGlyph3DHelper::ReleaseGraphicsResources(vtkWindow* window)
   this->Superclass::ReleaseGraphicsResources(window);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLGlyph3DHelper::GetShaderTemplate(
   std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* actor)
 {
@@ -353,7 +353,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(vtkRenderer* ren, vtkActor* actor, vtkI
   this->RenderPieceFinish(ren, actor);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLGlyph3DHelper::SetMapperShaderParameters(
   vtkOpenGLHelper& cellBO, vtkRenderer* ren, vtkActor* actor)
 {
@@ -567,7 +567,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(vtkRenderer* ren, vtkActor* ac
   this->RenderPieceFinish(ren, actor);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLGlyph3DHelper::BuildCullingShaders(
   vtkRenderer* ren, vtkActor* actor, vtkIdType numPts, bool withNormals)
 {
@@ -597,19 +597,19 @@ void vtkOpenGLGlyph3DHelper::BuildCullingShaders(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLGlyph3DHelper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//-----------------------------------------------------------------------------
-void vtkOpenGLGlyph3DHelper::SetLODs(std::vector<std::pair<float, float> >& lods)
+//------------------------------------------------------------------------------
+void vtkOpenGLGlyph3DHelper::SetLODs(std::vector<std::pair<float, float>>& lods)
 {
   this->LODs = lods;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLGlyph3DHelper::SetLODColoring(bool val)
 {
   this->InstanceCulling->SetColorLOD(val);

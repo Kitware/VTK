@@ -25,11 +25,11 @@
 
 #include <cmath>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkResliceCursor);
 vtkCxxSetObjectMacro(vtkResliceCursor, Image, vtkImageData);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkResliceCursor::vtkResliceCursor()
 {
   this->XAxis[0] = 1.0;
@@ -94,7 +94,7 @@ vtkResliceCursor::vtkResliceCursor()
   this->BuildCursorTopology();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkResliceCursor::~vtkResliceCursor()
 {
   this->SetImage(nullptr);
@@ -107,7 +107,7 @@ vtkResliceCursor::~vtkResliceCursor()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceCursor::BuildCursorTopology()
 {
   if (this->Hole)
@@ -120,7 +120,7 @@ void vtkResliceCursor::BuildCursorTopology()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceCursor::BuildCursorTopologyWithoutHole()
 {
   vtkIdType ptIds[2];
@@ -136,7 +136,7 @@ void vtkResliceCursor::BuildCursorTopologyWithoutHole()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceCursor::BuildCursorTopologyWithHole()
 {
   vtkIdType ptIds[2];
@@ -155,7 +155,7 @@ void vtkResliceCursor::BuildCursorTopologyWithHole()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Reset the cursor to the default position, ie with the axes, normal
 // to each other and axis aligned and with the cursor pointed at the
 // center of the image.
@@ -200,20 +200,20 @@ void vtkResliceCursor::Reset()
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPlane* vtkResliceCursor::GetPlane(int i)
 {
   return this->ReslicePlanes->GetItem(i);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyData* vtkResliceCursor::GetPolyData()
 {
   this->Update();
   return this->PolyData;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceCursor::Update()
 {
   if (!this->Image)
@@ -229,7 +229,7 @@ void vtkResliceCursor::Update()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceCursor::ComputeAxes()
 {
   double normals[3][3];
@@ -245,7 +245,7 @@ void vtkResliceCursor::ComputeAxes()
   vtkMath::Cross(normals[2], normals[0], this->YAxis);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceCursor::BuildCursorGeometryWithHole()
 {
   this->ComputeAxes();
@@ -296,7 +296,7 @@ void vtkResliceCursor::BuildCursorGeometryWithHole()
   this->PolyDataBuildTime.Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceCursor::BuildCursorGeometryWithoutHole()
 {
   this->ComputeAxes();
@@ -334,7 +334,7 @@ void vtkResliceCursor::BuildCursorGeometryWithoutHole()
   this->PolyDataBuildTime.Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceCursor::BuildCursorGeometry()
 {
   if (this->Hole)
@@ -347,7 +347,7 @@ void vtkResliceCursor::BuildCursorGeometry()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceCursor::BuildPolyData()
 {
   this->ComputeAxes();
@@ -452,7 +452,7 @@ void vtkResliceCursor::BuildPolyData()
   this->PolyDataBuildTime.Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceCursor::SetCenter(double _arg1, double _arg2, double _arg3)
 {
   if ((this->Center[0] != _arg1) || (this->Center[1] != _arg2) || (this->Center[2] != _arg3))
@@ -482,20 +482,20 @@ void vtkResliceCursor::SetCenter(double _arg1, double _arg2, double _arg3)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceCursor::SetCenter(double _arg[3])
 {
   this->SetCenter(_arg[0], _arg[1], _arg[2]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyData* vtkResliceCursor::GetCenterlineAxisPolyData(int axis)
 {
   this->Update();
   return this->CenterlineAxis[axis];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkResliceCursor::GetAxis(int i)
 {
   if (i == 0)
@@ -512,7 +512,7 @@ double* vtkResliceCursor::GetAxis(int i)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkResliceCursor::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
@@ -528,7 +528,7 @@ vtkMTimeType vtkResliceCursor::GetMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceCursor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

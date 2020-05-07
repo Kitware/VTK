@@ -156,7 +156,10 @@ struct VTKCOMMONDATAMODEL_EXPORT TaggedCellId
   TaggedCellId() noexcept = default;
 
   // Create a TaggedCellId from a cellId and cell type (e.g. VTK_TRIANGLE).
-  TaggedCellId(vtkIdType cellId, VTKCellType cellType) noexcept : Value(Encode(cellId, cellType)) {}
+  TaggedCellId(vtkIdType cellId, VTKCellType cellType) noexcept
+    : Value(Encode(cellId, cellType))
+  {
+  }
 
   TaggedCellId(const TaggedCellId&) noexcept = default;
   TaggedCellId(TaggedCellId&&) noexcept = default;

@@ -29,7 +29,7 @@
 class vtkPNGWriter::vtkInternals
 {
 public:
-  std::vector<std::pair<std::string, std::string> > TextKeyValue;
+  std::vector<std::pair<std::string, std::string>> TextKeyValue;
 };
 
 vtkStandardNewMacro(vtkPNGWriter);
@@ -67,7 +67,7 @@ vtkPNGWriter::~vtkPNGWriter()
   delete this->Internals;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Writes all the data from the input.
 void vtkPNGWriter::Write()
 {
@@ -215,7 +215,7 @@ void vtkPNGWriter::WriteSlice(vtkImageData* data, int* uExtent)
   }
 
   png_structp png_ptr =
-    png_create_write_struct(PNG_LIBPNG_VER_STRING, (png_voidp)nullptr, nullptr, nullptr);
+    png_create_write_struct(PNG_LIBPNG_VER_STRING, (png_voidp) nullptr, nullptr, nullptr);
   if (!png_ptr)
   {
     vtkErrorMacro(<< "Unable to write PNG file!");
@@ -227,7 +227,7 @@ void vtkPNGWriter::WriteSlice(vtkImageData* data, int* uExtent)
   png_infop info_ptr = png_create_info_struct(png_ptr);
   if (!info_ptr)
   {
-    png_destroy_write_struct(&png_ptr, (png_infopp)nullptr);
+    png_destroy_write_struct(&png_ptr, (png_infopp) nullptr);
     vtkErrorMacro(<< "Unable to write PNG file!");
     return;
   }

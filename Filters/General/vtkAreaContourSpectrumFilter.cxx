@@ -29,7 +29,7 @@
 
 vtkStandardNewMacro(vtkAreaContourSpectrumFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAreaContourSpectrumFilter::vtkAreaContourSpectrumFilter()
 {
   this->SetNumberOfInputPorts(2);
@@ -38,10 +38,10 @@ vtkAreaContourSpectrumFilter::vtkAreaContourSpectrumFilter()
   this->NumberOfSamples = 100;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAreaContourSpectrumFilter::~vtkAreaContourSpectrumFilter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAreaContourSpectrumFilter::FillInputPortInformation(int portNumber, vtkInformation* info)
 {
   switch (portNumber)
@@ -58,7 +58,7 @@ int vtkAreaContourSpectrumFilter::FillInputPortInformation(int portNumber, vtkIn
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAreaContourSpectrumFilter::FillOutputPortInformation(
   int vtkNotUsed(portNumber), vtkInformation* info)
 {
@@ -68,7 +68,7 @@ int vtkAreaContourSpectrumFilter::FillOutputPortInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAreaContourSpectrumFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -77,13 +77,13 @@ void vtkAreaContourSpectrumFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number of Samples: " << this->NumberOfSamples << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTable* vtkAreaContourSpectrumFilter::GetOutput()
 {
   return vtkTable::SafeDownCast(this->GetOutputDataObject(0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAreaContourSpectrumFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -220,7 +220,7 @@ int vtkAreaContourSpectrumFilter::RequestData(vtkInformation* vtkNotUsed(request
       }
 
       // now adjust to the desired sampling
-      std::vector<std::pair<int, double> > samples(NumberOfSamples);
+      std::vector<std::pair<int, double>> samples(NumberOfSamples);
       unsigned int pos = 0;
       for (int i = 0; i < NumberOfSamples; i++)
       {

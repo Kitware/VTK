@@ -40,8 +40,7 @@ int ArrayTransposeMatrix(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   try
   {
-    vtkSmartPointer<vtkSparseArray<double> > source =
-      vtkSmartPointer<vtkSparseArray<double> >::New();
+    vtkSmartPointer<vtkSparseArray<double>> source = vtkSmartPointer<vtkSparseArray<double>>::New();
     source->Resize(vtkArrayExtents(3, 2));
     source->AddValue(vtkArrayCoordinates(0, 1), 1);
     source->AddValue(vtkArrayCoordinates(1, 0), 2);

@@ -16,23 +16,23 @@
 
 #include "vtkInformation.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationDoubleKey::vtkInformationDoubleKey(const char* name, const char* location)
   : vtkInformationKey(name, location)
 {
   vtkCommonInformationKeyManager::Register(this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationDoubleKey::~vtkInformationDoubleKey() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationDoubleKey::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkInformationDoubleValue : public vtkObjectBase
 {
 public:
@@ -40,7 +40,7 @@ public:
   double Value;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationDoubleKey::Set(vtkInformation* info, double value)
 {
   if (vtkInformationDoubleValue* oldv =
@@ -67,7 +67,7 @@ void vtkInformationDoubleKey::Set(vtkInformation* info, double value)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkInformationDoubleKey::Get(vtkInformation* info)
 {
   vtkInformationDoubleValue* v =
@@ -75,7 +75,7 @@ double vtkInformationDoubleKey::Get(vtkInformation* info)
   return v ? v->Value : 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationDoubleKey::ShallowCopy(vtkInformation* from, vtkInformation* to)
 {
   if (this->Has(from))
@@ -88,7 +88,7 @@ void vtkInformationDoubleKey::ShallowCopy(vtkInformation* from, vtkInformation* 
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationDoubleKey::Print(ostream& os, vtkInformation* info)
 {
   // Print the value.
@@ -98,7 +98,7 @@ void vtkInformationDoubleKey::Print(ostream& os, vtkInformation* info)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkInformationDoubleKey::GetWatchAddress(vtkInformation* info)
 {
   if (vtkInformationDoubleValue* v =

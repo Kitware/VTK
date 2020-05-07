@@ -131,7 +131,7 @@ protected:
 
   void DeleteFiles();
 
-  typedef std::map<int, std::vector<int> > ExtentsType;
+  typedef std::map<int, std::vector<int>> ExtentsType;
   ExtentsType Extents;
 
   vtkMultiProcessController* Controller;

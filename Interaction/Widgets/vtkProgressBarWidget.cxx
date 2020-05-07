@@ -19,16 +19,16 @@
 
 vtkStandardNewMacro(vtkProgressBarWidget);
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProgressBarWidget::vtkProgressBarWidget()
 {
   this->Selectable = 0;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProgressBarWidget::~vtkProgressBarWidget() = default;
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProgressBarWidget::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)
@@ -37,7 +37,7 @@ void vtkProgressBarWidget::CreateDefaultRepresentation()
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProgressBarWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

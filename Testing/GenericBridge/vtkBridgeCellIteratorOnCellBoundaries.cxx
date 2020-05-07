@@ -30,13 +30,13 @@
 
 vtkStandardNewMacro(vtkBridgeCellIteratorOnCellBoundaries);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBridgeCellIteratorOnCellBoundaries::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBridgeCellIteratorOnCellBoundaries::vtkBridgeCellIteratorOnCellBoundaries()
 {
   this->DataSetCell = nullptr;
@@ -45,14 +45,14 @@ vtkBridgeCellIteratorOnCellBoundaries::vtkBridgeCellIteratorOnCellBoundaries()
   //  this->DebugOn();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBridgeCellIteratorOnCellBoundaries::~vtkBridgeCellIteratorOnCellBoundaries()
 {
   // warn: this class does not own this->DataSetCell, do never delete it.
   this->Cell->Delete();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Move iterator to first position if any (loop initialization).
 void vtkBridgeCellIteratorOnCellBoundaries::Begin()
@@ -82,7 +82,7 @@ void vtkBridgeCellIteratorOnCellBoundaries::Begin()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Is there no cell at iterator position? (exit condition).
 vtkTypeBool vtkBridgeCellIteratorOnCellBoundaries::IsAtEnd()
@@ -90,7 +90,7 @@ vtkTypeBool vtkBridgeCellIteratorOnCellBoundaries::IsAtEnd()
   return this->Dim == -1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Cell at current position
 // \pre not_at_end: !IsAtEnd()
@@ -130,7 +130,7 @@ void vtkBridgeCellIteratorOnCellBoundaries::GetCell(vtkGenericAdaptorCell* c)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Cell at current position.
 // NOT THREAD SAFE
@@ -171,7 +171,7 @@ vtkGenericAdaptorCell* vtkBridgeCellIteratorOnCellBoundaries::GetCell()
   return result;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Move iterator to next position. (loop progression).
 // \pre not_at_end: !IsAtEnd()
@@ -228,7 +228,7 @@ void vtkBridgeCellIteratorOnCellBoundaries::Next()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Used internally by vtkBridgeCell.
 // Iterate on boundary cells of a cell.

@@ -19,7 +19,7 @@
 
 vtkStandardNewMacro(vtkAnimationCue);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAnimationCue::vtkAnimationCue()
 {
   this->StartTime = this->EndTime = 0.0;
@@ -30,10 +30,10 @@ vtkAnimationCue::vtkAnimationCue()
   this->ClockTime = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAnimationCue::~vtkAnimationCue() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAnimationCue::StartCueInternal()
 {
   vtkAnimationCue::AnimationCueInfo info;
@@ -45,7 +45,7 @@ void vtkAnimationCue::StartCueInternal()
   this->InvokeEvent(vtkCommand::StartAnimationCueEvent, &info);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAnimationCue::EndCueInternal()
 {
   vtkAnimationCue::AnimationCueInfo info;
@@ -57,7 +57,7 @@ void vtkAnimationCue::EndCueInternal()
   this->InvokeEvent(vtkCommand::EndAnimationCueEvent, &info);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAnimationCue::TickInternal(double currenttime, double deltatime, double clocktime)
 {
   vtkAnimationCue::AnimationCueInfo info;
@@ -78,7 +78,7 @@ void vtkAnimationCue::TickInternal(double currenttime, double deltatime, double 
   this->ClockTime = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAnimationCue::Tick(double currenttime, double deltatime, double clocktime)
 {
   // Check to see if we have crossed the Cue start.
@@ -104,19 +104,19 @@ void vtkAnimationCue::Tick(double currenttime, double deltatime, double clocktim
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAnimationCue::SetTimeMode(int mode)
 {
   this->TimeMode = mode;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAnimationCue::Initialize()
 {
   this->CueState = vtkAnimationCue::UNINITIALIZED;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAnimationCue::Finalize()
 {
   if (this->CueState == vtkAnimationCue::ACTIVE)
@@ -126,7 +126,7 @@ void vtkAnimationCue::Finalize()
   this->CueState = vtkAnimationCue::INACTIVE;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAnimationCue::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

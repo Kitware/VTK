@@ -23,7 +23,7 @@
 
 vtkStandardNewMacro(vtkGraphInternals);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGraphInternals::vtkGraphInternals()
 {
   this->NumberOfEdges = 0;
@@ -31,10 +31,10 @@ vtkGraphInternals::vtkGraphInternals()
   this->UsingPedigreeIds = false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGraphInternals::~vtkGraphInternals() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphInternals::RemoveEdgeFromOutList(vtkIdType e, std::vector<vtkOutEdgeType>& outEdges)
 {
   size_t outSize = outEdges.size();
@@ -55,7 +55,7 @@ void vtkGraphInternals::RemoveEdgeFromOutList(vtkIdType e, std::vector<vtkOutEdg
   outEdges.pop_back();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphInternals::RemoveEdgeFromInList(vtkIdType e, std::vector<vtkInEdgeType>& inEdges)
 {
   size_t inSize = inEdges.size();
@@ -76,7 +76,7 @@ void vtkGraphInternals::RemoveEdgeFromInList(vtkIdType e, std::vector<vtkInEdgeT
   inEdges.pop_back();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphInternals::ReplaceEdgeFromOutList(
   vtkIdType from, vtkIdType to, std::vector<vtkOutEdgeType>& outEdges)
 {
@@ -90,7 +90,7 @@ void vtkGraphInternals::ReplaceEdgeFromOutList(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphInternals::ReplaceEdgeFromInList(
   vtkIdType from, vtkIdType to, std::vector<vtkInEdgeType>& inEdges)
 {

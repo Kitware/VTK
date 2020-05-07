@@ -36,9 +36,9 @@
 
 vtkStandardNewMacro(vtkVPICReader);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Constructor for VPIC Reader
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkVPICReader::vtkVPICReader()
 {
   this->SetNumberOfInputPorts(0);
@@ -101,9 +101,9 @@ vtkVPICReader::vtkVPICReader()
   this->Stride[0] = this->Stride[1] = this->Stride[2] = 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Destructor for VPIC Reader
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkVPICReader::~vtkVPICReader()
 {
   delete[] this->FileName;
@@ -136,9 +136,9 @@ vtkVPICReader::~vtkVPICReader()
   this->MPIController = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Verify that the file exists
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkVPICReader::RequestInformation(vtkInformation* vtkNotUsed(reqInfo),
   vtkInformationVector** vtkNotUsed(inVector), vtkInformationVector* outVector)
 {
@@ -350,10 +350,10 @@ int vtkVPICReader::RequestInformation(vtkInformation* vtkNotUsed(reqInfo),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Data is read into a vtkImageData
 // BLOCK structured means data is organized by variable and then by cell
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkVPICReader::RequestData(vtkInformation* vtkNotUsed(reqInfo),
   vtkInformationVector** vtkNotUsed(inVector), vtkInformationVector* outVector)
 {
@@ -447,9 +447,9 @@ int vtkVPICReader::RequestData(vtkInformation* vtkNotUsed(reqInfo),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Load one variable data array of BLOCK structure into ParaView
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVPICReader::LoadVariableData(int var, int timeStep)
 {
   this->data[var]->Delete();
@@ -538,13 +538,13 @@ void vtkVPICReader::LoadVariableData(int var, int timeStep)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Load one component from the local VPIC ghost enhanced block into the
 // ParaView vtkFloatArray taking into account whether the processor is
 // on the front plane, the back plane or in the middle which affects
 // the ghost cells which can be loaded.  ParaView array is contiguous
 // memory so start at the right location and offset by number of components
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVPICReader::LoadComponent(float* varData, float* block, int comp, int numberOfComponents)
 {
 
@@ -570,20 +570,20 @@ void vtkVPICReader::LoadComponent(float* varData, float* block, int comp, int nu
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVPICReader::SelectionCallback(
   vtkObject*, unsigned long vtkNotUsed(eventid), void* clientdata, void* vtkNotUsed(calldata))
 {
   static_cast<vtkVPICReader*>(clientdata)->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageData* vtkVPICReader::GetOutput()
 {
   return this->GetOutput(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageData* vtkVPICReader::GetOutput(int idx)
 {
   if (idx)
@@ -596,37 +596,37 @@ vtkImageData* vtkVPICReader::GetOutput(int idx)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkVPICReader::GetNumberOfPointArrays()
 {
   return this->PointDataArraySelection->GetNumberOfArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVPICReader::EnableAllPointArrays()
 {
   this->PointDataArraySelection->EnableAllArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVPICReader::DisableAllPointArrays()
 {
   this->PointDataArraySelection->DisableAllArrays();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkVPICReader::GetPointArrayName(int index)
 {
   return this->VariableName[index].c_str();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkVPICReader::GetPointArrayStatus(const char* name)
 {
   return this->PointDataArraySelection->ArrayIsEnabled(name);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVPICReader::SetPointArrayStatus(const char* name, int status)
 {
   if (status)

@@ -23,20 +23,20 @@
 vtkStandardNewMacro(vtkPExtractExodusGlobalTemporalVariables);
 vtkCxxSetObjectMacro(
   vtkPExtractExodusGlobalTemporalVariables, Controller, vtkMultiProcessController);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPExtractExodusGlobalTemporalVariables::vtkPExtractExodusGlobalTemporalVariables()
 {
   this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPExtractExodusGlobalTemporalVariables::~vtkPExtractExodusGlobalTemporalVariables()
 {
   this->SetController(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPExtractExodusGlobalTemporalVariables::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -83,7 +83,7 @@ int vtkPExtractExodusGlobalTemporalVariables::RequestData(
   return retval;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPExtractExodusGlobalTemporalVariables::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

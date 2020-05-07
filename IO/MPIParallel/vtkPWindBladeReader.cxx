@@ -56,25 +56,25 @@ public:
   MPI_File FilePtr;
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPWindBladeReader::vtkPWindBladeReader()
 {
   this->PInternal = new PWindBladeReaderInternal();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPWindBladeReader::~vtkPWindBladeReader()
 {
   delete this->PInternal;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPWindBladeReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPWindBladeReader::RequestData(
   vtkInformation* reqInfo, vtkInformationVector** inVector, vtkInformationVector* outVector)
 {
@@ -124,11 +124,11 @@ int vtkPWindBladeReader::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Calculate pressure from tempg and density
 // Calculate pressure - pre from pressure in first z position
 // Requires that all data be present
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPWindBladeReader::CalculatePressure(int pressure, int prespre, int tempg, int density)
 {
   if (!vtkMPIController::GetGlobalController()->IsA("vtkMPIController"))
@@ -160,10 +160,10 @@ void vtkPWindBladeReader::CalculatePressure(int pressure, int prespre, int tempg
   delete[] densityData;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Calculate vorticity from UVW
 // Requires ghost cell information so fetch all data from files for now
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPWindBladeReader::CalculateVorticity(int vort, int uvw, int density)
 {
   if (!vtkMPIController::GetGlobalController()->IsA("vtkMPIController"))
@@ -201,9 +201,9 @@ void vtkPWindBladeReader::CalculateVorticity(int vort, int uvw, int density)
   delete[] densityData;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Load one variable data array of BLOCK structure into ParaView
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPWindBladeReader::LoadVariableData(int var)
 {
   if (!vtkMPIController::GetGlobalController()->IsA("vtkMPIController"))
@@ -248,9 +248,9 @@ void vtkPWindBladeReader::LoadVariableData(int var)
   delete[] block;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Load one variable data array of BLOCK structure into ParaView
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPWindBladeReader::ReadGlobalData()
 {
   if (!vtkMPIController::GetGlobalController()->IsA("vtkMPIController"))
@@ -295,13 +295,13 @@ bool vtkPWindBladeReader::ReadGlobalData()
   return this->SetUpGlobalData(fileName, inStr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 // Open the first data file and verify that the data is where is should be
 // Each data block is enclosed by two ints which record the number of bytes
 // Save the file offset for each variable
 //
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPWindBladeReader::FindVariableOffsets()
 {
   if (!vtkMPIController::GetGlobalController()->IsA("vtkMPIController"))
@@ -356,9 +356,9 @@ bool vtkPWindBladeReader::FindVariableOffsets()
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Create the z topography from 2D (x,y) elevations and return in zData
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPWindBladeReader::CreateZTopography(float* zValues)
 {
   if (!vtkMPIController::GetGlobalController()->IsA("vtkMPIController"))
@@ -389,10 +389,10 @@ void vtkPWindBladeReader::CreateZTopography(float* zValues)
   MPICall(MPI_File_close(&this->PInternal->FilePtr));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Build the turbine towers
 // Parse a blade file to set the number of cells and points in blades
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPWindBladeReader::SetupBladeData()
 {
   if (!vtkMPIController::GetGlobalController()->IsA("vtkMPIController"))
@@ -551,9 +551,9 @@ void vtkPWindBladeReader::SetupBladeData()
   this->NumberOfBladeCells += this->NumberOfBladeTowers;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Build the turbine blades
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPWindBladeReader::LoadBladeData(int timeStep)
 {
   if (!vtkMPIController::GetGlobalController()->IsA("vtkMPIController"))

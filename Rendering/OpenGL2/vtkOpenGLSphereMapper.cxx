@@ -38,10 +38,10 @@
 
 #include "vtk_glew.h"
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOpenGLSphereMapper);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenGLSphereMapper::vtkOpenGLSphereMapper()
 {
   this->ScaleArray = nullptr;
@@ -49,7 +49,7 @@ vtkOpenGLSphereMapper::vtkOpenGLSphereMapper()
   this->Radius = 0.3;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLSphereMapper::GetShaderTemplate(
   std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* actor)
 {
@@ -133,13 +133,13 @@ void vtkOpenGLSphereMapper::ReplaceShaderValues(
   this->Superclass::ReplaceShaderValues(shaders, ren, actor);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenGLSphereMapper::~vtkOpenGLSphereMapper()
 {
   this->SetScaleArray(nullptr);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLSphereMapper::SetCameraShaderParameters(
   vtkOpenGLHelper& cellBO, vtkRenderer* ren, vtkActor* actor)
 {
@@ -179,7 +179,7 @@ void vtkOpenGLSphereMapper::SetCameraShaderParameters(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLSphereMapper::SetMapperShaderParameters(
   vtkOpenGLHelper& cellBO, vtkRenderer* ren, vtkActor* actor)
 {
@@ -191,7 +191,7 @@ void vtkOpenGLSphereMapper::SetMapperShaderParameters(
   this->Superclass::SetMapperShaderParameters(cellBO, ren, actor);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLSphereMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -235,7 +235,7 @@ void vtkOpenGLSphereMapper::CreateVBO(vtkPolyData* poly, vtkIdType numPts, unsig
   VBOs->BuildAllVBOs(ren);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLSphereMapper::BuildBufferObjects(vtkRenderer* ren, vtkActor* act)
 {
   vtkPolyData* poly = this->CurrentInput;
@@ -306,7 +306,7 @@ void vtkOpenGLSphereMapper::BuildBufferObjects(vtkRenderer* ren, vtkActor* act)
   this->VBOBuildTime.Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLSphereMapper::Render(vtkRenderer* ren, vtkActor* act)
 {
   vtkProperty* prop = act->GetProperty();
@@ -322,7 +322,7 @@ void vtkOpenGLSphereMapper::Render(vtkRenderer* ren, vtkActor* act)
   this->Superclass::Render(ren, act);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLSphereMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor* actor)
 {
   // draw polygons

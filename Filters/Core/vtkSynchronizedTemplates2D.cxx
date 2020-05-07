@@ -38,7 +38,7 @@
 
 vtkStandardNewMacro(vtkSynchronizedTemplates2D);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Construct object with initial scalar range (0,1) and single contour value
 // of 0.0. The ImageRange are set to extract the first k-plane.
@@ -58,7 +58,7 @@ vtkSynchronizedTemplates2D::~vtkSynchronizedTemplates2D()
   this->ContourValues->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Overload standard modified time function. If contour values are modified,
 // then this object is modified as well.
@@ -71,7 +71,7 @@ vtkMTimeType vtkSynchronizedTemplates2D::GetMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 // Contouring filter specialized for images
 //
@@ -385,7 +385,7 @@ void vtkContourImage(vtkSynchronizedTemplates2D* self, T* scalars, vtkPoints* ne
   delete[] isect1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 // Contouring filter specialized for images (or slices from images)
 //
@@ -499,14 +499,14 @@ int vtkSynchronizedTemplates2D::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSynchronizedTemplates2D::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSynchronizedTemplates2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

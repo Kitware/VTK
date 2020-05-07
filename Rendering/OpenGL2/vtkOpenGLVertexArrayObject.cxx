@@ -128,7 +128,7 @@ public:
   bool Supported;
   bool ForceEmulation;
 
-  typedef std::map<GLuint, std::vector<VertexAttributes> > AttributeMap;
+  typedef std::map<GLuint, std::vector<VertexAttributes>> AttributeMap;
   AttributeMap Attributes;
 };
 
@@ -439,7 +439,7 @@ bool vtkOpenGLVertexArrayObject::RemoveAttributeArray(const std::string& name)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLVertexArrayObject::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

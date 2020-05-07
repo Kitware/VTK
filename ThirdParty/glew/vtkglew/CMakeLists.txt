@@ -41,6 +41,10 @@ if (BUILD_SHARED_LIBS)
       target_link_libraries(glew
         PRIVATE
           -nostdlib)
+      # https://discourse.vtk.org/t/1898
+      target_compile_options(glew
+        PRIVATE
+          -minline-all-stringops)
     endif()
   endif ()
 else ()

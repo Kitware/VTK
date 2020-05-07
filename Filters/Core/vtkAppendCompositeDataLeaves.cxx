@@ -38,16 +38,16 @@
 
 vtkStandardNewMacro(vtkAppendCompositeDataLeaves);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAppendCompositeDataLeaves::vtkAppendCompositeDataLeaves()
 {
   this->AppendFieldData = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAppendCompositeDataLeaves::~vtkAppendCompositeDataLeaves() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAppendCompositeDataLeaves::RequestDataObject(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -81,7 +81,7 @@ int vtkAppendCompositeDataLeaves::RequestDataObject(
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Append data sets into single unstructured grid
 int vtkAppendCompositeDataLeaves::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -178,7 +178,7 @@ int vtkAppendCompositeDataLeaves::RequestData(vtkInformation* vtkNotUsed(request
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAppendCompositeDataLeaves::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
@@ -186,14 +186,14 @@ int vtkAppendCompositeDataLeaves::FillInputPortInformation(int, vtkInformation* 
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAppendCompositeDataLeaves::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "AppendFieldData: " << this->AppendFieldData << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAppendCompositeDataLeaves::AppendUnstructuredGrids(vtkInformationVector* inputVector, int i,
   int numInputs, vtkCompositeDataIterator* iter, vtkCompositeDataSet* output)
 {
@@ -216,7 +216,7 @@ void vtkAppendCompositeDataLeaves::AppendUnstructuredGrids(vtkInformationVector*
   this->AppendFieldDataArrays(inputVector, i, numInputs, iter, appender->GetOutput(0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAppendCompositeDataLeaves::AppendPolyData(vtkInformationVector* inputVector, int i,
   int numInputs, vtkCompositeDataIterator* iter, vtkCompositeDataSet* output)
 {
@@ -240,7 +240,7 @@ void vtkAppendCompositeDataLeaves::AppendPolyData(vtkInformationVector* inputVec
   this->AppendFieldDataArrays(inputVector, i, numInputs, iter, appender->GetOutput(0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAppendCompositeDataLeaves::AppendFieldDataArrays(vtkInformationVector* inputVector, int i,
   int numInputs, vtkCompositeDataIterator* iter, vtkDataSet* odset)
 {

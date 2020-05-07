@@ -171,7 +171,7 @@ vtkPlaybackRepresentation::vtkPlaybackRepresentation()
   this->Actor->SetProperty(this->Property);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPlaybackRepresentation::~vtkPlaybackRepresentation()
 {
   this->Points->Delete();
@@ -182,28 +182,28 @@ vtkPlaybackRepresentation::~vtkPlaybackRepresentation()
   this->Actor->Delete();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlaybackRepresentation::BuildRepresentation()
 {
   // Note that the transform is updated by the superclass
   this->Superclass::BuildRepresentation();
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlaybackRepresentation::GetActors2D(vtkPropCollection* pc)
 {
   pc->AddItem(this->Actor);
   this->Superclass::GetActors2D(pc);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlaybackRepresentation::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->Actor->ReleaseGraphicsResources(w);
   this->Superclass::ReleaseGraphicsResources(w);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPlaybackRepresentation::RenderOverlay(vtkViewport* w)
 {
   int count = this->Superclass::RenderOverlay(w);
@@ -211,7 +211,7 @@ int vtkPlaybackRepresentation::RenderOverlay(vtkViewport* w)
   return count;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPlaybackRepresentation::RenderOpaqueGeometry(vtkViewport* w)
 {
   int count = this->Superclass::RenderOpaqueGeometry(w);
@@ -219,7 +219,7 @@ int vtkPlaybackRepresentation::RenderOpaqueGeometry(vtkViewport* w)
   return count;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPlaybackRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport* w)
 {
   int count = this->Superclass::RenderTranslucentPolygonalGeometry(w);
@@ -227,7 +227,7 @@ int vtkPlaybackRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport* w
   return count;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry?
 vtkTypeBool vtkPlaybackRepresentation::HasTranslucentPolygonalGeometry()
@@ -237,7 +237,7 @@ vtkTypeBool vtkPlaybackRepresentation::HasTranslucentPolygonalGeometry()
   return result;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlaybackRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

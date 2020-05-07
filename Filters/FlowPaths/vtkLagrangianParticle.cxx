@@ -19,7 +19,7 @@
 #include "vtkPointData.h"
 #include "vtkSetGet.h"
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLagrangianParticle::vtkLagrangianParticle(int numberOfVariables, vtkIdType seedId,
   vtkIdType particleId, vtkIdType seedArrayTupleIndex, double integrationTime,
   vtkPointData* seedData, int numberOfTrackedUserData)
@@ -62,12 +62,12 @@ vtkLagrangianParticle::vtkLagrangianParticle(int numberOfVariables, vtkIdType se
   this->NextTrackedUserData.resize(numberOfTrackedUserData, 0);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Default destructor in implementation in order to be able to use
 // vtkNew in header
 vtkLagrangianParticle::~vtkLagrangianParticle() = default;
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLagrangianParticle* vtkLagrangianParticle::NewInstance(int numberOfVariables, vtkIdType seedId,
   vtkIdType particleId, vtkIdType seedArrayTupleIndex, double integrationTime,
   vtkPointData* seedData, int numberOfTrackedUserData, vtkIdType numberOfSteps,
@@ -80,7 +80,7 @@ vtkLagrangianParticle* vtkLagrangianParticle::NewInstance(int numberOfVariables,
   return particle;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLagrangianParticle* vtkLagrangianParticle::NewParticle(vtkIdType particleId)
 {
   // Create particle and copy members
@@ -111,7 +111,7 @@ vtkLagrangianParticle* vtkLagrangianParticle::NewParticle(vtkIdType particleId)
   return particle;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLagrangianParticle* vtkLagrangianParticle::CloneParticle()
 {
   vtkLagrangianParticle* clone = vtkLagrangianParticle::NewInstance(this->GetNumberOfVariables(),
@@ -141,164 +141,164 @@ vtkLagrangianParticle* vtkLagrangianParticle::CloneParticle()
   return clone;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLagrangianParticle::SetLastSurfaceCell(vtkDataSet* dataset, vtkIdType cellId)
 {
   this->LastSurfaceDataSet = dataset;
   this->LastSurfaceCellId = cellId;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkLagrangianParticle::GetLastSurfaceCellId()
 {
   return this->LastSurfaceCellId;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataSet* vtkLagrangianParticle::GetLastSurfaceDataSet()
 {
   return this->LastSurfaceDataSet;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkLagrangianParticle::GetId()
 {
   return this->Id;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLagrangianParticle::SetParentId(vtkIdType parentId)
 {
   this->ParentId = parentId;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkLagrangianParticle::GetParentId()
 {
   return this->ParentId;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkLagrangianParticle::GetSeedId()
 {
   return this->SeedId;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkLagrangianParticle::GetNumberOfSteps()
 {
   return this->NumberOfSteps;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkLagrangianParticle::GetNumberOfVariables()
 {
   return this->NumberOfVariables;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkLagrangianParticle::GetNumberOfUserVariables()
 {
   return this->NumberOfVariables - 7;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPointData* vtkLagrangianParticle::GetSeedData()
 {
   return this->SeedData;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkLagrangianParticle::GetSeedArrayTupleIndex() const
 {
   return this->SeedArrayTupleIndex;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double& vtkLagrangianParticle::GetStepTimeRef()
 {
   return this->StepTime;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkLagrangianParticle::GetIntegrationTime()
 {
   return this->IntegrationTime;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkLagrangianParticle::GetPrevIntegrationTime()
 {
   return this->PrevIntegrationTime;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLagrangianParticle::SetIntegrationTime(double time)
 {
   this->IntegrationTime = time;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLagrangianParticle::SetTermination(int termination)
 {
   this->Termination = termination;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkLagrangianParticle::GetTermination()
 {
   return this->Termination;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLagrangianParticle::SetUserFlag(int flag)
 {
   this->UserFlag = flag;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkLagrangianParticle::GetUserFlag()
 {
   return this->UserFlag;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLagrangianParticle::SetInteraction(int interaction)
 {
   this->Interaction = interaction;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkLagrangianParticle::GetInteraction()
 {
   return this->Interaction;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLagrangianParticle::SetPInsertPreviousPosition(bool val)
 {
   this->PInsertPreviousPosition = val;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkLagrangianParticle::GetPInsertPreviousPosition()
 {
   return this->PInsertPreviousPosition;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLagrangianParticle::SetPManualShift(bool val)
 {
   this->PManualShift = val;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkLagrangianParticle::GetPManualShift()
 {
   return this->PManualShift;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkLagrangianParticle::GetPositionVectorMagnitude()
 {
   double* current = this->GetPosition();
@@ -308,7 +308,7 @@ double vtkLagrangianParticle::GetPositionVectorMagnitude()
   return vtkMath::Norm(vector, 3);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLagrangianParticle::MoveToNextPosition()
 {
   std::copy(this->EquationVariables.begin(), this->EquationVariables.end(),
@@ -327,7 +327,7 @@ void vtkLagrangianParticle::MoveToNextPosition()
   this->IntegrationTime += this->StepTime;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLagrangianParticle::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "Id: " << this->Id << std::endl;

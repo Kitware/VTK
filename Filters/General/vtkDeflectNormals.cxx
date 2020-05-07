@@ -27,7 +27,7 @@
 
 vtkStandardNewMacro(vtkDeflectNormals);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDeflectNormals::vtkDeflectNormals()
 {
   // by default process active point vectors
@@ -35,10 +35,10 @@ vtkDeflectNormals::vtkDeflectNormals()
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::VECTORS);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDeflectNormals::~vtkDeflectNormals() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 namespace
 {
 
@@ -97,7 +97,7 @@ struct vtkDeflectNormalsWorker
 };
 } // end anon namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDeflectNormals::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -162,7 +162,7 @@ int vtkDeflectNormals::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDeflectNormals::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -88,11 +88,11 @@ vtkm::cont::Field Convert(DataArrayType* input, int association)
 
 #if !defined(vtkmlib_ArrayConverterExport_cxx)
 #define VTK_EXPORT_ARRAY_CONVERSION_TO_VTKM_DETAIL(ArrayType, ValueType)                           \
-  extern template vtkm::cont::Field Convert<ArrayType<ValueType> >(                                \
+  extern template vtkm::cont::Field Convert<ArrayType<ValueType>>(                                 \
     ArrayType<ValueType> * input, int association);
 #else
 #define VTK_EXPORT_ARRAY_CONVERSION_TO_VTKM_DETAIL(ArrayType, ValueType)                           \
-  template vtkm::cont::Field Convert<ArrayType<ValueType> >(                                       \
+  template vtkm::cont::Field Convert<ArrayType<ValueType>>(                                        \
     ArrayType<ValueType> * input, int association);
 #endif
 

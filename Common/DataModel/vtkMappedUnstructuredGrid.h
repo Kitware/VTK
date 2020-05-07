@@ -146,7 +146,7 @@
 #include "vtkSmartPointer.h"                       // For vtkSmartPointer
 
 template <class Implementation,
-  class CellIterator = vtkMappedUnstructuredGridCellIterator<Implementation> >
+  class CellIterator = vtkMappedUnstructuredGridCellIterator<Implementation>>
 class vtkMappedUnstructuredGrid : public vtkUnstructuredGridBase
 {
   typedef vtkMappedUnstructuredGrid<Implementation, CellIterator> SelfType;

@@ -27,17 +27,17 @@
 
 vtkStandardNewMacro(vtkImageToImageStencil);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageToImageStencil::vtkImageToImageStencil()
 {
   this->UpperThreshold = VTK_FLOAT_MAX;
   this->LowerThreshold = -VTK_FLOAT_MAX;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageToImageStencil::~vtkImageToImageStencil() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageToImageStencil::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -47,13 +47,13 @@ void vtkImageToImageStencil::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "LowerThreshold: " << this->LowerThreshold << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageToImageStencil::SetInputData(vtkImageData* input)
 {
   this->SetInputDataInternal(0, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageData* vtkImageToImageStencil::GetInput()
 {
   if (this->GetNumberOfInputConnections(0) < 1)
@@ -64,7 +64,7 @@ vtkImageData* vtkImageToImageStencil::GetInput()
   return vtkImageData::SafeDownCast(this->GetExecutive()->GetInputData(0, 0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The values greater than or equal to the value match.
 void vtkImageToImageStencil::ThresholdByUpper(double thresh)
 {
@@ -76,7 +76,7 @@ void vtkImageToImageStencil::ThresholdByUpper(double thresh)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The values less than or equal to the value match.
 void vtkImageToImageStencil::ThresholdByLower(double thresh)
 {
@@ -88,7 +88,7 @@ void vtkImageToImageStencil::ThresholdByLower(double thresh)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // The values in a range (inclusive) match
 void vtkImageToImageStencil::ThresholdBetween(double lower, double upper)
 {
@@ -100,7 +100,7 @@ void vtkImageToImageStencil::ThresholdBetween(double lower, double upper)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageToImageStencil::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -174,7 +174,7 @@ int vtkImageToImageStencil::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageToImageStencil::RequestInformation(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -198,14 +198,14 @@ int vtkImageToImageStencil::RequestInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageToImageStencil::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageToImageStencil::RequestUpdateExtent(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

@@ -76,14 +76,14 @@ POSSIBILITY OF SUCH DAMAGES.
 #include <io.h> /* unlink */
 #endif
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkMNIObjectWriter);
 
 vtkCxxSetObjectMacro(vtkMNIObjectWriter, Property, vtkProperty);
 vtkCxxSetObjectMacro(vtkMNIObjectWriter, Mapper, vtkMapper);
 vtkCxxSetObjectMacro(vtkMNIObjectWriter, LookupTable, vtkLookupTable);
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMNIObjectWriter::vtkMNIObjectWriter()
 {
   this->Property = nullptr;
@@ -98,7 +98,7 @@ vtkMNIObjectWriter::vtkMNIObjectWriter()
   this->OutputStream = nullptr;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMNIObjectWriter::~vtkMNIObjectWriter()
 {
   if (this->Property)
@@ -117,7 +117,7 @@ vtkMNIObjectWriter::~vtkMNIObjectWriter()
   delete[] this->FileName;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMNIObjectWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -127,7 +127,7 @@ void vtkMNIObjectWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "LookupTable: " << this->LookupTable << "\n";
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNIObjectWriter::WriteObjectType(int objType)
 {
   if (this->FileType == VTK_ASCII)
@@ -142,7 +142,7 @@ int vtkMNIObjectWriter::WriteObjectType(int objType)
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Write floating-point values into a vtkFloatArray.
 int vtkMNIObjectWriter::WriteValues(vtkDataArray* array)
 {
@@ -292,7 +292,7 @@ int vtkMNIObjectWriter::WriteValues(vtkDataArray* array)
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNIObjectWriter::WriteIdValue(vtkIdType value)
 {
   // The .obj files use 32-bit integers exclusively
@@ -311,7 +311,7 @@ int vtkMNIObjectWriter::WriteIdValue(vtkIdType value)
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNIObjectWriter::WriteNewline()
 {
   if (this->FileType == VTK_ASCII)
@@ -329,7 +329,7 @@ int vtkMNIObjectWriter::WriteNewline()
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNIObjectWriter::WriteProperty(vtkProperty* property)
 {
   float properties[5];
@@ -365,7 +365,7 @@ int vtkMNIObjectWriter::WriteProperty(vtkProperty* property)
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNIObjectWriter::WriteLineThickness(vtkProperty* property)
 {
   float width = 1;
@@ -388,13 +388,13 @@ int vtkMNIObjectWriter::WriteLineThickness(vtkProperty* property)
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNIObjectWriter::WritePoints(vtkPolyData* data)
 {
   return this->WriteValues(data->GetPoints()->GetData());
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNIObjectWriter::WriteNormals(vtkPolyData* data)
 {
   vtkDataArray* normals = data->GetPointData()->GetNormals();
@@ -538,7 +538,7 @@ int vtkMNIObjectWriter::WriteNormals(vtkPolyData* data)
   return status;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNIObjectWriter::WriteColors(vtkProperty* property, vtkMapper* mapper, vtkPolyData* data)
 {
   vtkUnsignedCharArray* newScalars = nullptr;
@@ -661,7 +661,7 @@ int vtkMNIObjectWriter::WriteColors(vtkProperty* property, vtkMapper* mapper, vt
   return status;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNIObjectWriter::WriteCells(vtkPolyData* data, int cellType)
 {
   vtkCellArray* cellArray = nullptr;
@@ -762,7 +762,7 @@ int vtkMNIObjectWriter::WriteCells(vtkPolyData* data, int cellType)
   return status;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNIObjectWriter::WritePolygonObject(vtkPolyData* output)
 {
   // Write the surface property
@@ -852,7 +852,7 @@ int vtkMNIObjectWriter::WritePolygonObject(vtkPolyData* output)
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNIObjectWriter::WriteLineObject(vtkPolyData* output)
 {
   // Write the surface property
@@ -924,7 +924,7 @@ int vtkMNIObjectWriter::WriteLineObject(vtkPolyData* output)
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMNIObjectWriter::WriteData()
 {
   vtkPolyData* input = this->GetInput();
@@ -989,26 +989,26 @@ void vtkMNIObjectWriter::WriteData()
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyData* vtkMNIObjectWriter::GetInput()
 {
   return vtkPolyData::SafeDownCast(this->Superclass::GetInput());
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyData* vtkMNIObjectWriter::GetInput(int port)
 {
   return vtkPolyData::SafeDownCast(this->Superclass::GetInput(port));
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNIObjectWriter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 ostream* vtkMNIObjectWriter::OpenFile()
 {
   ostream* fptr;
@@ -1046,7 +1046,7 @@ ostream* vtkMNIObjectWriter::OpenFile()
   return fptr;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMNIObjectWriter::CloseFile(ostream* fp)
 {
   vtkDebugMacro(<< "Closing file\n");

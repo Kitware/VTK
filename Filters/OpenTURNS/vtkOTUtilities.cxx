@@ -22,7 +22,7 @@
 
 using namespace OT;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 Sample* vtkOTUtilities::SingleDimArraysToSample(vtkDataArrayCollection* arrays)
 {
   if (arrays == nullptr)
@@ -62,7 +62,7 @@ Sample* vtkOTUtilities::SingleDimArraysToSample(vtkDataArrayCollection* arrays)
   return ns;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 Sample* vtkOTUtilities::ArrayToSample(vtkDataArray* arr)
 {
   if (arr == nullptr)
@@ -84,7 +84,7 @@ Sample* vtkOTUtilities::ArrayToSample(vtkDataArray* arr)
   return ns;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataArray* vtkOTUtilities::SampleToArray(Sample* ns)
 {
   if (ns == nullptr)

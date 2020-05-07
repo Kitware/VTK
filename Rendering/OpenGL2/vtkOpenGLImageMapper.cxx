@@ -84,14 +84,14 @@ vtkOpenGLImageMapper::~vtkOpenGLImageMapper()
   this->Actor->UnRegister(this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Release the graphics resources used by this texture.
 void vtkOpenGLImageMapper::ReleaseGraphicsResources(vtkWindow* renWin)
 {
   this->Actor->ReleaseGraphicsResources(renWin);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // I know #define can be evil, but this macro absolutely ensures
 // that the code will be inlined.  The macro expects 'val' to
 // be predefined to the same type as y
@@ -519,7 +519,7 @@ void vtkOpenGLImageMapperRenderChar(
   vtkOpenGLStaticCheckErrorMacro("failed after ImageMapperRenderChar");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Define overloads to help the template macro below dispatch to a
 // suitable implementation for each type.  The last argument is of
 // type "long" for the template and of type "int" for the
@@ -586,7 +586,7 @@ static void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper* self, vtkImageData*
   vtkOpenGLImageMapperRenderShort(self, data, dataPtr, shift, scale, viewport);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Expects data to be X, Y, components
 
 void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport, vtkImageData* data, vtkActor2D* actor)

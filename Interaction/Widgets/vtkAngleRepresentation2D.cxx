@@ -24,7 +24,7 @@
 
 vtkStandardNewMacro(vtkAngleRepresentation2D);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAngleRepresentation2D::vtkAngleRepresentation2D()
 {
   // By default, use one of these handles
@@ -51,7 +51,7 @@ vtkAngleRepresentation2D::vtkAngleRepresentation2D()
   //  this->Arc->AutoLabelOn();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAngleRepresentation2D::~vtkAngleRepresentation2D()
 {
   this->Ray1->Delete();
@@ -59,13 +59,13 @@ vtkAngleRepresentation2D::~vtkAngleRepresentation2D()
   this->Arc->Delete();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkAngleRepresentation2D::GetAngle()
 {
   return this->Arc->GetAngle();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngleRepresentation2D::GetPoint1WorldPosition(double pos[3])
 {
   if (this->Point1Representation)
@@ -78,7 +78,7 @@ void vtkAngleRepresentation2D::GetPoint1WorldPosition(double pos[3])
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngleRepresentation2D::GetCenterWorldPosition(double pos[3])
 {
   if (this->CenterRepresentation)
@@ -91,7 +91,7 @@ void vtkAngleRepresentation2D::GetCenterWorldPosition(double pos[3])
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngleRepresentation2D::GetPoint2WorldPosition(double pos[3])
 {
   if (this->Point2Representation)
@@ -104,7 +104,7 @@ void vtkAngleRepresentation2D::GetPoint2WorldPosition(double pos[3])
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngleRepresentation2D::SetPoint1DisplayPosition(double x[3])
 {
   if (!this->Point1Representation)
@@ -119,7 +119,7 @@ void vtkAngleRepresentation2D::SetPoint1DisplayPosition(double x[3])
   this->BuildRepresentation();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngleRepresentation2D::SetCenterDisplayPosition(double x[3])
 {
   if (!this->CenterRepresentation)
@@ -134,7 +134,7 @@ void vtkAngleRepresentation2D::SetCenterDisplayPosition(double x[3])
   this->BuildRepresentation();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngleRepresentation2D::SetPoint2DisplayPosition(double x[3])
 {
   if (!this->Point2Representation)
@@ -149,7 +149,7 @@ void vtkAngleRepresentation2D::SetPoint2DisplayPosition(double x[3])
   this->BuildRepresentation();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngleRepresentation2D::GetPoint1DisplayPosition(double pos[3])
 {
   if (this->Point1Representation)
@@ -163,7 +163,7 @@ void vtkAngleRepresentation2D::GetPoint1DisplayPosition(double pos[3])
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngleRepresentation2D::GetCenterDisplayPosition(double pos[3])
 {
   if (this->CenterRepresentation)
@@ -177,7 +177,7 @@ void vtkAngleRepresentation2D::GetCenterDisplayPosition(double pos[3])
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngleRepresentation2D::GetPoint2DisplayPosition(double pos[3])
 {
   if (this->Point2Representation)
@@ -191,7 +191,7 @@ void vtkAngleRepresentation2D::GetPoint2DisplayPosition(double pos[3])
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngleRepresentation2D::BuildRepresentation()
 {
   if (this->Point1Representation == nullptr || this->CenterRepresentation == nullptr ||
@@ -305,7 +305,7 @@ void vtkAngleRepresentation2D::BuildRepresentation()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngleRepresentation2D::ReleaseGraphicsResources(vtkWindow* w)
 {
   if (this->Ray1)
@@ -322,7 +322,7 @@ void vtkAngleRepresentation2D::ReleaseGraphicsResources(vtkWindow* w)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAngleRepresentation2D::RenderOverlay(vtkViewport* v)
 {
   this->BuildRepresentation();
@@ -344,7 +344,7 @@ int vtkAngleRepresentation2D::RenderOverlay(vtkViewport* v)
   return count;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAngleRepresentation2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h

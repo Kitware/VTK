@@ -366,7 +366,7 @@ extern "C"
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // It's possible to change with this function or in a script some
 // options like width, height or the render widget.
 int vtkTkRenderWidget_Configure(
@@ -396,7 +396,7 @@ int vtkTkRenderWidget_Configure(
   return TCL_OK;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This function is called when the render widget name is
 // evaluated in a Tcl script.  It will compare string parameters
 // to choose the appropriate method to invoke.
@@ -483,7 +483,7 @@ extern "C"
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // vtkTkRenderWidget_Cmd
 // Called when vtkTkRenderWidget is executed
 // - creation of a vtkTkRenderWidget widget.
@@ -540,7 +540,7 @@ extern "C"
     // ...
     // Create command event handler
     Tcl_CreateCommand(interp, Tk_PathName(tkwin), vtkTkRenderWidget_Widget, (ClientData)self,
-      (void (*)(ClientData))nullptr);
+      (void (*)(ClientData)) nullptr);
     Tk_CreateEventHandler(
       tkwin, ExposureMask | StructureNotifyMask, vtkTkRenderWidget_EventProc, (ClientData)self);
 
@@ -565,19 +565,19 @@ extern "C"
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkTkRenderWidget_RW(const struct vtkTkRenderWidget* self)
 {
   return self->RW;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTkRenderWidget_Width(const struct vtkTkRenderWidget* self)
 {
   return self->Width;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTkRenderWidget_Height(const struct vtkTkRenderWidget* self)
 {
   return self->Height;
@@ -629,7 +629,7 @@ extern "C"
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This gets called to handle vtkTkRenderWidget window configuration events
 // Possibly X dependent
 extern "C"
@@ -715,7 +715,7 @@ extern "C"
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // vtkTkRenderWidget_Init
 // Called upon system startup to create vtkTkRenderWidget command.
 extern "C"
@@ -870,7 +870,7 @@ LRESULT APIENTRY vtkTkRenderWidgetProc(HWND hWnd, UINT message, WPARAM wParam, L
   return rval;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Creates a render window and forces Tk to use the window.
 static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget* self)
 {
@@ -1048,7 +1048,7 @@ static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget* self)
 
 // the cocoa version
 #if defined(VTK_USE_COCOA)
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Creates a render window and forces Tk to use the window.
 static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget* self)
 {
@@ -1160,7 +1160,7 @@ static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget* self)
 // now the Xwindows version
 #else
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Creates a render window and forces Tk to use the window.
 static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget* self)
 {
@@ -1227,7 +1227,7 @@ static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget* self)
   }
 
   // If window already exists, return an error
-  if (renderWindow->GetWindowId() != (Window)nullptr)
+  if (renderWindow->GetWindowId() != (Window) nullptr)
   {
     return TCL_ERROR;
   }

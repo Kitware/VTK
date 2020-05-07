@@ -16,7 +16,7 @@
 #include <array>
 #include <functional>
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestVTKMImplicitDataArray(int, char*[])
 {
   typedef std::function<double(const std::array<double, 3>&)> ScalarFunction;
@@ -57,7 +57,7 @@ int TestVTKMImplicitDataArray(int, char*[])
     }
   };
 
-  vtkNew<vtkmDataArray<double> > array;
+  vtkNew<vtkmDataArray<double>> array;
   array->SetVtkmArrayHandle(
     vtkm::cont::make_ArrayHandleImplicit(Shim(function, imageDataPtr), std::pow(dimension, 3)));
 

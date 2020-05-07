@@ -23,7 +23,7 @@
 
 vtkStandardNewMacro(vtkTessellatedBoxSource);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTessellatedBoxSource::vtkTessellatedBoxSource()
 {
   this->Bounds[0] = -0.5;
@@ -41,7 +41,7 @@ vtkTessellatedBoxSource::vtkTessellatedBoxSource()
   this->SetNumberOfInputPorts(0); // this is a source.
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTessellatedBoxSource::~vtkTessellatedBoxSource() = default;
 
 // Duplicate point method.
@@ -86,7 +86,7 @@ static int faces[6][4] = { { 3, 10, -7, -2 }, // 0: -x face
   { -1, 2, 6, -4 },                           // 4: -z face
   { 9, 11, -12, -10 } };                      // 5: +z face
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Called by the superclass. Actual creation of the points and cells
 // happens here.
@@ -169,7 +169,7 @@ void vtkTessellatedBoxSource::DuplicateSharedPointsMethod(
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTessellatedBoxSource::MinimalPointsMethod(
   double* bounds, vtkPoints* points, vtkCellArray* polys)
 {
@@ -379,7 +379,7 @@ void vtkTessellatedBoxSource::MinimalPointsMethod(
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Compute the pointId of point (i,j) of face f.
 // Used by MinimalPointsMethod().
@@ -534,7 +534,7 @@ vtkIdType vtkTessellatedBoxSource::LocalFacePointCoordinatesToPointId(int f, int
   return result;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Build one of the face of the box with some level of tessellation.
 // facePoints[0] is the lower-left point
@@ -637,7 +637,7 @@ void vtkTessellatedBoxSource::BuildFace(vtkPoints* points, vtkCellArray* polys,
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTessellatedBoxSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

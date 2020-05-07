@@ -80,7 +80,7 @@ public:
 
     // Let's see if we encounter markers while reading the data from current
     // position.
-    std::vector<std::pair<vtkTypeUInt64, vtkTypeUInt64> > chunks =
+    std::vector<std::pair<vtkTypeUInt64, vtkTypeUInt64>> chunks =
       record.GetChunksToRead(offset, sizeof(DataType) * n);
 
     const int dummy_INT_MAX = 2e9; /// XXX: arbitrary limit that seems
@@ -170,23 +170,23 @@ public:
 }
 
 vtkStandardNewMacro(vtkMPIMultiBlockPLOT3DReader);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMPIMultiBlockPLOT3DReader::vtkMPIMultiBlockPLOT3DReader()
 {
   this->UseMPIIO = true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMPIMultiBlockPLOT3DReader::~vtkMPIMultiBlockPLOT3DReader() {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkMPIMultiBlockPLOT3DReader::CanUseMPIIO()
 {
   return (this->UseMPIIO && this->BinaryFile && this->Internal->Settings.NumberOfDimensions == 3 &&
     vtkMPIController::SafeDownCast(this->Controller) != nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPIMultiBlockPLOT3DReader::OpenFileForDataRead(void*& vfp, const char* fname)
 {
   if (!this->CanUseMPIIO())
@@ -219,7 +219,7 @@ int vtkMPIMultiBlockPLOT3DReader::OpenFileForDataRead(void*& vfp, const char* fn
   return VTK_OK;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMPIMultiBlockPLOT3DReader::CloseFile(void* vfp)
 {
   if (!this->CanUseMPIIO())
@@ -236,7 +236,7 @@ void vtkMPIMultiBlockPLOT3DReader::CloseFile(void* vfp)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPIMultiBlockPLOT3DReader::ReadIntScalar(void* vfp, int extent[6], int wextent[6],
   vtkDataArray* scalar, vtkTypeUInt64 offset, const vtkMultiBlockPLOT3DReaderRecord& record)
 
@@ -256,7 +256,7 @@ int vtkMPIMultiBlockPLOT3DReader::ReadIntScalar(void* vfp, int extent[6], int we
            vfp, offset, preskip, n, postskip, intArray->GetPointer(0), record) == n;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPIMultiBlockPLOT3DReader::ReadScalar(void* vfp, int extent[6], int wextent[6],
   vtkDataArray* scalar, vtkTypeUInt64 offset, const vtkMultiBlockPLOT3DReaderRecord& record)
 {
@@ -288,7 +288,7 @@ int vtkMPIMultiBlockPLOT3DReader::ReadScalar(void* vfp, int extent[6], int wexte
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMPIMultiBlockPLOT3DReader::ReadVector(void* vfp, int extent[6], int wextent[6], int numDims,
   vtkDataArray* vector, vtkTypeUInt64 offset, const vtkMultiBlockPLOT3DReaderRecord& record)
 {
@@ -317,7 +317,7 @@ int vtkMPIMultiBlockPLOT3DReader::ReadVector(void* vfp, int extent[6], int wexte
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMPIMultiBlockPLOT3DReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

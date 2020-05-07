@@ -35,7 +35,7 @@
 
 vtkStandardNewMacro(vtkLASReader);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLASReader::vtkLASReader()
 {
   this->FileName = nullptr;
@@ -44,13 +44,13 @@ vtkLASReader::vtkLASReader()
   this->SetNumberOfOutputPorts(1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLASReader::~vtkLASReader()
 {
   delete[] this->FileName;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkLASReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(request), vtkInformationVector* outputVector)
 {
@@ -87,7 +87,7 @@ int vtkLASReader::RequestData(vtkInformation* vtkNotUsed(request),
   return VTK_OK;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLASReader::ReadPointRecordData(liblas::Reader& reader, vtkPolyData* pointsPolyData)
 {
   vtkNew<vtkPoints> points;
@@ -166,7 +166,7 @@ void vtkLASReader::ReadPointRecordData(liblas::Reader& reader, vtkPolyData* poin
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLASReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   Superclass::PrintSelf(os, indent);

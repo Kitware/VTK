@@ -59,7 +59,7 @@ namespace impl
 {
 
 static vtkBoundingBox AllReduceBounds(
-  diy::mpi::communicator& comm, std::vector<vtkSmartPointer<vtkPoints> > points)
+  diy::mpi::communicator& comm, std::vector<vtkSmartPointer<vtkPoints>> points)
 {
   vtkBoundingBox bbox;
   for (auto& pts : points)
@@ -455,7 +455,7 @@ public:
   std::vector<ElementT> Elements;
   std::vector<vtkIdType> MergeMap;
   vtkIdType UniqueElementsCount{ 0 };
-  std::map<int, std::vector<MessageItemTT> > OutMessage;
+  std::map<int, std::vector<MessageItemTT>> OutMessage;
 
   vtkSmartPointer<vtkIdTypeArray> GlobalIds;
   vtkSmartPointer<vtkUnsignedCharArray> GhostArray;
@@ -520,7 +520,7 @@ public:
   void EnqueueOwnershipInformation(const diy::ReduceProxy& rp) { this->Enqueue(rp); }
   void DequeueOwnershipInformation(const diy::ReduceProxy& rp)
   {
-    std::map<int, std::vector<MessageItemTT> > inmessage;
+    std::map<int, std::vector<MessageItemTT>> inmessage;
     for (int i = 0; i < rp.in_link().size(); ++i)
     {
       const int in_gid = rp.in_link().target(i).gid;
@@ -660,7 +660,7 @@ public:
 namespace diy
 {
 template <>
-struct Serialization< ::CellTT>
+struct Serialization<::CellTT>
 {
   static void save(BinaryBuffer& bb, const CellTT& c)
   {
@@ -683,7 +683,7 @@ struct Serialization< ::CellTT>
 
 vtkStandardNewMacro(vtkGenerateGlobalIds);
 vtkCxxSetObjectMacro(vtkGenerateGlobalIds, Controller, vtkMultiProcessController);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGenerateGlobalIds::vtkGenerateGlobalIds()
   : Controller(nullptr)
 {
@@ -692,13 +692,13 @@ vtkGenerateGlobalIds::vtkGenerateGlobalIds()
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGenerateGlobalIds::~vtkGenerateGlobalIds()
 {
   this->SetController(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGenerateGlobalIds::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -710,7 +710,7 @@ int vtkGenerateGlobalIds::RequestData(
   {
     this->SetProgressShiftScale(0, 0.5);
     vtkLogScopeF(TRACE, "generate global point ids");
-    if (!impl::GenerateIds<BlockT<PointTT> >(outputDO, this, false))
+    if (!impl::GenerateIds<BlockT<PointTT>>(outputDO, this, false))
     {
       this->SetProgressShiftScale(0, 1.0);
       return 0;
@@ -721,7 +721,7 @@ int vtkGenerateGlobalIds::RequestData(
   {
     this->SetProgressShiftScale(0.5, 0.5);
     vtkLogScopeF(TRACE, "generate global cell ids");
-    if (!impl::GenerateIds<BlockT<CellTT> >(outputDO, this, true))
+    if (!impl::GenerateIds<BlockT<CellTT>>(outputDO, this, true))
     {
       this->SetProgressShiftScale(0, 1.0);
       return 0;
@@ -732,7 +732,7 @@ int vtkGenerateGlobalIds::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGenerateGlobalIds::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

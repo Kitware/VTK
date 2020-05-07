@@ -385,7 +385,7 @@ size_t vtkMultiBlockPLOT3DReaderInternals::CalculateFileSizeForBlock(int precisi
   return size;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkMultiBlockPLOT3DReaderRecord::Initialize(FILE* fp, vtkTypeUInt64 offset,
   const vtkMultiBlockPLOT3DReaderInternals::InternalSettings& settings,
   vtkMultiProcessController* controller)
@@ -481,7 +481,7 @@ bool vtkMultiBlockPLOT3DReaderRecord::Initialize(FILE* fp, vtkTypeUInt64 offset,
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMultiBlockPLOT3DReaderRecord::SubRecordSeparators
 vtkMultiBlockPLOT3DReaderRecord::GetSubRecordSeparators(
   vtkTypeUInt64 startOffset, vtkTypeUInt64 length) const
@@ -514,12 +514,12 @@ vtkMultiBlockPLOT3DReaderRecord::GetSubRecordSeparators(
   return markers;
 }
 
-//-----------------------------------------------------------------------------
-std::vector<std::pair<vtkTypeUInt64, vtkTypeUInt64> >
+//------------------------------------------------------------------------------
+std::vector<std::pair<vtkTypeUInt64, vtkTypeUInt64>>
 vtkMultiBlockPLOT3DReaderRecord::GetChunksToRead(
   vtkTypeUInt64 start, vtkTypeUInt64 length, const std::vector<vtkTypeUInt64>& markers)
 {
-  std::vector<std::pair<vtkTypeUInt64, vtkTypeUInt64> > chunks;
+  std::vector<std::pair<vtkTypeUInt64, vtkTypeUInt64>> chunks;
   for (size_t cc = 0; cc < markers.size(); ++cc)
   {
     if (start < markers[cc])
@@ -537,7 +537,7 @@ vtkMultiBlockPLOT3DReaderRecord::GetChunksToRead(
   return chunks;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeUInt64 vtkMultiBlockPLOT3DReaderRecord::GetLengthWithSeparators(
   vtkTypeUInt64 start, vtkTypeUInt64 length) const
 {

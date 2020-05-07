@@ -73,7 +73,7 @@ vtkmClip::vtkmClip()
 //------------------------------------------------------------------------------
 vtkmClip::~vtkmClip() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkmClip::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
@@ -84,7 +84,7 @@ vtkMTimeType vtkmClip::GetMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkmClip::SetClipFunction(vtkImplicitFunction* clipFunction)
 {
   if (this->ClipFunction != clipFunction)

@@ -51,7 +51,7 @@ const EGLenum EGL_PLATFORM_DEVICE_EXT = 0x313F;
  */
 class vtkEGLDisplayInitializationHelper
 {
-  static std::map<EGLDisplay, std::atomic<int64_t> > DisplayUsageCounts;
+  static std::map<EGLDisplay, std::atomic<int64_t>> DisplayUsageCounts;
 
 public:
   static EGLBoolean Initialize(EGLDisplay dpy, EGLint* major, EGLint* minor)
@@ -71,7 +71,7 @@ public:
   }
 };
 
-std::map<EGLDisplay, std::atomic<int64_t> > vtkEGLDisplayInitializationHelper::DisplayUsageCounts;
+std::map<EGLDisplay, std::atomic<int64_t>> vtkEGLDisplayInitializationHelper::DisplayUsageCounts;
 
 struct vtkEGLDeviceExtensions
 {
@@ -572,7 +572,7 @@ void vtkEGLRenderWindow::MakeCurrent()
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Tells if this window is the current OpenGL context for the calling thread.
 bool vtkEGLRenderWindow::IsCurrent()
@@ -623,27 +623,27 @@ void vtkEGLRenderWindow::Render()
   this->vtkOpenGLRenderWindow::Render();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkEGLRenderWindow::HideCursor() {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkEGLRenderWindow::ShowCursor() {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void* vtkEGLRenderWindow::GetGenericDisplayId()
 {
   vtkInternals* impl = this->Internals;
   return impl->Display;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void* vtkEGLRenderWindow::GetGenericContext()
 {
   vtkInternals* impl = this->Internals;
   return impl->Context;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkEGLRenderWindow::IsPointSpriteBugPresent()
 {
   // eventually we'll want to check with the NVIDIA EGL version to see if the
@@ -664,7 +664,7 @@ bool vtkEGLRenderWindow::IsPointSpriteBugPresent()
   return this->IsPointSpriteBugPresent_;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkEGLRenderWindow::SetWindowId(void* window)
 {
   vtkInternals* impl = this->Internals;

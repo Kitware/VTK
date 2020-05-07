@@ -41,7 +41,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 vtkStandardNewMacro(vtkOrderStatistics);
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOrderStatistics::vtkOrderStatistics()
 {
   this->QuantileDefinition = vtkOrderStatistics::InverseCDFAveragedSteps;
@@ -55,10 +55,10 @@ vtkOrderStatistics::vtkOrderStatistics()
   this->AssessNames->SetValue(0, "Quantile");
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOrderStatistics::~vtkOrderStatistics() = default;
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrderStatistics::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -68,7 +68,7 @@ void vtkOrderStatistics::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MaximumHistogramSize: " << this->MaximumHistogramSize << endl;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrderStatistics::SetQuantileDefinition(int qd)
 {
   switch (qd)
@@ -86,7 +86,7 @@ void vtkOrderStatistics::SetQuantileDefinition(int qd)
   this->Modified();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkOrderStatistics::SetParameter(
   const char* parameter, int vtkNotUsed(index), vtkVariant value)
 {
@@ -107,7 +107,7 @@ bool vtkOrderStatistics::SetParameter(
   return false;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrderStatistics::Learn(
   vtkTable* inData, vtkTable* vtkNotUsed(inParameters), vtkMultiBlockDataSet* outMeta)
 {
@@ -123,7 +123,7 @@ void vtkOrderStatistics::Learn(
 
   // Loop over requests
   vtkIdType nRow = inData->GetNumberOfRows();
-  for (std::set<std::set<vtkStdString> >::iterator rit = this->Internals->Requests.begin();
+  for (std::set<std::set<vtkStdString>>::iterator rit = this->Internals->Requests.begin();
        rit != this->Internals->Requests.end(); ++rit)
   {
     // Each request contains only one column of interest (if there are others, they are ignored)
@@ -295,7 +295,7 @@ void vtkOrderStatistics::Learn(
   } // rit
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrderStatistics::Derive(vtkMultiBlockDataSet* inMeta)
 {
   if (!inMeta || inMeta->GetNumberOfBlocks() < 1)
@@ -434,7 +434,7 @@ void vtkOrderStatistics::Derive(vtkMultiBlockDataSet* inMeta)
     }
 
     // Storage for quantile indices
-    std::vector<std::pair<vtkIdType, vtkIdType> > quantileIndices;
+    std::vector<std::pair<vtkIdType, vtkIdType>> quantileIndices;
     std::pair<vtkIdType, vtkIdType> qIdxPair;
 
     // First quantile index is always 0 with no jump (corresponding to the first and the smallest
@@ -534,7 +534,7 @@ void vtkOrderStatistics::Derive(vtkMultiBlockDataSet* inMeta)
       {
         // Compute and store quantile values
         vtkIdType k = 0;
-        for (std::vector<std::pair<vtkIdType, vtkIdType> >::iterator qit = quantileIndices.begin();
+        for (std::vector<std::pair<vtkIdType, vtkIdType>>::iterator qit = quantileIndices.begin();
              qit != quantileIndices.end(); ++qit, ++k)
         {
           // Retrieve data values from rank into histogram and interpolate
@@ -548,7 +548,7 @@ void vtkOrderStatistics::Derive(vtkMultiBlockDataSet* inMeta)
       {
         // Compute and store quantile values
         vtkIdType k = 0;
-        for (std::vector<std::pair<vtkIdType, vtkIdType> >::iterator qit = quantileIndices.begin();
+        for (std::vector<std::pair<vtkIdType, vtkIdType>>::iterator qit = quantileIndices.begin();
              qit != quantileIndices.end(); ++qit, ++k)
         {
           // Retrieve data value from rank into histogram
@@ -573,7 +573,7 @@ void vtkOrderStatistics::Derive(vtkMultiBlockDataSet* inMeta)
 
       // Compute and store quantile values
       vtkIdType k = 0;
-      for (std::vector<std::pair<vtkIdType, vtkIdType> >::iterator qit = quantileIndices.begin();
+      for (std::vector<std::pair<vtkIdType, vtkIdType>>::iterator qit = quantileIndices.begin();
            qit != quantileIndices.end(); ++qit, ++k)
       {
         // Retrieve data value from rank into histogram
@@ -597,7 +597,7 @@ void vtkOrderStatistics::Derive(vtkMultiBlockDataSet* inMeta)
 
       // Compute and store quantile values
       vtkIdType k = 0;
-      for (std::vector<std::pair<vtkIdType, vtkIdType> >::iterator qit = quantileIndices.begin();
+      for (std::vector<std::pair<vtkIdType, vtkIdType>>::iterator qit = quantileIndices.begin();
            qit != quantileIndices.end(); ++qit, ++k)
       {
         // Retrieve data value from rank into histogram
@@ -636,7 +636,7 @@ void vtkOrderStatistics::Derive(vtkMultiBlockDataSet* inMeta)
   quantileTab->Delete();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrderStatistics::Test(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtkTable* outMeta)
 {
   if (!inMeta)
@@ -686,7 +686,7 @@ void vtkOrderStatistics::Test(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vt
   double inv_nq = 1. / nQuant;
   double inv_card = 1. / nRowData;
   double sqrt_card = sqrt(static_cast<double>(nRowData));
-  for (std::set<std::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
+  for (std::set<std::set<vtkStdString>>::const_iterator rit = this->Internals->Requests.begin();
        rit != this->Internals->Requests.end(); ++rit)
   {
     // Each request contains only one column of interest (if there are others, they are ignored)
@@ -803,7 +803,7 @@ void vtkOrderStatistics::Test(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vt
   statCol->Delete();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class DataArrayQuantizer : public vtkStatisticsAlgorithm::AssessFunctor
 {
 public:
@@ -840,7 +840,7 @@ public:
   }
 };
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class StringArrayQuantizer : public vtkStatisticsAlgorithm::AssessFunctor
 {
 public:
@@ -877,7 +877,7 @@ public:
   }
 };
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class VariantArrayQuantizer : public vtkStatisticsAlgorithm::AssessFunctor
 {
 public:
@@ -914,7 +914,7 @@ public:
   }
 };
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOrderStatistics::SelectAssessFunctor(
   vtkTable* outData, vtkDataObject* inMetaDO, vtkStringArray* rowNames, AssessFunctor*& dfunc)
 {

@@ -30,7 +30,7 @@ vtkStandardNewMacro(vtkCollectPolyData);
 vtkCxxSetObjectMacro(vtkCollectPolyData, Controller, vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkCollectPolyData, SocketController, vtkSocketController);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCollectPolyData::vtkCollectPolyData()
 {
   this->PassThrough = 0;
@@ -41,14 +41,14 @@ vtkCollectPolyData::vtkCollectPolyData()
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCollectPolyData::~vtkCollectPolyData()
 {
   this->SetController(nullptr);
   this->SetSocketController(nullptr);
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCollectPolyData::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -66,7 +66,7 @@ int vtkCollectPolyData::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCollectPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -164,7 +164,7 @@ int vtkCollectPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCollectPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

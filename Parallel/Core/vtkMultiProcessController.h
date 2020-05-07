@@ -624,7 +624,7 @@ public:
    * @param[in] destProcessId - process id to gather on.
    * @return - 1 on success, 0 on failure.
    */
-  int Gather(vtkDataObject* sendBuffer, std::vector<vtkSmartPointer<vtkDataObject> >& recvBuffer,
+  int Gather(vtkDataObject* sendBuffer, std::vector<vtkSmartPointer<vtkDataObject>>& recvBuffer,
     int destProcessId)
   {
     return this->Communicator->Gather(sendBuffer, recvBuffer, destProcessId);

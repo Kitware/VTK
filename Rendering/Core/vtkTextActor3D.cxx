@@ -32,7 +32,7 @@ vtkObjectFactoryNewMacro(vtkTextActor3D);
 
 vtkCxxSetObjectMacro(vtkTextActor3D, TextProperty, vtkTextProperty);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTextActor3D::vtkTextActor3D()
 {
   this->Input = nullptr;
@@ -49,7 +49,7 @@ vtkTextActor3D::vtkTextActor3D()
   this->ImageActor->InterpolateOn();
 }
 
-// --------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTextActor3D::~vtkTextActor3D()
 {
   this->SetTextProperty(nullptr);
@@ -65,7 +65,7 @@ vtkTextActor3D::~vtkTextActor3D()
   }
 }
 
-// --------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextActor3D::ShallowCopy(vtkProp* prop)
 {
   vtkTextActor3D* a = vtkTextActor3D::SafeDownCast(prop);
@@ -78,7 +78,7 @@ void vtkTextActor3D::ShallowCopy(vtkProp* prop)
   this->Superclass::ShallowCopy(prop);
 }
 
-// --------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkTextActor3D::GetBounds()
 {
   // the culler could be asking our bounds, in which case it's possible
@@ -95,7 +95,7 @@ double* vtkTextActor3D::GetBounds()
   return this->Bounds;
 }
 
-// --------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTextActor3D::GetBoundingBox(int bbox[4])
 {
   if (!this->TextProperty)
@@ -127,62 +127,62 @@ int vtkTextActor3D::GetBoundingBox(int bbox[4])
   return 1;
 }
 
-// --------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextActor3D::ReleaseGraphicsResources(vtkWindow* win)
 {
   this->ImageActor->ReleaseGraphicsResources(win);
   this->Superclass::ReleaseGraphicsResources(win);
 }
 
-// --------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextActor3D::SetForceOpaque(bool opaque)
 {
   this->ImageActor->SetForceOpaque(opaque);
 }
 
-// --------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkTextActor3D::GetForceOpaque()
 {
   return this->ImageActor->GetForceOpaque();
 }
 
-// --------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextActor3D::ForceOpaqueOn()
 {
   this->ImageActor->ForceOpaqueOn();
 }
 
-// --------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextActor3D::ForceOpaqueOff()
 {
   this->ImageActor->ForceOpaqueOff();
 }
 
-// --------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextActor3D::SetForceTranslucent(bool trans)
 {
   this->ImageActor->SetForceTranslucent(trans);
 }
 
-// --------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkTextActor3D::GetForceTranslucent()
 {
   return this->ImageActor->GetForceTranslucent();
 }
 
-// --------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextActor3D::ForceTranslucentOn()
 {
   this->ImageActor->ForceTranslucentOn();
 }
 
-// --------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextActor3D::ForceTranslucentOff()
 {
   this->ImageActor->ForceTranslucentOff();
 }
 
-// --------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTextActor3D::RenderOverlay(vtkViewport* viewport)
 {
   int rendered_something = 0;
@@ -195,7 +195,7 @@ int vtkTextActor3D::RenderOverlay(vtkViewport* viewport)
   return rendered_something;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTextActor3D::RenderTranslucentPolygonalGeometry(vtkViewport* viewport)
 {
   int rendered_something = 0;
@@ -208,7 +208,7 @@ int vtkTextActor3D::RenderTranslucentPolygonalGeometry(vtkViewport* viewport)
   return rendered_something;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry?
 vtkTypeBool vtkTextActor3D::HasTranslucentPolygonalGeometry()
@@ -217,7 +217,7 @@ vtkTypeBool vtkTextActor3D::HasTranslucentPolygonalGeometry()
   return this->ImageActor->HasTranslucentPolygonalGeometry();
 }
 
-// --------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTextActor3D::RenderOpaqueGeometry(vtkViewport* viewport)
 {
   int rendered_something = 0;
@@ -242,7 +242,7 @@ int vtkTextActor3D::RenderOpaqueGeometry(vtkViewport* viewport)
   return rendered_something;
 }
 
-// --------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTextActor3D::UpdateImageActor()
 {
   // Need text prop
@@ -323,7 +323,7 @@ int vtkTextActor3D::UpdateImageActor()
   return 1;
 }
 
-// --------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTextActor3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

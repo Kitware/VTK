@@ -35,13 +35,13 @@
 namespace
 {
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 inline double d_rand()
 {
   return rand() / (double)((unsigned long)RAND_MAX + 1);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 inline void SwapPoint(
   vtkPoints* points, vtkPointData* data, vtkPointData* temp, vtkIdType a, vtkIdType b)
 {
@@ -60,7 +60,7 @@ inline void SwapPoint(
   data->CopyData(temp, 0, b);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // AKA select, quickselect, nth_element:
 // this is average case linear, worse case quadratic implementation
 // (i.e., just like quicksort) -- there is the median of 5 or
@@ -114,7 +114,7 @@ static void QuickSelect(vtkPoints* points, vtkPointData* data, vtkPointData* tem
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // divide the data into sampling strata and randomly sample it
 // (one sample per stratum)
 static void SortAndSample(vtkPoints* points, vtkPointData* data, vtkPointData* temp,
@@ -199,7 +199,7 @@ static void SortAndSample(vtkPoints* points, vtkPointData* data, vtkPointData* t
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // For UNIFORM_SPATIAL_BOUNDS only,
 // Compute the nearestPointRadius for the point locator
 static double GetNearestPointRadius(double bounds[3], vtkIdType maximumNumberOfPoints)
@@ -227,16 +227,16 @@ static double GetNearestPointRadius(double bounds[3], vtkIdType maximumNumberOfP
 
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkMaskPoints);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMaskPoints::vtkMaskPoints()
 {
   this->MaximumNumberOfPoints = VTK_ID_MAX;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 unsigned long vtkMaskPoints::GetLocalSampleSize(vtkIdType numPts, int np)
 {
   // send number of points to process 0
@@ -317,7 +317,7 @@ unsigned long vtkMaskPoints::GetLocalSampleSize(vtkIdType numPts, int np)
   return retval;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkMaskPoints::GetLocalAreaFactor(double localArea, int np)
 {
   if (np > 1)
@@ -350,7 +350,7 @@ double vtkMaskPoints::GetLocalAreaFactor(double localArea, int np)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMaskPoints::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -805,14 +805,14 @@ int vtkMaskPoints::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMaskPoints::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMaskPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -24,9 +24,9 @@
 #include "vtkPointData.h"
 
 #include <vector>
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkTemporalInterpolatedVelocityField);
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTemporalInterpolatedVelocityField::vtkTemporalInterpolatedVelocityField()
 {
   this->NumFuncs = 3;     // u, v, w
@@ -45,7 +45,7 @@ vtkTemporalInterpolatedVelocityField::vtkTemporalInterpolatedVelocityField()
   this->Times[0] = this->Times[1] = 0.0;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTemporalInterpolatedVelocityField::~vtkTemporalInterpolatedVelocityField()
 {
   this->NumFuncs = 0;
@@ -54,7 +54,7 @@ vtkTemporalInterpolatedVelocityField::~vtkTemporalInterpolatedVelocityField()
   this->IVF[0] = nullptr;
   this->IVF[1] = nullptr;
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTemporalInterpolatedVelocityField::SetDataSetAtTime(
   int I, int N, double T, vtkDataSet* dataset, bool staticdataset)
 {
@@ -85,24 +85,24 @@ void vtkTemporalInterpolatedVelocityField::SetDataSetAtTime(
     }
   }
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkTemporalInterpolatedVelocityField::IsStatic(int datasetIndex)
 {
   return this->StaticDataSets[datasetIndex];
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTemporalInterpolatedVelocityField::SetVectorsSelection(const char* v)
 {
   this->IVF[0]->SelectVectors(v);
   this->IVF[1]->SelectVectors(v);
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTemporalInterpolatedVelocityField::ClearCache()
 {
   this->IVF[0]->SetLastCellInfo(-1, 0);
   this->IVF[1]->SetLastCellInfo(-1, 0);
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTemporalInterpolatedVelocityField::SetCachedCellIds(vtkIdType id[2], int ds[2])
 {
   if (id[0] != -1)
@@ -123,7 +123,7 @@ void vtkTemporalInterpolatedVelocityField::SetCachedCellIds(vtkIdType id[2], int
     this->IVF[1]->SetLastCellInfo(-1, 0);
   }
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkTemporalInterpolatedVelocityField::GetCachedCellIds(vtkIdType id[2], int ds[2])
 {
   id[0] = this->IVF[0]->LastCellId;
@@ -133,7 +133,7 @@ bool vtkTemporalInterpolatedVelocityField::GetCachedCellIds(vtkIdType id[2], int
   ds[1] = (id[1] == -1) ? 0 : this->IVF[1]->LastCacheIndex;
   return ((id[0] >= 0) && (id[1] >= 0));
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTemporalInterpolatedVelocityField::AdvanceOneTimeStep()
 {
   for (unsigned int i = 0; i < this->IVF[0]->CacheList.size(); i++)
@@ -150,7 +150,7 @@ void vtkTemporalInterpolatedVelocityField::AdvanceOneTimeStep()
     }
   }
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTemporalInterpolatedVelocityField::ShowCacheResults()
 {
   vtkErrorMacro(<< ")\n"
@@ -161,7 +161,7 @@ void vtkTemporalInterpolatedVelocityField::ShowCacheResults()
                 << "  (dataset hit : " << this->IVF[1]->DataSetCacheHit - this->IVF[1]->CellCacheHit
                 << "         (miss : " << this->IVF[1]->CacheMiss);
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static double vtkTIVFWeightTolerance = 1E-3;
 // Evaluate u,v,w at x,y,z,t
 int vtkTemporalInterpolatedVelocityField::TestPoint(double* x)
@@ -231,7 +231,7 @@ int vtkTemporalInterpolatedVelocityField::TestPoint(double* x)
   // failed both, so exit
   return ID_OUTSIDE_ALL;
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Evaluate u,v,w at x,y,z,t
 int vtkTemporalInterpolatedVelocityField::QuickTestPoint(double* x)
 {
@@ -250,7 +250,7 @@ int vtkTemporalInterpolatedVelocityField::QuickTestPoint(double* x)
   }
   return 1;
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Evaluate u,v,w at x,y,z,t
 int vtkTemporalInterpolatedVelocityField::FunctionValues(double* x, double* u)
 {
@@ -264,7 +264,7 @@ int vtkTemporalInterpolatedVelocityField::FunctionValues(double* x, double* u)
   }
   return 1;
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTemporalInterpolatedVelocityField::FunctionValuesAtT(int T, double* x, double* u)
 {
   //
@@ -305,7 +305,7 @@ int vtkTemporalInterpolatedVelocityField::FunctionValuesAtT(int T, double* x, do
   }
   return 1;
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkTemporalInterpolatedVelocityField::InterpolatePoint(
   vtkPointData* outPD1, vtkPointData* outPD2, vtkIdType outIndex)
 {
@@ -313,7 +313,7 @@ bool vtkTemporalInterpolatedVelocityField::InterpolatePoint(
   bool ok2 = this->IVF[1]->InterpolatePoint(outPD2, outIndex);
   return (ok1 || ok2);
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkTemporalInterpolatedVelocityField::InterpolatePoint(
   int T, vtkPointData* outPD1, vtkIdType outIndex)
 {
@@ -326,7 +326,7 @@ bool vtkTemporalInterpolatedVelocityField::InterpolatePoint(
   //
   return this->IVF[T]->InterpolatePoint(inivf, outPD1, outIndex);
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkTemporalInterpolatedVelocityField::GetVorticityData(
   int T, double pcoords[3], double* weights, vtkGenericCell*& cell, vtkDoubleArray* cellVectors)
 {
@@ -347,7 +347,7 @@ bool vtkTemporalInterpolatedVelocityField::GetVorticityData(
   }
   return false;
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTemporalInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -356,4 +356,4 @@ void vtkTemporalInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent inde
      << this->LastGoodVelocity[1] << ", " << this->LastGoodVelocity[2] << endl;
   os << indent << "CurrentWeight: " << this->CurrentWeight << endl;
 }
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------

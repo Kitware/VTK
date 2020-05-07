@@ -42,9 +42,9 @@ vtkStandardNewMacro(vtkContinuousScatterplot);
 
 // Data structure to store the fragment faces.
 // Each face of the fragment can be represented using a vtkIdList.
-typedef std::vector<vtkSmartPointer<vtkIdList> >* Polytope;
+typedef std::vector<vtkSmartPointer<vtkIdList>>* Polytope;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkContinuousScatterplot::vtkContinuousScatterplot()
 {
   // value for floating comparison. Suppose two floating values a and b:
@@ -62,36 +62,36 @@ vtkContinuousScatterplot::vtkContinuousScatterplot()
   output->Delete();
   this->Fields[0] = this->Fields[1] = nullptr;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContinuousScatterplot::SetField1(const char* nm, vtkIdType xRes)
 {
   this->Fields[0] = nm;
   this->ResX = xRes;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContinuousScatterplot::SetField2(const char* nm, vtkIdType yRes)
 {
   this->Fields[1] = nm;
   this->ResY = yRes;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContinuousScatterplot::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkContinuousScatterplot::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
   return 1;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkContinuousScatterplot::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageData");
   return 1;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkContinuousScatterplot::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -388,7 +388,7 @@ int vtkContinuousScatterplot::RequestData(
     // We place into outputQ as each field takes the output of the
     // last step as its input, swapping queues BEFORE processing.
     // OutputQ : a list of faces of the output framgent
-    Polytope ptp = new std::vector<vtkSmartPointer<vtkIdList> >();
+    Polytope ptp = new std::vector<vtkSmartPointer<vtkIdList>>();
     outputQ.push_back(ptp);
 
     // min and max range value of the current cell
@@ -490,14 +490,14 @@ int vtkContinuousScatterplot::RequestData(
           // Initialise framgent face structure for the current cutting plane.
           delete fragment;
           delete residual;
-          fragment = new std::vector<vtkSmartPointer<vtkIdList> >();
-          residual = new std::vector<vtkSmartPointer<vtkIdList> >();
+          fragment = new std::vector<vtkSmartPointer<vtkIdList>>();
+          residual = new std::vector<vtkSmartPointer<vtkIdList>>();
 
           // Create the new cutting plane.
           cut = vtkSmartPointer<vtkIdList>::New();
 
           // Effectively, we start processing a new cell at this point.
-          for (std::vector<vtkSmartPointer<vtkIdList> >::iterator faceIt = working->begin();
+          for (std::vector<vtkSmartPointer<vtkIdList>>::iterator faceIt = working->begin();
                faceIt != working->end(); ++faceIt)
           {
             fragmentFace = vtkSmartPointer<vtkIdList>::New();
@@ -819,7 +819,7 @@ int vtkContinuousScatterplot::RequestData(
 
       // for each face of the fragment
       vtkSmartPointer<vtkIdList> poly = vtkSmartPointer<vtkIdList>::New();
-      for (std::vector<vtkSmartPointer<vtkIdList> >::iterator fc = outputQ[co]->begin();
+      for (std::vector<vtkSmartPointer<vtkIdList>>::iterator fc = outputQ[co]->begin();
            fc != outputQ[co]->end(); ++fc)
       {
         poly->Reset();

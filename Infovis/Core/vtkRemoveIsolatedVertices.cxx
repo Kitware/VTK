@@ -35,13 +35,13 @@
 #include <vector>
 
 vtkStandardNewMacro(vtkRemoveIsolatedVertices);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRemoveIsolatedVertices::vtkRemoveIsolatedVertices() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRemoveIsolatedVertices::~vtkRemoveIsolatedVertices() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkRemoveIsolatedVertices::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -115,7 +115,7 @@ int vtkRemoveIsolatedVertices::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRemoveIsolatedVertices::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

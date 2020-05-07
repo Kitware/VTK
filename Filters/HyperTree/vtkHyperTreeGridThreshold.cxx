@@ -30,7 +30,7 @@
 
 vtkStandardNewMacro(vtkHyperTreeGridThreshold);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHyperTreeGridThreshold::vtkHyperTreeGridThreshold()
 {
   // Use minimum double value by default for lower threshold bound
@@ -63,14 +63,14 @@ vtkHyperTreeGridThreshold::vtkHyperTreeGridThreshold()
   this->AppropriateOutput = true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHyperTreeGridThreshold::~vtkHyperTreeGridThreshold()
 {
   this->OutMask->Delete();
   this->OutMask = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridThreshold::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -91,14 +91,14 @@ void vtkHyperTreeGridThreshold::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkHyperTreeGridThreshold::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkHyperTreeGrid");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridThreshold::ThresholdBetween(double minimum, double maximum)
 {
   this->LowerThreshold = minimum;
@@ -106,7 +106,7 @@ void vtkHyperTreeGridThreshold::ThresholdBetween(double minimum, double maximum)
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkHyperTreeGridThreshold::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObject* outputDO)
 {
   // Downcast output data object to hyper tree grid
@@ -198,7 +198,7 @@ int vtkHyperTreeGridThreshold::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObje
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkHyperTreeGridThreshold::RecursivelyProcessTree(
   vtkHyperTreeGridNonOrientedCursor* inCursor, vtkHyperTreeGridNonOrientedCursor* outCursor)
 {
@@ -268,7 +268,7 @@ bool vtkHyperTreeGridThreshold::RecursivelyProcessTree(
   return discard;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkHyperTreeGridThreshold::RecursivelyProcessTreeWithCreateNewMask(
   vtkHyperTreeGridNonOrientedCursor* outCursor)
 {

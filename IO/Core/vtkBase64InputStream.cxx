@@ -16,25 +16,25 @@
 #include "vtkBase64Utilities.h"
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkBase64InputStream);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBase64InputStream::vtkBase64InputStream()
 {
   this->BufferLength = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBase64InputStream::~vtkBase64InputStream() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBase64InputStream::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 inline int vtkBase64InputStream::DecodeTriplet(
   unsigned char& c0, unsigned char& c1, unsigned char& c2)
 {
@@ -50,17 +50,17 @@ inline int vtkBase64InputStream::DecodeTriplet(
   return vtkBase64Utilities::DecodeTriplet(in[0], in[1], in[2], in[3], &c0, &c1, &c2);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBase64InputStream::StartReading()
 {
   this->Superclass::StartReading();
   this->BufferLength = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBase64InputStream::EndReading() {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkBase64InputStream::Seek(vtkTypeInt64 offset)
 {
   vtkTypeInt64 triplet = offset / 3;
@@ -95,7 +95,7 @@ int vtkBase64InputStream::Seek(vtkTypeInt64 offset)
   return ((this->BufferLength >= 0) ? 1 : 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 size_t vtkBase64InputStream::Read(void* data_in, size_t length)
 {
   unsigned char* data = static_cast<unsigned char*>(data_in);

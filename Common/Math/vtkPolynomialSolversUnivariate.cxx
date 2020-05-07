@@ -39,14 +39,14 @@ static const double absolute0 = 10. * VTK_DBL_MIN;
 
 double vtkPolynomialSolversUnivariate::DivisionTolerance = 1e-8; // sqrt( VTK_DBL_EPSILON );
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolynomialSolversUnivariate::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "(s) DivisionTolerance: " << this->GetDivisionTolerance() << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Print the polynomial for debuggery
 ostream& vtkPolynomialSolversUnivariate::PrintPolynomial(ostream& os, double* P, int degP)
 {
@@ -111,14 +111,14 @@ ostream& vtkPolynomialSolversUnivariate::PrintPolynomial(ostream& os, double* P,
   return os;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Double precision comparison with 0
 inline bool IsZero(double x)
 {
   return (fabs(x) < absolute0) ? true : false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Double precision comparison
 inline bool AreEqual(double x, double y, double rTol)
 {
@@ -144,7 +144,7 @@ inline bool AreEqual(double x, double y, double rTol)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Polynomial Euclidean division of A (deg m) by B (deg n).
 static int polynomialEucliDiv(double* A, int m, double* B, int n, double* Q, double* R, double rtol)
 {
@@ -222,7 +222,7 @@ static int polynomialEucliDiv(double* A, int m, double* B, int n, double* Q, dou
   return r;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Polynomial Euclidean division of A (deg m) by B (deg n).
 // Does not store Q and stores -R instead of R
 static int polynomialEucliDivOppositeR(double* A, int m, double* B, int n, double* mR, double rtol)
@@ -296,7 +296,7 @@ static int polynomialEucliDivOppositeR(double* A, int m, double* B, int n, doubl
   return r;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 inline double vtkNormalizePolyCoeff(double d, double* div = nullptr)
 {
   static const double high = 18446744073709551616.; // 2^64
@@ -330,7 +330,7 @@ inline double vtkNormalizePolyCoeff(double d, double* div = nullptr)
   return d;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Polynomial Euclidean division of A (deg m) by B (deg n).
 // Does not store Q and stores -R instead of R. This premultiplies Ai by mul and
 // then divides mR by div. mR MUST have at least the size of m+1, because it is
@@ -428,7 +428,7 @@ static int polynomialEucliDivOppositeR(
   return r;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Evaluate the value of the degree d univariate polynomial P at x
 // using Horner's algorithm.
 inline double evaluateHorner(double* P, int d, double x)
@@ -1268,7 +1268,7 @@ static int vtkHabichtOrSturmBisectionSolve(double* P, int d, double* a, double* 
   return nIntervals;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Find all real roots in ] a[0] ; a[1] [ of a real
 // d-th degree polynomial using the Habicht sequence.
 // intervalType specifies as follows (in binary)
@@ -1295,7 +1295,7 @@ int vtkPolynomialSolversUnivariate::HabichtBisectionSolve(
     P, d, a, upperBnds, tol, intervalType, divideGCD ? 1 : 0, 1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Find all real roots in ] a[0] ; a[1] [ of a real
 // d-th degree polynomial using the Sturm sequence.
 // intervalType specifies as follows (in binary)
@@ -1447,7 +1447,7 @@ int vtkPolynomialSolversUnivariate::FilterRoots(
   return rootcount;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Solves a d-th degree polynomial equation using Lin-Bairstow's method.
 //
 int vtkPolynomialSolversUnivariate::LinBairstowSolve(double* c, int d, double* r, double& tolerance)
@@ -1571,7 +1571,7 @@ int vtkPolynomialSolversUnivariate::LinBairstowSolve(double* c, int d, double* r
   return nr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Algebraically extracts REAL roots of the quartic polynomial with
 // REAL coefficients X^4 + c[0] X^3 + c[1] X^2 + c[2] X + c[3]
 // and stores them (when they exist) and their respective multiplicities
@@ -1758,7 +1758,7 @@ int vtkPolynomialSolversUnivariate::FerrariSolve(double* c, double* r, int* m, d
   return nr1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Algebraically extracts REAL roots of the cubic polynomial with
 // REAL coefficients X^3 + c[0] X^2 + c[1] X + c[2]
 // and stores them (when they exist) and their respective multiplicities.
@@ -1897,7 +1897,7 @@ int vtkPolynomialSolversUnivariate::TartagliaCardanSolve(double* c, double* r, i
   return 3;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Solves a cubic equation c0*t^3  + c1*t^2  + c2*t + c3 = 0 when
 // c0, c1, c2, and c3 are REAL.
 // Solution is motivated by Numerical Recipes In C 2nd Ed.
@@ -1918,7 +1918,7 @@ double* vtkPolynomialSolversUnivariate::SolveCubic(double c0, double c1, double 
   return roots;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Solves a cubic equation when c0, c1, c2, And c3 Are REAL.  Solution
 // is motivated by Numerical Recipes In C 2nd Ed.  Roots and number of
 // real roots are stored in user provided variables r1, r2, r3, and
@@ -2032,7 +2032,7 @@ int vtkPolynomialSolversUnivariate::SolveCubic(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Solves a quadratic equation c0*t^2 + c1*t + c2 = 0 when c0, c1, and
 // c2 are REAL.  Solution is motivated by Numerical Recipes In C 2nd
 // Ed.  Return array contains number of (real) roots (counting
@@ -2053,7 +2053,7 @@ double* vtkPolynomialSolversUnivariate::SolveQuadratic(double c0, double c1, dou
   return roots;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Solves A Quadratic Equation c0*t^2  + c1*t  + c2 = 0 when
 // c0, c1, and c2 are REAL.
 // Solution is motivated by Numerical Recipes In C 2nd Ed.
@@ -2110,7 +2110,7 @@ int vtkPolynomialSolversUnivariate::SolveQuadratic(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Algebraically extracts REAL roots of the quadratic polynomial with
 // REAL coefficients c[0] X^2 + c[1] X + c[2]
 // and stores them (when they exist) and their respective multiplicities.
@@ -2165,7 +2165,7 @@ int vtkPolynomialSolversUnivariate::SolveQuadratic(double* c, double* r, int* m)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Solves a linear equation c0*t  + c1 = 0 when c0 and c1 are REAL.
 // Solution is motivated by Numerical Recipes In C 2nd Ed.
 // Return array contains number of roots followed by roots themselves.
@@ -2179,7 +2179,7 @@ double* vtkPolynomialSolversUnivariate::SolveLinear(double c0, double c1)
   return roots;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Solves a linear equation c0*t + c1 = 0 when c0 and c1 are REAL.
 // Solution is motivated by Numerical Recipes In C 2nd Ed.
 // Root and number of (real) roots are stored in user provided variables
@@ -2206,13 +2206,13 @@ int vtkPolynomialSolversUnivariate::SolveLinear(double c0, double c1, double* r1
   return *num_roots;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolynomialSolversUnivariate::SetDivisionTolerance(double tol)
 {
   vtkPolynomialSolversUnivariate::DivisionTolerance = tol;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkPolynomialSolversUnivariate::GetDivisionTolerance()
 {
   return vtkPolynomialSolversUnivariate::DivisionTolerance;

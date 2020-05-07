@@ -29,7 +29,7 @@
 
 vtkStandardNewMacro(vtkSphereSource);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct sphere with radius=0.5 and default resolution 8 in both Phi
 // and Theta directions. Theta ranges from (0,360) and phi (0,180) degrees.
 // Normals are generated.
@@ -56,7 +56,7 @@ vtkSphereSource::vtkSphereSource(int res)
   this->SetNumberOfInputPorts(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSphereSource::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -314,7 +314,7 @@ int vtkSphereSource::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSphereSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -333,7 +333,7 @@ void vtkSphereSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Generate Normals: " << this->GenerateNormals << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSphereSource::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {

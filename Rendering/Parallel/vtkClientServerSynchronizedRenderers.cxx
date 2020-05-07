@@ -20,13 +20,13 @@
 #include <cassert>
 
 vtkStandardNewMacro(vtkClientServerSynchronizedRenderers);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkClientServerSynchronizedRenderers::vtkClientServerSynchronizedRenderers() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkClientServerSynchronizedRenderers::~vtkClientServerSynchronizedRenderers() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkClientServerSynchronizedRenderers::MasterEndRender()
 {
   // receive image from slave.
@@ -44,7 +44,7 @@ void vtkClientServerSynchronizedRenderers::MasterEndRender()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkClientServerSynchronizedRenderers::SlaveEndRender()
 {
   assert(this->ParallelController->IsA("vtkSocketController"));
@@ -65,7 +65,7 @@ void vtkClientServerSynchronizedRenderers::SlaveEndRender()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkClientServerSynchronizedRenderers::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

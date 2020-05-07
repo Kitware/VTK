@@ -24,21 +24,21 @@
 
 vtkStandardNewMacro(vtkImageLaplacian);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct an instance of vtkImageLaplacian filter.
 vtkImageLaplacian::vtkImageLaplacian()
 {
   this->Dimensionality = 2;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageLaplacian::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Dimensionality: " << this->Dimensionality;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Just clip the request.  The subclass may need to overwrite this method.
 int vtkImageLaplacian::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -80,7 +80,7 @@ int vtkImageLaplacian::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This execute method handles boundaries.
 // it handles boundaries. Pixels are just replicated to get values
 // out of extent.
@@ -181,7 +181,7 @@ void vtkImageLaplacianExecute(vtkImageLaplacian* self, vtkImageData* inData, T* 
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method contains a switch statement that calls the correct
 // templated function for the input data type.  The output data
 // must match input type.  This method does handle boundary conditions.

@@ -47,7 +47,7 @@
 
 vtkStandardNewMacro(vtkPExodusIIWriter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkPExodusIIWriter::vtkPExodusIIWriter() = default;
 
@@ -58,7 +58,7 @@ void vtkPExodusIIWriter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPExodusIIWriter::CheckParameters()
 {
   vtkMultiProcessController* c = vtkMultiProcessController::GetGlobalController();
@@ -73,7 +73,7 @@ int vtkPExodusIIWriter::CheckParameters()
   return this->Superclass::CheckParametersInternal(numberOfProcesses, myRank);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPExodusIIWriter::RequestUpdateExtent(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -141,7 +141,7 @@ void vtkPExodusIIWriter::CheckBlockInfoMap()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPExodusIIWriter::GlobalContinueExecuting(int localContinue)
 {
   vtkMultiProcessController* c = vtkMultiProcessController::GetGlobalController();
@@ -153,7 +153,7 @@ int vtkPExodusIIWriter::GlobalContinueExecuting(int localContinue)
   return globalContinue;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 unsigned int vtkPExodusIIWriter::GetMaxNameLength()
 {
   unsigned int maxName = this->Superclass::GetMaxNameLength();

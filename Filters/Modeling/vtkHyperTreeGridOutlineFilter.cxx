@@ -23,7 +23,7 @@
 
 vtkStandardNewMacro(vtkHyperTreeGridOutlineFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHyperTreeGridOutlineFilter::vtkHyperTreeGridOutlineFilter()
 {
   this->OutlineSource = vtkOutlineSource::New();
@@ -31,7 +31,7 @@ vtkHyperTreeGridOutlineFilter::vtkHyperTreeGridOutlineFilter()
   this->GenerateFaces = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHyperTreeGridOutlineFilter::~vtkHyperTreeGridOutlineFilter()
 {
   if (this->OutlineSource != nullptr)
@@ -41,7 +41,7 @@ vtkHyperTreeGridOutlineFilter::~vtkHyperTreeGridOutlineFilter()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkHyperTreeGridOutlineFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -82,14 +82,14 @@ int vtkHyperTreeGridOutlineFilter::RequestData(vtkInformation* vtkNotUsed(reques
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkHyperTreeGridOutlineFilter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkHyperTreeGrid");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkHyperTreeGridOutlineFilter::FillOutputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
@@ -98,7 +98,7 @@ int vtkHyperTreeGridOutlineFilter::FillOutputPortInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // JBL Pour moi, c'est un defaut de design de vtkHyperTreeGridAlgorithm
 int vtkHyperTreeGridOutlineFilter::ProcessTrees(
   vtkHyperTreeGrid* vtkNotUsed(input), vtkDataObject* vtkNotUsed(outputDO))
@@ -106,7 +106,7 @@ int vtkHyperTreeGridOutlineFilter::ProcessTrees(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridOutlineFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

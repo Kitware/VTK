@@ -35,7 +35,7 @@
 
 namespace
 {
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void ComputePlane(
   int idx, double v0[3], double v1[3], double v2[3], vtkPoints* points, vtkDoubleArray* norms)
 {
@@ -58,8 +58,8 @@ void ComputePlane(
   norms->SetTuple(idx, n);
 }
 
-//----------------------------------------------------------------------------
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class ComputeCellsInFrustumFunctor
 {
 public:
@@ -473,11 +473,11 @@ public:
 };
 }
 
-//----------------------------------------------------------------------------
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkFrustumSelector);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFrustumSelector::vtkFrustumSelector(vtkPlanes* f)
 {
   this->Frustum = f;
@@ -499,16 +499,16 @@ vtkFrustumSelector::vtkFrustumSelector(vtkPlanes* f)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFrustumSelector::~vtkFrustumSelector() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPlanes* vtkFrustumSelector::GetFrustum()
 {
   return this->Frustum;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFrustumSelector::SetFrustum(vtkPlanes* f)
 {
   if (this->Frustum != f)
@@ -518,7 +518,7 @@ void vtkFrustumSelector::SetFrustum(vtkPlanes* f)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Overload standard modified time function. If implicit function is modified,
 // then this object is modified as well.
 vtkMTimeType vtkFrustumSelector::GetMTime()
@@ -535,7 +535,7 @@ vtkMTimeType vtkFrustumSelector::GetMTime()
   return mTime;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFrustumSelector::CreateFrustum(double verts[32])
 {
   vtkNew<vtkPoints> points;
@@ -562,7 +562,7 @@ void vtkFrustumSelector::CreateFrustum(double verts[32])
   this->Frustum->SetNormals(norms);
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFrustumSelector::Initialize(vtkSelectionNode* node)
 {
   this->Superclass::Initialize(node);
@@ -579,7 +579,7 @@ void vtkFrustumSelector::Initialize(vtkSelectionNode* node)
   }
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkFrustumSelector::ComputeSelectedElements(
   vtkDataObject* input, vtkSignedCharArray* insidednessArray)
 {
@@ -608,7 +608,7 @@ bool vtkFrustumSelector::ComputeSelectedElements(
   return true;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFrustumSelector::ComputeSelectedPoints(vtkDataSet* input, vtkSignedCharArray* pointSelected)
 {
   vtkIdType numPts = input->GetNumberOfPoints();
@@ -639,7 +639,7 @@ void vtkFrustumSelector::ComputeSelectedPoints(vtkDataSet* input, vtkSignedCharA
     }
   });
 }
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFrustumSelector::ComputeSelectedCells(vtkDataSet* input, vtkSignedCharArray* cellSelected)
 {
   vtkIdType numCells = input->GetNumberOfCells();

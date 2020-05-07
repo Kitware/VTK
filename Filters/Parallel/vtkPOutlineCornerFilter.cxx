@@ -58,7 +58,7 @@ vtkPOutlineCornerFilter::~vtkPOutlineCornerFilter()
   delete this->Internals;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPOutlineCornerFilter::SetCornerFactor(double cornerFactor)
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting "
@@ -75,7 +75,7 @@ void vtkPOutlineCornerFilter::SetCornerFactor(double cornerFactor)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPOutlineCornerFilter::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

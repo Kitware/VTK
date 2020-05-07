@@ -32,27 +32,27 @@
 
 vtkStandardNewMacro(vtkPCorrelativeStatistics);
 vtkCxxSetObjectMacro(vtkPCorrelativeStatistics, Controller, vtkMultiProcessController);
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPCorrelativeStatistics::vtkPCorrelativeStatistics()
 {
   this->Controller = 0;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPCorrelativeStatistics::~vtkPCorrelativeStatistics()
 {
   this->SetController(0);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPCorrelativeStatistics::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Controller: " << this->Controller << endl;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPCorrelativeStatistics::Learn(
   vtkTable* inData, vtkTable* inParameters, vtkMultiBlockDataSet* outMeta)
 {
@@ -167,7 +167,7 @@ void vtkPCorrelativeStatistics::Learn(
   delete[] n_g;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPCorrelativeStatistics::Test(
   vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtkTable* outMeta)
 {

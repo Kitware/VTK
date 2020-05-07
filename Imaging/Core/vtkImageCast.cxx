@@ -23,7 +23,7 @@
 
 vtkStandardNewMacro(vtkImageCast);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageCast::vtkImageCast()
 {
   this->SetNumberOfInputPorts(1);
@@ -32,7 +32,7 @@ vtkImageCast::vtkImageCast()
   this->ClampOverflow = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Just change the Image type.
 int vtkImageCast::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
@@ -43,7 +43,7 @@ int vtkImageCast::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 template <class IT, class OT>
 void vtkImageCastExecute(
@@ -101,7 +101,7 @@ void vtkImageCastExecute(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T>
 void vtkImageCastExecute(
   vtkImageCast* self, vtkImageData* inData, vtkImageData* outData, int outExt[6], int id, T*)
@@ -116,7 +116,7 @@ void vtkImageCastExecute(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method is passed a input and output region, and executes the filter
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
@@ -134,7 +134,7 @@ void vtkImageCast::ThreadedExecute(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageCast::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

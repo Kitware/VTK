@@ -1340,7 +1340,7 @@ void vtkOpenGLState::vtkglClear(GLbitfield val)
   ::glClear(val);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Returns its texture unit manager object.
 vtkTextureUnitManager* vtkOpenGLState::GetTextureUnitManager()

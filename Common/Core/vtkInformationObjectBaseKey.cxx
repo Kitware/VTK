@@ -16,7 +16,7 @@
 
 #include "vtkInformation.h" // For vtkErrorWithObjectMacro
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationObjectBaseKey ::vtkInformationObjectBaseKey(
   const char* name, const char* location, const char* requiredClass)
   : vtkInformationKey(name, location)
@@ -27,19 +27,19 @@ vtkInformationObjectBaseKey ::vtkInformationObjectBaseKey(
   this->SetRequiredClass(requiredClass);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationObjectBaseKey::~vtkInformationObjectBaseKey()
 {
   delete[] this->RequiredClass;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationObjectBaseKey::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationObjectBaseKey::Set(vtkInformation* info, vtkObjectBase* value)
 {
   if (value && this->RequiredClass && !value->IsA(this->RequiredClass))
@@ -54,19 +54,19 @@ void vtkInformationObjectBaseKey::Set(vtkInformation* info, vtkObjectBase* value
   this->SetAsObjectBase(info, value);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkObjectBase* vtkInformationObjectBaseKey::Get(vtkInformation* info)
 {
   return this->GetAsObjectBase(info);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationObjectBaseKey::ShallowCopy(vtkInformation* from, vtkInformation* to)
 {
   this->Set(to, this->Get(from));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationObjectBaseKey::Report(vtkInformation* info, vtkGarbageCollector* collector)
 {
   this->ReportAsObjectBase(info, collector);

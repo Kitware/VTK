@@ -40,14 +40,14 @@
 class vtkLabeledDataMapper::Internals
 {
 public:
-  std::map<int, vtkSmartPointer<vtkTextProperty> > TextProperties;
+  std::map<int, vtkSmartPointer<vtkTextProperty>> TextProperties;
 };
 
 vtkStandardNewMacro(vtkLabeledDataMapper);
 
 vtkCxxSetObjectMacro(vtkLabeledDataMapper, Transform, vtkTransform);
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 template <typename T>
 void vtkLabeledDataMapper_PrintComponent(
@@ -56,7 +56,7 @@ void vtkLabeledDataMapper_PrintComponent(
   snprintf(output, outputSize, format, array[index]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Creates a new label mapper
 
 vtkLabeledDataMapper::vtkLabeledDataMapper()
@@ -95,7 +95,7 @@ vtkLabeledDataMapper::vtkLabeledDataMapper()
   this->CoordinateSystem = vtkLabeledDataMapper::WORLD;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLabeledDataMapper::~vtkLabeledDataMapper()
 {
   delete[] this->LabelFormat;
@@ -115,7 +115,7 @@ vtkLabeledDataMapper::~vtkLabeledDataMapper()
   delete this->Implementation;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLabeledDataMapper::AllocateLabels(int numLabels)
 {
   if (numLabels > this->NumberOfLabelsAllocated)
@@ -146,14 +146,14 @@ void vtkLabeledDataMapper::AllocateLabels(int numLabels)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLabeledDataMapper::SetLabelTextProperty(vtkTextProperty* prop, int type)
 {
   this->Implementation->TextProperties[type] = prop;
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTextProperty* vtkLabeledDataMapper::GetLabelTextProperty(int type)
 {
   if (this->Implementation->TextProperties.find(type) != this->Implementation->TextProperties.end())
@@ -163,20 +163,20 @@ vtkTextProperty* vtkLabeledDataMapper::GetLabelTextProperty(int type)
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLabeledDataMapper::SetInputData(vtkDataObject* input)
 {
   this->SetInputDataInternal(0, input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify the input data or filter.
 vtkDataSet* vtkLabeledDataMapper::GetInput()
 {
   return vtkDataSet::SafeDownCast(this->GetInputDataObject(0, 0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Release any graphics resources that are being consumed by this mapper.
 void vtkLabeledDataMapper::ReleaseGraphicsResources(vtkWindow* win)
 {
@@ -189,7 +189,7 @@ void vtkLabeledDataMapper::ReleaseGraphicsResources(vtkWindow* win)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLabeledDataMapper::RenderOverlay(vtkViewport* viewport, vtkActor2D* actor)
 {
   for (int i = 0; i < this->NumberOfLabels; i++)
@@ -234,7 +234,7 @@ void vtkLabeledDataMapper::RenderOverlay(vtkViewport* viewport, vtkActor2D* acto
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport* viewport, vtkActor2D* actor)
 {
   vtkTextProperty* tprop = this->Implementation->TextProperties[0];
@@ -257,7 +257,7 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport* viewport, vtkActor2
 
   // Check for property updates.
   vtkMTimeType propMTime = 0;
-  std::map<int, vtkSmartPointer<vtkTextProperty> >::iterator it, itEnd;
+  std::map<int, vtkSmartPointer<vtkTextProperty>>::iterator it, itEnd;
   it = this->Implementation->TextProperties.begin();
   itEnd = this->Implementation->TextProperties.end();
   for (; it != itEnd; ++it)
@@ -312,7 +312,7 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport* viewport, vtkActor2
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLabeledDataMapper::BuildLabels()
 {
   vtkDebugMacro(<< "Rebuilding labels");
@@ -348,7 +348,7 @@ void vtkLabeledDataMapper::BuildLabels()
   this->BuildTime.Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
 {
   int i, j, numComp = 0, pointIdLabels = 0, activeComp = 0;
@@ -670,7 +670,7 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
   this->NumberOfLabels += numCurLabels;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkLabeledDataMapper::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   // Can handle composite datasets.
@@ -678,7 +678,7 @@ int vtkLabeledDataMapper::FillInputPortInformation(int vtkNotUsed(port), vtkInfo
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLabeledDataMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -692,7 +692,7 @@ void vtkLabeledDataMapper::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Input: (none)\n";
   }
 
-  std::map<int, vtkSmartPointer<vtkTextProperty> >::iterator it, itEnd;
+  std::map<int, vtkSmartPointer<vtkTextProperty>>::iterator it, itEnd;
   it = this->Implementation->TextProperties.begin();
   itEnd = this->Implementation->TextProperties.end();
   for (; it != itEnd; ++it)
@@ -764,7 +764,7 @@ void vtkLabeledDataMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CoordinateSystem: " << this->CoordinateSystem << endl;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLabeledDataMapper::SetFieldDataArray(int arrayIndex)
 {
   delete[] this->FieldDataName;
@@ -782,11 +782,11 @@ void vtkLabeledDataMapper::SetFieldDataArray(int arrayIndex)
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkLabeledDataMapper::GetMTime()
 {
   vtkMTimeType mtime = this->Superclass::GetMTime();
-  std::map<int, vtkSmartPointer<vtkTextProperty> >::iterator it, itEnd;
+  std::map<int, vtkSmartPointer<vtkTextProperty>>::iterator it, itEnd;
   it = this->Implementation->TextProperties.begin();
   itEnd = this->Implementation->TextProperties.end();
   for (; it != itEnd; ++it)
@@ -801,14 +801,14 @@ vtkMTimeType vtkLabeledDataMapper::GetMTime()
   return mtime;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkLabeledDataMapper::GetLabelText(int label)
 {
   assert("label index range" && label >= 0 && label < this->NumberOfLabels);
   return this->TextMappers[label]->GetInput();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLabeledDataMapper::SetFieldDataName(const char* arrayName)
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting "

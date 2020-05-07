@@ -21,7 +21,7 @@
 namespace
 {
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int CheckIfIDExists(vtkTextProperty* property, std::set<size_t>& ids)
 {
   size_t id;
@@ -38,7 +38,7 @@ int CheckIfIDExists(vtkTextProperty* property, std::set<size_t>& ids)
 
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestFreeTypeTools(int, char*[])
 {
   int result = EXIT_SUCCESS;

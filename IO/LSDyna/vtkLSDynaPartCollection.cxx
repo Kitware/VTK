@@ -33,7 +33,7 @@
 #include <list>
 #include <vector>
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkLSDynaPartCollection::LSDynaPartStorage
 {
 protected:
@@ -454,7 +454,7 @@ protected:
 };
 
 vtkStandardNewMacro(vtkLSDynaPartCollection);
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLSDynaPartCollection::vtkLSDynaPartCollection()
 {
   this->MetaData = nullptr;
@@ -463,7 +463,7 @@ vtkLSDynaPartCollection::vtkLSDynaPartCollection()
   this->MaxIds = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLSDynaPartCollection::~vtkLSDynaPartCollection()
 {
   delete this->Storage;
@@ -472,7 +472,7 @@ vtkLSDynaPartCollection::~vtkLSDynaPartCollection()
   this->MetaData = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaPartCollection::PrintSelf(ostream& os, vtkIndent indent)
 {
   // just needs to print all public accessible ivars
@@ -485,7 +485,7 @@ void vtkLSDynaPartCollection::PrintSelf(ostream& os, vtkIndent indent)
   this->Storage->PrintSelf(os, indent.GetNextIndent());
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaPartCollection::InitCollection(
   LSDynaMetaData* metaData, vtkIdType* mins, vtkIdType* maxs)
 {
@@ -516,7 +516,7 @@ void vtkLSDynaPartCollection::InitCollection(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaPartCollection::BuildPartInfo()
 {
   // we iterate on part materials as those are those are from 1 to num Parts.
@@ -540,7 +540,7 @@ void vtkLSDynaPartCollection::BuildPartInfo()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaPartCollection::RegisterCellIndexToPart(
   const int& partType, const vtkIdType& matId, const vtkIdType&, const vtkIdType& npts)
 
@@ -548,19 +548,19 @@ void vtkLSDynaPartCollection::RegisterCellIndexToPart(
   this->Storage->RegisterCell(partType, matId - 1, npts);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaPartCollection::AllocateParts()
 {
   this->Storage->AllocateParts();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaPartCollection::InitCellInsertion()
 {
   this->Storage->InitCellInsertion();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaPartCollection::InsertCell(const int& partType, const vtkIdType&, const int& cellType,
   const vtkIdType& npts, vtkIdType conn[8])
 {
@@ -568,7 +568,7 @@ void vtkLSDynaPartCollection::InsertCell(const int& partType, const vtkIdType&, 
   this->Storage->InsertCell(partType, cellType, npts, conn);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaPartCollection::SetCellDeadFlags(
   const int& partType, vtkUnsignedCharArray* death, const int& deadCellsAsGhostArray)
 {
@@ -599,7 +599,7 @@ void vtkLSDynaPartCollection::SetCellDeadFlags(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaPartCollection::AddProperty(const LSDynaMetaData::LSDYNA_TYPES& type,
   const char* name, const int& offset, const int& numComps)
 {
@@ -615,7 +615,7 @@ void vtkLSDynaPartCollection::AddProperty(const LSDynaMetaData::LSDYNA_TYPES& ty
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaPartCollection::FillCellProperties(float* buffer,
   const LSDynaMetaData::LSDYNA_TYPES& type, const vtkIdType& startId, const vtkIdType& numCells,
   const int& numPropertiesInCell)
@@ -623,7 +623,7 @@ void vtkLSDynaPartCollection::FillCellProperties(float* buffer,
   this->FillCellArray(buffer, type, startId, numCells, numPropertiesInCell);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaPartCollection::FillCellProperties(double* buffer,
   const LSDynaMetaData::LSDYNA_TYPES& type, const vtkIdType& startId, const vtkIdType& numCells,
   const int& numPropertiesInCell)
@@ -631,7 +631,7 @@ void vtkLSDynaPartCollection::FillCellProperties(double* buffer,
   this->FillCellArray(buffer, type, startId, numCells, numPropertiesInCell);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <typename T>
 void vtkLSDynaPartCollection::FillCellArray(T* buffer, const LSDynaMetaData::LSDYNA_TYPES& type,
   const vtkIdType& startId, vtkIdType numCells, const int& numPropertiesInCell)
@@ -658,7 +658,7 @@ void vtkLSDynaPartCollection::FillCellArray(T* buffer, const LSDynaMetaData::LSD
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaPartCollection::ReadCellUserIds(
   const LSDynaMetaData::LSDYNA_TYPES& type, const int& status)
 {
@@ -704,7 +704,7 @@ void vtkLSDynaPartCollection::ReadCellUserIds(
   this->MetaData->Fam.ClearBuffer();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <typename T>
 void vtkLSDynaPartCollection::FillCellUserIdArray(
   T* buffer, const LSDynaMetaData::LSDYNA_TYPES& type, const vtkIdType& startId, vtkIdType numCells)
@@ -738,30 +738,30 @@ void vtkLSDynaPartCollection::FillCellUserIdArray(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkLSDynaPartCollection::IsActivePart(const int& id) const
 {
   return this->Storage->PartExists(id);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUnstructuredGrid* vtkLSDynaPartCollection::GetGridForPart(const int& index) const
 {
   return this->Storage->GetPartGrid(index);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkLSDynaPartCollection::GetNumberOfParts() const
 {
   return static_cast<int>(this->Storage->GetNumParts());
 }
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaPartCollection::DisbleDeadCells()
 {
   this->Storage->DisableDeadCells();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaPartCollection::GetPartReadInfo(const int& partType, vtkIdType& numberOfCells,
   vtkIdType& numCellsToSkipStart, vtkIdType& numCellsToSkipEnd) const
 {
@@ -782,19 +782,19 @@ void vtkLSDynaPartCollection::GetPartReadInfo(const int& partType, vtkIdType& nu
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaPartCollection::FinalizeTopology()
 {
   this->Storage->FinalizeTopology();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaPartCollection::ReadPointUserIds(const vtkIdType& numTuples, const char* name)
 {
   this->SetupPointPropertyForReading(numTuples, 1, name, true, true, false, false);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaPartCollection::ReadPointProperty(const vtkIdType& numTuples,
   const vtkIdType& numComps, const char* name, const bool& isProperty, const bool& isGeometryPoints,
   const bool& isRoadPoints)
@@ -803,7 +803,7 @@ void vtkLSDynaPartCollection::ReadPointProperty(const vtkIdType& numTuples,
     numTuples, numComps, name, false, isProperty, isGeometryPoints, isRoadPoints);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLSDynaPartCollection::SetupPointPropertyForReading(const vtkIdType& numTuples,
   const vtkIdType& numComps, const char* name, const bool& isIdType, const bool& isProperty,
   const bool& isGeometryPoints, const bool& isRoadPoints)
@@ -879,7 +879,7 @@ bool sortPartsOnGlobalIds(const vtkLSDynaPart* p1, const vtkLSDynaPart* p2)
 }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <typename T>
 void vtkLSDynaPartCollection::FillPointProperty(const vtkIdType& numTuples,
   const vtkIdType& numComps, vtkLSDynaPart** parts, const vtkIdType numParts)

@@ -34,12 +34,12 @@ vtkCxxSetObjectMacro(vtkTexturedButtonRepresentation2D, HoveringProperty, vtkPro
 vtkCxxSetObjectMacro(vtkTexturedButtonRepresentation2D, SelectingProperty, vtkProperty2D);
 
 // Map of textures
-class vtkTextureArray : public std::map<int, vtkSmartPointer<vtkImageData> >
+class vtkTextureArray : public std::map<int, vtkSmartPointer<vtkImageData>>
 {
 };
-typedef std::map<int, vtkSmartPointer<vtkImageData> >::iterator vtkTextureArrayIterator;
+typedef std::map<int, vtkSmartPointer<vtkImageData>>::iterator vtkTextureArrayIterator;
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTexturedButtonRepresentation2D::vtkTexturedButtonRepresentation2D()
 {
   // Configure the balloon
@@ -57,7 +57,7 @@ vtkTexturedButtonRepresentation2D::vtkTexturedButtonRepresentation2D()
   this->Anchor = nullptr;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTexturedButtonRepresentation2D::~vtkTexturedButtonRepresentation2D()
 {
   this->Balloon->Delete();
@@ -88,7 +88,7 @@ vtkTexturedButtonRepresentation2D::~vtkTexturedButtonRepresentation2D()
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTexturedButtonRepresentation2D::SetButtonTexture(int i, vtkImageData* image)
 {
   if (i < 0)
@@ -103,7 +103,7 @@ void vtkTexturedButtonRepresentation2D::SetButtonTexture(int i, vtkImageData* im
   (*this->TextureArray)[i] = image;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageData* vtkTexturedButtonRepresentation2D::GetButtonTexture(int i)
 {
   if (i < 0)
@@ -126,7 +126,7 @@ vtkImageData* vtkTexturedButtonRepresentation2D::GetButtonTexture(int i)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTexturedButtonRepresentation2D::PlaceWidget(double bds[6])
 {
   int i;
@@ -155,7 +155,7 @@ void vtkTexturedButtonRepresentation2D::PlaceWidget(double bds[6])
     static_cast<int>(bounds[1] - bounds[0]), static_cast<int>(bounds[3] - bounds[2]));
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTexturedButtonRepresentation2D::PlaceWidget(double anchor[3], int size[2])
 {
   if (!this->Anchor)
@@ -195,7 +195,7 @@ void vtkTexturedButtonRepresentation2D::PlaceWidget(double anchor[3], int size[2
     (bounds[5] - bounds[4]) * (bounds[5] - bounds[4]));
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTexturedButtonRepresentation2D ::ComputeInteractionState(
   int X, int Y, int vtkNotUsed(modify))
 {
@@ -212,7 +212,7 @@ int vtkTexturedButtonRepresentation2D ::ComputeInteractionState(
   return this->InteractionState;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTexturedButtonRepresentation2D::Highlight(int highlight)
 {
   this->Superclass::Highlight(highlight);
@@ -242,7 +242,7 @@ void vtkTexturedButtonRepresentation2D::Highlight(int highlight)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTexturedButtonRepresentation2D::CreateDefaultProperties()
 {
   this->Property = vtkProperty2D::New();
@@ -255,7 +255,7 @@ void vtkTexturedButtonRepresentation2D::CreateDefaultProperties()
   this->SelectingProperty->SetColor(0.5, 0.5, 0.5);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTexturedButtonRepresentation2D::BuildRepresentation()
 {
   // The net effect is to resize the handle
@@ -289,7 +289,7 @@ void vtkTexturedButtonRepresentation2D::BuildRepresentation()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTexturedButtonRepresentation2D::ShallowCopy(vtkProp* prop)
 {
   vtkTexturedButtonRepresentation2D* rep = vtkTexturedButtonRepresentation2D::SafeDownCast(prop);
@@ -308,13 +308,13 @@ void vtkTexturedButtonRepresentation2D::ShallowCopy(vtkProp* prop)
   this->Superclass::ShallowCopy(prop);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTexturedButtonRepresentation2D::ReleaseGraphicsResources(vtkWindow* win)
 {
   this->Balloon->ReleaseGraphicsResources(win);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTexturedButtonRepresentation2D::RenderOverlay(vtkViewport* viewport)
 {
   this->BuildRepresentation();
@@ -322,7 +322,7 @@ int vtkTexturedButtonRepresentation2D::RenderOverlay(vtkViewport* viewport)
   return this->Balloon->RenderOverlay(viewport);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkTexturedButtonRepresentation2D::HasTranslucentPolygonalGeometry()
 {
   this->BuildRepresentation();
@@ -330,19 +330,19 @@ vtkTypeBool vtkTexturedButtonRepresentation2D::HasTranslucentPolygonalGeometry()
   return this->Balloon->HasTranslucentPolygonalGeometry();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkTexturedButtonRepresentation2D::GetBounds()
 {
   return nullptr;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTexturedButtonRepresentation2D::GetActors(vtkPropCollection* pc)
 {
   this->Balloon->GetActors(pc);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTexturedButtonRepresentation2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h

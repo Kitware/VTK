@@ -29,7 +29,7 @@
 
 vtkStandardNewMacro(vtkResliceCursorActor);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkResliceCursorActor::vtkResliceCursorActor()
 {
   this->CursorAlgorithm = vtkResliceCursorPolyDataAlgorithm::New();
@@ -74,7 +74,7 @@ vtkResliceCursorActor::vtkResliceCursorActor()
   this->ThickSlabProperty[2]->SetEdgeVisibility(1);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkResliceCursorActor::~vtkResliceCursorActor()
 {
   for (int i = 0; i < 3; i++)
@@ -89,7 +89,7 @@ vtkResliceCursorActor::~vtkResliceCursorActor()
   this->CursorAlgorithm->Delete();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Support the standard render methods.
 int vtkResliceCursorActor::RenderOpaqueGeometry(vtkViewport* viewport)
@@ -116,7 +116,7 @@ int vtkResliceCursorActor::RenderOpaqueGeometry(vtkViewport* viewport)
   return result;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry? No.
 vtkTypeBool vtkResliceCursorActor::HasTranslucentPolygonalGeometry()
@@ -124,7 +124,7 @@ vtkTypeBool vtkResliceCursorActor::HasTranslucentPolygonalGeometry()
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceCursorActor::ReleaseGraphicsResources(vtkWindow* window)
 {
   for (int i = 0; i < 3; i++)
@@ -134,7 +134,7 @@ void vtkResliceCursorActor::ReleaseGraphicsResources(vtkWindow* window)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
 double* vtkResliceCursorActor::GetBounds()
 {
@@ -173,7 +173,7 @@ double* vtkResliceCursorActor::GetBounds()
   return this->Bounds;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkResliceCursorActor::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
@@ -190,19 +190,19 @@ vtkMTimeType vtkResliceCursorActor::GetMTime()
   return mTime;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProperty* vtkResliceCursorActor::GetCenterlineProperty(int i)
 {
   return this->CenterlineProperty[i];
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProperty* vtkResliceCursorActor::GetThickSlabProperty(int i)
 {
   return this->ThickSlabProperty[i];
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceCursorActor::UpdateHoleSize(vtkViewport* v)
 {
   vtkResliceCursor* r = this->CursorAlgorithm->GetResliceCursor();
@@ -237,7 +237,7 @@ void vtkResliceCursorActor::UpdateHoleSize(vtkViewport* v)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceCursorActor::UpdateViewProps(vtkViewport* v)
 {
   if (this->CursorAlgorithm->GetResliceCursor() == nullptr)
@@ -287,7 +287,7 @@ void vtkResliceCursorActor::UpdateViewProps(vtkViewport* v)
   this->CursorCenterlineActor[axisNormal]->GetProperty()->SetEdgeVisibility(0);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceCursorActor::SetUserMatrix(vtkMatrix4x4* m)
 {
   this->CursorThickSlabActor[0]->SetUserMatrix(m);
@@ -300,13 +300,13 @@ void vtkResliceCursorActor::SetUserMatrix(vtkMatrix4x4* m)
   this->Superclass::SetUserMatrix(m);
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkActor* vtkResliceCursorActor::GetCenterlineActor(int axis)
 {
   return this->CursorCenterlineActor[axis];
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Prints an object if it exists.
 #define vtkPrintMemberObjectMacro(obj, os, indent)                                                 \
   os << (indent) << #obj << ": ";                                                                  \
@@ -319,7 +319,7 @@ vtkActor* vtkResliceCursorActor::GetCenterlineActor(int axis)
     os << "(null)\n";                                                                              \
   }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceCursorActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

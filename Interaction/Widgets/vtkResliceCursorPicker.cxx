@@ -35,7 +35,7 @@ vtkCxxSetObjectMacro(
   vtkResliceCursorPicker, ResliceCursorAlgorithm, vtkResliceCursorPolyDataAlgorithm);
 vtkCxxSetObjectMacro(vtkResliceCursorPicker, TransformMatrix, vtkMatrix4x4);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkResliceCursorPicker::vtkResliceCursorPicker()
 {
   // For polydata picking
@@ -53,7 +53,7 @@ vtkResliceCursorPicker::vtkResliceCursorPicker()
   this->Plane = vtkPlane::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkResliceCursorPicker::~vtkResliceCursorPicker()
 {
   this->Cell->Delete();
@@ -62,7 +62,7 @@ vtkResliceCursorPicker::~vtkResliceCursorPicker()
   this->Plane->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkResliceCursorPicker::Pick(
   double selectionX, double selectionY, double selectionZ, vtkRenderer* renderer)
 {
@@ -238,7 +238,7 @@ int vtkResliceCursorPicker::Pick(
   return this->PickedAxis1 + this->PickedAxis2 + this->PickedCenter;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Pick a display coordinate and return the picked world coordinates
 //
 void vtkResliceCursorPicker::Pick(double displayPos[2], double world[3], vtkRenderer* ren)
@@ -293,7 +293,7 @@ void vtkResliceCursorPicker::Pick(double displayPos[2], double world[3], vtkRend
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Helper function for sanity check - to see if one point is different from
 // another.
 //
@@ -304,7 +304,7 @@ static bool vtkResliceCursorPickerIsDifferentSanityCheck(const double a[3], cons
   return (fabs(a[0] - b[0]) > 0.0001 || fabs(a[1] - b[1]) > 0.0001 || fabs(a[2] - b[2]) > 0.0001);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Transform the reslice plane onto the co-ordinate system its displayed in.
 //
 void vtkResliceCursorPicker::TransformPlane()
@@ -376,13 +376,13 @@ void vtkResliceCursorPicker::TransformPlane()
   this->Plane->SetNormal(normalT);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceCursorPicker::TransformPoint(double pIn[4], double pOut[4])
 {
   this->TransformMatrix->MultiplyPoint(pIn, pOut);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceCursorPicker::InverseTransformPoint(double pIn[4], double pOut[4])
 {
   if (!this->TransformMatrix)
@@ -420,7 +420,7 @@ void vtkResliceCursorPicker::InverseTransformPoint(double pIn[4], double pOut[4]
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkResliceCursorPicker::IntersectPolyDataWithLine(
   double p1[3], double p2[3], vtkPolyData* data, double tol)
 {
@@ -468,7 +468,7 @@ int vtkResliceCursorPicker::IntersectPolyDataWithLine(
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkResliceCursorPicker::IntersectPointWithLine(
   double p1[3], double p2[3], double x[3], double tol)
 {
@@ -517,7 +517,7 @@ int vtkResliceCursorPicker::IntersectPointWithLine(
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkResliceCursorPicker::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

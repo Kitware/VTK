@@ -38,16 +38,16 @@
 
 vtkStandardNewMacro(vtkExtractSelectedIds);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractSelectedIds::vtkExtractSelectedIds()
 {
   this->SetNumberOfInputPorts(2);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractSelectedIds::~vtkExtractSelectedIds() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSelectedIds::FillInputPortInformation(int port, vtkInformation* info)
 {
   this->Superclass::FillInputPortInformation(port, info);
@@ -60,7 +60,7 @@ int vtkExtractSelectedIds::FillInputPortInformation(int port, vtkInformation* in
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSelectedIds::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -571,7 +571,7 @@ struct vtkExtractSelectedIdsExtractPoints
 
 } // end anonymous namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSelectedIds::ExtractCells(
   vtkSelectionNode* sel, vtkDataSet* input, vtkDataSet* output)
 {
@@ -750,7 +750,7 @@ int vtkExtractSelectedIds::ExtractCells(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSelectedIds::ExtractPoints(
   vtkSelectionNode* sel, vtkDataSet* input, vtkDataSet* output)
 {
@@ -965,7 +965,7 @@ int vtkExtractSelectedIds::ExtractPoints(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractSelectedIds::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

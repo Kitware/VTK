@@ -36,7 +36,7 @@
 #include <map>
 
 vtkStandardNewMacro(vtkStreamGraph);
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStreamGraph::vtkStreamGraph()
 {
   this->CurrentGraph = vtkMutableGraphHelper::New();
@@ -47,7 +47,7 @@ vtkStreamGraph::vtkStreamGraph()
   this->EdgeWindow = 10000.0;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStreamGraph::~vtkStreamGraph()
 {
   if (this->CurrentGraph)
@@ -61,7 +61,7 @@ vtkStreamGraph::~vtkStreamGraph()
   this->SetEdgeWindowArrayName(nullptr);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkStreamGraph::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -118,7 +118,7 @@ int vtkStreamGraph::RequestData(
   return 1;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkStreamGraph::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

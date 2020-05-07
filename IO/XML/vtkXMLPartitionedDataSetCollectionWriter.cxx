@@ -26,13 +26,13 @@
 #include "vtkXMLDataParser.h"
 
 vtkStandardNewMacro(vtkXMLPartitionedDataSetCollectionWriter);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLPartitionedDataSetCollectionWriter::vtkXMLPartitionedDataSetCollectionWriter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLPartitionedDataSetCollectionWriter::~vtkXMLPartitionedDataSetCollectionWriter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPartitionedDataSetCollectionWriter::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
@@ -40,7 +40,7 @@ int vtkXMLPartitionedDataSetCollectionWriter::FillInputPortInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPartitionedDataSetCollectionWriter::WriteComposite(
   vtkCompositeDataSet* compositeData, vtkXMLDataElement* parent, int& writerIdx)
 {
@@ -131,7 +131,7 @@ int vtkXMLPartitionedDataSetCollectionWriter::WriteComposite(
   return RetVal;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPartitionedDataSetCollectionWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -134,7 +134,7 @@ vtkOpenVRRenderWindow::~vtkOpenVRRenderWindow()
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRRenderWindow::ReleaseGraphicsResources(vtkWindow* renWin)
 {
   // this->HelperWindow->ReleaseGraphicsResources(renWin);
@@ -170,7 +170,7 @@ void vtkOpenVRRenderWindow::SetHelperWindow(vtkOpenGLRenderWindow* win)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Create an interactor that will work with this renderer.
 vtkRenderWindowInteractor* vtkOpenVRRenderWindow::MakeRenderWindowInteractor()
 {
@@ -330,7 +330,7 @@ void vtkOpenVRRenderWindow::RenderModels()
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRRenderWindow::MakeCurrent()
 {
   if (this->HelperWindow)
@@ -349,7 +349,7 @@ vtkOpenGLState* vtkOpenVRRenderWindow::GetState()
   return this->Superclass::GetState();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Tells if this window is the current OpenGL context for the calling thread.
 bool vtkOpenVRRenderWindow::IsCurrent()
@@ -357,7 +357,7 @@ bool vtkOpenVRRenderWindow::IsCurrent()
   return this->HelperWindow ? this->HelperWindow->IsCurrent() : false;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenVRRenderWindow::SetSize(int width, int height)
 {
   if ((this->Size[0] != width) || (this->Size[1] != height))
