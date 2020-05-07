@@ -163,7 +163,7 @@ std::string BaseDeclarationFragment(vtkRenderer* vtkNotUsed(ren), vtkVolumeMappe
 
   if (vtkRectilinearGrid::SafeDownCast(mapper->GetInput()))
   {
-    toShaderStr << "uniform sampler1D in_coordTexs[3];\n";
+    toShaderStr << "uniform sampler1D in_coordTexs;\n";
     toShaderStr << "uniform vec3 in_coordTexSizes;\n";
     toShaderStr << "uniform vec3 in_coordsScale;\n";
     toShaderStr << "uniform vec3 in_coordsBias;\n";
@@ -1559,27 +1559,15 @@ std::string ShadingSingleInput(vtkRenderer* vtkNotUsed(ren), vtkVolumeMapper* ma
       \n      ivec3 ijk = ivec3(0);\
       \n      vec3 ijkTexCoord = vec3(0.0);\
       \n      vec3 pCoords = vec3(0.0);\
-      \n      float xPrev, xNext, tmp;\
-      \n      vec4 dataPosWorldScaled = dataPosWorld * vec4(in_coordsScale, 1.0) + vec4(in_coordsBias, 1.0);\
+      \n      vec3 xPrev, xNext, tmp;\
+      \n      int sz = textureSize(in_coordTexs, 0);\
+      \n      vec4 dataPosWorldScaled = dataPosWorld * vec4(in_coordsScale, 1.0) +\
+      \n                                vec4(in_coordsBias, 1.0);\
       \n      for (int j = 0; j < 3; ++j)\
       \n        {\
-      \n        switch (j)\
-      \n          {\
-      \n          case 0:\
-      \n            xPrev = texture1D(in_coordTexs[0], 0.0).r;\
-      \n            xNext = texture1D(in_coordTexs[0], (in_coordTexSizes[j] - 1) / in_coordTexSizes[j]).r;\
-      \n            break;\
-      \n          case 1:\
-      \n            xPrev = texture1D(in_coordTexs[1], 0.0).r;\
-      \n            xNext = texture1D(in_coordTexs[1], (in_coordTexSizes[j] - 1) / in_coordTexSizes[j]).r;\
-      \n            break;\
-      \n          case 2:\
-      \n            xPrev = texture1D(in_coordTexs[2], 0.0).r;\
-      \n            xNext = texture1D(in_coordTexs[2], (in_coordTexSizes[j] - 1) / in_coordTexSizes[j]).r;\
-      \n            break;\
-      \n          }\
-      \n        float tmp;\
-      \n        if (xNext < xPrev)\
+      \n        xPrev = texture1D(in_coordTexs, 0.0).xyz;\
+      \n        xNext = texture1D(in_coordTexs, (in_coordTexSizes[j] - 1) / sz).xyz;\
+      \n        if (xNext[j] < xPrev[j])\
       \n          {\
       \n          tmp = xNext;\
       \n          xNext = xPrev;\
@@ -1587,25 +1575,14 @@ std::string ShadingSingleInput(vtkRenderer* vtkNotUsed(ren), vtkVolumeMapper* ma
       \n          }\
       \n        for (int i = 0; i < int(in_coordTexSizes[j]); i++)\
       \n          {\
-      \n          switch (j)\
-      \n            {\
-      \n            case 0:\
-      \n              xNext = texture1D(in_coordTexs[0], (i + 0.5) / in_coordTexSizes[j]).r;\
-      \n              break;\
-      \n            case 1:\
-      \n              xNext = texture1D(in_coordTexs[1], (i + 0.5) / in_coordTexSizes[j]).r;\
-      \n              break;\
-      \n            case 2:\
-      \n              xNext = texture1D(in_coordTexs[2], (i + 0.5) / in_coordTexSizes[j]).r;\
-      \n              break;\
-      \n            }\
-      \n          if (dataPosWorldScaled[j] >= xPrev && dataPosWorldScaled[j] < xNext)\
+      \n          xNext = texture1D(in_coordTexs, (i + 0.5) / sz).xyz;\
+      \n          if (dataPosWorldScaled[j] >= xPrev[j] && dataPosWorldScaled[j] < xNext[j])\
       \n            {\
       \n            ijk[j] = i - 1;\
-      \n            pCoords[j] = (dataPosWorldScaled[j] - xPrev) / (xNext - xPrev);\
+      \n            pCoords[j] = (dataPosWorldScaled[j] - xPrev[j]) / (xNext[j] - xPrev[j]);\
       \n            break;\
       \n            }\
-      \n          else if (dataPosWorldScaled[j] == xNext)\
+      \n          else if (dataPosWorldScaled[j] == xNext[j])\
       \n            {\
       \n            ijk[j] = i - 1;\
       \n            pCoords[j] = 1.0;\

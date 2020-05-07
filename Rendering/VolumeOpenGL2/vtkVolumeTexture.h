@@ -196,9 +196,7 @@ public:
   float AdjustedTexMin[4];
   float AdjustedTexMax[4];
 
-  vtkSmartPointer<vtkTextureObject> XCoordsTex;
-  vtkSmartPointer<vtkTextureObject> YCoordsTex;
-  vtkSmartPointer<vtkTextureObject> ZCoordsTex;
+  vtkSmartPointer<vtkTextureObject> CoordsTex;
 
   int CoordsTexSizes[3];
   float CoordsScale[3];

@@ -3195,16 +3195,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::BindTransformations(
       cellToPointMat->DeepCopy(volTex->CellToPointMatrix.GetPointer());
       texMin = volTex->AdjustedTexMin;
       texMax = volTex->AdjustedTexMax;
-      if (volTex->XCoordsTex)
+      if (volTex->CoordsTex)
       {
-        volTex->XCoordsTex->Activate();
-        volTex->YCoordsTex->Activate();
-        volTex->ZCoordsTex->Activate();
-        int coordUnits[3];
-        coordUnits[0] = volTex->XCoordsTex->GetTextureUnit();
-        coordUnits[1] = volTex->YCoordsTex->GetTextureUnit();
-        coordUnits[2] = volTex->ZCoordsTex->GetTextureUnit();
-        prog->SetUniform1iv("in_coordTexs", 3, coordUnits);
+        volTex->CoordsTex->Activate();
+        prog->SetUniformi("in_coordTexs", volTex->CoordsTex->GetTextureUnit());
         float fvalue3[3];
         vtkInternal::ToFloat(volTex->CoordsTexSizes, fvalue3, 3);
         prog->SetUniform3fv("in_coordTexSizes", 1, &fvalue3);
