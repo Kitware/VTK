@@ -1152,6 +1152,9 @@ vtkDataArray* vtkXdmfHeavyData::ReadAttribute(
     case XDMF_ATTRIBUTE_TYPE_VECTOR:
       numComponents = 3;
       break;
+    case XDMF_ATTRIBUTE_TYPE_MATRIX:
+      numComponents = data_dims[data_rank - 1];
+      break;
     default:
       numComponents = 1;
       break;
