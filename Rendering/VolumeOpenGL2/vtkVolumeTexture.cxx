@@ -873,7 +873,7 @@ void vtkVolumeTexture::ComputeBounds(VolumeBlock* block)
   vtkRectilinearGrid* rGrid = vtkRectilinearGrid::SafeDownCast(block->DataSet);
   double spacing[3];
   double origin[3];
-  double* direction;
+  double* direction = nullptr;
   if (imData)
   {
     imData->GetSpacing(spacing); /// TODO could be causing inf issue on streaming
