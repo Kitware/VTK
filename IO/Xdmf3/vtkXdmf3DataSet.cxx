@@ -491,7 +491,7 @@ void vtkXdmf3DataSet::XdmfToVTKAttributes(vtkXdmf3ArraySelection* fselection,
     {
       atype = MATRIX;
     }
-    else if (attrType == XdmfAttributeType::Tensor6())
+    else if (attrType == XdmfAttributeType::Tensor6()) // && ncomp == 6)
     {
       atype = TENSOR6;
     }
@@ -2040,7 +2040,7 @@ void vtkXdmf3DataSet::XdmfToVTKAttributes(
     {
       atype = SCALAR;
     }
-    else if (attrType == XdmfAttributeType::Vector() && ncomp == 1)
+    else if (attrType == XdmfAttributeType::Vector() && ncomp == 3)
     {
       atype = VECTOR;
     }
@@ -2052,7 +2052,7 @@ void vtkXdmf3DataSet::XdmfToVTKAttributes(
     {
       atype = MATRIX;
     }
-    else if (attrType == XdmfAttributeType::Tensor6())
+    else if (attrType == XdmfAttributeType::Tensor6()) // && ncomp == 6)
     {
       atype = TENSOR6;
     }
