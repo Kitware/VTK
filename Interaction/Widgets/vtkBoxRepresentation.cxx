@@ -42,7 +42,7 @@
 #include "vtkVectorOperators.h"
 #include "vtkWindow.h"
 
-#include <assert.h>
+#include <cassert>
 
 vtkStandardNewMacro(vtkBoxRepresentation);
 

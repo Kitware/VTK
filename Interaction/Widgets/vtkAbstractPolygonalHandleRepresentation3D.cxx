@@ -36,7 +36,7 @@
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkVectorText.h"
 
-#include <assert.h>
+#include <cassert>
 
 vtkCxxSetObjectMacro(vtkAbstractPolygonalHandleRepresentation3D, Property, vtkProperty);
 vtkCxxSetObjectMacro(vtkAbstractPolygonalHandleRepresentation3D, SelectedProperty, vtkProperty);

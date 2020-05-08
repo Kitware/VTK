@@ -20,7 +20,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 
-#include "assert.h"
+#include <cassert>
 
 vtkCxxSetObjectMacro(vtkHandleRepresentation, PointPlacer, vtkPointPlacer);
 

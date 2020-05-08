@@ -32,7 +32,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-#include <assert.h>
+#include <cassert>
 
 vtkStandardNewMacro(vtkPointHandleRepresentation3D);
 

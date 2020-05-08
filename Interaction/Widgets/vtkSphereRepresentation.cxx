@@ -40,7 +40,7 @@
 #include "vtkTransform.h"
 #include "vtkWindow.h"
 
-#include <assert.h>
+#include <cassert>
 
 vtkStandardNewMacro(vtkSphereRepresentation);
 
