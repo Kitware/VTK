@@ -463,6 +463,10 @@ protected:
   int CreateOffScreenFramebuffer(int width, int height);
   vtkOpenGLFramebufferObject* OffScreenFramebuffer;
 
+  // used when we need to recolv a multisampled
+  // framebuffer
+  vtkOpenGLFramebufferObject* ResolveFramebuffer;
+
   /**
    * Create a not-off-screen window.
    */
