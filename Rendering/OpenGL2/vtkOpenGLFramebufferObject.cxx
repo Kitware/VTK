@@ -1558,7 +1558,7 @@ bool vtkOpenGLFramebufferObject::PopulateFramebuffer(int width, int height, bool
       depth->SetContext(this->Context);
       if (wantStencilAttachment)
       {
-        depth->Create(GL_DEPTH_STENCIL, this->LastSize[0], this->LastSize[1], multisamples);
+        depth->Create(GL_DEPTH24_STENCIL8, this->LastSize[0], this->LastSize[1], multisamples);
       }
       else
       {
