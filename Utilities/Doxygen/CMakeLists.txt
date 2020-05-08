@@ -69,8 +69,8 @@ if(NOT VTK_INSTALL_NO_DOCUMENTATION)
   macro(__vtk_install_documentation_files glob)
     file(GLOB __files "${CMAKE_CURRENT_SOURCE_DIR}/${glob}")
     install(FILES ${__files}
-      DESTINATION ${VTK_INSTALL_DOXYGEN_DIR}
-      COMPONENT Development)
+      DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/doc/vtk${vtk_version_suffix}/doxygen"
+      COMPONENT doxygen)
   endmacro()
   __vtk_install_documentation_files("*.css")
   __vtk_install_documentation_files("*.gif")
@@ -78,9 +78,9 @@ if(NOT VTK_INSTALL_NO_DOCUMENTATION)
   __vtk_install_documentation_files("*.pl")
   __vtk_install_documentation_files("*.stop")
   install(FILES doc_readme.txt
-    DESTINATION ${VTK_INSTALL_DOXYGEN_DIR}
-    COMPONENT Development)
+    DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/doc/vtk${vtk_version_suffix}/doxygen"
+    COMPONENT doxygen)
   install(DIRECTORY ${VTK_BINARY_DIR}/Utilities/Doxygen/doc/html
-      DESTINATION ${VTK_INSTALL_DOXYGEN_DIR}
-      COMPONENT Development)
+    DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/doc/vtk${vtk_version_suffix}/doxygen"
+    COMPONENT doxygen)
 endif()
