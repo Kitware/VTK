@@ -75,6 +75,11 @@ vtkTubePoint::vtkTubePoint() = default;
 //------------------------------------------------------------------------------
 vtkTubePoint& vtkTubePoint::operator=(const vtkTubePoint& hp)
 {
+  if (this == &hp)
+  {
+    return *this;
+  }
+
   for (int i = 0; i < 3; i++)
   {
     this->X[i] = hp.X[i];

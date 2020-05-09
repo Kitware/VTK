@@ -98,6 +98,11 @@ IVFDataSetInfo::IVFDataSetInfo(const IVFDataSetInfo& ivfci)
 //------------------------------------------------------------------------------
 IVFDataSetInfo& IVFDataSetInfo::operator=(const IVFDataSetInfo& ivfci)
 {
+  if (this == &ivfci)
+  {
+    return *this;
+  }
+
   this->VelocityFloat = ivfci.VelocityFloat;
   this->VelocityDouble = ivfci.VelocityDouble;
   this->DataSet = ivfci.DataSet;

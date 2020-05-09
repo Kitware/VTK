@@ -153,6 +153,11 @@ public:
 
   vtkVertexEntry& operator=(const vtkVertexEntry& other)
   {
+    if (this == &other)
+    {
+      return *this;
+    }
+
     ScreenX = other.ScreenX;
     ScreenY = other.ScreenY;
     memcpy(Values, other.Values, sizeof(double) * VTK_VALUES_SIZE);

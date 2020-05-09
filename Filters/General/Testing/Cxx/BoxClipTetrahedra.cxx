@@ -105,6 +105,11 @@ public:
   }
   BadWinding& operator=(const BadWinding& bw)
   {
+    if (this == &bw)
+    {
+      return *this;
+    }
+
     this->Data->UnRegister(nullptr);
     this->Data = bw.Data;
     this->Data->Register(nullptr);

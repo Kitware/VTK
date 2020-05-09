@@ -373,6 +373,11 @@ public:
 
   vtkICF::Seed& operator=(const vtkICF::Seed& seed)
   {
+    if (this == &seed)
+    {
+      return *this;
+    }
+
     pos[0] = seed.pos[0];
     pos[1] = seed.pos[1];
     pos[2] = seed.pos[2];
