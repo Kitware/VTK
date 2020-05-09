@@ -94,7 +94,7 @@ int vtkUnstructuredGridReader::ReadMeshSimple(const std::string& fname, vtkDataO
       return 1;
     }
 
-    if (strncmp(this->LowerCase(line), "unstructured_grid", 17))
+    if (strncmp(this->LowerCase(line), "unstructured_grid", 17) != 0)
     {
       vtkErrorMacro(<< "Cannot read dataset type: " << line);
       this->CloseVTKFile();

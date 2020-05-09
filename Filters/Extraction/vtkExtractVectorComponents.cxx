@@ -104,7 +104,7 @@ void vtkExtractVectorComponents::SetInputData(vtkDataSet* input)
   // since the input has changed we might need to create a new output
   // It seems that output 0 is the correct type as a result of the call to
   // the superclass's SetInput.  Check the type of output 1 instead.
-  if (strcmp(this->GetOutput(1)->GetClassName(), input->GetClassName()))
+  if (strcmp(this->GetOutput(1)->GetClassName(), input->GetClassName()) != 0)
   {
     output = input->NewInstance();
     this->GetExecutive()->SetOutputData(0, output);

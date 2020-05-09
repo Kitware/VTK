@@ -52,7 +52,7 @@ const char* vtkGraphicsFactory::GetRenderLibrary()
     {
       temp = "Win32OpenGL";
     }
-    else if (strcmp("OpenGL", temp) && strcmp("Win32OpenGL", temp))
+    else if (strcmp("OpenGL", temp) != 0 && strcmp("Win32OpenGL", temp) != 0)
     {
       vtkGenericWarningMacro(<< "VTK_RENDERER set to unsupported type:" << temp);
       temp = nullptr;

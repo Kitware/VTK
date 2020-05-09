@@ -727,7 +727,7 @@ void vtkLSDynaReader::SetDatabaseDirectory(const char* f)
     }
     return;
   }
-  if (strcmp(this->P->Fam.GetDatabaseDirectory().c_str(), f))
+  if (strcmp(this->P->Fam.GetDatabaseDirectory().c_str(), f) != 0)
   {
     this->P->Reset();
     this->SetInputDeck(nullptr);

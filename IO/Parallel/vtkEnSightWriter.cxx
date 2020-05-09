@@ -212,7 +212,7 @@ void vtkEnSightWriter::WriteData()
   // get the BlockID Cell Array
   vtkDataArray* BlockData = input->GetCellData()->GetScalars("BlockId");
 
-  if (BlockData == nullptr || strcmp(BlockData->GetName(), "BlockId"))
+  if (BlockData == nullptr || strcmp(BlockData->GetName(), "BlockId") != 0)
   {
     BlockData = nullptr;
   }
@@ -304,7 +304,8 @@ void vtkEnSightWriter::WriteData()
   vtkDataArray* GhostData =
     input->GetCellData()->GetScalars(vtkDataSetAttributes::GhostArrayName());
   // if the strings are not the same then we did not get the ghostData array
-  if (GhostData == nullptr || strcmp(GhostData->GetName(), vtkDataSetAttributes::GhostArrayName()))
+  if (GhostData == nullptr ||
+    strcmp(GhostData->GetName(), vtkDataSetAttributes::GhostArrayName()) != 0)
   {
     GhostData = nullptr;
   }

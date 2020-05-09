@@ -216,8 +216,8 @@ void vtkAMREnzoReader::SetFileName(const char* fileName)
 {
   assert("pre: Internal Enzo AMR Reader is nullptr" && (this->Internal != nullptr));
 
-  if (fileName && strcmp(fileName, "") &&
-    ((this->FileName == nullptr) || (strcmp(fileName, this->FileName))))
+  if (fileName && strcmp(fileName, "") != 0 &&
+    ((this->FileName == nullptr) || (strcmp(fileName, this->FileName) != 0)))
   {
     std::string tempName(fileName);
     std::string bExtName(".boundary");

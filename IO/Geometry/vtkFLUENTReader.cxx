@@ -596,7 +596,8 @@ int vtkFLUENTReader::GetCaseChunk()
 
     // while (CaseBuffer.compare(CaseBuffer.size()-strlen(end),
     // strlen(end), end))
-    while (strcmp(this->CaseBuffer->value.c_str() + (this->CaseBuffer->value.size() - len), end))
+    while (
+      strcmp(this->CaseBuffer->value.c_str() + (this->CaseBuffer->value.size() - len), end) != 0)
     {
       // this->CaseBuffer->value.push_back(this->FluentCaseFile->get());
       this->CaseBuffer->value += static_cast<char>(this->FluentCaseFile->get());
@@ -747,7 +748,8 @@ int vtkFLUENTReader::GetDataChunk()
 
     // while (DataBuffer.compare(DataBuffer.size()-strlen(end),
     // strlen(end), end))
-    while (strcmp(this->DataBuffer->value.c_str() + (this->DataBuffer->value.size() - len), end))
+    while (
+      strcmp(this->DataBuffer->value.c_str() + (this->DataBuffer->value.size() - len), end) != 0)
     {
       // this->DataBuffer->value.push_back(this->FluentDataFile->get());
       this->DataBuffer->value += static_cast<char>(this->FluentDataFile->get());

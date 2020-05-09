@@ -109,7 +109,7 @@ int CompareSelections(vtkSelectionNode* a, vtkSelectionNode* b)
     cerr << "ERROR: Array name a is null but b is not" << endl;
     errors++;
   }
-  else if (arra->GetName() && strcmp(arra->GetName(), arrb->GetName()))
+  else if (arra->GetName() && strcmp(arra->GetName(), arrb->GetName()) != 0)
   {
     cerr << "ERROR: Array name " << arra->GetName() << " does not match " << arrb->GetName()
          << endl;

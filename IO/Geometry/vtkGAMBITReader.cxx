@@ -176,7 +176,7 @@ int vtkGAMBITReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   // read here the end of section
   this->FileStream->get(buf, 128, '\n');
   this->FileStream->get(c);
-  if (strncmp(buf, "ENDOFSECTION", 12))
+  if (strncmp(buf, "ENDOFSECTION", 12) != 0)
   {
     vtkErrorMacro(<< "Error reading file");
   }
@@ -262,7 +262,7 @@ void vtkGAMBITReader::ReadBoundaryConditionSets(vtkUnstructuredGrid* output)
       // read here the end of section
       this->FileStream->get(buf, 128, '\n');
       this->FileStream->get(c);
-      if (strncmp(buf, "ENDOFSECTION", 12))
+      if (strncmp(buf, "ENDOFSECTION", 12) != 0)
       {
         vtkErrorMacro(<< "Error reading ENDOFSECTION tag at end of group");
       }
@@ -277,7 +277,7 @@ void vtkGAMBITReader::ReadBoundaryConditionSets(vtkUnstructuredGrid* output)
       // read here the end of section
       this->FileStream->get(buf, 128, '\n');
       this->FileStream->get(c);
-      if (strncmp(buf, "ENDOFSECTION", 12))
+      if (strncmp(buf, "ENDOFSECTION", 12) != 0)
       {
         vtkErrorMacro(<< "Error reading ENDOFSECTION tag at end of group");
       }
@@ -334,7 +334,7 @@ void vtkGAMBITReader::ReadMaterialTypes(vtkUnstructuredGrid* output)
     // read here the end of section
     this->FileStream->get(buf, 128, '\n');
     this->FileStream->get(c);
-    if (strncmp(buf, "ENDOFSECTION", 12))
+    if (strncmp(buf, "ENDOFSECTION", 12) != 0)
     {
       vtkErrorMacro(<< "Error reading ENDOFSECTION tag at end of group");
     }
@@ -450,7 +450,7 @@ void vtkGAMBITReader::ReadCellConnectivity(vtkUnstructuredGrid* output)
   this->FileStream->get(c);
   this->FileStream->get(buf, 128, '\n');
   this->FileStream->get(c);
-  if (strncmp(buf, "ENDOFSECTION", 12))
+  if (strncmp(buf, "ENDOFSECTION", 12) != 0)
   {
     vtkErrorMacro(<< "Error reading ENDOFSECTION tag at end of connectivity");
   }
@@ -487,7 +487,7 @@ void vtkGAMBITReader::ReadXYZCoords(vtkDoubleArray* coords)
   this->FileStream->get(c);
   this->FileStream->get(buf, 128, '\n');
   this->FileStream->get(c);
-  if (strncmp(buf, "ENDOFSECTION", 12))
+  if (strncmp(buf, "ENDOFSECTION", 12) != 0)
   {
     vtkErrorMacro("Error reading ENDOFSECTION tag at end of coordinates section");
   }

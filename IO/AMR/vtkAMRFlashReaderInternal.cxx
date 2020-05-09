@@ -1276,8 +1276,8 @@ void vtkFlashReaderInternal::ReadParticleAttributes()
     hid_t member_type = H5Tget_native_type(member_raw_type, H5T_DIR_ASCEND);
     int index = (int)(this->ParticleAttributeTypes.size());
 
-    if (strcmp(member_name, "particle_x") && strcmp(member_name, "particle_y") &&
-      strcmp(member_name, "particle_z"))
+    if (strcmp(member_name, "particle_x") != 0 && strcmp(member_name, "particle_y") != 0 &&
+      strcmp(member_name, "particle_z") != 0)
     {
       if (H5Tequal(member_type, H5T_NATIVE_DOUBLE) > 0)
       {

@@ -926,7 +926,7 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport* viewport)
 
     // Update y axis title position
     // NB: Must be done after call to PlaceAxes() which calculates YTitleSize and YAxisTitleSize
-    if (strcmp(this->YTitleActor->GetInput(), ""))
+    if (strcmp(this->YTitleActor->GetInput(), "") != 0)
     {
       this->YTitleActor->GetTextProperty()->SetFontSize(this->YAxisTitleSize);
 

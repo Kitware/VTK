@@ -121,7 +121,7 @@ int vtkPolyDataReader::ReadMeshSimple(const std::string& fname, vtkDataObject* d
       return 1;
     }
 
-    if (strncmp(this->LowerCase(line), "polydata", 8))
+    if (strncmp(this->LowerCase(line), "polydata", 8) != 0)
     {
       vtkErrorMacro(<< "Cannot read dataset type: " << line);
       this->CloseVTKFile();

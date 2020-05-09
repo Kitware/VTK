@@ -498,8 +498,8 @@ void vtkTecplotReader::Init()
 //------------------------------------------------------------------------------
 void vtkTecplotReader::SetFileName(const char* fileName)
 {
-  if (fileName && strcmp(fileName, "") &&
-    ((this->FileName == nullptr) || strcmp(fileName, this->FileName)))
+  if (fileName && strcmp(fileName, "") != 0 &&
+    ((this->FileName == nullptr) || strcmp(fileName, this->FileName) != 0))
   {
     delete[] this->FileName;
     this->FileName = new char[strlen(fileName) + 1];

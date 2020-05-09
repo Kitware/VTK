@@ -38,7 +38,7 @@ int SelectionCompare(vtkSelectionNode* a, vtkSelectionNode* b)
   }
   if (a->GetContentType() == vtkSelectionNode::VALUES)
   {
-    if (!alist->GetName() || !blist->GetName() || strcmp(alist->GetName(), blist->GetName()))
+    if (!alist->GetName() || !blist->GetName() || strcmp(alist->GetName(), blist->GetName()) != 0)
     {
       cerr << "ERROR: The array names do not match." << endl;
     }

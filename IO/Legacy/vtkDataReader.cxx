@@ -538,7 +538,7 @@ int vtkDataReader::ReadHeader(const char* fname)
     return 0;
   }
   const int VERSION_PREFIX_LENGTH = 22;
-  if (strncmp("# vtk DataFile Version", line, VERSION_PREFIX_LENGTH))
+  if (strncmp("# vtk DataFile Version", line, VERSION_PREFIX_LENGTH) != 0)
   {
     vtkErrorMacro(<< "Unrecognized file type: " << line
                   << " for file: " << (fname ? fname : "(Null FileName)"));
@@ -671,7 +671,7 @@ int vtkDataReader::IsFileValid(const char* dstype)
       this->SetErrorCode(vtkErrorCode::PrematureEndOfFileError);
       return 0;
     }
-    if (strncmp(this->LowerCase(line), dstype, strlen(dstype)))
+    if (strncmp(this->LowerCase(line), dstype, strlen(dstype)) != 0)
     {
       this->CloseVTKFile();
       return 0;
@@ -2283,7 +2283,7 @@ int vtkDataReader::ReadScalarData(vtkDataSetAttributes* a, vtkIdType numPts)
   }
 
   // the next string could be an integer number of components or a lookup table
-  if (strcmp(this->LowerCase(key), "lookup_table"))
+  if (strcmp(this->LowerCase(key), "lookup_table") != 0)
   {
     numComp = atoi(key);
     if (numComp < 1 || !this->ReadString(key))
@@ -2295,7 +2295,7 @@ int vtkDataReader::ReadScalarData(vtkDataSetAttributes* a, vtkIdType numPts)
     }
   }
 
-  if (strcmp(this->LowerCase(key), "lookup_table"))
+  if (strcmp(this->LowerCase(key), "lookup_table") != 0)
   {
     vtkErrorMacro(<< "Lookup table must be specified with scalar.\n"
                   << "Use \"LOOKUP_TABLE default\" to use default table.");
@@ -2313,7 +2313,7 @@ int vtkDataReader::ReadScalarData(vtkDataSetAttributes* a, vtkIdType numPts)
   // See whether scalar has been already read or scalar name (if specified)
   // matches name in file.
   //
-  if (a->GetScalars() != nullptr || (this->ScalarsName && strcmp(name, this->ScalarsName)))
+  if (a->GetScalars() != nullptr || (this->ScalarsName && strcmp(name, this->ScalarsName) != 0))
   {
     skipScalar = 1;
   }
@@ -2369,7 +2369,7 @@ int vtkDataReader::ReadVectorData(vtkDataSetAttributes* a, vtkIdType numPts)
   // See whether vector has been already read or vector name (if specified)
   // matches name in file.
   //
-  if (a->GetVectors() != nullptr || (this->VectorsName && strcmp(name, this->VectorsName)))
+  if (a->GetVectors() != nullptr || (this->VectorsName && strcmp(name, this->VectorsName) != 0))
   {
     skipVector = 1;
   }
@@ -2420,7 +2420,7 @@ int vtkDataReader::ReadNormalData(vtkDataSetAttributes* a, vtkIdType numPts)
   // See whether normal has been already read or normal name (if specified)
   // matches name in file.
   //
-  if (a->GetNormals() != nullptr || (this->NormalsName && strcmp(name, this->NormalsName)))
+  if (a->GetNormals() != nullptr || (this->NormalsName && strcmp(name, this->NormalsName) != 0))
   {
     skipNormal = 1;
   }
@@ -2470,7 +2470,7 @@ int vtkDataReader::ReadTensorData(vtkDataSetAttributes* a, vtkIdType numPts, vtk
   // See whether tensor has been already read or tensor name (if specified)
   // matches name in file.
   //
-  if (a->GetTensors() != nullptr || (this->TensorsName && strcmp(name, this->TensorsName)))
+  if (a->GetTensors() != nullptr || (this->TensorsName && strcmp(name, this->TensorsName) != 0))
   {
     skipTensor = 1;
   }
@@ -2519,7 +2519,7 @@ int vtkDataReader::ReadCoScalarData(vtkDataSetAttributes* a, vtkIdType numPts)
   // See whether scalar has been already read or scalar name (if specified)
   // matches name in file.
   //
-  if (a->GetScalars() != nullptr || (this->ScalarsName && strcmp(name, this->ScalarsName)))
+  if (a->GetScalars() != nullptr || (this->ScalarsName && strcmp(name, this->ScalarsName) != 0))
   {
     skipScalar = 1;
   }
@@ -2626,7 +2626,7 @@ int vtkDataReader::ReadTCoordsData(vtkDataSetAttributes* a, vtkIdType numPts)
   // See whether texture coords have been already read or texture coords name
   // (if specified) matches name in file.
   //
-  if (a->GetTCoords() != nullptr || (this->TCoordsName && strcmp(name, this->TCoordsName)))
+  if (a->GetTCoords() != nullptr || (this->TCoordsName && strcmp(name, this->TCoordsName) != 0))
   {
     skipTCoord = 1;
   }
@@ -3069,8 +3069,8 @@ int vtkDataReader::ReadLutData(vtkDataSetAttributes* a)
   }
 
   if (a->GetScalars() == nullptr ||
-    (this->LookupTableName && strcmp(name, this->LookupTableName)) ||
-    (this->ScalarLut && strcmp(name, this->ScalarLut)))
+    (this->LookupTableName && strcmp(name, this->LookupTableName) != 0) ||
+    (this->ScalarLut && strcmp(name, this->ScalarLut) != 0))
   {
     skipTable = 1;
   }
@@ -3398,7 +3398,7 @@ vtkFieldData* vtkDataReader::ReadFieldData(FieldType fieldType)
   }
 
   // See whether field data name (if specified)
-  if ((this->FieldDataName && strcmp(name, this->FieldDataName)))
+  if ((this->FieldDataName && strcmp(name, this->FieldDataName) != 0))
   {
     skipField = 1;
   }

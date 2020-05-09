@@ -732,7 +732,8 @@ void outputFunction(FILE* fp, ClassInfo* data)
   }
 
   if (!currentFunction->IsExcluded && currentFunction->IsPublic && args_ok &&
-    strcmp(data->Name, currentFunction->Name) && strcmp(data->Name, currentFunction->Name + 1))
+    strcmp(data->Name, currentFunction->Name) != 0 &&
+    strcmp(data->Name, currentFunction->Name + 1) != 0)
   {
     /* make sure we haven't already done one of these */
     if (!DoneOne())
@@ -924,12 +925,12 @@ int main(int argc, char* argv[])
   fprintf(fp, "// java wrapper for %s object\n//\n", data->Name);
   fprintf(fp, "\npackage vtk;\n");
 
-  if (strcmp("vtkObjectBase", data->Name))
+  if (strcmp("vtkObjectBase", data->Name) != 0)
   {
     fprintf(fp, "import vtk.*;\n");
   }
   fprintf(fp, "\npublic class %s", data->Name);
-  if (strcmp("vtkObjectBase", data->Name))
+  if (strcmp("vtkObjectBase", data->Name) != 0)
   {
     if (data->NumberOfSuperClasses)
     {

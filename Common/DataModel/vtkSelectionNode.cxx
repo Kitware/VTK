@@ -299,7 +299,7 @@ bool vtkSelectionNode::EqualProperties(vtkSelectionNode* other, bool fullcompare
       {
         return false;
       }
-      if (arr->GetName() && otherArr->GetName() && strcmp(arr->GetName(), otherArr->GetName()))
+      if (arr->GetName() && otherArr->GetName() && strcmp(arr->GetName(), otherArr->GetName()) != 0)
       {
         return false;
       }

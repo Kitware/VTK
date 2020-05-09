@@ -102,7 +102,7 @@ void vtkAMReXGridReader::SetFileName(const char* arg)
   }
 
   // both set to the same value, just return
-  if (this->FileName && arg && (!strcmp(this->FileName, arg)))
+  if (this->FileName && arg && (strcmp(this->FileName, arg) != 0))
   {
     return;
   }

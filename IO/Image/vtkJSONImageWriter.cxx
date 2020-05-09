@@ -107,7 +107,8 @@ int vtkJSONImageWriter::RequestData(vtkInformation* vtkNotUsed(request),
     {
       continue;
     }
-    if (this->ArrayName && strlen(this->ArrayName) > 0 && strcmp(array->GetName(), this->ArrayName))
+    if (this->ArrayName && strlen(this->ArrayName) > 0 &&
+      strcmp(array->GetName(), this->ArrayName) != 0)
     {
       continue;
     }

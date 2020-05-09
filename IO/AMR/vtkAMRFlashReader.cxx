@@ -69,8 +69,8 @@ void vtkAMRFlashReader::SetFileName(const char* fileName)
 {
   assert("pre: Internal Flash Reader is nullptr" && (this->Internal != nullptr));
 
-  if (fileName && strcmp(fileName, "") &&
-    ((this->FileName == nullptr) || strcmp(fileName, this->FileName)))
+  if (fileName && strcmp(fileName, "") != 0 &&
+    ((this->FileName == nullptr) || strcmp(fileName, this->FileName) != 0))
   {
     if (this->FileName)
     {

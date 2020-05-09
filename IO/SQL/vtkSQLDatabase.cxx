@@ -433,7 +433,8 @@ bool vtkSQLDatabase::EffectSchema(vtkSQLDatabaseSchema* schema, bool dropIfExist
   {
     // Don't execute if the statement is not for this backend
     const char* preBackend = schema->GetPreambleBackendFromHandle(preHandle);
-    if (strcmp(preBackend, VTK_SQL_ALLBACKENDS) && strcmp(preBackend, this->GetClassName()))
+    if (strcmp(preBackend, VTK_SQL_ALLBACKENDS) != 0 &&
+      strcmp(preBackend, this->GetClassName()) != 0)
     {
       continue;
     }
@@ -546,7 +547,8 @@ bool vtkSQLDatabase::EffectSchema(vtkSQLDatabaseSchema* schema, bool dropIfExist
     for (int optHandle = 0; optHandle < numOpt; ++optHandle)
     {
       vtkStdString optBackend = schema->GetOptionBackendFromHandle(tblHandle, optHandle);
-      if (strcmp(optBackend, VTK_SQL_ALLBACKENDS) && strcmp(optBackend, this->GetClassName()))
+      if (strcmp(optBackend, VTK_SQL_ALLBACKENDS) != 0 &&
+        strcmp(optBackend, this->GetClassName()) != 0)
       {
         continue;
       }
@@ -597,7 +599,8 @@ bool vtkSQLDatabase::EffectSchema(vtkSQLDatabaseSchema* schema, bool dropIfExist
       {
         // Don't execute if the trigger is not for this backend
         const char* trgBackend = schema->GetTriggerBackendFromHandle(tblHandle, trgHandle);
-        if (strcmp(trgBackend, VTK_SQL_ALLBACKENDS) && strcmp(trgBackend, this->GetClassName()))
+        if (strcmp(trgBackend, VTK_SQL_ALLBACKENDS) != 0 &&
+          strcmp(trgBackend, this->GetClassName()) != 0)
         {
           continue;
         }

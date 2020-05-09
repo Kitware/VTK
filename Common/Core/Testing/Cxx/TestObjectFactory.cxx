@@ -138,19 +138,19 @@ int TestObjectFactory(int, char*[])
   oi = oic->GetNextOverrideInformation(oicit);
   oi->GetObjectFactory();
 
-  if (strcmp(oi->GetClassOverrideName(), "vtkPoints"))
+  if (strcmp(oi->GetClassOverrideName(), "vtkPoints") != 0)
   {
     cout << "failed: GetClassOverrideName should be vtkPoints, is: " << oi->GetClassOverrideName()
          << "\n";
     failed = 1;
   }
-  if (strcmp(oi->GetClassOverrideWithName(), "vtkTestPoints"))
+  if (strcmp(oi->GetClassOverrideWithName(), "vtkTestPoints") != 0)
   {
     cout << "failed: GetClassOverrideWithName should be vtkTestPoints, is: "
          << oi->GetClassOverrideWithName() << "\n";
     failed = 1;
   }
-  if (strcmp(oi->GetDescription(), "test vertex factory override"))
+  if (strcmp(oi->GetDescription(), "test vertex factory override") != 0)
   {
     cout << "failed: GetClassOverrideWithName should be test vertex factory override, is: "
          << oi->GetDescription() << "\n";
@@ -158,19 +158,19 @@ int TestObjectFactory(int, char*[])
   }
 
   oi = oic->GetNextOverrideInformation(oicit);
-  if (strcmp(oi->GetClassOverrideName(), "vtkPoints"))
+  if (strcmp(oi->GetClassOverrideName(), "vtkPoints") != 0)
   {
     cout << "failed: GetClassOverrideName should be vtkPoints, is: " << oi->GetClassOverrideName()
          << "\n";
     failed = 1;
   }
-  if (strcmp(oi->GetClassOverrideWithName(), "vtkTestPoints2"))
+  if (strcmp(oi->GetClassOverrideWithName(), "vtkTestPoints2") != 0)
   {
     cout << "failed: GetClassOverrideWithName should be vtkTestPoints2, is: "
          << oi->GetClassOverrideWithName() << "\n";
     failed = 1;
   }
-  if (strcmp(oi->GetDescription(), "test vertex factory override 2"))
+  if (strcmp(oi->GetDescription(), "test vertex factory override 2") != 0)
   {
     cout << "failed: GetClassOverrideWithName should be test vertex factory override 2, is: "
          << oi->GetDescription() << "\n";

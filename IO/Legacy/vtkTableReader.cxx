@@ -72,7 +72,7 @@ int vtkTableReader::ReadMeshSimple(const std::string& fname, vtkDataObject* doOu
     return 1;
   }
 
-  if (strncmp(this->LowerCase(line), "dataset", (unsigned long)7))
+  if (strncmp(this->LowerCase(line), "dataset", (unsigned long)7) != 0)
   {
     vtkErrorMacro(<< "Unrecognized keyword: " << line);
     this->CloseVTKFile();
@@ -86,7 +86,7 @@ int vtkTableReader::ReadMeshSimple(const std::string& fname, vtkDataObject* doOu
     return 1;
   }
 
-  if (strncmp(this->LowerCase(line), "table", 5))
+  if (strncmp(this->LowerCase(line), "table", 5) != 0)
   {
     vtkErrorMacro(<< "Cannot read dataset type: " << line);
     this->CloseVTKFile();
