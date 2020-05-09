@@ -452,7 +452,7 @@ int vtkMultiThreader::SpawnThread(vtkThreadFunctionType f, void* userdata)
     {
       this->SpawnedThreadActiveFlagLock[id] = new std::mutex;
     }
-    std::lock_guard<std::mutex>(*this->SpawnedThreadActiveFlagLock[id]);
+    std::lock_guard<std::mutex> lockGuard(*this->SpawnedThreadActiveFlagLock[id]);
     if (this->SpawnedThreadActiveFlag[id] == 0)
     {
       // We've got a usable thread id, so grab it
@@ -530,7 +530,7 @@ void vtkMultiThreader::TerminateThread(int threadId)
   // If we do have a lock, use it and find out the status of the active flag
   int val = 0;
   {
-    std::lock_guard<std::mutex>(*this->SpawnedThreadActiveFlagLock[threadId]);
+    std::lock_guard<std::mutex> lockGuard(*this->SpawnedThreadActiveFlagLock[threadId]);
     val = this->SpawnedThreadActiveFlag[threadId];
   }
 
@@ -543,7 +543,7 @@ void vtkMultiThreader::TerminateThread(int threadId)
   // OK - now we know we have an active thread - set the active flag to 0
   // to indicate to the thread that it should terminate itself
   {
-    std::lock_guard<std::mutex>(*this->SpawnedThreadActiveFlagLock[threadId]);
+    std::lock_guard<std::mutex> lockGuard(*this->SpawnedThreadActiveFlagLock[threadId]);
     this->SpawnedThreadActiveFlag[threadId] = 0;
   }
 
@@ -600,7 +600,7 @@ vtkTypeBool vtkMultiThreader::IsThreadActive(int threadId)
   // We have a lock - use it to get the active flag value
   int val = 0;
   {
-    std::lock_guard<std::mutex>(*this->SpawnedThreadActiveFlagLock[threadId]);
+    std::lock_guard<std::mutex> lockGuard(*this->SpawnedThreadActiveFlagLock[threadId]);
     val = this->SpawnedThreadActiveFlag[threadId];
   }
 

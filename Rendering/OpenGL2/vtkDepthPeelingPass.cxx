@@ -289,7 +289,7 @@ void vtkDepthPeelingPass::BlendFinalPeel(vtkOpenGLRenderWindow* renWin)
       this->TranslucentRGBATexture[(this->ColorDrawCount - 1) % 3]->GetTextureUnit());
 
     // Store the current active texture
-    vtkOpenGLState::ScopedglActiveTexture(this->State);
+    vtkOpenGLState::ScopedglActiveTexture activeTexture(this->State);
 
     this->OpaqueRGBATexture->Activate();
     this->FinalBlend->Program->SetUniformi(
@@ -458,7 +458,7 @@ void vtkDepthPeelingPass::Render(const vtkRenderState* s)
   this->State->vtkglDisable(GL_BLEND);
 
   // Store the current active texture
-  vtkOpenGLState::ScopedglActiveTexture(this->State);
+  vtkOpenGLState::ScopedglActiveTexture activeTexture(this->State);
 
   this->TranslucentZTexture[0]->Activate();
   this->OpaqueZTexture->Activate();
