@@ -152,6 +152,10 @@ vtkMTimeType vtkOSPRayActorNode::GetMTime()
 {
   vtkMTimeType mtime = this->Superclass::GetMTime();
   vtkActor* act = (vtkActor*)this->GetRenderable();
+  if (!act)
+  {
+    return mtime;
+  }
   if (act->GetMTime() > mtime)
   {
     mtime = act->GetMTime();
