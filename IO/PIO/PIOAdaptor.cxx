@@ -297,6 +297,16 @@ int PIOAdaptor::initializeGlobal(const char* PIOFileName)
       {
         this->hasTracers = true;
       }
+
+      // Default variable names that are initially enabled for loading if pres
+      if ((strcmp(pioName, "tev") == 0) || (strcmp(pioName, "pres") == 0) ||
+        (strcmp(pioName, "rho") == 0) || (strcmp(pioName, "rade") == 0) ||
+        (strcmp(pioName, "cell_energy") == 0) || (strcmp(pioName, "kemax") == 0) ||
+        (strcmp(pioName, "vel") == 0) || (strcmp(pioName, "eng") == 0))
+      {
+        this->variableDefault.emplace_back(pioName);
+      }
+
       if (pioField[i].length == numberOfCells && pioField[i].cdata_len == 0)
       {
         // index = 0 is scalar, index = 1 is vector, index = -1 is request from input deck
@@ -318,16 +328,6 @@ int PIOAdaptor::initializeGlobal(const char* PIOFileName)
       }
     }
     sort(this->variableName.begin(), this->variableName.end());
-
-    // Default variable names that are initially enabled for loading
-    this->variableDefault.emplace_back("tev");
-    this->variableDefault.emplace_back("prs");
-    this->variableDefault.emplace_back("rho");
-    this->variableDefault.emplace_back("rade");
-    this->variableDefault.emplace_back("cell_energy");
-    this->variableDefault.emplace_back("kemax");
-    this->variableDefault.emplace_back("vel");
-    this->variableDefault.emplace_back("eng");
   }
 
   /////////////////////////////////////////////////////////////////////////////
