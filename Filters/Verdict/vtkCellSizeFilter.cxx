@@ -379,9 +379,9 @@ int vtkCellSizeFilter::RequestData(
       if (vtkDataSet* inputDS = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject()))
       {
         vtkDataSet* outputDS = inputDS->NewInstance();
+        retVal = retVal && this->ComputeDataSet(inputDS, outputDS, sum);
         output->SetDataSet(iter, outputDS);
         outputDS->Delete();
-        retVal = retVal && this->ComputeDataSet(inputDS, outputDS, sum);
         if (this->ComputeSum)
         {
           this->ComputeGlobalSum(sum);
