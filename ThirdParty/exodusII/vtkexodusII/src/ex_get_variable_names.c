@@ -102,6 +102,8 @@ int ex_get_variable_names(int exoid, ex_entity_type obj_type, int num_vars, char
 
   switch (obj_type) {
   case EX_NODAL: vvarname = VAR_NAME_NOD_VAR; break;
+  case EX_ASSEMBLY: vvarname = VAR_NAME_ASSEMBLY_VAR; break;
+  case EX_BLOB: vvarname = VAR_NAME_BLOB_VAR; break;
   case EX_EDGE_BLOCK: vvarname = VAR_NAME_EDG_VAR; break;
   case EX_FACE_BLOCK: vvarname = VAR_NAME_FAC_VAR; break;
   case EX_ELEM_BLOCK: vvarname = VAR_NAME_ELE_VAR; break;

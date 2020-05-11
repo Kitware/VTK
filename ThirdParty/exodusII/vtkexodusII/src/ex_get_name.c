@@ -68,6 +68,12 @@ int ex_get_name(int exoid, ex_entity_type obj_type, ex_entity_id entity_id, char
   ex__check_valid_file_id(exoid, __func__);
 
   switch (obj_type) {
+  case EX_ASSEMBLY:
+    snprintf(errmsg, MAX_ERR_LENGTH,
+             "ERROR: Assembly name is read using `ex_get_assembly()` function");
+    ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
+    EX_FUNC_LEAVE(EX_FATAL);
+    break;
   case EX_ELEM_BLOCK: vobj = VAR_NAME_EL_BLK; break;
   case EX_EDGE_BLOCK: vobj = VAR_NAME_ED_BLK; break;
   case EX_FACE_BLOCK: vobj = VAR_NAME_FA_BLK; break;
