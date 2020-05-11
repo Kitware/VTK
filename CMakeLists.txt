@@ -51,6 +51,14 @@ include(vtkWrapSettings)
 include(vtkCrossCompiling)
 include(vtkObjectFactory)
 
+set(CMAKE_INSTALL_LICENSEDIR ""
+  CACHE PATH "License files (DATAROOTDIR/licenses/${CMAKE_PROJECT_NAME}")
+mark_as_advanced(CMAKE_INSTALL_LICENSEDIR)
+if (NOT CMAKE_INSTALL_LICENSEDIR)
+  set(CMAKE_INSTALL_LICENSEDIR
+    "${CMAKE_INSTALL_DATAROOTDIR}/licenses/${CMAKE_PROJECT_NAME}")
+endif ()
+
 # Setup compiler flags for dynamic analysis
 # Should be included after vtkTesting
 include(vtkCompilerDynamicAnalysisFlags)
@@ -314,6 +322,7 @@ vtk_module_build(
   HEADERS_DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/vtk${vtk_version_suffix}"
   ${vtk_hierarchy_destination_args}
   CMAKE_DESTINATION   "${vtk_cmake_destination}"
+  LICENSE_DESTINATION "${CMAKE_INSTALL_LICENSEDIR}"
   LIBRARY_NAME_SUFFIX "${VTK_CUSTOM_LIBRARY_SUFFIX}"
   VERSION             "${VTK_VERSION}"
   SOVERSION           "1"
@@ -447,7 +456,7 @@ endif ()
 
 install(
   FILES       "${CMAKE_CURRENT_LIST_DIR}/Copyright.txt"
-  DESTINATION "${CMAKE_INSTALL_DOCDIR}"
+  DESTINATION "${CMAKE_INSTALL_LICENSEDIR}"
   COMPONENT   "license")
 
 # TODO: HeaderTest exclusions for memcheck.
