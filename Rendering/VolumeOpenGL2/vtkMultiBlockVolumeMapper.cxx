@@ -99,7 +99,7 @@ void vtkMultiBlockVolumeMapper::Render(vtkRenderer* ren, vtkVolume* vol)
   {
     if (this->FallBackMapper)
     {
-      vtkImageData* image = (*it)->GetInput();
+      vtkImageData* image = vtkImageData::SafeDownCast((*it)->GetInput());
       image->Modified();
       this->FallBackMapper->SetInputData(image);
       this->FallBackMapper->Render(ren, vol);

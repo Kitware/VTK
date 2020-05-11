@@ -76,10 +76,11 @@
 #include "vtkTuple.h"                        // For Size6 and Size3
 
 class vtkDataArray;
+class vtkDataSet;
 class vtkImageData;
-class vtkVolumeProperty;
 class vtkRenderer;
 class vtkTextureObject;
+class vtkVolumeProperty;
 class vtkWindow;
 
 class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkVolumeTexture : public vtkObject
@@ -92,10 +93,10 @@ public:
 
   struct VolumeBlock
   {
-    VolumeBlock(vtkImageData* imData, vtkTextureObject* tex, Size3 const& texSize)
+    VolumeBlock(vtkDataSet* dataset, vtkTextureObject* tex, Size3 const& texSize)
     {
-      // Block extent is stored in vtkImageData
-      ImageData = imData;
+      // Block extent is stored in vtkDataSet
+      DataSet = dataset;
       TextureObject = tex;
       TextureSize = texSize;
       TupleIndex = 0;
@@ -108,7 +109,7 @@ public:
       this->Extents[5] = VTK_INT_MIN;
     }
 
-    vtkImageData* ImageData;
+    vtkDataSet* DataSet;
     vtkTextureObject* TextureObject;
     Size3 TextureSize;
     vtkIdType TupleIndex;
@@ -120,7 +121,7 @@ public:
 
     /**
      * LoadedBounds are corrected for cell-data (if that is the case). So they
-     * are not equivalent to vtkImageData::GetBounds().
+     * are not equivalent to vtkDataSet::GetBounds().
      */
     double LoadedBounds[6];
     double LoadedBoundsAA[6];
@@ -143,7 +144,7 @@ public:
    * (in which case they will be loaded into GPU memory by GetNextBlock()).
    * Requires an active OpenGL context.
    */
-  bool LoadVolume(vtkRenderer* ren, vtkImageData* data, vtkDataArray* scalars, int const isCell,
+  bool LoadVolume(vtkRenderer* ren, vtkDataSet* data, vtkDataArray* scalars, int const isCell,
     int const interpolation);
 
   /**
@@ -194,6 +195,13 @@ public:
   vtkNew<vtkMatrix4x4> CellToPointMatrix;
   float AdjustedTexMin[4];
   float AdjustedTexMax[4];
+
+  vtkSmartPointer<vtkTextureObject> CoordsTex;
+
+  int CoordsTexSizes[3];
+  float CoordsScale[3];
+  float CoordsBias[3];
+  float CoordsRange[3][2];
 
 protected:
   vtkVolumeTexture();
@@ -281,8 +289,8 @@ private:
   vtkTimeStamp UpdateTime;
 
   vtkSmartPointer<vtkTextureObject> Texture;
-  std::vector<vtkImageData*> ImageDataBlocks;
-  std::map<vtkImageData*, VolumeBlock*> ImageDataBlockMap;
+  std::vector<vtkDataSet*> ImageDataBlocks;
+  std::map<vtkDataSet*, VolumeBlock*> ImageDataBlockMap;
   std::vector<VolumeBlock*> SortedVolumeBlocks;
   size_t CurrentBlockIdx;
   bool StreamBlocks;

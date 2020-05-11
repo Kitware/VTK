@@ -1250,3 +1250,86 @@ void vtkRectilinearGrid::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Extent: " << extent[0] << ", " << extent[1] << ", " << extent[2] << ", "
      << extent[3] << ", " << extent[4] << ", " << extent[5] << endl;
 }
+
+//----------------------------------------------------------------------------
+void vtkRectilinearGrid::SetScalarType(int type, vtkInformation* meta_data)
+{
+  vtkDataObject::SetPointDataActiveScalarInfo(meta_data, type, -1);
+}
+
+//----------------------------------------------------------------------------
+int vtkRectilinearGrid::GetScalarType()
+{
+  vtkDataArray* scalars = this->GetPointData()->GetScalars();
+  if (!scalars)
+  {
+    return VTK_DOUBLE;
+  }
+  return scalars->GetDataType();
+}
+
+//----------------------------------------------------------------------------
+bool vtkRectilinearGrid::HasScalarType(vtkInformation* meta_data)
+{
+  vtkInformation* scalarInfo = vtkDataObject::GetActiveFieldInformation(
+    meta_data, FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
+  if (!scalarInfo)
+  {
+    return false;
+  }
+
+  return scalarInfo->Has(FIELD_ARRAY_TYPE()) != 0;
+}
+
+//----------------------------------------------------------------------------
+int vtkRectilinearGrid::GetScalarType(vtkInformation* meta_data)
+{
+  vtkInformation* scalarInfo = vtkDataObject::GetActiveFieldInformation(
+    meta_data, FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
+  if (scalarInfo)
+  {
+    return scalarInfo->Get(FIELD_ARRAY_TYPE());
+  }
+  return VTK_DOUBLE;
+}
+
+//----------------------------------------------------------------------------
+void vtkRectilinearGrid::SetNumberOfScalarComponents(int num, vtkInformation* meta_data)
+{
+  vtkDataObject::SetPointDataActiveScalarInfo(meta_data, -1, num);
+}
+
+//----------------------------------------------------------------------------
+bool vtkRectilinearGrid::HasNumberOfScalarComponents(vtkInformation* meta_data)
+{
+  vtkInformation* scalarInfo = vtkDataObject::GetActiveFieldInformation(
+    meta_data, FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
+  if (!scalarInfo)
+  {
+    return false;
+  }
+  return scalarInfo->Has(FIELD_NUMBER_OF_COMPONENTS()) != 0;
+}
+
+//----------------------------------------------------------------------------
+int vtkRectilinearGrid::GetNumberOfScalarComponents(vtkInformation* meta_data)
+{
+  vtkInformation* scalarInfo = vtkDataObject::GetActiveFieldInformation(
+    meta_data, FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
+  if (scalarInfo && scalarInfo->Has(FIELD_NUMBER_OF_COMPONENTS()))
+  {
+    return scalarInfo->Get(FIELD_NUMBER_OF_COMPONENTS());
+  }
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkRectilinearGrid::GetNumberOfScalarComponents()
+{
+  vtkDataArray* scalars = this->GetPointData()->GetScalars();
+  if (scalars)
+  {
+    return scalars->GetNumberOfComponents();
+  }
+  return 1;
+}

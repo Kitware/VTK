@@ -21,7 +21,7 @@
 #define vtkBlockSortHelper_h
 
 #include "vtkCamera.h"
-#include "vtkImageData.h"
+#include "vtkDataSet.h"
 #include "vtkMatrix4x4.h"
 #include "vtkNew.h"
 #include "vtkRenderer.h"
@@ -40,7 +40,7 @@ inline void GetBounds(T a, double bds[6])
 }
 
 template <>
-inline void GetBounds(vtkImageData* first, double bds[6])
+inline void GetBounds(vtkDataSet* first, double bds[6])
 {
   first->GetBounds(bds);
 }

@@ -89,11 +89,20 @@ void vtkAMRVolumeMapper::SetInputData(vtkDataSet* vtkNotUsed(genericInput))
   vtkErrorMacro("Mapper expects a hierarchical dataset as input");
   this->Resampler->SetInputConnection(0, 0);
 }
+
+//------------------------------------------------------------------------------
+void vtkAMRVolumeMapper::SetInputData(vtkRectilinearGrid* vtkNotUsed(genericInput))
+{
+  vtkErrorMacro("Mapper expects a hierarchical dataset as input");
+  this->Resampler->SetInputConnection(0, 0);
+}
+
 //------------------------------------------------------------------------------
 void vtkAMRVolumeMapper::SetInputData(vtkOverlappingAMR* hdata)
 {
   this->SetInputDataInternal(0, hdata);
 }
+
 //------------------------------------------------------------------------------
 void vtkAMRVolumeMapper::SetInputConnection(int port, vtkAlgorithmOutput* input)
 {

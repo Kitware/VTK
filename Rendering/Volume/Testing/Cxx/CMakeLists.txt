@@ -19,6 +19,7 @@ set (VolumeCxxTests
   TestGPURayCastCompositeMaskBlend.cxx
   TestGPURayCastCompositeToMIP.cxx
   TestGPURayCastCropping.cxx
+  TestGPURayCastCropping1.cxx
   TestGPURayCastDataTypesMIP.cxx
   TestGPURayCastDataTypesMinIP.cxx
   TestGPURayCastDependentComponentsLightParameters.cxx
@@ -40,6 +41,7 @@ set (VolumeCxxTests
   TestGPURayCastMIPBinaryMask.cxx
   TestGPURayCastMIPToComposite.cxx
   TestGPURayCastMapperBenchmark.cxx
+  TestGPURayCastMapperRectilinearGrid.cxx
   TestGPURayCastMapperSampleDistance.cxx
   TestGPURayCastMultiVolumeAddRemove.cxx
   TestGPURayCastMultiVolumeCellData.cxx

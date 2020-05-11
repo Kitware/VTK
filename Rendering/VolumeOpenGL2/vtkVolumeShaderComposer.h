@@ -18,6 +18,7 @@
 #include <vtkCamera.h>
 #include <vtkImplicitFunction.h>
 #include <vtkOpenGLGPUVolumeRayCastMapper.h>
+#include <vtkRectilinearGrid.h>
 #include <vtkRenderer.h>
 #include <vtkVolume.h>
 #include <vtkVolumeInputHelper.h>
@@ -159,6 +160,15 @@ std::string BaseDeclarationFragment(vtkRenderer* vtkNotUsed(ren), vtkVolumeMappe
               << "];\n"
                  "uniform vec4 in_volume_bias["
               << numInputs << "];\n";
+
+  if (vtkRectilinearGrid::SafeDownCast(mapper->GetInput()))
+  {
+    toShaderStr << "uniform sampler1D in_coordTexs;\n";
+    toShaderStr << "uniform vec3 in_coordTexSizes;\n";
+    toShaderStr << "uniform vec3 in_coordsScale;\n";
+    toShaderStr << "uniform vec3 in_coordsBias;\n";
+    toShaderStr << "uniform vec2 in_coordsRange[3];\n";
+  }
 
   toShaderStr << "uniform int in_noOfComponents;\n"
                  "uniform int in_independentComponents;\n"
@@ -1537,7 +1547,60 @@ std::string ShadingSingleInput(vtkRenderer* vtkNotUsed(ren), vtkVolumeMapper* ma
   shaderStr += std::string("\
       \n    if (!g_skip)\
       \n      {\
-      \n      vec4 scalar = texture3D(in_volume[0], g_dataPos);");
+      \n      vec4 scalar;\
+      \n");
+  if (vtkRectilinearGrid::SafeDownCast(mapper->GetInput()))
+  {
+    shaderStr += std::string("\
+      \n      // Compute IJK vertex position for current sample in the rectilinear grid\
+      \n      vec4 dataPosWorld = in_volumeMatrix[0] * in_textureDatasetMatrix[0] * vec4(g_dataPos, 1.0);\
+      \n      dataPosWorld = dataPosWorld / dataPosWorld.w;\
+      \n      dataPosWorld.w = 1.0;\
+      \n      ivec3 ijk = ivec3(0);\
+      \n      vec3 ijkTexCoord = vec3(0.0);\
+      \n      vec3 pCoords = vec3(0.0);\
+      \n      vec3 xPrev, xNext, tmp;\
+      \n      int sz = textureSize(in_coordTexs, 0);\
+      \n      vec4 dataPosWorldScaled = dataPosWorld * vec4(in_coordsScale, 1.0) +\
+      \n                                vec4(in_coordsBias, 1.0);\
+      \n      for (int j = 0; j < 3; ++j)\
+      \n        {\
+      \n        xPrev = texture1D(in_coordTexs, 0.0).xyz;\
+      \n        xNext = texture1D(in_coordTexs, (in_coordTexSizes[j] - 1) / sz).xyz;\
+      \n        if (xNext[j] < xPrev[j])\
+      \n          {\
+      \n          tmp = xNext;\
+      \n          xNext = xPrev;\
+      \n          xPrev = tmp;\
+      \n          }\
+      \n        for (int i = 0; i < int(in_coordTexSizes[j]); i++)\
+      \n          {\
+      \n          xNext = texture1D(in_coordTexs, (i + 0.5) / sz).xyz;\
+      \n          if (dataPosWorldScaled[j] >= xPrev[j] && dataPosWorldScaled[j] < xNext[j])\
+      \n            {\
+      \n            ijk[j] = i - 1;\
+      \n            pCoords[j] = (dataPosWorldScaled[j] - xPrev[j]) / (xNext[j] - xPrev[j]);\
+      \n            break;\
+      \n            }\
+      \n          else if (dataPosWorldScaled[j] == xNext[j])\
+      \n            {\
+      \n            ijk[j] = i - 1;\
+      \n            pCoords[j] = 1.0;\
+      \n            break;\
+      \n            }\
+      \n          xPrev = xNext;\
+      \n          }\
+      \n        ijkTexCoord[j] = (ijk[j] + pCoords[j]) / in_coordTexSizes[j];\
+      \n        }\
+      \n      scalar = texture3D(in_volume[0], sign(in_cellSpacing[0]) * ijkTexCoord);\
+      \n");
+  }
+  else
+  {
+    shaderStr += std::string("\
+      \n      scalar = texture3D(in_volume[0], g_dataPos);\
+      \n");
+  }
 
   // simulate old intensity textures
   if (noOfComponents == 1)

@@ -396,7 +396,7 @@ public:
   vtkGetMacro(GradientOpacityRangeType, int);
   //@}
 
-  vtkImageData* GetInput() override { return this->GetInput(0); };
+  vtkDataSet* GetInput() override { return this->GetInput(0); };
 
   //@{
   /**
@@ -417,7 +417,7 @@ public:
    */
   int GetInputCount();
 
-  vtkImageData* GetTransformedInput(const int port = 0);
+  vtkDataSet* GetTransformedInput(const int port = 0);
 
   double* GetBoundsFromPort(const int port) VTK_SIZEHINT(6);
 
@@ -469,7 +469,7 @@ protected:
    * \sa vtkGPUVolumeRayCastMapper::TransformInput
    */
   void CloneInputs();
-  void CloneInput(vtkImageData* input, const int port);
+  void CloneInput(vtkDataSet* input, const int port);
   //@}
 
   // Special version of render called during the creation
@@ -484,7 +484,7 @@ protected:
   virtual void RenderBlock(vtkRenderer* ren, vtkVolume* vol, unsigned int level) = 0;
 
   virtual void PostRender(vtkRenderer* ren, int numberOfScalarComponents) = 0;
-  vtkImageData* GetInput(const int port) override;
+  vtkDataSet* GetInput(const int port) override;
 
   /**
    * Called by the AMR Volume Mapper.
@@ -569,9 +569,9 @@ protected:
    */
   virtual void ClipCroppingRegionPlanes();
 
-  using DataMap = std::unordered_map<int, vtkImageData*>;
-  void SetTransformedInput(vtkImageData*);
-  vtkImageData* FindData(int port, DataMap& container);
+  using DataMap = std::unordered_map<int, vtkDataSet*>;
+  void SetTransformedInput(vtkDataSet*);
+  vtkDataSet* FindData(int port, DataMap& container);
 
   double ClippedCroppingRegionPlanes[6];
 

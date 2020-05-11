@@ -495,8 +495,8 @@ private:
    * array. vtkImageMagnitude can only process point data, so in the case of cell
    * data it is first transformed to points.
    */
-  void ComputeMagnitudeCellData(vtkImageData* input, vtkDataArray* arr);
-  void ComputeMagnitudePointData(vtkImageData* input, vtkDataArray* arr);
+  void ComputeMagnitudeCellData(vtkDataSet* input, vtkDataArray* arr);
+  void ComputeMagnitudePointData(vtkDataSet* input, vtkDataArray* arr);
   //@}
 
   vtkSmartVolumeMapper(const vtkSmartVolumeMapper&) = delete;

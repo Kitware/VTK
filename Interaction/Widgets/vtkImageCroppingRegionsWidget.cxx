@@ -205,8 +205,8 @@ double vtkImageCroppingRegionsWidget::GetSlicePosition()
     return 0.0;
   }
 
-  double* origin = this->VolumeMapper->GetInput()->GetOrigin();
-  double* spacing = this->VolumeMapper->GetInput()->GetSpacing();
+  double* origin = vtkImageData::SafeDownCast(this->VolumeMapper->GetInput())->GetOrigin();
+  double* spacing = vtkImageData::SafeDownCast(this->VolumeMapper->GetInput())->GetSpacing();
 
   return (double)origin[this->SliceOrientation] +
     ((double)this->Slice) * (double)spacing[this->SliceOrientation];

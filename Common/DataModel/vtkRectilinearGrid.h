@@ -232,6 +232,28 @@ public:
   static vtkRectilinearGrid* GetData(vtkInformationVector* v, int i = 0);
   //@}
 
+  //@{
+  /**
+   * Set/Get the scalar data type for the points. This is setting pipeline info.
+   */
+  static void SetScalarType(int, vtkInformation* meta_data);
+  static int GetScalarType(vtkInformation* meta_data);
+  static bool HasScalarType(vtkInformation* meta_data);
+  int GetScalarType();
+  const char* GetScalarTypeAsString() { return vtkImageScalarTypeNameMacro(this->GetScalarType()); }
+  //@}
+
+  //@{
+  /**
+   * Set/Get the number of scalar components for points. As with the
+   * SetScalarType method this is setting pipeline info.
+   */
+  static void SetNumberOfScalarComponents(int n, vtkInformation* meta_data);
+  static int GetNumberOfScalarComponents(vtkInformation* meta_data);
+  static bool HasNumberOfScalarComponents(vtkInformation* meta_data);
+  int GetNumberOfScalarComponents();
+  //@}
+
 protected:
   vtkRectilinearGrid();
   ~vtkRectilinearGrid() override;

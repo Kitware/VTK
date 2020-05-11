@@ -67,6 +67,7 @@
 #include <vtkPoints.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
+#include <vtkRectilinearGrid.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderer.h>
 #include <vtkShader.h>
@@ -1352,7 +1353,15 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::EndPicking(vtkRenderer* ren)
     {
       // Only supported on single-input
       int extents[6];
-      this->Parent->GetTransformedInput(0)->GetExtent(extents);
+      auto dataSet = this->Parent->GetTransformedInput(0);
+      if (auto imData = vtkImageData::SafeDownCast(dataSet))
+      {
+        imData->GetExtent(extents);
+      }
+      else if (auto rectGrid = vtkRectilinearGrid::SafeDownCast(dataSet))
+      {
+        rectGrid->GetExtent(extents);
+      }
 
       // Tell the selector the maximum number of cells that the mapper could render
       unsigned int const numVoxels = (extents[1] - extents[0] + 1) * (extents[3] - extents[2] + 1) *
@@ -1369,16 +1378,39 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateSamplingDistance(
   vtkRenderer* vtkNotUsed(ren))
 {
   auto input = this->Parent->GetTransformedInput(0);
+  auto imData = vtkImageData::SafeDownCast(input);
+  auto rectGrid = vtkRectilinearGrid::SafeDownCast(input);
   auto vol = this->Parent->AssembledInputs[0].Volume;
   double cellSpacing[3];
-  input->GetSpacing(cellSpacing);
+  if (imData)
+  {
+    imData->GetSpacing(cellSpacing);
+  }
+  else if (rectGrid)
+  {
+    double bounds[6];
+    rectGrid->GetBounds(bounds);
+    int dims[3];
+    rectGrid->GetDimensions(dims);
+    for (int cc = 0; cc < 3; ++cc)
+    {
+      cellSpacing[cc] = (bounds[2 * cc + 1] - bounds[2 * cc]) / dims[cc];
+    }
+  }
 
   if (!this->Parent->AutoAdjustSampleDistances)
   {
     if (this->Parent->LockSampleDistanceToInputSpacing)
     {
       int extents[6];
-      input->GetExtent(extents);
+      if (imData)
+      {
+        imData->GetExtent(extents);
+      }
+      else if (rectGrid)
+      {
+        rectGrid->GetExtent(extents);
+      }
 
       float const d =
         static_cast<float>(this->Parent->SpacingAdjustedSampleDistance(cellSpacing, extents));
@@ -1397,7 +1429,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateSamplingDistance(
   }
   else
   {
-    input->GetSpacing(cellSpacing);
     vtkMatrix4x4* worldToDataset = vol->GetMatrix();
     double minWorldSpacing = VTK_DOUBLE_MAX;
     int i = 0;
@@ -3164,6 +3195,17 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::BindTransformations(
       cellToPointMat->DeepCopy(volTex->CellToPointMatrix.GetPointer());
       texMin = volTex->AdjustedTexMin;
       texMax = volTex->AdjustedTexMax;
+      if (volTex->CoordsTex)
+      {
+        volTex->CoordsTex->Activate();
+        prog->SetUniformi("in_coordTexs", volTex->CoordsTex->GetTextureUnit());
+        float fvalue3[3];
+        vtkInternal::ToFloat(volTex->CoordsTexSizes, fvalue3, 3);
+        prog->SetUniform3fv("in_coordTexSizes", 1, &fvalue3);
+        prog->SetUniform3fv("in_coordsScale", 1, volTex->CoordsScale);
+        prog->SetUniform3fv("in_coordsBias", 1, volTex->CoordsBias);
+        prog->SetUniform2fv("in_coordsRange", 3, volTex->CoordsRange);
+      }
     }
 
     // Volume matrices (dataset to world)
