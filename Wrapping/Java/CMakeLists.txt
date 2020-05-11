@@ -1,3 +1,15 @@
+set(CMAKE_INSTALL_JNILIBDIR ""
+  CACHE PATH "JNI libraries (LIBDIR/java/vtk-${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
+mark_as_advanced(CMAKE_INSTALL_JNILIBDIR)
+if (NOT CMAKE_INSTALL_JNILIBDIR)
+  set(CMAKE_INSTALL_JNILIBDIR
+    "${CMAKE_INSTALL_LIBDIR}/java/vtk-${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
+endif ()
+if (IS_ABSOLUTE "${CMAKE_INSTALL_JNILIBDIR}")
+  message(FATAL_ERROR
+    "The `CMAKE_INSTALL_JNILIBDIR` must not be an absolute path.")
+endif ()
+
 include(vtkModuleWrapJava)
 vtk_module_wrap_java(
   JAVA_OUTPUT     "${CMAKE_CURRENT_BINARY_DIR}/vtk"
@@ -5,7 +17,7 @@ vtk_module_wrap_java(
   WRAPPED_MODULES vtk_java_wrapped_modules
   LIBRARY_DESTINATION "${CMAKE_INSTALL_LIBDIR}"
   # Update vtkSettings.java.in if this changes.
-  JNILIB_DESTINATION  "${CMAKE_INSTALL_LIBDIR}/java/vtk-${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
+  JNILIB_DESTINATION  "${CMAKE_INSTALL_JNILIBDIR}")
 
 # TODO: Make FindJava.cmake use imported targets.
 find_package(Java REQUIRED COMPONENTS Development)
@@ -132,9 +144,43 @@ endforeach ()
 # Replace the last comma with a semicolon.
 string(REGEX REPLACE ",\n$" ";\n" vtk_java_native_libraries "${vtk_java_native_libraries}")
 
+set(CMAKE_INSTALL_JARDIR ""
+  CACHE STRING "Java jar files (LIBDIR/java)")
+mark_as_advanced(CMAKE_INSTALL_JARDIR)
+
+# XXX: Handle any cache entries which use `<LIBDIR>` replacements.
+if (CMAKE_INSTALL_JARDIR STREQUAL "<LIBDIR>/java")
+  # If using the default, blow it away.
+  set_property(CACHE CMAKE_INSTALL_JARDIR
+    PROPERTY VALUE "")
+endif ()
+if (CMAKE_INSTALL_JARDIR MATCHES "<LIBDIR>")
+  # Replace it in any other usage.
+  string(REPLACE "<LIBDIR>" "${CMAKE_INSTALL_LIBDIR}" CMAKE_INSTALL_JARDIR "${CMAKE_INSTALL_JARDIR}")
+  set_property(CACHE CMAKE_INSTALL_JARDIR
+    PROPERTY VALUE "")
+endif ()
+# XXX: See above
+
+if (NOT CMAKE_INSTALL_JARDIR)
+  set(CMAKE_INSTALL_JARDIR
+    "${CMAKE_INSTALL_LIBDIR}/java")
+endif ()
+if (IS_ABSOLUTE "${CMAKE_INSTALL_JARDIR}")
+  message(FATAL_ERROR
+    "The `CMAKE_INSTALL_JARDIR` must not be an absolute path.")
+endif ()
+file(RELATIVE_PATH jnilib_relative_path
+  "/prefix/${CMAKE_INSTALL_JARDIR}"
+  "/prefix/${CMAKE_INSTALL_JNILIBDIR}")
+
 set(java_configure_sources
   vtk/vtkNativeLibrary
   vtk/vtkSettings)
+
+file(RELATIVE_PATH _vtk_add_executable_relpath
+  "/prefix/${_vtk_build_RUNTIME_DESTINATION}"
+  "/prefix/${_vtk_build_LIBRARY_DESTINATION}")
 
 foreach (java_file IN LISTS java_configure_sources)
   set(output_file "${CMAKE_CURRENT_BINARY_DIR}/${java_file}.java")
@@ -160,9 +206,6 @@ if (VTK_JAVA_TARGET_VERSION STREQUAL "<DEFAULT>")
   set(VTK_JAVA_TARGET_VERSION "1.6")
 endif ()
 
-set(CMAKE_INSTALL_JARDIR "<LIBDIR>/java"
-  CACHE STRING "Java jar files (LIBDIR/java)")
-string(REPLACE "<LIBDIR>" "${CMAKE_INSTALL_LIBDIR}" CMAKE_INSTALL_JARDIR "${CMAKE_INSTALL_JARDIR}")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_JARDIR}")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_JARDIR}")
 
