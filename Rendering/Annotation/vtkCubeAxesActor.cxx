@@ -2257,7 +2257,7 @@ void vtkCubeAxesActor::BuildLabels(vtkAxisActor* axes[NUMBER_OF_ALIGNED_AXIS])
       {
         snprintf(label, sizeof(label), format, val);
       }
-      if (fabs(val) < 0.01)
+      if (fabs(val) < tol)
       {
         //
         // Ensure that -0.0 is never a label
