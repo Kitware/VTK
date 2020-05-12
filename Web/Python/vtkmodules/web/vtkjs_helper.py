@@ -45,8 +45,8 @@ def addDataToViewer(dataPath, srcHtmlPath):
             base64Content = base64Content.decode().replace('\n', '')
 
         # Create new output file
-        with open(srcHtmlPath, mode='r') as srcHtml:
-            with open(dstHtmlPath, mode='w') as dstHtml:
+        with open(srcHtmlPath, mode='r', encoding="utf-8") as srcHtml:
+            with open(dstHtmlPath, mode='w', encoding="utf-8") as dstHtml:
                 for line in srcHtml:
                     if '</body>' in line:
                         dstHtml.write('<script>\n')
