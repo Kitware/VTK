@@ -2830,6 +2830,11 @@ function (vtk_module_autoinit)
       "The `TARGETS` argument is required.")
   endif ()
 
+  if (NOT _vtk_autoinit_MODULES)
+    message(AUTHOR_WARNING
+      "No `MODULES` passed to `vtk_modules_autoinit`.")
+  endif ()
+
   set(_vtk_autoinit_module_stack
     ${_vtk_autoinit_MODULES})
 
