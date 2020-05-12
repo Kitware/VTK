@@ -656,11 +656,11 @@ bool vtkDataAssembly::RemoveAllDataSetIndices(int id, bool traverse_subtree /*=t
   struct Walker : pugi::xml_tree_walker
   {
     std::vector<pugi::xml_node>* ToRemove = nullptr;
-    bool for_each(pugi::xml_node& node) override
+    bool for_each(pugi::xml_node& nnode) override
     {
-      if (strcmp(node.name(), "dataset") == 0)
+      if (strcmp(nnode.name(), "dataset") == 0)
       {
-        this->ToRemove->push_back(node);
+        this->ToRemove->push_back(nnode);
       }
       return true;
     }
