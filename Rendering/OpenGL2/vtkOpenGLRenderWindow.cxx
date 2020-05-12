@@ -166,6 +166,7 @@ const char* vtkOpenGLRenderWindow::GetRenderingBackend()
 
 //------------------------------------------------------------------------------
 vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
+  : BlitRequiresResolve(false)
 {
   this->State = vtkOpenGLState::New();
 
@@ -1015,6 +1016,23 @@ void vtkOpenGLRenderWindow::Frame()
   {
     this->GetState()->PushFramebufferBindings();
     this->OffScreenFramebuffer->Bind(GL_READ_FRAMEBUFFER);
+    int* fbsize = this->OffScreenFramebuffer->GetLastSize();
+
+    // recall Blit upper right corner is exclusive of the range
+    const int srcExtents[4] = { 0, fbsize[0], 0, fbsize[1] };
+
+    if (this->MultiSamples && this->BlitRequiresResolve)
+    {
+      this->GetState()->vtkglViewport(0, 0, fbsize[0], fbsize[1]);
+      this->GetState()->vtkglScissor(0, 0, fbsize[0], fbsize[1]);
+
+      this->ResolveFramebuffer->Bind(GL_DRAW_FRAMEBUFFER);
+      vtkOpenGLFramebufferObject::Blit(srcExtents, srcExtents, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+      this->ResolveFramebuffer->Bind(GL_READ_FRAMEBUFFER);
+    }
+
+    this->GetState()->vtkglViewport(0, 0, this->Size[0], this->Size[1]);
+    this->GetState()->vtkglScissor(0, 0, this->Size[0], this->Size[1]);
 
     this->GetState()->vtkglBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->DefaultFrameBufferId);
     if (this->StereoRender && this->StereoType == VTK_STEREO_CRYSTAL_EYES)
@@ -1026,12 +1044,7 @@ void vtkOpenGLRenderWindow::Frame()
       this->GetState()->vtkglDrawBuffer(this->GetBackLeftBuffer());
     }
 
-    int* fbsize = this->OffScreenFramebuffer->GetLastSize();
-    // recall Blit upper right corner is exclusive of the range
-    const int srcExtents[4] = { 0, fbsize[0], 0, fbsize[1] };
     const int destExtents[4] = { 0, this->Size[0], 0, this->Size[1] };
-    this->GetState()->vtkglViewport(0, 0, this->Size[0], this->Size[1]);
-    this->GetState()->vtkglScissor(0, 0, this->Size[0], this->Size[1]);
     vtkOpenGLFramebufferObject::Blit(srcExtents, destExtents, GL_COLOR_BUFFER_BIT, GL_LINEAR);
     this->GetState()->PopFramebufferBindings();
   }
