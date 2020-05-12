@@ -439,6 +439,11 @@ public:
    */
   void ReleaseGraphicsResources(vtkWindow*) override;
 
+  // set this to true if the destination framebuffer requires a multisamped
+  // buffer to be resolved prior to blitting
+  vtkSetMacro(BlitRequiresResolve, bool);
+  vtkGetMacro(BlitRequiresResolve, bool);
+
 protected:
   vtkOpenGLRenderWindow();
   ~vtkOpenGLRenderWindow() override;
@@ -523,6 +528,11 @@ protected:
   int LastMultiSamples;
 
   int ScreenSize[2];
+
+  // set this to true if the destination framebuffer
+  // requires a multisamped buffer to be resolved
+  // prior to blitting
+  bool BlitRequiresResolve;
 
 private:
   vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&) = delete;
