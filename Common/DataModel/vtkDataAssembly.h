@@ -121,6 +121,7 @@
 
 #include <map>    // for std::map
 #include <memory> // for std::unique_ptr
+#include <string> // for std::string
 #include <vector> // for std::vector
 
 class vtkDataAssemblyVisitor;
