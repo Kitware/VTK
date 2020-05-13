@@ -155,7 +155,7 @@ set(shader_files
   glsl/vtkTextureObjectFS.glsl
   glsl/vtkTextureObjectVS.glsl)
 unset(shader_h_files)
-foreach(file ${shader_files})
+foreach(file IN LISTS shader_files)
   vtk_encode_string(
     INPUT         "${file}"
     EXPORT_SYMBOL "VTKRENDERINGOPENGL2_EXPORT"
@@ -309,8 +309,8 @@ cmake_dependent_option(VTK_REPORT_OPENGL_ERRORS_IN_RELEASE_BUILDS
 mark_as_advanced(VTK_REPORT_OPENGL_ERRORS)
 mark_as_advanced(VTK_REPORT_OPENGL_ERRORS_IN_RELEASE_BUILDS)
 configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/vtkOpenGLError.h.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/vtkOpenGLError.h")
+  "${CMAKE_CURRENT_SOURCE_DIR}/vtkOpenGLError.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkOpenGLError.h")
 
 # Add OpenGL command stream annotations via
 # vtkOpenGLRenderUtilities::MarkDebugEvent when enabled:
