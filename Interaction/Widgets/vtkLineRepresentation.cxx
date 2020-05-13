@@ -954,7 +954,6 @@ vtkMTimeType vtkLineRepresentation::GetMTime()
   return mTime;
 }
 
-#ifndef VTK_LEGACY_REMOVE
 //------------------------------------------------------------------------------
 void vtkLineRepresentation::SetRestrictFlag(int restrict_flag)
 {
@@ -963,7 +962,6 @@ void vtkLineRepresentation::SetRestrictFlag(int restrict_flag)
   this->GetPoint2Representation()->SetTranslationAxis(restrict_flag - 1);
   this->GetLineHandleRepresentation()->SetTranslationAxis(restrict_flag - 1);
 }
-#endif
 
 //------------------------------------------------------------------------------
 void vtkLineRepresentation::SetDistanceAnnotationScale(double scale[3])
