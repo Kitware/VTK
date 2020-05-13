@@ -63,11 +63,11 @@
 #define vtkPolyData_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkDeprecation.h"           // for VTK_DEPRECATED_IN_9_0_0
 #include "vtkPointSet.h"
 
 #include "vtkCellArray.h"         // Needed for inline methods
 #include "vtkCellLinks.h"         // Needed for inline methods
-#include "vtkLegacy.h"            // For VTK_LEGACY_REMOVE
 #include "vtkPolyDataInternals.h" // Needed for inline methods
 
 class vtkVertex;
@@ -371,10 +371,9 @@ public:
    */
   void GetPointCells(vtkIdType ptId, vtkIdType& ncells, vtkIdType*& cells)
     VTK_SIZEHINT(cells, ncells);
-#ifndef VTK_LEGACY_REMOVE
-  VTK_LEGACY(void GetPointCells(vtkIdType ptId, unsigned short& ncells, vtkIdType*& cells))
-  VTK_SIZEHINT(cells, ncells);
-#endif
+  VTK_DEPRECATED_IN_9_0_0("Use vtkPolyData::GetPointCells::vtkIdType, vtkIdType&, vtkIdType*&)")
+  void GetPointCells(vtkIdType ptId, unsigned short& ncells, vtkIdType*& cells)
+    VTK_SIZEHINT(cells, ncells);
   //@}
 
   /**
@@ -706,14 +705,12 @@ inline void vtkPolyData::GetPointCells(vtkIdType ptId, vtkIdType& ncells, vtkIdT
   cells = this->Links->GetCells(ptId);
 }
 
-#ifndef VTK_LEGACY_REMOVE
 inline void vtkPolyData::GetPointCells(vtkIdType ptId, unsigned short& ncells, vtkIdType*& cells)
 {
   VTK_LEGACY_BODY(vtkPolyData::GetPointCells, "VTK 9.0");
   ncells = static_cast<unsigned short>(this->Links->GetNcells(ptId));
   cells = this->Links->GetCells(ptId);
 }
-#endif
 
 //------------------------------------------------------------------------------
 inline vtkIdType vtkPolyData::GetNumberOfCells()
