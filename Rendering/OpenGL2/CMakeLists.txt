@@ -99,6 +99,7 @@ if (NOT DEFINED OPENGL_ES_VERSION)
 endif()
 
 set(headers
+  vtkCompositePolyDataMapper2Internal.h
   vtkOpenGL.h
   vtkStateStorage.h
   "${CMAKE_CURRENT_BINARY_DIR}/vtkOpenGLError.h"
