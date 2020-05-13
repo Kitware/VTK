@@ -117,7 +117,6 @@ void QVTKOpenGLStereoWidget::paintEvent(QPaintEvent* evt)
 }
 
 //------------------------------------------------------------------------------
-#if !defined(VTK_LEGACY_REMOVE)
 void QVTKOpenGLStereoWidget::SetRenderWindow(vtkRenderWindow* win)
 {
   VTK_LEGACY_REPLACED_BODY(
@@ -130,63 +129,50 @@ void QVTKOpenGLStereoWidget::SetRenderWindow(vtkRenderWindow* win)
   }
   this->setRenderWindow(gwin);
 }
-#endif
 
 //------------------------------------------------------------------------------
-#if !defined(VTK_LEGACY_REMOVE)
 void QVTKOpenGLStereoWidget::SetRenderWindow(vtkGenericOpenGLRenderWindow* win)
 {
   VTK_LEGACY_REPLACED_BODY(
     QVTKOpenGLStereoWidget::SetRenderWindow, "VTK 9.0", QVTKOpenGLStereoWidget::setRenderWindow);
   this->setRenderWindow(win);
 }
-#endif
 
 //------------------------------------------------------------------------------
-#if !defined(VTK_LEGACY_REMOVE)
 vtkRenderWindow* QVTKOpenGLStereoWidget::GetRenderWindow()
 {
   VTK_LEGACY_REPLACED_BODY(
     QVTKOpenGLStereoWidget::GetRenderWindow, "VTK 9.0", QVTKOpenGLStereoWidget::renderWindow);
   return this->renderWindow();
 }
-#endif
 
 //------------------------------------------------------------------------------
-#if !defined(VTK_LEGACY_REMOVE)
 QVTKInteractorAdapter* QVTKOpenGLStereoWidget::GetInteractorAdapter()
 {
   VTK_LEGACY_BODY(QVTKOpenGLStereoWidget::GetInteractorAdapter, "VTK 9.0");
   return nullptr;
 }
-#endif
 
 //------------------------------------------------------------------------------
-#if !defined(VTK_LEGACY_REMOVE)
 QVTKInteractor* QVTKOpenGLStereoWidget::GetInteractor()
 {
   VTK_LEGACY_REPLACED_BODY(
     QVTKOpenGLStereoWidget::GetInteractor, "VTK 9.0", QVTKOpenGLStereoWidget::interactor);
   return this->interactor();
 }
-#endif
 
 //------------------------------------------------------------------------------
-#if !defined(VTK_LEGACY_REMOVE)
 void QVTKOpenGLStereoWidget::setQVTKCursor(const QCursor& cursor)
 {
   VTK_LEGACY_REPLACED_BODY(
     QVTKOpenGLStereoWidget::setQVTKCursor, "VTK 9.0", QVTKOpenGLStereoWidget::setCursor);
   this->setCursor(cursor);
 }
-#endif
 
 //------------------------------------------------------------------------------
-#if !defined(VTK_LEGACY_REMOVE)
 void QVTKOpenGLStereoWidget::setDefaultQVTKCursor(const QCursor& cursor)
 {
   VTK_LEGACY_REPLACED_BODY(QVTKOpenGLStereoWidget::setDefaultQVTKCursor, "VTK 9.0",
     QVTKOpenGLStereoWidget::setDefaultCursor);
   this->setDefaultCursor(cursor);
 }
-#endif

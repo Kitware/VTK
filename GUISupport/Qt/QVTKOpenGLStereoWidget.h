@@ -21,7 +21,7 @@
 #include "QVTKOpenGLWindow.h" // needed for ivar
 #include <QPointer>           // needed for ivar
 
-#include "vtkLegacy.h" // For VTK_LEGACY
+#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_0_0
 
 // Forward Qt class declarations
 class QSurfaceFormat;
@@ -167,8 +167,10 @@ public:
   /**
    * @deprecated in VTK 8.3
    */
-  VTK_LEGACY(void SetRenderWindow(vtkGenericOpenGLRenderWindow* win));
-  VTK_LEGACY(void SetRenderWindow(vtkRenderWindow* win));
+  VTK_DEPRECATED_IN_9_0_0("Use QVTKOpenGLStereoWidget::setRenderWindow")
+  void SetRenderWindow(vtkGenericOpenGLRenderWindow* win);
+  VTK_DEPRECATED_IN_9_0_0("Use QVTKOpenGLStereoWidget::setRenderWindow")
+  void SetRenderWindow(vtkRenderWindow* win);
   //@}
 
   //@{
@@ -177,26 +179,31 @@ public:
    * QVTKOpenGLNativeWidget is QObject subclass, we follow Qt naming conventions
    * rather than VTK's.
    */
-  VTK_LEGACY(vtkRenderWindow* GetRenderWindow());
-  VTK_LEGACY(QVTKInteractor* GetInteractor());
+  VTK_DEPRECATED_IN_9_0_0("Use QVTKOpenGLStereoWidget::renderWindow")
+  vtkRenderWindow* GetRenderWindow();
+  VTK_DEPRECATED_IN_9_0_0("Removed in 9.0.0 (internal)")
+  QVTKInteractor* GetInteractor();
   //@}
 
   /**
    * @deprecated in VTK 8.3
    * QVTKInteractorAdapter is an internal helper. Hence the API was removed.
    */
-  VTK_LEGACY(QVTKInteractorAdapter* GetInteractorAdapter());
+  VTK_DEPRECATED_IN_9_0_0("Removed in 9.0.0 (internal)")
+  QVTKInteractorAdapter* GetInteractorAdapter();
 
   /**
    * @deprecated in VTK 8.3. Simply use `QWidget::setCursor` API to change
    * cursor.
    */
-  VTK_LEGACY(void setQVTKCursor(const QCursor& cursor));
+  VTK_DEPRECATED_IN_9_0_0("Use QWidget::setCursor")
+  void setQVTKCursor(const QCursor& cursor);
 
   /**
    * @deprecated in VTK 8.3. Use `setDefaultCursor` instead.
    */
-  VTK_LEGACY(void setDefaultQVTKCursor(const QCursor& cursor));
+  VTK_DEPRECATED_IN_9_0_0("Use QWidget::setDefaultCursor")
+  void setDefaultQVTKCursor(const QCursor& cursor);
 
 protected:
   void resizeEvent(QResizeEvent* evt) override;
