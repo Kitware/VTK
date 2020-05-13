@@ -14,6 +14,13 @@ set(classes
   vtkAttributesErrorMetric
   vtkBSPCuts
   vtkBSPIntersections
+  vtkBezierCurve
+  vtkBezierHexahedron
+  vtkBezierInterpolation
+  vtkBezierQuadrilateral
+  vtkBezierTetra
+  vtkBezierTriangle
+  vtkBezierWedge
   vtkBiQuadraticQuad
   vtkBiQuadraticQuadraticHexahedron
   vtkBiQuadraticQuadraticWedge
@@ -78,6 +85,13 @@ set(classes
   vtkHexahedron
   vtkHierarchicalBoxDataIterator
   vtkHierarchicalBoxDataSet
+  vtkHigherOrderCurve
+  vtkHigherOrderHexahedron
+  vtkHigherOrderInterpolation
+  vtkHigherOrderQuadrilateral
+  vtkHigherOrderTetra
+  vtkHigherOrderTriangle
+  vtkHigherOrderWedge
   vtkHyperTree
   vtkHyperTreeGrid
   vtkHyperTreeGridEntry
@@ -115,20 +129,6 @@ set(classes
   vtkKdNode
   vtkKdTree
   vtkKdTreePointLocator
-  vtkHigherOrderCurve
-  vtkHigherOrderHexahedron
-  vtkHigherOrderInterpolation
-  vtkHigherOrderQuadrilateral
-  vtkHigherOrderTetra
-  vtkHigherOrderTriangle
-  vtkHigherOrderWedge
-  vtkBezierCurve
-  vtkBezierHexahedron
-  vtkBezierInterpolation
-  vtkBezierQuadrilateral
-  vtkBezierTetra
-  vtkBezierTriangle
-  vtkBezierWedge
   vtkLagrangeCurve
   vtkLagrangeHexahedron
   vtkLagrangeInterpolation
