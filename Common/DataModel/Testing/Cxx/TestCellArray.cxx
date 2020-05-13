@@ -37,13 +37,6 @@
 #include <utility>
 #include <vector>
 
-// The legacy methods in vtkCellArray have been soft-deprecated with a comment
-// in the documentation for now. Once they are hard-deprecated and actually
-// removed from non-legacy builds, re-enable this check:
-//#ifndef VTK_LEGACY_REMOVE
-#define TEST_LEGACY_METHODS
-//#endif
-
 namespace
 {
 
@@ -1071,8 +1064,6 @@ void TestLegacyFormatImportExportAppend(vtkSmartPointer<vtkCellArray> cellArray)
 }
 
 //==============================================================================
-#ifdef TEST_LEGACY_METHODS
-
 void TestLegacyAllocate(vtkSmartPointer<vtkCellArray> cellArray)
 {
   vtkLogScopeFunction(INFO);
@@ -1348,18 +1339,6 @@ void RunLegacyTests(bool use64BitStorage)
   TestLegacyGetData(NewCellArray(use64BitStorage));
   TestLegacySetCells(NewCellArray(use64BitStorage));
 }
-
-//==============================================================================
-#else  // TEST_LEGACY_METHODS
-
-void RunLegacyTests(bool)
-{
-
-  // no-op
-}
-
-//==============================================================================
-#endif // TEST_LEGACY_METHODS
 
 void RunTests(bool use64BitStorage)
 {

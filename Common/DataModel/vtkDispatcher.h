@@ -73,10 +73,9 @@
 #ifndef vtkDispatcher_h
 #define vtkDispatcher_h
 
-#include "vtkLegacy.h" // For VTK_LEGACY_REMOVE
+#ifndef __VTK_WRAP__
 
-#ifndef VTK_LEGACY_REMOVE
-
+#include "vtkDeprecation.h"        // for VTK_DEPRECATED_IN_9_0_0
 #include "vtkDispatcher_Private.h" //needed for Functor,CastingPolicy,TypeInfo
 #include <map>                     //Required for the storage of template params to runtime params
 
@@ -85,6 +84,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 template <class BaseLhs, typename ReturnType = void,
   template <class, class> class CastingPolicy = vtkDispatcherCommon::vtkCaster>
+VTK_DEPRECATED_IN_9_0_0("Use vtkArrayDispatch")
 class vtkDispatcher
 {
 public:
@@ -157,6 +157,7 @@ private:
 //----------------------------------------------------------------------------
 template <class BaseLhs, typename ReturnType, template <class, class> class CastingPolicy>
 template <class SomeLhs, class Functor>
+VTK_DEPRECATED_IN_9_0_0("Use vtkArrayDispatch")
 void vtkDispatcher<BaseLhs, ReturnType, CastingPolicy>::AddInternal(const Functor& fun, long)
 {
   typedef vtkDispatcherPrivate::FunctorDispatcherHelper<BaseLhs, SomeLhs, ReturnType,
@@ -170,6 +171,7 @@ void vtkDispatcher<BaseLhs, ReturnType, CastingPolicy>::AddInternal(const Functo
 //----------------------------------------------------------------------------
 template <class BaseLhs, typename ReturnType, template <class, class> class CastingPolicy>
 template <class SomeLhs, class Functor>
+VTK_DEPRECATED_IN_9_0_0("Use vtkArrayDispatch")
 void vtkDispatcher<BaseLhs, ReturnType, CastingPolicy>::AddInternal(Functor* fun, int)
 {
   typedef vtkDispatcherPrivate::FunctorRefDispatcherHelper<BaseLhs, SomeLhs, ReturnType,
@@ -182,6 +184,7 @@ void vtkDispatcher<BaseLhs, ReturnType, CastingPolicy>::AddInternal(Functor* fun
 
 //----------------------------------------------------------------------------
 template <class BaseLhs, typename ReturnType, template <class, class> class CastingPolicy>
+VTK_DEPRECATED_IN_9_0_0("Use vtkArrayDispatch")
 void vtkDispatcher<BaseLhs, ReturnType, CastingPolicy>::DoAddFunctor(TypeInfo lhs, MappedType fun)
 {
   FunctorMap[TypeInfo(lhs)] = fun;
@@ -189,6 +192,7 @@ void vtkDispatcher<BaseLhs, ReturnType, CastingPolicy>::DoAddFunctor(TypeInfo lh
 
 //----------------------------------------------------------------------------
 template <class BaseLhs, typename ReturnType, template <class, class> class CastingPolicy>
+VTK_DEPRECATED_IN_9_0_0("Use vtkArrayDispatch")
 bool vtkDispatcher<BaseLhs, ReturnType, CastingPolicy>::DoRemove(TypeInfo lhs)
 {
   return FunctorMap.erase(TypeInfo(lhs)) == 1;
@@ -196,6 +200,7 @@ bool vtkDispatcher<BaseLhs, ReturnType, CastingPolicy>::DoRemove(TypeInfo lhs)
 
 //----------------------------------------------------------------------------
 template <class BaseLhs, typename ReturnType, template <class, class> class CastingPolicy>
+VTK_DEPRECATED_IN_9_0_0("Use vtkArrayDispatch")
 ReturnType vtkDispatcher<BaseLhs, ReturnType, CastingPolicy>::Go(BaseLhs* lhs)
 {
   typename MapType::key_type k(typeid(*lhs));
@@ -208,7 +213,6 @@ ReturnType vtkDispatcher<BaseLhs, ReturnType, CastingPolicy>::Go(BaseLhs* lhs)
   return (i->second)(*lhs);
 }
 
-#endif // legacy
-
+#endif // __VTK_WRAP__
 #endif // vtkDispatcher_h
 // VTK-HeaderTest-Exclude: vtkDispatcher.h
