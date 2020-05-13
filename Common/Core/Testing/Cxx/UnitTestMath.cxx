@@ -28,9 +28,7 @@
 
 static int TestPi();
 static int TestDegreesFromRadians();
-#ifndef VTK_LEGACY_REMOVE
 static int TestRound();
-#endif
 static int TestFloor();
 static int TestCeil();
 static int TestCeilLog2();
@@ -101,9 +99,7 @@ int UnitTestMath(int, char*[])
   status += TestPi();
 
   status += TestDegreesFromRadians();
-#ifndef VTK_LEGACY_REMOVE
   status += TestRound();
-#endif
   status += TestFloor();
   status += TestCeil();
   status += TestCeilLog2();
@@ -247,7 +243,6 @@ int TestDegreesFromRadians()
   return status;
 }
 
-#ifndef VTK_LEGACY_REMOVE
 // Validate with http://en.wikipedia.org/wiki/Rounding#Rounding_to_integer
 int TestRound()
 {
@@ -330,7 +325,6 @@ int TestRound()
   }
   return status;
 }
-#endif
 
 // Validate with http://en.wikipedia.org/wiki/Floor_and_ceiling_functions
 int TestFloor()
