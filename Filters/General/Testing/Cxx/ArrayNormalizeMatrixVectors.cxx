@@ -19,6 +19,9 @@
 
 =========================================================================*/
 
+// Hide VTK_DEPRECATED_IN_9_0_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include <vtkArrayData.h>
 #include <vtkArrayPrint.h>
 #include <vtkDiagonalMatrixSource.h>

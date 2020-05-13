@@ -76,22 +76,26 @@ public:
     vtkWarningMacro(<< "vtkPolyhedron::GetEdgePoints Not Implemented");
   }
   // @deprecated Replaced by GetEdgePoints(vtkIdType, const vtkIdType*&) as of VTK 9.0
-  VTK_LEGACY(void GetEdgePoints(int vtkNotUsed(edgeId), int*& vtkNotUsed(pts)) override {
-    vtkWarningMacro(<< "vtkPolyhedron::GetEdgePoints Not Implemented. "
-                    << "Also note that this signature is deprecated. "
-                    << "Please use GetEdgePoints(vtkIdType, const vtkIdType*& instead");
-  });
+  VTK_DEPRECATED_IN_9_0_0("Replaced by vtkPolyhedron::GetEdgePoints(vtkIdType, const vtkIdType*&)")
+  void GetEdgePoints(int vtkNotUsed(edgeId), int*& vtkNotUsed(pts)) override
+  {
+    vtkErrorMacro(<< "vtkPolyhedron::GetEdgePoints Not Implemented. "
+                     "Also note that this signature is deprecated. "
+                     "Please use GetEdgePoints(vtkIdType, const vtkIdType*& instead");
+  };
   vtkIdType GetFacePoints(vtkIdType vtkNotUsed(faceId), const vtkIdType*& vtkNotUsed(pts)) override
   {
     vtkWarningMacro(<< "vtkPolyhedron::GetFacePoints Not Implemented");
     return 0;
   }
   // @deprecated Replaced by GetFacePoints(vtkIdType, const vtkIdType*&) as of VTK 9.0
-  VTK_LEGACY(void GetFacePoints(int vtkNotUsed(faceId), int*& vtkNotUsed(pts)) override {
+  VTK_DEPRECATED_IN_9_0_0("Replaced by vtkPolyhedron::GetFacePoints(vtkIdType, const vtkIdType*&)")
+  void GetFacePoints(int vtkNotUsed(faceId), int*& vtkNotUsed(pts)) override
+  {
     vtkWarningMacro(<< "vtkPolyhedron::GetFacePoints Not Implemented. "
-                    << "Also note that this signature is deprecated. "
-                    << "Please use GetFacePoints(vtkIdType, const vtkIdType*& instead");
-  });
+                       "Also note that this signature is deprecated. "
+                       "Please use GetFacePoints(vtkIdType, const vtkIdType*& instead");
+  };
   void GetEdgeToAdjacentFaces(
     vtkIdType vtkNotUsed(edgeId), const vtkIdType*& vtkNotUsed(pts)) override
   {

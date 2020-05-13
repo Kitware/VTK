@@ -17,6 +17,9 @@
 // contributed by CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br> BP12,
 // F-91297 Arpajon, France. <br> Implementation by Thierry Carrard (CEA)
 
+// Hide VTK_DEPRECATED_IN_9_0_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkDataSetGradientPrecompute.h"
 
 #include "vtkCell.h"

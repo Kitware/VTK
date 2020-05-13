@@ -30,6 +30,9 @@
 // * Minor performance enhancements
 // by Philippose Rajan (sarith@rocketmail.com)
 
+// Hide VTK_DEPRECATED_IN_9_0_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 // Hijack the CRC routine of zlib to omit CRC check for gzipped files
 // (on OSes other than Windows where the mechanism doesn't work due
 // to pre-bound DLL symbols) if set to 1, or not (set to 0). Affects

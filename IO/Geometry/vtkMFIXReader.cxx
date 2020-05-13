@@ -15,7 +15,9 @@
 // Thanks to Phil Nicoletti, Terry Jordan and Brian Dotson at the
 // National Energy Technology Laboratory who developed this class.
 // Please address all comments to Terry Jordan (terry.jordan@netl.doe.gov)
-//
+
+// Hide VTK_DEPRECATED_IN_9_0_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
 
 #include "vtkMFIXReader.h"
 
