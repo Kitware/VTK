@@ -208,44 +208,10 @@ set(template_classes
   vtkTypeList)
 
 set(sources
-  vtkArchiver.cxx
   vtkArrayIteratorTemplateInstantiate.cxx
   vtkGenericDataArray.cxx
   vtkSOADataArrayTemplateInstantiate.cxx
-  vtkScalarsToColors.cxx
-  vtkShortArray.cxx
-  vtkSignedCharArray.cxx
-  vtkSimpleCriticalSection.cxx
-  vtkSmartPointerBase.cxx
-  vtkSortDataArray.cxx
-  vtkSparseArray.txx
-  vtkStdString.cxx
-  vtkStringArray.cxx
-  vtkStringOutputWindow.cxx
-  vtkSystemIncludes.h
-  vtkTimePointUtility.cxx
-  vtkTimeStamp.cxx
-  vtkType.h
-  vtkTypedArray.txx
-  vtkUnicodeString.cxx
-  vtkUnicodeStringArray.cxx
-  vtkUnsignedCharArray.cxx
-  vtkUnsignedIntArray.cxx
-  vtkUnsignedLongArray.cxx
-  vtkUnsignedLongLongArray.cxx
-  vtkUnsignedShortArray.cxx
-  vtkVariant.cxx
-  vtkVariantArray.cxx
-  vtkVersion.cxx
-  vtkVoidArray.cxx
-  vtkWeakPointerBase.cxx
-  vtkWindow.cxx
-  vtkXMLFileOutputWindow.cxx
-  ${vtk_smp_sources}
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h"
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h"
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h"
-  )
+  ${vtk_smp_sources})
 
 if (VTK_BUILD_SCALED_SOA_ARRAYS)
   list (APPEND template_classes vtkScaledSOADataArrayTemplate)
@@ -258,7 +224,6 @@ configure_file(
 
 set(headers
   vtkABI.h
-  vtkArchiver.h
   vtkArrayIteratorIncludes.h
   vtkAssume.h
   vtkAtomicTypeConcepts.h
