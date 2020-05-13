@@ -254,6 +254,7 @@ set(headers
   vtkCellType.h
   vtkColor.h
   vtkCompositeDataSetRange.h
+  vtkCompositeDataSetNodeReference.h
   vtkDataArrayDispatcher.h
   vtkDataObjectTreeRange.h
   vtkDispatcher.h
