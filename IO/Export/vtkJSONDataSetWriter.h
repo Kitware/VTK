@@ -40,7 +40,7 @@
 
 #include "vtkIOExportModule.h" // For export macro
 
-#include "vtkLegacy.h" // For VTK_LEGACY
+#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_0_0
 #include "vtkWriter.h"
 
 #include <string> // std::string used as parameters in a few methods
@@ -120,8 +120,10 @@ public:
    * This correspond to the root directory of the data to write.
    * DEPRECATED: use the Archive's API instead.
    */
-  VTK_LEGACY(void SetFileName(const char*));
-  VTK_LEGACY(virtual char* GetFileName());
+  VTK_DEPRECATED_IN_9_0_0("Use vtkJSONDataSetWriter::SetArchiveName")
+  void SetFileName(const char*);
+  VTK_DEPRECATED_IN_9_0_0("Use vtkJSONDataSetWriter::GetArchiveName")
+  virtual char* GetFileName();
   //@}
 
   //@{
