@@ -13,6 +13,9 @@
 
 =========================================================================*/
 
+// Hide VTK_DEPRECATED_IN_9_0_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkPlotBox.h"
 
 #include "vtkAbstractArray.h"
@@ -275,7 +278,6 @@ bool inRange(const vtkVector2f& point, const vtkVector2f& tol, const vtkVector2f
 vtkIdType vtkPlotBox::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tol,
   vtkVector2f* location, vtkIdType* vtkNotUsed(segmentId))
 {
-#ifndef VTK_LEGACY_REMOVE
   if (!this->LegacyRecursionFlag)
   {
     this->LegacyRecursionFlag = true;
@@ -291,7 +293,6 @@ vtkIdType vtkPlotBox::GetNearestPoint(const vtkVector2f& point, const vtkVector2
       return ret;
     }
   }
-#endif // VTK_LEGACY_REMOVE
 
   vtkChartBox* parent = vtkChartBox::SafeDownCast(this->Parent);
 

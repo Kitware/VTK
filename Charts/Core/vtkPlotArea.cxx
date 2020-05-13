@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+
+// Hide VTK_DEPRECATED_IN_9_0_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkPlotArea.h"
 
 #include "vtkArrayDispatch.h"
@@ -596,8 +600,6 @@ bool vtkPlotArea::PaintLegend(
 vtkIdType vtkPlotArea::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tolerance,
   vtkVector2f* location, vtkIdType* vtkNotUsed(segmentId))
 {
-
-#ifndef VTK_LEGACY_REMOVE
   if (!this->LegacyRecursionFlag)
   {
     this->LegacyRecursionFlag = true;
@@ -613,7 +615,6 @@ vtkIdType vtkPlotArea::GetNearestPoint(const vtkVector2f& point, const vtkVector
       return ret;
     }
   }
-#endif // VTK_LEGACY_REMOVE
 
   vtkTableCache& cache = (*this->TableCache);
   if (!this->Visible || !cache.IsInputDataValid() || cache.Points->GetNumberOfPoints() == 0)

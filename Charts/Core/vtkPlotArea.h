@@ -97,16 +97,8 @@ public:
    * -1 if no point was found.
    */
   vtkIdType GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tolerance,
-    vtkVector2f* location,
-#ifndef VTK_LEGACY_REMOVE
-    vtkIdType* segmentId) override;
-#else
-    vtkIdType* segmentId = nullptr) override;
-#endif // VTK_LEGACY_REMOVE
-
-#ifndef VTK_LEGACY_REMOVE
+    vtkVector2f* location, vtkIdType* segmentId) override;
   using vtkPlot::GetNearestPoint;
-#endif // VTK_LEGACY_REMOVE
 
   /**
    * Generate and return the tooltip label string for this plot

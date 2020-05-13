@@ -13,6 +13,9 @@
 
 =========================================================================*/
 
+// Hide VTK_DEPRECATED_IN_9_0_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkPlotPoints.h"
 
 #include "vtkAxis.h"
@@ -350,7 +353,6 @@ void vtkPlotPoints::CreateSortedPoints()
 vtkIdType vtkPlotPoints::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tol,
   vtkVector2f* location, vtkIdType* vtkNotUsed(segmentId))
 {
-#ifndef VTK_LEGACY_REMOVE
   if (!this->LegacyRecursionFlag)
   {
     this->LegacyRecursionFlag = true;
@@ -366,7 +368,6 @@ vtkIdType vtkPlotPoints::GetNearestPoint(const vtkVector2f& point, const vtkVect
       return ret;
     }
   }
-#endif // VTK_LEGACY_REMOVE
 
   // Right now doing a simple bisector search of the array.
   if (!this->Points)

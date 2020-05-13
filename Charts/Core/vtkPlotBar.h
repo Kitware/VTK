@@ -245,15 +245,8 @@ public:
    * segment with which a point is associated, or -1.
    */
   vtkIdType GetNearestPoint(const vtkVector2f& point, const vtkVector2f&, vtkVector2f* location,
-#ifndef VTK_LEGACY_REMOVE
     vtkIdType* segmentIndex) override;
-#else
-    vtkIdType* segmentIndex = nullptr) override;
-#endif // VTK_LEGACY_REMOVE
-
-#ifndef VTK_LEGACY_REMOVE
   using vtkPlot::GetNearestPoint;
-#endif // VTK_LEGACY_REMOVE
 
   /**
    * Get amount of plotted bars.
