@@ -41,7 +41,7 @@
 #ifndef vtkRenderWindow_h
 #define vtkRenderWindow_h
 
-#include "vtkLegacy.h"              // For VTK_LEGACY_REMOVE
+#include "vtkDeprecation.h"         // for VTK_DEPRECATED_IN_9_0_0
 #include "vtkNew.h"                 // For vtkNew
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkSmartPointer.h"        // For vtkSmartPointer
@@ -533,10 +533,14 @@ public:
   /**
    * @deprecated in VTK 9.0
    */
-  VTK_LEGACY(vtkTypeBool GetIsPicking());
-  VTK_LEGACY(void SetIsPicking(vtkTypeBool));
-  VTK_LEGACY(void IsPickingOn());
-  VTK_LEGACY(void IsPickingOff());
+  VTK_DEPRECATED_IN_9_0_0("Removed in 9.0")
+  vtkTypeBool GetIsPicking();
+  VTK_DEPRECATED_IN_9_0_0("Removed in 9.0")
+  void SetIsPicking(vtkTypeBool);
+  VTK_DEPRECATED_IN_9_0_0("Removed in 9.0")
+  void IsPickingOn();
+  VTK_DEPRECATED_IN_9_0_0("Removed in 9.0")
+  void IsPickingOff();
   //@}
 
   /**
