@@ -60,10 +60,14 @@ public:
    *
    * @deprecated in VTK 9.0. Please use `vtkOutputWindow::SetDisplayMode` instead.
    */
-  VTK_LEGACY(void SetSendToStdErr(bool));
-  VTK_LEGACY(bool GetSendToStdErr());
-  VTK_LEGACY(void SendToStdErrOn());
-  VTK_LEGACY(void SendToStdErrOff());
+  VTK_DEPRECATED_IN_9_0_0("Use vtkWin32OutputWindow::SetDisplayMode")
+  void SetSendToStdErr(bool);
+  VTK_DEPRECATED_IN_9_0_0("Use vtkWin32OutputWindow::GetDisplayMode")
+  bool GetSendToStdErr();
+  VTK_DEPRECATED_IN_9_0_0("Use vtkWin32OutputWindow::SetDisplayMode")
+  void SendToStdErrOn();
+  VTK_DEPRECATED_IN_9_0_0("Use vtkWin32OutputWindow::SetDisplayMode")
+  void SendToStdErrOff();
   //@}
 
 protected:

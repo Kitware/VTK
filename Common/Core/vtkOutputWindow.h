@@ -27,7 +27,7 @@
 
 #include "vtkCommonCoreModule.h"  // For export macro
 #include "vtkDebugLeaksManager.h" // Must be included before singletons
-#include "vtkLegacy.h"            // For VTK_LEGACY
+#include "vtkDeprecation.h"       // For VTK_DEPRECATED_IN_9_0_0
 #include "vtkObject.h"
 
 class VTKCOMMONCORE_EXPORT vtkOutputWindowCleanup
@@ -108,10 +108,14 @@ public:
    *
    * @deprecated use `SetDisplayModeToAlwaysStdErr` instead.
    */
-  VTK_LEGACY(void SetUseStdErrorForAllMessages(bool));
-  VTK_LEGACY(bool GetUseStdErrorForAllMessages());
-  VTK_LEGACY(void UseStdErrorForAllMessagesOn());
-  VTK_LEGACY(void UseStdErrorForAllMessagesOff());
+  VTK_DEPRECATED_IN_9_0_0("Use vtkOutputWindow::SetDisplayMode")
+  void SetUseStdErrorForAllMessages(bool);
+  VTK_DEPRECATED_IN_9_0_0("Use vtkOutputWindow::GetDisplayMode")
+  bool GetUseStdErrorForAllMessages();
+  VTK_DEPRECATED_IN_9_0_0("Use vtkOutputWindow::SetDisplayMode")
+  void UseStdErrorForAllMessagesOn();
+  VTK_DEPRECATED_IN_9_0_0("Use vtkOutputWindow::SetDisplayMode")
+  void UseStdErrorForAllMessagesOff();
   //@}
 
   //@{

@@ -329,7 +329,6 @@ void vtkWin32OutputWindow::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-#if !defined(VTK_LEGACY_REMOVE)
 void vtkWin32OutputWindow::SetSendToStdErr(bool val)
 {
   VTK_LEGACY_REPLACED_BODY(
@@ -357,4 +356,3 @@ void vtkWin32OutputWindow::SendToStdErrOff()
     vtkWin32OutputWindow::SendToStdErrOff, "VTK 9.0", vtkWin32OutputWindow::SetDisplayMode);
   this->SetDisplayMode(DEFAULT);
 }
-#endif
