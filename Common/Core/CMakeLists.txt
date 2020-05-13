@@ -247,6 +247,8 @@ set(headers
   vtkMathUtilities.h
   vtkMeta.h
   vtkNew.h
+  vtkRange.h
+  vtkRangeIterableTraits.h
   vtkSetGet.h
   vtkSmartPointer.h
   vtkSystemIncludes.h
@@ -272,10 +274,13 @@ set(headers
   "${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkVTK_USE_SCALED_SOA_ARRAYS.h")
 
+set(private_headers
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkFloatingPointExceptionsConfigure.h")
+
 set(templates
   vtkArrayIteratorTemplateImplicit.txx)
 
-set(private_headers
+set(private_templates
   vtkDataArrayPrivate.txx)
 
 set(vtk_include_dirs)
@@ -450,7 +455,9 @@ vtk_module_add_module(VTK::CommonCore
   TEMPLATE_CLASSES  ${template_classes}
   SOURCES           ${sources}
   TEMPLATES         ${templates}
-  HEADERS           ${headers})
+  HEADERS           ${headers}
+  PRIVATE_HEADERS   ${private_headers}
+  PRIVATE_TEMPLATES ${private_templates})
 if (vtk_include_dirs)
   vtk_module_include(VTK::CommonCore
     PRIVATE
