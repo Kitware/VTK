@@ -1026,6 +1026,7 @@ void vtkOpenGLRenderWindow::Frame()
       this->GetState()->vtkglViewport(0, 0, fbsize[0], fbsize[1]);
       this->GetState()->vtkglScissor(0, 0, fbsize[0], fbsize[1]);
 
+      this->ResolveFramebuffer->Resize(fbsize[0], fbsize[1]);
       this->ResolveFramebuffer->Bind(GL_DRAW_FRAMEBUFFER);
       vtkOpenGLFramebufferObject::Blit(srcExtents, srcExtents, GL_COLOR_BUFFER_BIT, GL_NEAREST);
       this->ResolveFramebuffer->Bind(GL_READ_FRAMEBUFFER);
