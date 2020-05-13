@@ -134,7 +134,6 @@ void vtkResourceFileLocator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "LogVerbosity: " << this->LogVerbosity << endl;
 }
 
-#if !defined(VTK_LEGACY_REMOVE)
 void vtkResourceFileLocator::SetPrintDebugInformation(bool val)
 {
   VTK_LEGACY_REPLACED_BODY(vtkResourceFileLocator::SetPrintDebugInformation, "VTK 9.0",
@@ -162,5 +161,3 @@ void vtkResourceFileLocator::PrintDebugInformationOff()
     vtkResourceFileLocator::SetLogVerbosity);
   this->SetLogVerbosity(vtkLogger::VERBOSITY_TRACE);
 }
-
-#endif
