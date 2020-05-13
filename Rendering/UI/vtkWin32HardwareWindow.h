@@ -51,6 +51,22 @@ public:
   void* GetGenericParentId() override;
   //@}
 
+  //@{
+  /**
+   * Set the size of the window in pixels.
+   */
+  void SetSize(int, int) override;
+  using vtkHardwareWindow::SetSize;
+  //@}
+
+  //@{
+  /**
+   * Set the position of the window.
+   */
+  void SetPosition(int, int) override;
+  using vtkHardwareWindow::SetPosition;
+  //@}
+
 protected:
   vtkWin32HardwareWindow();
   ~vtkWin32HardwareWindow() override;
