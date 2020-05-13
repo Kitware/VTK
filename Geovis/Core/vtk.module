@@ -31,7 +31,5 @@ TEST_DEPENDS
   VTK::RenderingCore
   VTK::RenderingOpenGL2
   VTK::TestingRendering
-  VTK::ViewsInfovis
-TEST_OPTIONAL_DEPENDS
-  # XXX(VTK_LEGACY_REMOVE): This is only required by legacy-using tests.
   VTK::ViewsGeovis
+  VTK::ViewsInfovis
