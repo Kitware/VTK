@@ -18,10 +18,8 @@ set(classes
   vtkStreaklineFilter
   vtkStreamTracer
   vtkTemporalInterpolatedVelocityField
+  vtkTemporalStreamTracer
   vtkVortexCore)
 
-if (NOT VTK_LEGACY_REMOVE)
-  list(APPEND classes vtkTemporalStreamTracer)
-endif()
 vtk_module_add_module(VTK::FiltersFlowPaths
   CLASSES ${classes})
