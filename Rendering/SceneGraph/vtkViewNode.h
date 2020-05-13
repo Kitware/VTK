@@ -143,7 +143,7 @@ protected:
 
   static const char* operation_type_strings[];
 
-  void Apply(int operation, bool prepass);
+  virtual void Apply(int operation, bool prepass);
 
   //@{
   /**

@@ -211,3 +211,58 @@ void vtkWin32HardwareWindow::Destroy()
   ::DestroyWindow(this->WindowId); // windows api
   this->WindowId = 0;
 }
+
+// ----------------------------------------------------------------------------
+void vtkWin32HardwareWindow::SetSize(int x, int y)
+{
+  static bool resizing = false;
+  if ((this->Size[0] != x) || (this->Size[1] != y))
+  {
+    this->Superclass::SetSize(x, y);
+
+    if (!this->UseOffScreenBuffers)
+    {
+      if (!resizing)
+      {
+        resizing = true;
+
+        if (this->ParentId)
+        {
+          SetWindowExtEx(GetDC(this->WindowId), x, y, nullptr);
+          SetViewportExtEx(GetDC(this->WindowId), x, y, nullptr);
+          SetWindowPos(this->WindowId, HWND_TOP, 0, 0, x, y, SWP_NOMOVE | SWP_NOZORDER);
+        }
+        else
+        {
+          RECT r;
+          AdjustWindowRectForBorders(this->WindowId, 0, 0, 0, x, y, r);
+          SetWindowPos(this->WindowId, HWND_TOP, 0, 0, r.right - r.left, r.bottom - r.top,
+            SWP_NOMOVE | SWP_NOZORDER);
+        }
+        resizing = false;
+      }
+    }
+  }
+}
+
+void vtkWin32HardwareWindow::SetPosition(int x, int y)
+{
+  static bool resizing = false;
+
+  if ((this->Position[0] != x) || (this->Position[1] != y))
+  {
+    this->Modified();
+    this->Position[0] = x;
+    this->Position[1] = y;
+    if (this->Mapped)
+    {
+      if (!resizing)
+      {
+        resizing = true;
+
+        SetWindowPos(this->WindowId, HWND_TOP, x, y, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+        resizing = false;
+      }
+    }
+  }
+}
