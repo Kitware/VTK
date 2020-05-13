@@ -19,15 +19,13 @@
 vtkStandardNewMacro(vtkPointData);
 vtkStandardExtendedNewMacro(vtkPointData);
 
-#ifndef VTK_LEGACY_REMOVE
 //------------------------------------------------------------------------------
 void vtkPointData::NullPoint(vtkIdType ptId)
 {
   VTK_LEGACY_REPLACED_BODY(
-    vtkPointData::NullPoint(vtkIdType), "VTK 10", vtkFieldData::NullData(vtkIdType));
+    vtkPointData::NullPoint(vtkIdType), "VTK 9.1", vtkFieldData::NullData(vtkIdType));
   this->NullData(ptId);
 }
-#endif
 
 //------------------------------------------------------------------------------
 void vtkPointData::PrintSelf(ostream& os, vtkIndent indent)
