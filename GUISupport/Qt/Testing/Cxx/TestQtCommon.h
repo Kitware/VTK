@@ -1,14 +1,10 @@
 #include "QVTKOpenGLNativeWidget.h"
 #include "QVTKOpenGLStereoWidget.h"
+#include "QVTKOpenGLWidget.h"
 #include "QVTKOpenGLWindow.h"
 #include "QVTKRenderWidget.h"
 #include "vtkGenericOpenGLRenderWindow.h"
-#include "vtkLegacy.h" // For VTK_LEGACY_REMOVE
 #include "vtkLogger.h"
-
-#ifndef VTK_LEGACY_REMOVE
-#include "QVTKOpenGLWidget.h"
-#endif
 
 #include <QApplication>
 #include <QEventLoop>
