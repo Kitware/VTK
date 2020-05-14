@@ -2853,7 +2853,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateInputs(vtkRenderer* ren
     this->VolumePropertyChanged |= property->GetMTime() > this->ShaderBuildTime.GetMTime();
 
     auto it = this->Parent->AssembledInputs.find(port);
-    if (it == this->Parent->AssembledInputs.cend())
+    if (it == this->Parent->AssembledInputs.cend() || it->second.Volume != vol)
     {
       // Create new input structure
       auto texture = vtkSmartPointer<vtkVolumeTexture>::New();
