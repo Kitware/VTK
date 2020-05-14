@@ -1122,6 +1122,12 @@ void vtkWrapPython_GenerateOneMethod(FILE* fp, const char* classname, ClassInfo*
     {
       occCounter++;
 
+      if (theOccurrence->Deprecation)
+      {
+        /* in the future, deprecation warnings could be implemented */
+        fprintf(fp, "/* deprecated: %s */\n", theOccurrence->Deprecation);
+      }
+
       if (theOccurrence->IsLegacy)
       {
         fprintf(fp, "#if !defined(VTK_LEGACY_REMOVE)\n");

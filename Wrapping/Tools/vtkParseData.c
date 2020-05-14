@@ -146,6 +146,7 @@ void vtkParse_InitFunction(FunctionInfo* func)
   func->Preconds = NULL;
   func->Macro = NULL;
   func->SizeHint = NULL;
+  func->Deprecation = NULL;
   func->IsStatic = 0;
   func->IsVirtual = 0;
   func->IsPureVirtual = 0;
@@ -231,6 +232,7 @@ void vtkParse_CopyFunction(FunctionInfo* func, const FunctionInfo* orig)
 
   func->Macro = orig->Macro;
   func->SizeHint = orig->SizeHint;
+  func->Deprecation = orig->Deprecation;
   func->IsStatic = orig->IsStatic;
   func->IsVirtual = orig->IsVirtual;
   func->IsPureVirtual = orig->IsPureVirtual;
@@ -458,6 +460,7 @@ void vtkParse_InitClass(ClassInfo* cls)
   cls->Namespaces = NULL;
   cls->NumberOfComments = 0;
   cls->Comments = NULL;
+  cls->Deprecation = NULL;
   cls->IsAbstract = 0;
   cls->IsFinal = 0;
   cls->HasDelete = 0;
@@ -612,6 +615,7 @@ void vtkParse_CopyClass(ClassInfo* cls, const ClassInfo* orig)
     }
   }
 
+  cls->Deprecation = orig->Deprecation;
   cls->IsAbstract = orig->IsAbstract;
   cls->IsFinal = orig->IsFinal;
   cls->HasDelete = orig->HasDelete;
