@@ -10,6 +10,7 @@ IMPLEMENTS
 DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
+  VTK::FiltersGeneral
   VTK::RenderingCore
   VTK::RenderingUI
   VTK::glew

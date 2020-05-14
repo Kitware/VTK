@@ -92,6 +92,7 @@ set(classes
   vtkShrinkFilter
   vtkShrinkPolyData
   vtkSpatialRepresentationFilter
+  vtkSphericalHarmonics
   vtkSplineFilter
   vtkSplitByCellScalarFilter
   vtkSplitColumnComponents
