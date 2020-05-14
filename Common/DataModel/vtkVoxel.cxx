@@ -17,6 +17,7 @@
 #include "vtkBox.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkDataArrayRange.h"
 #include "vtkIncrementalPointLocator.h"
 #include "vtkLine.h"
 #include "vtkMarchingCubesTriangleCases.h"
@@ -188,6 +189,22 @@ void vtkVoxel::EvaluateLocation(
 }
 
 //------------------------------------------------------------------------------
+void vtkVoxel::Inflate(double dist)
+{
+  int index = 0;
+  auto range = vtk::DataArrayTupleRange(this->Points->GetData());
+  using TupleRef = typename decltype(range)::TupleReferenceType;
+  for (TupleRef point : range)
+  {
+    auto it = point.begin();
+    *(it++) += dist * (index % 2 ? 1.0 : -1.0);
+    *(it++) += dist * ((index / 2) % 2 ? 1.0 : -1.0);
+    *(it++) += dist * (index / 4 ? 1.0 : -1.0);
+    ++index;
+  }
+}
+
+//----------------------------------------------------------------------------
 //
 // Compute Interpolation functions
 //
@@ -420,7 +437,7 @@ static constexpr vtkIdType pointToOneRingPoints[vtkVoxel::NumberOfPoints]
                                                };
 }
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 //
 // Marching cubes case table
 //

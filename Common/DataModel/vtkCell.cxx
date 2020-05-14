@@ -14,8 +14,86 @@
 =========================================================================*/
 #include "vtkCell.h"
 
+#include "vtkDataArrayRange.h"
 #include "vtkMath.h"
+#include "vtkNew.h"
 #include "vtkPoints.h"
+#include "vtkPolygon.h"
+#include "vtkSmartPointer.h"
+
+#include <vector>
+
+namespace detail
+{
+//----------------------------------------------------------------------------
+// Strategy:
+//
+// We throw all edges from one cell to an other and look if they intersect.
+// In the case of a cell of one point, we just check if it lies inside
+// the other cell.
+int IntersectWithCell(vtkCell* self, vtkCell* other, double tol)
+{
+  // Strategy:
+  // We throw edges from on cell to the other to look for intersections, and vice versa.
+  // If we catch one intersection, bingo.
+  //
+  // But first... we handle the case of a one point cell.
+  if (!other->GetNumberOfPoints() || !self->GetNumberOfPoints())
+  {
+    return 0;
+  }
+  double x[3], pcoords[3];
+  if (other->GetNumberOfPoints() == 1)
+  {
+    double closestPoint[3];
+    double* point = other->GetPoints()->GetPoint(0);
+    int subId;
+    double dist2, *weights = new double[self->GetNumberOfPoints()];
+    self->EvaluatePosition(point, closestPoint, subId, pcoords, dist2, weights);
+    delete[] weights;
+    return dist2 <= tol * tol;
+  }
+  if (self->GetNumberOfPoints() == 1)
+  {
+    double closestPoint[3];
+    double* point = self->GetPoints()->GetPoint(0);
+    int subId;
+    double dist2, *weights = new double[other->GetNumberOfPoints()];
+    other->EvaluatePosition(point, closestPoint, subId, pcoords, dist2, weights);
+    delete[] weights;
+    return dist2 <= tol * tol;
+  }
+  double p1[3], p2[3];
+  for (vtkIdType edgeId = 0; edgeId < self->GetNumberOfEdges(); ++edgeId)
+  {
+    double t;
+    int subId;
+    vtkCell* edge = self->GetEdge(edgeId);
+    vtkPoints* ends = edge->GetPoints();
+    ends->GetPoint(0, p1);
+    ends->GetPoint(1, p2);
+    if (other->IntersectWithLine(p1, p2, tol, t, x, pcoords, subId))
+    {
+      return 1;
+    }
+  }
+  for (vtkIdType edgeId = 0; edgeId < other->GetNumberOfEdges(); ++edgeId)
+  {
+    double t;
+    int subId;
+    vtkCell* edge = other->GetEdge(edgeId);
+    vtkPoints* ends = edge->GetPoints();
+    ends->GetPoint(0, p1);
+    ends->GetPoint(1, p2);
+    if (self->IntersectWithLine(p1, p2, tol, t, x, pcoords, subId))
+    {
+      std::cout << "second " << std::endl;
+      return 1;
+    }
+  }
+  return 0;
+}
+}
 
 //------------------------------------------------------------------------------
 // Construct cell.
@@ -89,6 +167,104 @@ void vtkCell::DeepCopy(vtkCell* c)
 }
 
 //------------------------------------------------------------------------------
+void vtkCell::Inflate(double dist)
+{
+  if (this->GetNumberOfFaces() != 0)
+  {
+    vtkWarningMacro(<< "Base version of vtkCell::Inflate only implements cell inflation"
+                    << " for linear non 3D cells. Class " << this->GetClassName()
+                    << " needs to overload this method. Ignoring this cell.");
+    return;
+  }
+  std::vector<double> buf(3 * this->Points->GetNumberOfPoints(), 0.0);
+  vtkIdType pointId = 0;
+  auto pointRange = vtk::DataArrayTupleRange(this->Points->GetData());
+  using TupleRef = typename decltype(pointRange)::TupleReferenceType;
+  auto stlPoints = vtk::DataArrayTupleRange(this->Points->GetData());
+  auto postPointIt = stlPoints.begin();
+  ++postPointIt;
+  auto prePointIt = stlPoints.end();
+  --prePointIt;
+  double v[3];
+  for (auto pointIt = stlPoints.begin(); pointIt != stlPoints.end();
+       ++pointIt, ++postPointIt, ++prePointIt, ++pointId)
+  {
+    if (postPointIt == stlPoints.end())
+    {
+      postPointIt = stlPoints.begin();
+    }
+    if (prePointIt == stlPoints.end())
+    {
+      prePointIt = stlPoints.begin();
+    }
+
+    double* vIt = v;
+    for (auto compIt = pointIt->begin(), postCompIt = postPointIt->begin();
+         compIt != pointIt->end(); ++compIt, ++postCompIt, ++vIt)
+    {
+      *vIt = *compIt - *postCompIt;
+    }
+    vtkMath::Normalize(v);
+    buf[pointId * 3] += v[0] * dist;
+    buf[pointId * 3 + 1] += v[1] * dist;
+    buf[pointId * 3 + 2] += v[2] * dist;
+
+    vIt = v;
+    for (auto compIt = pointIt->begin(), preCompIt = prePointIt->begin(); compIt != pointIt->end();
+         ++compIt, ++preCompIt, ++vIt)
+    {
+      *vIt = *compIt - *preCompIt;
+    }
+    vtkMath::Normalize(v);
+    buf[pointId * 3] += v[0] * dist;
+    buf[pointId * 3 + 1] += v[1] * dist;
+    buf[pointId * 3 + 2] += v[2] * dist;
+  }
+  auto it = buf.begin();
+  using TupleRef = typename decltype(stlPoints)::TupleReferenceType;
+  using CompRef = typename decltype(stlPoints)::ComponentReferenceType;
+  for (TupleRef point : stlPoints)
+  {
+    for (CompRef comp : point)
+    {
+      comp += *(it++);
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
+int vtkCell::IntersectWithCell(vtkCell* other, const vtkBoundingBox& boundingBox,
+  const vtkBoundingBox& otherBoundingBox, double tol)
+{
+  if (!boundingBox.Intersects(otherBoundingBox))
+  {
+    return 0;
+  }
+  /**
+   * Given the strategy of detail::IntersectWithCell,
+   * the intersection detection is likely to be speeded up
+   * if exchanging other given this condition.
+   * The implementation first throws edges from first cell
+   * to look if it intersects with second cell, then it checks
+   * the other way.
+   * Since when one intersection is found, algorithm stops,
+   * we'd rather check embedded bounding box's cell's edges first.
+   */
+  if (otherBoundingBox.IsSubsetOf(boundingBox))
+  {
+    return detail::IntersectWithCell(other, this, tol);
+  }
+  return detail::IntersectWithCell(this, other, tol);
+}
+
+//----------------------------------------------------------------------------
+int vtkCell::IntersectWithCell(vtkCell* other, double tol)
+{
+  return this->IntersectWithCell(
+    other, vtkBoundingBox(this->GetBounds()), vtkBoundingBox(other->GetBounds()), tol);
+}
+
+//----------------------------------------------------------------------------
 // Compute cell bounding box (xmin,xmax,ymin,ymax,zmin,zmax). Return pointer
 // to array of six double values.
 double* vtkCell::GetBounds()

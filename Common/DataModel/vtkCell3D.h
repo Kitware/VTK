@@ -177,6 +177,13 @@ public:
    */
   int GetCellDimension() override { return 3; }
 
+  /**
+   * Inflates the cell by dist. Each point is displaced by dist in the direction of every halfedge.
+   * Input can be negative. If so, the cell will shrink. Artifacts will appear if one shrinks
+   * with -dist larger than any edge length, probably causing the cell to self-intersect.
+   */
+  void Inflate(double dist) override;
+
   //@{
   /**
    * Set the tolerance for merging clip intersection points that are near
