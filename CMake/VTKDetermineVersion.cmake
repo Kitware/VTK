@@ -58,7 +58,13 @@ function(determine_version source_dir git_command var_prefix)
   unset(tmp_VERSION)
   extract_version_components("${output}" tmp)
   if(DEFINED tmp_VERSION)
-    if (NOT "${tmp_VERSION}" STREQUAL "${${var_prefix}_VERSION}")
+    if (${var_prefix}_BUILD_VERSION GREATER "20200101")
+      if (NOT tmp_MAJOR_VERSION STREQUAL ${var_prefix}_MAJOR_VERSION OR
+          NOT tmp_MINOR_VERSION STREQUAL ${var_prefix}_MINOR_VERSION)
+        message(WARNING
+          "Version from git (${tmp_VERSION}) disagrees with hard coded version (${${var_prefix}_VERSION}). Either update the git tags or version.txt.")
+      endif ()
+    elseif (NOT "${tmp_VERSION}" STREQUAL "${${var_prefix}_VERSION}")
       message(WARNING
         "Version from git (${tmp_VERSION}) disagrees with hard coded version (${${var_prefix}_VERSION}). Either update the git tags or version.txt.")
     endif()
