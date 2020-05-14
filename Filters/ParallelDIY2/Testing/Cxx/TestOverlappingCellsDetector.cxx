@@ -34,9 +34,14 @@
 
 namespace
 {
-static constexpr vtkIdType Collisions[72] = { 6, 0, 6, 0, 4, 4, 6, 0, 10, 7, 4, 0, 0, 7, 9, 0, 0, 5,
-  5, 0, 0, 0, 5, 9, 0, 6, 4, 6, 4, 4, 0, 6, 1, 0, 6, 9, 8, 7, 1, 9, 5, 0, 0, 5, 9, 7, 2, 3, 0, 0, 0,
-  0, 0, 6, 1, 4, 0, 1, 0, 0, 4, 0, 0, 0, 0, 0, 3, 6, 0, 0, 0, 0 };
+static constexpr vtkIdType Collisions[72] = { 6, 0, 6, 0, 4, 4, 6, 0, 10, 7, // 0
+  4, 0, 0, 7, 9, 0, 0, 5, 5, 0,                                              // 10
+  0, 0, 5, 9, 0, 6, 0, 6, 4, 4,                                              // 20
+  0, 6, 1, 0, 4, 8, 7, 7, 1, 7,                                              // 30
+  5, 0, 0, 5, 7, 5, 0, 2, 0, 0,                                              // 40
+  0, 0, 0, 6, 1, 4, 0, 1, 0, 0,                                              // 50
+  4, 0, 0, 0, 0, 0, 2, 6, 0, 0,                                              // 60
+  0, 0 };
 }
 
 int TestOverlappingCellsDetector(int argc, char* argv[])
@@ -74,20 +79,18 @@ int TestOverlappingCellsDetector(int argc, char* argv[])
   vtkNew<vtkRedistributeDataSetFilter> redistribute;
   redistribute->SetInputConnection(globalIds->GetOutputPort());
 
-  std::cout << myrank << "coucou " << std::endl;
-
   vtkNew<vtkOverlappingCellsDetector> detector;
   detector->SetInputConnection(redistribute->GetOutputPort());
   detector->Update();
 
   vtkDataSet* output = vtkDataSet::SafeDownCast(detector->GetOutput(0));
   vtkDataArray* data =
-    output->GetCellData()->GetArray(vtkOverlappingCellsDetector::NumberOfCollisionsPerCell);
+    output->GetCellData()->GetArray(detector->GetNumberOfCollisionsPerCellArrayName());
   vtkDataArray* ids = output->GetCellData()->GetArray("GlobalCellIds");
 
-  auto valIt = vtk::DataArrayValueRange<3>(data).cbegin();
-  auto idIt = vtk::DataArrayValueRange<3>(ids).cbegin();
-  for (; valIt != vtk::DataArrayValueRange<3>(data).cend(); ++valIt, ++idIt)
+  auto valIt = vtk::DataArrayValueRange(data).cbegin();
+  auto idIt = vtk::DataArrayValueRange(ids).cbegin();
+  for (; valIt != vtk::DataArrayValueRange(data).cend(); ++valIt, ++idIt)
   {
     if (Collisions[static_cast<vtkIdType>(*idIt)] != *valIt)
     {

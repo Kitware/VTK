@@ -33,11 +33,6 @@ namespace detail
 // the other cell.
 int IntersectWithCell(vtkCell* self, vtkCell* other, double tol)
 {
-  // Strategy:
-  // We throw edges from on cell to the other to look for intersections, and vice versa.
-  // If we catch one intersection, bingo.
-  //
-  // But first... we handle the case of a one point cell.
   if (!other->GetNumberOfPoints() || !self->GetNumberOfPoints())
   {
     return 0;
@@ -87,7 +82,6 @@ int IntersectWithCell(vtkCell* self, vtkCell* other, double tol)
     ends->GetPoint(1, p2);
     if (self->IntersectWithLine(p1, p2, tol, t, x, pcoords, subId))
     {
-      std::cout << "second " << std::endl;
       return 1;
     }
   }
@@ -178,9 +172,9 @@ void vtkCell::Inflate(double dist)
   }
   std::vector<double> buf(3 * this->Points->GetNumberOfPoints(), 0.0);
   vtkIdType pointId = 0;
-  auto pointRange = vtk::DataArrayTupleRange(this->Points->GetData());
+  auto pointRange = vtk::DataArrayTupleRange<3>(this->Points->GetData());
   using TupleRef = typename decltype(pointRange)::TupleReferenceType;
-  auto stlPoints = vtk::DataArrayTupleRange(this->Points->GetData());
+  auto stlPoints = vtk::DataArrayTupleRange<3>(this->Points->GetData());
   auto postPointIt = stlPoints.begin();
   ++postPointIt;
   auto prePointIt = stlPoints.end();

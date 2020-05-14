@@ -88,7 +88,7 @@ void vtkCell3D::Inflate(double dist)
   double sign = this->IsInsideOut() ? -1.0 : 1.0;
   double p[3];
   vtkIdType pointId = 0;
-  auto pointRange = vtk::DataArrayTupleRange(this->Points->GetData());
+  auto pointRange = vtk::DataArrayTupleRange<3>(this->Points->GetData());
   using ConstTupleRef = typename decltype(pointRange)::ConstTupleReferenceType;
   for (ConstTupleRef point : pointRange)
   {

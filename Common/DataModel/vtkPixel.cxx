@@ -187,7 +187,7 @@ int vtkPixel::ComputeNormal(double n[3])
 //----------------------------------------------------------------------------
 void vtkPixel::Inflate(double dist)
 {
-  auto range = vtk::DataArrayTupleRange(this->Points->GetData());
+  auto range = vtk::DataArrayTupleRange<3>(this->Points->GetData());
   using TupleRef = typename decltype(range)::TupleReferenceType;
   double n[3];
   int normalDirection = this->ComputeNormal(n);

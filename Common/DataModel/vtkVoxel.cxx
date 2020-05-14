@@ -192,7 +192,7 @@ void vtkVoxel::EvaluateLocation(
 void vtkVoxel::Inflate(double dist)
 {
   int index = 0;
-  auto range = vtk::DataArrayTupleRange(this->Points->GetData());
+  auto range = vtk::DataArrayTupleRange<3>(this->Points->GetData());
   using TupleRef = typename decltype(range)::TupleReferenceType;
   for (TupleRef point : range)
   {

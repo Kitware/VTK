@@ -2,6 +2,7 @@ if (TARGET VTK::mpi)
   set (vtkFiltersParallelDIY2CxxTests-MPI_NUMPROCS 2)
   vtk_add_test_mpi(vtkFiltersParallelDIY2CxxTests-MPI tests
     TESTING_DATA
+    TestOverlappingCellsDetector.cxx,NO_VALID
     TestPResampleToImageCompositeDataSet.cxx
     TestPResampleToImage.cxx
     TestPResampleWithDataSet2.cxx
@@ -28,8 +29,9 @@ endif()
 
 # non-mpi tests
 vtk_add_test_cxx(vtkFiltersParallelDIY2CxxTests non_mpi_tests
-  TestExtractSubsetWithSeed.cxx
   TestAdaptiveResampleToImage.cxx,NO_VALID
+  TestExtractSubsetWithSeed.cxx
+  TestOverlappingCellsDetector.cxx,NO_VALID
   TestGenerateGlobalIds.cxx,NO_VALID
   TestRedistributeDataSetFilter.cxx,NO_VALID)
 vtk_test_cxx_executable(vtkFiltersParallelDIY2CxxTests non_mpi_tests)
