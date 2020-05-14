@@ -208,44 +208,10 @@ set(template_classes
   vtkTypeList)
 
 set(sources
-  vtkArchiver.cxx
   vtkArrayIteratorTemplateInstantiate.cxx
   vtkGenericDataArray.cxx
   vtkSOADataArrayTemplateInstantiate.cxx
-  vtkScalarsToColors.cxx
-  vtkShortArray.cxx
-  vtkSignedCharArray.cxx
-  vtkSimpleCriticalSection.cxx
-  vtkSmartPointerBase.cxx
-  vtkSortDataArray.cxx
-  vtkSparseArray.txx
-  vtkStdString.cxx
-  vtkStringArray.cxx
-  vtkStringOutputWindow.cxx
-  vtkSystemIncludes.h
-  vtkTimePointUtility.cxx
-  vtkTimeStamp.cxx
-  vtkType.h
-  vtkTypedArray.txx
-  vtkUnicodeString.cxx
-  vtkUnicodeStringArray.cxx
-  vtkUnsignedCharArray.cxx
-  vtkUnsignedIntArray.cxx
-  vtkUnsignedLongArray.cxx
-  vtkUnsignedLongLongArray.cxx
-  vtkUnsignedShortArray.cxx
-  vtkVariant.cxx
-  vtkVariantArray.cxx
-  vtkVersion.cxx
-  vtkVoidArray.cxx
-  vtkWeakPointerBase.cxx
-  vtkWindow.cxx
-  vtkXMLFileOutputWindow.cxx
-  ${vtk_smp_sources}
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h"
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h"
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h"
-  )
+  ${vtk_smp_sources})
 
 if (VTK_BUILD_SCALED_SOA_ARRAYS)
   list (APPEND template_classes vtkScaledSOADataArrayTemplate)
@@ -258,7 +224,6 @@ configure_file(
 
 set(headers
   vtkABI.h
-  vtkArchiver.h
   vtkArrayIteratorIncludes.h
   vtkAssume.h
   vtkAtomicTypeConcepts.h
@@ -269,11 +234,11 @@ set(headers
   vtkDataArrayIteratorMacro.h
   vtkDataArrayMeta.h
   vtkDataArrayRange.h
+  vtkDataArrayTemplate.h
   vtkDataArrayTupleRange_AOS.h
   vtkDataArrayTupleRange_Generic.h
   vtkDataArrayValueRange_AOS.h
   vtkDataArrayValueRange_Generic.h
-  vtkDataArrayTemplate.h
   vtkEventData.h
   vtkGenericDataArrayLookupHelper.h
   vtkIOStream.h
@@ -282,6 +247,8 @@ set(headers
   vtkMathUtilities.h
   vtkMeta.h
   vtkNew.h
+  vtkRange.h
+  vtkRangeIterableTraits.h
   vtkSetGet.h
   vtkSmartPointer.h
   vtkSystemIncludes.h
@@ -307,10 +274,13 @@ set(headers
   "${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkVTK_USE_SCALED_SOA_ARRAYS.h")
 
+set(private_headers
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkFloatingPointExceptionsConfigure.h")
+
 set(templates
   vtkArrayIteratorTemplateImplicit.txx)
 
-set(private_headers
+set(private_templates
   vtkDataArrayPrivate.txx)
 
 set(vtk_include_dirs)
@@ -485,7 +455,9 @@ vtk_module_add_module(VTK::CommonCore
   TEMPLATE_CLASSES  ${template_classes}
   SOURCES           ${sources}
   TEMPLATES         ${templates}
-  HEADERS           ${headers})
+  HEADERS           ${headers}
+  PRIVATE_HEADERS   ${private_headers}
+  PRIVATE_TEMPLATES ${private_templates})
 if (vtk_include_dirs)
   vtk_module_include(VTK::CommonCore
     PRIVATE
