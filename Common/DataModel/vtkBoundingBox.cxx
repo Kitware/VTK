@@ -628,6 +628,38 @@ bool vtkBoundingBox::IntersectPlane(double origin[3], double normal[3])
 }
 
 //------------------------------------------------------------------------------
+bool vtkBoundingBox::IntersectsSphere(double center[3], double radius) const
+{
+  return center[0] >= this->MinPnt[0] - radius && center[0] <= this->MaxPnt[0] + radius &&
+    center[1] >= this->MinPnt[1] - radius && center[1] <= this->MaxPnt[1] + radius &&
+    center[2] >= this->MinPnt[2] - radius && center[2] <= this->MaxPnt[2] + radius;
+}
+
+// ---------------------------------------------------------------------------
+int vtkBoundingBox::ComputeInnerDimension() const
+{
+  double thickness = this->MaxPnt[0] - this->MinPnt[0];
+  int dim = 3;
+  if (std::abs(thickness) <=
+    std::max(std::fabs(this->MaxPnt[0]), std::fabs(this->MinPnt[0])) * VTK_DBL_EPSILON)
+  {
+    --dim;
+  }
+  thickness = this->MaxPnt[1] - this->MinPnt[1];
+  if (std::abs(thickness) <=
+    std::max(std::fabs(this->MaxPnt[1]), std::fabs(this->MinPnt[1])) * VTK_DBL_EPSILON)
+  {
+    --dim;
+  }
+  thickness = this->MaxPnt[2] - this->MinPnt[2];
+  if (std::fabs(thickness) <=
+    std::max(std::fabs(this->MaxPnt[2]), std::fabs(this->MinPnt[2])) * VTK_DBL_EPSILON)
+  {
+    --dim;
+  }
+  return dim;
+}
+
 // Support ComputeBounds()
 namespace
 {
