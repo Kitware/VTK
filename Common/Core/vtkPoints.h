@@ -69,6 +69,7 @@ public:
 
   /**
    * Specify the underlying data type of the object.
+   * Default is VTK_FLOAT.
    */
   virtual void SetDataType(int dataType);
   void SetDataTypeToBit() { this->SetDataType(VTK_BIT); }
