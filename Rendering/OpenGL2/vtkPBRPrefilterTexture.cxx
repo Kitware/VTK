@@ -44,9 +44,8 @@ vtkPBRPrefilterTexture::~vtkPBRPrefilterTexture()
 void vtkPBRPrefilterTexture::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "PrefilterSize: " << this->PrefilterSize << "\n";
-  os << indent << "PrefilterLevels: " << this->PrefilterLevels << "\n";
-  os << indent << "PrefilterSamples: " << this->PrefilterSamples << endl;
+  os << indent << "PrefilterLevels: " << this->PrefilterLevels << endl;
+  os << indent << "PrefilterSize: " << this->PrefilterSize << endl;
 }
 
 //------------------------------------------------------------------------------
@@ -75,6 +74,7 @@ void vtkPBRPrefilterTexture::Load(vtkRenderer* ren)
   }
 
   this->InputTexture->Render(ren);
+  this->PrefilterSize = this->InputTexture->GetTextureObject()->GetHeight();
 
   if (this->GetMTime() > this->LoadTime.GetMTime() ||
     this->InputTexture->GetMTime() > this->LoadTime.GetMTime())
@@ -110,6 +110,7 @@ void vtkPBRPrefilterTexture::Load(vtkRenderer* ren)
     vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Decl",
       "//VTK::TEXTUREINPUT::Decl\n"
       "uniform float roughness;\n"
+      "uniform int nbSamples;\n"
       "const float PI = 3.14159265359;\n"
       // The solid angle of the texel = 4*PI/(6*w*h)
       // We remove the 4, simplification with saSample
@@ -175,9 +176,7 @@ void vtkPBRPrefilterTexture::Load(vtkRenderer* ren)
         // we removed the 4, simplification with saTexel
         "    float pdf = D;\n"
         // The solid angle of the sample
-        "    float saSample = 1.0 / (" +
-        std::to_string(this->PrefilterSamples) +
-        " * pdf);\n"
+        "    float saSample = 1.0 / ( nbSamples * pdf);\n"
         // miplevel = 0.5 * (log2(K) + log2(saSample) - log2(saTexel))
         // K=4 so log2(K)=2
         "    float mipLevel = roughness == 0.0 ? 0.0 : 0.5 * (2.0 + log2(saSample) - "
@@ -238,13 +237,10 @@ void vtkPBRPrefilterTexture::Load(vtkRenderer* ren)
          "  float w_ny = 0.0;\n"
          "  float w_pz = 0.0;\n"
          "  float w_nz = 0.0;\n"
-         "  for (uint i = 0u; i < "
-      << this->PrefilterSamples
-      << "u; i++)\n"
+         "  uint nbSamplesU = uint(nbSamples);\n"
+         "  for (uint i = 0u; i < nbSamplesU; i++)\n"
          "  {\n"
-         "    vec2 rd = Hammersley(i, "
-      << this->PrefilterSamples
-      << "u);\n"
+         "    vec2 rd = Hammersley(i, nbSamplesU);\n"
          "    AccumulateColorAndWeight(p_px, w_px, rd, n_px, roughness);\n"
          "    AccumulateColorAndWeight(p_nx, w_nx, rd, n_nx, roughness);\n"
          "    AccumulateColorAndWeight(p_py, w_py, rd, n_py, roughness);\n"
@@ -299,6 +295,13 @@ void vtkPBRPrefilterTexture::Load(vtkRenderer* ren)
 
         float roughness = static_cast<float>(mip) / static_cast<float>(this->PrefilterLevels);
         quadHelper.Program->SetUniformf("roughness", roughness);
+
+        // Heuristic to choose the number of samples according to the roughness
+        const float a = 0.65;
+        const float b = 1.0 - a;
+        int nbSamples = roughness * this->PrefilterMaxSamples / (a * roughness + b) + 1;
+
+        quadHelper.Program->SetUniformi("nbSamples", nbSamples);
 
         quadHelper.Render();
       }
