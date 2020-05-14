@@ -117,10 +117,7 @@ vtkAdaptiveTemporalInterpolator::vtkAdaptiveTemporalInterpolator()
 //------------------------------------------------------------------------------
 vtkAdaptiveTemporalInterpolator::~vtkAdaptiveTemporalInterpolator()
 {
-  if (this->ResampleImpl != nullptr)
-  {
-    delete this->ResampleImpl;
-  }
+  delete this->ResampleImpl;
 }
 
 //------------------------------------------------------------------------------

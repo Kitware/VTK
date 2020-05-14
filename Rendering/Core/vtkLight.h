@@ -198,7 +198,7 @@ public:
    * Get the position of the light, modified by the transformation matrix
    * (if it exists).
    */
-  void GetTransformedPosition(double& a0, double& a1, double& a2);
+  void GetTransformedPosition(double& x, double& y, double& z);
   void GetTransformedPosition(double a[3]);
   double* GetTransformedPosition() VTK_SIZEHINT(3);
   //@}
@@ -208,7 +208,7 @@ public:
    * Get the focal point of the light, modified by the transformation matrix
    * (if it exists).
    */
-  void GetTransformedFocalPoint(double& a0, double& a1, double& a2);
+  void GetTransformedFocalPoint(double& x, double& y, double& z);
   void GetTransformedFocalPoint(double a[3]);
   double* GetTransformedFocalPoint() VTK_SIZEHINT(3);
   //@}

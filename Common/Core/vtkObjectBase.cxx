@@ -198,9 +198,9 @@ vtkTypeBool vtkObjectBase::IsTypeOf(const char* name)
   return 0;
 }
 
-vtkTypeBool vtkObjectBase::IsA(const char* type)
+vtkTypeBool vtkObjectBase::IsA(const char* name)
 {
-  return this->vtkObjectBase::IsTypeOf(type);
+  return this->vtkObjectBase::IsTypeOf(name);
 }
 
 vtkIdType vtkObjectBase::GetNumberOfGenerationsFromBaseType(const char* name)
@@ -216,9 +216,9 @@ vtkIdType vtkObjectBase::GetNumberOfGenerationsFromBaseType(const char* name)
   return VTK_ID_MIN;
 }
 
-vtkIdType vtkObjectBase::GetNumberOfGenerationsFromBase(const char* type)
+vtkIdType vtkObjectBase::GetNumberOfGenerationsFromBase(const char* name)
 {
-  return this->vtkObjectBase::GetNumberOfGenerationsFromBaseType(type);
+  return this->vtkObjectBase::GetNumberOfGenerationsFromBaseType(name);
 }
 
 // Delete a vtk object. This method should always be used to delete an object
@@ -365,7 +365,7 @@ vtkFreeingFunction AlternateFreeFunction = vtkCustomFree;
 }
 
 //------------------------------------------------------------------------------
-void vtkObjectBase::SetMemkindDirectory(const char* fn)
+void vtkObjectBase::SetMemkindDirectory(const char* directoryname)
 {
 #ifndef VTK_HAS_THREADLOCAL
   vtkGenericWarningMacro(<< "Warning, memkind features are not thread safe on this platform.");
@@ -373,9 +373,9 @@ void vtkObjectBase::SetMemkindDirectory(const char* fn)
 #ifdef VTK_USE_MEMKIND
   if (MemkindDirectory == nullptr && MemkindHandle == nullptr)
   {
-    MemkindDirectory = strdup(fn);
+    MemkindDirectory = strdup(directoryname);
     int err = 0;
-    if (!strncmp(fn, "ALLOCATOR_ONLY", 4))
+    if (!strncmp(directoryname, "ALLOCATOR_ONLY", 4))
     {
       // This gives us memkind's managed allocator but without extended memory.
       // It is useful for comparison and has performance benefits from page fault avoidance.
@@ -397,7 +397,7 @@ void vtkObjectBase::SetMemkindDirectory(const char* fn)
     vtkGenericWarningMacro(<< "Warning, can only initialize memkind once.");
   }
 #else
-  (void)fn;
+  (void)directoryname;
 #endif
 }
 

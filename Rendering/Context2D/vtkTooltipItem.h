@@ -67,7 +67,7 @@ public:
   /**
    * Get/set the text of the item.
    */
-  virtual void SetText(const vtkStdString& title);
+  virtual void SetText(const vtkStdString& text);
   virtual vtkStdString GetText();
   //@}
 

@@ -178,8 +178,8 @@ bool vtkPythonInteractiveInterpreter::Push(const char* const code)
   }
 
   // replace "\r" with "\n"  (sometimes seen on Mac)
-  i = buffer.find("\r");
-  for (; i != std::string::npos; i = buffer.find("\r", i))
+  i = buffer.find('\r');
+  for (; i != std::string::npos; i = buffer.find('\r', i))
   {
     buffer.replace(i, 1, "\n");
     i++;

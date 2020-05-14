@@ -126,7 +126,7 @@ public:
    * Set the world tolerance. This propagates it to the internal
    * BoundedPlanePointPlacer.
    */
-  void SetWorldTolerance(double s) override;
+  void SetWorldTolerance(double tol) override;
 
 protected:
   vtkImageActorPointPlacer();

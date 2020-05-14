@@ -125,7 +125,7 @@ int vtkSEPReader::ReadHeader()
   std::string line;
   while (vtksys::SystemTools::GetLineFromStream(file, line))
   {
-    auto splittedLine = vtksys::SystemTools::SplitString(line.c_str(), '=');
+    auto splittedLine = vtksys::SystemTools::SplitString(line, '=');
     if (splittedLine.size() == 2)
     {
       std::string key = splittedLine[0];

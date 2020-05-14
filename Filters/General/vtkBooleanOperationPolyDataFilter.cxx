@@ -45,7 +45,7 @@ vtkBooleanOperationPolyDataFilter::~vtkBooleanOperationPolyDataFilter() = defaul
 
 //------------------------------------------------------------------------------
 void vtkBooleanOperationPolyDataFilter::SortPolyData(
-  vtkPolyData* input, vtkIdList* interList, vtkIdList* unionList)
+  vtkPolyData* input, vtkIdList* intersectionList, vtkIdList* unionList)
 {
   int numCells = input->GetNumberOfCells();
 
@@ -61,7 +61,7 @@ void vtkBooleanOperationPolyDataFilter::SortPolyData(
     }
     else
     {
-      interList->InsertNextId(cid);
+      intersectionList->InsertNextId(cid);
     }
   }
 }

@@ -36,7 +36,7 @@ vtkGraphLayoutFilter::vtkGraphLayoutFilter()
 }
 
 // A vertex contains a position and a displacement.
-typedef struct _vtkLayoutVertex
+typedef struct
 {
   double x[3];
   double d[3];
@@ -44,7 +44,7 @@ typedef struct _vtkLayoutVertex
 
 // An edge consists of two vertices joined together.
 // This struct acts as a "pointer" to those two vertices.
-typedef struct _vtkLayoutEdge
+typedef struct
 {
   int t;
   int u;

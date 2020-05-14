@@ -126,7 +126,7 @@ public:
    * This method will call `this->Modified()` if the enable state for the
    * array changed.
    */
-  void SetArraySetting(const char* name, int status);
+  void SetArraySetting(const char* name, int setting);
 
   /**
    * Remove all array entries.

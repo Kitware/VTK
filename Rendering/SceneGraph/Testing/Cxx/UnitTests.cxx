@@ -32,7 +32,7 @@
 #include <string>
 namespace
 {
-std::string resultS = "";
+std::string resultS;
 }
 
 //------------------------------------------------------------------------------

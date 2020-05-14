@@ -34,10 +34,11 @@
 
 #include <iostream>
 
+#if defined(_MSC_VER)
 #define _USE_MATH_DEFINES
+#endif
 #include <cstdlib>
 
-using std::cout;
 using std::endl;
 
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()

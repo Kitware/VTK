@@ -87,9 +87,9 @@ void vtkOBJExporter::WriteData()
   std::string filePrefix(this->FilePrefix);
   // get the model name which isthe last component of the FilePrefix
   std::string modelName;
-  if (filePrefix.find_last_of("/") != std::string::npos)
+  if (filePrefix.find_last_of('/') != std::string::npos)
   {
-    modelName = filePrefix.substr(filePrefix.find_last_of("/") + 1);
+    modelName = filePrefix.substr(filePrefix.find_last_of('/') + 1);
   }
   else
   {

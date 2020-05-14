@@ -43,7 +43,7 @@ protected:
   vtkMapperNode();
   ~vtkMapperNode() override;
 
-  vtkAbstractArray* GetArrayToProcess(vtkDataSet* input, int& association);
+  vtkAbstractArray* GetArrayToProcess(vtkDataSet* input, int& cellFlag);
 
 private:
   vtkMapperNode(const vtkMapperNode&) = delete;

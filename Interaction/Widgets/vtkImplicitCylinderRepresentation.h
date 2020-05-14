@@ -289,7 +289,7 @@ public:
    */
   void SetEdgeColor(vtkLookupTable*);
   void SetEdgeColor(double, double, double);
-  void SetEdgeColor(double x[3]);
+  void SetEdgeColor(double c[3]);
   //@}
 
   //@{

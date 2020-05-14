@@ -13,10 +13,12 @@
 
 =========================================================================*/
 
+#if defined(_MSC_VER)
 #ifdef _INTEGRAL_MAX_BITS
 #undef _INTEGRAL_MAX_BITS
 #endif
 #define _INTEGRAL_MAX_BITS 64
+#endif
 
 #include "vtkDebugLeaks.h"
 #include "vtkObject.h"
@@ -44,7 +46,7 @@ JNIEXPORT jlong vtkJavaGetId(JNIEnv* env, jobject obj)
 
 JNIEXPORT void* vtkJavaGetPointerFromObject(JNIEnv* env, jobject obj)
 {
-  return obj ? (void*)(size_t)vtkJavaGetId(env, obj) : 0;
+  return obj ? (void*)(size_t)vtkJavaGetId(env, obj) : nullptr;
 }
 
 JNIEXPORT jarray vtkJavaMakeJArrayOfDoubleFromDouble(JNIEnv* env, const double* ptr, int size)
@@ -54,10 +56,10 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfDoubleFromDouble(JNIEnv* env, const double* 
   jdouble* array;
 
   ret = env->NewDoubleArray(size);
-  if (ret == 0)
+  if (ret == nullptr)
   {
     // should throw an exception here
-    return 0;
+    return nullptr;
   }
 
   array = env->GetDoubleArrayElements(ret, nullptr);
@@ -79,10 +81,10 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfDoubleFromFloat(JNIEnv* env, const float* pt
   jdouble* array;
 
   ret = env->NewDoubleArray(size);
-  if (ret == 0)
+  if (ret == nullptr)
   {
     // should throw an exception here
-    return 0;
+    return nullptr;
   }
 
   array = env->GetDoubleArrayElements(ret, nullptr);
@@ -104,10 +106,10 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromInt(JNIEnv* env, const int* ptr, int 
   jint* array;
 
   ret = env->NewIntArray(size);
-  if (ret == 0)
+  if (ret == nullptr)
   {
     // should throw an exception here
-    return 0;
+    return nullptr;
   }
 
   array = env->GetIntArrayElements(ret, nullptr);
@@ -129,10 +131,10 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromIdType(JNIEnv* env, const vtkIdType* 
   jint* array;
 
   ret = env->NewIntArray(size);
-  if (ret == 0)
+  if (ret == nullptr)
   {
     // should throw an exception here
-    return 0;
+    return nullptr;
   }
 
   array = env->GetIntArrayElements(ret, nullptr);
@@ -154,10 +156,10 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromLongLong(JNIEnv* env, const long long
   jint* array;
 
   ret = env->NewIntArray(size);
-  if (ret == 0)
+  if (ret == nullptr)
   {
     // should throw an exception here
-    return 0;
+    return nullptr;
   }
 
   array = env->GetIntArrayElements(ret, nullptr);
@@ -179,10 +181,10 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromSignedChar(JNIEnv* env, const signed 
   jint* array;
 
   ret = env->NewIntArray(size);
-  if (ret == 0)
+  if (ret == nullptr)
   {
     // should throw an exception here
-    return 0;
+    return nullptr;
   }
 
   array = env->GetIntArrayElements(ret, nullptr);
@@ -204,10 +206,10 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfFloatFromFloat(JNIEnv* env, const float* ptr
   jfloat* array;
 
   ret = env->NewFloatArray(size);
-  if (ret == 0)
+  if (ret == nullptr)
   {
     // should throw an exception here
-    return 0;
+    return nullptr;
   }
 
   array = env->GetFloatArrayElements(ret, nullptr);
@@ -229,10 +231,10 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfShortFromShort(JNIEnv* env, const short* ptr
   jshort* array;
 
   ret = env->NewShortArray(size);
-  if (ret == 0)
+  if (ret == nullptr)
   {
     // should throw an exception here
-    return 0;
+    return nullptr;
   }
 
   array = env->GetShortArrayElements(ret, nullptr);
@@ -255,10 +257,10 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfByteFromUnsignedChar(
   jbyte* array;
 
   ret = env->NewByteArray(size);
-  if (ret == 0)
+  if (ret == nullptr)
   {
     // should throw an exception here
-    return 0;
+    return nullptr;
   }
 
   array = env->GetByteArrayElements(ret, nullptr);
@@ -281,10 +283,10 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfLongFromLong(JNIEnv* env, const long* ptr, i
   jlong* array;
 
   ret = env->NewLongArray(size);
-  if (ret == 0)
+  if (ret == nullptr)
   {
     // should throw an exception here
-    return 0;
+    return nullptr;
   }
 
   array = env->GetLongArrayElements(ret, nullptr);
@@ -308,10 +310,10 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfUnsignedLongFromUnsignedLong(
   jlong* array;
 
   ret = env->NewLongArray(size);
-  if (ret == 0)
+  if (ret == nullptr)
   {
     // should throw an exception here
-    return 0;
+    return nullptr;
   }
 
   array = env->GetLongArrayElements(ret, nullptr);
@@ -335,10 +337,10 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfUnsignedShortFromUnsignedShort(
   jshort* array;
 
   ret = env->NewShortArray(size);
-  if (ret == 0)
+  if (ret == nullptr)
   {
     // should throw an exception here
-    return 0;
+    return nullptr;
   }
 
   array = env->GetShortArrayElements(ret, nullptr);
@@ -362,10 +364,10 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfUnsignedCharFromUnsignedChar(
   jbyte* array;
 
   ret = env->NewByteArray(size);
-  if (ret == 0)
+  if (ret == nullptr)
   {
     // should throw an exception here
-    return 0;
+    return nullptr;
   }
 
   array = env->GetByteArrayElements(ret, nullptr);
@@ -389,10 +391,10 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfUnsignedIntFromUnsignedInt(
   jint* array;
 
   ret = env->NewIntArray(size);
-  if (ret == 0)
+  if (ret == nullptr)
   {
     // should throw an exception here
-    return 0;
+    return nullptr;
   }
 
   array = env->GetIntArrayElements(ret, nullptr);
@@ -415,10 +417,10 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfCharFromChar(JNIEnv* env, const char* ptr, i
   jchar* array;
 
   ret = env->NewCharArray(size);
-  if (ret == 0)
+  if (ret == nullptr)
   {
     // should throw an exception here
-    return 0;
+    return nullptr;
   }
 
   array = env->GetCharArrayElements(ret, nullptr);
@@ -441,10 +443,10 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromBool(JNIEnv* env, const bool* ptr, in
   jint* array;
 
   ret = env->NewIntArray(size);
-  if (ret == 0)
+  if (ret == nullptr)
   {
     // should throw an exception here
-    return 0;
+    return nullptr;
   }
 
   array = env->GetIntArrayElements(ret, nullptr);
@@ -478,12 +480,12 @@ static char* JNU_GetStringNativeChars(JNIEnv* env, jstring jstr)
   {
     return nullptr;
   }
-  jbyteArray bytes = 0;
+  jbyteArray bytes = nullptr;
   jthrowable exc;
-  char* result = 0;
+  char* result = nullptr;
   if (env->EnsureLocalCapacity(2) < 0)
   {
-    return 0; /* out of memory error */
+    return nullptr; /* out of memory error */
   }
   jclass Class_java_lang_String = env->GetObjectClass(jstr);
   jmethodID MID_String_getBytes =
@@ -497,11 +499,11 @@ static char* JNU_GetStringNativeChars(JNIEnv* env, jstring jstr)
     jint len = env->GetArrayLength(bytes);
     result = new char[len + 1];
 
-    if (result == 0)
+    if (result == nullptr)
     {
-      JNU_ThrowByName(env, "java/lang/OutOfMemoryError", 0);
+      JNU_ThrowByName(env, "java/lang/OutOfMemoryError", nullptr);
       env->DeleteLocalRef(bytes);
-      return 0;
+      return nullptr;
     }
     env->GetByteArrayRegion(bytes, 0, len, (jbyte*)result);
     result[len] = 0; /* nullptr-terminate */

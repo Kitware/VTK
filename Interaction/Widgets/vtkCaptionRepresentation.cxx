@@ -69,15 +69,15 @@ vtkCaptionRepresentation::~vtkCaptionRepresentation()
 }
 
 //------------------------------------------------------------------------------
-void vtkCaptionRepresentation::SetCaptionActor2D(vtkCaptionActor2D* capActor)
+void vtkCaptionRepresentation::SetCaptionActor2D(vtkCaptionActor2D* captionActor)
 {
-  if (capActor != this->CaptionActor2D)
+  if (captionActor != this->CaptionActor2D)
   {
     if (this->CaptionActor2D)
     {
       this->CaptionActor2D->Delete();
     }
-    this->CaptionActor2D = capActor;
+    this->CaptionActor2D = captionActor;
     if (this->CaptionActor2D)
     {
       this->CaptionActor2D->Register(this);

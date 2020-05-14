@@ -789,8 +789,8 @@ bool vtkLagrangianBasicIntegrationModel::FindInLocators(double* x, vtkLagrangian
 }
 
 //------------------------------------------------------------------------------
-vtkIdType vtkLagrangianBasicIntegrationModel::FindInLocator(
-  vtkDataSet* ds, vtkAbstractCellLocator* loc, double* x, vtkGenericCell* cell, double* weights)
+vtkIdType vtkLagrangianBasicIntegrationModel::FindInLocator(vtkDataSet* dataSet,
+  vtkAbstractCellLocator* loc, double* x, vtkGenericCell* cell, double* weights)
 {
   double pcoords[3];
   vtkIdType cellId;
@@ -801,15 +801,15 @@ vtkIdType vtkLagrangianBasicIntegrationModel::FindInLocator(
   }
   else
   {
-    // No locator, ds is vtkImageData or vtkRectilinearGrid,
+    // No locator, dataSet is vtkImageData or vtkRectilinearGrid,
     // which does not require any cellToUse when calling FindCell.
     int subId;
-    cellId = ds->FindCell(x, nullptr, cell, 0, this->Tolerance, subId, pcoords, weights);
+    cellId = dataSet->FindCell(x, nullptr, cell, 0, this->Tolerance, subId, pcoords, weights);
   }
 
   // Ignore Ghost cells
-  if (cellId != -1 && ds->GetCellGhostArray() &&
-    ds->GetCellGhostArray()->GetValue(cellId) & vtkDataSetAttributes::DUPLICATECELL)
+  if (cellId != -1 && dataSet->GetCellGhostArray() &&
+    dataSet->GetCellGhostArray()->GetValue(cellId) & vtkDataSetAttributes::DUPLICATECELL)
   {
     return -1;
   }

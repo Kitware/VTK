@@ -160,140 +160,140 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(int type)
 }
 
 //------------------------------------------------------------------------------
-vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* type)
+vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* classname)
 {
 
-  if (!type)
+  if (!classname)
   {
     vtkGenericWarningMacro("NewDataObject(): You are trying to instantiate DataObjectType \""
-      << type << "\" which does not exist.");
+      << classname << "\" which does not exist.");
     return nullptr;
   }
 
   // Check for some standard types.
-  if (strcmp(type, "vtkImageData") == 0)
+  if (strcmp(classname, "vtkImageData") == 0)
   {
     return vtkImageData::New();
   }
-  else if (strcmp(type, "vtkDataObject") == 0)
+  else if (strcmp(classname, "vtkDataObject") == 0)
   {
     return vtkDataObject::New();
   }
-  else if (strcmp(type, "vtkPolyData") == 0)
+  else if (strcmp(classname, "vtkPolyData") == 0)
   {
     return vtkPolyData::New();
   }
-  else if (strcmp(type, "vtkRectilinearGrid") == 0)
+  else if (strcmp(classname, "vtkRectilinearGrid") == 0)
   {
     return vtkRectilinearGrid::New();
   }
-  else if (strcmp(type, "vtkStructuredGrid") == 0)
+  else if (strcmp(classname, "vtkStructuredGrid") == 0)
   {
     return vtkStructuredGrid::New();
   }
-  else if (strcmp(type, "vtkStructuredPoints") == 0)
+  else if (strcmp(classname, "vtkStructuredPoints") == 0)
   {
     return vtkStructuredPoints::New();
   }
-  else if (strcmp(type, "vtkUnstructuredGrid") == 0)
+  else if (strcmp(classname, "vtkUnstructuredGrid") == 0)
   {
     return vtkUnstructuredGrid::New();
   }
-  else if (strcmp(type, "vtkUniformGrid") == 0)
+  else if (strcmp(classname, "vtkUniformGrid") == 0)
   {
     return vtkUniformGrid::New();
   }
-  else if (strcmp(type, "vtkMultiBlockDataSet") == 0)
+  else if (strcmp(classname, "vtkMultiBlockDataSet") == 0)
   {
     return vtkMultiBlockDataSet::New();
   }
-  else if (strcmp(type, "vtkHierarchicalBoxDataSet") == 0)
+  else if (strcmp(classname, "vtkHierarchicalBoxDataSet") == 0)
   {
     return vtkHierarchicalBoxDataSet::New();
   }
-  else if (strcmp(type, "vtkOverlappingAMR") == 0)
+  else if (strcmp(classname, "vtkOverlappingAMR") == 0)
   {
     return vtkOverlappingAMR::New();
   }
-  else if (strcmp(type, "vtkNonOverlappingAMR") == 0)
+  else if (strcmp(classname, "vtkNonOverlappingAMR") == 0)
   {
     return vtkNonOverlappingAMR::New();
   }
-  else if (strcmp(type, "vtkHyperTreeGrid") == 0)
+  else if (strcmp(classname, "vtkHyperTreeGrid") == 0)
   {
     return vtkHyperTreeGrid::New();
   }
-  else if (strcmp(type, "vtkUniformHyperTreeGrid") == 0)
+  else if (strcmp(classname, "vtkUniformHyperTreeGrid") == 0)
   {
     return vtkUniformHyperTreeGrid::New();
   }
-  else if (strcmp(type, "vtkTable") == 0)
+  else if (strcmp(classname, "vtkTable") == 0)
   {
     return vtkTable::New();
   }
-  else if (strcmp(type, "vtkTree") == 0)
+  else if (strcmp(classname, "vtkTree") == 0)
   {
     return vtkTree::New();
   }
-  else if (strcmp(type, "vtkSelection") == 0)
+  else if (strcmp(classname, "vtkSelection") == 0)
   {
     return vtkSelection::New();
   }
-  else if (strcmp(type, "vtkDirectedGraph") == 0)
+  else if (strcmp(classname, "vtkDirectedGraph") == 0)
   {
     return vtkDirectedGraph::New();
   }
-  else if (strcmp(type, "vtkUndirectedGraph") == 0)
+  else if (strcmp(classname, "vtkUndirectedGraph") == 0)
   {
     return vtkUndirectedGraph::New();
   }
-  else if (strcmp(type, "vtkMultiPieceDataSet") == 0)
+  else if (strcmp(classname, "vtkMultiPieceDataSet") == 0)
   {
     return vtkMultiPieceDataSet::New();
   }
-  else if (strcmp(type, "vtkDirectedAcyclicGraph") == 0)
+  else if (strcmp(classname, "vtkDirectedAcyclicGraph") == 0)
   {
     return vtkDirectedAcyclicGraph::New();
   }
-  else if (strcmp(type, "vtkAnnotation") == 0)
+  else if (strcmp(classname, "vtkAnnotation") == 0)
   {
     return vtkAnnotation::New();
   }
-  else if (strcmp(type, "vtkAnnotationLayers") == 0)
+  else if (strcmp(classname, "vtkAnnotationLayers") == 0)
   {
     return vtkAnnotationLayers::New();
   }
-  else if (strcmp(type, "vtkReebGraph") == 0)
+  else if (strcmp(classname, "vtkReebGraph") == 0)
   {
     return vtkReebGraph::New();
   }
-  else if (strcmp(type, "vtkMolecule") == 0)
+  else if (strcmp(classname, "vtkMolecule") == 0)
   {
     return vtkMolecule::New();
   }
-  else if (strcmp(type, "vtkArrayData") == 0)
+  else if (strcmp(classname, "vtkArrayData") == 0)
   {
     return vtkArrayData::New();
   }
-  else if (strcmp(type, "vtkPath") == 0)
+  else if (strcmp(classname, "vtkPath") == 0)
   {
     return vtkPath::New();
   }
-  else if (strcmp(type, "vtkPartitionedDataSet") == 0)
+  else if (strcmp(classname, "vtkPartitionedDataSet") == 0)
   {
     return vtkPartitionedDataSet::New();
   }
-  else if (strcmp(type, "vtkPartitionedDataSetCollection") == 0)
+  else if (strcmp(classname, "vtkPartitionedDataSetCollection") == 0)
   {
     return vtkPartitionedDataSetCollection::New();
   }
-  else if (strcmp(type, "vtkExplicitStructuredGrid") == 0)
+  else if (strcmp(classname, "vtkExplicitStructuredGrid") == 0)
   {
     return vtkExplicitStructuredGrid::New();
   }
 
   vtkGenericWarningMacro("NewDataObject(): You are trying to instantiate DataObjectType \""
-    << type << "\" which does not exist.");
+    << classname << "\" which does not exist.");
 
   return nullptr;
 }

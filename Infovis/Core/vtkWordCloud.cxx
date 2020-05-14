@@ -106,22 +106,15 @@ vtkWordCloud::vtkWordCloud()
   : BackgroundColorName("MidnightBlue")
   , BWMask(false)
   , ColorDistribution({ { .6, 1.0 } })
-  , ColorSchemeName("")
   , DPI(200)
-  , FileName("")
-  , FontFileName("")
   , FontMultiplier(6)
   , Gap(2)
   , MaskColorName("black")
-  , MaskFileName("")
   , MaxFontSize(48)
   , MinFontSize(12)
   , MinFrequency(1)
   , OrientationDistribution({ { -20, 20 } })
   , Sizes({ { 640, 480 } })
-  , StopListFileName("")
-  , Title("")
-  , WordColorName("")
 {
   this->SetNumberOfInputPorts(0);
 
@@ -385,7 +378,7 @@ void vtkWordCloud::PrintSelf(ostream& os, vtkIndent indent)
   os << std::endl;
   os << "  Sizes: " << this->GetSizes()[0] << " " << this->GetSizes()[1] << std::endl;
   os << "  StopWords: ";
-  for (auto s : this->GetStopWords())
+  for (const auto& s : this->GetStopWords())
   {
     os << s << " ";
   }
@@ -416,7 +409,7 @@ std::multiset<std::pair<std::string, int>, Comparator> FindWordsSortedByFrequenc
   }
 
   // Add user stop words
-  for (auto stop : wordCloud->GetStopWords())
+  for (const auto& stop : wordCloud->GetStopWords())
   {
     stopList.insert(stop);
   }
@@ -510,7 +503,7 @@ void AddReplacementPairsToStopList(
     ::ExtractWordsFromString(to, words);
 
     // Add each replacement to the stop list
-    for (auto w : words)
+    for (const auto& w : words)
     {
       stopList.insert(w);
     }
@@ -772,7 +765,7 @@ void CreateStopListFromFile(std::string fileName, vtkWordCloud::StopWordsContain
   // Extract words
   std::vector<std::string> words;
   ::ExtractWordsFromString(s, words);
-  for (auto w : words)
+  for (const auto& w : words)
   {
     stopList.insert(w);
   }

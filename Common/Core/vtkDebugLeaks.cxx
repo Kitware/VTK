@@ -64,9 +64,9 @@ private:
 };
 
 //------------------------------------------------------------------------------
-void vtkDebugLeaksHashTable::IncrementCount(const char* key)
+void vtkDebugLeaksHashTable::IncrementCount(const char* name)
 {
-  this->CountMap[key]++;
+  this->CountMap[name]++;
 }
 
 //------------------------------------------------------------------------------
@@ -76,14 +76,14 @@ bool vtkDebugLeaksHashTable::IsEmpty()
 }
 
 //------------------------------------------------------------------------------
-vtkTypeBool vtkDebugLeaksHashTable::DecrementCount(const char* key)
+vtkTypeBool vtkDebugLeaksHashTable::DecrementCount(const char* name)
 {
-  if (this->CountMap.count(key) > 0)
+  if (this->CountMap.count(name) > 0)
   {
-    this->CountMap[key]--;
-    if (this->CountMap[key] == 0)
+    this->CountMap[name]--;
+    if (this->CountMap[name] == 0)
     {
-      this->CountMap.erase(key);
+      this->CountMap.erase(name);
     }
     return 1;
   }

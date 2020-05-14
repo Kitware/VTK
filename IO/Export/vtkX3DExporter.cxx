@@ -53,7 +53,7 @@
 using namespace vtkX3D;
 
 // forward declarations
-static bool vtkX3DExporterWriterUsingCellColors(vtkMapper* anActor);
+static bool vtkX3DExporterWriterUsingCellColors(vtkMapper* mapper);
 static bool vtkX3DExporterWriterRenderFaceSet(int cellType, int representation, vtkPoints* points,
   vtkIdType cellOffset, vtkCellArray* cells, vtkUnsignedCharArray* colors, bool cell_colors,
   vtkDataArray* normals, bool cell_normals, vtkDataArray* tcoords, bool common_data_written,

@@ -185,7 +185,7 @@ protected:
    * The check will succeed if the filename ends in ".gz", and if the
    * extension matches after removing the ".gz".
    */
-  static bool CheckExtension(const char* fname, const char* ext);
+  static bool CheckExtension(const char* filename, const char* ext);
 
   /**
    * Make a new filename by replacing extension "ext1" with "ext2".
@@ -195,7 +195,7 @@ protected:
    * If the file exists, a new string is returned that must be
    * deleted by the caller.  Otherwise, the return value is nullptr.
    */
-  static char* ReplaceExtension(const char* fname, const char* ext1, const char* ext2);
+  static char* ReplaceExtension(const char* filename, const char* ext1, const char* ext2);
 
   /**
    * Check the version of the header.

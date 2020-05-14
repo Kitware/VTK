@@ -137,7 +137,7 @@ public:
    * The returned value is a column handle or -1 if an error occurred.
    */
   virtual int AddColumnToTable(
-    int tblHandle, int colType, const char* colName, int colSize, const char* colAttribs);
+    int tblHandle, int colType, const char* colName, int colSize, const char* colOpts);
   virtual int AddColumnToTable(
     const char* tblName, int colType, const char* colName, int colSize, const char* colAttribs)
   {
@@ -204,7 +204,7 @@ public:
    * The returned value is an option handle or -1 if an error occurred.
    */
   virtual int AddOptionToTable(
-    int tblHandle, const char* optStr, const char* optBackend = VTK_SQL_ALLBACKENDS);
+    int tblHandle, const char* optText, const char* optBackend = VTK_SQL_ALLBACKENDS);
   virtual int AddOptionToTable(
     const char* tblName, const char* optStr, const char* optBackend = VTK_SQL_ALLBACKENDS)
   {
@@ -320,7 +320,7 @@ public:
   /**
    * Given the handles of a table and one of its options, get the backend of the option.
    */
-  const char* GetOptionBackendFromHandle(int tblHandle, int trgHandle);
+  const char* GetOptionBackendFromHandle(int tblHandle, int optHandle);
 
   /**
    * Reset the schema to its initial, empty state.

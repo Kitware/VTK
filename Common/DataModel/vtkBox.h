@@ -143,12 +143,12 @@ public:
    * are provided (i.e., the points are ordered and form a valid polygon).
    * Thus the function returns non-zero if the plane and box intersect; zero
    * otherwise. Note that if there is an intersection, the number of
-   * intersections ranges from [3,6]. xints memory layout is consistent with
+   * intersections ranges from [3,6]. xout memory layout is consistent with
    * vtkPoints array layout and is organized as (xyz, xyz, xyz, xyz, xyz,
    * xyz).
    */
   static vtkTypeBool IntersectWithPlane(
-    double bounds[6], double origin[3], double normal[3], double xints[18]);
+    double bounds[6], double origin[3], double normal[3], double xout[18]);
 
 protected:
   vtkBox();

@@ -54,7 +54,7 @@ public:
    * Units are in meters.
    * Note that having altitude realtive to sea level causes issues.
    */
-  static void LongLatAltToRect(double lla[3], double rect[3]);
+  static void LongLatAltToRect(double longLatAlt[3], double rect[3]);
 
 protected:
   vtkGeoMath();

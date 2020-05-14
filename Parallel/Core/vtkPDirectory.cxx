@@ -86,9 +86,9 @@ bool vtkPDirectory::Load(const std::string& name)
 }
 
 //------------------------------------------------------------------------------
-int vtkPDirectory::Open(const char* name)
+int vtkPDirectory::Open(const char* dir)
 {
-  return static_cast<int>(this->Load(name));
+  return static_cast<int>(this->Load(dir));
 }
 
 //------------------------------------------------------------------------------

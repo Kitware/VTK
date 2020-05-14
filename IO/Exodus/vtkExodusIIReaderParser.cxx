@@ -102,7 +102,7 @@ void vtkExodusIIReaderParser::StartElement(const char* tagName, const char** att
 
     // Save the description for this part, this description is used later to
     // name the block appropriately.
-    this->PartVertexID_To_Descriptions[partVertex] = partDescString.c_str();
+    this->PartVertexID_To_Descriptions[partVertex] = partDescString;
 
     // Add a "part" vertex in the "Assemblies" hierarchy.
     this->CurrentVertex.push_back(partVertex);

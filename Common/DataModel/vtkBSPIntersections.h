@@ -91,8 +91,7 @@ public:
    * intersects an axis aligned box.
    */
   int IntersectsBox(int regionId, double* x);
-  int IntersectsBox(
-    int regionId, double xmin, double xmax, double ymin, double ymax, double zmin, double zmax);
+  int IntersectsBox(int regionId, double x0, double x1, double y0, double y1, double z0, double z1);
   //@}
 
   //@{

@@ -40,8 +40,8 @@ class vtkCirclePackFrontChainLayoutStrategyImplementation
 {
 
 public:
-  vtkCirclePackFrontChainLayoutStrategyImplementation();
-  ~vtkCirclePackFrontChainLayoutStrategyImplementation();
+  vtkCirclePackFrontChainLayoutStrategyImplementation() = default;
+  ~vtkCirclePackFrontChainLayoutStrategyImplementation() = default;
 
   void createCirclePacking(
     vtkTree* tree, vtkDataArray* sizeArray, vtkDataArray* circlesArray, int height, int width);
@@ -87,12 +87,6 @@ public:
 
 private:
 };
-
-vtkCirclePackFrontChainLayoutStrategyImplementation::
-  vtkCirclePackFrontChainLayoutStrategyImplementation() = default;
-
-vtkCirclePackFrontChainLayoutStrategyImplementation::
-  ~vtkCirclePackFrontChainLayoutStrategyImplementation() = default;
 
 void vtkCirclePackFrontChainLayoutStrategyImplementation::incrListIteratorWrapAround(
   std::list<vtkIdType>::iterator& i, std::list<vtkIdType>& frontChain)

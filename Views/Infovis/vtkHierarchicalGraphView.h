@@ -114,7 +114,7 @@ public:
   /**
    * Whether the graph edges are visible (default off).
    */
-  virtual void SetGraphVisibility(bool b);
+  virtual void SetGraphVisibility(bool vis);
   virtual bool GetGraphVisibility();
   vtkBooleanMacro(GraphVisibility, bool);
   //@}

@@ -33,7 +33,7 @@
 /* -------------------------------------------------------------------- */
 /* A struct for special types to store info about the type, it is fairly
  * small because not many operators or special features are wrapped */
-typedef struct _SpecialTypeInfo
+typedef struct
 {
   int has_print;    /* there is "<<" stream operator */
   int has_compare;  /* there are comparison operators e.g. "<" */

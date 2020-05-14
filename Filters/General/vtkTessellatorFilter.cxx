@@ -339,11 +339,11 @@ void vtkTessellatorFilter::SetSubdivider(vtkDataSetEdgeSubdivisionCriterion* s)
   this->Modified();
 }
 
-void vtkTessellatorFilter::SetFieldCriterion(int s, double err)
+void vtkTessellatorFilter::SetFieldCriterion(int field, double err)
 {
   if (this->Subdivider)
   {
-    this->Subdivider->SetFieldError2(s, err > 0. ? err * err : -1.);
+    this->Subdivider->SetFieldError2(field, err > 0. ? err * err : -1.);
   }
 }
 

@@ -130,7 +130,7 @@ public:
    * Get the reader's output
    */
   vtkUnstructuredGrid* GetOutput();
-  vtkUnstructuredGrid* GetOutput(int index);
+  vtkUnstructuredGrid* GetOutput(int idx);
   //@}
 
   //@{

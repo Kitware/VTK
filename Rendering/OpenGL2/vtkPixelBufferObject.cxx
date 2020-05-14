@@ -347,13 +347,13 @@ public:
 };
 
 //------------------------------------------------------------------------------
-void* vtkPixelBufferObject::MapBuffer(unsigned int nbytes, BufferType mode)
+void* vtkPixelBufferObject::MapBuffer(unsigned int numbytes, BufferType mode)
 {
   // from vtk to opengl enums
   GLenum target = OpenGLBufferObjectTarget[mode];
   GLenum access = OpenGLBufferObjectAccess[mode];
   GLenum usage = OpenGLBufferObjectUsage[mode];
-  GLuint size = static_cast<GLuint>(nbytes);
+  GLuint size = static_cast<GLuint>(numbytes);
   GLuint ioBuf = static_cast<GLuint>(this->Handle);
 
   if (!ioBuf)
@@ -538,14 +538,14 @@ void vtkPixelBufferObject::Allocate(int type, unsigned int numtuples, int comps,
 }
 
 //------------------------------------------------------------------------------
-void vtkPixelBufferObject::Allocate(unsigned int nbytes, BufferType mode)
+void vtkPixelBufferObject::Allocate(unsigned int numbytes, BufferType mode)
 {
   assert(this->Context);
 
   // from vtk to opengl enums
   GLenum target = OpenGLBufferObjectTarget[mode];
   GLenum usage = OpenGLBufferObjectUsage[mode];
-  GLuint size = static_cast<GLuint>(nbytes);
+  GLuint size = static_cast<GLuint>(numbytes);
   GLuint ioBuf = static_cast<GLuint>(this->Handle);
 
   if (!ioBuf)

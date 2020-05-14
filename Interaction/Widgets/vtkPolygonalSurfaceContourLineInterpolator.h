@@ -92,7 +92,7 @@ public:
    * Get the contour point ids. These point ids correspond to those on the
    * polygonal surface
    */
-  void GetContourPointIds(vtkContourRepresentation* rep, vtkIdList* idList);
+  void GetContourPointIds(vtkContourRepresentation* rep, vtkIdList* ids);
 
 protected:
   vtkPolygonalSurfaceContourLineInterpolator();

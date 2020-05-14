@@ -128,7 +128,7 @@ public:
    * The Extent is stored in the order (X, Y, Z).
    */
   void SetExtent(int extent[6]);
-  void SetExtent(int x1, int x2, int y1, int y2, int z1, int z2);
+  void SetExtent(int xMin, int xMax, int yMin, int yMax, int zMin, int zMax);
   vtkGetVector6Macro(Extent, int);
   //@}
 

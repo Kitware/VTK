@@ -105,7 +105,7 @@ protected:
   bool OpenStream();
 
   void WriteData() override;
-  virtual void WriteTable(vtkTable* rectilinearGrid);
+  virtual void WriteTable(vtkTable* table);
 
   // see algorithm for more info.
   // This writer takes in vtkTable.

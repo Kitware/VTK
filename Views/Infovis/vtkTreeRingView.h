@@ -58,7 +58,7 @@ public:
   /**
    * Sets whether the root is at the center or around the outside.
    */
-  virtual void SetRootAtCenter(bool value);
+  virtual void SetRootAtCenter(bool center);
   virtual bool GetRootAtCenter();
   vtkBooleanMacro(RootAtCenter, bool);
   //@}
@@ -76,7 +76,7 @@ public:
    * Set the interior radius of the tree
    * (i.e. the size of the "hole" in the center).
    */
-  virtual void SetInteriorRadius(double thickness);
+  virtual void SetInteriorRadius(double rad);
   virtual double GetInteriorRadius();
   //@}
 
@@ -85,7 +85,7 @@ public:
    * Set the log spacing factor for the invisible interior tree
    * used for routing edges of the overlaid graph.
    */
-  virtual void SetInteriorLogSpacingValue(double thickness);
+  virtual void SetInteriorLogSpacingValue(double value);
   virtual double GetInteriorLogSpacingValue();
   //@}
 

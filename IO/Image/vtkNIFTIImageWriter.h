@@ -179,7 +179,7 @@ protected:
    * long, and must be lower case.  A new string is returned that must
    * be deleted by the caller.
    */
-  static char* ReplaceExtension(const char* fname, const char* ext1, const char* ext2);
+  static char* ReplaceExtension(const char* filename, const char* ext1, const char* ext2);
 
   //@{
   /**

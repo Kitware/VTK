@@ -47,7 +47,7 @@ static void EncodeAndWrite(const vtkSmartPointer<vtkImageData>& image, const std
   vtkLogF(TRACE, "encoding: %s", fileName.c_str());
   assert(image != nullptr);
 
-  std::size_t pos = fileName.rfind(".");
+  std::size_t pos = fileName.rfind('.');
   std::string extension = fileName.substr(pos + 1);
 
   if (extension == "Z")

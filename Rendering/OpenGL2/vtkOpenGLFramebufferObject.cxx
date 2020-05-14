@@ -29,7 +29,6 @@
 
 #include <cassert>
 #include <vector>
-using std::vector;
 
 class vtkFOInfo
 {

@@ -67,7 +67,7 @@ vtkSpanTreeLayoutStrategy::~vtkSpanTreeLayoutStrategy()
 // relationship between the proxy nodes in the graph used
 // to compute the layout, and edges in the original graph.
 
-struct _vtkBridge_s
+struct vtkBridge_s
 {
   vtkEdgeType edge;
   vtkIdType delta;
@@ -94,8 +94,8 @@ void vtkSpanTreeLayoutStrategy::Layout()
   vtkPoints* layout;
 
   // Auxiliary structures for placing bends into edges.
-  _vtkBridge_s* editlist;
-  _vtkBridge_s link;
+  vtkBridge_s* editlist;
+  vtkBridge_s link;
   link.delta = 0;
   link.anchor[1] = 0;
   vtkIdType editsize;
@@ -204,7 +204,7 @@ void vtkSpanTreeLayoutStrategy::Layout()
   // to compute the position for those points.
 
   editsize = 0;
-  editlist = new _vtkBridge_s[nrEdges];
+  editlist = new vtkBridge_s[nrEdges];
   this->Graph->GetEdges(edges);
   while (edges->HasNext())
   {

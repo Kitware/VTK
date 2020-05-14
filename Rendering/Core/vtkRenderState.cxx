@@ -38,12 +38,6 @@ vtkRenderState::vtkRenderState(vtkRenderer* renderer)
 
 //------------------------------------------------------------------------------
 // Description:
-// Destructor. As a vtkRenderState does not own any of its variables,
-// the destructor does nothing.
-vtkRenderState::~vtkRenderState() = default;
-
-//------------------------------------------------------------------------------
-// Description:
 // Tells if the RenderState is a valid one (Renderer is not null).
 bool vtkRenderState::IsValid() const
 {

@@ -115,7 +115,7 @@ protected:
   float SqrtTableBias;
 
   virtual void ProjectTetrahedra(
-    vtkRenderer* renderer, vtkVolume* volume, vtkOpenGLRenderWindow* renWin);
+    vtkRenderer* renderer, vtkVolume* volume, vtkOpenGLRenderWindow* window);
 
   float GetCorrectedDepth(float x, float y, float z1, float z2,
     const float inverse_projection_mat[16], int use_linear_depth_correction,
@@ -125,7 +125,7 @@ protected:
    * Update progress ensuring that OpenGL state is saved and restored before
    * invoking progress.
    */
-  void GLSafeUpdateProgress(double value, vtkOpenGLRenderWindow* context);
+  void GLSafeUpdateProgress(double value, vtkOpenGLRenderWindow* window);
 
 private:
   vtkOpenGLProjectedTetrahedraMapper(const vtkOpenGLProjectedTetrahedraMapper&) = delete;

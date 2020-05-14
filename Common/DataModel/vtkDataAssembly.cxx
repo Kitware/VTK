@@ -261,7 +261,7 @@ protected:
 };
 vtkStandardNewMacro(SelectNodesVisitor);
 //------------------------------------------------------------------------------
-const std::string ConvertToXPathQuery(const std::string& path_query)
+std::string ConvertToXPathQuery(const std::string& path_query)
 {
   auto is_unescaped_slash = [](const std::string& str, size_t offset) {
     return (str[offset] == '/' && (offset == 0 || str[offset - 1] != '\\'));

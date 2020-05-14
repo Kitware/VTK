@@ -44,7 +44,6 @@
 #include "vtkXMLUnstructuredGridReader.h"
 
 #include <algorithm>
-using std::copy;
 
 #undef ONLY_WIRE
 #undef FOR_PAPER

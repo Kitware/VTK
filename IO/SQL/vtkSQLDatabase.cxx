@@ -73,18 +73,18 @@ vtkSQLDatabase::vtkSQLDatabase() = default;
 vtkSQLDatabase::~vtkSQLDatabase() = default;
 
 //------------------------------------------------------------------------------
-void vtkSQLDatabase::RegisterCreateFromURLCallback(vtkSQLDatabase::CreateFunction func)
+void vtkSQLDatabase::RegisterCreateFromURLCallback(vtkSQLDatabase::CreateFunction callback)
 {
   if (!vtkSQLDatabase::Callbacks)
   {
     vtkCleanupSQLDatabaseGlobal.Use();
     vtkSQLDatabase::Callbacks = new vtkCallbackVector();
   }
-  vtkSQLDatabase::Callbacks->push_back(func);
+  vtkSQLDatabase::Callbacks->push_back(callback);
 }
 
 //------------------------------------------------------------------------------
-void vtkSQLDatabase::UnRegisterCreateFromURLCallback(vtkSQLDatabase::CreateFunction func)
+void vtkSQLDatabase::UnRegisterCreateFromURLCallback(vtkSQLDatabase::CreateFunction callback)
 {
   if (vtkSQLDatabase::Callbacks)
   {
@@ -92,7 +92,7 @@ void vtkSQLDatabase::UnRegisterCreateFromURLCallback(vtkSQLDatabase::CreateFunct
     for (iter = vtkSQLDatabase::Callbacks->begin(); iter != vtkSQLDatabase::Callbacks->end();
          ++iter)
     {
-      if ((*iter) == func)
+      if ((*iter) == callback)
       {
         vtkSQLDatabase::Callbacks->erase(iter);
         break;

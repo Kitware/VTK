@@ -63,14 +63,14 @@ public:
    */
   virtual void Layout(vtkTree* inputTree, vtkDataArray* areaArray, vtkDataArray* sizeArray) = 0;
 
-  // Modify edgeLayoutTree to have point locations appropriate
+  // Modify edgeRoutingTree to have point locations appropriate
   // for routing edges on a graph overlaid on the tree.
   // Layout() is called before this method, so inputTree will contain the
   // layout locations.
   // If you do not override this method,
-  // the edgeLayoutTree vertex locations are the same as the input tree.
+  // the edgeRoutingTree vertex locations are the same as the input tree.
   virtual void LayoutEdgePoints(
-    vtkTree* inputTree, vtkDataArray* areaArray, vtkDataArray* sizeArray, vtkTree* edgeLayoutTree);
+    vtkTree* inputTree, vtkDataArray* areaArray, vtkDataArray* sizeArray, vtkTree* edgeRoutingTree);
 
   /**
    * Returns the vertex id that contains pnt (or -1 if no one contains it)

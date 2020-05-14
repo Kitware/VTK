@@ -115,7 +115,7 @@ void vtkNIFTIImageReaderSwapHeader(nifti_1_header* hdr)
   vtkByteSwap::SwapVoidRange(&hdr->glmin, 1, 4);
 
   // All NIFTI-specific (meaning is totally different in Analyze 7.5)
-  if (strncmp(hdr->magic, "ni1", 4) == 0 || strncmp(hdr->magic, "n+1", 4) == 0)
+  if (strncmp(hdr->magic, "ni1", 3) == 0 || strncmp(hdr->magic, "n+1", 3) == 0)
   {
     vtkByteSwap::SwapVoidRange(&hdr->qform_code, 1, 2);
     vtkByteSwap::SwapVoidRange(&hdr->sform_code, 1, 2);

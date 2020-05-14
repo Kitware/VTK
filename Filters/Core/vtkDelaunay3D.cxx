@@ -33,7 +33,7 @@ vtkStandardNewMacro(vtkDelaunay3D);
 //------------------------------------------------------------------------------
 // Structure used to represent sphere around tetrahedron
 //
-typedef struct _vtkDelaunayTetra
+typedef struct
 {
   double r2;
   double center[3];

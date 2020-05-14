@@ -364,7 +364,7 @@ struct DisplacePoint
   {
     this->RandomSeq->Initialize(1177);
   }
-  virtual ~DisplacePoint() {} // Needed for subclasses to delete RandomSeq
+  virtual ~DisplacePoint() = default; // Needed for subclasses to delete RandomSeq
 
   // Generate a displacement for the given point from the
   // surrounding neighborhood.
@@ -402,7 +402,7 @@ struct GeometricDisplacement : public DisplacePoint
     : DisplacePoint(data, radius, pf, af)
   {
   }
-  ~GeometricDisplacement() override {}
+  ~GeometricDisplacement() override = default;
 
   void operator()(vtkIdType, double x[3], vtkIdType numNeis, const vtkIdType* neis,
     const double* neiPts, double disp[3]) override
@@ -457,7 +457,7 @@ struct UniformDisplacement : public DisplacePoint
     : DisplacePoint(data, radius, pf, af)
   {
   }
-  ~UniformDisplacement() override {}
+  ~UniformDisplacement() override = default;
 
   void operator()(vtkIdType, double x[3], vtkIdType numNeis, const vtkIdType* neis,
     const double* neiPts, double disp[3]) override
@@ -503,7 +503,7 @@ struct ScalarDisplacement : public DisplacePoint
     this->Range[1] = range[1];
     this->ScalarAverage = (this->Range[0] + this->Range[1]) / 2.0;
   }
-  ~ScalarDisplacement() override {}
+  ~ScalarDisplacement() override = default;
 
   void operator()(vtkIdType p0, double x[3], vtkIdType numNeis, const vtkIdType* neis,
     const double* neiPts, double disp[3]) override
@@ -548,7 +548,7 @@ struct TensorDisplacement : public DisplacePoint
     this->DetRange[0] = detRange[0];
     this->DetRange[1] = detRange[2];
   }
-  ~TensorDisplacement() override {}
+  ~TensorDisplacement() override = default;
 
   //--------------------------------------------------------------------------
   // Average two 3x3 tensors represented as 9 entries in a contiguous array

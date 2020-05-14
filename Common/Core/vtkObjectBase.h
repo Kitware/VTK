@@ -122,7 +122,7 @@ public:
   static vtkIdType GetNumberOfGenerationsFromBaseType(const char* name);
 
   /**
-   * Given a the name of a base class of this class type, return the distance
+   * Given the name of a base class of this class type, return the distance
    * of inheritance between this class type and the named class (how many
    * generations of inheritance are there between this class and the named
    * class). If the named class is not in this class's inheritance tree, return

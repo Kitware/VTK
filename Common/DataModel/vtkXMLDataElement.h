@@ -72,7 +72,7 @@ public:
   /**
    * Set/Get the character data between XML start/end tags.
    */
-  void SetCharacterData(const char* c, int length);
+  void SetCharacterData(const char* data, int length);
   void AddCharacterData(const char* c, size_t length);
   vtkGetStringMacro(CharacterData);
   //@}

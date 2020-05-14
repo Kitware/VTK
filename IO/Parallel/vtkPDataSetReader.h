@@ -62,7 +62,7 @@ protected:
 
   int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
-  void ReadPVTKFileInformation(istream* fp, vtkInformation* request,
+  void ReadPVTKFileInformation(istream* file, vtkInformation* request,
     vtkInformationVector** inputVector, vtkInformationVector* outputVector);
   void ReadVTKFileInformation(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector);

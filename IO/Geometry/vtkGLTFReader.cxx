@@ -691,7 +691,7 @@ void vtkGLTFReader::StoreTextureData()
   int nbSamplers = static_cast<int>(model->Samplers.size());
 
   this->Textures.reserve(this->Loader->GetInternalModel()->Textures.size());
-  for (auto loaderTexture : this->Loader->GetInternalModel()->Textures)
+  for (const auto& loaderTexture : this->Loader->GetInternalModel()->Textures)
   {
     vtkGLTFReader::GLTFTexture readerTexture;
     if (loaderTexture.Source >= 0 && loaderTexture.Source < nbTextures)

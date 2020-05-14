@@ -276,8 +276,8 @@ public:
    * Support the standard render methods.
    */
   int RenderOpaqueGeometry(vtkViewport* viewport) override;
-  int RenderTranslucentPolygonalGeometry(vtkViewport* ren) override;
-  int RenderVolumetricGeometry(vtkViewport* ren) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
+  int RenderVolumetricGeometry(vtkViewport* viewport) override;
   //@}
 
   /**

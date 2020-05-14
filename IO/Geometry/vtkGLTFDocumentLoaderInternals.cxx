@@ -39,7 +39,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadBuffer(
   int byteLength = 0;
   vtksys::ifstream fin;
 
-  std::string name = "";
+  std::string name;
   vtkGLTFUtils::GetStringValue(root["name"], name);
 
   if (!vtkGLTFUtils::GetIntValue(root["byteLength"], byteLength))

@@ -113,7 +113,7 @@ public:
    * These methods are for the ParaView client.
    */
   virtual void ResetFieldCriteria();
-  virtual void SetFieldCriterion(int field, double chord);
+  virtual void SetFieldCriterion(int field, double err);
   //@}
 
   //@{
