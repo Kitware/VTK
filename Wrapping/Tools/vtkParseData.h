@@ -181,9 +181,10 @@ struct _FunctionInfo
   ValueInfo** Parameters;
   ValueInfo* ReturnValue; /* NULL for constructors and destructors */
   int NumberOfPreconds;
-  const char** Preconds; /* preconditions */
-  const char* Macro;     /* the macro that defined this function */
-  const char* SizeHint;  /* hint the size e.g. for operator[] */
+  const char** Preconds;   /* preconditions */
+  const char* Macro;       /* the macro that defined this function */
+  const char* SizeHint;    /* hint the size e.g. for operator[] */
+  const char* Deprecation; /* if not NULL, function is deprecated */
   int IsOperator;
   int IsVariadic;
   int IsLegacy;      /* marked as a legacy method or function */
@@ -255,6 +256,7 @@ typedef struct _ClassInfo
   struct _ClassInfo** Namespaces;
   int NumberOfComments;
   CommentInfo** Comments;
+  const char* Deprecation;
   int IsAbstract;
   int IsFinal;
   int HasDelete;
