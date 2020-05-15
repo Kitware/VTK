@@ -34,7 +34,7 @@
 
 
 
-int TestPDALReader_@VTK_PDAL_READER_POSTFIX@(int argc, char **argv)
+int TestPDALReader_@VTK_PDAL_READER_POSTFIX@(int argc, char *argv[])
 {
   const char* fileName = "Data/@VTK_PDAL_READER_TEST_INPUT@";
   const char* path = vtkTestUtilities::ExpandDataFileName(argc, argv, fileName);
