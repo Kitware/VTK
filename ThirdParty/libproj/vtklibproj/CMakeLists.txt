@@ -68,11 +68,20 @@ endif(SELFTEST)
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 find_package (Threads)
 
-include(CheckSymbolExists)
-CHECK_SYMBOL_EXISTS(PTHREAD_MUTEX_RECURSIVE pthread.h HAVE_PTHREAD_MUTEX_RECURSIVE_DEFN)
-if (HAVE_PTHREAD_MUTEX_RECURSIVE_DEFN)
+if (Threads_FOUND AND CMAKE_USE_PTHREADS_INIT)
+  set (CMAKE_REQUIRED_LIBRARIES "${CMAKE_REQUIRED_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT}")
+  check_c_source_compiles("
+#include <pthread.h>
+int main(int argc, char* argv[]) {
+  (void)PTHREAD_MUTEX_RECURSIVE;
+  (void)argv;
+  return argc;
+}
+  " HAVE_PTHREAD_MUTEX_RECURSIVE_DEFN)
+  if (HAVE_PTHREAD_MUTEX_RECURSIVE_DEFN)
     add_definitions(-DHAVE_PTHREAD_MUTEX_RECURSIVE=1)
-endif()
+  endif()
+endif ()
 
 boost_report_value(PROJ_PLATFORM_NAME)
 boost_report_value(PROJ_COMPILER_NAME)

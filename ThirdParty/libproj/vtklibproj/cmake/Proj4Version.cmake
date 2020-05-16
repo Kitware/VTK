@@ -18,8 +18,12 @@
 #    MAJOR.MINOR version is used to set SOVERSION
 #
 
+include(CMakeParseArguments)
+
 macro(proj_version)
-  parse_arguments(THIS_VERSION "MAJOR;MINOR;PATCH;"
+  cmake_parse_arguments(THIS_VERSION
+    ""
+    "MAJOR;MINOR;PATCH"
     ""
     ${ARGN})
 
