@@ -196,7 +196,7 @@ int vtkWrapPython_WrapTemplatedClass(
   FILE* fp, ClassInfo* data, FileInfo* file_info, HierarchyInfo* hinfo)
 {
   char classname[1024];
-  const char* instantiations[1024];
+  const char** instantiations = NULL;
   int ninstantiations = 0;
   int i, j, k, nargs;
   ClassInfo* sdata;
@@ -332,7 +332,7 @@ int vtkWrapPython_WrapTemplatedClass(
           }
           if (k == ninstantiations)
           {
-            instantiations[ninstantiations++] = name_with_args;
+            vtkParse_AddStringToArray(&instantiations, &ninstantiations, name_with_args);
           }
           else
           {
@@ -421,6 +421,8 @@ int vtkWrapPython_WrapTemplatedClass(
       "  return temp;\n"
       "}\n"
       "\n");
+
+    free((char**)instantiations);
 
     return 1;
   }
