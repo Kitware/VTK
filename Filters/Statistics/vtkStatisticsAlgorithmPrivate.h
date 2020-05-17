@@ -41,8 +41,6 @@ PURPOSE.  See the above copyright notice for more information.
 class vtkStatisticsAlgorithmPrivate
 {
 public:
-  vtkStatisticsAlgorithmPrivate() = default;
-  ~vtkStatisticsAlgorithmPrivate() = default;
   // --------------------------------------------------------------------
   /**
    * Empty current set of requests
