@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.0.4.  */
+/* A Bison parser, made by GNU Bison 3.2.3.  */
 
 /* Skeleton implementation for Bison GLR parsers in C
 
-   Copyright (C) 2002-2015 Free Software Foundation, Inc.
+   Copyright (C) 2002-2015, 2018 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -32,11 +32,14 @@
 
 /* C GLR parser skeleton written by Paul Hilfinger.  */
 
+/* Undocumented macros, especially those whose name start with YY_,
+   are private implementation details.  Do not rely on them.  */
+
 /* Identify Bison output.  */
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "3.0.4"
+#define YYBISON_VERSION "3.2.3"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "glr.c"
@@ -49,7 +52,7 @@
 
 
 
-/* First part of user declarations.  */
+/* First part of user prologue.  */
 
 
 
@@ -57,7 +60,7 @@
 
 This file must be translated to C and modified to build everywhere.
 
-Run bison like this (use bison 3.0.2 or later)
+Run bison like this (use bison 3.2.3 or later)
 
   bison --no-lines -b vtkParse vtkParse.y
 
@@ -67,7 +70,6 @@ Modify vtkParse.tab.c:
   - remove YY_ATTRIBUTE_UNUSED from yyfillin, yyfill, and yynormal
   - remove the "break;" after "return yyreportAmbiguity"
   - replace "(1-yyrhslen)" with "(1-(int)yyrhslen)"
-  - remove dead store "yynewStates = YY_NULLPTR;"
   - replace "sizeof yynewStates[0] with "sizeof (yyGLRState*)"
   - replace "sizeof yynewLookaheadNeeds[0] with "sizeof (yybool)"
 */
@@ -1787,10 +1789,14 @@ unsigned int add_indirection_to_array(unsigned int type)
 
 
 # ifndef YY_NULLPTR
-#  if defined __cplusplus && 201103L <= __cplusplus
-#   define YY_NULLPTR nullptr
+#  if defined __cplusplus
+#   if 201103L <= __cplusplus
+#    define YY_NULLPTR nullptr
+#   else
+#    define YY_NULLPTR 0
+#   endif
 #  else
-#   define YY_NULLPTR 0
+#   define YY_NULLPTR ((void*)0)
 #  endif
 # endif
 
@@ -1947,8 +1953,6 @@ int yyparse (void);
    value is undefined, this behavior is technically correct.  */
 static YYSTYPE yyval_default;
 
-/* Copy the second part of user declarations.  */
-
 
 
 #include <stdio.h>
@@ -1980,19 +1984,26 @@ static YYSTYPE yyval_default;
 #define YYSIZEMAX ((size_t) -1)
 
 #ifdef __cplusplus
-   typedef bool yybool;
+  typedef bool yybool;
+# define yytrue true
+# define yyfalse false
 #else
-   typedef unsigned char yybool;
+  /* When we move to stdbool, get rid of the various casts to yybool.  */
+  typedef unsigned char yybool;
+# define yytrue 1
+# define yyfalse 0
 #endif
-#define yytrue 1
-#define yyfalse 0
 
 #ifndef YYSETJMP
 # include <setjmp.h>
 # define YYJMP_BUF jmp_buf
 # define YYSETJMP(Env) setjmp (Env)
-/* Pacify clang.  */
-# define YYLONGJMP(Env, Val) (longjmp (Env, Val), YYASSERT (0))
+/* Pacify Clang and ICC.  */
+# define YYLONGJMP(Env, Val)                    \
+ do {                                           \
+   longjmp (Env, Val);                          \
+   YYASSERT (0);                                \
+ } while (yyfalse)
 #endif
 
 #ifndef YY_ATTRIBUTE
@@ -2013,12 +2024,19 @@ static YYSTYPE yyval_default;
 # define YY_ATTRIBUTE_UNUSED YY_ATTRIBUTE ((__unused__))
 #endif
 
-#if !defined _Noreturn \
-     && (!defined __STDC_VERSION__ || __STDC_VERSION__ < 201112)
-# if defined _MSC_VER && 1200 <= _MSC_VER
-#  define _Noreturn __declspec (noreturn)
-# else
-#  define _Noreturn YY_ATTRIBUTE ((__noreturn__))
+/* The _Noreturn keyword of C11.  */
+#if ! defined _Noreturn
+# if defined __cplusplus && 201103L <= __cplusplus
+#  define _Noreturn [[noreturn]]
+# elif !(defined __STDC_VERSION__ && 201112 <= __STDC_VERSION__)
+#  if (3 <= __GNUC__ || (__GNUC__ == 2 && 8 <= __GNUC_MINOR__) \
+       || 0x5110 <= __SUNPRO_C)
+#   define _Noreturn __attribute__ ((__noreturn__))
+#  elif defined _MSC_VER && 1200 <= _MSC_VER
+#   define _Noreturn __declspec (noreturn)
+#  else
+#   define _Noreturn
+#  endif
 # endif
 #endif
 
@@ -2029,7 +2047,7 @@ static YYSTYPE yyval_default;
 # define YYUSE(E) /* empty */
 #endif
 
-#if defined __GNUC__ && 407 <= __GNUC__ * 100 + __GNUC_MINOR__
+#if defined __GNUC__ && ! defined __ICC && 407 <= __GNUC__ * 100 + __GNUC_MINOR__
 /* Suppress an incorrect diagnostic about yylval being uninitialized.  */
 # define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN \
     _Pragma ("GCC diagnostic push") \
@@ -2077,7 +2095,7 @@ static YYSTYPE yyval_default;
 #define YYMAXUTOK   356
 
 #define YYTRANSLATE(YYX)                                                \
-  ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
+  ((unsigned) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
 
 /* YYTRANSLATE[YYLEX] -- Bison symbol number corresponding to YYLEX.  */
 static const unsigned char yytranslate[] =
@@ -2122,76 +2140,76 @@ static const unsigned char yytranslate[] =
 
 #if YYDEBUG
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
-static const unsigned short int yyrline[] =
+static const unsigned short yyrline[] =
 {
-       0,  1902,  1902,  1904,  1906,  1905,  1916,  1917,  1918,  1919,
-    1920,  1921,  1922,  1923,  1924,  1925,  1926,  1927,  1928,  1929,
-    1930,  1931,  1932,  1935,  1936,  1937,  1938,  1939,  1940,  1943,
-    1944,  1951,  1958,  1959,  1959,  1963,  1970,  1971,  1974,  1975,
-    1976,  1979,  1980,  1983,  1983,  1998,  1997,  2003,  2009,  2008,
-    2013,  2019,  2020,  2021,  2024,  2026,  2028,  2031,  2032,  2035,
-    2036,  2038,  2040,  2039,  2048,  2052,  2053,  2054,  2057,  2058,
-    2059,  2060,  2061,  2062,  2063,  2064,  2065,  2066,  2067,  2068,
-    2069,  2070,  2073,  2074,  2075,  2076,  2077,  2078,  2081,  2082,
-    2083,  2084,  2087,  2088,  2091,  2093,  2096,  2101,  2102,  2105,
-    2106,  2109,  2110,  2111,  2122,  2123,  2124,  2128,  2129,  2133,
-    2133,  2146,  2152,  2160,  2161,  2162,  2165,  2166,  2166,  2170,
-    2171,  2173,  2174,  2175,  2175,  2183,  2187,  2188,  2191,  2193,
-    2195,  2196,  2199,  2200,  2208,  2209,  2212,  2213,  2215,  2217,
-    2219,  2223,  2225,  2226,  2229,  2232,  2233,  2236,  2237,  2236,
-    2241,  2282,  2285,  2286,  2287,  2289,  2291,  2293,  2297,  2300,
-    2300,  2332,  2335,  2334,  2352,  2354,  2353,  2358,  2360,  2358,
-    2362,  2364,  2362,  2366,  2369,  2366,  2380,  2381,  2384,  2385,
-    2387,  2388,  2391,  2391,  2401,  2402,  2410,  2411,  2412,  2413,
-    2416,  2419,  2420,  2421,  2424,  2425,  2426,  2429,  2430,  2431,
-    2435,  2436,  2437,  2438,  2441,  2442,  2443,  2447,  2452,  2446,
-    2464,  2468,  2479,  2478,  2487,  2491,  2494,  2504,  2508,  2509,
-    2512,  2513,  2515,  2516,  2517,  2520,  2521,  2523,  2524,  2525,
-    2527,  2528,  2531,  2544,  2545,  2546,  2547,  2554,  2555,  2558,
-    2558,  2566,  2567,  2568,  2571,  2573,  2574,  2578,  2577,  2594,
-    2616,  2590,  2627,  2627,  2630,  2631,  2634,  2635,  2638,  2639,
-    2645,  2646,  2646,  2649,  2650,  2650,  2652,  2654,  2658,  2660,
-    2658,  2684,  2685,  2688,  2688,  2690,  2690,  2692,  2692,  2697,
-    2698,  2698,  2706,  2709,  2779,  2780,  2782,  2783,  2783,  2786,
-    2789,  2790,  2794,  2806,  2805,  2824,  2826,  2826,  2844,  2844,
-    2846,  2850,  2851,  2852,  2851,  2857,  2859,  2860,  2861,  2862,
-    2863,  2864,  2867,  2868,  2872,  2873,  2877,  2878,  2881,  2882,
-    2886,  2887,  2888,  2889,  2892,  2893,  2896,  2896,  2899,  2900,
-    2903,  2903,  2907,  2908,  2908,  2915,  2916,  2919,  2920,  2921,
-    2922,  2923,  2926,  2928,  2930,  2934,  2936,  2938,  2940,  2942,
-    2944,  2946,  2946,  2951,  2954,  2957,  2960,  2960,  2968,  2968,
-    2977,  2978,  2979,  2980,  2981,  2982,  2983,  2984,  2985,  2986,
-    2993,  2994,  2995,  2996,  2997,  2998,  2999,  3005,  3006,  3009,
-    3010,  3012,  3013,  3016,  3017,  3020,  3021,  3022,  3023,  3026,
-    3027,  3028,  3029,  3030,  3034,  3035,  3036,  3039,  3040,  3043,
-    3044,  3052,  3055,  3055,  3057,  3057,  3061,  3062,  3064,  3068,
-    3069,  3071,  3071,  3074,  3076,  3080,  3083,  3083,  3085,  3085,
-    3089,  3092,  3092,  3094,  3094,  3098,  3099,  3101,  3103,  3105,
-    3107,  3109,  3113,  3114,  3117,  3118,  3119,  3120,  3121,  3122,
-    3123,  3124,  3125,  3126,  3129,  3130,  3131,  3132,  3133,  3134,
-    3135,  3136,  3137,  3138,  3139,  3140,  3141,  3142,  3143,  3163,
-    3164,  3165,  3166,  3169,  3173,  3177,  3177,  3181,  3182,  3197,
-    3198,  3223,  3223,  3227,  3227,  3231,  3231,  3235,  3235,  3239,
-    3239,  3243,  3243,  3246,  3247,  3250,  3254,  3255,  3258,  3261,
-    3262,  3263,  3264,  3267,  3267,  3271,  3272,  3275,  3276,  3279,
-    3280,  3287,  3288,  3289,  3290,  3291,  3292,  3293,  3294,  3295,
-    3296,  3297,  3298,  3301,  3302,  3303,  3304,  3305,  3306,  3307,
-    3308,  3309,  3310,  3311,  3312,  3313,  3314,  3315,  3316,  3317,
-    3318,  3319,  3320,  3321,  3322,  3323,  3324,  3325,  3326,  3327,
-    3328,  3329,  3330,  3331,  3332,  3333,  3334,  3337,  3338,  3339,
-    3340,  3341,  3342,  3343,  3344,  3345,  3346,  3347,  3348,  3349,
-    3350,  3351,  3352,  3353,  3354,  3355,  3356,  3357,  3358,  3359,
-    3360,  3361,  3362,  3363,  3364,  3365,  3366,  3369,  3370,  3371,
-    3372,  3373,  3374,  3375,  3376,  3377,  3384,  3385,  3388,  3389,
-    3390,  3391,  3391,  3392,  3395,  3396,  3399,  3400,  3401,  3402,
-    3437,  3437,  3438,  3439,  3440,  3441,  3443,  3444,  3447,  3448,
-    3449,  3450,  3453,  3454,  3455,  3458,  3459,  3461,  3462,  3464,
-    3465,  3468,  3469,  3472,  3473,  3474,  3478,  3477,  3491,  3492,
-    3495,  3495,  3497,  3497,  3501,  3501,  3503,  3503,  3505,  3505,
-    3509,  3509,  3514,  3515,  3517,  3518,  3521,  3522,  3525,  3526,
-    3529,  3530,  3531,  3532,  3533,  3534,  3535,  3536,  3536,  3536,
-    3536,  3536,  3537,  3538,  3539,  3540,  3541,  3544,  3547,  3548,
-    3551,  3554,  3554,  3554
+       0,  1901,  1901,  1903,  1905,  1904,  1915,  1916,  1917,  1918,
+    1919,  1920,  1921,  1922,  1923,  1924,  1925,  1926,  1927,  1928,
+    1929,  1930,  1931,  1934,  1935,  1936,  1937,  1938,  1939,  1942,
+    1943,  1950,  1957,  1958,  1958,  1962,  1969,  1970,  1973,  1974,
+    1975,  1978,  1979,  1982,  1982,  1997,  1996,  2002,  2008,  2007,
+    2012,  2018,  2019,  2020,  2023,  2025,  2027,  2030,  2031,  2034,
+    2035,  2037,  2039,  2038,  2047,  2051,  2052,  2053,  2056,  2057,
+    2058,  2059,  2060,  2061,  2062,  2063,  2064,  2065,  2066,  2067,
+    2068,  2069,  2072,  2073,  2074,  2075,  2076,  2077,  2080,  2081,
+    2082,  2083,  2086,  2087,  2090,  2092,  2095,  2100,  2101,  2104,
+    2105,  2108,  2109,  2110,  2121,  2122,  2123,  2127,  2128,  2132,
+    2132,  2145,  2151,  2159,  2160,  2161,  2164,  2165,  2165,  2169,
+    2170,  2172,  2173,  2174,  2174,  2182,  2186,  2187,  2190,  2192,
+    2194,  2195,  2198,  2199,  2207,  2208,  2211,  2212,  2214,  2216,
+    2218,  2222,  2224,  2225,  2228,  2231,  2232,  2235,  2236,  2235,
+    2240,  2281,  2284,  2285,  2286,  2288,  2290,  2292,  2296,  2299,
+    2299,  2331,  2334,  2333,  2351,  2353,  2352,  2357,  2359,  2357,
+    2361,  2363,  2361,  2365,  2368,  2365,  2379,  2380,  2383,  2384,
+    2386,  2387,  2390,  2390,  2400,  2401,  2409,  2410,  2411,  2412,
+    2415,  2418,  2419,  2420,  2423,  2424,  2425,  2428,  2429,  2430,
+    2434,  2435,  2436,  2437,  2440,  2441,  2442,  2446,  2451,  2445,
+    2463,  2467,  2478,  2477,  2486,  2490,  2493,  2503,  2507,  2508,
+    2511,  2512,  2514,  2515,  2516,  2519,  2520,  2522,  2523,  2524,
+    2526,  2527,  2530,  2543,  2544,  2545,  2546,  2553,  2554,  2557,
+    2557,  2565,  2566,  2567,  2570,  2572,  2573,  2577,  2576,  2593,
+    2615,  2589,  2626,  2626,  2629,  2630,  2633,  2634,  2637,  2638,
+    2644,  2645,  2645,  2648,  2649,  2649,  2651,  2653,  2657,  2659,
+    2657,  2683,  2684,  2687,  2687,  2689,  2689,  2691,  2691,  2696,
+    2697,  2697,  2705,  2708,  2778,  2779,  2781,  2782,  2782,  2785,
+    2788,  2789,  2793,  2805,  2804,  2823,  2825,  2825,  2843,  2843,
+    2845,  2849,  2850,  2851,  2850,  2856,  2858,  2859,  2860,  2861,
+    2862,  2863,  2866,  2867,  2871,  2872,  2876,  2877,  2880,  2881,
+    2885,  2886,  2887,  2888,  2891,  2892,  2895,  2895,  2898,  2899,
+    2902,  2902,  2906,  2907,  2907,  2914,  2915,  2918,  2919,  2920,
+    2921,  2922,  2925,  2927,  2929,  2933,  2935,  2937,  2939,  2941,
+    2943,  2945,  2945,  2950,  2953,  2956,  2959,  2959,  2967,  2967,
+    2976,  2977,  2978,  2979,  2980,  2981,  2982,  2983,  2984,  2985,
+    2992,  2993,  2994,  2995,  2996,  2997,  2998,  3004,  3005,  3008,
+    3009,  3011,  3012,  3015,  3016,  3019,  3020,  3021,  3022,  3025,
+    3026,  3027,  3028,  3029,  3033,  3034,  3035,  3038,  3039,  3042,
+    3043,  3051,  3054,  3054,  3056,  3056,  3060,  3061,  3063,  3067,
+    3068,  3070,  3070,  3073,  3075,  3079,  3082,  3082,  3084,  3084,
+    3088,  3091,  3091,  3093,  3093,  3097,  3098,  3100,  3102,  3104,
+    3106,  3108,  3112,  3113,  3116,  3117,  3118,  3119,  3120,  3121,
+    3122,  3123,  3124,  3125,  3128,  3129,  3130,  3131,  3132,  3133,
+    3134,  3135,  3136,  3137,  3138,  3139,  3140,  3141,  3142,  3162,
+    3163,  3164,  3165,  3168,  3172,  3176,  3176,  3180,  3181,  3196,
+    3197,  3222,  3222,  3226,  3226,  3230,  3230,  3234,  3234,  3238,
+    3238,  3242,  3242,  3245,  3246,  3249,  3253,  3254,  3257,  3260,
+    3261,  3262,  3263,  3266,  3266,  3270,  3271,  3274,  3275,  3278,
+    3279,  3286,  3287,  3288,  3289,  3290,  3291,  3292,  3293,  3294,
+    3295,  3296,  3297,  3300,  3301,  3302,  3303,  3304,  3305,  3306,
+    3307,  3308,  3309,  3310,  3311,  3312,  3313,  3314,  3315,  3316,
+    3317,  3318,  3319,  3320,  3321,  3322,  3323,  3324,  3325,  3326,
+    3327,  3328,  3329,  3330,  3331,  3332,  3333,  3336,  3337,  3338,
+    3339,  3340,  3341,  3342,  3343,  3344,  3345,  3346,  3347,  3348,
+    3349,  3350,  3351,  3352,  3353,  3354,  3355,  3356,  3357,  3358,
+    3359,  3360,  3361,  3362,  3363,  3364,  3365,  3368,  3369,  3370,
+    3371,  3372,  3373,  3374,  3375,  3376,  3383,  3384,  3387,  3388,
+    3389,  3390,  3390,  3391,  3394,  3395,  3398,  3399,  3400,  3401,
+    3436,  3436,  3437,  3438,  3439,  3440,  3442,  3443,  3446,  3447,
+    3448,  3449,  3452,  3453,  3454,  3457,  3458,  3460,  3461,  3463,
+    3464,  3467,  3468,  3471,  3472,  3473,  3477,  3476,  3490,  3491,
+    3494,  3494,  3496,  3496,  3500,  3500,  3502,  3502,  3504,  3504,
+    3508,  3508,  3513,  3514,  3516,  3517,  3520,  3521,  3524,  3525,
+    3528,  3529,  3530,  3531,  3532,  3533,  3534,  3535,  3535,  3535,
+    3535,  3535,  3536,  3537,  3538,  3539,  3540,  3543,  3546,  3547,
+    3550,  3553,  3553,  3553
 };
 #endif
 
@@ -2308,7 +2326,7 @@ static const char *const yytname[] =
 
   /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
      STATE-NUM.  */
-static const short int yypact[] =
+static const short yypact[] =
 {
     -858,    91,   221,  -858,  -858,  1481,  -858,   169,   260,   368,
      458,   467,   496,   527,   377,   379,   386,  -858,  -858,  -858,
@@ -2420,7 +2438,7 @@ static const short int yypact[] =
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
      Performed when YYTABLE does not specify something else to do.  Zero
      means the default is an error.  */
-static const unsigned short int yydefact[] =
+static const unsigned short yydefact[] =
 {
        3,     0,     4,     1,   471,     0,   483,   438,   439,   440,
      434,   435,   436,   437,   442,   443,   441,    52,    51,    53,
@@ -2530,7 +2548,7 @@ static const unsigned short int yydefact[] =
 };
 
   /* YYPGOTO[NTERM-NUM].  */
-static const short int yypgoto[] =
+static const short yypgoto[] =
 {
     -858,  -858,  -303,  -858,  -858,   712,   -72,  -858,  -858,  -858,
     -858,  -699,   -65,     5,   -30,  -858,  -858,  -858,  -858,   232,
@@ -2563,7 +2581,7 @@ static const short int yypgoto[] =
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
-static const short int yydefgoto[] =
+static const short yydefgoto[] =
 {
       -1,     1,     2,     4,    56,   282,    58,    59,    60,   389,
       61,    62,    63,   284,    65,   274,    66,   800,   544,   302,
@@ -2598,7 +2616,7 @@ static const short int yydefgoto[] =
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
      positive, shift that token.  If negative, reduce the rule whose
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
-static const short int yytable[] =
+static const short yytable[] =
 {
       95,   331,   237,   397,   335,   235,    99,    78,   416,   309,
       64,    96,    77,   283,   484,    72,   508,   315,    87,   372,
@@ -3260,7 +3278,7 @@ static const short int yytable[] =
        0,     0,     0,   345,     0,     0,     0,   346
 };
 
-static const short int yycheck[] =
+static const short yycheck[] =
 {
        5,    99,    35,   269,    99,    35,     5,     5,   276,    91,
        5,     5,     5,    78,   359,     5,   376,    92,     5,   225,
@@ -3924,7 +3942,7 @@ static const short int yycheck[] =
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
      symbol of state STATE-NUM.  */
-static const unsigned short int yystos[] =
+static const unsigned short yystos[] =
 {
        0,   126,   127,     0,   128,   340,   341,     3,     4,     5,
        6,     7,     8,     9,    21,    22,    23,    25,    26,    27,
@@ -4034,7 +4052,7 @@ static const unsigned short int yystos[] =
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
-static const unsigned short int yyr1[] =
+static const unsigned short yyr1[] =
 {
        0,   125,   126,   127,   128,   127,   129,   129,   129,   129,
      129,   129,   129,   129,   129,   129,   129,   129,   129,   129,
@@ -5068,7 +5086,7 @@ static const unsigned char yyconflp[] =
 
 /* YYCONFL[I] -- lists of conflicting rule numbers, each terminated by
    0, pointed into by YYCONFLP.  */
-static const short int yyconfl[] =
+static const short yyconfl[] =
 {
        0,   407,     0,   407,     0,   407,     0,   318,     0,   626,
        0,   626,     0,   626,     0,   626,     0,   626,     0,   626,
@@ -5138,33 +5156,33 @@ typedef enum { yyok, yyaccept, yyabort, yyerr } YYRESULTTAG;
   } while (0)
 
 
-/*----------------------------------------.
-| Print this symbol's value on YYOUTPUT.  |
-`----------------------------------------*/
+/*-----------------------------------.
+| Print this symbol's value on YYO.  |
+`-----------------------------------*/
 
 static void
-yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep)
+yy_symbol_value_print (FILE *yyo, int yytype, YYSTYPE const * const yyvaluep)
 {
-  FILE *yyo = yyoutput;
-  YYUSE (yyo);
+  FILE *yyoutput = yyo;
+  YYUSE (yyoutput);
   if (!yyvaluep)
     return;
   YYUSE (yytype);
 }
 
 
-/*--------------------------------.
-| Print this symbol on YYOUTPUT.  |
-`--------------------------------*/
+/*---------------------------.
+| Print this symbol on YYO.  |
+`---------------------------*/
 
 static void
-yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep)
+yy_symbol_print (FILE *yyo, int yytype, YYSTYPE const * const yyvaluep)
 {
-  YYFPRINTF (yyoutput, "%s %s (",
+  YYFPRINTF (yyo, "%s %s (",
              yytype < YYNTOKENS ? "token" : "nterm", yytname[yytype]);
 
-  yy_symbol_value_print (yyoutput, yytype, yyvaluep);
-  YYFPRINTF (yyoutput, ")");
+  yy_symbol_value_print (yyo, yytype, yyvaluep);
+  YYFPRINTF (yyo, ")");
 }
 
 # define YY_SYMBOL_PRINT(Title, Type, Value, Location)                  \
@@ -5302,7 +5320,7 @@ yytnamerr (char *yyres, const char *yystr)
   if (! yyres)
     return strlen (yystr);
 
-  return yystpcpy (yyres, yystr) - yyres;
+  return (size_t) (yystpcpy (yyres, yystr) - yyres);
 }
 # endif
 
@@ -5318,7 +5336,7 @@ typedef int yyRuleNum;
 typedef int yySymbol;
 
 /** Item references, as in LALR(1) machine */
-typedef short int yyItemNum;
+typedef short yyItemNum;
 
 typedef struct yyGLRState yyGLRState;
 typedef struct yyGLRStateSet yyGLRStateSet;
@@ -5397,7 +5415,7 @@ struct yyGLRStack {
 static void yyexpandGLRStack (yyGLRStack* yystackp);
 #endif
 
-static _Noreturn void
+_Noreturn static void
 yyFail (yyGLRStack* yystackp, const char* yymsg)
 {
   if (yymsg != YY_NULLPTR)
@@ -5405,7 +5423,7 @@ yyFail (yyGLRStack* yystackp, const char* yymsg)
   YYLONGJMP (yystackp->yyexception_buffer, 1);
 }
 
-static _Noreturn void
+_Noreturn static void
 yyMemoryExhausted (yyGLRStack* yystackp)
 {
   YYLONGJMP (yystackp->yyexception_buffer, 2);
@@ -5469,11 +5487,11 @@ yyfill (yyGLRStackItem *yyvsp, int *yylow, int yylow1, yybool yynormal)
  *  (@$).  Returns yyok for normal return, yyaccept for YYACCEPT,
  *  yyerr for YYERROR, yyabort for YYABORT.  */
 static YYRESULTTAG
-yyuserAction (yyRuleNum yyn, size_t yyrhslen, yyGLRStackItem* yyvsp,
+yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
               yyGLRStack* yystackp,
               YYSTYPE* yyvalp)
 {
-  yybool yynormal = (yystackp->yysplitPoint == YY_NULLPTR);
+  yybool yynormal = (yybool) (yystackp->yysplitPoint == YY_NULLPTR);
   int yylow;
   YYUSE (yyvalp);
   YYUSE (yyrhslen);
@@ -5490,7 +5508,7 @@ yyuserAction (yyRuleNum yyn, size_t yyrhslen, yyGLRStackItem* yyvsp,
 # undef yyclearin
 # define yyclearin (yychar = YYEMPTY)
 # undef YYFILL
-# define YYFILL(N) yyfill (yyvsp, &yylow, N, yynormal)
+# define YYFILL(N) yyfill (yyvsp, &yylow, (N), yynormal)
 # undef YYBACKUP
 # define YYBACKUP(Token, Value)                                              \
   return yyerror (YY_("syntax error: cannot back up")),     \
@@ -5503,7 +5521,7 @@ yyuserAction (yyRuleNum yyn, size_t yyrhslen, yyGLRStackItem* yyvsp,
     *yyvalp = yyvsp[YYFILL (1-(int)yyrhslen)].yystate.yysemantics.yysval;
   switch (yyn)
     {
-        case 4:
+  case 4:
 
     {
       startSig();
@@ -8274,7 +8292,7 @@ yylhsNonterm (yyRuleNum yyrule)
 static yybool
 yyisDefaultedState (yyStateNum yystate)
 {
-  return yypact_value_is_default (yypact[yystate]);
+  return (yybool) yypact_value_is_default (yypact[yystate]);
 }
 
 /** The default reduction for YYSTATE, assuming it has one.  */
@@ -8297,10 +8315,10 @@ yydefaultAction (yyStateNum yystate)
  */
 static void
 yygetLRActions (yyStateNum yystate, int yytoken,
-                int* yyaction, const short int** yyconflicts)
+                int* yyaction, const short** yyconflicts)
 {
   int yyindex = yypact[yystate] + yytoken;
-  if (yypact_value_is_default (yypact[yystate])
+  if (yyisDefaultedState (yystate)
       || yyindex < 0 || YYLAST < yyindex || yycheck[yyindex] != yytoken)
     {
       *yyaction = -yydefact[yystate];
@@ -8335,13 +8353,13 @@ yyLRgotoState (yyStateNum yystate, yySymbol yysym)
 static yybool
 yyisShiftAction (int yyaction)
 {
-  return 0 < yyaction;
+  return (yybool) (0 < yyaction);
 }
 
 static yybool
 yyisErrorAction (int yyaction)
 {
-  return yyaction == 0;
+  return (yybool) (yyaction == 0);
 }
 
                                 /* GLRStates */
@@ -8450,7 +8468,7 @@ yyexpandGLRStack (yyGLRStack* yystackp)
   yyGLRStackItem* yyp0, *yyp1;
   size_t yynewSize;
   size_t yyn;
-  size_t yysize = yystackp->yynextFree - yystackp->yyitems;
+  size_t yysize = (size_t) (yystackp->yynextFree - yystackp->yyitems);
   if (YYMAXDEPTH - YYHEADROOM < yysize)
     yyMemoryExhausted (yystackp);
   yynewSize = 2*yysize;
@@ -8569,7 +8587,7 @@ yyremoveDeletes (yyGLRStack* yystackp)
           if (yyj != yyi)
             {
               YYDPRINTF ((stderr, "Rename stack %lu -> %lu.\n",
-                          (unsigned long int) yyi, (unsigned long int) yyj));
+                          (unsigned long) yyi, (unsigned long) yyj));
             }
           yyj += 1;
         }
@@ -8632,14 +8650,14 @@ do {                                    \
 `----------------------------------------------------------------------*/
 
 static void
-yy_reduce_print (int yynormal, yyGLRStackItem* yyvsp, size_t yyk,
+yy_reduce_print (yybool yynormal, yyGLRStackItem* yyvsp, size_t yyk,
                  yyRuleNum yyrule)
 {
   int yynrhs = yyrhsLength (yyrule);
   int yyi;
   YYFPRINTF (stderr, "Reducing stack %lu by rule %d (line %lu):\n",
-             (unsigned long int) yyk, yyrule - 1,
-             (unsigned long int) yyrline[yyrule]);
+             (unsigned long) yyk, yyrule - 1,
+             (unsigned long) yyrline[yyrule]);
   if (! yynormal)
     yyfillin (yyvsp, 1, -yynrhs);
   /* The symbols being reduced.  */
@@ -8648,8 +8666,7 @@ yy_reduce_print (int yynormal, yyGLRStackItem* yyvsp, size_t yyk,
       YYFPRINTF (stderr, "   $%d = ", yyi + 1);
       yy_symbol_print (stderr,
                        yystos[yyvsp[yyi - yynrhs + 1].yystate.yylrState],
-                       &yyvsp[yyi - yynrhs + 1].yystate.yysemantics.yysval
-                                              );
+                       &yyvsp[yyi - yynrhs + 1].yystate.yysemantics.yysval                       );
       if (!yyvsp[yyi - yynrhs + 1].yystate.yyresolved)
         YYFPRINTF (stderr, " (unresolved)");
       YYFPRINTF (stderr, "\n");
@@ -8675,9 +8692,9 @@ yydoAction (yyGLRStack* yystackp, size_t yyk, yyRuleNum yyrule,
       yyGLRStackItem* yyrhs = (yyGLRStackItem*) yystackp->yytops.yystates[yyk];
       YYASSERT (yyk == 0);
       yystackp->yynextFree -= yynrhs;
-      yystackp->yyspaceLeft += yynrhs;
+      yystackp->yyspaceLeft += (size_t) yynrhs;
       yystackp->yytops.yystates[0] = & yystackp->yynextFree[-1].yystate;
-      YY_REDUCE_PRINT ((1, yyrhs, yyk, yyrule));
+      YY_REDUCE_PRINT ((yytrue, yyrhs, yyk, yyrule));
       return yyuserAction (yyrule, yynrhs, yyrhs, yystackp,
                            yyvalp);
     }
@@ -8695,7 +8712,7 @@ yydoAction (yyGLRStack* yystackp, size_t yyk, yyRuleNum yyrule,
         }
       yyupdateSplit (yystackp, yys);
       yystackp->yytops.yystates[yyk] = yys;
-      YY_REDUCE_PRINT ((0, yyrhsVals + YYMAXRHS + YYMAXLEFT - 1, yyk, yyrule));
+      YY_REDUCE_PRINT ((yyfalse, yyrhsVals + YYMAXRHS + YYMAXLEFT - 1, yyk, yyrule));
       return yyuserAction (yyrule, yynrhs, yyrhsVals + YYMAXRHS + YYMAXLEFT - 1,
                            yystackp, yyvalp);
     }
@@ -8726,7 +8743,7 @@ yyglrReduce (yyGLRStack* yystackp, size_t yyk, yyRuleNum yyrule,
       if (yyflag == yyerr && yystackp->yysplitPoint != YY_NULLPTR)
         {
           YYDPRINTF ((stderr, "Parse on stack %lu rejected by rule #%d.\n",
-                     (unsigned long int) yyk, yyrule - 1));
+                     (unsigned long) yyk, yyrule - 1));
         }
       if (yyflag != yyok)
         return yyflag;
@@ -8754,7 +8771,7 @@ yyglrReduce (yyGLRStack* yystackp, size_t yyk, yyRuleNum yyrule,
       YYDPRINTF ((stderr,
                   "Reduced stack %lu by rule #%d; action deferred.  "
                   "Now in state %d.\n",
-                  (unsigned long int) yyk, yyrule - 1, yynewLRState));
+                  (unsigned long) yyk, yyrule - 1, yynewLRState));
       for (yyi = 0; yyi < yystackp->yytops.yysize; yyi += 1)
         if (yyi != yyk && yystackp->yytops.yystates[yyi] != YY_NULLPTR)
           {
@@ -8767,8 +8784,8 @@ yyglrReduce (yyGLRStack* yystackp, size_t yyk, yyRuleNum yyrule,
                     yyaddDeferredAction (yystackp, yyk, yyp, yys0, yyrule);
                     yymarkStackDeleted (yystackp, yyk);
                     YYDPRINTF ((stderr, "Merging stack %lu into stack %lu.\n",
-                                (unsigned long int) yyk,
-                                (unsigned long int) yyi));
+                                (unsigned long) yyk,
+                                (unsigned long) yyi));
                     return yyok;
                   }
                 yyp = yyp->yypred;
@@ -8790,10 +8807,8 @@ yysplitStack (yyGLRStack* yystackp, size_t yyk)
     }
   if (yystackp->yytops.yysize >= yystackp->yytops.yycapacity)
     {
-      yyGLRState** yynewStates;
+      yyGLRState** yynewStates = YY_NULLPTR;
       yybool* yynewLookaheadNeeds;
-
-      /* yynewStates = YY_NULLPTR; */
 
       if (yystackp->yytops.yycapacity
           > (YYSIZEMAX / (2 * sizeof(yyGLRState*))))
@@ -9008,8 +9023,8 @@ yyreportTree (yySemanticOption* yyx, int yyindent)
   else
     YYFPRINTF (stderr, "%*s%s -> <Rule %d, tokens %lu .. %lu>\n",
                yyindent, "", yytokenName (yylhsNonterm (yyx->yyrule)),
-               yyx->yyrule - 1, (unsigned long int) (yys->yyposn + 1),
-               (unsigned long int) yyx->yystate->yyposn);
+               yyx->yyrule - 1, (unsigned long) (yys->yyposn + 1),
+               (unsigned long) yyx->yystate->yyposn);
   for (yyi = 1; yyi <= yynrhs; yyi += 1)
     {
       if (yystates[yyi]->yyresolved)
@@ -9020,8 +9035,8 @@ yyreportTree (yySemanticOption* yyx, int yyindent)
           else
             YYFPRINTF (stderr, "%*s%s <tokens %lu .. %lu>\n", yyindent+2, "",
                        yytokenName (yystos[yystates[yyi]->yylrState]),
-                       (unsigned long int) (yystates[yyi-1]->yyposn + 1),
-                       (unsigned long int) yystates[yyi]->yyposn);
+                       (unsigned long) (yystates[yyi-1]->yyposn + 1),
+                       (unsigned long) yystates[yyi]->yyposn);
         }
       else
         yyreportTree (yystates[yyi]->yysemantics.yyfirstVal, yyindent+2);
@@ -9168,9 +9183,9 @@ yycompressStack (yyGLRStack* yystackp)
        yyr = yyp, yyp = yyq, yyq = yyp->yypred)
     yyp->yypred = yyr;
 
-  yystackp->yyspaceLeft += yystackp->yynextFree - yystackp->yyitems;
+  yystackp->yyspaceLeft += (size_t) (yystackp->yynextFree - yystackp->yyitems);
   yystackp->yynextFree = ((yyGLRStackItem*) yystackp->yysplitPoint) + 1;
-  yystackp->yyspaceLeft -= yystackp->yynextFree - yystackp->yyitems;
+  yystackp->yyspaceLeft -= (size_t) (yystackp->yynextFree - yystackp->yyitems);
   yystackp->yysplitPoint = YY_NULLPTR;
   yystackp->yylastDeleted = YY_NULLPTR;
 
@@ -9193,7 +9208,7 @@ yyprocessOneStack (yyGLRStack* yystackp, size_t yyk,
     {
       yyStateNum yystate = yystackp->yytops.yystates[yyk]->yylrState;
       YYDPRINTF ((stderr, "Stack %lu Entering state %d\n",
-                  (unsigned long int) yyk, yystate));
+                  (unsigned long) yyk, yystate));
 
       YYASSERT (yystate != YYFINAL);
 
@@ -9204,7 +9219,7 @@ yyprocessOneStack (yyGLRStack* yystackp, size_t yyk,
           if (yyrule == 0)
             {
               YYDPRINTF ((stderr, "Stack %lu dies.\n",
-                          (unsigned long int) yyk));
+                          (unsigned long) yyk));
               yymarkStackDeleted (yystackp, yyk);
               return yyok;
             }
@@ -9214,7 +9229,7 @@ yyprocessOneStack (yyGLRStack* yystackp, size_t yyk,
               YYDPRINTF ((stderr,
                           "Stack %lu dies "
                           "(predicate failure or explicit user error).\n",
-                          (unsigned long int) yyk));
+                          (unsigned long) yyk));
               yymarkStackDeleted (yystackp, yyk);
               return yyok;
             }
@@ -9225,7 +9240,7 @@ yyprocessOneStack (yyGLRStack* yystackp, size_t yyk,
         {
           yySymbol yytoken;
           int yyaction;
-          const short int* yyconflicts;
+          const short* yyconflicts;
 
           yystackp->yytops.yylookaheadNeeds[yyk] = yytrue;
           if (yychar == YYEMPTY)
@@ -9252,8 +9267,8 @@ yyprocessOneStack (yyGLRStack* yystackp, size_t yyk,
               YYRESULTTAG yyflag;
               size_t yynewStack = yysplitStack (yystackp, yyk);
               YYDPRINTF ((stderr, "Splitting off stack %lu from %lu.\n",
-                          (unsigned long int) yynewStack,
-                          (unsigned long int) yyk));
+                          (unsigned long) yynewStack,
+                          (unsigned long) yyk));
               yyflag = yyglrReduce (yystackp, yynewStack,
                                     *yyconflicts,
                                     yyimmediate[*yyconflicts]);
@@ -9263,7 +9278,7 @@ yyprocessOneStack (yyGLRStack* yystackp, size_t yyk,
               else if (yyflag == yyerr)
                 {
                   YYDPRINTF ((stderr, "Stack %lu dies.\n",
-                              (unsigned long int) yynewStack));
+                              (unsigned long) yynewStack));
                   yymarkStackDeleted (yystackp, yynewStack);
                 }
               else
@@ -9276,7 +9291,7 @@ yyprocessOneStack (yyGLRStack* yystackp, size_t yyk,
           else if (yyisErrorAction (yyaction))
             {
               YYDPRINTF ((stderr, "Stack %lu dies.\n",
-                          (unsigned long int) yyk));
+                          (unsigned long) yyk));
               yymarkStackDeleted (yystackp, yyk);
               break;
             }
@@ -9289,7 +9304,7 @@ yyprocessOneStack (yyGLRStack* yystackp, size_t yyk,
                   YYDPRINTF ((stderr,
                               "Stack %lu dies "
                               "(predicate failure or explicit user error).\n",
-                              (unsigned long int) yyk));
+                              (unsigned long) yyk));
                   yymarkStackDeleted (yystackp, yyk);
                   break;
                 }
@@ -9374,7 +9389,8 @@ yyreportSyntaxError (yyGLRStack* yystackp)
                 yyarg[yycount++] = yytokenName (yyx);
                 {
                   size_t yysz = yysize + yytnamerr (YY_NULLPTR, yytokenName (yyx));
-                  yysize_overflow |= yysz < yysize;
+                  if (yysz < yysize)
+                    yysize_overflow = yytrue;
                   yysize = yysz;
                 }
               }
@@ -9387,6 +9403,7 @@ yyreportSyntaxError (yyGLRStack* yystackp)
       case N:                           \
         yyformat = S;                   \
       break
+    default: /* Avoid compiler warnings. */
       YYCASE_(0, YY_("syntax error"));
       YYCASE_(1, YY_("syntax error, unexpected %s"));
       YYCASE_(2, YY_("syntax error, unexpected %s, expecting %s"));
@@ -9398,7 +9415,8 @@ yyreportSyntaxError (yyGLRStack* yystackp)
 
   {
     size_t yysz = yysize + strlen (yyformat);
-    yysize_overflow |= yysz < yysize;
+    if (yysz < yysize)
+      yysize_overflow = yytrue;
     yysize = yysz;
   }
 
@@ -9580,7 +9598,7 @@ yyparse (void)
         {
           yyRuleNum yyrule;
           int yyaction;
-          const short int* yyconflicts;
+          const short* yyconflicts;
 
           yyStateNum yystate = yystack.yytops.yystates[0]->yylrState;
           YYDPRINTF ((stderr, "Entering state %d\n", yystate));
@@ -9591,7 +9609,6 @@ yyparse (void)
               yyrule = yydefaultAction (yystate);
               if (yyrule == 0)
                 {
-
                   yyreportSyntaxError (&yystack);
                   goto yyuser_error;
                 }
@@ -9631,7 +9648,6 @@ yyparse (void)
                 }
               else if (yyisErrorAction (yyaction))
                 {
-
                   yyreportSyntaxError (&yystack);
                   goto yyuser_error;
                 }
@@ -9646,7 +9662,7 @@ yyparse (void)
           size_t yys;
 
           for (yys = 0; yys < yystack.yytops.yysize; yys += 1)
-            yystackp->yytops.yylookaheadNeeds[yys] = yychar != YYEMPTY;
+            yystackp->yytops.yylookaheadNeeds[yys] = (yybool) (yychar != YYEMPTY);
 
           /* yyprocessOneStack returns one of three things:
 
@@ -9677,7 +9693,6 @@ yyparse (void)
                 yyFail (&yystack, YY_("syntax error"));
               YYCHK1 (yyresolveStack (&yystack));
               YYDPRINTF ((stderr, "Returning to deterministic operation.\n"));
-
               yyreportSyntaxError (&yystack);
               goto yyuser_error;
             }
@@ -9693,17 +9708,17 @@ yyparse (void)
           for (yys = 0; yys < yystack.yytops.yysize; yys += 1)
             {
               int yyaction;
-              const short int* yyconflicts;
+              const short* yyconflicts;
               yyStateNum yystate = yystack.yytops.yystates[yys]->yylrState;
               yygetLRActions (yystate, yytoken_to_shift, &yyaction,
                               &yyconflicts);
               /* Note that yyconflicts were handled by yyprocessOneStack.  */
-              YYDPRINTF ((stderr, "On stack %lu, ", (unsigned long int) yys));
+              YYDPRINTF ((stderr, "On stack %lu, ", (unsigned long) yys));
               YY_SYMBOL_PRINT ("shifting", yytoken_to_shift, &yylval, &yylloc);
               yyglrShift (&yystack, yys, yyaction, yyposn,
                           &yylval);
               YYDPRINTF ((stderr, "Stack %lu now in state #%d\n",
-                          (unsigned long int) yys,
+                          (unsigned long) yys,
                           yystack.yytops.yystates[yys]->yylrState));
             }
 
@@ -9759,7 +9774,7 @@ yyparse (void)
                 while (yystates[yyk])
                   {
                     yyGLRState *yys = yystates[yyk];
-                  if (yys->yypred != YY_NULLPTR)
+                    if (yys->yypred != YY_NULLPTR)
                       yydestroyGLRState ("Cleanup: popping", yys);
                     yystates[yyk] = yys->yypred;
                     yystack.yynextFree -= 1;
@@ -9785,7 +9800,7 @@ yy_yypstack (yyGLRState* yys)
       YYFPRINTF (stderr, " -> ");
     }
   YYFPRINTF (stderr, "%d@%lu", yys->yylrState,
-             (unsigned long int) yys->yyposn);
+             (unsigned long) yys->yyposn);
 }
 
 static void
@@ -9816,18 +9831,18 @@ yypdumpstack (yyGLRStack* yystackp)
   for (yyp = yystackp->yyitems; yyp < yystackp->yynextFree; yyp += 1)
     {
       YYFPRINTF (stderr, "%3lu. ",
-                 (unsigned long int) (yyp - yystackp->yyitems));
+                 (unsigned long) (yyp - yystackp->yyitems));
       if (*(yybool *) yyp)
         {
           YYASSERT (yyp->yystate.yyisState);
           YYASSERT (yyp->yyoption.yyisState);
           YYFPRINTF (stderr, "Res: %d, LR State: %d, posn: %lu, pred: %ld",
                      yyp->yystate.yyresolved, yyp->yystate.yylrState,
-                     (unsigned long int) yyp->yystate.yyposn,
-                     (long int) YYINDEX (yyp->yystate.yypred));
+                     (unsigned long) yyp->yystate.yyposn,
+                     (long) YYINDEX (yyp->yystate.yypred));
           if (! yyp->yystate.yyresolved)
             YYFPRINTF (stderr, ", firstVal: %ld",
-                       (long int) YYINDEX (yyp->yystate
+                       (long) YYINDEX (yyp->yystate
                                              .yysemantics.yyfirstVal));
         }
       else
@@ -9836,15 +9851,15 @@ yypdumpstack (yyGLRStack* yystackp)
           YYASSERT (!yyp->yyoption.yyisState);
           YYFPRINTF (stderr, "Option. rule: %d, state: %ld, next: %ld",
                      yyp->yyoption.yyrule - 1,
-                     (long int) YYINDEX (yyp->yyoption.yystate),
-                     (long int) YYINDEX (yyp->yyoption.yynext));
+                     (long) YYINDEX (yyp->yyoption.yystate),
+                     (long) YYINDEX (yyp->yyoption.yynext));
         }
       YYFPRINTF (stderr, "\n");
     }
   YYFPRINTF (stderr, "Tops:");
   for (yyi = 0; yyi < yystackp->yytops.yysize; yyi += 1)
-    YYFPRINTF (stderr, "%lu: %ld; ", (unsigned long int) yyi,
-               (long int) YYINDEX (yystackp->yytops.yystates[yyi]));
+    YYFPRINTF (stderr, "%lu: %ld; ", (unsigned long) yyi,
+               (long) YYINDEX (yystackp->yytops.yystates[yyi]));
   YYFPRINTF (stderr, "\n");
 }
 #endif
