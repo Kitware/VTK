@@ -14,7 +14,7 @@ public class vtkJoglCanvasComponent extends vtkAbstractJoglComponent<GLCanvas> {
   }
 
   public vtkJoglCanvasComponent(vtkRenderWindow renderWindow) {
-    this(renderWindow, new GLCapabilities(GLProfile.getDefault()));
+    this(renderWindow, new GLCapabilities(GLProfile.getMaximum(true)));
   }
 
   public vtkJoglCanvasComponent(vtkRenderWindow renderWindow, GLCapabilities capabilities) {

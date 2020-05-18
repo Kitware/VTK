@@ -170,6 +170,11 @@ public:
    */
   bool IsDrawable() override { return this->ReadyForRendering; }
 
+  /**
+   * Initialize OpenGL for this window.
+   */
+  void OpenGLInit() override;
+
 protected:
   /**
    * Overridden to not attempt to read pixels if `this->ReadyForRendering` is

@@ -202,10 +202,24 @@ void vtkGenericOpenGLRenderWindow::SetIsCurrent(bool newValue)
   this->CurrentStatus = newValue;
 }
 
+void vtkGenericOpenGLRenderWindow::OpenGLInit()
+{
+  auto state = this->GetState();
+  state->Reset();
+  state->Push();
+  this->Superclass::OpenGLInit();
+  state->Pop();
+}
+
 void vtkGenericOpenGLRenderWindow::Render()
 {
+  vtkOpenGLCheckErrorMacro("error before running VTK rendering code");
   if (this->ReadyForRendering)
   {
+    if (!this->Initialized)
+    {
+      this->OpenGLInit();
+    }
     this->MakeCurrent();
     if (!this->IsCurrent())
     {
@@ -214,14 +228,17 @@ void vtkGenericOpenGLRenderWindow::Render()
     else
     {
       // Query current GL state and store them
-      this->SaveGLState();
+      auto state = this->GetState();
+      state->Reset();
+      state->Push();
 
       this->Superclass::Render();
 
       // Restore state to previous known value
-      this->RestoreGLState();
+      state->Pop();
     }
   }
+  vtkOpenGLCheckErrorMacro("error after running VTK rendering code");
 }
 
 void vtkGenericOpenGLRenderWindow::SetCurrentCursor(int cShape)

@@ -1887,14 +1887,8 @@ void vtkOpenGLRenderWindow::SaveGLState()
   if (this->Initialized)
   {
     this->MakeCurrent();
-    glGetIntegerv(GL_ACTIVE_TEXTURE, &this->GLStateIntegers["GL_ACTIVE_TEXTURE"]);
-
-    if (this->GLStateIntegers["GL_ACTIVE_TEXTURE"] < 0 ||
-      this->GLStateIntegers["GL_ACTIVE_TEXTURE"] >
-        this->GetState()->GetTextureUnitManager()->GetNumberOfTextureUnits())
-    {
-      this->GLStateIntegers["GL_ACTIVE_TEXTURE"] = 0;
-    }
+    this->GetState()->Reset();
+    this->GetState()->Push();
   }
 }
 
@@ -1904,9 +1898,7 @@ void vtkOpenGLRenderWindow::RestoreGLState()
   // Prevent making GL calls unless we have a valid context
   if (this->Initialized)
   {
-    // For now just re-store the texture unit
-    this->GetState()->vtkglActiveTexture(GL_TEXTURE0 + this->GLStateIntegers["GL_ACTIVE_TEXTURE"]);
-
+    this->GetState()->Pop();
     // Unuse active shader program
     this->GetShaderCache()->ReleaseCurrentShader();
   }
