@@ -375,6 +375,7 @@ int vtkArrayCalculator::ProcessDataObject(vtkDataObject* input, vtkDataObject* o
     (psOutput || vtkGraph::SafeDownCast(output)))
   {
     resultPoints = vtkSmartPointer<vtkPoints>::New();
+    resultPoints->SetDataType(this->ResultArrayType);
     resultPoints->SetNumberOfPoints(numTuples);
     resultArray = resultPoints->GetData();
   }
