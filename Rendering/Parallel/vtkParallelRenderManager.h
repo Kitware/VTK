@@ -635,20 +635,20 @@ protected:
 
   struct RendererInfo
   {
-    int Draw;
-    int NumberOfLights;
-    double Viewport[4];
-    double CameraPosition[3];
-    double CameraFocalPoint[3];
-    double CameraViewUp[3];
-    double WindowCenter[2];
-    double CameraClippingRange[2];
-    double CameraViewAngle;
-    double Background[3];
-    double Background2[3];
-    bool GradientBackground;
+    int Draw = 0;
+    int NumberOfLights = 0;
+    double Viewport[4] = { 0., 0., 0., 0. };
+    double CameraPosition[3] = { 0., 0., 0. };
+    double CameraFocalPoint[3] = { 0., 0., 0. };
+    double CameraViewUp[3] = { 0., 0., 0. };
+    double WindowCenter[2] = { 0., 0. };
+    double CameraClippingRange[2] = { 0., 0. };
+    double CameraViewAngle = 0.;
+    double Background[3] = { 0., 0., 0. };
+    double Background2[3] = { 0., 0., 0. };
+    bool GradientBackground = false;
 
-    double ParallelScale;
+    double ParallelScale = 0.;
 
     // Initialize members
     RendererInfo() = default;
