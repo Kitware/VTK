@@ -93,7 +93,7 @@ int vtkGraphReader::ReadMeshSimple(const std::string& fname, vtkDataObject* doOu
   vtkVector3d lattice_a;
   vtkVector3d lattice_b;
   vtkVector3d lattice_c;
-  vtkVector3d lattice_origin;
+  vtkVector3d lattice_origin(0, 0, 0);
 
   while (true)
   {
