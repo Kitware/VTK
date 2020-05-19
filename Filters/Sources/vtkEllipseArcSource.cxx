@@ -64,8 +64,12 @@ vtkEllipseArcSource::vtkEllipseArcSource()
 int vtkEllipseArcSource::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
-  int numLines = this->Resolution;
-  int numPts = this->Resolution + 1;
+  const bool isClosedShape = fabs(this->SegmentAngle - 360.0) < 1e-5;
+  const double resolution =
+    (this->Close && !isClosedShape) ? this->Resolution + 1 : this->Resolution;
+
+  int numLines = resolution;
+  int numPts = resolution + 1;
   double tc[3] = { 0.0, 0.0, 0.0 };
 
   // get the info object
@@ -137,12 +141,12 @@ int vtkEllipseArcSource::RequestData(vtkInformation* vtkNotUsed(request),
   // Should we skip adding the last point in the loop? Yes if the segment angle is a full
   // 360 degrees and we want to close the loop because the last point will be coincident
   // with the first.
-  bool skipLastPoint = this->Close && fabs(this->SegmentAngle - 360.0) < 1e-5;
+  const bool skipLastPoint = this->Close && isClosedShape;
 
   double theta = startAngleRad;
   double thetaEllipse;
   // Iterate over angle increments
-  for (int i = 0; i <= this->Resolution; ++i, theta += angleIncRad)
+  for (int i = 0; i <= resolution; ++i, theta += angleIncRad)
   {
     // convert section angle to an angle applied to ellipse equation.
     // the result point with the ellipse angle, will be located on section angle
@@ -169,10 +173,10 @@ int vtkEllipseArcSource::RequestData(vtkInformation* vtkNotUsed(request),
       this->Center[1] + a * cosTheta * majorRadiusVect[1] + b * sinTheta * orthogonalVect[1],
       this->Center[2] + a * cosTheta * majorRadiusVect[2] + b * sinTheta * orthogonalVect[2] };
 
-    tc[0] = static_cast<double>(i) / this->Resolution;
+    tc[0] = static_cast<double>(i) / resolution;
 
     // Skip adding a point at the end if it is going to be coincident with the first
-    if (i != this->Resolution || !skipLastPoint)
+    if (i != resolution || !skipLastPoint)
     {
       newPoints->InsertPoint(i, p);
       newTCoords->InsertTuple(i, tc);
