@@ -260,7 +260,7 @@ class ArrayHandleWrapperFlatSOA : public ArrayHandleWrapperBase<T>
 {
 private:
   using ArrayHandleType = vtkm::cont::ArrayHandle<T>;
-  using PortalType = typename ArrayHandleType::PortalControl;
+  using PortalType = typename ArrayHandleType::WritePortalType;
   using VtkmArrayType = vtkm::cont::ArrayHandleGroupVecVariable<ArrayHandleType,
     vtkm::cont::ArrayHandleCounting<vtkm::Id>>;
 

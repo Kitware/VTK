@@ -127,7 +127,7 @@ int vtkmWarpScalar::RequestData(vtkInformation* vtkNotUsed(request),
       vecType normal = vtkm::make_Vec<vtkm::FloatDefault>(0.0, 0.0, 1.0);
       vtkm::cont::ArrayHandleConstant<vecType> vectorAH =
         vtkm::cont::make_ArrayHandleConstant(normal, numberOfPoints);
-      vtkm::cont::DataSetFieldAdd::AddPointField(in, "zNormal", vectorAH);
+      in.AddPointField("zNormal", vectorAH);
       warpScalar.SetNormalField("zNormal");
     }
     else
@@ -137,7 +137,7 @@ int vtkmWarpScalar::RequestData(vtkInformation* vtkNotUsed(request),
         vtkm::make_Vec<vtkm::FloatDefault>(this->Normal[0], this->Normal[1], this->Normal[2]);
       vtkm::cont::ArrayHandleConstant<vecType> vectorAH =
         vtkm::cont::make_ArrayHandleConstant(normal, numberOfPoints);
-      vtkm::cont::DataSetFieldAdd::AddPointField(in, "instanceNormal", vectorAH);
+      in.AddPointField("instanceNormal", vectorAH);
       warpScalar.SetNormalField("instanceNormal");
     }
 
@@ -149,7 +149,7 @@ int vtkmWarpScalar::RequestData(vtkInformation* vtkNotUsed(request),
       {
         zValues.push_back(input->GetPoints()->GetPoint(i)[2]);
       }
-      vtkm::cont::DataSetFieldAdd::AddPointField(in, "scalarfactor", zValues);
+      in.AddPointField("scalarfactor", zValues);
       warpScalar.SetScalarFactorField("scalarfactor");
     }
     else

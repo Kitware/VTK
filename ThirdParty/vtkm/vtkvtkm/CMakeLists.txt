@@ -50,7 +50,9 @@ set(VTKm_NO_ASSERT ON)
 # Disable VTK-m warning flags and just rely on VTK's warning flags.
 set(VTKm_ENABLE_DEVELOPER_FLAGS OFF)
 
-set(BUILD_SHARED_LIBS OFF)
+if(VTKm_ENABLE_CUDA)
+  set(BUILD_SHARED_LIBS OFF)
+endif()
 
 add_subdirectory(vtk-m)
 vtkm_setup_job_pool()
