@@ -117,6 +117,7 @@ set(sources
   src/deprecated/ex_put_var_param.c
   src/deprecated/ex_put_var_tab.c
 
+  src/ex__put_homogenous_block_params.c
   src/ex_add_attr.c
   src/ex_close.c
   src/ex_conv.c
@@ -127,9 +128,14 @@ set(sources
   src/ex_cvt_nodes_to_sides.c
   src/ex_err.c
   src/ex_get_all_times.c
+  src/ex_get_assemblies.c
+  src/ex_get_assembly.c
   src/ex_get_attr.c
   src/ex_get_attr_names.c
   src/ex_get_attr_param.c
+  src/ex_get_attribute.c
+  src/ex_get_blob.c
+  src/ex_get_blobs.c
   src/ex_get_block.c
   src/ex_get_block_param.c
   src/ex_get_block_params.c
@@ -184,6 +190,9 @@ set(sources
   src/ex_get_prop_array.c
   src/ex_get_prop_names.c
   src/ex_get_qa.c
+  src/ex_get_reduction_variable_names.c
+  src/ex_get_reduction_variable_param.c
+  src/ex_get_reduction_vars.c
   src/ex_get_set.c
   src/ex_get_set_dist_fact.c
   src/ex_get_set_param.c
@@ -207,9 +216,12 @@ set(sources
   src/ex_opts.c
   src/ex_put_all_var_param.c
   src/ex_put_all_var_param_ext.c
+  src/ex_put_assemblies.c
   src/ex_put_attr.c
   src/ex_put_attr_names.c
   src/ex_put_attr_param.c
+  src/ex_put_attribute.c
+  src/ex_put_blobs.c
   src/ex_put_block.c
   src/ex_put_block_param.c
   src/ex_put_block_params.c
@@ -260,6 +272,9 @@ set(sources
   src/ex_put_prop_array.c
   src/ex_put_prop_names.c
   src/ex_put_qa.c
+  src/ex_put_reduction_variable_names.c
+  src/ex_put_reduction_variable_param.c
+  src/ex_put_reduction_vars.c
   src/ex_put_set.c
   src/ex_put_set_dist_fact.c
   src/ex_put_set_param.c

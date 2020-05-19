@@ -81,6 +81,8 @@ int ex_put_cmap_params(int exoid, void_int *node_cmap_ids, void_int *node_cmap_n
   int id_type    = NC_INT;
   int format;
 
+  EX_UNUSED(processor);
+
   EX_FUNC_ENTER();
   ex__check_valid_file_id(exoid, __func__);
 

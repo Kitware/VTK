@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2017 National Technology & Engineering Solutions
+ * Copyright (c) 2005-2017, 2020 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -206,7 +206,7 @@ int ex__conv_init(int exoid, int *comp_wordsize, int *io_wordsize, int file_word
                "Warning: invalid int64_status flag (%d) specified for "
                "existing file id: %d. Ignoring invalids",
                int64_status, exoid);
-      ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
+      ex_err_fn(exoid, __func__, errmsg, -EX_BADPARAM);
     }
     int64_status &= valid_int64;
   }
@@ -234,6 +234,9 @@ int ex__conv_init(int exoid, int *comp_wordsize, int *io_wordsize, int file_word
   new_file->int64_status          = int64_status;
   new_file->maximum_name_length   = ex__default_max_name_length;
   new_file->time_varid            = -1;
+  new_file->compression_algorithm = EX_COMPRESS_GZIP;
+  new_file->assembly_count        = 0;
+  new_file->blob_count            = 0;
   new_file->compression_level     = 0;
   new_file->shuffle               = 0;
   new_file->file_type             = filetype - 1;
@@ -290,7 +293,7 @@ void ex__conv_exit(int exoid)
 
   if (!file) {
     snprintf(errmsg, MAX_ERR_LENGTH, "Warning: failure to clear file id %d - not in list.", exoid);
-    ex_err(__func__, errmsg, EX_BADFILEID);
+    ex_err(__func__, errmsg, -EX_BADFILEID);
     EX_FUNC_VOID();
   }
 
@@ -422,7 +425,7 @@ int ex_set_option(int exoid, ex_option_type option, int option_value)
 
   switch (option) {
   case EX_OPT_MAX_NAME_LENGTH: file->maximum_name_length = option_value; break;
-  case EX_OPT_COMPRESSION_TYPE: /* Currently not used. GZip by default */ break;
+  case EX_OPT_COMPRESSION_TYPE: file->compression_algorithm = option_value; break;
   case EX_OPT_COMPRESSION_LEVEL: /* 0 (disabled/fastest) ... 9 (best/slowest) */
     /* Check whether file type supports compression... */
     if (file->is_hdf5) {

@@ -1,6 +1,9 @@
 #ifndef vtk_exodusII_mangle_h
 #define vtk_exodusII_mangle_h
 
+#define EX_errval_key_g vtkexodusII_EX_errval_key_g
+#define EX_first_init_g vtkexodusII_EX_first_init_g
+#define EX_g vtkexodusII_EX_g
 #define ex__catstr vtkexodusII_ex__catstr
 #define ex__catstr2 vtkexodusII_ex__catstr2
 #define ex__check_file_type vtkexodusII_ex__check_file_type
@@ -10,6 +13,7 @@
 #define ex__compress_variable vtkexodusII_ex__compress_variable
 #define ex__conv_exit vtkexodusII_ex__conv_exit
 #define ex__conv_init vtkexodusII_ex__conv_init
+#define ex__default_max_name_length vtkexodusII_ex__default_max_name_length
 #define ex__dim_num_entries_in_object vtkexodusII_ex__dim_num_entries_in_object
 #define ex__dim_num_objects vtkexodusII_ex__dim_num_objects
 #define ex__find_file_item vtkexodusII_ex__find_file_item
@@ -37,9 +41,11 @@
 #define ex__mutex_lock vtkexodusII_ex__mutex_lock
 #define ex__mutex_unlock vtkexodusII_ex__mutex_unlock
 #define ex__name_of_map vtkexodusII_ex__name_of_map
+#define ex__name_red_var_of_object vtkexodusII_ex__name_red_var_of_object
 #define ex__name_var_of_object vtkexodusII_ex__name_var_of_object
 #define ex__populate_header vtkexodusII_ex__populate_header
 #define ex__pthread_first_thread_init vtkexodusII_ex__pthread_first_thread_init
+#define ex__put_homogenous_block_params vtkexodusII_ex__put_homogenous_block_params
 #define ex__put_name vtkexodusII_ex__put_name
 #define ex__put_names vtkexodusII_ex__put_names
 #define ex__put_nemesis_version vtkexodusII_ex__put_nemesis_version
@@ -48,6 +54,7 @@
 #define ex__reset_error_status vtkexodusII_ex__reset_error_status
 #define ex__rm_file_item vtkexodusII_ex__rm_file_item
 #define ex__rm_stat_ptr vtkexodusII_ex__rm_stat_ptr
+#define ex__set_compact_storage vtkexodusII_ex__set_compact_storage
 #define ex__trim vtkexodusII_ex__trim
 #define ex__update_max_name_length vtkexodusII_ex__update_max_name_length
 #define ex_add_attr vtkexodusII_ex_add_attr
@@ -71,11 +78,20 @@
 #define ex_dim_num_objects vtkexodusII_ex_dim_num_objects
 #define ex_err vtkexodusII_ex_err
 #define ex_err_fn vtkexodusII_ex_err_fn
+#define ex_errval vtkexodusII_ex_errval
 #define ex_find_file_item vtkexodusII_ex_find_file_item
 #define ex_get_all_times vtkexodusII_ex_get_all_times
+#define ex_get_assemblies vtkexodusII_ex_get_assemblies
+#define ex_get_assembly vtkexodusII_ex_get_assembly
 #define ex_get_attr vtkexodusII_ex_get_attr
 #define ex_get_attr_names vtkexodusII_ex_get_attr_names
 #define ex_get_attr_param vtkexodusII_ex_get_attr_param
+#define ex_get_attribute vtkexodusII_ex_get_attribute
+#define ex_get_attribute_count vtkexodusII_ex_get_attribute_count
+#define ex_get_attribute_param vtkexodusII_ex_get_attribute_param
+#define ex_get_attributes vtkexodusII_ex_get_attributes
+#define ex_get_blob vtkexodusII_ex_get_blob
+#define ex_get_blobs vtkexodusII_ex_get_blobs
 #define ex_get_block vtkexodusII_ex_get_block
 #define ex_get_block_param vtkexodusII_ex_get_block_param
 #define ex_get_block_params vtkexodusII_ex_get_block_params
@@ -191,6 +207,9 @@
 #define ex_get_prop_array vtkexodusII_ex_get_prop_array
 #define ex_get_prop_names vtkexodusII_ex_get_prop_names
 #define ex_get_qa vtkexodusII_ex_get_qa
+#define ex_get_reduction_variable_names vtkexodusII_ex_get_reduction_variable_names
+#define ex_get_reduction_variable_param vtkexodusII_ex_get_reduction_variable_param
+#define ex_get_reduction_vars vtkexodusII_ex_get_reduction_vars
 #define ex_get_set vtkexodusII_ex_get_set
 #define ex_get_set_dist_fact vtkexodusII_ex_get_set_dist_fact
 #define ex_get_set_param vtkexodusII_ex_get_set_param
@@ -241,9 +260,13 @@
 #define ex_pthread_first_thread_init vtkexodusII_ex_pthread_first_thread_init
 #define ex_put_all_var_param vtkexodusII_ex_put_all_var_param
 #define ex_put_all_var_param_ext vtkexodusII_ex_put_all_var_param_ext
+#define ex_put_assemblies vtkexodusII_ex_put_assemblies
 #define ex_put_attr vtkexodusII_ex_put_attr
 #define ex_put_attr_names vtkexodusII_ex_put_attr_names
 #define ex_put_attr_param vtkexodusII_ex_put_attr_param
+#define ex_put_attribute vtkexodusII_ex_put_attribute
+#define ex_put_attributes vtkexodusII_ex_put_attributes
+#define ex_put_blobs vtkexodusII_ex_put_blobs
 #define ex_put_block vtkexodusII_ex_put_block
 #define ex_put_block_param vtkexodusII_ex_put_block_param
 #define ex_put_block_params vtkexodusII_ex_put_block_params
@@ -259,6 +282,7 @@
 #define ex_put_coord vtkexodusII_ex_put_coord
 #define ex_put_coord_names vtkexodusII_ex_put_coord_names
 #define ex_put_coordinate_frames vtkexodusII_ex_put_coordinate_frames
+#define ex_put_double_attribute vtkexodusII_ex_put_double_attribute
 #define ex_put_eb_info_global vtkexodusII_ex_put_eb_info_global
 #define ex_put_elem_attr vtkexodusII_ex_put_elem_attr
 #define ex_put_elem_attr_names vtkexodusII_ex_put_elem_attr_names
@@ -278,6 +302,7 @@
 #define ex_put_init_ext vtkexodusII_ex_put_init_ext
 #define ex_put_init_global vtkexodusII_ex_put_init_global
 #define ex_put_init_info vtkexodusII_ex_put_init_info
+#define ex_put_integer_attribute vtkexodusII_ex_put_integer_attribute
 #define ex_put_loadbal_param vtkexodusII_ex_put_loadbal_param
 #define ex_put_loadbal_param_cc vtkexodusII_ex_put_loadbal_param_cc
 #define ex_put_map vtkexodusII_ex_put_map
@@ -342,6 +367,9 @@
 #define ex_put_prop_array vtkexodusII_ex_put_prop_array
 #define ex_put_prop_names vtkexodusII_ex_put_prop_names
 #define ex_put_qa vtkexodusII_ex_put_qa
+#define ex_put_reduction_variable_names vtkexodusII_ex_put_reduction_variable_names
+#define ex_put_reduction_variable_param vtkexodusII_ex_put_reduction_variable_param
+#define ex_put_reduction_vars vtkexodusII_ex_put_reduction_vars
 #define ex_put_set vtkexodusII_ex_put_set
 #define ex_put_set_dist_fact vtkexodusII_ex_put_set_dist_fact
 #define ex_put_set_param vtkexodusII_ex_put_set_param
@@ -352,6 +380,7 @@
 #define ex_put_ss_param_global vtkexodusII_ex_put_ss_param_global
 #define ex_put_sset_var vtkexodusII_ex_put_sset_var
 #define ex_put_sset_var_tab vtkexodusII_ex_put_sset_var_tab
+#define ex_put_text_attribute vtkexodusII_ex_put_text_attribute
 #define ex_put_time vtkexodusII_ex_put_time
 #define ex_put_truth_table vtkexodusII_ex_put_truth_table
 #define ex_put_var vtkexodusII_ex_put_var
@@ -376,26 +405,27 @@
 #define ex_update_max_name_length vtkexodusII_ex_update_max_name_length
 #define ex_var_type_to_ex_entity_type vtkexodusII_ex_var_type_to_ex_entity_type
 #define exerrval_get vtkexodusII_exerrval_get
+#define exoII_ass vtkexodusII_exoII_ass
+#define exoII_eb vtkexodusII_exoII_eb
+#define exoII_ed vtkexodusII_exoII_ed
+#define exoII_edm vtkexodusII_exoII_edm
+#define exoII_els vtkexodusII_exoII_els
+#define exoII_em vtkexodusII_exoII_em
+#define exoII_es vtkexodusII_exoII_es
+#define exoII_fa vtkexodusII_exoII_fa
+#define exoII_fam vtkexodusII_exoII_fam
+#define exoII_fs vtkexodusII_exoII_fs
+#define exoII_nm vtkexodusII_exoII_nm
+#define exoII_ns vtkexodusII_exoII_ns
+#define exoII_ss vtkexodusII_exoII_ss
+#define exodus_unused_symbol_dummy_ex_create_par vtkexodusII_exodus_unused_symbol_dummy_ex_create_par
+#define exodus_unused_symbol_dummy_ex_open_par vtkexodusII_exodus_unused_symbol_dummy_ex_open_par
+#define exoptval vtkexodusII_exoptval
 #define nc_flt_code vtkexodusII_nc_flt_code
 #define ne__check_file_version vtkexodusII_ne__check_file_version
 #define ne__id_lkup vtkexodusII_ne__id_lkup
 #define ne_check_file_version vtkexodusII_ne_check_file_version
 #define ne_id_lkup vtkexodusII_ne_id_lkup
-
-// global variables
-#define exoptval vtkexodusII_exoptval
-#define ex__default_max_name_length vtkexodusII_ex__default_max_name_length
-#define exoII_fam vtkexodusII_exoII_fam
-#define exoII_edm vtkexodusII_exoII_edm
-#define exoII_els vtkexodusII_exoII_els
-#define exoII_fs vtkexodusII_exoII_fs
-#define exoII_fa vtkexodusII_exoII_fa
-#define exoII_es vtkexodusII_exoII_es
-#define exoII_ed vtkexodusII_exoII_ed
-#define exoII_nm vtkexodusII_exoII_nm
-#define exoII_em vtkexodusII_exoII_em
-#define exoII_ss vtkexodusII_exoII_ss
-#define exoII_ns vtkexodusII_exoII_ns
-#define exoII_eb vtkexodusII_exoII_eb
+#define ne_ret_string vtkexodusII_ne_ret_string
 
 #endif

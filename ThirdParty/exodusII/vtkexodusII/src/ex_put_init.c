@@ -101,6 +101,7 @@ int ex_put_init(int exoid, const char *title, int64_t num_dim, int64_t num_nodes
   par.num_edge_maps = 0;
   par.num_face_maps = 0;
   par.num_elem_maps = 0;
+  par.num_assembly  = 0;
 
   return (ex_put_init_ext(exoid, &par));
 }
