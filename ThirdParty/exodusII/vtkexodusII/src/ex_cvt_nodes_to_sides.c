@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2017, 2020 National Technology & Engineering Solutions
+ * Copyright (c) 2005-2017 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -35,7 +35,6 @@
 
 #include "exodusII.h"     // for ex_err, ex_block, etc
 #include "exodusII_int.h" // for elem_blk_parm, EX_FATAL, etc
-#include <stdbool.h>
 
 static int64_t get_node(void_int *connect, size_t index, size_t int_size)
 {
@@ -273,9 +272,6 @@ int ex_cvt_nodes_to_sides(int exoid, void_int *num_elem_per_set, void_int *num_n
   EX_FUNC_ENTER();
   ex__check_valid_file_id(exoid, __func__);
 
-  EX_UNUSED(side_sets_elem_index);
-  EX_UNUSED(side_sets_node_index);
-
   /* first check if any side sets are specified */
   /* inquire how many side sets have been stored */
 
@@ -289,7 +285,7 @@ int ex_cvt_nodes_to_sides(int exoid, void_int *num_elem_per_set, void_int *num_n
 
   if (num_side_sets == 0) {
     snprintf(errmsg, MAX_ERR_LENGTH, "Warning: no side sets defined in file id %d", exoid);
-    ex_err_fn(exoid, __func__, errmsg, EX_NOENTITY);
+    ex_err_fn(exoid, __func__, errmsg, EX_WARN);
     EX_FUNC_LEAVE(EX_WARN);
   }
 
@@ -435,7 +431,7 @@ int ex_cvt_nodes_to_sides(int exoid, void_int *num_elem_per_set, void_int *num_n
   */
 
   /* Allocate space for same element type flag array*/
-  if (!(same_elem_type = calloc(num_side_sets, sizeof(int)))) {
+  if (!(same_elem_type = malloc(num_side_sets * sizeof(int)))) {
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: failed to allocate space for element type flag "
              "array for file id %d",
@@ -445,7 +441,7 @@ int ex_cvt_nodes_to_sides(int exoid, void_int *num_elem_per_set, void_int *num_n
     goto cleanup;
   }
 
-  same_elem_type[0] = true;
+  same_elem_type[0] = EX_TRUE;
   if (ex_int64_status(exoid) & EX_BULK_INT64_API) {
     elem_ctr = ((int64_t *)num_elem_per_set)[0];
     for (i = 0, k = 0; i < tot_num_ss_elem; i++) {
@@ -472,11 +468,11 @@ int ex_cvt_nodes_to_sides(int exoid, void_int *num_elem_per_set, void_int *num_n
         elem_ctr += ((int64_t *)num_elem_per_set)[++k];
 
         el_type           = elem_blk_parms[j].elem_type_val;
-        same_elem_type[k] = true;
+        same_elem_type[k] = EX_TRUE;
       }
 
       if (el_type != elem_blk_parms[j].elem_type_val) {
-        same_elem_type[k] = false;
+        same_elem_type[k] = EX_FALSE;
       }
     }
 
@@ -514,7 +510,7 @@ int ex_cvt_nodes_to_sides(int exoid, void_int *num_elem_per_set, void_int *num_n
 
       /* determine number of nodes per side */
       if (((((int64_t *)num_nodes_per_set)[k] % ((int64_t *)num_elem_per_set)[k]) == 0) &&
-          (same_elem_type[k] == true)) { /* all side set elements are same type */
+          (same_elem_type[k] == EX_TRUE)) { /* all side set elements are same type */
         node_ctr += ((int64_t *)num_nodes_per_set)[k] / ((int64_t *)num_elem_per_set)[k];
       }
       else {
@@ -550,11 +546,11 @@ int ex_cvt_nodes_to_sides(int exoid, void_int *num_elem_per_set, void_int *num_n
         elem_ctr += ((int *)num_elem_per_set)[++k];
 
         el_type           = elem_blk_parms[j].elem_type_val;
-        same_elem_type[k] = true;
+        same_elem_type[k] = EX_TRUE;
       }
 
       if (el_type != elem_blk_parms[j].elem_type_val) {
-        same_elem_type[k] = false;
+        same_elem_type[k] = EX_FALSE;
       }
     }
 

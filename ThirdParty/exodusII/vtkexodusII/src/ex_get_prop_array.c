@@ -54,7 +54,6 @@
 
 #include "exodusII.h"     // for ex_err, etc
 #include "exodusII_int.h" // for EX_FATAL, ATT_PROP_NAME, etc
-#include <stdbool.h>
 
 /*!
 
@@ -115,7 +114,7 @@ the description for ex_get_prop_names().
 int ex_get_prop_array(int exoid, ex_entity_type obj_type, const char *prop_name, void_int *values)
 {
   int   num_props, i, propid, status;
-  int   found = false;
+  int   found = EX_FALSE;
   char *name;
   char  tmpstr[MAX_STR_LENGTH + 1];
 
@@ -165,7 +164,7 @@ int ex_get_prop_array(int exoid, ex_entity_type obj_type, const char *prop_name,
     }
 
     if (strcmp(tmpstr, prop_name) == 0) {
-      found = true;
+      found = EX_TRUE;
       break;
     }
   }

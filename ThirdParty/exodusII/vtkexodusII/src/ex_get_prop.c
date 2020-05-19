@@ -35,7 +35,6 @@
 
 #include "exodusII.h"     // for ex_err, etc
 #include "exodusII_int.h" // for EX_FATAL, EX_WARN, etc
-#include <stdbool.h>
 
 /*!
 
@@ -85,7 +84,7 @@ int ex_get_prop(int exoid, ex_entity_type obj_type, ex_entity_id obj_id, const c
 {
   int    status;
   int    num_props, i, propid;
-  int    found = false;
+  int    found = EX_FALSE;
   size_t start[1];
   char * name;
   char   tmpstr[MAX_STR_LENGTH + 1];
@@ -135,7 +134,7 @@ int ex_get_prop(int exoid, ex_entity_type obj_type, ex_entity_id obj_id, const c
     }
 
     if (strcmp(tmpstr, prop_name) == 0) {
-      found = true;
+      found = EX_TRUE;
       break;
     }
   }
