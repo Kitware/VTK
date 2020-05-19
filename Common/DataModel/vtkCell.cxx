@@ -231,9 +231,7 @@ double vtkCell::ComputeBoundingSphere(double center[3]) const
   dist2 = 0.0;
   for (vtkIdType id = 0; id < points.size(); ++id)
   {
-    std::cout << "avant " << std::endl;
     double tmpdist2 = vtkMath::Distance2BetweenPoints(points[id], y);
-    std::cout << "apres " << std::endl;
     if (tmpdist2 > dist2)
     {
       dist2 = tmpdist2;
