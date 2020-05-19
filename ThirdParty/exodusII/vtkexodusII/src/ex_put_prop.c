@@ -35,6 +35,7 @@
 
 #include "exodusII.h"     // for ex_err, etc
 #include "exodusII_int.h" // for EX_FATAL, ex__id_lkup, etc
+#include <stdbool.h>
 
 /*!
 
@@ -106,7 +107,7 @@ int ex_put_prop(int exoid, ex_entity_type obj_type, ex_entity_id obj_id, const c
   int       status;
   int       oldfill = 0;
   int       temp;
-  int       found = EX_FALSE;
+  bool      found = false;
   int       num_props, i, dimid, propid, dims[1];
   int       int_type;
   size_t    start[1];
@@ -164,7 +165,7 @@ int ex_put_prop(int exoid, ex_entity_type obj_type, ex_entity_id obj_id, const c
       }
 
       if (strcmp(tmpstr, prop_name) == 0) {
-        found = EX_TRUE;
+        found = true;
         break;
       }
     }

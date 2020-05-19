@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2017 National Technology & Engineering Solutions
+ * Copyright (c) 2005-2017, 2020 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -131,7 +131,7 @@ int ex_get_side_set_node_list_len(int exoid, ex_entity_id side_set_id,
 
   if (num_side_sets == 0) {
     snprintf(errmsg, MAX_ERR_LENGTH, "Warning: no side sets defined in file id %d", exoid);
-    ex_err_fn(exoid, __func__, errmsg, EX_WARN);
+    ex_err_fn(exoid, __func__, errmsg, EX_NOENTITY);
     EX_FUNC_LEAVE(EX_WARN);
   }
 
@@ -253,7 +253,7 @@ int ex_get_side_set_node_list_len(int exoid, ex_entity_id side_set_id,
   }
 
   /* Allocate space for the element block params */
-  if (!(elem_blk_parms = malloc(num_elem_blks * sizeof(struct ex__elem_blk_parm)))) {
+  if (!(elem_blk_parms = calloc(num_elem_blks, sizeof(struct ex__elem_blk_parm)))) {
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: failed to allocate space for element block params "
              "for file id %d",

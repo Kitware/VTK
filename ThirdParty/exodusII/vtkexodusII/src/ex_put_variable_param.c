@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2017 National Technology & Engineering Solutions
+ * Copyright (c) 2005-2017, 2020 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -89,6 +89,7 @@ static int ex_prepare_result_var(int exoid, int num_vars, char *type_name, char 
     }
     return (EX_FATAL); /* exit define mode and return */
   }
+  ex__set_compact_storage(exoid, varid);
 #if NC_HAS_HDF5
   nc_def_var_fill(exoid, varid, 0, &fill);
 #endif
@@ -151,7 +152,7 @@ error = ex_put_variable_param (exoid, EX_GLOBAL, num_glo_vars);
 
 int ex_put_variable_param(int exoid, ex_entity_type obj_type, int num_vars)
 {
-  int  time_dim, num_nod_dim, dimid, dim_str_name, varid;
+  int  time_dim, num_nod_dim = 0, dimid, dim_str_name, varid;
   int  dims[3];
   char errmsg[MAX_ERR_LENGTH];
   int  status;
@@ -163,7 +164,7 @@ int ex_put_variable_param(int exoid, ex_entity_type obj_type, int num_vars)
   if (num_vars == 0) {
     snprintf(errmsg, MAX_ERR_LENGTH, "Warning: zero %s variables specified for file id %d",
              ex_name_of_object(obj_type), exoid);
-    ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
+    ex_err_fn(exoid, __func__, errmsg, -EX_BADPARAM);
 
     EX_FUNC_LEAVE(EX_WARN);
   }
@@ -171,11 +172,11 @@ int ex_put_variable_param(int exoid, ex_entity_type obj_type, int num_vars)
   if (obj_type != EX_NODAL && obj_type != EX_NODE_SET && obj_type != EX_EDGE_BLOCK &&
       obj_type != EX_EDGE_SET && obj_type != EX_FACE_BLOCK && obj_type != EX_FACE_SET &&
       obj_type != EX_ELEM_BLOCK && obj_type != EX_ELEM_SET && obj_type != EX_SIDE_SET &&
-      obj_type != EX_GLOBAL) {
+      obj_type != EX_GLOBAL && obj_type != EX_ASSEMBLY && obj_type != EX_BLOB) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: Invalid variable type %d specified in file id %d",
              obj_type, exoid);
     ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
-    EX_FUNC_LEAVE(EX_WARN);
+    EX_FUNC_LEAVE(EX_FATAL);
   }
 
   /* inquire previously defined dimensions  */
@@ -185,10 +186,10 @@ int ex_put_variable_param(int exoid, ex_entity_type obj_type, int num_vars)
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
-  if ((status = nc_inq_dimid(exoid, DIM_NUM_NODES, &num_nod_dim)) != NC_NOERR) {
-    if (obj_type == EX_NODAL) {
+  if (obj_type == EX_NODAL) {
+    if ((status = nc_inq_dimid(exoid, DIM_NUM_NODES, &num_nod_dim)) != NC_NOERR) {
       EX_FUNC_LEAVE(EX_NOERR); /* Probably no nodes on database (e.g., badly
-                            load-balanced parallel run) */
+                                  load-balanced parallel run) */
     }
   }
 
@@ -229,36 +230,12 @@ int ex_put_variable_param(int exoid, ex_entity_type obj_type, int num_vars)
       goto error_ret; /* exit define mode and return */
     }
     ex__compress_variable(exoid, varid, 2);
+    ex__set_compact_storage(exoid, varid);
   }
-
   else if (obj_type == EX_NODAL) {
-    /*
-     * There are two ways to store the nodal variables. The old way *
-     * was a blob (#times,#vars,#nodes), but that was exceeding the
-     * netcdf maximum dataset size for large models. The new way is
-     * to store #vars separate datasets each of size (#times,#nodes)
-     *
-     * We want this routine to be capable of storing both formats
-     * based on some external flag.  Since the storage format of the
-     * coordinates have also been changed, we key off of their
-     * storage type to decide which method to use for nodal
-     * variables. If the variable 'coord' is defined, then store old
-     * way; otherwise store new.
-     */
-    if ((status = nc_def_dim(exoid, DIM_NUM_NOD_VAR, num_vars, &dimid)) != NC_NOERR) {
-      if (status == NC_ENAMEINUSE) {
-        snprintf(errmsg, MAX_ERR_LENGTH,
-                 "ERROR: nodal variable name parameters are already "
-                 "defined in file id %d",
-                 exoid);
-        ex_err_fn(exoid, __func__, errmsg, status);
-      }
-      else {
-        snprintf(errmsg, MAX_ERR_LENGTH,
-                 "ERROR: failed to define number of nodal variables in file id %d", exoid);
-        ex_err_fn(exoid, __func__, errmsg, status);
-      }
-      goto error_ret; /* exit define mode and return */
+    if ((status = ex_prepare_result_var(exoid, num_vars, "nodal", DIM_NUM_NOD_VAR,
+                                        VAR_NAME_NOD_VAR)) != EX_NOERR) {
+      goto error_ret;
     }
 
     int i;
@@ -273,23 +250,6 @@ int ex_put_variable_param(int exoid, ex_entity_type obj_type, int num_vars)
         goto error_ret; /* exit define mode and return */
       }
       ex__compress_variable(exoid, varid, 2);
-    }
-
-    /* Now define nodal variable name variable */
-    dims[0] = dimid;
-    dims[1] = dim_str_name;
-    if ((status = nc_def_var(exoid, VAR_NAME_NOD_VAR, NC_CHAR, 2, dims, &varid)) != NC_NOERR) {
-      if (status == NC_ENAMEINUSE) {
-        snprintf(errmsg, MAX_ERR_LENGTH,
-                 "ERROR: nodal variable names are already defined in file id %d", exoid);
-        ex_err_fn(exoid, __func__, errmsg, status);
-      }
-      else {
-        snprintf(errmsg, MAX_ERR_LENGTH,
-                 "ERROR: failed to define nodal variable names in file id %d", exoid);
-        ex_err_fn(exoid, __func__, errmsg, status);
-      }
-      goto error_ret; /* exit define mode and return */
     }
   }
 
@@ -313,6 +273,18 @@ int ex_put_variable_param(int exoid, ex_entity_type obj_type, int num_vars)
   else if (obj_type == EX_SIDE_SET) {
     if ((status = ex_prepare_result_var(exoid, num_vars, "sideset", DIM_NUM_SSET_VAR,
                                         VAR_NAME_SSET_VAR)) != EX_NOERR) {
+      goto error_ret;
+    }
+  }
+  else if (obj_type == EX_ASSEMBLY) {
+    if ((status = ex_prepare_result_var(exoid, num_vars, "assembly", DIM_NUM_ASSEMBLY_VAR,
+                                        VAR_NAME_ASSEMBLY_VAR)) != EX_NOERR) {
+      goto error_ret;
+    }
+  }
+  else if (obj_type == EX_BLOB) {
+    if ((status = ex_prepare_result_var(exoid, num_vars, "blob", DIM_NUM_BLOB_VAR,
+                                        VAR_NAME_BLOB_VAR)) != EX_NOERR) {
       goto error_ret;
     }
   }

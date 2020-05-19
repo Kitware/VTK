@@ -78,6 +78,8 @@ int ex_put_variable_name(int exoid, ex_entity_type obj_type, int var_num, const 
   switch (obj_type) {
   case EX_GLOBAL: vname = VAR_NAME_GLO_VAR; break;
   case EX_NODAL: vname = VAR_NAME_NOD_VAR; break;
+  case EX_ASSEMBLY: vname = VAR_NAME_ASSEMBLY_VAR; break;
+  case EX_BLOB: vname = VAR_NAME_BLOB_VAR; break;
   case EX_EDGE_BLOCK: vname = VAR_NAME_EDG_VAR; break;
   case EX_FACE_BLOCK: vname = VAR_NAME_FAC_VAR; break;
   case EX_ELEM_BLOCK: vname = VAR_NAME_ELE_VAR; break;

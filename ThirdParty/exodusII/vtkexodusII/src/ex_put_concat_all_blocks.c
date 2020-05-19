@@ -170,7 +170,7 @@ int ex_put_concat_all_blocks(int exoid, const ex_block_params *param)
       if (SNUMNAME[i] == 0) /* Is this a NULL TNAME block? */                                      \
         GSTAT[i] = 0;       /* change TNAME block status to NULL */                                \
       else                                                                                         \
-        GSTAT[i] = 1; /* change TNAME block status to EX_TRUE */                                   \
+        GSTAT[i] = 1; /* change TNAME block status to TRUE */                                      \
     }                                                                                              \
                                                                                                    \
     /* Next, get variable id of status array */                                                    \
