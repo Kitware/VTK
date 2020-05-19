@@ -14,7 +14,7 @@ find_path(SWT_ECLIPSE_PLUGINS_DIR
 mark_as_advanced(SWT_ECLIPSE_PLUGINS_DIR)
 
 if (EXISTS "${SWT_ECLIPSE_PLUGINS_DIR}")
-  file(GLOB _swt_files "${ECLIPSE_PLUGINS_DIR}/org.eclipse.swt.*" )
+  file(GLOB _swt_files "${SWT_ECLIPSE_PLUGINS_DIR}/org.eclipse.swt.*" )
 
   set(SWT_ECLIPSE_LIBRARIES "")
 

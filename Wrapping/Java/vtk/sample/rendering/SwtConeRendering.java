@@ -41,7 +41,7 @@ public class SwtConeRendering {
     coneActor.SetMapper(coneMapper);
 
     // VTK rendering part
-    vtkSwtComponent swtWidget = new vtkSwtComponent(shell);
+    final vtkSwtComponent swtWidget = new vtkSwtComponent(shell);
     swtWidget.getRenderer().AddActor(coneActor);
 
     shell.addControlListener(new ControlListener() {
