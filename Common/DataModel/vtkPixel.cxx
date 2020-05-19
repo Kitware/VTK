@@ -16,6 +16,7 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkDataArrayRange.h"
 #include "vtkIncrementalPointLocator.h"
 #include "vtkLine.h"
 #include "vtkMarchingSquaresLineCases.h"
@@ -26,6 +27,9 @@
 #include "vtkPoints.h"
 #include "vtkQuad.h"
 #include "vtkTriangle.h"
+
+#include <algorithm>
+#include <array>
 
 vtkStandardNewMacro(vtkPixel);
 
@@ -158,6 +162,82 @@ void vtkPixel::EvaluateLocation(int& subId, const double pcoords[3], double x[3]
 }
 
 //------------------------------------------------------------------------------
+int vtkPixel::ComputeNormal(double n[3])
+{
+  double p0[3], p1[3], p2[3];
+  this->Points->GetPoint(0, p0);
+  this->Points->GetPoint(1, p1);
+  this->Points->GetPoint(2, p2);
+  p1[0] -= p0[0];
+  p1[1] -= p0[1];
+  p1[2] -= p0[2];
+  p2[0] -= p0[0];
+  p2[1] -= p0[1];
+  p2[2] -= p0[2];
+  vtkMath::Cross(p1, p2, n);
+  if (std::abs(n[0]) < VTK_DBL_EPSILON && std::abs(n[1]) < VTK_DBL_EPSILON &&
+    std::abs(n[2]) < VTK_DBL_EPSILON)
+  {
+    return -1;
+  }
+  vtkMath::Normalize(n);
+  return (std::abs(n[1]) > 0.5) + (std::abs(n[2]) > 0.5) * 2;
+}
+
+//----------------------------------------------------------------------------
+void vtkPixel::Inflate(double dist)
+{
+  auto range = vtk::DataArrayTupleRange<3>(this->Points->GetData());
+  using TupleRef = typename decltype(range)::TupleReferenceType;
+  double n[3];
+  int normalDirection = this->ComputeNormal(n);
+  int degeneratePixelDirection = -1;
+  if (normalDirection == -1)
+  {
+    auto it = range.cbegin(), jt = range.cbegin();
+    auto compIt = it->cbegin(), compJt = jt->cbegin();
+    ++jt;
+    std::array<double, 3> diff{ *(compJt++) - *(compIt++), *(compJt++) - *(compIt++),
+      *(compJt++) - *(compIt++) };
+    auto maxIt = std::max_element(diff.cbegin(), diff.cend(),
+      [](double a, double b) -> bool { return std::abs(a) < std::abs(b); });
+    degeneratePixelDirection = std::distance(diff.cbegin(), maxIt);
+  }
+  int index = 0;
+  for (TupleRef point : range)
+  {
+    auto it = point.begin();
+    switch (normalDirection)
+    {
+      case 0:
+        *(++it++) += dist * (index % 2 ? 1.0 : -1.0);
+        *(it++) += dist * (index / 2 ? 1.0 : -1.0);
+        break;
+      case 1:
+        *(it++) += dist * (index % 2 ? 1.0 : -1.0);
+        *(++it++) += dist * (index / 2 ? 1.0 : -1.0);
+        break;
+      case 2:
+        *(it++) += dist * (index % 2 ? 1.0 : -1.0);
+        *(it++) += dist * (index / 2 ? 1.0 : -1.0);
+        break;
+      case -1:
+        if (degeneratePixelDirection > 0)
+        {
+          ++it;
+          if (degeneratePixelDirection > 1)
+          {
+            ++it;
+          }
+        }
+        *it += dist * (index % 2 ? 1.0 : -1.0);
+        break;
+    }
+    ++index;
+  }
+}
+
+//----------------------------------------------------------------------------
 int vtkPixel::CellBoundary(int vtkNotUsed(subId), const double pcoords[3], vtkIdList* pts)
 {
   double t1 = pcoords[0] - pcoords[1];

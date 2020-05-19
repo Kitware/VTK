@@ -58,6 +58,7 @@ public:
   int EvaluatePosition(const double x[3], double closestPoint[3], int& subId, double pcoords[3],
     double& dist2, double weights[]) override;
   void EvaluateLocation(int& subId, const double pcoords[3], double x[3], double* weights) override;
+  void Inflate(double dist) override;
   //@}
 
   /**
@@ -88,6 +89,13 @@ public:
     vtkPixel::InterpolationDerivs(pcoords, derivs);
   }
   //@}
+
+  /**
+   * vtkPixel's normal cannot be computed using vtkPolygon::ComputeNormal because
+   * its points are not sorted such that circulating on them forms the pixel.
+   * This is a convenient method so one can compute normals on a pixel.
+   */
+  int ComputeNormal(double n[3]);
 
 protected:
   vtkPixel();

@@ -114,6 +114,7 @@ public:
   int Triangulate(int index, vtkIdList* ptIds, vtkPoints* pts) override;
   void Derivatives(
     int subId, const double pcoords[3], const double* values, int dim, double* derivs) override;
+  void Inflate(double dist) override;
   //@}
 
   static void InterpolationDerivs(const double pcoords[3], double derivs[24]);

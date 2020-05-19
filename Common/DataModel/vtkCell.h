@@ -43,8 +43,9 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
-#include "vtkCellType.h" // Needed to define cell types
-#include "vtkIdList.h"   // Needed for inline methods
+#include "vtkBoundingBox.h" // Needed for IntersectWithCell
+#include "vtkCellType.h"    // Needed to define cell types
+#include "vtkIdList.h"      // Needed for inline methods
 
 class vtkCellArray;
 class vtkCellData;
@@ -240,6 +241,13 @@ public:
     vtkIdType cellId, vtkCellData* outCd, int insideOut) = 0;
 
   /**
+   * Inflates the cell by dist. Each point is displaced by dist in the direction of every halfedge.
+   * Input can be negative. If so, the cell will shrink. Artifacts will appear if one shrinks
+   * with -dist larger than any edge length, probably causing the cell to self-intersect.
+   */
+  virtual void Inflate(double dist);
+
+  /**
    * Intersect with a ray. Return parametric coordinates (both line and cell)
    * and global intersection coordinates, given ray definition p1[3], p2[3] and tolerance tol.
    * The method returns non-zero value if intersection occurs. A parametric distance t
@@ -249,6 +257,19 @@ public:
    */
   virtual int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
     double x[3], double pcoords[3], int& subId) = 0;
+
+  //@{
+  /**
+   * Intersects with an other cell. Returns 1 if cells intersect, 0 otherwise.
+   * If an exact intersection detection with regards to floating point precision is wanted,
+   * tol should be disregarded.
+   * `vtkBoundingBox` are optional parameters which slightly improve the speed of the computation
+   * if bounding boxes are already available to user.
+   */
+  virtual int IntersectWithCell(vtkCell* other, double tol = 0.0);
+  virtual int IntersectWithCell(vtkCell* other, const vtkBoundingBox& boudingBox,
+    const vtkBoundingBox& otherBoundingBox, double tol = 0.0);
+  //@}
 
   /**
    * Generate simplices of proper dimension. If cell is 3D, tetrahedron are

@@ -144,6 +144,11 @@ public:
   void AddBounds(const double bounds[]);
 
   /**
+   * Returns true if this instance is entirely contained by bbox.
+   */
+  bool IsSubsetOf(const vtkBoundingBox& bbox) const;
+
+  /**
    * Intersect this box with bbox. The method returns 1 if both boxes are
    * valid and they do have overlap else it will return 0.  If 0 is returned
    * the box has not been modified.
@@ -161,6 +166,17 @@ public:
    * Returns false otherwise.
    */
   bool IntersectPlane(double origin[3], double normal[3]);
+
+  /**
+   * Intersect this box with a sphere.
+   * Parameters involve the center of the sphere and the squared radius.
+   */
+  bool IntersectsSphere(double center[3], double squaredRadius) const;
+
+  /**
+   * Returns the inner dimension of the bounding box.
+   */
+  int ComputeInnerDimension() const;
 
   /**
    * Returns 1 if the min and max points of bbox are contained
@@ -374,6 +390,15 @@ inline void vtkBoundingBox::GetCenter(double center[3]) const
   center[0] = 0.5 * (this->MaxPnt[0] + this->MinPnt[0]);
   center[1] = 0.5 * (this->MaxPnt[1] + this->MinPnt[1]);
   center[2] = 0.5 * (this->MaxPnt[2] + this->MinPnt[2]);
+}
+
+inline bool vtkBoundingBox::IsSubsetOf(const vtkBoundingBox& bbox) const
+{
+  const double* bboxMaxPnt = bbox.GetMaxPoint();
+  const double* bboxMinPnt = bbox.GetMinPoint();
+  return this->MaxPnt[0] < bboxMaxPnt[0] && this->MinPnt[0] > bboxMinPnt[0] &&
+    this->MaxPnt[1] < bboxMaxPnt[1] && this->MinPnt[1] > bboxMinPnt[1] &&
+    this->MaxPnt[2] < bboxMaxPnt[2] && this->MinPnt[2] > bboxMinPnt[2];
 }
 
 inline void vtkBoundingBox::SetBounds(const double bounds[6])
