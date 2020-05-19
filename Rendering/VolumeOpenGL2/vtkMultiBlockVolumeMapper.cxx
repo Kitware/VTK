@@ -29,6 +29,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLGPUVolumeRayCastMapper.h"
 #include "vtkPerlinNoise.h"
+#include "vtkRectilinearGrid.h"
 #include "vtkRenderWindow.h"
 #include "vtkSmartVolumeMapper.h"
 
@@ -226,6 +227,12 @@ void vtkMultiBlockVolumeMapper::LoadDataSet(vtkRenderer* ren, vtkVolume* vol)
     mapper->SetInputData(inputImage);
     this->Mappers.push_back(mapper);
   }
+  else if (auto inputRectGrid = vtkRectilinearGrid::SafeDownCast(input))
+  {
+    vtkSmartVolumeMapper* mapper = this->CreateMapper();
+    mapper->SetInputData(inputRectGrid);
+    this->Mappers.push_back(mapper);
+  }
   else
   {
     vtkErrorMacro(
@@ -246,10 +253,11 @@ void vtkMultiBlockVolumeMapper::CreateMappers(
   while (!it->IsDoneWithTraversal())
   {
     vtkImageData* currentIm = vtkImageData::SafeDownCast(it->GetCurrentDataObject());
-    if (!warnedOnce && !currentIm)
+    vtkRectilinearGrid* currentRect = vtkRectilinearGrid::SafeDownCast(it->GetCurrentDataObject());
+    if (!warnedOnce && !currentIm && !currentRect)
     {
       vtkErrorMacro("At least one block in the data object is not of type"
-                    " vtkImageData.  These blocks will be ignored.");
+                    " vtkImageData or vtkRectilinearGrid.  These blocks will be ignored.");
       warnedOnce = true;
       it->GoToNextItem();
       continue;
@@ -258,9 +266,18 @@ void vtkMultiBlockVolumeMapper::CreateMappers(
     vtkSmartVolumeMapper* mapper = this->CreateMapper();
     this->Mappers.push_back(mapper);
 
-    vtkImageData* im = vtkImageData::New();
-    im->ShallowCopy(currentIm);
-    mapper->SetInputData(im);
+    if (currentIm)
+    {
+      vtkNew<vtkImageData> im;
+      im->ShallowCopy(currentIm);
+      mapper->SetInputData(im);
+    }
+    else if (currentRect)
+    {
+      vtkNew<vtkRectilinearGrid> rg;
+      rg->ShallowCopy(currentRect);
+      mapper->SetInputData(rg);
+    }
 
     // Try allocating GPU memory only while succeeding
     if (allBlocksLoaded)
@@ -268,7 +285,7 @@ void vtkMultiBlockVolumeMapper::CreateMappers(
       vtkOpenGLGPUVolumeRayCastMapper* glMapper =
         vtkOpenGLGPUVolumeRayCastMapper::SafeDownCast(mapper->GetGPUMapper());
 
-      if (glMapper)
+      if (glMapper && currentIm)
       {
         vtkImageData* imageInternal = vtkImageData::New();
         imageInternal->ShallowCopy(currentIm);
@@ -283,7 +300,6 @@ void vtkMultiBlockVolumeMapper::CreateMappers(
         imageInternal->Delete();
       }
     }
-    im->Delete();
     it->GoToNextItem();
   }
   it->Delete();
