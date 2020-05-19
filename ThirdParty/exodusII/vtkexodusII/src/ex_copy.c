@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2017 National Technology & Engineering Solutions
+ * Copyright (c) 2005-2017, 2020 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -101,10 +101,7 @@ static int is_truth_table_variable(const char *var_name)
   /* If copying just the "mesh" or "non-transient" portion of the
    * input DB, these are the variables that won't be copied:
    */
-  return (strcmp(var_name, VAR_EBLK_TAB) == 0) || (strcmp(var_name, VAR_FBLK_TAB) == 0) ||
-         (strcmp(var_name, VAR_ELEM_TAB) == 0) || (strcmp(var_name, VAR_ELSET_TAB) == 0) ||
-         (strcmp(var_name, VAR_SSET_TAB) == 0) || (strcmp(var_name, VAR_FSET_TAB) == 0) ||
-         (strcmp(var_name, VAR_ESET_TAB) == 0) || (strcmp(var_name, VAR_NSET_TAB) == 0);
+  return (strstr(var_name, "_var_tab") != NULL);
 }
 
 static int is_non_mesh_variable(const char *var_name)
@@ -112,22 +109,7 @@ static int is_non_mesh_variable(const char *var_name)
   /* If copying just the "mesh" or "non-transient" portion of the
    * input DB, these are the variables that won't be copied:
    */
-  return (strcmp(var_name, VAR_NAME_GLO_VAR) == 0) || (strcmp(var_name, VAR_GLO_VAR) == 0) ||
-         (strcmp(var_name, VAR_NAME_NOD_VAR) == 0) || (strcmp(var_name, VAR_NOD_VAR) == 0) ||
-         (strcmp(var_name, VAR_NAME_EDG_VAR) == 0) || (strcmp(var_name, VAR_NAME_FAC_VAR) == 0) ||
-         (strcmp(var_name, VAR_NAME_ELE_VAR) == 0) || (strcmp(var_name, VAR_NAME_NSET_VAR) == 0) ||
-         (strcmp(var_name, VAR_NAME_ESET_VAR) == 0) || (strcmp(var_name, VAR_NAME_FSET_VAR) == 0) ||
-         (strcmp(var_name, VAR_NAME_SSET_VAR) == 0) ||
-         (strcmp(var_name, VAR_NAME_ELSET_VAR) == 0) ||
-         (strncmp(var_name, "vals_elset_var", 14) == 0) ||
-         (strncmp(var_name, "vals_sset_var", 13) == 0) ||
-         (strncmp(var_name, "vals_fset_var", 13) == 0) ||
-         (strncmp(var_name, "vals_eset_var", 13) == 0) ||
-         (strncmp(var_name, "vals_nset_var", 13) == 0) ||
-         (strncmp(var_name, "vals_nod_var", 12) == 0) ||
-         (strncmp(var_name, "vals_edge_var", 13) == 0) ||
-         (strncmp(var_name, "vals_face_var", 13) == 0) ||
-         (strncmp(var_name, "vals_elem_var", 13) == 0);
+  return (strncmp(var_name, "vals_", 5) == 0) || (strncmp(var_name, "name_", 5) == 0);
 }
 /*! \endcond */
 
@@ -338,7 +320,9 @@ int cpy_dimension(int in_exoid, int out_exoid, int mesh_only)
               (strcmp(dim_nm, DIM_NUM_FAC_VAR) == 0) || (strcmp(dim_nm, DIM_NUM_ELE_VAR) == 0) ||
               (strcmp(dim_nm, DIM_NUM_NSET_VAR) == 0) || (strcmp(dim_nm, DIM_NUM_ESET_VAR) == 0) ||
               (strcmp(dim_nm, DIM_NUM_FSET_VAR) == 0) || (strcmp(dim_nm, DIM_NUM_SSET_VAR) == 0) ||
-              (strcmp(dim_nm, DIM_NUM_ELSET_VAR) == 0) || (strcmp(dim_nm, DIM_NUM_GLO_VAR) == 0))) {
+              (strcmp(dim_nm, DIM_NUM_ELSET_VAR) == 0) || (strcmp(dim_nm, DIM_NUM_GLO_VAR) == 0) ||
+              (strcmp(dim_nm, DIM_NUM_ASSEMBLY_VAR) == 0) ||
+              (strcmp(dim_nm, DIM_NUM_BLOB_VAR) == 0) || (strstr(dim_nm, "_red_var") != NULL))) {
       is_filtered = 1;
     }
     else {
@@ -620,6 +604,7 @@ int cpy_var_val(int in_id, int out_id, char *var_nm)
   int     nbr_dim;
   int     var_in_id;
   int     var_out_id;
+  size_t  dim_max;
   size_t  dim_str[NC_MAX_VAR_DIMS];
   size_t  dim_cnt[NC_MAX_VAR_DIMS];
   size_t  var_sz = 1L;
@@ -657,11 +642,15 @@ int cpy_var_val(int in_id, int out_id, char *var_nm)
        the void_ptr is large enough to hold new dimension */
     EXCHECKF(nc_inq_dimlen(in_id, dim_id_in[idx], &dim_in));
     EXCHECKF(nc_inq_dimlen(out_id, dim_id_out[idx], &dim_out));
-    dim_cnt[idx] = dim_in > dim_out ? dim_in : dim_out;
-    dim_str[idx] = 0;
 
     /* Initialize the indicial offset and stride arrays */
-    var_sz *= dim_cnt[idx];
+    dim_max = dim_in > dim_out ? dim_in : dim_out;
+    var_sz *= dim_max;
+
+    /* Handle case where output variable is smaller than input (rare, but happens) */
+    dim_cnt[idx] = dim_out > 0 ? dim_out : dim_in;
+    dim_str[idx] = 0;
+
   } /* end loop over dim */
 
   /* Allocate enough space to hold the variable */
@@ -780,10 +769,12 @@ int cpy_coord_val(int in_id, int out_id, char *var_nm, int in_large)
   EXCHECKI(nc_inq_varid(in_id, VAR_COORD, &var_in_id));
 
   EXCHECKI(nc_inq_varid(out_id, VAR_COORD_X, &var_out_id[0]));
-  if (spatial_dim > 1)
+  if (spatial_dim > 1) {
     EXCHECKI(nc_inq_varid(out_id, VAR_COORD_Y, &var_out_id[1]));
-  if (spatial_dim > 2)
+  }
+  if (spatial_dim > 2) {
     EXCHECKI(nc_inq_varid(out_id, VAR_COORD_Z, &var_out_id[2]));
+  }
 
   EXCHECKI(nc_inq_vartype(in_id, var_in_id, &var_type_in));
   EXCHECKI(nc_inq_vartype(out_id, var_out_id[0], &var_type_out));
@@ -821,6 +812,8 @@ void update_structs(int out_exoid)
   update_internal_structs(out_exoid, EX_INQ_EDGE_BLK, ex__get_counter_list(EX_EDGE_BLOCK));
   update_internal_structs(out_exoid, EX_INQ_FACE_BLK, ex__get_counter_list(EX_FACE_BLOCK));
   update_internal_structs(out_exoid, EX_INQ_ELEM_BLK, ex__get_counter_list(EX_ELEM_BLOCK));
+  update_internal_structs(out_exoid, EX_INQ_ASSEMBLY, ex__get_counter_list(EX_ASSEMBLY));
+  update_internal_structs(out_exoid, EX_INQ_BLOB, ex__get_counter_list(EX_BLOB));
 
   update_internal_structs(out_exoid, EX_INQ_NODE_SETS, ex__get_counter_list(EX_NODE_SET));
   update_internal_structs(out_exoid, EX_INQ_EDGE_SETS, ex__get_counter_list(EX_EDGE_SET));
@@ -860,7 +853,7 @@ size_t type_size(nc_type type)
   if (type == NC_FLOAT) {
     return sizeof(float); /* OK */
   }
-  else if (type == NC_DOUBLE) {
+  if (type == NC_DOUBLE) {
     return sizeof(double); /* OK */
   }
   else {

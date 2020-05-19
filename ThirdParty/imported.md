@@ -7,6 +7,7 @@
   * [freetype](freetype/update.sh)
   * [gl2ps](gl2ps/update.sh)
   * [glew](glew/update.sh)
+  * [ioss](ioss/update.sh)
   * [jpeg](jpeg/update.sh)
   * [jsoncpp](jsoncpp/update.sh)
   * [kwiml](../Utilities/KWIML/update.sh)

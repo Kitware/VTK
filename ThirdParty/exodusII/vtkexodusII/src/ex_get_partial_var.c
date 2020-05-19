@@ -121,7 +121,7 @@ int ex_get_partial_var(int exoid, int time_step, ex_entity_type var_type, int va
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
-  /* read values of element variable */
+  /* read values of variable */
   start[0] = --time_step;
   start[1] = start_index - 1;
 

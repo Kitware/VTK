@@ -154,6 +154,9 @@ if (NOT cdash_show_third_party_warnings)
     # it makes no sense to suppress the offending class but report the superclass
     # vtkPolyDataAlgorithm.h:91:3: note: overridden virtual function is here
     "note: overridden virtual function is here"
+
+    # Warnings from template instantiations. Remove once cmake/cmake!4766 is releasted.
+    "x(memory0|utility)\\([0-9]+\\): warning C4244"
   )
 endif ()
 

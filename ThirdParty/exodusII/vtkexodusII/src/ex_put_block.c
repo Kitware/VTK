@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2017 National Technology & Engineering Solutions
+ * Copyright (c) 2005-2017, 2020 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -76,16 +76,16 @@ int ex_put_block(int exoid, ex_entity_type blk_type, ex_entity_id blk_id, const 
                  int64_t num_edges_per_entry, int64_t num_faces_per_entry,
                  int64_t num_attr_per_entry)
 {
-  ex_block block;
-  block.type = blk_type;
-  block.id   = blk_id;
+  ex_block block = {.type                = blk_type,
+                    .id                  = blk_id,
+                    .num_entry           = num_entries_this_blk,
+                    .num_nodes_per_entry = num_nodes_per_entry,
+                    .num_edges_per_entry = num_edges_per_entry,
+                    .num_faces_per_entry = num_faces_per_entry,
+                    .num_attribute       = num_attr_per_entry};
+
   ex_copy_string(block.topology, entry_descrip, MAX_STR_LENGTH + 1);
   block.topology[MAX_STR_LENGTH] = '\0';
-  block.num_entry                = num_entries_this_blk;
-  block.num_nodes_per_entry      = num_nodes_per_entry;
-  block.num_edges_per_entry      = num_edges_per_entry;
-  block.num_faces_per_entry      = num_faces_per_entry;
-  block.num_attribute            = num_attr_per_entry;
 
   return ex_put_block_param(exoid, block);
 }

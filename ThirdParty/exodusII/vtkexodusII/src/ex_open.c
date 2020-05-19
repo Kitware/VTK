@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2017 National Technology & Engineering Solutions
+ * Copyright (c) 2005-2017, 2020 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -293,7 +293,13 @@ int ex_open_int(const char *path, int mode, int *comp_ws, int *io_ws, float *ver
 
       if (stat_att != NC_NOERR) {
         int max_so_far = 32;
-        nc_put_att_int(exoid, NC_GLOBAL, ATT_MAX_NAME_LENGTH, NC_INT, 1, &max_so_far);
+        if ((status = nc_put_att_int(exoid, NC_GLOBAL, ATT_MAX_NAME_LENGTH, NC_INT, 1,
+                                     &max_so_far)) != NC_NOERR) {
+          snprintf(errmsg, MAX_ERR_LENGTH,
+                   "ERROR: failed to add maximum_name_length attribute in file id %d", exoid);
+          ex_err_fn(exoid, __func__, errmsg, status);
+          return (EX_FATAL);
+        }
       }
 
       /* If the DIM_STR_NAME variable does not exist on the database, we need to

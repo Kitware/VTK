@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2017 National Technology & Engineering Solutions
+ * Copyright (c) 2005-2017, 2020 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -158,7 +158,7 @@ int ex_get_var_time(int exoid, ex_entity_type var_type, int var_index, int64_t i
   }
 
   /* allocate space for stat array */
-  if (!(stat_vals = malloc(num_obj * sizeof(int)))) {
+  if (!(stat_vals = calloc(num_obj, sizeof(int)))) {
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: failed to allocate memory for %s status array for file id %d",
              ex_name_of_object(var_type), exoid);
