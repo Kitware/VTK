@@ -42,20 +42,23 @@ Many of the rules in this file have the same names as in description
 of the grammar in the official ISO standard.  The file vtkParse.y is
 used to generate the file vtkParse.tab.c, which contains the parser.
 
-1. Get a copy of bison 2.3 or later, it has a yacc-compatible front end.
-2. Run yacc -b vtkParse vtkParse.y, it will generate vtkParse.tab.c
+1. Get a copy of bison 3.2.3 or later, it has a yacc-compatible front end.
+2. Run bison --no-lines -b vtkParse vtkParse.y, to generate vtkParse.tab.c
 3. Edit the file vtkParse.tab.c as follows, to eliminate compiler warnings
    and to make it pass the git commit hook tests:
-a) Convert tabs to 8 spaces, e.g. :%s/\t/        /g
-b) Remove extra whitespace from the ends of lines, e.g. :%s/  *$//
-c) Remove blank lines at the beginning and end of the file
-d) Replace all instances of "static inline" with "static".
+a) replace all instances of "static inline" with "static"
+b) replace "#if ! defined lint || defined __GNUC__" with "#if 1"
+c) remove YY_ATTRIBUTE_UNUSED from yyfillin, yyfill, and yynormal
+d) remove the "break;" after "return yyreportAmbiguity"
+e) replace "(1-yyrhslen)" with "(1-(int)yyrhslen)"
+f) replace "sizeof yynewStates[0] with "sizeof (yyGLRState*)"
+g) replace "sizeof yynewLookaheadNeeds[0] with "sizeof (yybool)"
 
-When yacc is run, it should not report any shift/reduce or reduce/reduce
+When bison is run, it should not report any shift/reduce or reduce/reduce
 warnings.  If modifications to the rules cause these warnings to occur,
 you can run yacc with the --debug and --verbose options:
- yacc --debug --verbose -b vtkParse vtkParse.y
-This will cause yacc to produce a file called "vtkParse.output" that
+ bison --debug --verbose -b vtkParse vtkParse.y
+This will cause bison to produce a file called "vtkParse.output" that
 will show which rules conflict with other rules.
 
 The rules in vtkParse.y avoid most of the ambiguities that are present

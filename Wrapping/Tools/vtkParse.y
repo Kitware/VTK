@@ -18,7 +18,7 @@
 
 This file must be translated to C and modified to build everywhere.
 
-Run bison like this (use bison 3.0.2 or later)
+Run bison like this (use bison 3.2.3 or later)
 
   bison --no-lines -b vtkParse vtkParse.y
 
@@ -28,7 +28,6 @@ Modify vtkParse.tab.c:
   - remove YY_ATTRIBUTE_UNUSED from yyfillin, yyfill, and yynormal
   - remove the "break;" after "return yyreportAmbiguity"
   - replace "(1-yyrhslen)" with "(1-(int)yyrhslen)"
-  - remove dead store "yynewStates = YY_NULLPTR;"
   - replace "sizeof yynewStates[0] with "sizeof (yyGLRState*)"
   - replace "sizeof yynewLookaheadNeeds[0] with "sizeof (yybool)"
 */
