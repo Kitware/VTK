@@ -237,6 +237,17 @@ void vtkPixel::Inflate(double dist)
   }
 }
 
+//------------------------------------------------------------------------------
+double vtkPixel::ComputeBoundingSphere(double center[3]) const
+{
+  auto points = vtk::DataArrayTupleRange(this->Points->GetData());
+  auto p0 = points[0], p3 = points[3];
+  center[0] = 0.5 * (p0[0] + p3[0]);
+  center[1] = 0.5 * (p0[1] + p3[1]);
+  center[2] = 0.5 * (p0[2] + p3[2]);
+  return vtkMath::Distance2BetweenPoints(center, p0);
+}
+
 //----------------------------------------------------------------------------
 int vtkPixel::CellBoundary(int vtkNotUsed(subId), const double pcoords[3], vtkIdList* pts)
 {

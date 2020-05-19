@@ -62,6 +62,11 @@ public:
   //@}
 
   /**
+   * Computes exact bounding sphere of this pixel.
+   */
+  double ComputeBoundingSphere(double center[3]) const override;
+
+  /**
    * Return the center of the triangle in parametric coordinates.
    */
   int GetParametricCenter(double pcoords[3]) override;
