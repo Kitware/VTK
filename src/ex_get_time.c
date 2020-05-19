@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2017 National Technology & Engineering Solutions
+ * Copyright (c) 2005-2017, 2020 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -90,6 +90,7 @@ int ex_get_time(int exoid, int time_step, void *time_value)
   if (!file) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: unknown file id %d.", exoid);
     ex_err_fn(exoid, __func__, errmsg, EX_BADFILEID);
+    EX_FUNC_LEAVE(EX_FATAL);
   }
 
   int num_time_steps = ex_inquire_int(exoid, EX_INQ_TIME);

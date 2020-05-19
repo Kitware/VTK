@@ -136,6 +136,13 @@ int ex_get_truth_table(int exoid, ex_entity_type obj_type, int num_blk, int num_
     var_name = "vals_elset_var";
     ent_type = "es";
     break;
+  case EX_BLOB:
+    status =
+        ex__get_dimension(exoid, DIM_NUM_BLOB_VAR, "blob variables", &num_var_db, &varid, __func__);
+    status1  = nc_inq_varid(exoid, VAR_BLOB_TAB, &tabid);
+    var_name = "vals_blob_var";
+    ent_type = "blob";
+    break;
   default:
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: Invalid variable type %d specified in file id %d",
              obj_type, exoid);

@@ -74,6 +74,14 @@ int ex_put_names(int exoid, ex_entity_type obj_type, char *names[])
   ex__check_valid_file_id(exoid, __func__);
 
   switch (obj_type) {
+  /*  ======== ASSEMBLY ========= */
+  case EX_ASSEMBLY:
+    snprintf(errmsg, MAX_ERR_LENGTH,
+             "ERROR: Assembly names are written using `ex_put_assembly()` function");
+    ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
+    EX_FUNC_LEAVE(EX_FATAL);
+    break;
+
   /*  ======== BLOCKS ========= */
   case EX_EDGE_BLOCK: vname = VAR_NAME_ED_BLK; break;
   case EX_FACE_BLOCK: vname = VAR_NAME_FA_BLK; break;

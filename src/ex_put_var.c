@@ -36,9 +36,9 @@
 #include "exodusII.h"     // for ex_err, etc
 #include "exodusII_int.h" // for EX_FATAL, etc
 
-static int ex_look_up_var(int exoid, ex_entity_type var_type, int var_index, ex_entity_id obj_id,
-                          const char *VOBJID, const char *VOBJTAB, const char *DNUMOBJ,
-                          const char *DNUMOBJVAR, int *varid)
+static int ex__look_up_var(int exoid, ex_entity_type var_type, int var_index, ex_entity_id obj_id,
+                           const char *VOBJID, const char *VOBJTAB, const char *DNUMOBJ,
+                           const char *DNUMOBJVAR, int *varid)
 {
   int status;
   int obj_id_ndx;
@@ -51,25 +51,49 @@ static int ex_look_up_var(int exoid, ex_entity_type var_type, int var_index, ex_
   int *obj_var_truth_tab;
   char errmsg[MAX_ERR_LENGTH];
 
-  /* Determine index of obj_id in VOBJID array */
-  obj_id_ndx = ex__id_lkup(exoid, var_type, obj_id);
-  if (obj_id_ndx <= 0) {
-    ex_get_err(NULL, NULL, &status);
-
+  if (var_type == EX_ASSEMBLY) {
+    status = nc_inq_varid(exoid, VAR_ENTITY_ASSEMBLY(obj_id), varid);
     if (status != 0) {
-      if (status == EX_NULLENTITY) {
-        snprintf(errmsg, MAX_ERR_LENGTH,
-                 "Warning: no variables allowed for NULL block %" PRId64 " in file id %d", obj_id,
-                 exoid);
-        ex_err_fn(exoid, __func__, errmsg, EX_NULLENTITY);
-        return (EX_WARN);
-      }
-
       snprintf(errmsg, MAX_ERR_LENGTH,
                "ERROR: failed to locate %s id %" PRId64 " in %s array in file id %d",
                ex_name_of_object(var_type), obj_id, VOBJID, exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
       return (EX_FATAL);
+    }
+    obj_id_ndx = obj_id;
+  }
+  else if (var_type == EX_BLOB) {
+    status = nc_inq_varid(exoid, VAR_ENTITY_BLOB(obj_id), varid);
+    if (status != 0) {
+      snprintf(errmsg, MAX_ERR_LENGTH,
+               "ERROR: failed to locate %s id %" PRId64 " in %s array in file id %d",
+               ex_name_of_object(var_type), obj_id, VOBJID, exoid);
+      ex_err_fn(exoid, __func__, errmsg, status);
+      return (EX_FATAL);
+    }
+    obj_id_ndx = obj_id;
+  }
+  else {
+    /* Determine index of obj_id in VOBJID array */
+    obj_id_ndx = ex__id_lkup(exoid, var_type, obj_id);
+    if (obj_id_ndx <= 0) {
+      ex_get_err(NULL, NULL, &status);
+
+      if (status != 0) {
+        if (status == EX_NULLENTITY) {
+          snprintf(errmsg, MAX_ERR_LENGTH,
+                   "Warning: no variables allowed for NULL block %" PRId64 " in file id %d", obj_id,
+                   exoid);
+          ex_err_fn(exoid, __func__, errmsg, EX_NULLENTITY);
+          return (EX_WARN);
+        }
+
+        snprintf(errmsg, MAX_ERR_LENGTH,
+                 "ERROR: failed to locate %s id %" PRId64 " in %s array in file id %d",
+                 ex_name_of_object(var_type), obj_id, VOBJID, exoid);
+        ex_err_fn(exoid, __func__, errmsg, status);
+        return (EX_FATAL);
+      }
     }
   }
 
@@ -275,37 +299,45 @@ int ex_put_var(int exoid, int time_step, ex_entity_type var_type, int var_index,
     status = ex__put_nodal_var(exoid, time_step, var_index, num_entries_this_obj, var_vals);
     EX_FUNC_LEAVE(status);
     break;
+  case EX_ASSEMBLY:
+    status = ex__look_up_var(exoid, var_type, var_index, obj_id, "", VAR_ASSEMBLY_TAB,
+                             DIM_NUM_ASSEMBLY, DIM_NUM_ASSEMBLY_VAR, &varid);
+    break;
+  case EX_BLOB:
+    status = ex__look_up_var(exoid, var_type, var_index, obj_id, "", VAR_BLOB_TAB, DIM_NUM_BLOB,
+                             DIM_NUM_BLOB_VAR, &varid);
+    break;
   case EX_EDGE_BLOCK:
-    status = ex_look_up_var(exoid, var_type, var_index, obj_id, VAR_ID_ED_BLK, VAR_EBLK_TAB,
-                            DIM_NUM_ED_BLK, DIM_NUM_EDG_VAR, &varid);
+    status = ex__look_up_var(exoid, var_type, var_index, obj_id, VAR_ID_ED_BLK, VAR_EBLK_TAB,
+                             DIM_NUM_ED_BLK, DIM_NUM_EDG_VAR, &varid);
     break;
   case EX_FACE_BLOCK:
-    status = ex_look_up_var(exoid, var_type, var_index, obj_id, VAR_ID_FA_BLK, VAR_FBLK_TAB,
-                            DIM_NUM_FA_BLK, DIM_NUM_FAC_VAR, &varid);
+    status = ex__look_up_var(exoid, var_type, var_index, obj_id, VAR_ID_FA_BLK, VAR_FBLK_TAB,
+                             DIM_NUM_FA_BLK, DIM_NUM_FAC_VAR, &varid);
     break;
   case EX_ELEM_BLOCK:
-    status = ex_look_up_var(exoid, var_type, var_index, obj_id, VAR_ID_EL_BLK, VAR_ELEM_TAB,
-                            DIM_NUM_EL_BLK, DIM_NUM_ELE_VAR, &varid);
+    status = ex__look_up_var(exoid, var_type, var_index, obj_id, VAR_ID_EL_BLK, VAR_ELEM_TAB,
+                             DIM_NUM_EL_BLK, DIM_NUM_ELE_VAR, &varid);
     break;
   case EX_NODE_SET:
-    status = ex_look_up_var(exoid, var_type, var_index, obj_id, VAR_NS_IDS, VAR_NSET_TAB,
-                            DIM_NUM_NS, DIM_NUM_NSET_VAR, &varid);
+    status = ex__look_up_var(exoid, var_type, var_index, obj_id, VAR_NS_IDS, VAR_NSET_TAB,
+                             DIM_NUM_NS, DIM_NUM_NSET_VAR, &varid);
     break;
   case EX_EDGE_SET:
-    status = ex_look_up_var(exoid, var_type, var_index, obj_id, VAR_ES_IDS, VAR_ESET_TAB,
-                            DIM_NUM_ES, DIM_NUM_ESET_VAR, &varid);
+    status = ex__look_up_var(exoid, var_type, var_index, obj_id, VAR_ES_IDS, VAR_ESET_TAB,
+                             DIM_NUM_ES, DIM_NUM_ESET_VAR, &varid);
     break;
   case EX_FACE_SET:
-    status = ex_look_up_var(exoid, var_type, var_index, obj_id, VAR_FS_IDS, VAR_FSET_TAB,
-                            DIM_NUM_FS, DIM_NUM_FSET_VAR, &varid);
+    status = ex__look_up_var(exoid, var_type, var_index, obj_id, VAR_FS_IDS, VAR_FSET_TAB,
+                             DIM_NUM_FS, DIM_NUM_FSET_VAR, &varid);
     break;
   case EX_SIDE_SET:
-    status = ex_look_up_var(exoid, var_type, var_index, obj_id, VAR_SS_IDS, VAR_SSET_TAB,
-                            DIM_NUM_SS, DIM_NUM_SSET_VAR, &varid);
+    status = ex__look_up_var(exoid, var_type, var_index, obj_id, VAR_SS_IDS, VAR_SSET_TAB,
+                             DIM_NUM_SS, DIM_NUM_SSET_VAR, &varid);
     break;
   case EX_ELEM_SET:
-    status = ex_look_up_var(exoid, var_type, var_index, obj_id, VAR_ELS_IDS, VAR_ELSET_TAB,
-                            DIM_NUM_ELS, DIM_NUM_ELSET_VAR, &varid);
+    status = ex__look_up_var(exoid, var_type, var_index, obj_id, VAR_ELS_IDS, VAR_ELSET_TAB,
+                             DIM_NUM_ELS, DIM_NUM_ELSET_VAR, &varid);
     break;
   default:
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: invalid variable type (%d) specified for file id %d",

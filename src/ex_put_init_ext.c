@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2017 National Technology & Engineering Solutions
+ * Copyright (c) 2005-2017, 2020 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -100,6 +100,7 @@ static int ex_write_object_names(int exoid, const char *type, const char *dimens
       ex_err_fn(exoid, __func__, errmsg, status);
       return (status); /* exit define mode and return */
     }
+    ex__set_compact_storage(exoid, varid);
 #if NC_HAS_HDF5
     nc_def_var_fill(exoid, varid, 0, &fill);
 #endif
@@ -134,6 +135,7 @@ static int ex_write_object_params(int exoid, const char *type, const char *dimen
       ex_err_fn(exoid, __func__, errmsg, status);
       return (status); /* exit define mode and return */
     }
+    ex__set_compact_storage(exoid, varid);
 
     /* type id array */
     int_type = NC_INT;
@@ -146,6 +148,7 @@ static int ex_write_object_params(int exoid, const char *type, const char *dimen
       ex_err_fn(exoid, __func__, errmsg, status);
       return (status); /* exit define mode and return */
     }
+    ex__set_compact_storage(exoid, varid);
 
     /*   store property name as attribute of property array variable */
     if ((status = nc_put_att_text(exoid, varid, ATT_PROP_NAME, 3, "ID")) != NC_NOERR) {
@@ -237,8 +240,8 @@ static void invalidate_id_status(int exoid, const char *var_stat, const char *va
 
 int ex_put_init_ext(int exoid, const ex_init_params *model)
 {
-  int numdimdim, numnoddim, elblkdim, edblkdim, fablkdim, esetdim, fsetdim, elsetdim, nsetdim,
-      ssetdim, dim_str_name, dim[2], temp;
+  int numdimdim, numnoddim, elblkdim, edblkdim, fablkdim, esetdim, fsetdim, elsetdim,
+      nsetdim, ssetdim, dim_str_name, dim[2], temp;
   int nmapdim, edmapdim, famapdim, emapdim, timedim;
   int status;
   int title_len;
@@ -246,12 +249,11 @@ int ex_put_init_ext(int exoid, const ex_init_params *model)
   /* used for header size calculations which are turned off for now */
   int header_size, fixed_var_size, iows;
 #endif
-  char errmsg[MAX_ERR_LENGTH];
+  char                  errmsg[MAX_ERR_LENGTH];
 
   EX_FUNC_ENTER();
-  int rootid = exoid & EX_FILE_ID_MASK;
-
   ex__check_valid_file_id(exoid, __func__);
+  int rootid = exoid & EX_FILE_ID_MASK;
 
   if (rootid == exoid && nc_inq_dimid(exoid, DIM_NUM_DIM, &temp) == NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: initialization already done for file id %d", exoid);

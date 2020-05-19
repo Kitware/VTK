@@ -52,6 +52,7 @@
  *****************************************************************************/
 
 #include "exodusII.h" // for ex_put_all_var_param
+#include "exodusII_int.h"
 
 /*!
  * writes the number of global, nodal, and element variables
@@ -71,5 +72,6 @@ int ex_put_concat_var_param(int exoid, int num_g, int num_n, int num_e,
                             int  num_elem_blk, /* unused */
                             int *elem_var_tab)
 {
+  EX_UNUSED(num_elem_blk);
   return ex_put_all_var_param(exoid, num_g, num_n, num_e, elem_var_tab, 0, 0, 0, 0);
 }
