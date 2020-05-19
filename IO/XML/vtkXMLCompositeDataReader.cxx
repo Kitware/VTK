@@ -337,7 +337,7 @@ unsigned int vtkXMLCompositeDataReader::CountNestedElements(
 //------------------------------------------------------------------------------
 void vtkXMLCompositeDataReader::ReadXMLData()
 {
-  vtkLogF(INFO, "vtkXMLCompositeDataReader::ReadXMLData");
+  vtkLogF(TRACE, "vtkXMLCompositeDataReader::ReadXMLData");
   vtkInformation* info = this->GetCurrentOutputInformation();
 
   this->Internal->UpdatePiece = info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
