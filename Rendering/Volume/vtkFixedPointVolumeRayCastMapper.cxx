@@ -1369,6 +1369,12 @@ void vtkFixedPointVolumeRayCastMapper::Render(vtkRenderer* ren, vtkVolume* vol)
   //    this->ThreadWarning = false;
   //    }
 
+  if (vtkImageData::SafeDownCast(this->GetInput()) == nullptr)
+  {
+    vtkWarningMacro("Mapper supports only vtkImageData");
+    return;
+  }
+
   if (this->GetBlendMode() != vtkVolumeMapper::COMPOSITE_BLEND &&
     this->GetBlendMode() != vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND &&
     this->GetBlendMode() != vtkVolumeMapper::MINIMUM_INTENSITY_BLEND &&
