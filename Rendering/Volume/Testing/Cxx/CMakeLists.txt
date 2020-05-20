@@ -75,6 +75,7 @@ set (VolumeCxxTests
   TestGPUVolumeRayCastMapper.cxx
   TestMinIntensityRendering.cxx
   TestMultiBlockMapper.cxx
+  TestMultiBlockMapperRectilinearGrid.cxx
   TestProjectedTetrahedra.cxx
   TestProjectedTetrahedraOffscreen.cxx
   TestProjectedTetrahedraTransform.cxx
