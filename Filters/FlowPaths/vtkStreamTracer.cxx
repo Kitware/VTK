@@ -415,6 +415,10 @@ int vtkStreamTracer::SetupOutput(vtkInformation* inInfo, vtkInformation* outInfo
   int numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
 
   vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());
+  vtkDataObject* output = outInfo->Get(vtkDataObject::DATA_OBJECT());
+
+  // Pass through field data
+  output->GetFieldData()->PassData(input->GetFieldData());
 
   vtkCompositeDataSet* hdInput = vtkCompositeDataSet::SafeDownCast(input);
   vtkDataSet* dsInput = vtkDataSet::SafeDownCast(input);
