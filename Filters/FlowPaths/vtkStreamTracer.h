@@ -69,6 +69,11 @@
  * a source object, traces will be generated from each point in the source
  * that is inside the dataset.
  *
+ * @note Field data is shallow copied to the output. When the input is a
+ * composite data set, field data associated with the root block is shallow-
+ * copied to the output vtkPolyData.
+ *
+ *
  * @sa
  * vtkRibbonFilter vtkRuledSurfaceFilter vtkInitialValueProblemSolver
  * vtkRungeKutta2 vtkRungeKutta4 vtkRungeKutta45 vtkParticleTracerBase

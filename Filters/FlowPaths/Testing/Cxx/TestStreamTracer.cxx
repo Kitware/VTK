@@ -70,10 +70,16 @@ int TestFieldNames(int, char*[])
   }
   image1->GetPointData()->AddArray(arr1);
 
+  vtkNew<vtkIntArray> fieldArray;
+  fieldArray->SetNumberOfTuples(1);
+  fieldArray->SetName("GlobalData");
+  fieldArray->SetValue(0, 3);
+
   vtkNew<vtkMultiBlockDataSet> dataSets;
   dataSets->SetNumberOfBlocks(2);
   dataSets->SetBlock(0, image0);
   dataSets->SetBlock(1, image1);
+  dataSets->GetFieldData()->AddArray(fieldArray);
 
   // create one seed
   vtkNew<vtkPolyData> seeds;
@@ -94,7 +100,8 @@ int TestFieldNames(int, char*[])
   vtkPolyData* trace = vtkPolyData::SafeDownCast(tracer->GetOutputDataObject(0));
   if (trace->GetPointData()->GetArray("array 0") != nullptr ||
     trace->GetPointData()->GetArray("array 1") != nullptr ||
-    trace->GetPointData()->GetArray("RTData") == nullptr || trace->GetNumberOfPoints() == 0)
+    trace->GetPointData()->GetArray("RTData") == nullptr || trace->GetNumberOfPoints() == 0 ||
+    trace->GetFieldData()->GetArray("GlobalData") == nullptr)
   {
     return EXIT_FAILURE;
   }
