@@ -248,6 +248,16 @@ public:
   virtual void Inflate(double dist);
 
   /**
+   * Computes the bounding sphere of the cell. If the number of points in the cell is lower
+   * or equal to 4, an exact bounding sphere is computed. If not, Ritter's algorithm
+   * is followed. If the input sphere has zero points, then each coordinate of
+   * center is set to NaN, as well as the returned distance.
+   *
+   * This method computes the center of the sphere, and returns its squared radius.
+   */
+  virtual double ComputeBoundingSphere(double center[3]) const;
+
+  /**
    * Intersect with a ray. Return parametric coordinates (both line and cell)
    * and global intersection coordinates, given ray definition p1[3], p2[3] and tolerance tol.
    * The method returns non-zero value if intersection occurs. A parametric distance t

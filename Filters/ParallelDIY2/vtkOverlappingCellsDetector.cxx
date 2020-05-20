@@ -49,8 +49,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include "vtkXMLDataObjectWriter.h"
-
 // clang-format off
 #include "vtk_diy2.h"
 #include VTK_DIY2(diy/mpi.hpp)
@@ -103,12 +101,12 @@ vtkPointSet* ConvertCellsToBoundingSpheres(vtkDataSet* ds, std::vector<vtkBoundi
 
   for (vtkIdType id = 0; id < size; ++id)
   {
-    bboxes.emplace_back(ds->GetCell(id)->GetBounds());
-    vtkBoundingBox& bbox = bboxes[id];
+    vtkCell* cell = ds->GetCell(id);
+    bboxes.emplace_back(ds->GetBounds());
     double center[3];
-    bbox.GetCenter(center);
+    double radius2 = cell->ComputeBoundingSphere(center);
+    SphereRadiusArray->SetValue(id, std::sqrt(radius2));
     points->SetPoint(id, center);
-    SphereRadiusArray->SetValue(id, bbox.GetDiagonalLength() * 0.5);
   }
 
   pointCloud->GetPointData()->AddArray(SphereRadiusArray);
@@ -440,7 +438,7 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(vtkPointSet* 
   }
 
   // We share overlapping candidates with neighbor blocks.
-  master.foreach ([&output, &overlappingCellCandidatesDataSets](
+  master.foreach ([&overlappingCellCandidatesDataSets](
                     void*, const diy::Master::ProxyWithLink& cp) {
     // enqueue
     for (int i = 0; i < static_cast<int>(cp.link()->size()); ++i)
@@ -450,8 +448,7 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(vtkPointSet* 
     }
   });
   master.exchange();
-  master.foreach ([&output, &overlappingCellCandidatesDataSets](
-                    detail::Block* block, const diy::Master::ProxyWithLink& cp) {
+  master.foreach ([](detail::Block* block, const diy::Master::ProxyWithLink& cp) {
     // dequeue
     std::vector<int> incoming;
     cp.incoming(incoming);
@@ -527,7 +524,7 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(vtkPointSet* 
 
   // We need to send back collision information to the original block, so they
   // can add the collisions they couldn't detect.
-  master.foreach ([&output, &collisionListMapList](void*, const diy::Master::ProxyWithLink& cp) {
+  master.foreach ([&collisionListMapList](void*, const diy::Master::ProxyWithLink& cp) {
     // enqueue
     for (int i = 0; i < static_cast<int>(cp.link()->size()); ++i)
     {
@@ -536,7 +533,7 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(vtkPointSet* 
     }
   });
   master.exchange();
-  master.foreach ([&output](detail::Block* block, const diy::Master::ProxyWithLink& cp) {
+  master.foreach ([](detail::Block* block, const diy::Master::ProxyWithLink& cp) {
     // dequeue
     std::vector<int> incoming;
     cp.incoming(incoming);

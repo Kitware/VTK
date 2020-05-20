@@ -106,6 +106,17 @@ bool vtkVoxel::IsInsideOut()
 }
 
 //------------------------------------------------------------------------------
+double vtkVoxel::ComputeBoundingSphere(double center[3]) const
+{
+  auto points = vtk::DataArrayTupleRange(this->Points->GetData());
+  auto p0 = points[0], p7 = points[7];
+  center[0] = 0.5 * (p0[0] + p7[0]);
+  center[1] = 0.5 * (p0[1] + p7[1]);
+  center[2] = 0.5 * (p0[2] + p7[2]);
+  return vtkMath::Distance2BetweenPoints(center, p0);
+}
+
+//------------------------------------------------------------------------------
 int vtkVoxel::EvaluatePosition(const double x[3], double closestPoint[3], int& subId,
   double pcoords[3], double& dist2, double weights[])
 {

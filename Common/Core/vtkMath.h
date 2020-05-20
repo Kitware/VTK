@@ -523,6 +523,27 @@ public:
 
   /**
    * Compute distance squared between two points p1 and p2.
+   * This version allows for custom range and iterator types to be used. These
+   * types must implement `operator[]`, and at least one of them must have
+   * a `value_type` typedef.
+   *
+   * The first template parameter `ReturnTypeT` sets the return type of this method.
+   * By default, it is set to `double`, but it can be overridden.
+   *
+   * The `EnableT` template parameter is used to make sure that this version
+   * doesn't capture the `float*`, `float[]`, `double*`, `double[]` as
+   * those should go to the other `Distance2BetweenPoints` functions.
+   *
+   * @warning This method assumes that both parameters have 3 components.
+   */
+  template <typename ReturnTypeT = double, typename TupleRangeT1, typename TupleRangeT2,
+    typename EnableT = typename std::conditional<!std::is_pointer<TupleRangeT1>::value &&
+        !std::is_array<TupleRangeT1>::value,
+      TupleRangeT1, TupleRangeT2>::type::value_type>
+  static ReturnTypeT Distance2BetweenPoints(const TupleRangeT1& p1, const TupleRangeT2& p2);
+
+  /**
+   * Compute distance squared between two points p1 and p2.
    * (float version).
    */
   static float Distance2BetweenPoints(const float p1[3], const float p2[3]);
@@ -1431,6 +1452,14 @@ inline float vtkMath::Distance2BetweenPoints(const float p1[3], const float p2[3
 
 //----------------------------------------------------------------------------
 inline double vtkMath::Distance2BetweenPoints(const double p1[3], const double p2[3])
+{
+  return ((p1[0] - p2[0]) * (p1[0] - p2[0]) + (p1[1] - p2[1]) * (p1[1] - p2[1]) +
+    (p1[2] - p2[2]) * (p1[2] - p2[2]));
+}
+
+//----------------------------------------------------------------------------
+template <typename ReturnTypeT, typename TupleRangeT1, typename TupleRangeT2, typename EnableT>
+inline ReturnTypeT vtkMath::Distance2BetweenPoints(const TupleRangeT1& p1, const TupleRangeT2& p2)
 {
   return ((p1[0] - p2[0]) * (p1[0] - p2[0]) + (p1[1] - p2[1]) * (p1[1] - p2[1]) +
     (p1[2] - p2[2]) * (p1[2] - p2[2]));

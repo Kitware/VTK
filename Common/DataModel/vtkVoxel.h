@@ -65,6 +65,11 @@ public:
   //@}
 
   /**
+   * Computes exact bounding sphere of this voxel.
+   */
+  double ComputeBoundingSphere(double center[3]) const override;
+
+  /**
    * static constexpr handle on the number of points.
    */
   static constexpr vtkIdType NumberOfPoints = 8;

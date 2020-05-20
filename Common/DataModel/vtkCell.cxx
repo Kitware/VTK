@@ -20,6 +20,8 @@
 #include "vtkPoints.h"
 #include "vtkPolygon.h"
 #include "vtkSmartPointer.h"
+#include "vtkTetra.h"
+#include "vtkTriangle.h"
 
 #include <vector>
 
@@ -158,6 +160,117 @@ void vtkCell::DeepCopy(vtkCell* c)
 {
   this->Points->DeepCopy(c->Points);
   this->PointIds->DeepCopy(c->PointIds);
+}
+
+//------------------------------------------------------------------------------
+double vtkCell::ComputeBoundingSphere(double center[3]) const
+{
+  // We do easy cases first for number of points <= 4
+  switch (this->Points->GetNumberOfPoints())
+  {
+    case 0:
+      center[0] = std::numeric_limits<double>::quiet_NaN();
+      center[1] = std::numeric_limits<double>::quiet_NaN();
+      center[2] = std::numeric_limits<double>::quiet_NaN();
+      return std::numeric_limits<double>::quiet_NaN();
+    case 1:
+      this->Points->GetPoint(0, center);
+      return 0.0;
+    case 2:
+    {
+      auto points = vtk::DataArrayTupleRange(this->Points->GetData());
+      auto p0 = points[0], p1 = points[1];
+      center[0] = 0.5 * (p0[0] + p1[0]);
+      center[1] = 0.5 * (p0[1] + p1[1]);
+      center[2] = 0.5 * (p0[2] + p1[2]);
+      return vtkMath::Distance2BetweenPoints(center, p0);
+    }
+    case 3:
+    {
+      vtkTriangle::ComputeCentroid(this->Points, nullptr, center);
+      auto points = vtk::DataArrayTupleRange(this->Points->GetData());
+      return vtkMath::Distance2BetweenPoints(center, points[0]);
+    }
+    case 4:
+    {
+      vtkTetra::ComputeCentroid(this->Points, nullptr, center);
+      auto points = vtk::DataArrayTupleRange(this->Points->GetData());
+      return vtkMath::Distance2BetweenPoints(center, points[0]);
+    }
+    default:
+      break;
+  }
+
+  // For more complex cells, we follow Ritter's bounding sphere algorithm
+  // 1. Pick a point x (first point in our case) in the cell, and look for
+  //    a point y the furthest from x.
+  // 2. Look for a point z the furthest from y.
+  // 3. Create a sphere centered at [z,y] with appropriate radius
+  // 4. Until all points are not in the sphere, take a point outside the sphere,
+  //    and update the sphere to include former sphere + this point
+
+  auto points = vtk::DataArrayTupleRange(this->Points->GetData());
+  using ConstRefType = typename decltype(points)::ConstTupleReferenceType;
+
+  ConstRefType x = points[0];
+  vtkIdType yid = 1, zid = 0;
+
+  double dist2 = 0.0;
+  for (vtkIdType id = 1; id < points.size(); ++id)
+  {
+    double tmpdist2 = vtkMath::Distance2BetweenPoints(points[id], x);
+    if (tmpdist2 > dist2)
+    {
+      dist2 = tmpdist2;
+      yid = id;
+    }
+  }
+
+  ConstRefType y = points[yid];
+
+  dist2 = 0.0;
+  for (vtkIdType id = 0; id < points.size(); ++id)
+  {
+    double tmpdist2 = vtkMath::Distance2BetweenPoints(points[id], y);
+    if (tmpdist2 > dist2)
+    {
+      dist2 = tmpdist2;
+      zid = id;
+    }
+  }
+
+  ConstRefType z = points[zid];
+  center[0] = 0.5 * (y[0] + z[0]);
+  center[1] = 0.5 * (y[1] + z[1]);
+  center[2] = 0.5 * (y[2] + z[2]);
+  dist2 = vtkMath::Distance2BetweenPoints(y, center);
+
+  double v[3];
+  vtkIdType pointId;
+  do
+  {
+    for (pointId = 0; pointId < points.size(); ++pointId)
+    {
+      if (vtkMath::Distance2BetweenPoints(points[pointId], center) > dist2)
+      {
+        break;
+      }
+    }
+    if (pointId != points.size())
+    {
+      auto p = points[pointId];
+      v[0] = p[0] - center[0];
+      v[1] = p[1] - center[1];
+      v[2] = p[2] - center[2];
+      double d = 0.5 * (vtkMath::Norm(v) - std::sqrt(dist2));
+      vtkMath::Normalize(v);
+      center[0] += d * v[0];
+      center[1] += d * v[0];
+      center[2] += d * v[2];
+      dist2 = vtkMath::Distance2BetweenPoints(p, center);
+    }
+  } while (pointId != points.size());
+  return dist2;
 }
 
 //------------------------------------------------------------------------------
