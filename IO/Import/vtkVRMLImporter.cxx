@@ -31,6 +31,7 @@
 =======================================================================*/
 #include "vtkVRMLImporter.h"
 
+#include "vtkAbstractArray.h"
 #include "vtkActor.h"
 #include "vtkCellArray.h"
 #include "vtkConeSource.h"
@@ -1400,7 +1401,7 @@ std::string vtkVRMLImporter::GetOutputsDescription()
   {
     vtkObject* obj = this->Internal->Heap.Get(i);
     vtkPoints* points = vtkPoints::SafeDownCast(obj);
-    vtkDataArray* array = vtkDataArray::SafeDownCast(obj);
+    vtkAbstractArray* array = vtkAbstractArray::SafeDownCast(obj);
     if (points)
     {
       ss << "Points with " << points->GetNumberOfPoints() << " points\n";
