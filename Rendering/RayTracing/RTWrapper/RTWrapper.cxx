@@ -8,6 +8,7 @@
 #endif
 
 #include "RTWrapper.h"
+#include "vtksys/SystemTools.hxx"
 
 #include <algorithm>
 #include <cassert>
@@ -29,7 +30,9 @@ RTW::OSPRayBackend* rtwOSPRayBackend = nullptr;
 void rtwInit()
 {
 #ifdef VTK_ENABLE_VISRTX
-  if (!rtwVisRTXBackend)
+  const bool dontSkipVisRTXInit = vtksys::SystemTools::GetEnv("VTK_DEBUG_SKIP_VISRTX_CHECK") == nullptr;
+
+  if (!rtwVisRTXBackend && dontSkipVisRTXInit)
   {
     rtwVisRTXBackend = new RTW::VisRTXBackend();
     if (rtwVisRTXBackend->Init() != RTW_NO_ERROR)
@@ -42,7 +45,9 @@ void rtwInit()
   }
 #endif
 #ifdef VTK_ENABLE_OSPRAY
-  if (!rtwOSPRayBackend)
+  const bool dontSkipOSPRAYInit = vtksys::SystemTools::GetEnv("VTK_DEBUG_SKIP_OSPRAY_CHECK") == nullptr;
+
+  if (!rtwOSPRayBackend && dontSkipOSPRAYInit)
   {
     rtwOSPRayBackend = new RTW::OSPRayBackend();
     if (rtwOSPRayBackend->Init() != RTW_NO_ERROR)
