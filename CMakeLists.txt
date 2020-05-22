@@ -229,7 +229,6 @@ set(vtk_source_directories
   "${CMAKE_CURRENT_SOURCE_DIR}/Interaction"
   "${CMAKE_CURRENT_SOURCE_DIR}/IO"
   "${CMAKE_CURRENT_SOURCE_DIR}/Parallel"
-  "${CMAKE_CURRENT_SOURCE_DIR}/Remote"
   "${CMAKE_CURRENT_SOURCE_DIR}/Rendering"
   "${CMAKE_CURRENT_SOURCE_DIR}/Testing"
   "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty"
@@ -237,6 +236,18 @@ set(vtk_source_directories
   "${CMAKE_CURRENT_SOURCE_DIR}/Views"
   "${CMAKE_CURRENT_SOURCE_DIR}/Web"
   "${CMAKE_CURRENT_SOURCE_DIR}/Wrapping")
+
+set(remote_default ON)
+if (VTK_WHEEL_BUILD)
+  set(remote_default OFF)
+endif ()
+option(VTK_ENABLE_REMOTE_MODULES "Enable remote modules" ON)
+mark_as_advanced(VTK_ENABLE_REMOTE_MODULES)
+if (VTK_ENABLE_REMOTE_MODULES)
+  list(APPEND vtk_source_directories
+    "${CMAKE_CURRENT_SOURCE_DIR}/Remote")
+endif ()
+
 vtk_module_find_modules(vtk_module_files ${vtk_source_directories})
 vtk_module_find_kits(vtk_kit_files ${vtk_source_directories})
 
