@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1405478A247189A000718F22 /* libvtkpugixml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14054789247189A000718F22 /* libvtkpugixml.a */; };
 		142CC7EC17133D3600FE6428 /* libvtkfreetype.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 142CC7EB17133D3600FE6428 /* libvtkfreetype.a */; };
 		143859091D6CED4100E728A0 /* MyWindowController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 143859081D6CED4100E728A0 /* MyWindowController.mm */; };
 		1454C0F1094E266D00F594FE /* MyDocument.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1454C0F0094E266D00F594FE /* MyDocument.mm */; };
@@ -61,6 +62,7 @@
 
 /* Begin PBXFileReference section */
 		1058C7A7FEA54F5311CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
+		14054789247189A000718F22 /* libvtkpugixml.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libvtkpugixml.a; sourceTree = "vtk-debug-lib"; };
 		142CC7EA17133CB300FE6428 /* PrefixHeader.pch */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = PrefixHeader.pch; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
 		142CC7EB17133D3600FE6428 /* libvtkfreetype.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libvtkfreetype.a; sourceTree = "vtk-debug-lib"; };
 		143859071D6CED4100E728A0 /* MyWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = MyWindowController.h; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
@@ -160,6 +162,7 @@
 				14FC3EDF16C5A92F0092149A /* libvtkFiltersGeneric.a in Frameworks */,
 				14FC3EE016C5A92F0092149A /* libvtkFiltersGeometry.a in Frameworks */,
 				14FC3EE116C5A92F0092149A /* libvtkFiltersSources.a in Frameworks */,
+				1405478A247189A000718F22 /* libvtkpugixml.a in Frameworks */,
 				14D951A31B701A690012248C /* libvtkCommonColor.a in Frameworks */,
 				14FC3EE316C5A9470092149A /* libvtkexpat.a in Frameworks */,
 				14FC3EE616C5A9690092149A /* libvtkInteractionImage.a in Frameworks */,
@@ -203,6 +206,7 @@
 				14FC3EC016C5A1230092149A /* libvtkIOImage.a */,
 				14FC3ED416C5A9030092149A /* libvtkIOXML.a */,
 				14FC3ED516C5A9030092149A /* libvtkIOXMLParser.a */,
+				14054789247189A000718F22 /* libvtkpugixml.a */,
 				14FC3EAC16C5A02D0092149A /* libvtkRenderingCore.a */,
 				14FC3ECA16C5A1C20092149A /* libvtkRenderingFreeType.a */,
 				14FC3EAE16C5A0460092149A /* libvtkRenderingOpenGL2.a */,
