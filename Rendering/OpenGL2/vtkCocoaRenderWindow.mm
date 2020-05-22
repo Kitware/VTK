@@ -1033,8 +1033,11 @@ void vtkCocoaRenderWindow::Start()
     // the error "invalid drawable" in the console from this call can appear
     // but only early in the app's lifetime (ie sometime during launch)
     // IMPORTANT: this is necessary to update the context here in case of
-    // onscreen rendering
+    // onscreen rendering, and the call to setView is needed in case previous
+    // calls to setView failed to take effect (which can sometimes occur if
+    // the view was created externally).
     NSOpenGLContext* context = (NSOpenGLContext*)this->GetContextId();
+    [context setView:(NSView*)this->GetWindowId()];
     [context update];
   }
 
