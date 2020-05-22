@@ -37,9 +37,6 @@ vtkExternalOpenGLRenderWindow::~vtkExternalOpenGLRenderWindow() = default;
 //------------------------------------------------------------------------------
 void vtkExternalOpenGLRenderWindow::Start(void)
 {
-  // Make sure all important OpenGL options are set for VTK
-  this->OpenGLInit();
-
   // Use hardware acceleration
   this->SetIsDirect(1);
 

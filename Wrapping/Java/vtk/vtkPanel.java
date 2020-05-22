@@ -35,6 +35,7 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
   protected int LightFollowCamera = 1;
   protected int InteractionMode = 1;
   protected boolean rendering = false;
+  protected vtkRenderWindow rw = new vtkOpenGLRenderWindow(); //vtkRenderWindow();
 
   // Allow access to display lock() and unlock().
   // Call these whenever you call something that causes
@@ -87,6 +88,11 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
     addKeyListener(this);
     super.setSize(200, 200);
     rw.SetSize(200, 200);
+
+    if (rw instanceof vtkOpenGLRenderWindow)
+    {
+      ((vtkOpenGLRenderWindow)rw).SetBlitRequiresResolve(true);
+    }
   }
 
   public vtkPanel(vtkRenderWindow renwin) {
@@ -97,6 +103,11 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
     addKeyListener(this);
     super.setSize(200, 200);
     rw.SetSize(200, 200);
+
+    if (rw instanceof vtkOpenGLRenderWindow)
+    {
+      ((vtkOpenGLRenderWindow)rw).SetBlitRequiresResolve(true);
+    }
   }
 
   public void Report() {
