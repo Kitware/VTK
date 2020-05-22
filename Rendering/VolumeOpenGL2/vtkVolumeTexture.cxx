@@ -893,6 +893,12 @@ void vtkVolumeTexture::ComputeBounds(VolumeBlock* block)
       origin[cc] = bounds[2 * cc];
     }
     rGrid->GetExtent(block->Extents);
+    if (this->IsCellData)
+    {
+      block->Extents[1]--;
+      block->Extents[3]--;
+      block->Extents[5]--;
+    }
   }
 
   int swapBounds[3];
