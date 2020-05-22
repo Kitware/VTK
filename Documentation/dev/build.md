@@ -176,6 +176,9 @@ More advanced options:
     documentation using Doxygen.
   * `VTK_BUILD_ALL_MODULES` (default `OFF`): If set, VTK will enable all
     modules not disabled by other features.
+  * `VTK_ENABLE_REMOTE_MODULES` (default `ON`): If set, VTK will try to build
+    remote modules (the `Remote` directory). If unset, no remote modules will
+    build.
   * `VTK_USE_EXTERNAL` (default `OFF`): Whether to prefer external third
     party libraries or the versions VTK's source contains.
   * `VTK_TARGET_SPECIFIC_COMPONENTS` (default `OFF`): Whether to install
