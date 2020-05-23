@@ -113,7 +113,7 @@ private:
 
 vtkUnicodeString::vtkUnicodeString() = default;
 
-vtkUnicodeString::vtkUnicodeString(const vtkUnicodeString& rhs) = default;
+vtkUnicodeString::vtkUnicodeString(const vtkUnicodeString&) = default;
 
 vtkUnicodeString::vtkUnicodeString(size_type count, value_type character)
 {

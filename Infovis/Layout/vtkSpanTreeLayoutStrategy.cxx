@@ -99,7 +99,6 @@ void vtkSpanTreeLayoutStrategy::Layout()
   link.delta = 0;
   link.anchor[1] = 0;
   vtkIdType editsize;
-  vtkEdgeType edge;
   vtkIdType i, nrNodes, nrEdges;
   double pointS[3], pointT[3], pointA[3];
   double edgePoints[6];
