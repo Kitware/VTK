@@ -498,6 +498,18 @@ public:
   vtkVector3Cross(vtkVector3d, double);
 };
 
+class vtkVector4i : public vtkVector4<int>
+{
+public:
+  typedef vtkVector4<int> Superclass;
+  vtkVector4i() = default;
+  vtkVector4i(int x, int y, int z, int w)
+    : vtkVector4<int>(x, y, z, w)
+  {
+  }
+  vtkVectorDerivedMacro(vtkVector4i, int, 4);
+};
+
 class vtkVector4d : public vtkVector4<double>
 {
 public:

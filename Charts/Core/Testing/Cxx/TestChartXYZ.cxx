@@ -105,6 +105,11 @@ int TestChartXYZ(int, char*[])
   plot2->SetInputData(table, "X Axis", "Sine", "Cosine");
   chart2->AddPlot(plot2);
 
+  chart2->GetAxis(0)->SetUnscaledRange(-0.1, 7.6);
+  chart2->GetAxis(1)->SetUnscaledRange(-1.1, 1.1);
+  chart2->GetAxis(2)->SetUnscaledRange(-1.1, 1.1);
+  chart2->RecalculateTransform();
+
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetInteractor()->Initialize();
 
