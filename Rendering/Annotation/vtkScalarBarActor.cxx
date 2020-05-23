@@ -2537,7 +2537,6 @@ int vtkScalarBarActor::PlaceAnnotationsHorizontally(
   int ic = numNotes / 2;
   int lf, rt;
   double tsz[2];
-  vtkColor3ub leaderColor;
   if (2 * ic == numNotes)
   {
     lf = ic - 1;
