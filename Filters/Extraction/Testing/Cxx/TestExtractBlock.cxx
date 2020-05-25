@@ -15,12 +15,15 @@
 // This tests an extraction of a block using first vtkExtractBlock then
 // a block selection from a vtkSelection and vtkExtractSelection
 
+#include <vtkCompositeDataIterator.h>
 #include <vtkExtractBlock.h>
 #include <vtkExtractSelection.h>
 #include <vtkFieldData.h>
 #include <vtkIntArray.h>
 #include <vtkMultiBlockDataSet.h>
 #include <vtkNew.h>
+#include <vtkPartitionedDataSet.h>
+#include <vtkPartitionedDataSetCollection.h>
 #include <vtkSelectionSource.h>
 #include <vtkSphereSource.h>
 
@@ -33,9 +36,8 @@ vtkSmartPointer<vtkDataObject> GetSphere(double x, double y, double z)
   sphere->Update();
   return sphere->GetOutputDataObject(0);
 }
-}
 
-int TestExtractBlock(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
+static int TestExtractBlockMultiBlock()
 {
   vtkNew<vtkMultiBlockDataSet> mb0;
   mb0->SetBlock(0, GetSphere(0, 0, -2));
@@ -119,5 +121,54 @@ int TestExtractBlock(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     return EXIT_FAILURE;
   }
 
+  return EXIT_SUCCESS;
+}
+
+int TestExtractBlockPartitionedDataSetCollection()
+{
+  vtkNew<vtkPartitionedDataSetCollection> pdc;
+  for (unsigned int part = 0; part < 5; ++part)
+  {
+    vtkNew<vtkPartitionedDataSet> pd;
+    for (unsigned int cc = 0; cc <= part; ++cc)
+    {
+      pd->SetPartition(cc, ::GetSphere(cc, part, 0));
+    }
+    pdc->SetPartitionedDataSet(part, pd);
+  }
+
+  vtkNew<vtkExtractBlock> eb;
+  eb->SetInputDataObject(pdc);
+  eb->AddIndex(3);  // partitioned-dataset #2, which has 2 partitions
+  eb->AddIndex(13); // partitioned-dataset #4, partition #2
+  eb->AddIndex(14); // partitioned-dataset #4, partition #3
+  eb->Update();
+
+  auto output = vtkPartitionedDataSetCollection::SafeDownCast(eb->GetOutput());
+  int count = 0;
+  auto iter = output->NewIterator();
+  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+  {
+    ++count;
+  }
+  iter->Delete();
+
+  if (count != 4)
+  {
+    std::cerr << "Incorrect blocks extracted for vtkPartitionedDataSetCollection." << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  return EXIT_SUCCESS;
+}
+}
+
+int TestExtractBlock(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
+{
+  if (TestExtractBlockMultiBlock() != EXIT_SUCCESS ||
+    TestExtractBlockPartitionedDataSetCollection() != EXIT_SUCCESS)
+  {
+    return EXIT_FAILURE;
+  }
   return EXIT_SUCCESS;
 }

@@ -13,38 +13,44 @@
 
 =========================================================================*/
 /**
- * @class   vtkExtractBlock
- * @brief   extracts blocks from a multiblock dataset.
+ * @class vtkExtractBlock
+ * @brief extracts blocks from a vtkDataObjectTree subclass.
  *
- * vtkExtractBlock is a filter that extracts blocks from a multiblock
- * dataset.  Each node in the multi-block tree is identified by an \c
- * index. The index can be obtained by performing a preorder traversal of the
- * tree (including empty nodes). eg. A(B (D, E), C(F, G)).  Inorder traversal
- * yields: A, B, D, E, C, F, G Index of A is 0, while index of C is 4.
+ * vtkExtractBlock is a filter that extracts blocks from a vtkDataObjectTree
+ * subclass such as vtkPartitionedDataSet, vtkPartitionedDataSetCollection, etc.
+ * using their composite-ids (also called flat-index).
  *
- * Note that if you specify node 0, then the input is simply shallow copied
- * to the output. This is true even if other nodes are specified along with
- * node 0.
+ * The composite-id can be obtained by performing a pre-order traversal of the
+ * tree (including empty nodes). For example, consider a tree with nodes named
+ * `A(B (D, E), C(F, G))`.  Pre-order traversal yields: `A, B, D, E, C, F, G`;
+ * hence, composite-id of `A` is `0`, while index of `C` is `4`.
+ *
+ * `0` identifies the root-node. Thus, choosing `0` will result in the entire
+ * input dataset being passed to the output.
  */
 
 #ifndef vtkExtractBlock_h
 #define vtkExtractBlock_h
 
 #include "vtkFiltersExtractionModule.h" // For export macro
-#include "vtkMultiBlockDataSetAlgorithm.h"
+#include "vtkPassInputTypeAlgorithm.h"
 
 class vtkDataObjectTreeIterator;
-class vtkMultiPieceDataSet;
+class vtkPartitionedDataSet;
+class vtkMultiBlockDataSet;
+class vtkDataObjectTree;
 
-class VTKFILTERSEXTRACTION_EXPORT vtkExtractBlock : public vtkMultiBlockDataSetAlgorithm
+class VTKFILTERSEXTRACTION_EXPORT vtkExtractBlock : public vtkPassInputTypeAlgorithm
 {
+  class vtkSet;
+
 public:
   //@{
   /**
    * Standard methods for instantiation, type information, and printing.
    */
   static vtkExtractBlock* New();
-  vtkTypeMacro(vtkExtractBlock, vtkMultiBlockDataSetAlgorithm);
+  vtkTypeMacro(vtkExtractBlock, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@{
 
@@ -66,6 +72,8 @@ public:
   /**
    * When set, the output multiblock dataset will be pruned to remove empty
    * nodes. On by default.
+   *
+   * This has no effect for vtkPartitionedDataSetCollection.
    */
   vtkSetMacro(PruneOutput, vtkTypeBool);
   vtkGetMacro(PruneOutput, vtkTypeBool);
@@ -78,6 +86,8 @@ public:
    * output i.e. remove empty blocks, if node has only 1 non-null child block,
    * then that node is removed. To preserve these parent nodes, set this flag to
    * true. Off by default.
+   *
+   * This has no effect for vtkPartitionedDataSetCollection.
    */
   vtkSetMacro(MaintainStructure, vtkTypeBool);
   vtkGetMacro(MaintainStructure, vtkTypeBool);
@@ -95,12 +105,13 @@ protected:
 
   /// Implementation of the algorithm.
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   /// Extract subtree
-  void CopySubTree(
-    vtkDataObjectTreeIterator* loc, vtkMultiBlockDataSet* output, vtkMultiBlockDataSet* input);
+  void CopySubTree(vtkDataObjectTreeIterator* loc, vtkDataObjectTree* output,
+    vtkDataObjectTree* input, vtkSet& activeIndices);
   bool Prune(vtkMultiBlockDataSet* mblock);
-  bool Prune(vtkMultiPieceDataSet* mpiece);
+  bool Prune(vtkPartitionedDataSet* mpiece);
   bool Prune(vtkDataObject* branch);
 
   vtkTypeBool PruneOutput;
@@ -109,10 +120,7 @@ protected:
 private:
   vtkExtractBlock(const vtkExtractBlock&) = delete;
   void operator=(const vtkExtractBlock&) = delete;
-
-  class vtkSet;
   vtkSet* Indices;
-  vtkSet* ActiveIndices;
 };
 
 #endif
