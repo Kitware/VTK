@@ -764,6 +764,8 @@ void vtkHigherOrderHexahedron::SetUniformOrderFromNumPoints(vtkIdType numPts)
 
 void vtkHigherOrderHexahedron::SetOrder(int s, int t, int u)
 {
+  if (this->PointParametricCoordinates && (Order[0] != s || Order[1] != t || Order[2] != u))
+    this->PointParametricCoordinates->Reset();
   Order[0] = s;
   Order[1] = t;
   Order[2] = u;
