@@ -104,7 +104,7 @@ public:
   virtual vtkHigherOrderInterpolation* getInterp() = 0;
 
   static vtkIdType NodeNumberingMappingFromVTK8To9(
-    const vtkIdType order, const vtkIdType node_id_vtk8);
+    const int order[3], const vtkIdType node_id_vtk8);
 
 protected:
   vtkHigherOrderHexahedron();
