@@ -1371,7 +1371,7 @@ vtkAbstractArray* vtkXMLReader::CreateArray(vtkXMLDataElement* da)
   // determine what component names have been saved in the file.
   const char* compName = nullptr;
   std::ostringstream buff;
-  for (int i = 0; i < components && i < 10; ++i)
+  for (int i = 0; i < components; ++i)
   {
     // get the component names
     buff << "ComponentName" << i;
