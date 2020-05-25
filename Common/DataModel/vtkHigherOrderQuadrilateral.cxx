@@ -525,6 +525,8 @@ void vtkHigherOrderQuadrilateral::SetUniformOrderFromNumPoints(const vtkIdType n
 
 void vtkHigherOrderQuadrilateral::SetOrder(const int s, const int t)
 {
+  if (this->PointParametricCoordinates && (Order[0] != s || Order[1] != t))
+    this->PointParametricCoordinates->Reset();
   Order[0] = s;
   Order[1] = t;
   Order[2] = (s + 1) * (t + 1);
