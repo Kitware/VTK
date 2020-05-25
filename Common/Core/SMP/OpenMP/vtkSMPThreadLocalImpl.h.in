@@ -36,6 +36,7 @@
 #include "vtkConfigure.h"
 #include "vtkSystemIncludes.h"
 
+#include <atomic>
 #include <omp.h>
 
 
