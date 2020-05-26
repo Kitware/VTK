@@ -47,6 +47,7 @@ vtk_add_test_python(
   TestStructuredGridPlaneCutter.py
   TestSynchronizedTemplates2D.py
   TestSynchronizedTemplates3D.py
+  TestWindowedSincPolyDataFilter.py
   TestContourGrid.py,NO_VALID
   TestContourPolyData.py,NO_VALID
   TestTensorGlyph.py,NO_RT

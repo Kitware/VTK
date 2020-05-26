@@ -86,4 +86,4 @@ ren1.SetActiveCamera(camera)
 # render the image
 #
 iren.Initialize()
-#iren.Start()
+iren.Start()
