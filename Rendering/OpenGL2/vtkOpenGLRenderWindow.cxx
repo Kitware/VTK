@@ -1071,6 +1071,11 @@ void vtkOpenGLRenderWindow::Start()
     this->GetState()->Initialize(this);
   }
 
+  // default to our standard alpha blend eqn, some vtk classes rely on this
+  // and do not set it themselves
+  this->GetState()->vtkglBlendFuncSeparate(
+    GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
   // creates or resizes the framebuffer
   this->Size[0] = (this->Size[0] > 0 ? this->Size[0] : 300);
   this->Size[1] = (this->Size[1] > 0 ? this->Size[1] : 300);
