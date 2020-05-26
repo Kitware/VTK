@@ -120,7 +120,7 @@ void vtkLightRepresentation::SetFocalPoint(double x[3])
 void vtkLightRepresentation::SetConeAngle(double angle)
 {
   // Clamp between 0 and 89.98 because of
-  // https://gitlab.kitware.com/paraview/paraview/issues/19223
+  // https://gitlab.kitware.com/paraview/paraview/-/issues/19223
   angle = vtkMath::ClampValue(angle, 0.0, 89.98);
   if (this->ConeAngle != angle)
   {

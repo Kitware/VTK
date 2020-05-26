@@ -41,7 +41,7 @@ const char inputDataStream[] =
   "42\n";
 
 // Test of contour/clip of vtkPolyhedron. uses input from
-// https://gitlab.kitware.com/vtk/vtk/issues/15026
+// https://gitlab.kitware.com/vtk/vtk/-/issues/15026
 int TestPolyhedron3(int argc, char* argv[])
 {
   (void)argc;

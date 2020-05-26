@@ -101,7 +101,7 @@ public:
   }
 #ifndef __VTK_WRAP_JAVA__
   // The Java wrappers cannot resolve this signature from the one above,
-  // see https://gitlab.kitware.com/vtk/vtk/issues/17744
+  // see https://gitlab.kitware.com/vtk/vtk/-/issues/17744
   void SetNorm(int n)
   {
     Norm = static_cast<NormType>(n);

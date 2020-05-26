@@ -93,7 +93,7 @@ void setupGrid(vtkPolyData* grid)
   }
 }
 
-// Test for bug #17233: https://gitlab.kitware.com/vtk/vtk/issues/17233
+// Test for bug #17233: https://gitlab.kitware.com/vtk/vtk/-/issues/17233
 // The Bounds were not updated when the position changed. Ensure that we aren't
 // returning stale bounds after modifying the actor.
 bool RegressionTest_17233(vtkBillboardTextActor3D* actor)

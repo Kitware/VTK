@@ -75,7 +75,7 @@ QVTKOpenGLStereoWidget::QVTKOpenGLStereoWidget(
   this->setFocusPolicy(Qt::StrongFocus);
 
   // Work around for bug paraview/paraview#18285
-  // https://gitlab.kitware.com/paraview/paraview/issues/18285
+  // https://gitlab.kitware.com/paraview/paraview/-/issues/18285
   // This ensure that kde will not grab the window
   this->setProperty("_kde_no_window_grab", true);
 

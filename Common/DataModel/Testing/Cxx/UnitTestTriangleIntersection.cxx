@@ -560,8 +560,8 @@ int TestReciprocalResult(vtkRandom* seq, unsigned nTests)
 int TestIssue17092()
 {
   // An instance where triangle intersection failed was reported here:
-  // https://gitlab.kitware.com/vtk/vtk/issues/17092. It was fixed here:
-  // https://gitlab.kitware.com/vtk/vtk/merge_requests/3886
+  // https://gitlab.kitware.com/vtk/vtk/-/issues/17092. It was fixed here:
+  // https://gitlab.kitware.com/vtk/vtk/-/merge_requests/3886
 
   double t1[3][3] = { { 0., 0., 0. }, { 5., 0., 0. }, { 0., 5., 0. } };
   double t2[3][3] = { { 10., 5., 0. }, { 5., 10., 0. }, { 1., 1., 0. } };
@@ -582,7 +582,7 @@ int TestIssue17092()
 int TestMR4529()
 {
   // An instance where triangle intersection failed (along with its fix) was
-  // reported here: https://gitlab.kitware.com/vtk/vtk/merge_requests/4529
+  // reported here: https://gitlab.kitware.com/vtk/vtk/-/merge_requests/4529
 
   double t1[3][3] = { { 1.751, -.993, 0. }, { -3.021, 2.885, 0. }, { 4.14, -4.025, 0. } };
   double t2[3][3] = { { 1.751, -.5, 0. }, { 1.751, 1.326, 0. }, { -3.382, 2.276, 0. } };

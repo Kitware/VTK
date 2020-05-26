@@ -3,7 +3,7 @@ Building VTK using Visual Studio on Windows
 
 This page describes how to build and install VTK using Visual Studio on Windows in recipe-style fashion.
 
-Adapted from the [Paraview build instructions](https://gitlab.kitware.com/paraview/paraview/blob/master/Documentation/dev/build.md) and [VTK wiki](https://vtk.org/Wiki/VTK/Building/Windows).
+Adapted from the [Paraview build instructions](https://gitlab.kitware.com/paraview/paraview/-/blob/master/Documentation/dev/build.md) and [VTK wiki](https://vtk.org/Wiki/VTK/Building/Windows).
 Inspired by [This video](https://www.youtube.com/watch?v=IgvbhyDh8r0)
 
 Prerequisites

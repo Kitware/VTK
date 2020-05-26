@@ -13,7 +13,7 @@ following should be fixed first:
   - A better solution than `-undefined dynamic_lookup` for macOS. VTK has
     [an issue][VTK dynamic Python lookup issue] filed for this already.
 
-[VTK dynamic Python lookup issue]: https://gitlab.kitware.com/vtk/vtk/issues/17214
+[VTK dynamic Python lookup issue]: https://gitlab.kitware.com/vtk/vtk/-/issues/17214
 #]==]
 
 if (NOT DEFINED VTK_PYTHON_VERSION)

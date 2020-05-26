@@ -89,7 +89,7 @@ setup(
     ],
     ext_package='vtkmodules',
     ext_modules=[
-        # https://gitlab.kitware.com/cmake/cmake/issues/19145
+        # https://gitlab.kitware.com/cmake/cmake/-/issues/19145
         #ConfiguredCMakeExtension('vtkmodules', target='vtkpythonmodules'),
         ConfiguredCMakeExtension('vtkCommonCorePython', target='vtkCommonCorePython'),
     ],

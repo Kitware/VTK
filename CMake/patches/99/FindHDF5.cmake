@@ -1,7 +1,7 @@
 # Distributed under the OSI-approved BSD 3-Clause License.  See accompanying
 # file Copyright.txt or https://cmake.org/licensing for details.
 
-# See https://gitlab.kitware.com/cmake/cmake/merge_requests/2575
+# See https://gitlab.kitware.com/cmake/cmake/-/merge_requests/2575
 
 #[=======================================================================[.rst:
 FindHDF5
@@ -789,7 +789,7 @@ if( NOT HDF5_FOUND )
             if(HDF5_USE_STATIC_LIBRARIES)
                 # According to bug 1643 on the CMake bug tracker, this is the
                 # preferred method for searching for a static library.
-                # See https://gitlab.kitware.com/cmake/cmake/issues/1643.  We search
+                # See https://gitlab.kitware.com/cmake/cmake/-/issues/1643.  We search
                 # first for the full static library name, but fall back to a
                 # generic search on the name if the static search fails.
                 set( THIS_LIBRARY_SEARCH_DEBUG
@@ -829,7 +829,7 @@ if( NOT HDF5_FOUND )
                 if(HDF5_USE_STATIC_LIBRARIES)
                     # According to bug 1643 on the CMake bug tracker, this is the
                     # preferred method for searching for a static library.
-                    # See https://gitlab.kitware.com/cmake/cmake/issues/1643.  We search
+                    # See https://gitlab.kitware.com/cmake/cmake/-/issues/1643.  We search
                     # first for the full static library name, but fall back to a
                     # generic search on the name if the static search fails.
                     set( THIS_LIBRARY_SEARCH_DEBUG

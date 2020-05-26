@@ -86,4 +86,4 @@ See [Copyright.txt][vtk-copyright] for details.
 [vtk-discourse]: https://discourse.vtk.org/
 [vtk-doxygen]: https://www.vtk.org/doc/nightly/html
 [vtk-homepage]: https://www.vtk.org/
-[vtk-issues]: https://gitlab.kitware.com/vtk/vtk/issues
+[vtk-issues]: https://gitlab.kitware.com/vtk/vtk/-/issues
