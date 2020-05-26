@@ -771,7 +771,6 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
   {
     vtkShaderProgram::Substitute(FSSource, "//VTK::Light::Dec",
       "//VTK::Light::Dec\n"
-      "uniform mat3 normalMatrix;\n" // move to normal code
       "const float PI = 3.14159265359;\n"
       "const float recPI = 0.31830988618;\n"
       "uniform float metallicUniform;\n"
@@ -1809,7 +1808,9 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
         "out vec3 normalVCGSOutput;");
       vtkShaderProgram::Substitute(
         GSSource, "//VTK::Normal::Impl", "normalVCGSOutput = normalVCVSOutput[i];");
-      vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Dec", "in vec3 normalVCVSOutput;");
+      vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Dec",
+        "uniform mat3 normalMatrix;\n"
+        "in vec3 normalVCVSOutput;");
       vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Impl",
         "vec3 normalVCVSOutput = normalize(normalVCVSOutput);\n"
         //  if (!gl_FrontFacing) does not work in intel hd4000 mac
