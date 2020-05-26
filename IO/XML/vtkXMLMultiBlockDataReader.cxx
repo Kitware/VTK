@@ -283,9 +283,19 @@ int vtkXMLMultiBlockDataReader::FillMetaData(vtkCompositeDataSet* metadata,
           piece_metadata->Set(vtkDataObject::PIECE_EXTENT(), extent, 6);
         }
       }
+
       if (this->ShouldReadDataSet(dataSetIndex, index, numPieces))
       {
-        this->SyncDataArraySelections(this, childXML, filePath);
+        if (mpiece != nullptr && index > 0)
+        {
+          // don't read array selections for multipieces except the first one
+          // since that is not expected to change across datasets in a
+          // multipiece.
+        }
+        else
+        {
+          this->SyncDataArraySelections(this, childXML, filePath);
+        }
       }
       dataSetIndex++;
     }
