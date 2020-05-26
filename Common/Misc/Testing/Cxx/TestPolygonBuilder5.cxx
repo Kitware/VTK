@@ -20,7 +20,8 @@
 
 int TestPolygonBuilder5(int, char*[])
 {
-  // this case comes from a real-world example (see https://gitlab.kitware.com/vtk/vtk/issues/17170
+  // this case comes from a real-world example (see
+  // https://gitlab.kitware.com/vtk/vtk/-/issues/17170
   // )
 #define NTRIANGLES 7
 

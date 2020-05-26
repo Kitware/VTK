@@ -2,7 +2,7 @@
 # file Copyright.txt or https://cmake.org/licensing for details.
 
 # XXX: Copied from CMake, but includes vtkDetectLibraryType.
-# See https://gitlab.kitware.com/cmake/cmake/issues/18564
+# See https://gitlab.kitware.com/cmake/cmake/-/issues/18564
 
 #[=======================================================================[.rst:
 FindEXPAT

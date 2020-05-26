@@ -17,7 +17,7 @@ Main Tasks
 Other Tasks
 -----------
 
-* [Review Changes](https://gitlab.kitware.com/vtk/vtk/merge_requests) -
+* [Review Changes](https://gitlab.kitware.com/vtk/vtk/-/merge_requests) -
   VTK GitLab Merge Requests
 
 * [Test VTK](dashboard.md) - CDash client setup

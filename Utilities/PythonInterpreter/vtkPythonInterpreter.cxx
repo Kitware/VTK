@@ -470,7 +470,7 @@ int vtkPythonInterpreter::PyMain(int argc, char** argv)
   // Python 3.7.0 has a bug where Py_InitializeEx (called above) followed by
   // Py_Main (at the end of this block) causes a crash. Gracefully exit with
   // failure if we're using 3.7.0 and suggest getting the newest 3.7.x release.
-  // See <https://gitlab.kitware.com/vtk/vtk/issues/17434> for details.
+  // See <https://gitlab.kitware.com/vtk/vtk/-/issues/17434> for details.
   {
     bool is_ok = true;
     vtkPythonScopeGilEnsurer gilEnsurer(false, true);

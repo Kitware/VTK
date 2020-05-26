@@ -148,7 +148,7 @@ void vtkContourValues::GenerateValues(int numContours, double range[2])
       // no we cannot factorize the ratio
       // (range[1] - range[0])/(numContours - 1) out of the loop.
       // we want the whole expression to be evaluated on the FPU.
-      // see bug discussion: https://gitlab.kitware.com/vtk/vtk/issues/7887
+      // see bug discussion: https://gitlab.kitware.com/vtk/vtk/-/issues/7887
       this->SetValue(i, range[0] + i * (range[1] - range[0]) / (numContours - 1));
     }
   }

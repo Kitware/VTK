@@ -87,7 +87,7 @@ still be tracked so that they may be used).
 For mangling documentation, [some guidelines][] are available.
 
 [repo-requests]: https://gitlab.kitware.com/third-party/repo-requests
-[some guidelines]: https://gitlab.kitware.com/third-party/repo-requests/wikis/mangling
+[some guidelines]: https://gitlab.kitware.com/third-party/repo-requests/-/wikis/mangling
 
 The basic steps to import a project `twisted` based on the tag
 `twisted-17.1.0` looks like this:

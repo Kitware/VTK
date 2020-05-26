@@ -28,7 +28,7 @@ script by simply running:
 
 Here is a link to the script as it appears today: [vtk_common.cmake][].
 
-[vtk_common.cmake]: https://gitlab.kitware.com/vtk/vtk/tree/dashboard/vtk_common.cmake
+[vtk_common.cmake]: https://gitlab.kitware.com/vtk/vtk/-/tree/dashboard/vtk_common.cmake
 
 Changing the Dashboard Scripts
 ------------------------------

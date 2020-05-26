@@ -22,7 +22,7 @@
 
     <issueManagement>
         <system>GitLab</system>
-        <url>https://gitlab.kitware.com/vtk/vtk/issues</url>
+        <url>https://gitlab.kitware.com/vtk/vtk/-/issues</url>
     </issueManagement>
 
     <licenses>

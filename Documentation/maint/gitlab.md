@@ -47,7 +47,7 @@ Wrangling Branches
 Branches may be wrangled using the filters in the merge request page. Replace
 `$release` at the end with the relevant milestone name:
 
-    https://gitlab.kitware.com/vtk/vtk/merge_requests?state=all&milestone_title=$release
+    https://gitlab.kitware.com/vtk/vtk/-/merge_requests?state=all&milestone_title=$release
 
 The following states of a merge request indicate where they are in the flow:
 
