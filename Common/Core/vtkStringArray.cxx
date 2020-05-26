@@ -240,7 +240,10 @@ void vtkStringArray::DeepCopy(vtkAbstractArray* aa)
     this->DeleteFunction(this->Array);
   }
 
+  this->Superclass::DeepCopy(aa); // copy information objects.
+
   // Copy the given array into new memory.
+  this->NumberOfComponents = aa->GetNumberOfComponents();
   this->MaxId = fa->GetMaxId();
   this->Size = fa->GetSize();
   this->DeleteFunction = DefaultDeleteFunction;
