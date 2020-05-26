@@ -145,7 +145,25 @@ int vtkAggregateDataSetFilter::RequestData(
   }
 
   std::vector<vtkSmartPointer<vtkDataObject> > recvBuffer;
+#ifdef VTKAGGREGATEDATASETFILTER_USE_GATHER
   subController->Gather(input, recvBuffer, receiveProc);
+#else
+  // by default, we don't use gather to avoid paraview/paraview#19937.
+  if (subRank == receiveProc)
+  {
+    recvBuffer.push_back(input);
+    for (int cc = 0; cc < (subNumProcs - 1); ++cc)
+    {
+      recvBuffer.push_back(vtkSmartPointer<vtkDataObject>::Take(
+        subController->ReceiveDataObject(vtkMultiProcessController::ANY_SOURCE, 909911)));
+    }
+  }
+  else
+  {
+    subController->Send(input, receiveProc, 909911);
+  }
+#endif
+
   if (subRank == receiveProc)
   {
     if (recvBuffer.size() == 1)
