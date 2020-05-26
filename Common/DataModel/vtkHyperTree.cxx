@@ -447,6 +447,16 @@ public:
   }
 
   //---------------------------------------------------------------------------
+  // Description:
+  // Access to the internals of the tree. Should be used for consulting,
+  // not modification.
+  const unsigned int* GetElderChildIndexArray(size_t& nbElements) const override
+  {
+    nbElements = this->CompactDatas->ParentToElderChild_stl.size();
+    return this->CompactDatas->ParentToElderChild_stl.data();
+  }
+
+  //---------------------------------------------------------------------------
   void SubdivideLeaf(vtkIdType index, unsigned int level) override
   {
     assert("pre: not_valid_index" && index < static_cast<vtkIdType>(this->Datas->NumberOfVertices));

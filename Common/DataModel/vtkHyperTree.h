@@ -439,6 +439,12 @@ public:
    */
   virtual vtkIdType GetElderChildIndex(unsigned int index_parent) const = 0;
 
+  /**
+   * Return the elder child index array, internals of the tree structure
+   * Should be used with great care, for consulting and not modifying.
+   */
+  virtual const unsigned int* GetElderChildIndexArray(size_t& nbElements) const = 0;
+
   //@{
   /**
    * In an hypertree, all cells are the same size by level. This
