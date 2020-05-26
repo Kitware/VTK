@@ -21,6 +21,7 @@
 #define vtkUpdateCellsV8toV9_h
 
 #include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkCellType.h"
 #include "vtkCellTypes.h"
 #include "vtkHigherOrderHexahedron.h"
@@ -41,11 +42,26 @@ inline void vtkUpdateCellsV8toV9(vtkUnstructuredGrid* output)
     {
       output->GetCells()->GetCellAtId(i, oldpts);
       newpts->DeepCopy(oldpts);
-      int order =
-        static_cast<int>(round(std::cbrt(static_cast<int>(oldpts->GetNumberOfIds())))) - 1;
+
+      int degs[3];
+      if (output->GetCellData()->SetActiveAttribute(
+            "HigherOrderDegrees", vtkDataSetAttributes::AttributeTypes::HIGHERORDERDEGREES) != -1)
+      {
+        vtkDataArray* v = output->GetCellData()->GetHigherOrderDegrees();
+        double degs_double[3];
+        v->GetTuple(i, degs_double);
+        for (int ii = 0; ii < 3; ii++)
+          degs[ii] = static_cast<int>(degs_double[ii]);
+      }
+      else
+      {
+        int order =
+          static_cast<int>(round(std::cbrt(static_cast<int>(oldpts->GetNumberOfIds())))) - 1;
+        degs[0] = degs[1] = degs[2] = order;
+      }
       for (int j = 0; j < oldpts->GetNumberOfIds(); j++)
       {
-        int newid = vtkHigherOrderHexahedron::NodeNumberingMappingFromVTK8To9(order, j);
+        int newid = vtkHigherOrderHexahedron::NodeNumberingMappingFromVTK8To9(degs, j);
         if (j != newid)
         {
           newpts->SetId(j, oldpts->GetId(newid));
