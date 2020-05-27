@@ -870,6 +870,12 @@ int vtkXMLReader::ReadArrayValues(vtkXMLDataElement* da, vtkIdType arrayIndex,
   this->InReadData = 1;
   int result;
   vtkArrayIterator* iter = array->NewIterator();
+  if (arrayIndex + numValues > array->GetNumberOfValues())
+  {
+    vtkErrorMacro("Array has " << array->GetNumberOfValues() << " allocated elements, but "
+                               << arrayIndex + numValues << " were requested to be read");
+    return 0;
+  }
   switch (array->GetDataType())
   {
     vtkArrayIteratorTemplateMacro(result = vtkXMLDataReaderReadArrayValues(da, this->XMLParser,
