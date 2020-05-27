@@ -10,6 +10,8 @@ vtk_add_test_python(
   EnSightBlow4Bin.py
   EnSightBlow5ASCII.py
   EnSightCompound.py
+  EnSightGoldAsymTensor.py
+  EnSightGoldAsymTensorBin.py
   EnSightGoldElements.py
   EnSightGoldElementsBin.py
   EnSightGoldEmptyParts.py,NO_VALID,NO_RT

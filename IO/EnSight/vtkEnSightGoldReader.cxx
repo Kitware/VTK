@@ -792,6 +792,120 @@ int vtkEnSightGoldReader::ReadVectorsPerNode(const char* fileName, const char* d
 }
 
 //------------------------------------------------------------------------------
+int vtkEnSightGoldReader::ReadAsymmetricTensorsPerNode(const char* fileName,
+  const char* description, int timeStep, vtkMultiBlockDataSet* compositeOutput)
+{
+  // Initialize
+  if (!fileName)
+  {
+    vtkErrorMacro("nullptr TensorPerNode variable file name");
+    return 0;
+  }
+  std::string fileNameString;
+  if (this->FilePath)
+  {
+    fileNameString = this->FilePath;
+    if (fileNameString.at(fileNameString.back()) != '/')
+    {
+      fileNameString += "/";
+    }
+    fileNameString += fileName;
+    vtkDebugMacro("full path to tensor per node file: " << fileNameString.c_str());
+  }
+  else
+  {
+    fileNameString = fileName;
+  }
+
+  this->IS = new vtksys::ifstream(fileNameString.c_str(), ios::in);
+  if (this->IS->fail())
+  {
+    vtkErrorMacro("Unable to open file: " << fileNameString.c_str());
+    delete this->IS;
+    this->IS = nullptr;
+    return 0;
+  }
+
+  std::string line;
+  line.resize(80);
+
+  // C++11 compatible way to get a pointer to underlying data
+  // data() could be used with C++17
+  char* linePtr = &line[0];
+  if (this->UseFileSets)
+  {
+    int realTimeStep = timeStep - 1;
+    // Try to find the nearest time step for which we know the offset
+    int j = 0;
+    for (int i = realTimeStep; i >= 0; i--)
+    {
+      if (this->FileOffsets->Map.find(fileName) != this->FileOffsets->Map.end() &&
+        this->FileOffsets->Map[fileName].find(i) != this->FileOffsets->Map[fileName].end())
+      {
+        this->IS->seekg(this->FileOffsets->Map[fileName][i], ios::beg);
+        j = i;
+        break;
+      }
+    }
+
+    // Hopefully we are not very far from the timestep we want to use
+    // Find it (and cache any timestep we find on the way...)
+    while (j++ < realTimeStep)
+    {
+      this->ReadLine(linePtr);
+      while (line.compare(0, 13, "END TIME STEP") != 0)
+      {
+        this->ReadLine(linePtr);
+      }
+      if (this->FileOffsets->Map.find(fileName) == this->FileOffsets->Map.end())
+      {
+        std::map<int, long> tsMap;
+        this->FileOffsets->Map[fileName] = tsMap;
+      }
+      this->FileOffsets->Map[fileName][j] = this->IS->tellg();
+    }
+
+    this->ReadLine(linePtr);
+    while (line.compare(0, 15, "BEGIN TIME STEP") != 0)
+    {
+      this->ReadLine(linePtr);
+    }
+  }
+
+  this->ReadNextDataLine(linePtr); // skip the description line
+
+  while (this->ReadNextDataLine(linePtr) && line.compare(0, 4, "part") == 0)
+  {
+    this->ReadNextDataLine(linePtr);
+    int partId = std::stoi(line) - 1; // EnSight starts #ing with 1.
+    int realId = this->InsertNewPartId(partId);
+    vtkDataSet* output = this->GetDataSetFromBlock(compositeOutput, realId);
+    int numPts = output->GetNumberOfPoints();
+    if (numPts)
+    {
+      vtkNew<vtkFloatArray> tensors;
+      this->ReadNextDataLine(linePtr); // "coordinates" or "block"
+      tensors->SetNumberOfComponents(9);
+      tensors->SetNumberOfTuples(numPts);
+      tensors->SetName(description);
+      for (int i = 0; i < 9; i++)
+      {
+        for (int j = 0; j < numPts; j++)
+        {
+          this->ReadNextDataLine(linePtr);
+          tensors->InsertComponent(j, i, std::stof(line));
+        }
+      }
+      output->GetPointData()->AddArray(tensors);
+    }
+  }
+
+  delete this->IS;
+  this->IS = nullptr;
+  return 1;
+}
+
+//------------------------------------------------------------------------------
 int vtkEnSightGoldReader::ReadTensorsPerNode(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput)
 {
@@ -1270,6 +1384,159 @@ int vtkEnSightGoldReader::ReadVectorsPerElement(const char* fileName, const char
 }
 
 //------------------------------------------------------------------------------
+int vtkEnSightGoldReader::ReadAsymmetricTensorsPerElement(const char* fileName,
+  const char* description, int timeStep, vtkMultiBlockDataSet* compositeOutput)
+{
+  // Initialize
+  if (!fileName)
+  {
+    vtkErrorMacro("nullptr TensorPerElement variable file name");
+    return 0;
+  }
+  std::string fileNameString;
+  if (this->FilePath)
+  {
+    fileNameString = this->FilePath;
+    if (fileNameString.at(fileNameString.back()) != '/')
+    {
+      fileNameString += "/";
+    }
+    fileNameString += fileName;
+    vtkDebugMacro("full path to tensor per element file: " << fileNameString.c_str());
+  }
+  else
+  {
+    fileNameString = fileName;
+  }
+
+  this->IS = new vtksys::ifstream(fileNameString.c_str(), ios::in);
+  if (this->IS->fail())
+  {
+    vtkErrorMacro("Unable to open file: " << fileNameString.c_str());
+    delete this->IS;
+    this->IS = nullptr;
+    return 0;
+  }
+
+  std::string line;
+  line.resize(80);
+
+  // C++11 compatible way to get a pointer to underlying data
+  // data() could be used with C++17
+  char* linePtr = &line[0];
+  if (this->UseFileSets)
+  {
+    const int realTimeStep = timeStep - 1;
+    // Try to find the nearest time step for which we know the offset
+    int j = 0;
+    for (int i = realTimeStep; i >= 0; i--)
+    {
+      if (this->FileOffsets->Map.find(fileName) != this->FileOffsets->Map.end() &&
+        this->FileOffsets->Map[fileName].find(i) != this->FileOffsets->Map[fileName].end())
+      {
+        this->IS->seekg(this->FileOffsets->Map[fileName][i], ios::beg);
+        j = i;
+        break;
+      }
+    }
+
+    // Hopefully we are not very far from the timestep we want to use
+    // Find it (and cache any timestep we find on the way...)
+    while (j++ < realTimeStep)
+    {
+      this->ReadLine(linePtr);
+      while (line.compare(0, 13, "END TIME STEP") != 0)
+      {
+        this->ReadLine(linePtr);
+      }
+      if (this->FileOffsets->Map.find(fileName) == this->FileOffsets->Map.end())
+      {
+        this->FileOffsets->Map[fileName] = std::map<int, long>();
+      }
+      this->FileOffsets->Map[fileName][j] = this->IS->tellg();
+    }
+
+    this->ReadLine(linePtr);
+    while (line.compare(0, 15, "BEGIN TIME STEP") != 0)
+    {
+      this->ReadLine(linePtr);
+    }
+  }
+
+  this->ReadNextDataLine(linePtr);                // skip the description line
+  int lineRead = this->ReadNextDataLine(linePtr); // "part"
+
+  while (lineRead && line.compare(0, 4, "part") == 0)
+  {
+    this->ReadNextDataLine(linePtr);
+    int partId = std::stoi(line) - 1; // EnSight starts #ing with 1.
+    int realId = this->InsertNewPartId(partId);
+    vtkDataSet* output = this->GetDataSetFromBlock(compositeOutput, realId);
+    int numCells = output->GetNumberOfCells();
+    if (numCells)
+    {
+      vtkNew<vtkFloatArray> tensors;
+      this->ReadNextDataLine(linePtr); // element type or "block"
+      tensors->SetNumberOfComponents(9);
+      tensors->SetNumberOfTuples(numCells);
+      tensors->SetName(description);
+
+      // need to find out from CellIds how many cells we have of this element
+      // type (and what their ids are) -- IF THIS IS NOT A BLOCK SECTION
+      if (line.compare(0, 5, "block") == 0)
+      {
+        for (int i = 0; i < 9; i++)
+        {
+          for (int j = 0; j < numCells; j++)
+          {
+            this->ReadNextDataLine(linePtr);
+            float value = std::stof(line);
+            tensors->InsertComponent(j, i, value);
+          }
+        }
+        lineRead = this->ReadNextDataLine(linePtr);
+      }
+      else
+      {
+        while (
+          lineRead && line.compare(0, 4, "part") != 0 && line.compare(0, 13, "END TIME STEP") != 0)
+        {
+          int elementType = this->GetElementType(linePtr);
+          if (elementType == -1)
+          {
+            vtkErrorMacro("Unknown element type \"" << line << "\"");
+            delete[] this->IS;
+            this->IS = nullptr;
+            return 0;
+          }
+          int idx = this->UnstructuredPartIds->IsId(realId);
+          int numCellsPerElement = this->GetCellIds(idx, elementType)->GetNumberOfIds();
+          for (int i = 0; i < 9; i++)
+          {
+            for (int j = 0; j < numCellsPerElement; j++)
+            {
+              this->ReadNextDataLine(linePtr);
+              float value = std::stof(line);
+              tensors->InsertComponent(this->GetCellIds(idx, elementType)->GetId(j), i, value);
+            }
+          }
+          lineRead = this->ReadNextDataLine(linePtr);
+        } // end while
+      }   // end else
+      output->GetCellData()->AddArray(tensors);
+    }
+    else
+    {
+      lineRead = this->ReadNextDataLine(linePtr);
+    }
+  }
+
+  delete this->IS;
+  this->IS = nullptr;
+  return 1;
+}
+
+//------------------------------------------------------------------------------
 int vtkEnSightGoldReader::ReadTensorsPerElement(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput)
 {
@@ -1285,7 +1552,7 @@ int vtkEnSightGoldReader::ReadTensorsPerElement(const char* fileName, const char
   //
   if (!fileName)
   {
-    vtkErrorMacro("nullptr TensorPerElement variable file name");
+    vtkErrorMacro("Empty TensorPerElement variable file name");
     return 0;
   }
   std::string sfilename;
