@@ -1049,10 +1049,10 @@ vtkSmartPointer<vtkAbstractArray> vtkIossReader::vtkInternals::GetField(
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkAbstractArray> vtkIossReader::vtkInternals::GetField(
   const std::string& fieldname, Ioss::Region* region, Ioss::GroupingEntity* group_entity,
-  const DatabaseHandle& handle, int timestep, vtkIdTypeArray* ids_to_extract,
+  const DatabaseHandle& vtkNotUsed(handle), int timestep, vtkIdTypeArray* ids_to_extract,
   const std::string& cache_key_suffix)
 {
-  const auto get_field = [&fieldname, &region, &handle, &timestep, this](
+  const auto get_field = [&fieldname, &region, &timestep, this](
                            Ioss::GroupingEntity* entity) -> vtkSmartPointer<vtkAbstractArray> {
     if (!entity->field_exists(fieldname))
     {
