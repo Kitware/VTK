@@ -240,7 +240,6 @@ void vtkSTLWriter::WriteBinarySTL(vtkPoints* pts, vtkCellArray* polys, vtkCellAr
   double dn[3], v1[3], v2[3], v3[3];
   vtkIdType npts = 0;
   const vtkIdType* indx = nullptr;
-  unsigned long ulint;
   unsigned short ibuff2 = 0;
 
   if ((fp = vtksys::SystemTools::Fopen(this->FileName, "wb")) == nullptr)
@@ -303,10 +302,6 @@ void vtkSTLWriter::WriteBinarySTL(vtkPoints* pts, vtkCellArray* polys, vtkCellAr
 
   fwrite(binaryFileHeader, 1, vtkSTLWriterBinaryHeaderSize, fp);
 
-  ulint = (unsigned long int)polys->GetNumberOfCells();
-  vtkByteSwap::Swap4LE(&ulint);
-  fwrite(&ulint, 1, 4, fp);
-
   //
   // Decompose any triangle strips into triangles
   //
@@ -320,8 +315,14 @@ void vtkSTLWriter::WriteBinarySTL(vtkPoints* pts, vtkCellArray* polys, vtkCellAr
     }
   }
 
+  // Write a dummy length as a placeholder. Fill it in later after the number
+  // of triangles is known.
+  unsigned long numTris = 0;
+  fwrite(&numTris, 1, 4, fp);
+
   //  Write out triangle strips
   //
+  numTris += polyStrips->GetNumberOfCells();
   for (polyStrips->InitTraversal(); polyStrips->GetNextCell(npts, indx);)
   {
     pts->GetPoint(indx[0], v1);
@@ -410,6 +411,7 @@ void vtkSTLWriter::WriteBinarySTL(vtkPoints* pts, vtkCellArray* polys, vtkCellAr
       vtkByteSwap::Swap4LE(n + 2);
       fwrite(n, 4, 3, fp);
       fwrite(&ibuff2, 2, 1, fp);
+      numTris++;
     }
     else if (npts > 3)
     {
@@ -457,9 +459,15 @@ void vtkSTLWriter::WriteBinarySTL(vtkPoints* pts, vtkCellArray* polys, vtkCellAr
           fwrite(n, 4, 3, fp);
         }
         fwrite(&ibuff2, 2, 1, fp);
+        numTris++;
       }
     }
   }
+
+  vtkByteSwap::Swap4LE(&numTris);
+  fseek(fp, 80, SEEK_SET);
+  fwrite(&numTris, 1, 4, fp);
+
   if (fflush(fp))
   {
     fclose(fp);
