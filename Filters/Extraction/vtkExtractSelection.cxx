@@ -100,9 +100,20 @@ int vtkExtractSelection::RequestDataObject(
     return 1;
   }
 
+  if (vtkDataObjectTree::SafeDownCast(inputDO))
+  {
+    // For DataObjectTree, preserve the type.
+    if (outputDO == nullptr || outputDO->GetDataObjectType() != inputDO->GetDataObjectType())
+    {
+      outputDO = inputDO->NewInstance();
+      outInfo->Set(vtkDataObject::DATA_OBJECT(), outputDO);
+      outputDO->Delete();
+    }
+    return 1;
+  }
   if (vtkCompositeDataSet::SafeDownCast(inputDO))
   {
-    // For any composite dataset, we're create a vtkMultiBlockDataSet as output;
+    // For other composite datasets, we're create a vtkMultiBlockDataSet as output;
     if (vtkMultiBlockDataSet::SafeDownCast(outputDO) == nullptr)
     {
       outputDO = vtkMultiBlockDataSet::New();

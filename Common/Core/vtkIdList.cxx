@@ -33,6 +33,15 @@ vtkIdList::~vtkIdList()
 }
 
 //------------------------------------------------------------------------------
+vtkIdType* vtkIdList::Release()
+{
+  auto retval = this->Ids;
+  this->Ids = nullptr;
+  this->Initialize();
+  return retval;
+}
+
+//------------------------------------------------------------------------------
 void vtkIdList::Initialize()
 {
   delete[] this->Ids;

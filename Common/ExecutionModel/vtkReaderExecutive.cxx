@@ -112,6 +112,12 @@ int vtkReaderExecutive::CallAlgorithm(vtkInformation* request, int direction,
     {
       result = reader->ReadArrays(piece, npieces, nghosts, timeIndex, output);
     }
+
+    if (!result && output != nullptr)
+    {
+      // cleanup output so we don't end up producing partial results.
+      output->Initialize();
+    }
   }
   this->InAlgorithm = 0;
 

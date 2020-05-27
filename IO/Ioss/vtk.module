@@ -1,0 +1,26 @@
+NAME
+  VTK::IOIoss
+LIBRARY_NAME
+  vtkIOIoss
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::IOCore
+  VTK::ParallelCore
+PRIVATE_DEPENDS
+  VTK::FiltersCore
+  VTK::ioss
+OPTIONAL_DEPENDS
+  VTK::mpi
+TEST_DEPENDS
+  VTK::FiltersGeometry
+  VTK::InteractionStyle
+  VTK::RenderingOpenGL2
+  VTK::TestingCore
+  VTK::TestingRendering
+TEST_OPTIONAL_DEPENDS
+  VTK::FiltersParallel
+  VTK::mpi
+  VTK::ParallelMPI
+  VTK::RenderingParallel
