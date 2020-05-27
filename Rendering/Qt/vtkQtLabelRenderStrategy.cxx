@@ -41,6 +41,7 @@
 #include <QImage>
 #include <QMap>
 #include <QPainter>
+#include <QPainterPath>
 #include <QPair>
 #include <QPixmap>
 #include <QTextDocument>
