@@ -333,11 +333,10 @@ vtk_module_add_module(VTK::RenderingOpenGL2
 
 if (VTK_USE_X)
   vtk_module_find_package(
-    PACKAGE X11 COMPONENTS Xt)
+    PACKAGE X11)
   vtk_module_link(VTK::RenderingOpenGL2
     PUBLIC
-      X11::X11
-      X11::Xt)
+      X11::X11)
 elseif (VTK_USE_COCOA)
   vtk_module_link(VTK::RenderingOpenGL2 PUBLIC "-framework Cocoa")
 endif ()
