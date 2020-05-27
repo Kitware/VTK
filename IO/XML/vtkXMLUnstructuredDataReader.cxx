@@ -354,6 +354,11 @@ void vtkXMLUnstructuredDataReader::SetupOutputData()
       this->DataError = 1;
     }
   }
+  else
+  {
+    vtkErrorMacro(
+      "No Points element available in first piece found in file. Reading file may fail.");
+  }
 
   vtkPointSet::SafeDownCast(this->GetCurrentOutput())->SetPoints(points);
   points->Delete();
