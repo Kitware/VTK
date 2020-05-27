@@ -545,7 +545,7 @@ void vtkValuePass::RenderOpaqueGeometry(const vtkRenderState* s)
 void vtkValuePass::BeginPass(vtkRenderer* ren)
 {
   vtkOpenGLState* ostate = static_cast<vtkOpenGLRenderer*>(ren)->GetState();
-
+  ostate->vtkglDisable(GL_BLEND);
   switch (this->RenderingMode)
   {
     case vtkValuePass::FLOATING_POINT:

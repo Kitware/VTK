@@ -1073,6 +1073,7 @@ void vtkOpenGLRenderWindow::Start()
 
   // default to our standard alpha blend eqn, some vtk classes rely on this
   // and do not set it themselves
+  this->GetState()->vtkglEnable(GL_BLEND);
   this->GetState()->vtkglBlendFuncSeparate(
     GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
