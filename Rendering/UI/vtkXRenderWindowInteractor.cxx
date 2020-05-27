@@ -19,10 +19,6 @@
 #include <cstring>
 #include <sys/time.h>
 
-// We have to define XTSTRINGDEFINES (used in X11/StringDefs.h and X11/Shell.h)
-// otherwise the string are define as char * instead of const char which can
-// cause warnings.
-// #define XTSTRINGDEFINES
 #include "vtkActor.h"
 #include "vtkCallbackCommand.h"
 #include "vtkCommand.h"
@@ -33,7 +29,6 @@
 
 #include <vtksys/SystemTools.hxx>
 
-#include <X11/Shell.h>
 #include <X11/X.h>
 #include <X11/Xatom.h>
 #include <X11/Xutil.h>
