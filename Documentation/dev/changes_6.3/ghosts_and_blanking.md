@@ -1,7 +1,7 @@
 # Motivation
 
 `Ghost cells` are layers of cells at boundaries of pieces of a
-dataset. These cells are used by data parallel algorithms, to insure
+dataset. These cells are used by data parallel algorithms, to ensure
 the correctness of their results. For instance, consider an algorithm
 that computes the external faces of a dataset. Consider also that the
 algorithm runs in parallel on several nodes, each node processing a

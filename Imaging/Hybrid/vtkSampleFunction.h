@@ -100,7 +100,7 @@ public:
   //@{
   /**
    * Turn on/off capping. If capping is on, then the outer boundaries of the
-   * structured point set are set to cap value. This can be used to insure
+   * structured point set are set to cap value. This can be used to ensure
    * surfaces are closed.
    */
   vtkSetMacro(Capping, vtkTypeBool);

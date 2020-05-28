@@ -29,7 +29,7 @@
  * or with
  * vtkArrayDownCast<vtkFloatArray>(output->GetPointData()->GetArray("Normals"))
  *
- * The filter can reorder polygons to insure consistent
+ * The filter can reorder polygons to ensure consistent
  * orientation across polygon neighbors. Sharp edges can be split and points
  * duplicated with separate normals to give crisp (rendered) surface definition.
  * It is also possible to globally flip the normal orientation.

@@ -633,7 +633,7 @@ int vtkVoxel::Triangulate(int index, vtkIdList* ptIds, vtkPoints* pts)
   pts->Reset();
   //
   // Create five tetrahedron. Triangulation varies depending upon index. This
-  // is necessary to insure compatible voxel triangulations.
+  // is necessary to ensure compatible voxel triangulations.
   //
   if ((index % 2))
   {

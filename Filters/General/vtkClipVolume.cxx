@@ -276,7 +276,7 @@ int vtkClipVolume::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Interior voxels (i.e., inside the clip region) are tetrahedralized using
   // 5 tetrahedra. This requires swapping the face diagonals on alternating
-  // voxels to insure compatibility. Loop over i-j-k directions so that we
+  // voxels to ensure compatibility. Loop over i-j-k directions so that we
   // can control the direction of face diagonals on voxels (i.e., the flip
   // variable). The flip variable also controls the generation of tetrahedra
   // in boundary voxels in ClipTets() and the ordered Delaunay triangulation

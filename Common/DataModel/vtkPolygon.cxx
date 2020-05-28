@@ -577,7 +577,7 @@ int vtkPolygon::ParameterizePolygon(
   }
 
   //  This is a two pass process: first create a p' coordinate system
-  //  that is then adjusted to insure that the polygon points are all in
+  //  that is then adjusted to ensure that the polygon points are all in
   //  the range 0<=s,t<=1.  The p' system is defined by the polygon normal,
   //  first vertex and the first edge.
   //

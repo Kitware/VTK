@@ -157,7 +157,7 @@ void vtkGreedyTerrainDecimation::EstimateOutputSize(
   }
 
   numPts = numTris / 2 + 1;
-  numPts = (numPts < 4 ? 4 : numPts); // insure enough storage for initial four corner points
+  numPts = (numPts < 4 ? 4 : numPts); // ensure enough storage for initial four corner points
 }
 
 //------------------------------------------------------------------------------

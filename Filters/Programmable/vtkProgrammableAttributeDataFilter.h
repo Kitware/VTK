@@ -49,7 +49,7 @@
  * This filter operates on any combination of the filter input plus a list of
  * additional inputs (at a minimum you must set the filter input via
  * SetInput()).  It is up to you check whether the input is valid, and to
- * insure that the output is valid. Also, you have to write the control
+ * ensure that the output is valid. Also, you have to write the control
  * structure for the traversal and operation on the point and cell attribute
  * data.
  *

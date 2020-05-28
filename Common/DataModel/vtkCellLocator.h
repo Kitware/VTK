@@ -123,7 +123,7 @@ public:
   virtual vtkIdList* GetCells(int bucket);
 
   /**
-   * Return number of buckets available. Insure that the locator has been
+   * Return number of buckets available. Ensure that the locator has been
    * built before attempting to access buckets (octants).
    */
   virtual int GetNumberOfBuckets(void);

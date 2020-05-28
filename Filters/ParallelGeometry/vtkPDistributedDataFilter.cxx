@@ -2910,7 +2910,7 @@ int vtkPDistributedDataFilter::AssignGlobalNodeIds(vtkUnstructuredGrid* grid)
   // a small subset of all the other processes.
 
   // question: if the vtkPointArray has type double, should we
-  // send doubles instead of floats to insure we get the right
+  // send doubles instead of floats to ensure we get the right
   // global ID back?
 
   vtkFloatArray** ptarrayOut = new vtkFloatArray*[nprocs];

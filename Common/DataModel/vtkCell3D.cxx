@@ -224,7 +224,7 @@ void vtkCell3D::Contour(double value, vtkDataArray* cellScalars,
     this->GetEdgePoints(edgeNum, tets);
 
     // Calculate a preferred interpolation direction.
-    // Has to be done in same direction to insure coincident points are
+    // Has to be done in same direction to ensure coincident points are
     // merged (different interpolation direction causes perturbations).
     s1 = cellScalars->GetComponent(tets[0], 0);
     s2 = cellScalars->GetComponent(tets[1], 0);
@@ -425,7 +425,7 @@ void vtkCell3D::Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPoin
     cell3D->GetEdgePoints(edgeNum, verts);
 
     // Calculate a preferred interpolation direction.
-    // Has to be done in same direction to insure coincident points are
+    // Has to be done in same direction to ensure coincident points are
     // merged (different interpolation direction causes perturbations).
     s1 = cellScalars->GetComponent(verts[0], 0);
     s2 = cellScalars->GetComponent(verts[1], 0);

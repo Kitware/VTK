@@ -28,9 +28,9 @@
  * edge is subdivided (as well as all connected 2D and 3D cells). The process
  * repeats until the error metric is satisfied.
  *
- * A significant issue addressed by this algorithm is to insure face
+ * A significant issue addressed by this algorithm is to ensure face
  * compatibility across neighboring cells. That is, diagonals due to face
- * triangulation must match to insure that the mesh is compatible. The
+ * triangulation must match to ensure that the mesh is compatible. The
  * algorithm employs a precomputed table to accelerate the tessellation
  * process. The table was generated with the help of vtkOrderedTriangulator;
  * the basic idea is that the choice of diagonal is made by considering the

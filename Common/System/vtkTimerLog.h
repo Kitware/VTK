@@ -209,7 +209,7 @@ protected:
   {
     this->StartTime = 0;
     this->EndTime = 0;
-  } // insure constructor/destructor protected
+  } // ensure constructor/destructor protected
   ~vtkTimerLog() override = default;
 
   static int Logging;
