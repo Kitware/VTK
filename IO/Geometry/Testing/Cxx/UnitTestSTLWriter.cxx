@@ -136,6 +136,28 @@ int UnitTestSTLWriter(int argc, char* argv[])
     }
   }
 
+  // Make sure the reported number of written triangles is right in the binary file
+  FILE* fp = fopen(fileName.c_str(), "rb");
+  if (!fp)
+  {
+    cerr << "Could not open file '" << fileName << "'" << std::endl;
+    ++status;
+  }
+  fseek(fp, 80, SEEK_SET);
+  unsigned long int numTriangles = 0;
+  size_t bytesRead = fread(&numTriangles, 1, 4, fp);
+  if (bytesRead != 4)
+  {
+    cerr << "Could not read number of triangles." << std::endl;
+    ++status;
+  }
+  if (numTriangles != 96)
+  {
+    cerr << "Wrong number of triangles saved to STL file from polygon strips" << std::endl;
+    ++status;
+  }
+  fclose(fp);
+
   writer1->SetFileTypeToASCII();
   fileName = testDirectory + std::string("/") + std::string("ASCIIStrips.stl");
   writer1->SetFileName(fileName.c_str());
@@ -172,6 +194,26 @@ int UnitTestSTLWriter(int argc, char* argv[])
       break;
     }
   }
+
+  fp = fopen(fileName.c_str(), "rb");
+  if (!fp)
+  {
+    cerr << "Could not open file '" << fileName << "'" << std::endl;
+    ++status;
+  }
+  fseek(fp, 80, SEEK_SET);
+  bytesRead = fread(&numTriangles, 1, 4, fp);
+  if (bytesRead != 4)
+  {
+    cerr << "Could not read number of triangles." << std::endl;
+    ++status;
+  }
+  if (numTriangles != 2)
+  {
+    cerr << "Wrong number of triangles saved to STL file from polygon strips" << std::endl;
+    ++status;
+  }
+  fclose(fp);
 
   // Check error conditions
   //
