@@ -45,9 +45,9 @@
 #ifndef vtkHyperTreeGridSource_h
 #define vtkHyperTreeGridSource_h
 
+#include "vtkDeprecation.h"          // For VTK_DEPRECATED_IN_9_0_0
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkHyperTreeGridAlgorithm.h"
-#include "vtkLegacy.h" // For VTK_LEGACY
 
 #include <map>    // STL Header
 #include <string> // STL Header
@@ -70,10 +70,12 @@ public:
   static vtkHyperTreeGridSource* New();
 
   // @deprecated Replaced by GetMaxDepth() as of VTK 9
-  VTK_LEGACY(unsigned int GetMaximumLevel());
+  VTK_DEPRECATED_IN_9_0_0("Use vtkHyperTreeGridSource::GetMaxDepth")
+  unsigned int GetMaximumLevel();
 
   // @deprecated Replaced by SetMaxDepth() as of VTK 9
-  VTK_LEGACY(void SetMaximumLevel(unsigned int levels));
+  VTK_DEPRECATED_IN_9_0_0("Use vtkHyperTreeGridSource::SetMaxDepth")
+  void SetMaximumLevel(unsigned int levels);
 
   /**
    * Return the maximum number of levels of the hypertree.

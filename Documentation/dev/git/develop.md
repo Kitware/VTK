@@ -127,6 +127,7 @@ A reader should have a general idea of the feature or fix to be developed given 
     * To add data follow [these instructions](data.md).
     * If your change modifies third party code, see [its
       documentation](../../../ThirdParty/UPDATING.md).
+    * To deprecate APIs, follow [these instructions](deprecation.md).
 
 Guidelines for Commit logs
 --------------------------

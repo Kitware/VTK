@@ -300,7 +300,6 @@ void vtkHyperTreeGridSource::SetLevelZeroMaterialIndex(vtkIdTypeArray* indexArra
   this->Modified();
 }
 
-#ifndef VTK_LEGACY_REMOVE
 //------------------------------------------------------------------------------
 unsigned int vtkHyperTreeGridSource::GetMaximumLevel()
 {
@@ -316,7 +315,6 @@ void vtkHyperTreeGridSource::SetMaximumLevel(unsigned int levels)
     vtkHyperTreeGridSource::SetMaximumLevel, "VTK 9", vtkHyperTreeGridSource::SetMaxDepth);
   this->SetMaxDepth(levels);
 }
-#endif
 
 //------------------------------------------------------------------------------
 unsigned int vtkHyperTreeGridSource::GetMaxDepth()

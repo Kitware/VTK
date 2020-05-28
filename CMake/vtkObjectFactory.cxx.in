@@ -13,6 +13,9 @@
 
 =========================================================================*/
 
+// Object factories should never have deprecation warnings.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "@_vtk_object_factory_library_name@ObjectFactory.h"
 #include "vtkVersion.h"
 

@@ -32,10 +32,7 @@
 #ifndef vtkTemporalStreamTracer_h
 #define vtkTemporalStreamTracer_h
 
-#include "vtkLegacy.h" // For VTK_LEGACY_REMOVE
-
-#ifndef VTK_LEGACY_REMOVE
-
+#include "vtkDeprecation.h"            // For VTK_DEPRECATED_IN_9_0_0
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkSmartPointer.h"           // For protected ivars.
 #include "vtkStreamTracer.h"
@@ -97,6 +94,8 @@ typedef std::list<ParticleInformation> ParticleDataList;
 typedef ParticleDataList::iterator ParticleListIterator;
 };
 
+VTK_DEPRECATED_IN_9_0_0("Use one of vtkParticleTracerBase, vtkParticleTracer, "
+                        "vtkParticlePathFilter, or vtkStreaklineFilter")
 class VTKFILTERSFLOWPATHS_EXPORT vtkTemporalStreamTracer : public vtkStreamTracer
 {
 public:
@@ -249,7 +248,7 @@ public:
   //@}
 
 protected:
-  VTK_LEGACY(vtkTemporalStreamTracer());
+  vtkTemporalStreamTracer();
   ~vtkTemporalStreamTracer() override;
 
   //
@@ -470,7 +469,5 @@ private:
   vtkTemporalStreamTracer(const vtkTemporalStreamTracer&) = delete;
   void operator=(const vtkTemporalStreamTracer&) = delete;
 };
-
-#endif // VTK_LEGACY_REMOVE
 
 #endif

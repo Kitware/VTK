@@ -82,8 +82,6 @@
 #ifndef vtkDataArrayIteratorMacro_h
 #define vtkDataArrayIteratorMacro_h
 
-#ifndef VTK_LEGACY_REMOVE
-
 #include "vtkAOSDataArrayTemplate.h" // For classes referred to in the macro
 #include "vtkSetGet.h"               // For vtkTemplateMacro
 #include "vtkTypedDataArray.h"       // For classes referred to in the macro
@@ -130,8 +128,6 @@
       (void)vtkDAEnd;                                                                              \
       _call;                                                                                       \
     })
-
-#endif // legacy remove
 
 #endif // vtkDataArrayIteratorMacro_h
 

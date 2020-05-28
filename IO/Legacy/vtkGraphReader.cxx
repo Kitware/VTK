@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+
+// Hide VTK_DEPRECATED_IN_9_0_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkGraphReader.h"
 
 #include "vtkByteSwap.h"
@@ -93,7 +97,7 @@ int vtkGraphReader::ReadMeshSimple(const std::string& fname, vtkDataObject* doOu
   vtkVector3d lattice_a;
   vtkVector3d lattice_b;
   vtkVector3d lattice_c;
-  vtkVector3d lattice_origin;
+  vtkVector3d lattice_origin(0, 0, 0);
 
   while (true)
   {

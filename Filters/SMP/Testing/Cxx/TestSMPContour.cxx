@@ -19,7 +19,6 @@
 #include "vtkContourGrid.h"
 #include "vtkDataSetTriangleFilter.h"
 #include "vtkElevationFilter.h"
-#include "vtkLegacy.h" // For VTK_LEGACY_REMOVE
 #include "vtkNew.h"
 #include "vtkNonMergingPointLocator.h"
 #include "vtkPointData.h"

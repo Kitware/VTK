@@ -27,14 +27,14 @@
 #define vtkExtractTemporalFieldData_h
 
 #include "vtkDataObjectAlgorithm.h"
+#include "vtkDeprecation.h"             // For VTK_DEPRECATED_IN_9_0_0
 #include "vtkFiltersExtractionModule.h" // For export macro
-#include "vtkLegacy.h"                  // For VTK_LEGACY_REMOVE
 
-#if !defined(VTK_LEGACY_REMOVE)
 class vtkDataSet;
 class vtkTable;
 class vtkDataSetAttributes;
 
+VTK_DEPRECATED_IN_9_0_0("Use vtkExtractExodusGlobalTemporalVariables instead")
 class VTKFILTERSEXTRACTION_EXPORT vtkExtractTemporalFieldData : public vtkDataObjectAlgorithm
 {
 public:
@@ -86,5 +86,4 @@ private:
   vtkInternals* Internals;
 };
 
-#endif // !defined(VTK_LEGACY_REMOVE)
 #endif

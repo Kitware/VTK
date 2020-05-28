@@ -811,7 +811,6 @@ int vtkPythonInterpreter::GetLogVerbosity()
   return vtkPythonInterpreter::LogVerbosity;
 }
 
-#if !defined(VTK_LEGACY_REMOVE)
 //------------------------------------------------------------------------------
 int vtkPythonInterpreter::GetPythonVerboseFlag()
 {
@@ -819,4 +818,3 @@ int vtkPythonInterpreter::GetPythonVerboseFlag()
     vtkPythonInterpreter::GetPythonVerboseFlag, "VTK 9.0", vtkPythonInterpreter::GetLogVerbosity);
   return vtkPythonInterpreter::LogVerbosity == vtkLogger::VERBOSITY_INFO ? 1 : 0;
 }
-#endif

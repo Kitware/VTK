@@ -25,6 +25,7 @@ if (VTK_USE_X AND VTK_USE_TDX)
 endif ()
 
 set(headers
+  QVTKOpenGLWidget.h
   QVTKWin32Header.h)
 
 set(private_headers

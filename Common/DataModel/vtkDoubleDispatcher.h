@@ -70,15 +70,15 @@
 #ifndef vtkDoubleDispatcher_h
 #define vtkDoubleDispatcher_h
 
-#include "vtkLegacy.h" // For VTK_LEGACY_REMOVE
+#ifndef __VTK_WRAP__
 
-#ifndef VTK_LEGACY_REMOVE
-
+#include "vtkDeprecation.h"        // for VTK_DEPRECATED_IN_9_0_0
 #include "vtkDispatcher_Private.h" //needed for Functor,CastingPolicy,TypeInfo
 #include <map>                     //Required for the storage of template params to runtime params
 
 template <class BaseLhs, class BaseRhs = BaseLhs, typename ReturnType = void,
   template <class, class> class CastingPolicy = vtkDispatcherCommon::vtkCaster>
+VTK_DEPRECATED_IN_9_0_0("Use vtkArrayDispatch")
 class vtkDoubleDispatcher
 {
 public:
@@ -155,6 +155,7 @@ private:
 template <class BaseLhs, class BaseRhs, typename ReturnType,
   template <class, class> class CastingPolicy>
 template <class SomeLhs, class SomeRhs, class Functor>
+VTK_DEPRECATED_IN_9_0_0("Use vtkArrayDispatch")
 void vtkDoubleDispatcher<BaseLhs, BaseRhs, ReturnType, CastingPolicy>::AddInternal(
   const Functor& fun, long)
 {
@@ -170,6 +171,7 @@ void vtkDoubleDispatcher<BaseLhs, BaseRhs, ReturnType, CastingPolicy>::AddIntern
 template <class BaseLhs, class BaseRhs, typename ReturnType,
   template <class, class> class CastingPolicy>
 template <class SomeLhs, class SomeRhs, class Functor>
+VTK_DEPRECATED_IN_9_0_0("Use vtkArrayDispatch")
 void vtkDoubleDispatcher<BaseLhs, BaseRhs, ReturnType, CastingPolicy>::AddInternal(
   Functor* fun, int)
 {
@@ -184,6 +186,7 @@ void vtkDoubleDispatcher<BaseLhs, BaseRhs, ReturnType, CastingPolicy>::AddIntern
 //----------------------------------------------------------------------------
 template <class BaseLhs, class BaseRhs, typename ReturnType,
   template <class, class> class CastingPolicy>
+VTK_DEPRECATED_IN_9_0_0("Use vtkArrayDispatch")
 void vtkDoubleDispatcher<BaseLhs, BaseRhs, ReturnType, CastingPolicy>::DoAddFunctor(
   TypeInfo lhs, TypeInfo rhs, MappedType fun)
 {
@@ -193,6 +196,7 @@ void vtkDoubleDispatcher<BaseLhs, BaseRhs, ReturnType, CastingPolicy>::DoAddFunc
 //----------------------------------------------------------------------------
 template <class BaseLhs, class BaseRhs, typename ReturnType,
   template <class, class> class CastingPolicy>
+VTK_DEPRECATED_IN_9_0_0("Use vtkArrayDispatch")
 bool vtkDoubleDispatcher<BaseLhs, BaseRhs, ReturnType, CastingPolicy>::DoRemove(
   TypeInfo lhs, TypeInfo rhs)
 {
@@ -202,6 +206,7 @@ bool vtkDoubleDispatcher<BaseLhs, BaseRhs, ReturnType, CastingPolicy>::DoRemove(
 //----------------------------------------------------------------------------
 template <class BaseLhs, class BaseRhs, typename ReturnType,
   template <class, class> class CastingPolicy>
+VTK_DEPRECATED_IN_9_0_0("Use vtkArrayDispatch")
 ReturnType vtkDoubleDispatcher<BaseLhs, BaseRhs, ReturnType, CastingPolicy>::Go(
   BaseLhs* lhs, BaseRhs* rhs)
 {
@@ -216,6 +221,6 @@ ReturnType vtkDoubleDispatcher<BaseLhs, BaseRhs, ReturnType, CastingPolicy>::Go(
   return (i->second)(*lhs, *rhs);
 }
 
-#endif // legacy
+#endif // __VTK_WRAP__
 #endif // vtkDoubleDispatcher_h
 // VTK-HeaderTest-Exclude: vtkDoubleDispatcher.h

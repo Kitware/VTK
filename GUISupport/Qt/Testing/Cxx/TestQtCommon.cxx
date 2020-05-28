@@ -1,3 +1,6 @@
+// Hide VTK_DEPRECATED_IN_9_0_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "TestQtCommon.h"
 
 namespace detail
@@ -26,12 +29,10 @@ Type select_widget(int argc, char* argv[])
       {
         return Type::USE_QVTKOPENGLSTEREOWIDGET;
       }
-#ifndef VTK_LEGACY_REMOVE
       else if (strcmp(typestr, "QVTKOpenGLWidget") == 0)
       {
         return Type::USE_QVTKOPENGLWIDGET;
       }
-#endif
     }
   }
   // default.
@@ -141,12 +142,10 @@ vtkRenderWindow* get_render_window(std::shared_ptr<QObject> widgetOrWindow)
     return w1->renderWindow();
   }
 
-#ifndef VTK_LEGACY_REMOVE
   if (auto w1 = qobject_cast<QVTKOpenGLWidget*>(widgetOrWindow.get()))
   {
     return w1->renderWindow();
   }
-#endif
 
   return nullptr;
 }
@@ -173,12 +172,10 @@ void set_render_window(std::shared_ptr<QObject> widgetOrWindow, vtkRenderWindow*
     w1->setRenderWindow(renWin);
   }
 
-#ifndef VTK_LEGACY_REMOVE
   if (auto w1 = qobject_cast<QVTKOpenGLWidget*>(widgetOrWindow.get()))
   {
     w1->setRenderWindow(renWin);
   }
-#endif
 }
 
 void process_events_and_wait(int msec)
@@ -245,12 +242,10 @@ QImage grab_framebuffer(std::shared_ptr<QObject> widgetOrWindow)
     return w1->grabFramebuffer();
   }
 
-#ifndef VTK_LEGACY_REMOVE
   if (auto w1 = qobject_cast<QVTKOpenGLWidget*>(widgetOrWindow.get()))
   {
     return w1->grabFramebuffer();
   }
-#endif
   return QImage();
 }
 }

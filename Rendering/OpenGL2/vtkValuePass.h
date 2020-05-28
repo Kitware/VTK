@@ -42,7 +42,7 @@
 #ifndef vtkValuePass_h
 #define vtkValuePass_h
 
-#include "vtkLegacy.h" // For VTK_LEGACY
+#include "vtkDeprecation.h" // for VTK_DEPRECATED_IN_9_0_0
 #include "vtkOpenGLRenderPass.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkSmartPointer.h"           //for ivar
@@ -73,13 +73,16 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // @deprecated As of 9.0, We are moving to only FLOATING_POINT.
-  VTK_LEGACY(vtkSetMacro(RenderingMode, int));
-  VTK_LEGACY(vtkGetMacro(RenderingMode, int));
+  VTK_DEPRECATED_IN_9_0_0("Removed in 9.0 (only FLOATING_POINT is supported)")
+  vtkSetMacro(RenderingMode, int);
+  VTK_DEPRECATED_IN_9_0_0("Removed in 9.0 (only FLOATING_POINT is supported)")
+  vtkGetMacro(RenderingMode, int);
   void SetInputArrayToProcess(int fieldAssociation, const char* name);
   void SetInputArrayToProcess(int fieldAssociation, int fieldId);
   void SetInputComponentToProcess(int component);
   // @deprecated As of 9.0, Not needed with FLOATING_POINT.
-  VTK_LEGACY(void SetScalarRange(double min, double max));
+  VTK_DEPRECATED_IN_9_0_0("Removed in 9.0 (only FLOATING_POINT is supported)")
+  void SetScalarRange(double min, double max);
 
   /**
    * Perform rendering according to a render state \p s.
@@ -111,7 +114,8 @@ public:
    * Check for extension support.
    * @deprecated As of 9.0, All platforms support FLOATING_POINT.
    */
-  VTK_LEGACY(bool IsFloatingPointModeSupported());
+  VTK_DEPRECATED_IN_9_0_0("Removed in 9.0 (only FLOATING_POINT is supported)")
+  bool IsFloatingPointModeSupported();
 
   void ReleaseGraphicsResources(vtkWindow* win) override;
 
@@ -120,8 +124,9 @@ public:
    * as a convenience function for testing (TestValuePass2).
    * @deprecated As of 9.0, not necessary with FLOATING_POINT.
    */
-  VTK_LEGACY(void ColorToValue(
-    unsigned char const* color, double const min, double const scale, double& value));
+  VTK_DEPRECATED_IN_9_0_0("Removed in 9.0 (only FLOATING_POINT is supported)")
+  void ColorToValue(
+    unsigned char const* color, double const min, double const scale, double& value);
 
 protected:
   vtkValuePass();

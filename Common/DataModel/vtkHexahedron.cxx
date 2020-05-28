@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+
+// Hide VTK_DEPRECATED_IN_9_0_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkHexahedron.h"
 
 #include "vtkCellArray.h"
@@ -28,9 +32,7 @@
 #include "vtkQuad.h"
 
 #include <cassert>
-#ifndef VTK_LEGACY_REMOVE // needed temporarily in deprecated methods
 #include <vector>
-#endif
 
 vtkStandardNewMacro(vtkHexahedron);
 
@@ -997,7 +999,6 @@ void vtkHexahedron::GetEdgeToAdjacentFaces(vtkIdType edgeId, const vtkIdType*& p
   pts = edgeToAdjacentFaces[edgeId];
 }
 
-#ifndef VTK_LEGACY_REMOVE
 //------------------------------------------------------------------------------
 void vtkHexahedron::GetEdgePoints(int edgeId, int*& pts)
 {
@@ -1015,7 +1016,6 @@ void vtkHexahedron::GetFacePoints(int faceId, int*& pts)
   static std::vector<int> tmp(std::begin(faces[faceId]), std::end(faces[faceId]));
   pts = tmp.data();
 }
-#endif
 
 //------------------------------------------------------------------------------
 void vtkHexahedron::GetEdgePoints(vtkIdType edgeId, const vtkIdType*& pts)

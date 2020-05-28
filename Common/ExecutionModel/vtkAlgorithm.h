@@ -33,7 +33,7 @@
 #define vtkAlgorithm_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
-#include "vtkLegacy.h"                     // For VTK_LEGACY
+#include "vtkDeprecation.h"                // For VTK_DEPRECATED_IN_9_0_0
 #include "vtkObject.h"
 
 class vtkAbstractArray;
@@ -217,7 +217,8 @@ public:
    * `SetProgress` is deprecated. Subclasses should use `UpdateProgress` to
    * report progress updates.
    */
-  VTK_LEGACY(void SetProgress(double));
+  VTK_DEPRECATED_IN_9_0_0("Use vtkAlgorithm::UpdateProgress")
+  void SetProgress(double);
 
   /**
    * Update the progress of the process object. If a ProgressMethod exists,

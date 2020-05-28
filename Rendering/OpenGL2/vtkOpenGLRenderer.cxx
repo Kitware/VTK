@@ -775,12 +775,10 @@ vtkOpenGLRenderer::~vtkOpenGLRenderer()
   }
 }
 
-#ifndef VTK_LEGACY_REMOVE
 bool vtkOpenGLRenderer::HaveApplePrimitiveIdBug()
 {
   return false;
 }
-#endif
 
 //------------------------------------------------------------------------------
 bool vtkOpenGLRenderer::HaveAppleQueryAllocationBug()

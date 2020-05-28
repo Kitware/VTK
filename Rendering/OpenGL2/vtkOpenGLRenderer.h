@@ -23,7 +23,7 @@
 #ifndef vtkOpenGLRenderer_h
 #define vtkOpenGLRenderer_h
 
-#include "vtkLegacy.h" // For VTK_LEGACY_REMOVE
+#include "vtkDeprecation.h" // for VTK_DEPRECATED_IN_9_0_0
 #include "vtkRenderer.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkSmartPointer.h"           // For vtkSmartPointer
@@ -89,9 +89,9 @@ public:
    * The bug is fixed on macOS 10.11 and later, and this method
    * will return false when the OS is new enough.
    */
-#ifndef VTK_LEGACY_REMOVE
+  VTK_DEPRECATED_IN_9_1_0(
+    "Removed in 9.1.0 as this bug does not affect any macOS release that VTK supports")
   bool HaveApplePrimitiveIdBug();
-#endif
 
   /**
    * Indicate if this system is subject to the apple/NVIDIA bug that causes

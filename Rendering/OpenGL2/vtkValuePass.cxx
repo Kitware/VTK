@@ -382,7 +382,6 @@ void vtkValuePass::SetInputComponentToProcess(int component)
   }
 }
 
-#if !defined(VTK_LEGACY_REMOVE)
 //------------------------------------------------------------------------------
 void vtkValuePass::SetScalarRange(double min, double max)
 {
@@ -395,7 +394,6 @@ void vtkValuePass::SetScalarRange(double min, double max)
     this->Modified();
   }
 }
-#endif
 
 //------------------------------------------------------------------------------
 void vtkValuePass::PopulateCellCellMap(const vtkRenderState* s)
@@ -688,7 +686,6 @@ void vtkValuePass::ReleaseFBO(vtkWindow* win)
 }
 
 //------------------------------------------------------------------------------
-#if !defined(VTK_LEGACY_REMOVE)
 bool vtkValuePass::IsFloatingPointModeSupported()
 {
   VTK_LEGACY_BODY(vtkValuePass::IsFloatihngPointModeSupported, "VTK 9.0");
@@ -698,7 +695,6 @@ bool vtkValuePass::IsFloatingPointModeSupported()
   return true;
 #endif
 }
-#endif
 
 //------------------------------------------------------------------------------
 vtkFloatArray* vtkValuePass::GetFloatImageDataArray(vtkRenderer* ren)
@@ -1089,11 +1085,9 @@ vtkAbstractArray* vtkValuePass::GetArrayFromCompositeData(vtkMapper* mapper, Par
 }
 
 //-------------------------------------------------------------------
-#if !defined(VTK_LEGACY_REMOVE)
 void vtkValuePass::ColorToValue(
   unsigned char const* color, double const min, double const scale, double& value)
 {
   VTK_LEGACY_BODY(vtkValuePass::ColorToValue, "VTK 9.0");
   this->ImplInv->ColorToValue(color, min, scale, value);
 }
-#endif

@@ -11,6 +11,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+
+// Hide VTK_DEPRECATED_IN_9_0_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkOpenGLPolyDataMapper.h"
 
 #include "vtkCamera.h"
@@ -237,8 +241,6 @@ void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
   this->Modified();
 }
 
-#ifndef VTK_LEGACY_REMOVE
-
 //------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::AddShaderReplacement(
   vtkShader::Type shaderType, // vertex, fragment, etc
@@ -332,13 +334,11 @@ vtkOpenGLShaderProperty* vtkOpenGLPolyDataMapper::GetLegacyShaderProperty()
     this->LegacyShaderProperty = vtkSmartPointer<vtkOpenGLShaderProperty>::New();
   return this->LegacyShaderProperty;
 }
-#endif
 
 //------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::BuildShaders(
   std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* actor)
 {
-#ifndef VTK_LEGACY_REMOVE
   // in cases where LegacyShaderProperty is not nullptr, it means someone has used
   // legacy shader replacement functions, so we make sure the actor uses the same
   // shader property. NOTE: this implies that it is not possible to use both legacy
@@ -347,7 +347,6 @@ void vtkOpenGLPolyDataMapper::BuildShaders(
   {
     actor->SetShaderProperty(this->LegacyShaderProperty);
   }
-#endif
 
   this->GetShaderTemplate(shaders, ren, actor);
 
@@ -3624,11 +3623,9 @@ void vtkOpenGLPolyDataMapper::ShallowCopy(vtkAbstractMapper* mapper)
     this->SetCompositeIdArrayName(m->GetCompositeIdArrayName());
     this->SetProcessIdArrayName(m->GetProcessIdArrayName());
     this->SetCellIdArrayName(m->GetCellIdArrayName());
-#ifndef VTK_LEGACY_REMOVE
     this->SetVertexShaderCode(m->GetVertexShaderCode());
     this->SetGeometryShaderCode(m->GetGeometryShaderCode());
     this->SetFragmentShaderCode(m->GetFragmentShaderCode());
-#endif
   }
 
   // Now do superclass

@@ -21,7 +21,7 @@
 #ifndef vtkOpenGLPolyDataMapper_h
 #define vtkOpenGLPolyDataMapper_h
 
-#include "vtkLegacy.h"       // For VTK_LEGACY_REMOVE
+#include "vtkDeprecation.h"  // For VTK_DEPRECATED_IN_9_0_0
 #include "vtkNew.h"          // For vtkNew
 #include "vtkOpenGLHelper.h" // used for ivars
 #include "vtkPolyDataMapper.h"
@@ -129,7 +129,6 @@ public:
   vtkGetStringMacro(CompositeIdArrayName);
   //@}
 
-#ifndef VTK_LEGACY_REMOVE
   //@{
   /**
    * This function enables you to apply your own substitutions
@@ -141,14 +140,18 @@ public:
    * @deprecated Replaced By vtkShaderProperty::{Add,Clear,ClearAll}ShaderReplacements as of
    * VTK 9.0.
    */
-  VTK_LEGACY(void AddShaderReplacement(vtkShader::Type shaderType, // vertex, fragment, etc
+  VTK_DEPRECATED_IN_9_0_0("Use vtkOpenGLShaderProperty::AddShaderReplacement")
+  void AddShaderReplacement(vtkShader::Type shaderType, // vertex, fragment, etc
     const std::string& originalValue,
     bool replaceFirst, // do this replacement before the default
-    const std::string& replacementValue, bool replaceAll);)
-  VTK_LEGACY(void ClearShaderReplacement(vtkShader::Type shaderType, // vertex, fragment, etc
-    const std::string& originalValue, bool replaceFirst);)
-  VTK_LEGACY(void ClearAllShaderReplacements(vtkShader::Type shaderType);)
-  VTK_LEGACY(void ClearAllShaderReplacements();)
+    const std::string& replacementValue, bool replaceAll);
+  VTK_DEPRECATED_IN_9_0_0("Use vtkOpenGLShaderProperty::ClearShaderReplacement")
+  void ClearShaderReplacement(vtkShader::Type shaderType, // vertex, fragment, etc
+    const std::string& originalValue, bool replaceFirst);
+  VTK_DEPRECATED_IN_9_0_0("Use vtkOpenGLShaderProperty::ClearAllShaderReplacements")
+  void ClearAllShaderReplacements(vtkShader::Type shaderType);
+  VTK_DEPRECATED_IN_9_0_0("Use vtkOpenGLShaderProperty::ClearAllShaderReplacements")
+  void ClearAllShaderReplacements();
   //@}
 
   //@{
@@ -160,14 +163,19 @@ public:
    *
    * @deprecated Replaced By vtkShaderProperty::Get*ShaderCode as of VTK 9.0.
    */
-  VTK_LEGACY(virtual void SetVertexShaderCode(const char* code);)
-  VTK_LEGACY(virtual char* GetVertexShaderCode();)
-  VTK_LEGACY(virtual void SetFragmentShaderCode(const char* code);)
-  VTK_LEGACY(virtual char* GetFragmentShaderCode();)
-  VTK_LEGACY(virtual void SetGeometryShaderCode(const char* code);)
-  VTK_LEGACY(virtual char* GetGeometryShaderCode();)
+  VTK_DEPRECATED_IN_9_0_0("Use vtkOpenGLShaderProperty::SetVertexShaderCode")
+  virtual void SetVertexShaderCode(const char* code);
+  VTK_DEPRECATED_IN_9_0_0("Use vtkOpenGLShaderProperty::GetVertexShaderCode")
+  virtual char* GetVertexShaderCode();
+  VTK_DEPRECATED_IN_9_0_0("Use vtkOpenGLShaderProperty::SetFragmentShaderCode")
+  virtual void SetFragmentShaderCode(const char* code);
+  VTK_DEPRECATED_IN_9_0_0("Use vtkOpenGLShaderProperty::GetFragmentShaderCode")
+  virtual char* GetFragmentShaderCode();
+  VTK_DEPRECATED_IN_9_0_0("Use vtkOpenGLShaderProperty::SetGeometryShaderCode")
+  virtual void SetGeometryShaderCode(const char* code);
+  VTK_DEPRECATED_IN_9_0_0("Use vtkOpenGLShaderProperty::GetGeometryShaderCode")
+  virtual char* GetGeometryShaderCode();
   //@}
-#endif
 
   /**
    * Make a shallow copy of this mapper.
@@ -469,10 +477,10 @@ protected:
 
   // Store shader properties on this class by legacy shader replacement functions
   // This should disappear when the functions are deprecated
-#ifndef VTK_LEGACY_REMOVE
+  // VTK_DEPRECATED_IN_9_0_0("legacy support functions")
   vtkOpenGLShaderProperty* GetLegacyShaderProperty();
+  // VTK_DEPRECATED_IN_9_0_0("legacy support functions")
   vtkSmartPointer<vtkOpenGLShaderProperty> LegacyShaderProperty;
-#endif
 
   vtkOpenGLRenderTimer* TimerQuery;
 
