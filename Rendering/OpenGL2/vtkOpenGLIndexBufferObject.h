@@ -36,12 +36,14 @@ public:
 
   // Description:
   // used to create an IBO for triangle primitives
-  size_t CreateTriangleIndexBuffer(vtkCellArray* cells, vtkPoints* points);
+  size_t CreateTriangleIndexBuffer(vtkCellArray* cells, vtkPoints* points,
+    std::vector<unsigned char>* edgeArray, vtkDataArray* edgeFlags);
 
   // Description:
   // used to create an IBO for triangle primitives
   static void AppendTriangleIndexBuffer(std::vector<unsigned int>& indexArray, vtkCellArray* cells,
-    vtkPoints* points, vtkIdType vertexOffset);
+    vtkPoints* points, vtkIdType vertexOffset, std::vector<unsigned char>* edgeArray,
+    vtkDataArray* edgeFlags);
 
   // Description:
   // create a IBO for wireframe polys/tris

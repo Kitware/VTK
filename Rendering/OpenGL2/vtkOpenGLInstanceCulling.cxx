@@ -129,7 +129,7 @@ void vtkOpenGLInstanceCulling::AddLOD(float distance, float reduction)
   if (reduction < 1.0 && pd->GetNumberOfPoints() > 0)
   {
     this->UploadCurrentState(lod, pd);
-    lod.IBO->CreateTriangleIndexBuffer(pd->GetPolys(), pd->GetPoints());
+    lod.IBO->CreateTriangleIndexBuffer(pd->GetPolys(), pd->GetPoints(), nullptr, nullptr);
   }
   else
   {
@@ -165,7 +165,7 @@ void vtkOpenGLInstanceCulling::InitLOD(vtkPolyData* pd)
 
   this->UploadCurrentState(lod, pd);
 
-  lod.IBO->CreateTriangleIndexBuffer(pd->GetPolys(), pd->GetPoints());
+  lod.IBO->CreateTriangleIndexBuffer(pd->GetPolys(), pd->GetPoints(), nullptr, nullptr);
 
   this->LODList.push_back(lod);
 }

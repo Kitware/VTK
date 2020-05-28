@@ -563,7 +563,7 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D* act, vtkViewport* viewport
   this->Points.IBO->IndexCount = this->Points.IBO->CreatePointIndexBuffer(prims[0]);
   this->Lines.IBO->IndexCount = this->Lines.IBO->CreateLineIndexBuffer(prims[1]);
   this->Tris.IBO->IndexCount =
-    this->Tris.IBO->CreateTriangleIndexBuffer(prims[2], poly->GetPoints());
+    this->Tris.IBO->CreateTriangleIndexBuffer(prims[2], poly->GetPoints(), nullptr, nullptr);
   this->TriStrips.IBO->IndexCount = this->TriStrips.IBO->CreateStripIndexBuffer(prims[3], false);
 }
 

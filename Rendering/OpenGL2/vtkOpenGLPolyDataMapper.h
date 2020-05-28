@@ -189,8 +189,6 @@ public:
     PrimitiveLines,
     PrimitiveTris,
     PrimitiveTriStrips,
-    PrimitiveTrisEdges,
-    PrimitiveTriStripsEdges,
     PrimitiveVertices,
     PrimitiveEnd
   };
@@ -298,6 +296,8 @@ protected:
     std::map<vtkShader::Type, vtkShader*> shaders, vtkActor* act);
   virtual void ReplaceShaderColor(
     std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act);
+  virtual void ReplaceShaderEdges(
+    std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act);
   virtual void ReplaceShaderLight(
     std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act);
   virtual void ReplaceShaderTCoord(
@@ -371,7 +371,7 @@ protected:
   // Structures for the various cell types we render.
   vtkOpenGLHelper Primitives[PrimitiveEnd];
   vtkOpenGLHelper* LastBoundBO;
-  bool DrawingEdgesOrVertices;
+  bool DrawingVertices;
 
   // do we have wide lines that require special handling
   virtual bool HaveWideLines(vtkRenderer*, vtkActor*);
@@ -445,6 +445,11 @@ protected:
   vtkTextureObject* CellNormalTexture;
   vtkOpenGLBufferObject* CellNormalBuffer;
   bool HaveCellNormals;
+
+  vtkTextureObject* EdgeTexture;
+  vtkOpenGLBufferObject* EdgeBuffer;
+  std::vector<unsigned char> EdgeValues;
+  virtual bool DrawingEdges(vtkRenderer*, vtkActor*);
 
   // additional picking indirection
   char* PointIdArrayName;

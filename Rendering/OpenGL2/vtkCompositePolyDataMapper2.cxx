@@ -381,7 +381,7 @@ void vtkCompositeMapperHelper2::RenderPieceDraw(vtkRenderer* ren, vtkActor* acto
   for (int i = PrimitiveStart; i < (this->CurrentSelector ? PrimitiveTriStrips + 1 : PrimitiveEnd);
        i++)
   {
-    this->DrawingEdgesOrVertices = (i > PrimitiveTriStrips ? true : false);
+    this->DrawingVertices = (i > PrimitiveTriStrips ? true : false);
     GLenum mode = this->GetOpenGLMode(representation, i);
     this->DrawIBO(ren, actor, i, this->Primitives[i], mode,
       pointPicking ? this->GetPointPickingPrimitiveSize(i) : 0);
@@ -432,6 +432,8 @@ void vtkCompositeMapperHelper2::BuildBufferObjects(vtkRenderer* ren, vtkActor* a
     this->VBOBuildTime.Modified();
     return;
   }
+
+  this->EdgeValues.clear();
 
   vtkBoundingBox bbox;
   double bounds[6];
@@ -507,6 +509,20 @@ void vtkCompositeMapperHelper2::BuildBufferObjects(vtkRenderer* ren, vtkActor* a
         this->IndexArray[i], vtkOpenGLBufferObject::ElementArrayBuffer);
       this->IndexArray[i].resize(0);
     }
+  }
+
+  if (this->EdgeValues.size())
+  {
+    if (!this->EdgeTexture)
+    {
+      this->EdgeTexture = vtkTextureObject::New();
+      this->EdgeBuffer = vtkOpenGLBufferObject::New();
+      this->EdgeBuffer->SetType(vtkOpenGLBufferObject::TextureBuffer);
+    }
+    this->EdgeTexture->SetContext(static_cast<vtkOpenGLRenderWindow*>(ren->GetVTKWindow()));
+    this->EdgeBuffer->Upload(this->EdgeValues, vtkOpenGLBufferObject::TextureBuffer);
+    this->EdgeTexture->CreateTextureBuffer(
+      static_cast<unsigned int>(this->EdgeValues.size()), 1, VTK_UNSIGNED_CHAR, this->EdgeBuffer);
   }
 
   // allocate as needed
@@ -737,6 +753,23 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(vtkRenderer* ren, vtkActor
   vtkOpenGLIndexBufferObject::AppendPointIndexBuffer(this->IndexArray[0], prims[0], voffset);
 
   vtkDataArray* ef = poly->GetPointData()->GetAttribute(vtkDataSetAttributes::EDGEFLAG);
+  if (ef)
+  {
+    if (ef->GetNumberOfComponents() != 1)
+    {
+      vtkDebugMacro(<< "Currently only 1d edge flags are supported.");
+      ef = nullptr;
+    }
+    if (ef && !ef->IsA("vtkUnsignedCharArray"))
+    {
+      vtkDebugMacro(<< "Currently only unsigned char edge flags are supported.");
+      ef = nullptr;
+    }
+  }
+
+  vtkProperty* prop = act->GetProperty();
+  bool draw_surface_with_edges =
+    (prop->GetEdgeVisibility() && prop->GetRepresentation() == VTK_SURFACE);
 
   if (representation == VTK_POINTS)
   {
@@ -754,19 +787,6 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(vtkRenderer* ren, vtkActor
     {
       if (ef)
       {
-        if (ef->GetNumberOfComponents() != 1)
-        {
-          vtkDebugMacro(<< "Currently only 1d edge flags are supported.");
-          ef = nullptr;
-        }
-        if (ef && !ef->IsA("vtkUnsignedCharArray"))
-        {
-          vtkDebugMacro(<< "Currently only unsigned char edge flags are supported.");
-          ef = nullptr;
-        }
-      }
-      if (ef)
-      {
         vtkOpenGLIndexBufferObject::AppendEdgeFlagIndexBuffer(
           this->IndexArray[2], prims[2], voffset, ef);
       }
@@ -780,44 +800,19 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(vtkRenderer* ren, vtkActor
     }
     else // SURFACE
     {
-      vtkOpenGLIndexBufferObject::AppendTriangleIndexBuffer(
-        this->IndexArray[2], prims[2], poly->GetPoints(), voffset);
+      if (draw_surface_with_edges)
+      {
+        vtkOpenGLIndexBufferObject::AppendTriangleIndexBuffer(
+          this->IndexArray[2], prims[2], poly->GetPoints(), voffset, &this->EdgeValues, ef);
+      }
+      else
+      {
+        vtkOpenGLIndexBufferObject::AppendTriangleIndexBuffer(
+          this->IndexArray[2], prims[2], poly->GetPoints(), voffset, nullptr, nullptr);
+      }
       vtkOpenGLIndexBufferObject::AppendStripIndexBuffer(
         this->IndexArray[3], prims[3], voffset, false);
     }
-  }
-
-  // when drawing edges also build the edge IBOs
-  vtkProperty* prop = act->GetProperty();
-  bool draw_surface_with_edges =
-    (prop->GetEdgeVisibility() && prop->GetRepresentation() == VTK_SURFACE);
-  if (draw_surface_with_edges)
-  {
-    if (ef)
-    {
-      if (ef->GetNumberOfComponents() != 1)
-      {
-        vtkDebugMacro(<< "Currently only 1d edge flags are supported.");
-        ef = nullptr;
-      }
-      if (!ef->IsA("vtkUnsignedCharArray"))
-      {
-        vtkDebugMacro(<< "Currently only unsigned char edge flags are supported.");
-        ef = nullptr;
-      }
-    }
-    if (ef)
-    {
-      vtkOpenGLIndexBufferObject::AppendEdgeFlagIndexBuffer(
-        this->IndexArray[4], prims[2], voffset, ef);
-    }
-    else
-    {
-      vtkOpenGLIndexBufferObject::AppendTriangleLineIndexBuffer(
-        this->IndexArray[4], prims[2], voffset);
-    }
-    vtkOpenGLIndexBufferObject::AppendStripIndexBuffer(
-      this->IndexArray[5], prims[3], voffset, false);
   }
 
   if (prop->GetVertexVisibility())

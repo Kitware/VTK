@@ -45,6 +45,8 @@ namespace
 struct AppendTrianglesWorker
 {
   std::vector<unsigned int>* indexArray;
+  std::vector<unsigned char>* edgeArray;
+  unsigned char* edgeFlags;
   vtkCellArray* cells;
   vtkIdType vOffset;
 
@@ -79,6 +81,20 @@ struct AppendTrianglesWorker
             indexArray->push_back(static_cast<unsigned int>(id1 + vOffset));
             indexArray->push_back(static_cast<unsigned int>(id2 + vOffset));
             indexArray->push_back(static_cast<unsigned int>(id3 + vOffset));
+            if (edgeArray)
+            {
+              int val = cellSize == 3 ? 7 : i == 1 ? 3 : i == cellSize - 2 ? 6 : 2;
+              if (edgeFlags)
+              {
+                int mask = 0;
+                mask = edgeFlags[id1] + edgeFlags[id2] * 2 + edgeFlags[id3] * 4;
+                edgeArray->push_back(val & mask);
+              }
+              else
+              {
+                edgeArray->push_back(val);
+              }
+            }
           }
         }
       }
@@ -127,8 +143,9 @@ struct AppendTrianglesWorker
 } // end anon namespace
 
 // used to create an IBO for triangle primitives
-void vtkOpenGLIndexBufferObject::AppendTriangleIndexBuffer(
-  std::vector<unsigned int>& indexArray, vtkCellArray* cells, vtkPoints* points, vtkIdType vOffset)
+void vtkOpenGLIndexBufferObject::AppendTriangleIndexBuffer(std::vector<unsigned int>& indexArray,
+  vtkCellArray* cells, vtkPoints* points, vtkIdType vOffset, std::vector<unsigned char>* edgeArray,
+  vtkDataArray* edgeFlags)
 {
   if (cells->GetNumberOfConnectivityIds() > cells->GetNumberOfCells() * 3)
   {
@@ -144,9 +161,17 @@ void vtkOpenGLIndexBufferObject::AppendTriangleIndexBuffer(
     }
   }
 
+  unsigned char* ucef = nullptr;
+  if (edgeFlags)
+  {
+    ucef = vtkArrayDownCast<vtkUnsignedCharArray>(edgeFlags)->GetPointer(0);
+  }
+
   // Create our worker functor:
   AppendTrianglesWorker worker;
   worker.indexArray = &indexArray;
+  worker.edgeArray = edgeArray;
+  worker.edgeFlags = ucef;
   worker.cells = cells;
   worker.vOffset = vOffset;
 
@@ -164,7 +189,8 @@ void vtkOpenGLIndexBufferObject::AppendTriangleIndexBuffer(
 }
 
 // used to create an IBO for triangle primitives
-size_t vtkOpenGLIndexBufferObject::CreateTriangleIndexBuffer(vtkCellArray* cells, vtkPoints* points)
+size_t vtkOpenGLIndexBufferObject::CreateTriangleIndexBuffer(vtkCellArray* cells, vtkPoints* points,
+  std::vector<unsigned char>* edgeValues, vtkDataArray* edgeFlags)
 {
   if (!cells->GetNumberOfCells())
   {
@@ -172,7 +198,7 @@ size_t vtkOpenGLIndexBufferObject::CreateTriangleIndexBuffer(vtkCellArray* cells
     return 0;
   }
   std::vector<unsigned int> indexArray;
-  AppendTriangleIndexBuffer(indexArray, cells, points, 0);
+  AppendTriangleIndexBuffer(indexArray, cells, points, 0, edgeValues, edgeFlags);
   this->Upload(indexArray, vtkOpenGLIndexBufferObject::ElementArrayBuffer);
   this->IndexCount = indexArray.size();
   return indexArray.size();
