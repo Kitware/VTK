@@ -56,7 +56,7 @@ protected:
   void ComputeBonds(vtkMolecule* molecule) override;
 
 private:
-  vtkPSimpleBondPerceiver(const vtkPSimpleBondPerceiver&) = delete; // Not implemented.
-  void operator=(const vtkPSimpleBondPerceiver&) = delete;          // Not implemented.
+  vtkPSimpleBondPerceiver(const vtkPSimpleBondPerceiver&) = delete;
+  void operator=(const vtkPSimpleBondPerceiver&) = delete;
 };
 #endif
