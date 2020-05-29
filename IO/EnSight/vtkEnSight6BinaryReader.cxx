@@ -1309,6 +1309,15 @@ int vtkEnSight6BinaryReader::ReadVectorsPerNode(const char* fileName, const char
 }
 
 //------------------------------------------------------------------------------
+int vtkEnSight6BinaryReader::ReadAsymmetricTensorsPerNode(const char* vtkNotUsed(fileName),
+  const char* vtkNotUsed(description), int vtkNotUsed(timeStep),
+  vtkMultiBlockDataSet* vtkNotUsed(compositeOutput))
+{
+  vtkErrorMacro("Asymmetric Tensors are not supported for Ensight6 ASCII files");
+  return 0;
+}
+
+//------------------------------------------------------------------------------
 int vtkEnSight6BinaryReader::ReadTensorsPerNode(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput)
 {
@@ -1354,6 +1363,8 @@ int vtkEnSight6BinaryReader::ReadTensorsPerNode(const char* fileName, const char
   {
     for (i = 0; i < timeStep - 1; i++)
     {
+      // Complex reading code just to drop them, there must be a better way to do that !
+      // TODO
       this->ReadLine(line);
       while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
       {
@@ -1840,6 +1851,15 @@ int vtkEnSight6BinaryReader::ReadVectorsPerElement(const char* fileName, const c
 }
 
 //------------------------------------------------------------------------------
+int vtkEnSight6BinaryReader::ReadAsymmetricTensorsPerElement(const char* vtkNotUsed(fileName),
+  const char* vtkNotUsed(description), int vtkNotUsed(timeStep),
+  vtkMultiBlockDataSet* vtkNotUsed(compositeOutput))
+{
+  vtkErrorMacro("Asymmetric Tensors are not supported for Ensight6 ASCII files");
+  return 0;
+}
+
+//------------------------------------------------------------------------------
 int vtkEnSight6BinaryReader::ReadTensorsPerElement(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput)
 {
@@ -1885,6 +1905,8 @@ int vtkEnSight6BinaryReader::ReadTensorsPerElement(const char* fileName, const c
   {
     for (i = 0; i < timeStep - 1; i++)
     {
+      // Complex reading code just to drop them, there must be a better way to do that !
+      // TODO
       this->ReadLine(line);
       while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
       {

@@ -887,6 +887,15 @@ int vtkEnSight6Reader::ReadVectorsPerNode(const char* fileName, const char* desc
 }
 
 //------------------------------------------------------------------------------
+int vtkEnSight6Reader::ReadAsymmetricTensorsPerNode(const char* vtkNotUsed(fileName),
+  const char* vtkNotUsed(description), int vtkNotUsed(timeStep),
+  vtkMultiBlockDataSet* vtkNotUsed(compositeOutput))
+{
+  vtkErrorMacro("Asymmetric Tensors are not supported by Ensight6 ASCII files");
+  return 0;
+}
+
+//------------------------------------------------------------------------------
 int vtkEnSight6Reader::ReadTensorsPerNode(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput)
 {
@@ -987,6 +996,8 @@ int vtkEnSight6Reader::ReadTensorsPerNode(const char* fileName, const char* desc
   this->RemoveLeadingBlanks(line);
   while (lineRead && strncmp(line, "part", 4) == 0)
   {
+    assert(false);
+    // code below does not make sens and is not tested
     sscanf(line, " part %d", &partId);
     partId--;
     int realId = this->InsertNewPartId(partId);
@@ -1373,6 +1384,15 @@ int vtkEnSight6Reader::ReadVectorsPerElement(const char* fileName, const char* d
 }
 
 //------------------------------------------------------------------------------
+int vtkEnSight6Reader::ReadAsymmetricTensorsPerElement(const char* vtkNotUsed(fileName),
+  const char* vtkNotUsed(description), int vtkNotUsed(timeStep),
+  vtkMultiBlockDataSet* vtkNotUsed(compositeOutput))
+{
+  vtkErrorMacro("Asymmetric Tensors are not supported by Ensight6 ASCII files");
+  return 0;
+}
+
+//------------------------------------------------------------------------------
 int vtkEnSight6Reader::ReadTensorsPerElement(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput)
 {
@@ -1454,6 +1474,9 @@ int vtkEnSight6Reader::ReadTensorsPerElement(const char* fileName, const char* d
     // type (and what their ids are) -- IF THIS IS NOT A BLOCK SECTION
     if (strcmp(line, "block") == 0)
     {
+      assert(false);
+      // Code belows does not make sense and is not tested
+
       numLines = numCells / 6;
       moreTensors = numCells % 6;
 
