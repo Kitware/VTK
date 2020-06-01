@@ -40,6 +40,7 @@ vtkAMRVelodyneReader::vtkAMRVelodyneReader()
 {
   this->IsReady = false;
   this->Internal = new vtkAMRVelodyneReaderInternal;
+  this->currentIndex = 0;
   this->Initialize();
 }
 
@@ -50,7 +51,7 @@ vtkAMRVelodyneReader::~vtkAMRVelodyneReader()
   delete this->Internal;
   Internal = nullptr;
   this->Metadata = nullptr;
-  for (int i = 0; i < this->amrVector.size(); i++)
+  for (unsigned int i = 0; i < this->amrVector.size(); i++)
   {
     this->amrVector[i]->Delete();
     this->amrVector[i] = nullptr;
@@ -102,6 +103,7 @@ void vtkAMRVelodyneReader::UpdateFileName(int index)
   this->FileName[strlen(fN)] = '\0';
   this->Internal->SetFileName(this->FileName);
   this->Metadata = this->amrVector[index];
+  this->currentIndex = static_cast<unsigned int>(index);
 }
 
 int vtkAMRVelodyneReader::RequestInformation(
@@ -113,8 +115,8 @@ int vtkAMRVelodyneReader::RequestInformation(
   info->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
   info->Remove(vtkStreamingDemandDrivenPipeline::TIME_RANGE());
   assert("pre: output information object is nullptr" && (info != nullptr));
-  info->Set(
-    vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &this->timeList[0], this->timeList.size());
+  info->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &this->timeList[0],
+    static_cast<int>(this->timeList.size()));
   double timeRange[2];
   timeRange[0] = this->timeList.front();
   timeRange[1] = this->timeList.back();
@@ -128,15 +130,12 @@ int vtkAMRVelodyneReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   vtkInformation* info = outputVector->GetInformationObject(0);
-  double* timeRange = info->Get(vtkStreamingDemandDrivenPipeline::TIME_RANGE());
   double requestedTime = info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
 
   int length = info->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-  double* steps = info->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-  int cnt = 0;
   int closestStep = 0;
   double minDist = -1;
-  for (cnt = 0; cnt < length; cnt++)
+  for (int cnt = 0; cnt < length; cnt++)
   {
     double tdist = (this->timeList[cnt] - requestedTime > requestedTime - this->timeList[cnt])
       ? this->timeList[cnt] - requestedTime
@@ -160,8 +159,8 @@ int vtkAMRVelodyneReader::RequestData(vtkInformation* vtkNotUsed(request),
   dummy = nullptr;
   vtkInformationVector** dummyV;
   dummyV = nullptr;
-  return this->Superclass::RequestData(dummy, dummyV, outputVector);
   this->Modified();
+  return this->Superclass::RequestData(dummy, dummyV, outputVector);
 }
 
 void vtkAMRVelodyneReader::ReadMetaData()
@@ -345,4 +344,12 @@ bool vtkAMRVelodyneReader::IsFileRead(const char* fN)
     return false;
   }
   return it->second;
+}
+
+vtkOverlappingAMR* vtkAMRVelodyneReader::GetOutput()
+{
+  this->FillMetaData();
+  vtkOverlappingAMR* amr = this->amrVector[this->currentIndex];
+  amr->GenerateParentChildInformation();
+  return amr;
 }

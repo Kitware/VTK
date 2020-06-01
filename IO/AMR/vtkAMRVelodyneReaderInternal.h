@@ -93,12 +93,12 @@ private:
   void AttachTensorToGrid(int, const char*, int, vtkUniformGrid*);
   int ReadLevelsAndX0(hid_t grp_id, std::vector<int>& levels, std::vector<double>& X0);
   herr_t CloseFile(hid_t& fid);
+  vtkDataArray* GetTypeAndArray(const int, hid_t&);
 
   char* FileName;
   int nLeaves;
   int nFullLeaves;
   int nNodes;
-  int nTotNodes;
   std::unordered_map<std::string, int> typeMap;
   std::unordered_map<std::string, int> arrayMap;
 };

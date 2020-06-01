@@ -21,7 +21,7 @@
  */
 
 #ifndef vtkAMRVelodyneReader_h
-#define vtkAMRFVelodyneReader_h
+#define vtkAMRVelodyneReader_h
 #include "vtkAMRBaseReader.h"
 #include "vtkIOAMRModule.h" // For export macro
 #include "vtkInformation.h"
@@ -41,6 +41,7 @@ public:
   int GetNumberOfBlocks() override;
   int GetNumberOfLevels() override;
   void SetFileName(const char* fileName) override;
+  vtkOverlappingAMR* GetOutput();
 
 protected:
   vtkAMRVelodyneReader();
@@ -108,5 +109,6 @@ private:
   std::vector<double> timeList;
   std::vector<std::string> fileList;
   std::unordered_map<std::string, bool> LoadedHash;
+  unsigned int currentIndex;
 };
 #endif

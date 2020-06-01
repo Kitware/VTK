@@ -56,7 +56,6 @@ void vtkAMRVelodyneReaderInternal::SetFileName(char* fileName)
 
 void vtkAMRVelodyneReaderInternal::ReadMetaData()
 {
-  herr_t ierr;
   if (this->FileName == nullptr || !strcmp(this->FileName, ""))
   {
     return;
@@ -80,7 +79,7 @@ void vtkAMRVelodyneReaderInternal::ReadMetaData()
   }
   // Read Time Step
   att_id = H5Aopen(grp_id, "SimTime", H5P_DEFAULT);
-  ierr = H5Aread(att_id, H5T_NATIVE_DOUBLE, &this->dataTime);
+  herr_t ierr = H5Aread(att_id, H5T_NATIVE_DOUBLE, &this->dataTime);
   if (ierr < 0)
   {
     vtkGenericWarningMacro("Failed to open SimTime Attribute " << endl);
@@ -99,7 +98,6 @@ void vtkAMRVelodyneReaderInternal::ReadMetaData()
 
   // Read Level Count
   blocksPerLevel.resize(nLevels, 0);
-  int i;
 
   att_id = H5Aopen(grp_id, "LevelCount", H5P_DEFAULT);
   ierr = H5Aread(att_id, H5T_NATIVE_INT, blocksPerLevel.data());
@@ -115,7 +113,7 @@ void vtkAMRVelodyneReaderInternal::ReadMetaData()
   ierr = H5Aread(att_id, H5T_NATIVE_INT, &(this->nBlocks));
   if (ierr < 0)
   {
-    vtkGenericWarningMacro("Failed to open Number of Nodes " << endl);
+    vtkGenericWarningMacro("Failed to open Number of Nodes\n");
     return;
   }
   H5Aclose(att_id);
@@ -129,7 +127,7 @@ void vtkAMRVelodyneReaderInternal::ReadMetaData()
   ierr = H5Aread(att_id, H5T_NATIVE_INT, blockDims.data());
   if (ierr < 0)
   {
-    vtkGenericWarningMacro("Failed to open BlockDims Attribute " << endl);
+    vtkGenericWarningMacro("Failed to open BlockDims Attribute\n");
     return;
   }
   H5Aclose(att_id);
@@ -139,7 +137,7 @@ void vtkAMRVelodyneReaderInternal::ReadMetaData()
   ierr = H5Aread(att_id, H5T_NATIVE_DOUBLE, globalOrigin.data());
   if (ierr < 0)
   {
-    vtkGenericWarningMacro("Failed to open RootXS Attribute " << endl);
+    vtkGenericWarningMacro("Failed to open RootXS Attribute\n");
     return;
   }
   H5Aclose(att_id);
@@ -149,7 +147,7 @@ void vtkAMRVelodyneReaderInternal::ReadMetaData()
   ierr = H5Aread(att_id, H5T_NATIVE_DOUBLE, rootDX.data());
   if (ierr < 0)
   {
-    vtkGenericWarningMacro("Failed to open RootDX Attribute " << endl);
+    vtkGenericWarningMacro("Failed to open RootDX Attribute\n");
     return;
   }
   H5Aclose(att_id);
@@ -159,7 +157,7 @@ void vtkAMRVelodyneReaderInternal::ReadMetaData()
   ierr = H5Aread(att_id, H5T_NATIVE_INT, &nVars);
   if (ierr < 0)
   {
-    vtkGenericWarningMacro("Failed to open NumberOfFieldVariables Attribute " << endl);
+    vtkGenericWarningMacro("Failed to open NumberOfFieldVariables Attribute\n");
     return;
   }
   H5Aclose(att_id);
@@ -172,6 +170,10 @@ void vtkAMRVelodyneReaderInternal::ReadMetaData()
   char* stringout = NULL;
   stringout = new char[total_size];
   ierr = H5Aread(att_id, atype, stringout);
+  if (ierr < 0)
+  {
+    vtkGenericWarningMacro("Cannot read Variable List Attribute\n");
+  }
   std::string tmp(stringout);
   delete stringout;
   stringout = nullptr;
@@ -188,6 +190,10 @@ void vtkAMRVelodyneReaderInternal::ReadMetaData()
   std::vector<int> arrtype(nVars);
   att_id = H5Aopen(grp_id, "FieldVariableDataType", H5P_DEFAULT);
   ierr = H5Aread(att_id, H5T_NATIVE_INT, arrtype.data());
+  if (ierr < 0)
+  {
+    vtkGenericWarningMacro("Cannot read Variable Data Type Attribute\n");
+  }
   for (int i = 0; i < nVars; i++)
   {
     typeMap[this->AttributeNames[i]] = arrtype[i];
@@ -196,6 +202,10 @@ void vtkAMRVelodyneReaderInternal::ReadMetaData()
 
   att_id = H5Aopen(grp_id, "FieldVariableArrayType", H5P_DEFAULT);
   ierr = H5Aread(att_id, H5T_NATIVE_INT, arrtype.data());
+  if (ierr < 0)
+  {
+    vtkGenericWarningMacro("Cannot read Variable Array Type Attribute\n");
+  }
   for (int i = 0; i < nVars; i++)
   {
     arrayMap[this->AttributeNames[i]] = arrtype[i];
@@ -215,7 +225,6 @@ void vtkAMRVelodyneReaderInternal::ReadBlocks()
   hid_t dspace_id;
   hid_t mspace_id;
 
-  herr_t ierr;
   hsize_t mem_dims[2];
   hsize_t data_dims[2];
   hsize_t max_dims[2];
@@ -227,12 +236,11 @@ void vtkAMRVelodyneReaderInternal::ReadBlocks()
   std::vector<int> readMap(this->nBlocks * 2, 0);
   grp_amr = H5Gopen(this->file_id, amrName.c_str());
 
-  int nDims;
   //*****************Open the Morton Order Read Map***********************
   ds_id = H5Dopen(grp_amr, "ReadMap");
   dspace_id = H5Dget_space(ds_id);
-  nDims = H5Sget_simple_extent_dims(dspace_id, data_dims, max_dims);
-  if (nDims != 2 || data_dims[0] != this->nBlocks)
+  int nDims = H5Sget_simple_extent_dims(dspace_id, data_dims, max_dims);
+  if (nDims != 2 || data_dims[0] != static_cast<unsigned int>(this->nBlocks))
   {
     vtkGenericWarningMacro("Wrong number of blocks in the Morton Map\n");
     return;
@@ -240,7 +248,11 @@ void vtkAMRVelodyneReaderInternal::ReadBlocks()
   mem_dims[0] = this->nBlocks;
   mem_dims[1] = 2;
   mspace_id = H5Screate_simple(2, mem_dims, mem_dims);
-  ierr = H5Dread(ds_id, H5T_NATIVE_INT, mspace_id, dspace_id, H5P_DEFAULT, readMap.data());
+  herr_t ierr = H5Dread(ds_id, H5T_NATIVE_INT, mspace_id, dspace_id, H5P_DEFAULT, readMap.data());
+  if (ierr < 0)
+  {
+    vtkGenericWarningMacro("Cannot Read the Morton Order Map\n");
+  }
   ierr = H5Sclose(dspace_id);
   ierr = H5Sclose(mspace_id);
   ierr = H5Dclose(ds_id);
@@ -286,18 +298,10 @@ void vtkAMRVelodyneReaderInternal::ReadBlocks()
   int cLevel;
   for (int i = 0; i < this->nBlocks; i++)
   {
-    for (int j = 0; j < 2; j++)
-    {
-      ind = 2 * i + j;
-      if (j == 0)
-      {
-        nodeType = readMap[ind];
-      }
-      if (j == 1)
-      {
-        loc = readMap[ind];
-      }
-    }
+    ind = 2 * i;
+    nodeType = readMap[ind];
+    ind = 2 * i + 1;
+    loc = readMap[ind];
 
     switch (nodeType)
     {
@@ -384,25 +388,13 @@ void vtkAMRVelodyneReaderInternal::AttachScalarToGrid(
   {
     return;
   }
-  hid_t dType;
-  vtkDataArray* dataArray;
+
   std::vector<int> iData;
   std::vector<double> fData;
-  switch (type)
-  {
-    case pv_int:
-    {
-      dataArray = vtkIntArray::New();
-      dType = H5T_NATIVE_INT;
-    }
-    break;
-    case pv_double:
-    {
-      dataArray = vtkDoubleArray::New();
-      dType = H5T_NATIVE_DOUBLE;
-    }
-    break;
-  }
+
+  hid_t dType;
+  vtkDataArray* dataArray = this->GetTypeAndArray(type, dType);
+
   dataArray->SetName(attribute);
   dataArray->SetNumberOfComponents(pv_scalar);
   bool isFullLeaf = this->Blocks[blockIdx].isFull;
@@ -424,7 +416,7 @@ void vtkAMRVelodyneReaderInternal::AttachScalarToGrid(
   hsize_t max_dims[5];
   hsize_t block_dims[5];
   hid_t dspace_id = H5Dget_space(ds_id);
-  int nDims = H5Sget_simple_extent_dims(dspace_id, data_dims, max_dims);
+  H5Sget_simple_extent_dims(dspace_id, data_dims, max_dims);
   cBlockDims[0] = data_dims[1];
   cBlockDims[1] = data_dims[2];
   cBlockDims[2] = data_dims[3];
@@ -453,7 +445,7 @@ void vtkAMRVelodyneReaderInternal::AttachScalarToGrid(
   count[2] = 1;
   count[3] = 1;
   count[4] = 1;
-  herr_t ierr = H5Sselect_hyperslab(dspace_id, H5S_SELECT_SET, data_off, stride, count, block_dims);
+  H5Sselect_hyperslab(dspace_id, H5S_SELECT_SET, data_off, stride, count, block_dims);
 
   int nTuples = cBlockDims[0] * cBlockDims[1] * cBlockDims[2];
 
@@ -463,25 +455,34 @@ void vtkAMRVelodyneReaderInternal::AttachScalarToGrid(
   mem_dims[3] = cBlockDims[2];
   mem_dims[4] = pv_scalar;
   hid_t mspace_id = H5Screate_simple(5, mem_dims, mem_dims);
+  herr_t ierr;
   switch (type)
   {
     case pv_int:
     {
       iData.resize(nTuples);
       ierr = H5Dread(ds_id, dType, mspace_id, dspace_id, H5P_DEFAULT, iData.data());
+      if (ierr < 0)
+      {
+        vtkGenericWarningMacro("Cannot read " << std::string(attribute) << endl);
+      }
     }
     break;
     case pv_double:
     {
       fData.resize(nTuples);
       ierr = H5Dread(ds_id, dType, mspace_id, dspace_id, H5P_DEFAULT, fData.data());
+      if (ierr < 0)
+      {
+        vtkGenericWarningMacro("Cannot read " << std::string(attribute) << endl);
+      }
     }
     break;
   }
-  ierr = H5Dclose(ds_id);
-  ierr = H5Sclose(dspace_id);
-  ierr = H5Sclose(mspace_id);
-  ierr = H5Gclose(grp_id);
+  H5Dclose(ds_id);
+  H5Sclose(dspace_id);
+  H5Sclose(mspace_id);
+  H5Gclose(grp_id);
   dataArray->SetNumberOfTuples(nTuples);
   if (type == pv_double)
   {
@@ -524,27 +525,13 @@ void vtkAMRVelodyneReaderInternal::AttachVectorToGrid(
   {
     return;
   }
-  hid_t dType;
 
   std::vector<int> iData;
   std::vector<double> fData;
 
-  vtkDataArray* dataArray;
-  switch (type)
-  {
-    case pv_int:
-    {
-      dataArray = vtkIntArray::New();
-      dType = H5T_NATIVE_INT;
-    }
-    break;
-    case pv_double:
-    {
-      dataArray = vtkDoubleArray::New();
-      dType = H5T_NATIVE_DOUBLE;
-    }
-    break;
-  }
+  hid_t dType;
+  vtkDataArray* dataArray = this->GetTypeAndArray(type, dType);
+
   dataArray->SetName(attribute);
   dataArray->SetNumberOfComponents(pv_vector);
   bool isFullLeaf = this->Blocks[blockIdx].isFull;
@@ -566,7 +553,7 @@ void vtkAMRVelodyneReaderInternal::AttachVectorToGrid(
   hsize_t max_dims[5];
   hsize_t block_dims[5];
   hid_t dspace_id = H5Dget_space(ds_id);
-  int nDims = H5Sget_simple_extent_dims(dspace_id, data_dims, max_dims);
+  H5Sget_simple_extent_dims(dspace_id, data_dims, max_dims);
   cBlockDims[0] = data_dims[1];
   cBlockDims[1] = data_dims[2];
   cBlockDims[2] = data_dims[3];
@@ -595,7 +582,7 @@ void vtkAMRVelodyneReaderInternal::AttachVectorToGrid(
   count[2] = 1;
   count[3] = 1;
   count[4] = 1;
-  herr_t ierr = H5Sselect_hyperslab(dspace_id, H5S_SELECT_SET, data_off, stride, count, block_dims);
+  H5Sselect_hyperslab(dspace_id, H5S_SELECT_SET, data_off, stride, count, block_dims);
 
   int nTuples = cBlockDims[0] * cBlockDims[1] * cBlockDims[2];
 
@@ -605,25 +592,34 @@ void vtkAMRVelodyneReaderInternal::AttachVectorToGrid(
   mem_dims[3] = cBlockDims[2];
   mem_dims[4] = pv_vector;
   hid_t mspace_id = H5Screate_simple(5, mem_dims, mem_dims);
+  herr_t ierr;
   switch (type)
   {
     case pv_int:
     {
       iData.resize(pv_vector * nTuples);
       ierr = H5Dread(ds_id, dType, mspace_id, dspace_id, H5P_DEFAULT, iData.data());
+      if (ierr < 0)
+      {
+        vtkGenericWarningMacro("Cannot read " << std::string(attribute) << endl);
+      }
     }
     break;
     case pv_double:
     {
       fData.resize(pv_vector * nTuples);
       ierr = H5Dread(ds_id, dType, mspace_id, dspace_id, H5P_DEFAULT, fData.data());
+      if (ierr < 0)
+      {
+        vtkGenericWarningMacro("Cannot read " << std::string(attribute) << endl);
+      }
     }
     break;
   }
-  ierr = H5Dclose(ds_id);
-  ierr = H5Sclose(dspace_id);
-  ierr = H5Sclose(mspace_id);
-  ierr = H5Gclose(grp_id);
+  H5Dclose(ds_id);
+  H5Sclose(dspace_id);
+  H5Sclose(mspace_id);
+  H5Gclose(grp_id);
 
   dataArray->SetNumberOfTuples(nTuples);
   int cnt = 0;
@@ -668,25 +664,13 @@ void vtkAMRVelodyneReaderInternal::AttachTensor6ToGrid(
   {
     return;
   }
-  hid_t dType;
+
   std::vector<int> iData;
   std::vector<double> fData;
-  vtkDataArray* dataArray;
-  switch (type)
-  {
-    case pv_int:
-    {
-      vtkIntArray* dataArray = vtkIntArray::New();
-      dType = H5T_NATIVE_INT;
-    }
-    break;
-    case pv_double:
-    {
-      vtkDoubleArray* dataArray = vtkDoubleArray::New();
-      dType = H5T_NATIVE_DOUBLE;
-    }
-    break;
-  }
+
+  hid_t dType;
+  vtkDataArray* dataArray = this->GetTypeAndArray(type, dType);
+
   dataArray->SetName(attribute);
   dataArray->SetNumberOfComponents(pv_tensor6);
   bool isFullLeaf = this->Blocks[blockIdx].isFull;
@@ -708,7 +692,7 @@ void vtkAMRVelodyneReaderInternal::AttachTensor6ToGrid(
   hsize_t max_dims[5];
   hsize_t block_dims[5];
   hid_t dspace_id = H5Dget_space(ds_id);
-  int nDims = H5Sget_simple_extent_dims(dspace_id, data_dims, max_dims);
+  H5Sget_simple_extent_dims(dspace_id, data_dims, max_dims);
   cBlockDims[0] = data_dims[1];
   cBlockDims[1] = data_dims[2];
   cBlockDims[2] = data_dims[3];
@@ -737,7 +721,7 @@ void vtkAMRVelodyneReaderInternal::AttachTensor6ToGrid(
   count[2] = 1;
   count[3] = 1;
   count[4] = 1;
-  herr_t ierr = H5Sselect_hyperslab(dspace_id, H5S_SELECT_SET, data_off, stride, count, block_dims);
+  H5Sselect_hyperslab(dspace_id, H5S_SELECT_SET, data_off, stride, count, block_dims);
 
   int nTuples = cBlockDims[0] * cBlockDims[1] * cBlockDims[2];
 
@@ -748,26 +732,35 @@ void vtkAMRVelodyneReaderInternal::AttachTensor6ToGrid(
   mem_dims[4] = pv_tensor6;
   hid_t mspace_id = H5Screate_simple(5, mem_dims, mem_dims);
 
+  herr_t ierr;
   switch (type)
   {
     case pv_int:
     {
       iData.resize(pv_tensor6 * nTuples);
       ierr = H5Dread(ds_id, dType, mspace_id, dspace_id, H5P_DEFAULT, iData.data());
+      if (ierr < 0)
+      {
+        vtkGenericWarningMacro("Cannot read " << std::string(attribute) << endl);
+      }
     }
     break;
     case pv_double:
     {
       fData.resize(pv_tensor6 * nTuples);
       ierr = H5Dread(ds_id, dType, mspace_id, dspace_id, H5P_DEFAULT, fData.data());
+      if (ierr < 0)
+      {
+        vtkGenericWarningMacro("Cannot read " << std::string(attribute) << endl);
+      }
     }
     break;
   }
 
-  ierr = H5Dclose(ds_id);
-  ierr = H5Sclose(dspace_id);
-  ierr = H5Sclose(mspace_id);
-  ierr = H5Gclose(grp_id);
+  H5Dclose(ds_id);
+  H5Sclose(dspace_id);
+  H5Sclose(mspace_id);
+  H5Gclose(grp_id);
 
   dataArray->SetNumberOfTuples(nTuples);
   int cnt = 0;
@@ -813,25 +806,13 @@ void vtkAMRVelodyneReaderInternal::AttachTensorToGrid(
   {
     return;
   }
-  hid_t dType;
+
   std::vector<int> iData;
   std::vector<double> fData;
-  vtkDataArray* dataArray;
-  switch (type)
-  {
-    case pv_int:
-    {
-      vtkIntArray* dataArray = vtkIntArray::New();
-      dType = H5T_NATIVE_INT;
-    }
-    break;
-    case pv_double:
-    {
-      vtkDoubleArray* dataArray = vtkDoubleArray::New();
-      dType = H5T_NATIVE_DOUBLE;
-    }
-    break;
-  }
+
+  hid_t dType;
+  vtkDataArray* dataArray = this->GetTypeAndArray(type, dType);
+
   dataArray->SetName(attribute);
   dataArray->SetNumberOfComponents(pv_tensor);
   bool isFullLeaf = this->Blocks[blockIdx].isFull;
@@ -853,7 +834,7 @@ void vtkAMRVelodyneReaderInternal::AttachTensorToGrid(
   hsize_t max_dims[5];
   hsize_t block_dims[5];
   hid_t dspace_id = H5Dget_space(ds_id);
-  int nDims = H5Sget_simple_extent_dims(dspace_id, data_dims, max_dims);
+  H5Sget_simple_extent_dims(dspace_id, data_dims, max_dims);
   cBlockDims[0] = data_dims[1];
   cBlockDims[1] = data_dims[2];
   cBlockDims[2] = data_dims[3];
@@ -882,7 +863,7 @@ void vtkAMRVelodyneReaderInternal::AttachTensorToGrid(
   count[2] = 1;
   count[3] = 1;
   count[4] = 1;
-  herr_t ierr = H5Sselect_hyperslab(dspace_id, H5S_SELECT_SET, data_off, stride, count, block_dims);
+  H5Sselect_hyperslab(dspace_id, H5S_SELECT_SET, data_off, stride, count, block_dims);
 
   int nTuples = cBlockDims[0] * cBlockDims[1] * cBlockDims[2];
 
@@ -892,25 +873,35 @@ void vtkAMRVelodyneReaderInternal::AttachTensorToGrid(
   mem_dims[3] = cBlockDims[2];
   mem_dims[4] = pv_tensor;
   hid_t mspace_id = H5Screate_simple(5, mem_dims, mem_dims);
+
+  herr_t ierr;
   switch (type)
   {
     case pv_int:
     {
       iData.resize(pv_tensor * nTuples);
       ierr = H5Dread(ds_id, dType, mspace_id, dspace_id, H5P_DEFAULT, iData.data());
+      if (ierr < 0)
+      {
+        vtkGenericWarningMacro("Cannot read " << std::string(attribute) << endl);
+      }
     }
     break;
     case pv_double:
     {
       fData.resize(pv_tensor * nTuples);
       ierr = H5Dread(ds_id, dType, mspace_id, dspace_id, H5P_DEFAULT, fData.data());
+      if (ierr < 0)
+      {
+        vtkGenericWarningMacro("Cannot read " << std::string(attribute) << endl);
+      }
     }
     break;
   }
-  ierr = H5Dclose(ds_id);
-  ierr = H5Sclose(dspace_id);
-  ierr = H5Sclose(mspace_id);
-  ierr = H5Gclose(grp_id);
+  H5Dclose(ds_id);
+  H5Sclose(dspace_id);
+  H5Sclose(mspace_id);
+  H5Gclose(grp_id);
 
   dataArray->SetNumberOfTuples(nTuples);
   int cnt = 0;
@@ -952,7 +943,6 @@ void vtkAMRVelodyneReaderInternal::AttachTensorToGrid(
 int vtkAMRVelodyneReaderInternal::ReadLevelsAndX0(
   hid_t grp_id, std::vector<int>& levels, std::vector<double>& X0)
 {
-  int bSize;
   hid_t dspace_id;
   hid_t mspace_id;
   hid_t ds_id;
@@ -960,18 +950,22 @@ int vtkAMRVelodyneReaderInternal::ReadLevelsAndX0(
   hsize_t mem_dims[2];
   hsize_t data_dims[2];
   hsize_t max_dims[2];
-  int nDims;
   att_id = H5Aopen(grp_id, "NBlocks", H5P_DEFAULT);
-  herr_t ierr;
-  ierr = H5Aread(att_id, H5T_NATIVE_INT, &bSize);
+  int bSize;
+  herr_t ierr = H5Aread(att_id, H5T_NATIVE_INT, &bSize);
+  if (ierr < 0)
+  {
+    vtkGenericWarningMacro("Cannot Read NBlocks\n");
+    return -1;
+  }
   ierr = H5Aclose(att_id);
   levels.resize(bSize, 0);
   X0.resize(3 * bSize, 0);
 
   ds_id = H5Dopen(grp_id, "Level");
   dspace_id = H5Dget_space(ds_id);
-  nDims = H5Sget_simple_extent_dims(dspace_id, data_dims, max_dims);
-  if (nDims != 1 || data_dims[0] != bSize)
+  int nDims = H5Sget_simple_extent_dims(dspace_id, data_dims, max_dims);
+  if (nDims != 1 || data_dims[0] != static_cast<unsigned int>(bSize))
   {
     vtkGenericWarningMacro("Wrong dimension for Level Array,expecting: 1X" << bSize << endl);
     return -1;
@@ -979,6 +973,11 @@ int vtkAMRVelodyneReaderInternal::ReadLevelsAndX0(
   mem_dims[0] = bSize;
   mspace_id = H5Screate_simple(1, mem_dims, mem_dims);
   ierr = H5Dread(ds_id, H5T_NATIVE_INT, mspace_id, dspace_id, H5P_DEFAULT, levels.data());
+  if (ierr < 0)
+  {
+    vtkGenericWarningMacro("Cannot Read Level Data\n");
+    return -1;
+  }
   ierr = H5Sclose(dspace_id);
   ierr = H5Sclose(mspace_id);
   ierr = H5Dclose(ds_id);
@@ -987,14 +986,19 @@ int vtkAMRVelodyneReaderInternal::ReadLevelsAndX0(
   ds_id = H5Dopen(grp_id, "X0");
   dspace_id = H5Dget_space(ds_id);
   nDims = H5Sget_simple_extent_dims(dspace_id, data_dims, max_dims);
-  if (nDims != 2 || data_dims[0] != bSize || data_dims[1] != 3)
+  if (nDims != 2 || data_dims[0] != static_cast<unsigned int>(bSize) || data_dims[1] != 3)
   {
-    vtkGenericWarningMacro("Wrong dimension for X0 Array " << endl);
+    vtkGenericWarningMacro("Wrong dimension for X0 Array\n");
     return -1;
   }
   mem_dims[0] = 3 * bSize;
   mspace_id = H5Screate_simple(1, mem_dims, mem_dims);
   ierr = H5Dread(ds_id, H5T_NATIVE_DOUBLE, mspace_id, dspace_id, H5P_DEFAULT, X0.data());
+  if (ierr < 0)
+  {
+    vtkGenericWarningMacro("Cannot Read X0 Data\n");
+    return -1;
+  }
   ierr = H5Sclose(dspace_id);
   ierr = H5Sclose(mspace_id);
   ierr = H5Dclose(ds_id);
@@ -1007,4 +1011,30 @@ herr_t vtkAMRVelodyneReaderInternal::CloseFile(hid_t& fid)
   fid = -1;
   this->Blocks.clear();
   return ierr;
+}
+
+vtkDataArray* vtkAMRVelodyneReaderInternal::GetTypeAndArray(const int type, hid_t& dType)
+{
+  vtkDataArray* dataArray;
+  switch (type)
+  {
+    case pv_int:
+    {
+      dataArray = vtkIntArray::New();
+      dType = H5T_NATIVE_INT;
+      break;
+    }
+    case pv_double:
+    {
+      dataArray = vtkDoubleArray::New();
+      dType = H5T_NATIVE_DOUBLE;
+      break;
+    }
+    default:
+      vtkGenericWarningMacro("Unknown Data Type Using Double\n");
+      dataArray = vtkDoubleArray::New();
+      dType = H5T_NATIVE_DOUBLE;
+      break;
+  }
+  return dataArray;
 }
