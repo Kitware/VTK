@@ -1239,6 +1239,9 @@ void vtkHigherOrderWedge::SetOrder(const int s, const int t, const int u, const 
 {
   if (s != t)
     vtkErrorMacro("For wedges, the first two degrees should be equals.");
+
+  if (this->PointParametricCoordinates && (Order[0] != s || Order[2] != u))
+    this->PointParametricCoordinates->Reset();
   Order[0] = s;
   Order[1] = s;
   Order[2] = u;
