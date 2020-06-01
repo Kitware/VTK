@@ -124,7 +124,10 @@ struct vtkCellBinner
     this->yD = this->Divisions[1];
     this->zD = this->Divisions[2];
     this->xyD = this->Divisions[0] * this->Divisions[1];
-    this->binTol = 0.01 * sqrt(this->hX * this->hX + this->hY * this->hY + this->hZ * this->hZ);
+
+    this->binTol = loc->GetUseDiagonalLengthTolerance()
+      ? loc->GetTolerance() * sqrt(this->hX * this->hX + this->hY * this->hY + this->hZ * this->hZ)
+      : loc->GetTolerance();
   }
 
   ~vtkCellBinner()

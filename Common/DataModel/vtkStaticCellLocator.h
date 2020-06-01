@@ -221,6 +221,17 @@ public:
    */
   bool GetLargeIds() { return this->LargeIds; }
 
+  //@{
+  /**
+   * When set to true, the CellBinner will multiply the locator tolerance by the diagonal length
+   * of the dataset to compute its own tolerance. When not, it uses the locator tolerance
+   * directly. Default is false.
+   */
+  vtkSetMacro(UseDiagonalLengthTolerance, bool);
+  vtkGetMacro(UseDiagonalLengthTolerance, bool);
+  vtkBooleanMacro(UseDiagonalLengthTolerance, bool);
+  //@}
+
 protected:
   vtkStaticCellLocator();
   ~vtkStaticCellLocator() override;
@@ -231,6 +242,7 @@ protected:
 
   vtkIdType MaxNumberOfBuckets; // Maximum number of buckets in locator
   bool LargeIds;                // indicate whether integer ids are small or large
+  bool UseDiagonalLengthTolerance = false;
 
   // Support PIMPLd implementation
   vtkCellBinner* Binner;       // Does the binning
