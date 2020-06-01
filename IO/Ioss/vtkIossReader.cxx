@@ -913,7 +913,7 @@ bool vtkIossReader::vtkInternals::GetMesh(vtkUnstructuredGrid* dataset,
   }
 
   auto& cache = this->Cache;
-  const auto cacheKey{ "__vtk_mesh__" };
+  const std::string cacheKey{ "__vtk_mesh__" };
   if (auto cachedDataset = vtkDataSet::SafeDownCast(cache.Find(group_entity, cacheKey)))
   {
     dataset->CopyStructure(cachedDataset);
