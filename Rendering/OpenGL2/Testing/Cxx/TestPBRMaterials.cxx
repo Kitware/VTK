@@ -77,6 +77,7 @@ int TestPBRMaterials(int argc, char* argv[])
 
   renderer->SetEnvironmentTexture(textureCubemap, true);
   renderer->UseImageBasedLightingOn();
+  renderer->UseSphericalHarmonicsOff();
 
   vtkNew<vtkSphereSource> sphere;
   sphere->SetThetaResolution(100);

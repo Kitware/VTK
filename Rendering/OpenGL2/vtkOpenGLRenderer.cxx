@@ -22,6 +22,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkFloatArray.h"
 #include "vtkHardwareSelector.h"
 #include "vtkHiddenLineRemovalPass.h"
+#include "vtkImageData.h"
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
 #include "vtkNew.h"
@@ -45,6 +46,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkShaderProgram.h"
 #include "vtkShadowMapBakerPass.h"
 #include "vtkShadowMapPass.h"
+#include "vtkSphericalHarmonics.h"
+#include "vtkTable.h"
 #include "vtkTexture.h"
 #include "vtkTextureObject.h"
 #include "vtkTexturedActor2D.h"
@@ -84,6 +87,7 @@ vtkOpenGLRenderer::vtkOpenGLRenderer()
   this->EnvMapLookupTable = nullptr;
   this->EnvMapIrradiance = nullptr;
   this->EnvMapPrefiltered = nullptr;
+  this->UseSphericalHarmonics = true;
 }
 
 // Ask lights to load themselves into graphics pipeline.
@@ -234,8 +238,39 @@ void vtkOpenGLRenderer::DeviceRender()
   if (computeIBLTextures)
   {
     this->GetEnvMapLookupTable()->Load(this);
-    this->GetEnvMapIrradiance()->Load(this);
     this->GetEnvMapPrefiltered()->Load(this);
+
+    bool useSH = this->UseSphericalHarmonics;
+
+    if (useSH && this->EnvironmentTexture->GetCubeMap())
+    {
+      vtkWarningMacro(
+        "Cannot compute spherical harmonics of a cubemap, fall back to irradiance texture");
+      useSH = false;
+    }
+
+    vtkImageData* img = this->EnvironmentTexture->GetInput();
+    if (useSH && !img)
+    {
+      vtkWarningMacro("Cannot retrieve vtkImageData, fall back to texture");
+      useSH = false;
+    }
+
+    if (useSH)
+    {
+      if (!this->SphericalHarmonics || img->GetMTime() > this->SphericalHarmonics->GetMTime())
+      {
+        vtkNew<vtkSphericalHarmonics> sh;
+        sh->SetInputData(img);
+        sh->Update();
+        this->SphericalHarmonics = vtkFloatArray::SafeDownCast(
+          vtkTable::SafeDownCast(sh->GetOutputDataObject(0))->GetColumn(0));
+      }
+    }
+    else
+    {
+      this->GetEnvMapIrradiance()->Load(this);
+    }
   }
 
   if (this->Pass != nullptr)
@@ -1042,6 +1077,12 @@ void vtkOpenGLRenderer::SetUserLightTransform(vtkTransform* transform)
 vtkTransform* vtkOpenGLRenderer::GetUserLightTransform()
 {
   return this->UserLightTransform;
+}
+
+//------------------------------------------------------------------------------
+vtkFloatArray* vtkOpenGLRenderer::GetSphericalHarmonics()
+{
+  return this->SphericalHarmonics;
 }
 
 //------------------------------------------------------------------------------

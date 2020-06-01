@@ -977,16 +977,14 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
       }
     }
 
+    vtkOpenGLRenderer* oglRen = vtkOpenGLRenderer::SafeDownCast(ren);
+
     // IBL
-    if (ren->GetUseImageBasedLighting() && ren->GetEnvironmentTexture())
+    if (oglRen && ren->GetUseImageBasedLighting() && ren->GetEnvironmentTexture())
     {
-      vtkOpenGLRenderer* oglRen = vtkOpenGLRenderer::SafeDownCast(ren);
-      if (oglRen)
-      {
-        hasIBL = true;
-        toString << "  const float prefilterMaxLevel = float("
-                 << (oglRen->GetEnvMapPrefiltered()->GetPrefilterLevels() - 1) << ");\n";
-      }
+      hasIBL = true;
+      toString << "  const float prefilterMaxLevel = float("
+               << (oglRen->GetEnvMapPrefiltered()->GetPrefilterLevels() - 1) << ");\n";
     }
 
     if (!albedo)
@@ -1010,7 +1008,16 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
 
     if (hasIBL)
     {
-      toString << "  vec3 irradiance = texture(irradianceTex, envMatrix*N).rgb;\n";
+      if (!oglRen->GetUseSphericalHarmonics())
+      {
+        toString << "  vec3 irradiance = texture(irradianceTex, envMatrix*N).rgb;\n";
+      }
+      else
+      {
+        toString << "  vec3 rotN = envMatrix * N;\n";
+        toString << "  vec3 irradiance = vec3(ComputeSH(rotN, shRed), ComputeSH(rotN, shGreen), "
+                    "ComputeSH(rotN, shBlue));\n";
+      }
       toString << "  vec3 worldReflect = normalize(envMatrix*reflect(-V, N));\n"
                   "  vec3 prefilteredColor = textureLod(prefilterTex, worldReflect,"
                   " roughness * prefilterMaxLevel).rgb;\n";
@@ -1044,13 +1051,40 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
 
     if (hasIBL)
     {
+      toString << "//VTK::Light::Dec\n"
+                  "uniform mat3 envMatrix;"
+                  "uniform sampler2D brdfTex;\n"
+                  "uniform samplerCube prefilterTex;\n";
+
+      if (oglRen->GetUseSphericalHarmonics())
+      {
+        toString << "uniform float shRed[9];\n"
+                    "uniform float shGreen[9];\n"
+                    "uniform float shBlue[9];\n"
+                    "float ComputeSH(vec3 n, float sh[9])\n"
+                    "{\n"
+                    "  float v = 0.0;\n"
+                    "  v += sh[0];\n"
+                    "  v += sh[1] * n.y;\n"
+                    "  v += sh[2] * n.z;\n"
+                    "  v += sh[3] * n.x;\n"
+                    "  v += sh[4] * n.x * n.y;\n"
+                    "  v += sh[5] * n.y * n.z;\n"
+                    "  v += sh[6] * (3.0 * n.z * n.z - 1.0);\n"
+                    "  v += sh[7] * n.x * n.z;\n"
+                    "  v += sh[8] * (n.x * n.x - n.y * n.y);\n"
+                    "  return max(v, 0.0);\n"
+                    "}\n";
+      }
+      else
+      {
+        toString << "uniform samplerCube irradianceTex;\n";
+      }
+
       // add uniforms
-      vtkShaderProgram::Substitute(FSSource, "//VTK::Light::Dec",
-        "//VTK::Light::Dec\n"
-        "uniform mat3 envMatrix;"
-        "uniform sampler2D brdfTex;\n"
-        "uniform samplerCube irradianceTex;\n"
-        "uniform samplerCube prefilterTex;\n");
+      vtkShaderProgram::Substitute(FSSource, "//VTK::Light::Dec", toString.str());
+      toString.clear();
+      toString.str("");
     }
   }
 
@@ -2256,7 +2290,8 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
     (this->HaveCellScalars ? 0x02 : 0) + (this->HaveCellNormals ? 0x04 : 0) +
     ((cam->GetParallelProjection() != 0.0) ? 0x08 : 0) + ((offset != 0.0) ? 0x10 : 0) +
     (this->VBOs->GetNumberOfComponents("scalarColor") ? 0x20 : 0) +
-    ((this->VBOs->GetNumberOfComponents("tcoord") % 4) << 6);
+    (vtkOpenGLRenderer::SafeDownCast(ren)->GetUseSphericalHarmonics() ? 0x40 : 0) +
+    ((this->VBOs->GetNumberOfComponents("tcoord") % 4) << 7);
 
   if (cellBO.Program == nullptr || cellBO.ShaderSourceTime < this->GetMTime() ||
     cellBO.ShaderSourceTime < actor->GetProperty()->GetMTime() ||
@@ -2401,8 +2436,13 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(
     if (oglRen)
     {
       cellBO.Program->SetUniformi("brdfTex", oglRen->GetEnvMapLookupTable()->GetTextureUnit());
-      cellBO.Program->SetUniformi("irradianceTex", oglRen->GetEnvMapIrradiance()->GetTextureUnit());
       cellBO.Program->SetUniformi("prefilterTex", oglRen->GetEnvMapPrefiltered()->GetTextureUnit());
+
+      if (!oglRen->GetUseSphericalHarmonics())
+      {
+        cellBO.Program->SetUniformi(
+          "irradianceTex", oglRen->GetEnvMapIrradiance()->GetTextureUnit());
+      }
     }
   }
   vtkOpenGLCheckErrorMacro("failed after UpdateShader");
@@ -2566,6 +2606,35 @@ void vtkOpenGLPolyDataMapper::SetLightingShaderParameters(
   if (this->LastLightComplexity[&cellBO] < 1)
   {
     return;
+  }
+
+  vtkOpenGLRenderer* oglRen = vtkOpenGLRenderer::SafeDownCast(ren);
+  if (oglRen)
+  {
+    vtkFloatArray* sh = oglRen->GetSphericalHarmonics();
+
+    if (oglRen->GetUseSphericalHarmonics() && sh)
+    {
+      std::string uniforms[3] = { "shRed", "shGreen", "shBlue" };
+      for (int i = 0; i < 3; i++)
+      {
+        float coeffs[9];
+        sh->GetTypedTuple(i, coeffs);
+
+        // predivide with pi for Lambertian diffuse
+        coeffs[0] *= 0.282095f;
+        coeffs[1] *= -0.488603f * (2.f / 3.f);
+        coeffs[2] *= 0.488603f * (2.f / 3.f);
+        coeffs[3] *= -0.488603f * (2.f / 3.f);
+        coeffs[4] *= 1.092548f * 0.25f;
+        coeffs[5] *= -1.092548f * 0.25f;
+        coeffs[6] *= 0.315392f * 0.25f;
+        coeffs[7] *= -1.092548f * 0.25f;
+        coeffs[8] *= 0.546274f * 0.25f;
+
+        cellBO.Program->SetUniform1fv(uniforms[i].c_str(), 9, coeffs);
+      }
+    }
   }
 
   vtkShaderProgram* program = cellBO.Program;

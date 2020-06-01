@@ -30,6 +30,7 @@
 #include <string>                      // Ivars
 #include <vector>                      // STL Header
 
+class vtkFloatArray;
 class vtkOpenGLFXAAFilter;
 class vtkRenderPass;
 class vtkOpenGLState;
@@ -154,6 +155,20 @@ public:
   //@}
 
   /**
+   * Get spherical harmonics coefficients used for irradiance
+   */
+  vtkFloatArray* GetSphericalHarmonics();
+
+  //@{
+  /**
+   * Use spherical harmonics instead of irradiance texture
+   */
+  vtkSetMacro(UseSphericalHarmonics, bool);
+  vtkGetMacro(UseSphericalHarmonics, bool);
+  vtkBooleanMacro(UseSphericalHarmonics, bool);
+  //@}
+
+  /**
    * Overriden in order to connect the texture to the environment map textures.
    */
   void SetEnvironmentTexture(vtkTexture* texture, bool isSRGB = false) override;
@@ -230,6 +245,8 @@ protected:
   vtkPBRLUTTexture* EnvMapLookupTable;
   vtkPBRIrradianceTexture* EnvMapIrradiance;
   vtkPBRPrefilterTexture* EnvMapPrefiltered;
+  vtkSmartPointer<vtkFloatArray> SphericalHarmonics;
+  bool UseSphericalHarmonics;
 
 private:
   vtkOpenGLRenderer(const vtkOpenGLRenderer&) = delete;
