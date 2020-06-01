@@ -78,8 +78,13 @@
  * jitter in the normal direction), the decimator can perform badly. In this
  * situation, set the number of bins in the normal direction to one.
  *
+ * @warning
+ * vtkBinnedDecimation produces similar results with significant speedup
+ * and reduced memory consumption.
+ *
  * @sa
  * vtkQuadricDecimation vtkDecimatePro vtkDecimate vtkQuadricLODActor
+ * vtkBinnedDecimation
  */
 
 #ifndef vtkQuadricClustering_h
@@ -98,11 +103,11 @@ class VTKFILTERSCORE_EXPORT vtkQuadricClustering : public vtkPolyDataAlgorithm
 public:
   //@{
   /**
-   * Standard instantition, type and print methods.
+   * Standard instantiation, type and print methods.
    */
+  static vtkQuadricClustering* New();
   vtkTypeMacro(vtkQuadricClustering, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  static vtkQuadricClustering* New();
   //@}
 
   //@{

@@ -521,6 +521,10 @@ vtkIdType vtkBoundingBox::ComputeDivisions(vtkIdType totalBins, double bounds[6]
     divs[i] = (divs[i] < 1 ? 1 : divs[i]);
   }
 
+  // Make sure that we do not exceed the totalBins, brute force the divs[]
+  // as necessary.
+  vtkBoundingBox::ClampDivisions(totalBins, divs);
+
   // Now compute the final bounds, making sure it is a non-zero volume.
   double delta = 0.5 * lengths[maxIdx] / static_cast<double>(divs[maxIdx]);
   for (int i = 0; i < 3; ++i)
@@ -540,6 +544,24 @@ vtkIdType vtkBoundingBox::ComputeDivisions(vtkIdType totalBins, double bounds[6]
 }
 
 //------------------------------------------------------------------------------
+void vtkBoundingBox::ClampDivisions(vtkIdType targetBins, int divs[3])
+{
+  for (int i = 0; i < 3; ++i)
+  {
+    divs[i] = ((divs[i] < 1) ? 1 : divs[i]);
+  }
+  vtkIdType numBins = divs[0] * divs[1] * divs[2];
+  while (numBins > targetBins)
+  {
+    for (int i = 0; i < 3; ++i)
+    {
+      divs[i] = ((divs[i] > 1) ? (divs[i] - 1) : 1);
+    }
+    numBins = divs[0] * divs[1] * divs[2];
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Description:
 // Intersect this box with the half space defined by plane.
 // Returns 1 if there is intersection---which implies that the box has been modified

@@ -14,11 +14,12 @@ PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 /**
  * @class   vtkBoundingBox
- * @brief   Fast, simple class for dealing with 3D bounds
+ * @brief   Fast, simple class for representing and operating on 3D bounds
  *
- * vtkBoundingBox maintains a 3D axis aligned bounding box.  It is very light
- * weight and many of the member functions are in-lined so it is very fast.
- * It is not derived from vtkObject so it can be allocated on the stack.
+ * vtkBoundingBox maintains and performs operations on a 3D axis aligned
+ * bounding box. It is very light weight and many of the member functions are
+ * in-lined so it is very fast. It is not derived from vtkObject so it can
+ * be allocated on the stack.
  *
  * @sa
  * vtkBox
@@ -293,16 +294,22 @@ public:
   //@}
 
   /**
-   * Compute the number of divisions in the z-y-z directions given a target
-   * number of total bins (i.e., product of divisions in the x-y-z
-   * directions). The computation is done in such a way as to create near
-   * cuboid bins. Also note that the returned bounds may be different than
-   * the bounds defined in this class, as the bounds in the z-y-z directions
-   * can never be <= 0. Note that the total number of divisions
-   * (divs[0]*divs[1]*divs[2]) should be less than or equal to the target number
-   * of bins, but it may be slightly larger in certain cases.
+   * Compute the number of divisions in the x-y-z directions given a
+   * psoitive, target number of total bins (i.e., product of divisions in the
+   * x-y-z directions). The computation is done in such a way as to create
+   * near cuboid bins. Also note that the returned bounds may be different
+   * than the bounds defined in this class, as the bounds in the x-y-z
+   * directions can never be <= 0. Note that the total number of divisions
+   * (divs[0]*divs[1]*divs[2]) will be less than or equal to the target
+   * number of bins (as long as totalBins>=1).
    */
   vtkIdType ComputeDivisions(vtkIdType totalBins, double bounds[6], int divs[3]) const;
+
+  /**
+   * Clamp the number of divisions to be less than or equal to a target number
+   * of bins, and the divs[i] >= 1.
+   */
+  static void ClampDivisions(vtkIdType targetBins, int divs[3]);
 
   /**
    * Returns the box to its initialized state.
