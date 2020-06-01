@@ -1,0 +1,17 @@
+NAME
+  VTK::IOCONVERGECFDReader
+LIBRARY_NAME
+  vtkIOCONVERGECFDReader
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::CommonSystem
+  VTK::hdf5
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::TestingCore
+  VTK::TestingRendering
