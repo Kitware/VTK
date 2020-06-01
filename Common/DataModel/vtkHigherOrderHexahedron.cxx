@@ -669,17 +669,21 @@ int vtkHigherOrderHexahedron::PointIndexFromIJK(int i, int j, int k, const int* 
 }
 
 vtkIdType vtkHigherOrderHexahedron::NodeNumberingMappingFromVTK8To9(
-  const vtkIdType order, const vtkIdType node_id_vtk8)
+  const int order[3], const vtkIdType node_id_vtk8)
 {
-  const int numPtsPerEdgeWithoutCorners = static_cast<int>(order) - 1;
+  int numPtsPerEdgeWithoutCorners[3];
+  numPtsPerEdgeWithoutCorners[0] = order[0] - 1;
+  numPtsPerEdgeWithoutCorners[1] = order[1] - 1;
+  numPtsPerEdgeWithoutCorners[2] = order[2] - 1;
 
-  int offset = 8 + 10 * numPtsPerEdgeWithoutCorners;
-  if ((node_id_vtk8 < offset) || (node_id_vtk8 >= offset + 2 * numPtsPerEdgeWithoutCorners))
+  int offset = 8 + 4 * (numPtsPerEdgeWithoutCorners[0] + numPtsPerEdgeWithoutCorners[1]) +
+    2 * numPtsPerEdgeWithoutCorners[2];
+  if ((node_id_vtk8 < offset) || (node_id_vtk8 >= offset + 2 * numPtsPerEdgeWithoutCorners[2]))
     return node_id_vtk8;
-  else if (node_id_vtk8 < offset + numPtsPerEdgeWithoutCorners)
-    return node_id_vtk8 + numPtsPerEdgeWithoutCorners;
+  else if (node_id_vtk8 < offset + numPtsPerEdgeWithoutCorners[2])
+    return node_id_vtk8 + numPtsPerEdgeWithoutCorners[2];
   else
-    return node_id_vtk8 - numPtsPerEdgeWithoutCorners;
+    return node_id_vtk8 - numPtsPerEdgeWithoutCorners[2];
 }
 
 /**\brief Given the index, \a subCell, of a linear approximating-hex, translate pcoords from that
@@ -764,6 +768,8 @@ void vtkHigherOrderHexahedron::SetUniformOrderFromNumPoints(vtkIdType numPts)
 
 void vtkHigherOrderHexahedron::SetOrder(int s, int t, int u)
 {
+  if (this->PointParametricCoordinates && (Order[0] != s || Order[1] != t || Order[2] != u))
+    this->PointParametricCoordinates->Reset();
   Order[0] = s;
   Order[1] = t;
   Order[2] = u;

@@ -303,11 +303,77 @@ int vtkHigherOrderQuadrilateral::Triangulate(
   return 1;
 }
 
-void vtkHigherOrderQuadrilateral::Derivatives(int vtkNotUsed(subId),
-  const double vtkNotUsed(pcoords)[3], const double* vtkNotUsed(values), int vtkNotUsed(dim),
-  double* vtkNotUsed(derivs))
+void vtkHigherOrderQuadrilateral::Derivatives(
+  int vtkNotUsed(subId), const double pcoords[3], const double* values, int dim, double* derivs)
 {
-  // TODO: Fill me in?
+  vtkIdType numberOfPoints = this->Points->GetNumberOfPoints();
+
+  double sum[2], p[3];
+  std::vector<double> functionDerivs(2 * numberOfPoints);
+  double *J[3], J0[3], J1[3], J2[3];
+  double *JI[3], JI0[3], JI1[3], JI2[3];
+
+  this->InterpolateDerivs(pcoords, functionDerivs.data());
+
+  // Compute transposed Jacobian and inverse Jacobian
+  J[0] = J0;
+  J[1] = J1;
+  J[2] = J2;
+  JI[0] = JI0;
+  JI[1] = JI1;
+  JI[2] = JI2;
+  for (int k = 0; k < 3; k++)
+  {
+    J0[k] = J1[k] = 0.0;
+  }
+
+  for (int i = 0; i < numberOfPoints; i++)
+  {
+    this->Points->GetPoint(i, p);
+    for (int j = 0; j < 2; j++)
+    {
+      for (int k = 0; k < 3; k++)
+      {
+        J[j][k] += p[k] * functionDerivs[j + 2 * i];
+      }
+    }
+  }
+
+  // Compute third row vector in transposed Jacobian and normalize it, so that Jacobian determinant
+  // stays the same.
+  vtkMath::Cross(J0, J1, J2);
+  if (vtkMath::Normalize(J2) == 0.0 || !vtkMath::InvertMatrix(J, JI, 3)) // degenerate
+  {
+    for (int j = 0; j < dim; j++)
+    {
+      for (int i = 0; i < 3; i++)
+      {
+        derivs[j * dim + i] = 0.0;
+      }
+    }
+    return;
+  }
+
+  // Loop over "dim" derivative values. For each set of values,
+  // compute derivatives
+  // in local system and then transform into modelling system.
+  // First compute derivatives in local x'-y' coordinate system
+  for (int j = 0; j < dim; j++)
+  {
+    sum[0] = sum[1] = 0.0;
+    for (int i = 0; i < numberOfPoints; i++) // loop over interp. function derivatives
+    {
+      sum[0] += functionDerivs[2 * i] * values[dim * i + j];
+      sum[1] += functionDerivs[2 * i + 1] * values[dim * i + j];
+    }
+    //    dBydx = sum[0]*JI[0][0] + sum[1]*JI[0][1];
+    //    dBydy = sum[0]*JI[1][0] + sum[1]*JI[1][1];
+
+    // Transform into global system (dot product with global axes)
+    derivs[3 * j] = sum[0] * JI[0][0] + sum[1] * JI[0][1];
+    derivs[3 * j + 1] = sum[0] * JI[1][0] + sum[1] * JI[1][1];
+    derivs[3 * j + 2] = sum[0] * JI[2][0] + sum[1] * JI[2][1];
+  }
 }
 
 void vtkHigherOrderQuadrilateral::SetParametricCoords()
@@ -525,6 +591,8 @@ void vtkHigherOrderQuadrilateral::SetUniformOrderFromNumPoints(const vtkIdType n
 
 void vtkHigherOrderQuadrilateral::SetOrder(const int s, const int t)
 {
+  if (this->PointParametricCoordinates && (Order[0] != s || Order[1] != t))
+    this->PointParametricCoordinates->Reset();
   Order[0] = s;
   Order[1] = t;
   Order[2] = (s + 1) * (t + 1);
