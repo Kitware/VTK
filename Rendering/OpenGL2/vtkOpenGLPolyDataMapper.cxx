@@ -382,6 +382,12 @@ void vtkOpenGLPolyDataMapper::BuildShaders(
 //------------------------------------------------------------------------------
 bool vtkOpenGLPolyDataMapper::HaveWideLines(vtkRenderer* ren, vtkActor* actor)
 {
+  vtkHardwareSelector* selector = ren->GetSelector();
+  if (selector && selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS)
+  {
+    return false;
+  }
+
   if (this->GetOpenGLMode(
         actor->GetProperty()->GetRepresentation(), this->LastBoundBO->PrimitiveType) == GL_LINES &&
     actor->GetProperty()->GetLineWidth() > 1.0)
