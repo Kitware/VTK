@@ -391,6 +391,11 @@ public:
   }
 
   /**
+   * Allow for model setup prior to Particle Initalization
+   */
+  virtual void PreParticleInitalization() {}
+
+  /**
    * Enable model to modify particle before integration
    */
   virtual void PreIntegrate(std::queue<vtkLagrangianParticle*>& vtkNotUsed(particles)) {}
