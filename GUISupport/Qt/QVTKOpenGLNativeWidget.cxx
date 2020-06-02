@@ -111,6 +111,7 @@ void QVTKOpenGLNativeWidget::setRenderWindow(vtkGenericOpenGLRenderWindow* win)
   if (this->RenderWindow)
   {
     this->RenderWindow->SetReadyForRendering(false);
+    this->RenderWindow->SetFrameBlitModeToNoBlit();
 
     // if an interactor wasn't provided, we'll make one by default
     if (!this->RenderWindow->GetInteractor())
@@ -241,9 +242,13 @@ void QVTKOpenGLNativeWidget::paintGL()
       QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_3_2_Core>();
     if (f)
     {
+      auto ostate = this->RenderWindow->GetState();
+      ostate->Reset();
+      ostate->Push();
       const QSize deviceSize = this->size() * this->devicePixelRatioF();
       this->RenderWindowAdapter->blit(
         this->defaultFramebufferObject(), GL_COLOR_ATTACHMENT0, QRect(QPoint(0, 0), deviceSize));
+      ostate->Pop();
     }
   }
   else

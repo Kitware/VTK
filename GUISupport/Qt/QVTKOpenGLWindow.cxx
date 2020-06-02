@@ -103,6 +103,7 @@ void QVTKOpenGLWindow::setRenderWindow(vtkGenericOpenGLRenderWindow* win)
   if (this->RenderWindow)
   {
     this->RenderWindow->SetReadyForRendering(false);
+    this->RenderWindow->SetFrameBlitModeToNoBlit();
 
     // if an interactor wasn't provided, we'll make one by default
     if (!this->RenderWindow->GetInteractor())
@@ -234,6 +235,10 @@ void QVTKOpenGLWindow::paintGL()
       QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_3_2_Core>();
     if (f)
     {
+      auto ostate = this->RenderWindow->GetState();
+      ostate->Reset();
+      ostate->Push();
+
       const QSize deviceSize = this->size() * this->devicePixelRatioF();
       const auto fmt = this->context()->format();
       if (fmt.stereo() && this->RenderWindow->GetStereoRender() &&
@@ -249,6 +254,7 @@ void QVTKOpenGLWindow::paintGL()
         this->RenderWindowAdapter->blit(
           this->defaultFramebufferObject(), GL_BACK, QRect(QPoint(0, 0), deviceSize));
       }
+      ostate->Pop();
     }
   }
   else

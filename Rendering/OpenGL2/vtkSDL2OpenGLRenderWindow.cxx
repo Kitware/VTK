@@ -42,16 +42,13 @@ vtkSDL2OpenGLRenderWindow::vtkSDL2OpenGLRenderWindow()
   this->SetWindowName(DEFAULT_BASE_WINDOW_NAME.c_str());
   this->SetStencilCapable(1);
 
-  // webgl is picky about multisampled blits
-#ifdef __EMSCRIPTEN__
-  this->BlitRequiresResolve = true;
-#endif
-
   // set position to -1 to let SDL place the window
   // SetPosition will still work. Defaults of 0,0 result
   // in the window title bar being off screen.
   this->Position[0] = -1;
   this->Position[1] = -1;
+
+  this->FrameBlitMode = BlitToCurrent;
 }
 
 vtkSDL2OpenGLRenderWindow::~vtkSDL2OpenGLRenderWindow()

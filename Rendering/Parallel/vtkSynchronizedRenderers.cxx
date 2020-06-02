@@ -707,8 +707,7 @@ bool vtkSynchronizedRenderers::vtkRawImage::Capture(vtkRenderer* ren)
   this->Resize(image_size[0], image_size[1], 4);
 
   ren->GetRenderWindow()->GetRGBACharPixelData(viewport_in_pixels[0], viewport_in_pixels[1],
-    viewport_in_pixels[2], viewport_in_pixels[3], ren->GetRenderWindow()->GetDoubleBuffer() ? 0 : 1,
-    this->GetRawPtr(),
+    viewport_in_pixels[2], viewport_in_pixels[3], 0, this->GetRawPtr(),
     /*right=*/ren->GetActiveCamera()->GetLeftEye() == 0);
 
   // if selecting then pass the processed pixel buffer

@@ -65,6 +65,7 @@ public class vtkSwtComponent extends vtkAbstractComponent<GLCanvas> {
       lock.lockInterruptibly();
       inRenderCall = true;
       // Trigger the real render
+      renderWindow.SetFrameBlitModeToBlitToCurrent();
       renderWindow.Render();
     } catch (InterruptedException e) {
       // Nothing that we can do except skipping execution

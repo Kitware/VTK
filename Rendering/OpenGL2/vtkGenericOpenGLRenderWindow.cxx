@@ -32,6 +32,7 @@ vtkGenericOpenGLRenderWindow::vtkGenericOpenGLRenderWindow()
   this->CurrentStatus = false;
   this->SupportsOpenGLStatus = 0;
   this->ForceMaximumHardwareLineWidth = 0;
+  this->FrameBlitMode = BlitToCurrent;
 }
 
 vtkGenericOpenGLRenderWindow::~vtkGenericOpenGLRenderWindow()
@@ -58,30 +59,13 @@ float vtkGenericOpenGLRenderWindow::GetMaximumHardwareLineWidth()
                                                  : this->Superclass::GetMaximumHardwareLineWidth();
 }
 
-void vtkGenericOpenGLRenderWindow::SetFrontLeftBuffer(unsigned int b)
-{
-  this->FrontLeftBuffer = b;
-}
+void vtkGenericOpenGLRenderWindow::SetFrontLeftBuffer(unsigned int) {}
 
-void vtkGenericOpenGLRenderWindow::SetFrontRightBuffer(unsigned int b)
-{
-  this->FrontRightBuffer = b;
-}
+void vtkGenericOpenGLRenderWindow::SetFrontRightBuffer(unsigned int) {}
 
-void vtkGenericOpenGLRenderWindow::SetBackLeftBuffer(unsigned int b)
-{
-  this->BackLeftBuffer = b;
-}
+void vtkGenericOpenGLRenderWindow::SetBackLeftBuffer(unsigned int) {}
 
-void vtkGenericOpenGLRenderWindow::SetBackRightBuffer(unsigned int b)
-{
-  this->BackRightBuffer = b;
-}
-
-void vtkGenericOpenGLRenderWindow::SetDefaultFrameBufferId(unsigned int id)
-{
-  this->DefaultFrameBufferId = id;
-}
+void vtkGenericOpenGLRenderWindow::SetBackRightBuffer(unsigned int) {}
 
 void vtkGenericOpenGLRenderWindow::SetOwnContext(int val)
 {
@@ -100,7 +84,6 @@ void vtkGenericOpenGLRenderWindow::Frame()
 {
   this->Superclass::Frame();
   this->InvokeEvent(vtkCommand::WindowFrameEvent, nullptr);
-  this->GetState()->ResetFramebufferBindings();
 }
 
 void vtkGenericOpenGLRenderWindow::MakeCurrent()
@@ -213,9 +196,9 @@ void vtkGenericOpenGLRenderWindow::OpenGLInit()
 
 void vtkGenericOpenGLRenderWindow::Render()
 {
-  vtkOpenGLCheckErrorMacro("error before running VTK rendering code");
   if (this->ReadyForRendering)
   {
+    vtkOpenGLCheckErrorMacro("error before running VTK rendering code");
     if (!this->Initialized)
     {
       this->OpenGLInit();
@@ -237,8 +220,8 @@ void vtkGenericOpenGLRenderWindow::Render()
       // Restore state to previous known value
       state->Pop();
     }
+    vtkOpenGLCheckErrorMacro("error after running VTK rendering code");
   }
-  vtkOpenGLCheckErrorMacro("error after running VTK rendering code");
 }
 
 void vtkGenericOpenGLRenderWindow::SetCurrentCursor(int cShape)

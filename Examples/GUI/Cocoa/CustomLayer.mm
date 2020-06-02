@@ -28,6 +28,7 @@
   if (renderWindow && renderWindow->GetMapped())
   {
     renderWindow->Superclass::InitializeFromCurrentContext();
+    renderWindow->SetFrameBlitModeToBlitToCurrent();
     renderWindow->Render();
   }
 

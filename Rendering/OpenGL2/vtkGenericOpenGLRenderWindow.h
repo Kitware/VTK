@@ -76,7 +76,6 @@ public:
   void SetBackRightBuffer(unsigned int);
   // }@
 
-  void SetDefaultFrameBufferId(unsigned int);
   void SetOwnContext(int);
 
   //! no-op (for API compat with OpenGL1).
