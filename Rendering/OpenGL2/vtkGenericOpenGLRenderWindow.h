@@ -76,7 +76,7 @@ public:
   void SetBackRightBuffer(unsigned int);
   // }@
 
-  void SetOwnContext(int);
+  void SetOwnContext(vtkTypeBool);
 
   //! no-op (for API compat with OpenGL1).
   void PushState() {}
