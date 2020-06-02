@@ -33,7 +33,6 @@ set(classes
   vtkPResampleFilter
   vtkPSphereSource
   vtkPYoungsMaterialInterface
-  vtkPassThroughFilter
   vtkPieceRequestFilter
   vtkPieceScalars
   vtkPipelineSize

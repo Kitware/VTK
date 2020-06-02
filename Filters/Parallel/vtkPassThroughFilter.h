@@ -25,10 +25,12 @@
 #define vtkPassThroughFilter_h
 
 #include "vtkDataSetAlgorithm.h"
+#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_0_0
 #include "vtkFiltersParallelModule.h" // For export macro
 
 class vtkFieldData;
 
+VTK_DEPRECATED_IN_9_1_0("Use vtkPassThrough instead.")
 class VTKFILTERSPARALLEL_EXPORT vtkPassThroughFilter : public vtkDataSetAlgorithm
 {
 public:
@@ -41,7 +43,7 @@ public:
   static vtkPassThroughFilter* New();
 
 protected:
-  vtkPassThroughFilter() = default;
+  vtkPassThroughFilter();
   ~vtkPassThroughFilter() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
