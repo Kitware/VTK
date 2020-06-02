@@ -8,6 +8,7 @@
 
 vtk_add_test_python(
   CellDataToPointData.py
+  CellDataToPointData2.py
   Delaunay2D.py
   Delaunay2DAlpha.py
   Delaunay2DTransform.py
