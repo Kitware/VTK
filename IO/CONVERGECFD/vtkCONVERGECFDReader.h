@@ -43,7 +43,7 @@
 #ifndef vtkCONVERGECFDReader_h
 #define vtkCONVERGECFDReader_h
 
-#include "vtkIOCONVERGECFDReaderModule.h" // For export macro
+#include "vtkIOCONVERGECFDModule.h" // For export macro
 
 #include "vtkMultiBlockDataSetAlgorithm.h"
 #include "vtkNew.h"
@@ -53,7 +53,7 @@
 
 class vtkDataArraySelection;
 
-class VTKIOCONVERGECFDREADER_EXPORT vtkCONVERGECFDReader : public vtkMultiBlockDataSetAlgorithm
+class VTKIOCONVERGECFD_EXPORT vtkCONVERGECFDReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   static vtkCONVERGECFDReader* New();
