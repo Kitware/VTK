@@ -81,16 +81,8 @@ void vtkExtractBlock::CopySubTree(vtkDataObjectTreeIterator* loc, vtkDataObjectT
   vtkDataObjectTree* input, vtkSet& activeIndices)
 {
   vtkDataObject* inputNode = input->GetDataSet(loc);
-  if (!inputNode->IsA("vtkDataObjectTree"))
+  if (auto cinput = vtkDataObjectTree::SafeDownCast(inputNode))
   {
-    vtkDataObject* clone = inputNode->NewInstance();
-    clone->ShallowCopy(inputNode);
-    output->SetDataSet(loc, clone);
-    clone->Delete();
-  }
-  else
-  {
-    auto cinput = vtkDataObjectTree::SafeDownCast(inputNode);
     auto coutput = vtkDataObjectTree::SafeDownCast(output->GetDataSet(loc));
     auto iter = cinput->NewIterator();
     for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
@@ -103,6 +95,13 @@ void vtkExtractBlock::CopySubTree(vtkDataObjectTreeIterator* loc, vtkDataObjectT
       activeIndices.erase(loc->GetCurrentFlatIndex() + iter->GetCurrentFlatIndex());
     }
     iter->Delete();
+  }
+  else if (inputNode)
+  {
+    vtkDataObject* clone = inputNode->NewInstance();
+    clone->ShallowCopy(inputNode);
+    output->SetDataSet(loc, clone);
+    clone->FastDelete();
   }
 }
 
@@ -131,6 +130,7 @@ int vtkExtractBlock::RequestData(vtkInformation* vtkNotUsed(request),
   // Copy selected blocks over to the output.
   vtkDataObjectTreeIterator* iter = input->NewTreeIterator();
   iter->VisitOnlyLeavesOff();
+  iter->SkipEmptyNodesOff();
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal() && !activeIndices.empty();
        iter->GoToNextItem())
   {
