@@ -372,6 +372,7 @@ bool vtkCocoaRenderWindow::IsCurrent()
 }
 
 //----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
 bool vtkCocoaRenderWindow::IsDrawable()
 {
   // you must initialize it first
@@ -388,6 +389,7 @@ bool vtkCocoaRenderWindow::IsDrawable()
 
   return win && ok;
 }
+#endif
 
 //----------------------------------------------------------------------------
 void vtkCocoaRenderWindow::UpdateContext()

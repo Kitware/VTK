@@ -184,6 +184,7 @@ bool vtkIOSRenderWindow::IsCurrent()
 }
 
 //----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
 bool vtkIOSRenderWindow::IsDrawable()
 {
   // you must initialize it first
@@ -192,6 +193,7 @@ bool vtkIOSRenderWindow::IsDrawable()
 
   return true;
 }
+#endif
 
 //----------------------------------------------------------------------------
 void vtkIOSRenderWindow::UpdateContext() {}
