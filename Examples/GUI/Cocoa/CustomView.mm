@@ -65,6 +65,10 @@
     cocoaRenWin->SetRootWindow((__bridge void*)parentWindow);
     cocoaRenWin->SetWindowId((__bridge void*)self);
 
+    // Because we want our rendering to happen in our CAOpenGLLayer subclass (CustomLayer),
+    // instruct vtk to not associate the NSOpenGLContext it creates with our NSView.
+    cocoaRenWin->SetConnectContextToNSView(false);
+
     // The usual vtk connections.
     cocoaRenWin->AddRenderer(ren);
     renWinInt->SetRenderWindow(cocoaRenWin);

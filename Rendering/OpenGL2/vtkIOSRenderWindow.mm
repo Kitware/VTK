@@ -139,21 +139,14 @@ void vtkIOSRenderWindow::SetWindowName(const char* _arg)
 //----------------------------------------------------------------------------
 bool vtkIOSRenderWindow::InitializeFromCurrentContext()
 {
-  // NSOpenGLContext *currentContext = [NSOpenGLContext currentContext];
-  // if (currentContext != NULL)
-  //   {
-  //   UIView *currentView = [currentContext view];
-  //   if (currentView != NULL)
-  //     {
-  //     UIWindow *window = [currentView window];
-  //     this->SetWindowId(currentView);
-  //     this->SetRootWindow(window);
-  //     this->SetContextId((void*)currentContext);
-  //     this->OpenGLInit();
-  //     this->OwnContext = 0;
-  //     return true;
-  //     }
-  //   }
+  // NSOpenGLContext* currentContext = [NSOpenGLContext currentContext];
+  // if (currentContext != nullptr)
+  // {
+  //   this->SetContextId(currentContext);
+  //   this->SetPixelFormat([currentContext pixelFormat]);
+  //
+  //   return this->Superclass::InitializeFromCurrentContext();
+  //}
   return false;
 }
 

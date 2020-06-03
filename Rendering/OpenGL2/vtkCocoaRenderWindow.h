@@ -363,6 +363,15 @@ public:
   void SetWantsBestResolution(bool wantsBest);
   bool GetWantsBestResolution();
 
+  /**
+   * Set to false if you want to prevent the NSOpenGLContext from being associated
+   * with the NSView. You might want this is you are rendering vtk content into a
+   * CAOpenGLLayer instead of an NSView.
+   * Defaults to true.
+   */
+  void SetConnectContextToNSView(bool connect);
+  bool GetConnectContextToNSView();
+
   //@{
   /**
    * Accessors for the pixel format object (Really an NSOpenGLPixelFormat*).
@@ -427,6 +436,7 @@ private:
   vtkTypeBool ForceMakeCurrent;
 
   bool WantsBestResolution;
+  bool ConnectContextToNSView;
 };
 
 #endif
