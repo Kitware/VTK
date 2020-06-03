@@ -13,9 +13,12 @@
 
 =========================================================================*/
 /**
- * @class   vtkPassThrough
- * @brief   Shallow copies the input into the output
+ * @class vtkPassThrough
+ * @brief Pass input input data through to the output
  *
+ * vtkPassThrough simply passes input data to the output. By default, the input
+ * is shallow-copied (using `vtkDataObject::ShallowCopy`). If `DeepCopyInput` is true,
+ * then the input is deep-copied (using `vtkDataObject::DeepCopy`).
  *
  * The output type is always the same as the input object type.
  */
@@ -23,10 +26,10 @@
 #ifndef vtkPassThrough_h
 #define vtkPassThrough_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
+#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
 
-class VTKFILTERSGENERAL_EXPORT vtkPassThrough : public vtkPassInputTypeAlgorithm
+class VTKFILTERSCORE_EXPORT vtkPassThrough : public vtkPassInputTypeAlgorithm
 {
 public:
   static vtkPassThrough* New();

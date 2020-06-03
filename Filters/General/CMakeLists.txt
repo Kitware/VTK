@@ -72,7 +72,6 @@ set(classes
   vtkOverlappingAMRLevelIdScalars
   vtkPassArrays
   vtkPassSelectedArrays
-  vtkPassThrough
   vtkPointConnectivityFilter
   vtkPolyDataStreamer
   vtkPolyDataToReebGraphFilter

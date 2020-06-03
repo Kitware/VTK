@@ -435,6 +435,27 @@ private:
    * On file reading error, `std::runtime_error` is thrown.
    */
   bool GetGeometry(vtkPointSet* grid, const std::string& blockname, const DatabaseHandle& handle);
+
+  /**
+   * Fields like "ids" have to be vtkIdTypeArray in VTK. This method does the
+   * conversion if needed.
+   */
+  vtkSmartPointer<vtkAbstractArray> ConvertFieldForVTK(vtkAbstractArray* array)
+  {
+    if (array == nullptr || array->GetName() == nullptr || strcmp(array->GetName(), "ids") != 0)
+    {
+      return array;
+    }
+
+    if (vtkIdTypeArray::SafeDownCast(array))
+    {
+      return array;
+    }
+
+    vtkNew<vtkIdTypeArray> ids;
+    ids->DeepCopy(array);
+    return ids;
+  }
 };
 
 //----------------------------------------------------------------------------
@@ -892,7 +913,7 @@ bool vtkIossReader::vtkInternals::GetMesh(vtkUnstructuredGrid* dataset,
   }
 
   auto& cache = this->Cache;
-  const auto cacheKey{ "__vtk_mesh__" };
+  const std::string cacheKey{ "__vtk_mesh__" };
   if (auto cachedDataset = vtkDataSet::SafeDownCast(cache.Find(group_entity, cacheKey)))
   {
     dataset->CopyStructure(cachedDataset);
@@ -1148,11 +1169,17 @@ vtkSmartPointer<vtkAbstractArray> vtkIossReader::vtkInternals::GetField(
     // get back the data pointer from the idlist
     list->Release();
 
+    // convert field if needed for VTK e.g. ids have to be `vtkIdTypeArray`.
+    clone = this->ConvertFieldForVTK(clone);
+
     cache.Insert(group_entity, cacheKey, clone);
     return clone;
   }
   else
   {
+    // convert field if needed for VTK e.g. ids have to be `vtkIdTypeArray`.
+    full_field = this->ConvertFieldForVTK(full_field);
+
     cache.Insert(group_entity, cacheKey, full_field);
     return full_field;
   }
