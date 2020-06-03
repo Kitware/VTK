@@ -74,6 +74,7 @@ class vtkImageData;
 class vtkProp;
 class vtkRenderer;
 class vtkScalarsToColors;
+class vtkSelection;
 class vtkUnsignedCharArray;
 class vtkWindow;
 
@@ -503,6 +504,15 @@ public:
    */
   vtkImageData* GetColorTextureMap();
 
+  //@{
+  /**
+   * Set/Get selection used to display particular points or cells in a second pass.
+   * This can be use to efficiently display a selection.
+   */
+  vtkGetObjectMacro(Selection, vtkSelection);
+  virtual void SetSelection(vtkSelection*);
+  //@}
+
 protected:
   vtkMapper();
   ~vtkMapper() override;
@@ -546,6 +556,8 @@ protected:
   double CoincidentLineFactor;
   double CoincidentLineOffset;
   double CoincidentPointOffset;
+
+  vtkSelection* Selection = nullptr;
 
 private:
   vtkMapper(const vtkMapper&) = delete;

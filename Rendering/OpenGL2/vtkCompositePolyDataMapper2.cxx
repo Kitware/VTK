@@ -45,6 +45,8 @@
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
 #include "vtkScalarsToColors.h"
+#include "vtkSelection.h"
+#include "vtkSelectionNode.h"
 #include "vtkShaderProgram.h"
 #include "vtkTextureObject.h"
 #include "vtkTransform.h"
@@ -127,14 +129,26 @@ void vtkCompositeMapperHelper2::SetShaderValues(
   }
   else
   {
-    vtkColor3d& aColor = hdata->AmbientColor;
-    float ambientColor[3] = { static_cast<float>(aColor[0]), static_cast<float>(aColor[1]),
-      static_cast<float>(aColor[2]) };
-    vtkColor3d& dColor = hdata->DiffuseColor;
-    float diffuseColor[3] = { static_cast<float>(dColor[0]), static_cast<float>(dColor[1]),
-      static_cast<float>(dColor[2]) };
-    prog->SetUniform3f("ambientColorUniform", ambientColor);
-    prog->SetUniform3f("diffuseColorUniform", diffuseColor);
+    if (this->DrawingSelection)
+    {
+      vtkColor3d& sColor = hdata->SelectionColor;
+      float selectionColor[3] = { static_cast<float>(sColor[0]), static_cast<float>(sColor[1]),
+        static_cast<float>(sColor[2]) };
+      prog->SetUniform3f("ambientColorUniform", selectionColor);
+      prog->SetUniform3f("diffuseColorUniform", selectionColor);
+      prog->SetUniformf("opacityUniform", hdata->SelectionOpacity);
+    }
+    else
+    {
+      vtkColor3d& aColor = hdata->AmbientColor;
+      float ambientColor[3] = { static_cast<float>(aColor[0]), static_cast<float>(aColor[1]),
+        static_cast<float>(aColor[2]) };
+      vtkColor3d& dColor = hdata->DiffuseColor;
+      float diffuseColor[3] = { static_cast<float>(dColor[0]), static_cast<float>(dColor[1]),
+        static_cast<float>(dColor[2]) };
+      prog->SetUniform3f("ambientColorUniform", ambientColor);
+      prog->SetUniform3f("diffuseColorUniform", diffuseColor);
+    }
     if (this->OverideColorUsed)
     {
       prog->SetUniformi("OverridesColor", hdata->OverridesColor);
@@ -346,14 +360,18 @@ void vtkCompositeMapperHelper2::DrawIBO(vtkRenderer* ren, vtkActor* actor, int p
       {
         // compilers think this can exceed the bounds so we also
         // test against primType even though we should not need to
-        if (primType <= PrimitiveTriStrips)
+        if (primType <= vtkOpenGLPolyDataMapper::PrimitiveTriStrips)
         {
           this->SetShaderValues(
             prog, starthdata, starthdata->CellCellMap->GetPrimitiveOffsets()[primType]);
         }
+
+        unsigned int count = this->DrawingSelection
+          ? static_cast<unsigned int>(CellBO.IBO->IndexCount)
+          : starthdata->NextIndex[primType] - starthdata->StartIndex[primType];
+
         glDrawRangeElements(mode, static_cast<GLuint>(starthdata->StartVertex),
-          static_cast<GLuint>(starthdata->NextVertex > 0 ? starthdata->NextVertex - 1 : 0),
-          static_cast<GLsizei>(starthdata->NextIndex[primType] - starthdata->StartIndex[primType]),
+          static_cast<GLuint>(starthdata->NextVertex > 0 ? starthdata->NextVertex - 1 : 0), count,
           GL_UNSIGNED_INT,
           reinterpret_cast<const GLvoid*>(starthdata->StartIndex[primType] * sizeof(GLuint)));
       }
@@ -381,13 +399,33 @@ void vtkCompositeMapperHelper2::RenderPieceDraw(vtkRenderer* ren, vtkActor* acto
   this->PrimitiveIDOffset = 0;
 
   // draw IBOs
-  for (int i = PrimitiveStart; i < (this->CurrentSelector ? PrimitiveTriStrips + 1 : PrimitiveEnd);
+  for (int i = vtkOpenGLPolyDataMapper::PrimitiveStart;
+       i < (this->CurrentSelector ? vtkOpenGLPolyDataMapper::PrimitiveTriStrips + 1
+                                  : vtkOpenGLPolyDataMapper::PrimitiveEnd);
        i++)
   {
-    this->DrawingVertices = (i > PrimitiveTriStrips ? true : false);
+    this->DrawingVertices = (i > vtkOpenGLPolyDataMapper::PrimitiveTriStrips ? true : false);
+    this->DrawingSelection = false;
     GLenum mode = this->GetOpenGLMode(representation, i);
     this->DrawIBO(ren, actor, i, this->Primitives[i], mode,
       pointPicking ? this->GetPointPickingPrimitiveSize(i) : 0);
+  }
+
+  if (!this->CurrentSelector)
+  {
+    vtkSelection* sel = this->Parent->GetSelection();
+
+    if (sel && sel->GetNumberOfNodes() > 0)
+    {
+      // draw selection IBOs
+      for (int i = vtkOpenGLPolyDataMapper::PrimitiveStart;
+           i <= vtkOpenGLPolyDataMapper::PrimitiveTriStrips; i++)
+      {
+        this->DrawingSelection = true;
+        GLenum mode = this->GetOpenGLMode(this->SelectionType, i);
+        this->DrawIBO(ren, actor, i, this->SelectionPrimitives[i], mode, 5);
+      }
+    }
   }
 
   if (this->CurrentSelector &&
@@ -450,7 +488,7 @@ void vtkCompositeMapperHelper2::BuildBufferObjects(vtkRenderer* ren, vtkActor* a
     hdata->Data->GetPoints()->GetBounds(bounds);
     bbox.AddBounds(bounds);
 
-    for (int i = 0; i < PrimitiveEnd; i++)
+    for (int i = 0; i < vtkOpenGLPolyDataMapper::PrimitiveEnd; i++)
     {
       hdata->StartIndex[i] = static_cast<unsigned int>(this->IndexArray[i].size());
     }
@@ -461,7 +499,7 @@ void vtkCompositeMapperHelper2::BuildBufferObjects(vtkRenderer* ren, vtkActor* a
     this->AppendOneBufferObject(ren, act, hdata, voffset, newColors, newNorms);
     hdata->StartVertex = static_cast<unsigned int>(voffset);
     hdata->NextVertex = hdata->StartVertex + hdata->Data->GetPoints()->GetNumberOfPoints();
-    for (int i = 0; i < PrimitiveEnd; i++)
+    for (int i = 0; i < vtkOpenGLPolyDataMapper::PrimitiveEnd; i++)
     {
       hdata->NextIndex[i] = static_cast<unsigned int>(this->IndexArray[i].size());
     }
@@ -503,7 +541,8 @@ void vtkCompositeMapperHelper2::BuildBufferObjects(vtkRenderer* ren, vtkActor* a
 
   this->VBOs->BuildAllVBOs(ren);
 
-  for (int i = PrimitiveStart; i < PrimitiveEnd; i++)
+  for (int i = vtkOpenGLPolyDataMapper::PrimitiveStart; i < vtkOpenGLPolyDataMapper::PrimitiveEnd;
+       i++)
   {
     this->Primitives[i].IBO->IndexCount = this->IndexArray[i].size();
     if (this->Primitives[i].IBO->IndexCount)
@@ -578,6 +617,16 @@ void vtkCompositeMapperHelper2::BuildBufferObjects(vtkRenderer* ren, vtkActor* a
   }
 
   this->VBOBuildTime.Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkCompositeMapperHelper2::BuildSelectionIBO(vtkPolyData* vtkNotUsed(poly),
+  std::vector<unsigned int> (&indices)[4], vtkIdType vtkNotUsed(offset))
+{
+  for (auto& helper : this->Data)
+  {
+    this->Superclass::BuildSelectionIBO(helper.second->Data, indices, helper.second->StartVertex);
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -821,7 +870,7 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(vtkRenderer* ren, vtkActor
   if (prop->GetVertexVisibility())
   {
     vtkOpenGLIndexBufferObject::AppendVertexIndexBuffer(
-      this->IndexArray[PrimitiveVertices], prims, voffset);
+      this->IndexArray[vtkOpenGLPolyDataMapper::PrimitiveVertices], prims, voffset);
   }
 }
 
@@ -1544,6 +1593,7 @@ void vtkCompositePolyDataMapper2::CopyMapperValuesToHelper(vtkCompositeMapperHel
   helper->SetSeamlessU(this->SeamlessU);
   helper->SetSeamlessV(this->SeamlessV);
   helper->SetStatic(1);
+  helper->SetSelection(this->GetSelection());
 }
 
 //------------------------------------------------------------------------------
@@ -1733,6 +1783,8 @@ void vtkCompositePolyDataMapper2::Render(vtkRenderer* ren, vtkActor* actor)
       lut->Build();
     }
 
+    double* selColor = prop->GetSelectionColor();
+
     // Push base-values on the state stack.
     this->BlockState.Visibility.push(true);
     this->BlockState.Pickability.push(true);
@@ -1740,6 +1792,8 @@ void vtkCompositePolyDataMapper2::Render(vtkRenderer* ren, vtkActor* actor)
     this->BlockState.AmbientColor.push(vtkColor3d(prop->GetAmbientColor()));
     this->BlockState.DiffuseColor.push(vtkColor3d(prop->GetDiffuseColor()));
     this->BlockState.SpecularColor.push(vtkColor3d(prop->GetSpecularColor()));
+    this->BlockState.SelectionColor.push(vtkColor3d(selColor));
+    this->BlockState.SelectionOpacity.push(selColor[3]);
 
     unsigned int flat_index = 0;
     this->BuildRenderValues(ren, actor, this->GetInputDataObject(0, 0), flat_index);
@@ -1750,6 +1804,8 @@ void vtkCompositePolyDataMapper2::Render(vtkRenderer* ren, vtkActor* actor)
     this->BlockState.AmbientColor.pop();
     this->BlockState.DiffuseColor.pop();
     this->BlockState.SpecularColor.pop();
+    this->BlockState.SelectionColor.pop();
+    this->BlockState.SelectionOpacity.pop();
   }
 
   this->InitializeHelpersBeforeRendering(ren, actor);
@@ -1842,6 +1898,8 @@ void vtkCompositePolyDataMapper2::BuildRenderValues(
       helperData->Pickability = this->BlockState.Pickability.top();
       helperData->AmbientColor = this->BlockState.AmbientColor.top();
       helperData->DiffuseColor = this->BlockState.DiffuseColor.top();
+      helperData->SelectionColor = this->BlockState.SelectionColor.top();
+      helperData->SelectionOpacity = this->BlockState.SelectionOpacity.top();
       helperData->OverridesColor = (this->BlockState.AmbientColor.size() > 1);
       helperData->IsOpaque = (helperData->Opacity >= 1.0) ? textureOpaque : false;
       // if we think it is opaque check the scalars
@@ -1916,6 +1974,7 @@ void vtkCompositePolyDataMapper2::SetInputArrayToProcess(
   }
 }
 
+//-----------------------------------------------------------------------------
 void vtkCompositePolyDataMapper2::ProcessSelectorPixelBuffers(
   vtkHardwareSelector* sel, std::vector<unsigned int>& pixeloffsets, vtkProp* prop)
 {

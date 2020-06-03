@@ -29,8 +29,9 @@
 #include "vtkShader.h"                 // for methods
 #include "vtkStateStorage.h"           // used for ivars
 
-#include <map>    //for methods
-#include <vector> //for ivars
+#include <map>    // for map
+#include <tuple>  // for tuple
+#include <vector> // for vector
 
 class vtkCellArray;
 class vtkGenericOpenGLResourceFreeCallback;
@@ -373,13 +374,35 @@ protected:
    */
   virtual void BuildIBO(vtkRenderer* ren, vtkActor* act, vtkPolyData* poly);
 
+  /**
+   * Build the selection IBO, called by UpdateBufferObjects
+   */
+  virtual void BuildSelectionIBO(
+    vtkPolyData* poly, std::vector<unsigned int> (&indices)[4], vtkIdType offset);
+
+  /**
+   * Build the selection cache, used to map value ids to indices values
+   */
+  virtual void BuildSelectionCache(const char* arrayName, bool selectingPoints, vtkPolyData* poly);
+
   // The VBO and its layout.
   vtkOpenGLVertexBufferObjectGroup* VBOs;
 
   // Structures for the various cell types we render.
   vtkOpenGLHelper Primitives[PrimitiveEnd];
+  vtkOpenGLHelper SelectionPrimitives[PrimitiveEnd];
   vtkOpenGLHelper* LastBoundBO;
   bool DrawingVertices;
+  bool DrawingSelection = false;
+  int SelectionType;
+  vtkMTimeType SelectionTime = 0;
+
+  std::map<std::tuple<unsigned int, unsigned int, vtkIdType>, std::vector<vtkIdType>>
+    SelectionCache;
+  std::string SelectionCacheName;
+  bool SelectionCacheForPoints = false;
+  vtkMTimeType SelectionCacheTime = 0;
+  vtkPolyData* SelectionPolyData = nullptr;
 
   // do we have wide lines that require special handling
   virtual bool HaveWideLines(vtkRenderer*, vtkActor*);
@@ -504,6 +527,13 @@ protected:
 
   // compute and set the maximum point and cell ID used in selection
   virtual void UpdateMaximumPointCellIds(vtkRenderer* ren, vtkActor* actor);
+
+  void AddPointIdsToSelectionPrimitives(vtkPolyData* poly, const char* arrayName,
+    unsigned int processId, unsigned int compositeIndex, vtkIdType selectedId);
+  void AddCellIdsToSelectionPrimitives(vtkPolyData* poly, const char* arrayName,
+    unsigned int processId, unsigned int compositeIndex, vtkIdType selectedId);
+
+  vtkNew<vtkCellArray> SelectionArrays[4];
 
 private:
   vtkOpenGLPolyDataMapper(const vtkOpenGLPolyDataMapper&) = delete;

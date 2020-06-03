@@ -200,6 +200,8 @@ protected:
     std::stack<vtkColor3d> AmbientColor;
     std::stack<vtkColor3d> DiffuseColor;
     std::stack<vtkColor3d> SpecularColor;
+    std::stack<vtkColor3d> SelectionColor;
+    std::stack<float> SelectionOpacity;
   };
 
   bool RecursiveHasTranslucentGeometry(vtkDataObject* dobj, unsigned int& flat_index);

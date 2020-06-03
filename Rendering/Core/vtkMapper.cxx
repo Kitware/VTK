@@ -28,6 +28,7 @@
 #include "vtkMath.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkSelection.h"
 #include "vtkVariantArray.h"
 
 // Initialize static member that controls global coincidence resolution
@@ -40,6 +41,8 @@ static double vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetUnits = 0.0;
 static double vtkMapperGlobalResolveCoincidentTopologyLineOffsetFactor = 0.0;
 static double vtkMapperGlobalResolveCoincidentTopologyLineOffsetUnits = -4.0;
 static double vtkMapperGlobalResolveCoincidentTopologyPointOffsetUnits = -8.0;
+
+vtkCxxSetObjectMacro(vtkMapper, Selection, vtkSelection);
 
 // Construct with initial range (0,1).
 vtkMapper::vtkMapper()
@@ -99,6 +102,7 @@ vtkMapper::~vtkMapper()
     this->ColorTextureMap->UnRegister(this);
   }
   this->SetArrayName(nullptr);
+  this->SetSelection(nullptr);
 }
 
 // Get the bounds for the input of this mapper as
