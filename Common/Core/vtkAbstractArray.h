@@ -219,14 +219,14 @@ public:
 
   /**
    * Given a list of tuple ids, return an array of tuples.
-   * You must insure that the output array has been previously
+   * You must ensure that the output array has been previously
    * allocated with enough space to hold the data.
    */
   virtual void GetTuples(vtkIdList* tupleIds, vtkAbstractArray* output);
 
   /**
    * Get the tuples for the range of tuple ids specified
-   * (i.e., p1->p2 inclusive). You must insure that the output array has
+   * (i.e., p1->p2 inclusive). You must ensure that the output array has
    * been previously allocated with enough space to hold the data.
    */
   virtual void GetTuples(vtkIdType p1, vtkIdType p2, vtkAbstractArray* output);

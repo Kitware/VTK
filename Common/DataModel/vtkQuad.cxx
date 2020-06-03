@@ -531,7 +531,7 @@ int vtkQuad::IntersectWithLine(const double p1[3], const double p2[3], double to
   // Figure out how to uniquely tessellate the quad. Watch out for
   // equivalent triangulations (i.e., the triangulation is equivalent
   // no matter where the diagonal). In this case use the point ids as
-  // a tie breaker to insure unique triangulation across the quad.
+  // a tie breaker to ensure unique triangulation across the quad.
   //
   if (d1 == d2) // rare case; discriminate based on point id
   {

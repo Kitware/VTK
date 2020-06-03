@@ -40,7 +40,7 @@
  * consist of a mixture of cell types. Because of the design of the class,
  * there are certain limitations on how mixed cell types are inserted into
  * the vtkPolyData, and in turn the order in which they are processed and
- * rendered. To preserve the consistency of cell ids, and to insure that
+ * rendered. To preserve the consistency of cell ids, and to ensure that
  * cells with cell data are rendered properly, users must insert mixed cells
  * in the order of vertices (vtkVertex and vtkPolyVertex), lines (vtkLine and
  * vtkPolyLine), polygons (vtkTriangle, vtkQuad, vtkPolygon), and triangle

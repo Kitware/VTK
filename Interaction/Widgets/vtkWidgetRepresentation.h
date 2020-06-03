@@ -104,7 +104,7 @@ public:
    * define the communication between the widget and its representation. These
    * methods are only suggestions because widgets take on so many different
    * forms that a universal API is not deemed practical. However, these methods
-   * should be implemented when possible to insure that the VTK widget hierarchy
+   * should be implemented when possible to ensure that the VTK widget hierarchy
    * remains self-consistent.
    * <pre>
    * PlaceWidget() - given a bounding box (xmin,xmax,ymin,ymax,zmin,zmax), place

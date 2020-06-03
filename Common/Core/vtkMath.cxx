@@ -766,7 +766,7 @@ vtkTypeBool vtkJacobiN(T** a, int n, T* w, T** v)
       }
     }
   }
-  // insure eigenvector consistency (i.e., Jacobi can compute vectors that
+  // ensure eigenvector consistency (i.e., Jacobi can compute vectors that
   // are negative of one another (.707,.707,0) and (-.707,-.707,0). This can
   // reek havoc in hyperstreamline/other stuff. We will select the most
   // positive eigenvector.

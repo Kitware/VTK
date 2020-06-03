@@ -164,7 +164,7 @@ int TestAxes(int, char*[])
   logAxis->SetScene(view->GetScene());
   logAxis->SetUnscaledRange(plainRange);
   logAxis->LogScaleOn();
-  logAxis->GetUnscaledRange(nullptr); // Insure null pointers are ignored.
+  logAxis->GetUnscaledRange(nullptr); // Ensure null pointers are ignored.
   logAxis->GetUnscaledRange(logRange);
   if ((logRange[0] != plainRange[0]) || (logRange[1] != plainRange[1]))
   {

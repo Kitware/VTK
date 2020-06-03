@@ -40,7 +40,7 @@ public:
   /**
    * The name of the static instance and the class in which
    * it is defined(location) should be passed to the constructor.
-   * Providing "requiredClass" name one can insure that only
+   * Providing "requiredClass" name one can ensure that only
    * objects of type "requiredClass" are stored in vectors
    * associated with the instance of this key type created.
    * These should be string literals as they are not copied.

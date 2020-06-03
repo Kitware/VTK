@@ -134,7 +134,7 @@ protected:
 
   // Descript:
   // For stacked plots the Extent data must be greater than (or equal to) the
-  // base data. Insure that this is true
+  // base data. Ensure that this is true
   void FixExtent();
 
   /**

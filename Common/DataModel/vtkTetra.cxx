@@ -1072,7 +1072,7 @@ static TETRA_CASES tetraCases[] = {
 // Clip this tetra using scalar value provided. Like contouring, except that
 // it cuts the tetra to produce other 3D cells (note that this method will
 // produce a single tetrahedra or a single wedge). The table has been
-// carefully designed to insure that face neighbors--after clipping--are
+// carefully designed to ensure that face neighbors--after clipping--are
 // remain compatible.
 void vtkTetra::Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
   vtkCellArray* tets, vtkPointData* inPD, vtkPointData* outPD, vtkCellData* inCD, vtkIdType cellId,

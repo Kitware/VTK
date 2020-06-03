@@ -126,7 +126,7 @@ void vtkQuadricLODActor::Render(vtkRenderer* ren, vtkMapper* vtkNotUsed(m))
   frameRate = (frameRate < 1.0 ? 1.0 : (frameRate > 75 ? 75.0 : frameRate));
   int interactiveRender = 0;
   // interactive renders are defined when compared with the desired update rate. Here we use
-  // a generous fudge factor to insure that the LOD kicks in.
+  // a generous fudge factor to ensure that the LOD kicks in.
   if (allowedTime <= (1.1 / frameRate))
   {
     interactiveRender = 1;

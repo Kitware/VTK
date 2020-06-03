@@ -124,8 +124,8 @@ protected:
   vtkNew<vtkTimerLog> LastDolly3DEventTime;
 
 private:
-  vtkInteractorStyle3D(const vtkInteractorStyle3D&) = delete; // Not implemented.
-  void operator=(const vtkInteractorStyle3D&) = delete;       // Not implemented.
+  vtkInteractorStyle3D(const vtkInteractorStyle3D&) = delete;
+  void operator=(const vtkInteractorStyle3D&) = delete;
 };
 
 #endif

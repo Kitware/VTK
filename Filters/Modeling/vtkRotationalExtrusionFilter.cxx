@@ -194,7 +194,7 @@ int vtkRotationalExtrusionFilter::RequestData(vtkInformation* vtkNotUsed(request
     }
   }
 
-  // To insure that cell attributes are in consistent order with the
+  // To ensure that cell attributes are in consistent order with the
   // cellId's, we process the verts, lines, polys and strips in order.
   vtkIdType newCellId = 0;
   int type;

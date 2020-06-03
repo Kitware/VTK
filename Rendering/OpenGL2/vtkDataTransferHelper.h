@@ -53,7 +53,7 @@ public:
    * Get/Set the context. Context must be a vtkOpenGLRenderWindow.
    * This does not increase the reference count of the
    * context to avoid reference loops.
-   * SetContext() may raise an error is the OpenGL context does not support the
+   * SetContext() may raise an error if the OpenGL context does not support the
    * required OpenGL extensions.
    */
   void SetContext(vtkRenderWindow* context);

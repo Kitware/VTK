@@ -104,7 +104,7 @@ public:
 
    * {
    * this->TextureObject = vtkTextureObject::New();
-   * }SetContext() may raise an error is the OpenGL context does not support the
+   * }SetContext() may raise an error if the OpenGL context does not support the
    * required OpenGL extensions.
    */
   void SetContext(vtkOpenGLRenderWindow*);
