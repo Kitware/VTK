@@ -30,6 +30,7 @@
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringArray.h"
 #include "vtkToolkits.h"
 #include "vtkUnstructuredGrid.h"
 
@@ -54,12 +55,16 @@ vtkPIOReader::vtkPIOReader()
   this->LastTimeStep = -1;
   this->TimeSteps = 0;
   this->CellDataArraySelection = vtkDataArraySelection::New();
+  this->TimeDataStringArray = vtkStringArray::New();
 
   // Setup selection callback to modify this object when array selection changes
   this->SelectionObserver = vtkCallbackCommand::New();
   this->SelectionObserver->SetCallback(&vtkPIOReader::SelectionModifiedCallback);
   this->SelectionObserver->SetClientData(this);
   this->CellDataArraySelection->AddObserver(vtkCommand::ModifiedEvent, this->SelectionObserver);
+  this->ActiveTimeDataArrayName = nullptr;
+  this->SetActiveTimeDataArrayName("CycleIndex");
+
   // External PIO_DATA for actually reading files
   this->pioAdaptor = 0;
 
@@ -89,8 +94,10 @@ vtkPIOReader::~vtkPIOReader()
   this->CellDataArraySelection->RemoveObserver(this->SelectionObserver);
   this->SelectionObserver->Delete();
   this->CellDataArraySelection->Delete();
+  this->TimeDataStringArray->Delete();
+  this->SetActiveTimeDataArrayName(nullptr);
 
-  // Do not delete the MPIContoroller which is a singleton
+  // Do not delete the MPIController which is a singleton
   this->MPIController = nullptr;
 }
 
@@ -112,7 +119,6 @@ int vtkPIOReader::RequestInformation(vtkInformation* vtkNotUsed(reqInfo),
   vtkInformation* outInfo = outVector->GetInformationObject(0);
   if (this->pioAdaptor == 0)
   {
-
     // Create one PIOAdaptor which builds the MultiBlockDataSet
     this->pioAdaptor = new PIOAdaptor(this->Rank, this->TotalRank);
 
@@ -146,19 +152,47 @@ int vtkPIOReader::RequestInformation(vtkInformation* vtkNotUsed(reqInfo),
       this->SetCellArrayStatus(this->pioAdaptor->GetVariableDefault(i), 1);
     }
 
-    // Collect temporal information
+    // Collect temporal information from PIOAdaptor's last PIO file
+    this->TimeDataStringArray->Initialize();
     this->NumberOfTimeSteps = this->pioAdaptor->GetNumberOfTimeSteps();
-    this->TimeSteps = nullptr;
+    this->TimeDataStringArray->InsertNextValue("SimulationTime");
+    this->TimeDataStringArray->InsertNextValue("CycleIndex");
 
+    this->TimeSteps = nullptr;
     if (this->NumberOfTimeSteps > 0)
     {
       this->TimeSteps = new double[this->NumberOfTimeSteps];
+    }
+  }
 
+  // Set the current TIME_STEP() data based on requested TimeArrayName
+  if (strcmp(this->ActiveTimeDataArrayName, this->CurrentTimeDataArrayName.c_str()) != 0)
+  {
+    this->CurrentTimeDataArrayName = this->ActiveTimeDataArrayName;
+    if (strcmp(this->ActiveTimeDataArrayName, "SimulationTime") == 0)
+    {
       for (int step = 0; step < this->NumberOfTimeSteps; step++)
       {
-        this->TimeSteps[step] = (double)this->pioAdaptor->GetTimeStep(step);
+        this->TimeSteps[step] = this->pioAdaptor->GetSimulationTime(step);
       }
+    }
+    else if (strcmp(this->ActiveTimeDataArrayName, "CycleIndex") == 0)
+    {
+      for (int step = 0; step < this->NumberOfTimeSteps; step++)
+      {
+        this->TimeSteps[step] = this->pioAdaptor->GetCycleIndex(step);
+      }
+    }
+    else
+    {
+      for (int step = 0; step < this->NumberOfTimeSteps; step++)
+      {
+        this->TimeSteps[step] = (double)step;
+      }
+    }
 
+    if (this->NumberOfTimeSteps > 0)
+    {
       // Tell the pipeline what steps are available
       outInfo->Set(
         vtkStreamingDemandDrivenPipeline::TIME_STEPS(), this->TimeSteps, this->NumberOfTimeSteps);
@@ -323,9 +357,30 @@ void vtkPIOReader::SetCellArrayStatus(const char* name, int status)
     this->CellDataArraySelection->DisableArray(name);
 }
 
+//------------------------------------------------------------------------------
+int vtkPIOReader::GetNumberOfTimeDataArrays() const
+{
+  return static_cast<int>(this->TimeDataStringArray->GetNumberOfValues());
+}
+
+//------------------------------------------------------------------------------
+const char* vtkPIOReader::GetTimeDataArray(int idx) const
+{
+  if (idx < 0 || idx > static_cast<int>(this->TimeDataStringArray->GetNumberOfValues()))
+  {
+    vtkErrorMacro("Invalid index for 'GetTimeDataArray': " << idx);
+  }
+  return this->TimeDataStringArray->GetValue(idx);
+}
+
 void vtkPIOReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "FileName: " << (this->FileName != nullptr ? this->FileName : "") << endl;
   os << indent << "CellDataArraySelection: " << this->CellDataArraySelection << "\n";
+  os << indent << "NumberOfTimeSteps:" << this->NumberOfTimeSteps << "\n";
+  os << indent << "TimeDataStringArray: " << this->TimeDataStringArray << "\n";
+  os << indent << "ActiveTimeDataArrayName:"
+     << (this->ActiveTimeDataArrayName ? this->ActiveTimeDataArrayName : "(null)") << "\n";
+
   this->Superclass::PrintSelf(os, indent);
 }
