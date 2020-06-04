@@ -16,6 +16,7 @@
 #include <cassert>
 
 #include "vtkMatrix3x3.h"
+#include "vtkUniformGrid.h"
 #include <vtkCamera.h>
 #include <vtkCellData.h>
 #include <vtkCommand.h>
@@ -284,7 +285,14 @@ void vtkGPUVolumeRayCastMapper::CloneInput(vtkDataSet* input, const int port)
   {
     if (vtkImageData::SafeDownCast(input))
     {
-      clone = vtkImageData::New();
+      if (vtkUniformGrid::SafeDownCast(input))
+      {
+        clone = vtkUniformGrid::New();
+      }
+      else
+      {
+        clone = vtkImageData::New();
+      }
     }
     else if (vtkRectilinearGrid::SafeDownCast(input))
     {
