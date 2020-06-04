@@ -20,6 +20,7 @@
 #include <vtkOpenGLGPUVolumeRayCastMapper.h>
 #include <vtkRectilinearGrid.h>
 #include <vtkRenderer.h>
+#include <vtkUniformGrid.h>
 #include <vtkVolume.h>
 #include <vtkVolumeInputHelper.h>
 #include <vtkVolumeMapper.h>
@@ -168,6 +169,12 @@ std::string BaseDeclarationFragment(vtkRenderer* vtkNotUsed(ren), vtkVolumeMappe
     toShaderStr << "uniform vec3 in_coordsScale;\n";
     toShaderStr << "uniform vec3 in_coordsBias;\n";
     toShaderStr << "uniform vec2 in_coordsRange[3];\n";
+  }
+
+  vtkSmartPointer<vtkUniformGrid> uGrid = vtkUniformGrid::SafeDownCast(mapper->GetInput());
+  if (uGrid && (uGrid->HasAnyBlankCells() || uGrid->HasAnyBlankPoints()))
+  {
+    toShaderStr << "uniform sampler3D in_blankPoints;\n";
   }
 
   toShaderStr << "uniform int in_noOfComponents;\n"
@@ -445,6 +452,19 @@ std::string BaseImplementation(
   std::string str("\
       \n    g_skip = false;");
 
+  vtkSmartPointer<vtkUniformGrid> uGrid = vtkUniformGrid::SafeDownCast(mapper->GetInput());
+  if (uGrid && (uGrid->HasAnyBlankCells() || uGrid->HasAnyBlankPoints()))
+  {
+    str += std::string("\
+       \n    // Check whether this voxel is blanked in the uniform grid.\
+       \n    vec4 blankPtValue = texture3D(in_blankPoints, g_dataPos);\
+       \n    if (blankPtValue.r <= 0.0)\
+       \n      {\
+       \n      // skip this voxel\
+       \n      g_skip = true;\
+       \n      }\
+      \n");
+  }
   if (glMapper->GetBlendMode() == vtkVolumeMapper::SLICE_BLEND)
   {
     str += std::string("\
