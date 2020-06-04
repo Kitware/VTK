@@ -20,6 +20,7 @@ PRIVATE_DEPENDS
   VTK::ImagingCore
 TEST_DEPENDS
   VTK::CommonSystem
+  VTK::FiltersGeometry
   VTK::FiltersModeling
   VTK::FiltersSources
   VTK::IOImage
