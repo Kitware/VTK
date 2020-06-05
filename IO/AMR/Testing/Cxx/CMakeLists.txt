@@ -8,5 +8,6 @@ vtk_add_test_cxx(vtkIOAMRCxxTests tests
   NO_VALID NO_OUTPUT
   TestAMReXParticlesReader.cxx
   TestEnzoReader.cxx
+  TestVelodyneReader.cxx
   )
 vtk_test_cxx_executable(vtkIOAMRCxxTests tests)
