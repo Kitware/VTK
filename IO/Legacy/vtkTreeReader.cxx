@@ -74,7 +74,7 @@ int vtkTreeReader::ReadMeshSimple(const std::string& fname, vtkDataObject* doOut
     return 1;
   }
 
-  if (strncmp(this->LowerCase(line), "dataset", (unsigned long)7) != 0)
+  if (strncmp(this->LowerCase(line), "dataset", 7) != 0)
   {
     vtkErrorMacro(<< "Unrecognized keyword: " << line);
     this->CloseVTKFile();

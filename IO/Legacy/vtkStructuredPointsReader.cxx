@@ -70,7 +70,7 @@ int vtkStructuredPointsReader::ReadMetaDataSimple(
     return 1;
   }
 
-  if (!strncmp(this->LowerCase(line), "dataset", (unsigned long)7))
+  if (!strncmp(this->LowerCase(line), "dataset", 7))
   {
     // Make sure we're reading right type of geometry
     if (!this->ReadString(line))
@@ -317,7 +317,7 @@ int vtkStructuredPointsReader::ReadMeshSimple(const std::string& fname, vtkDataO
     return 1;
   }
 
-  if (!strncmp(this->LowerCase(line), "dataset", (unsigned long)7))
+  if (!strncmp(this->LowerCase(line), "dataset", 7))
   {
     // Make sure we're reading right type of geometry
     //

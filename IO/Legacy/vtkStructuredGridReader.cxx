@@ -68,7 +68,7 @@ int vtkStructuredGridReader::ReadMetaDataSimple(const std::string& fname, vtkInf
     return 1;
   }
 
-  if (!strncmp(this->LowerCase(line), "dataset", (unsigned long)7))
+  if (!strncmp(this->LowerCase(line), "dataset", 7))
   {
     // Make sure we're reading right type of geometry
     //
@@ -170,7 +170,7 @@ int vtkStructuredGridReader::ReadMeshSimple(const std::string& fname, vtkDataObj
     return 1;
   }
 
-  if (!strncmp(this->LowerCase(line), "dataset", (unsigned long)7))
+  if (!strncmp(this->LowerCase(line), "dataset", 7))
   {
     // Make sure we're reading right type of geometry
     //

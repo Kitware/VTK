@@ -324,7 +324,7 @@ int vtkDataSetReader::ReadOutputType()
     return -1;
   }
 
-  if (!strncmp(this->LowerCase(line), "dataset", (unsigned long)7))
+  if (!strncmp(this->LowerCase(line), "dataset", 7))
   {
     // See if type is recognized.
     //

@@ -662,7 +662,7 @@ int vtkDataReader::IsFileValid(const char* dstype)
     return 0;
   }
 
-  if (!strncmp(this->LowerCase(line), "dataset", (unsigned long)7))
+  if (!strncmp(this->LowerCase(line), "dataset", 7))
   {
     if (!this->ReadString(line))
     {
