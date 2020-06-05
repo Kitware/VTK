@@ -244,16 +244,10 @@ void vtkXRenderWindowInteractor::StartEventLoop()
     {
       // get how long to wait for the next timer
       this->Internal->GetTimeToNextTimer(tv);
-      // do a select
+      // select will wait until 'tv' elapses or something else wakes us
       FD_ZERO(&in_fds);
       FD_SET(X11fd, &in_fds);
-      int num_ready_fds = select(X11fd + 1, &in_fds, nullptr, nullptr, &tv);
-      if (num_ready_fds > 0)
-      {
-        XEvent event;
-        XNextEvent(this->DisplayId, &event);
-        this->DispatchEvent(&event);
-      }
+      select(X11fd + 1, &in_fds, nullptr, nullptr, &tv);
     }
     else
     {
