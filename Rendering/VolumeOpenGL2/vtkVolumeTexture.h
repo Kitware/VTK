@@ -203,7 +203,7 @@ public:
   float CoordsBias[3];
   float CoordsRange[3][2];
 
-  vtkSmartPointer<vtkTextureObject> BlankPointsTex;
+  vtkSmartPointer<vtkTextureObject> BlankingTex;
 
 protected:
   vtkVolumeTexture();

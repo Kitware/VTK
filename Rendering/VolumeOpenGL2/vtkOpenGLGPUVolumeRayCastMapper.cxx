@@ -3207,10 +3207,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::BindTransformations(
         prog->SetUniform2fv("in_coordsRange", 3, volTex->CoordsRange);
       }
 
-      if (volTex->BlankPointsTex)
+      if (volTex->BlankingTex)
       {
-        volTex->BlankPointsTex->Activate();
-        prog->SetUniformi("in_blankPoints", volTex->BlankPointsTex->GetTextureUnit());
+        volTex->BlankingTex->Activate();
+        prog->SetUniformi("in_blanking", volTex->BlankingTex->GetTextureUnit());
       }
     }
 

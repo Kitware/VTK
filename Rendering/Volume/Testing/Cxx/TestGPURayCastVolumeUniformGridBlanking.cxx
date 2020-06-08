@@ -47,7 +47,6 @@ int TestGPURayCastVolumeUniformGridBlanking(int argc, char* argv[])
   vtkUniformGrid* ug = vtkUniformGrid::SafeDownCast(im2ug->GetOutput());
   int dims[3];
   ug->GetDimensions(dims);
-  int numCells = ug->GetNumberOfCells();
   for (int k = 0; k < (dims[2] - 1) / 4; ++k)
   {
     for (int j = (dims[1] - 1) / 4; j < 3 * (dims[1] - 1) / 4; ++j)
