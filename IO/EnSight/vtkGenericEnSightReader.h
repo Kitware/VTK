@@ -90,9 +90,11 @@ public:
   int GetNumberOfVariables(int type); // returns -1 if unknown type specified
   vtkGetMacro(NumberOfScalarsPerNode, int);
   vtkGetMacro(NumberOfVectorsPerNode, int);
+  vtkGetMacro(NumberOfTensorsAsymPerNode, int);
   vtkGetMacro(NumberOfTensorsSymmPerNode, int);
   vtkGetMacro(NumberOfScalarsPerElement, int);
   vtkGetMacro(NumberOfVectorsPerElement, int);
+  vtkGetMacro(NumberOfTensorsAsymPerElement, int);
   vtkGetMacro(NumberOfTensorsSymmPerElement, int);
   vtkGetMacro(NumberOfScalarsPerMeasuredNode, int);
   vtkGetMacro(NumberOfVectorsPerMeasuredNode, int);
@@ -120,7 +122,8 @@ public:
    * VECTOR_PER_ELEMENT = 4; TENSOR_SYMM_PER_ELEMENT = 5;
    * SCALAR_PER_MEASURED_NODE = 6; VECTOR_PER_MEASURED_NODE = 7;
    * COMPLEX_SCALAR_PER_NODE = 8; COMPLEX_VECTOR_PER_NODE 9;
-   * COMPLEX_SCALAR_PER_ELEMENT  = 10; COMPLEX_VECTOR_PER_ELEMENT = 11
+   * COMPLEX_SCALAR_PER_ELEMENT = 10; COMPLEX_VECTOR_PER_ELEMENT = 11;
+   * TENSOR_ASYM_PER_NODE = 12; TENSOR_ASYM_PER_ELEMENT = 13;
    */
   const char* GetDescription(int n, int type);
 
@@ -386,9 +389,11 @@ protected:
   // number of file names / descriptions per type
   int NumberOfScalarsPerNode;
   int NumberOfVectorsPerNode;
+  int NumberOfTensorsAsymPerNode;
   int NumberOfTensorsSymmPerNode;
   int NumberOfScalarsPerElement;
   int NumberOfVectorsPerElement;
+  int NumberOfTensorsAsymPerElement;
   int NumberOfTensorsSymmPerElement;
   int NumberOfScalarsPerMeasuredNode;
   int NumberOfVectorsPerMeasuredNode;

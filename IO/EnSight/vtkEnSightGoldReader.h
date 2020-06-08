@@ -85,6 +85,13 @@ protected:
     vtkMultiBlockDataSet* output, int measured = 0) override;
 
   /**
+   * Read asimmetric tensors per node for this dataset.  If an error occurred, 0 is
+   * returned; otherwise 1.
+   */
+  int ReadAsymmetricTensorsPerNode(const char* fileName, const char* description, int timeStep,
+    vtkMultiBlockDataSet* output) override;
+
+  /**
    * Read tensors per node for this dataset.  If an error occurred, 0 is
    * returned; otherwise 1.
    */
@@ -104,6 +111,13 @@ protected:
    * returned; otherwise 1.
    */
   int ReadVectorsPerElement(const char* fileName, const char* description, int timeStep,
+    vtkMultiBlockDataSet* output) override;
+
+  /**
+   * Read asymmetric tensors per element for this dataset.  If an error occurred, 0 is
+   * returned; otherwise 1.
+   */
+  int ReadAsymmetricTensorsPerElement(const char* fileName, const char* description, int timeStep,
     vtkMultiBlockDataSet* output) override;
 
   /**

@@ -67,9 +67,11 @@ vtkGenericEnSightReader::vtkGenericEnSightReader()
 
   this->NumberOfScalarsPerNode = 0;
   this->NumberOfVectorsPerNode = 0;
+  this->NumberOfTensorsAsymPerNode = 0;
   this->NumberOfTensorsSymmPerNode = 0;
   this->NumberOfScalarsPerElement = 0;
   this->NumberOfVectorsPerElement = 0;
+  this->NumberOfTensorsAsymPerElement = 0;
   this->NumberOfTensorsSymmPerElement = 0;
   this->NumberOfScalarsPerMeasuredNode = 0;
   this->NumberOfVectorsPerMeasuredNode = 0;
@@ -222,9 +224,11 @@ int vtkGenericEnSightReader::RequestData(vtkInformation* vtkNotUsed(request),
 
   this->NumberOfScalarsPerNode = this->Reader->GetNumberOfScalarsPerNode();
   this->NumberOfVectorsPerNode = this->Reader->GetNumberOfVectorsPerNode();
+  this->NumberOfTensorsAsymPerNode = this->Reader->GetNumberOfTensorsAsymPerNode();
   this->NumberOfTensorsSymmPerNode = this->Reader->GetNumberOfTensorsSymmPerNode();
   this->NumberOfScalarsPerElement = this->Reader->GetNumberOfScalarsPerElement();
   this->NumberOfVectorsPerElement = this->Reader->GetNumberOfVectorsPerElement();
+  this->NumberOfTensorsAsymPerElement = this->Reader->GetNumberOfTensorsAsymPerElement();
   this->NumberOfTensorsSymmPerElement = this->Reader->GetNumberOfTensorsSymmPerElement();
   this->NumberOfScalarsPerMeasuredNode = this->Reader->GetNumberOfScalarsPerMeasuredNode();
   this->NumberOfVectorsPerMeasuredNode = this->Reader->GetNumberOfVectorsPerMeasuredNode();
@@ -918,12 +922,16 @@ int vtkGenericEnSightReader::GetNumberOfVariables(int type)
       return this->GetNumberOfScalarsPerNode();
     case vtkEnSightReader::VECTOR_PER_NODE:
       return this->GetNumberOfVectorsPerNode();
+    case vtkEnSightReader::TENSOR_ASYM_PER_NODE:
+      return this->GetNumberOfTensorsAsymPerNode();
     case vtkEnSightReader::TENSOR_SYMM_PER_NODE:
       return this->GetNumberOfTensorsSymmPerNode();
     case vtkEnSightReader::SCALAR_PER_ELEMENT:
       return this->GetNumberOfScalarsPerElement();
     case vtkEnSightReader::VECTOR_PER_ELEMENT:
       return this->GetNumberOfVectorsPerElement();
+    case vtkEnSightReader::TENSOR_ASYM_PER_ELEMENT:
+      return this->GetNumberOfTensorsAsymPerElement();
     case vtkEnSightReader::TENSOR_SYMM_PER_ELEMENT:
       return this->GetNumberOfTensorsSymmPerElement();
     case vtkEnSightReader::SCALAR_PER_MEASURED_NODE:
@@ -968,8 +976,12 @@ const char* vtkGenericEnSightReader::GetComplexDescription(int n)
 const char* vtkGenericEnSightReader::GetDescription(int n, int type)
 {
   int i, numMatches = 0;
+  bool complexType = type == vtkEnSightReader::COMPLEX_SCALAR_PER_NODE ||
+    type == vtkEnSightReader::COMPLEX_VECTOR_PER_NODE ||
+    type == vtkEnSightReader::COMPLEX_SCALAR_PER_ELEMENT ||
+    type == vtkEnSightReader::COMPLEX_VECTOR_PER_ELEMENT;
 
-  if (type < 8)
+  if (!complexType)
   {
     for (i = 0; i < this->NumberOfVariables; i++)
     {
@@ -1372,6 +1384,7 @@ void vtkGenericEnSightReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NumberOfVariables: " << this->NumberOfVariables << endl;
   os << indent << "NumberOfComplexScalarsPerNode: " << this->NumberOfComplexScalarsPerNode << endl;
   os << indent << "NumberOfVectorsPerElement :" << this->NumberOfVectorsPerElement << endl;
+  os << indent << "NumberOfTensorsAsymPerElement: " << this->NumberOfTensorsAsymPerElement << endl;
   os << indent << "NumberOfTensorsSymmPerElement: " << this->NumberOfTensorsSymmPerElement << endl;
   os << indent << "NumberOfComplexVectorsPerNode: " << this->NumberOfComplexVectorsPerNode << endl;
   os << indent << "NumberOfScalarsPerElement: " << this->NumberOfScalarsPerElement << endl;
@@ -1379,6 +1392,7 @@ void vtkGenericEnSightReader::PrintSelf(ostream& os, vtkIndent indent)
      << endl;
   os << indent << "NumberOfComplexScalarsPerElement: " << this->NumberOfComplexScalarsPerElement
      << endl;
+  os << indent << "NumberOfTensorsAsymPerNode: " << this->NumberOfTensorsAsymPerNode << endl;
   os << indent << "NumberOfTensorsSymmPerNode: " << this->NumberOfTensorsSymmPerNode << endl;
   os << indent << "NumberOfScalarsPerMeasuredNode: " << this->NumberOfScalarsPerMeasuredNode
      << endl;
@@ -1426,12 +1440,12 @@ void vtkGenericEnSightReader::DestroyStringArray(int numStrings, char** strings)
 void vtkGenericEnSightReader::SetDataArraySelectionSetsFromVariables()
 {
   int numPointArrays = (this->NumberOfScalarsPerNode + this->NumberOfVectorsPerNode +
-    this->NumberOfTensorsSymmPerNode + this->NumberOfScalarsPerMeasuredNode +
-    this->NumberOfVectorsPerMeasuredNode + this->NumberOfComplexScalarsPerNode +
-    this->NumberOfComplexVectorsPerNode);
+    this->NumberOfTensorsAsymPerNode + this->NumberOfTensorsSymmPerNode +
+    this->NumberOfScalarsPerMeasuredNode + this->NumberOfVectorsPerMeasuredNode +
+    this->NumberOfComplexScalarsPerNode + this->NumberOfComplexVectorsPerNode);
   int numCellArrays = (this->NumberOfScalarsPerElement + this->NumberOfVectorsPerElement +
-    this->NumberOfTensorsSymmPerElement + this->NumberOfComplexScalarsPerElement +
-    this->NumberOfComplexVectorsPerElement);
+    this->NumberOfTensorsAsymPerElement + this->NumberOfTensorsSymmPerElement +
+    this->NumberOfComplexScalarsPerElement + this->NumberOfComplexVectorsPerElement);
 
   char** pointNames = this->CreateStringArray(numPointArrays);
   char** cellNames = this->CreateStringArray(numCellArrays);
@@ -1445,6 +1459,7 @@ void vtkGenericEnSightReader::SetDataArraySelectionSetsFromVariables()
     {
       case vtkEnSightReader::SCALAR_PER_NODE:
       case vtkEnSightReader::VECTOR_PER_NODE:
+      case vtkEnSightReader::TENSOR_ASYM_PER_NODE:
       case vtkEnSightReader::TENSOR_SYMM_PER_NODE:
       case vtkEnSightReader::SCALAR_PER_MEASURED_NODE:
       case vtkEnSightReader::VECTOR_PER_MEASURED_NODE:
@@ -1454,6 +1469,7 @@ void vtkGenericEnSightReader::SetDataArraySelectionSetsFromVariables()
         break;
       case vtkEnSightReader::SCALAR_PER_ELEMENT:
       case vtkEnSightReader::VECTOR_PER_ELEMENT:
+      case vtkEnSightReader::TENSOR_ASYM_PER_ELEMENT:
       case vtkEnSightReader::TENSOR_SYMM_PER_ELEMENT:
         cellNames[cellArrayCount] = new char[strlen(this->VariableDescriptions[i]) + 1];
         strcpy(cellNames[cellArrayCount], this->VariableDescriptions[i]);
