@@ -467,10 +467,6 @@ void vtkWindowToImageFilter::RequestData(vtkInformation* vtkNotUsed(request),
       this->Input->MakeCurrent();
 
       int buffer = this->ReadFrontBuffer;
-      if (!this->Input->GetDoubleBuffer())
-      {
-        buffer = 1;
-      }
       if (this->InputBufferType == VTK_RGB || this->InputBufferType == VTK_RGBA)
       {
         unsigned char *pixels, *pixels1, *outPtr;

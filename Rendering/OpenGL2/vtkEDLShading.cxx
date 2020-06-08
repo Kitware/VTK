@@ -575,6 +575,8 @@ bool vtkEDLShading::EDLCompose(const vtkRenderState*, vtkOpenGLRenderWindow* ren
   // IMPORTANT since we enable depth writing hereafter
   ostate->vtkglDisable(GL_BLEND);
   ostate->vtkglEnable(GL_DEPTH_TEST);
+  vtkOpenGLState::ScopedglDepthFunc depthFuncState(ostate);
+  ostate->vtkglDepthFunc(GL_ALWAYS);
   // IMPORTANT : so that depth information is propagated
   ostate->vtkglDisable(GL_SCISSOR_TEST);
 

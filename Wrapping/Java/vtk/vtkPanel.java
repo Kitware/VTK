@@ -87,11 +87,6 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
     addKeyListener(this);
     super.setSize(200, 200);
     rw.SetSize(200, 200);
-
-    if (rw instanceof vtkOpenGLRenderWindow)
-    {
-      ((vtkOpenGLRenderWindow)rw).SetBlitRequiresResolve(true);
-    }
   }
 
   public vtkPanel(vtkRenderWindow renwin) {
@@ -102,11 +97,6 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
     addKeyListener(this);
     super.setSize(200, 200);
     rw.SetSize(200, 200);
-
-    if (rw instanceof vtkOpenGLRenderWindow)
-    {
-      ((vtkOpenGLRenderWindow)rw).SetBlitRequiresResolve(true);
-    }
   }
 
   public void Report() {
@@ -181,6 +171,10 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
         }
         Lock();
         rw.Render();
+        if (rw instanceof vtkOpenGLRenderWindow)
+        {
+          ((vtkOpenGLRenderWindow)rw).BlitDisplayBuffer();
+        }
         UnLock();
         rendering = false;
       }

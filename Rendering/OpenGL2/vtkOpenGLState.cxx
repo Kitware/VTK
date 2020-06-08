@@ -17,6 +17,7 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLFramebufferObject.h"
+#include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLVertexBufferObjectCache.h"
@@ -54,6 +55,8 @@
 void vtkOpenGLState::CheckState()
 {
   bool error = false;
+
+  vtkOpenGLRenderUtilities::MarkDebugEvent("Checking OpenGL State");
 
   GLboolean params[4];
 
@@ -270,6 +273,7 @@ void vtkOpenGLState::CheckState()
     std::string msg = vtksys::SystemInformation::GetProgramStack(0, 0);
     vtkGenericWarningMacro("at stack loc\n" << msg);
   }
+  vtkOpenGLRenderUtilities::MarkDebugEvent("Finished Checking OpenGL State");
 }
 
 namespace
@@ -1216,6 +1220,7 @@ void vtkOpenGLState::vtkglDisable(GLenum cap)
 // This makes the state match OpenGL
 void vtkOpenGLState::Reset()
 {
+  vtkOpenGLRenderUtilities::MarkDebugEvent("Resetting OpenGL State");
   this->ResetGLClearColorState();
   this->ResetGLClearDepthState();
   this->ResetGLDepthFuncState();
@@ -1245,6 +1250,7 @@ void vtkOpenGLState::Reset()
 
   ::glGetIntegerv(GL_CURRENT_PROGRAM, &cs.BoundProgram);
   ::glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &cs.BoundVAO);
+  vtkOpenGLRenderUtilities::MarkDebugEvent("Finished Resetting OpenGL State");
 }
 
 void vtkOpenGLState::Push()

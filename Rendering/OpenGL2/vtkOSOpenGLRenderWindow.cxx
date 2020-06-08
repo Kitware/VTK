@@ -55,23 +55,15 @@ class vtkOSOpenGLRenderWindowInternal
   friend class vtkOSOpenGLRenderWindow;
 
 private:
-  vtkOSOpenGLRenderWindowInternal(vtkRenderWindow*);
-
-  // store previous settings of on screen window
-  int ScreenDoubleBuffer;
-  int ScreenMapped;
+  vtkOSOpenGLRenderWindowInternal();
 
   // OffScreen stuff
   OSMesaContext OffScreenContextId;
   void* OffScreenWindow;
 };
 
-vtkOSOpenGLRenderWindowInternal::vtkOSOpenGLRenderWindowInternal(vtkRenderWindow* rw)
+vtkOSOpenGLRenderWindowInternal::vtkOSOpenGLRenderWindowInternal()
 {
-
-  this->ScreenMapped = rw->GetMapped();
-  this->ScreenDoubleBuffer = rw->GetDoubleBuffer();
-
   // OpenGL specific
   this->OffScreenContextId = nullptr;
   this->OffScreenWindow = nullptr;
@@ -101,7 +93,7 @@ vtkOSOpenGLRenderWindow::vtkOSOpenGLRenderWindow()
   this->OwnWindow = 0;
   this->ShowWindow = false;
 
-  this->Internal = new vtkOSOpenGLRenderWindowInternal(this);
+  this->Internal = new vtkOSOpenGLRenderWindowInternal();
 }
 
 // free up memory & close the window

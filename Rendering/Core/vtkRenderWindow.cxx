@@ -374,7 +374,6 @@ void vtkRenderWindow::AddRenderer(vtkRenderer* ren)
     return;
   }
   // we are its parent
-  this->MakeCurrent();
   ren->SetRenderWindow(this);
   this->Renderers->AddItem(ren);
   vtkRenderer* aren;
@@ -484,7 +483,7 @@ void vtkRenderWindow::StereoMidpoint()
     // get the size
     size = this->GetSize();
     // get the data
-    this->GetPixelData(0, 0, size[0] - 1, size[1] - 1, !this->DoubleBuffer, this->StereoBuffer);
+    this->GetPixelData(0, 0, size[0] - 1, size[1] - 1, 0, this->StereoBuffer);
   }
 }
 
@@ -497,38 +496,38 @@ void vtkRenderWindow::StereoRenderComplete()
   switch (this->StereoType)
   {
     case VTK_STEREO_RED_BLUE:
-      this->GetPixelData(0, 0, size[0] - 1, size[1] - 1, !this->DoubleBuffer, this->ResultFrame);
+      this->GetPixelData(0, 0, size[0] - 1, size[1] - 1, 0, this->ResultFrame);
       this->StereoCompositor->RedBlue(this->StereoBuffer, this->ResultFrame);
       std::swap(this->StereoBuffer, this->ResultFrame);
       break;
 
     case VTK_STEREO_ANAGLYPH:
-      this->GetPixelData(0, 0, size[0] - 1, size[1] - 1, !this->DoubleBuffer, this->ResultFrame);
+      this->GetPixelData(0, 0, size[0] - 1, size[1] - 1, 0, this->ResultFrame);
       this->StereoCompositor->Anaglyph(this->StereoBuffer, this->ResultFrame,
         this->AnaglyphColorSaturation, this->AnaglyphColorMask);
       std::swap(this->StereoBuffer, this->ResultFrame);
       break;
 
     case VTK_STEREO_INTERLACED:
-      this->GetPixelData(0, 0, size[0] - 1, size[1] - 1, !this->DoubleBuffer, this->ResultFrame);
+      this->GetPixelData(0, 0, size[0] - 1, size[1] - 1, 0, this->ResultFrame);
       this->StereoCompositor->Interlaced(this->StereoBuffer, this->ResultFrame, size);
       std::swap(this->StereoBuffer, this->ResultFrame);
       break;
 
     case VTK_STEREO_DRESDEN:
-      this->GetPixelData(0, 0, size[0] - 1, size[1] - 1, !this->DoubleBuffer, this->ResultFrame);
+      this->GetPixelData(0, 0, size[0] - 1, size[1] - 1, 0, this->ResultFrame);
       this->StereoCompositor->Dresden(this->StereoBuffer, this->ResultFrame, size);
       std::swap(this->StereoBuffer, this->ResultFrame);
       break;
 
     case VTK_STEREO_CHECKERBOARD:
-      this->GetPixelData(0, 0, size[0] - 1, size[1] - 1, !this->DoubleBuffer, this->ResultFrame);
+      this->GetPixelData(0, 0, size[0] - 1, size[1] - 1, 0, this->ResultFrame);
       this->StereoCompositor->Checkerboard(this->StereoBuffer, this->ResultFrame, size);
       std::swap(this->StereoBuffer, this->ResultFrame);
       break;
 
     case VTK_STEREO_SPLITVIEWPORT_HORIZONTAL:
-      this->GetPixelData(0, 0, size[0] - 1, size[1] - 1, !this->DoubleBuffer, this->ResultFrame);
+      this->GetPixelData(0, 0, size[0] - 1, size[1] - 1, 0, this->ResultFrame);
       this->StereoCompositor->SplitViewportHorizontal(this->StereoBuffer, this->ResultFrame, size);
       std::swap(this->StereoBuffer, this->ResultFrame);
       break;
@@ -549,7 +548,7 @@ void vtkRenderWindow::CopyResultFrame()
 
     assert(this->ResultFrame->GetNumberOfTuples() == size[0] * size[1]);
 
-    this->SetPixelData(0, 0, size[0] - 1, size[1] - 1, this->ResultFrame, !this->DoubleBuffer);
+    this->SetPixelData(0, 0, size[0] - 1, size[1] - 1, this->ResultFrame, 0);
   }
 
   // Just before we swap buffers (in case of double buffering), we fire the

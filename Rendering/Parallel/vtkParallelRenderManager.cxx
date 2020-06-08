@@ -1160,8 +1160,8 @@ int vtkParallelRenderManager::LastRenderInFrontBuffer()
 //------------------------------------------------------------------------------
 int vtkParallelRenderManager::ChooseBuffer()
 {
-  // Choose the back buffer if double buffering is on.
-  return (this->RenderWindow->GetDoubleBuffer() == 0);
+  // always render buffer
+  return 0;
 }
 
 //------------------------------------------------------------------------------
