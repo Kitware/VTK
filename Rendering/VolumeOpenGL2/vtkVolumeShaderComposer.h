@@ -461,9 +461,10 @@ std::string BaseImplementation(
     {
       str += std::string("\
           \n     // Check whether the neighboring points/cells are blank.\
-          \n     vec3 xvec = vec3(in_cellStep[0].x, 0.0, 0.0);\
-          \n     vec3 yvec = vec3(0.0, in_cellStep[0].y, 0.0);\
-          \n     vec3 zvec = vec3(0.0, 0.0, in_cellStep[0].z);\
+          \n     // Note the half cellStep because texels are point centered.\
+          \n     vec3 xvec = vec3(in_cellStep[0].x/2.0, 0.0, 0.0);\
+          \n     vec3 yvec = vec3(0.0, in_cellStep[0].y/2.0, 0.0);\
+          \n     vec3 zvec = vec3(0.0, 0.0, in_cellStep[0].z/2.0);\
           \n     vec3 texPosPVec[3];\
           \n     texPosPVec[0] = g_dataPos + xvec;\
           \n     texPosPVec[1] = g_dataPos + yvec;\
@@ -500,7 +501,9 @@ std::string BaseImplementation(
       {
         str += std::string("\
             \n    // If the current or neighboring points\
-            \n    // (that belong to cells that share this texel) are blanked\
+            \n    // (that belong to cells that share this texel) are blanked,\
+            \n    // skip the texel. In other words, if point 1 were blank,\
+            \n    // texels 0, 1 and 2 would have to be skipped.\
             \n    if (blankValue.x > 0.0 ||\
             \n        any(greaterThan(blankValueNx, vec3(0.0))) ||\
             \n        any(greaterThan(blankValuePx, vec3(0.0))))\
@@ -512,7 +515,9 @@ std::string BaseImplementation(
         if (blankCells)
         {
           str += std::string("\
-              \n    // If the current or previous cells (that share this texel) are blanked\
+              \n    // If the current or previous cells (that share this texel)\
+              \n    // are blanked, skip the texel. In other words, if cell 1\
+              \n    // is blanked, texels 1 and 2 would have to be skipped.\
               \n    else if (blankValue.y > 0.0 ||\
               \n             any(greaterThan(blankValueNy, vec3(0.0))))\
               \n      {\
@@ -525,7 +530,9 @@ std::string BaseImplementation(
       else if (blankCells)
       {
         str += std::string("\
-            \n    // If the current or previous cells (that share this texel) are blanked\
+            \n    // If the current or previous cells (that share this texel)\
+            \n    // are blanked, skip the texel. In other words, if cell 1\
+            \n    // is blanked, texels 1 and 2 would have to be skipped.\
             \n    if (blankValue.x > 0.0 ||\
             \n        any(greaterThan(blankValuePx, vec3(0.0))))\
             \n      {\
