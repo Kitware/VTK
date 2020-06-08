@@ -24,7 +24,6 @@ PURPOSE.  See the above copyright notice for more information.
 #import "vtkCommand.h"
 #import "vtkIdList.h"
 #import "vtkObjectFactory.h"
-#import "vtkOpenGL.h"
 #import "vtkOpenGLState.h"
 #import "vtkOpenGLVertexBufferObjectCache.h"
 #import "vtkRenderWindowInteractor.h"

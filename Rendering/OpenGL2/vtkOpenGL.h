@@ -17,6 +17,10 @@
 
 #include "vtkRenderingOpenGLConfigure.h" // For VTK_USE_COCOA
 
+#if !defined(VTK_LEGACY_SILENT)
+#warning "vtkOpenGL.h is deprecated. vtk_glew.h should be used if you require OpenGL headers."
+#endif
+
 // Must be included before `gl.h` due to glew.
 #include "vtkOpenGLError.h"
 

@@ -99,11 +99,14 @@ if (NOT DEFINED OPENGL_ES_VERSION)
 endif()
 
 set(headers
-  vtkCompositePolyDataMapper2Internal.h
   vtkOpenGL.h
   vtkStateStorage.h
   "${CMAKE_CURRENT_BINARY_DIR}/vtkOpenGLError.h"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkRenderingOpenGLConfigure.h")
+
+set(nowrap_headers
+  vtkCompositePolyDataMapper2Internal.h
+)
 
 # add opengl support test execulatble on windows
 if (WIN32 AND (NOT CMAKE_CROSSCOMPILING OR DEFINED CMAKE_CROSSCOMPILING_EMULATOR))
@@ -334,6 +337,7 @@ vtk_module_add_module(VTK::RenderingOpenGL2
   CLASSES ${classes}
   SOURCES ${sources} ${vtk_object_factory_source}
   HEADERS ${headers}
+  NOWRAP_HEADERS ${nowrap_headers}
   PRIVATE_HEADERS ${private_headers} ${vtk_object_factory_header})
 
 if (VTK_USE_SDL2)

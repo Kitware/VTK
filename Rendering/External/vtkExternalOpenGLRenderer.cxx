@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkExternalOpenGLRenderer.h"
 
+#include "vtk_glew.h"
+
 #include "vtkCamera.h"
 #include "vtkCommand.h"
 #include "vtkExternalLight.h"
@@ -24,7 +26,6 @@
 #include "vtkMatrix4x4.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkOpenGL.h"
 #include "vtkOpenGLError.h"
 #include "vtkRenderWindow.h"
 #include "vtkTexture.h"
