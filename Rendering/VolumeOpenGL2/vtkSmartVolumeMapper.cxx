@@ -34,6 +34,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkSmartVolumeMapper.h"
+#include "vtkUniformGrid.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
@@ -704,7 +705,14 @@ void vtkSmartVolumeMapper::ConnectMapperInput(vtkVolumeMapper* m)
   {
     if (vtkImageData::SafeDownCast(this->GetInput()))
     {
-      data = vtkImageData::New();
+      if (vtkUniformGrid::SafeDownCast(this->GetInput()))
+      {
+        data = vtkUniformGrid::New();
+      }
+      else
+      {
+        data = vtkImageData::New();
+      }
     }
     else if (vtkRectilinearGrid::SafeDownCast(this->GetInput()))
     {
