@@ -172,7 +172,7 @@ std::string BaseDeclarationFragment(vtkRenderer* vtkNotUsed(ren), vtkVolumeMappe
   }
 
   vtkSmartPointer<vtkUniformGrid> uGrid = vtkUniformGrid::SafeDownCast(mapper->GetInput());
-  if (uGrid && (uGrid->HasAnyBlankCells() || uGrid->HasAnyBlankPoints()))
+  if (uGrid && (uGrid->GetPointGhostArray() || uGrid->GetCellGhostArray()))
   {
     toShaderStr << "uniform sampler3D in_blanking;\n";
   }

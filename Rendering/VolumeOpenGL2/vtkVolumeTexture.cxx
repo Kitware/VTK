@@ -137,7 +137,7 @@ bool vtkVolumeTexture::LoadVolume(vtkRenderer* ren, vtkDataSet* data, vtkDataArr
   }
   else if (vtkUniformGrid* uGrid = vtkUniformGrid::SafeDownCast(data))
   {
-    if (uGrid->HasAnyBlankCells() || uGrid->HasAnyBlankPoints())
+    if (uGrid->GetPointGhostArray() || uGrid->GetCellGhostArray())
     {
       this->BlankingTex = vtkSmartPointer<vtkTextureObject>::New();
       this->BlankingTex->SetContext(vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
