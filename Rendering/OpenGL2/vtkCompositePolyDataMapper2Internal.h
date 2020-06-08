@@ -1,7 +1,6 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkCameraPass.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -19,7 +18,6 @@
 #ifndef __VTK_WRAP__
 
 #include "vtkColor.h"
-#include "vtkOpenGL.h"
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkRenderingOpenGL2Module.h"
 

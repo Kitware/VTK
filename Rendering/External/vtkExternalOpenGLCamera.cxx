@@ -16,7 +16,6 @@
 
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
-#include "vtkOpenGL.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLState.h"

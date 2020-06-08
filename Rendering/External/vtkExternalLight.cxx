@@ -15,7 +15,7 @@
 #include "vtkExternalLight.h"
 
 #include "vtkObjectFactory.h"
-#include "vtkOpenGL.h"
+#include "vtk_glew.h"
 
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkExternalLight);
