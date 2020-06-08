@@ -57,7 +57,7 @@ public:
   using typename Superclass::ValueType;
 
   using VtkmTypesList = vtkm::List<T, vtkm::Vec<T, 2>, vtkm::Vec<T, 3>, vtkm::Vec<T, 4>,
-    vtkm::VecFromPortal<typename vtkm::cont::ArrayHandle<T>::PortalControl>>;
+    vtkm::VecFromPortal<typename vtkm::cont::ArrayHandle<T>::WritePortalType>>;
 
   static vtkmDataArray* New();
 

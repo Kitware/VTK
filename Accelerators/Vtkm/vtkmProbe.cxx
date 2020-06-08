@@ -101,6 +101,7 @@ int vtkmProbe::RequestData(vtkInformation* vtkNotUsed(request), vtkInformationVe
     // The input in VTK is the geometry in VTKM and the source in VTK is the input
     // in VTKM.
     probe.SetGeometry(in);
+    probe.SetInvalidValue(0.0);
 
     auto result = probe.Execute(so);
     for (vtkm::Id i = 0; i < result.GetNumberOfFields(); i++)
