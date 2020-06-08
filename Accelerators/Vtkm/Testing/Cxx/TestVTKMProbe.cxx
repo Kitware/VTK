@@ -99,18 +99,22 @@ void TestResultArray(vtkDataArray* result, const std::vector<T>& expected)
   if (result->GetNumberOfValues() != static_cast<vtkIdType>(expected.size()))
   {
     std::cout << "Array " << result->GetName() << " has wrong size" << std::endl;
+    exit(EXIT_FAILURE);
   }
-  assert(result->GetNumberOfValues() == static_cast<vtkIdType>(expected.size()));
 
   for (vtkIdType i = 0; i < result->GetNumberOfValues(); ++i)
   {
-    if ((result->GetComponent(0, i) - expected[static_cast<size_t>(i)]) > 1e-5)
+    double diff = result->GetComponent(i, 0) - expected[static_cast<size_t>(i)];
+    diff = std::max(diff, -diff);
+    // The weird use of the not (!) operator here is to catch when diff is a NaN value,
+    // which will always return false for a comparison.
+    if (!(diff < 1e-5))
     {
       std::cout << "Array " << result->GetName() << " has wrong value"
-                << " at index " << i << ". result value=" << result->GetComponent(0, i)
+                << " at index " << i << ". result value=" << result->GetComponent(i, 0)
                 << " expected value=" << expected[static_cast<size_t>(i)] << std::endl;
+      exit(EXIT_FAILURE);
     }
-    assert((result->GetComponent(0, i) - expected[static_cast<size_t>(i)]) < 1e-5);
   }
 }
 
