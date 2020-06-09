@@ -29,9 +29,8 @@
 #include <QOffscreenSurface>
 #include <QOpenGLContext>
 #include <QOpenGLDebugLogger>
+#include <QOpenGLExtraFunctions>
 #include <QOpenGLFramebufferObject>
-#include <QOpenGLFunctions>
-#include <QOpenGLFunctions_3_2_Core>
 #include <QPointer>
 #include <QScopedValueRollback>
 #include <QScreen>
@@ -302,14 +301,15 @@ public:
     {
       return false;
     }
-    QOpenGLFunctions_3_2_Core* f = this->Context->versionFunctions<QOpenGLFunctions_3_2_Core>();
+    QOpenGLExtraFunctions* f = this->Context->extraFunctions();
     if (!f)
     {
       return false;
     }
 
     f->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, targetId);
-    f->glDrawBuffer(targetAttachment);
+    const GLenum bufs[1] = { static_cast<GLenum>(targetAttachment) };
+    f->glDrawBuffers(1, bufs);
 
     GLboolean scissorTest = f->glIsEnabled(GL_SCISSOR_TEST);
     if (scissorTest == GL_TRUE)
@@ -410,7 +410,7 @@ public:
   {
     Q_ASSERT(this->Context);
 
-    QOpenGLFunctions_3_2_Core* f = this->Context->versionFunctions<QOpenGLFunctions_3_2_Core>();
+    QOpenGLFunctions* f = this->Context->functions();
     if (f)
     {
       // now clear alpha otherwise we end up blending the rendering with
