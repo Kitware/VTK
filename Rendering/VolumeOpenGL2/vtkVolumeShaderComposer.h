@@ -170,7 +170,6 @@ std::string BaseDeclarationFragment(vtkRenderer* vtkNotUsed(ren), vtkVolumeMappe
   }
 
   toShaderStr << "uniform int in_noOfComponents;\n"
-                 "uniform int in_independentComponents;\n"
                  "\n"
                  "uniform sampler2D in_noiseSampler;\n"
                  "#ifndef GL_ES\n"

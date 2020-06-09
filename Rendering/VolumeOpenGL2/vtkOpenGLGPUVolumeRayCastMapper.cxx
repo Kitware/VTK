@@ -3341,7 +3341,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetMapperShaderParameters(
 
   prog->SetUniformi("in_useJittering", this->Parent->UseJittering);
   prog->SetUniformi("in_noOfComponents", numComp);
-  prog->SetUniformi("in_independentComponents", independent);
   prog->SetUniformf("in_sampleDistance", this->ActualSampleDistance);
 
   // Set the scale and bias for color correction
