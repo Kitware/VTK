@@ -3204,7 +3204,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::BindTransformations(
         prog->SetUniform3fv("in_coordTexSizes", 1, &fvalue3);
         prog->SetUniform3fv("in_coordsScale", 1, volTex->CoordsScale);
         prog->SetUniform3fv("in_coordsBias", 1, volTex->CoordsBias);
-        prog->SetUniform2fv("in_coordsRange", 3, volTex->CoordsRange);
       }
     }
 

@@ -167,7 +167,6 @@ std::string BaseDeclarationFragment(vtkRenderer* vtkNotUsed(ren), vtkVolumeMappe
     toShaderStr << "uniform vec3 in_coordTexSizes;\n";
     toShaderStr << "uniform vec3 in_coordsScale;\n";
     toShaderStr << "uniform vec3 in_coordsBias;\n";
-    toShaderStr << "uniform vec2 in_coordsRange[3];\n";
   }
 
   toShaderStr << "uniform int in_noOfComponents;\n"
