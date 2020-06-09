@@ -1,7 +1,7 @@
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES "vtkexpat/COPYING"
-    VERSION       "2.2.6"
+    VERSION       "2.2.9"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE EXPAT
