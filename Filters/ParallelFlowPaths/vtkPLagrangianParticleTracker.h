@@ -43,10 +43,9 @@
 
 #include <map>
 
-class MasterFlagManager;
-class ParticleStreamManager;
+class ParticleFeedManager;
 class ParticleIdManager;
-class RankFlagManager;
+class ParticleStreamManager;
 class vtkMPIController;
 class vtkMultiBlockDataSet;
 class vtkUnstructuredGrid;
@@ -96,7 +95,7 @@ protected:
   /**
    * Non threadsafe methods to receive transferred particle ids
    */
-  void ReceiveTransferredParticleIds(std::vector<vtkIdType>& particleIds);
+  void ReceiveTransferredParticleIds();
 
   bool FinalizeOutputs(vtkPolyData* particlePathsOutput, vtkDataObject* interactionOutput) override;
 
@@ -125,8 +124,7 @@ protected:
   vtkMPIController* Controller;
   ParticleStreamManager* StreamManager;
   ParticleIdManager* TransferredParticleIdManager;
-  MasterFlagManager* MFlagManager;
-  RankFlagManager* RFlagManager;
+  ParticleFeedManager* FeedManager;
 
   std::mutex StreamManagerMutex;
   std::mutex OutOfDomainParticleMapMutex;

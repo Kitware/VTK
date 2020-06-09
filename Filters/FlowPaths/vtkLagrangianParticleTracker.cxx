@@ -421,6 +421,9 @@ int vtkLagrangianParticleTracker::RequestData(vtkInformation* vtkNotUsed(request
     }
   }
 
+  // give the model a chance to setup prior to particle initalization
+  this->IntegrationModel->PreParticleInitalization();
+
   // Recover seeds
   vtkDataObject* seeds = vtkDataObject::GetData(inputVector[1]);
   if (!seeds)

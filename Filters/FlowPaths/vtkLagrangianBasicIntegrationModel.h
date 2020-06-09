@@ -177,6 +177,13 @@ public:
   vtkGetMacro(Tolerance, double);
   //@}
 
+  //@{
+  /**
+   * Get the specific tolerance to use with the locators.
+   */
+  vtkGetMacro(LocatorTolerance, double);
+  //@}
+
   /**
    * Interact the current particle with a surfaces
    * Return a particle to record as interaction point if not nullptr
@@ -382,6 +389,11 @@ public:
   {
     return true;
   }
+
+  /**
+   * Allow for model setup prior to Particle Initalization
+   */
+  virtual void PreParticleInitalization() {}
 
   /**
    * Enable model to modify particle before integration
@@ -615,6 +627,7 @@ protected:
   vtkLocatorsType* SurfaceLocators;
 
   double Tolerance;
+  double LocatorTolerance = 0.001;
   bool NonPlanarQuadSupport;
   bool UseInitialIntegrationTime;
   int NumberOfTrackedUserData = 0;

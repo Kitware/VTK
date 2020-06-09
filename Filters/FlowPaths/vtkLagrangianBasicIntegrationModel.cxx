@@ -186,7 +186,7 @@ void vtkLagrangianBasicIntegrationModel::AddDataSet(
     {
       locator.TakeReference(this->Locator->NewInstance());
     }
-
+    locator->SetTolerance(this->LocatorTolerance);
     locator->SetDataSet(datasetCpy);
     locator->CacheCellBoundsOn();
     locator->AutomaticOn();
