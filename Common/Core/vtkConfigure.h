@@ -38,8 +38,13 @@
 #define VTK_FINAL final
 #define VTK_DELETE_FUNCTION = delete
 #elif !defined(VTK_LEGACY_SILENT)
+#ifdef _MSC_VER
+#pragma message(                                                                                   \
+  "vtkConfigure.h is deprecated. Please include the relevant header for what you need instead.")
+#else
 #warning                                                                                           \
   "vtkConfigure.h is deprecated. Please include the relevant header for what you need instead."
+#endif
 #endif
 
 #endif // vtkConfigure_h
