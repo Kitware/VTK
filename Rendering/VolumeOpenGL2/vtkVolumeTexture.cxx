@@ -375,7 +375,7 @@ bool vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBloc
           static_cast<float>(zCoords->GetTuple1(i) * this->CoordsScale[2] + this->CoordsBias[2]));
       }
 
-      void* coordsPtr = coordsArray->GetVoidPointer(0);
+      void* coordsPtr = static_cast<void*>(coordsArray->GetPointer(0));
       this->CoordsTex->Create1DFromRaw(numTuples, 3, VTK_FLOAT, coordsPtr);
       this->CoordsTex->SetWrapR(vtkTextureObject::ClampToEdge);
       this->CoordsTex->SetWrapS(vtkTextureObject::ClampToEdge);
@@ -454,7 +454,7 @@ bool vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBloc
         jDestOffset += blockSize[0];
       }
 
-      void* slicePtr = sliceArray->GetVoidPointer(0);
+      void* slicePtr = static_cast<void*>(sliceArray->GetPointer(0));
       GLint format = texture->GetFormat(scalarType, noOfComponents, false);
       GLenum type = texture->GetDataType(scalarType);
       glTexSubImage3D(
