@@ -442,7 +442,7 @@ protected:
   ~vtkOpenGLRenderWindow() override;
 
   // blits the display buffers to the appropriate hardware buffers
-  void BlitDisplayBuffersToHardware();
+  virtual void BlitDisplayBuffersToHardware();
 
   // when frame is called, at the end blit to the hardware buffers
   FrameBlitModes FrameBlitMode;
