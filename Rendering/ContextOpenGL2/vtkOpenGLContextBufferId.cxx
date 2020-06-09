@@ -163,7 +163,7 @@ vtkIdType vtkOpenGLContextBufferId::GetPickedItem(int x, int y)
       // To workaround pixel ownership test,
       // get value from current read buffer at pixel (x,y) instead of just
       // (0,0).
-      glPixelStorei(GL_PACK_ALIGNMENT, 1);
+      ostate->vtkglPixelStorei(GL_PACK_ALIGNMENT, 1);
       unsigned char rgb[3];
       rgb[0] = 5;
       rgb[1] = 1;

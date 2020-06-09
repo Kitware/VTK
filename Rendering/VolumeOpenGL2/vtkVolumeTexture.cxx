@@ -9,6 +9,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkNew.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLState.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkRenderer.h"
 #include "vtkTextureObject.h"
@@ -284,6 +285,8 @@ bool vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBloc
   vtkTextureObject* texture = volBlock->TextureObject;
   vtkIdType const& tupleIdx = volBlock->TupleIndex;
 
+  auto ostate = texture->GetContext()->GetState();
+
   bool success = true;
   if (!this->HandleLargeDataTypes)
   {
@@ -292,13 +295,13 @@ bool vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBloc
     bool const useXStride = blockSize[0] != this->FullSize[0];
     if (useXStride)
     {
-      glPixelStorei(GL_UNPACK_ROW_LENGTH, this->FullSize[0]);
+      ostate->vtkglPixelStorei(GL_UNPACK_ROW_LENGTH, this->FullSize[0]);
     }
 
     bool const useYStride = blockSize[1] != this->FullSize[1];
     if (useYStride)
     {
-      glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, this->FullSize[1]);
+      ostate->vtkglPixelStorei(GL_UNPACK_IMAGE_HEIGHT, this->FullSize[1]);
     }
 
     // Account for component offset
@@ -387,12 +390,12 @@ bool vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBloc
 
     if (useXStride)
     {
-      glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+      ostate->vtkglPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
     }
 
     if (useYStride)
     {
-      glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, 0);
+      ostate->vtkglPixelStorei(GL_UNPACK_IMAGE_HEIGHT, 0);
     }
   }
   else // Handle 64-bit types

@@ -783,6 +783,148 @@ void vtkOpenGLState::vtkglDepthMask(GLboolean val)
   vtkCheckOpenGLErrorsWithStack("glDepthMask");
 }
 
+void vtkOpenGLState::vtkglPointSize(GLfloat val)
+{
+  vtkOpenGLCheckStateMacro();
+  auto& cs = this->Stack.top();
+
+#ifndef NO_CACHE
+  if (cs.PointSize != val)
+#endif
+  {
+    cs.PointSize = val;
+#ifndef GL_ES_VERSION_3_0
+    ::glPointSize(val);
+#endif
+  }
+  vtkCheckOpenGLErrorsWithStack("glPointSize");
+}
+
+void vtkOpenGLState::vtkglLineWidth(GLfloat val)
+{
+  vtkOpenGLCheckStateMacro();
+  auto& cs = this->Stack.top();
+
+#ifndef NO_CACHE
+  if (cs.LineWidth != val)
+#endif
+  {
+    cs.LineWidth = val;
+    ::glLineWidth(val);
+  }
+  vtkCheckOpenGLErrorsWithStack("glLineWidth");
+}
+
+void vtkOpenGLState::vtkglStencilMask(GLuint mask)
+{
+  this->vtkglStencilMaskSeparate(GL_FRONT_AND_BACK, mask);
+}
+
+void vtkOpenGLState::vtkglStencilMaskSeparate(GLuint face, GLuint mask)
+{
+  vtkOpenGLCheckStateMacro();
+  auto& cs = this->Stack.top();
+
+  if (face == GL_FRONT || face == GL_FRONT_AND_BACK)
+  {
+#ifndef NO_CACHE
+    if (cs.StencilMaskFront != mask)
+#endif
+    {
+      cs.StencilMaskFront = mask;
+      ::glStencilMaskSeparate(GL_FRONT, mask);
+    }
+  }
+
+  if (face == GL_BACK || face == GL_FRONT_AND_BACK)
+  {
+#ifndef NO_CACHE
+    if (cs.StencilMaskBack != mask)
+#endif
+    {
+      cs.StencilMaskBack = mask;
+      ::glStencilMaskSeparate(GL_BACK, mask);
+    }
+  }
+
+  vtkCheckOpenGLErrorsWithStack("glStencilMaskSeparate");
+}
+
+void vtkOpenGLState::vtkglStencilOp(GLuint sfail, GLuint dpfail, GLuint dppass)
+{
+  this->vtkglStencilOpSeparate(GL_FRONT_AND_BACK, sfail, dpfail, dppass);
+}
+
+void vtkOpenGLState::vtkglStencilOpSeparate(GLuint face, GLuint sfail, GLuint dpfail, GLuint dppass)
+{
+  vtkOpenGLCheckStateMacro();
+  auto& cs = this->Stack.top();
+
+  std::array<unsigned int, 3> vals = { sfail, dpfail, dppass };
+
+  if (face == GL_FRONT || face == GL_FRONT_AND_BACK)
+  {
+#ifndef NO_CACHE
+    if (cs.StencilOpFront != vals)
+#endif
+    {
+      cs.StencilOpFront = vals;
+      ::glStencilOpSeparate(GL_FRONT, vals[0], vals[1], vals[2]);
+    }
+  }
+
+  if (face == GL_BACK || face == GL_FRONT_AND_BACK)
+  {
+#ifndef NO_CACHE
+    if (cs.StencilOpBack != vals)
+#endif
+    {
+      cs.StencilOpBack = vals;
+      ::glStencilOpSeparate(GL_BACK, vals[0], vals[1], vals[2]);
+    }
+  }
+
+  vtkCheckOpenGLErrorsWithStack("glStencilOpSeparate");
+}
+
+void vtkOpenGLState::vtkglStencilFunc(GLuint func, GLint ref, GLuint mask)
+{
+  this->vtkglStencilFuncSeparate(GL_FRONT_AND_BACK, func, ref, mask);
+}
+
+void vtkOpenGLState::vtkglStencilFuncSeparate(
+  unsigned int face, unsigned int func, int ref, unsigned int mask)
+{
+  vtkOpenGLCheckStateMacro();
+  auto& cs = this->Stack.top();
+
+  std::array<unsigned int, 3> vals = { func, static_cast<unsigned int>(ref), mask };
+
+  if (face == GL_FRONT || face == GL_FRONT_AND_BACK)
+  {
+#ifndef NO_CACHE
+    if (cs.StencilFuncFront != vals)
+#endif
+    {
+      cs.StencilFuncFront = vals;
+      ::glStencilFuncSeparate(GL_FRONT, vals[0], static_cast<GLint>(vals[1]), vals[2]);
+    }
+  }
+
+  if (face == GL_BACK || face == GL_FRONT_AND_BACK)
+  {
+#ifndef NO_CACHE
+    if (cs.StencilFuncBack != vals)
+#endif
+    {
+      cs.StencilFuncBack = vals;
+      ::glStencilFuncSeparate(GL_BACK, vals[0], static_cast<GLint>(vals[1]), vals[2]);
+    }
+  }
+
+  vtkCheckOpenGLErrorsWithStack("glStencilFuncSeparate");
+}
+
 void vtkOpenGLState::BlendFuncSeparate(std::array<GLenum, 4> val)
 {
   this->vtkglBlendFuncSeparate(val[0], val[1], val[2], val[3]);
@@ -926,13 +1068,6 @@ void vtkOpenGLState::SetEnumState(GLenum cap, bool val)
         changed = true;
       }
       break;
-    case GL_DEPTH_TEST:
-      if (cs.DepthTest != val)
-      {
-        cs.DepthTest = val;
-        changed = true;
-      }
-      break;
     case GL_CULL_FACE:
       if (cs.CullFace != val)
       {
@@ -940,6 +1075,22 @@ void vtkOpenGLState::SetEnumState(GLenum cap, bool val)
         changed = true;
       }
       break;
+    case GL_DEPTH_TEST:
+      if (cs.DepthTest != val)
+      {
+        cs.DepthTest = val;
+        changed = true;
+      }
+      break;
+#ifdef GL_LINE_SMOOTH
+    case GL_LINE_SMOOTH:
+      if (cs.LineSmooth != val)
+      {
+        cs.LineSmooth = val;
+        changed = true;
+      }
+      break;
+#endif
 #ifdef GL_MULTISAMPLE
     case GL_MULTISAMPLE:
       if (cs.MultiSample != val)
@@ -1003,12 +1154,17 @@ void vtkOpenGLState::ResetEnumState(GLenum cap)
     case GL_BLEND:
       cs.Blend = params != 0;
       break;
-    case GL_DEPTH_TEST:
-      cs.DepthTest = params != 0;
-      break;
     case GL_CULL_FACE:
       cs.CullFace = params != 0;
       break;
+    case GL_DEPTH_TEST:
+      cs.DepthTest = params != 0;
+      break;
+#ifdef GL_LINE_SMOOTH
+    case GL_LINE_SMOOTH:
+      cs.LineSmooth = params != 0;
+      break;
+#endif
 #ifdef GL_MULTISAMPLE
     case GL_MULTISAMPLE:
       cs.MultiSample = params != 0;
@@ -1056,12 +1212,17 @@ void vtkOpenGLState::vtkglGetBooleanv(GLenum pname, GLboolean* params)
     case GL_BLEND:
       *params = cs.Blend;
       break;
-    case GL_DEPTH_TEST:
-      *params = cs.DepthTest;
-      break;
     case GL_CULL_FACE:
       *params = cs.CullFace;
       break;
+    case GL_DEPTH_TEST:
+      *params = cs.DepthTest;
+      break;
+#ifdef GL_LINE_SMOOTH
+    case GL_LINE_SMOOTH:
+      *params = cs.LineSmooth;
+      break;
+#endif
 #ifdef GL_MULTISAMPLE
     case GL_MULTISAMPLE:
       *params = cs.MultiSample;
@@ -1188,10 +1349,14 @@ bool vtkOpenGLState::GetEnumState(GLenum cap)
   {
     case GL_BLEND:
       return cs.Blend;
-    case GL_DEPTH_TEST:
-      return cs.DepthTest;
     case GL_CULL_FACE:
       return cs.CullFace;
+    case GL_DEPTH_TEST:
+      return cs.DepthTest;
+#ifdef GL_LINE_SMOOTH
+    case GL_LINE_SMOOTH:
+      return cs.LineSmooth;
+#endif
 #ifdef GL_MULTISAMPLE
     case GL_MULTISAMPLE:
       return cs.MultiSample;
@@ -1215,6 +1380,59 @@ void vtkOpenGLState::vtkglDisable(GLenum cap)
   this->SetEnumState(cap, false);
 }
 
+void vtkOpenGLState::vtkglPixelStorei(unsigned int cap, int val)
+{
+  vtkOpenGLCheckStateMacro();
+  auto& cs = this->Stack.top();
+
+#ifndef NO_CACHE
+  bool changed = false;
+#else
+  bool changed = true;
+#endif
+  switch (cap)
+  {
+    case GL_PACK_ALIGNMENT:
+      if (cs.PackAlignment != val)
+      {
+        cs.PackAlignment = val;
+        changed = true;
+      }
+      break;
+    case GL_UNPACK_ALIGNMENT:
+      if (cs.UnpackAlignment != val)
+      {
+        cs.UnpackAlignment = val;
+        changed = true;
+      }
+      break;
+    case GL_UNPACK_ROW_LENGTH:
+      if (cs.UnpackRowLength != val)
+      {
+        cs.UnpackRowLength = val;
+        changed = true;
+      }
+      break;
+    case GL_UNPACK_IMAGE_HEIGHT:
+      if (cs.UnpackImageHeight != val)
+      {
+        cs.UnpackImageHeight = val;
+        changed = true;
+      }
+      break;
+    default:
+      changed = true;
+  }
+
+  if (!changed)
+  {
+    return;
+  }
+
+  ::glPixelStorei(cap, val);
+  vtkCheckOpenGLErrorsWithStack("glPixelStorei");
+}
+
 // make the recorded state match OpenGL driver
 // Initialize makes OpenGL match the state
 // This makes the state match OpenGL
@@ -1235,10 +1453,13 @@ void vtkOpenGLState::Reset()
   this->ResetFramebufferBindings();
 
   this->ResetEnumState(GL_BLEND);
+  this->ResetEnumState(GL_CULL_FACE);
   this->ResetEnumState(GL_DEPTH_TEST);
+#ifdef GL_LINE_SMOOTH
+  this->ResetEnumState(GL_LINE_SMOOTH);
+#endif
   this->ResetEnumState(GL_STENCIL_TEST);
   this->ResetEnumState(GL_SCISSOR_TEST);
-  this->ResetEnumState(GL_CULL_FACE);
 #ifdef GL_TEXTURE_CUBE_MAP_SEAMLESS
   this->ResetEnumState(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 #endif
@@ -1247,6 +1468,49 @@ void vtkOpenGLState::Reset()
 #endif
 
   auto& cs = this->Stack.top();
+
+  GLint ival;
+
+  ::glGetFloatv(GL_POINT_SIZE, &cs.PointSize);
+  ::glGetFloatv(GL_LINE_WIDTH, &cs.LineWidth);
+
+  ::glGetIntegerv(GL_PACK_ALIGNMENT, &cs.PackAlignment);
+  ::glGetIntegerv(GL_UNPACK_ALIGNMENT, &cs.UnpackAlignment);
+  ::glGetIntegerv(GL_UNPACK_ROW_LENGTH, &cs.UnpackRowLength);
+  ::glGetIntegerv(GL_UNPACK_IMAGE_HEIGHT, &cs.UnpackImageHeight);
+
+  ::glGetIntegerv(GL_STENCIL_BACK_WRITEMASK, &ival);
+  cs.StencilMaskBack = static_cast<unsigned int>(ival);
+  ::glGetIntegerv(GL_STENCIL_WRITEMASK, &ival);
+  cs.StencilMaskFront = static_cast<unsigned int>(ival);
+
+  ::glGetIntegerv(GL_STENCIL_BACK_FAIL, &ival);
+  cs.StencilOpBack[0] = static_cast<unsigned int>(ival);
+  ::glGetIntegerv(GL_STENCIL_BACK_PASS_DEPTH_FAIL, &ival);
+  cs.StencilOpBack[1] = static_cast<unsigned int>(ival);
+  ::glGetIntegerv(GL_STENCIL_BACK_PASS_DEPTH_PASS, &ival);
+  cs.StencilOpBack[2] = static_cast<unsigned int>(ival);
+
+  ::glGetIntegerv(GL_STENCIL_FAIL, &ival);
+  cs.StencilOpFront[0] = static_cast<unsigned int>(ival);
+  ::glGetIntegerv(GL_STENCIL_PASS_DEPTH_FAIL, &ival);
+  cs.StencilOpFront[1] = static_cast<unsigned int>(ival);
+  ::glGetIntegerv(GL_STENCIL_PASS_DEPTH_PASS, &ival);
+  cs.StencilOpFront[2] = static_cast<unsigned int>(ival);
+
+  ::glGetIntegerv(GL_STENCIL_BACK_FUNC, &ival);
+  cs.StencilFuncBack[0] = static_cast<unsigned int>(ival);
+  ::glGetIntegerv(GL_STENCIL_BACK_REF, &ival);
+  cs.StencilFuncBack[1] = static_cast<unsigned int>(ival);
+  ::glGetIntegerv(GL_STENCIL_BACK_VALUE_MASK, &ival);
+  cs.StencilFuncBack[2] = static_cast<unsigned int>(ival);
+
+  ::glGetIntegerv(GL_STENCIL_FUNC, &ival);
+  cs.StencilFuncFront[0] = static_cast<unsigned int>(ival);
+  ::glGetIntegerv(GL_STENCIL_REF, &ival);
+  cs.StencilFuncFront[1] = static_cast<unsigned int>(ival);
+  ::glGetIntegerv(GL_STENCIL_VALUE_MASK, &ival);
+  cs.StencilFuncFront[2] = static_cast<unsigned int>(ival);
 
   ::glGetIntegerv(GL_CURRENT_PROGRAM, &cs.BoundProgram);
   ::glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &cs.BoundVAO);
@@ -1268,6 +1532,9 @@ void vtkOpenGLState::Pop()
 
   cs.Blend ? ::glEnable(GL_BLEND) : ::glDisable(GL_BLEND);
   cs.DepthTest ? ::glEnable(GL_DEPTH_TEST) : ::glDisable(GL_DEPTH_TEST);
+#ifdef GL_LINE_SMOOTH
+  cs.LineSmooth ? ::glEnable(GL_LINE_SMOOTH) : ::glDisable(GL_LINE_SMOOTH);
+#endif
   cs.StencilTest ? ::glEnable(GL_STENCIL_TEST) : ::glDisable(GL_STENCIL_TEST);
   cs.ScissorTest ? ::glEnable(GL_SCISSOR_TEST) : ::glDisable(GL_SCISSOR_TEST);
   cs.CullFace ? ::glEnable(GL_CULL_FACE) : ::glDisable(GL_CULL_FACE);
@@ -1294,6 +1561,23 @@ void vtkOpenGLState::Pop()
 #endif
 
   ::glDepthMask(cs.DepthMask);
+
+  ::glPointSize(cs.PointSize);
+  ::glLineWidth(cs.LineWidth);
+
+  ::glPixelStorei(GL_PACK_ALIGNMENT, cs.PackAlignment);
+  ::glPixelStorei(GL_UNPACK_ALIGNMENT, cs.UnpackAlignment);
+  ::glPixelStorei(GL_UNPACK_ROW_LENGTH, cs.UnpackRowLength);
+  ::glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, cs.UnpackImageHeight);
+
+  ::glStencilMaskSeparate(GL_FRONT, cs.StencilMaskFront);
+  ::glStencilMaskSeparate(GL_BACK, cs.StencilMaskBack);
+  ::glStencilOpSeparate(GL_FRONT, cs.StencilOpFront[0], cs.StencilOpFront[1], cs.StencilOpFront[2]);
+  ::glStencilOpSeparate(GL_BACK, cs.StencilOpBack[0], cs.StencilOpBack[1], cs.StencilOpBack[2]);
+  ::glStencilFuncSeparate(GL_FRONT, cs.StencilFuncFront[0],
+    static_cast<GLint>(cs.StencilFuncFront[1]), cs.StencilFuncFront[2]);
+  ::glStencilFuncSeparate(GL_BACK, cs.StencilFuncBack[0], static_cast<GLint>(cs.StencilFuncBack[1]),
+    cs.StencilFuncBack[2]);
 
   ::glViewport(cs.Viewport[0], cs.Viewport[1], cs.Viewport[2], cs.Viewport[3]);
 
@@ -1323,14 +1607,16 @@ void vtkOpenGLState::Initialize(vtkOpenGLRenderWindow*)
   auto& cs = this->Stack.top();
 
   cs.Blend ? ::glEnable(GL_BLEND) : ::glDisable(GL_BLEND);
-  cs.DepthTest ? ::glEnable(GL_DEPTH_TEST) : ::glDisable(GL_DEPTH_TEST);
-  cs.StencilTest ? ::glEnable(GL_STENCIL_TEST) : ::glDisable(GL_STENCIL_TEST);
-  cs.ScissorTest ? ::glEnable(GL_SCISSOR_TEST) : ::glDisable(GL_SCISSOR_TEST);
   cs.CullFace ? ::glEnable(GL_CULL_FACE) : ::glDisable(GL_CULL_FACE);
-
+  cs.DepthTest ? ::glEnable(GL_DEPTH_TEST) : ::glDisable(GL_DEPTH_TEST);
+#ifdef GL_LINE_SMOOTH
+  cs.LineSmooth ? ::glEnable(GL_LINE_SMOOTH) : ::glDisable(GL_LINE_SMOOTH);
+#endif
 #ifdef GL_MULTISAMPLE
   cs.MultiSample = glIsEnabled(GL_MULTISAMPLE) == GL_TRUE;
 #endif
+  cs.StencilTest ? ::glEnable(GL_STENCIL_TEST) : ::glDisable(GL_STENCIL_TEST);
+  cs.ScissorTest ? ::glEnable(GL_SCISSOR_TEST) : ::glDisable(GL_SCISSOR_TEST);
 
   // initialize blending for transparency
   ::glBlendFuncSeparate(cs.BlendFunc[0], cs.BlendFunc[1], cs.BlendFunc[2], cs.BlendFunc[3]);
@@ -1340,6 +1626,23 @@ void vtkOpenGLState::Initialize(vtkOpenGLRenderWindow*)
   ::glColorMask(cs.ColorMask[0], cs.ColorMask[1], cs.ColorMask[2], cs.ColorMask[3]);
 
   ::glDepthFunc(cs.DepthFunc);
+
+  ::glPointSize(cs.PointSize);
+  ::glLineWidth(cs.LineWidth);
+
+  ::glPixelStorei(GL_PACK_ALIGNMENT, cs.PackAlignment);
+  ::glPixelStorei(GL_UNPACK_ALIGNMENT, cs.UnpackAlignment);
+  ::glPixelStorei(GL_UNPACK_ROW_LENGTH, cs.UnpackRowLength);
+  ::glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, cs.UnpackImageHeight);
+
+  ::glStencilMaskSeparate(GL_FRONT, cs.StencilMaskFront);
+  ::glStencilMaskSeparate(GL_BACK, cs.StencilMaskBack);
+  ::glStencilOpSeparate(GL_FRONT, cs.StencilOpFront[0], cs.StencilOpFront[1], cs.StencilOpFront[2]);
+  ::glStencilOpSeparate(GL_BACK, cs.StencilOpBack[0], cs.StencilOpBack[1], cs.StencilOpBack[2]);
+  ::glStencilFuncSeparate(GL_FRONT, cs.StencilFuncFront[0],
+    static_cast<GLint>(cs.StencilFuncFront[1]), cs.StencilFuncFront[2]);
+  ::glStencilFuncSeparate(GL_BACK, cs.StencilFuncBack[0], static_cast<GLint>(cs.StencilFuncBack[1]),
+    cs.StencilFuncBack[2]);
 
 #ifdef GL_ES_VERSION_3_0
   ::glClearDepthf(cs.ClearDepth);
@@ -1626,7 +1929,33 @@ vtkOpenGLState::vtkOpenGLState()
   cs.ScissorTest = true;
   cs.CullFace = false;
   cs.CubeMapSeamless = false;
+  cs.LineSmooth = false;
   cs.MultiSample = false;
+
+  cs.LineWidth = 1.0;
+  cs.PointSize = 1.0;
+
+  cs.StencilMaskFront = 0xFF;
+  cs.StencilMaskBack = 0xFF;
+
+  cs.StencilOpFront[0] = GL_KEEP;
+  cs.StencilOpFront[1] = GL_KEEP;
+  cs.StencilOpFront[2] = GL_KEEP;
+  cs.StencilOpBack[0] = GL_KEEP;
+  cs.StencilOpBack[1] = GL_KEEP;
+  cs.StencilOpBack[2] = GL_KEEP;
+
+  cs.StencilFuncFront[0] = GL_ALWAYS;
+  cs.StencilFuncFront[1] = 0;
+  cs.StencilFuncFront[2] = 0xFF;
+  cs.StencilFuncBack[0] = GL_ALWAYS;
+  cs.StencilFuncBack[1] = 0;
+  cs.StencilFuncBack[2] = 0xFF;
+
+  cs.PackAlignment = 1;
+  cs.UnpackAlignment = 1;
+  cs.UnpackRowLength = 0;
+  cs.UnpackImageHeight = 0;
 
   // initialize blending for transparency
   cs.BlendFunc[0] = GL_SRC_ALPHA;

@@ -932,7 +932,7 @@ bool vtkTextureObject::Create1D(
   pbo->Bind(vtkPixelBufferObject::UNPACKED_BUFFER);
 
   // Source texture data from the PBO.
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  this->Context->GetState()->vtkglPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   glTexImage1D(target, 0, static_cast<GLint>(internalFormat),
     static_cast<GLsizei>(pbo->GetSize() / static_cast<unsigned int>(numComps)), 0, format, type,
     BUFFER_OFFSET(0));
@@ -1083,7 +1083,7 @@ bool vtkTextureObject::Create2D(unsigned int width, unsigned int height, int num
 
   // Source texture data from the PBO.
   pbo->Bind(vtkPixelBufferObject::UNPACKED_BUFFER);
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  this->Context->GetState()->vtkglPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
   glTexImage2D(target, 0, internalFormat, static_cast<GLsizei>(width), static_cast<GLsizei>(height),
     0, format, type, BUFFER_OFFSET(0));
@@ -1137,7 +1137,7 @@ bool vtkTextureObject::CreateDepth(
   pbo->Bind(vtkPixelBufferObject::UNPACKED_BUFFER);
 
   // Source texture data from the PBO.
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  this->Context->GetState()->vtkglPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   glTexImage2D(this->Target, 0, static_cast<GLint>(inFormat), static_cast<GLsizei>(width),
     static_cast<GLsizei>(height), 0, this->Format, this->Type, BUFFER_OFFSET(0));
   vtkOpenGLCheckErrorMacro("failed at glTexImage2D");
@@ -1293,7 +1293,7 @@ bool vtkTextureObject::Create3DFromRaw(unsigned int width, unsigned int height, 
   this->Bind();
 
   // Source texture data from the PBO.
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  this->Context->GetState()->vtkglPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
   glTexImage3D(this->Target, 0, this->InternalFormat, static_cast<GLsizei>(this->Width),
     static_cast<GLsizei>(this->Height), static_cast<GLsizei>(this->Depth), 0, this->Format,
@@ -1374,7 +1374,7 @@ bool vtkTextureObject::Create2DFromRaw(
   this->Bind();
 
   // Source texture data from the PBO.
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  this->Context->GetState()->vtkglPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
   glTexImage2D(this->Target, 0, this->InternalFormat, static_cast<GLsizei>(this->Width),
     static_cast<GLsizei>(this->Height), 0, this->Format, this->Type,
@@ -1416,7 +1416,7 @@ bool vtkTextureObject::CreateCubeFromRaw(
   this->Bind();
 
   // Source texture data from the PBO.
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  this->Context->GetState()->vtkglPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
   for (int i = 0; i < 6; i++)
   {
@@ -1473,7 +1473,7 @@ bool vtkTextureObject::CreateDepthFromRaw(
   this->CreateTexture();
   this->Bind();
 
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  this->Context->GetState()->vtkglPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   glTexImage2D(this->Target, 0, static_cast<GLint>(this->InternalFormat),
     static_cast<GLsizei>(this->Width), static_cast<GLsizei>(this->Height), 0, this->Format,
     this->Type, raw);

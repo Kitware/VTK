@@ -26,6 +26,8 @@
 
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLState.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
@@ -164,11 +166,8 @@ void vtkOpenGLImageMapperRenderDouble(vtkOpenGLImageMapper* self, vtkImageData* 
   double range[2];
   data->GetPointData()->GetScalars()->GetDataTypeRange(range);
 
-#ifdef GL_UNPACK_ALIGNMENT
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-#else
-  assert("width must be a multiple of 4" && width == 4);
-#endif
+  auto ostate = static_cast<vtkOpenGLRenderWindow*>(viewport->GetVTKWindow())->GetState();
+  ostate->vtkglPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
   // reformat data into unsigned char
 
@@ -277,11 +276,8 @@ void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper* self, vtkImageData* d
   double range[2];
   data->GetPointData()->GetScalars()->GetDataTypeRange(range);
 
-#ifdef GL_UNPACK_ALIGNMENT
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-#else
-  assert("width must be a multiple of 4" && width == 4);
-#endif
+  auto ostate = static_cast<vtkOpenGLRenderWindow*>(viewport->GetVTKWindow())->GetState();
+  ostate->vtkglPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
   // Find the number of bits to use for the fraction:
   // continue increasing the bits until there is an overflow
@@ -407,19 +403,15 @@ void vtkOpenGLImageMapperRenderChar(
   double range[2];
   data->GetPointData()->GetScalars()->GetDataTypeRange(range);
 
-#ifdef GL_UNPACK_ALIGNMENT
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-#else
-  assert("width must be a multiple of 4" && width == 4);
-#endif
+  auto ostate = static_cast<vtkOpenGLRenderWindow*>(viewport->GetVTKWindow())->GetState();
+  ostate->vtkglPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
   //
-#ifdef GL_UNPACK_ROW_LENGTH
   if (bpp == 3)
   { // feed through RGB bytes without reformatting
     if (inInc1 != width * bpp)
     {
-      glPixelStorei(GL_UNPACK_ROW_LENGTH, inInc1 / bpp);
+      ostate->vtkglPixelStorei(GL_UNPACK_ROW_LENGTH, inInc1 / bpp);
     }
     self->DrawPixels(viewport, width, height, 3, static_cast<void*>(dataPtr));
   }
@@ -427,12 +419,11 @@ void vtkOpenGLImageMapperRenderChar(
   { // feed through RGBA bytes without reformatting
     if (inInc1 != width * bpp)
     {
-      glPixelStorei(GL_UNPACK_ROW_LENGTH, inInc1 / bpp);
+      ostate->vtkglPixelStorei(GL_UNPACK_ROW_LENGTH, inInc1 / bpp);
     }
     self->DrawPixels(viewport, width, height, 4, static_cast<void*>(dataPtr));
   }
   else
-#endif
   { // feed through other bytes without reformatting
     T* inPtr = dataPtr;
     T* inPtr1 = inPtr;
@@ -512,9 +503,7 @@ void vtkOpenGLImageMapperRenderChar(
     delete[] newPtr;
   }
 
-#ifdef GL_UNPACK_ROW_LENGTH
-  glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-#endif
+  ostate->vtkglPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 
   vtkOpenGLStaticCheckErrorMacro("failed after ImageMapperRenderChar");
 }

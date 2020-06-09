@@ -607,9 +607,10 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport, vtkActor2D*
     this->CreateDefaultLookupTable();
   }
 
-  vtkRenderWindow* renWin = vtkRenderWindow::SafeDownCast(viewport->GetVTKWindow());
+  vtkOpenGLRenderWindow* renWin = static_cast<vtkOpenGLRenderWindow*>(viewport->GetVTKWindow());
+  vtkOpenGLState* ostate = renWin->GetState();
 
-  this->ResourceCallback->RegisterGraphicsResources(static_cast<vtkOpenGLRenderWindow*>(renWin));
+  this->ResourceCallback->RegisterGraphicsResources(renWin);
 
   vtkRenderer* ren = vtkRenderer::SafeDownCast(viewport);
   vtkHardwareSelector* selector = ren->GetSelector();
@@ -627,7 +628,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport, vtkActor2D*
 
   // Assume we want to do Zbuffering for now.
   // we may turn this off later
-  static_cast<vtkOpenGLRenderWindow*>(renWin)->GetState()->vtkglDepthMask(GL_TRUE);
+  ostate->vtkglDepthMask(GL_TRUE);
 
   // Update the VBO if needed.
   if (this->VBOUpdateTime < this->GetMTime() || this->VBOUpdateTime < actor->GetMTime() ||
@@ -662,9 +663,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport, vtkActor2D*
     }
 
     // Set the PointSize
-#ifndef GL_ES_VERSION_3_0
-    glPointSize(actor->GetProperty()->GetPointSize()); // not on ES2
-#endif
+    ostate->vtkglPointSize(actor->GetProperty()->GetPointSize());
     this->Points.IBO->Bind();
     glDrawRangeElements(GL_POINTS, 0, static_cast<GLuint>(numVerts - 1),
       static_cast<GLsizei>(this->Points.IBO->IndexCount), GL_UNSIGNED_INT, nullptr);
@@ -681,7 +680,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport, vtkActor2D*
       this->Lines.Program->SetUniformi("PrimitiveIDOffset", this->PrimitiveIDOffset);
       if (!this->HaveWideLines(viewport, actor))
       {
-        glLineWidth(actor->GetProperty()->GetLineWidth());
+        ostate->vtkglLineWidth(actor->GetProperty()->GetLineWidth());
       }
       this->Lines.IBO->Bind();
       glDrawRangeElements(GL_LINES, 0, static_cast<GLuint>(numVerts - 1),

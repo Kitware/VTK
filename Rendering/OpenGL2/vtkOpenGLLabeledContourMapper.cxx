@@ -122,13 +122,13 @@ bool vtkOpenGLLabeledContourMapper::ApplyStencil(vtkRenderer* ren, vtkActor* act
 
     // Enable rendering into the stencil buffer:
     ostate->vtkglEnable(GL_STENCIL_TEST);
-    glStencilMask(0xFF);
+    ostate->vtkglStencilMask(0xFF);
     glClearStencil(0);
     ostate->vtkglClear(GL_STENCIL_BUFFER_BIT);
     ostate->vtkglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
     ostate->vtkglDepthMask(GL_FALSE);
-    glStencilFunc(GL_ALWAYS, 1, 0xFF);
-    glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
+    ostate->vtkglStencilFunc(GL_ALWAYS, 1, 0xFF);
+    ostate->vtkglStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
 
     vtkOpenGLCamera* cam = (vtkOpenGLCamera*)(ren->GetActiveCamera());
     vtkMatrix4x4* wcdc;
@@ -155,9 +155,9 @@ bool vtkOpenGLLabeledContourMapper::ApplyStencil(vtkRenderer* ren, vtkActor* act
   }
 
   // Setup GL to only draw in unstenciled regions:
-  glStencilMask(0x00);
-  glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-  glStencilFunc(GL_EQUAL, 0, 0xFF);
+  ostate->vtkglStencilMask(0x00);
+  ostate->vtkglStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+  ostate->vtkglStencilFunc(GL_EQUAL, 0, 0xFF);
 
   vtkOpenGLCheckErrorMacro("failed after ApplyStencil()");
 

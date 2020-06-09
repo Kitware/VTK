@@ -417,10 +417,8 @@ void vtkOpenGLRenderWindow::OpenGLInitState()
   // this is the recommended way in "Avoiding 16 Common OpenGL Pitfalls",
   // section 7:
   // http://www.opengl.org/resources/features/KilgardTechniques/oglpitfall/
-#ifdef GL_UNPACK_ALIGNMENT
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-#endif
-  glPixelStorei(GL_PACK_ALIGNMENT, 1);
+  this->GetState()->vtkglPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  this->GetState()->vtkglPixelStorei(GL_PACK_ALIGNMENT, 1);
   // Set the number of alpha bit planes used by the window
   int rgba[4];
   this->GetColorBufferSizes(rgba);
@@ -830,7 +828,7 @@ int vtkOpenGLRenderWindow::ReadPixels(
   this->GetState()->vtkglDisable(GL_SCISSOR_TEST);
 
   // Calling pack alignment ensures that we can grab the any size window
-  glPixelStorei(GL_PACK_ALIGNMENT, 1);
+  this->GetState()->vtkglPixelStorei(GL_PACK_ALIGNMENT, 1);
 
   this->GetState()->PushReadFramebufferBinding();
 
@@ -1624,7 +1622,7 @@ int vtkOpenGLRenderWindow::GetZbufferData(int x1, int y1, int x2, int y2, float*
   this->GetState()->vtkglDisable(GL_SCISSOR_TEST);
 
   // Calling pack alignment ensures that we can grab the any size window
-  glPixelStorei(GL_PACK_ALIGNMENT, 1);
+  this->GetState()->vtkglPixelStorei(GL_PACK_ALIGNMENT, 1);
 
   this->GetState()->PushReadFramebufferBinding();
 

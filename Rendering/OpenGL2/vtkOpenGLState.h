@@ -113,9 +113,21 @@ public:
   void vtkglDrawBuffers(unsigned int n, unsigned int*);
   void vtkglReadBuffer(unsigned int);
 
+  void vtkglPointSize(float);
+  void vtkglLineWidth(float);
+  void vtkglStencilMaskSeparate(unsigned int face, unsigned int mask);
+  void vtkglStencilMask(unsigned int mask);
+  void vtkglStencilOpSeparate(
+    unsigned int face, unsigned int sfail, unsigned int dpfail, unsigned int dppass);
+  void vtkglStencilOp(unsigned int sfail, unsigned int dpfail, unsigned int dppass);
+  void vtkglStencilFuncSeparate(unsigned int face, unsigned int func, int ref, unsigned int mask);
+  void vtkglStencilFunc(unsigned int func, int ref, unsigned int mask);
+
   void vtkBindFramebuffer(unsigned int target, vtkOpenGLFramebufferObject* fo);
   void vtkDrawBuffers(unsigned int n, unsigned int*, vtkOpenGLFramebufferObject*);
   void vtkReadBuffer(unsigned int, vtkOpenGLFramebufferObject*);
+
+  void vtkglPixelStorei(unsigned int, int);
   //@}
 
   //@{
@@ -411,6 +423,21 @@ protected:
     unsigned int BlendEquationValue2;
     unsigned int CullFaceMode;
     unsigned int ActiveTexture;
+
+    float PointSize;
+    float LineWidth;
+    unsigned int StencilMaskFront;
+    unsigned int StencilMaskBack;
+    std::array<unsigned int, 3> StencilFuncFront;
+    std::array<unsigned int, 3> StencilFuncBack;
+    std::array<unsigned int, 3> StencilOpFront;
+    std::array<unsigned int, 3> StencilOpBack;
+
+    int PackAlignment;
+    int UnpackAlignment;
+    int UnpackRowLength;
+    int UnpackImageHeight;
+
     std::array<float, 4> ClearColor;
     std::array<unsigned char, 4> ColorMask;
     std::array<int, 4> Viewport;
@@ -423,6 +450,7 @@ protected:
     bool Blend;
     bool MultiSample;
     bool CubeMapSeamless;
+    bool LineSmooth;
     int BoundVAO;
     int BoundProgram;
     BufferBindingState DrawBinding;

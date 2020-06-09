@@ -33,6 +33,7 @@
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLIndexBufferObject.h"
 #include "vtkOpenGLPolyDataMapper.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLState.h"
 #include "vtkOpenGLVertexArrayObject.h"
@@ -42,7 +43,6 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
-#include "vtkRenderWindow.h"
 #include "vtkShaderProgram.h"
 #include "vtkUnsignedCharArray.h"
 
@@ -867,9 +867,9 @@ void vtkOpenGLPointGaussianMapper::Render(vtkRenderer* ren, vtkActor* actor)
 void vtkOpenGLPointGaussianMapper::RenderInternal(vtkRenderer* ren, vtkActor* actor)
 {
   // Set the PointSize
-#ifndef GL_ES_VERSION_3_0
-  glPointSize(actor->GetProperty()->GetPointSize()); // not on ES2
-#endif
+  vtkOpenGLRenderWindow* renWin = static_cast<vtkOpenGLRenderWindow*>(ren->GetRenderWindow());
+  vtkOpenGLState* ostate = renWin->GetState();
+  ostate->vtkglPointSize(actor->GetProperty()->GetPointSize());
 
   // render points for point picking in a special way
   vtkHardwareSelector* selector = ren->GetSelector();

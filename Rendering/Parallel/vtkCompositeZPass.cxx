@@ -341,7 +341,7 @@ void vtkCompositeZPass::Render(const vtkRenderState* s)
 #endif
 
       // send it to a PBO
-      glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // client to server
+      ostate->vtkglPixelStorei(GL_UNPACK_ALIGNMENT, 1); // client to server
 
 #ifdef VTK_COMPOSITE_ZPASS_DEBUG
       state->Update();

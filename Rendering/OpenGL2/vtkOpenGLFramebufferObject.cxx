@@ -1455,7 +1455,9 @@ void vtkOpenGLFramebufferObject::Download(
 
   pbo->Bind(vtkPixelBufferObject::PACKED_BUFFER);
 
-  glPixelStorei(GL_PACK_ALIGNMENT, 1);
+  static_cast<vtkOpenGLRenderWindow*>(pbo->GetContext())
+    ->GetState()
+    ->vtkglPixelStorei(GL_PACK_ALIGNMENT, 1);
   glReadPixels(extent[0], extent[2], extentSize[0], extentSize[1], oglFormat, oglType, nullptr);
 
   vtkOpenGLStaticCheckErrorMacro("failed at glReadPixels");

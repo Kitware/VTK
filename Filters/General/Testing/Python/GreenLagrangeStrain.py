@@ -5,14 +5,15 @@ from __future__ import print_function
 
 import sys
 import math
+import vtk.test.Testing
+
 try:
     import numpy
 except ImportError:
     print("WARNING: This test requires NumPy: http://http://www.numpy.org/")
-    from vtk.test import Testing
-    Testing.skip()
-import vtk
+    vtk.test.Testing.skip()
 
+import vtk
 
 # Create a simple hexahedron
 points = vtk.vtkPoints()
