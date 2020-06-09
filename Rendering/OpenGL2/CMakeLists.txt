@@ -99,7 +99,6 @@ if (NOT DEFINED OPENGL_ES_VERSION)
 endif()
 
 set(headers
-  vtkOpenGL.h
   vtkStateStorage.h
   "${CMAKE_CURRENT_BINARY_DIR}/vtkOpenGLError.h"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkRenderingOpenGLConfigure.h")
@@ -107,6 +106,11 @@ set(headers
 set(nowrap_headers
   vtkCompositePolyDataMapper2Internal.h
 )
+
+if (NOT VTK_LEGACY_REMOVE)
+  list(APPEND nowrap_headers
+    vtkOpenGL.h)
+endif ()
 
 # add opengl support test execulatble on windows
 if (WIN32 AND (NOT CMAKE_CROSSCOMPILING OR DEFINED CMAKE_CROSSCOMPILING_EMULATOR))
