@@ -19,7 +19,6 @@
 #include <QOpenGLContext>
 #include <QOpenGLFramebufferObject>
 #include <QOpenGLFunctions>
-#include <QOpenGLFunctions_3_2_Core>
 #include <QOpenGLTexture>
 #include <QPointer>
 #include <QScopedValueRollback>
@@ -248,31 +247,26 @@ void QVTKOpenGLWindow::paintGL()
     // before proceeding with blit-ing.
     this->makeCurrent();
 
-    QOpenGLFunctions_3_2_Core* f =
-      QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_3_2_Core>();
-    if (f)
-    {
-      auto ostate = this->RenderWindow->GetState();
-      ostate->Reset();
-      ostate->Push();
+    auto ostate = this->RenderWindow->GetState();
+    ostate->Reset();
+    ostate->Push();
 
-      const QSize deviceSize = this->size() * this->devicePixelRatioF();
-      const auto fmt = this->context()->format();
-      if (fmt.stereo() && this->RenderWindow->GetStereoRender() &&
-        this->RenderWindow->GetStereoType() == VTK_STEREO_CRYSTAL_EYES)
-      {
-        this->RenderWindowAdapter->blitLeftEye(
-          this->defaultFramebufferObject(), GL_BACK_LEFT, QRect(QPoint(0, 0), deviceSize));
-        this->RenderWindowAdapter->blitRightEye(
-          this->defaultFramebufferObject(), GL_BACK_RIGHT, QRect(QPoint(0, 0), deviceSize));
-      }
-      else
-      {
-        this->RenderWindowAdapter->blit(
-          this->defaultFramebufferObject(), GL_BACK, QRect(QPoint(0, 0), deviceSize));
-      }
-      ostate->Pop();
+    const QSize deviceSize = this->size() * this->devicePixelRatioF();
+    const auto fmt = this->context()->format();
+    if (fmt.stereo() && this->RenderWindow->GetStereoRender() &&
+      this->RenderWindow->GetStereoType() == VTK_STEREO_CRYSTAL_EYES)
+    {
+      this->RenderWindowAdapter->blitLeftEye(
+        this->defaultFramebufferObject(), GL_BACK_LEFT, QRect(QPoint(0, 0), deviceSize));
+      this->RenderWindowAdapter->blitRightEye(
+        this->defaultFramebufferObject(), GL_BACK_RIGHT, QRect(QPoint(0, 0), deviceSize));
     }
+    else
+    {
+      this->RenderWindowAdapter->blit(
+        this->defaultFramebufferObject(), GL_BACK, QRect(QPoint(0, 0), deviceSize));
+    }
+    ostate->Pop();
   }
   else
   {

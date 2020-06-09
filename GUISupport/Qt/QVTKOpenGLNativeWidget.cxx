@@ -19,7 +19,6 @@
 #include <QOpenGLContext>
 #include <QOpenGLFramebufferObject>
 #include <QOpenGLFunctions>
-#include <QOpenGLFunctions_3_2_Core>
 #include <QOpenGLTexture>
 #include <QPointer>
 #include <QScopedValueRollback>
@@ -255,18 +254,13 @@ void QVTKOpenGLNativeWidget::paintGL()
     // before proceeding with blit-ing.
     this->makeCurrent();
 
-    QOpenGLFunctions_3_2_Core* f =
-      QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_3_2_Core>();
-    if (f)
-    {
-      auto ostate = this->RenderWindow->GetState();
-      ostate->Reset();
-      ostate->Push();
-      const QSize deviceSize = this->size() * this->devicePixelRatioF();
-      this->RenderWindowAdapter->blit(
-        this->defaultFramebufferObject(), GL_COLOR_ATTACHMENT0, QRect(QPoint(0, 0), deviceSize));
-      ostate->Pop();
-    }
+    auto ostate = this->RenderWindow->GetState();
+    ostate->Reset();
+    ostate->Push();
+    const QSize deviceSize = this->size() * this->devicePixelRatioF();
+    this->RenderWindowAdapter->blit(
+      this->defaultFramebufferObject(), GL_COLOR_ATTACHMENT0, QRect(QPoint(0, 0), deviceSize));
+    ostate->Pop();
   }
   else
   {
