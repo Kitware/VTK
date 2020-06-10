@@ -716,7 +716,8 @@ void vtkSmartVolumeMapper::ConnectMapperInput(vtkVolumeMapper* m)
   }
   else
   {
-    needShallowCopy = data->GetMTime() < this->GetInput()->GetMTime();
+    needShallowCopy =
+      ((data != this->GetInput()) || (data->GetMTime() < this->GetInput()->GetMTime()));
 
     m->SetInputDataObject(data);
   }
