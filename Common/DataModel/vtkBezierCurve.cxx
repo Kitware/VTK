@@ -68,6 +68,8 @@ void vtkBezierCurve::SetRationalWeightsFromPointData(
       this->GetRationalWeights()->SetValue(i, v->GetTuple1(this->PointIds->GetId(i)));
     }
   }
+  else
+    this->GetRationalWeights()->Reset();
 }
 
 /**\brief Populate the linear segment returned by GetApprox() with point-data from one voxel-like

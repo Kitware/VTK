@@ -54,13 +54,14 @@ vtkHigherOrderTriangle::~vtkHigherOrderTriangle()
   this->Scalars->Delete();
 }
 
-//----------------------------------------------------------------------------
-void vtkHigherOrderTriangle::GetEdgeWithoutRationalWeights(vtkHigherOrderCurve* result, int edgeId)
+//------------------------------------------------------------------------------
+void vtkHigherOrderTriangle::SetEdgeIdsAndPoints(int edgeId,
+  const std::function<void(const vtkIdType&)>& set_number_of_ids_and_points,
+  const std::function<void(const vtkIdType&, const vtkIdType&)>& set_ids_and_points)
 {
-  result->PointIds->Reset();
-  result->Points->Reset();
-
   vtkIdType order = this->GetOrder();
+
+  set_number_of_ids_and_points(order + 1);
 
   vtkIdType bindex[3] = { 0, 0, 0 };
   bindex[(edgeId + 2) % 3] = order;
@@ -75,8 +76,7 @@ void vtkHigherOrderTriangle::GetEdgeWithoutRationalWeights(vtkHigherOrderCurve* 
     // maps from this iteration loop to the edge's ordering.
     vtkIdType edgeIndex = (i == 0 ? 0 : (i == order ? 1 : i + 1));
 
-    result->GetPointIds()->InsertId(edgeIndex, this->PointIds->GetId(triangleIndex));
-    result->GetPoints()->InsertPoint(edgeIndex, this->Points->GetPoint(triangleIndex));
+    set_ids_and_points(edgeIndex, triangleIndex);
 
     bindex[(edgeId + 2) % 3]--;
     bindex[edgeId]++;

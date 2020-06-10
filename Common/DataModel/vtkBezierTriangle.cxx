@@ -50,16 +50,34 @@ void vtkBezierTriangle::PrintSelf(ostream& os, vtkIndent indent)
 vtkCell* vtkBezierTriangle::GetEdge(int edgeId)
 {
   vtkBezierCurve* result = EdgeCell;
-  this->GetEdgeWithoutRationalWeights(result, edgeId);
-
   if (this->GetRationalWeights()->GetNumberOfTuples() > 0)
   {
-    vtkIdType npts = result->Points->GetNumberOfPoints();
-    result->GetRationalWeights()->SetNumberOfTuples(npts);
-    for (vtkIdType i = 0; i < npts; i++)
-      result->GetRationalWeights()->SetValue(
-        i, this->GetRationalWeights()->GetValue(result->PointIds->GetId(i)));
+    const auto set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void {
+      result->Points->SetNumberOfPoints(npts);
+      result->PointIds->SetNumberOfIds(npts);
+      result->GetRationalWeights()->SetNumberOfTuples(npts);
+    };
+    const auto set_ids_and_points = [&](const vtkIdType& edge_id, const vtkIdType& vol_id) -> void {
+      result->Points->SetPoint(edge_id, this->Points->GetPoint(vol_id));
+      result->PointIds->SetId(edge_id, this->PointIds->GetId(vol_id));
+      result->GetRationalWeights()->SetValue(edge_id, this->GetRationalWeights()->GetValue(vol_id));
+    };
+    this->SetEdgeIdsAndPoints(edgeId, set_number_of_ids_and_points, set_ids_and_points);
   }
+  else
+  {
+    const auto set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void {
+      result->Points->SetNumberOfPoints(npts);
+      result->PointIds->SetNumberOfIds(npts);
+      result->GetRationalWeights()->Reset();
+    };
+    const auto set_ids_and_points = [&](const vtkIdType& edge_id, const vtkIdType& vol_id) -> void {
+      result->Points->SetPoint(edge_id, this->Points->GetPoint(vol_id));
+      result->PointIds->SetId(edge_id, this->PointIds->GetId(vol_id));
+    };
+    this->SetEdgeIdsAndPoints(edgeId, set_number_of_ids_and_points, set_ids_and_points);
+  }
+
   return result;
 }
 
@@ -90,6 +108,8 @@ void vtkBezierTriangle::SetRationalWeightsFromPointData(
       this->GetRationalWeights()->SetValue(i, v->GetTuple1(this->PointIds->GetId(i)));
     }
   }
+  else
+    this->GetRationalWeights()->Reset();
 }
 
 //----------------------------------------------------------------------------

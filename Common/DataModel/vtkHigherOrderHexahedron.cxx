@@ -62,21 +62,19 @@ void vtkHigherOrderHexahedron::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Approx: " << this->Approx << "\n";
 }
 
-void vtkHigherOrderHexahedron::GetEdgeWithoutRationalWeights(
-  vtkHigherOrderCurve* result, int edgeId)
+void vtkHigherOrderHexahedron::SetEdgeIdsAndPoints(int edgeId,
+  const std::function<void(const vtkIdType&)>& set_number_of_ids_and_points,
+  const std::function<void(const vtkIdType&, const vtkIdType&)>& set_ids_and_points)
 {
-  // vtkHigherOrderCurve* result = this->getEdgeCell();
   const int* order = this->GetOrder();
   int oi = vtkHigherOrderInterpolation::GetVaryingParameterOfHexEdge(edgeId);
   vtkVector2i eidx = vtkHigherOrderInterpolation::GetPointIndicesBoundingHexEdge(edgeId);
   vtkIdType npts = order[oi] + 1;
   int sn = 0;
-  result->Points->SetNumberOfPoints(npts);
-  result->PointIds->SetNumberOfIds(npts);
+  set_number_of_ids_and_points(npts);
   for (int i = 0; i < 2; ++i, ++sn)
   {
-    result->Points->SetPoint(sn, this->Points->GetPoint(eidx[i]));
-    result->PointIds->SetId(sn, this->PointIds->GetId(eidx[i]));
+    set_ids_and_points(sn, eidx[i]);
   }
   // Now add edge-interior points in axis order:
   int offset = 8;
@@ -94,13 +92,13 @@ void vtkHigherOrderHexahedron::GetEdgeWithoutRationalWeights(
   }
   for (int jj = 0; jj < order[oi] - 1; ++jj, ++sn)
   {
-    result->Points->SetPoint(sn, this->Points->GetPoint(offset + jj));
-    result->PointIds->SetId(sn, this->PointIds->GetId(offset + jj));
+    set_ids_and_points(sn, offset + jj);
   }
 }
 
-void vtkHigherOrderHexahedron::GetFaceWithoutRationalWeights(
-  vtkHigherOrderQuadrilateral* result, int faceId)
+void vtkHigherOrderHexahedron::SetFaceIdsAndPoints(vtkHigherOrderQuadrilateral* result, int faceId,
+  const std::function<void(const vtkIdType&)>& set_number_of_ids_and_points,
+  const std::function<void(const vtkIdType&, const vtkIdType&)>& set_ids_and_points)
 {
   if (faceId < 0 || faceId >= 6)
   {
@@ -114,8 +112,7 @@ void vtkHigherOrderHexahedron::GetFaceWithoutRationalWeights(
   vtkVector2i faceParams = vtkHigherOrderInterpolation::GetVaryingParametersOfHexFace(faceId);
   const int* corners = vtkHigherOrderInterpolation::GetPointIndicesBoundingHexFace(faceId);
   int npts = (order[faceParams[0]] + 1) * (order[faceParams[1]] + 1);
-  result->Points->SetNumberOfPoints(npts);
-  result->PointIds->SetNumberOfIds(npts);
+  set_number_of_ids_and_points(npts);
   result->SetOrder(order[faceParams[0]], order[faceParams[1]]);
 
   // Add vertex DOFs to result
@@ -124,16 +121,14 @@ void vtkHigherOrderHexahedron::GetFaceWithoutRationalWeights(
   {
     for (int ii = 0; ii < 4; ++ii, ++sn)
     {
-      result->Points->SetPoint(sn, this->Points->GetPoint(corners[ii]));
-      result->PointIds->SetId(sn, this->PointIds->GetId(corners[ii]));
+      set_ids_and_points(sn, corners[ii]);
     }
   }
   else
   {
     for (int ii = 0; ii < 4; ++ii, ++sn)
     {
-      result->Points->SetPoint((5 - sn) % 4, this->Points->GetPoint(corners[ii]));
-      result->PointIds->SetId((5 - sn) % 4, this->PointIds->GetId(corners[ii]));
+      set_ids_and_points((5 - sn) % 4, corners[ii]);
     }
   }
 
@@ -161,8 +156,7 @@ void vtkHigherOrderHexahedron::GetFaceWithoutRationalWeights(
       }
       for (int jj = 0; jj < order[pp] - 1; ++jj, ++sn)
       {
-        result->Points->SetPoint(sn, this->Points->GetPoint(offset + jj));
-        result->PointIds->SetId(sn, this->PointIds->GetId(offset + jj));
+        set_ids_and_points(sn, offset + jj);
       }
     }
     else
@@ -187,16 +181,14 @@ void vtkHigherOrderHexahedron::GetFaceWithoutRationalWeights(
       {
         for (int jj = 0; jj < order[pp] - 1; ++jj, ++sn)
         {
-          result->Points->SetPoint(sn, this->Points->GetPoint(offset + order[pp] - jj - 2));
-          result->PointIds->SetId(sn, this->PointIds->GetId(offset + order[pp] - jj - 2));
+          set_ids_and_points(sn, offset + order[pp] - jj - 2);
         }
       }
       else
       {
         for (int jj = 0; jj < order[pp] - 1; ++jj, ++sn)
         {
-          result->Points->SetPoint(sn, this->Points->GetPoint(offset + jj));
-          result->PointIds->SetId(sn, this->PointIds->GetId(offset + jj));
+          set_ids_and_points(sn, offset + jj);
         }
       }
     }
@@ -215,8 +207,7 @@ void vtkHigherOrderHexahedron::GetFaceWithoutRationalWeights(
     int nfdof = (order[faceParams[0]] - 1) * (order[faceParams[1]] - 1);
     for (int ii = 0; ii < nfdof; ++ii, ++sn)
     {
-      result->Points->SetPoint(sn, this->Points->GetPoint(offset + ii));
-      result->PointIds->SetId(sn, this->PointIds->GetId(offset + ii));
+      set_ids_and_points(sn, offset + ii);
     }
   }
   else
@@ -226,8 +217,7 @@ void vtkHigherOrderHexahedron::GetFaceWithoutRationalWeights(
     {
       for (int ii = delta - 1; ii >= 0; --ii, ++sn)
       {
-        result->Points->SetPoint(sn, this->Points->GetPoint(offset + ii + jj * delta));
-        result->PointIds->SetId(sn, this->PointIds->GetId(offset + ii + jj * delta));
+        set_ids_and_points(sn, offset + ii + jj * delta);
       }
     }
   }
