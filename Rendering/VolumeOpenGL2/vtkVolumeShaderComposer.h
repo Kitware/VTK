@@ -171,13 +171,18 @@ std::string BaseDeclarationFragment(vtkRenderer* vtkNotUsed(ren), vtkVolumeMappe
 
   toShaderStr << "uniform int in_noOfComponents;\n"
                  "\n"
-                 "uniform sampler2D in_noiseSampler;\n"
                  "#ifndef GL_ES\n"
                  "uniform sampler2D in_depthSampler;\n"
                  "#endif\n"
                  "\n"
                  "// Camera position\n"
                  "uniform vec3 in_cameraPos;\n";
+
+  vtkOpenGLGPUVolumeRayCastMapper* glMapper = vtkOpenGLGPUVolumeRayCastMapper::SafeDownCast(mapper);
+  if (glMapper->GetUseJittering())
+  {
+    toShaderStr << "uniform sampler2D in_noiseSampler;\n";
+  }
 
   // For multiple inputs (numInputs > 1), an additional transformation is
   // needed for the bounding-box.
@@ -239,7 +244,6 @@ std::string BaseDeclarationFragment(vtkRenderer* vtkNotUsed(ren), vtkVolumeMappe
                  "uniform float in_shininess[4];\n"
                  "\n"
                  "// Others\n"
-                 "uniform bool in_useJittering;\n"
                  "vec3 g_rayJitter = vec3(0.0);\n"
                  "\n"
                  "uniform vec2 in_averageIPRange;\n";
@@ -289,7 +293,6 @@ std::string BaseDeclarationFragment(vtkRenderer* vtkNotUsed(ren), vtkVolumeMappe
     toShaderStr << "uniform vec4 in_componentWeight;\n";
   }
 
-  vtkOpenGLGPUVolumeRayCastMapper* glMapper = vtkOpenGLGPUVolumeRayCastMapper::SafeDownCast(mapper);
   if (glMapper->GetCurrentPass() != vtkOpenGLGPUVolumeRayCastMapper::DepthPass &&
     glMapper->GetUseDepthPass())
   {
@@ -402,16 +405,21 @@ std::string BaseInit(vtkRenderer* vtkNotUsed(ren), vtkVolumeMapper* mapper,
   if (glMapper->GetBlendMode() != vtkVolumeMapper::SLICE_BLEND)
   {
     // Intersection is computed with g_rayOrigin, so we should not modify it with Slice mode
-    shaderStr += std::string("\
-        \n  if (in_useJittering)\
-        \n  {\
-        \n    float jitterValue = texture2D(in_noiseSampler, gl_FragCoord.xy / vec2(textureSize(in_noiseSampler, 0))).x;\
-        \n    g_rayJitter = g_dirStep * jitterValue;\
-        \n  }\
-        \n  else\
-        \n  {\
+    if (glMapper->GetUseJittering())
+    {
+      shaderStr += std::string("\
+          \n    float jitterValue = texture2D(in_noiseSampler, gl_FragCoord.xy /\
+                                              vec2(textureSize(in_noiseSampler, 0))).x;\
+          \n    g_rayJitter = g_dirStep * jitterValue;\
+          \n");
+    }
+    else
+    {
+      shaderStr += std::string("\
         \n    g_rayJitter = g_dirStep;\
-        \n  }\
+        \n");
+    }
+    shaderStr += std::string("\
         \n  g_rayOrigin += g_rayJitter;\
         \n");
   }

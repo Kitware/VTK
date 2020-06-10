@@ -3334,12 +3334,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetMapperShaderParameters(
     vtkOpenGLRenderWindow* win = static_cast<vtkOpenGLRenderWindow*>(ren->GetRenderWindow());
     prog->SetUniformi("in_noiseSampler", win->GetNoiseTextureUnit());
   }
-  else
-  {
-    prog->SetUniformi("in_noiseSampler", 0);
-  }
 
-  prog->SetUniformi("in_useJittering", this->Parent->UseJittering);
   prog->SetUniformi("in_noOfComponents", numComp);
   prog->SetUniformf("in_sampleDistance", this->ActualSampleDistance);
 
