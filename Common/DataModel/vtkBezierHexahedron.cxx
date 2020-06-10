@@ -47,40 +47,75 @@ void vtkBezierHexahedron::PrintSelf(ostream& os, vtkIndent indent)
 vtkCell* vtkBezierHexahedron::GetEdge(int edgeId)
 {
   vtkBezierCurve* result = EdgeCell;
-  this->GetEdgeWithoutRationalWeights(result, edgeId);
 
   if (this->GetRationalWeights()->GetNumberOfTuples() > 0)
   {
-    vtkIdType npts = result->Points->GetNumberOfPoints();
-    result->GetRationalWeights()->SetNumberOfTuples(npts);
-    for (vtkIdType i = 0; i < npts; i++)
-      result->GetRationalWeights()->SetValue(
-        i, this->GetRationalWeights()->GetValue(result->PointIds->GetId(i)));
+    const auto set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void {
+      result->Points->SetNumberOfPoints(npts);
+      result->PointIds->SetNumberOfIds(npts);
+      result->GetRationalWeights()->SetNumberOfTuples(npts);
+    };
+    const auto set_ids_and_points = [&](const vtkIdType& edge_id, const vtkIdType& vol_id) -> void {
+      result->Points->SetPoint(edge_id, this->Points->GetPoint(vol_id));
+      result->PointIds->SetId(edge_id, this->PointIds->GetId(vol_id));
+      result->GetRationalWeights()->SetValue(edge_id, this->GetRationalWeights()->GetValue(vol_id));
+    };
+    this->SetEdgeIdsAndPoints(edgeId, set_number_of_ids_and_points, set_ids_and_points);
   }
+  else
+  {
+    const auto set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void {
+      result->Points->SetNumberOfPoints(npts);
+      result->PointIds->SetNumberOfIds(npts);
+      result->GetRationalWeights()->Reset();
+    };
+    const auto set_ids_and_points = [&](const vtkIdType& edge_id, const vtkIdType& vol_id) -> void {
+      result->Points->SetPoint(edge_id, this->Points->GetPoint(vol_id));
+      result->PointIds->SetId(edge_id, this->PointIds->GetId(vol_id));
+    };
+    this->SetEdgeIdsAndPoints(edgeId, set_number_of_ids_and_points, set_ids_and_points);
+  }
+
   return result;
 }
 
 vtkCell* vtkBezierHexahedron::GetFace(int faceId)
 {
-  if (faceId < 0 || faceId >= 6)
-  {
-    return nullptr;
-  }
   vtkBezierQuadrilateral* result = FaceCell;
-  this->GetFaceWithoutRationalWeights(result, faceId);
+
   if (this->GetRationalWeights()->GetNumberOfTuples() > 0)
   {
-    vtkIdType npts = result->Points->GetNumberOfPoints();
-    result->GetRationalWeights()->SetNumberOfTuples(npts);
-    for (vtkIdType i = 0; i < npts; i++)
-      result->GetRationalWeights()->SetValue(
-        i, this->GetRationalWeights()->GetValue(result->PointIds->GetId(i)));
+    const auto set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void {
+      result->Points->SetNumberOfPoints(npts);
+      result->PointIds->SetNumberOfIds(npts);
+      result->GetRationalWeights()->SetNumberOfTuples(npts);
+    };
+    const auto set_ids_and_points = [&](const vtkIdType& face_id, const vtkIdType& vol_id) -> void {
+      result->Points->SetPoint(face_id, this->Points->GetPoint(vol_id));
+      result->PointIds->SetId(face_id, this->PointIds->GetId(vol_id));
+      result->GetRationalWeights()->SetValue(face_id, this->GetRationalWeights()->GetValue(vol_id));
+    };
+    this->SetFaceIdsAndPoints(result, faceId, set_number_of_ids_and_points, set_ids_and_points);
   }
+  else
+  {
+    const auto set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void {
+      result->Points->SetNumberOfPoints(npts);
+      result->PointIds->SetNumberOfIds(npts);
+      result->GetRationalWeights()->Reset();
+    };
+    const auto set_ids_and_points = [&](const vtkIdType& face_id, const vtkIdType& vol_id) -> void {
+      result->Points->SetPoint(face_id, this->Points->GetPoint(vol_id));
+      result->PointIds->SetId(face_id, this->PointIds->GetId(vol_id));
+    };
+    this->SetFaceIdsAndPoints(result, faceId, set_number_of_ids_and_points, set_ids_and_points);
+  }
+
   return result;
 }
 
-/**\brief EvaluateLocation Given a point_id. This is required by Bezier because the interior points
- * are non-interpolatory .
+/**\brief EvaluateLocation Given a point_id. This is required by Bezier because the interior
+ * points are non-interpolatory .
  */
 void vtkBezierHexahedron::EvaluateLocationProjectedNode(
   int& subId, const vtkIdType point_id, double x[3], double* weights)
@@ -150,7 +185,8 @@ void vtkBezierHexahedron::InterpolateFunctions(const double pcoords[3], double* 
 {
   vtkBezierInterpolation::Tensor3ShapeFunctions(this->GetOrder(), pcoords, weights);
 
-  // If the unit cell has rational weigths: weights_i = weights_i * rationalWeights / sum( weights_i
+  // If the unit cell has rational weigths: weights_i = weights_i * rationalWeights / sum(
+  // weights_i
   // * rationalWeights )
   const bool has_rational_weights = RationalWeights->GetNumberOfTuples() > 0;
   if (has_rational_weights)
@@ -188,6 +224,8 @@ void vtkBezierHexahedron::SetRationalWeightsFromPointData(
       this->GetRationalWeights()->SetValue(i, v->GetTuple1(this->PointIds->GetId(i)));
     }
   }
+  else
+    this->GetRationalWeights()->Reset();
 }
 
 vtkDoubleArray* vtkBezierHexahedron::GetRationalWeights()

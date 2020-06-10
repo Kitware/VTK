@@ -19,6 +19,8 @@
 #ifndef vtkHigherOrderQuadrilateral_h
 #define vtkHigherOrderQuadrilateral_h
 
+#include <functional> //For std::function
+
 #include "vtkCellType.h"              // For GetCellType.
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkNew.h"                   // For member variable.
@@ -48,7 +50,9 @@ public:
   int GetNumberOfFaces() override { return 0; }
   vtkCell* GetEdge(int edgeId) override = 0;
   vtkCell* GetFace(int vtkNotUsed(faceId)) override { return nullptr; }
-  void GetEdgeWithoutRationalWeights(vtkHigherOrderCurve* result, int edgeId);
+  void SetEdgeIdsAndPoints(int edgeId,
+    const std::function<void(const vtkIdType&)>& set_number_of_ids_and_points,
+    const std::function<void(const vtkIdType&, const vtkIdType&)>& set_ids_and_points);
 
   void Initialize() override;
 

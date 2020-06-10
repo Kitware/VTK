@@ -60,8 +60,9 @@ void vtkHigherOrderQuadrilateral::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Approx: " << this->Approx << "\n";
 }
 
-void vtkHigherOrderQuadrilateral::GetEdgeWithoutRationalWeights(
-  vtkHigherOrderCurve* result, int edgeId)
+void vtkHigherOrderQuadrilateral::SetEdgeIdsAndPoints(int edgeId,
+  const std::function<void(const vtkIdType&)>& set_number_of_ids_and_points,
+  const std::function<void(const vtkIdType&, const vtkIdType&)>& set_ids_and_points)
 {
   const int* order = this->GetOrder();
   // Note in calls below: quad has same edges as first 4 of hex
@@ -69,12 +70,11 @@ void vtkHigherOrderQuadrilateral::GetEdgeWithoutRationalWeights(
   vtkVector2i eidx = vtkHigherOrderInterpolation::GetPointIndicesBoundingHexEdge(edgeId);
   vtkIdType npts = order[oi] + 1;
   int sn = 0;
-  result->Points->SetNumberOfPoints(npts);
-  result->PointIds->SetNumberOfIds(npts);
+
+  set_number_of_ids_and_points(npts);
   for (int i = 0; i < 2; ++i, ++sn)
   {
-    result->Points->SetPoint(sn, this->Points->GetPoint(eidx[i]));
-    result->PointIds->SetId(sn, this->PointIds->GetId(eidx[i]));
+    set_ids_and_points(sn, eidx[i]);
   }
   // Now add edge-interior points in axis order:
   int offset = 4;
@@ -84,8 +84,7 @@ void vtkHigherOrderQuadrilateral::GetEdgeWithoutRationalWeights(
   }
   for (int jj = 0; jj < order[oi] - 1; ++jj, ++sn)
   {
-    result->Points->SetPoint(sn, this->Points->GetPoint(offset + jj));
-    result->PointIds->SetId(sn, this->PointIds->GetId(offset + jj));
+    set_ids_and_points(sn, offset + jj);
   }
 }
 

@@ -34,6 +34,8 @@
 #ifndef vtkHigherOrderWedge_h
 #define vtkHigherOrderWedge_h
 
+#include <functional> //For std::function
+
 #include "vtkCellType.h"              // For GetCellType.
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkNew.h"                   // For member variable.
@@ -65,9 +67,10 @@ public:
   int GetNumberOfEdges() override { return 9; }
   int GetNumberOfFaces() override { return 5; }
   vtkCell* GetEdge(int edgeId) override = 0;
-  void GetEdgeWithoutRationalWeights(vtkHigherOrderCurve* result, int edgeId);
+  void SetEdgeIdsAndPoints(int edgeId,
+    const std::function<void(const vtkIdType&)>& set_number_of_ids_and_points,
+    const std::function<void(const vtkIdType&, const vtkIdType&)>& set_ids_and_points);
   vtkCell* GetFace(int faceId) override = 0;
-  vtkCell* GetFaceWithoutRationalWeights(int faceId);
 
   void Initialize() override;
 
@@ -129,8 +132,12 @@ protected:
   vtkWedge* GetApproximateWedge(
     int subId, vtkDataArray* scalarsIn = nullptr, vtkDataArray* scalarsOut = nullptr);
 
-  vtkHigherOrderTriangle* GetTriangularFace(int iAxis, int k);
-  vtkHigherOrderQuadrilateral* GetQuadrilateralFace(int di, int dj);
+  void GetTriangularFace(vtkHigherOrderTriangle* result, int faceId,
+    const std::function<void(const vtkIdType&)>& set_number_of_ids_and_points,
+    const std::function<void(const vtkIdType&, const vtkIdType&)>& set_ids_and_points);
+  void GetQuadrilateralFace(vtkHigherOrderQuadrilateral* result, int faceId,
+    const std::function<void(const vtkIdType&)>& set_number_of_ids_and_points,
+    const std::function<void(const vtkIdType&, const vtkIdType&)>& set_ids_and_points);
 
   int Order[4];
   vtkSmartPointer<vtkPoints> PointParametricCoordinates;
