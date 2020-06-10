@@ -37,7 +37,8 @@ public:
   void load_variable_data(vtkMultiBlockDataSet* grid, vtkDataArraySelection* cellSelection);
 
   int GetNumberOfTimeSteps() { return this->numberOfTimeSteps; }
-  double GetTimeStep(int step) { return this->timeSteps[step]; }
+  double GetSimulationTime(int step) { return this->SimulationTime[step]; }
+  double GetCycleIndex(int step) { return this->CycleIndex[step]; }
 
   int GetNumberOfVariables() { return (int)this->variableName.size(); }
   const char* GetVariableName(int indx) { return this->variableName[indx].c_str(); }
@@ -124,10 +125,12 @@ protected:
   std::string descFileName;  // name.pio
   std::string dumpDirectory; // directory holding dumps
   std::string dumpBaseName;  // base name to use for dumps
-
   std::vector<std::string> dumpFileName;
+
+  // Time step information
   int numberOfTimeSteps;
-  double* timeSteps;
+  double* CycleIndex;     // Times as cycle index
+  double* SimulationTime; // Times as simulation time
 
   // Type of block structures to create within multiblock dataset
   bool useHTG;

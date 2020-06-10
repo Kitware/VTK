@@ -28,6 +28,7 @@
 
 #include "vtkIOPIOModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
+#include "vtkStdString.h"
 
 class vtkCallbackCommand;
 class vtkDataArraySelection;
@@ -35,6 +36,7 @@ class vtkFloatArray;
 class vtkInformation;
 class vtkMultiBlockDataSet;
 class vtkMultiProcessController;
+class vtkStringArray;
 class vtkStdString;
 
 class PIOAdaptor;
@@ -109,6 +111,25 @@ public:
   void EnableAllCellArrays();
   //@}
 
+  //@{
+  /**
+   * Getters for time data array candidates.
+   */
+  int GetNumberOfTimeDataArrays() const;
+  const char* GetTimeDataArray(int idx) const;
+  vtkGetObjectMacro(TimeDataStringArray, vtkStringArray);
+  //@}
+
+  //@{
+  /**
+   * Setter / Getter on ActiveTimeDataArrayName. This string
+   * holds the selected time array name. If set to `nullptr`,
+   * time values are the sequence of positive integers starting at zero.
+   */
+  vtkGetStringMacro(ActiveTimeDataArrayName);
+  vtkSetStringMacro(ActiveTimeDataArrayName);
+  //@}
+
 protected:
   vtkPIOReader();
   ~vtkPIOReader() override;
@@ -136,6 +157,13 @@ protected:
 
   // Selected field of interest
   vtkDataArraySelection* CellDataArraySelection;
+
+  // Time array selection
+  vtkStringArray* TimeDataStringArray;
+
+  // Active index of array used for time. If no time array is used, value should be -1.
+  char* ActiveTimeDataArrayName;
+  vtkStdString CurrentTimeDataArrayName;
 
   // Observer to modify this object when array selections are modified
   vtkCallbackCommand* SelectionObserver;

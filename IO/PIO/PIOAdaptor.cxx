@@ -52,7 +52,7 @@ double maxLoc[3];
 // Global geometry information from dump file
 std::valarray<int64_t> daughter;
 
-// Used in load balancing of unstructure grid
+// Used in load balancing of unstructured grid
 int firstCell;
 int lastCell;
 
@@ -82,7 +82,8 @@ PIOAdaptor::~PIOAdaptor()
 {
   if (this->pioData != 0)
     delete this->pioData;
-  delete[] this->timeSteps;
+  delete[] this->CycleIndex;
+  delete[] this->SimulationTime;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -227,7 +228,6 @@ int PIOAdaptor::initializeGlobal(const char* PIOFileName)
   if (dir->Open(this->dumpDirectory.c_str()) != false)
   {
     numFiles = dir->GetNumberOfFiles();
-    this->timeSteps = new double[numFiles];
     this->numberOfTimeSteps = 0;
     for (unsigned int i = 0; i < numFiles; i++)
     {
@@ -256,7 +256,7 @@ int PIOAdaptor::initializeGlobal(const char* PIOFileName)
         if (*p == 0)
         {
           time = std::stod(timeStr);
-          this->timeSteps[this->numberOfTimeSteps++] = time;
+          this->numberOfTimeSteps++;
           ostringstream tempStr;
           tempStr << dumpDirectory << Slash << fileCandidate[i];
           this->dumpFileName.push_back(tempStr.str());
@@ -278,10 +278,25 @@ int PIOAdaptor::initializeGlobal(const char* PIOFileName)
   /////////////////////////////////////////////////////////////////////////////
   //
   // Collect variables having a value for every cell from dump file
+  // Collect simulation time and cycle for every dump file from the last PIO file
+  // Last PIO file has collected history information from entire run
   //
-  this->pioData = new PIO_DATA(this->dumpFileName[0].c_str());
+  this->pioData = new PIO_DATA(this->dumpFileName[numberOfTimeSteps - 1].c_str());
   if (this->pioData->good_read())
   {
+    // Collect all of the simulation times and cycles for entire run
+    std::valarray<double> histCycle;
+    std::valarray<double> histTime;
+    this->pioData->set_scalar_field(histCycle, "hist_cycle");
+    this->pioData->set_scalar_field(histTime, "hist_time");
+    this->CycleIndex = new double[numberOfTimeSteps];
+    this->SimulationTime = new double[numberOfTimeSteps];
+    for (int step = 0; step < numberOfTimeSteps; step++)
+    {
+      this->CycleIndex[step] = histCycle[step];
+      this->SimulationTime[step] = histTime[step];
+    }
+
     // Get the number of cells in dump file for this time step
     std::valarray<int> histsize;
     this->pioData->set_scalar_field(histsize, "hist_size");
@@ -564,22 +579,6 @@ void PIOAdaptor::create_geometry(vtkMultiBlockDataSet* grid)
   this->pioData->GetPIOData("hist_prbnm", cdata);
   vtkStdString problem_name(cdata);
 
-  // Add FieldData array for cycle number
-  vtkNew<vtkIntArray> cycleArray;
-  cycleArray->SetName("cycle_index");
-  cycleArray->SetNumberOfComponents(1);
-  cycleArray->SetNumberOfTuples(1);
-  cycleArray->SetTuple1(0, (int)simCycle[curIndex]);
-  grid->GetFieldData()->AddArray(cycleArray);
-
-  // Add FieldData array for simulation time
-  vtkNew<vtkFloatArray> simTimeArray;
-  simTimeArray->SetName("simulated_time");
-  simTimeArray->SetNumberOfComponents(1);
-  simTimeArray->SetNumberOfTuples(1);
-  simTimeArray->SetTuple1(0, simTime[curIndex]);
-  grid->GetFieldData()->AddArray(simTimeArray);
-
   // Add FieldData array for version number
   vtkNew<vtkStringArray> versionArray;
   versionArray->SetName("eap_version");
@@ -597,6 +596,22 @@ void PIOAdaptor::create_geometry(vtkMultiBlockDataSet* grid)
   probNameArray->SetName("problem_name");
   probNameArray->InsertNextValue(problem_name);
   grid->GetFieldData()->AddArray(probNameArray);
+
+  // Add FieldData array for cycle number
+  vtkNew<vtkDoubleArray> cycleArray;
+  cycleArray->SetName("CycleIndex");
+  cycleArray->SetNumberOfComponents(1);
+  cycleArray->SetNumberOfTuples(1);
+  cycleArray->SetTuple1(0, simCycle[curIndex]);
+  grid->GetFieldData()->AddArray(cycleArray);
+
+  // Add FieldData array for simulation time
+  vtkNew<vtkDoubleArray> simTimeArray;
+  simTimeArray->SetName("SimulationTime");
+  simTimeArray->SetNumberOfComponents(1);
+  simTimeArray->SetNumberOfTuples(1);
+  simTimeArray->SetTuple1(0, simTime[curIndex]);
+  grid->GetFieldData()->AddArray(simTimeArray);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
