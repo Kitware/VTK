@@ -81,6 +81,7 @@ set (VolumeCxxTests
   TestProjectedTetrahedraTransform.cxx
   TestRemoveVolumeNonCurrentContext.cxx
   TestSmartVolumeMapper.cxx
+  TestSmartVolumeMapperVolumeUpdate.cxx
   TestSmartVolumeMapperWindowLevel.cxx
   )
 
