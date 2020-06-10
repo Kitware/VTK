@@ -63,8 +63,9 @@
 #ifndef vtkXMLHyperTreeGridWriter_h
 #define vtkXMLHyperTreeGridWriter_h
 
-#include "vtkBitArray.h"    // For ivar
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkBitArray.h"     // For ivar
+#include "vtkIOXMLModule.h"  // For export macro
+#include "vtkSmartPointer.h" // For internal attributes
 #include "vtkXMLWriter.h"
 
 #include <vector> // std::vector
@@ -142,16 +143,16 @@ protected:
   int FinishPrimaryElement(vtkIndent);
 
   // Descriptors for individual hypertrees
-  std::vector<vtkBitArray*> Descriptors;
+  std::vector<vtkSmartPointer<vtkBitArray>> Descriptors;
 
   // Descriptors for individual hypertrees
-  std::vector<vtkTypeInt64Array*> NbVerticesByLevels;
+  std::vector<vtkSmartPointer<vtkTypeInt64Array>> NbVerticesByLevels;
 
   // Masks for individual hypertrees
-  std::vector<vtkBitArray*> Masks;
+  std::vector<vtkSmartPointer<vtkBitArray>> Masks;
 
   // Ids (index selection) for individual hypertrees
-  std::vector<vtkIdList*> Ids;
+  std::vector<vtkSmartPointer<vtkIdList>> Ids;
 
   // Helper to simplify writing appended array data
   void WriteAppendedArrayDataHelper(vtkAbstractArray* array, OffsetsManager& offsets);
