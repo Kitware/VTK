@@ -28,9 +28,11 @@
 #include "vtkIOXMLModule.h" // For export macro
 
 #include <string> // for std::string
+#include <vector>
 
 class vtkAbstractArray;
 class vtkCallbackCommand;
+class vtkCommand;
 class vtkDataArraySelection;
 class vtkDataSet;
 class vtkDataSetAttributes;
@@ -38,7 +40,7 @@ class vtkXMLDataElement;
 class vtkXMLDataParser;
 class vtkInformationVector;
 class vtkInformation;
-class vtkCommand;
+class vtkStringArray;
 
 class VTKIOXML_EXPORT vtkXMLReader : public vtkAlgorithm
 {
@@ -109,7 +111,27 @@ public:
 
   //@{
   /**
-   * Get the name of the point, cell or column array with the given index in
+   * Getters for time data array candidates.
+   */
+  int GetNumberOfTimeDataArrays() const;
+  const char* GetTimeDataArray(int idx) const;
+  vtkGetObjectMacro(TimeDataStringArray, vtkStringArray);
+  //@}
+
+  //@{
+  /**
+   * Setter / Getter on ActiveTimeDataArrayName. This string
+   * holds the selected time array name. If set to `nullptr`,
+   * time values are the sequence of positive integers starting at zero.
+   * Default value is `TimeValue` for legacy reasons.
+   */
+  vtkGetStringMacro(ActiveTimeDataArrayName);
+  vtkSetStringMacro(ActiveTimeDataArrayName);
+  //@}
+
+  //@{
+  /**
+   * Get the name of the point, cell, column or time array with the given index in
    * the input.
    */
   const char* GetPointArrayName(int index);
@@ -119,7 +141,7 @@ public:
 
   //@{
   /**
-   * Get/Set whether the point, cell or column array with the given name is to
+   * Get/Set whether the point, cell, column or time array with the given name is to
    * be read.
    */
   int GetPointArrayStatus(const char* name);
@@ -316,6 +338,12 @@ protected:
   vtkDataArraySelection* PointDataArraySelection;
   vtkDataArraySelection* CellDataArraySelection;
   vtkDataArraySelection* ColumnArraySelection;
+  vtkStringArray* TimeDataStringArray;
+
+  /**
+   * Active index of array used for time. If no time array is used, its value should be -1.
+   */
+  char* ActiveTimeDataArrayName;
 
   // The observer to modify this object when the array selections are
   // modified.

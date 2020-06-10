@@ -38,6 +38,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkQuadratureSchemeDefinition.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringArray.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
 #include "vtkXMLFileReadTester.h"
@@ -143,6 +144,7 @@ vtkXMLReader::vtkXMLReader()
   this->PointDataArraySelection = vtkDataArraySelection::New();
   this->CellDataArraySelection = vtkDataArraySelection::New();
   this->ColumnArraySelection = vtkDataArraySelection::New();
+  this->TimeDataStringArray = vtkStringArray::New();
   this->InformationError = 0;
   this->DataError = 0;
   this->ReadError = 0;
@@ -157,6 +159,9 @@ vtkXMLReader::vtkXMLReader()
   this->PointDataArraySelection->AddObserver(vtkCommand::ModifiedEvent, this->SelectionObserver);
   this->CellDataArraySelection->AddObserver(vtkCommand::ModifiedEvent, this->SelectionObserver);
   this->ColumnArraySelection->AddObserver(vtkCommand::ModifiedEvent, this->SelectionObserver);
+  this->ActiveTimeDataArrayName = nullptr;
+  this->SetActiveTimeDataArrayName("TimeValue");
+
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
 
@@ -197,6 +202,8 @@ vtkXMLReader::~vtkXMLReader()
   this->CellDataArraySelection->Delete();
   this->PointDataArraySelection->Delete();
   this->ColumnArraySelection->Delete();
+  this->TimeDataStringArray->Delete();
+  this->SetActiveTimeDataArrayName(nullptr);
   if (this->ReaderErrorObserver)
   {
     this->ReaderErrorObserver->Delete();
@@ -216,6 +223,7 @@ void vtkXMLReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CellDataArraySelection: " << this->CellDataArraySelection << "\n";
   os << indent << "PointDataArraySelection: " << this->PointDataArraySelection << "\n";
   os << indent << "ColumnArraySelection: " << this->PointDataArraySelection << "\n";
+  os << indent << "TimeDataStringArray: " << this->TimeDataStringArray << "\n";
   if (this->Stream)
   {
     os << indent << "Stream: " << this->Stream << "\n";
@@ -225,6 +233,8 @@ void vtkXMLReader::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Stream: (none)\n";
   }
   os << indent << "TimeStep:" << this->TimeStep << "\n";
+  os << indent << "ActiveTimeDataArrayName:"
+     << (this->ActiveTimeDataArrayName ? this->ActiveTimeDataArrayName : "(null)") << "\n";
   os << indent << "NumberOfTimeSteps:" << this->NumberOfTimeSteps << "\n";
   os << indent << "TimeStepRange:(" << this->TimeStepRange[0] << "," << this->TimeStepRange[1]
      << ")\n";
@@ -515,29 +525,45 @@ int vtkXMLReader::ReadXMLInformation()
 
     if (this->FieldDataElement) // read the field data information
     {
+      bool foundTimeData = false;
+      this->TimeDataStringArray->Initialize();
       for (int i = 0; i < this->FieldDataElement->GetNumberOfNestedElements(); i++)
       {
         vtkXMLDataElement* eNested = this->FieldDataElement->GetNestedElement(i);
         const char* name = eNested->GetAttribute("Name");
-        if (name && strncmp(name, "TimeValue", 9) == 0)
+        if (name)
         {
           vtkAbstractArray* array = this->CreateArray(eNested);
-          array->SetNumberOfTuples(1);
-          if (!this->ReadArrayValues(eNested, 0, array, 0, 1))
+          if (array->IsNumeric())
           {
-            this->DataError = 1;
-          }
-          vtkDataArray* da = vtkDataArray::SafeDownCast(array);
-          if (da)
-          {
-            double val = da->GetComponent(0, 0);
-            vtkInformation* info = this->GetCurrentOutputInformation();
-            info->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &val, 1);
-            double range[2] = { val, val };
-            info->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), range, 2);
+            array->SetNumberOfTuples(1);
+            if (!this->ReadArrayValues(eNested, 0, array, 0, 1))
+            {
+              this->DataError = 1;
+            }
+            vtkDataArray* da = vtkDataArray::SafeDownCast(array);
+            if (da)
+            {
+              this->TimeDataStringArray->InsertNextValue(name);
+              if (this->ActiveTimeDataArrayName && !strcmp(name, this->ActiveTimeDataArrayName))
+              {
+                double val = da->GetComponent(0, 0);
+                vtkInformation* info = this->GetCurrentOutputInformation();
+                info->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &val, 1);
+                double range[2] = { val, val };
+                info->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), range, 2);
+                foundTimeData = true;
+              }
+            }
           }
           array->Delete();
         }
+      }
+      if (!foundTimeData)
+      {
+        vtkInformation* info = this->GetCurrentOutputInformation();
+        info->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+        info->Remove(vtkStreamingDemandDrivenPipeline::TIME_RANGE());
       }
     }
 
@@ -1805,6 +1831,22 @@ void vtkXMLReader::SetColumnArrayStatus(const char* name, int status)
   {
     this->ColumnArraySelection->DisableArray(name);
   }
+}
+
+//----------------------------------------------------------------------------
+int vtkXMLReader::GetNumberOfTimeDataArrays() const
+{
+  return static_cast<int>(this->TimeDataStringArray->GetNumberOfValues());
+}
+
+//----------------------------------------------------------------------------
+const char* vtkXMLReader::GetTimeDataArray(int idx) const
+{
+  if (idx < 0 || idx > static_cast<int>(this->TimeDataStringArray->GetNumberOfValues()))
+  {
+    vtkErrorMacro("Invalid index for 'GetTimeDataArray': " << idx);
+  }
+  return this->TimeDataStringArray->GetValue(idx);
 }
 
 //----------------------------------------------------------------------------

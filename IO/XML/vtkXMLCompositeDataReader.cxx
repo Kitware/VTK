@@ -29,6 +29,7 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringArray.h"
 #include "vtkUniformGrid.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"

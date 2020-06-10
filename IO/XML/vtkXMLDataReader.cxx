@@ -48,6 +48,7 @@ vtkXMLDataReader::vtkXMLDataReader()
   this->NumberOfPieces = 0;
   this->PointDataElements = nullptr;
   this->CellDataElements = nullptr;
+  this->TimeDataElements = nullptr;
   this->Piece = 0;
   this->NumberOfPointArrays = 0;
   this->NumberOfCellArrays = 0;
@@ -220,11 +221,13 @@ void vtkXMLDataReader::SetupPieces(int numPieces)
   {
     this->PointDataElements = new vtkXMLDataElement*[numPieces];
     this->CellDataElements = new vtkXMLDataElement*[numPieces];
+    this->TimeDataElements = new vtkXMLDataElement*[numPieces];
   }
   for (int i = 0; i < this->NumberOfPieces; ++i)
   {
     this->PointDataElements[i] = nullptr;
     this->CellDataElements[i] = nullptr;
+    this->TimeDataElements[i] = nullptr;
   }
 }
 
@@ -233,8 +236,10 @@ void vtkXMLDataReader::DestroyPieces()
 {
   delete[] this->PointDataElements;
   delete[] this->CellDataElements;
+  delete[] this->TimeDataElements;
   this->PointDataElements = nullptr;
   this->CellDataElements = nullptr;
+  this->TimeDataElements = nullptr;
   this->NumberOfPieces = 0;
 }
 
