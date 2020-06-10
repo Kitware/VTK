@@ -81,8 +81,6 @@ public:
 protected:
   vtkBezierWedge();
   ~vtkBezierWedge() override;
-  vtkBezierTriangle* GetTriangularFace(int iAxis, int k);
-  vtkBezierQuadrilateral* GetQuadrilateralFace(int di, int dj);
 
   vtkNew<vtkDoubleArray> RationalWeights;
   vtkNew<vtkBezierQuadrilateral> BdyQuad;
