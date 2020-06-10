@@ -472,18 +472,22 @@ std::string BaseExit(
 std::string ComputeGradientOpacity1DDecl(vtkVolume* vol, int noOfComponents,
   int independentComponents, std::map<int, std::string> gradientTableMap)
 {
+  auto volProperty = vol->GetProperty();
   std::ostringstream ss;
-  ss << "uniform sampler2D " << ArrayBaseName(gradientTableMap[0]) << "[" << noOfComponents
-     << "];\n";
-  bool useLabelGradientOpacity = (vol->GetProperty()->HasLabelGradientOpacity() &&
-    (noOfComponents == 1 || !independentComponents));
+  if (volProperty->HasGradientOpacity())
+  {
+    ss << "uniform sampler2D " << ArrayBaseName(gradientTableMap[0]) << "[" << noOfComponents
+       << "];\n";
+  }
+  bool useLabelGradientOpacity =
+    (volProperty->HasLabelGradientOpacity() && (noOfComponents == 1 || !independentComponents));
   if (useLabelGradientOpacity)
   {
     ss << "uniform sampler2D in_labelMapGradientOpacity;\n";
   }
 
   std::string shaderStr = ss.str();
-  if (vol->GetProperty()->HasGradientOpacity() && (noOfComponents == 1 || !independentComponents))
+  if (volProperty->HasGradientOpacity() && (noOfComponents == 1 || !independentComponents))
   {
     shaderStr += std::string("\
         \nfloat computeGradientOpacity(vec4 grad)\
@@ -492,7 +496,7 @@ std::string ComputeGradientOpacity1DDecl(vtkVolume* vol, int noOfComponents,
       gradientTableMap[0] + ", vec2(grad.w, 0.0)).r;\
         \n  }");
   }
-  else if (noOfComponents > 1 && independentComponents && vol->GetProperty()->HasGradientOpacity())
+  else if (noOfComponents > 1 && independentComponents && volProperty->HasGradientOpacity())
   {
     shaderStr += std::string("\
         \nfloat computeGradientOpacity(vec4 grad, int component)\
