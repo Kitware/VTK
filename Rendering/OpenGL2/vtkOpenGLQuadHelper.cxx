@@ -68,7 +68,7 @@ vtkOpenGLQuadHelper::vtkOpenGLQuadHelper(
   if (!res)
   {
     this->VAO->Release();
-    vtkGenericWarningMacro("Error binding texCoords to VAO.");
+    vtkGenericWarningMacro("Error binding texCoordIn to VAO.");
     return;
   }
 

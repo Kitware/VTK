@@ -79,12 +79,7 @@ void vtkExternalOpenGLRenderWindow::Start(void)
 
   if (this->UseExternalContent)
   {
-    const int destExtents[4] = { 0, this->Size[0], 0, this->Size[1] };
-    this->RenderFramebuffer->Bind(GL_DRAW_FRAMEBUFFER);
-    this->GetState()->vtkglViewport(0, 0, this->Size[0], this->Size[1]);
-    this->GetState()->vtkglScissor(0, 0, this->Size[0], this->Size[1]);
-    vtkOpenGLFramebufferObject::Blit(
-      destExtents, destExtents, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+    this->BlitToRenderFramebuffer(true);
   }
 
   this->RenderFramebuffer->Bind();

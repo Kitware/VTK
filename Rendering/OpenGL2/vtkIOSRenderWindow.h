@@ -359,7 +359,7 @@ protected:
   void CreateGLContext();
 
   // blits the display buffers to the appropriate hardware buffers
-  void BlitDisplayBuffersToHardware() override;
+  void BlitDisplayFramebuffersToHardware() override;
 
   void CreateAWindow() override;
   void DestroyWindow() override;

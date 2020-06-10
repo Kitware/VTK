@@ -38,6 +38,7 @@ class vtkIdList;
 class vtkOpenGLBufferObject;
 class vtkOpenGLFramebufferObject;
 class vtkOpenGLHardwareSupport;
+class vtkOpenGLQuadHelper;
 class vtkOpenGLShaderCache;
 class vtkOpenGLVertexBufferObjectCache;
 class vtkOpenGLVertexArrayObject;
@@ -231,9 +232,11 @@ public:
 
   //@{
   /**
-   * Returns the render framebuffer object
+   * Returns the render framebuffer object.
    */
   vtkGetObjectMacro(RenderFramebuffer, vtkOpenGLFramebufferObject);
+  VTK_DEPRECATED_IN_9_1_0("Removed in 9.1")
+  vtkOpenGLFramebufferObject* GetOffScreenFramebuffer() { return this->RenderFramebuffer; }
   //@}
 
   /**
@@ -404,15 +407,25 @@ public:
   void ReleaseGraphicsResources(vtkWindow*) override;
 
   /**
-   * Blit a display buffer into a currently bound draw destination
+   * Blit a display framebuffer into a currently bound draw destination
    */
-  void BlitDisplayBuffer();
+  void BlitDisplayFramebuffer();
 
   /**
    * Blit a display buffer into a currently bound draw destination
    */
-  void BlitDisplayBuffer(int right, int srcX, int srcY, int srcWidth, int srcHeight, int destX,
+  void BlitDisplayFramebuffer(int right, int srcX, int srcY, int srcWidth, int srcHeight, int destX,
     int destY, int destWidth, int destHeight, int bufferMode, int interpolation);
+
+  //@{
+  /**
+   * Blit the currently bound read buffer to the renderbuffer. This is useful for
+   * taking rendering from an external system and then having VTK draw on top of it.
+   */
+  void BlitToRenderFramebuffer(bool includeDepth);
+  void BlitToRenderFramebuffer(int srcX, int srcY, int srcWidth, int srcHeight, int destX,
+    int destY, int destWidth, int destHeight, int bufferMode, int interpolation);
+  //@}
 
   /**
    * Define how the resulting image should be blitted when at the end of the Frame() call if
@@ -442,10 +455,13 @@ protected:
   ~vtkOpenGLRenderWindow() override;
 
   // blits the display buffers to the appropriate hardware buffers
-  virtual void BlitDisplayBuffersToHardware();
+  virtual void BlitDisplayFramebuffersToHardware();
 
   // when frame is called, at the end blit to the hardware buffers
   FrameBlitModes FrameBlitMode;
+
+  // a FSQ we use to resolve MSAA that handles gamma
+  vtkOpenGLQuadHelper* ResolveQuad;
 
   // used in testing for opengl support
   // in the SupportsOpenGL() method

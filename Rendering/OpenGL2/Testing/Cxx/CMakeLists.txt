@@ -81,6 +81,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestValuePassFloatingPoint.cxx
   TestVBOPLYMapper.cxx
   TestVBOPointsLines.cxx
+  TestWindowBlits.cxx
   UnitTestOpenGLUniforms.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   )
 

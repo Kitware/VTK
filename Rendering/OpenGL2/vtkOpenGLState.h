@@ -339,31 +339,55 @@ public:
   int GetDefaultTextureInternalFormat(
     int vtktype, int numComponents, bool needInteger, bool needFloat, bool needSRGB);
 
-  // Get the current stored state of the draw buffer and binding
+  /**
+   * Get the current stored state of the draw buffer and binding
+   */
   void GetCurrentDrawFramebufferState(unsigned int& drawBinding, unsigned int& drawBuffer);
 
-  // Record the OpenGL state into this class. Lots of get calls so probably
-  // a pipeline stall. This method is most useful when integrating VTK with
-  // something else that touches OpenGL such as a GUI library or external
-  // OpenGL code. As OpenGL has a lot of state it is easy for VTK and
-  // external libraries to interfere with each other by changing that state.
-  // When extrnal code is calling VTK you would typically call Reset()
-  // Push() Pop() Reset will record the current state from OpenGL. Push
-  // saves it on the stack. Pop pops it from the stack and reapplies it to
-  // OpenGL so that the state is the same as when Pushed. Note that OpenGL
-  // has an incredible amount of state. This class only handles the values
-  // that VTK is known to touch. If you find other values that need saving
-  // please feel free to report an issue or provide an MR.
+  /**
+   * Record the OpenGL state into this class. Lots of get calls so probably
+   * a pipeline stall. This method is most useful when integrating VTK with
+   * something else that touches OpenGL such as a GUI library or external
+   * OpenGL code. As OpenGL has a lot of state it is easy for VTK and
+   * external libraries to interfere with each other by changing that state.
+   * When extrnal code is calling VTK you would typically call Reset()
+   * Push() Pop() Reset will record the current state from OpenGL. Push
+   * saves it on the stack. Pop pops it from the stack and reapplies it to
+   * OpenGL so that the state is the same as when Pushed. Note that OpenGL
+   * has an incredible amount of state. This class only handles the values
+   * that VTK is known to touch. If you find other values that need saving
+   * please feel free to report an issue or provide an MR.
+   */
   void Reset();
 
-  // Push all the recorded state onto the stack. Typically called after a
-  // Reset. Not generally used internally in VTK as it is rarely required to
-  // save more than a couple state settings within VTKs render process.
+  /**
+   * Push all the recorded state onto the stack. Typically called after a
+   * Reset. Not generally used internally in VTK as it is rarely required to
+   * save more than a couple state settings within VTKs render process.
+   */
   void Push();
 
-  // Pop the state stack to restore a previous state. At the end of this
-  // method OpenGL state will be set to the new popped state.
+  /**
+   *  Pop the state stack to restore a previous state. At the end of this
+   *  method OpenGL state will be set to the new popped state.
+   */
   void Pop();
+
+  /**
+   * Return the opengl version for this context
+   */
+  std::string const& GetVersion() { return this->Version; }
+
+  /**
+   * Return the opengl vendor for this context
+   */
+  std::string const& GetVendor() { return this->Vendor; }
+
+  /**
+   * Return the opengl renderer for this context. Note this is
+   * the renderer opengl property, not a vtk renderer.
+   */
+  std::string const& GetRenderer() { return this->Renderer; }
 
 protected:
   vtkOpenGLState(); // set initial values
@@ -412,6 +436,9 @@ protected:
   int MajorVersion;
   int MinorVersion;
   int MaxTextureSize;
+  std::string Vendor;
+  std::string Renderer;
+  std::string Version;
 
   class VTKRENDERINGOPENGL2_EXPORT GLState
   {

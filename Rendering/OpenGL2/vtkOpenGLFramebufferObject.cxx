@@ -872,6 +872,16 @@ void vtkOpenGLFramebufferObject::AddDepthAttachment(vtkRenderbuffer* rb)
   this->AttachDepthBuffer();
 }
 
+vtkTextureObject* vtkOpenGLFramebufferObject::GetColorAttachmentAsTextureObject(unsigned int index)
+{
+  foIter i = this->ColorBuffers.find(index);
+  if (i != this->ColorBuffers.end())
+  {
+    return i->second->Texture;
+  }
+  return nullptr;
+}
+
 void vtkOpenGLFramebufferObject::AddColorAttachment(unsigned int index, vtkTextureObject* tex,
   unsigned int zslice, unsigned int format, unsigned int mipmapLevel)
 {
