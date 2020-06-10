@@ -3318,7 +3318,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetVolumeShaderParameters(
 
 ////----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetMapperShaderParameters(
-  vtkShaderProgram* prog, vtkRenderer* ren, int independent, int numComp)
+  vtkShaderProgram* prog, vtkRenderer* ren, int vtkNotUsed(independent), int numComp)
 {
 #ifndef GL_ES_VERSION_3_0
   // currently broken on ES
