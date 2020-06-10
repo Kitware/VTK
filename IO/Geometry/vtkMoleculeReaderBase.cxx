@@ -15,8 +15,6 @@
 #include "vtkMoleculeReaderBase.h"
 
 #include "vtkCellArray.h"
-#include "vtkCellType.h"
-#include "vtkDataArray.h"
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -121,7 +119,9 @@ vtkMoleculeReaderBase::vtkMoleculeReaderBase()
   this->SecondaryStructuresBegin = nullptr;
   this->SecondaryStructuresEnd = nullptr;
   this->IsHetatm = nullptr;
+  this->Model = nullptr;
   this->NumberOfAtoms = 0;
+  this->NumberOfModels = 0;
 
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(2);
@@ -317,6 +317,17 @@ int vtkMoleculeReaderBase::ReadMolecule(FILE* fp, vtkPolyData* output)
   }
   this->IsHetatm->SetName("ishetatm");
   output->GetPointData()->AddArray(this->IsHetatm);
+
+  if (!this->Model)
+  {
+    this->Model = vtkSmartPointer<vtkUnsignedIntArray>::New();
+  }
+  else
+  {
+    this->Model->Reset();
+  }
+  this->Model->SetName("model");
+  output->GetPointData()->AddArray(this->Model);
 
   if (!this->Points)
   {

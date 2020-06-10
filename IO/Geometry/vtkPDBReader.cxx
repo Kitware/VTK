@@ -18,9 +18,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
-#include "vtkPoints.h"
 #include "vtkStringArray.h"
-#include "vtkTable.h"
 #include "vtkUnsignedCharArray.h"
 
 #include <algorithm>
@@ -38,17 +36,11 @@ vtkPDBReader::~vtkPDBReader() = default;
 
 void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
 {
-  char linebuf[82], dum1[8], dum2[8];
-  char chain, startChain, endChain;
-  int startResi, endResi;
-  int resi;
-  int i, j;
-  float x[3];
-
   this->NumberOfAtoms = 0;
   this->Points->Allocate(500);
   this->AtomType->Allocate(500);
   this->AtomTypeStrings->Allocate(500);
+  this->Model->Allocate(500);
 
   vtkIntArray* Sheets = vtkIntArray::New();
   Sheets->SetNumberOfComponents(4);
@@ -59,7 +51,20 @@ void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
   Helix->Allocate(50);
 
   vtkDebugMacro(<< "PDB File (" << this->HBScale << ", " << this->BScale << ")");
-  while (fgets(linebuf, sizeof linebuf, fp) != nullptr && strncmp("END", linebuf, 3))
+
+  // Loop variables
+  char linebuf[82], dum1[8], dum2[8];
+  char chain, startChain, endChain;
+  int startResi, endResi;
+  int resi;
+  float x[3];
+
+  unsigned int currentModelNumber = 1;
+  bool modelCommandFound = false;
+
+  // Read PDB file until we encounter a command starting with "END" which is not "ENDMDL"
+  while (fgets(linebuf, sizeof linebuf, fp) != nullptr &&
+    !(strncmp("END", linebuf, 3) == 0 && strncmp("ENDMDL", linebuf, 6) != 0))
   {
     char elem[3] = { 0 };
     char c[7] = { 0 };
@@ -79,20 +84,22 @@ void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
       }
       if (elem[0] == '\0')
       {
-        // if element symbol was not specified, just use the "Atom name".
+        // If element symbol was not specified, just use the "Atom name".
         elem[0] = dum1[0];
         elem[1] = dum1[1];
         elem[2] = '\0';
       }
 
+      // Only insert non-hydrogen atoms
       if (!((elem[0] == 'H' || elem[0] == 'h') && elem[1] == '\0'))
-      { /* skip hydrogen */
+      {
         this->Points->InsertNextPoint(x);
         this->Residue->InsertNextValue(resi);
         this->Chain->InsertNextValue(chain);
         this->AtomType->InsertNextValue(this->MakeAtomType(elem));
         this->AtomTypeStrings->InsertNextValue(dum1);
         this->IsHetatm->InsertNextValue(command[0] == 'H');
+        this->Model->InsertNextValue(currentModelNumber);
         this->NumberOfAtoms++;
       }
     }
@@ -114,6 +121,18 @@ void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
       int tuple[4] = { startChain, startResi, endChain, endResi };
       Helix->InsertNextTypedTuple(tuple);
     }
+    else if (command == "MODEL")
+    {
+      // Only increment current model number if we have found at least two models
+      if (modelCommandFound)
+      {
+        ++currentModelNumber;
+      }
+      else
+      {
+        modelCommandFound = true;
+      }
+    }
   }
 
   this->Points->Squeeze();
@@ -121,6 +140,9 @@ void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
   this->AtomTypeStrings->Squeeze();
   this->Residue->Squeeze();
   this->IsHetatm->Squeeze();
+  this->Model->Squeeze();
+
+  this->NumberOfModels = currentModelNumber;
 
   int len = this->Points->GetNumberOfPoints();
   this->SecondaryStructures->SetNumberOfValues(len);
@@ -128,12 +150,12 @@ void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
   this->SecondaryStructuresEnd->SetNumberOfValues(len);
 
   // Assign secondary structures
-  for (i = 0; i < this->Points->GetNumberOfPoints(); i++)
+  for (vtkIdType i = 0; i < this->Points->GetNumberOfPoints(); i++)
   {
     this->SecondaryStructures->SetValue(i, 'c');
     resi = this->Residue->GetValue(i);
 
-    for (j = 0; j < Sheets->GetNumberOfTuples(); j++)
+    for (vtkIdType j = 0; j < Sheets->GetNumberOfTuples(); j++)
     {
       int sheet[4];
       Sheets->GetTypedTuple(j, sheet);
@@ -150,7 +172,7 @@ void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
         this->SecondaryStructuresEnd->SetValue(i, true);
     }
 
-    for (j = 0; j < Helix->GetNumberOfTuples(); j++)
+    for (vtkIdType j = 0; j < Helix->GetNumberOfTuples(); j++)
     {
       int helix[4];
       Helix->GetTypedTuple(j, helix);

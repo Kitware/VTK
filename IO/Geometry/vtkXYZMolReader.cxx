@@ -337,6 +337,13 @@ void vtkXYZMolReader::ReadSpecificMolecule(FILE* fp)
 
   this->SetMaxTimeStep(timestep);
   this->NumberOfAtoms = num;
+
+  // We only have one submodel for XYZ files
+  this->Model->SetNumberOfValues(this->NumberOfAtoms);
+  for (vtkIdType i = 0; i < this->NumberOfAtoms; ++i)
+  {
+    this->Model->SetValue(i, 1);
+  }
 }
 
 //------------------------------------------------------------------------------
