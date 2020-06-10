@@ -483,6 +483,15 @@ protected:
   vtkTimeStamp MagnitudeUploadTime;
   //@}
 
+  //@{
+  /**
+   * Keep a cache of the last input to the mapper so that input data changes can be propogated to
+   * the resample filter and internal mappers.
+   */
+  vtkDataSet* LastInput;
+  vtkDataSet* LastFilterInput;
+  //@}
+
 private:
   //@{
   /**

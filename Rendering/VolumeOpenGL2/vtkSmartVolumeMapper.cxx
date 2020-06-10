@@ -136,6 +136,9 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
   cb->Delete();
 
   this->OSPRayMapper = nullptr;
+
+  this->LastInput = nullptr;
+  this->LastFilterInput = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -178,6 +181,9 @@ vtkSmartVolumeMapper::~vtkSmartVolumeMapper()
     this->OSPRayMapper->Delete();
     this->OSPRayMapper = nullptr;
   }
+
+  this->LastInput = nullptr;
+  this->LastFilterInput = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -717,7 +723,7 @@ void vtkSmartVolumeMapper::ConnectMapperInput(vtkVolumeMapper* m)
   else
   {
     needShallowCopy =
-      ((data != this->GetInput()) || (data->GetMTime() < this->GetInput()->GetMTime()));
+      ((this->LastInput != this->GetInput()) || (data->GetMTime() < this->GetInput()->GetMTime()));
 
     m->SetInputDataObject(data);
   }
@@ -725,6 +731,7 @@ void vtkSmartVolumeMapper::ConnectMapperInput(vtkVolumeMapper* m)
   if (needShallowCopy)
   {
     data->ShallowCopy(this->GetInput());
+    this->LastInput = this->GetInput();
   }
 }
 
@@ -746,11 +753,13 @@ void vtkSmartVolumeMapper::ConnectFilterInput(vtkImageResample* f)
   }
   else
   {
-    needShallowCopy = input2->GetMTime() < this->GetInput()->GetMTime();
+    needShallowCopy = ((this->LastFilterInput != this->GetInput()) ||
+      (input2->GetMTime() < this->GetInput()->GetMTime()));
   }
   if (needShallowCopy)
   {
     input2->ShallowCopy(this->GetInput());
+    this->LastFilterInput = this->GetInput();
   }
 }
 
