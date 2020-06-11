@@ -2382,7 +2382,13 @@ int vtkCCSCutHoleyPolys(std::vector<vtkCCSPoly>& polys, vtkPoints* points,
       {
         // Move successfully cut innerPolyId into its own group
         polyGroup.erase(polyGroup.begin() + inner);
-        polyGroups[innerPolyId].push_back(innerPolyId);
+        // Only add if innerPolyId hasn't been set already.
+        // Having the same poly occur as both polyGroup and
+        // innerPoly would cause an infinite loop.
+        if (polyGroups[innerPolyId].size() < 1)
+        {
+          polyGroups[innerPolyId].push_back(innerPolyId);
+        }
       }
       else
       {
@@ -2390,7 +2396,13 @@ int vtkCCSCutHoleyPolys(std::vector<vtkCCSPoly>& polys, vtkPoints* points,
         for (size_t k = 1; k < polyGroup.size(); k++)
         {
           innerPolyId = polyGroup[k];
-          polyGroups[innerPolyId].push_back(innerPolyId);
+          // Only add if innerPolyId hasn't been set already.
+          // Having the same poly occur as both polyGroup and
+          // innerPoly would cause an infinite loop.
+          if (polyGroups[innerPolyId].size() < 1)
+          {
+            polyGroups[innerPolyId].push_back(innerPolyId);
+          }
         }
         polyGroup.resize(1);
         cutFailure = 1;
@@ -2416,8 +2428,13 @@ int vtkCCSCutHoleyPolys(std::vector<vtkCCSPoly>& polys, vtkPoints* points,
           }
           else
           {
-            // Move this poly to poly2 group
-            polyGroups[innerPolyId].push_back(polyGroup[ii]);
+            // If innerPolyId and groupId are the same then adding to the list would cause an
+            // infinte loop since the size of polyGroup would never decrease.
+            if (innerPolyId != groupId)
+            {
+              // Move this poly to poly2 group
+              polyGroups[innerPolyId].push_back(polyGroup[ii]);
+            }
             polyGroup.erase(polyGroup.begin() + ii);
 
             // Reduce the groupId to ensure that this new group
