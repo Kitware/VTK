@@ -229,6 +229,12 @@ depending on `NO` modules as not to be built (and triggering an error if a
 conflict is found). Any `WANT` modules that have not been found in the trees of
 `YES` or `NO` modules are then enabled with their dependencies.
 
+There is a script to help figuring out dependencies when building your own modules
+or VTK-dependant code (*.cxx, *.h) in order to generate a [`find_package`][cmake-find_package]
+command. The required json argument is only available in a build tree though.
+
+`Utilities/Maintenance/FindNeededModules.py -s /path/to/sources -j path/to/vtk_build/modules.json`
+
 ## Testing
 
 There is some support for testing in the module system, but it is not as
