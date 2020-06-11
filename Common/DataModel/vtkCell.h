@@ -166,7 +166,15 @@ public:
   virtual vtkCell* GetEdge(int edgeId) = 0;
 
   /**
-   * Return the face cell from the faceId of the cell.
+   * Return the face cell from the faceId of the cell. The returned vtkCell
+   * is an object owned by this instance, hence the return value
+   * must not be deleted by the caller.
+   *
+   * @warning Repeat calls to this function for different face ids will change
+   * the data stored in the internal member object whose pointer is returned by
+   * this function.
+   *
+   * @warning THIS METHOD IS NOT THREAD SAFE.
    */
   virtual vtkCell* GetFace(int faceId) = 0;
 
