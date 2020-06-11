@@ -298,6 +298,15 @@ private:
 
   class ProbeImageDataWorklet;
 
+  // A faster implementation for vtkImageData source.
+  void ProbeImageDataPoints(
+    vtkDataSet* input, int srcIdx, vtkImageData* sourceImage, vtkDataSet* output);
+  void ProbeImageDataPointsSMP(vtkDataSet* input, vtkImageData* source, int srcIdx,
+    vtkPointData* outPD, char* maskArray, vtkIdList* pointIds, vtkIdType startId, vtkIdType endId,
+    bool baseThread);
+
+  class ProbeImageDataPointsWorklet;
+
   class vtkVectorOfArrays;
   vtkVectorOfArrays* CellArrays;
 };
