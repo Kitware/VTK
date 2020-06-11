@@ -255,7 +255,6 @@ int PIOAdaptor::initializeGlobal(const char* PIOFileName)
         // File name starting with base, ending in cycle number
         if (*p == 0)
         {
-          time = std::stod(timeStr);
           this->numberOfTimeSteps++;
           ostringstream tempStr;
           tempStr << dumpDirectory << Slash << fileCandidate[i];
