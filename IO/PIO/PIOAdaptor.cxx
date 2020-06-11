@@ -247,7 +247,6 @@ int PIOAdaptor::initializeGlobal(const char* PIOFileName)
       std::size_t pos1 = this->dumpBaseName.size();
       std::size_t pos2 = fileCandidate[i].size();
       std::string timeStr = fileCandidate[i].substr(pos1, pos2);
-      double time = 0.0;
       if (!timeStr.empty())
       {
         char* p;
