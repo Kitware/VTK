@@ -38,6 +38,7 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLShaderProperty.h"
+#include "vtkOpenGLState.h"
 #include "vtkOpenGLTexture.h"
 #include "vtkOpenGLVertexBufferObject.h"
 #include "vtkOpenGLVertexBufferObjectGroup.h"
@@ -309,11 +310,12 @@ void vtkCompositeMapperHelper2::DrawIBO(vtkRenderer* ren, vtkActor* actor, int p
 {
   if (CellBO.IBO->IndexCount)
   {
+    vtkOpenGLRenderWindow* renWin = static_cast<vtkOpenGLRenderWindow*>(ren->GetRenderWindow());
+    vtkOpenGLState* ostate = renWin->GetState();
+
     if (pointSize > 0)
     {
-#ifndef GL_ES_VERSION_3_0
-      glPointSize(pointSize); // need to use shader value
-#endif
+      ostate->vtkglPointSize(pointSize); // need to use shader value
     }
     // First we do the triangles, update the shader, set uniforms, etc.
     this->UpdateShaders(CellBO, ren, actor);
@@ -328,7 +330,7 @@ void vtkCompositeMapperHelper2::DrawIBO(vtkRenderer* ren, vtkActor* actor, int p
 
     if (!this->HaveWideLines(ren, actor) && mode == GL_LINES)
     {
-      glLineWidth(actor->GetProperty()->GetLineWidth());
+      ostate->vtkglLineWidth(actor->GetProperty()->GetLineWidth());
     }
 
     // if (this->DrawingEdgesOrVetices && !this->DrawingTubes(CellBO, actor))

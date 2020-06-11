@@ -335,7 +335,7 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState* s)
       ostate->vtkglBlendFuncSeparate(
         GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-      glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // client to server
+      ostate->vtkglPixelStorei(GL_UNPACK_ALIGNMENT, 1); // client to server
 
       // 2. if root is not farest, save it in a TO
       bool rootIsFarest = frontToBackList->GetValue(numProcs - 1) == 0;
@@ -465,7 +465,7 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState* s)
     glReadPixels(0, 0, w, h, GL_RGBA, GL_FLOAT, static_cast<GLfloat*>(nullptr));
 
     // PBO to client
-    glPixelStorei(GL_PACK_ALIGNMENT, 1); // server to client
+    ostate->vtkglPixelStorei(GL_PACK_ALIGNMENT, 1); // server to client
     this->PBO->Download2D(VTK_FLOAT, this->RawRGBABuffer, dims, 4, continuousInc);
     this->PBO->UnBind();
 

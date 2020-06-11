@@ -16,7 +16,6 @@ try:
 except ImportError:
     print("Numpy (http://numpy.scipy.org) not found.")
     print("This test requires numpy!")
-    from vtk.test import Testing
     Testing.skip()
 
 from vtk.util.numpy_support import numpy_to_vtk, vtk_to_numpy
@@ -154,4 +153,3 @@ class TestNumpySupport(Testing.vtkTest):
 
 if __name__ == "__main__":
     Testing.main([(TestNumpySupport, 'test')])
-

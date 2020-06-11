@@ -3054,9 +3054,9 @@ void vtkOpenGLPolyDataMapper::UpdateMaximumPointCellIds(vtkRenderer* ren, vtkAct
 void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor* actor)
 {
   // Set the PointSize and LineWidget
-#ifndef GL_ES_VERSION_3_0
-  glPointSize(actor->GetProperty()->GetPointSize()); // not on ES2
-#endif
+  vtkOpenGLRenderWindow* renWin = static_cast<vtkOpenGLRenderWindow*>(ren->GetRenderWindow());
+  vtkOpenGLState* ostate = renWin->GetState();
+  ostate->vtkglPointSize(actor->GetProperty()->GetPointSize());
 
   // timer calls take time, for lots of "small" actors
   // the timer can be a big hit. So we only update
@@ -3140,12 +3140,13 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor* actor)
     pointPicking = true;
   }
 
+  vtkOpenGLRenderWindow* renWin = static_cast<vtkOpenGLRenderWindow*>(ren->GetRenderWindow());
+  vtkOpenGLState* ostate = renWin->GetState();
+
 #ifndef GL_ES_VERSION_3_0
   // when using IBL, we need seamless cubemaps to avoid artifacts
   if (ren->GetUseImageBasedLighting() && ren->GetEnvironmentTexture())
   {
-    vtkOpenGLRenderWindow* renWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
-    vtkOpenGLState* ostate = renWin->GetState();
     ostate->vtkglEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
   }
 #endif
@@ -3165,9 +3166,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor* actor)
       GLenum mode = this->GetOpenGLMode(representation, i);
       if (pointPicking)
       {
-#ifndef GL_ES_VERSION_3_0
-        glPointSize(this->GetPointPickingPrimitiveSize(i));
-#endif
+        ostate->vtkglPointSize(this->GetPointPickingPrimitiveSize(i));
         mode = GL_POINTS;
       }
 
@@ -3176,7 +3175,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor* actor)
 
       if (mode == GL_LINES && !this->HaveWideLines(ren, actor))
       {
-        glLineWidth(actor->GetProperty()->GetLineWidth());
+        ostate->vtkglLineWidth(actor->GetProperty()->GetLineWidth());
       }
 
       this->Primitives[i].IBO->Bind();
@@ -3197,9 +3196,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor* actor)
 
       if (mode == GL_POINTS)
       {
-#ifndef GL_ES_VERSION_3_0
-        glPointSize(actor->GetProperty()->GetSelectionPointSize());
-#endif
+        ostate->vtkglPointSize(actor->GetProperty()->GetSelectionPointSize());
       }
 
       // Update/build/etc the shader.

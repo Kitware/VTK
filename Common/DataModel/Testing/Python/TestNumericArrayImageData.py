@@ -13,11 +13,12 @@ The test naturally requires Numeric Python to be installed:
 
 # This test requires Numeric.
 import sys
+from vtk.test import Testing
+
 try:
     import numpy.core.numeric as numeric
 except ImportError:
     print("WARNING: This test requires Numeric Python: http://numpy.sf.net")
-    from vtk.test import Testing
     Testing.skip()
 
 import os

@@ -75,7 +75,9 @@ public:
       needUpdate = true;
     }
 
-    this->Texture->SetContext(vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
+    vtkOpenGLRenderWindow* renWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
+    auto ostate = renWin->GetState();
+    this->Texture->SetContext(renWin);
 
     if (!this->Texture->GetHandle())
     {
@@ -141,15 +143,15 @@ public:
           maxMemoryInBytes;
         if (this->Loaded)
         {
-          glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+          ostate->vtkglPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
           if (!(textureExtent[1] - textureExtent[0] + cellFlag == dim[0]))
           {
-            glPixelStorei(GL_UNPACK_ROW_LENGTH, dim[0] - cellFlag);
+            ostate->vtkglPixelStorei(GL_UNPACK_ROW_LENGTH, dim[0] - cellFlag);
           }
           if (!(textureExtent[3] - textureExtent[2] + cellFlag == dim[1]))
           {
-            glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, dim[1] - cellFlag);
+            ostate->vtkglPixelStorei(GL_UNPACK_IMAGE_HEIGHT, dim[1] - cellFlag);
           }
           void* dataPtr = scalars->GetVoidPointer(
             ((textureExtent[4] * (dim[1] - cellFlag) + textureExtent[2]) * (dim[0] - cellFlag) +
@@ -169,8 +171,8 @@ public:
           this->Texture->SetBorderColor(0.0f, 0.0f, 0.0f, 0.0f);
 
           // Restore the default values.
-          glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-          glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, 0);
+          ostate->vtkglPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+          ostate->vtkglPixelStorei(GL_UNPACK_IMAGE_HEIGHT, 0);
 
           this->LoadedCellFlag = cellFlag;
           i = 0;

@@ -332,10 +332,12 @@ void vtkOpenGLContextDevice2D::Begin(vtkViewport* viewport)
   this->RenderWindow->GetShaderCache()->ReleaseCurrentShader();
 
   // Enable simple line smoothing if multisampling is on.
+#ifdef GL_LINE_SMOOTH
   if (this->Renderer->GetRenderWindow()->GetMultiSamples())
   {
-    glEnable(GL_LINE_SMOOTH);
+    this->RenderWindow->GetState()->vtkglEnable(GL_LINE_SMOOTH);
   }
+#endif
 
   this->InRender = true;
   vtkOpenGLCheckErrorMacro("failed after Begin");
@@ -359,10 +361,12 @@ void vtkOpenGLContextDevice2D::End()
   this->Storage->RestoreGLState(ostate);
 
   // Disable simple line smoothing if multisampling is on.
+#ifdef GL_LINE_SMOOTH
   if (this->Renderer->GetRenderWindow()->GetMultiSamples())
   {
-    glDisable(GL_LINE_SMOOTH);
+    this->RenderWindow->GetState()->vtkglDisable(GL_LINE_SMOOTH);
   }
+#endif
 
   this->PolyDataImpl->HandleEndFrame();
 
@@ -1902,7 +1906,7 @@ void vtkOpenGLContextDevice2D::SetPointSize(float size)
   {
     gl2ps->SetPointSize(size);
   }
-  glPointSize(size);
+  this->RenderWindow->GetState()->vtkglPointSize(size);
 }
 
 //------------------------------------------------------------------------------
@@ -1913,7 +1917,7 @@ void vtkOpenGLContextDevice2D::SetLineWidth(float width)
   {
     gl2ps->SetLineWidth(width);
   }
-  glLineWidth(width);
+  this->RenderWindow->GetState()->vtkglLineWidth(width);
 }
 
 //------------------------------------------------------------------------------

@@ -50,7 +50,7 @@ vtkQWidgetTexture::vtkQWidgetTexture()
       QOpenGLPaintDevice* device = new QOpenGLPaintDevice(this->Framebuffer->size());
       QPainter* painter = new QPainter(device);
 
-      glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+      state->vtkglPixelStorei(GL_UNPACK_ALIGNMENT, 4);
       this->Scene->render(painter);
       this->Framebuffer->release();
 

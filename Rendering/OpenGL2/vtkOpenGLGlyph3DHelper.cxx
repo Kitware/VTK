@@ -34,6 +34,7 @@
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLResourceFreeCallback.h"
 #include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLState.h"
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkOpenGLVertexBufferObject.h"
 #include "vtkOpenGLVertexBufferObjectGroup.h"
@@ -290,11 +291,12 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(vtkRenderer* ren, vtkActor* actor, vtkI
 
   this->RenderPieceStart(ren, actor);
 
+  vtkOpenGLRenderWindow* renWin = static_cast<vtkOpenGLRenderWindow*>(ren->GetRenderWindow());
+  vtkOpenGLState* ostate = renWin->GetState();
+
   if (selecting_points)
   {
-#ifndef GL_ES_VERSION_3_0
-    glPointSize(6.0);
-#endif
+    ostate->vtkglPointSize(6.0);
     representation = GL_POINTS;
   }
 

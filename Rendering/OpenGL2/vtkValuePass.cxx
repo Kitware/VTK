@@ -721,20 +721,22 @@ vtkFloatArray* vtkValuePass::GetFloatImageDataArray(vtkRenderer* ren)
 void vtkValuePass::GetFloatImageData(
   int const format, int const width, int const height, void* data)
 {
+  auto ostate = this->ImplFloat->ValueFBO->GetContext()->GetState();
+
   // Prepare and bind value texture and FBO.
-  this->ImplFloat->ValueFBO->GetContext()->GetState()->PushReadFramebufferBinding();
+  ostate->PushReadFramebufferBinding();
   this->ImplFloat->ValueFBO->Bind(GL_READ_FRAMEBUFFER);
   this->ImplFloat->ValueFBO->ActivateReadBuffer(0);
 
   // Calling pack alignment ensures any window size can be grabbed.
-  glPixelStorei(GL_PACK_ALIGNMENT, 1);
+  ostate->vtkglPixelStorei(GL_PACK_ALIGNMENT, 1);
 #ifndef GL_ES_VERSION_3_0
   glClampColor(GL_CLAMP_READ_COLOR, GL_FALSE);
 #endif
 
   glReadPixels(0, 0, width, height, format, GL_FLOAT, data);
 
-  this->ImplFloat->ValueFBO->GetContext()->GetState()->PopReadFramebufferBinding();
+  ostate->PopReadFramebufferBinding();
 
   vtkOpenGLCheckErrorMacro("Failed to read pixels from OpenGL buffer!");
 }

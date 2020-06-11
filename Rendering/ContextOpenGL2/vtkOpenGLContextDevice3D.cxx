@@ -364,7 +364,7 @@ void vtkOpenGLContextDevice3D::DrawPoly(
     }
     else
     {
-      glLineWidth(this->Pen->GetWidth());
+      this->RenderWindow->GetState()->vtkglLineWidth(this->Pen->GetWidth());
     }
     cbo->Program->SetUniform4uc("vertexColor", this->Pen->GetColor());
   }
@@ -376,7 +376,7 @@ void vtkOpenGLContextDevice3D::DrawPoly(
 
   // free everything
   cbo->ReleaseGraphicsResources(this->RenderWindow);
-  glLineWidth(1.0);
+  this->RenderWindow->GetState()->vtkglLineWidth(1.0);
 
   this->DisableDepthBuffer();
 
@@ -405,7 +405,7 @@ void vtkOpenGLContextDevice3D::DrawLines(
   {
     vtkErrorMacro(<< "lines wider than 1.0 are not supported\n");
   }
-  glLineWidth(this->Pen->GetWidth());
+  this->RenderWindow->GetState()->vtkglLineWidth(this->Pen->GetWidth());
 
   vtkOpenGLHelper* cbo = nullptr;
   if (colors)
@@ -435,7 +435,7 @@ void vtkOpenGLContextDevice3D::DrawLines(
 
   // free everything
   cbo->ReleaseGraphicsResources(this->RenderWindow);
-  glLineWidth(1.0);
+  this->RenderWindow->GetState()->vtkglLineWidth(1.0);
 
   this->DisableDepthBuffer();
 
@@ -452,7 +452,7 @@ void vtkOpenGLContextDevice3D::DrawPoints(
 
   this->EnableDepthBuffer();
 
-  glPointSize(this->Pen->GetWidth());
+  this->RenderWindow->GetState()->vtkglPointSize(this->Pen->GetWidth());
 
   vtkOpenGLHelper* cbo = nullptr;
   if (colors)
