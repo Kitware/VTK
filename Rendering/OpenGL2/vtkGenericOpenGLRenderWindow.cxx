@@ -67,7 +67,7 @@ void vtkGenericOpenGLRenderWindow::SetBackLeftBuffer(unsigned int) {}
 
 void vtkGenericOpenGLRenderWindow::SetBackRightBuffer(unsigned int) {}
 
-void vtkGenericOpenGLRenderWindow::SetOwnContext(int val)
+void vtkGenericOpenGLRenderWindow::SetOwnContext(vtkTypeBool val)
 {
   this->OwnContext = val;
 }

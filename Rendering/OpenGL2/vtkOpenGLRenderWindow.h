@@ -497,7 +497,7 @@ protected:
   /**
    * Flag telling if the context has been created here or was inherited.
    */
-  int OwnContext;
+  vtkTypeBool OwnContext;
 
   vtkTimeStamp ContextCreationTime;
 
