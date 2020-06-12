@@ -658,7 +658,7 @@ public:
    * to an invalid drawable results in all OpenGL calls to fail
    * with "invalid framebuffer operation".
    */
-  virtual bool IsDrawable() { return true; }
+  VTK_LEGACY(virtual bool IsDrawable());
 
   /**
    * If called, allow MakeCurrent() to skip cache-check when called.

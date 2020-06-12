@@ -682,3 +682,11 @@ void vtkRenderWindow::IsPickingOff()
 {
   VTK_LEGACY_BODY(vtkRenderWindow::IsPickingOff, "VTK 9.0");
 }
+
+//----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
+bool vtkRenderWindow::IsDrawable()
+{
+  return true;
+}
+#endif
