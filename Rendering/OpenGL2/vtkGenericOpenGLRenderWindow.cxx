@@ -305,3 +305,11 @@ int vtkGenericOpenGLRenderWindow::SetRGBACharPixelData(
   vtkWarningMacro("`SetRGBACharPixelData` called before window is ready for rendering; ignoring.");
   return VTK_ERROR;
 }
+
+//----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
+bool vtkGenericOpenGLRenderWindow::IsDrawable()
+{
+  return this->ReadyForRendering;
+}
+#endif
