@@ -128,23 +128,28 @@ vtkHigherOrderTetra::~vtkHigherOrderTetra()
 }
 
 //------------------------------------------------------------------------------
-void vtkHigherOrderTetra::GetEdgeWithoutRationalWeights(vtkHigherOrderCurve* result, int edgeId)
+void vtkHigherOrderTetra::SetEdgeIdsAndPoints(int edgeId,
+  const std::function<void(const vtkIdType&)>& set_number_of_ids_and_points,
+  const std::function<void(const vtkIdType&, const vtkIdType&)>& set_ids_and_points)
 {
   vtkIdType order = this->GetOrder();
+
+  set_number_of_ids_and_points(order + 1);
 
   vtkIdType bindex[4] = { 0, 0, 0, 0 };
   bindex[EdgeVertices[edgeId][0]] = order;
   for (vtkIdType i = 0; i <= order; i++)
   {
-    this->EdgeIds[i] = this->PointIds->GetId(this->ToIndex(bindex));
+    set_ids_and_points(i, this->ToIndex(bindex));
     bindex[EdgeVertices[edgeId][0]]--;
     bindex[EdgeVertices[edgeId][1]]++;
   }
-  result->vtkCell::Initialize(order + 1, &this->EdgeIds[0], this->Points);
 }
 
 //------------------------------------------------------------------------------
-void vtkHigherOrderTetra::GetFaceWithoutRationalWeights(vtkHigherOrderTriangle* result, int faceId)
+void vtkHigherOrderTetra::SetFaceIdsAndPoints(vtkHigherOrderTriangle* result, int faceId,
+  const std::function<void(const vtkIdType&)>& set_number_of_ids_and_points,
+  const std::function<void(const vtkIdType&, const vtkIdType&)>& set_ids_and_points)
 {
   assert(faceId >= 0 && faceId < 4);
 
@@ -158,8 +163,7 @@ void vtkHigherOrderTetra::GetFaceWithoutRationalWeights(vtkHigherOrderTriangle* 
     nPoints = 7;
   }
 #endif
-  result->GetPointIds()->SetNumberOfIds(nPoints);
-  result->GetPoints()->SetNumberOfPoints(nPoints);
+  set_number_of_ids_and_points(nPoints);
 
   vtkIdType tetBCoords[4], triBCoords[3];
   for (vtkIdType p = 0; p < nPoints; p++)
@@ -173,16 +177,14 @@ void vtkHigherOrderTetra::GetFaceWithoutRationalWeights(vtkHigherOrderTriangle* 
     tetBCoords[FaceMinCoord[faceId]] = 0;
 
     vtkIdType pointIndex = vtkHigherOrderTetra::Index(tetBCoords, order);
-    result->GetPointIds()->SetId(p, this->PointIds->GetId(pointIndex));
-    result->GetPoints()->SetPoint(p, this->Points->GetPoint(pointIndex));
+    set_ids_and_points(p, pointIndex);
   }
 
 #ifdef FIFTEEN_POINT_TETRA
   if (this->Points->GetNumberOfPoints() == 15)
   {
     vtkIdType pointIndex = 10 + ((faceId + 1) % 4);
-    result->GetPointIds()->SetId(6, this->PointIds->GetId(pointIndex));
-    result->GetPoints()->SetPoint(6, this->Points->GetPoint(pointIndex));
+    set_ids_and_points(6, pointIndex);
   }
 #endif
 

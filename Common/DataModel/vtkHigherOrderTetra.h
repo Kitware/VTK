@@ -31,6 +31,8 @@
 #ifndef vtkHigherOrderTetra_h
 #define vtkHigherOrderTetra_h
 
+#include <functional> //For std::function
+
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkNew.h"                   // For member variable.
 #include "vtkNonLinearCell.h"
@@ -56,8 +58,12 @@ public:
   int GetNumberOfFaces() override { return 4; }
   vtkCell* GetEdge(int edgeId) override = 0;
   vtkCell* GetFace(int faceId) override = 0;
-  void GetEdgeWithoutRationalWeights(vtkHigherOrderCurve* result, int edgeId);
-  void GetFaceWithoutRationalWeights(vtkHigherOrderTriangle* result, int edgeId);
+  void SetEdgeIdsAndPoints(int edgeId,
+    const std::function<void(const vtkIdType&)>& set_number_of_ids_and_points,
+    const std::function<void(const vtkIdType&, const vtkIdType&)>& set_ids_and_points);
+  void SetFaceIdsAndPoints(vtkHigherOrderTriangle* result, int edgeId,
+    const std::function<void(const vtkIdType&)>& set_number_of_ids_and_points,
+    const std::function<void(const vtkIdType&, const vtkIdType&)>& set_ids_and_points);
 
   void Initialize() override;
 

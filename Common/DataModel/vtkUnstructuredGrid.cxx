@@ -581,6 +581,8 @@ vtkCell* vtkUnstructuredGrid::GetCell(vtkIdType cellId)
           this->BezierCurve->GetRationalWeights()->SetValue(i, v->GetTuple1(pts[i]));
         }
       }
+      else
+        this->BezierCurve->GetRationalWeights()->Reset();
       cell = this->BezierCurve;
       break;
 
@@ -611,6 +613,8 @@ vtkCell* vtkUnstructuredGrid::GetCell(vtkIdType cellId)
           this->BezierQuadrilateral->GetRationalWeights()->SetValue(i, v->GetTuple1(pts[i]));
         }
       }
+      else
+        this->BezierQuadrilateral->GetRationalWeights()->Reset();
       cell = this->BezierQuadrilateral;
       break;
 
@@ -641,6 +645,8 @@ vtkCell* vtkUnstructuredGrid::GetCell(vtkIdType cellId)
           this->BezierHexahedron->GetRationalWeights()->SetValue(i, v->GetTuple1(pts[i]));
         }
       }
+      else
+        this->BezierHexahedron->GetRationalWeights()->Reset();
       cell = this->BezierHexahedron;
       break;
 
@@ -659,6 +665,8 @@ vtkCell* vtkUnstructuredGrid::GetCell(vtkIdType cellId)
           this->BezierTriangle->GetRationalWeights()->SetValue(i, v->GetTuple1(pts[i]));
         }
       }
+      else
+        this->BezierTriangle->GetRationalWeights()->Reset();
       cell = this->BezierTriangle;
       break;
 
@@ -677,6 +685,8 @@ vtkCell* vtkUnstructuredGrid::GetCell(vtkIdType cellId)
           this->BezierTetra->GetRationalWeights()->SetValue(i, v->GetTuple1(pts[i]));
         }
       }
+      else
+        this->BezierTetra->GetRationalWeights()->Reset();
       cell = this->BezierTetra;
       break;
 
@@ -707,7 +717,8 @@ vtkCell* vtkUnstructuredGrid::GetCell(vtkIdType cellId)
           this->BezierWedge->GetRationalWeights()->SetValue(i, v->GetTuple1(pts[i]));
         }
       }
-
+      else
+        this->BezierWedge->GetRationalWeights()->Reset();
       cell = this->BezierWedge;
       break;
 
