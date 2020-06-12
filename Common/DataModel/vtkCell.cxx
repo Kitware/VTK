@@ -192,13 +192,19 @@ double vtkCell::ComputeBoundingSphere(double center[3]) const
     }
     case 3:
     {
-      vtkTriangle::ComputeCentroid(this->Points, nullptr, center);
+      if (!vtkTriangle::ComputeCentroid(this->Points, nullptr, center))
+      {
+        break;
+      }
       auto points = vtk::DataArrayTupleRange(this->Points->GetData());
       return vtkMath::Distance2BetweenPoints(center, points[0]);
     }
     case 4:
     {
-      vtkTetra::ComputeCentroid(this->Points, nullptr, center);
+      if (!vtkTetra::ComputeCentroid(this->Points, nullptr, center))
+      {
+        break;
+      }
       auto points = vtk::DataArrayTupleRange(this->Points->GetData());
       return vtkMath::Distance2BetweenPoints(center, points[0]);
     }
