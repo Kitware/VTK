@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+
+// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkRenderWindow.h"
 
 #include "vtkCamera.h"
@@ -684,9 +688,9 @@ void vtkRenderWindow::IsPickingOff()
 }
 
 //----------------------------------------------------------------------------
-#ifndef VTK_LEGACY_REMOVE
 bool vtkRenderWindow::IsDrawable()
 {
+  VTK_LEGACY_BODY(vtkRenderWindow::IsDrawable, "VTK 9.1");
+
   return true;
 }
-#endif

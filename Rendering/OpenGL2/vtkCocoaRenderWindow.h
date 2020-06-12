@@ -218,7 +218,9 @@ public:
    * to an invalid drawable results in all OpenGL calls to fail
    * with "invalid framebuffer operation".
    */
-  VTK_LEGACY(bool IsDrawable() override);
+  VTK_DEPRECATED_IN_9_1_0(
+    "Deprecated in 9.1 because no one knows what it's for and nothing uses it")
+  bool IsDrawable() override;
 
   /**
    * Update this window's OpenGL context, e.g. when the window is resized.
