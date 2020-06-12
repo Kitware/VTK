@@ -502,15 +502,6 @@ bool vtkHexahedron::ComputeCentroid(
   return true;
 }
 
-//------------------------------------------------------------------------------
-bool vtkHexahedron::IsInsideOut()
-{
-  double pt1[3], pt2[3];
-  this->Points->GetPoint(0, pt1);
-  this->Points->GetPoint(6, pt2);
-  return (pt2[0] - pt1[0]) * (pt2[1] - pt1[1]) * (pt2[2] - pt1[2]) < 0.0;
-}
-
 // Marching cubes case table
 //
 #include "vtkMarchingCubesTriangleCases.h"

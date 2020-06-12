@@ -180,11 +180,17 @@ public:
   int GetCellDimension() override { return 3; }
 
   /**
-   * Inflates the cell by dist. Each point is displaced by dist in the direction of every halfedge.
-   * Input can be negative. If so, the cell will shrink. Artifacts will appear if one shrinks
-   * with -dist larger than any edge length, probably causing the cell to self-intersect.
+   * Inflates the cell. Each face is displaced following its normal by a
+   * distance of value `dist`. If dist is negative, then the cell shrinks.
+   * The resulting cell edges / faces are colinear / coplanar to their previous
+   * self.
+   *
+   * Degenerate parts of the 3D cell are unchanged. This happens a points to
+   * which incident faces are homogeneous to a plane, to a line, or to a point.
+   *
+   * \return 1 if inflation was successful, 0 if no inflation was performed
    */
-  void Inflate(double dist) override;
+  int Inflate(double dist) override;
 
   //@{
   /**

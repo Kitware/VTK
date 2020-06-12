@@ -58,8 +58,21 @@ public:
   int EvaluatePosition(const double x[3], double closestPoint[3], int& subId, double pcoords[3],
     double& dist2, double weights[]) override;
   void EvaluateLocation(int& subId, const double pcoords[3], double x[3], double* weights) override;
-  void Inflate(double dist) override;
   //@}
+
+  /**
+   * Inflates this pixel by a distance of dist by moving the edges of the pixel
+   * by that distance. Since a pixel lies in 3D, the degenerate case where the
+   * pixel is homogeneous to a line are discarted because of normal direction
+   * ambiguity. Hence, if you shrink a 2D pixel so it loses thickness in one
+   * dimension. inflating it back to its previous form is impossible.
+   *
+   * A degenerate pixel of dimension 1 is inflated the same way a segment would be
+   * inflated. A degenerate pixel of dimension 0 is untouched.
+   *
+   * \return 1
+   */
+  int Inflate(double dist) override;
 
   /**
    * Computes exact bounding sphere of this pixel.

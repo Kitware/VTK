@@ -63,7 +63,6 @@ public:
   vtkIdType GetPointToIncidentFaces(vtkIdType pointId, const vtkIdType*& faceIds) override;
   vtkIdType GetPointToOneRingPoints(vtkIdType pointId, const vtkIdType*& pts) override;
   bool GetCentroid(double centroid[3]) const override;
-  bool IsInsideOut() override;
   //@}
 
   /**

@@ -202,19 +202,19 @@ void vtkVoxel::EvaluateLocation(
 }
 
 //------------------------------------------------------------------------------
-void vtkVoxel::Inflate(double dist)
+int vtkVoxel::Inflate(double dist)
 {
   int index = 0;
   auto range = vtk::DataArrayTupleRange<3>(this->Points->GetData());
   using TupleRef = typename decltype(range)::TupleReferenceType;
   for (TupleRef point : range)
   {
-    auto it = point.begin();
-    *(it++) += dist * (index % 2 ? 1.0 : -1.0);
-    *(it++) += dist * ((index / 2) % 2 ? 1.0 : -1.0);
-    *(it++) += dist * (index / 4 ? 1.0 : -1.0);
+    point[0] += dist * (index % 2 ? 1.0 : -1.0);
+    point[1] += dist * ((index / 2) % 2 ? 1.0 : -1.0);
+    point[2] += dist * (index / 4 ? 1.0 : -1.0);
     ++index;
   }
+  return 1;
 }
 
 //----------------------------------------------------------------------------

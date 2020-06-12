@@ -121,8 +121,17 @@ public:
   int Triangulate(int index, vtkIdList* ptIds, vtkPoints* pts) override;
   void Derivatives(
     int subId, const double pcoords[3], const double* values, int dim, double* derivs) override;
-  void Inflate(double dist) override;
   //@}
+
+  /**
+   * Inflates voxel by moving every faces by dist. Since normals are not
+   * ambiguous for degenerate voxels, degenerate voxels are inflated correctly.
+   * For example, inflating a voxel collapsed to a single point will produce a
+   * voxel of width 2 * dist.
+   *
+   * \return 1
+   */
+  int Inflate(double dist) override;
 
   static void InterpolationDerivs(const double pcoords[3], double derivs[24]);
   //@{

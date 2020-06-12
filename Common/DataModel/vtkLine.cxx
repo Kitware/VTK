@@ -16,8 +16,10 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkDataArrayRange.h"
 #include "vtkIncrementalPointLocator.h"
 #include "vtkMath.h"
+#include "vtkMathUtilities.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
@@ -200,6 +202,30 @@ int vtkLine::Intersection3D(
   }
 
   return projectedIntersection;
+}
+
+int vtkLine::Inflate(double dist)
+{
+  auto pointRange = vtk::DataArrayTupleRange<3>(this->Points->GetData());
+  using TupleRef = decltype(pointRange)::TupleReferenceType;
+  using Scalar = typename TupleRef::value_type;
+  TupleRef p0 = pointRange[0], p1 = pointRange[1];
+  if (vtkMathUtilities::NearlyEqual<Scalar>(p0[0], p1[0]) &&
+    vtkMathUtilities::NearlyEqual<Scalar>(p0[1], p1[1]) &&
+    vtkMathUtilities::NearlyEqual<Scalar>(p0[2], p1[2]))
+  {
+    // line is degenerate
+    return 0;
+  }
+  double v[3] = { p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2] };
+  vtkMath::Normalize(v);
+  p0[0] -= v[0] * dist;
+  p0[1] -= v[1] * dist;
+  p0[2] -= v[2] * dist;
+  p1[0] += v[0] * dist;
+  p1[1] += v[1] * dist;
+  p1[2] += v[2] * dist;
+  return 1;
 }
 
 //------------------------------------------------------------------------------
