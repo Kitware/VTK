@@ -218,7 +218,7 @@ public:
    * to an invalid drawable results in all OpenGL calls to fail
    * with "invalid framebuffer operation".
    */
-  bool IsDrawable() override;
+  VTK_LEGACY(bool IsDrawable() override);
 
   /**
    * Update this window's OpenGL context, e.g. when the window is resized.
@@ -363,6 +363,15 @@ public:
   void SetWantsBestResolution(bool wantsBest);
   bool GetWantsBestResolution();
 
+  /**
+   * Set to false if you want to prevent the NSOpenGLContext from being associated
+   * with the NSView. You might want this is you are rendering vtk content into a
+   * CAOpenGLLayer instead of an NSView.
+   * Defaults to true.
+   */
+  void SetConnectContextToNSView(bool connect);
+  bool GetConnectContextToNSView();
+
   //@{
   /**
    * Accessors for the pixel format object (Really an NSOpenGLPixelFormat*).
@@ -427,6 +436,7 @@ private:
   vtkTypeBool ForceMakeCurrent;
 
   bool WantsBestResolution;
+  bool ConnectContextToNSView;
 };
 
 #endif

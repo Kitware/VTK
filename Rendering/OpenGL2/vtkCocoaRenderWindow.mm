@@ -220,6 +220,7 @@ vtkCocoaRenderWindow::vtkCocoaRenderWindow()
   this->ForceMakeCurrent = 0;
   this->OnScreenInitialized = 0;
   this->WantsBestResolution = true;
+  this->ConnectContextToNSView = true;
 }
 
 //----------------------------------------------------------------------------
@@ -309,15 +310,10 @@ bool vtkCocoaRenderWindow::InitializeFromCurrentContext()
   NSOpenGLContext* currentContext = [NSOpenGLContext currentContext];
   if (currentContext != nullptr)
   {
-    NSView* currentView = [currentContext view];
-    if (currentView != nullptr)
-    {
-      NSWindow* window = [currentView window];
-      this->SetWindowId(currentView);
-      this->SetRootWindow(window);
-      this->SetContextId((void*)currentContext);
-      return this->Superclass::InitializeFromCurrentContext();
-    }
+    this->SetContextId(currentContext);
+    this->SetPixelFormat([currentContext pixelFormat]);
+
+    return this->Superclass::InitializeFromCurrentContext();
   }
   return false;
 }
@@ -376,6 +372,7 @@ bool vtkCocoaRenderWindow::IsCurrent()
 }
 
 //----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
 bool vtkCocoaRenderWindow::IsDrawable()
 {
   // you must initialize it first
@@ -389,8 +386,10 @@ bool vtkCocoaRenderWindow::IsDrawable()
   // then check that the drawable is valid
   NSOpenGLContext* context = (NSOpenGLContext*)this->GetContextId();
   bool ok = [context view] != nil;
+
   return win && ok;
 }
+#endif
 
 //----------------------------------------------------------------------------
 void vtkCocoaRenderWindow::UpdateContext()
@@ -882,12 +881,19 @@ void vtkCocoaRenderWindow::CreateAWindow()
     }
   }
 
+  // Link the NSOpenGLContext and NSView, unless instructed not to.
+  NSOpenGLContext* context = (NSOpenGLContext*)this->GetContextId();
+  bool connectContextToNSView = this->GetConnectContextToNSView();
+  if (connectContextToNSView)
+  {
+    NSView* view = (NSView*)this->GetWindowId();
+    [context setView:view];
+  }
+
   // the error "invalid drawable" in the console from this call can appear
   // but only early in the app's lifetime (ie sometime during launch)
   // IMPORTANT: this is necessary to update the context here in case of
-  // hardware offscreen rendering
-  NSOpenGLContext* context = (NSOpenGLContext*)this->GetContextId();
-  [context setView:(NSView*)this->GetWindowId()];
+  // hardware offscreen rendering.
   [context update];
 
   this->MakeCurrent();
@@ -1030,14 +1036,22 @@ void vtkCocoaRenderWindow::Start()
   // called Initialize every render to do this
   if (this->OnScreenInitialized && this->Mapped)
   {
+    // Link the NSOpenGLContext and NSView, unless instructed not to.
+    // Although this is done in CreateAWindow, which seems like it should be
+    // sufficient, it's still needed in case previous calls to setView: failed
+    // to take effect (which can sometimes occur if the view was created externally).
+    NSOpenGLContext* context = (NSOpenGLContext*)this->GetContextId();
+    bool connectContextToNSView = this->GetConnectContextToNSView();
+    if (connectContextToNSView)
+    {
+      NSView* view = (NSView*)this->GetWindowId();
+      [context setView:view];
+    }
+
     // the error "invalid drawable" in the console from this call can appear
     // but only early in the app's lifetime (ie sometime during launch)
     // IMPORTANT: this is necessary to update the context here in case of
-    // onscreen rendering, and the call to setView is needed in case previous
-    // calls to setView failed to take effect (which can sometimes occur if
-    // the view was created externally).
-    NSOpenGLContext* context = (NSOpenGLContext*)this->GetContextId();
-    [context setView:(NSView*)this->GetWindowId()];
+    // onscreen rendering.
     [context update];
   }
 
@@ -1574,4 +1588,16 @@ bool vtkCocoaRenderWindow::GetWantsBestResolution()
 void vtkCocoaRenderWindow::SetWantsBestResolution(bool wantsBest)
 {
   this->WantsBestResolution = wantsBest;
+}
+
+//----------------------------------------------------------------------------
+bool vtkCocoaRenderWindow::GetConnectContextToNSView()
+{
+  return this->ConnectContextToNSView;
+}
+
+//----------------------------------------------------------------------------
+void vtkCocoaRenderWindow::SetConnectContextToNSView(bool connect)
+{
+  this->ConnectContextToNSView = connect;
 }

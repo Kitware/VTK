@@ -27,7 +27,7 @@
   vtkCocoaRenderWindow* renderWindow = [customView renderWindow];
   if (renderWindow && renderWindow->GetMapped())
   {
-    renderWindow->Superclass::InitializeFromCurrentContext();
+    renderWindow->InitializeFromCurrentContext();
     renderWindow->Render();
   }
 

@@ -168,7 +168,7 @@ public:
   /**
    * Overridden to simply call `GetReadyForRendering`
    */
-  bool IsDrawable() override { return this->ReadyForRendering; }
+  VTK_LEGACY(bool IsDrawable() override);
 
 protected:
   /**
