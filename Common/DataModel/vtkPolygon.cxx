@@ -2077,6 +2077,7 @@ bool vtkPolygon::ComputeCentroid(vtkPoints* p, int numPts, const vtkIdType* ids,
 
   c[0] = c[1] = c[2] = 0.0;
 
+  double maxabsdet = 0;
   for (i = 0; i < numPts; i++)
   {
     p->GetPoint(ids[(i + 1) % numPts], p0 + 3 * !(i % 2));
@@ -2085,8 +2086,9 @@ bool vtkPolygon::ComputeCentroid(vtkPoints* p, int numPts, const vtkIdType* ids,
     c[xOffset] += (p0[xOffset] + p0[3 + xOffset]) * det;
     c[1 + yOffset] += (p0[1 + yOffset] + p0[4 + yOffset]) * det;
     a += det;
+    maxabsdet = std::abs(det) > maxabsdet ? std::abs(det) : maxabsdet;
   }
-  if (std::abs(a) < VTK_DBL_MIN)
+  if (std::abs(a) < VTK_DBL_EPSILON * maxabsdet)
   {
     // Polygon is degenerate
     return false;
