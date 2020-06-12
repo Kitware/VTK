@@ -91,7 +91,6 @@ int TestCellInflation(int, char*[])
     }
   }
 
-  std::cout << "PIXEL " << std::endl;
   {
     vtkNew<vtkPixel> pixel;
     auto pointRange = vtk::DataArrayTupleRange<3>(pixel->Points->GetData());

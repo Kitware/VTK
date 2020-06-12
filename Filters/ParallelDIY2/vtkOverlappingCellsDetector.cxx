@@ -71,10 +71,10 @@ double ComputeEpsilon(const vtkBoundingBox& boundingBox)
   double max = std::max({ std::fabs(minPoint[0]), std::fabs(minPoint[1]), std::fabs(minPoint[2]),
     std::fabs(maxPoint[0]), std::fabs(maxPoint[1]), std::fabs(maxPoint[2]) });
 
-  // std::sqrt(2.0) comes from the shrinking cell step.
-  // Cells are shrinked by the epsilon returned by this method
-  // in edge directions. We want that angles
-  return std::max(std::sqrt(VTK_DBL_MIN), std::sqrt(2.0) * VTK_DBL_EPSILON * max);
+  // Factor 100.0 controls the angular resolution w.r.t. world axis. With this
+  // set up, angles between the skrinking direction and a world axis that are
+  // below asin(0.01) = 0.6 degrees do not deviate from the axis.
+  return 100.0 * std::max(std::sqrt(VTK_DBL_MIN), VTK_DBL_EPSILON * max);
 }
 
 //----------------------------------------------------------------------------
@@ -224,7 +224,7 @@ std::map<int, vtkSmartPointer<vtkUnstructuredGrid>> ExtractOverlappingCellCandid
 
   // Filling output vtkUnstructured grids, with our list of tuples we just created
   std::transform(cactptidList.begin(), cactptidList.end(), std::inserter(ugList, ugList.begin()),
-    [&source](const std::pair<int, CellArrayCellTypePointsIdTuple>& pair)
+    [](const std::pair<int, CellArrayCellTypePointsIdTuple>& pair)
       -> std::pair<int, vtkSmartPointer<vtkUnstructuredGrid>> {
       int blockId = pair.first;
       const CellArrayCellTypePointsIdTuple& cactptid = pair.second;
@@ -240,10 +240,6 @@ std::map<int, vtkSmartPointer<vtkUnstructuredGrid>> ExtractOverlappingCellCandid
         ug->SetPoints(pt);
         idArray->SetName(ID_MAP_TO_ORIGIN_DATASET_IDS_NAME);
         ug->GetCellData()->AddArray(idArray);
-
-        vtkNew<vtkIdTypeArray> globalIds;
-        globalIds->DeepCopy(source->GetCellData()->GetArray("GlobalCellIds"));
-        ug->GetCellData()->AddArray(globalIds);
 
         return std::pair<int, vtkSmartPointer<vtkUnstructuredGrid>>(
           blockId, vtkSmartPointer<vtkUnstructuredGrid>::Take(ug));
@@ -284,17 +280,17 @@ vtkCxxSetObjectMacro(vtkOverlappingCellsDetector, Controller, vtkMultiProcessCon
 //----------------------------------------------------------------------------
 vtkOverlappingCellsDetector::vtkOverlappingCellsDetector()
   : Controller(nullptr)
-  , NumberOfCollisionsPerCellArrayName(nullptr)
+  , NumberOfOverlapsPerCellArrayName(nullptr)
 {
   this->SetController(vtkMultiProcessController::GetGlobalController());
-  this->SetNumberOfCollisionsPerCellArrayName("NumberOfCollisionsPerCell");
+  this->SetNumberOfOverlapsPerCellArrayName("NumberOfOverlapsPerCell");
 }
 
 //----------------------------------------------------------------------------
 vtkOverlappingCellsDetector::~vtkOverlappingCellsDetector()
 {
   this->SetController(nullptr);
-  this->SetNumberOfCollisionsPerCellArrayName(nullptr);
+  this->SetNumberOfOverlapsPerCellArrayName(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -549,8 +545,8 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(vtkPointSet* 
   });
 
   const auto& collisionIdList = master.block<detail::Block>(0)->CollisionListMaps;
-  vtkDataArray* queryNumberOfCollisionsPerCell =
-    output->GetCellData()->GetArray("NumberOfCollisionsPerCell");
+  vtkDataArray* queryNumberOfOverlapsPerCell =
+    output->GetCellData()->GetArray(this->NumberOfOverlapsPerCellArrayName);
 
   // Last pass. We look at what intersections were found in the other blocks, and check if
   // we found them or not, and increment collision count accordingly.
@@ -578,14 +574,14 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(vtkPointSet* 
         // it->first.
         if (it == collisionIds.end() || !pair.second.count(id))
         {
-          queryNumberOfCollisionsPerCell->SetTuple1(
-            pair.first, queryNumberOfCollisionsPerCell->GetTuple1(pair.first) + 1);
+          queryNumberOfOverlapsPerCell->SetTuple1(
+            pair.first, queryNumberOfOverlapsPerCell->GetTuple1(pair.first) + 1);
         }
       }
     }
   }
 
-  output->GetCellData()->SetActiveScalars(this->GetNumberOfCollisionsPerCellArrayName());
+  output->GetCellData()->SetActiveScalars(this->GetNumberOfOverlapsPerCellArrayName());
 
   return 1;
 }
@@ -615,16 +611,16 @@ bool vtkOverlappingCellsDetector::DetectOverlappingCells(vtkDataSet* queryCellDa
 
   vtkIdType querySize = queryPointCloud->GetNumberOfPoints();
 
-  vtkNew<vtkIdTypeArray> queryNumberOfCollisionsPerCellsArray;
-  queryNumberOfCollisionsPerCellsArray->SetNumberOfComponents(1);
-  queryNumberOfCollisionsPerCellsArray->SetNumberOfTuples(querySize);
-  queryNumberOfCollisionsPerCellsArray->SetName(this->GetNumberOfCollisionsPerCellArrayName());
-  queryNumberOfCollisionsPerCellsArray->Fill(0.0);
+  vtkNew<vtkIdTypeArray> queryNumberOfOverlapsPerCellsArray;
+  queryNumberOfOverlapsPerCellsArray->SetNumberOfComponents(1);
+  queryNumberOfOverlapsPerCellsArray->SetNumberOfTuples(querySize);
+  queryNumberOfOverlapsPerCellsArray->SetName(this->GetNumberOfOverlapsPerCellArrayName());
+  queryNumberOfOverlapsPerCellsArray->Fill(0.0);
 
   // Handling case where both input data sets point to the same address.
   vtkDataArray* numberOfCollisionPerCellsArray = queryCellDataSet != cellDataSet
-    ? cellDataSet->GetCellData()->GetArray(this->GetNumberOfCollisionsPerCellArrayName())
-    : queryNumberOfCollisionsPerCellsArray;
+    ? cellDataSet->GetCellData()->GetArray(this->GetNumberOfOverlapsPerCellArrayName())
+    : queryNumberOfOverlapsPerCellsArray;
 
   vtkNew<vtkIdList> neighborIds;
 
@@ -711,11 +707,11 @@ bool vtkOverlappingCellsDetector::DetectOverlappingCells(vtkDataSet* queryCellDa
     }
     if (intersectionCount)
     {
-      queryNumberOfCollisionsPerCellsArray->SetValue(
-        id, queryNumberOfCollisionsPerCellsArray->GetValue(id) + intersectionCount);
+      queryNumberOfOverlapsPerCellsArray->SetValue(
+        id, queryNumberOfOverlapsPerCellsArray->GetValue(id) + intersectionCount);
     }
   }
-  queryCellDataSet->GetCellData()->AddArray(queryNumberOfCollisionsPerCellsArray);
+  queryCellDataSet->GetCellData()->AddArray(queryNumberOfOverlapsPerCellsArray);
 
   return true;
 }
@@ -725,6 +721,6 @@ void vtkOverlappingCellsDetector::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Controller: " << this->Controller << endl;
-  os << indent << "NumberOfCollisionsPerCellArrayName: " << this->NumberOfCollisionsPerCellArrayName
+  os << indent << "NumberOfOverlapsPerCellArrayName: " << this->NumberOfOverlapsPerCellArrayName
      << std::endl;
 }

@@ -87,7 +87,7 @@ int TestOverlappingCellsDetector(int argc, char* argv[])
 
   vtkDataSet* output = vtkDataSet::SafeDownCast(detector->GetOutput(0));
   vtkDataArray* data =
-    output->GetCellData()->GetArray(detector->GetNumberOfCollisionsPerCellArrayName());
+    output->GetCellData()->GetArray(detector->GetNumberOfOverlapsPerCellArrayName());
   vtkDataArray* ids = output->GetCellData()->GetArray("GlobalCellIds");
 
   auto valIt = vtk::DataArrayValueRange(data).cbegin();
