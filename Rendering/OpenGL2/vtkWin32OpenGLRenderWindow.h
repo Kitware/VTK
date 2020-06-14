@@ -132,6 +132,11 @@ public:
   void SetWindowName(const char*) override;
 
   /**
+   * Set the icon displayed in the title bar and the taskbar.
+   */
+  void SetIcon(vtkImageData* img) override;
+
+  /**
    * Set this RenderWindow's window id to a pre-existing window.
    */
   void SetWindowInfo(const char*) override;
