@@ -1400,6 +1400,37 @@ void vtkDataArray::Fill(double value)
   }
 }
 
+namespace
+{
+struct CopyComponentWorker
+{
+  CopyComponentWorker(int srcComponent, int dstComponent)
+    : SourceComponent(srcComponent)
+    , DestinationComponent(dstComponent)
+  {
+  }
+
+  template <typename ArraySrc, typename ArrayDst>
+  void operator()(ArraySrc* dst, ArrayDst* src) const
+  {
+    const auto srcRange = vtk::DataArrayTupleRange(src);
+    auto dstRange = vtk::DataArrayTupleRange(dst);
+
+    using DstType = vtk::GetAPIType<ArrayDst>;
+    auto dstIter = dstRange.begin();
+
+    for (auto v : srcRange)
+    {
+      (*dstIter)[DestinationComponent] = static_cast<DstType>(v[SourceComponent]);
+      ++dstIter;
+    }
+  }
+
+  int SourceComponent = 0;
+  int DestinationComponent = 0;
+};
+}
+
 //------------------------------------------------------------------------------
 void vtkDataArray::CopyComponent(int dstComponent, vtkDataArray* src, int srcComponent)
 {
@@ -1424,10 +1455,10 @@ void vtkDataArray::CopyComponent(int dstComponent, vtkDataArray* src, int srcCom
     return;
   }
 
-  vtkIdType i;
-  for (i = 0; i < this->GetNumberOfTuples(); i++)
+  CopyComponentWorker copyComponentWorker(srcComponent, dstComponent);
+  if (!vtkArrayDispatch::Dispatch2::Execute(this, src, copyComponentWorker))
   {
-    this->SetComponent(i, dstComponent, src->GetComponent(i, srcComponent));
+    copyComponentWorker(this, src);
   }
 }
 
