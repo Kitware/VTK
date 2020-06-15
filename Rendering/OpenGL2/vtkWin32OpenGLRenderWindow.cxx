@@ -16,6 +16,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkCommand.h"
 #include "vtkIdList.h"
+#include "vtkImageData.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLError.h"
@@ -30,6 +31,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <cmath>
 #include <sstream>
+#include <vector>
 
 #include "vtkOpenGLError.h"
 
@@ -156,6 +158,60 @@ void vtkWin32OpenGLRenderWindow::SetWindowName(const char* _arg)
     SetWindowText(this->WindowId, this->WindowName);
 #endif
   }
+}
+
+//------------------------------------------------------------------------------
+void vtkWin32OpenGLRenderWindow::SetIcon(vtkImageData* img)
+{
+  int dim[3];
+  img->GetDimensions(dim);
+
+  int nbComp = img->GetNumberOfScalarComponents();
+
+  if (img->GetScalarType() != VTK_UNSIGNED_CHAR || dim[2] != 1 || nbComp < 3 || nbComp > 4)
+  {
+    vtkErrorMacro(
+      "Icon image should be 2D, have 3 or 4 components, and its type must be unsigned char.");
+    return;
+  }
+
+  unsigned char* imgScalars = static_cast<unsigned char*>(img->GetScalarPointer());
+
+  std::vector<unsigned char> pixels(nbComp * dim[0] * dim[1]);
+
+  // Convert vtkImageData buffer to HBITMAP.
+  // We need to flip Y and swap R and B channel
+  for (int col = 0; col < dim[1]; col++)
+  {
+    for (int line = 0; line < dim[0]; line++)
+    {
+      unsigned char* inPixel = imgScalars + nbComp * ((dim[0] - col - 1) * dim[1] + line); // flip Y
+      unsigned char* outPixel = pixels.data() + nbComp * (col * dim[1] + line);
+      outPixel[0] = inPixel[2]; // swap R and B channel
+      outPixel[1] = inPixel[1];
+      outPixel[2] = inPixel[0]; // swap R and B channel
+      outPixel[3] = inPixel[3];
+    }
+  }
+
+  HBITMAP bmp = CreateBitmap(dim[0], dim[1], 1, nbComp * 8, pixels.data());
+
+  HDC dc = GetDC(NULL);
+  HBITMAP bmpMask = CreateCompatibleBitmap(dc, dim[0], dim[1]);
+
+  ICONINFO ii;
+  ii.fIcon = TRUE;
+  ii.hbmMask = bmpMask;
+  ii.hbmColor = bmp;
+
+  HICON icon = CreateIconIndirect(&ii);
+
+  SendMessage(this->WindowId, WM_SETICON, ICON_BIG, (LPARAM)icon);
+
+  DeleteObject(bmpMask);
+  DeleteObject(bmp);
+  DestroyIcon(icon);
+  ReleaseDC(NULL, dc);
 }
 
 //------------------------------------------------------------------------------

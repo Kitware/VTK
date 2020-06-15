@@ -29,6 +29,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+class vtkImageData;
 class vtkUnsignedCharArray;
 
 class VTKCOMMONCORE_EXPORT vtkWindow : public vtkObject
@@ -155,6 +156,12 @@ public:
   vtkGetStringMacro(WindowName);
   vtkSetStringMacro(WindowName);
   //@}
+
+  /**
+   * Set the icon used in title bar and task bar.
+   * Currently implemented for OpenGL windows on Windows and Linux.
+   */
+  virtual void SetIcon(vtkImageData*) {}
 
   /**
    * Ask each viewport owned by this Window to render its image and

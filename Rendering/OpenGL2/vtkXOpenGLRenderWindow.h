@@ -232,6 +232,12 @@ public:
   void SetWindowName(const char*) override;
 
   /**
+   * For window manager that supports it, set the icon displayed
+   * in the taskbar and the title bar.
+   */
+  void SetIcon(vtkImageData* img) override;
+
+  /**
    * Initialize the render window from the information associated
    * with the currently activated OpenGL context.
    */
