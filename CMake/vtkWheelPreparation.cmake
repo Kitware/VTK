@@ -5,6 +5,15 @@ set(VTK_ENABLE_WRAPPING ON)
 set(VTK_WRAP_PYTHON ON)
 set(Python3_ARTIFACTS_INTERACTIVE ON)
 
+if (UNIX AND NOT APPLE)
+  # On Linux, prefer Legacy OpenGL library. We will revisit
+  # this when all distributions will provides GLVND libraries by
+  # default.
+  if (OpenGL_GL_PREFERENCE STREQUAL "")
+    set(OpenGL_GL_PREFERENCE "LEGACY")
+  endif ()
+endif ()
+
 find_package(Python3 COMPONENTS Interpreter Development.Module)
 set_property(GLOBAL PROPERTY _vtk_python_soabi "${Python3_SOABI}")
 
