@@ -417,16 +417,7 @@ void vtkDataSet::SetCellOrderAndRationalWeights(vtkIdType cellId, vtkGenericCell
       }
 
       // Set the weights
-      if (GetPointData()->SetActiveAttribute(
-            "RationalWeights", vtkDataSetAttributes::AttributeTypes::RATIONALWEIGHTS) != -1)
-      {
-        cellBezier->GetRationalWeights()->SetNumberOfTuples(numPts);
-        vtkDataArray* v = GetPointData()->GetRationalWeights();
-        for (int i = 0; i < numPts; i++)
-        {
-          cellBezier->GetRationalWeights()->SetValue(i, v->GetTuple1(cell->PointIds->GetId(i)));
-        }
-      }
+      cellBezier->SetRationalWeightsFromPointData(GetPointData(), numPts);
       break;
     }
     case VTK_BEZIER_HEXAHEDRON:
@@ -450,16 +441,7 @@ void vtkDataSet::SetCellOrderAndRationalWeights(vtkIdType cellId, vtkGenericCell
       }
 
       // Set the weights
-      if (GetPointData()->SetActiveAttribute(
-            "RationalWeights", vtkDataSetAttributes::AttributeTypes::RATIONALWEIGHTS) != -1)
-      {
-        cellBezier->GetRationalWeights()->SetNumberOfTuples(numPts);
-        vtkDataArray* v = GetPointData()->GetRationalWeights();
-        for (int i = 0; i < numPts; i++)
-        {
-          cellBezier->GetRationalWeights()->SetValue(i, v->GetTuple1(cell->PointIds->GetId(i)));
-        }
-      }
+      cellBezier->SetRationalWeightsFromPointData(GetPointData(), numPts);
       break;
     }
     case VTK_BEZIER_WEDGE:
@@ -482,69 +464,30 @@ void vtkDataSet::SetCellOrderAndRationalWeights(vtkIdType cellId, vtkGenericCell
       }
 
       // Set the weights
-      if (GetPointData()->SetActiveAttribute(
-            "RationalWeights", vtkDataSetAttributes::AttributeTypes::RATIONALWEIGHTS) != -1)
-      {
-        cellBezier->GetRationalWeights()->SetNumberOfTuples(numPts);
-        vtkDataArray* v = GetPointData()->GetRationalWeights();
-        for (int i = 0; i < numPts; i++)
-        {
-          cellBezier->GetRationalWeights()->SetValue(i, v->GetTuple1(cell->PointIds->GetId(i)));
-        }
-      }
+      cellBezier->SetRationalWeightsFromPointData(GetPointData(), numPts);
       break;
     }
 
     case VTK_BEZIER_CURVE:
     {
-      if (GetPointData()->SetActiveAttribute(
-            "RationalWeights", vtkDataSetAttributes::AttributeTypes::RATIONALWEIGHTS) != -1)
-      {
-        vtkIdType numPts = cell->PointIds->GetNumberOfIds();
-        vtkBezierCurve* cellBezier = dynamic_cast<vtkBezierCurve*>(cell->GetRepresentativeCell());
-
-        cellBezier->GetRationalWeights()->SetNumberOfTuples(numPts);
-        vtkDataArray* v = GetPointData()->GetRationalWeights();
-        for (int i = 0; i < numPts; i++)
-        {
-          cellBezier->GetRationalWeights()->SetValue(i, v->GetTuple1(cell->PointIds->GetId(i)));
-        }
-      }
+      vtkIdType numPts = cell->PointIds->GetNumberOfIds();
+      vtkBezierCurve* cellBezier = dynamic_cast<vtkBezierCurve*>(cell->GetRepresentativeCell());
+      cellBezier->SetRationalWeightsFromPointData(GetPointData(), numPts);
       break;
     }
     case VTK_BEZIER_TRIANGLE:
     {
-      if (GetPointData()->SetActiveAttribute(
-            "RationalWeights", vtkDataSetAttributes::AttributeTypes::RATIONALWEIGHTS) != -1)
-      {
-        vtkIdType numPts = cell->PointIds->GetNumberOfIds();
-        vtkBezierTriangle* cellBezier =
-          dynamic_cast<vtkBezierTriangle*>(cell->GetRepresentativeCell());
-
-        cellBezier->GetRationalWeights()->SetNumberOfTuples(numPts);
-        vtkDataArray* v = GetPointData()->GetRationalWeights();
-        for (int i = 0; i < numPts; i++)
-        {
-          cellBezier->GetRationalWeights()->SetValue(i, v->GetTuple1(cell->PointIds->GetId(i)));
-        }
-      }
+      vtkIdType numPts = cell->PointIds->GetNumberOfIds();
+      vtkBezierTriangle* cellBezier =
+        dynamic_cast<vtkBezierTriangle*>(cell->GetRepresentativeCell());
+      cellBezier->SetRationalWeightsFromPointData(GetPointData(), numPts);
       break;
     }
     case VTK_BEZIER_TETRAHEDRON:
     {
-      if (GetPointData()->SetActiveAttribute(
-            "RationalWeights", vtkDataSetAttributes::AttributeTypes::RATIONALWEIGHTS) != -1)
-      {
-        vtkIdType numPts = cell->PointIds->GetNumberOfIds();
-        vtkBezierTetra* cellBezier = dynamic_cast<vtkBezierTetra*>(cell->GetRepresentativeCell());
-
-        cellBezier->GetRationalWeights()->SetNumberOfTuples(numPts);
-        vtkDataArray* v = GetPointData()->GetRationalWeights();
-        for (int i = 0; i < numPts; i++)
-        {
-          cellBezier->GetRationalWeights()->SetValue(i, v->GetTuple1(cell->PointIds->GetId(i)));
-        }
-      }
+      vtkIdType numPts = cell->PointIds->GetNumberOfIds();
+      vtkBezierTetra* cellBezier = dynamic_cast<vtkBezierTetra*>(cell->GetRepresentativeCell());
+      cellBezier->SetRationalWeightsFromPointData(GetPointData(), numPts);
       break;
     }
     default:

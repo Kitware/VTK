@@ -48,13 +48,49 @@ void vtkLagrangeWedge::PrintSelf(ostream& os, vtkIndent indent)
 vtkCell* vtkLagrangeWedge::GetEdge(int edgeId)
 {
   vtkLagrangeCurve* result = EdgeCell;
-  this->GetEdgeWithoutRationalWeights(result, edgeId);
+  const auto set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void {
+    result->Points->SetNumberOfPoints(npts);
+    result->PointIds->SetNumberOfIds(npts);
+  };
+  const auto set_ids_and_points = [&](const vtkIdType& edge_id, const vtkIdType& vol_id) -> void {
+    result->Points->SetPoint(edge_id, this->Points->GetPoint(vol_id));
+    result->PointIds->SetId(edge_id, this->PointIds->GetId(vol_id));
+  };
+  this->SetEdgeIdsAndPoints(edgeId, set_number_of_ids_and_points, set_ids_and_points);
   return result;
 }
 
 vtkCell* vtkLagrangeWedge::GetFace(int faceId)
 {
-  return this->vtkHigherOrderWedge::GetFaceWithoutRationalWeights(faceId);
+  // If faceId = 0 or 1, triangular face, else if 2, 3, or 4, quad face.
+  if (faceId < 2)
+  {
+    vtkLagrangeTriangle* result = BdyTri;
+    const auto set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void {
+      result->Points->SetNumberOfPoints(npts);
+      result->PointIds->SetNumberOfIds(npts);
+    };
+    const auto set_ids_and_points = [&](const vtkIdType& face_id, const vtkIdType& vol_id) -> void {
+      result->Points->SetPoint(face_id, this->Points->GetPoint(vol_id));
+      result->PointIds->SetId(face_id, this->PointIds->GetId(vol_id));
+    };
+    this->GetTriangularFace(result, faceId, set_number_of_ids_and_points, set_ids_and_points);
+    return result;
+  }
+  else
+  {
+    vtkLagrangeQuadrilateral* result = BdyQuad;
+    const auto set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void {
+      result->Points->SetNumberOfPoints(npts);
+      result->PointIds->SetNumberOfIds(npts);
+    };
+    const auto set_ids_and_points = [&](const vtkIdType& face_id, const vtkIdType& vol_id) -> void {
+      result->Points->SetPoint(face_id, this->Points->GetPoint(vol_id));
+      result->PointIds->SetId(face_id, this->PointIds->GetId(vol_id));
+    };
+    this->GetQuadrilateralFace(result, faceId, set_number_of_ids_and_points, set_ids_and_points);
+    return result;
+  }
 }
 
 void vtkLagrangeWedge::InterpolateFunctions(const double pcoords[3], double* weights)
