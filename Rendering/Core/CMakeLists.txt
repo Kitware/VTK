@@ -110,6 +110,7 @@ set(classes
   vtkVolumeProperty
   vtkWindowLevelLookupTable
   vtkWindowToImageFilter
+  vtkResizingWindowToImageFilter
 
   # Needed by vtkAssembly
   vtkAssemblyNode

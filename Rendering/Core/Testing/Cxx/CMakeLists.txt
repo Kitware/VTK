@@ -87,6 +87,7 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   TestTStripsNormalsTCoords.cxx
   TestTStripsTCoords.cxx
   TestWindowToImageFilter.cxx
+  TestResizingWindowToImageFilter.cxx
   # TestViewDependentErrorMetric.cxx # Loads of extra deps - move?
   # TestHierarchicalBoxPipeline.cxx  # legacy code
   )
