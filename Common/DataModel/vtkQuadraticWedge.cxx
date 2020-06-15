@@ -502,30 +502,20 @@ int vtkQuadraticWedge::IntersectWithLine(
 //------------------------------------------------------------------------------
 int vtkQuadraticWedge::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* pts)
 {
-  // divide up into 16 tets
-  pts->SetNumberOfPoints(16 * 4);
-  ptIds->SetNumberOfIds(16 * 4);
+  // A quadratic wedge can be divided into 4 wedges.
+  // The central one is linear and is divided into 3 tets
+  // Each of the 3 wedges arround the central one are divided into 4 tets since each of these
+  // wedges have a node in the middle of one of their edges.
+  // This leads to a total of 15 tets
+  pts->SetNumberOfPoints(15 * 4);
+  ptIds->SetNumberOfIds(15 * 4);
 
-  vtkIdType ids[16][4] = {
-    { 0, 7, 6, 12 },
-    { 6, 7, 1, 13 },
-    { 9, 6, 7, 12 },
-    { 0, 8, 7, 12 },
-    { 8, 2, 7, 14 },
-    { 10, 11, 3, 12 },
-    { 11, 10, 8, 12 },
-    { 10, 7, 8, 12 },
-    { 9, 10, 3, 12 },
-    { 10, 9, 7, 12 },
-    { 9, 7, 6, 13 },
-    { 9, 10, 7, 13 },
-    { 10, 9, 4, 13 },
-    { 10, 8, 7, 14 },
-    { 5, 11, 10, 14 },
-    { 11, 8, 10, 14 },
-  };
+  vtkIdType ids[15][4] = { { 0, 8, 6, 12 }, { 1, 6, 7, 13 }, { 2, 7, 8, 14 }, { 3, 9, 11, 12 },
+    { 4, 10, 9, 13 }, { 5, 11, 10, 14 }, { 6, 8, 7, 9 }, { 7, 9, 11, 10 }, { 7, 8, 11, 9 },
+    { 6, 8, 9, 12 }, { 11, 9, 8, 12 }, { 6, 9, 7, 13 }, { 10, 7, 9, 13 }, { 8, 7, 11, 14 },
+    { 10, 11, 7, 14 } };
   vtkIdType counter = 0;
-  for (int i = 0; i < 16; i++)
+  for (int i = 0; i < 15; i++)
   {
     for (int j = 0; j < 4; j++)
     {
