@@ -31,6 +31,7 @@
 #include "vtkNew.h"                   // For member variable.
 #include "vtkNonLinearCell.h"
 #include "vtkSmartPointer.h" // For member variable.
+#include <functional>        //For std::function
 
 class vtkCellData;
 class vtkDoubleArray;
@@ -57,8 +58,12 @@ public:
   int GetNumberOfFaces() override { return 6; }
   vtkCell* GetEdge(int edgeId) override = 0;
   vtkCell* GetFace(int faceId) override = 0;
-  void GetEdgeWithoutRationalWeights(vtkHigherOrderCurve* result, int edgeId);
-  void GetFaceWithoutRationalWeights(vtkHigherOrderQuadrilateral* result, int faceId);
+  void SetEdgeIdsAndPoints(int edgeId,
+    const std::function<void(const vtkIdType&)>& set_number_of_ids_and_points,
+    const std::function<void(const vtkIdType&, const vtkIdType&)>& set_ids_and_points);
+  void SetFaceIdsAndPoints(vtkHigherOrderQuadrilateral* result, int faceId,
+    const std::function<void(const vtkIdType&)>& set_number_of_ids_and_points,
+    const std::function<void(const vtkIdType&, const vtkIdType&)>& set_ids_and_points);
 
   void Initialize() override;
 

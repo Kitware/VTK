@@ -46,16 +46,38 @@ void vtkBezierQuadrilateral::PrintSelf(ostream& os, vtkIndent indent)
 vtkCell* vtkBezierQuadrilateral::GetEdge(int edgeId)
 {
   vtkBezierCurve* result = EdgeCell;
-  this->GetEdgeWithoutRationalWeights(result, edgeId);
 
   if (this->GetRationalWeights()->GetNumberOfTuples() > 0)
   {
-    vtkIdType npts = result->Points->GetNumberOfPoints();
-    result->GetRationalWeights()->SetNumberOfTuples(npts);
-    for (vtkIdType i = 0; i < npts; i++)
+    const auto set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void {
+      result->Points->SetNumberOfPoints(npts);
+      result->PointIds->SetNumberOfIds(npts);
+      result->GetRationalWeights()->SetNumberOfTuples(npts);
+    };
+    const auto set_ids_and_points = [&](
+                                      const vtkIdType& edge_id, const vtkIdType& face_id) -> void {
+      result->Points->SetPoint(edge_id, this->Points->GetPoint(face_id));
+      result->PointIds->SetId(edge_id, this->PointIds->GetId(face_id));
       result->GetRationalWeights()->SetValue(
-        i, this->GetRationalWeights()->GetValue(result->PointIds->GetId(i)));
+        edge_id, this->GetRationalWeights()->GetValue(face_id));
+    };
+    this->SetEdgeIdsAndPoints(edgeId, set_number_of_ids_and_points, set_ids_and_points);
   }
+  else
+  {
+    const auto set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void {
+      result->Points->SetNumberOfPoints(npts);
+      result->PointIds->SetNumberOfIds(npts);
+      result->GetRationalWeights()->Reset();
+    };
+    const auto set_ids_and_points = [&](
+                                      const vtkIdType& edge_id, const vtkIdType& face_id) -> void {
+      result->Points->SetPoint(edge_id, this->Points->GetPoint(face_id));
+      result->PointIds->SetId(edge_id, this->PointIds->GetId(face_id));
+    };
+    this->SetEdgeIdsAndPoints(edgeId, set_number_of_ids_and_points, set_ids_and_points);
+  }
+
   return result;
 }
 
@@ -169,6 +191,8 @@ void vtkBezierQuadrilateral::SetRationalWeightsFromPointData(
       this->GetRationalWeights()->SetValue(i, v->GetTuple1(this->PointIds->GetId(i)));
     }
   }
+  else
+    this->GetRationalWeights()->Reset();
 }
 
 vtkDoubleArray* vtkBezierQuadrilateral::GetRationalWeights()
