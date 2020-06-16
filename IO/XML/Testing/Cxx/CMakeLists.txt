@@ -10,6 +10,7 @@ set(all_tests
   TestXMLGhostCellsImport.cxx
   TestXMLHierarchicalBoxDataFileConverter.cxx,NO_VALID
   TestXMLHyperTreeGridIO.cxx,NO_VALID
+  TestXMLHyperTreeGridIO2.cxx,NO_VALID
   TestXMLMappedUnstructuredGridIO.cxx,NO_DATA,NO_VALID
   TestXMLPieceDistribution.cxx
   TestXMLToString.cxx,NO_DATA,NO_VALID,NO_OUTPUT

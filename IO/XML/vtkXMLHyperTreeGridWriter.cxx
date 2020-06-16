@@ -153,9 +153,12 @@ int vtkXMLHyperTreeGridWriter::WriteData()
         // Tree Descriptor
         this->WriteAppendedArrayDataHelper(
           this->Descriptors[treeIndx], this->DescriptorOMG->GetElement(treeIndx));
-        // Tree Mask
-        this->WriteAppendedArrayDataHelper(
-          this->Masks[treeIndx], this->MaskOMG->GetElement(treeIndx));
+        if (input->GetMask())
+        {
+          // Tree Mask
+          this->WriteAppendedArrayDataHelper(
+            this->Masks[treeIndx], this->MaskOMG->GetElement(treeIndx));
+        }
         // Point Data
         for (int i = 0; i < pd->GetNumberOfArrays(); ++i)
         {
@@ -178,9 +181,12 @@ int vtkXMLHyperTreeGridWriter::WriteData()
         // Tree NbVerticesByLevels
         this->WriteAppendedArrayDataHelper(
           this->NbVerticesByLevels[treeIndx], this->NbVerticesByLevelOMG->GetElement(treeIndx));
-        // Tree Mask
-        this->WriteAppendedArrayDataHelper(
-          this->Masks[treeIndx], this->MaskOMG->GetElement(treeIndx));
+        if (input->GetMask())
+        {
+          // Tree Mask
+          this->WriteAppendedArrayDataHelper(
+            this->Masks[treeIndx], this->MaskOMG->GetElement(treeIndx));
+        }
         // Point Data
         vtkIdList* ids = this->Ids[treeIndx];
         vtkIdType numberOfVertices = ids->GetNumberOfIds();
@@ -213,6 +219,10 @@ int vtkXMLHyperTreeGridWriter::WriteData()
     }
     this->EndAppendedData();
   }
+  this->Descriptors.clear();
+  this->NbVerticesByLevels.clear();
+  this->Masks.clear();
+  this->Ids.clear();
   if (!this->EndFile())
   {
     return 0;
@@ -325,22 +335,6 @@ vtkXMLHyperTreeGridWriter::~vtkXMLHyperTreeGridWriter()
   delete this->NbVerticesByLevelOMG;
   delete this->MaskOMG;
   delete this->CellDataOMG;
-  for (auto& descriptor : this->Descriptors)
-  {
-    descriptor->Delete();
-  }
-  for (auto& nbVerticesByLevel : this->NbVerticesByLevels)
-  {
-    nbVerticesByLevel->Delete();
-  }
-  for (auto& mask : this->Masks)
-  {
-    mask->Delete();
-  }
-  for (auto& id : this->Ids)
-  {
-    id->Delete();
-  }
 }
 
 //------------------------------------------------------------------------------
@@ -470,10 +464,10 @@ int vtkXMLHyperTreeGridWriter::WriteTrees_0(vtkIndent indent)
       }
     }
     descriptor->Squeeze();
-    this->Descriptors.push_back(descriptor);
+    this->Descriptors.emplace_back(vtkSmartPointer<vtkBitArray>::Take(descriptor));
 
     // Mask BitAarray
-    vtkBitArray* mask = vtkBitArray::New();
+    vtkBitArray* mask = input->GetMask() ? vtkBitArray::New() : nullptr;
     if (input->GetMask())
     {
       for (int l = 0; l < maxLevels; ++l)
@@ -496,7 +490,7 @@ int vtkXMLHyperTreeGridWriter::WriteTrees_0(vtkIndent indent)
         }
       }
       mask->Squeeze();
-      this->Masks.push_back(mask);
+      this->Masks.emplace_back(vtkSmartPointer<vtkBitArray>::Take(mask));
     }
 
     vtkIndent infoIndent = treeIndent.GetNextIndent();
@@ -623,10 +617,11 @@ int vtkXMLHyperTreeGridWriter::WriteTrees_1(vtkIndent indent)
     vtkBitArray* mask = vtkBitArray::New();
     vtkIdList* ids = vtkIdList::New();
     tree->GetByLevelForWriter(input->GetMask(), nbVerticesByLevel, descriptor, mask, ids);
-    this->NbVerticesByLevels.push_back(nbVerticesByLevel);
-    this->Descriptors.push_back(descriptor);
-    this->Masks.push_back(mask);
-    this->Ids.push_back(ids);
+    this->NbVerticesByLevels.emplace_back(
+      vtkSmartPointer<vtkTypeInt64Array>::Take(nbVerticesByLevel));
+    this->Descriptors.emplace_back(vtkSmartPointer<vtkBitArray>::Take(descriptor));
+    this->Masks.emplace_back(vtkSmartPointer<vtkBitArray>::Take(mask));
+    this->Ids.emplace_back(vtkSmartPointer<vtkIdList>::Take(ids));
 
     vtkIndent infoIndent = treeIndent.GetNextIndent();
 
@@ -647,8 +642,8 @@ int vtkXMLHyperTreeGridWriter::WriteTrees_1(vtkIndent indent)
         nbVerticesByLevel->GetNumberOfValues());
       if (input->GetMask())
       {
-        this->WriteArrayAppended(
-          mask, infoIndent, this->MaskOMG->GetElement(treeIndx), "Mask", mask->GetNumberOfValues());
+        this->WriteArrayAppended(mask, infoIndent, this->MaskOMG->GetElement(treeIndx), "Mask",
+          input->GetMask() ? mask->GetNumberOfValues() : 0);
       }
     }
     else

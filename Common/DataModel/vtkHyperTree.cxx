@@ -339,19 +339,22 @@ public:
       this->CompactDatas->ParentToElderChild_stl[0] = UINT_MAX;
     }
 
-    vtkIdType nbIsMasked = isMasked->GetNumberOfTuples();
-    assert(isMasked->GetNumberOfComponents() == 1);
+    if (isMasked)
+    {
+      vtkIdType nbIsMasked = isMasked->GetNumberOfTuples();
+      assert(isMasked->GetNumberOfComponents() == 1);
 
-    vtkIdType i = 0;
-    for (; i < nbIsMasked && i < nbVertices; ++i)
-    {
-      outIsMasked->InsertValue(this->GetGlobalIndexFromLocal(i), isMasked->GetValue(i));
-    }
-    // By convention, the final values not explicitly described
-    // by the isMasked parameter are False.
-    for (; i < nbVertices; ++i)
-    {
-      outIsMasked->InsertValue(this->GetGlobalIndexFromLocal(i), false);
+      vtkIdType i = 0;
+      for (; i < nbIsMasked && i < nbVertices; ++i)
+      {
+        outIsMasked->InsertValue(this->GetGlobalIndexFromLocal(i), isMasked->GetValue(i));
+      }
+      // By convention, the final values not explicitly described
+      // by the isMasked parameter are False.
+      for (; i < nbVertices; ++i)
+      {
+        outIsMasked->InsertValue(this->GetGlobalIndexFromLocal(i), false);
+      }
     }
 
     this->Datas->NumberOfLevels = numberOfLevels;
