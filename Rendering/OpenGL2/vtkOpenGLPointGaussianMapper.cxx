@@ -471,29 +471,6 @@ void vtkOpenGLPointGaussianMapperHelperSizes(vtkFloatArray* scales, PointDataTyp
   }
 }
 
-template <typename PointDataType>
-void vtkOpenGLPointGaussianMapperHelperPoints(
-  vtkFloatArray* vcoords, PointDataType* points, vtkCellArray* verts)
-{
-  float* vPtr = static_cast<float*>(vcoords->GetVoidPointer(0));
-  PointDataType* pointPtr;
-
-  const vtkIdType* indices(nullptr);
-  vtkIdType npts(0);
-  for (verts->InitTraversal(); verts->GetNextCell(npts, indices);)
-  {
-    for (int i = 0; i < npts; ++i)
-    {
-      pointPtr = points + indices[i] * 3;
-
-      // Vertices
-      *(vPtr++) = pointPtr[0];
-      *(vPtr++) = pointPtr[1];
-      *(vPtr++) = pointPtr[2];
-    }
-  }
-}
-
 } // anonymous namespace
 
 //------------------------------------------------------------------------------
@@ -564,11 +541,27 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(
     vtkFloatArray* pts = vtkFloatArray::New();
     pts->SetNumberOfComponents(3);
     pts->SetNumberOfTuples(splatCount);
-    switch (poly->GetPoints()->GetDataType())
+
+    auto srcData = poly->GetPoints()->GetData();
+    const auto srcTuples = vtk::DataArrayTupleRange<3>(srcData);
+    auto dstTuples = vtk::DataArrayTupleRange<3>(pts);
+    auto dstIter = dstTuples.begin();
+    auto verts = poly->GetVerts();
+    const vtkIdType* indices(nullptr);
+    vtkIdType npts(0);
+    for (verts->InitTraversal(); verts->GetNextCell(npts, indices);)
     {
-      vtkTemplateMacro(vtkOpenGLPointGaussianMapperHelperPoints(
-        pts, static_cast<VTK_TT*>(poly->GetPoints()->GetVoidPointer(0)), poly->GetVerts()));
+      for (vtkIdType i = 0; i < npts; ++i)
+      {
+        auto srcIter = srcTuples[indices[i]];
+        auto dst = *dstIter;
+        dst[0] = srcIter[0];
+        dst[1] = srcIter[1];
+        dst[2] = srcIter[2];
+        ++dstIter;
+      }
     }
+
     this->VBOs->CacheDataArray("vertexMC", pts, ren, VTK_FLOAT);
     pts->Delete();
   }
