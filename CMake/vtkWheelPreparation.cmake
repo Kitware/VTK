@@ -9,7 +9,7 @@ if (UNIX AND NOT APPLE)
   # On Linux, prefer Legacy OpenGL library. We will revisit
   # this when all distributions will provides GLVND libraries by
   # default.
-  if (OpenGL_GL_PREFERENCE STREQUAL "")
+  if (NOT DEFINED OpenGL_GL_PREFERENCE OR OpenGL_GL_PREFERENCE STREQUAL "")
     set(OpenGL_GL_PREFERENCE "LEGACY")
   endif ()
 endif ()
