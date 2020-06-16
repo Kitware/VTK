@@ -113,6 +113,9 @@ protected:
   vtkNew<vtkDataArraySelection> CellDataArraySelection;
   vtkNew<vtkDataArraySelection> ParcelDataArraySelection;
 
+  class vtkInternal;
+  vtkInternal* Internal;
+
 private:
   vtkCONVERGECFDReader(const vtkCONVERGECFDReader&) = delete;
   void operator=(const vtkCONVERGECFDReader&) = delete;

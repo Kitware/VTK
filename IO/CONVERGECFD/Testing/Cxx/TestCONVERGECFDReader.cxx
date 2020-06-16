@@ -77,11 +77,9 @@ int TestCONVERGECFDReader(int argc, char* argv[])
 
   std::vector<std::string> cellArrays = { "DENSITY", "EPS", "EQUIV_RATIO", "LAMBDA",
     "MASSFRAC_C7H16", "MASSFRAC_CO", "MASSFRAC_CO2", "MASSFRAC_H2", "MASSFRAC_H2O", "MASSFRAC_O2",
-    "PRESSURE", "RANK", "REACT_RATIO", "SIE", "TEMPERATURE", "TKE", "VELOCITY_X", "VELOCITY_Y",
-    "VELOCITY_Z", "VISC" };
+    "PRESSURE", "RANK", "REACT_RATIO", "SIE", "TEMPERATURE", "TKE", "VELOCITY", "VISC" };
 
-  std::vector<std::string> pointArrays = { "FILM_FLAG", "RADIUS", "TEMP", "VELOCITY_X",
-    "VELOCITY_Y", "VELOCITY_Z" };
+  std::vector<std::string> pointArrays = { "FILM_FLAG", "RADIUS", "TEMP", "VELOCITY" };
 
   if (mesh->GetCellData()->GetNumberOfArrays() != static_cast<int>(cellArrays.size()))
   {
