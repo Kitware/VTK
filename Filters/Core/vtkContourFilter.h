@@ -40,6 +40,12 @@
  * normals.
  *
  * @sa
+ * Much faster implementations for isocontouring are available. In
+ * particular, vtkFlyingEdges3D and vtkFlyingEdges2D are much faster
+ * and if built with the right options, multithreaded, and scale well
+ * with additional processors.
+ *
+ * @sa
  * vtkFlyingEdges3D vtkFlyingEdges2D vtkDiscreteFlyingEdges3D
  * vtkDiscreteFlyingEdges2D vtkMarchingContourFilter vtkMarchingCubes
  * vtkSliceCubes vtkMarchingSquares vtkImageMarchingCubes

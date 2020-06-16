@@ -17,7 +17,7 @@
  * @brief   implicit function for a selection loop
  *
  * vtkImplicitSelectionLoop computes the implicit function value and
- * function gradient for a irregular, cylinder-like object whose cross
+ * function gradient for an irregular, cylinder-like object whose cross
  * section is defined by a set of points forming a loop. The loop need
  * not be convex nor its points coplanar. However, the loop must be
  * non-self-intersecting when projected onto the plane defined by the
