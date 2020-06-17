@@ -20,6 +20,7 @@
 #include <vtkOpenGLGPUVolumeRayCastMapper.h>
 #include <vtkRectilinearGrid.h>
 #include <vtkRenderer.h>
+#include <vtkUniformGrid.h>
 #include <vtkVolume.h>
 #include <vtkVolumeInputHelper.h>
 #include <vtkVolumeMapper.h>
@@ -168,6 +169,12 @@ std::string BaseDeclarationFragment(vtkRenderer* vtkNotUsed(ren), vtkVolumeMappe
     toShaderStr << "uniform vec3 in_coordsScale;\n";
     toShaderStr << "uniform vec3 in_coordsBias;\n";
     toShaderStr << "uniform vec2 in_coordsRange[3];\n";
+  }
+
+  vtkSmartPointer<vtkUniformGrid> uGrid = vtkUniformGrid::SafeDownCast(mapper->GetInput());
+  if (uGrid && (uGrid->GetPointGhostArray() || uGrid->GetCellGhostArray()))
+  {
+    toShaderStr << "uniform sampler3D in_blanking;\n";
   }
 
   toShaderStr << "uniform int in_noOfComponents;\n"
@@ -444,6 +451,98 @@ std::string BaseImplementation(
 
   std::string str("\
       \n    g_skip = false;");
+
+  vtkSmartPointer<vtkUniformGrid> uGrid = vtkUniformGrid::SafeDownCast(mapper->GetInput());
+  if (uGrid)
+  {
+    bool blankCells = (uGrid->GetCellGhostArray() != nullptr);
+    bool blankPoints = (uGrid->GetPointGhostArray() != nullptr);
+    if (blankPoints || blankCells)
+    {
+      str += std::string("\
+          \n     // Check whether the neighboring points/cells are blank.\
+          \n     // Note the half cellStep because texels are point centered.\
+          \n     vec3 xvec = vec3(in_cellStep[0].x/2.0, 0.0, 0.0);\
+          \n     vec3 yvec = vec3(0.0, in_cellStep[0].y/2.0, 0.0);\
+          \n     vec3 zvec = vec3(0.0, 0.0, in_cellStep[0].z/2.0);\
+          \n     vec3 texPosPVec[3];\
+          \n     texPosPVec[0] = g_dataPos + xvec;\
+          \n     texPosPVec[1] = g_dataPos + yvec;\
+          \n     texPosPVec[2] = g_dataPos + zvec;\
+          \n     vec3 texPosNVec[3];\
+          \n     texPosNVec[0] = g_dataPos - xvec;\
+          \n     texPosNVec[1] = g_dataPos - yvec;\
+          \n     texPosNVec[2] = g_dataPos - zvec;\
+          \n     vec4 blankValue = texture3D(in_blanking, g_dataPos);\
+          \n     vec4 blankValueXP = texture3D(in_blanking, texPosPVec[0]);\
+          \n     vec4 blankValueYP = texture3D(in_blanking, texPosPVec[1]);\
+          \n     vec4 blankValueZP = texture3D(in_blanking, texPosPVec[2]);\
+          \n     vec4 blankValueXN = texture3D(in_blanking, texPosNVec[0]);\
+          \n     vec4 blankValueYN = texture3D(in_blanking, texPosNVec[1]);\
+          \n     vec4 blankValueZN = texture3D(in_blanking, texPosNVec[2]);\
+          \n     vec3 blankValuePx;\
+          \n     blankValuePx[0] = blankValueXP.x;\
+          \n     blankValuePx[1] = blankValueYP.x;\
+          \n     blankValuePx[2] = blankValueZP.x;\
+          \n     vec3 blankValuePy;\
+          \n     blankValuePy[0] = blankValueXP.y;\
+          \n     blankValuePy[1] = blankValueYP.y;\
+          \n     blankValuePy[2] = blankValueZP.y;\
+          \n     vec3 blankValueNx;\
+          \n     blankValueNx[0] = blankValueXN.x;\
+          \n     blankValueNx[1] = blankValueYN.x;\
+          \n     blankValueNx[2] = blankValueZN.x;\
+          \n     vec3 blankValueNy;\
+          \n     blankValueNy[0] = blankValueXN.y;\
+          \n     blankValueNy[1] = blankValueYN.y;\
+          \n     blankValueNy[2] = blankValueZN.y;\
+          \n");
+      if (blankPoints)
+      {
+        str += std::string("\
+            \n    // If the current or neighboring points\
+            \n    // (that belong to cells that share this texel) are blanked,\
+            \n    // skip the texel. In other words, if point 1 were blank,\
+            \n    // texels 0, 1 and 2 would have to be skipped.\
+            \n    if (blankValue.x > 0.0 ||\
+            \n        any(greaterThan(blankValueNx, vec3(0.0))) ||\
+            \n        any(greaterThan(blankValuePx, vec3(0.0))))\
+            \n      {\
+            \n      // skip this texel\
+            \n      g_skip = true;\
+            \n      }\
+            \n");
+        if (blankCells)
+        {
+          str += std::string("\
+              \n    // If the current or previous cells (that share this texel)\
+              \n    // are blanked, skip the texel. In other words, if cell 1\
+              \n    // is blanked, texels 1 and 2 would have to be skipped.\
+              \n    else if (blankValue.y > 0.0 ||\
+              \n             any(greaterThan(blankValueNy, vec3(0.0))))\
+              \n      {\
+              \n      // skip this texel\
+              \n      g_skip = true;\
+              \n      }\
+              \n");
+        }
+      }
+      else if (blankCells)
+      {
+        str += std::string("\
+            \n    // If the current or previous cells (that share this texel)\
+            \n    // are blanked, skip the texel. In other words, if cell 1\
+            \n    // is blanked, texels 1 and 2 would have to be skipped.\
+            \n    if (blankValue.x > 0.0 ||\
+            \n        any(greaterThan(blankValuePx, vec3(0.0))))\
+            \n      {\
+            \n      // skip this texel\
+            \n      g_skip = true;\
+            \n      }\
+            \n");
+      }
+    }
+  }
 
   if (glMapper->GetBlendMode() == vtkVolumeMapper::SLICE_BLEND)
   {

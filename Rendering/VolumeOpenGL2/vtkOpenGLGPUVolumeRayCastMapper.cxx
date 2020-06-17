@@ -3206,6 +3206,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::BindTransformations(
         prog->SetUniform3fv("in_coordsBias", 1, volTex->CoordsBias);
         prog->SetUniform2fv("in_coordsRange", 3, volTex->CoordsRange);
       }
+
+      if (volTex->BlankingTex)
+      {
+        volTex->BlankingTex->Activate();
+        prog->SetUniformi("in_blanking", volTex->BlankingTex->GetTextureUnit());
+      }
     }
 
     // Volume matrices (dataset to world)

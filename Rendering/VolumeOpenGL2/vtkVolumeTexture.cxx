@@ -3,6 +3,7 @@
 #include "vtkBlockSortHelper.h"
 #include "vtkCamera.h"
 #include "vtkDataArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkMatrix3x3.h"
@@ -13,6 +14,8 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkRenderer.h"
 #include "vtkTextureObject.h"
+#include "vtkUniformGrid.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkVolumeProperty.h"
 #include "vtkVolumeTexture.h"
 #include "vtk_glew.h"
@@ -96,8 +99,17 @@ bool vtkVolumeTexture::LoadVolume(vtkRenderer* ren, vtkDataSet* data, vtkDataArr
     }
     if (imData)
     {
-      vtkImageData* singleBlock = vtkImageData::New();
-      singleBlock->ShallowCopy(imData);
+      vtkImageData* singleBlock = nullptr;
+      if (vtkUniformGrid* ugData = vtkUniformGrid::SafeDownCast(data))
+      {
+        singleBlock = vtkUniformGrid::New();
+        singleBlock->ShallowCopy(ugData);
+      }
+      else
+      {
+        singleBlock = vtkImageData::New();
+        singleBlock->ShallowCopy(imData);
+      }
       singleBlock->SetExtent(this->FullExtent.GetData());
       this->ImageDataBlocks.push_back(singleBlock);
     }
@@ -122,6 +134,14 @@ bool vtkVolumeTexture::LoadVolume(vtkRenderer* ren, vtkDataSet* data, vtkDataArr
     {
       this->CoordsTex = vtkSmartPointer<vtkTextureObject>::New();
       this->CoordsTex->SetContext(vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
+    }
+  }
+  else if (vtkUniformGrid* uGrid = vtkUniformGrid::SafeDownCast(data))
+  {
+    if (uGrid->GetPointGhostArray() || uGrid->GetCellGhostArray())
+    {
+      this->BlankingTex = vtkSmartPointer<vtkTextureObject>::New();
+      this->BlankingTex->SetContext(vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
     }
   }
 
@@ -469,6 +489,67 @@ bool vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBloc
 
     delete[] tupPtr;
     sliceArray->Delete();
+  }
+
+  if (vtkUniformGrid* ugBlock = vtkUniformGrid::SafeDownCast(dataSet))
+  {
+    vtkSmartPointer<vtkUnsignedCharArray> ugCellBlankArray = ugBlock->GetCellGhostArray();
+    vtkSmartPointer<vtkUnsignedCharArray> ugPointBlankArray = ugBlock->GetPointGhostArray();
+    // Not relying on HasAnyBlankCells because it also does the additional step of checking point
+    // ghost array to determine if any cells are blanked.
+    bool blankCells = (ugCellBlankArray != nullptr);
+    bool blankPoints = (ugPointBlankArray != nullptr);
+    if (blankCells || blankPoints)
+    {
+      vtkNew<vtkUnsignedCharArray> blankingArray;
+      auto numComps = (blankCells && blankPoints) ? 2 : 1;
+      blankingArray->SetNumberOfComponents(numComps);
+      auto numPts = ugBlock->GetNumberOfPoints();
+      blankingArray->SetNumberOfTuples(numPts);
+      blankingArray->FillValue(0);
+
+      auto blankingArrayRange = vtk::DataArrayTupleRange(blankingArray);
+      if (blankPoints)
+      {
+        const auto blankPointsRange = vtk::DataArrayValueRange<1>(ugPointBlankArray);
+        for (auto blankPtId = 0; blankPtId < numPts; ++blankPtId)
+        {
+          blankingArrayRange[blankPtId][0] = blankPointsRange[blankPtId];
+        }
+      }
+
+      if (blankCells)
+      {
+        int comp = blankPoints ? 1 : 0;
+        int d0 = blockSize[0] * blockSize[1];
+        int d01 = (blockSize[0] - 1) * (blockSize[1] - 1);
+        const auto blankCellsRange = vtk::DataArrayValueRange<1>(ugCellBlankArray);
+        int ptId, cellId;
+        for (int k = 0; k < blockSize[2] - 1; ++k)
+        {
+          for (int j = 0; j < blockSize[1] - 1; ++j)
+          {
+            for (int i = 0; i < blockSize[0] - 1; ++i)
+            {
+              ptId = k * d0 + j * blockSize[0] + i;
+              cellId = k * d01 + j * (blockSize[0] - 1) + i;
+              blankingArrayRange[ptId][comp] = blankCellsRange[cellId];
+            }
+          }
+        }
+      }
+
+      // Since this is a pseudo-bit array i.e. values either 0 or 255, skip scale and bias
+      // computation
+      this->BlankingTex->Create3DFromRaw(blockSize[0], blockSize[1], blockSize[2], numComps,
+        VTK_UNSIGNED_CHAR, &blankingArrayRange[0][0]);
+      this->BlankingTex->SetWrapR(vtkTextureObject::ClampToEdge);
+      this->BlankingTex->SetWrapS(vtkTextureObject::ClampToEdge);
+      this->BlankingTex->SetWrapT(vtkTextureObject::ClampToEdge);
+      this->BlankingTex->SetMagnificationFilter(vtkTextureObject::Nearest);
+      this->BlankingTex->SetMinificationFilter(vtkTextureObject::Nearest);
+      this->BlankingTex->SetBorderColor(0.0f, 0.0f, 0.0f, 0.0f);
+    }
   }
 
   texture->Deactivate();

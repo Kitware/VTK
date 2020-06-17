@@ -71,6 +71,7 @@ set (VolumeCxxTests
   TestGPURayCastVolumePolyData.cxx
   TestGPURayCastVolumeRotation.cxx
   TestGPURayCastVolumeScale.cxx
+  TestGPURayCastVolumeUniformGridBlanking.cxx
   TestGPURayCastVolumeUpdate.cxx
   TestGPUVolumeRayCastMapper.cxx
   TestMinIntensityRendering.cxx
