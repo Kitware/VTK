@@ -182,7 +182,7 @@ int vtkAMReXGridReader::FillMetaData()
       {
         boxLo = this->Internal->LevelHeader[i]->levelBoxArrays[j][0][k];
         boxHi = this->Internal->LevelHeader[i]->levelBoxArrays[j][1][k];
-        blockOrigin[k] = boxLo * spacing[k];
+        blockOrigin[k] = origin[k] + boxLo * spacing[k];
         blockDimension[k] =
           ((boxHi - boxLo) + 1) + 1; // block dimension - '(hi - lo + 1)' is the number of cells '+
                                      // 1' is the number of points
@@ -222,17 +222,13 @@ vtkUniformGrid* vtkAMReXGridReader::GetAMRGrid(const int blockIdx)
 
   // The vtkUniformGrid always has 3 dimensions
   double spacing[3] = { 0.0, 0.0, 0.0 };
-  double origin[3] = { 0.0, 0.0, 0.0 };
   for (int i = 0; i < dimension; ++i)
   {
     spacing[i] = this->Internal->Header->cellSize[level][i];
   }
   if (dimension == 2)
     spacing[2] = spacing[1]; // Add spacing for the 3rd dimension
-  for (int k = 0; k < dimension; ++k)
-  {
-    origin[k] = this->Internal->LevelHeader[level]->levelBoxArrays[blockID][0][k] * spacing[k];
-  }
+
   vtkAMRBox block = this->Metadata->GetAMRBox(level, blockID);
   int boxLo[3];
   int boxHi[3];
@@ -245,6 +241,9 @@ vtkUniformGrid* vtkAMReXGridReader::GetAMRGrid(const int blockIdx)
   }
   vtkUniformGrid* uniformGrid = vtkUniformGrid::New();
   uniformGrid->Initialize();
+
+  double origin[3] = { 0.0, 0.0, 0.0 };
+  vtkAMRBox::GetBoxOrigin(block, this->Metadata->GetOrigin(), spacing, origin);
   uniformGrid->SetOrigin(origin);
   uniformGrid->SetSpacing(spacing);
   uniformGrid->SetDimensions(dimensions);
