@@ -25,6 +25,8 @@
 #include "vtkCameraNode.h"
 #include "vtkRenderingRayTracingModule.h" // For export macro
 
+#include "RTWrapper/RTWrapper.h" // for handle types
+
 class vtkInformationIntegerKey;
 class vtkCamera;
 
@@ -40,9 +42,13 @@ public:
    */
   void Render(bool prepass) override;
 
+  OSPCamera GetOCamera() { return this->oCamera; }
+
 protected:
   vtkOSPRayCameraNode();
   ~vtkOSPRayCameraNode() override;
+
+  OSPCamera oCamera{ nullptr };
 
 private:
   vtkOSPRayCameraNode(const vtkOSPRayCameraNode&) = delete;

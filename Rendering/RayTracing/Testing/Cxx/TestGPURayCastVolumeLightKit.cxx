@@ -88,7 +88,6 @@ int TestGPURayCastVolumeLightKit(int argc, char* argv[])
   scalarOpacity->AddPoint(65, 1.0);
 
   vtkNew<vtkVolumeProperty> volumeProperty;
-  volumeProperty->ShadeOn();
   volumeProperty->SetAmbient(0.0);
   volumeProperty->SetDiffuse(1.0);
   volumeProperty->SetSpecular(0.0);

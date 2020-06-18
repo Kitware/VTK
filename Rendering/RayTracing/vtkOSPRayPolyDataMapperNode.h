@@ -53,39 +53,14 @@ protected:
   void ORenderPoly(void* renderer, vtkOSPRayActorNode* aNode, vtkPolyData* poly,
     double* ambientColor, double* diffuseColor, double opacity, std::string material);
 
-  class vtkOSPRayCacheItemGeometries
-  {
-  public:
-    vtkOSPRayCacheItemGeometries() = default;
-    vtkOSPRayCacheItemGeometries(const std::vector<OSPGeometry>& geometries_)
-      : GeometriesAtTime(geometries_)
-    {
-    }
-
-    ~vtkOSPRayCacheItemGeometries() = default;
-
-    std::vector<OSPGeometry> GeometriesAtTime;
-  };
-
-  std::vector<OSPGeometry> Geometries;
-  void ClearGeometries();
-
-  vtkOSPRayCache<vtkOSPRayCacheItemGeometries>* GeometryCache{ nullptr };
-  vtkOSPRayCache<vtkOSPRayCacheItemObject>* InstanceCache{ nullptr };
+  std::vector<OSPGeometricModel> GeometricModels;
+  std::vector<OSPInstance> Instances;
+  void ClearGeometricModels();
 
   /**
-   * @brief adds geometries to ospray cache
+   * @brief add precomputed ospray geometries to renderer model.
    */
-  void PopulateCache();
-
-  /**
-   * @brief add computed ospray geometries to renderer model.
-   * Will grab from cache if cached.
-   */
-  void RenderGeometries();
-
-  bool UseInstanceCache;
-  bool UseGeometryCache;
+  void RenderGeometricModels();
 
 private:
   vtkOSPRayPolyDataMapperNode(const vtkOSPRayPolyDataMapperNode&) = delete;

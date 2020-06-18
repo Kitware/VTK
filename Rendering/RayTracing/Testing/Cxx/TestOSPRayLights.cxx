@@ -196,6 +196,7 @@ int TestOSPRayLights(int argc, char* argv[])
 
   vtkSmartPointer<vtkOSPRayPass> ospray = vtkSmartPointer<vtkOSPRayPass>::New();
   renderer->SetPass(ospray);
+  vtkOSPRayRendererNode::SetRendererType("OSPRay pathtracer", renderer);
 
   for (int i = 0; i < argc; ++i)
   {
@@ -210,7 +211,7 @@ int TestOSPRayLights(int argc, char* argv[])
   renWin->Render();
   renderer->UseShadowsOn();
   vtkOSPRayRendererNode::SetMaxFrames(5, renderer);
-  vtkOSPRayRendererNode::SetSamplesPerPixel(4, renderer);
+  vtkOSPRayRendererNode::SetSamplesPerPixel(12, renderer);
 
   vtkSmartPointer<vtkOSPRayTestInteractor> style = vtkSmartPointer<vtkOSPRayTestInteractor>::New();
   style->SetPipelineControlPoints(renderer, ospray, nullptr);

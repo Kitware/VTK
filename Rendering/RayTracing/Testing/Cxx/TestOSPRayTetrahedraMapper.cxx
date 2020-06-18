@@ -131,7 +131,6 @@ int TestOSPRayTetrahedraMapper(int argc, char* argv[])
   renderWindow->AddRenderer(ren1.GetPointer());
 
   ren1->ResetCamera();
-  renderWindow->Render();
 
   // Attach OSPRay render pass
   vtkNew<vtkOSPRayPass> osprayPass;
@@ -139,6 +138,8 @@ int TestOSPRayTetrahedraMapper(int argc, char* argv[])
   {
     ren1->SetPass(osprayPass.GetPointer());
   }
+
+  renderWindow->Render();
 
   volumeMapper->DebugOn();
   int retVal;

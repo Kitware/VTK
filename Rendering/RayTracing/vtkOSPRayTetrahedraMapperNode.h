@@ -54,15 +54,18 @@ protected:
   vtkTimeStamp PropertyTime;
 
   OSPVolume OSPRayVolume;
+  OSPVolumetricModel OSPRayVolumeModel;
   OSPTransferFunction TransferFunction;
   std::vector<float> TFVals;
   std::vector<float> TFOVals;
 
-  std::vector<int> Cells;
+  std::vector<unsigned int> Cells;
+  std::vector<unsigned char> CellTypes;
+  std::vector<unsigned int> CellIndices;
   std::vector<osp::vec3f> Vertices;
   std::vector<float> Field;
 
-  vtkOSPRayCache<vtkOSPRayCacheItemObject>* Cache;
+  OSPInstance OSPRayInstance{ nullptr };
 
 private:
   vtkOSPRayTetrahedraMapperNode(const vtkOSPRayTetrahedraMapperNode&) = delete;

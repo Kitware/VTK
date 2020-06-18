@@ -24,7 +24,7 @@ namespace RTW
             /*
              * Basic material
              */
-            if (this->type == "OBJMaterial" || this->type == "Luminous")
+            if (this->type == "obj" || this->type == "luminous")
             {
                 this->material = rtx->CreateBasicMaterial();
             }
@@ -64,7 +64,7 @@ namespace RTW
             /*
              * OBJMaterial (Basic material)
              */
-            if (this->type == "OBJMaterial" && this->material->GetType() == VisRTX::MaterialType::BASIC)
+            if (this->type == "obj" && this->material->GetType() == VisRTX::MaterialType::BASIC)
             {
                 VisRTX::BasicMaterial* basicMaterial = dynamic_cast<VisRTX::BasicMaterial*>(this->material);
                 assert(basicMaterial);
@@ -105,7 +105,7 @@ namespace RTW
             /*
              * Luminous (Basic material)
              */
-            else if (this->type == "Luminous" && this->material->GetType() == VisRTX::MaterialType::BASIC)
+            else if (this->type == "luminous" && this->material->GetType() == VisRTX::MaterialType::BASIC)
             {
                 VisRTX::BasicMaterial* basicMaterial = dynamic_cast<VisRTX::BasicMaterial*>(this->material);
                 assert(basicMaterial);

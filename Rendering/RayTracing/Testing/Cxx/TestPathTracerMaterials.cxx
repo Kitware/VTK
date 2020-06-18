@@ -221,7 +221,7 @@ int TestPathTracerMaterials(int argc, char* argv[])
   {
     style->AddName("default glass");
 
-    ml->AddMaterial("Glass 1", "Glass");
+    ml->AddMaterial("Glass 1", "glass");
 
     actor = vtkSmartPointer<vtkActor>::New();
     actor->SetPosition(xo + xr * 1.15 * i, yo, zo + zr * 1.1 * j);
@@ -237,7 +237,7 @@ int TestPathTracerMaterials(int argc, char* argv[])
   {
     style->AddName("high index of refraction glass");
 
-    ml->AddMaterial("Glass 2", "Glass");
+    ml->AddMaterial("Glass 2", "glass");
     double eta[1] = { 2.0 };
     ml->AddShaderVariable("Glass 2", "etaInside", 1, eta);
 
@@ -255,7 +255,7 @@ int TestPathTracerMaterials(int argc, char* argv[])
   {
     style->AddName("colored glass");
 
-    ml->AddMaterial("Glass 3", "Glass");
+    ml->AddMaterial("Glass 3", "glass");
     double green[3] = { 0.0, 1.0, 0.0 };
     ml->AddShaderVariable("Glass 3", "attenuationColor", 3, green);
 
@@ -298,7 +298,7 @@ int TestPathTracerMaterials(int argc, char* argv[])
   {
     style->AddName("default metal");
 
-    ml->AddMaterial("Metal 1", "Metal");
+    ml->AddMaterial("Metal 1", "metal");
 
     actor = vtkSmartPointer<vtkActor>::New();
     actor->SetPosition(xo + xr * 1.15 * i, yo, zo + zr * 1.1 * j);
@@ -314,7 +314,7 @@ int TestPathTracerMaterials(int argc, char* argv[])
   {
     style->AddName("rough metal");
 
-    ml->AddMaterial("Metal 2", "Metal");
+    ml->AddMaterial("Metal 2", "metal");
     double roughness[1] = { 0.3 };
     ml->AddShaderVariable("Metal 2", "roughness", 1, roughness);
 
@@ -332,13 +332,10 @@ int TestPathTracerMaterials(int argc, char* argv[])
   {
     style->AddName("copper metal");
 
-    ml->AddMaterial("Metal 3", "Metal");
+    ml->AddMaterial("Metal 3", "metal");
     double roughness[1] = { 0.0 };
     ml->AddShaderVariable("Metal 3", "roughness", 1, roughness);
-    // for OSP < 1.4 and > 1.4.0
-    double cuColor[3] = { 0.7843, 0.4588, 0.2 };
-    ml->AddShaderVariable("Metal 3", "reflectance", 3, cuColor);
-    // for OSP >= 1.4
+    // exact
     double spectrum[58 * 3] = {
       300, 1.347459987, 1.679419071, //
       310, 1.321473211, 1.740141215, //
@@ -400,6 +397,11 @@ int TestPathTracerMaterials(int argc, char* argv[])
       870, 0.109423947, 5.718126756  //
     };
     ml->AddShaderVariable("Metal 3", "ior", 58 * 3, spectrum);
+    // approximate
+    double cuEta[3] = { 0.1, 0.8, 1.1 };
+    double cuK[3] = { 3.5, 2.5, 2.4 };
+    // ml->AddShaderVariable("Metal 3", "eta", 3, cuEta);
+    // ml->AddShaderVariable("Metal 3", "k", 3, cuK);
 
     actor = vtkSmartPointer<vtkActor>::New();
     actor->SetPosition(xo + xr * 1.15 * i, yo, zo + zr * 1.1 * j);
@@ -463,7 +465,7 @@ int TestPathTracerMaterials(int argc, char* argv[])
   {
     style->AddName("default objmaterial");
 
-    ml->AddMaterial("OBJMaterial 1", "OBJMaterial");
+    ml->AddMaterial("OBJMaterial 1", "obj");
 
     actor = vtkSmartPointer<vtkActor>::New();
     actor->SetPosition(xo + xr * 1.15 * i, yo, zo + zr * 1.1 * j);
@@ -479,7 +481,7 @@ int TestPathTracerMaterials(int argc, char* argv[])
   { // todo: validate
     style->AddName("alpha objmaterial");
 
-    ml->AddMaterial("OBJMaterial 2", "OBJMaterial");
+    ml->AddMaterial("OBJMaterial 2", "obj");
     double alpha[1] = { 0.2 };
     ml->AddShaderVariable("OBJMaterial 2", "alpha", 1, alpha);
 
@@ -578,7 +580,7 @@ int TestPathTracerMaterials(int argc, char* argv[])
   { // todo: looks 'approximately' right but needs validation
     style->AddName("bump map objmaterial");
 
-    ml->AddMaterial("OBJMaterial 7", "OBJMaterial");
+    ml->AddMaterial("OBJMaterial 7", "obj");
     ml->AddTexture("OBJMaterial 7", "map_bump", texture);
 
     actor = vtkSmartPointer<vtkActor>::New();
@@ -595,7 +597,7 @@ int TestPathTracerMaterials(int argc, char* argv[])
   {
     style->AddName("opacity map objmaterial");
 
-    ml->AddMaterial("OBJMaterial 8", "OBJMaterial");
+    ml->AddMaterial("OBJMaterial 8", "obj");
     ml->AddTexture("OBJMaterial 8", "map_d", texture);
 
     actor = vtkSmartPointer<vtkActor>::New();
@@ -612,7 +614,7 @@ int TestPathTracerMaterials(int argc, char* argv[])
   { // todo: validate
     style->AddName("kd map objmaterial");
 
-    ml->AddMaterial("OBJMaterial 9", "OBJMaterial");
+    ml->AddMaterial("OBJMaterial 9", "obj");
     ml->AddTexture("OBJMaterial 9", "map_kd", texture);
 
     actor = vtkSmartPointer<vtkActor>::New();
@@ -670,7 +672,7 @@ int TestPathTracerMaterials(int argc, char* argv[])
   {
     style->AddName("default thin glass");
 
-    ml->AddMaterial("ThinGlass 1", "ThinGlass");
+    ml->AddMaterial("ThinGlass 1", "thinGlass");
 
     actor = vtkSmartPointer<vtkActor>::New();
     actor->SetPosition(xo + xr * 1.15 * i, yo, zo + zr * 1.1 * j);
@@ -686,7 +688,7 @@ int TestPathTracerMaterials(int argc, char* argv[])
   {
     style->AddName("shinier thin glass");
 
-    ml->AddMaterial("ThinGlass 2", "ThinGlass");
+    ml->AddMaterial("ThinGlass 2", "thinGlass");
     double eta[1] = { 5.5 };
     ml->AddShaderVariable("ThinGlass 2", "eta", 1, eta);
 
@@ -704,7 +706,7 @@ int TestPathTracerMaterials(int argc, char* argv[])
   {
     style->AddName("red thin glass");
 
-    ml->AddMaterial("ThinGlass 3", "ThinGlass");
+    ml->AddMaterial("ThinGlass 3", "thinGlass");
     double thickness[1] = { 0.000001 };
     ml->AddShaderVariable("ThinGlass 3", "thickness", 1, thickness);
     double pigmentColor[3] = { 1.0, 0.0, 0.0 };
@@ -725,7 +727,7 @@ int TestPathTracerMaterials(int argc, char* argv[])
   { //todo: looks no different
     style->AddName("thinnish glass");
 
-    ml->AddMaterial("ThinGlass 4", "ThinGlass");
+    ml->AddMaterial("ThinGlass 4", "thinGlass");
     double thickness[1] = { 0.1 };
     ml->AddShaderVariable("ThinGlass 4", "thickness", 1, thickness);
     double pigmentColor[3] = { 1.0, 0.0, 0.0 };
@@ -749,7 +751,7 @@ int TestPathTracerMaterials(int argc, char* argv[])
   {
     style->AddName("default car paint");
 
-    ml->AddMaterial("CarPaint 1", "CarPaint");
+    ml->AddMaterial("CarPaint 1", "carPaint");
 
     actor = vtkSmartPointer<vtkActor>::New();
     actor->SetPosition(xo + xr * 1.15 * i, yo, zo + zr * 1.1 * j);
@@ -765,7 +767,7 @@ int TestPathTracerMaterials(int argc, char* argv[])
   {
     style->AddName("Flakey purpley pink car paint");
 
-    ml->AddMaterial("CarPaint 2", "CarPaint");
+    ml->AddMaterial("CarPaint 2", "carPaint");
     ml->AddShaderVariable("CarPaint 2", "baseColor", { 1., .1, .9 });
     ml->AddShaderVariable("CarPaint 2", "coatColor", { 1., .1, .9 });
     ml->AddShaderVariable("CarPaint 2", "flipflopColor", { .5, .1, .9 });
@@ -789,7 +791,7 @@ int TestPathTracerMaterials(int argc, char* argv[])
   {
     style->AddName("Silvery blue car paint");
 
-    ml->AddMaterial("CarPaint 3", "CarPaint");
+    ml->AddMaterial("CarPaint 3", "carPaint");
     ml->AddShaderVariable("CarPaint 3", "baseColor", { .4, .4, .6 });
     ml->AddShaderVariable("CarPaint 3", "coatColor", { .7, .7, .8 });
     ml->AddShaderVariable("CarPaint 3", "coatThickness", { .3 });
@@ -817,7 +819,7 @@ int TestPathTracerMaterials(int argc, char* argv[])
   {
     style->AddName("default principled");
 
-    ml->AddMaterial("Principled 1", "Principled");
+    ml->AddMaterial("Principled 1", "principled");
 
     actor = vtkSmartPointer<vtkActor>::New();
     actor->SetPosition(xo + xr * 1.15 * i, yo, zo + zr * 1.1 * j);
@@ -833,7 +835,7 @@ int TestPathTracerMaterials(int argc, char* argv[])
   {
     style->AddName("green sheen principled");
 
-    ml->AddMaterial("Principled 2", "Principled");
+    ml->AddMaterial("Principled 2", "principled");
     ml->AddShaderVariable("Principled 2", "baseColor", { .6, .9, .6 });
     ml->AddShaderVariable("Principled 2", "edgeColor", { .1, .9, .2 });
     ml->AddShaderVariable("Principled 2", "metallic", { .7 });

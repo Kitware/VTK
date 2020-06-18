@@ -6,7 +6,7 @@ set(classes
   vtkOSPRayLightNode
   vtkOSPRayMaterialHelpers
   vtkOSPRayMaterialLibrary
-  vtkOSPRayMoleculeMapperNode
+  #vtkOSPRayMoleculeMapperNode
   vtkOSPRayPass
   vtkOSPRayPolyDataMapperNode
   vtkOSPRayRendererNode
@@ -57,11 +57,12 @@ vtk_module_install_headers(
 if (VTK_ENABLE_OSPRAY)
   vtk_module_find_package(
     PACKAGE ospray
-    VERSION 1.8)
+    VERSION 2.1)
 
   vtk_module_link(VTK::RenderingRayTracing
     PUBLIC
-      ospray::ospray)
+      ospray::ospray
+      )
   if (VTKOSPRAY_ENABLE_DENOISER)
     vtk_module_find_package(
       PACKAGE OpenImageDenoise

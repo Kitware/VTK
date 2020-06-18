@@ -68,20 +68,16 @@ void vtkOSPRayCompositePolyDataMapper2Node::Render(bool prepass)
       static_cast<vtkOSPRayRendererNode*>(this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
     double tstep = vtkOSPRayRendererNode::GetViewTime(orn->GetRenderer());
     vtkRenderer* ren = vtkRenderer::SafeDownCast(orn->GetRenderable());
-    this->InstanceCache->SetSize(vtkOSPRayRendererNode::GetTimeCacheSize(ren));
-    this->GeometryCache->SetSize(vtkOSPRayRendererNode::GetTimeCacheSize(ren));
 
     // if there are no changes, just reuse last result
     vtkMTimeType inTime = aNode->GetMTime();
-    if (this->RenderTime >= inTime ||
-      (this->UseInstanceCache && this->InstanceCache->Contains(tstep)) ||
-      (this->UseGeometryCache && this->GeometryCache->Contains(tstep)))
+    if (this->RenderTime >= inTime)
     {
-      this->RenderGeometries();
+      this->RenderGeometricModels();
       return;
     }
     this->RenderTime = inTime;
-    this->ClearGeometries();
+    this->ClearGeometricModels();
 
     vtkProperty* prop = act->GetProperty();
 
@@ -121,8 +117,7 @@ void vtkOSPRayCompositePolyDataMapper2Node::Render(bool prepass)
     this->BlockState.SpecularColor.pop();
     this->BlockState.Material.pop();
 
-    this->PopulateCache();
-    this->RenderGeometries();
+    this->RenderGeometricModels();
   }
 }
 

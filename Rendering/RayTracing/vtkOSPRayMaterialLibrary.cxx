@@ -39,17 +39,17 @@
 namespace
 {
 const std::map<std::string, std::map<std::string, std::string>> Aliases = {
-  { "OBJMaterial",
-    { { "colorMap", "map_Kd" }, { "map_kd", "map_Kd" }, { "map_ks", "map_Ks" },
-      { "map_ns", "map_Ns" }, { "map_bump", "map_Bump" }, { "normalMap", "map_Bump" },
-      { "BumpMap", "map_Bump" }, { "color", "Kd" }, { "kd", "Kd" }, { "alpha", "d" },
-      { "ks", "Ks" }, { "ns", "Ns" }, { "tf", "Tf" } } },
-  { "ThinGlass", { { "color", "attenuationColor" }, { "transmission", "attenuationColor" } } },
-  { "MetallicPaint", { { "color", "baseColor" } } },
-  { "Glass",
+  { "obj",
+    { { "colorMap", "map_kd" }, { "map_Kd", "map_kd" }, { "map_Ks", "map_ks" },
+      { "map_Ns", "map_ns" }, { "map_Bump", "map_bump" }, { "normalMap", "map_bump" },
+      { "BumpMap", "map_bump" }, { "color", "kd" }, { "Kd", "kd" }, { "alpha", "d" },
+      { "Ks", "ks" }, { "ns", "Ns" }, { "tf", "Tf" } } },
+  { "thinGlass", { { "color", "attenuationColor" }, { "transmission", "attenuationColor" } } },
+  { "metallicPaint", { { "color", "baseColor" } } },
+  { "glass",
     { { "etaInside", "eta" }, { "etaOutside", "eta" },
       { "attenuationColorOutside", "attenuationColor" } } },
-  { "Principled", {} }, { "CarPaint", {} }, { "Metal", {} }, { "Alloy", {} }, { "Luminous", {} }
+  { "principled", {} }, { "carPaint", {} }, { "metal", {} }, { "alloy", {} }, { "luminous", {} }
 };
 
 std::string FindRealName(const std::string& materialType, const std::string& alias)
@@ -311,7 +311,40 @@ bool vtkOSPRayMaterialLibrary::InternalParseJSON(
     // keep a record so others know this material is available
     this->Internal->NickNames.insert(nickname);
 
-    const std::string& implname = nextmat["type"].asString();
+    std::string implname = nextmat["type"].asString();
+    // backward compatibility over OSPRay 2.0 name changes
+    if (implname == "Alloy")
+    {
+      implname = "alloy";
+    }
+    if (implname == "CarPaint")
+    {
+      implname = "carPaint";
+    }
+    if (implname == "Glass")
+    {
+      implname = "glass";
+    }
+    if (implname == "Metal")
+    {
+      implname = "metal";
+    }
+    if (implname == "MetallicPaint")
+    {
+      implname = "metallicPaint";
+    }
+    if (implname == "OBJMaterial")
+    {
+      implname = "obj";
+    }
+    if (implname == "Principled")
+    {
+      implname = "principled";
+    }
+    if (implname == "ThinGlass")
+    {
+      implname = "thinGlass";
+    }
     this->Internal->ImplNames[nickname] = implname;
     if (nextmat.isMember("textures"))
     {
@@ -401,7 +434,7 @@ bool vtkOSPRayMaterialLibrary::InternalParseMTL(
 {
   std::string str;
   std::string nickname = "";
-  std::string implname = "OBJMaterial";
+  std::string implname = "obj";
 
   const std::vector<std::string> singles{ "d ", "Ks ", "alpha ", "roughness ", "eta ",
     "thickness " };
@@ -420,7 +453,7 @@ bool vtkOSPRayMaterialLibrary::InternalParseMTL(
     {
       nickname = trim(tstr.substr(lkey.size()));
       this->Internal->NickNames.insert(nickname);
-      this->Internal->ImplNames[nickname] = "OBJMaterial";
+      this->Internal->ImplNames[nickname] = "obj";
     }
 
     // ospray type of the material, if not obj
@@ -432,20 +465,46 @@ bool vtkOSPRayMaterialLibrary::InternalParseMTL(
       implname = trim(tstr.substr(lkey.size()));
       if (implname == "matte")
       {
-        implname = "OBJMaterial";
+        implname = "obj";
       }
       if (implname == "glass")
       {
-        implname = "ThinGlass";
+        implname = "thinGlass";
       }
-      if (implname == "metal")
+      // backward compatibility over OSPRay 2.0 name changes
+      if (implname == "Alloy")
       {
-        implname = "Metal";
+        implname = "alloy";
       }
-      if (implname == "metallicPaint")
+      if (implname == "CarPaint")
       {
-        implname = "MetallicPaint";
+        implname = "carPaint";
       }
+      if (implname == "Glass")
+      {
+        implname = "glass";
+      }
+      if (implname == "Metal")
+      {
+        implname = "metal";
+      }
+      if (implname == "MetallicPaint")
+      {
+        implname = "metallicPaint";
+      }
+      if (implname == "OBJMaterial")
+      {
+        implname = "obj";
+      }
+      if (implname == "Principled")
+      {
+        implname = "principled";
+      }
+      if (implname == "ThinGlass")
+      {
+        implname = "thinGlass";
+      }
+
       this->Internal->ImplNames[nickname] = implname;
     }
 
@@ -739,41 +798,41 @@ vtkOSPRayMaterialLibrary::GetParametersDictionary()
   // If attribute name changes with new OSPRay version, keep old name aliases support in functions
   // vtkOSPRayMaterialLibrary::AddShaderVariable and vtkOSPRayMaterialLibrary::AddTexture
   static std::map<std::string, vtkOSPRayMaterialLibrary::ParametersMap> dic = {
-    { "OBJMaterial",
+    { "obj",
       {
-        { "Ka", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
-        { "Kd", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
-        { "Ks", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
-        { "Ns", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "ka", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
+        { "kd", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
+        { "ks", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
+        { "ns", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
         { "d", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
-        { "Tf", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
-        { "map_Bump", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
-        { "map_Bump.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
-        { "map_Bump.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
-        { "map_Bump.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
-        { "map_Bump.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
-        { "map_Kd", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
-        { "map_Kd.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
-        { "map_Kd.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
-        { "map_Kd.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
-        { "map_Kd.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
-        { "map_Ks", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
-        { "map_Ks.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
-        { "map_Ks.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
-        { "map_Ks.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
-        { "map_Ks.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
-        { "map_Ns", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
-        { "map_Ns.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
-        { "map_Ns.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
-        { "map_Ns.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
-        { "map_Ns.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "tf", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
+        { "map_bump", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "map_bump.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "map_bump.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "map_bump.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "map_bump.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "map_kd", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "map_kd.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "map_kd.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "map_kd.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "map_kd.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "map_ks", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "map_ks.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "map_ks.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "map_ks.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "map_ks.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "map_ns", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "map_ns.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "map_ns.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "map_ns.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "map_ns.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "map_d", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
         { "map_d.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
         { "map_d.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
         { "map_d.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "map_d.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
       } },
-    { "Principled",
+    { "principled",
       {
         { "baseColor", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
         { "edgeColor", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
@@ -944,7 +1003,7 @@ vtkOSPRayMaterialLibrary::GetParametersDictionary()
         { "opacityMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "opacityMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
       } },
-    { "CarPaint",
+    { "carPaint",
       {
         { "baseColor", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
         { "roughness", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
@@ -1043,7 +1102,7 @@ vtkOSPRayMaterialLibrary::GetParametersDictionary()
         { "flipflopFalloffMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "flipflopFalloffMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
       } },
-    { "Metal",
+    { "metal",
       {
         { "ior", vtkOSPRayMaterialLibrary::ParameterType::FLOAT_DATA },
         { "eta", vtkOSPRayMaterialLibrary::ParameterType::VEC3 },
@@ -1055,7 +1114,7 @@ vtkOSPRayMaterialLibrary::GetParametersDictionary()
         { "map_roughness.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "map_roughness.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
       } },
-    { "Alloy",
+    { "alloy",
       {
         { "color", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
         { "edgeColor", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
@@ -1076,13 +1135,13 @@ vtkOSPRayMaterialLibrary::GetParametersDictionary()
         { "map_roughness.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "map_roughness.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
       } },
-    { "Glass",
+    { "glass",
       {
         { "eta", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
         { "attenuationColor", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
         { "attenuationDistance", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
       } },
-    { "ThinGlass",
+    { "thinGlass",
       {
         { "eta", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
         { "attenuationColor", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
@@ -1094,7 +1153,7 @@ vtkOSPRayMaterialLibrary::GetParametersDictionary()
         { "map_attenuationColor.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "map_attenuationColor.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
       } },
-    { "MetallicPaint",
+    { "metallicPaint",
       {
         { "baseColor", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
         { "flakeAmount", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
