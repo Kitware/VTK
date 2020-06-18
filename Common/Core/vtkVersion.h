@@ -31,13 +31,6 @@
 #include "vtkObject.h"
 #include "vtkVersionMacros.h" // For version macros
 
-#define VTK_SOURCE_VERSION "vtk version " VTK_VERSION
-
-#define VTK_VERSION_CHECK(major, minor, build)                                                     \
-  (10000000000ULL * major + 100000000ULL * minor + build)
-#define VTK_VERSION_NUMBER                                                                         \
-  VTK_VERSION_CHECK(VTK_MAJOR_VERSION, VTK_MINOR_VERSION, VTK_BUILD_VERSION)
-
 class VTKCOMMONCORE_EXPORT vtkVersion : public vtkObject
 {
 public:
