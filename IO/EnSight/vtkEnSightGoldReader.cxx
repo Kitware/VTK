@@ -805,7 +805,7 @@ int vtkEnSightGoldReader::ReadAsymmetricTensorsPerNode(const char* fileName,
   if (this->FilePath)
   {
     fileNameString = this->FilePath;
-    if (fileNameString.at(fileNameString.back()) != '/')
+    if (fileNameString.back() != '/')
     {
       fileNameString += "/";
     }
@@ -1397,7 +1397,7 @@ int vtkEnSightGoldReader::ReadAsymmetricTensorsPerElement(const char* fileName,
   if (this->FilePath)
   {
     fileNameString = this->FilePath;
-    if (fileNameString.at(fileNameString.back()) != '/')
+    if (fileNameString.back() != '/')
     {
       fileNameString += "/";
     }

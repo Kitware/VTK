@@ -1470,7 +1470,7 @@ int vtkEnSightGoldBinaryReader::ReadAsymmetricTensorsPerNode(const char* fileNam
   if (this->FilePath)
   {
     fileNameString = this->FilePath;
-    if (fileNameString.at(fileNameString.back()) != '/')
+    if (fileNameString.back() != '/')
     {
       fileNameString += "/";
     }
@@ -2402,7 +2402,7 @@ int vtkEnSightGoldBinaryReader::ReadAsymmetricTensorsPerElement(const char* file
   if (this->FilePath)
   {
     fileNameString = this->FilePath;
-    if (fileNameString.at(fileNameString.back()) != '/')
+    if (fileNameString.back() != '/')
     {
       fileNameString += "/";
     }
