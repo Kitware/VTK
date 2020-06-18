@@ -127,7 +127,10 @@ int ImageHistogramStatistics(int argc, char* argv[])
 
   double rangeWithNaN[2];
   imageDataWitNaN->GetScalarRange(rangeWithNaN);
-  if (fabs((rangeOriginal[0] - rangeWithNaN[0]) / rangeOriginal[0]) > tol)
+
+  // range original[0] is 0 but overall range is around 3600
+  // so do not divide by range original[0] here
+  if (fabs(rangeOriginal[0] - rangeWithNaN[0]) > tol)
   {
     cout.precision(16);
     cout << "rangeWithNaN[0] " << rangeWithNaN[0] << " should be " << rangeOriginal[0] << endl;
