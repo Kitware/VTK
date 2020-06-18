@@ -136,6 +136,14 @@ CMake's GUI has input entries for the build directory and the generator
 already. Note that on Windows, the GUI must be launched from a "Native Tools
 Command Prompt" available with Visual Studio in the start menu.
 
+### Missing dependencies
+
+CMake may not find all dependencies automatically in all cases. The steps
+needed to find any given package depends on the package itself. For general
+assistance, please see the documentation for
+[`find_package`'s search procedure][cmake-find_package-search] and
+[the relevant Find module][cmake-modules-find] (as available).
+
 ### Build Settings
 
 VTK has a number of settings available for its build. The common variables
@@ -305,6 +313,8 @@ The following targets are used to build documentation for VTK:
 
 [cmake]: https://cmake.org
 [cmake-download]: https://cmake.org/download
+[cmake-find_package-search]: https://cmake.org/cmake/help/latest/command/find_package.html#search-procedure
+[cmake-modules-find]: https://cmake.org/cmake/help/latest/manual/cmake-modules.7.html#find-modules
 [ffmpeg]: https://ffmpeg.org
 [git]: https://git-scm.org
 [mesa]: https://www.mesa3d.org
