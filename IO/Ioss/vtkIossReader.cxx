@@ -843,6 +843,7 @@ Ioss::Region* vtkIossReader::vtkInternals::GetRegion(const std::string& dbasenam
       "exodusII", dbasename, Ioss::READ_RESTART, MPI_COMM_WORLD, properties);
     if (dbase == nullptr || !dbase->ok(/*write_message=*/true))
     {
+      delete dbase;
       throw std::runtime_error(
         "Failed to open database " + this->GetRawFileName(DatabaseHandle{ dbasename, fileid }));
     }
