@@ -1,7 +1,7 @@
 function (_vtk_package_append_variables)
   set(_vtk_package_variables)
   foreach (var IN LISTS ARGN)
-    if (NOT ${var})
+    if (NOT DEFINED "${var}")
       continue ()
     endif ()
 
