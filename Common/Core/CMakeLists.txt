@@ -287,7 +287,8 @@ set(templates
   vtkArrayIteratorTemplateImplicit.txx)
 
 set(private_templates
-  vtkDataArrayPrivate.txx)
+  vtkDataArrayPrivate.txx
+  vtkMathPrivate.hxx)
 
 set(vtk_include_dirs)
 
