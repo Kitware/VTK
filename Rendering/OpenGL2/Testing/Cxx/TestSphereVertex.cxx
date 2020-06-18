@@ -73,7 +73,7 @@ int TestSphereVertex(int argc, char* argv[])
   renderer->ResetCameraClippingRange();
   renderWindow->Render();
 
-  int retVal = vtkRegressionTestImage(renderWindow);
+  int retVal = vtkRegressionTestImageThreshold(renderWindow, 0.5);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
