@@ -1237,6 +1237,7 @@ protected:
       }
 
       this->Arrays->Int64->~VisitState();
+      delete this->Arrays->Int64;
       this->Arrays->Int32 = new VisitState<ArrayType32>;
       this->StorageIs64Bit = false;
 
@@ -1253,6 +1254,7 @@ protected:
       }
 
       this->Arrays->Int32->~VisitState();
+      delete this->Arrays->Int32;
       this->Arrays->Int64 = new VisitState<ArrayType64>;
       this->StorageIs64Bit = true;
 
