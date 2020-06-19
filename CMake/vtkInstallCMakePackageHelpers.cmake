@@ -1,7 +1,7 @@
 function (_vtk_package_append_variables)
   set(_vtk_package_variables)
   foreach (var IN LISTS ARGN)
-    if (NOT ${var})
+    if (NOT DEFINED "${var}")
       continue ()
     endif ()
 
@@ -34,7 +34,8 @@ endif ()
 
 # Per-package variable forwarding goes here.
 set(Boost_find_package_vars
-  Boost_INCLUDE_DIR)
+  Boost_INCLUDE_DIR
+  Boost_USE_STATIC_LIBS)
 set(MPI_find_package_vars
   MPI_C_COMPILER)
 set(OSMesa_find_package_vars
