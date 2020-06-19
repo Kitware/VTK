@@ -20,7 +20,7 @@
 #include "vtkOSPRayCameraNode.h"
 #include "vtkOSPRayCompositePolyDataMapper2Node.h"
 #include "vtkOSPRayLightNode.h"
-//#include "vtkOSPRayMoleculeMapperNode.h"
+#include "vtkOSPRayMoleculeMapperNode.h"
 #include "vtkOSPRayPolyDataMapperNode.h"
 #include "vtkOSPRayRendererNode.h"
 #include "vtkOSPRayTetrahedraMapperNode.h"
@@ -68,13 +68,11 @@ vtkViewNode* pd_maker()
   return vn;
 }
 
-/*
 vtkViewNode* molecule_maker()
 {
   vtkOSPRayMoleculeMapperNode* vn = vtkOSPRayMoleculeMapperNode::New();
   return vn;
 }
-*/
 
 vtkViewNode* vm_maker()
 {
@@ -120,7 +118,7 @@ vtkOSPRayViewNodeFactory::vtkOSPRayViewNodeFactory()
   this->RegisterOverride("vtkUnstructuredGridVolumeZSweepMapper", tetm_maker);
   this->RegisterOverride("vtkUnstructuredGridVolumeRayCastMapper", tetm_maker);
   this->RegisterOverride("vtkAMRVolumeMapper", amrm_maker);
-  //  this->RegisterOverride("vtkMoleculeMapper", molecule_maker);
+  this->RegisterOverride("vtkMoleculeMapper", molecule_maker);
 }
 
 //------------------------------------------------------------------------------

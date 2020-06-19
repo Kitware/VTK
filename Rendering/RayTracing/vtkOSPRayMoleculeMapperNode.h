@@ -45,7 +45,8 @@ protected:
   ~vtkOSPRayMoleculeMapperNode() override;
 
   vtkTimeStamp BuildTime;
-  std::vector<OSPGeometry> Geometries;
+  std::vector<OSPGeometricModel> GeometricModels;
+  std::vector<OSPInstance> Instances;
 
 private:
   vtkOSPRayMoleculeMapperNode(const vtkOSPRayMoleculeMapperNode&) = delete;
