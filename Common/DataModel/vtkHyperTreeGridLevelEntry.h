@@ -14,7 +14,6 @@
 =========================================================================*/
 /**
  * @class   vtkHyperTreeGridLevelEntry
- *
  * @brief   LevelEntry is a cache data for cursors requiring level info
  *
  * cf. vtkHyperTreeGridEntry

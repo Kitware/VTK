@@ -14,9 +14,7 @@
  =========================================================================*/
 /**
  * @class   vtkLevelIdScalars
- *
- *
- *  Empty class for backwards compatibility.
+ * @brief   Empty class for backwards compatibility.
  */
 
 #ifndef vtkLevelIdScalars_h

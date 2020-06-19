@@ -14,7 +14,6 @@
 =========================================================================*/
 /**
  * @class   vtkHyperTreeGridGeometryLevelEntry
- *
  * @brief   Cursor cache data with coordinates and level info
  *
  * cf. vtkHyperTreeGridEntry

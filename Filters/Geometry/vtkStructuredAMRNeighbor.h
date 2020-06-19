@@ -14,9 +14,7 @@
  =========================================================================*/
 /**
  * @class   vtkStructuredAMRNeighbor
- *
- *
- *  An internal, light-weight object used to store neighbor information for
+ * @brief   An internal, light-weight object used to store neighbor information for
  *  AMR grids.
  *
  * @sa

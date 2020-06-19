@@ -14,9 +14,7 @@
  =========================================================================*/
 /**
  * @class   vtkStructuredNeighbor
- *
- *
- *  An internal, light-weight class used to store neighbor information.
+ * @brief   An internal, light-weight class used to store neighbor information.
  */
 
 #ifndef vtkStructuredNeighbor_h

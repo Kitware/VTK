@@ -14,9 +14,7 @@
  =========================================================================*/
 /**
  * @class   vtkAMRBaseParticlesReader
- *
- *
- *  An abstract base class that implements all the common functionality for
+ * @brief   An abstract base class that implements all the common functionality for
  *  all particle readers.
  */
 

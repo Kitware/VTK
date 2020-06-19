@@ -14,9 +14,7 @@
  =========================================================================*/
 /**
  * @class   vtkHierarchicalBoxDataIterator
- *
- *
- *  Empty class for backwards compatibility.
+ * @brief   Empty class for backwards compatibility.
  */
 
 #ifndef vtkHierarchicalBoxDataIterator_h

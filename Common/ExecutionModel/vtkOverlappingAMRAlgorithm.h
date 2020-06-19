@@ -14,9 +14,7 @@
  =========================================================================*/
 /**
  * @class   vtkOverlappingAMRAlgorithm
- *
- *
- *  A base class for all algorithms that take as input vtkOverlappingAMR and
+ * @brief   A base class for all algorithms that take as input vtkOverlappingAMR and
  *  produce vtkOverlappingAMR.
  */
 

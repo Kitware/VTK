@@ -14,9 +14,7 @@
  =========================================================================*/
 /**
  * @class   vtkNonOverlappingAMR
- *
- *
- *  A concrete instance of vtkUniformGridAMR to store uniform grids at different
+ * @brief   A concrete instance of vtkUniformGridAMR to store uniform grids at different
  *  levels of resolution that do not overlap with each other.
  *
  * @sa

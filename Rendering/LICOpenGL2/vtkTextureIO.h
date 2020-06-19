@@ -14,8 +14,7 @@
 =========================================================================*/
 /**
  * @class   vtkTextureIO
- *
- * A small collection of I/O routines that write vtkTextureObject
+ * @brief   A small collection of I/O routines that write vtkTextureObject
  * to disk for debugging.
  */
 

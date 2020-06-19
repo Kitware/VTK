@@ -15,8 +15,7 @@
 
 /**
  * @class   vtkSmartPyObject
- *
- * The vtkSmartPyObject class serves as a smart pointer for PyObjects.
+ * @brief   The vtkSmartPyObject class serves as a smart pointer for PyObjects.
  */
 
 #ifndef vtkSmartPyObject_h

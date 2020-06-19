@@ -14,8 +14,7 @@
 =========================================================================*/
 /**
  * @class   vtkWebGLExporter
- *
- * vtkWebGLExporter export the data of the scene to be used in the WebGL.
+ * @brief   vtkWebGLExporter export the data of the scene to be used in the WebGL.
  */
 
 #ifndef vtkWebGLExporter_h

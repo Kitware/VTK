@@ -13,8 +13,7 @@
 =========================================================================*/
 /**
  * @class   vtkLICNoiseHelper
- *
- * A small collection of noise routines for LIC
+ * @brief   A small collection of noise routines for LIC
  */
 
 #ifndef vtkLICNoiseHelper_h

@@ -14,8 +14,7 @@
 =========================================================================*/
 /**
  * @class   vtkWebGLObject
- *
- * vtkWebGLObject represent and manipulate an WebGL object and its data.
+ * @brief   vtkWebGLObject represent and manipulate an WebGL object and its data.
  */
 
 #ifndef vtkWebGLObject_h

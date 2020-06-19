@@ -14,8 +14,7 @@
 =========================================================================*/
 /**
  * @class   vtkWebGLDataSet
- *
- * vtkWebGLDataSet represent vertices, lines, polygons, and triangles.
+ * @brief   vtkWebGLDataSet represent vertices, lines, polygons, and triangles.
  */
 
 #ifndef vtkWebGLDataSet_h
