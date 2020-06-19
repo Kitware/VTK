@@ -52,11 +52,8 @@ int TestSingleGridBlanking(bool pointBlanking, bool reverse, int expectedNumberO
   pointDataToCellData->Update();
 
   vtkNew<vtkImageDataToUniformGrid> imageDataToUniformGrid;
-  if (reverse)
-  {
-    imageDataToUniformGrid->ReverseOn();
-  }
   imageDataToUniformGrid->SetInputConnection(pointDataToCellData->GetOutputPort());
+  imageDataToUniformGrid->SetReverse(reverse);
   if (pointBlanking)
   {
     imageDataToUniformGrid->SetInputArrayToProcess(
