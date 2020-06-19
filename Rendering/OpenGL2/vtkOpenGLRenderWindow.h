@@ -198,20 +198,17 @@ public:
   void GetOpenGLVersion(int& major, int& minor);
 
   //@{
-  /**
-   * @deprecated in VTK 9.1
-   */
-  VTK_DEPRECATED_IN_9_1_0("Removed in 9.1")
+  VTK_DEPRECATED_IN_9_1_0("Removed in 9.1, now always returns 0")
   unsigned int GetBackLeftBuffer();
-  VTK_DEPRECATED_IN_9_1_0("Removed in 9.1")
+  VTK_DEPRECATED_IN_9_1_0("Removed in 9.1, now always returns 0")
   unsigned int GetBackRightBuffer();
-  VTK_DEPRECATED_IN_9_1_0("Removed in 9.1")
+  VTK_DEPRECATED_IN_9_1_0("Removed in 9.1, now always returns 0")
   unsigned int GetFrontLeftBuffer();
-  VTK_DEPRECATED_IN_9_1_0("Removed in 9.1")
+  VTK_DEPRECATED_IN_9_1_0("Removed in 9.1, now always returns 0")
   unsigned int GetFrontRightBuffer();
-  VTK_DEPRECATED_IN_9_1_0("Removed in 9.1")
+  VTK_DEPRECATED_IN_9_1_0("Removed in 9.1, now always returns 0")
   unsigned int GetBackBuffer();
-  VTK_DEPRECATED_IN_9_1_0("Removed in 9.1")
+  VTK_DEPRECATED_IN_9_1_0("Removed in 9.1, now always returns 0")
   unsigned int GetFrontBuffer();
   //@}
 
