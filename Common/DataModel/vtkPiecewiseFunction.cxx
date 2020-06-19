@@ -534,6 +534,7 @@ bool vtkPiecewiseFunction::RemovePointByIndex(size_t id)
     return false;
   }
 
+  delete this->Internal->Nodes[id];
   this->Internal->Nodes.erase(this->Internal->Nodes.begin() + id);
 
   // if the first or last point has been removed, then we update the range
