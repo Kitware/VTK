@@ -31,6 +31,8 @@
 #include <Ioss_SideBlock.h>
 #include <Ioss_SideSet.h>
 
+#include <memory>
+
 namespace vtkIossUtilities
 {
 
@@ -442,9 +444,9 @@ vtkSmartPointer<vtkCellArray> GetConnectivity(
     // for nodesets, we create a cell array with single cells.
 
     // ioss ids_raw is 1-indexed, let's make it 0-indexed for VTK.
-    auto transform = Iotr::Factory::create("offset");
+    auto transform = std::unique_ptr<Ioss::Transform>(Iotr::Factory::create("offset"));
     transform->set_property("offset", -1);
-    auto ids_raw = vtkIossUtilities::GetData(group_entity, "ids_raw", transform);
+    auto ids_raw = vtkIossUtilities::GetData(group_entity, "ids_raw", transform.get());
     ids_raw->SetNumberOfComponents(1);
 
     vtkSmartPointer<vtkCellArray> cellArray = vtkSmartPointer<vtkCellArray>::New();
@@ -462,10 +464,11 @@ vtkSmartPointer<vtkCellArray> GetConnectivity(
   vtkSmartPointer<vtkCellArray> cellArray = vtkSmartPointer<vtkCellArray>::New();
 
   // ioss connectivity_raw is 1-indexed, let's make it 0-indexed for VTK.
-  auto transform = Iotr::Factory::create("offset");
+  auto transform = std::unique_ptr<Ioss::Transform>(Iotr::Factory::create("offset"));
   transform->set_property("offset", -1);
 
-  auto connectivity_raw = vtkIossUtilities::GetData(group_entity, "connectivity_raw", transform);
+  auto connectivity_raw =
+    vtkIossUtilities::GetData(group_entity, "connectivity_raw", transform.get());
 
   auto vtk_cell_points = vtkIossUtilities::GetNumberOfPointsInCellType(vtk_topology_type);
   if (vtk_cell_points == -1)
