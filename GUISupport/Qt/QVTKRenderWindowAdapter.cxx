@@ -309,8 +309,9 @@ public:
     }
 
     int* rbsize = this->RenderWindow->GetRenderFramebuffer()->GetLastSize();
-    this->RenderWindow->BlitDisplayBuffer(left ? 0 : 1, 0, 0, rbsize[0], rbsize[1], targetRect.x(),
-      targetRect.y(), targetRect.width(), targetRect.height(), GL_COLOR_BUFFER_BIT, GL_NEAREST);
+    this->RenderWindow->BlitDisplayFramebuffer(left ? 0 : 1, 0, 0, rbsize[0], rbsize[1],
+      targetRect.x(), targetRect.y(), targetRect.width(), targetRect.height(), GL_COLOR_BUFFER_BIT,
+      GL_NEAREST);
 
     this->clearAlpha(targetRect);
 

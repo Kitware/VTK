@@ -1670,6 +1670,12 @@ void vtkOpenGLState::Initialize(vtkOpenGLRenderWindow*)
   ::glGetIntegerv(GL_MAX_TEXTURE_SIZE, &this->MaxTextureSize);
   ::glGetIntegerv(GL_MAJOR_VERSION, &this->MajorVersion);
   ::glGetIntegerv(GL_MINOR_VERSION, &this->MinorVersion);
+  char const* tmp = reinterpret_cast<const char*>(::glGetString(GL_VENDOR));
+  this->Vendor = tmp ? tmp : std::string();
+  tmp = reinterpret_cast<char const*>(::glGetString(GL_RENDERER));
+  this->Renderer = tmp ? tmp : std::string();
+  tmp = reinterpret_cast<char const*>(::glGetString(GL_VERSION));
+  this->Version = tmp ? tmp : std::string();
 
   this->ResetFramebufferBindings();
 }

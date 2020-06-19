@@ -29,6 +29,7 @@
 #include "vtkOpenGLFramebufferObject.h"
 #include "vtkOpenGLLight.h"
 #include "vtkOpenGLProperty.h"
+#include "vtkOpenGLQuadHelper.h"
 #include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLResourceFreeCallback.h"
@@ -65,6 +66,37 @@ static int vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples = 8;
 
 const char* defaultWindowName = "Visualization Toolkit - OpenGL";
 
+const char* ResolveShader =
+  R"***(
+  //VTK::System::Dec
+  in vec2 texCoord;
+  uniform sampler2DMS tex;
+  uniform int samplecount;
+  //VTK::Output::Dec
+
+  void main()
+  {
+    float gamma = 2.2;
+
+    // for each sample in the multi sample buffer...
+    ivec2 itexcoords = ivec2(floor(textureSize(tex) * texCoord));
+    vec3 accumulate;
+    float alpha = 0.0;
+
+    for (int i = 0; i < samplecount; i++)
+    {
+      vec4 sample = texelFetch(tex, itexcoords, i);
+      // apply gamma correction and sum
+      accumulate += pow(sample.rgb, vec3(gamma));
+      alpha += sample.a;
+    }
+
+    // divide and reverse gamma correction
+    accumulate /= float(samplecount);
+    gl_FragData[0] = vec4(pow(accumulate, vec3(1.0/gamma)), alpha/float(samplecount));
+  }
+  )***";
+
 //------------------------------------------------------------------------------
 void vtkOpenGLRenderWindow::SetGlobalMaximumNumberOfMultiSamples(int val)
 {
@@ -92,6 +124,7 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
 {
   this->State = vtkOpenGLState::New();
   this->FrameBlitMode = BlitToHardware;
+  this->ResolveQuad = nullptr;
 
   this->Initialized = false;
   this->GlewInitValid = false;
@@ -220,6 +253,12 @@ const char* vtkOpenGLRenderWindow::ReportCapabilities()
 void vtkOpenGLRenderWindow::ReleaseGraphicsResources(vtkWindow* renWin)
 {
   this->PushContext();
+
+  if (this->ResolveQuad)
+  {
+    delete this->ResolveQuad;
+    this->ResolveQuad = nullptr;
+  }
 
   this->RenderFramebuffer->ReleaseGraphicsResources(renWin);
   this->DisplayFramebuffer->ReleaseGraphicsResources(renWin);
@@ -895,19 +934,64 @@ void vtkOpenGLRenderWindow::StereoMidpoint()
   if (this->SwapBuffers && this->StereoType == VTK_STEREO_CRYSTAL_EYES)
   {
     this->GetState()->PushFramebufferBindings();
-    this->RenderFramebuffer->Bind(GL_READ_FRAMEBUFFER);
-    int* fbsize = this->RenderFramebuffer->GetLastSize();
-
-    // recall Blit upper right corner is exclusive of the range
-    const int srcExtents[4] = { 0, fbsize[0], 0, fbsize[1] };
-
-    this->GetState()->vtkglViewport(0, 0, fbsize[0], fbsize[1]);
-    this->GetState()->vtkglScissor(0, 0, fbsize[0], fbsize[1]);
 
     this->DisplayFramebuffer->Bind(GL_DRAW_FRAMEBUFFER);
     this->DisplayFramebuffer->ActivateDrawBuffer(0);
-    vtkOpenGLFramebufferObject::Blit(
-      srcExtents, srcExtents, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+
+    int* fbsize = this->DisplayFramebuffer->GetLastSize();
+    this->GetState()->vtkglViewport(0, 0, fbsize[0], fbsize[1]);
+    this->GetState()->vtkglScissor(0, 0, fbsize[0], fbsize[1]);
+
+    bool copiedColor = false;
+
+    // if we have a MSAA buffer we have to resolve it using a shader as opposed to
+    // a normal blit due to linear/gamma colorspace issues
+    if (this->MultiSamples > 1 && this->RenderFramebuffer->GetColorAttachmentAsTextureObject(0))
+    {
+      if (!this->ResolveQuad)
+      {
+        this->ResolveQuad = new vtkOpenGLQuadHelper(this, nullptr, ResolveShader, "");
+        if (!this->ResolveQuad->Program || !this->ResolveQuad->Program->GetCompiled())
+        {
+          vtkErrorMacro("Couldn't build the shader program for resolving msaa.");
+        }
+      }
+      else
+      {
+        this->GetShaderCache()->ReadyShaderProgram(this->ResolveQuad->Program);
+      }
+
+      this->GetState()->vtkglDisable(GL_DEPTH_TEST);
+
+      if (this->ResolveQuad->Program && this->ResolveQuad->Program->GetCompiled())
+      {
+        this->GetState()->vtkglDisable(GL_DEPTH_TEST);
+        this->GetState()->vtkglDisable(GL_BLEND);
+        auto tex = this->RenderFramebuffer->GetColorAttachmentAsTextureObject(0);
+        tex->Activate();
+        this->ResolveQuad->Program->SetUniformi("samplecount", this->MultiSamples);
+        this->ResolveQuad->Program->SetUniformi("tex", tex->GetTextureUnit());
+        this->ResolveQuad->Render();
+        tex->Deactivate();
+        this->GetState()->vtkglEnable(GL_DEPTH_TEST);
+        this->GetState()->vtkglEnable(GL_BLEND);
+      }
+    }
+
+    this->RenderFramebuffer->Bind(GL_READ_FRAMEBUFFER);
+    this->RenderFramebuffer->ActivateReadBuffer(0);
+
+    // ON APPLE OSX you must turn off scissor test for DEPTH blits to work
+    auto ostate = this->GetState();
+    vtkOpenGLState::ScopedglEnableDisable stsaver(ostate, GL_SCISSOR_TEST);
+    ostate->vtkglDisable(GL_SCISSOR_TEST);
+
+    // recall Blit upper right corner is exclusive of the range
+    const int srcExtents[4] = { 0, fbsize[0], 0, fbsize[1] };
+    vtkOpenGLFramebufferObject::Blit(srcExtents, srcExtents,
+      (copiedColor ? 0 : GL_COLOR_BUFFER_BIT) | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+
+    this->GetState()->PopFramebufferBindings();
   }
 }
 
@@ -916,22 +1000,61 @@ void vtkOpenGLRenderWindow::Frame()
 {
   if (this->SwapBuffers)
   {
+    bool copiedColor = false;
     this->GetState()->PushFramebufferBindings();
-    this->RenderFramebuffer->Bind(GL_READ_FRAMEBUFFER);
-    int* fbsize = this->RenderFramebuffer->GetLastSize();
+    this->DisplayFramebuffer->Bind();
+    this->DisplayFramebuffer->ActivateDrawBuffer(
+      (this->StereoRender && this->StereoType == VTK_STEREO_CRYSTAL_EYES) ? 1 : 0);
 
-    // recall Blit upper right corner is exclusive of the range
-    const int srcExtents[4] = { 0, fbsize[0], 0, fbsize[1] };
-
+    int* fbsize = this->DisplayFramebuffer->GetLastSize();
     this->GetState()->vtkglViewport(0, 0, fbsize[0], fbsize[1]);
     this->GetState()->vtkglScissor(0, 0, fbsize[0], fbsize[1]);
 
-    this->DisplayFramebuffer->Bind(GL_DRAW_FRAMEBUFFER);
-    this->DisplayFramebuffer->ActivateDrawBuffer(
-      (this->StereoRender && this->StereoType == VTK_STEREO_CRYSTAL_EYES) ? 1 : 0);
-    vtkOpenGLFramebufferObject::Blit(
-      srcExtents, srcExtents, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-    this->DisplayFramebuffer->Bind(GL_READ_FRAMEBUFFER);
+    // if we have a MSAA buffer we have to resolve it using a shader as opposed to
+    // a normal blit due to linear/gamma colorspace issues
+    if (this->MultiSamples > 1 && this->RenderFramebuffer->GetColorAttachmentAsTextureObject(0))
+    {
+      if (!this->ResolveQuad)
+      {
+        this->ResolveQuad = new vtkOpenGLQuadHelper(this, nullptr, ResolveShader, "");
+        if (!this->ResolveQuad->Program || !this->ResolveQuad->Program->GetCompiled())
+        {
+          vtkErrorMacro("Couldn't build the shader program for resolving msaa.");
+        }
+      }
+      else
+      {
+        this->GetShaderCache()->ReadyShaderProgram(this->ResolveQuad->Program);
+      }
+
+      if (this->ResolveQuad->Program && this->ResolveQuad->Program->GetCompiled())
+      {
+        this->GetState()->vtkglDisable(GL_DEPTH_TEST);
+        this->GetState()->vtkglDisable(GL_BLEND);
+        auto tex = this->RenderFramebuffer->GetColorAttachmentAsTextureObject(0);
+        tex->Activate();
+        this->ResolveQuad->Program->SetUniformi("samplecount", this->MultiSamples);
+        this->ResolveQuad->Program->SetUniformi("tex", tex->GetTextureUnit());
+        this->ResolveQuad->Render();
+        tex->Deactivate();
+        copiedColor = true;
+        this->GetState()->vtkglEnable(GL_DEPTH_TEST);
+        this->GetState()->vtkglEnable(GL_BLEND);
+      }
+    }
+
+    this->RenderFramebuffer->Bind(GL_READ_FRAMEBUFFER);
+    this->RenderFramebuffer->ActivateReadBuffer(0);
+
+    // ON APPLE OSX you must turn off scissor test for DEPTH blits to work
+    auto ostate = this->GetState();
+    vtkOpenGLState::ScopedglEnableDisable stsaver(ostate, GL_SCISSOR_TEST);
+    ostate->vtkglDisable(GL_SCISSOR_TEST);
+
+    // recall Blit upper right corner is exclusive of the range
+    const int srcExtents[4] = { 0, fbsize[0], 0, fbsize[1] };
+    vtkOpenGLFramebufferObject::Blit(srcExtents, srcExtents,
+      (copiedColor ? 0 : GL_COLOR_BUFFER_BIT) | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 
     this->GetState()->vtkglViewport(0, 0, this->Size[0], this->Size[1]);
     this->GetState()->vtkglScissor(0, 0, this->Size[0], this->Size[1]);
@@ -941,17 +1064,17 @@ void vtkOpenGLRenderWindow::Frame()
     {
       if (this->FrameBlitMode == BlitToHardware)
       {
-        this->BlitDisplayBuffersToHardware();
+        this->BlitDisplayFramebuffersToHardware();
       }
       if (this->FrameBlitMode == BlitToCurrent)
       {
-        this->BlitDisplayBuffer();
+        this->BlitDisplayFramebuffer();
       }
     }
   }
 }
 
-void vtkOpenGLRenderWindow::BlitDisplayBuffersToHardware()
+void vtkOpenGLRenderWindow::BlitDisplayFramebuffersToHardware()
 {
   auto ostate = this->GetState();
   ostate->PushFramebufferBindings();
@@ -980,16 +1103,21 @@ void vtkOpenGLRenderWindow::BlitDisplayBuffersToHardware()
   this->GetState()->PopFramebufferBindings();
 }
 
-void vtkOpenGLRenderWindow::BlitDisplayBuffer()
+void vtkOpenGLRenderWindow::BlitDisplayFramebuffer()
 {
-  this->BlitDisplayBuffer(0, 0, 0, this->Size[0], this->Size[1], 0, 0, this->Size[0], this->Size[1],
-    GL_COLOR_BUFFER_BIT, GL_NEAREST);
+  this->BlitDisplayFramebuffer(0, 0, 0, this->Size[0], this->Size[1], 0, 0, this->Size[0],
+    this->Size[1], GL_COLOR_BUFFER_BIT, GL_NEAREST);
 }
 
-void vtkOpenGLRenderWindow::BlitDisplayBuffer(int right, int srcX, int srcY, int srcWidth,
+void vtkOpenGLRenderWindow::BlitDisplayFramebuffer(int right, int srcX, int srcY, int srcWidth,
   int srcHeight, int destX, int destY, int destWidth, int destHeight, int bufferMode,
   int interpolation)
 {
+  // ON APPLE OSX you must turn off scissor test for DEPTH blits to work
+  auto ostate = this->GetState();
+  vtkOpenGLState::ScopedglEnableDisable stsaver(ostate, GL_SCISSOR_TEST);
+  ostate->vtkglDisable(GL_SCISSOR_TEST);
+
   this->GetState()->PushReadFramebufferBinding();
   this->DisplayFramebuffer->Bind(GL_READ_FRAMEBUFFER);
   this->DisplayFramebuffer->ActivateReadBuffer(right ? 1 : 0);
@@ -999,6 +1127,52 @@ void vtkOpenGLRenderWindow::BlitDisplayBuffer(int right, int srcX, int srcY, int
   this->GetState()->vtkglScissor(destX, destY, destWidth, destHeight);
   vtkOpenGLFramebufferObject::Blit(srcExtents, destExtents, bufferMode, interpolation);
   this->GetState()->PopReadFramebufferBinding();
+}
+
+void vtkOpenGLRenderWindow::BlitToRenderFramebuffer(bool includeDepth)
+{
+  this->BlitToRenderFramebuffer(0, 0, this->Size[0], this->Size[1], 0, 0, this->Size[0],
+    this->Size[1], GL_COLOR_BUFFER_BIT | (includeDepth ? GL_DEPTH_BUFFER_BIT : 0), GL_NEAREST);
+}
+
+void vtkOpenGLRenderWindow::BlitToRenderFramebuffer(int srcX, int srcY, int srcWidth, int srcHeight,
+  int destX, int destY, int destWidth, int destHeight, int bufferMode, int interpolation)
+{
+  // depending on what is current bound this can be tricky, especially between multisampled
+  // buffers
+  auto ostate = this->GetState();
+  ostate->PushFramebufferBindings();
+
+  const int srcExtents[4] = { srcX, srcX + srcWidth, srcY, srcY + srcHeight };
+  const int destExtents[4] = { destX, destX + destWidth, destY, destY + destHeight };
+  ostate->vtkglViewport(destX, destY, destWidth, destHeight);
+  ostate->vtkglScissor(destX, destY, destWidth, destHeight);
+
+  // ON APPLE OSX you must turn off scissor test for DEPTH blits to work
+  vtkOpenGLState::ScopedglEnableDisable stsaver(ostate, GL_SCISSOR_TEST);
+  ostate->vtkglDisable(GL_SCISSOR_TEST);
+
+  // if we are multisampled, then we might have a problem
+  if (this->MultiSamples > 1)
+  {
+    // be safe and always resolve
+    int* fbsize = this->RenderFramebuffer->GetLastSize();
+    this->ResolveFramebuffer->Resize(fbsize[0], fbsize[1]);
+    this->ResolveFramebuffer->Bind(GL_DRAW_FRAMEBUFFER);
+    this->ResolveFramebuffer->ActivateDrawBuffer(0);
+
+    // Note: extents are (x-min, x-max, y-min, y-max).
+    vtkOpenGLFramebufferObject::Blit(srcExtents, destExtents, bufferMode, interpolation);
+
+    // Now make the resolvedFBO the read buffer and read from it.
+    this->ResolveFramebuffer->Bind(GL_READ_FRAMEBUFFER);
+    this->ResolveFramebuffer->ActivateReadBuffer(0);
+  }
+
+  this->RenderFramebuffer->Bind(GL_DRAW_FRAMEBUFFER);
+  this->RenderFramebuffer->ActivateDrawBuffer(0);
+  vtkOpenGLFramebufferObject::Blit(srcExtents, destExtents, bufferMode, interpolation);
+  ostate->PopFramebufferBindings();
 }
 
 //------------------------------------------------------------------------------
@@ -1035,6 +1209,7 @@ void vtkOpenGLRenderWindow::Start()
   // push and bind
   this->GetState()->PushFramebufferBindings();
   this->RenderFramebuffer->Bind();
+  this->RenderFramebuffer->ActivateDrawBuffer(0);
 }
 
 //------------------------------------------------------------------------------
@@ -1797,6 +1972,19 @@ int vtkOpenGLRenderWindow::CreateFramebuffers(int width, int height)
 {
   assert("pre: positive_width" && width > 0);
   assert("pre: positive_height" && height > 0);
+
+#if defined(__APPLE__)
+  // make sure requested multisamples is OK with platform
+  // APPLE Intel systems seem to have buggy multisampled
+  // frambuffer blits etc that cause issues
+  if (this->MultiSamples > 0)
+  {
+    if (this->GetState()->GetVendor().find("Intel") != std::string::npos)
+    {
+      this->MultiSamples = 0;
+    }
+  }
+#endif
 
   if (this->LastMultiSamples != this->MultiSamples)
   {

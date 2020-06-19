@@ -42,7 +42,7 @@ vtkIOSRenderWindow::vtkIOSRenderWindow()
   this->OffScreenInitialized = 0;
 }
 
-void vtkIOSRenderWindow::BlitDisplayBuffersToHardware()
+void vtkIOSRenderWindow::BlitDisplayFramebuffersToHardware()
 {
   auto ostate = this->GetState();
   ostate->PushFramebufferBindings();

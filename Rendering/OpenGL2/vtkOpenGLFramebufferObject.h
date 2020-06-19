@@ -282,6 +282,12 @@ public:
   //@}
 
   /**
+   * Return the texture object bound to the passed attachment number.
+   * In the case that a renderbuffer is used, this will return nullptr.
+   */
+  vtkTextureObject* GetColorAttachmentAsTextureObject(unsigned int num);
+
+  /**
    * Return the number of color attachments for the given mode
    */
   int GetNumberOfColorAttachments();
