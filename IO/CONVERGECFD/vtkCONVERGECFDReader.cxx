@@ -70,6 +70,8 @@ vtkCONVERGECFDReader::vtkCONVERGECFDReader()
 //----------------------------------------------------------------------------
 vtkCONVERGECFDReader::~vtkCONVERGECFDReader()
 {
+  delete[] this->FileName;
+  this->FileName = nullptr;
   delete this->Internal;
 }
 
@@ -505,7 +507,7 @@ int vtkCONVERGECFDReader::RequestData(
 
       for (hsize_t j = 0; j < xCoordsLength; ++j)
       {
-        pointArray->SetTypedComponent(j, c, floatBuffer->GetBuffer()[j]);
+        pointArray->SetTypedComponent(j, static_cast<int>(c), floatBuffer->GetBuffer()[j]);
       }
     }
 
@@ -787,7 +789,7 @@ int vtkCONVERGECFDReader::RequestData(
 
         for (hsize_t j = 0; j < parcelLength; ++j)
         {
-          parcelPointArray->SetTypedComponent(j, c, floatBuffer->GetBuffer()[j]);
+          parcelPointArray->SetTypedComponent(j, static_cast<int>(c), floatBuffer->GetBuffer()[j]);
         }
       }
 
