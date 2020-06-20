@@ -546,7 +546,7 @@ struct TensorDisplacement : public DisplacePoint
     : DisplacePoint(data, radius, pf, af)
   {
     this->DetRange[0] = detRange[0];
-    this->DetRange[1] = detRange[2];
+    this->DetRange[1] = detRange[1];
   }
   ~TensorDisplacement() override = default;
 
