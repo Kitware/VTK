@@ -89,6 +89,11 @@ list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
 set(cdash_show_third_party_warnings "@VTK_ENABLE_CDASH_THIRD_PARTY_WARNINGS@")
 if (NOT cdash_show_third_party_warnings)
   list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
+    # issue with exodus but exodus is not included in the note
+    # should these issues get fixed in exodus then remove this
+    # suppression
+    "note: '__builtin___snprintf_chk'"
+
     # HDF5 lex/yacc sources compilation lacks the "ThirdParty" part of the path.
     "hl/src/H5LT(parse|analyze)"
 
