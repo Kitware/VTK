@@ -45,8 +45,17 @@ public:
    * For some exporters and other other operations we must be
    * able to collect all the actors or volumes. These methods
    * are used in that process.
+   * In case the viewport is not a consumer of this prop:
+   * call UpdateGeometry() first for updated viewport-specific
+   * billboard geometry.
    */
-  virtual void GetActors(vtkPropCollection*) override;
+  void GetActors(vtkPropCollection*) override;
+
+  /**
+   * Updates the billboard geometry without performing any rendering,
+   * to assist GetActors().
+   */
+  void UpdateGeometry(vtkViewport* vp);
 
   /**
    * The UTF-8 encoded string to display.
@@ -96,7 +105,6 @@ public:
    * Check/update geometry/texture in opaque pass, since it only happens once.
    */
   int RenderOpaqueGeometry(vtkViewport* vp) override;
-  void UpdateGeometry(vtkViewport* vp);
 
   /**
    * Just render in translucent pass, since it can execute multiple times

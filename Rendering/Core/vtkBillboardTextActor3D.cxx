@@ -335,11 +335,6 @@ int vtkBillboardTextActor3D::RenderOpaqueGeometry(vtkViewport* vp)
 //------------------------------------------------------------------------------
 void vtkBillboardTextActor3D::UpdateGeometry(vtkViewport* vp)
 {
-  if (!this->InputIsValid())
-  {
-    return;
-  }
-
   vtkRenderer* ren = vtkRenderer::SafeDownCast(vp);
   if (!ren || ren->GetActiveCamera() == nullptr)
   {
@@ -350,8 +345,6 @@ void vtkBillboardTextActor3D::UpdateGeometry(vtkViewport* vp)
   this->RenderedRenderer = ren;
 
   this->UpdateInternals(ren);
-
-  this->PreRender();
 }
 
 //------------------------------------------------------------------------------
@@ -446,6 +439,17 @@ vtkBillboardTextActor3D::~vtkBillboardTextActor3D()
 
 void vtkBillboardTextActor3D::GetActors(vtkPropCollection* props)
 {
+  if (this->GetVisibility())
+  {
+    vtkViewport* vp = nullptr;
+    if (this->NumberOfConsumers)
+    {
+      vp = vtkViewport::SafeDownCast(this->Consumers[0]);
+      if (vp)
+        this->UpdateGeometry(vp);
+    }
+  }
+
   props->AddItem(this->QuadActor.Get());
 }
 
