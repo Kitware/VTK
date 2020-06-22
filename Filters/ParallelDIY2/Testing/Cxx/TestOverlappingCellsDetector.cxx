@@ -76,6 +76,8 @@ int TestOverlappingCellsDetector(int argc, char* argv[])
     globalIds->SetInputDataObject(ug);
   }
 
+  delete[] name;
+
   vtkNew<vtkRedistributeDataSetFilter> redistribute;
   redistribute->SetInputConnection(globalIds->GetOutputPort());
 

@@ -43,6 +43,7 @@ int TestGPURayCastCropping1(int argc, char* argv[])
   vtkNew<vtkXMLImageDataReader> reader;
   const char* volumeFile = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vase_1comp.vti");
   reader->SetFileName(volumeFile);
+  delete[] volumeFile;
   volumeMapper->SetInputConnection(reader->GetOutputPort());
   volumeMapper->GetInput()->GetScalarRange(scalarRange);
   volumeMapper->SetBlendModeToComposite();
