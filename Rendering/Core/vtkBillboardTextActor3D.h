@@ -42,6 +42,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
+   * For some exporters and other other operations we must be
+   * able to collect all the actors or volumes. These methods
+   * are used in that process.
+   */
+  virtual void GetActors(vtkPropCollection*) override;
+
+  /**
    * The UTF-8 encoded string to display.
    * @{
    */
@@ -89,6 +96,7 @@ public:
    * Check/update geometry/texture in opaque pass, since it only happens once.
    */
   int RenderOpaqueGeometry(vtkViewport* vp) override;
+  void UpdateGeometry(vtkViewport* vp);
 
   /**
    * Just render in translucent pass, since it can execute multiple times
