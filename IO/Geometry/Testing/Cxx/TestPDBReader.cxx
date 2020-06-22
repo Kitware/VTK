@@ -34,6 +34,8 @@ int TestPDBReader(int argc, char* argv[])
   const int testResult6vww =
     TestPdb(fileName6vww, VALID_NUMBER_OF_ATOMS_6VWW, VALID_NUMBER_OF_MODELS_6VWW);
 
+  delete[] fileName6vww;
+
   if (testResult6vww != 0)
   {
     return EXIT_FAILURE;

@@ -126,6 +126,7 @@ int TestNrrdReader(int argc, char* argv[])
 
   delete[] filename1;
   delete[] filename2;
+  delete[] filename3;
 
   return (retVal != vtkRegressionTester::PASSED);
 }

@@ -93,26 +93,39 @@ void vtkAMReXGridReader::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-void vtkAMReXGridReader::SetFileName(const char* fileName)
+void vtkAMReXGridReader::SetFileName(const char* arg)
 {
-  if (fileName && strcmp(fileName, "") &&
-    ((this->FileName == nullptr) || strcmp(fileName, this->FileName)))
+  // both nullptr just return
+  if (this->FileName == nullptr && arg == nullptr)
   {
-    if (this->FileName)
-    {
-      delete[] this->FileName;
-      this->FileName = nullptr;
-      this->Internal->SetFileName(nullptr);
-    }
-
-    this->FileName = new char[strlen(fileName) + 1];
-    strcpy(this->FileName, fileName);
-    this->FileName[strlen(fileName)] = '\0';
-    this->Internal->SetFileName(this->FileName);
-
-    this->LoadedMetaData = false;
+    return;
   }
 
+  // both set to the same value, just return
+  if (this->FileName && arg && (!strcmp(this->FileName, arg)))
+  {
+    return;
+  }
+
+  delete[] this->FileName;
+  if (arg)
+  {
+    size_t n = strlen(arg) + 1;
+    char* cp1 = new char[n];
+    const char* cp2 = (arg);
+    this->FileName = cp1;
+    do
+    {
+      *cp1++ = *cp2++;
+    } while (--n);
+  }
+  else
+  {
+    this->FileName = nullptr;
+  }
+
+  this->Internal->SetFileName(this->FileName);
+  this->LoadedMetaData = false;
   this->Modified();
 }
 

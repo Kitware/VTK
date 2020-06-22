@@ -488,7 +488,7 @@ int vtkVectorFieldTopology::ComputeSeparatrices(vtkSmartPointer<vtkPolyData> cri
 
         bool isForward = real(eigenS.eigenvalues()[i]) > 0 && countPos == 1;
         bool isBackward = real(eigenS.eigenvalues()[i]) < 0 && countNeg == 1;
-        if (isForward or isBackward)
+        if (isForward || isBackward)
         {
           // insert two seeds
           for (int k = 0; k < 2; k++)

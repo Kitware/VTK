@@ -106,10 +106,12 @@ bool AreHTGSame(vtkHyperTreeGrid* htg1, vtkHyperTreeGrid* htg2)
 
 int TestXMLHyperTreeGridIO2(int argc, char* argv[])
 {
-  const char* tdir =
+  const char* tmpstr =
     vtkTestUtilities::GetArgOrEnvOrDefault("-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
+  std::string tdir = tmpstr ? tmpstr : std::string();
+  delete[] tmpstr;
 
-  std::string fname = std::string(tdir) + std::string("/TestXMLHyperTreeGridIO2_Appendedv0.htg");
+  std::string fname = tdir + std::string("/TestXMLHyperTreeGridIO2_Appendedv0.htg");
 
   vtkNew<vtkRandomHyperTreeGridSource> source;
   source->Update();
@@ -135,7 +137,7 @@ int TestXMLHyperTreeGridIO2(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  fname = std::string(tdir) + std::string("/TestXMLHyperTreeGridIO2_Appendedv1.htg");
+  fname = tdir + std::string("/TestXMLHyperTreeGridIO2_Appendedv1.htg");
   writer->SetDataSetMajorVersion(1);
   writer->SetFileName(fname.c_str());
   writer->Write();
@@ -148,7 +150,7 @@ int TestXMLHyperTreeGridIO2(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  fname = std::string(tdir) + std::string("/TestXMLHyperTreeGridIO2_Binaryv0.htg");
+  fname = tdir + std::string("/TestXMLHyperTreeGridIO2_Binaryv0.htg");
   writer->SetDataSetMajorVersion(0);
   writer->SetFileName(fname.c_str());
   writer->SetDataModeToBinary();
@@ -162,7 +164,7 @@ int TestXMLHyperTreeGridIO2(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  fname = std::string(tdir) + std::string("/TestXMLHyperTreeGridIO2_Binaryv1.htg");
+  fname = tdir + std::string("/TestXMLHyperTreeGridIO2_Binaryv1.htg");
   writer->SetDataSetMajorVersion(1);
   writer->SetFileName(fname.c_str());
   writer->Write();
@@ -192,7 +194,7 @@ int TestXMLHyperTreeGridIO2(int argc, char* argv[])
     writer->SetInputData(clip->GetOutputDataObject(0));
     htgWrite = vtkHyperTreeGrid::SafeDownCast(clip->GetOutputDataObject(0));
 
-    fname = std::string(tdir) + std::string("/TestXMLHyperTreeGridIO2_MaskedAppendedv0.htg");
+    fname = tdir + std::string("/TestXMLHyperTreeGridIO2_MaskedAppendedv0.htg");
     writer->SetDataSetMajorVersion(0);
     writer->SetDataModeToAppended();
     writer->SetFileName(fname.c_str());
@@ -206,7 +208,7 @@ int TestXMLHyperTreeGridIO2(int argc, char* argv[])
       return EXIT_FAILURE;
     }
 
-    fname = std::string(tdir) + std::string("/TestXMLHyperTreeGridIO2_MaskedAppendedv1.htg");
+    fname = tdir + std::string("/TestXMLHyperTreeGridIO2_MaskedAppendedv1.htg");
     writer->SetDataSetMajorVersion(1);
     writer->SetFileName(fname.c_str());
     writer->Write();
@@ -219,7 +221,7 @@ int TestXMLHyperTreeGridIO2(int argc, char* argv[])
       return EXIT_FAILURE;
     }
 
-    fname = std::string(tdir) + std::string("/TestXMLHyperTreeGridIO2_MaskedBinaryv0.htg");
+    fname = tdir + std::string("/TestXMLHyperTreeGridIO2_MaskedBinaryv0.htg");
     writer->SetDataSetMajorVersion(0);
     writer->SetDataModeToBinary();
     writer->SetFileName(fname.c_str());
@@ -233,7 +235,7 @@ int TestXMLHyperTreeGridIO2(int argc, char* argv[])
       return EXIT_FAILURE;
     }
 
-    fname = std::string(tdir) + std::string("/TestXMLHyperTreeGridIO2_MaskedAppendedv1.htg");
+    fname = tdir + std::string("/TestXMLHyperTreeGridIO2_MaskedAppendedv1.htg");
     writer->SetDataSetMajorVersion(1);
     writer->SetFileName(fname.c_str());
     writer->Write();
