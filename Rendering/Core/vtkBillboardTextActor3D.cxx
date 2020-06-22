@@ -446,7 +446,9 @@ void vtkBillboardTextActor3D::GetActors(vtkPropCollection* props)
     {
       vp = vtkViewport::SafeDownCast(this->Consumers[0]);
       if (vp)
+      {
         this->UpdateGeometry(vp);
+      }
     }
   }
 
