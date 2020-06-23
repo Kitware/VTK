@@ -54,9 +54,6 @@ vtkAMRFlashReader::vtkAMRFlashReader()
 //------------------------------------------------------------------------------
 vtkAMRFlashReader::~vtkAMRFlashReader()
 {
-  delete[] this->FileName;
-  this->FileName = nullptr;
-
   delete this->Internal;
   this->Internal = nullptr;
 }

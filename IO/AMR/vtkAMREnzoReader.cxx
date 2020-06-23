@@ -94,9 +94,6 @@ vtkAMREnzoReader::~vtkAMREnzoReader()
   this->Internal = nullptr;
 
   this->BlockMap.clear();
-
-  delete[] this->FileName;
-  this->FileName = nullptr;
 }
 
 //------------------------------------------------------------------------------

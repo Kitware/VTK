@@ -24,7 +24,10 @@
 
 #include <cassert>
 
-vtkAMRBaseParticlesReader::vtkAMRBaseParticlesReader() = default;
+vtkAMRBaseParticlesReader::vtkAMRBaseParticlesReader()
+{
+  this->FileName = nullptr;
+}
 
 //------------------------------------------------------------------------------
 vtkAMRBaseParticlesReader::~vtkAMRBaseParticlesReader()
@@ -32,6 +35,9 @@ vtkAMRBaseParticlesReader::~vtkAMRBaseParticlesReader()
   this->ParticleDataArraySelection->RemoveObserver(this->SelectionObserver);
   this->SelectionObserver->Delete();
   this->ParticleDataArraySelection->Delete();
+
+  delete[] this->FileName;
+  this->FileName = nullptr;
 }
 
 //------------------------------------------------------------------------------
