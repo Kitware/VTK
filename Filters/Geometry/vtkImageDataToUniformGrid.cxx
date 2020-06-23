@@ -207,7 +207,9 @@ int vtkImageDataToUniformGrid::Process(
   }
 
   vtkNew<vtkUnsignedCharArray> blankingArray;
-  blankingArray->DeepCopy(inScalars);
+  blankingArray->SetNumberOfTuples(inScalars->GetNumberOfTuples());
+  blankingArray->SetNumberOfComponents(1);
+  blankingArray->FillValue(0);
   blankingArray->SetName(vtkDataSetAttributes::GhostArrayName());
 
   unsigned char value1;
@@ -238,9 +240,11 @@ int vtkImageDataToUniformGrid::Process(
       value2 = 0;
     }
   }
+
   for (vtkIdType i = 0; i < blankingArray->GetNumberOfTuples(); i++)
   {
-    char value = blankingArray->GetValue(i) == 0 ? value1 : value2;
+    double scalarValue = inScalars->GetTuple1(i);
+    char value = ((scalarValue > -1) && (scalarValue < 1)) ? value1 : value2;
     blankingArray->SetValue(i, value);
   }
 
