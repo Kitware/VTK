@@ -636,7 +636,7 @@ static int CheckMatch(unsigned int type1, unsigned int type2, const char* c1, co
 }
 
 /* have we done one of these yet */
-int DoneOne()
+int DoneOne(void)
 {
   int i, j;
   int match;
