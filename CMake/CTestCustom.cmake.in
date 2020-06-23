@@ -24,6 +24,12 @@ list(APPEND CTEST_CUSTOM_MEMCHECK_IGNORE
   # The key classes impacted are vtkPlotPoints and the
   # Draw calls in Context2D
   VTK::ChartsCoreCxx-TestLinePlotDouble
+
+  # loguru looks like it leaks the thread name but apparently
+  # it eventually does free the memory. See
+  # https://github.com/emilk/loguru/issues/132
+  # for some reason only this test seems to report it
+  VTK::FiltersParallelDIY2Cxx-TestRedistributeDataSetFilter
 )
 
 list(APPEND CTEST_CUSTOM_WARNING_MATCH
