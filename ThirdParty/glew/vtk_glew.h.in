@@ -35,42 +35,41 @@
 #endif
 
 #if VTK_MODULE_vtkglew_GLES3
-#  include <GLES3/gl3.h>
+#include <GLES3/gl3.h>
 #elif TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR
-#   include <OpenGLES/ES3/gl.h>
+#include <OpenGLES/ES3/gl.h>
 #elif VTK_MODULE_USE_EXTERNAL_vtkglew
-# include <GL/glew.h>
-# ifdef _WIN32
-#  include <GL/wglew.h>
-# endif
+#include <GL/glew.h>
+#ifdef _WIN32
+#include <GL/wglew.h>
+#endif
 #else
-# include <vtkglew/include/GL/glew.h>
-# ifdef _WIN32
-#  include <vtkglew/include/GL/wglew.h>
-# endif
+#include <vtkglew/include/GL/glew.h>
+#ifdef _WIN32
+#include <vtkglew/include/GL/wglew.h>
+#endif
 #endif
 
 /* some fixes for both ES 2 and 3 */
 #ifdef GL_ES_VERSION_3_0
-#  define glDrawBuffer(arg)
-#  define GL_BACK_LEFT 0
-#  define GL_BACK_RIGHT 0
-#  define GL_FRONT_LEFT 0
-#  define GL_FRONT_RIGHT 0
+#define glDrawBuffer(arg)
+#define GL_BACK_LEFT 0
+#define GL_BACK_RIGHT 0
+#define GL_FRONT_LEFT 0
+#define GL_FRONT_RIGHT 0
 
 /* this sends all the data each time as opposed to allowing a subset */
-#  define glMultiDrawElements(mode, counts, type, indicies, primcount) \
-      for (size_t eCount = 0; eCount < primcount; ++eCount) \
-        { \
-        glDrawElements(mode, *(counts + eCount), \
-          type, (GLvoid *)(indicies[eCount])); \
-        }
+#define glMultiDrawElements(mode, counts, type, indicies, primcount)                               \
+  for (size_t eCount = 0; eCount < primcount; ++eCount)                                            \
+  {                                                                                                \
+    glDrawElements(mode, *(counts + eCount), type, (GLvoid*)(indicies[eCount]));                   \
+  }
 #endif
 
 /*** deal with some GLES 3.0 specific issues ***/
 #ifdef GL_ES_VERSION_3_0
-#  define GLEW_ARB_vertex_array_object 1
-#  define GLEW_ARB_instanced_arrays 1
+#define GLEW_ARB_vertex_array_object 1
+#define GLEW_ARB_instanced_arrays 1
 #endif
 
 #endif
