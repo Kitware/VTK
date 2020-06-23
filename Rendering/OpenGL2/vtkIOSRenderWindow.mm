@@ -40,6 +40,7 @@ vtkIOSRenderWindow::vtkIOSRenderWindow()
   this->ForceMakeCurrent = 0;
   this->OnScreenInitialized = 0;
   this->OffScreenInitialized = 0;
+  this->SetFrameBlitModeToBlitToCurrent();
 }
 
 void vtkIOSRenderWindow::BlitDisplayFramebuffersToHardware()
@@ -171,16 +172,6 @@ bool vtkIOSRenderWindow::InitializeFromCurrentContext()
 vtkTypeBool vtkIOSRenderWindow::GetEventPending()
 {
   return 0;
-}
-
-//----------------------------------------------------------------------------
-// Initialize the rendering process.
-void vtkIOSRenderWindow::Start()
-{
-  this->Initialize();
-
-  // set the current window
-  this->MakeCurrent();
 }
 
 //----------------------------------------------------------------------------
