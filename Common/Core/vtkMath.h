@@ -1574,10 +1574,15 @@ namespace vtk_detail
 template <typename OutT>
 void RoundDoubleToIntegralIfNecessary(double val, OutT* ret)
 { // OutT is integral -- clamp and round
-  double min = static_cast<double>(vtkTypeTraits<OutT>::Min());
-  double max = static_cast<double>(vtkTypeTraits<OutT>::Max());
-  val = vtkMath::ClampValue(val, min, max);
-  *ret = static_cast<OutT>((val >= 0.0) ? (val + 0.5) : (val - 0.5));
+  if (!vtkMath::IsNan(val))
+  {
+    double min = static_cast<double>(vtkTypeTraits<OutT>::Min());
+    double max = static_cast<double>(vtkTypeTraits<OutT>::Max());
+    val = vtkMath::ClampValue(val, min, max);
+    *ret = static_cast<OutT>((val >= 0.0) ? (val + 0.5) : (val - 0.5));
+  }
+  else
+    *ret = 0;
 }
 template <>
 inline void RoundDoubleToIntegralIfNecessary(double val, double* retVal)
@@ -1587,10 +1592,15 @@ inline void RoundDoubleToIntegralIfNecessary(double val, double* retVal)
 template <>
 inline void RoundDoubleToIntegralIfNecessary(double val, float* retVal)
 { // OutT is float -- just clamp (as doubles, then the cast to float is well-defined.)
-  double min = static_cast<double>(vtkTypeTraits<float>::Min());
-  double max = static_cast<double>(vtkTypeTraits<float>::Max());
-  val = vtkMath::ClampValue(val, min, max);
-  *retVal = static_cast<float>(val);
+  if (!vtkMath::IsNan(val))
+  {
+    double min = static_cast<double>(vtkTypeTraits<float>::Min());
+    double max = static_cast<double>(vtkTypeTraits<float>::Max());
+    val = vtkMath::ClampValue(val, min, max);
+    *retVal = static_cast<float>(val);
+  }
+  else
+    *retVal = val;
 }
 } // end namespace vtk_detail
 
