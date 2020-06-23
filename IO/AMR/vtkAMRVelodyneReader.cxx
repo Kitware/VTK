@@ -46,8 +46,6 @@ vtkAMRVelodyneReader::vtkAMRVelodyneReader()
 
 vtkAMRVelodyneReader::~vtkAMRVelodyneReader()
 {
-  delete[] this->FileName;
-  this->FileName = nullptr;
   delete this->Internal;
   Internal = nullptr;
   this->Metadata = nullptr;

@@ -42,6 +42,7 @@ vtkAMRBaseReader::vtkAMRBaseReader()
   this->NumBlocksFromFile = 0;
   this->EnableCaching = 0;
   this->Cache = nullptr;
+  this->FileName = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -62,6 +63,9 @@ vtkAMRBaseReader::~vtkAMRBaseReader()
   {
     this->Metadata->Delete();
   }
+
+  delete[] this->FileName;
+  this->FileName = nullptr;
 }
 
 //------------------------------------------------------------------------------
