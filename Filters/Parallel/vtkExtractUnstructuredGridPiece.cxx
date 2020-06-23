@@ -126,7 +126,7 @@ void vtkExtractUnstructuredGridPiece::ComputeCellTags(vtkIntArray* tags, vtkIdLi
       vtkIdType numCellPts;
       const vtkIdType* ids;
       cellIter->GetCurrentCell(numCellPts, ids);
-
+      idx = cellIter->GetCurrentCellId();
       for (vtkIdType j = 0; j < numCellPts; ++j)
       {
         ptId = ids[j];
