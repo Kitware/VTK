@@ -122,6 +122,21 @@ public:
 
   //@{
   /**
+   * @copydoc QVTKOpenGLWindow::setCustomDevicePixelRatio()
+   */
+  void setCustomDevicePixelRatio(double sf)
+  {
+    this->VTKOpenGLWindow->setCustomDevicePixelRatio(sf);
+  }
+  double customDevicePixelRatio() const { return this->VTKOpenGLWindow->customDevicePixelRatio(); }
+  double effectiveDevicePixelRatio() const
+  {
+    return this->VTKOpenGLWindow->effectiveDevicePixelRatio();
+  }
+  //@}
+
+  //@{
+  /**
    * @copydoc QVTKOpenGLWindow::setDefaultCursor()
    */
   void setDefaultCursor(const QCursor& cursor) { this->VTKOpenGLWindow->setDefaultCursor(cursor); }
