@@ -3,6 +3,7 @@ set(classes
   vtkClearRGBPass
   vtkClearZPass
   vtkCompositePolyDataMapper2
+  vtkDataTransferHelper
   vtkDefaultPass
   vtkDepthImageProcessingPass
   vtkDepthOfFieldPass
@@ -92,11 +93,6 @@ set(classes
   vtkTranslucentPass
   vtkValuePass
   vtkVolumetricPass)
-
-if (NOT DEFINED OPENGL_ES_VERSION)
-  list(APPEND classes
-    vtkDataTransferHelper)
-endif()
 
 set(headers
   vtkStateStorage.h
