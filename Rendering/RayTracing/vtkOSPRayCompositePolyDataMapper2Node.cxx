@@ -66,8 +66,6 @@ void vtkOSPRayCompositePolyDataMapper2Node::Render(bool prepass)
 
     vtkOSPRayRendererNode* orn =
       static_cast<vtkOSPRayRendererNode*>(this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
-    double tstep = vtkOSPRayRendererNode::GetViewTime(orn->GetRenderer());
-    vtkRenderer* ren = vtkRenderer::SafeDownCast(orn->GetRenderable());
 
     // if there are no changes, just reuse last result
     vtkMTimeType inTime = aNode->GetMTime();

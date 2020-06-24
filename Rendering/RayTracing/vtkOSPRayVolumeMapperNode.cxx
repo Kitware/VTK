@@ -355,7 +355,6 @@ void vtkOSPRayVolumeMapperNode::UpdateTransferFunction(
   vtkVolumeProperty* volProperty = vol->GetProperty();
   vtkColorTransferFunction* colorTF = volProperty->GetRGBTransferFunction(0);
   vtkPiecewiseFunction* scalarTF = volProperty->GetScalarOpacity(0);
-  vtkVolumeMapper* mapper = vtkVolumeMapper::SafeDownCast(this->GetRenderable());
 
   this->TFVals.resize(this->NumColors * 3);
   this->TFOVals.resize(this->NumColors);

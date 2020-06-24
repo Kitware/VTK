@@ -257,12 +257,13 @@ OSPGeometricModel RenderAsSpheres(osp::vec3f* vertices, std::vector<unsigned int
     else if (numPointColors)
     {
       // per point color
-      std::vector<osp::vec4f> perPointColor;
+      perPointColor = true;
+      std::vector<osp::vec4f> perPointColors;
       for (size_t i = 0; i < numSpheres; i++)
       {
-        perPointColor.push_back(PointColors[indexArray[i]]);
+        perPointColors.push_back(PointColors[indexArray[i]]);
       }
-      _PointColors = ospNewCopyData1D(&perPointColor[0], OSP_VEC4F, numSpheres);
+      _PointColors = ospNewCopyData1D(&perPointColors[0], OSP_VEC4F, numSpheres);
       ospCommit(_PointColors);
       ospSetObject(ospGeoModel, "color", _PointColors);
       ospRelease(_PointColors);
@@ -338,7 +339,7 @@ OSPGeometricModel RenderAsCylinders(std::vector<osp::vec3f>& vertices,
 
   std::vector<unsigned int> indices;
   indices.reserve(indexArray.size() / 2);
-  for (int i = 0; i < indexArray.size(); i += 2)
+  for (unsigned int i = 0; i < indexArray.size(); i += 2)
   {
     indices.push_back((scaleArray != nullptr ? i * 2 : i));
   }
@@ -1267,7 +1268,6 @@ void vtkOSPRayPolyDataMapperNode::Render(bool prepass)
 
     vtkOSPRayRendererNode* orn =
       static_cast<vtkOSPRayRendererNode*>(this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
-    vtkRenderer* ren = vtkRenderer::SafeDownCast(orn->GetRenderable());
 
     // if there are no changes, just reuse last result
     vtkMTimeType inTime = aNode->GetMTime();
@@ -1304,8 +1304,6 @@ void vtkOSPRayPolyDataMapperNode::RenderGeometricModels()
 {
   vtkOSPRayRendererNode* orn =
     static_cast<vtkOSPRayRendererNode*>(this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
-  double tstep = vtkOSPRayRendererNode::GetViewTime(orn->GetRenderer());
-  auto oWorld = orn->GetOWorld();
 
   for (auto instance : this->Instances)
   {

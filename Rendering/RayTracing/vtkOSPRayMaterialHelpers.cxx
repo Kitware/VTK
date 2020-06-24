@@ -26,26 +26,33 @@
 
 //------------------------------------------------------------------------------
 OSPTexture vtkOSPRayMaterialHelpers::NewTexture2D(RTW::Backend* backend, const osp::vec2i& size,
-  const OSPTextureFormat type, void* data, const uint32_t _flags, size_t sizeOf)
+  const OSPTextureFormat type, void* data, const uint32_t _flags)
 {
   auto texture = ospNewTexture("texture2d");
   if (texture == nullptr)
+  {
     return nullptr;
+  }
 
   auto flags = _flags; // because the input value is declared const, use a copy
 
-  const auto texelBytes = sizeOf;
-  const auto totalTexels = size.x * size.y;
-  const auto totalBytes = totalTexels * texelBytes;
   OSPDataType dataType = OSP_UNKNOWN;
   if (type == OSP_TEXTURE_R32F)
+  {
     dataType = OSP_FLOAT;
+  }
   else if (type == OSP_TEXTURE_RGB32F)
+  {
     dataType = OSP_VEC3F;
+  }
   else if (type == OSP_TEXTURE_RGBA32F)
+  {
     dataType = OSP_VEC4F;
+  }
   else if (type == OSP_TEXTURE_R8)
+  {
     dataType = OSP_UCHAR;
+  }
   else if (type == OSP_TEXTURE_RGB8)
   {
     dataType = OSP_VEC3UC;
@@ -55,12 +62,18 @@ OSPTexture vtkOSPRayMaterialHelpers::NewTexture2D(RTW::Backend* backend, const o
     dataType = OSP_VEC4UC;
   }
   else
+  {
     throw std::runtime_error("vtkOSPRayMaterialHelpers::NewTexture2D: Unknown texture format");
+  }
 
+#if defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wextra"
+#endif
   auto data_handle = ospNewCopyData2D(data, dataType, size.x, size.y);
+#if defined(__GNUC__)
 #pragma GCC diagnostic pop
+#endif
 
   ospCommit(data_handle);
   ospSetObject(texture, "data", data_handle);
@@ -68,7 +81,9 @@ OSPTexture vtkOSPRayMaterialHelpers::NewTexture2D(RTW::Backend* backend, const o
 
   ospSetInt(texture, "format", static_cast<int>(type));
   if (flags & OSP_TEXTURE_FILTER_NEAREST)
+  {
     ospSetInt(texture, "filter", OSP_TEXTURE_FILTER_NEAREST);
+  }
   ospCommit(texture);
 
   return texture;
@@ -120,7 +135,7 @@ OSPTexture vtkOSPRayMaterialHelpers::VTKToOSPTexture(
 
     t2d = vtkOSPRayMaterialHelpers::NewTexture2D(backend, osp::vec2i{ xsize + 1, ysize + 1 },
       format[comps - 1], chars.empty() ? vColorTextureMap->GetScalarPointer() : chars.data(),
-      OSP_TEXTURE_FILTER_NEAREST, sizeof(char) * comps);
+      OSP_TEXTURE_FILTER_NEAREST);
   }
   else if (scalartype == VTK_FLOAT)
   {
@@ -147,7 +162,7 @@ OSPTexture vtkOSPRayMaterialHelpers::VTKToOSPTexture(
     }
     t2d = vtkOSPRayMaterialHelpers::NewTexture2D(backend, osp::vec2i{ xsize + 1, ysize + 1 },
       format[comps - 1], floats.empty() ? vColorTextureMap->GetScalarPointer() : floats.data(),
-      OSP_TEXTURE_FILTER_NEAREST, sizeof(float) * comps);
+      OSP_TEXTURE_FILTER_NEAREST);
   }
   else
   {
@@ -193,7 +208,7 @@ OSPTexture vtkOSPRayMaterialHelpers::VTKToOSPTexture(
       }
     }
     t2d = vtkOSPRayMaterialHelpers::NewTexture2D(backend, osp::vec2i{ xsize + 1, ysize + 1 },
-      format[newComps - 1], floats.data(), OSP_TEXTURE_FILTER_NEAREST, sizeof(float) * newComps);
+      format[newComps - 1], floats.data(), OSP_TEXTURE_FILTER_NEAREST);
   }
 
   if (t2d != nullptr)

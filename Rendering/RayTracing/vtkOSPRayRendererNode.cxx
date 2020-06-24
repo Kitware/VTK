@@ -167,8 +167,8 @@ OSPTexture getOSPDepthTextureFromOpenGLPerspective(const double& fovy, const dou
   // values...
   osp::vec2i texSize = { static_cast<int>(glDepthBufferWidth),
     static_cast<int>(glDepthBufferHeight) };
-  OSPTexture depthTexture = vtkOSPRayMaterialHelpers::NewTexture2D(backend, (osp::vec2i&)texSize,
-    OSP_TEXTURE_R32F, ospDepthBuffer, OSP_TEXTURE_FILTER_NEAREST, sizeof(float));
+  OSPTexture depthTexture = vtkOSPRayMaterialHelpers::NewTexture2D(
+    backend, (osp::vec2i&)texSize, OSP_TEXTURE_R32F, ospDepthBuffer, OSP_TEXTURE_FILTER_NEAREST);
 
   return depthTexture;
 }
@@ -281,7 +281,7 @@ public:
     return retval;
   }
 
-  bool SetupPathTraceBackground(bool forbackplate, RTW::Backend* backend, OSPRenderer renderer)
+  bool SetupPathTraceBackground(bool forbackplate, RTW::Backend* backend)
   {
     vtkRenderer* ren = vtkRenderer::SafeDownCast(this->Owner->GetRenderable());
     if (std::string(this->Owner->GetRendererType(ren)).find(std::string("pathtracer")) ==
@@ -342,8 +342,8 @@ public:
           ochars[2] = bg1[2] * 255;
         }
 
-        t2d = vtkOSPRayMaterialHelpers::NewTexture2D(backend, osp::vec2i{ jsize, isize },
-          OSP_TEXTURE_RGB8, ochars.data(), 0, 3 * sizeof(char));
+        t2d = vtkOSPRayMaterialHelpers::NewTexture2D(
+          backend, osp::vec2i{ jsize, isize }, OSP_TEXTURE_RGB8, ochars.data(), 0);
       }
 
       // now apply the texture we chose above to the right place
@@ -1006,8 +1006,6 @@ void vtkOSPRayRendererNode::Traverse(int operation)
 
   this->Apply(operation, true);
 
-  OSPRenderer oRenderer = this->ORenderer;
-
   // camera
   // TODO: this repeated traversal to find things of particular types
   // is bad, find something smarter
@@ -1057,8 +1055,8 @@ void vtkOSPRayRendererNode::Traverse(int operation)
     this->Lights.push_back(ospAmbient);
   }
 
-  bool bpreused = this->Internal->SetupPathTraceBackground(true, backend, oRenderer);
-  bool envreused = this->Internal->SetupPathTraceBackground(false, backend, oRenderer);
+  bool bpreused = this->Internal->SetupPathTraceBackground(true, backend);
+  bool envreused = this->Internal->SetupPathTraceBackground(false, backend);
   this->Internal->lBackgroundMode = vtkOSPRayRendererNode::GetBackgroundMode(
     static_cast<vtkRenderer*>(this->Renderable)); // save it only once both of the above check
   bool bgreused = envreused && bpreused;
@@ -1248,13 +1246,14 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       {
         if (this->Lights.size())
         {
-          auto data = ospNewSharedData1D(this->Lights.data(), OSP_LIGHT, this->Lights.size());
+          auto data = ospNewSharedData1D(
+            this->Lights.data(), OSP_LIGHT, static_cast<uint32_t>(this->Lights.size()));
           ospCommit(data);
           ospSetObject(this->OWorld, "light", data);
           ospRelease(data);
         }
-        auto instanceData =
-          ospNewSharedData1D(this->Instances.data(), OSP_INSTANCE, this->Instances.size());
+        auto instanceData = ospNewSharedData1D(
+          this->Instances.data(), OSP_INSTANCE, static_cast<uint32_t>(this->Instances.size()));
         ospCommit(instanceData);
         ospSetObject(this->OWorld, "instance", instanceData);
         ospRelease(instanceData);
@@ -1283,8 +1282,10 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       this->ImageY = this->Size[1];
       const size_t size = this->ImageX * this->ImageY;
       ospRelease(this->OFrameBuffer);
+#if defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wextra"
+#endif
       this->OFrameBuffer = ospNewFrameBuffer(isize,
 #ifdef VTKOSPRAY_ENABLE_DENOISER
         OSP_FB_RGBA32F,
@@ -1305,7 +1306,9 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       ospSetFloat(this->OFrameBuffer, "gamma", 1.0f);
       ospCommit(this->OFrameBuffer);
       ospFrameBufferClear(this->OFrameBuffer);
+#if defined(__GNUC__)
 #pragma GCC diagnostic pop
+#endif
       this->Buffer.resize(this->Size[0] * this->Size[1] * 4);
       this->ZBuffer.resize(this->Size[0] * this->Size[1]);
       if (this->CompositeOnGL)
@@ -1449,19 +1452,27 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       }
       if (!canReuse)
       {
+#if defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wextra"
+#endif
         ospFrameBufferClear(this->OFrameBuffer);
+#if defined(__GNUC__)
 #pragma GCC diagnostic pop
+#endif
         this->AccumulateCount = 0;
       }
     }
     else if (!this->Accumulate)
     {
+#if defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wextra"
+#endif
       ospFrameBufferClear(this->OFrameBuffer);
+#if defined(__GNUC__)
 #pragma GCC diagnostic pop
+#endif
     }
 
     vtkCamera* cam = vtkRenderer::SafeDownCast(this->Renderable)->GetActiveCamera();
@@ -1523,10 +1534,14 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       backend->SetDepthNormalizationGL(this->OFrameBuffer, clipMin, clipMax);
     }
 
+#if defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wextra"
+#endif
     ospRenderFrame(this->OFrameBuffer, oRenderer, this->OCamera, this->OWorld);
+#if defined(__GNUC__)
 #pragma GCC diagnostic pop
+#endif
 
     // release data used to store instances and clear world
     ospRelease(this->OInstanceData);

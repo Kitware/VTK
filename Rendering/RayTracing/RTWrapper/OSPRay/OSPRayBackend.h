@@ -253,10 +253,6 @@ namespace RTW
         mem);
     }
 
-    void SetMaterial(RTWGeometry geometry, RTWMaterial material) override
-    {
-    }
-
     void SetInt(RTWObject object, const char *id, int32_t x) override
     {
       ospSetInt(reinterpret_cast<OSPObject>(object), id, x);
@@ -300,11 +296,6 @@ namespace RTW
     void RemoveParam(RTWObject object, const char *id) override
     {
       ospRemoveParam(reinterpret_cast<OSPObject>(object), id);
-    }
-
-    RTWError SetRegion(RTWVolume volume, void *source, const rtw::vec3i &regionCoords, const rtw::vec3i &regionSize) override
-    {
-      return static_cast<RTWError>(0);
     }
 
     void Commit(RTWObject object) override

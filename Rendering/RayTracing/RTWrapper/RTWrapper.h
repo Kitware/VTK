@@ -135,8 +135,6 @@ std::set<RTWBackendType> rtwGetAvailableBackends();
 #define ospSetParam backend->SetParam
 #define ospSetObject backend->SetObject
 #define ospSetObjectAsData backend->SetObjectAsData
-#define ospSetMaterial backend->SetMaterial
-#define ospSetRegion backend->SetRegion
 
 #define ospRemoveParam backend->RemoveParam
 

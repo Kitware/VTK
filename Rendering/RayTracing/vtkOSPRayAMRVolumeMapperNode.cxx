@@ -203,9 +203,8 @@ void vtkOSPRayAMRVolumeMapperNode::Render(bool prepass)
         amr->GetAMRInfo()->GetSpacing(0, spacing);
         ospSetVec3f(this->OSPRayVolume, "gridSpacing", spacing[0], spacing[1], spacing[2]);
 
-        for (int i = 0; i < amrInfo->GetNumberOfLevels(); ++i)
+        for (unsigned int i = 0; i < amrInfo->GetNumberOfLevels(); ++i)
         {
-          double spacing[3];
           amrInfo->GetSpacing(i, spacing);
           cellWidthArray.push_back(spacing[0]); // TODO - must OSP cells be cubes?
         }

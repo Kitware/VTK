@@ -398,8 +398,8 @@ int TestPathTracerMaterials(int argc, char* argv[])
     };
     ml->AddShaderVariable("Metal 3", "ior", 58 * 3, spectrum);
     // approximate
-    double cuEta[3] = { 0.1, 0.8, 1.1 };
-    double cuK[3] = { 3.5, 2.5, 2.4 };
+    // double cuEta[3] = { 0.1, 0.8, 1.1 };
+    // double cuK[3] = { 3.5, 2.5, 2.4 };
     // ml->AddShaderVariable("Metal 3", "eta", 3, cuEta);
     // ml->AddShaderVariable("Metal 3", "k", 3, cuK);
 

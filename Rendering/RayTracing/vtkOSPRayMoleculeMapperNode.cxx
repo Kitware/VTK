@@ -71,7 +71,6 @@ void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
     return;
   }
 
-  auto oModel = orn->GetOWorld();
   vtkProperty* property = act->GetProperty();
   vtkMoleculeMapper* mapper = vtkMoleculeMapper::SafeDownCast(this->GetRenderable());
   vtkMolecule* molecule = mapper->GetInput();
@@ -179,7 +178,6 @@ void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
       vtkVector3f bondCenter;
 
       const vtkIdType numBonds = molecule->GetNumberOfBonds();
-      int width = 3 + 3 + 1 + 1; // x0y0x0 x1y1z1 radius coloridx
       std::vector<osp::vec4f> vertsAndRadii;
       std::vector<OSPMaterial> materials;
       std::vector<unsigned int> indices;
