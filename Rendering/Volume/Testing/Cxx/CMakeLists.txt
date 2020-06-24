@@ -80,6 +80,7 @@ set (VolumeCxxTests
   TestProjectedTetrahedra.cxx
   TestProjectedTetrahedraOffscreen.cxx
   TestProjectedTetrahedraTransform.cxx
+  TestProjectedTetrahedraVectorComponent.cxx
   TestRemoveVolumeNonCurrentContext.cxx
   TestSmartVolumeMapper.cxx
   TestSmartVolumeMapperVolumeUpdate.cxx
