@@ -71,11 +71,9 @@ public:
 
   //@{
   /**
-   * Set the resolution of the shaft.  2 gives a rectangle.
-   * I would like to extend the cone to produce a line,
-   * but this is not an option now.
+   * Set the resolution of the shaft. Minimum is 3 for a triangular shaft.
    */
-  vtkSetClampMacro(ShaftResolution, int, 0, 128);
+  vtkSetClampMacro(ShaftResolution, int, 3, 128);
   vtkGetMacro(ShaftResolution, int);
   //@}
 
