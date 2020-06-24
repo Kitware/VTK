@@ -651,8 +651,8 @@ void QVTKRenderWindowAdapter::QVTKInternals::renderWindowEventHandler(
 void QVTKRenderWindowAdapter::QVTKInternals::updateDPI() const
 {
   assert(this->RenderWindow != nullptr);
-  const auto dpr = this->effectiveDevicePixelRatio();
-  this->RenderWindow->SetDPI(dpr * this->UnscaledDPI);
+  this->RenderWindow->SetDPI(
+    this->EnableHiDPI ? this->effectiveDevicePixelRatio() * this->UnscaledDPI : this->UnscaledDPI);
 }
 
 //-----------------------------------------------------------------------------
