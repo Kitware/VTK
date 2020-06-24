@@ -1360,7 +1360,7 @@ void PIOAdaptor::add_amr_UG_scalar(vtkMultiBlockDataSet* grid, vtkStdString varN
     arr->SetName(varName);
     arr->SetNumberOfComponents(numberOfComponents);
     arr->SetNumberOfTuples(numberOfActiveCells);
-    ugrid->GetPointData()->AddArray(arr);
+    ugrid->GetCellData()->AddArray(arr);
     double* varData = arr->GetPointer(0);
 
     // Set the data in the matching cells skipping lower level cells
@@ -1382,7 +1382,7 @@ void PIOAdaptor::add_amr_UG_scalar(vtkMultiBlockDataSet* grid, vtkStdString varN
     arr->SetName(varName);
     arr->SetNumberOfComponents(numberOfComponents);
     arr->SetNumberOfTuples(numberOfActiveCells);
-    ugrid->GetPointData()->AddArray(arr);
+    ugrid->GetCellData()->AddArray(arr);
     float* varData = arr->GetPointer(0);
 
     // Set the data in the matching cells skipping lower level cells
