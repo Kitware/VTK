@@ -321,9 +321,27 @@ void MapIndependentComponents(
     vtkColorTransferFunction* rgb = property->GetRGBTransferFunction();
     vtkPiecewiseFunction* alpha = property->GetScalarOpacity();
 
+    int vectorMode = rgb->GetVectorMode();
+    int vectorComponent = rgb->GetVectorComponent();
+
     for (i = 0; i < num_scalars; i++)
     {
-      ScalarType s = scalars->GetTypedComponent(i, 0);
+      ScalarType s = 0.0;
+      if (vectorMode == vtkScalarsToColors::COMPONENT)
+      {
+        s = scalars->GetTypedComponent(i, vectorComponent);
+      }
+      else
+      {
+        ScalarType sum = 0.0;
+        for (int comp = 0; comp < scalars->GetNumberOfComponents(); ++comp)
+        {
+          ScalarType t = scalars->GetTypedComponent(i, comp);
+          sum += t * t;
+        }
+        s = sqrt(sum);
+      }
+
       double trgb[3];
       rgb->GetColor(s, trgb);
       c[0] = static_cast<ColorType>(trgb[0]);
