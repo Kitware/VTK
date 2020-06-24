@@ -168,12 +168,13 @@ void vtkAMRVelodyneReaderInternal::ReadMetaData()
   size_t att_size = H5Tget_size(atype);
   size_t total_size = att_size * nVars;
   char* stringout = NULL;
-  stringout = new char[total_size];
+  stringout = new char[total_size + 1];
   ierr = H5Aread(att_id, atype, stringout);
   if (ierr < 0)
   {
     vtkGenericWarningMacro("Cannot read Variable List Attribute\n");
   }
+  stringout[total_size] = '\0';
   std::string tmp(stringout);
   delete stringout;
   stringout = nullptr;
