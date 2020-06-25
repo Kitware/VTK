@@ -22,6 +22,7 @@
 #import <vtk/vtkImageData.h>
 #import <vtk/vtkInteractorStyleMultiTouchCamera.h>
 #import <vtk/vtkNew.h>
+#import <vtk/vtkOpenGLState.h>
 #import <vtk/vtkOutlineFilter.h>
 #import <vtk/vtkPlaneWidget.h>
 #import <vtk/vtkPolyData.h>
@@ -249,7 +250,7 @@ public:
 
   [EAGLContext setCurrentContext:self.context];
   [self resizeView];
-  self->RenderWindow->Render();
+  // self->RenderWindow->Render();
 }
 
 - (void)dealloc
@@ -303,7 +304,11 @@ public:
 
 - (void)glkView:(GLKView*)view drawInRect:(CGRect)rect
 {
+  // If you get state errors uncomment the three lines below
+  // self->RenderWindow->GetState()->Reset();
+  // self->RenderWindow->GetState()->Push();
   self->RenderWindow->Render();
+  // self->RenderWindow->GetState()->Pop();
 }
 
 //=================================================================
