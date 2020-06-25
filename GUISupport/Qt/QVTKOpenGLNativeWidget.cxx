@@ -50,6 +50,7 @@ QVTKOpenGLNativeWidget::QVTKOpenGLNativeWidget(
   , RenderWindowAdapter(nullptr)
   , EnableHiDPI(true)
   , UnscaledDPI(72)
+  , CustomDevicePixelRatio(0.0)
   , DefaultCursor(QCursor(Qt::ArrowCursor))
 {
   // default to strong focus
@@ -179,6 +180,23 @@ void QVTKOpenGLNativeWidget::setUnscaledDPI(int dpi)
 }
 
 //-----------------------------------------------------------------------------
+void QVTKOpenGLNativeWidget::setCustomDevicePixelRatio(double sf)
+{
+  this->CustomDevicePixelRatio = sf;
+  if (this->RenderWindowAdapter)
+  {
+    this->RenderWindowAdapter->setCustomDevicePixelRatio(sf);
+  }
+}
+
+//-----------------------------------------------------------------------------
+double QVTKOpenGLNativeWidget::effectiveDevicePixelRatio() const
+{
+  return this->CustomDevicePixelRatio > 0.0 ? this->CustomDevicePixelRatio
+                                            : this->devicePixelRatioF();
+}
+
+//-----------------------------------------------------------------------------
 void QVTKOpenGLNativeWidget::setDefaultCursor(const QCursor& cursor)
 {
   this->DefaultCursor = cursor;
@@ -208,6 +226,7 @@ void QVTKOpenGLNativeWidget::initializeGL()
     this->RenderWindowAdapter->setDefaultCursor(this->defaultCursor());
     this->RenderWindowAdapter->setEnableHiDPI(this->EnableHiDPI);
     this->RenderWindowAdapter->setUnscaledDPI(this->UnscaledDPI);
+    this->RenderWindowAdapter->setCustomDevicePixelRatio(this->CustomDevicePixelRatio);
   }
   this->connect(this->context(), SIGNAL(aboutToBeDestroyed()), SLOT(cleanupContext()),
     static_cast<Qt::ConnectionType>(Qt::UniqueConnection | Qt::DirectConnection));

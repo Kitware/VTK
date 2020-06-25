@@ -171,6 +171,13 @@ public:
   void setUnscaledDPI(int value);
   //@}
 
+  //@{
+  /**
+   * Get/Set the custom device pixel ratio to use. If 0 or negative, it is
+   * treated as unset and DPR from Qt will be used instead.
+   */
+  void setCustomDevicePixelRatio(double dpr);
+  //@}
 private slots:
   void contextAboutToBeDestroyed();
 

@@ -179,6 +179,25 @@ public:
 
   //@{
   /**
+   * Set/Get a custom device pixel ratio to use to map Qt sizes to VTK (or
+   * OpenGL) sizes. Thus, when the QWidget is resized, it called
+   * `vtkRenderWindow::SetSize` on the internal vtkRenderWindow after
+   * multiplying the QWidget's size by this scale factor.
+   *
+   * By default, this is set to 0. Which means that `devicePixelRatio` obtained
+   * from Qt will be used. Set this to a number greater than 0 to override this
+   * behaviour and use the custom scale factor instead.
+   *
+   * `effectiveDevicePixelRatio` can be used to obtain the device-pixel-ratio
+   * that will be used given the value for customDevicePixelRatio.
+   */
+  void setCustomDevicePixelRatio(double cdpr);
+  double customDevicePixelRatio() const { return this->CustomDevicePixelRatio; }
+  double effectiveDevicePixelRatio() const;
+  //@}
+
+  //@{
+  /**
    * Set/get the default cursor to use for this widget.
    */
   void setDefaultCursor(const QCursor& cursor);
@@ -244,6 +263,7 @@ private:
 
   bool EnableHiDPI;
   int UnscaledDPI;
+  double CustomDevicePixelRatio;
   QCursor DefaultCursor;
 };
 
