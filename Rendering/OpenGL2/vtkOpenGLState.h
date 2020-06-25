@@ -69,6 +69,7 @@
 #include <list>                        // for ivar
 #include <map>                         // for ivar
 #include <stack>                       // for ivar
+#include <string>                      // for ivar
 
 class vtkOpenGLFramebufferObject;
 class vtkOpenGLRenderWindow;
