@@ -40,6 +40,7 @@
 #define vtkMath_h
 
 #include "vtkCommonCoreModule.h" // For export macro
+#include "vtkMathPrivate.hxx"    // For Matrix meta-class helpers
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" // For vtkSmartPointer.
 #include "vtkTypeTraits.h"   // For type traits
@@ -706,6 +707,116 @@ public:
   static void Multiply3x3(const float A[3][3], const float B[3][3], float C[3][3]);
   static void Multiply3x3(const double A[3][3], const double B[3][3], double C[3][3]);
   //@}
+
+  /**
+   * Matrix reindexing options for templated methods MultiplyMatrix and
+   * MultiplyMatrixWithVector
+   */
+  struct MatrixLayout
+  {
+    // Matrix is untouched.
+    using Identity = vtkMathPrivate::MatrixLayout::Identity;
+
+    // Matrix is transposed.
+    using Transpose = vtkMathPrivate::MatrixLayout::Transpose;
+
+    // Matrix is diagonal, i.e. value at index idx points to component of
+    // coordinates (idx, idx) in the diagonal matrix, and all other components
+    // are set to zero. The matrix does not need to be square.
+    using Diag = vtkMathPrivate::MatrixLayout::Diag;
+  };
+
+  /**
+   * Multiply matrices such that M3 = M1 x M2.
+   * M3 must already be allocated.
+   *
+   * LayoutT1 (resp. LayoutT2) allow to perform basic matrix reindexing for M1 (resp. M2).
+   * It should be set to a component of MatrixLayout.
+   *
+   * Matrices are assumed to be a 1D array implementing `operator[]`. The matrices
+   * are indexed row by row. Let us develop the effect of LayoutT1 on M1 (the
+   * same is true for LayoutT2 on M2).
+   * If LayoutT1 == MatrixLayout::Identity (default), then M1 indexing is untouched.
+   * If LayoutT1 == MatrixLayout::Transpose, then M1 is read column-wise.
+   * If LayoutT1 == MatrixLayout::Diag, then M1 is considered to be composed
+   * of non zero elements of a diagonal matrix.
+   *
+   * @note M3 components indexing can be entirely controlled by swapping M1, M2,
+   * and turning on or off the appropriate transposition flag. Remember that
+   * M3^T = (M1 x M2)^T = M2^T x M1^T
+   *
+   * @warning If both M1 and M2 are used with both layout being diagonal, then
+   * M3 will be diagonal as well (i.e. there won't be allocated memory for
+   * elements outsize of the diagonal).
+   */
+  template <int RowsT, int MidDimT, int ColsT, class LayoutT1 = MatrixLayout::Identity,
+    class LayoutT2 = MatrixLayout::Identity, class MatrixT1, class MatrixT2, class MatrixT3>
+  static void MultiplyMatrix(const MatrixT1& M1, const MatrixT2& M2, MatrixT3& M3)
+  {
+    vtkMathPrivate::MultiplyMatrix<RowsT, MidDimT, ColsT, LayoutT1, LayoutT2>::Compute(M1, M2, M3);
+  }
+
+  /**
+   * Multiply matrix M with vector Y such that Y = M x X.
+   * Y must be allocated.
+   *
+   * LayoutT allow to perform basic matrix reindexing. It should be set to a component
+   * of MatrixLayout.
+   *
+   * Matrix M is assumed to be a 1D array implementing `operator[]`. The matrix
+   * is indexed row by row. If the input array is indexed columns by colums.
+   * If LayoutT == MatrixLayout::Identity (default), then M indexing is untouched.
+   * If LayoutT == MatrixLayout::Transpose, then M is read column-wise.
+   * If LayoutT == MatrixLayout::Diag, then M is considered to be composed
+   * of non zero elements of a diagonal matrix.
+   *
+   * VectorT1 and VectorT2 are arrays of size RowsT, and must implement
+   * `operator[]`.
+   *
+   * @warning In the particular case where M1 and M2 BOTH have layout
+   * MatrixLayout::Diag, RowsT, MidDimT and ColsT MUST match.
+   */
+  template <int RowsT, int ColsT, class LayoutT = MatrixLayout::Identity, class MatrixT,
+    class VectorT1, class VectorT2>
+  static void MultiplyMatrixWithVector(const MatrixT& M, const VectorT1& X, VectorT2& Y)
+  {
+    vtkMathPrivate::MultiplyMatrix<RowsT, ColsT, 1, LayoutT>::Compute(M, X, Y);
+  }
+
+  /**
+   * Computes the dot product between 2 vectors x and y.
+   * VectorT1 and VectorT2 are arrays of size SizeT, and must implement
+   * `operator[]`.
+   */
+  template <class ScalarT, int SizeT, class VectorT1, class VectorT2>
+  static ScalarT Dot(const VectorT1& x, const VectorT2& y)
+  {
+    return vtkMathPrivate::ContractRowWithCol<ScalarT, 1, SizeT, 1, 0, 0, MatrixLayout::Identity,
+      MatrixLayout::Transpose>::Compute(x, y);
+  }
+
+  /**
+   * Computes the dot product x^T M y, where x and y are vectors and M is a
+   * metric matrix.
+   *
+   * VectorT1 and VectorT2 are arrays of size SizeT, and must implement
+   * `operator[]`.
+   *
+   * Matrix M is assumed to be a 1D array implementing `operator[]`. The matrix
+   * is indexed row by row. If the input array is indexed columns by colums.
+   * If LayoutT == MatrixLayout::Identity (default), then M indexing is untouched.
+   * If LayoutT == MatrixLayout::Transpose, then M is read column-wise.
+   * If LayoutT == MatrixLayout::Diag, then M is considered to be composed
+   * of non zero elements of a diagonal matrix.
+   */
+  template <class ScalarT, int SizeT, class LayoutT, class VectorT1, class MatrixT, class VectorT2>
+  static ScalarT Dot(const VectorT1& x, const MatrixT& M, const VectorT2& y)
+  {
+    std::array<ScalarT, SizeT> tmp;
+    vtkMathPrivate::MultiplyMatrix<SizeT, SizeT, 1, LayoutT>::Compute(M, y, tmp);
+    return vtkMathPrivate::ContractRowWithCol<ScalarT, 1, SizeT, 1, 0, 0, MatrixLayout::Identity,
+      MatrixLayout::Transpose>::Compute(x, tmp);
+  }
 
   /**
    * General matrix multiplication.  You must allocate output storage.

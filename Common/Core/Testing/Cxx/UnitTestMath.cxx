@@ -17,6 +17,8 @@
 // Note if you fix this test to fill in all the empty tests
 // then remove the cppcheck suppression in VTKcppcheckSuppressions.txt
 //
+#include "vtkDataArrayRange.h"
+#include "vtkIntArray.h"
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
 #include "vtkSmartPointer.h"
@@ -24,6 +26,8 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedShortArray.h"
 
+#include <array>
+#include <numeric>
 #include <vector>
 
 static int TestPi();
@@ -91,6 +95,9 @@ static int TestRGBToHSV();
 static int TestInf();
 static int TestNegInf();
 static int TestNan();
+static int TestMetaMultiplyMatrix();
+static int TestMetaMultiplyMatrixWithVector();
+static int TestMetaDot();
 
 int UnitTestMath(int, char*[])
 {
@@ -162,6 +169,9 @@ int UnitTestMath(int, char*[])
   status += TestInf();
   status += TestNegInf();
   status += TestNan();
+  status += TestMetaMultiplyMatrix();
+  status += TestMetaMultiplyMatrixWithVector();
+  status += TestMetaDot();
   if (status != 0)
   {
     return EXIT_FAILURE;
@@ -3754,6 +3764,262 @@ int TestNan()
 {
   int status = 0;
   std::cout << "Nan..";
+
+  if (status)
+  {
+    std::cout << "..FAILED" << std::endl;
+  }
+  else
+  {
+    std::cout << ".PASSED" << std::endl;
+  }
+  return status;
+}
+
+// Validate with knwon solutions
+int TestMetaMultiplyMatrix()
+{
+  int status = 0;
+  std::cout << "MetaMuliplyMatrix..";
+
+  vtkNew<vtkIntArray> arrayM1, arrayM2, arrayM3;
+
+  arrayM1->SetNumberOfComponents(25);
+  arrayM1->SetNumberOfTuples(1);
+  arrayM2->SetNumberOfComponents(10);
+  arrayM2->SetNumberOfTuples(1);
+  arrayM3->SetNumberOfComponents(25);
+  arrayM3->SetNumberOfTuples(1);
+
+  auto rangeM1 = vtk::DataArrayTupleRange<25>(arrayM1);
+  auto rangeM2 = vtk::DataArrayTupleRange<10>(arrayM2);
+  auto rangeM3 = vtk::DataArrayTupleRange<25>(arrayM3);
+
+  auto M1 = rangeM1[0];
+  auto M2 = rangeM2[0];
+  auto M3 = rangeM3[0];
+
+  // We fill M1 and M2 with the beginning of the sequence of natural integers.
+  std::iota(M1.begin(), M1.end(), 0);
+  std::iota(M2.begin(), M2.end(), 0);
+
+  //  0  1  2  3  4      0  1     60  70
+  //  5  6  7  8  9      2  3     160 195
+  //  10 11 12 13 14  x  4  5  =  260 320
+  //  15 16 17 18 19     6  7     360 445
+  //  20 21 22 23 24     8  9     460 570
+  vtkMath::MultiplyMatrix<5, 5, 2>(M1, M2, M3);
+
+  if (M3[0] != 60 || M3[1] != 70 || M3[2] != 160 || M3[3] != 195 || M3[4] != 260 || M3[5] != 320 ||
+    M3[6] != 360 || M3[7] != 445 || M3[8] != 460 || M3[9] != 570)
+  {
+    status = 1;
+  }
+
+  //                         0  5  10 15 20
+  //    0  1  2  3  4        1  6  11 16 21       60 160 260 360 460
+  //    5  6  7  8  9   x    2  7  12 17 22    =  70 195 320 445 570
+  //                         3  8  13 18 23
+  //                         4  9  14 19 24
+  vtkMath::MultiplyMatrix<2, 5, 5, vtkMath::MatrixLayout::Transpose,
+    vtkMath::MatrixLayout::Transpose>(M2, M1, M3);
+
+  if (M3[0] != 60 || M3[5] != 70 || M3[1] != 160 || M3[6] != 195 || M3[2] != 260 || M3[7] != 320 ||
+    M3[3] != 360 || M3[8] != 445 || M3[4] != 460 || M3[9] != 570)
+  {
+    status = 1;
+  }
+
+  // 0  4  8  12 16      0  1     240 280
+  // 1  5  9  13 17      2  3     260 305
+  // 2  6  10 14 18   x  4  5  =  280 330
+  // 3  7  11 15 19      6  7     300 355
+  //                     8  9
+  vtkMath::MultiplyMatrix<4, 5, 2, vtkMath::MatrixLayout::Transpose,
+    vtkMath::MatrixLayout::Identity>(M1, M2, M3);
+
+  if (M3[0] != 240 || M3[1] != 280 || M3[2] != 260 || M3[3] != 305 || M3[4] != 280 ||
+    M3[5] != 330 || M3[6] != 300 || M3[7] != 355)
+  {
+    status = 1;
+  }
+
+  // 0  1  2  3    0     14
+  // 4  5  6  7  x 1  =  38
+  // 8  9  10 11   2     62
+  //               3
+  vtkMath::MultiplyMatrix<3, 4, 1>(M1, M2, M3);
+
+  if (M3[0] != 14 || M3[1] != 38 || M3[2] != 62)
+  {
+    status = 1;
+  }
+
+  // 0                   0  0  0  0  0
+  // 1                   0  1  2  3  4
+  // 2  *  0 1 2 3 4  =  0  2  4  6  8
+  // 3                   0  3  6  9  12
+  // 4                   0  4  8  12 16
+  vtkMath::MultiplyMatrix<5, 1, 5, vtkMath::MatrixLayout::Transpose,
+    vtkMath::MatrixLayout::Transpose>(M1, M2, M3);
+
+  if (M3[0] != 0 || M3[1] != 0 || M3[2] != 0 || M3[3] != 0 || M3[4] != 0 || M3[5] != 0 ||
+    M3[6] != 1 || M3[7] != 2 || M3[8] != 3 || M3[9] != 4 || M3[10] != 0 || M3[11] != 2 ||
+    M3[12] != 4 || M3[13] != 6 || M3[14] != 8 || M3[15] != 0 || M3[16] != 3 || M3[17] != 6 ||
+    M3[18] != 9 || M3[19] != 12 || M3[20] != 0 || M3[21] != 4 || M3[22] != 8 || M3[23] != 12 ||
+    M3[24] != 16)
+  {
+    status = 1;
+  }
+
+  //  0  1  2  3  4      0             0  1  4  9  16
+  //  5  6  7  8  9        1           0  6  14 24 36
+  //  10 11 12 13 14  x      2      =  0  11 24 39 56
+  //  15 16 17 18 19           3       0  16 34 54 76
+  //  20 21 22 23 24             4     0  21 44 69 96
+  vtkMath::MultiplyMatrix<5, 5, 5, vtkMath::MatrixLayout::Identity, vtkMath::MatrixLayout::Diag>(
+    M1, M2, M3);
+
+  if (M3[0] != 0 || M3[1] != 1 || M3[2] != 4 || M3[3] != 9 || M3[4] != 16 || M3[5] != 0 ||
+    M3[6] != 6 || M3[7] != 14 || M3[8] != 24 || M3[9] != 36 || M3[10] != 0 || M3[11] != 11 ||
+    M3[12] != 24 || M3[13] != 39 || M3[14] != 56 || M3[15] != 0 || M3[16] != 16 || M3[17] != 34 ||
+    M3[18] != 54 || M3[19] != 76 || M3[20] != 0 || M3[21] != 21 || M3[22] != 44 || M3[23] != 69 ||
+    M3[24] != 96)
+  {
+    status = 1;
+  }
+
+  //  0            0  5  10 15 20     0  0  0  0  0
+  //    1          1  6  11 16 21     1  6  11 16 21
+  //      2     x  2  7  12 17 22  =  4  14 24 34 56
+  //        3      3  8  13 18 23     9  24 39 54 76
+  //          4    4  9  14 19 24     16 36 56 76 96
+  vtkMath::MultiplyMatrix<5, 5, 5, vtkMath::MatrixLayout::Diag, vtkMath::MatrixLayout::Transpose>(
+    M2, M1, M3);
+
+  if (M3[0] != 0 || M3[1] != 0 || M3[2] != 0 || M3[3] != 0 || M3[4] != 0 || M3[5] != 1 ||
+    M3[6] != 6 || M3[7] != 11 || M3[8] != 16 || M3[9] != 21 || M3[10] != 4 || M3[11] != 14 ||
+    M3[12] != 24 || M3[13] != 34 || M3[14] != 44 || M3[15] != 9 || M3[16] != 24 || M3[17] != 39 ||
+    M3[18] != 54 || M3[19] != 69 || M3[20] != 16 || M3[21] != 36 || M3[22] != 56 || M3[23] != 76 ||
+    M3[24] != 96)
+  {
+    status = 1;
+  }
+
+  //  0            0             0
+  //    1            1             1
+  //      2     x      2      =      4
+  //        3            3             9
+  //          4            4             16
+  vtkMath::MultiplyMatrix<5, 5, 5, vtkMath::MatrixLayout::Diag, vtkMath::MatrixLayout::Diag>(
+    M1, M2, M3);
+
+  if (M3[0] != 0 || M3[1] != 1 || M3[2] != 4 || M3[3] != 9 || M3[4] != 16)
+  {
+    status = 1;
+  }
+
+  //  0 0   0 1 2   0 0 0
+  //  0 1 x 3 4 5 = 3 4 5
+  vtkMath::MultiplyMatrix<2, 2, 3, vtkMath::MatrixLayout::Diag>(M1, M2, M3);
+
+  if (M3[0] != 0 || M3[1] != 0 || M3[2] != 0 || M3[3] != 3 || M3[4] != 4 || M3[5] != 5)
+  {
+    status = 1;
+  }
+
+  //  0 0   0 1   0 0
+  //  0 1 x 2 3 = 2 3
+  //  0 0         0 0
+  vtkMath::MultiplyMatrix<3, 2, 2, vtkMath::MatrixLayout::Diag>(M1, M2, M3);
+
+  if (M3[0] != 0 || M3[1] != 0 || M3[2] != 2 || M3[3] != 3 || M3[4] != 0 || M3[5] != 0)
+  {
+    status = 1;
+  }
+
+  // 0 1 2   0 0 0 0   0  1  4  0
+  // 3 4 5 x 0 1 0 0 = 0  4  10 0
+  // 6 7 8   0 0 2 0   0  7  16 0
+  vtkMath::MultiplyMatrix<3, 3, 4, vtkMath::MatrixLayout::Identity, vtkMath::MatrixLayout::Diag>(
+    M1, M2, M3);
+
+  if (M3[0] != 0 || M3[1] != 1 || M3[2] != 4 || M3[3] != 0 || M3[4] != 0 || M3[5] != 4 ||
+    M3[6] != 10 || M3[7] != 0 || M3[8] != 0 || M3[9] != 7 || M3[10] != 16 || M3[11] != 0)
+  {
+    status = 1;
+  }
+
+  if (status)
+  {
+    std::cout << "..FAILED" << std::endl;
+  }
+  else
+  {
+    std::cout << ".PASSED" << std::endl;
+  }
+  return status;
+}
+
+// Validate with knwon solutions
+int TestMetaMultiplyMatrixWithVector()
+{
+  int status = 0;
+  std::cout << "MetaMuliplyMatrixWithVector..";
+
+  std::array<int, 9> M = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
+  int x[3] = { 10, 100, 1000 }, y[3];
+
+  // Testing with regular array output
+  vtkMath::MultiplyMatrixWithVector<3, 3>(M, x, y);
+
+  if (y[0] != 2100 || y[1] != 5430 || y[2] != 8760)
+  {
+    status = 1;
+  }
+
+  // Testing with the tranpose
+  vtkMath::MultiplyMatrixWithVector<3, 3, vtkMath::MatrixLayout::Transpose>(M, x, y);
+
+  if (y[0] != 6300 || y[1] != 7410 || y[2] != 8520)
+  {
+    status = 1;
+  }
+
+  int* tmp = &(y[0]);
+  // Testing with pointer output, only for compiling purpose.
+  vtkMath::MultiplyMatrixWithVector<3, 3>(M, x, tmp);
+
+  if (status)
+  {
+    std::cout << "..FAILED" << std::endl;
+  }
+  else
+  {
+    std::cout << ".PASSED" << std::endl;
+  }
+  return status;
+}
+
+// Validate with knwon solutions
+int TestMetaDot()
+{
+  int status = 0;
+  std::cout << "MetaDot..";
+
+  std::array<int, 5> x = { 0, 1, 2, 3, 4 };
+  std::array<int, 5> y = { 0, 1, 2, 3, 4 };
+  int M[5] = { 2, 4, 6, 8, 9 };
+
+  if (vtkMath::Dot<int, 5>(x, y) != 30)
+  {
+    status = 1;
+  }
+
+  if (vtkMath::Dot<int, 5, vtkMath::MatrixLayout::Diag>(x, M, y) != 244)
+  {
+    status = 1;
+  }
 
   if (status)
   {
