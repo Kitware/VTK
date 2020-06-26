@@ -333,6 +333,21 @@ int vtkBillboardTextActor3D::RenderOpaqueGeometry(vtkViewport* vp)
 }
 
 //------------------------------------------------------------------------------
+void vtkBillboardTextActor3D::UpdateGeometry(vtkViewport* vp)
+{
+  vtkRenderer* ren = vtkRenderer::SafeDownCast(vp);
+  if (!ren || ren->GetActiveCamera() == nullptr)
+  {
+    return;
+  }
+
+  // Cache for updating bounds between renders (#17233):
+  this->RenderedRenderer = ren;
+
+  this->UpdateInternals(ren);
+}
+
+//------------------------------------------------------------------------------
 int vtkBillboardTextActor3D::RenderTranslucentPolygonalGeometry(vtkViewport* vp)
 {
   if (!this->InputIsValid() || !this->IsValid())
@@ -420,6 +435,24 @@ vtkBillboardTextActor3D::~vtkBillboardTextActor3D()
   this->SetInput(nullptr);
   this->SetTextProperty(nullptr);
   this->RenderedRenderer = nullptr;
+}
+
+void vtkBillboardTextActor3D::GetActors(vtkPropCollection* props)
+{
+  if (this->GetVisibility())
+  {
+    vtkViewport* vp = nullptr;
+    if (this->NumberOfConsumers)
+    {
+      vp = vtkViewport::SafeDownCast(this->Consumers[0]);
+      if (vp)
+      {
+        this->UpdateGeometry(vp);
+      }
+    }
+  }
+
+  props->AddItem(this->QuadActor.Get());
 }
 
 //------------------------------------------------------------------------------

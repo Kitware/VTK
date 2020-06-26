@@ -69,8 +69,9 @@ OSPTexture vtkOSPRayMaterialHelpers::VTKToOSPTexture(
     return OSPTexture2D();
   }
 
-  int xsize = vColorTextureMap->GetExtent()[1];
-  int ysize = vColorTextureMap->GetExtent()[3];
+  int xsize = vColorTextureMap->GetExtent()[1] - vColorTextureMap->GetExtent()[0];
+  int ysize = vColorTextureMap->GetExtent()[3] - vColorTextureMap->GetExtent()[2];
+
   int scalartype = vColorTextureMap->GetScalarType();
   int comps = vColorTextureMap->GetNumberOfScalarComponents();
 
