@@ -312,13 +312,11 @@ static void CloseDLLDirectoryCookie()
 {
   if (DLLDirectoryCookie)
   {
-    PyObject* close = PyObject_GetAttrString(DLLDirectoryCookie, "close");
-    if (close)
+    if (PyObject_HasAttrString(DLLDirectoryCookie, "close"))
     {
-      PyObject* ret = PyObject_CallMethodObjArgs(DLLDirectoryCookie, close, nullptr);
-      Py_XDECREF(ret);
+      PyObject* result = PyObject_CallMethod(DLLDirectoryCookie, "close", nullptr);
+      Py_XDECREF(result);
     }
-
     Py_XDECREF(DLLDirectoryCookie);
     DLLDirectoryCookie = nullptr;
   }
