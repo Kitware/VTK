@@ -77,6 +77,8 @@ public:
 
   bool EnableHiDPI = true; // defaulting to enabling DPI scaling.
 
+  double CustomDevicePixelRatio = 0.0;
+
   QPointer<QOpenGLContext> Context;
   QSurface* Surface;
 
@@ -150,7 +152,8 @@ public:
     this->DoVTKRenderInPaintGL = true;
 
     // update current dpi and devicePixelRatio settings.
-    this->InteractorAdapter.SetDevicePixelRatio(static_cast<float>(this->devicePixelRatio()));
+    this->InteractorAdapter.SetDevicePixelRatio(
+      static_cast<float>(this->effectiveDevicePixelRatio()));
   }
 
   ~QVTKInternals()
@@ -171,10 +174,14 @@ public:
     this->Surface = nullptr;
   }
 
-  double devicePixelRatio() const
+  double effectiveDevicePixelRatio() const
   {
-    return this->ParentWindow ? this->ParentWindow->devicePixelRatio()
-                              : this->ParentWidget->devicePixelRatioF();
+    if (this->CustomDevicePixelRatio <= 0.0)
+    {
+      return this->ParentWindow ? this->ParentWindow->devicePixelRatio()
+                                : this->ParentWidget->devicePixelRatioF();
+    }
+    return this->CustomDevicePixelRatio;
   }
 
   QSize screenSize() const
@@ -207,10 +214,12 @@ public:
   {
     QVTKInternalsDebugMacro("resize (" << w << ", " << h << ")");
     vtkLogF(TRACE, "resize(%d, %d)", w, h);
-    const auto dpr = this->devicePixelRatio();
+    const double dpr = this->effectiveDevicePixelRatio();
+    const QSize deviceSize = QSize(w, h) * dpr;
+    vtkLogF(TRACE, "resize(%d, %d), dpr=%f, scaledSize(%d, %d)", w, h, dpr, deviceSize.width(),
+      deviceSize.height());
     this->InteractorAdapter.SetDevicePixelRatio(dpr);
 
-    const QSize deviceSize = QSize(w, h) * dpr;
     if (auto iren = this->RenderWindow->GetInteractor())
     {
       iren->UpdateSize(deviceSize.width(), deviceSize.height());
@@ -386,6 +395,15 @@ public:
     }
   }
 
+  void setCustomDevicePixelRatio(double sf)
+  {
+    if (this->CustomDevicePixelRatio != sf)
+    {
+      this->CustomDevicePixelRatio = sf;
+      this->updateDPI();
+    }
+  }
+
   void clearAlpha(const QRect& targetRect) const
   {
     Q_ASSERT(this->Context);
@@ -460,8 +478,8 @@ void QVTKRenderWindowAdapter::QVTKInternals::renderWindowEventHandler(
 void QVTKRenderWindowAdapter::QVTKInternals::updateDPI() const
 {
   assert(this->RenderWindow != nullptr);
-  const auto dpr = this->devicePixelRatio();
-  this->RenderWindow->SetDPI(dpr * this->UnscaledDPI);
+  this->RenderWindow->SetDPI(
+    this->EnableHiDPI ? this->effectiveDevicePixelRatio() * this->UnscaledDPI : this->UnscaledDPI);
 }
 
 //------------------------------------------------------------------------------
@@ -558,7 +576,14 @@ void QVTKRenderWindowAdapter::setUnscaledDPI(int unscaledDPI)
     this->Internals->setUnscaledDPI(unscaledDPI);
   }
 }
-
+//-----------------------------------------------------------------------------
+void QVTKRenderWindowAdapter::setCustomDevicePixelRatio(double sf)
+{
+  if (this->Internals)
+  {
+    this->Internals->setCustomDevicePixelRatio(sf);
+  }
+}
 //------------------------------------------------------------------------------
 QSurfaceFormat QVTKRenderWindowAdapter::defaultFormat(bool stereo_capable)
 {
