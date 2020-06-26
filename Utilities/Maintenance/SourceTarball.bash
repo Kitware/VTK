@@ -28,38 +28,21 @@ usage () {
         "[--verbose] [-v <version>] [<tag>|<commit>]"
 }
 
-# Check for a tool to get MD5 sums from.
-if type -p md5sum >/dev/null; then
-    readonly md5tool="md5sum"
-    readonly md5regex="s/ .*//"
-elif type -p md5 >/dev/null; then
-    readonly md5tool="md5"
-    readonly md5regex="s/.*= //"
-elif type -p cmake >/dev/null; then
-    readonly md5tool="cmake -E md5sum"
-    readonly md5regex="s/ .*//"
-else
-    die "No 'md5sum' or 'md5' tool found."
-fi
-
-compute_MD5 () {
-    local file="$1"
-    readonly file
-    shift
-
-    $md5tool "$file" | sed -e "$md5regex"
-}
-
 # Check for a tool to get SHA512 sums from.
 if type -p sha512sum >/dev/null; then
     readonly sha512tool="sha512sum"
+    readonly sha512regex="s/ .*//"
+elif type -p cmake >/dev/null; then
+    readonly sha512tool="cmake -E sha512sum"
     readonly sha512regex="s/ .*//"
 else
     die "No 'sha512sum' tool found."
 fi
 
 compute_SHA512 () {
-    local file="$1"; readonly file; shift
+    local file="$1"
+    readonly file
+    shift
 
     $sha512tool "$file" | sed -e "$sha512regex"
 }
@@ -81,7 +64,7 @@ validate () {
     readonly actual
 
     if ! [ "$actual" = "$expected" ]; then
-        die "Object $expected is corrupt: $file"
+        die "Object $expected is corrupt (got $actual): $file"
     fi
 }
 
@@ -125,12 +108,11 @@ find_data_objects () {
     readonly largedata
     shift
 
-    # Find all content links in the tree.
+    # Find all .sha512 files in the tree.
     git ls-tree --full-tree -r "$revision" | \
-        egrep '\.(md5|sha512)$' | \
+        grep '\.sha512$' | \
         while read mode type obj path; do
             case "$path" in
-                *.md5) algo="MD5" ;;
                 *.sha512) algo="SHA512" ;;
                 *)
                     die "unknown ExternalData content link: $path"
@@ -141,10 +123,10 @@ find_data_objects () {
             if git check-attr vtk-is-large-data -- $path | grep -q -v -e " set$"; then
                 if test "$largedata" != "VTK_USE_LARGE_DATA"; then
                     # Build the path to the object.
-                    echo "$algo/$( git cat-file blob $obj )"
+                    echo "$algo,$( git cat-file blob $obj ),$path"
                 fi
             elif test "$largedata" = "VTK_USE_LARGE_DATA"; then
-                echo "$algo/$( git cat-file blob $obj )"
+                echo "$algo,$( git cat-file blob $obj ),$path"
             fi
         done | \
             sort | \
@@ -159,8 +141,12 @@ index_data_objects () {
     local path
     local file
     local obj
+    local realpath
+    local userealpath="$1"
+    readonly userealpath
+    shift
 
-    while IFS=/ read algo hash; do
+    while IFS=, read algo hash realpath; do
         # Final path in the source tarball.
         path=".ExternalData/$algo/$hash"
 
@@ -173,17 +159,30 @@ index_data_objects () {
         # Validate the file (catches 404 pages and the like).
         validate "$algo" "$file" "$hash"
         obj="$( git hash-object -t blob -w "$file" )"
-        echo "100644 blob $obj	$path"
+        case "$userealpath" in
+          "inplace")
+              echo "100644 blob $obj	${realpath%.sha512}"
+              ;;
+          "extdata")
+              echo "100644 blob $obj	$path"
+              ;;
+        esac
     done | \
         git update-index --index-info
 
     check_pipeline
 }
 
-# Puts data objects into an index file.
+# Puts test-data objects into an index file.
+load_testdata_objects () {
+    find_data_objects "$@" | \
+        index_data_objects "extdata"
+}
+
+# Puts VTK-data objects into an index file.
 load_data_objects () {
     find_data_objects "$@" | \
-        index_data_objects
+        index_data_objects "inplace"
 }
 
 # Loads existing data files into an index file.
@@ -204,20 +203,21 @@ read_all_submodules () {
     local git_index="$GIT_INDEX_FILE"
     export git_index
 
-    git submodule foreach --quiet '
+    git submodule foreach --recursive --quiet '
         gitdir="$( git rev-parse --git-dir )"
         cd "$toplevel"
         GIT_INDEX_FILE="$git_index"
         export GIT_INDEX_FILE
-        git rm --cached "$path" 2>/dev/null
-        GIT_ALTERNATE_OBJECT_DIRECTORIES="$gitdir/objects" git read-tree -i --prefix="$path/" "$sha1"
+        git add .gitmodules 2>/dev/null
+        git rm --cached "$displaypath" >&2
+        GIT_ALTERNATE_OBJECT_DIRECTORIES="$gitdir/objects" git read-tree -i --prefix="$sm_path/" "$sha1"
         echo "$gitdir/objects"
     ' | \
         tr '\n' ':'
 }
 
 read_submodules_into_index () {
-    local object_dirs=""
+    local object_dirs="$( git rev-parse --git-dir )/objects"
     local new_object_dirs
 
     while git ls-files -s | grep -q -e '^160000'; do
@@ -369,8 +369,8 @@ info "Loading source tree from $commit..."
 rm -f "$GIT_INDEX_FILE"
 git read-tree -m -i "$commit"
 git rm -rf -q --cached ".ExternalData"
-git submodule sync
-git submodule update --init
+git submodule sync --recursive
+git submodule update --init --recursive
 read_submodules_into_index
 tree="$( git write-tree )"
 
@@ -382,7 +382,7 @@ done
 
 info "Loading normal data for $commit..."
 rm -f "$GIT_INDEX_FILE"
-load_data_objects "$commit" ""
+load_testdata_objects "$commit" ""
 load_data_files "$commit"
 tree="$( git write-tree )"
 
@@ -392,16 +392,39 @@ for format in $formats; do
         result=1
 done
 
+info "Loading normal data tree from $commit..."
+rm -f "$GIT_INDEX_FILE"
+load_data_objects "$commit" ""
+load_data_files "$commit"
+tree="$( git write-tree )"
+
+info "Generating data archive(s)..."
+for format in $formats; do
+    git_archive "$format" "$tree" "VTKDataFiles-$version" "VTK-$version" || \
+        result=1
+done
 
 info "Loading large data for $commit..."
 rm -f "$GIT_INDEX_FILE"
-load_data_objects "$commit" VTK_USE_LARGE_DATA
+load_testdata_objects "$commit" VTK_USE_LARGE_DATA
 load_data_files "$commit"
 tree="$( git write-tree )"
 
 info "Generating large data archive(s)..."
 for format in $formats; do
     git_archive "$format" "$tree" "VTKLargeData-$version" "VTK-$version" || \
+        result=1
+done
+
+info "Loading large data tree from $commit..."
+rm -f "$GIT_INDEX_FILE"
+load_data_objects "$commit" VTK_USE_LARGE_DATA
+load_data_files "$commit"
+tree="$( git write-tree )"
+
+info "Generating data archive(s)..."
+for format in $formats; do
+    git_archive "$format" "$tree" "VTKLargeDataFiles-$version" "VTK-$version" || \
         result=1
 done
 
