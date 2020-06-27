@@ -344,9 +344,9 @@ int vtkPlane::IntersectWithFinitePlane(double n[3], double o[3], double pOrigin[
   }
 
   // Third line
-  xr0[0] = pOrigin[0] + px[0] + py[0];
-  xr0[1] = pOrigin[1] + px[1] + py[1];
-  xr0[2] = pOrigin[2] + px[2] + py[2];
+  xr0[0] = px[0] + py[0] - pOrigin[0];
+  xr0[1] = px[1] + py[1] - pOrigin[1];
+  xr0[2] = px[2] + py[2] - pOrigin[2];
   if (vtkPlane::IntersectWithLine(xr0, xr1, n, o, t, x))
   {
     numInts++;
