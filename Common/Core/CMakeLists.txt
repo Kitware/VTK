@@ -281,14 +281,14 @@ set(headers
   "${CMAKE_CURRENT_BINARY_DIR}/vtkVTK_USE_SCALED_SOA_ARRAYS.h")
 
 set(private_headers
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkFloatingPointExceptionsConfigure.h")
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkFloatingPointExceptionsConfigure.h"
+  vtkMathPrivate.hxx)
 
 set(templates
   vtkArrayIteratorTemplateImplicit.txx)
 
 set(private_templates
-  vtkDataArrayPrivate.txx
-  vtkMathPrivate.hxx)
+  vtkDataArrayPrivate.txx)
 
 set(vtk_include_dirs)
 
@@ -490,6 +490,11 @@ if (vtk_include_dirs)
     PRIVATE
     ${vtk_include_dirs})
 endif ()
+
+# We need to install the private headers so that consumers of VTK
+# can use private headers (vtkMathPrivate.hxx for instance)
+vtk_module_install_headers(
+    FILES   ${private_headers})
 
 vtk_module_link(VTK::CommonCore
   PUBLIC

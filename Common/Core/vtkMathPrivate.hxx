@@ -22,8 +22,10 @@
  * vtkMath
  */
 
-#ifndef vtkMathPrivate_h
-#define vtkMathPrivate_h
+#ifndef vtkMathPrivate_hxx
+#define vtkMathPrivate_hxx
+
+#include "vtkCommonCoreModule.h" //required for correct implementation
 
 #include <type_traits>
 
