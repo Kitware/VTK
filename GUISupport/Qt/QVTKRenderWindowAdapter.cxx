@@ -320,7 +320,7 @@ public:
     int* rbsize = this->RenderWindow->GetRenderFramebuffer()->GetLastSize();
     this->RenderWindow->BlitDisplayFramebuffer(left ? 0 : 1, 0, 0, rbsize[0], rbsize[1],
       targetRect.x(), targetRect.y(), targetRect.width(), targetRect.height(), GL_COLOR_BUFFER_BIT,
-      GL_NEAREST);
+      GL_LINEAR);
 
     this->clearAlpha(targetRect);
 
