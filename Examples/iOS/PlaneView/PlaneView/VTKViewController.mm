@@ -14,6 +14,7 @@
 #import "VTKViewController.h"
 
 #import <vtk/vtkActor.h>
+#import <vtk/vtkAutoInit.h>
 #import <vtk/vtkCamera.h>
 #import <vtk/vtkCommand.h>
 #import <vtk/vtkDebugLeaks.h>
@@ -30,13 +31,14 @@
 #import <vtk/vtkProbeFilter.h>
 #import <vtk/vtkRTAnalyticSource.h>
 #import <vtk/vtkRenderer.h>
-#import <vtk/vtkRenderingOpenGL2ObjectFactory.h>
 #import <vtk/vtkStructuredGridOutlineFilter.h>
 #import <vtk/vtkUnstructuredGrid.h>
 #import <vtk/vtkXMLImageDataReader.h>
 #import <vtk/vtkXMLRectilinearGridReader.h>
 #import <vtk/vtkXMLStructuredGridReader.h>
 #import <vtk/vtkXMLUnstructuredGridReader.h>
+
+VTK_MODULE_INIT(vtkRenderingOpenGL2);
 
 // This does the actual work: updates the probe.
 // Callback for the interaction
@@ -96,9 +98,6 @@ public:
 
 - (void)setupPipeline
 {
-  vtkRenderingOpenGL2ObjectFactory* of = vtkRenderingOpenGL2ObjectFactory::New();
-  vtkObjectFactory::RegisterFactory(of);
-
   self->RenderWindow = vtkIOSRenderWindow::New();
   self->Renderer = vtkRenderer::New();
   self->RenderWindow->AddRenderer(self->Renderer);
