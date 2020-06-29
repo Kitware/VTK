@@ -314,6 +314,7 @@ public:
     GLboolean scissorTest = f->glIsEnabled(GL_SCISSOR_TEST);
     if (scissorTest == GL_TRUE)
     {
+      this->RenderWindow->GetState()->vtkglDisable(GL_SCISSOR_TEST);
       f->glDisable(GL_SCISSOR_TEST); // Scissor affects glBindFramebuffer.
     }
 
@@ -326,6 +327,7 @@ public:
 
     if (scissorTest == GL_TRUE)
     {
+      this->RenderWindow->GetState()->vtkglEnable(GL_SCISSOR_TEST);
       f->glEnable(GL_SCISSOR_TEST);
     }
     return true;
