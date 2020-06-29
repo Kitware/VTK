@@ -14,9 +14,7 @@
  =========================================================================*/
 /**
  * @class   vtkExtentRCBPartitioner
- *
- *
- *  This method partitions a global extent to N partitions where N is a user
+ * @brief   This method partitions a global extent to N partitions where N is a user
  *  supplied parameter.
  */
 

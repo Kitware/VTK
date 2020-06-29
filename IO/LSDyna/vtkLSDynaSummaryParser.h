@@ -14,8 +14,8 @@
 =========================================================================*/
 /**
  * @class   vtkLSDynaSummaryParser
+ * @brief   This is a helper class used by vtkLSDynaReader to read XML files.
  *
- * This is a helper class used by vtkLSDynaReader to read XML files.
  * @sa
  * vtkLSDynaReader
  */

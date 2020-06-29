@@ -14,9 +14,7 @@
  =========================================================================*/
 /**
  * @class   vtkAMRFlashParticlesReader
- *
- *
- *  A concrete instance of vtkAMRBaseParticlesReader that implements
+ * @brief   A concrete instance of vtkAMRBaseParticlesReader that implements
  *  functionality for reading flash particle datasets.
  */
 

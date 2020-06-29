@@ -14,8 +14,7 @@
 =========================================================================*/
 /**
  * @class   vtkWebGLWidget
- *
- * Widget representation for WebGL.
+ * @brief   Widget representation for WebGL.
  */
 
 #ifndef vtkWebGLWidget_h

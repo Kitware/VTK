@@ -14,9 +14,7 @@
 =========================================================================*/
 /**
  * @class   vtkAMRFlashReaderInternal
- *
- *
- *  Consists of the low-level Flash Reader used by the vtkAMRFlashReader.
+ * @brief   Consists of the low-level Flash Reader used by the vtkAMRFlashReader.
  *
  * @sa
  *  vtkAMRFlashReader

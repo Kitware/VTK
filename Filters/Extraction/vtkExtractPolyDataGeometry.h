@@ -38,7 +38,7 @@
  * vtkDataSet input (see vtkExtractGeometry).
  *
  * @sa
- * vtkExtractGeometry vtkClipPolyData
+ * vtkExtractGeometry vtkClipPolyData vtkImplicitFunction
  */
 
 #ifndef vtkExtractPolyDataGeometry_h

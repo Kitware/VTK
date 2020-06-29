@@ -14,9 +14,7 @@
  =========================================================================*/
 /**
  * @class   vtkAMRBaseReader
- *
- *
- * An abstract class that encapsulates common functionality for all AMR readers.
+ * @brief   An abstract class that encapsulates common functionality for all AMR readers.
  */
 
 #ifndef vtkAMRBaseReader_h

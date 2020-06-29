@@ -14,8 +14,7 @@
 =========================================================================*/
 /**
  * @class   vtkWebGLPolyData
- *
- * PolyData representation for WebGL.
+ * @brief   PolyData representation for WebGL.
  */
 
 #ifndef vtkWebGLPolyData_h

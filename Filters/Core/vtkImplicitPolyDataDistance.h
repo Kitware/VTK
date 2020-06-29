@@ -14,7 +14,8 @@
 =========================================================================*/
 /**
  * @class   vtkImplicitPolyDataDistance
- *
+ * @brief   Implicit function that computes the distance from a point x to the nearest point p on an
+ * input vtkPolyData.
  *
  * Implicit function that computes the distance from a point x to the
  * nearest point p on an input vtkPolyData. The sign of the function

@@ -13,9 +13,8 @@
 
 =========================================================================*/
 /**
- * @class   Test
- *
- * Tests instantiations of the vtkNew class template.
+ * @class   vtkTestNewVar
+ * @brief   Tests instantiations of the vtkNew class template.
  */
 
 #ifndef vtkTestNewVar_h

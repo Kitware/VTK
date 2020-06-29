@@ -14,9 +14,7 @@
  =========================================================================*/
 /**
  * @class   vtkAMREnzoReader
- *
- *
- * A concrete instance of vtkAMRBaseReader that implements functionality
+ * @brief   A concrete instance of vtkAMRBaseReader that implements functionality
  * for reading Flash AMR datasets.
  */
 

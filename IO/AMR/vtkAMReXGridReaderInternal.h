@@ -14,9 +14,7 @@
 =========================================================================*/
 /**
  * @class   vtkAMReXGridReaderInternal
- *
- *
- *  Consists of the low-level AMReX Reader used by the vtkAMReXGridReader.
+ * @brief   Consists of the low-level AMReX Reader used by the vtkAMReXGridReader.
  *
  * @sa
  *  vtkAMReXGridReader

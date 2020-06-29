@@ -15,7 +15,7 @@
 /**
  * @class   vtkVRMLImporter_Yacc
  *
-*/
+ */
 
 #ifndef vtkVRMLImporter_Yacc_h
 #define vtkVRMLImporter_Yacc_h
