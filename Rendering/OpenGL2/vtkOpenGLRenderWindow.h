@@ -166,19 +166,6 @@ public:
    */
   int GetColorBufferInternalFormat(int attachmentPoint);
 
-  //@{
-  /**
-   * Set the size (width and height) of the rendering window in
-   * screen coordinates (in pixels). This resizes the operating
-   * system's view/window and redraws it.
-   *
-   * If the size has changed, this method will fire
-   * vtkCommand::WindowResizeEvent.
-   */
-  void SetSize(int width, int height) override;
-  void SetSize(int a[2]) override { this->SetSize(a[0], a[1]); }
-  //@}
-
   /**
    * Initialize OpenGL for this window.
    */
