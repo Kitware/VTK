@@ -26,6 +26,7 @@ endif ()
 
 set(headers
   QVTKOpenGLWidget.h
+  QVTKRenderWidget.h
   QVTKWin32Header.h)
 
 set(private_headers
