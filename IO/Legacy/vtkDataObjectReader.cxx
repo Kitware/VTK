@@ -70,7 +70,7 @@ int vtkDataObjectReader::ReadMeshSimple(const std::string& fname, vtkDataObject*
       }
     }
 
-    else if (!strncmp(this->LowerCase(line), "dataset", (unsigned long)7))
+    else if (!strncmp(this->LowerCase(line), "dataset", 7))
     {
       vtkErrorMacro(<< "Field reader cannot read datasets");
       this->CloseVTKFile();

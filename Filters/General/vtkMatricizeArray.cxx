@@ -117,7 +117,7 @@ int vtkMatricizeArray::RequestData(
 
     for (vtkIdType i = 0; i != coordinates.GetDimensions(); ++i)
       temp[i] = (coordinates[i] - input_extents[i].GetBegin()) * strides[i];
-    new_coordinates[1] = std::accumulate(temp.begin(), temp.end(), 0);
+    new_coordinates[1] = std::accumulate(temp.begin(), temp.end(), static_cast<vtkIdType>(0));
 
     output_array->AddValue(new_coordinates, input_array->GetValueN(n));
   }

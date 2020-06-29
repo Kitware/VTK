@@ -283,7 +283,7 @@ int vtkXMLPHyperTreeGridReader::ReadPieceData()
     }
 
     // Input and output name must match
-    if (strcmp(inArray->GetName(), outArray->GetName()))
+    if (strcmp(inArray->GetName(), outArray->GetName()) != 0)
     {
       vtkErrorMacro(<< "Execute: input" << this->Piece << " Name (" << inArray->GetName()
                     << "), must match output Name (" << outArray->GetName() << ")");

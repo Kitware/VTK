@@ -281,7 +281,7 @@ bool vtkSQLiteDatabase::Open(const char* password, int mode)
   }
 
   // Only do checks if it is not an in-memory database
-  if (strcmp(":memory:", this->DatabaseFileName))
+  if (strcmp(":memory:", this->DatabaseFileName) != 0)
   {
     bool exists = vtksys::SystemTools::FileExists(this->DatabaseFileName);
     if (mode == USE_EXISTING && !exists)

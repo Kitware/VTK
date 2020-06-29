@@ -269,7 +269,7 @@ vtkDataObject* vtkTemporalArrayOperatorFilter::ProcessDataObject(
     return nullptr;
   }
 
-  if (strcmp(inputArray0->GetName(), inputArray1->GetName()))
+  if (strcmp(inputArray0->GetName(), inputArray1->GetName()) != 0)
   {
     vtkErrorMacro(<< "Array name in each time step are different.");
     return nullptr;

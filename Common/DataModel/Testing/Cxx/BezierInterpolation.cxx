@@ -28,10 +28,9 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkTable.h"
 
+#include <cmath>
 #include <sstream>
 #include <vector>
-
-#include <math.h>
 
 #include "vtkTestConditionals.txx"
 

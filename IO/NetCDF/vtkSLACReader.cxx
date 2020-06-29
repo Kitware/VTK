@@ -237,6 +237,11 @@ public:
 
   vtkSLACReaderAutoCloseNetCDF& operator=(const vtkSLACReaderAutoCloseNetCDF& src)
   {
+    if (this == &src)
+    {
+      return *this;
+    }
+
     this->UnReference();
     this->FileDescriptor = src.FileDescriptor;
     this->ReferenceCount = src.ReferenceCount;

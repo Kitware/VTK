@@ -442,11 +442,9 @@ void vtkGESignaReader::ExecuteInformation()
 static void vtkcopygenesisimage(FILE* infp, int width, int height, int compress, short* map_left,
   short* map_wide, unsigned short* output)
 {
-  unsigned short row;
   unsigned short last_pixel = 0;
-  for (row = 0; row < height; ++row)
+  for (int row = 0; row < height; ++row)
   {
-    unsigned short j;
     unsigned short start;
     unsigned short end;
 
@@ -463,7 +461,7 @@ static void vtkcopygenesisimage(FILE* infp, int width, int height, int compress,
       end = width;
     }
     // Pad the first "empty" part of the line ...
-    for (j = 0; j < start; j++)
+    for (unsigned short k = 0; k < start; k++)
     {
       (*output) = 0;
       ++output;
@@ -536,7 +534,7 @@ static void vtkcopygenesisimage(FILE* infp, int width, int height, int compress,
     }
 
     // Pad the last "empty" part of the line ...
-    for (j = end; j < width; j++)
+    for (int j = end; j < width; j++)
     {
       (*output) = 0;
       ++output;

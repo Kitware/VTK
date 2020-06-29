@@ -646,8 +646,13 @@ public:
   // these functions to compile. Just initialize the object.
   CellStorage(const CellStorage&) { this->Initialize(); }
 
-  CellStorage& operator=(const CellStorage&)
+  CellStorage& operator=(const CellStorage& other)
   {
+    if (this == &other)
+    {
+      return *this;
+    }
+
     this->Clear();
     this->Initialize();
     return *this;

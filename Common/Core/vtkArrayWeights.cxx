@@ -101,6 +101,11 @@ const double& vtkArrayWeights::operator[](vtkIdType i) const
 
 vtkArrayWeights& vtkArrayWeights::operator=(const vtkArrayWeights& other)
 {
+  if (this == &other)
+  {
+    return *this;
+  }
+
   *this->Storage = *other.Storage;
   return *this;
 }

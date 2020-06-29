@@ -158,6 +158,11 @@ vtkMultiProcessStream::vtkMultiProcessStream(const vtkMultiProcessStream& other)
 //------------------------------------------------------------------------------
 vtkMultiProcessStream& vtkMultiProcessStream::operator=(const vtkMultiProcessStream& other)
 {
+  if (this == &other)
+  {
+    return *this;
+  }
+
   this->Internals->Data = other.Internals->Data;
   this->Endianness = other.Endianness;
   return (*this);

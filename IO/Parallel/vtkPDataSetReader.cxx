@@ -452,7 +452,7 @@ void vtkPDataSetReader::ReadPVTKFileInformation(
 
   // The file block should have a version parameter.
   type = this->ReadXML(file, &block, &param, &val);
-  if (type != 2 || strcmp(param, "version"))
+  if (type != 2 || strcmp(param, "version") != 0)
   {
     vtkErrorMacro("Could not find file version.");
     return;

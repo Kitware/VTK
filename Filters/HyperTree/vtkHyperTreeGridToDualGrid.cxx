@@ -149,7 +149,7 @@ int vtkHyperTreeGridToDualGrid::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObj
 
   // Compute and store reduction factors for speed
   double factor = 1.;
-  for (unsigned short p = 0; p < gridDepth; ++p)
+  for (unsigned int p = 0; p < gridDepth; ++p)
   {
     this->ReductionFactors[p] = .5 * factor;
     factor /= input->GetBranchFactor();

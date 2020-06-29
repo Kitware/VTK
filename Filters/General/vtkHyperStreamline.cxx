@@ -86,6 +86,11 @@ vtkHyperPoint::vtkHyperPoint()
 
 vtkHyperPoint& vtkHyperPoint::operator=(const vtkHyperPoint& hp)
 {
+  if (this == &hp)
+  {
+    return *this;
+  }
+
   for (int i = 0; i < 3; i++)
   {
     this->X[i] = hp.X[i];

@@ -345,14 +345,14 @@ bool CompareData(vtkImageData* Output, vtkImageData* Input)
     return false;
   }
 
-  if (memcmp(Input->GetDimensions(), Output->GetDimensions(), 3 * sizeof(int)))
+  if (memcmp(Input->GetDimensions(), Output->GetDimensions(), 3 * sizeof(int)) != 0)
     return false;
 
   const int point_count =
     Input->GetDimensions()[0] * Input->GetDimensions()[1] * Input->GetDimensions()[2];
   for (int point = 0; point != point_count; ++point)
   {
-    if (memcmp(Input->GetPoint(point), Output->GetPoint(point), 3 * sizeof(double)))
+    if (memcmp(Input->GetPoint(point), Output->GetPoint(point), 3 * sizeof(double)) != 0)
       return false;
   }
 
@@ -398,7 +398,7 @@ bool CompareData(vtkRectilinearGrid* Output, vtkRectilinearGrid* Input)
   {
     return false;
   }
-  if (memcmp(Input->GetDimensions(), Output->GetDimensions(), 3 * sizeof(int)))
+  if (memcmp(Input->GetDimensions(), Output->GetDimensions(), 3 * sizeof(int)) != 0)
     return false;
 
   return true;

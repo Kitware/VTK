@@ -211,7 +211,7 @@ void vtkObjectFactory::LoadLibrariesInPath(const std::string& path)
         if (loadfunction && versionFunction)
         {
           const char* version = (*versionFunction)();
-          if (strcmp(version, vtkVersion::GetVTKSourceVersion()))
+          if (strcmp(version, vtkVersion::GetVTKSourceVersion()) != 0)
           {
             vtkGenericWarningMacro(<< "Incompatible factory rejected:"
                                    << "\nRunning VTK version: " << vtkVersion::GetVTKSourceVersion()

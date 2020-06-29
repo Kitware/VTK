@@ -493,7 +493,7 @@ static int vtkThreadSleep(vtkMultiThreader::ThreadInfo* data, double time)
     // check to see if we are being told to quit
     int activeFlag;
     {
-      std::lock_guard<std::mutex>(*data->ActiveFlagLock);
+      std::lock_guard<std::mutex> lockGuard(*data->ActiveFlagLock);
       activeFlag = *(data->ActiveFlag);
     }
 

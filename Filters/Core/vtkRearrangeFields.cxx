@@ -637,7 +637,7 @@ int vtkRearrangeFields::CompareOperationsByName(const Operation* op1, const Oper
   {
     return 0;
   }
-  if (!op1->FieldName || !op2->FieldName || strcmp(op1->FieldName, op2->FieldName))
+  if (!op1->FieldName || !op2->FieldName || strcmp(op1->FieldName, op2->FieldName) != 0)
   {
     return 0;
   }

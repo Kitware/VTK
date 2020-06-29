@@ -253,7 +253,7 @@ int vtkMoleculeAppend::FillInputPortInformation(int i, vtkInformation* info)
 //------------------------------------------------------------------------------
 bool vtkMoleculeAppend::CheckArrays(vtkAbstractArray* array1, vtkAbstractArray* array2)
 {
-  if (strcmp(array1->GetName(), array2->GetName()))
+  if (strcmp(array1->GetName(), array2->GetName()) != 0)
   {
     vtkErrorMacro(<< "Execute: input name (" << array1->GetName() << "), must match output name ("
                   << array2->GetName() << ")");

@@ -68,7 +68,7 @@ int vtkRectilinearGridReader::ReadMetaDataSimple(const std::string& fname, vtkIn
     return 1;
   }
 
-  if (!strncmp(this->LowerCase(line), "dataset", (unsigned long)7))
+  if (!strncmp(this->LowerCase(line), "dataset", 7))
   {
     // Make sure we're reading right type of geometry
     //
@@ -79,7 +79,7 @@ int vtkRectilinearGridReader::ReadMetaDataSimple(const std::string& fname, vtkIn
       return 1;
     }
 
-    if (strncmp(this->LowerCase(line), "rectilinear_grid", 16))
+    if (strncmp(this->LowerCase(line), "rectilinear_grid", 16) != 0)
     {
       vtkErrorMacro(<< "Cannot read dataset type: " << line);
       this->CloseVTKFile();
@@ -170,7 +170,7 @@ int vtkRectilinearGridReader::ReadMeshSimple(const std::string& fname, vtkDataOb
     return 1;
   }
 
-  if (!strncmp(this->LowerCase(line), "dataset", (unsigned long)7))
+  if (!strncmp(this->LowerCase(line), "dataset", 7))
   {
     // Make sure we're reading right type of geometry
     //
@@ -181,7 +181,7 @@ int vtkRectilinearGridReader::ReadMeshSimple(const std::string& fname, vtkDataOb
       return 1;
     }
 
-    if (strncmp(this->LowerCase(line), "rectilinear_grid", 16))
+    if (strncmp(this->LowerCase(line), "rectilinear_grid", 16) != 0)
     {
       vtkErrorMacro(<< "Cannot read dataset type: " << line);
       this->CloseVTKFile();

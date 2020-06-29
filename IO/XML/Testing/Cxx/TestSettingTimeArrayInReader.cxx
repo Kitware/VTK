@@ -52,7 +52,7 @@ int TestSettingTimeArrayInReader(int argc, char* argv[])
   reader->Update();
 
   reader->SetActiveTimeDataArrayName("T");
-  if (strcmp(reader->GetActiveTimeDataArrayName(), "T"))
+  if (strcmp(reader->GetActiveTimeDataArrayName(), "T") != 0)
   {
     vtkGenericWarningMacro("Time data selection does not work");
     return EXIT_FAILURE;

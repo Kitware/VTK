@@ -96,6 +96,9 @@ vtkStandardNewMacro(vtkLSDynaReader);
 #define LS_ARRAYNAME_ACCELERATION "Acceleration"
 #define LS_ARRAYNAME_PRESSURE "Pressure"
 #define LS_ARRAYNAME_VORTICITY "Vorticity"
+#define LS_ARRAYNAME_VORTICITY_X "Vorticity_X"
+#define LS_ARRAYNAME_VORTICITY_Y "Vorticity_Y"
+#define LS_ARRAYNAME_VORTICITY_Z "Vorticity_Z"
 #define LS_ARRAYNAME_RESULTANTVORTICITY "ResVorticity"
 #define LS_ARRAYNAME_ENSTROPHY "Enstrophy"
 #define LS_ARRAYNAME_HELICITY "Helicity"
@@ -724,7 +727,7 @@ void vtkLSDynaReader::SetDatabaseDirectory(const char* f)
     }
     return;
   }
-  if (strcmp(this->P->Fam.GetDatabaseDirectory().c_str(), f))
+  if (strcmp(this->P->Fam.GetDatabaseDirectory().c_str(), f) != 0)
   {
     this->P->Reset();
     this->SetInputDeck(nullptr);
@@ -1615,19 +1618,19 @@ int vtkLSDynaReader::ReadHeaderInformation(int curAdapt)
   { // OK, we don't have all the vector components... maybe we have some of them?
     if (itmp & 4)
     {
-      p->AddPointArray(LS_ARRAYNAME_VORTICITY "_X", 1, 1);
+      p->AddPointArray(LS_ARRAYNAME_VORTICITY_X, 1, 1);
       p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
       p->Dict["cfdXVort"] = 1;
     }
     if (itmp & 8)
     {
-      p->AddPointArray(LS_ARRAYNAME_VORTICITY "_Y", 1, 1);
+      p->AddPointArray(LS_ARRAYNAME_VORTICITY_Y, 1, 1);
       p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
       p->Dict["cfdYVort"] = 1;
     }
     if (itmp & 16)
     {
-      p->AddPointArray(LS_ARRAYNAME_VORTICITY "_Z", 1, 1);
+      p->AddPointArray(LS_ARRAYNAME_VORTICITY_Z, 1, 1);
       p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
       p->Dict["cfdZVort"] = 1;
     }
@@ -2743,9 +2746,9 @@ int vtkLSDynaReader::ReadNodeStateInfo(vtkIdType step)
     LS_ARRAYNAME_VELOCITY,
     LS_ARRAYNAME_ACCELERATION,
     LS_ARRAYNAME_PRESSURE,
-    LS_ARRAYNAME_VORTICITY "_X",
-    LS_ARRAYNAME_VORTICITY "_Y",
-    LS_ARRAYNAME_VORTICITY "_Z",
+    LS_ARRAYNAME_VORTICITY_X,
+    LS_ARRAYNAME_VORTICITY_Y,
+    LS_ARRAYNAME_VORTICITY_Z,
     LS_ARRAYNAME_RESULTANTVORTICITY,
     LS_ARRAYNAME_ENSTROPHY,
     LS_ARRAYNAME_HELICITY,

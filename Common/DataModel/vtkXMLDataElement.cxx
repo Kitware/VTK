@@ -1086,10 +1086,10 @@ int vtkXMLDataElement::IsEqualTo(vtkXMLDataElement* elem)
   if (this->GetNumberOfAttributes() != elem->GetNumberOfAttributes() ||
     this->GetNumberOfNestedElements() != elem->GetNumberOfNestedElements() ||
     (this->GetName() != elem->GetName() &&
-      (!this->GetName() || !elem->GetName() || strcmp(this->GetName(), elem->GetName()))) ||
+      (!this->GetName() || !elem->GetName() || strcmp(this->GetName(), elem->GetName()) != 0)) ||
     (this->GetCharacterData() != elem->GetCharacterData() &&
       (!this->GetCharacterData() || !elem->GetCharacterData() ||
-        strcmp(this->GetCharacterData(), elem->GetCharacterData()))))
+        strcmp(this->GetCharacterData(), elem->GetCharacterData()) != 0)))
   {
     return 0;
   }
@@ -1100,7 +1100,7 @@ int vtkXMLDataElement::IsEqualTo(vtkXMLDataElement* elem)
   for (i = 0; i < this->GetNumberOfAttributes(); ++i)
   {
     const char* value = elem->GetAttribute(this->AttributeNames[i]);
-    if (!value || strcmp(value, this->AttributeValues[i]))
+    if (!value || strcmp(value, this->AttributeValues[i]) != 0)
     {
       return 0;
     }

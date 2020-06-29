@@ -94,7 +94,7 @@ int TestDiscretizableColorTransferFunctionOpacity(int, char*[])
   mapScalarsOutput.TakeReference(dctf->MapScalars(da, VTK_COLOR_MODE_MAP_SCALARS, -1));
 
   if (std::memcmp(mapScalarsThroughTableOutput, mapScalarsOutput->GetVoidPointer(0),
-        3 * 4 * sizeof(unsigned char)))
+        3 * 4 * sizeof(unsigned char)) != 0)
   {
     return EXIT_FAILURE;
   }

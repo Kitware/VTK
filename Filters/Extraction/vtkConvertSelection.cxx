@@ -524,7 +524,7 @@ int vtkConvertSelection::Convert(vtkSelection* input, vtkDataObject* data, vtkSe
       vtkFieldData* selData = inputNode->GetSelectionData();
       for (int i = 0; i < selData->GetNumberOfArrays(); i++)
       {
-        if (strcmp(selData->GetAbstractArray(i)->GetName(), this->ArrayNames->GetValue(i)))
+        if (strcmp(selData->GetAbstractArray(i)->GetName(), this->ArrayNames->GetValue(i)) != 0)
         {
           same = false;
           break;

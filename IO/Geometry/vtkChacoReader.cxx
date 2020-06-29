@@ -174,7 +174,7 @@ int vtkChacoReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   }
 
   int newFile =
-    ((this->CurrentBaseName == nullptr) || strcmp(this->CurrentBaseName, this->BaseName));
+    ((this->CurrentBaseName == nullptr) || strcmp(this->CurrentBaseName, this->BaseName) != 0);
 
   if (!newFile)
   {

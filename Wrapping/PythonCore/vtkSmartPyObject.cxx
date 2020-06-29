@@ -48,6 +48,11 @@ vtkSmartPyObject::~vtkSmartPyObject()
 //------------------------------------------------------------------------------
 vtkSmartPyObject& vtkSmartPyObject::operator=(const vtkSmartPyObject& other)
 {
+  if (this == &other)
+  {
+    return *this;
+  }
+
   vtkPythonScopeGilEnsurer gilEnsurer;
   Py_XDECREF(this->Object);
   this->Object = other.Object;

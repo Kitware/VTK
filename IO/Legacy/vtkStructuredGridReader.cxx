@@ -68,7 +68,7 @@ int vtkStructuredGridReader::ReadMetaDataSimple(const std::string& fname, vtkInf
     return 1;
   }
 
-  if (!strncmp(this->LowerCase(line), "dataset", (unsigned long)7))
+  if (!strncmp(this->LowerCase(line), "dataset", 7))
   {
     // Make sure we're reading right type of geometry
     //
@@ -79,7 +79,7 @@ int vtkStructuredGridReader::ReadMetaDataSimple(const std::string& fname, vtkInf
       return 1;
     }
 
-    if (strncmp(this->LowerCase(line), "structured_grid", 15))
+    if (strncmp(this->LowerCase(line), "structured_grid", 15) != 0)
     {
       vtkErrorMacro(<< "Cannot read dataset type: " << line);
       this->CloseVTKFile();
@@ -170,7 +170,7 @@ int vtkStructuredGridReader::ReadMeshSimple(const std::string& fname, vtkDataObj
     return 1;
   }
 
-  if (!strncmp(this->LowerCase(line), "dataset", (unsigned long)7))
+  if (!strncmp(this->LowerCase(line), "dataset", 7))
   {
     // Make sure we're reading right type of geometry
     //
@@ -181,7 +181,7 @@ int vtkStructuredGridReader::ReadMeshSimple(const std::string& fname, vtkDataObj
       return 1;
     }
 
-    if (strncmp(this->LowerCase(line), "structured_grid", 15))
+    if (strncmp(this->LowerCase(line), "structured_grid", 15) != 0)
     {
       vtkErrorMacro(<< "Cannot read dataset type: " << line);
       this->CloseVTKFile();

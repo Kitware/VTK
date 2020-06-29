@@ -81,6 +81,11 @@ struct vtkBalloon
   }
   vtkBalloon& operator=(const vtkBalloon& balloon)
   {
+    if (this == &balloon)
+    {
+      return *this;
+    }
+
     this->Text = balloon.Text;
 
     // Don't leak if we already have an image.

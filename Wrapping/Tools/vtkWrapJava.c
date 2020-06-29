@@ -124,8 +124,8 @@ void use_hints(FILE* fp)
   {
     case VTK_PARSE_UNSIGNED_CHAR_PTR:
       /* for vtkDataWriter we want to handle this case specially */
-      if (strcmp(currentFunction->Name, "GetBinaryOutputString") ||
-        strcmp(CurrentData->Name, "vtkDataWriter"))
+      if (strcmp(currentFunction->Name, "GetBinaryOutputString") != 0 ||
+        strcmp(CurrentData->Name, "vtkDataWriter") != 0)
       {
         fprintf(fp, "    return vtkJavaMakeJArrayOfByteFromUnsignedChar(env,temp%i,%i);\n",
           MAX_ARGS, currentFunction->HintSize);
@@ -1099,7 +1099,8 @@ void outputFunction(FILE* fp, ClassInfo* data)
   }
 
   if (!currentFunction->IsExcluded && currentFunction->IsPublic && args_ok &&
-    strcmp(data->Name, currentFunction->Name) && strcmp(data->Name, currentFunction->Name + 1))
+    strcmp(data->Name, currentFunction->Name) != 0 &&
+    strcmp(data->Name, currentFunction->Name + 1) != 0)
   {
     /* make sure we haven't already done one of these */
     if (!DoneOne())

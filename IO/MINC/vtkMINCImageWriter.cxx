@@ -2034,10 +2034,10 @@ int vtkMINCImageWriter::RequestInformation(vtkInformation* vtkNotUsed(request),
       continue;
     }
 
-    if (memcmp(
-          inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()), extent, sizeof(extent)) ||
-      memcmp(inInfo->Get(vtkDataObject::SPACING()), spacing, sizeof(spacing)) ||
-      memcmp(inInfo->Get(vtkDataObject::ORIGIN()), origin, sizeof(origin)) ||
+    if (memcmp(inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()), extent,
+          sizeof(extent)) != 0 ||
+      memcmp(inInfo->Get(vtkDataObject::SPACING()), spacing, sizeof(spacing)) != 0 ||
+      memcmp(inInfo->Get(vtkDataObject::ORIGIN()), origin, sizeof(origin)) != 0 ||
       inInfo->Get(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS()) != components ||
       inInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE()) != dataType)
     {

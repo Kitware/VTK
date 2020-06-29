@@ -55,7 +55,7 @@ int TestOBJReaderSingleTexture(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  if (strcmp(tCoords->GetName(), "Material0"))
+  if (strcmp(tCoords->GetName(), "Material0") != 0)
   {
     std::cerr << "Invalid texture coordinates array name" << std::endl;
     return EXIT_FAILURE;

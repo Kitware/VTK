@@ -175,6 +175,11 @@ public:
     // the pointers.
     Polygon& operator=(const Polygon& p)
     {
+      if (this == &p)
+      {
+        return *this;
+      }
+
       // start afresh
       this->Clear();
 

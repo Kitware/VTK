@@ -347,7 +347,7 @@ int vtkGraphReader::ReadGraphType(const char* fname, GraphType& type)
     return 0;
   }
 
-  if (strncmp(this->LowerCase(line), "dataset", (unsigned long)7))
+  if (strncmp(this->LowerCase(line), "dataset", 7) != 0)
   {
     vtkErrorMacro(<< "Unrecognized keyword: " << line);
     this->CloseVTKFile();

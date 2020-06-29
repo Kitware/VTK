@@ -2783,7 +2783,7 @@ int vtkFixedPointVolumeRayCastMapper::UpdateGradients(vtkVolume* vol)
   for (int c = 0; c < this->CurrentScalars->GetNumberOfComponents(); c++)
   {
     vtkPiecewiseFunction* f = vol->GetProperty()->GetGradientOpacity(c);
-    if (strcmp(f->GetType(), "Constant") || f->GetValue(0.0) != 1.0)
+    if (strcmp(f->GetType(), "Constant") != 0 || f->GetValue(0.0) != 1.0)
     {
       needToUpdate = 1;
       this->GradientOpacityRequired = 1;
