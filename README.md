@@ -10,7 +10,7 @@
 Documentation can be found at https://emilk.github.io/loguru/index.html.
 
 ## License
-This software is in the public domain. Where that dedication is not recognized, you are granted a perpetual, irrevocable license to copy and modify this file as you see fit.
+This software is in the public domain. Where that dedication is not recognized, you are granted a perpetual, irrevocable license to copy, modify and distribute it as you see fit.
 
 That being said, I would appreciate credit!
 If you find Loguru useful, tweet me at @ernerfeldt mail me at emil.ernerfeldt@gmail.com.
