@@ -68,7 +68,7 @@ public:
   /**
    * Set the number of facets used to define cylinder. Initial value is 6.
    */
-  vtkSetClampMacro(Resolution, int, 2, VTK_CELL_SIZE);
+  vtkSetClampMacro(Resolution, int, 3, VTK_CELL_SIZE);
   vtkGetMacro(Resolution, int);
   //@}
 
