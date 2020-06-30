@@ -1,6 +1,6 @@
 vtk_module_third_party_internal(
     LICENSE_FILES "vtkloguru/LICENSE"
-    VERSION       "2.0"
+    VERSION       "2.1"
     STANDARD_INCLUDE_DIRS)
 
 configure_file(
