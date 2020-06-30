@@ -449,13 +449,6 @@ int vtkPythonInterpreter::PyMain(int argc, char** argv)
     vtkPythonInterpreter::SetLogVerbosity(vtkLogger::VERBOSITY_INFO);
     vtkLogger::SetStderrVerbosity(vtkLogger::ConvertToVerbosity(count_v - 1));
   }
-  else
-  {
-    // update log verbosity such that default is to only show errors/warnings.
-    // this avoids show the standard loguru INFO messages for executable args etc.
-    // unless `-v` was specified.
-    vtkLogger::SetStderrVerbosity(vtkLogger::VERBOSITY_WARNING);
-  }
 
   vtkLogger::Init(argc, argv, nullptr); // since `-v` and `-vv` are parsed as Python verbosity flags
                                         // and not log verbosity flags.
