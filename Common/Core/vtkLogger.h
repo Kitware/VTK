@@ -251,6 +251,14 @@ public:
   static void SetStderrVerbosity(Verbosity level);
 
   /**
+   * Set internal messages verbosity level. The library used by VTK, `loguru`
+   * generates log messages during initialization and at exit. These are logged
+   * as log level VERBOSITY_1, by default. One can change that using this
+   * method. Typically, you want to call this before `vtkLogger::Init`.
+   */
+  static void SetInternalVerbosityLevel(Verbosity level);
+
+  /**
    * Support log file modes: `TRUNCATE` truncates the file clearing any existing
    * contents while `APPEND` appends to the existing log file contents, if any.
    */
@@ -408,6 +416,8 @@ protected:
 private:
   vtkLogger(const vtkLogger&) = delete;
   void operator=(const vtkLogger&) = delete;
+  static vtkLogger::Verbosity InternalVerbosityLevel;
+  static std::string ThreadName;
 };
 
 //@{

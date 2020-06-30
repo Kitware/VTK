@@ -110,6 +110,9 @@ static void pop_scope(const char* id)
 }
 
 //=============================================================================
+vtkLogger::Verbosity vtkLogger::InternalVerbosityLevel = vtkLogger::VERBOSITY_1;
+std::string vtkLogger::ThreadName;
+
 //------------------------------------------------------------------------------
 vtkLogger::vtkLogger() = default;
 
@@ -128,7 +131,23 @@ void vtkLogger::Init(int& argc, char* argv[], const char* verbosity_flag /*= "-v
 
   loguru::g_preamble_date = false;
   loguru::g_preamble_time = false;
-  loguru::init(argc, argv, verbosity_flag);
+  loguru::g_internal_verbosity = static_cast<loguru::Verbosity>(vtkLogger::InternalVerbosityLevel);
+
+  const auto current_stderr_verbosity = loguru::g_stderr_verbosity;
+  if (loguru::g_internal_verbosity > loguru::g_stderr_verbosity)
+  {
+    // this avoid printing the preamble-header on stderr except for cases
+    // where the stderr log is guaranteed to have some log text generated.
+    loguru::g_stderr_verbosity = loguru::Verbosity_WARNING;
+  }
+  loguru::Options options;
+  options.verbosity_flag = verbosity_flag;
+  if (!vtkLogger::ThreadName.empty())
+  {
+    options.main_thread_name = vtkLogger::ThreadName.c_str();
+  }
+  loguru::init(argc, argv, options);
+  loguru::g_stderr_verbosity = current_stderr_verbosity;
 #else
   (void)argc;
   (void)argv;
@@ -150,6 +169,17 @@ void vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity level)
 {
 #if VTK_MODULE_ENABLE_VTK_loguru
   loguru::g_stderr_verbosity = static_cast<loguru::Verbosity>(level);
+#else
+  (void)level;
+#endif
+}
+
+//------------------------------------------------------------------------------
+void vtkLogger::SetInternalVerbosityLevel(vtkLogger::Verbosity level)
+{
+#if VTK_MODULE_ENABLE_VTK_loguru
+  loguru::g_internal_verbosity = static_cast<loguru::Verbosity>(level);
+  vtkLogger::InternalVerbosityLevel = level;
 #else
   (void)level;
 #endif
@@ -184,6 +214,9 @@ void vtkLogger::SetThreadName(const std::string& name)
 {
 #if VTK_MODULE_ENABLE_VTK_loguru
   loguru::set_thread_name(name.c_str());
+  // Save threadname so if this is called before `Init`, we can pass the thread
+  // name to loguru::init().
+  vtkLogger::ThreadName = name;
 #else
   (void)name;
 #endif
