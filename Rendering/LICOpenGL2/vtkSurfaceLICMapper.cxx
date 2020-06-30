@@ -98,26 +98,29 @@ void vtkSurfaceLICMapper::ReplaceShaderValues(
     "uniform mat3 normalMatrix;\n"
     "in vec3 tcoordVCVSOutput;");
 
-  vtkShaderProgram::Substitute(FSSource, "//VTK::TCoord::Impl",
-    // projected vectors
-    "  vec3 tcoordLIC = normalMatrix * tcoordVCVSOutput;\n"
-    "  vec3 normN = normalize(normalVCVSOutput);\n"
-    "  float k = dot(tcoordLIC, normN);\n"
-    "  tcoordLIC = (tcoordLIC - k*normN);\n"
-    "  gl_FragData[1] = vec4(tcoordLIC.x, tcoordLIC.y, 0.0 , gl_FragCoord.z);\n"
-    //   "  gl_FragData[1] = vec4(tcoordVC.xyz, gl_FragCoord.z);\n"
-    // vectors for fragment masking
-    "  if (uMaskOnSurface == 0)\n"
-    "    {\n"
-    "    gl_FragData[2] = vec4(tcoordVCVSOutput, gl_FragCoord.z);\n"
-    "    }\n"
-    "  else\n"
-    "    {\n"
-    "    gl_FragData[2] = vec4(tcoordLIC.x, tcoordLIC.y, 0.0 , gl_FragCoord.z);\n"
-    "    }\n"
-    //   "  gl_FragData[2] = vec4(19.0, 19.0, tcoordVC.x, gl_FragCoord.z);\n"
-    ,
-    false);
+  if (this->LastLightComplexity[this->LastBoundBO] > 0)
+  {
+    vtkShaderProgram::Substitute(FSSource, "//VTK::TCoord::Impl",
+      // projected vectors
+      "  vec3 tcoordLIC = normalMatrix * tcoordVCVSOutput;\n"
+      "  vec3 normN = normalize(normalVCVSOutput);\n"
+      "  float k = dot(tcoordLIC, normN);\n"
+      "  tcoordLIC = (tcoordLIC - k*normN);\n"
+      "  gl_FragData[1] = vec4(tcoordLIC.x, tcoordLIC.y, 0.0 , gl_FragCoord.z);\n"
+      //   "  gl_FragData[1] = vec4(tcoordVC.xyz, gl_FragCoord.z);\n"
+      // vectors for fragment masking
+      "  if (uMaskOnSurface == 0)\n"
+      "    {\n"
+      "    gl_FragData[2] = vec4(tcoordVCVSOutput, gl_FragCoord.z);\n"
+      "    }\n"
+      "  else\n"
+      "    {\n"
+      "    gl_FragData[2] = vec4(tcoordLIC.x, tcoordLIC.y, 0.0 , gl_FragCoord.z);\n"
+      "    }\n"
+      //   "  gl_FragData[2] = vec4(19.0, 19.0, tcoordVC.x, gl_FragCoord.z);\n"
+      ,
+      false);
+  }
 
   shaders[vtkShader::Vertex]->SetSource(VSSource);
   shaders[vtkShader::Fragment]->SetSource(FSSource);
