@@ -667,7 +667,7 @@ void vtkTextureObject::GetShiftAndScale(float& shift, float& scale)
       shift = scale + VTK_INT_MIN;
       break;
     case GL_UNSIGNED_INT:
-      scale = VTK_UNSIGNED_INT_MAX;
+      scale = static_cast<float>(VTK_UNSIGNED_INT_MAX);
       shift = 0.0;
       break;
     case GL_FLOAT:
