@@ -23,6 +23,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkWindowToImageFilter.h"
 
+#include <algorithm> // for std::max
 #include <cmath>
 #include <set>
 
