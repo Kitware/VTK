@@ -211,10 +211,16 @@ void vtkMolecule::SetAtomPosition(vtkIdType id, double x, double y, double z)
 vtkVector3f vtkMolecule::GetAtomPosition(vtkIdType id)
 {
   assert(id >= 0 && id < this->GetNumberOfAtoms());
-  vtkFloatArray* positions = vtkArrayDownCast<vtkFloatArray>(this->Points->GetData());
-  assert(positions != nullptr);
-  float* data = positions->GetPointer(id * 3);
-  return vtkVector3f(data);
+  vtkDataArray* positions = this->Points->GetData();
+  auto positionsF = vtkArrayDownCast<vtkFloatArray>(positions);
+  if (positionsF)
+  {
+    float* data = positionsF->GetPointer(id * 3);
+    return vtkVector3f(data);
+  }
+
+  auto point = positions->GetTuple3(id);
+  return vtkVector3f(point[0], point[1], point[2]);
 }
 
 //------------------------------------------------------------------------------
@@ -292,18 +298,8 @@ unsigned short vtkMolecule::GetBondOrder(vtkIdType bondId)
 //------------------------------------------------------------------------------
 double vtkMolecule::GetBondLength(vtkIdType bondId)
 {
-  assert(bondId >= 0 && bondId < this->GetNumberOfBonds());
-
-  // Get list of bonds
-  vtkIdTypeArray* bonds = this->GetBondList();
-  // An array of length two holding the bonded atom's ids
-  vtkIdType* ids = bonds->GetPointer(bondId);
-
-  // Get positions
-  vtkVector3f pos1 = this->GetAtomPosition(ids[0]);
-  vtkVector3f pos2 = this->GetAtomPosition(ids[1]);
-
-  return (pos2 - pos1).Norm();
+  vtkBond bond = this->GetBond(bondId);
+  return bond.GetLength();
 }
 
 //------------------------------------------------------------------------------

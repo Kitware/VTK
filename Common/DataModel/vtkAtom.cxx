@@ -56,10 +56,7 @@ void vtkAtom::GetPosition(float pos[3]) const
 //------------------------------------------------------------------------------
 void vtkAtom::GetPosition(double pos[3]) const
 {
-  vtkVector3f position = this->GetPosition();
-  pos[0] = position.GetX();
-  pos[1] = position.GetY();
-  pos[2] = position.GetZ();
+  this->Molecule->GetAtomPosition(this->Id, pos);
 }
 
 //------------------------------------------------------------------------------

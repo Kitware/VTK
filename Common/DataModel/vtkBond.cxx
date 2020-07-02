@@ -14,6 +14,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkBond.h"
 
 #include "vtkAtom.h"
+#include "vtkMath.h"
 #include "vtkMolecule.h"
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
@@ -46,10 +47,10 @@ double vtkBond::GetLength() const
 {
   // Reimplement here to avoid the potential cost of building the EdgeList
   // (We already know the atomIds, no need to look them up)
-  vtkVector3f pos1 = this->Molecule->GetAtomPosition(this->BeginAtomId);
-  vtkVector3f pos2 = this->Molecule->GetAtomPosition(this->EndAtomId);
-
-  return (pos2 - pos1).Norm();
+  double pos1[3], pos2[3];
+  this->Molecule->GetAtomPosition(this->BeginAtomId, pos1);
+  this->Molecule->GetAtomPosition(this->EndAtomId, pos2);
+  return std::sqrt(vtkMath::Distance2BetweenPoints(pos1, pos2));
 }
 
 //------------------------------------------------------------------------------
