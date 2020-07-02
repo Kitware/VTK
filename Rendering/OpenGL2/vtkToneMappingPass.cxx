@@ -204,7 +204,7 @@ void vtkToneMappingPass::Render(const vtkRenderState* s)
     // Recorrect gamma and output
     vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Impl",
       "  toned = pow(toned, vec3(1.0/2.2));\n" // to sRGB color space
-      "  gl_FragData[0] = vec4(toned , pixel.a);\n"
+      "  gl_FragData[0] = mix(pixel, vec4(toned , pixel.a), pixel.a);\n"
       "//VTK::FSQ::Impl");
 
     this->QuadHelper = new vtkOpenGLQuadHelper(renWin,
