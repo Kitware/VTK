@@ -852,14 +852,20 @@ int vtk3DLinearGridPlaneCutter::ProcessPiece(
   vtkUnstructuredGrid* input, vtkPlane* plane, vtkPolyData* output)
 {
   // Make sure there is input data to process
+  if (!input || !plane || !output)
+  {
+    vtkLog(INFO, "Null input, plane, or output");
+    return 1;
+  }
+
   vtkPoints* inPts = input->GetPoints();
-  vtkIdType numPts = inPts->GetNumberOfPoints();
+  vtkIdType numPts = inPts ? inPts->GetNumberOfPoints() : 0;
   vtkCellArray* cells = input->GetCells();
-  vtkIdType numCells = cells->GetNumberOfCells();
+  vtkIdType numCells = cells ? cells->GetNumberOfCells() : 0;
   if (numPts <= 0 || numCells <= 0)
   {
     vtkLog(INFO, "Empty input");
-    return 0;
+    return 1;
   }
 
   // Check the input point type. Only real types are supported.
