@@ -351,31 +351,29 @@ bool vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBloc
     {
       vtkDataArray* xCoords = rgBlock->GetXCoordinates();
       this->CoordsTexSizes[0] = xCoords->GetNumberOfTuples();
+      float fRange[2];
       double* r = xCoords->GetFiniteRange(0);
       for (int i = 0; i < 2; ++i)
       {
-        this->CoordsRange[0][i] = static_cast<float>(r[i]);
+        fRange[i] = static_cast<float>(r[i]);
       }
-      this->GetScaleAndBias(
-        VTK_FLOAT, this->CoordsRange[0], this->CoordsScale[0], this->CoordsBias[0]);
+      this->GetScaleAndBias(VTK_FLOAT, fRange, this->CoordsScale[0], this->CoordsBias[0]);
       vtkDataArray* yCoords = rgBlock->GetYCoordinates();
       this->CoordsTexSizes[1] = yCoords->GetNumberOfTuples();
       r = yCoords->GetFiniteRange(0);
       for (int i = 0; i < 2; ++i)
       {
-        this->CoordsRange[1][i] = static_cast<float>(r[i]);
+        fRange[i] = static_cast<float>(r[i]);
       }
-      this->GetScaleAndBias(
-        VTK_FLOAT, this->CoordsRange[1], this->CoordsScale[1], this->CoordsBias[1]);
+      this->GetScaleAndBias(VTK_FLOAT, fRange, this->CoordsScale[1], this->CoordsBias[1]);
       vtkDataArray* zCoords = rgBlock->GetZCoordinates();
       this->CoordsTexSizes[2] = zCoords->GetNumberOfTuples();
       r = zCoords->GetFiniteRange(0);
       for (int i = 0; i < 2; ++i)
       {
-        this->CoordsRange[2][i] = static_cast<float>(r[i]);
+        fRange[i] = static_cast<float>(r[i]);
       }
-      this->GetScaleAndBias(
-        VTK_FLOAT, this->CoordsRange[2], this->CoordsScale[2], this->CoordsBias[2]);
+      this->GetScaleAndBias(VTK_FLOAT, fRange, this->CoordsScale[2], this->CoordsBias[2]);
 
       vtkNew<vtkFloatArray> coordsArray;
       coordsArray->SetNumberOfComponents(3);

@@ -3204,7 +3204,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::BindTransformations(
         prog->SetUniform3fv("in_coordTexSizes", 1, &fvalue3);
         prog->SetUniform3fv("in_coordsScale", 1, volTex->CoordsScale);
         prog->SetUniform3fv("in_coordsBias", 1, volTex->CoordsBias);
-        prog->SetUniform2fv("in_coordsRange", 3, volTex->CoordsRange);
       }
 
       if (volTex->BlankingTex)
@@ -3325,7 +3324,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetVolumeShaderParameters(
 
 ////----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetMapperShaderParameters(
-  vtkShaderProgram* prog, vtkRenderer* ren, int independent, int numComp)
+  vtkShaderProgram* prog, vtkRenderer* ren, int vtkNotUsed(independent), int numComp)
 {
 #ifndef GL_ES_VERSION_3_0
   // currently broken on ES
@@ -3341,14 +3340,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetMapperShaderParameters(
     vtkOpenGLRenderWindow* win = static_cast<vtkOpenGLRenderWindow*>(ren->GetRenderWindow());
     prog->SetUniformi("in_noiseSampler", win->GetNoiseTextureUnit());
   }
-  else
-  {
-    prog->SetUniformi("in_noiseSampler", 0);
-  }
 
-  prog->SetUniformi("in_useJittering", this->Parent->UseJittering);
   prog->SetUniformi("in_noOfComponents", numComp);
-  prog->SetUniformi("in_independentComponents", independent);
   prog->SetUniformf("in_sampleDistance", this->ActualSampleDistance);
 
   // Set the scale and bias for color correction

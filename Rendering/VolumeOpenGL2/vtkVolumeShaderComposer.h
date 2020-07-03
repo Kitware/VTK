@@ -168,7 +168,6 @@ std::string BaseDeclarationFragment(vtkRenderer* vtkNotUsed(ren), vtkVolumeMappe
     toShaderStr << "uniform vec3 in_coordTexSizes;\n";
     toShaderStr << "uniform vec3 in_coordsScale;\n";
     toShaderStr << "uniform vec3 in_coordsBias;\n";
-    toShaderStr << "uniform vec2 in_coordsRange[3];\n";
   }
 
   vtkSmartPointer<vtkUniformGrid> uGrid = vtkUniformGrid::SafeDownCast(mapper->GetInput());
@@ -178,15 +177,19 @@ std::string BaseDeclarationFragment(vtkRenderer* vtkNotUsed(ren), vtkVolumeMappe
   }
 
   toShaderStr << "uniform int in_noOfComponents;\n"
-                 "uniform int in_independentComponents;\n"
                  "\n"
-                 "uniform sampler2D in_noiseSampler;\n"
                  "#ifndef GL_ES\n"
                  "uniform sampler2D in_depthSampler;\n"
                  "#endif\n"
                  "\n"
                  "// Camera position\n"
                  "uniform vec3 in_cameraPos;\n";
+
+  vtkOpenGLGPUVolumeRayCastMapper* glMapper = vtkOpenGLGPUVolumeRayCastMapper::SafeDownCast(mapper);
+  if (glMapper->GetUseJittering())
+  {
+    toShaderStr << "uniform sampler2D in_noiseSampler;\n";
+  }
 
   // For multiple inputs (numInputs > 1), an additional transformation is
   // needed for the bounding-box.
@@ -248,7 +251,6 @@ std::string BaseDeclarationFragment(vtkRenderer* vtkNotUsed(ren), vtkVolumeMappe
                  "uniform float in_shininess[4];\n"
                  "\n"
                  "// Others\n"
-                 "uniform bool in_useJittering;\n"
                  "vec3 g_rayJitter = vec3(0.0);\n"
                  "\n"
                  "uniform vec2 in_averageIPRange;\n";
@@ -298,7 +300,6 @@ std::string BaseDeclarationFragment(vtkRenderer* vtkNotUsed(ren), vtkVolumeMappe
     toShaderStr << "uniform vec4 in_componentWeight;\n";
   }
 
-  vtkOpenGLGPUVolumeRayCastMapper* glMapper = vtkOpenGLGPUVolumeRayCastMapper::SafeDownCast(mapper);
   if (glMapper->GetCurrentPass() != vtkOpenGLGPUVolumeRayCastMapper::DepthPass &&
     glMapper->GetUseDepthPass())
   {
@@ -411,16 +412,21 @@ std::string BaseInit(vtkRenderer* vtkNotUsed(ren), vtkVolumeMapper* mapper,
   if (glMapper->GetBlendMode() != vtkVolumeMapper::SLICE_BLEND)
   {
     // Intersection is computed with g_rayOrigin, so we should not modify it with Slice mode
-    shaderStr += std::string("\
-        \n  if (in_useJittering)\
-        \n  {\
-        \n    float jitterValue = texture2D(in_noiseSampler, gl_FragCoord.xy / vec2(textureSize(in_noiseSampler, 0))).x;\
-        \n    g_rayJitter = g_dirStep * jitterValue;\
-        \n  }\
-        \n  else\
-        \n  {\
+    if (glMapper->GetUseJittering())
+    {
+      shaderStr += std::string("\
+          \n    float jitterValue = texture2D(in_noiseSampler, gl_FragCoord.xy /\
+                                              vec2(textureSize(in_noiseSampler, 0))).x;\
+          \n    g_rayJitter = g_dirStep * jitterValue;\
+          \n");
+    }
+    else
+    {
+      shaderStr += std::string("\
         \n    g_rayJitter = g_dirStep;\
-        \n  }\
+        \n");
+    }
+    shaderStr += std::string("\
         \n  g_rayOrigin += g_rayJitter;\
         \n");
   }
@@ -565,13 +571,22 @@ std::string BaseExit(
 std::string ComputeGradientOpacity1DDecl(vtkVolume* vol, int noOfComponents,
   int independentComponents, std::map<int, std::string> gradientTableMap)
 {
+  auto volProperty = vol->GetProperty();
   std::ostringstream ss;
-  ss << "uniform sampler2D " << ArrayBaseName(gradientTableMap[0]) << "[" << noOfComponents
-     << "];\n";
-  ss << "uniform sampler2D in_labelMapGradientOpacity;\n";
+  if (volProperty->HasGradientOpacity())
+  {
+    ss << "uniform sampler2D " << ArrayBaseName(gradientTableMap[0]) << "[" << noOfComponents
+       << "];\n";
+  }
+  bool useLabelGradientOpacity =
+    (volProperty->HasLabelGradientOpacity() && (noOfComponents == 1 || !independentComponents));
+  if (useLabelGradientOpacity)
+  {
+    ss << "uniform sampler2D in_labelMapGradientOpacity;\n";
+  }
 
   std::string shaderStr = ss.str();
-  if (vol->GetProperty()->HasGradientOpacity() && (noOfComponents == 1 || !independentComponents))
+  if (volProperty->HasGradientOpacity() && (noOfComponents == 1 || !independentComponents))
   {
     shaderStr += std::string("\
         \nfloat computeGradientOpacity(vec4 grad)\
@@ -580,7 +595,7 @@ std::string ComputeGradientOpacity1DDecl(vtkVolume* vol, int noOfComponents,
       gradientTableMap[0] + ", vec2(grad.w, 0.0)).r;\
         \n  }");
   }
-  else if (noOfComponents > 1 && independentComponents && vol->GetProperty()->HasGradientOpacity())
+  else if (noOfComponents > 1 && independentComponents && volProperty->HasGradientOpacity())
   {
     shaderStr += std::string("\
         \nfloat computeGradientOpacity(vec4 grad, int component)\
@@ -605,8 +620,7 @@ std::string ComputeGradientOpacity1DDecl(vtkVolume* vol, int noOfComponents,
         \n  }");
   }
 
-  if (vol->GetProperty()->HasLabelGradientOpacity() &&
-    (noOfComponents == 1 || !independentComponents))
+  if (useLabelGradientOpacity)
   {
     shaderStr += std::string("\
         \nfloat computeGradientOpacityForLabel(vec4 grad, float label)\
