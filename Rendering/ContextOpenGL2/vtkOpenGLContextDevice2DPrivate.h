@@ -324,7 +324,8 @@ public:
 
       if (this->SavedDrawBuffer != GL_BACK_LEFT)
       {
-        glDrawBuffer(this->SavedDrawBuffer);
+        const GLenum bufs[1] = { static_cast<GLenum>(this->SavedDrawBuffer) };
+        ::glDrawBuffers(1, bufs);
       }
 
       ostate->vtkglClearColor(this->SavedClearColor[0], this->SavedClearColor[1],
