@@ -29,6 +29,8 @@
 #include "vtkNew.h"          // For ivars
 #include "vtkRect.h"         // For vtkRectf ivars
 #include "vtkSmartPointer.h" // For ivars
+#include "vtkStdString.h"
+#include "vtkTextProperty.h" // For axes text properties
 #include <vector>            // For ivars
 
 class vtkAnnotationLink;
@@ -102,6 +104,42 @@ public:
   void SetAxisColor(const vtkColor4ub& color);
   vtkColor4ub GetAxisColor();
   //@}
+
+  /**
+   * Get the text property for axes. Useful for changing font size, font family, font file.
+   *
+   * For example to use a larger font which is capable of displaying unicode values change
+   * the property like this:
+   *
+   *   chart->GetAxesTextProperty()->SetFontFamily(VTK_FONT_FILE);
+   *   chart->GetAxesTextProperty()->SetFontFile("fonts/DejaVuSans.ttf");
+   *   chart->GetAxesTextProperty()->SetFontSize(32);
+   *
+   * You'll need a unicode capable font in a suitable location.
+   *
+   * Now to get the X axis to display Theta subscript (0) set the label like this using
+   * the hex unicode representation:
+   *
+   *   chart->SetXAxisLabel("\xcf\xb4\xe2\x82\x8d\xe2\x82\x80\xe2\x82\x8e");
+   *
+   * @return
+   */
+  vtkTextProperty* GetAxesTextProperty();
+
+  /**
+   * Set the X axis label
+   */
+  vtkSetMacro(XAxisLabel, vtkStdString);
+
+  /**
+   * Set the X axis label
+   */
+  vtkSetMacro(YAxisLabel, vtkStdString);
+
+  /**
+   * Set the X axis label
+   */
+  vtkSetMacro(ZAxisLabel, vtkStdString);
 
   /**
    * Set whether or not we're using this chart to rotate on a timer.
@@ -514,6 +552,11 @@ protected:
    * These plots got removed (from Plots), try to reuse the free spot.
    */
   std::vector<vtkIdType> FreePlaces;
+
+  /**
+   * The text properties of the axes.
+   */
+  vtkNew<vtkTextProperty> AxesTextProperty;
 
   /**
    * The label for the X Axis.

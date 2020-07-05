@@ -62,6 +62,13 @@ vtkChartXYZ::vtkChartXYZ()
   this->SceneHeight = 0;
   this->InitializeAxesBoundaryPoints();
   this->Axes.resize(3);
+
+  this->AxesTextProperty->SetJustificationToCentered();
+  this->AxesTextProperty->SetVerticalJustificationToCentered();
+  this->AxesTextProperty->SetColor(0.0, 0.0, 0.0);
+  this->AxesTextProperty->SetFontFamilyToArial();
+  this->AxesTextProperty->SetFontSize(14);
+
   for (unsigned int i = 0; i < 3; ++i)
   {
     vtkNew<vtkAxis> axis;
@@ -106,6 +113,12 @@ void vtkChartXYZ::SetAxis(int axisIndex, vtkAxis* axis)
 {
   assert(axisIndex >= 0 && axisIndex < 3);
   this->Axes[axisIndex] = axis;
+}
+
+//------------------------------------------------------------------------------
+vtkTextProperty* vtkChartXYZ::GetAxesTextProperty()
+{
+  return this->AxesTextProperty;
 }
 
 //------------------------------------------------------------------------------
@@ -428,14 +441,7 @@ void vtkChartXYZ::DrawAxesLabels(vtkContext2D* painter)
 {
   vtkContext3D* context = painter->GetContext3D();
 
-  // set up text property
-  vtkNew<vtkTextProperty> textProperties;
-  textProperties->SetJustificationToCentered();
-  textProperties->SetVerticalJustificationToCentered();
-  textProperties->SetColor(0.0, 0.0, 0.0);
-  textProperties->SetFontFamilyToArial();
-  textProperties->SetFontSize(14);
-  painter->ApplyTextProp(textProperties);
+  painter->ApplyTextProp(AxesTextProperty);
 
   // if we're looking directly down any dimension, we shouldn't draw the
   // corresponding label
