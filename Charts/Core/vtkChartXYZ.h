@@ -249,6 +249,17 @@ protected:
   ~vtkChartXYZ() override;
 
   /**
+   * Rotation directions.
+   */
+  enum RotateDirection
+  {
+    LEFT,
+    RIGHT,
+    UP,
+    DOWN
+  };
+
+  /**
    * Calculate the transformation matrices used to draw data points and axes
    * in the scene.  This function also sets up clipping planes that determine
    * whether or not a data point is within range.
@@ -267,6 +278,11 @@ protected:
    * Rotate the chart in response to a mouse movement.
    */
   bool Rotate(const vtkContextMouseEvent& mouse);
+
+  /**
+   * Rotate the chart in a specific direction.
+   */
+  bool Rotate(const RotateDirection rotateDirection);
 
   /**
    * Pan the data within the chart in response to a mouse movement.
