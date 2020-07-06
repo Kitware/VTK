@@ -260,6 +260,34 @@ protected:
   };
 
   /**
+   * The state of an axis.
+   */
+  enum AxisState
+  {
+    VERTICAL,
+    VERTICAL_2,
+    HORIZONTAL,
+    HORIZONTAL_2,
+    DO_NOT_LABEL,
+    STANDARD
+  };
+
+  /**
+   * The direction to data from an axis.
+   */
+  enum Direction
+  {
+    NORTH,
+    NORTH_EAST,
+    EAST,
+    SOUTH_EAST,
+    SOUTH,
+    SOUTH_WEST,
+    WEST,
+    NORTH_WEST
+  };
+
+  /**
    * Calculate the transformation matrices used to draw data points and axes
    * in the scene.  This function also sets up clipping planes that determine
    * whether or not a data point is within range.

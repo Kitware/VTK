@@ -42,6 +42,7 @@
 
 #include "vtkObjectFactory.h"
 
+#include <list>
 #include <sstream>
 
 vtkStandardNewMacro(vtkChartXYZ);
@@ -534,54 +535,46 @@ void vtkChartXYZ::GetOffsetForAxisLabel(int axis, float* bounds, float* offset)
   offset[1] = 0;
   switch (this->DirectionToData[axis])
   {
-    // data is to the north
     // offset is -y
-    case 0:
+    case NORTH:
       offset[1] = -bounds[3];
       break;
 
-    // data is northeast
     // offset is -x, -y
-    case 1:
+    case NORTH_EAST:
       offset[0] = -bounds[2];
       offset[1] = -bounds[3];
       break;
 
-    // data is east
     // offset is -x
-    case 2:
+    case EAST:
       offset[0] = -bounds[2];
       break;
 
-    // data is southeast
     // offset is -x, +y
-    case 3:
+    case SOUTH_EAST:
       offset[0] = -bounds[2];
       offset[1] = bounds[3];
       break;
 
-    // data is south
     // offset is +y
-    case 4:
+    case SOUTH:
       offset[1] = bounds[3];
       break;
 
-    // data is southwest
     // offset is +x, +y
-    case 5:
+    case SOUTH_WEST:
       offset[0] = bounds[2];
       offset[1] = bounds[3];
       break;
 
-    // data is west
     // offset is +y
-    case 6:
+    case WEST:
       offset[0] = bounds[2];
       break;
 
-    // data is northwest
     // offset is +x, -y
-    case 7:
+    case NORTH_WEST:
     default:
       offset[0] = bounds[2];
       offset[1] = -bounds[3];
@@ -726,195 +719,211 @@ void vtkChartXYZ::DrawTickMarks(vtkContext2D* painter)
 //------------------------------------------------------------------------------
 void vtkChartXYZ::DetermineWhichAxesToLabel()
 {
-  // for each dimension (XYZ)
-  for (int axis = 0; axis < 3; ++axis)
+  // Axis state, abs(gradient), gradient, axis number.
+  std::list<std::tuple<AxisState, float, float, int>> axisData;
+
+  bool verticalUsed = false;
+  bool horizontalUsed = false;
+  for (int axis = 0; axis < 3; axis++)
   {
-    double maxDistance = -1;
-    // for each of the four "axis" lines corresponding to this dimension
-    for (float i = 0; i < 2; ++i)
+    vtkVector3f start(0, 0, 0);
+    vtkVector3f end(0, 0, 0);
+    end[axis] = 1;
+
+    this->Box->TransformPoint(start.GetData(), start.GetData());
+    this->Box->TransformPoint(end.GetData(), end.GetData());
+
+    float dy = end[1] - start[1];
+    float dx = end[0] - start[0];
+
+    float gradient = 0;
+    AxisState axisState;
+
+    if (dx == 0 && dy == 0)
     {
-      for (float j = 0; j < 2; ++j)
+      axisState = DO_NOT_LABEL;
+    }
+    else if (dx == 0)
+    {
+      axisState = verticalUsed ? VERTICAL_2 : VERTICAL;
+      verticalUsed = true;
+    }
+    else if (dy == 0)
+    {
+      axisState = horizontalUsed ? HORIZONTAL_2 : HORIZONTAL;
+      horizontalUsed = true;
+    }
+    else
+    {
+      axisState = STANDARD;
+      gradient = dy / dx;
+    }
+
+    axisData.push_back(std::make_tuple(axisState, abs(gradient), gradient, axis));
+  }
+
+  // sort the list of axes by state (low enum value to high) and, for standard axes by gradient
+  // (high to low).
+  axisData.sort([](const std::tuple<AxisState, float, float, int> first,
+                  const std::tuple<AxisState, float, float, int> second) -> bool {
+    AxisState stateFirst = std::get<0>(first);
+    AxisState stateSecond = std::get<0>(second);
+    float absGradientFirst = std::get<1>(first);
+    float absGradientSecond = std::get<1>(second);
+    return (stateFirst < stateSecond) ||
+      ((stateFirst == stateSecond) && absGradientFirst > absGradientSecond);
+  });
+
+  // for each dimension decide where to play labelling
+  for (const auto& it : axisData)
+  {
+    AxisState axisState = std::get<0>(it);
+    float gradient = std::get<2>(it);
+    if (axisState != DO_NOT_LABEL)
+    {
+      float targetC, targetX, targetY;
+
+      if (axisState == VERTICAL)
       {
-        for (float k = 0; k < 2; ++k)
+        targetX = VTK_FLOAT_MAX;
+      }
+      else if (axisState == HORIZONTAL)
+      {
+        targetX = VTK_FLOAT_MAX;
+        targetY = VTK_FLOAT_MAX;
+      }
+      else if (axisState == VERTICAL_2 || axisState == HORIZONTAL_2)
+      {
+        targetX = VTK_FLOAT_MIN;
+        targetY = VTK_FLOAT_MAX;
+      }
+      else
+      { // STANDARD
+        targetC = VTK_FLOAT_MAX;
+      }
+
+      int targetI, targetJ;
+      int axis = std::get<3>(it);
+
+      for (int i = 0; i < 2; i++)
+      {
+        for (int j = 0; j < 2; j++)
         {
-          // convert this line's midpoint to screen (pixel) coordinates
-          float midpoint[3] = { i, j, k };
-          midpoint[axis] = 0.5;
-          this->Box->TransformPoint(midpoint, midpoint);
+          vtkVector3f start(
+            axis == 0 ? 0 : i, axis == 1 ? 0 : (axis == 0) ? i : j, axis == 2 ? 0 : j);
 
-          // ignore any lines whose midpoint falls within the data range.
-          // we increment the iterators so we don't evaluate the same line
-          // twice.
-          if (midpoint[0] > this->DataBounds[0] && midpoint[1] > this->DataBounds[1] &&
-            midpoint[0] < this->DataBounds[2] && midpoint[1] < this->DataBounds[3])
+          this->Box->TransformPoint(start.GetData(), start.GetData());
+
+          if (axisState == VERTICAL)
           {
-            switch (axis)
+            float x = start[0];
+            if (x < targetX)
             {
-              case 0:
-                ++i;
-                break;
-              case 1:
-                ++j;
-                break;
-              case 2:
-                ++k;
-                break;
-              default:
-                break;
-            }
-            continue;
-          }
-
-          // calculate the distance from this line's midpoint to the data range
-          double d = 0;
-          int directionToData = 0;
-
-          // case 1: midpoint falls within x range (but not y)
-          if (midpoint[0] > this->DataBounds[0] && midpoint[0] < this->DataBounds[2])
-          {
-            double d1 = fabs(midpoint[1] - this->DataBounds[1]);
-            double d2 = fabs(midpoint[1] - this->DataBounds[3]);
-            if (d1 < d2)
-            {
-              directionToData = 0; // data is "up" from the axis
-              d = d1;
-            }
-            else
-            {
-              directionToData = 4; // data is "down" from the axis
-              d = d2;
+              targetX = x;
+              targetI = i;
+              targetJ = j;
             }
           }
-
-          // case 2: midpoint falls within y range (but not x)
-          else if (midpoint[1] > this->DataBounds[1] && midpoint[1] < this->DataBounds[3])
+          else if (axisState == HORIZONTAL)
           {
-            double d1 = fabs(midpoint[0] - this->DataBounds[0]);
-            double d2 = fabs(midpoint[0] - this->DataBounds[2]);
-            if (d1 < d2)
+            float x = start[0];
+            float y = start[1];
+            if (y <= targetY && x < targetX)
             {
-              directionToData = 2; // data is "right" from the axis
-              d = d1;
+              targetX = x;
+              targetY = y;
+              targetI = i;
+              targetJ = j;
             }
-            else
+            else if (y < targetY)
             {
-              directionToData = 6; // data is "left" from the axis
-              d = d2;
+              targetY = y;
+              targetI = i;
+              targetJ = j;
             }
           }
-
-          // case 3: compute distance to nearest corner
+          else if (axisState == VERTICAL_2 || axisState == HORIZONTAL_2)
+          {
+            float x = start[0];
+            float y = start[1];
+            if (x > targetX || y < targetY)
+            {
+              targetX = x;
+              targetY = y;
+              targetI = i;
+              targetJ = j;
+            }
+          }
           else
-          {
-            // x min, y min
-            d = sqrt((this->DataBounds[0] - midpoint[0]) * (this->DataBounds[0] - midpoint[0]) +
-              (this->DataBounds[1] - midpoint[1]) * (this->DataBounds[1] - midpoint[1]));
-            directionToData = 1; // data is to the northeast
-
-            // x min, y max
-            double d0 =
-              sqrt((this->DataBounds[0] - midpoint[0]) * (this->DataBounds[0] - midpoint[0]) +
-                (this->DataBounds[3] - midpoint[1]) * (this->DataBounds[3] - midpoint[1]));
-            if (d0 < d)
+          { // STANDARD
+            float c = gradient * (start[1] / gradient - start[0]);
+            if (c < targetC)
             {
-              d = d0;
-              directionToData = 3; // data is to the southeast
-            }
-            // x max, y min
-            d0 = sqrt((this->DataBounds[2] - midpoint[0]) * (this->DataBounds[2] - midpoint[0]) +
-              (this->DataBounds[1] - midpoint[1]) * (this->DataBounds[1] - midpoint[1]));
-            if (d0 < d)
-            {
-              d = d0;
-              directionToData = 7; // data is to the northwest
-            }
-            // x max, y max
-            d0 = sqrt((this->DataBounds[2] - midpoint[0]) * (this->DataBounds[2] - midpoint[0]) +
-              (this->DataBounds[3] - midpoint[1]) * (this->DataBounds[3] - midpoint[1]));
-            if (d0 < d)
-            {
-              d = d0;
-              directionToData = 5; // data is to the southwest
-            }
-
-            // Test if the data falls within the bounds of our axis line,
-            // despite the fact that it is diagonal from the line's midpoint.
-            // This is performed to determine how the label should be offset
-            // from the line.  To do this, we transform the line's start and
-            // end point to pixel coordinates.
-            float start[3] = { i, j, k };
-            start[axis] = 0;
-            this->Box->TransformPoint(start, start);
-            float end[3] = { i, j, k };
-            end[axis] = 1;
-            this->Box->TransformPoint(end, end);
-
-            if (start[0] < this->DataBounds[0] && end[0] > this->DataBounds[2])
-            {
-              // data falls within horizontal range of this axis line
-              // set directionToData as purely up or purely down
-              if (directionToData == 1 || directionToData == 7)
-              {
-                directionToData = 0;
-              }
-              else
-              {
-                directionToData = 4;
-              }
-            }
-            else if (start[1] < this->DataBounds[1] && end[1] > this->DataBounds[3])
-            {
-              // data falls within vertical range of this axis line
-              // set directionToData as purely left or purely right
-              if (directionToData == 1 || directionToData == 3)
-              {
-                directionToData = 2;
-              }
-              else
-              {
-                directionToData = 6;
-              }
+              targetC = c;
+              targetI = i;
+              targetJ = j;
             }
           }
-
-          // record this axis line if it has the greatest distance to the data
-          if (d > maxDistance)
-          {
-            this->DirectionToData[axis] = directionToData;
-            maxDistance = d;
-            switch (axis)
-            {
-              case 0:
-                this->XAxisToLabel[0] = static_cast<int>(j);
-                this->XAxisToLabel[1] = static_cast<int>(k);
-                break;
-              case 1:
-                this->YAxisToLabel[0] = static_cast<int>(i);
-                this->YAxisToLabel[1] = static_cast<int>(k);
-                break;
-              case 2:
-              default:
-                this->ZAxisToLabel[0] = static_cast<int>(i);
-                this->ZAxisToLabel[1] = static_cast<int>(j);
-                break;
-            }
-          }
-
-          // these three cases keep us from evaluating the same line twice.
-          if (axis == 2)
-          {
-            ++k;
-          }
-        }
-        if (axis == 1)
-        {
-          ++j;
         }
       }
-      if (axis == 0)
+
+      switch (axis)
       {
-        ++i;
+        case 0:
+          this->XAxisToLabel[0] = static_cast<int>(targetI);
+          this->XAxisToLabel[1] = static_cast<int>(targetJ);
+          break;
+        case 1:
+          this->YAxisToLabel[0] = static_cast<int>(targetI);
+          this->YAxisToLabel[1] = static_cast<int>(targetJ);
+          break;
+        case 2:
+          this->ZAxisToLabel[0] = static_cast<int>(targetI);
+          this->ZAxisToLabel[1] = static_cast<int>(targetJ);
+          break;
+        default:
+          break;
       }
+
+      // directions to data
+      Direction direction = NORTH;
+      if (axisState == VERTICAL)
+      {
+        direction = EAST;
+      }
+      else if (axisState == VERTICAL_2)
+      {
+        direction = WEST;
+      }
+      else if (axisState == HORIZONTAL || axisState == HORIZONTAL_2)
+      {
+        direction = NORTH;
+      }
+      else
+      { // standard
+        if (gradient < 0.5 && gradient > -0.5)
+        {
+          direction = NORTH;
+        }
+        else if (gradient >= 0.5 && gradient < 2)
+        {
+          direction = NORTH_WEST;
+        }
+        else if (gradient >= 2)
+        {
+          direction = WEST;
+        }
+        else if (gradient <= -0.5 && gradient > -2)
+        {
+          direction = NORTH_EAST;
+        }
+        else if (gradient <= -2)
+        {
+          direction = EAST;
+        }
+      }
+
+      this->DirectionToData[axis] = direction;
     }
   }
 }
