@@ -9,5 +9,10 @@ Some longstanding issues with vtkChartXYZ have been fixed.
 - In the past when a user wanted to zoom into some detail he would find that his plot disappeared
   behind clipping planes. These planes can now be turned of.
 - When zooming the user now has the option to let the axes zoom with the rest of the plot.
+- Axes labels can be specified directly for the chart.
+- You can access the axes text property, hence you can change font size and other properties. You can even use
+  unicode characters if you specify an appropriate font.
+- Axes labels are displayed at sensible edges of the chart rather than in the middle or overlapping each other.
+- You can use arrow keys for up/down left/right highly controlled rotation of the chart.
 
 In short: vtkChartXYZ should be more enjoyable now.
