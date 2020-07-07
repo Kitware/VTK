@@ -1,4 +1,5 @@
 set(classes
+  vtkImageProbeFilter
   vtkAbstractImageInterpolator
   vtkExtractVOI
   vtkGenericImageInterpolator

@@ -16,6 +16,7 @@ vtk_add_test_cxx(vtkImagingCoreCxxTests tests
   ImageWeightedSum.cxx,NO_VALID
   ImportExport.cxx,NO_VALID
   TestBSplineWarp.cxx
+  TestImageProbeFilter.cxx
   TestImageStencilDataMethods.cxx,NO_VALID
   TestImageStencilIterator.cxx,NO_VALID
   TestStencilWithLasso.cxx
