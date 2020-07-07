@@ -226,9 +226,6 @@ public:
   bool CreateCubeFromRaw(
     unsigned int width, unsigned int height, int numComps, int dataType, void* data[6]);
 
-// 1D  textures are not supported in ES 2.0 or 3.0
-#ifndef GL_ES_VERSION_3_0
-
   /**
    * Create a 1D texture using the PBO.
    * Eventually we may start supporting creating a texture from subset of data
@@ -245,7 +242,6 @@ public:
    * Create 1D texture from client memory
    */
   bool Create1DFromRaw(unsigned int width, int numComps, int dataType, void* data);
-#endif
 
   /**
    * Create a 2D texture using the PBO.
