@@ -15,6 +15,7 @@ PRIVATE_DEPENDS
   VTK::FiltersCore
   VTK::ParallelCore
   VTK::exodusII
+  VTK::netcdf
   VTK::vtksys
 TEST_DEPENDS
   VTK::TestingRendering
