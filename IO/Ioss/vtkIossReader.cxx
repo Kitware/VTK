@@ -839,17 +839,22 @@ Ioss::Region* vtkIossReader::vtkInternals::GetRegion(const std::string& dbasenam
     // configurable since our vtkDataArraySelection object would need to purged
     // and refilled.
     properties.add(Ioss::Property("FIELD_SUFFIX_SEPARATOR", ""));
-    auto dbase = Ioss::IOFactory::create(
-      "exodusII", dbasename, Ioss::READ_RESTART, MPI_COMM_WORLD, properties);
+    auto dbase = std::unique_ptr<Ioss::DatabaseIO>(Ioss::IOFactory::create(
+      "exodusII", dbasename, Ioss::READ_RESTART, MPI_COMM_WORLD, properties));
     if (dbase == nullptr || !dbase->ok(/*write_message=*/true))
     {
-      delete dbase;
       throw std::runtime_error(
         "Failed to open database " + this->GetRawFileName(DatabaseHandle{ dbasename, fileid }));
     }
     dbase->set_surface_split_type(Ioss::SPLIT_BY_TOPOLOGIES);
 
-    auto region = std::make_shared<Ioss::Region>(dbase);
+    // note: `Ioss::Region` constructor may throw exception.
+    auto region = std::make_shared<Ioss::Region>(dbase.get());
+
+    // release the dbase ptr since region (if created successfully) takes over
+    // the ownership and calls delete on it when done.
+    dbase.release();
+
     riter =
       this->RegionMap.insert(std::make_pair(std::make_pair(dbasename, processor), region)).first;
   }
