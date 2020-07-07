@@ -719,6 +719,19 @@ void vtkChartXYZ::DrawTickMarks(vtkContext2D* painter)
 //------------------------------------------------------------------------------
 void vtkChartXYZ::DetermineWhichAxesToLabel()
 {
+  if (this->EnsureOuterEdgeAxisLabelling)
+  {
+    this->NewDetermineWhichAxesToLabel();
+  }
+  else
+  {
+    this->LegacyDetermineWhichAxesToLabel();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkChartXYZ::NewDetermineWhichAxesToLabel()
+{
   // Axis state, abs(gradient), gradient, axis number.
   std::list<std::tuple<AxisState, float, float, int>> axisData;
 
@@ -924,6 +937,202 @@ void vtkChartXYZ::DetermineWhichAxesToLabel()
       }
 
       this->DirectionToData[axis] = direction;
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkChartXYZ::LegacyDetermineWhichAxesToLabel()
+{
+  // for each dimension (XYZ)
+  for (int axis = 0; axis < 3; ++axis)
+  {
+    double maxDistance = -1;
+    // for each of the four "axis" lines corresponding to this dimension
+    for (float i = 0; i < 2; ++i)
+    {
+      for (float j = 0; j < 2; ++j)
+      {
+        for (float k = 0; k < 2; ++k)
+        {
+          // convert this line's midpoint to screen (pixel) coordinates
+          float midpoint[3] = { i, j, k };
+          midpoint[axis] = 0.5;
+          this->Box->TransformPoint(midpoint, midpoint);
+
+          // ignore any lines whose midpoint falls within the data range.
+          // we increment the iterators so we don't evaluate the same line
+          // twice.
+          if (midpoint[0] > this->DataBounds[0] && midpoint[1] > this->DataBounds[1] &&
+            midpoint[0] < this->DataBounds[2] && midpoint[1] < this->DataBounds[3])
+          {
+            switch (axis)
+            {
+              case 0:
+                ++i;
+                break;
+              case 1:
+                ++j;
+                break;
+              case 2:
+                ++k;
+                break;
+              default:
+                break;
+            }
+            continue;
+          }
+
+          // calculate the distance from this line's midpoint to the data range
+          double d = 0;
+          int directionToData = NORTH;
+
+          // case 1: midpoint falls within x range (but not y)
+          if (midpoint[0] > this->DataBounds[0] && midpoint[0] < this->DataBounds[2])
+          {
+            double d1 = fabs(midpoint[1] - this->DataBounds[1]);
+            double d2 = fabs(midpoint[1] - this->DataBounds[3]);
+            if (d1 < d2)
+            {
+              directionToData = NORTH;
+              d = d1;
+            }
+            else
+            {
+              directionToData = SOUTH;
+              d = d2;
+            }
+          }
+
+          // case 2: midpoint falls within y range (but not x)
+          else if (midpoint[1] > this->DataBounds[1] && midpoint[1] < this->DataBounds[3])
+          {
+            double d1 = fabs(midpoint[0] - this->DataBounds[0]);
+            double d2 = fabs(midpoint[0] - this->DataBounds[2]);
+            if (d1 < d2)
+            {
+              directionToData = WEST;
+              d = d1;
+            }
+            else
+            {
+              directionToData = EAST;
+              d = d2;
+            }
+          }
+
+          // case 3: compute distance to nearest corner
+          else
+          {
+            // x min, y min
+            d = sqrt((this->DataBounds[0] - midpoint[0]) * (this->DataBounds[0] - midpoint[0]) +
+              (this->DataBounds[1] - midpoint[1]) * (this->DataBounds[1] - midpoint[1]));
+            directionToData = NORTH_EAST;
+
+            // x min, y max
+            double d0 =
+              sqrt((this->DataBounds[0] - midpoint[0]) * (this->DataBounds[0] - midpoint[0]) +
+                (this->DataBounds[3] - midpoint[1]) * (this->DataBounds[3] - midpoint[1]));
+            if (d0 < d)
+            {
+              d = d0;
+              directionToData = SOUTH_EAST;
+            }
+            // x max, y min
+            d0 = sqrt((this->DataBounds[2] - midpoint[0]) * (this->DataBounds[2] - midpoint[0]) +
+              (this->DataBounds[1] - midpoint[1]) * (this->DataBounds[1] - midpoint[1]));
+            if (d0 < d)
+            {
+              d = d0;
+              directionToData = NORTH_WEST;
+            }
+            // x max, y max
+            d0 = sqrt((this->DataBounds[2] - midpoint[0]) * (this->DataBounds[2] - midpoint[0]) +
+              (this->DataBounds[3] - midpoint[1]) * (this->DataBounds[3] - midpoint[1]));
+            if (d0 < d)
+            {
+              d = d0;
+              directionToData = SOUTH_WEST;
+            }
+
+            // Test if the data falls within the bounds of our axis line,
+            // despite the fact that it is diagonal from the line's midpoint.
+            // This is performed to determine how the label should be offset
+            // from the line.  To do this, we transform the line's start and
+            // end point to pixel coordinates.
+            float start[3] = { i, j, k };
+            start[axis] = 0;
+            this->Box->TransformPoint(start, start);
+            float end[3] = { i, j, k };
+            end[axis] = 1;
+            this->Box->TransformPoint(end, end);
+
+            if (start[0] < this->DataBounds[0] && end[0] > this->DataBounds[2])
+            {
+              // data falls within horizontal range of this axis line
+              // set directionToData as purely up or purely down
+              if (directionToData == 1 || directionToData == 7)
+              {
+                directionToData = NORTH;
+              }
+              else
+              {
+                directionToData = SOUTH;
+              }
+            }
+            else if (start[1] < this->DataBounds[1] && end[1] > this->DataBounds[3])
+            {
+              // data falls within vertical range of this axis line
+              // set directionToData as purely left or purely right
+              if (directionToData == NORTH_EAST || directionToData == SOUTH_EAST)
+              {
+                directionToData = EAST;
+              }
+              else
+              {
+                directionToData = WEST;
+              }
+            }
+          }
+
+          // record this axis line if it has the greatest distance to the data
+          if (d > maxDistance)
+          {
+            this->DirectionToData[axis] = directionToData;
+            maxDistance = d;
+            switch (axis)
+            {
+              case 0:
+                this->XAxisToLabel[0] = static_cast<int>(j);
+                this->XAxisToLabel[1] = static_cast<int>(k);
+                break;
+              case 1:
+                this->YAxisToLabel[0] = static_cast<int>(i);
+                this->YAxisToLabel[1] = static_cast<int>(k);
+                break;
+              case 2:
+              default:
+                this->ZAxisToLabel[0] = static_cast<int>(i);
+                this->ZAxisToLabel[1] = static_cast<int>(j);
+                break;
+            }
+          }
+
+          // these three cases keep us from evaluating the same line twice.
+          if (axis == 2)
+          {
+            ++k;
+          }
+        }
+        if (axis == 1)
+        {
+          ++j;
+        }
+      }
+      if (axis == 0)
+      {
+        ++i;
+      }
     }
   }
 }

@@ -132,14 +132,21 @@ public:
   vtkSetMacro(XAxisLabel, vtkStdString);
 
   /**
-   * Set the X axis label
+   * Set the Y axis label
    */
   vtkSetMacro(YAxisLabel, vtkStdString);
 
   /**
-   * Set the X axis label
+   * Set the Z axis label
    */
   vtkSetMacro(ZAxisLabel, vtkStdString);
+
+  /**
+   * Set to true to ensure that axis labels are always on the outer edges of the chart.
+   * Default is false, the legacy behaviour, for backwards compatibility, where axis
+   * labelling may occur on inner or back edges.
+   */
+  vtkSetMacro(EnsureOuterEdgeAxisLabelling, bool);
 
   /**
    * Set whether or not we're using this chart to rotate on a timer.
@@ -416,6 +423,17 @@ protected:
   void DetermineWhichAxesToLabel();
 
   /**
+   * New style axis labelling, ensuring labelling is always at the edges of the
+   * chart in the most sensible places.
+   */
+  void NewDetermineWhichAxesToLabel();
+
+  /**
+   * Old-style axis labelling, for compatibility; labelling may occur in less
+   * optimal places e.g. on inner or back edges of the chart.
+   */
+  void LegacyDetermineWhichAxesToLabel();
+  /**
    * Draw tick marks and tick mark labels along the axes.
    */
   void DrawTickMarks(vtkContext2D* painter);
@@ -617,6 +635,12 @@ protected:
    */
   std::string ZAxisLabel;
 
+  /**
+   * If set to true, use the new behaviour of ensuring that axis labels are on the outer
+   * edges of the chart. If false, the legacy behaviour will be used where axis labels
+   * can occur on inner or back edges of the chart.
+   */
+  bool EnsureOuterEdgeAxisLabelling = false;
   /**
    * The six planes that define the bounding cube of our 3D axes.
    */
