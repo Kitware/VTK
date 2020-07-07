@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+
+// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkGenericOpenGLRenderWindow.h"
 
 #include "vtkCommand.h"
@@ -307,9 +311,9 @@ int vtkGenericOpenGLRenderWindow::SetRGBACharPixelData(
 }
 
 //----------------------------------------------------------------------------
-#ifndef VTK_LEGACY_REMOVE
 bool vtkGenericOpenGLRenderWindow::IsDrawable()
 {
+  VTK_LEGACY_BODY(vtkGenericOpenGLRenderWindow::IsDrawable, "VTK 9.1");
+
   return this->ReadyForRendering;
 }
-#endif

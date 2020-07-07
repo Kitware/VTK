@@ -13,6 +13,9 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 
+// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtk_glew.h"
 
 #import "vtkCocoaMacOSXSDKCompatibility.h" // Needed to support old SDKs
@@ -371,9 +374,10 @@ bool vtkCocoaRenderWindow::IsCurrent()
 }
 
 //----------------------------------------------------------------------------
-#ifndef VTK_LEGACY_REMOVE
 bool vtkCocoaRenderWindow::IsDrawable()
 {
+  VTK_LEGACY_BODY(vtkCocoaRenderWindow::IsDrawable, "VTK 9.1");
+
   // you must initialize it first
   // else it always evaluates false
   this->Initialize();
@@ -388,7 +392,6 @@ bool vtkCocoaRenderWindow::IsDrawable()
 
   return win && ok;
 }
-#endif
 
 //----------------------------------------------------------------------------
 void vtkCocoaRenderWindow::UpdateContext()

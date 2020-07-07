@@ -78,7 +78,7 @@
 #define VTK_DEPRECATED_IN_9_1_0(reason)
 #endif
 
-// APIs deprecated in the latest release.
+// APIs deprecated in 9.0.0.
 #if VTK_DEPRECATION_LEVEL >= VTK_VERSION_CHECK(9, 0, 0)
 #define VTK_DEPRECATED_IN_9_0_0(reason) VTK_DEPRECATION(reason)
 #else
