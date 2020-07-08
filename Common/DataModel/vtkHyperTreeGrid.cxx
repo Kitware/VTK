@@ -447,9 +447,9 @@ void vtkHyperTreeGrid::CopyEmptyStructure(vtkDataObject* ds)
   this->WithCoordinates = htg->WithCoordinates;
   if (this->WithCoordinates)
   {
-    this->SetXCoordinates(htg->XCoordinates);
-    this->SetYCoordinates(htg->YCoordinates);
-    this->SetZCoordinates(htg->ZCoordinates);
+    this->GetXCoordinates()->DeepCopy(htg->XCoordinates);
+    this->GetYCoordinates()->DeepCopy(htg->YCoordinates);
+    this->GetZCoordinates()->DeepCopy(htg->ZCoordinates);
   }
 
   // Copy grid parameters
@@ -488,9 +488,9 @@ void vtkHyperTreeGrid::CopyStructure(vtkDataObject* ds)
   this->WithCoordinates = htg->WithCoordinates;
   if (this->WithCoordinates)
   {
-    this->SetXCoordinates(htg->XCoordinates);
-    this->SetYCoordinates(htg->YCoordinates);
-    this->SetZCoordinates(htg->ZCoordinates);
+    this->GetXCoordinates()->DeepCopy(htg->XCoordinates);
+    this->GetYCoordinates()->DeepCopy(htg->YCoordinates);
+    this->GetZCoordinates()->DeepCopy(htg->ZCoordinates);
   }
 
   // Copy grid parameters
