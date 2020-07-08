@@ -1058,7 +1058,7 @@ std::string ComputeLightingMultiDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVol
 {
   vtkVolumeProperty* volProperty = vol->GetProperty();
   std::string shaderStr = std::string("\
-      \nvec4 computeLighting(vec3 texPos, vec4 color, const in sampler2D gradientTF, int volIdx, int component)\
+      \nvec4 computeLighting(vec3 texPos, vec4 color, const in sampler2D gradientTF, const in sampler3D volume, const int volIdx, int component)\
       \n  {\
       \n  vec4 finalColor = vec4(0.0);");
 
@@ -1071,9 +1071,9 @@ std::string ComputeLightingMultiDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVol
 
   if ((shadeReqd || volProperty->HasGradientOpacity()) && transferMode == vtkVolumeProperty::TF_1D)
   {
-    shaderStr += std::string(
-      "  // Compute gradient function only once\n"
-      "  vec4 gradient = computeGradient(texPos, component, in_volume[volIdx], volIdx);\n");
+    shaderStr +=
+      std::string("  // Compute gradient function only once\n"
+                  "  vec4 gradient = computeGradient(texPos, component, volume, volIdx);\n");
   }
 
   if (shadeReqd && lightingComplexity == 1)
@@ -1250,7 +1250,7 @@ std::string ComputeColorMultiDeclaration(vtkOpenGLGPUVolumeRayCastMapper::Volume
 {
   std::ostringstream ss;
   int i = 0;
-  int lastComponentMode = -1;
+  int lastComponentMode = vtkVolumeInputHelper::INVALID;
   std::map<int, std::string> lastColorTableMap;
   for (auto& item : inputs)
   {
@@ -1267,7 +1267,7 @@ std::string ComputeColorMultiDeclaration(vtkOpenGLGPUVolumeRayCastMapper::Volume
     i++;
   }
 
-  if (lastComponentMode == 2 /* VolumeInput::LA */)
+  if (lastComponentMode == vtkVolumeInputHelper::LA)
   {
     ss << "vec4 computeColor(vec4 scalar, const in sampler2D colorTF)\
       \n  {\
@@ -1278,10 +1278,11 @@ std::string ComputeColorMultiDeclaration(vtkOpenGLGPUVolumeRayCastMapper::Volume
   else
   {
     ss << "vec4 computeColor(vec3 texPos, vec4 scalar, float opacity, const in sampler2D colorTF, "
-          "const in sampler2D gradientTF, int volIdx)\n"
+          "const in sampler2D gradientTF, const in sampler3D volume, const int volIdx)\n"
           "{\n"
           "  return computeLighting(texPos, vec4(texture2D(colorTF,\n"
-          "                         vec2(scalar.w, 0.0)).xyz, opacity), gradientTF, volIdx, 0);\n"
+          "                         vec2(scalar.w, 0.0)).xyz, opacity), gradientTF, volume, "
+          "volIdx, 0);\n"
           "}\n";
   }
 
@@ -1737,10 +1738,9 @@ std::string ShadingMultipleInputs(
                       << ");\n"
                          "        if (g_srcColor.a > 0.0)\n"
                          "        {\n"
-
                          "          g_srcColor = computeColor(texPos, scalar, g_srcColor.a, "
                       << input.RGBTablesMap[0] << ", " << input.GradientOpacityTablesMap[0] << ", "
-                      << i << ");\n";
+                      << "in_volume[" << i << "], " << i << ");\n";
 
           if (property->HasGradientOpacity())
           {
