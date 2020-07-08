@@ -306,6 +306,28 @@ vtkDataArray* Convert(const vtkm::cont::Field& input)
   return data;
 }
 
+vtkDataArray* Convert(const vtkm::cont::VariantArrayHandle& input, const char* name)
+{
+  // We need to do the conversion from VariantArrayHandle to a known vtkm::cont::ArrayHandle
+  // after that we need to fill the vtkDataArray
+  vtkDataArray* data = nullptr;
+  ArrayConverter aConverter;
+
+  try
+  {
+    vtkm::cont::CastAndCall(input, aConverter);
+    data = aConverter.Data;
+    if (data && name)
+    {
+      data->SetName(name);
+    }
+  }
+  catch (vtkm::cont::Error&)
+  {
+  }
+  return data;
+}
+
 vtkPoints* Convert(const vtkm::cont::CoordinateSystem& input)
 {
   ArrayConverter aConverter;
