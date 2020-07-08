@@ -741,6 +741,7 @@ int AddSubtract()
             da[i], dd[i], std::numeric_limits<T>::epsilon() * (T)256.0))
       {
         std::cout << " Add/Subtract got " << dd[i] << " but expected " << da[i];
+        ++status;
       }
     }
   }
@@ -789,6 +790,7 @@ int MultiplyScalar()
             da[i], db[i] * scale, std::numeric_limits<T>::epsilon() * (T)256.0))
       {
         std::cout << " MultiplyScalar got " << da[i] << " but expected " << db[i] * scale;
+        ++status;
       }
     }
   }
@@ -839,6 +841,7 @@ int TestMultiplyScalar2D()
             da[i], db[i] * scale, std::numeric_limits<double>::epsilon() * 256.0))
       {
         std::cout << " MultiplyScalar2D got " << da[i] << " but expected " << db[i] * scale;
+        ++status;
       }
     }
   }
@@ -861,6 +864,7 @@ int TestMultiplyScalar2D()
             fa[i], fb[i] * scale, std::numeric_limits<float>::epsilon() * 256.0f))
       {
         std::cout << " MultiplyScalar2D got " << fa[i] << " but expected " << fb[i] * scale;
+        ++status;
       }
     }
   }
@@ -1251,6 +1255,7 @@ int TestPerpendiculars()
             expecteds[i], test, std::numeric_limits<double>::epsilon() * 256.0))
       {
         std::cout << " Perpendiculars got " << test << " but expected " << expecteds[i];
+        ++status;
       }
     }
   }
@@ -1295,6 +1300,7 @@ int TestPerpendiculars()
             expecteds[i], test, std::numeric_limits<float>::epsilon() * 256.0f))
       {
         std::cout << " Perpendiculars got " << test << " but expected " << expecteds[i];
+        ++status;
       }
     }
   }
@@ -2602,6 +2608,7 @@ int SolveLinearSystem()
       if (vtkMath::SolveLinearSystem(mat, rhs, NDimension) != 0.0)
       {
         std::cout << " SolveLinearSystem for a zero matrix expected " << 0 << " but got 1";
+        ++status;
       }
     }
     for (int i = 0; i < NDimension; i++)
