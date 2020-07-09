@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkXRenderWindowInteractor.h"
 
+#include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -128,10 +129,14 @@ public:
     }
   }
 
+  static std::vector<vtkXRenderWindowInteractor*> Instances;
+
 private:
   int TimerIdCount;
   std::map<int, vtkXRenderWindowInteractorTimer> LocalToTimer;
 };
+
+std::vector<vtkXRenderWindowInteractor*> vtkXRenderWindowInteractorInternals::Instances;
 
 // for some reason the X11 def of KeySym is getting messed up
 typedef XID vtkKeySym;
@@ -189,6 +194,7 @@ void vtkXRenderWindowInteractor::TerminateApp()
 
   XSendEvent(client.display, client.window, True, NoEventMask, reinterpret_cast<XEvent*>(&client));
   XFlush(client.display);
+  this->RenderWindow->Finalize();
 }
 
 void vtkXRenderWindowInteractor::ProcessEvents()
@@ -207,30 +213,84 @@ void vtkXRenderWindowInteractor::ProcessEvents()
 // loop is exited.
 void vtkXRenderWindowInteractor::StartEventLoop()
 {
-  int X11fd = ConnectionNumber(this->DisplayId);
+  std::vector<int> rwiFileDescriptors;
   fd_set in_fds;
   struct timeval tv;
+  struct timeval minTv;
 
-  this->Done = false;
+  for (auto rwi : vtkXRenderWindowInteractorInternals::Instances)
+  {
+    rwi->Done = false;
+    rwiFileDescriptors.push_back(ConnectionNumber(rwi->DisplayId));
+  }
+
+  bool done = true;
   do
   {
-    if (XPending(this->DisplayId) == 0)
+    bool wait = true;
+    done = true;
+    minTv.tv_sec = 1000;
+    minTv.tv_usec = 1000;
+    XEvent event;
+    for (auto rwi = vtkXRenderWindowInteractorInternals::Instances.begin();
+         rwi != vtkXRenderWindowInteractorInternals::Instances.end();)
     {
-      // get how long to wait for the next timer
-      this->Internal->GetTimeToNextTimer(tv);
+
+      if (XPending((*rwi)->DisplayId) == 0)
+      {
+        // get how long to wait for the next timer
+        (*rwi)->Internal->GetTimeToNextTimer(tv);
+        minTv.tv_sec = std::min(tv.tv_sec, minTv.tv_sec);
+        minTv.tv_usec = std::min(tv.tv_usec, minTv.tv_usec);
+      }
+      else
+      {
+        // If events are pending, dispatch them to the right RenderWindowInteractor
+        XNextEvent((*rwi)->DisplayId, &event);
+        (*rwi)->DispatchEvent(&event);
+        wait = false;
+      }
+      (*rwi)->FireTimers();
+
+      // Check if all RenderWindowInteractors have been terminated
+      done = done && (*rwi)->Done;
+
+      // If current RenderWindowInteractor have been terminated, handle its last event,
+      // then remove it from the Instance vector
+      if ((*rwi)->Done)
+      {
+        // Empty the event list
+        while (XPending((*rwi)->DisplayId) != 0)
+        {
+          XNextEvent((*rwi)->DisplayId, &event);
+          (*rwi)->DispatchEvent(&event);
+        }
+        // Adjust the file descriptors vector
+        int rwiPosition =
+          std::distance(vtkXRenderWindowInteractorInternals::Instances.begin(), rwi);
+        rwi = vtkXRenderWindowInteractorInternals::Instances.erase(rwi);
+        rwiFileDescriptors.erase(rwiFileDescriptors.begin() + rwiPosition);
+      }
+      else
+      {
+        ++rwi;
+      }
+    }
+
+    if (wait && !done)
+    {
       // select will wait until 'tv' elapses or something else wakes us
       FD_ZERO(&in_fds);
-      FD_SET(X11fd, &in_fds);
-      select(X11fd + 1, &in_fds, nullptr, nullptr, &tv);
+      for (auto rwiFileDescriptor : rwiFileDescriptors)
+      {
+        FD_SET(rwiFileDescriptor, &in_fds);
+      }
+      int maxFileDescriptor =
+        *std::max_element(rwiFileDescriptors.begin(), rwiFileDescriptors.end());
+      select(maxFileDescriptor + 1, &in_fds, nullptr, nullptr, &minTv);
     }
-    else
-    {
-      XEvent event;
-      XNextEvent(this->DisplayId, &event);
-      this->DispatchEvent(&event);
-    }
-    this->FireTimers();
-  } while (!this->Done);
+
+  } while (!done);
 }
 
 //------------------------------------------------------------------------------
@@ -265,6 +325,8 @@ void vtkXRenderWindowInteractor::Initialize()
     vtkDebugMacro("opened display");
     ren->SetDisplayId(this->DisplayId);
   }
+
+  vtkXRenderWindowInteractorInternals::Instances.push_back(this);
 
   size = ren->GetActualSize();
   size[0] = ((size[0] > 0) ? size[0] : 300);
