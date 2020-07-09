@@ -1011,12 +1011,12 @@ void vtkChartXYZ::LegacyDetermineWhichAxesToLabel()
             double d2 = fabs(midpoint[0] - this->DataBounds[2]);
             if (d1 < d2)
             {
-              directionToData = WEST;
+              directionToData = EAST;
               d = d1;
             }
             else
             {
-              directionToData = EAST;
+              directionToData = WEST;
               d = d2;
             }
           }
