@@ -2749,6 +2749,14 @@ void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(
       vtkMatrix3x3* anorms;
       static_cast<vtkOpenGLActor*>(actor)->GetKeyMatrices(mcwc, anorms);
       vtkMatrix4x4::Multiply4x4(this->VBOShiftScale, mcwc, this->TempMatrix4);
+      if (program->IsUniformUsed("MCWCMatrix"))
+      {
+        program->SetUniformMatrix("MCWCMatrix", this->TempMatrix4);
+      }
+      if (program->IsUniformUsed("MCWCNormalMatrix"))
+      {
+        program->SetUniformMatrix("MCWCNormalMatrix", anorms);
+      }
       vtkMatrix4x4::Multiply4x4(this->TempMatrix4, wcdc, this->TempMatrix4);
       program->SetUniformMatrix("MCDCMatrix", this->TempMatrix4);
       if (program->IsUniformUsed("MCVCMatrix"))
@@ -2785,6 +2793,14 @@ void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(
       vtkMatrix4x4* mcwc;
       vtkMatrix3x3* anorms;
       ((vtkOpenGLActor*)actor)->GetKeyMatrices(mcwc, anorms);
+      if (program->IsUniformUsed("MCWCMatrix"))
+      {
+        program->SetUniformMatrix("MCWCMatrix", mcwc);
+      }
+      if (program->IsUniformUsed("MCWCNormalMatrix"))
+      {
+        program->SetUniformMatrix("MCWCNormalMatrix", anorms);
+      }
       vtkMatrix4x4::Multiply4x4(mcwc, wcdc, this->TempMatrix4);
       program->SetUniformMatrix("MCDCMatrix", this->TempMatrix4);
       if (program->IsUniformUsed("MCVCMatrix"))
