@@ -794,7 +794,7 @@ void vtkChartXYZ::NewDetermineWhichAxesToLabel()
     float gradient = std::get<2>(it);
     if (axisState != DO_NOT_LABEL)
     {
-      float targetC, targetX, targetY;
+      float targetC = 0, targetX = 0, targetY = 0;
 
       if (axisState == VERTICAL)
       {
@@ -815,7 +815,7 @@ void vtkChartXYZ::NewDetermineWhichAxesToLabel()
         targetC = VTK_FLOAT_MAX;
       }
 
-      int targetI, targetJ;
+      int targetI = 0, targetJ = 0;
       int axis = std::get<3>(it);
 
       for (int i = 0; i < 2; i++)
