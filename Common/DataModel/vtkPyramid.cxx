@@ -394,8 +394,8 @@ int vtkPyramid::EvaluatePosition(const double x[3], double closestPoint[3], int&
       closestPoint[0] = x[0];
       closestPoint[1] = x[1];
       closestPoint[2] = x[2];
-      dist2 = 0.0; // inside pyramid
     }
+    dist2 = 0.0; // inside pyramid
     return 1;
   }
   else

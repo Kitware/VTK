@@ -72,6 +72,11 @@ public:
    */
   vtkImageData* GetOutput();
 
+  /**
+   * Get the name of the valid-points mask array.
+   */
+  const char* GetMaskArrayName() const;
+
 protected:
   vtkResampleToImage();
   ~vtkResampleToImage() override;
@@ -84,11 +89,6 @@ protected:
   virtual int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
   int FillInputPortInformation(int, vtkInformation*) override;
   int FillOutputPortInformation(int, vtkInformation*) override;
-
-  /**
-   * Get the name of the valid-points mask array.
-   */
-  const char* GetMaskArrayName() const;
 
   /**
    * Resample input vtkDataObject to a vtkImageData with the specified bounds
