@@ -85,7 +85,6 @@ std::set<RTWBackendType> rtwGetAvailableBackends();
 #define OSP_CHAR RTW_CHAR
 #define OSP_UNKNOWN RTW_UNKNOWN
 
-// #define OSP_DATA_SHARED_BUFFER RTW_DATA_SHARED_BUFFER
 #define OSP_TEXTURE_FILTER_NEAREST RTW_TEXTURE_FILTER_NEAREST
 #define OSP_TEXTURE_FILTER_BILINEAR RTW_TEXTURE_FILTER_BILINEAR
 
@@ -131,7 +130,6 @@ std::set<RTWBackendType> rtwGetAvailableBackends();
 #define ospSetVec3f backend->SetVec3f
 #define ospSetVec4f backend->SetVec4f
 #define ospSetString backend->SetString
-// #define ospSetData backend->SetData
 #define ospSetParam backend->SetParam
 #define ospSetObject backend->SetObject
 #define ospSetObjectAsData backend->SetObjectAsData

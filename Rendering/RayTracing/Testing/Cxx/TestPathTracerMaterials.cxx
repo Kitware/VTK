@@ -335,6 +335,7 @@ int TestPathTracerMaterials(int argc, char* argv[])
     ml->AddMaterial("Metal 3", "metal");
     double roughness[1] = { 0.0 };
     ml->AddShaderVariable("Metal 3", "roughness", 1, roughness);
+#if 1
     // exact
     double spectrum[58 * 3] = {
       300, 1.347459987, 1.679419071, //
@@ -397,11 +398,13 @@ int TestPathTracerMaterials(int argc, char* argv[])
       870, 0.109423947, 5.718126756  //
     };
     ml->AddShaderVariable("Metal 3", "ior", 58 * 3, spectrum);
+#else
     // approximate
-    // double cuEta[3] = { 0.1, 0.8, 1.1 };
-    // double cuK[3] = { 3.5, 2.5, 2.4 };
-    // ml->AddShaderVariable("Metal 3", "eta", 3, cuEta);
-    // ml->AddShaderVariable("Metal 3", "k", 3, cuK);
+    double cuEta[3] = { 0.1, 0.8, 1.1 };
+    double cuK[3] = { 3.5, 2.5, 2.4 };
+    ml->AddShaderVariable("Metal 3", "eta", 3, cuEta);
+    ml->AddShaderVariable("Metal 3", "k", 3, cuK);
+#endif
 
     actor = vtkSmartPointer<vtkActor>::New();
     actor->SetPosition(xo + xr * 1.15 * i, yo, zo + zr * 1.1 * j);

@@ -1231,12 +1231,10 @@ void vtkOSPRayRendererNode::Render(bool prepass)
   {
     this->Cache->SetSize(vtkOSPRayRendererNode::GetTimeCacheSize(ren));
     double tstep = vtkOSPRayRendererNode::GetViewTime(ren);
-    // std::cout << "checking renderer cache time " << tstep << std::endl;
     auto cached = this->Cache->Get(tstep);
     if (cached)
     {
       this->OWorld = static_cast<OSPWorld>(cached->object);
-      // std::cout << "found renderer cache\n";
     }
     else
     {
@@ -1268,7 +1266,6 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       {
         auto cacheEntry = std::make_shared<vtkOSPRayCacheItemObject>(backend, this->OWorld);
         this->Cache->Set(tstep, std::move(cacheEntry));
-        // std::cout << "setting renderer cache at time: " << tstep << std::endl;
       }
     }
 

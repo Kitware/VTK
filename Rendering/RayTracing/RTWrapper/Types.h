@@ -103,6 +103,10 @@ typedef enum : uint32_t
     RTW_TEXTURE_L8,
     RTW_TEXTURE_RA8,
     RTW_TEXTURE_LA8,
+    RTW_TEXTURE_RGBA16,
+    RTW_TEXTURE_RGB16,
+    RTW_TEXTURE_RA16,
+    RTW_TEXTURE_R16,
     RTW_TEXTURE_FORMAT_INVALID = 255,
 } RTWTextureFormat;
 
@@ -218,7 +222,6 @@ typedef struct RTWHandle
 *RTWRenderer,
 *RTWCamera,
 *RTWGroup,
-// *RTWModel,
 *RTWInstance,
 *RTWGeometricModel,
 *RTWVolumetricModel,
@@ -242,5 +245,4 @@ typedef enum : uint32_t
     RTW_INSTANCING = 3,
     RTW_DENOISER = 4,
     RTW_DEPTH_COMPOSITING = 5,
-    //RTW_MDL,
 } RTWFeature;

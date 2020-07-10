@@ -73,8 +73,8 @@ int TestOSPRayLights(int argc, char* argv[])
   vtkSmartPointer<vtkPolyDataNormals> normals = vtkSmartPointer<vtkPolyDataNormals>::New();
   normals->SetInputConnection(polysource->GetOutputPort());
 
-#define AMB 0.5
-#define DIFF 0.7
+  const double AMB = 0.5;
+  const double DIFF = 0.7;
   vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   mapper->SetInputConnection(normals->GetOutputPort());
   vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
