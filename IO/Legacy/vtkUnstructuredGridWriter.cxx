@@ -38,7 +38,7 @@ vtkStandardNewMacro(vtkUnstructuredGridWriter);
 void vtkUnstructuredGridWriter::WriteData()
 {
   ostream* fp;
-  vtkUnstructuredGrid* input = vtkUnstructuredGrid::SafeDownCast(this->GetInput());
+  vtkUnstructuredGridBase* input = vtkUnstructuredGridBase::SafeDownCast(this->GetInput());
   int *types, ncells, cellId;
 
   vtkDebugMacro(<< "Writing vtk unstructured grid data...");
@@ -75,36 +75,22 @@ void vtkUnstructuredGridWriter::WriteData()
     return;
   }
 
-  // Write cells. Check for faces so that we can handle them if present:
-  if (input->GetFaces() != nullptr)
+  // Handle face data:
+  if (!this->WriteCellsAndFaces(fp, input, "CELLS"))
   {
-    // Handle face data:
-    if (!this->WriteCellsAndFaces(fp, input, "CELLS"))
-    {
-      vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
-      this->CloseVTKFile(fp);
-      unlink(this->FileName);
-      return;
-    }
-  }
-  else
-  {
-    // Fall back to superclass:
-    if (!this->WriteCells(fp, input->GetCells(), "CELLS"))
-    {
-      vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
-      this->CloseVTKFile(fp);
-      unlink(this->FileName);
-      return;
-    }
+    vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
+    this->CloseVTKFile(fp);
+    unlink(this->FileName);
+    return;
   }
 
   //
   // Cell types are a little more work
   //
-  if (input->GetCells())
+
+  ncells = input->GetNumberOfCells();
+  if (ncells > 0)
   {
-    ncells = input->GetCells()->GetNumberOfCells();
     types = new int[ncells];
     for (cellId = 0; cellId < ncells; cellId++)
     {
@@ -147,9 +133,9 @@ void vtkUnstructuredGridWriter::WriteData()
 }
 
 int vtkUnstructuredGridWriter::WriteCellsAndFaces(
-  ostream* fp, vtkUnstructuredGrid* grid, const char* label)
+  ostream* fp, vtkUnstructuredGridBase* grid, const char* label)
 {
-  if (!grid->GetCells())
+  if (grid->GetNumberOfCells() == 0)
   {
     return 1;
   }
@@ -198,18 +184,18 @@ int vtkUnstructuredGridWriter::WriteCellsAndFaces(
 
 int vtkUnstructuredGridWriter::FillInputPortInformation(int, vtkInformation* info)
 {
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGridBase");
   return 1;
 }
 
-vtkUnstructuredGrid* vtkUnstructuredGridWriter::GetInput()
+vtkUnstructuredGridBase* vtkUnstructuredGridWriter::GetInput()
 {
-  return vtkUnstructuredGrid::SafeDownCast(this->Superclass::GetInput());
+  return vtkUnstructuredGridBase::SafeDownCast(this->Superclass::GetInput());
 }
 
-vtkUnstructuredGrid* vtkUnstructuredGridWriter::GetInput(int port)
+vtkUnstructuredGridBase* vtkUnstructuredGridWriter::GetInput(int port)
 {
-  return vtkUnstructuredGrid::SafeDownCast(this->Superclass::GetInput(port));
+  return vtkUnstructuredGridBase::SafeDownCast(this->Superclass::GetInput(port));
 }
 
 void vtkUnstructuredGridWriter::PrintSelf(ostream& os, vtkIndent indent)

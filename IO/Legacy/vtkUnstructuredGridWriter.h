@@ -27,7 +27,7 @@
 
 #include "vtkDataWriter.h"
 #include "vtkIOLegacyModule.h" // For export macro
-class vtkUnstructuredGrid;
+class vtkUnstructuredGridBase;
 
 class VTKIOLEGACY_EXPORT vtkUnstructuredGridWriter : public vtkDataWriter
 {
@@ -40,8 +40,8 @@ public:
   /**
    * Get the input to this writer.
    */
-  vtkUnstructuredGrid* GetInput();
-  vtkUnstructuredGrid* GetInput(int port);
+  vtkUnstructuredGridBase* GetInput();
+  vtkUnstructuredGridBase* GetInput(int port);
   //@}
 
 protected:
@@ -50,7 +50,7 @@ protected:
 
   void WriteData() override;
 
-  int WriteCellsAndFaces(ostream* fp, vtkUnstructuredGrid* grid, const char* label);
+  int WriteCellsAndFaces(ostream* fp, vtkUnstructuredGridBase* grid, const char* label);
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
