@@ -889,9 +889,22 @@ void vtkOpenGLRenderWindow::StereoMidpoint()
 
     bool copiedColor = false;
 
+    // Some intel linux drivers have issues reading a multisampled texture
+    // OpenGL Vendor: Intel
+    // OpenGL Version: 4.6 (Core Profile) Mesa 20.1.3
+    // OpenGL Renderer: Mesa Intel® HD Graphics 630 (KBL GT2)
+    bool useTexture = false;
+    if (this->MultiSamples > 1 && this->RenderFramebuffer->GetColorAttachmentAsTextureObject(0))
+    {
+      if (this->GetState()->GetRenderer().find("Mesa Intel") == std::string::npos)
+      {
+        useTexture = true;
+      }
+    }
+
     // if we have a MSAA buffer we have to resolve it using a shader as opposed to
     // a normal blit due to linear/gamma colorspace issues
-    if (this->MultiSamples > 1 && this->RenderFramebuffer->GetColorAttachmentAsTextureObject(0))
+    if (useTexture)
     {
       if (!this->ResolveQuad)
       {
@@ -955,9 +968,22 @@ void vtkOpenGLRenderWindow::Frame()
     this->GetState()->vtkglViewport(0, 0, fbsize[0], fbsize[1]);
     this->GetState()->vtkglScissor(0, 0, fbsize[0], fbsize[1]);
 
+    // Some intel linux drivers have issues reading a multisampled texture
+    // OpenGL Vendor: Intel
+    // OpenGL Version: 4.6 (Core Profile) Mesa 20.1.3
+    // OpenGL Renderer: Mesa Intel® HD Graphics 630 (KBL GT2)
+    bool useTexture = false;
+    if (this->MultiSamples > 1 && this->RenderFramebuffer->GetColorAttachmentAsTextureObject(0))
+    {
+      if (this->GetState()->GetRenderer().find("Mesa Intel") == std::string::npos)
+      {
+        useTexture = true;
+      }
+    }
+
     // if we have a MSAA buffer we have to resolve it using a shader as opposed to
     // a normal blit due to linear/gamma colorspace issues
-    if (this->MultiSamples > 1 && this->RenderFramebuffer->GetColorAttachmentAsTextureObject(0))
+    if (useTexture)
     {
       if (!this->ResolveQuad)
       {
