@@ -254,6 +254,7 @@ set(headers
   vtkIOStreamFwd.h
   vtkInformationInternals.h
   vtkMathUtilities.h
+  vtkMatrixUtilities.h
   vtkMeta.h
   vtkNew.h
   vtkRange.h
