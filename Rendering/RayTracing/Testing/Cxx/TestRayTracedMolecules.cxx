@@ -22,6 +22,7 @@
 #include "vtkMoleculeMapper.h"
 #include "vtkNew.h"
 #include "vtkOSPRayPass.h"
+#include "vtkOSPRayRendererNode.h"
 #include "vtkPDBReader.h"
 #include "vtkPlaneSource.h"
 #include "vtkPolyDataMapper.h"
@@ -37,6 +38,23 @@
 // molecule rendering.
 int TestRayTracedMolecules(int argc, char* argv[])
 {
+  vtkNew<vtkRenderer> ren;
+
+  bool useOSPRay = true;
+  vtkOSPRayRendererNode::SetSamplesPerPixel(7, ren);
+  vtkOSPRayRendererNode::SetRendererType("pathtracer", ren);
+  for (int i = 0; i < argc; ++i)
+  {
+    if (!strcmp(argv[i], "-GL"))
+    {
+      useOSPRay = false;
+    }
+    if (!strcmp(argv[i], "-scivis"))
+    {
+      vtkOSPRayRendererNode::SetRendererType("scivis", ren);
+    }
+  }
+
   char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/2LYZ.pdb");
 
   // read protein from pdb
@@ -62,9 +80,11 @@ int TestRayTracedMolecules(int argc, char* argv[])
   actor->GetProperty()->SetSpecular(0.4);
   actor->GetProperty()->SetSpecularPower(40);
 
-  vtkNew<vtkRenderer> ren;
   vtkSmartPointer<vtkOSPRayPass> ospray = vtkSmartPointer<vtkOSPRayPass>::New();
-  ren->SetPass(ospray);
+  if (useOSPRay)
+  {
+    ren->SetPass(ospray);
+  }
 
   vtkNew<vtkRenderWindow> win;
   win->AddRenderer(ren);

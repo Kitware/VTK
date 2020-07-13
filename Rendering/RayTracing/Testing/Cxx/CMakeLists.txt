@@ -54,7 +54,7 @@ if (VTK_ENABLE_OSPRAY)
   )
 endif()
 
-if (VTK_ENABLE_VISRTX)
+if (enable_visrtx)
   # OSPRay tests that are rerun with the OptiX backend
   set(optix_tests
     TestOSPRayAmbient
@@ -96,7 +96,7 @@ if (VTK_ENABLE_VISRTX)
     ${optix_test_sources})
 endif ()
 
-if (VTK_ENABLE_OSPRAY AND VTK_ENABLE_VISRTX)
+if (VTK_ENABLE_OSPRAY AND enable_visrtx)
   # Tests combining both OSPRay and OptiX backends
   vtk_add_test_cxx(vtkRenderingRayTracingCxxTests tests_combined
     TestRendererType.cxx

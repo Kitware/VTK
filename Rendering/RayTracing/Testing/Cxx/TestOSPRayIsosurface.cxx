@@ -26,8 +26,17 @@
 #include "vtkRenderer.h"
 #include "vtkVolumeProperty.h"
 
-int TestOSPRayIsosurface(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
+int TestOSPRayIsosurface(int argc, char* argv[])
 {
+  bool useOSPRay = true;
+  for (int i = 0; i < argc; ++i)
+  {
+    if (!strcmp(argv[i], "-GL"))
+    {
+      useOSPRay = false;
+      break;
+    }
+  }
   vtkNew<vtkRenderWindowInteractor> iren;
   vtkNew<vtkRenderWindow> renWin;
   iren->SetRenderWindow(renWin);
@@ -67,8 +76,10 @@ int TestOSPRayIsosurface(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   renWin->SetSize(400, 400);
 
   vtkNew<vtkOSPRayPass> ospray;
-  renderer->SetPass(ospray);
-
+  if (useOSPRay)
+  {
+    renderer->SetPass(ospray);
+  }
   renWin->Render();
 
   iren->Start();

@@ -50,10 +50,11 @@ int TestOSPRayDynamicObject(int argc, char* argv[])
   renderer->AddActor(actor);
   actor->SetMapper(mapper);
   renderer->SetBackground(0.1, 0.1, 1.0);
-  renderer->SetEnvironmentalBG(0.1, 0.1, 1.0);
+  renderer->SetEnvironmentalBG(0.0, 0.0, 0.0);
   renWin->SetSize(400, 400);
   renWin->Render();
 
+  vtkOSPRayRendererNode::SetRendererType("OSPRay pathtracer", renderer);
   for (int i = 0; i < argc; ++i)
   {
     if (!strcmp(argv[i], "--OptiX"))
@@ -105,7 +106,6 @@ int TestOSPRayDynamicObject(int argc, char* argv[])
     camera->SetPosition(position);
 
     renderer->SetBackground(0.0, I, 1 - I);
-    renderer->SetEnvironmentalBG(0.0, I, 1 - I);
     renWin->Render();
   }
 

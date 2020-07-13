@@ -111,15 +111,15 @@ int TestCategoricalMaterials(int argc, char* argv[])
   vtkSmartPointer<vtkOSPRayMaterialLibrary> ml = vtkSmartPointer<vtkOSPRayMaterialLibrary>::New();
   vtkOSPRayRendererNode::SetMaterialLibrary(ml, renderer);
   // add materials to it
-  ml->AddMaterial("Four", "Metal");
-  ml->AddMaterial("One", "ThinGlass");
+  ml->AddMaterial("Four", "metal");
+  ml->AddMaterial("One", "thinGlass");
   // some of material names use the same low level material implementation
-  ml->AddMaterial("Two", "ThinGlass");
+  ml->AddMaterial("Two", "thinGlass");
   // but each one  can be tuned
   double green[3] = { 0.0, 0.9, 0.0 };
   ml->AddShaderVariable("Two", "attenuationColor", 3, green);
   ml->AddShaderVariable("Two", "eta", { 1. });
-  ml->AddMaterial("Three", "ThinGlass");
+  ml->AddMaterial("Three", "thinGlass");
   double blue[3] = { 0.0, 0.0, 0.9 };
   ml->AddShaderVariable("Three", "attenuationColor", 3, blue);
   ml->AddShaderVariable("Three", "eta", { 1.65 });

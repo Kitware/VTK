@@ -73,7 +73,12 @@ protected:
   vtkTimeStamp PropertyTime;
 
   OSPGeometry OSPRayIsosurface;
-  OSPVolume OSPRayVolume;
+  OSPVolume OSPRayVolume{ nullptr };
+  OSPVolumetricModel OSPRayVolumeModel{ nullptr };
+  OSPGeometricModel OSPRayGeometricModel{ nullptr };
+  OSPGeometricModel Cropper{ nullptr };
+
+  OSPInstance OSPRayInstance{ nullptr };
   OSPTransferFunction TransferFunction;
   std::vector<float> TFVals;
   std::vector<float> TFOVals;

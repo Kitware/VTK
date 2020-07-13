@@ -22,11 +22,12 @@
 #ifndef vtkOSPRayRendererNode_h
 #define vtkOSPRayRendererNode_h
 
+#include "RTWrapper/RTWrapper.h" // for handle types
+#include "vtkOSPRayCache.h"      // For common cache infrastructure
 #include "vtkRendererNode.h"
 #include "vtkRenderingRayTracingModule.h" // For export macro
-#include <vector>                         // for ivars
 
-#include "RTWrapper/RTWrapper.h" // for handle types
+#include <vector> // for ivars
 
 #ifdef VTKOSPRAY_ENABLE_DENOISER
 #include <OpenImageDenoise/oidn.hpp> // for denoiser structures
@@ -143,6 +144,21 @@ public:
    */
   static void SetRouletteDepth(int, vtkRenderer* renderer);
   static int GetRouletteDepth(vtkRenderer* renderer);
+  //@}
+
+  /**
+   * When present on renderer, affects path traced rendering phase function.
+   *
+   * valid values are between -1.0 and 1.0. The default is 0.0.
+   */
+  static vtkInformationDoubleKey* VOLUME_ANISOTROPY();
+
+  //@{
+  /**
+   * Convenience method to set/get VOLUME_ANISOTROPY on a vtkRenderer.
+   */
+  static void SetVolumeAnisotropy(double, vtkRenderer* renderer);
+  static double GetVolumeAnisotropy(vtkRenderer* renderer);
   //@}
 
   /**
@@ -271,7 +287,7 @@ public:
   /**
    * Methods for other nodes to access
    */
-  OSPModel GetOModel() { return this->OModel; }
+  OSPWorld GetOWorld() { return this->OWorld; }
   OSPRenderer GetORenderer() { return this->ORenderer; }
   void AddLight(OSPLight light) { this->Lights.push_back(light); }
 
@@ -338,6 +354,11 @@ public:
   static void SetBackgroundMode(int, vtkRenderer* renderer);
   static int GetBackgroundMode(vtkRenderer* renderer);
   //@}
+
+  std::vector<OSPGeometricModel> GeometricModels;
+  std::vector<OSPVolumetricModel> VolumetricModels;
+  std::vector<OSPInstance> Instances;
+
 protected:
   vtkOSPRayRendererNode();
   ~vtkOSPRayRendererNode() override;
@@ -358,16 +379,18 @@ protected:
   int ColorBufferTex;
   int DepthBufferTex;
 
-  OSPModel OModel;
-  OSPRenderer ORenderer;
-  OSPFrameBuffer OFrameBuffer;
-  OSPData OLightArray;
+  OSPWorld OWorld{ nullptr };
+  OSPRenderer ORenderer{ nullptr };
+  OSPFrameBuffer OFrameBuffer{ nullptr };
+  OSPCamera OCamera{ nullptr };
+  OSPData OInstanceData{ nullptr };
   int ImageX, ImageY;
   std::vector<OSPLight> Lights;
   int NumActors;
   bool ComputeDepth;
   bool Accumulate;
   bool CompositeOnGL;
+  bool UseBackplate{ true }; // use bgcolor for pathtracer or use bgcolor light
   std::vector<float> ODepthBuffer;
   int AccumulateCount;
   int ActorCount;
@@ -385,6 +408,8 @@ protected:
   std::vector<osp::vec3f> NormalBuffer;
   std::vector<osp::vec3f> AlbedoBuffer;
   std::vector<osp::vec4f> DenoisedBuffer;
+
+  vtkOSPRayCache<vtkOSPRayCacheItemObject>* Cache;
 
 private:
   vtkOSPRayRendererNode(const vtkOSPRayRendererNode&) = delete;

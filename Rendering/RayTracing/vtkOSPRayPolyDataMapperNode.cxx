@@ -48,10 +48,11 @@
 
 namespace vtkosp
 {
-void VToOPointNormals(vtkDataArray* vNormals, osp::vec3f*& normals, vtkMatrix3x3* matrix)
+void VToOPointNormals(
+  vtkDataArray* vNormals, std::vector<osp::vec3f>& normals, vtkMatrix3x3* matrix)
 {
   int numNormals = vNormals->GetNumberOfTuples();
-  normals = new osp::vec3f[numNormals];
+  normals.resize(numNormals);
   for (int i = 0; i < numNormals; i++)
   {
     double vNormal[3];
@@ -64,7 +65,7 @@ void VToOPointNormals(vtkDataArray* vNormals, osp::vec3f*& normals, vtkMatrix3x3
 }
 
 //------------------------------------------------------------------------------
-void CellMaterials(vtkOSPRayRendererNode* orn, OSPRenderer oRenderer, vtkPolyData* poly,
+void MakeCellMaterials(vtkOSPRayRendererNode* orn, OSPRenderer oRenderer, vtkPolyData* poly,
   vtkMapper* mapper, vtkScalarsToColors* s2c, std::map<std::string, OSPMaterial> mats,
   std::vector<OSPMaterial>& ospMaterials, vtkUnsignedCharArray* vColors, float* specColor,
   float specPower, float opacity)
@@ -105,7 +106,7 @@ void CellMaterials(vtkOSPRayRendererNode* orn, OSPRenderer oRenderer, vtkPolyDat
     {
       double* color = vColors->GetTuple(i);
       OSPMaterial oMaterial;
-      oMaterial = vtkOSPRayMaterialHelpers::NewMaterial(orn, oRenderer, "OBJMaterial");
+      oMaterial = vtkOSPRayMaterialHelpers::NewMaterial(orn, oRenderer, "obj");
       float diffusef[] = { static_cast<float>(color[0]) / (255.0f),
         static_cast<float>(color[1]) / (255.0f), static_cast<float>(color[2]) / (255.0f) };
       float localOpacity = 1.f;
@@ -113,13 +114,13 @@ void CellMaterials(vtkOSPRayRendererNode* orn, OSPRenderer oRenderer, vtkPolyDat
       {
         localOpacity = static_cast<float>(color[3]) / (255.0f);
       }
-      ospSet3fv(oMaterial, "Kd", diffusef);
+      ospSetVec3f(oMaterial, "kd", diffusef[0], diffusef[1], diffusef[2]);
       float specAdjust = 2.0f / (2.0f + specPower);
       float specularf[] = { specColor[0] * specAdjust, specColor[1] * specAdjust,
         specColor[2] * specAdjust };
-      ospSet3fv(oMaterial, "Ks", specularf);
-      ospSet1f(oMaterial, "Ns", specPower);
-      ospSet1f(oMaterial, "d", opacity * localOpacity);
+      ospSetVec3f(oMaterial, "ks", specularf[0], specularf[1], specularf[2]);
+      ospSetFloat(oMaterial, "ns", specPower);
+      ospSetFloat(oMaterial, "d", opacity * localOpacity);
       ospCommit(oMaterial);
       ospMaterials.push_back(oMaterial);
     }
@@ -141,61 +142,53 @@ float MapThroughPWF(double in, vtkPiecewiseFunction* scaleFunction)
   return static_cast<float>(out);
 }
 
-//------------------------------------------------------------------------------
-OSPGeometry RenderAsSpheres(osp::vec3f* vertices, std::vector<unsigned int>& indexArray,
+//----------------------------------------------------------------------------
+OSPGeometricModel RenderAsSpheres(osp::vec3f* vertices, std::vector<unsigned int>& indexArray,
   std::vector<unsigned int>& rIndexArray, double pointSize, vtkDataArray* scaleArray,
   vtkPiecewiseFunction* scaleFunction, bool useCustomMaterial, OSPMaterial actorMaterial,
   vtkImageData* vColorTextureMap, int numTextureCoordinates, float* textureCoordinates,
-  int numCellMaterials, OSPData CellMaterials, int numPointColors, osp::vec4f* PointColors,
-  int numPointValueTextureCoords, float* pointValueTextureCoords, RTW::Backend* backend)
+  int numCellMaterials, std::vector<OSPMaterial>& CellMaterials, int numPointColors,
+  osp::vec4f* PointColors, int numPointValueTextureCoords, float* pointValueTextureCoords,
+  RTW::Backend* backend)
 {
   if (backend == nullptr)
     return OSPGeometry();
-  OSPGeometry ospMesh = ospNewGeometry("spheres");
-  int width = 4;
-  int scaleOffset = -1;
+  OSPGeometry ospMesh = ospNewGeometry("sphere");
+  OSPGeometricModel ospGeoModel = ospNewGeometricModel(ospMesh);
+  ospRelease(ospMesh);
+
+  size_t numSpheres = indexArray.size();
+  std::vector<osp::vec3f> vdata;
+  std::vector<float> radii;
+  vdata.reserve(indexArray.size());
   if (scaleArray != nullptr)
   {
-    width = 5;
-    scaleOffset = 4 * sizeof(float);
+    radii.reserve(indexArray.size());
   }
-  float* mdata = new float[width * indexArray.size()];
-  int* idata = (int*)mdata;
   for (size_t i = 0; i < indexArray.size(); i++)
   {
-    mdata[i * width + 0] = static_cast<float>(vertices[indexArray[i]].x);
-    mdata[i * width + 1] = static_cast<float>(vertices[indexArray[i]].y);
-    mdata[i * width + 2] = static_cast<float>(vertices[indexArray[i]].z);
-    int mat = 0;
-    if (numCellMaterials)
-    {
-      mat = rIndexArray[i];
-    }
-    else if (numPointColors)
-    {
-      mat = indexArray[i];
-    }
-    idata[i * width + 3] = mat;
+    vdata.emplace_back(vertices[indexArray[i]]);
     if (scaleArray != nullptr)
     {
-      mdata[i * width + 4] = MapThroughPWF(*scaleArray->GetTuple(indexArray[i]), scaleFunction);
+      radii.emplace_back(MapThroughPWF(*scaleArray->GetTuple(indexArray[i]), scaleFunction));
     }
   }
-  OSPData _PointColors = nullptr;
-  if (numPointColors)
+  OSPData positionData = ospNewCopyData1D(vdata.data(), OSP_VEC3F, vdata.size());
+  ospCommit(positionData);
+  ospSetObject(ospMesh, "sphere.position", positionData);
+  if (scaleArray != nullptr)
   {
-    _PointColors = ospNewData(numPointColors, OSP_FLOAT4, &PointColors[0]);
+    OSPData radiiData = ospNewCopyData1D(radii.data(), OSP_FLOAT, radii.size());
+    ospCommit(radiiData);
+    ospSetObject(ospMesh, "sphere.radius", radiiData);
   }
-  OSPData _mdata = ospNewData(indexArray.size() * width, OSP_FLOAT, mdata);
-  ospSetObject(ospMesh, "spheres", _mdata);
-  ospSet1i(ospMesh, "bytes_per_sphere", width * sizeof(float));
-  ospSet1i(ospMesh, "offset_center", 0 * sizeof(float));
-  ospSet1f(ospMesh, "radius", pointSize);
-  ospSet1i(ospMesh, "offset_radius", scaleOffset);
+  else
+  {
+    ospSetFloat(ospMesh, "radius", pointSize);
+  }
 
   // send the texture map and texture coordinates over
   bool _hastm = false;
-  osp::vec2f* tc = nullptr;
   if (numTextureCoordinates || numPointValueTextureCoords)
   {
     _hastm = true;
@@ -203,7 +196,7 @@ OSPGeometry RenderAsSpheres(osp::vec3f* vertices, std::vector<unsigned int>& ind
     if (numPointValueTextureCoords)
     {
       // using 1D texture for point value LUT
-      tc = new osp::vec2f[indexArray.size()];
+      std::vector<osp::vec2f> tc(indexArray.size());
       for (size_t i = 0; i < indexArray.size(); i++)
       {
         float t1;
@@ -211,14 +204,15 @@ OSPGeometry RenderAsSpheres(osp::vec3f* vertices, std::vector<unsigned int>& ind
         t1 = pointValueTextureCoords[index1 + 0];
         tc[i] = osp::vec2f{ t1, 0 };
       }
-      OSPData tcs = ospNewData(indexArray.size(), OSP_FLOAT2, &tc[0]);
-      ospSetData(ospMesh, "texcoord", tcs);
+      OSPData tcs = ospNewCopyData1D(tc.data(), OSP_VEC2F, indexArray.size());
+      ospCommit(tcs);
+      ospSetObject(ospMesh, "sphere.texcoord", tcs);
     }
     else if (numTextureCoordinates)
     {
       // 2d texture mapping
       float* itc = textureCoordinates;
-      tc = new osp::vec2f[indexArray.size()];
+      std::vector<osp::vec2f> tc(indexArray.size());
       for (size_t i = 0; i < indexArray.size(); i++)
       {
         float t1, t2;
@@ -227,112 +221,135 @@ OSPGeometry RenderAsSpheres(osp::vec3f* vertices, std::vector<unsigned int>& ind
         t2 = itc[index1 * 2 + 1];
         tc[i] = osp::vec2f{ t1, t2 };
       }
-      OSPData tcs = ospNewData(indexArray.size(), OSP_FLOAT2, &tc[0]);
-      ospSetData(ospMesh, "texcoord", tcs);
+      OSPData tcs = ospNewCopyData1D(tc.data(), OSP_VEC2F, indexArray.size());
+      ospCommit(tcs);
+      ospSetObject(ospMesh, "sphere.texcoord", tcs);
     }
   }
-  delete[] tc;
 
-  if (useCustomMaterial)
+  OSPData _cmats = nullptr;
+  OSPData _PointColors = nullptr;
+  bool perCellColor = false;
+  bool perPointColor = false;
+  if (!useCustomMaterial)
   {
-    ospSetMaterial(ospMesh, actorMaterial);
-  }
-  else if (vColorTextureMap && _hastm)
-  {
-    OSPTexture t2d = vtkOSPRayMaterialHelpers::VTKToOSPTexture(backend, vColorTextureMap);
-    ospSetObject(actorMaterial, "map_Kd", ((OSPTexture)(t2d)));
-    ospRelease(t2d);
-    ospCommit(actorMaterial);
-    ospSetMaterial(ospMesh, actorMaterial);
-  }
-  else if (numCellMaterials)
-  {
-    // per cell color
-    ospSet1i(ospMesh, "offset_materialID", 3 * sizeof(float));
-    ospSetData(ospMesh, "materialList", CellMaterials);
-  }
-  else if (numPointColors)
-  {
-    // per point color
-    ospSet1i(ospMesh, "offset_colorID", 3 * sizeof(float));
-    ospSetData(ospMesh, "color", _PointColors);
-  }
-  else
-  {
-    // per actor color
-    ospSetMaterial(ospMesh, actorMaterial);
-  }
-
-  ospCommit(ospMesh);
-  ospRelease(_PointColors);
-  ospRelease(_mdata);
-  delete[] mdata;
-
-  return ospMesh;
-}
-
-//------------------------------------------------------------------------------
-OSPGeometry RenderAsCylinders(osp::vec3f* vertices, std::vector<unsigned int>& indexArray,
-  std::vector<unsigned int>& rIndexArray, double lineWidth, vtkDataArray* scaleArray,
-  vtkPiecewiseFunction* scaleFunction, bool useCustomMaterial, OSPMaterial actorMaterial,
-  vtkImageData* vColorTextureMap, int numTextureCoordinates, float* textureCoordinates,
-  int numCellMaterials, OSPData CellMaterials, int numPointColors, osp::vec4f* PointColors,
-  int numPointValueTextureCoords, float* pointValueTextureCoords, RTW::Backend* backend)
-{
-  if (backend == nullptr)
-    return OSPGeometry();
-  OSPGeometry ospMesh = ospNewGeometry("cylinders");
-  int width = 7;
-  int scaleOffset = -1;
-  if (scaleArray != nullptr)
-  {
-    width = 8;
-    scaleOffset = 7 * sizeof(float);
-  }
-  float* mdata = new float[indexArray.size() / 2 * width];
-  int* idata = (int*)mdata;
-  for (size_t i = 0; i < indexArray.size() / 2; i++)
-  {
-    mdata[i * width + 0] = static_cast<float>(vertices[indexArray[i * 2 + 0]].x);
-    mdata[i * width + 1] = static_cast<float>(vertices[indexArray[i * 2 + 0]].y);
-    mdata[i * width + 2] = static_cast<float>(vertices[indexArray[i * 2 + 0]].z);
-    mdata[i * width + 3] = static_cast<float>(vertices[indexArray[i * 2 + 1]].x);
-    mdata[i * width + 4] = static_cast<float>(vertices[indexArray[i * 2 + 1]].y);
-    mdata[i * width + 5] = static_cast<float>(vertices[indexArray[i * 2 + 1]].z);
-    int mat = 0;
-    if (numCellMaterials)
+    if (vColorTextureMap && _hastm)
     {
-      mat = rIndexArray[i * 2];
+      OSPTexture t2d = vtkOSPRayMaterialHelpers::VTKToOSPTexture(backend, vColorTextureMap);
+      ospSetObject(actorMaterial, "map_kd", ((OSPTexture)(t2d)));
+      ospRelease(t2d);
+      ospCommit(actorMaterial);
+    }
+    else if (numCellMaterials)
+    {
+      // per cell color
+      perCellColor = true;
+      std::vector<OSPMaterial> perCellMats;
+      for (size_t i = 0; i < numSpheres; i++)
+      {
+        perCellMats.push_back(CellMaterials[rIndexArray[i]]);
+      }
+      _cmats = ospNewCopyData1D(&perCellMats[0], OSP_MATERIAL, numSpheres);
+      ospCommit(_cmats);
+      ospSetObject(ospGeoModel, "material", _cmats);
+      ospRelease(_cmats);
     }
     else if (numPointColors)
     {
-      mat = indexArray[i * 2];
-    }
-    idata[i * width + 6] = mat;
-    if (scaleArray != nullptr)
-    {
-      double avg = (*scaleArray->GetTuple(indexArray[i * 2 + 0]) +
-                     *scaleArray->GetTuple(indexArray[i * 2 + 1])) *
-        0.5;
-      mdata[i * width + 7] = MapThroughPWF(avg, scaleFunction);
+      // per point color
+      perPointColor = true;
+      std::vector<osp::vec4f> perPointColors;
+      for (size_t i = 0; i < numSpheres; i++)
+      {
+        perPointColors.push_back(PointColors[indexArray[i]]);
+      }
+      _PointColors = ospNewCopyData1D(&perPointColors[0], OSP_VEC4F, numSpheres);
+      ospCommit(_PointColors);
+      ospSetObject(ospGeoModel, "color", _PointColors);
+      ospRelease(_PointColors);
     }
   }
-  OSPData _PointColors = nullptr;
-  if (numPointColors)
+
+  if (actorMaterial && !perCellColor && !perPointColor)
   {
-    _PointColors = ospNewData(numPointColors, OSP_FLOAT4, &PointColors[0]);
+    ospCommit(actorMaterial);
+    ospSetObjectAsData(ospGeoModel, "material", OSP_MATERIAL, actorMaterial);
   }
-  OSPData _mdata = ospNewData(indexArray.size() / 2 * width, OSP_FLOAT, mdata);
-  ospSetData(ospMesh, "cylinders", _mdata);
-  ospSet1i(ospMesh, "bytes_per_cylinder", width * sizeof(float));
-  ospSet1i(ospMesh, "offset_v0", 0);
-  ospSet1i(ospMesh, "offset_v1", 3 * sizeof(float));
-  ospSet1f(ospMesh, "radius", lineWidth);
-  ospSet1i(ospMesh, "offset_radius", scaleOffset);
+  ospCommit(ospMesh);
+  ospCommit(ospGeoModel);
+
+  return ospGeoModel;
+}
+
+//----------------------------------------------------------------------------
+OSPGeometricModel RenderAsCylinders(std::vector<osp::vec3f>& vertices,
+  std::vector<unsigned int>& indexArray, std::vector<unsigned int>& rIndexArray, double lineWidth,
+  vtkDataArray* scaleArray, vtkPiecewiseFunction* scaleFunction, bool useCustomMaterial,
+  OSPMaterial actorMaterial, vtkImageData* vColorTextureMap, int numTextureCoordinates,
+  float* textureCoordinates, int numCellMaterials, std::vector<OSPMaterial>& CellMaterials,
+  int numPointColors, osp::vec4f* PointColors, int numPointValueTextureCoords,
+  float* pointValueTextureCoords, RTW::Backend* backend)
+{
+  if (backend == nullptr)
+    return OSPGeometry();
+  OSPGeometry ospMesh = ospNewGeometry("curve");
+  OSPGeometricModel ospGeoModel = ospNewGeometricModel(ospMesh);
+  ospRelease(ospMesh);
+
+  size_t numCylinders = indexArray.size() / 2;
+  if (scaleArray != nullptr)
+  {
+    std::vector<osp::vec4f> mdata;
+    mdata.reserve(indexArray.size() * 2);
+    for (size_t i = 0; i < indexArray.size(); i++)
+    {
+      const double avg =
+        (*scaleArray->GetTuple(indexArray[i]) + *scaleArray->GetTuple(indexArray[i])) * 0.5;
+      const float r = static_cast<float>(MapThroughPWF(avg, scaleFunction));
+      const osp::vec3f& v = vertices[indexArray[i]];
+      // linear not supported for variable radii, must use curve type with
+      // 4 instead of 2 control points
+      mdata.emplace_back(osp::vec4f({ v.x, v.y, v.z, r }));
+      mdata.emplace_back(osp::vec4f({ v.x, v.y, v.z, r }));
+    }
+    OSPData _mdata = ospNewCopyData1D(mdata.data(), OSP_VEC4F, mdata.size());
+    ospCommit(_mdata);
+    ospSetObject(ospMesh, "vertex.position_radius", _mdata);
+    ospRelease(_mdata);
+    ospSetInt(ospMesh, "type", OSP_ROUND);
+    ospSetInt(ospMesh, "basis", OSP_BEZIER);
+  }
+  else
+  {
+    std::vector<osp::vec3f> mdata;
+    mdata.reserve(indexArray.size());
+    for (size_t i = 0; i < indexArray.size(); i++)
+    {
+      mdata.emplace_back(vertices[indexArray[i]]);
+    }
+    OSPData _mdata = ospNewCopyData1D(mdata.data(), OSP_VEC3F, mdata.size());
+    ospCommit(_mdata);
+    ospSetObject(ospMesh, "vertex.position", _mdata);
+    ospRelease(_mdata);
+
+    ospSetFloat(ospMesh, "radius", lineWidth);
+    ospSetInt(ospMesh, "type", OSP_ROUND);
+    ospSetInt(ospMesh, "basis", OSP_LINEAR);
+  }
+
+  std::vector<unsigned int> indices;
+  indices.reserve(indexArray.size() / 2);
+  for (unsigned int i = 0; i < indexArray.size(); i += 2)
+  {
+    indices.push_back((scaleArray != nullptr ? i * 2 : i));
+  }
+  OSPData _idata = ospNewCopyData1D(indices.data(), OSP_UINT, indices.size());
+  ospCommit(_idata);
+  ospSetObject(ospMesh, "index", _idata);
+  ospRelease(_idata);
 
   // send the texture map and texture coordinates over
   bool _hastm = false;
-  osp::vec2f* tc = nullptr;
   if (numTextureCoordinates || numPointValueTextureCoords)
   {
     _hastm = true;
@@ -340,7 +357,7 @@ OSPGeometry RenderAsCylinders(osp::vec3f* vertices, std::vector<unsigned int>& i
     if (numPointValueTextureCoords)
     {
       // using 1D texture for point value LUT
-      tc = new osp::vec2f[indexArray.size()];
+      std::vector<osp::vec2f> tc(indexArray.size());
       for (size_t i = 0; i < indexArray.size(); i += 2)
       {
         float t1, t2;
@@ -351,15 +368,15 @@ OSPGeometry RenderAsCylinders(osp::vec3f* vertices, std::vector<unsigned int>& i
         t2 = pointValueTextureCoords[index2 + 0];
         tc[i + 1] = osp::vec2f{ t2, 0 };
       }
-      OSPData tcs = ospNewData(indexArray.size(), OSP_FLOAT2, &tc[0]);
-      ospSetData(ospMesh, "texcoord", tcs);
-      ospSetData(ospMesh, "vertex.texcoord", tcs);
+      OSPData tcs = ospNewCopyData1D(tc.data(), OSP_VEC2F, indexArray.size());
+      ospCommit(tcs);
+      ospSetObject(ospMesh, "vertex.texcoord", tcs);
     }
     else if (numTextureCoordinates)
     {
       // 2d texture mapping
       float* itc = textureCoordinates;
-      tc = new osp::vec2f[indexArray.size()];
+      std::vector<osp::vec2f> tc(indexArray.size());
       for (size_t i = 0; i < indexArray.size(); i += 2)
       {
         float t1, t2;
@@ -372,86 +389,115 @@ OSPGeometry RenderAsCylinders(osp::vec3f* vertices, std::vector<unsigned int>& i
         t2 = itc[index2 * 2 + 1];
         tc[i + 1] = osp::vec2f{ t1, t2 };
       }
-      OSPData tcs = ospNewData(indexArray.size(), OSP_FLOAT2, &tc[0]);
-      ospSetData(ospMesh, "texcoord", tcs);
+      OSPData tcs = ospNewCopyData1D(tc.data(), OSP_VEC2F, indexArray.size());
+      ospCommit(tcs);
+      ospSetObject(ospMesh, "vertex.texcoord", tcs);
     }
   }
-  delete[] tc;
 
-  if (useCustomMaterial)
+  OSPData _cmats = nullptr;
+  OSPData _PointColors = nullptr;
+  bool perCellColor = false;
+  if (!useCustomMaterial)
   {
-    ospSetMaterial(ospMesh, actorMaterial);
+    if (vColorTextureMap && _hastm)
+    {
+      OSPTexture t2d = vtkOSPRayMaterialHelpers::VTKToOSPTexture(backend, vColorTextureMap);
+      ospSetObject(actorMaterial, "map_kd", ((OSPTexture)(t2d)));
+      ospRelease(t2d);
+      ospCommit(actorMaterial);
+    }
+    else if (numCellMaterials)
+    {
+      // per cell color
+      perCellColor = true;
+      std::vector<OSPMaterial> perCellMats;
+      for (size_t i = 0; i < numCylinders; i++)
+      {
+        perCellMats.push_back(CellMaterials[rIndexArray[i * 2 + 0]]);
+      }
+      _cmats = ospNewCopyData1D(&perCellMats[0], OSP_MATERIAL, numCylinders);
+      ospCommit(_cmats);
+      ospSetObject(ospGeoModel, "material", _cmats);
+      ospRelease(_cmats);
+    }
+    else if (numPointColors)
+    {
+      // per point color
+      std::vector<osp::vec4f> perPointColor;
+      for (size_t i = 0; i < numCylinders; i++)
+      {
+        perPointColor.push_back(PointColors[indexArray[i * 2 + 0]]);
+      }
+      _PointColors = ospNewCopyData1D(&perPointColor[0], OSP_VEC4F, numCylinders);
+      ospCommit(_PointColors);
+      ospSetObject(ospGeoModel, "color", _PointColors);
+      ospRelease(_PointColors);
+#if 0
+      //this should work, but it doesn't render whole mesh, I think ospray bug
+      // per point color
+      _PointColors = ospNewCopyData1D(&PointColors[0], OSP_VEC4F, numPointColors);
+      ospCommit(_PointColors);
+      ospSetObject(ospMesh, "vertex.color", _PointColors);
+      ospRelease(_PointColors);
+#endif
+    }
   }
-  else if (vColorTextureMap && _hastm)
+  if (actorMaterial && !perCellColor)
   {
-    OSPTexture t2d = vtkOSPRayMaterialHelpers::VTKToOSPTexture(backend, vColorTextureMap);
-    ospSetObject(actorMaterial, "map_Kd", ((OSPTexture)(t2d)));
-    ospRelease(t2d);
     ospCommit(actorMaterial);
-    ospSetMaterial(ospMesh, actorMaterial);
+    ospSetObjectAsData(ospGeoModel, "material", OSP_MATERIAL, actorMaterial);
   }
-  else if (numCellMaterials)
-  {
-    // per cell color
-    ospSet1i(ospMesh, "offset_materialID", 6 * sizeof(float));
-    ospSetData(ospMesh, "materialList", CellMaterials);
-  }
-  else if (numPointColors)
-  {
-    // per point color
-    ospSet1i(ospMesh, "offset_colorID", 6 * sizeof(float));
-    ospSetData(ospMesh, "color", _PointColors);
-  }
-  else
-  {
-    // per actor color
-    ospSetMaterial(ospMesh, actorMaterial);
-  }
-
   ospCommit(ospMesh);
-  ospRelease(_PointColors);
-  ospRelease(_mdata);
-  delete[] mdata;
+  ospCommit(ospGeoModel);
 
-  return ospMesh;
+  return ospGeoModel;
 }
 
-//------------------------------------------------------------------------------
-OSPGeometry RenderAsTriangles(OSPData vertices, std::vector<unsigned int>& indexArray,
+//----------------------------------------------------------------------------
+OSPGeometricModel RenderAsTriangles(OSPData vertices, std::vector<unsigned int>& indexArray,
   std::vector<unsigned int>& rIndexArray, bool useCustomMaterial, OSPMaterial actorMaterial,
-  int numNormals, osp::vec3f* normals, int interpolationType, vtkImageData* vColorTextureMap,
-  vtkImageData* vNormalTextureMap, vtkImageData* vMaterialTextureMap, int numTextureCoordinates,
-  float* textureCoordinates, const osp::vec4f& textureTransform, int numCellMaterials,
-  OSPData CellMaterials, int numPointColors, osp::vec4f* PointColors,
-  int numPointValueTextureCoords, float* pointValueTextureCoords, RTW::Backend* backend)
+  int numNormals, const std::vector<osp::vec3f>& normals, int interpolationType,
+  vtkImageData* vColorTextureMap, vtkImageData* vNormalTextureMap,
+  vtkImageData* vMaterialTextureMap, int numTextureCoordinates, float* textureCoordinates,
+  const osp::vec4f& textureTransform, int numCellMaterials, std::vector<OSPMaterial>& CellMaterials,
+  int numPointColors, osp::vec4f* PointColors, int numPointValueTextureCoords,
+  float* pointValueTextureCoords, RTW::Backend* backend)
 {
   if (backend == nullptr)
     return OSPGeometry();
-  OSPGeometry ospMesh = ospNewGeometry("trianglemesh");
-  ospSetData(ospMesh, "position", vertices);
+  OSPGeometry ospMesh = ospNewGeometry("mesh");
+  OSPGeometricModel ospGeoModel = ospNewGeometricModel(ospMesh);
+  ospRelease(ospMesh);
+  ospCommit(vertices);
+  ospSetObject(ospMesh, "vertex.position", vertices);
 
   size_t numTriangles = indexArray.size() / 3;
-  osp::vec3i* triangles = new osp::vec3i[numTriangles];
+  std::vector<osp::vec3ui> triangles(numTriangles);
   for (size_t i = 0, mi = 0; i < numTriangles; i++, mi += 3)
   {
-    triangles[i] = osp::vec3i{ static_cast<int>(indexArray[mi + 0]),
-      static_cast<int>(indexArray[mi + 1]), static_cast<int>(indexArray[mi + 2]) };
+    triangles[i] = osp::vec3ui{ static_cast<unsigned int>(indexArray[mi + 0]),
+      static_cast<unsigned int>(indexArray[mi + 1]),
+      static_cast<unsigned int>(indexArray[mi + 2]) };
   }
-  OSPData index = ospNewData(numTriangles, OSP_INT3, &triangles[0]);
-  delete[] triangles;
-  ospSetData(ospMesh, "index", index);
+  OSPData index = ospNewCopyData1D(triangles.data(), OSP_VEC3UI, numTriangles);
+  ospCommit(index);
+  ospSetObject(ospMesh, "index", index);
+  ospRelease(index);
 
   OSPData _normals = nullptr;
   if (numNormals)
   {
-    _normals = ospNewData(numNormals, OSP_FLOAT3, &normals[0], 0);
-    ospSetData(ospMesh, "vertex.normal", _normals);
+    _normals = ospNewCopyData1D(normals.data(), OSP_VEC3F, numNormals);
+    ospCommit(_normals);
+    ospSetObject(ospMesh, "vertex.normal", _normals);
+    ospRelease(_normals);
   }
 
   // send the texture map and texture coordinates over
   bool _hastm = false;
   OSPData tcs = nullptr;
-  osp::vec2f* tc = nullptr;
+  std::vector<osp::vec2f> tc;
   if (numTextureCoordinates || numPointValueTextureCoords)
   {
     _hastm = true;
@@ -459,18 +505,20 @@ OSPGeometry RenderAsTriangles(OSPData vertices, std::vector<unsigned int>& index
     if (numPointValueTextureCoords)
     {
       // using 1D texture for point value LUT
-      tc = new osp::vec2f[numPointValueTextureCoords];
+      tc.resize(numPointValueTextureCoords);
       for (size_t i = 0; i < static_cast<size_t>(numPointValueTextureCoords); i++)
       {
         tc[i] = osp::vec2f{ pointValueTextureCoords[i], 0 };
       }
-      tcs = ospNewData(numPointValueTextureCoords, OSP_FLOAT2, &tc[0]);
-      ospSetData(ospMesh, "vertex.texcoord", tcs);
+      tcs = ospNewCopyData1D(tc.data(), OSP_VEC2F, numPointValueTextureCoords);
+      ospCommit(tcs);
+      ospSetObject(ospMesh, "vertex.texcoord", tcs);
+      ospRelease(tcs);
     }
     else if (numTextureCoordinates)
     {
       // 2d texture mapping
-      tc = new osp::vec2f[numTextureCoordinates / 2];
+      tc.resize(numTextureCoordinates / 2);
       float* itc = textureCoordinates;
       for (size_t i = 0; i < static_cast<size_t>(numTextureCoordinates); i += 2)
       {
@@ -481,21 +529,18 @@ OSPGeometry RenderAsTriangles(OSPData vertices, std::vector<unsigned int>& index
         itc++;
         tc[i / 2] = osp::vec2f{ t1, t2 };
       }
-      tcs = ospNewData(numTextureCoordinates / 2, OSP_FLOAT2, &tc[0]);
-      ospSetData(ospMesh, "vertex.texcoord", tcs);
+      tcs = ospNewCopyData1D(tc.data(), OSP_VEC2F, numTextureCoordinates / 2);
+      ospCommit(tcs);
+      ospSetObject(ospMesh, "vertex.texcoord", tcs);
+      ospRelease(tcs);
     }
   }
-  delete[] tc;
 
   // send over cell colors, point colors or whole actor color
   OSPData _cmats = nullptr;
   OSPData _PointColors = nullptr;
-  int* ids = nullptr;
-  if (useCustomMaterial)
-  {
-    ospSetMaterial(ospMesh, actorMaterial);
-  }
-  else
+  bool perCellColor = false;
+  if (!useCustomMaterial)
   {
     if (vNormalTextureMap && _hastm)
     {
@@ -503,13 +548,13 @@ OSPGeometry RenderAsTriangles(OSPData vertices, std::vector<unsigned int>& index
       if (interpolationType == VTK_PBR)
       {
         ospSetObject(actorMaterial, "normalMap", t2d);
-        ospSet4f(actorMaterial, "normalMap.transform", textureTransform.x, textureTransform.y,
+        ospSetVec4f(actorMaterial, "normalMap.transform", textureTransform.x, textureTransform.y,
           textureTransform.z, textureTransform.w);
       }
       else
       {
         ospSetObject(actorMaterial, "map_Bump", t2d);
-        ospSet4f(actorMaterial, "map_Bump.transform", textureTransform.x, textureTransform.y,
+        ospSetVec4f(actorMaterial, "map_Bump.transform", textureTransform.x, textureTransform.y,
           textureTransform.z, textureTransform.w);
       }
       ospRelease(t2d);
@@ -533,13 +578,13 @@ OSPGeometry RenderAsTriangles(OSPData vertices, std::vector<unsigned int>& index
 
       OSPTexture t2dR = vtkOSPRayMaterialHelpers::VTKToOSPTexture(backend, vRoughnessTextureMap);
       ospSetObject(actorMaterial, "roughnessMap", t2dR);
-      ospSet4f(actorMaterial, "roughnessMap.transform", textureTransform.x, textureTransform.y,
+      ospSetVec4f(actorMaterial, "roughnessMap.transform", textureTransform.x, textureTransform.y,
         textureTransform.z, textureTransform.w);
       ospRelease(t2dR);
 
       OSPTexture t2dM = vtkOSPRayMaterialHelpers::VTKToOSPTexture(backend, vMetallicTextureMap);
       ospSetObject(actorMaterial, "metallicMap", t2dM);
-      ospSet4f(actorMaterial, "metallicMap.transform", textureTransform.x, textureTransform.y,
+      ospSetVec4f(actorMaterial, "metallicMap.transform", textureTransform.x, textureTransform.y,
         textureTransform.z, textureTransform.w);
       ospRelease(t2dM);
 
@@ -553,49 +598,48 @@ OSPGeometry RenderAsTriangles(OSPData vertices, std::vector<unsigned int>& index
       if (interpolationType == VTK_PBR)
       {
         ospSetObject(actorMaterial, "baseColorMap", ((OSPTexture)(t2d)));
-        ospSet4f(actorMaterial, "baseColorMap.transform", textureTransform.x, textureTransform.y,
+        ospSetVec4f(actorMaterial, "baseColorMap.transform", textureTransform.x, textureTransform.y,
           textureTransform.z, textureTransform.w);
       }
       else
       {
-        ospSetObject(actorMaterial, "map_Kd", ((OSPTexture)(t2d)));
-        ospSet4f(actorMaterial, "map_Kd.transform", textureTransform.x, textureTransform.y,
+        ospSetObject(actorMaterial, "map_kd", ((OSPTexture)(t2d)));
+        ospSetVec4f(actorMaterial, "map_kd.transform", textureTransform.x, textureTransform.y,
           textureTransform.z, textureTransform.w);
       }
       ospRelease(t2d);
       ospCommit(actorMaterial);
-      ospSetMaterial(ospMesh, actorMaterial);
     }
     else if (numCellMaterials)
     {
-      ids = new int[numTriangles];
+      perCellColor = true;
+      std::vector<OSPMaterial> perCellMats;
       for (size_t i = 0; i < numTriangles; i++)
       {
-        ids[i] = rIndexArray[i * 3 + 0];
+        perCellMats.push_back(CellMaterials[rIndexArray[i * 3 + 0]]);
       }
-      _cmats = ospNewData(numTriangles, OSP_INT, &ids[0]);
-      ospSetData(ospMesh, "prim.materialID", _cmats);
-      ospSetData(ospMesh, "materialList", CellMaterials);
+      _cmats = ospNewCopyData1D(&perCellMats[0], OSP_MATERIAL, numTriangles);
+      ospCommit(_cmats);
+      ospSetObject(ospGeoModel, "material", _cmats);
+      ospRelease(_cmats);
     }
     else if (numPointColors)
     {
-      _PointColors = ospNewData(numPointColors, OSP_FLOAT4, &PointColors[0]);
-      ospSetData(ospMesh, "vertex.color", _PointColors);
-    }
-    else
-    {
-      ospSetMaterial(ospMesh, actorMaterial);
+      _PointColors = ospNewCopyData1D(&PointColors[0], OSP_VEC4F, numPointColors);
+      ospCommit(_PointColors);
+      ospSetObject(ospMesh, "vertex.color", _PointColors);
+      ospRelease(_PointColors);
     }
   }
-
+  if (actorMaterial && !perCellColor)
+  {
+    ospCommit(actorMaterial);
+    ospSetObjectAsData(ospGeoModel, "material", OSP_MATERIAL, actorMaterial);
+  }
   ospCommit(ospMesh);
-  ospRelease(index);
-  ospRelease(_normals);
-  ospRelease(_PointColors);
-  ospRelease(_cmats);
-  ospRelease(tcs);
-  delete[] ids;
-  return ospMesh;
+  ospCommit(ospGeoModel);
+
+  return ospGeoModel;
 }
 
 //------------------------------------------------------------------------------
@@ -618,10 +662,9 @@ OSPMaterial MakeActorMaterial(vtkOSPRayRendererNode* orn, OSPRenderer oRenderer,
     static_cast<float>(diffuseColor[2] * property->GetDiffuse()) };
   if (lum > 0.0)
   {
-    OSPMaterial oMaterial = vtkOSPRayMaterialHelpers::NewMaterial(orn, oRenderer, "Luminous");
-    ospSet3fv(oMaterial, "color", diffusef);
-    ospSetf(oMaterial, "intensity", lum);
-    ospSetf(oMaterial, "transparency", 1.0 - opacity);
+    OSPMaterial oMaterial = vtkOSPRayMaterialHelpers::NewMaterial(orn, oRenderer, "luminous");
+    ospSetVec3f(oMaterial, "color", diffusef[0], diffusef[1], diffusef[2]);
+    ospSetFloat(oMaterial, "intensity", lum);
     return oMaterial;
   }
 
@@ -648,21 +691,21 @@ OSPMaterial MakeActorMaterial(vtkOSPRayRendererNode* orn, OSPRenderer oRenderer,
   OSPMaterial oMaterial;
   if (property->GetInterpolation() == VTK_PBR)
   {
-    oMaterial = vtkOSPRayMaterialHelpers::NewMaterial(orn, oRenderer, "Principled");
+    oMaterial = vtkOSPRayMaterialHelpers::NewMaterial(orn, oRenderer, "principled");
 
-    ospSet3fv(oMaterial, "baseColor", diffusef);
-    ospSet1f(oMaterial, "metallic", static_cast<float>(property->GetMetallic()));
-    ospSet1f(oMaterial, "roughness", static_cast<float>(property->GetRoughness()));
-    ospSet1f(oMaterial, "opacity", static_cast<float>(opacity));
-    ospSet1f(oMaterial, "ior", 1.5);
+    ospSetVec3f(oMaterial, "baseColor", diffusef[0], diffusef[1], diffusef[2]);
+    ospSetFloat(oMaterial, "metallic", static_cast<float>(property->GetMetallic()));
+    ospSetFloat(oMaterial, "roughness", static_cast<float>(property->GetRoughness()));
+    ospSetFloat(oMaterial, "opacity", static_cast<float>(opacity));
+    ospSetFloat(oMaterial, "ior", 1.5);
     float edgeColor[3] = { static_cast<float>(property->GetEdgeTint()[0]),
       static_cast<float>(property->GetEdgeTint()[1]),
       static_cast<float>(property->GetEdgeTint()[2]) };
-    ospSet3fv(oMaterial, "edgeColor", edgeColor);
+    ospSetVec3f(oMaterial, "edgeColor", edgeColor[0], edgeColor[1], edgeColor[2]);
   }
   else
   {
-    oMaterial = vtkOSPRayMaterialHelpers::NewMaterial(orn, oRenderer, "OBJMaterial");
+    oMaterial = vtkOSPRayMaterialHelpers::NewMaterial(orn, oRenderer, "obj");
 
     float ambientf[] = { static_cast<float>(ambientColor[0] * property->GetAmbient()),
       static_cast<float>(ambientColor[1] * property->GetAmbient()),
@@ -677,19 +720,19 @@ OSPMaterial MakeActorMaterial(vtkOSPRayRendererNode* orn, OSPRenderer oRenderer,
     specularf[2] =
       static_cast<float>(property->GetSpecularColor()[2] * property->GetSpecular() * specAdjust);
 
-    ospSet3fv(oMaterial, "Ka", ambientf);
+    ospSetVec3f(oMaterial, "ka", ambientf[0], ambientf[1], ambientf[2]);
     if (property->GetDiffuse() == 0.0)
     {
       // a workaround for ParaView, remove when ospray supports Ka
-      ospSet3fv(oMaterial, "Kd", ambientf);
+      ospSetVec3f(oMaterial, "kd", ambientf[0], ambientf[1], ambientf[2]);
     }
     else
     {
-      ospSet3fv(oMaterial, "Kd", diffusef);
+      ospSetVec3f(oMaterial, "kd", diffusef[0], diffusef[1], diffusef[2]);
     }
-    ospSet3fv(oMaterial, "Ks", specularf);
-    ospSet1f(oMaterial, "Ns", specPower);
-    ospSet1f(oMaterial, "d", static_cast<float>(opacity));
+    ospSetVec3f(oMaterial, "Ks", specularf[0], specularf[1], specularf[2]);
+    ospSetFloat(oMaterial, "Ns", specPower);
+    ospSetFloat(oMaterial, "d", static_cast<float>(opacity));
   }
 
   return oMaterial;
@@ -712,20 +755,10 @@ OSPMaterial MakeActorMaterial(vtkOSPRayRendererNode* orn, OSPRenderer oRenderer,
 vtkStandardNewMacro(vtkOSPRayPolyDataMapperNode);
 
 //------------------------------------------------------------------------------
-vtkOSPRayPolyDataMapperNode::vtkOSPRayPolyDataMapperNode()
-{
-  this->UseInstanceCache = true;
-  this->UseGeometryCache = true;
-  this->GeometryCache = new vtkOSPRayCache<vtkOSPRayCacheItemGeometries>;
-  this->InstanceCache = new vtkOSPRayCache<vtkOSPRayCacheItemObject>;
-}
+vtkOSPRayPolyDataMapperNode::vtkOSPRayPolyDataMapperNode() {}
 
 //------------------------------------------------------------------------------
-vtkOSPRayPolyDataMapperNode::~vtkOSPRayPolyDataMapperNode()
-{
-  delete this->GeometryCache;
-  delete this->InstanceCache;
-}
+vtkOSPRayPolyDataMapperNode::~vtkOSPRayPolyDataMapperNode() {}
 
 //------------------------------------------------------------------------------
 void vtkOSPRayPolyDataMapperNode::PrintSelf(ostream& os, vtkIndent indent)
@@ -764,13 +797,17 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
   std::vector<double> _vertices;
   vtkPolyDataMapperNode::TransformPoints(act, poly, _vertices);
   size_t numPositions = _vertices.size() / 3;
-  osp::vec3f* vertices = new osp::vec3f[numPositions];
+  if (numPositions == 0)
+  {
+    return;
+  }
+  std::vector<osp::vec3f> vertices(numPositions);
   for (size_t i = 0; i < numPositions; i++)
   {
     vertices[i] = osp::vec3f{ static_cast<float>(_vertices[i * 3 + 0]),
       static_cast<float>(_vertices[i * 3 + 1]), static_cast<float>(_vertices[i * 3 + 2]) };
   }
-  OSPData position = ospNewData(numPositions, OSP_FLOAT3, &vertices[0]);
+  OSPData position = ospNewCopyData1D(&vertices[0], OSP_VEC3F, numPositions);
   ospCommit(position);
   _vertices.clear();
 
@@ -801,7 +838,6 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
       vtkPiecewiseFunction::SafeDownCast(mapInfo->Get(vtkOSPRayActorNode::SCALE_FUNCTION()));
   }
 
-  //
   // now ask mapper to do most of the work and provide us with
   // colors per cell and colors or texture coordinates per point
   vtkUnsignedCharArray* vColors = nullptr;
@@ -832,7 +868,6 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
     orn->GetRendererType(vtkRenderer::SafeDownCast(orn->GetRenderable()));
   bool pt_avail =
     rendererType == std::string("pathtracer") || rendererType == std::string("optix pathtracer");
-  //}
   OSPMaterial oMaterial = vtkosp::MakeActorMaterial(orn, oRenderer, property, ambientColor,
     diffuseColor, specularf, opacity, pt_avail, useCustomMaterial, mats, materialName);
   ospCommit(oMaterial);
@@ -840,18 +875,15 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
 
   // texture
   int numTextureCoordinates = 0;
-  float* textureCoordinates = nullptr;
+  std::vector<osp::vec2f> textureCoordinates;
   if (vtkDataArray* da = poly->GetPointData()->GetTCoords())
   {
     numTextureCoordinates = da->GetNumberOfTuples();
-    textureCoordinates = new float[numTextureCoordinates * 2];
-    float* tp = textureCoordinates;
+    textureCoordinates.resize(numTextureCoordinates);
     for (int i = 0; i < numTextureCoordinates; i++)
     {
-      *tp = static_cast<float>(da->GetTuple(i)[0]);
-      tp++;
-      *tp = static_cast<float>(da->GetTuple(i)[1]);
-      tp++;
+      textureCoordinates[i] = osp::vec2f(
+        { static_cast<float>(da->GetTuple(i)[0]), static_cast<float>(da->GetTuple(i)[1]) });
     }
     numTextureCoordinates = numTextureCoordinates * 2;
   }
@@ -871,16 +903,17 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
   if (texture)
   {
     vColorTextureMap = texture->GetInput();
+    ospSetVec3f(oMaterial, "kd", 1.0f, 1.0f, 1.0f);
+    ospCommit(oMaterial);
   }
 
   // colors from point and cell arrays
   int numCellMaterials = 0;
-  OSPData cellMaterials = nullptr;
+  std::vector<OSPMaterial> cellMaterials;
   int numPointColors = 0;
-  osp::vec4f* pointColors = nullptr;
+  std::vector<osp::vec4f> pointColors;
   int numPointValueTextureCoords = 0;
-  float* pointValueTextureCoords = nullptr;
-
+  std::vector<float> pointValueTextureCoords;
   if (vColors)
   {
     if (cellFlag == 2 && mapper->GetFieldDataTupleId() > -1)
@@ -921,7 +954,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
         float fdiffusef[] = { static_cast<float>(colorPtr[0] * property->GetDiffuse() / 255.0f),
           static_cast<float>(colorPtr[1] * property->GetDiffuse() / 255.0f),
           static_cast<float>(colorPtr[2] * property->GetDiffuse() / 255.0f) };
-        ospSet3fv(oMaterial, "Kd", fdiffusef);
+        ospSetVec3f(oMaterial, "kd", fdiffusef[0], fdiffusef[1], fdiffusef[2]);
         ospCommit(oMaterial);
       }
     }
@@ -929,14 +962,10 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
     {
       // color or material on cell
       vtkScalarsToColors* s2c = mapper->GetLookupTable();
-      std::vector<OSPMaterial> cellColors;
-      vtkosp::CellMaterials(orn, oRenderer, poly, mapper, s2c, mats, cellColors, vColors, specularf,
-        float(property->GetSpecularPower()), opacity);
-      numCellMaterials = static_cast<int>(cellColors.size());
-      cellMaterials = ospNewData(cellColors.size(), OSP_OBJECT, &cellColors[0]);
-      ospCommit(cellMaterials);
-
-      for (OSPMaterial mat : cellColors)
+      vtkosp::MakeCellMaterials(orn, oRenderer, poly, mapper, s2c, mats, cellMaterials, vColors,
+        specularf, float(property->GetSpecularPower()), opacity);
+      numCellMaterials = static_cast<int>(cellMaterials.size());
+      for (OSPMaterial mat : cellMaterials)
       {
         uniqueMats.insert(mat);
       }
@@ -945,13 +974,15 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
     {
       // color on point interpolated RGB
       numPointColors = vColors->GetNumberOfTuples();
-      pointColors = new osp::vec4f[numPointColors];
+      pointColors.resize(numPointColors);
       for (int i = 0; i < numPointColors; i++)
       {
         unsigned char* color = vColors->GetPointer(4 * i);
         pointColors[i] = osp::vec4f{ color[0] / 255.0f, color[1] / 255.0f, color[2] / 255.0f,
           (color[3] / 255.0f) * static_cast<float>(opacity) };
       }
+      ospSetVec3f(oMaterial, "kd", 1.0f, 1.0f, 1.0f);
+      ospCommit(oMaterial);
     }
   }
   else
@@ -960,7 +991,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
     {
       // color on point interpolated values (subsequently colormapped via 1D LUT)
       numPointValueTextureCoords = vColorCoordinates->GetNumberOfTuples();
-      pointValueTextureCoords = new float[numPointValueTextureCoords];
+      pointValueTextureCoords.resize(numPointValueTextureCoords);
       float* tc = vColorCoordinates->GetPointer(0);
       for (int i = 0; i < numPointValueTextureCoords; i++)
       {
@@ -970,16 +1001,19 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
         tc += 2;
       }
       vColorTextureMap = pColorTextureMap;
+      ospSetVec3f(oMaterial, "kd", 1.0f, 1.0f, 1.0f);
+      ospCommit(oMaterial);
     }
   }
 
   // create an ospray mesh for the vertex cells
   if (!conn.vertex_index.empty())
   {
-    this->Geometries.emplace_back(vtkosp::RenderAsSpheres(vertices, conn.vertex_index,
+    this->GeometricModels.emplace_back(vtkosp::RenderAsSpheres(vertices.data(), conn.vertex_index,
       conn.vertex_reverse, pointSize, scaleArray, scaleFunction, useCustomMaterial, oMaterial,
-      vColorTextureMap, numTextureCoordinates, textureCoordinates, numCellMaterials, cellMaterials,
-      numPointColors, pointColors, numPointValueTextureCoords, pointValueTextureCoords, backend));
+      vColorTextureMap, numTextureCoordinates, (float*)textureCoordinates.data(), numCellMaterials,
+      cellMaterials, numPointColors, pointColors.data(), numPointValueTextureCoords,
+      (float*)pointValueTextureCoords.data(), backend));
   }
 
   // create an ospray mesh for the line cells
@@ -988,19 +1022,19 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
     // format depends on representation style
     if (property->GetRepresentation() == VTK_POINTS)
     {
-      this->Geometries.emplace_back(
-        vtkosp::RenderAsSpheres(vertices, conn.line_index, conn.line_reverse, pointSize, scaleArray,
-          scaleFunction, useCustomMaterial, oMaterial, vColorTextureMap, numTextureCoordinates,
-          textureCoordinates, numCellMaterials, cellMaterials, numPointColors, pointColors,
-          numPointValueTextureCoords, pointValueTextureCoords, backend));
+      this->GeometricModels.emplace_back(vtkosp::RenderAsSpheres(vertices.data(), conn.line_index,
+        conn.line_reverse, pointSize, scaleArray, scaleFunction, useCustomMaterial, oMaterial,
+        vColorTextureMap, numTextureCoordinates, (float*)textureCoordinates.data(),
+        numCellMaterials, cellMaterials, numPointColors, pointColors.data(),
+        numPointValueTextureCoords, (float*)pointValueTextureCoords.data(), backend));
     }
     else
     {
-      this->Geometries.emplace_back(vtkosp::RenderAsCylinders(vertices, conn.line_index,
+      this->GeometricModels.emplace_back(vtkosp::RenderAsCylinders(vertices, conn.line_index,
         conn.line_reverse, lineWidth, scaleArray, scaleFunction, useCustomMaterial, oMaterial,
-        vColorTextureMap, numTextureCoordinates, textureCoordinates, numCellMaterials,
-        cellMaterials, numPointColors, pointColors, numPointValueTextureCoords,
-        pointValueTextureCoords, backend));
+        vColorTextureMap, numTextureCoordinates, (float*)textureCoordinates.data(),
+        numCellMaterials, cellMaterials, numPointColors, pointColors.data(),
+        numPointValueTextureCoords, (float*)pointValueTextureCoords.data(), backend));
     }
   }
 
@@ -1012,20 +1046,21 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
     {
       case VTK_POINTS:
       {
-        this->Geometries.emplace_back(vtkosp::RenderAsSpheres(vertices, conn.triangle_index,
-          conn.triangle_reverse, pointSize, scaleArray, scaleFunction, useCustomMaterial, oMaterial,
-          vColorTextureMap, numTextureCoordinates, textureCoordinates, numCellMaterials,
-          cellMaterials, numPointColors, pointColors, numPointValueTextureCoords,
-          pointValueTextureCoords, backend));
+        this->GeometricModels.emplace_back(
+          vtkosp::RenderAsSpheres(vertices.data(), conn.triangle_index, conn.triangle_reverse,
+            pointSize, scaleArray, scaleFunction, useCustomMaterial, oMaterial, vColorTextureMap,
+            numTextureCoordinates, (float*)textureCoordinates.data(), numCellMaterials,
+            cellMaterials, numPointColors, pointColors.data(), numPointValueTextureCoords,
+            (float*)pointValueTextureCoords.data(), backend));
         break;
       }
       case VTK_WIREFRAME:
       {
-        this->Geometries.emplace_back(vtkosp::RenderAsCylinders(vertices, conn.triangle_index,
+        this->GeometricModels.emplace_back(vtkosp::RenderAsCylinders(vertices, conn.triangle_index,
           conn.triangle_reverse, lineWidth, scaleArray, scaleFunction, useCustomMaterial, oMaterial,
-          vColorTextureMap, numTextureCoordinates, textureCoordinates, numCellMaterials,
-          cellMaterials, numPointColors, pointColors, numPointValueTextureCoords,
-          pointValueTextureCoords, backend));
+          vColorTextureMap, numTextureCoordinates, (float*)textureCoordinates.data(),
+          numCellMaterials, cellMaterials, numPointColors, pointColors.data(),
+          numPointValueTextureCoords, (float*)pointValueTextureCoords.data(), backend));
         break;
       }
       default:
@@ -1042,14 +1077,15 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
             vtkosp::MakeActorMaterial(orn, oRenderer, property, eColor, eColor, specularf, opacity);
           ospCommit(oMaterial2);
 
-          this->Geometries.emplace_back(vtkosp::RenderAsCylinders(vertices, conn2.triangle_index,
-            conn2.triangle_reverse, lineWidth, scaleArray, scaleFunction, false, oMaterial2,
-            vColorTextureMap, 0, textureCoordinates, numCellMaterials, cellMaterials,
-            numPointColors, pointColors, 0, pointValueTextureCoords, backend));
+          this->GeometricModels.emplace_back(
+            vtkosp::RenderAsCylinders(vertices, conn2.triangle_index, conn2.triangle_reverse,
+              lineWidth, scaleArray, scaleFunction, false, oMaterial2, vColorTextureMap, 0,
+              (float*)textureCoordinates.data(), numCellMaterials, cellMaterials, numPointColors,
+              pointColors.data(), 0, (float*)pointValueTextureCoords.data(), backend));
           uniqueMats.insert(oMaterial2);
         }
 
-        osp::vec3f* normals = nullptr;
+        std::vector<osp::vec3f> normals;
         int numNormals = 0;
         if (property->GetInterpolation() != VTK_FLAT)
         {
@@ -1089,13 +1125,12 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
           }
         }
 
-        this->Geometries.emplace_back(
-          vtkosp::RenderAsTriangles(position, conn.triangle_index, conn.triangle_reverse,
-            useCustomMaterial, oMaterial, numNormals, normals, property->GetInterpolation(),
-            vColorTextureMap, vNormalTextureMap, vMaterialTextureMap, numTextureCoordinates,
-            textureCoordinates, texTransform, numCellMaterials, cellMaterials, numPointColors,
-            pointColors, numPointValueTextureCoords, pointValueTextureCoords, backend));
-        delete[] normals;
+        this->GeometricModels.emplace_back(vtkosp::RenderAsTriangles(position, conn.triangle_index,
+          conn.triangle_reverse, useCustomMaterial, oMaterial, numNormals, normals,
+          property->GetInterpolation(), vColorTextureMap, vNormalTextureMap, vMaterialTextureMap,
+          numTextureCoordinates, (float*)textureCoordinates.data(), texTransform, numCellMaterials,
+          cellMaterials, numPointColors, pointColors.data(), numPointValueTextureCoords,
+          (float*)pointValueTextureCoords.data(), backend));
       }
     }
   }
@@ -1106,20 +1141,21 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
     {
       case VTK_POINTS:
       {
-        this->Geometries.emplace_back(vtkosp::RenderAsSpheres(vertices, conn.strip_index,
-          conn.strip_reverse, pointSize, scaleArray, scaleFunction, useCustomMaterial, oMaterial,
-          vColorTextureMap, numTextureCoordinates, textureCoordinates, numCellMaterials,
-          cellMaterials, numPointColors, pointColors, numPointValueTextureCoords,
-          pointValueTextureCoords, backend));
+        this->GeometricModels.emplace_back(
+          vtkosp::RenderAsSpheres(vertices.data(), conn.strip_index, conn.strip_reverse, pointSize,
+            scaleArray, scaleFunction, useCustomMaterial, oMaterial, vColorTextureMap,
+            numTextureCoordinates, (float*)textureCoordinates.data(), numCellMaterials,
+            cellMaterials, numPointColors, pointColors.data(), numPointValueTextureCoords,
+            (float*)pointValueTextureCoords.data(), backend));
         break;
       }
       case VTK_WIREFRAME:
       {
-        this->Geometries.emplace_back(vtkosp::RenderAsCylinders(vertices, conn.strip_index,
+        this->GeometricModels.emplace_back(vtkosp::RenderAsCylinders(vertices, conn.strip_index,
           conn.strip_reverse, lineWidth, scaleArray, scaleFunction, useCustomMaterial, oMaterial,
-          vColorTextureMap, numTextureCoordinates, textureCoordinates, numCellMaterials,
-          cellMaterials, numPointColors, pointColors, numPointValueTextureCoords,
-          pointValueTextureCoords, backend));
+          vColorTextureMap, numTextureCoordinates, (float*)textureCoordinates.data(),
+          numCellMaterials, cellMaterials, numPointColors, pointColors.data(),
+          numPointValueTextureCoords, (float*)pointValueTextureCoords.data(), backend));
         break;
       }
       default:
@@ -1136,14 +1172,15 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
             vtkosp::MakeActorMaterial(orn, oRenderer, property, eColor, eColor, specularf, opacity);
           ospCommit(oMaterial2);
 
-          this->Geometries.emplace_back(vtkosp::RenderAsCylinders(vertices, conn2.strip_index,
-            conn2.strip_reverse, lineWidth, scaleArray, scaleFunction, false, oMaterial2,
-            vColorTextureMap, 0, textureCoordinates, numCellMaterials, cellMaterials,
-            numPointColors, pointColors, 0, pointValueTextureCoords, backend));
+          this->GeometricModels.emplace_back(
+            vtkosp::RenderAsCylinders(vertices, conn2.strip_index, conn2.strip_reverse, lineWidth,
+              scaleArray, scaleFunction, false, oMaterial2, vColorTextureMap, 0,
+              (float*)textureCoordinates.data(), numCellMaterials, cellMaterials, numPointColors,
+              pointColors.data(), 0, (float*)pointValueTextureCoords.data(), backend));
 
           uniqueMats.insert(oMaterial2);
         }
-        osp::vec3f* normals = nullptr;
+        std::vector<osp::vec3f> normals;
         int numNormals = 0;
         if (property->GetInterpolation() != VTK_FLAT)
         {
@@ -1167,18 +1204,16 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
             numNormals = vNormals->GetNumberOfTuples();
           }
         }
-        this->Geometries.emplace_back(
-          vtkosp::RenderAsTriangles(position, conn.strip_index, conn.strip_reverse,
-            useCustomMaterial, oMaterial, numNormals, normals, property->GetInterpolation(),
-            vColorTextureMap, vNormalTextureMap, vMaterialTextureMap, numTextureCoordinates,
-            textureCoordinates, texTransform, numCellMaterials, cellMaterials, numPointColors,
-            pointColors, numPointValueTextureCoords, pointValueTextureCoords, backend));
-        delete[] normals;
+        this->GeometricModels.emplace_back(vtkosp::RenderAsTriangles(position, conn.strip_index,
+          conn.strip_reverse, useCustomMaterial, oMaterial, numNormals, normals,
+          property->GetInterpolation(), vColorTextureMap, vNormalTextureMap, vMaterialTextureMap,
+          numTextureCoordinates, (float*)textureCoordinates.data(), texTransform, numCellMaterials,
+          cellMaterials, numPointColors, pointColors.data(), numPointValueTextureCoords,
+          (float*)pointValueTextureCoords.data(), backend));
       }
     }
   }
   ospRelease(position);
-  ospRelease(cellMaterials);
 
   for (auto it : mats)
   {
@@ -1190,10 +1225,22 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
     ospRelease(mat);
   }
 
-  delete[] vertices;
-  delete[] pointColors;
-  delete[] pointValueTextureCoords;
-  delete[] textureCoordinates;
+  for (auto g : this->GeometricModels)
+  {
+    OSPGroup group = ospNewGroup();
+    OSPInstance instance = ospNewInstance(group); // valgrind reports instance is lost
+    ospCommit(instance);
+    ospRelease(group);
+    OSPData data = ospNewCopyData1D(&g, OSP_GEOMETRIC_MODEL, 1);
+    ospRelease(&(*g));
+    ospCommit(data);
+    ospSetObject(group, "geometry", data);
+    ospCommit(group);
+    ospRelease(data);
+    this->Instances.emplace_back(instance);
+  }
+
+  this->GeometricModels.clear();
 }
 
 //------------------------------------------------------------------------------
@@ -1221,25 +1268,16 @@ void vtkOSPRayPolyDataMapperNode::Render(bool prepass)
 
     vtkOSPRayRendererNode* orn =
       static_cast<vtkOSPRayRendererNode*>(this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
-    vtkRenderer* ren = vtkRenderer::SafeDownCast(orn->GetRenderable());
-    this->GeometryCache->SetSize(vtkOSPRayRendererNode::GetTimeCacheSize(ren));
-    this->InstanceCache->SetSize(vtkOSPRayRendererNode::GetTimeCacheSize(ren));
-
-    double tstep = vtkOSPRayRendererNode::GetViewTime(orn->GetRenderer());
 
     // if there are no changes, just reuse last result
     vtkMTimeType inTime = aNode->GetMTime();
-    if ((this->RenderTime >= inTime ||
-          (this->UseInstanceCache && this->InstanceCache->Contains(tstep)) ||
-          (this->UseGeometryCache && this->GeometryCache->Contains(tstep))))
+    if (this->RenderTime >= inTime)
     {
-      // cout << "REUSE" << endl;
-      this->RenderGeometries();
+      this->RenderGeometricModels();
       return;
     }
-    // cout << "DRAW" << endl;
     this->RenderTime = inTime;
-    this->ClearGeometries();
+    this->ClearGeometricModels();
 
     vtkPolyData* poly = nullptr;
     vtkPolyDataMapper* mapper = vtkPolyDataMapper::SafeDownCast(act->GetMapper());
@@ -1257,96 +1295,31 @@ void vtkOSPRayPolyDataMapperNode::Render(bool prepass)
       this->ORenderPoly(
         orn->GetORenderer(), aNode, poly, ambient, diffuse, property->GetOpacity(), "");
     }
-    this->PopulateCache();
-    this->RenderGeometries();
+    this->RenderGeometricModels();
   }
 }
 
-//------------------------------------------------------------------------------
-void vtkOSPRayPolyDataMapperNode::PopulateCache()
-{
-
-  vtkOSPRayRendererNode* orn =
-    static_cast<vtkOSPRayRendererNode*>(this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
-  double tstep = vtkOSPRayRendererNode::GetViewTime(orn->GetRenderer());
-
-  RTW::Backend* backend = orn->GetBackend();
-
-  if (this->UseGeometryCache)
-  {
-    auto cacheEntry = std::make_shared<vtkOSPRayCacheItemGeometries>(this->Geometries);
-    this->GeometryCache->Set(tstep, cacheEntry);
-  }
-  if (this->UseInstanceCache && backend->IsSupported(RTW_INSTANCING))
-  {
-    OSPModel instanceModel = ospNewModel();
-    for (auto g : this->Geometries)
-    {
-      ospAddGeometry(instanceModel, g);
-    }
-    ospCommit(instanceModel);
-    osp::affine3f xfm{ 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 };
-    auto instance = ospNewInstance(instanceModel, xfm);
-    ospCommit(instance);
-    auto instanceCacheEntry =
-      std::make_shared<vtkOSPRayCacheItemObject>(backend, (OSPObject)instance);
-    instanceCacheEntry->size = this->Geometries.size();
-    this->InstanceCache->Set(tstep, instanceCacheEntry);
-    ospRelease(instanceModel);
-  }
-}
-
-//------------------------------------------------------------------------------
-void vtkOSPRayPolyDataMapperNode::RenderGeometries()
+//----------------------------------------------------------------------------
+void vtkOSPRayPolyDataMapperNode::RenderGeometricModels()
 {
   vtkOSPRayRendererNode* orn =
     static_cast<vtkOSPRayRendererNode*>(this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
-  double tstep = vtkOSPRayRendererNode::GetViewTime(orn->GetRenderer());
-  auto oModel = orn->GetOModel();
 
-  RTW::Backend* backend = orn->GetBackend();
-
-  if (this->UseInstanceCache && backend->IsSupported(RTW_INSTANCING) &&
-    this->InstanceCache->Contains(tstep))
+  for (auto instance : this->Instances)
   {
-    auto cacheEntry = this->InstanceCache->Get(tstep);
-    if (cacheEntry->size > 0)
-    {
-      OSPGeometry instance = static_cast<OSPGeometry>(cacheEntry->object);
-      ospAddGeometry(oModel, instance);
-    }
-    return;
-  }
-  else if (this->UseGeometryCache && this->GeometryCache->Contains(tstep))
-  {
-    auto& geometriesCache = this->GeometryCache->Get(tstep)->GeometriesAtTime;
-    for (auto g : geometriesCache)
-    {
-      ospAddGeometry(oModel, g);
-    }
-    return;
-  }
-  for (auto g : this->Geometries)
-  {
-    ospAddGeometry(oModel, g);
+    orn->Instances.emplace_back(instance);
   }
 }
 
-//------------------------------------------------------------------------------
-void vtkOSPRayPolyDataMapperNode::ClearGeometries()
+//----------------------------------------------------------------------------
+void vtkOSPRayPolyDataMapperNode::ClearGeometricModels()
 {
   vtkOSPRayRendererNode* orn =
     static_cast<vtkOSPRayRendererNode*>(this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
 
   RTW::Backend* backend = orn->GetBackend();
 
-  // We can't delete if we may reuse.
-  if (vtkOSPRayRendererNode::GetTimeCacheSize(orn->GetRenderer()) == 0)
-  {
-    for (auto g : this->Geometries)
-    {
-      ospRelease(g);
-    }
-  }
-  this->Geometries.clear();
+  for (auto instance : this->Instances)
+    ospRelease(&(*instance));
+  this->Instances.clear();
 }

@@ -38,7 +38,11 @@ cmake_dependent_option(VTKOSPRAY_ENABLE_DENOISER
   "VTK_ENABLE_OSPRAY" OFF)
 
 option(VTK_ENABLE_VISRTX "Enable VisRTX RayTracing backend" OFF)
+set(enable_visrtx FALSE)
 if (VTK_ENABLE_VISRTX)
+  message(WARNING "VisRTX is temporarily disabled.")
+endif()
+if (enable_visrtx)
   list(APPEND sources RTWrapper/VisRTX/VisRTXBackend.cxx)
 endif ()
 
@@ -57,11 +61,12 @@ vtk_module_install_headers(
 if (VTK_ENABLE_OSPRAY)
   vtk_module_find_package(
     PACKAGE ospray
-    VERSION 1.8)
+    VERSION 2.1)
 
   vtk_module_link(VTK::RenderingRayTracing
     PUBLIC
-      ospray::ospray)
+      ospray::ospray
+      )
   if (VTKOSPRAY_ENABLE_DENOISER)
     vtk_module_find_package(
       PACKAGE OpenImageDenoise
@@ -87,7 +92,7 @@ if (VTK_ENABLE_OSPRAY)
 endif ()
 
 # VisRTX
-if (VTK_ENABLE_VISRTX)
+if (enable_visrtx)
   vtk_module_find_package(
     PACKAGE VisRTX
     CONFIG_MODE)

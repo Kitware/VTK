@@ -167,8 +167,8 @@ OSPTexture getOSPDepthTextureFromOpenGLPerspective(const double& fovy, const dou
   // values...
   osp::vec2i texSize = { static_cast<int>(glDepthBufferWidth),
     static_cast<int>(glDepthBufferHeight) };
-  OSPTexture depthTexture = vtkOSPRayMaterialHelpers::NewTexture2D(backend, (osp::vec2i&)texSize,
-    OSP_TEXTURE_R32F, ospDepthBuffer, OSP_TEXTURE_FILTER_NEAREST, sizeof(float));
+  OSPTexture depthTexture = vtkOSPRayMaterialHelpers::NewTexture2D(
+    backend, (osp::vec2i&)texSize, OSP_TEXTURE_R32F, ospDepthBuffer, OSP_TEXTURE_FILTER_NEAREST);
 
   return depthTexture;
 }
@@ -180,6 +180,7 @@ vtkInformationKeyMacro(vtkOSPRayRendererNode, MAX_CONTRIBUTION, Double);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, MAX_DEPTH, Integer);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, MIN_CONTRIBUTION, Double);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, ROULETTE_DEPTH, Integer);
+vtkInformationKeyMacro(vtkOSPRayRendererNode, VOLUME_ANISOTROPY, Double);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, VARIANCE_THRESHOLD, Double);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, MAX_FRAMES, Integer);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, AMBIENT_SAMPLES, Integer);
@@ -280,7 +281,7 @@ public:
     return retval;
   }
 
-  bool SetupPathTraceBG(bool forbackplate, RTW::Backend* backend, OSPRenderer oRenderer)
+  bool SetupPathTraceBackground(bool forbackplate, RTW::Backend* backend)
   {
     vtkRenderer* ren = vtkRenderer::SafeDownCast(this->Owner->GetRenderable());
     if (std::string(this->Owner->GetRendererType(ren)).find(std::string("pathtracer")) ==
@@ -297,8 +298,8 @@ public:
         (forbackplate ? ren->GetBackgroundTexture() : ren->GetEnvironmentTexture());
       if (text && (forbackplate ? ren->GetTexturedBackground() : ren->GetUseImageBasedLighting()))
       {
+        // user provided 2D background texture
         vtkImageData* vColorTextureMap = text->GetInput();
-
         // todo: if the imageData is empty, we should download the texture from the GPU
         if (vColorTextureMap)
         {
@@ -308,6 +309,7 @@ public:
 
       if (t2d == nullptr)
       {
+        // simple color or gradient
         std::vector<unsigned char> ochars;
         double* bg1 = (forbackplate ? ren->GetBackground() : ren->GetEnvironmentalBG());
         int isize = 1;
@@ -340,53 +342,47 @@ public:
           ochars[2] = bg1[2] * 255;
         }
 
-        t2d = vtkOSPRayMaterialHelpers::NewTexture2D(backend, osp::vec2i{ jsize, isize },
-          OSP_TEXTURE_RGB8, ochars.data(), 0, 3 * sizeof(char));
+        t2d = vtkOSPRayMaterialHelpers::NewTexture2D(
+          backend, osp::vec2i{ jsize, isize }, OSP_TEXTURE_RGB8, ochars.data(), 0);
       }
 
+      // now apply the texture we chose above to the right place
       if (forbackplate)
       {
         if (bgMode & 0x1)
         {
-          ospSetData(oRenderer, "backplate", t2d);
+          ospSetObject(this->Owner->GetORenderer(), "map_backplate", t2d);
         }
         else
         {
-          ospSetData(oRenderer, "backplate", nullptr);
+          ospSetObject(this->Owner->GetORenderer(), "map_backplate", nullptr);
         }
       }
       else
       {
-
-        OSPLight ospLight = ospNewLight3("hdri");
+        OSPLight ospLight = ospNewLight("hdri");
         ospSetObject(ospLight, "map", t2d);
-        ospRelease(t2d);
-
         double* up = vtkOSPRayRendererNode::GetNorthPole(ren);
         if (!up)
         {
           up = ren->GetEnvironmentUp();
         }
-        ospSet3f(ospLight, "up", (float)up[0], (float)up[1], (float)up[2]);
-
+        ospSetVec3f(ospLight, "up", (float)up[0], (float)up[1], (float)up[2]);
         double* east = vtkOSPRayRendererNode::GetEastPole(ren);
         if (!east)
         {
           east = ren->GetEnvironmentRight();
         }
-        ospSet3f(ospLight, "dir", (float)east[0], (float)east[1], (float)east[2]);
-
-        ospCommit(t2d);
+        ospSetVec3f(ospLight, "direction", (float)east[0], (float)east[1], (float)east[2]);
         ospCommit(ospLight);
         this->BGLight = ospLight;
       }
-    }
+    } //! reusable
 
     if (!forbackplate && (bgMode & 0x2))
     {
-      this->Owner->AddLight(this->BGLight);
+      this->Owner->AddLight(this->BGLight); // lights cleared every frame, so always add
     }
-
     return reuseable;
   }
 
@@ -407,8 +403,9 @@ public:
   double LastParallelScale = 0.0;
   double LastFocalDisk = -1.0;
   double LastFocalDistance = -1.0;
+  double LastDTime = 0.0;
 
-  OSPLight BGLight;
+  OSPLight BGLight{ nullptr };
   RTW::Backend* Backend = nullptr;
 };
 
@@ -420,9 +417,8 @@ vtkOSPRayRendererNode::vtkOSPRayRendererNode()
 {
   this->ColorBufferTex = 0;
   this->DepthBufferTex = 0;
-  this->OModel = nullptr;
+  this->OWorld = nullptr;
   this->ORenderer = nullptr;
-  this->OLightArray = nullptr;
   this->NumActors = 0;
   this->ComputeDepth = true;
   this->OFrameBuffer = nullptr;
@@ -435,6 +431,7 @@ vtkOSPRayRendererNode::vtkOSPRayRendererNode()
   this->AccumulateMatrix = vtkMatrix4x4::New();
   this->Internal = new vtkOSPRayRendererNodeInternals(this);
   this->PreviousType = "none";
+  this->Cache = new vtkOSPRayCache<vtkOSPRayCacheItemObject>;
 
 #ifdef VTKOSPRAY_ENABLE_DENOISER
   this->DenoiserDevice = oidn::newDevice();
@@ -449,9 +446,10 @@ vtkOSPRayRendererNode::~vtkOSPRayRendererNode()
   if (this->Internal->Backend != nullptr)
   {
     RTW::Backend* backend = this->Internal->Backend;
-    ospRelease((OSPModel)this->OModel);
-    ospRelease((OSPRenderer)this->ORenderer);
+    // DDM NO ospRelease(this->OWorld);
+    ospRelease(this->ORenderer);
     ospRelease(this->OFrameBuffer);
+    // DDM NO ospRelease(this->OCamera);
   }
   this->AccumulateMatrix->Delete();
   delete this->Internal;
@@ -591,7 +589,34 @@ int vtkOSPRayRendererNode::GetRouletteDepth(vtkRenderer* renderer)
   return DEFAULT_ROULETTE_DEPTH;
 }
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+void vtkOSPRayRendererNode::SetVolumeAnisotropy(double value, vtkRenderer* renderer)
+{
+  if (!renderer)
+  {
+    return;
+  }
+  vtkInformation* info = renderer->GetInformation();
+  info->Set(vtkOSPRayRendererNode::VOLUME_ANISOTROPY(), value);
+}
+
+//----------------------------------------------------------------------------
+double vtkOSPRayRendererNode::GetVolumeAnisotropy(vtkRenderer* renderer)
+{
+  constexpr double DEFAULT_VOLUME_ANISOTROPY = 0.0;
+  if (!renderer)
+  {
+    return DEFAULT_VOLUME_ANISOTROPY;
+  }
+  vtkInformation* info = renderer->GetInformation();
+  if (info && info->Has(vtkOSPRayRendererNode::VOLUME_ANISOTROPY()))
+  {
+    return (info->Get(vtkOSPRayRendererNode::VOLUME_ANISOTROPY()));
+  }
+  return DEFAULT_VOLUME_ANISOTROPY;
+}
+
+//----------------------------------------------------------------------------
 void vtkOSPRayRendererNode::SetVarianceThreshold(double value, vtkRenderer* renderer)
 {
   if (!renderer)
@@ -966,6 +991,12 @@ void vtkOSPRayRendererNode::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 void vtkOSPRayRendererNode::Traverse(int operation)
 {
+  vtkRenderer* ren = vtkRenderer::SafeDownCast(this->GetRenderable());
+  if (!ren)
+  {
+    return;
+  }
+
   // do not override other passes
   if (operation != render)
   {
@@ -974,8 +1005,6 @@ void vtkOSPRayRendererNode::Traverse(int operation)
   }
 
   this->Apply(operation, true);
-
-  OSPRenderer oRenderer = this->ORenderer;
 
   // camera
   // TODO: this repeated traversal to find things of particular types
@@ -987,8 +1016,15 @@ void vtkOSPRayRendererNode::Traverse(int operation)
     if (child)
     {
       child->Traverse(operation);
+      this->OCamera = child->GetOCamera();
       break;
     }
+  }
+
+  RTW::Backend* backend = this->Internal->Backend;
+  if (backend == nullptr)
+  {
+    return;
   }
 
   // lights
@@ -1007,33 +1043,29 @@ void vtkOSPRayRendererNode::Traverse(int operation)
     }
   }
 
-  RTW::Backend* backend = this->Internal->Backend;
-  if (backend == nullptr)
-    return;
-
   if (!hasAmbient && (this->GetAmbientSamples(static_cast<vtkRenderer*>(this->Renderable)) > 0))
   {
     // hardcode an ambient light for AO since OSP 1.2 stopped doing so.
-    OSPLight ospAmbient = ospNewLight3("AmbientLight");
+    OSPLight ospAmbient = ospNewLight("ambient");
     ospSetString(ospAmbient, "name", "default_ambient");
-    ospSet3f(ospAmbient, "color", 1.f, 1.f, 1.f);
-    ospSet1f(ospAmbient, "intensity", 0.13f * vtkOSPRayLightNode::GetLightScale() * vtkMath::Pi());
+    ospSetVec3f(ospAmbient, "color", 1.f, 1.f, 1.f);
+    ospSetFloat(
+      ospAmbient, "intensity", 0.13f * vtkOSPRayLightNode::GetLightScale() * vtkMath::Pi());
     ospCommit(ospAmbient);
     this->Lights.push_back(ospAmbient);
   }
 
-  bool bpreused = this->Internal->SetupPathTraceBG(true, backend, oRenderer);
-  bool envreused = this->Internal->SetupPathTraceBG(false, backend, oRenderer);
+  bool bpreused = this->Internal->SetupPathTraceBackground(true, backend);
+  bool envreused = this->Internal->SetupPathTraceBackground(false, backend);
   this->Internal->lBackgroundMode = vtkOSPRayRendererNode::GetBackgroundMode(
     static_cast<vtkRenderer*>(this->Renderable)); // save it only once both of the above check
   bool bgreused = envreused && bpreused;
-  ospRelease(this->OLightArray);
-  this->OLightArray = ospNewData(
-    this->Lights.size(), OSP_OBJECT, (this->Lights.empty() ? nullptr : &this->Lights[0]), 0);
-  ospSetData(oRenderer, "lights", this->OLightArray);
+
+  // skip every actor/volume when caching is on
+  double tstep = vtkOSPRayRendererNode::GetViewTime(ren);
+  bool tCacheHit = this->Cache->Contains(tstep);
 
   // actors
-  OSPModel oModel = nullptr;
   // since we have to spatially sort everything
   // let's see if we can avoid that in the common case when
   // the objects have not changed. Note we also cache in actornodes
@@ -1057,12 +1089,10 @@ void vtkOSPRayRendererNode::Traverse(int operation)
   }
 
   bool enable_cache = true; // turn off to force rebuilds for debugging
-  if (!this->OModel || !enable_cache || (recent > this->RenderTime) || (numAct != this->NumActors))
+  if (!tCacheHit && (!enable_cache || (recent > this->RenderTime) || (numAct != this->NumActors)))
   {
+    this->Instances.clear();
     this->NumActors = numAct;
-    ospRelease((OSPModel)this->OModel);
-    oModel = ospNewModel();
-    this->OModel = oModel;
     for (auto node : nodes)
     {
       vtkOSPRayActorNode* child = vtkOSPRayActorNode::SafeDownCast(node);
@@ -1077,15 +1107,6 @@ void vtkOSPRayRendererNode::Traverse(int operation)
       }
     }
     this->RenderTime = recent;
-    ospCommit(oModel);
-    ospSetObject(oRenderer, "model", oModel);
-    ospCommit(oRenderer);
-  }
-  else
-  {
-    oModel = (OSPModel)this->OModel;
-    ospSetObject(oRenderer, "model", oModel);
-    ospCommit(oRenderer);
   }
 
   if (!bgreused)
@@ -1139,22 +1160,6 @@ void vtkOSPRayRendererNode::Render(bool prepass)
     if (!this->ORenderer || this->PreviousType != type)
     {
       this->Traverse(invalidate);
-      // std::cerr << "initializing backend...\n";
-      // std::set<RTWBackendType> availableBackends = rtwGetAvailableBackends();
-      // for (RTWBackendType backend : availableBackends)
-      //{
-      //    switch (backend)
-      //    {
-      //    case OSP_BACKEND_OSPRAY:
-      //        std::cerr << "OSPRay backend is available\n";
-      //        break;
-      //    case OSP_BACKEND_VISRTX:
-      //        std::cerr << "VisRTX backend is available\n";
-      //        break;
-      //    default:
-      //        std::cerr << "Unknown backend type listed as available \n";
-      //    }
-      //}
       this->Internal->Backend = rtwSwitch(type.c_str());
       if (this->Internal->Backend == nullptr)
       {
@@ -1171,20 +1176,21 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       oRenderer = this->ORenderer;
     }
 
-    ospSet1f(this->ORenderer, "maxContribution", this->GetMaxContribution(ren));
-    ospSet1f(this->ORenderer, "minContribution", this->GetMinContribution(ren));
-    ospSet1i(this->ORenderer, "maxDepth", this->GetMaxDepth(ren));
-    ospSet1i(this->ORenderer, "rouletteDepth", this->GetRouletteDepth(ren));
-    ospSet1f(this->ORenderer, "varianceThreshold", this->GetVarianceThreshold(ren));
+    ospSetFloat(this->ORenderer, "maxContribution", this->GetMaxContribution(ren));
+    ospSetFloat(this->ORenderer, "minContribution", this->GetMinContribution(ren));
+    ospSetFloat(this->ORenderer, "maxPathLength", this->GetMaxDepth(ren));
+    ospSetFloat(this->ORenderer, "rouletteDepth", this->GetRouletteDepth(ren));
+    ospSetFloat(this->ORenderer, "varianceThreshold", this->GetVarianceThreshold(ren));
+    // ospSetInt(oRenderer, "geometryLights", 0); //avoid a crash in ospray 2.1.0
     ospCommit(this->ORenderer);
 
     if (ren->GetUseShadows())
     {
-      ospSet1i(oRenderer, "shadowsEnabled", 1);
+      ospSetInt(oRenderer, "shadowsEnabled", 1);
     }
     else
     {
-      ospSet1i(oRenderer, "shadowsEnabled", 0);
+      ospSetInt(oRenderer, "shadowsEnabled", 0);
     }
 
     // todo: this can be expensive and should be cached
@@ -1199,30 +1205,70 @@ void vtkOSPRayRendererNode::Render(bool prepass)
         logDiam = 1.f / (fabs(logDiam));
       }
       float epsilon = 1e-5 * logDiam;
-      ospSet1f(oRenderer, "epsilon", epsilon);
-      ospSet1f(oRenderer, "aoDistance", diam * 0.3);
-      ospSet1i(oRenderer, "autoEpsilon", 0);
+      ospSetFloat(oRenderer, "epsilon", epsilon);
+      ospSetFloat(oRenderer, "aoDistance", diam * 0.3);
+      ospSetInt(oRenderer, "autoEpsilon", 0);
     }
     else
     {
-      ospSet1f(oRenderer, "epsilon", 0.001f);
+      ospSetFloat(oRenderer, "epsilon", 0.001f);
     }
 
     vtkVolumeCollection* vc = ren->GetVolumes();
     if (vc->GetNumberOfItems())
     {
-      ospSet1i(oRenderer, "aoTransparencyEnabled", 1);
+      ospSetInt(oRenderer, "aoTransparencyEnabled", 1);
     }
 
-    ospSet1i(oRenderer, "aoSamples", this->GetAmbientSamples(ren));
-    ospSet1i(oRenderer, "spp", this->GetSamplesPerPixel(ren));
+    ospSetInt(oRenderer, "aoSamples", this->GetAmbientSamples(ren));
+    ospSetInt(oRenderer, "pixelSamples", this->GetSamplesPerPixel(ren));
     this->CompositeOnGL = (this->GetCompositeOnGL(ren) != 0);
 
     double* bg = ren->GetBackground();
-    ospSet4f(oRenderer, "bgColor", bg[0], bg[1], bg[2], ren->GetBackgroundAlpha());
+    ospSetVec4f(oRenderer, "backgroundColor", bg[0], bg[1], bg[2], ren->GetBackgroundAlpha());
   }
   else
   {
+    this->Cache->SetSize(vtkOSPRayRendererNode::GetTimeCacheSize(ren));
+    double tstep = vtkOSPRayRendererNode::GetViewTime(ren);
+    auto cached = this->Cache->Get(tstep);
+    if (cached)
+    {
+      this->OWorld = static_cast<OSPWorld>(cached->object);
+    }
+    else
+    {
+      this->OWorld = ospNewWorld();
+      // put the model into a group (collection of models)
+      if (this->Instances.size())
+      {
+        if (this->Lights.size())
+        {
+          auto data = ospNewSharedData1D(
+            this->Lights.data(), OSP_LIGHT, static_cast<uint32_t>(this->Lights.size()));
+          ospCommit(data);
+          ospSetObject(this->OWorld, "light", data);
+          ospRelease(data);
+        }
+        auto instanceData = ospNewSharedData1D(
+          this->Instances.data(), OSP_INSTANCE, static_cast<uint32_t>(this->Instances.size()));
+        ospCommit(instanceData);
+        ospSetObject(this->OWorld, "instance", instanceData);
+        ospRelease(instanceData);
+        this->OInstanceData = instanceData;
+      }
+      else
+      {
+        ospRemoveParam(this->OWorld, "instance");
+      }
+      ospCommit(this->OWorld);
+      if (this->Cache->HasRoom())
+      {
+        auto cacheEntry = std::make_shared<vtkOSPRayCacheItemObject>(backend, this->OWorld);
+        this->Cache->Set(tstep, std::move(cacheEntry));
+      }
+    }
+
     OSPRenderer oRenderer = this->ORenderer;
     ospCommit(oRenderer);
 
@@ -1233,8 +1279,10 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       this->ImageY = this->Size[1];
       const size_t size = this->ImageX * this->ImageY;
       ospRelease(this->OFrameBuffer);
+#if defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wextra"
+#endif
       this->OFrameBuffer = ospNewFrameBuffer(isize,
 #ifdef VTKOSPRAY_ENABLE_DENOISER
         OSP_FB_RGBA32F,
@@ -1252,12 +1300,12 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       this->NormalBuffer.resize(size);
       this->AlbedoBuffer.resize(size);
       this->DenoiserDirty = true;
-      ospSet1f(this->OFrameBuffer, "gamma", 1.0f);
+      ospSetFloat(this->OFrameBuffer, "gamma", 1.0f);
       ospCommit(this->OFrameBuffer);
-      ospFrameBufferClear(this->OFrameBuffer,
-        OSP_FB_COLOR | (this->ComputeDepth ? OSP_FB_DEPTH : 0) |
-          (this->Accumulate ? OSP_FB_ACCUM : 0));
+      ospFrameBufferClear(this->OFrameBuffer);
+#if defined(__GNUC__)
 #pragma GCC diagnostic pop
+#endif
       this->Buffer.resize(this->Size[0] * this->Size[1] * 4);
       this->ZBuffer.resize(this->Size[0] * this->Size[1]);
       if (this->CompositeOnGL)
@@ -1278,6 +1326,13 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       vtkRenderWindow* rwin = vtkRenderWindow::SafeDownCast(ren->GetVTKWindow());
       if (rwin && rwin->GetStereoRender())
       {
+        canReuse = false;
+      }
+
+      double dtime = vtkOSPRayRendererNode::GetViewTime(ren);
+      if (this->Internal->LastDTime != dtime)
+      {
+        this->Internal->LastDTime = dtime;
         canReuse = false;
       }
 
@@ -1394,26 +1449,32 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       }
       if (!canReuse)
       {
+#if defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wextra"
-        ospFrameBufferClear(this->OFrameBuffer,
-          OSP_FB_COLOR | (this->ComputeDepth ? OSP_FB_DEPTH : 0) | OSP_FB_ACCUM);
+#endif
+        ospFrameBufferClear(this->OFrameBuffer);
+#if defined(__GNUC__)
 #pragma GCC diagnostic pop
+#endif
         this->AccumulateCount = 0;
       }
     }
     else if (!this->Accumulate)
     {
+#if defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wextra"
-      ospFrameBufferClear(
-        this->OFrameBuffer, OSP_FB_COLOR | (this->ComputeDepth ? OSP_FB_DEPTH : 0));
+#endif
+      ospFrameBufferClear(this->OFrameBuffer);
+#if defined(__GNUC__)
 #pragma GCC diagnostic pop
+#endif
     }
 
     vtkCamera* cam = vtkRenderer::SafeDownCast(this->Renderable)->GetActiveCamera();
 
-    ospSet1i(oRenderer, "backgroundEnabled", ren->GetErase());
+    ospSetInt(oRenderer, "backgroundEnabled", ren->GetErase());
     if (this->CompositeOnGL && backend->IsSupported(RTW_DEPTH_COMPOSITING))
     {
       vtkRenderWindow* rwin = vtkRenderWindow::SafeDownCast(ren->GetVTKWindow());
@@ -1447,18 +1508,17 @@ void vtkOSPRayRendererNode::Render(bool prepass)
         zNear, zFar, (osp::vec3f&)cameraDir, (osp::vec3f&)cameraUp, this->GetZBuffer(),
         this->ODepthBuffer.data(), viewportWidth, viewportHeight, this->Internal->Backend);
 
-      ospSetObject(oRenderer, "maxDepthTexture", glDepthTex);
+      ospSetObject(oRenderer, "map_maxDepth", glDepthTex);
     }
     else
     {
-      ospSetObject(oRenderer, "maxDepthTexture", 0);
+      ospSetObject(oRenderer, "map_maxDepth", 0);
     }
 
-    // Enable VisRTX denoiser
     this->AccumulateCount += this->GetSamplesPerPixel(ren);
     bool useDenoiser =
       this->GetEnableDenoiser(ren) && (this->AccumulateCount >= this->GetDenoiserThreshold(ren));
-    ospSet1i(oRenderer, "denoise", useDenoiser ? 1 : 0); // for VisRTX backend only
+    ospSetInt(oRenderer, "denoise", useDenoiser ? 1 : 0);
 
     ospCommit(oRenderer);
 
@@ -1471,15 +1531,20 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       backend->SetDepthNormalizationGL(this->OFrameBuffer, clipMin, clipMax);
     }
 
+#if defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wextra"
-    ospRenderFrame(this->OFrameBuffer, oRenderer,
-      OSP_FB_COLOR | (this->ComputeDepth ? OSP_FB_DEPTH : 0) | (this->Accumulate ? OSP_FB_ACCUM : 0)
-#ifdef VTKOSPRAY_ENABLE_DENOISER
-        | OSP_FB_NORMAL | OSP_FB_ALBEDO
 #endif
-    );
+    ospRenderFrame(this->OFrameBuffer, oRenderer, this->OCamera, this->OWorld);
+#if defined(__GNUC__)
 #pragma GCC diagnostic pop
+#endif
+
+    // release data used to store instances and clear world
+    ospRelease(this->OInstanceData);
+    this->OInstanceData = nullptr;
+    // DDM NO ospRelease(this->OWorld);
+    this->OWorld = nullptr;
 
     // Check if backend can do direct OpenGL display using textures
     bool useOpenGLInterop = backend->IsSupported(RTW_OPENGL_INTEROP);

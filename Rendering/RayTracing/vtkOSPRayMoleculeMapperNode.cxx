@@ -41,22 +41,7 @@ vtkStandardNewMacro(vtkOSPRayMoleculeMapperNode);
 vtkOSPRayMoleculeMapperNode::vtkOSPRayMoleculeMapperNode() = default;
 
 //------------------------------------------------------------------------------
-vtkOSPRayMoleculeMapperNode::~vtkOSPRayMoleculeMapperNode()
-{
-  vtkOSPRayRendererNode* orn = vtkOSPRayRendererNode::GetRendererNode(this);
-  if (orn)
-  {
-    RTW::Backend* backend = orn->GetBackend();
-    if (backend != nullptr)
-    {
-      for (auto g : this->Geometries)
-      {
-        ospRelease(g);
-      }
-      this->Geometries.clear();
-    }
-  }
-}
+vtkOSPRayMoleculeMapperNode::~vtkOSPRayMoleculeMapperNode() {}
 
 //------------------------------------------------------------------------------
 void vtkOSPRayMoleculeMapperNode::PrintSelf(ostream& os, vtkIndent indent)
@@ -86,7 +71,6 @@ void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
     return;
   }
 
-  auto oModel = orn->GetOModel();
   vtkProperty* property = act->GetProperty();
   vtkMoleculeMapper* mapper = vtkMoleculeMapper::SafeDownCast(this->GetRenderable());
   vtkMolecule* molecule = mapper->GetInput();
@@ -97,11 +81,11 @@ void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
     molecule->GetMTime() > this->BuildTime)
   {
     // free up whatever we did last time
-    for (auto g : this->Geometries)
+    for (auto instance : this->Instances)
     {
-      ospRelease(g);
+      ospRelease(&(*instance));
     }
-    this->Geometries.clear();
+    this->Instances.clear();
 
     // some state that affect everything we draw
     double opacity = property->GetOpacity();
@@ -123,62 +107,69 @@ void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
       // vtkOSPRayPolyDataMapperNode::CellMaterials() and lookup custom materials from discrete LUT.
       // That way we can have glowing Thorium with matte Calcium and reflective Aluminum.
       const unsigned char* ucolor = lut->MapValue(static_cast<unsigned short>(i));
-      auto oMaterial =
-        vtkOSPRayMaterialHelpers::NewMaterial(orn, orn->GetORenderer(), "OBJMaterial");
+      auto oMaterial = vtkOSPRayMaterialHelpers::NewMaterial(orn, orn->GetORenderer(), "obj");
       float diffusef[] = { static_cast<float>(ucolor[0]) / (255.0f),
         static_cast<float>(ucolor[1]) / (255.0f), static_cast<float>(ucolor[2]) / (255.0f) };
-      ospSet3fv(oMaterial, "Kd", diffusef);
-      ospSet3fv(oMaterial, "Ks", specularf);
-      ospSet1f(oMaterial, "Ns", specPower);
-      ospSet1f(oMaterial, "d", opacity);
+      ospSetVec3f(oMaterial, "kd", diffusef[0], diffusef[1], diffusef[2]);
+      ospSetVec3f(oMaterial, "ks", specularf[0], specularf[1], specularf[2]);
+      ospSetFloat(oMaterial, "ns", specPower);
+      ospSetFloat(oMaterial, "d", opacity);
       ospCommit(oMaterial);
       _elementMaterials.push_back(oMaterial);
     }
-    auto elementMaterials = ospNewData(_elementMaterials.size(), OSP_OBJECT, &_elementMaterials[0]);
+    auto elementMaterials =
+      ospNewCopyData1D(&_elementMaterials[0], OSP_OBJECT, _elementMaterials.size());
     ospCommit(elementMaterials);
 
     // now translate the three things we may actually draw into OSPRay calls
     if (mapper->GetRenderAtoms())
     {
-      OSPGeometry atoms;
+      OSPGeometry atoms = ospNewGeometry("sphere");
+      OSPGeometricModel atomsModel = ospNewGeometricModel(atoms);
+      ospRelease(atoms);
 
       const vtkIdType numAtoms = molecule->GetNumberOfAtoms();
       vtkPoints* allPoints = molecule->GetAtomicPositionArray();
-      float* mdata = new float[numAtoms * 5];
-      int* idata = (int*)mdata;
+      std::vector<osp::vec3f> vertices;
+      std::vector<float> radii;
+      std::vector<OSPMaterial> materials;
       vtkUnsignedShortArray* atomicNumbers = molecule->GetAtomicNumberArray();
 
       for (vtkIdType i = 0; i < numAtoms; i++)
       {
-        mdata[i * 5 + 0] = static_cast<float>(allPoints->GetPoint(i)[0]);
-        mdata[i * 5 + 1] = static_cast<float>(allPoints->GetPoint(i)[1]);
-        mdata[i * 5 + 2] = static_cast<float>(allPoints->GetPoint(i)[2]);
+        vertices.emplace_back(osp::vec3f{ static_cast<float>(allPoints->GetPoint(i)[0]),
+          static_cast<float>(allPoints->GetPoint(i)[1]),
+          static_cast<float>(allPoints->GetPoint(i)[2]) });
 
-        mdata[i * 5 + 3] = mapper->GetAtomicRadiusScaleFactor() *
-          mapper->GetPeriodicTable()->GetVDWRadius(atomicNumbers->GetValue(i));
+        radii.emplace_back(mapper->GetAtomicRadiusScaleFactor() *
+          mapper->GetPeriodicTable()->GetVDWRadius(atomicNumbers->GetValue(i)));
 
-        idata[i * 5 + 4] = static_cast<int>(atomicNumbers->GetValue(i)); // index into colors array
+        materials.emplace_back(_elementMaterials[atomicNumbers->GetValue(i)]);
       }
-      OSPData mesh = ospNewData(numAtoms * 5, OSP_FLOAT, &mdata[0]);
-      ospCommit(mesh);
+      OSPData vertData = ospNewCopyData1D(vertices.data(), OSP_VEC3F, numAtoms);
+      ospCommit(vertData);
+      OSPData radiiData = ospNewCopyData1D(radii.data(), OSP_FLOAT, numAtoms);
+      ospCommit(radiiData);
+      OSPData materialsData = ospNewCopyData1D(materials.data(), OSP_MATERIAL, numAtoms);
+      ospCommit(materialsData);
 
-      atoms = ospNewGeometry("spheres");
-      ospSetObject(atoms, "spheres", mesh);
-      ospSet1i(atoms, "bytes_per_sphere", 5 * sizeof(float));
-      ospSet1i(atoms, "offset_center", 0 * sizeof(float));
-      ospSet1i(atoms, "offset_radius", 3 * sizeof(float));
-      ospSet1i(atoms, "offset_materialID", 4 * sizeof(float));
-      ospSetData(atoms, "materialList", elementMaterials);
+      ospSetObject(atoms, "sphere.position", vertData);
+      ospSetObject(atoms, "sphere.radius", radiiData);
+      ospSetObject(atomsModel, "material", materialsData);
 
-      this->Geometries.emplace_back(atoms);
+      this->GeometricModels.emplace_back(atomsModel);
       ospCommit(atoms);
-      ospRelease(mesh);
-      delete[] mdata;
+      ospCommit(atomsModel);
+      ospRelease(vertData);
+      ospRelease(radiiData);
+      ospRelease(materialsData);
     }
 
     if (mapper->GetRenderBonds())
     {
-      OSPGeometry bonds = ospNewGeometry("cylinders");
+      OSPGeometry bonds = ospNewGeometry("curve");
+      OSPGeometricModel bondsModel = ospNewGeometricModel(bonds);
+      ospRelease(bonds);
 
       vtkVector3f pos1, pos2;
       vtkIdType atomIds[2];
@@ -187,13 +178,20 @@ void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
       vtkVector3f bondCenter;
 
       const vtkIdType numBonds = molecule->GetNumberOfBonds();
-      int width = 3 + 3 + 1 + 1; // x0y0x0 x1y1z1 radius coloridx
-      float* mdata = new float[2 * numBonds * width];
-      int* idata = (int*)mdata;
+      std::vector<osp::vec4f> vertsAndRadii;
+      std::vector<OSPMaterial> materials;
+      std::vector<unsigned int> indices;
 
       vtkUnsignedShortArray* atomicNumbers = molecule->GetAtomicNumberArray();
       for (vtkIdType bondInd = 0; bondInd < numBonds; ++bondInd)
       {
+        // each endpoint is doubled because we need to use OSP_BEZIER to vary width
+        indices.push_back(bondInd * 8 + 0);
+        indices.push_back(bondInd * 8 + 4);
+        // indices.push_back(bondInd*4+1);
+        // indices.push_back(bondInd*4+2);
+        // indices.push_back(bondInd*4+3);
+
         vtkBond bond = molecule->GetBond(bondInd);
         pos1 = bond.GetBeginAtom().GetPosition();
         pos2 = bond.GetEndAtom().GetPosition();
@@ -208,63 +206,81 @@ void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
         bondCenter[1] = (pos1[1] + pos2[1]) * 0.5;
         bondCenter[2] = (pos1[2] + pos2[2]) * 0.5;
 
+        auto start = osp::vec4f{ static_cast<float>(pos1.GetX()), static_cast<float>(pos1.GetY()),
+          static_cast<float>(pos1.GetZ()), bondRadius };
+        auto mid =
+          osp::vec4f{ static_cast<float>(bondCenter.GetX()), static_cast<float>(bondCenter.GetY()),
+            static_cast<float>(bondCenter.GetZ()), bondRadius };
+        auto end = osp::vec4f{ static_cast<float>(pos2.GetX()), static_cast<float>(pos2.GetY()),
+          static_cast<float>(pos2.GetZ()), bondRadius };
+
         // tube from atom1 to midpoint
-        mdata[(bondInd * 2 + 0) * width + 0] = static_cast<float>(pos1.GetX());
-        mdata[(bondInd * 2 + 0) * width + 1] = static_cast<float>(pos1.GetY());
-        mdata[(bondInd * 2 + 0) * width + 2] = static_cast<float>(pos1.GetZ());
-        mdata[(bondInd * 2 + 0) * width + 3] = static_cast<float>(bondCenter.GetX());
-        mdata[(bondInd * 2 + 0) * width + 4] = static_cast<float>(bondCenter.GetY());
-        mdata[(bondInd * 2 + 0) * width + 5] = static_cast<float>(bondCenter.GetZ());
-        mdata[(bondInd * 2 + 0) * width + 6] = bondRadius;
-        idata[(bondInd * 2 + 0) * width + 7] = atomicNumbers->GetTuple1(atomIds[0]);
+        vertsAndRadii.emplace_back(start);
+        materials.emplace_back(_elementMaterials[atomicNumbers->GetValue(atomIds[0])]);
+        vertsAndRadii.emplace_back(start);
+        materials.emplace_back(_elementMaterials[atomicNumbers->GetValue(atomIds[0])]);
+        vertsAndRadii.emplace_back(mid);
+        materials.emplace_back(_elementMaterials[atomicNumbers->GetValue(atomIds[0])]);
+        vertsAndRadii.emplace_back(mid);
+        materials.emplace_back(_elementMaterials[atomicNumbers->GetValue(atomIds[0])]);
 
         // tube from midpoint to atom2
-        mdata[(bondInd * 2 + 1) * width + 0] = static_cast<float>(bondCenter.GetX());
-        mdata[(bondInd * 2 + 1) * width + 1] = static_cast<float>(bondCenter.GetY());
-        mdata[(bondInd * 2 + 1) * width + 2] = static_cast<float>(bondCenter.GetZ());
-        mdata[(bondInd * 2 + 1) * width + 3] = static_cast<float>(pos2.GetX());
-        mdata[(bondInd * 2 + 1) * width + 4] = static_cast<float>(pos2.GetY());
-        mdata[(bondInd * 2 + 1) * width + 5] = static_cast<float>(pos2.GetZ());
-        mdata[(bondInd * 2 + 1) * width + 6] = bondRadius;
-        idata[(bondInd * 2 + 1) * width + 7] = atomicNumbers->GetTuple1(atomIds[1]);
+        vertsAndRadii.emplace_back(mid);
+        materials.emplace_back(_elementMaterials[atomicNumbers->GetValue(atomIds[1])]);
+        vertsAndRadii.emplace_back(mid);
+        materials.emplace_back(_elementMaterials[atomicNumbers->GetValue(atomIds[1])]);
+        vertsAndRadii.emplace_back(end);
+        materials.emplace_back(_elementMaterials[atomicNumbers->GetValue(atomIds[1])]);
+        vertsAndRadii.emplace_back(end);
+        materials.emplace_back(_elementMaterials[atomicNumbers->GetValue(atomIds[1])]);
       }
 
-      OSPData _mdata = ospNewData(2 * numBonds * width, OSP_FLOAT, mdata);
-      ospSet1i(bonds, "bytes_per_cylinder", width * sizeof(float));
-      ospSet1i(bonds, "offset_v0", 0);
-      ospSet1i(bonds, "offset_v1", 3 * sizeof(float));
-      ospSet1i(bonds, "offset_radius", 6 * sizeof(float));
-      ospSetData(bonds, "cylinders", _mdata);
+      OSPData vertsAndRadiiData =
+        ospNewCopyData1D(vertsAndRadii.data(), OSP_VEC4F, vertsAndRadii.size());
+      ospCommit(vertsAndRadiiData);
+      ospSetObject(bonds, "vertex.position_radius", vertsAndRadiiData);
+      ospRelease(vertsAndRadiiData);
+
+      OSPData indicesData = ospNewCopyData1D(indices.data(), OSP_UINT, indices.size());
+      ospCommit(indicesData);
+      ospSetObject(bonds, "index", indicesData);
+      ospRelease(indicesData);
 
       if (mapper->GetBondColorMode() == vtkMoleculeMapper::DiscreteByAtom)
       {
-        ospSet1i(bonds, "offset_materialID", 7 * sizeof(float));
-        ospSetData(bonds, "materialList", elementMaterials);
+        OSPData materialData = ospNewCopyData1D(materials.data(), OSP_MATERIAL, 4 * numBonds);
+        ospCommit(materialData);
+        ospSetObject(bondsModel, "material", materialData);
+        ospRelease(materialData);
       }
       else
       {
-        auto oMaterial =
-          vtkOSPRayMaterialHelpers::NewMaterial(orn, orn->GetORenderer(), "OBJMaterial");
+        auto oMaterial = vtkOSPRayMaterialHelpers::NewMaterial(orn, orn->GetORenderer(), "obj");
         unsigned char* vcolor = mapper->GetBondColor();
         float diffusef[] = { static_cast<float>(vcolor[0]) / (255.0f),
           static_cast<float>(vcolor[1]) / (255.0f), static_cast<float>(vcolor[2]) / (255.0f) };
-        ospSet3fv(oMaterial, "Kd", diffusef);
-        ospSet3fv(oMaterial, "Ks", specularf);
-        ospSet1f(oMaterial, "Ns", specPower);
-        ospSet1f(oMaterial, "d", opacity);
+        ospSetVec3f(oMaterial, "kd", diffusef[0], diffusef[1], diffusef[2]);
+        ospSetVec3f(oMaterial, "ks", specularf[0], specularf[1], specularf[2]);
+        ospSetInt(oMaterial, "ns", specPower);
+        ospSetInt(oMaterial, "d", opacity);
         ospCommit(oMaterial);
-        ospSetMaterial(bonds, oMaterial);
+        ospSetObjectAsData(bondsModel, "material", OSP_MATERIAL, oMaterial);
+        ospRelease(oMaterial);
       }
 
-      this->Geometries.emplace_back(bonds);
+      ospSetInt(bonds, "type", OSP_ROUND);
+      ospSetInt(bonds, "basis", OSP_BEZIER);
+
+      this->GeometricModels.emplace_back(bondsModel);
       ospCommit(bonds);
-      ospRelease(_mdata);
-      delete[] mdata;
+      ospCommit(bondsModel);
     }
 
     if (mapper->GetRenderLattice() && molecule->HasLattice())
     {
-      OSPGeometry lattice = ospNewGeometry("cylinders");
+      OSPGeometry lattice = ospNewGeometry("curve");
+      OSPGeometricModel latticeModel = ospNewGeometricModel(lattice);
+      ospRelease(lattice);
 
       vtkVector3d a;
       vtkVector3d b;
@@ -272,7 +288,7 @@ void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
       vtkVector3d origin;
 
       molecule->GetLattice(a, b, c, origin);
-      float tdata[8 * 3];
+      std::vector<osp::vec3f> vertices;
       for (int i = 0; i < 8; ++i)
       {
         vtkVector3d corner;
@@ -303,45 +319,48 @@ void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
             corner = origin + a + b + c;
             break;
         }
-        tdata[i * 3 + 0] = corner.GetData()[0];
-        tdata[i * 3 + 1] = corner.GetData()[1];
-        tdata[i * 3 + 2] = corner.GetData()[2];
+        vertices.emplace_back(osp::vec3f{ static_cast<float>(corner.GetData()[0]),
+          static_cast<float>(corner.GetData()[1]), static_cast<float>(corner.GetData()[2]) });
       }
+      OSPData verticesData = ospNewCopyData1D(vertices.data(), OSP_VEC3F, vertices.size());
+      ospCommit(verticesData);
+      ospSetObject(lattice, "vertex.position", verticesData);
+      ospRelease(verticesData);
 
-      float* mdata = new float[12 * 2 * 3];
-      memcpy(&mdata[0 * 3], &tdata[0 * 3], 3 * sizeof(float));
-      memcpy(&mdata[1 * 3], &tdata[1 * 3], 3 * sizeof(float));
-      memcpy(&mdata[2 * 3], &tdata[1 * 3], 3 * sizeof(float));
-      memcpy(&mdata[3 * 3], &tdata[4 * 3], 3 * sizeof(float));
-      memcpy(&mdata[4 * 3], &tdata[4 * 3], 3 * sizeof(float));
-      memcpy(&mdata[5 * 3], &tdata[2 * 3], 3 * sizeof(float));
-      memcpy(&mdata[6 * 3], &tdata[2 * 3], 3 * sizeof(float));
-      memcpy(&mdata[7 * 3], &tdata[0 * 3], 3 * sizeof(float));
-      memcpy(&mdata[8 * 3], &tdata[0 * 3], 3 * sizeof(float));
-      memcpy(&mdata[9 * 3], &tdata[3 * 3], 3 * sizeof(float));
-      memcpy(&mdata[10 * 3], &tdata[2 * 3], 3 * sizeof(float));
-      memcpy(&mdata[11 * 3], &tdata[6 * 3], 3 * sizeof(float));
-      memcpy(&mdata[12 * 3], &tdata[4 * 3], 3 * sizeof(float));
-      memcpy(&mdata[13 * 3], &tdata[7 * 3], 3 * sizeof(float));
-      memcpy(&mdata[14 * 3], &tdata[1 * 3], 3 * sizeof(float));
-      memcpy(&mdata[15 * 3], &tdata[5 * 3], 3 * sizeof(float));
-      memcpy(&mdata[16 * 3], &tdata[6 * 3], 3 * sizeof(float));
-      memcpy(&mdata[17 * 3], &tdata[3 * 3], 3 * sizeof(float));
-      memcpy(&mdata[18 * 3], &tdata[5 * 3], 3 * sizeof(float));
-      memcpy(&mdata[19 * 3], &tdata[3 * 3], 3 * sizeof(float));
-      memcpy(&mdata[20 * 3], &tdata[5 * 3], 3 * sizeof(float));
-      memcpy(&mdata[21 * 3], &tdata[7 * 3], 3 * sizeof(float));
-      memcpy(&mdata[22 * 3], &tdata[6 * 3], 3 * sizeof(float));
-      memcpy(&mdata[23 * 3], &tdata[7 * 3], 3 * sizeof(float));
-
-      OSPData _mdata = ospNewData(12 * 2 * 3, OSP_FLOAT, mdata);
-      ospSet1i(lattice, "bytes_per_cylinder", 6 * sizeof(float));
-      ospSet1i(lattice, "offset_v0", 0);
-      ospSet1i(lattice, "offset_v1", 3 * sizeof(float));
+      std::vector<unsigned int> indices;
+      indices.emplace_back(0);
+      indices.emplace_back(1);
+      indices.emplace_back(1);
+      indices.emplace_back(4);
+      indices.emplace_back(4);
+      indices.emplace_back(2);
+      indices.emplace_back(2);
+      indices.emplace_back(0);
+      indices.emplace_back(0);
+      indices.emplace_back(3);
+      indices.emplace_back(2);
+      indices.emplace_back(6);
+      indices.emplace_back(4);
+      indices.emplace_back(7);
+      indices.emplace_back(1);
+      indices.emplace_back(5);
+      indices.emplace_back(6);
+      indices.emplace_back(5);
+      indices.emplace_back(3);
+      indices.emplace_back(5);
+      indices.emplace_back(3);
+      indices.emplace_back(5);
+      indices.emplace_back(7);
+      indices.emplace_back(6);
+      indices.emplace_back(7);
+      OSPData indicesData = ospNewCopyData1D(indices.data(), OSP_UINT, indices.size());
+      ospCommit(indicesData);
+      ospSetObject(lattice, "index", indicesData);
+      ospRelease(indicesData);
 
       double length = mapper->GetLength();
       double lineWidth = length / 1000.0 * property->GetLineWidth();
-      ospSet1f(lattice, "radius", lineWidth);
+      ospSetFloat(lattice, "radius", lineWidth);
 
       float ocolor[4];
       unsigned char* vcolor = mapper->GetLatticeColor();
@@ -349,23 +368,37 @@ void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
       ocolor[1] = vcolor[1] / 255.0;
       ocolor[2] = vcolor[2] / 255.0;
       ocolor[3] = opacity;
-      ospSet3fv(lattice, "color", ocolor);
-      ospCommit(_mdata);
+      ospSetVec3f(latticeModel, "color", ocolor[0], ocolor[1], ocolor[2]);
 
-      ospSetData(lattice, "cylinders", _mdata);
+      ospSetInt(lattice, "type", OSP_ROUND);
+      ospSetInt(lattice, "basis", OSP_LINEAR);
+
+      this->GeometricModels.emplace_back(latticeModel);
       ospCommit(lattice);
-
-      this->Geometries.emplace_back(lattice);
-
-      ospRelease(_mdata);
-      delete[] mdata;
+      ospCommit(latticeModel);
     }
 
     this->BuildTime.Modified();
   }
 
-  for (auto g : this->Geometries)
+  for (auto g : this->GeometricModels)
   {
-    ospAddGeometry(oModel, g);
+    OSPGroup group = ospNewGroup();
+    OSPInstance instance = ospNewInstance(group);
+    ospCommit(instance);
+    ospRelease(group);
+    OSPData data = ospNewCopyData1D(&g, OSP_GEOMETRIC_MODEL, 1);
+    ospRelease(&(*g));
+    ospCommit(data);
+    ospSetObject(group, "geometry", data);
+    ospCommit(group);
+    ospRelease(data);
+    this->Instances.emplace_back(instance);
+  }
+  this->GeometricModels.clear();
+
+  for (auto instance : this->Instances)
+  {
+    orn->Instances.emplace_back(instance);
   }
 }
