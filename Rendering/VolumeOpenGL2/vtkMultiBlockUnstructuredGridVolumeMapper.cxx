@@ -81,7 +81,7 @@ void vtkMultiBlockUnstructuredGridVolumeMapper::Render(vtkRenderer* ren, vtkVolu
   if (dataObj->GetMTime() != this->BlockLoadingTime)
   {
     vtkDebugMacro("Reloading data blocks!");
-    this->LoadDataSet(ren, vol);
+    this->LoadDataSet();
     this->BlockLoadingTime = dataObj->GetMTime();
   }
 
@@ -162,14 +162,14 @@ vtkDataObjectTree* vtkMultiBlockUnstructuredGridVolumeMapper::GetDataObjectTreeI
 }
 
 //------------------------------------------------------------------------------
-void vtkMultiBlockUnstructuredGridVolumeMapper::LoadDataSet(vtkRenderer* ren, vtkVolume* vol)
+void vtkMultiBlockUnstructuredGridVolumeMapper::LoadDataSet()
 {
   this->ClearMappers();
 
   auto input = this->GetDataObjectInput();
   if (auto inputTree = vtkDataObjectTree::SafeDownCast(input))
   {
-    this->CreateMappers(inputTree, ren, vol);
+    this->CreateMappers(inputTree);
   }
   else if (auto inputGrid = vtkUnstructuredGrid::SafeDownCast(input))
   {
@@ -185,15 +185,13 @@ void vtkMultiBlockUnstructuredGridVolumeMapper::LoadDataSet(vtkRenderer* ren, vt
 }
 
 //------------------------------------------------------------------------------
-void vtkMultiBlockUnstructuredGridVolumeMapper::CreateMappers(
-  vtkDataObjectTree* input, vtkRenderer* ren, vtkVolume* vol)
+void vtkMultiBlockUnstructuredGridVolumeMapper::CreateMappers(vtkDataObjectTree* input)
 {
   // Hierarchical case
   vtkCompositeDataIterator* it = input->NewIterator();
   it->GoToFirstItem();
 
   bool warnedOnce = false;
-  bool allBlocksLoaded = true;
   while (!it->IsDoneWithTraversal())
   {
     vtkUnstructuredGrid* currentGrid =

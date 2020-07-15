@@ -109,7 +109,7 @@ private:
    * (vtkUnstructuredGrid blocks). References are kept in a vector which is sorted back-to-front
    * on every render call.
    */
-  void LoadDataSet(vtkRenderer* ren, vtkVolume* vol);
+  void LoadDataSet();
 
   /**
    * Creates a mapper per data block and tries to load the data. If allocating
@@ -119,7 +119,7 @@ private:
    * keep using the Mappers vector for sorting without having to manage their
    * data.
    */
-  void CreateMappers(vtkDataObjectTree* input, vtkRenderer* ren, vtkVolume* vol);
+  void CreateMappers(vtkDataObjectTree* input);
 
   vtkDataObjectTree* GetDataObjectTreeInput();
 
