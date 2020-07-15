@@ -1,5 +1,6 @@
 set(classes
   vtkMultiBlockVolumeMapper
+  vtkMultiBlockUnstructuredGridVolumeMapper
   vtkOpenGLGPUVolumeRayCastMapper
   vtkOpenGLProjectedTetrahedraMapper
   vtkOpenGLRayCastImageDisplayHelper

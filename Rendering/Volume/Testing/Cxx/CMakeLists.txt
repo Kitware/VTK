@@ -77,6 +77,7 @@ set (VolumeCxxTests
   TestMinIntensityRendering.cxx
   TestMultiBlockMapper.cxx
   TestMultiBlockMapperRectilinearGrid.cxx
+  TestMultiBlockUnstructuredGridVolumeMapper.cxx
   TestProjectedTetrahedra.cxx
   TestProjectedTetrahedraOffscreen.cxx
   TestProjectedTetrahedraTransform.cxx

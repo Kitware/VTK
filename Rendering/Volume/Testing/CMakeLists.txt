@@ -1,4 +1,5 @@
 vtk_module_test_data(
+  Data/can.ex2
   Data/HeadMRVolume.mhd
   Data/MagnitudeImage_256x256x148
   Data/headsq/,REGEX:.*
