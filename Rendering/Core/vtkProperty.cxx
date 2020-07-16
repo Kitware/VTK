@@ -76,6 +76,8 @@ vtkProperty::vtkProperty()
   this->OcclusionStrength = 1.0;
   this->Metallic = 0.0;
   this->Roughness = 0.5;
+  this->Anisotropy = 0.0;
+  this->AnisotropyRotation = 0.0;
   this->Ambient = 0.0;
   this->Diffuse = 1.0;
   this->Specular = 0.0;
@@ -143,6 +145,12 @@ void vtkProperty::DeepCopy(vtkProperty* p)
     this->SetRenderPointsAsSpheres(p->GetRenderPointsAsSpheres());
     this->SetRenderLinesAsTubes(p->GetRenderLinesAsTubes());
     this->SetShading(p->GetShading());
+    this->SetNormalScale(p->GetNormalScale());
+    this->SetOcclusionStrength(p->GetOcclusionStrength());
+    this->SetMetallic(p->GetMetallic());
+    this->SetRoughness(p->GetRoughness());
+    this->SetAnisotropy(p->GetAnisotropy());
+    this->SetAnisotropyRotation(p->GetAnisotropyRotation());
 
     this->RemoveAllTextures();
     auto iter = p->Textures.begin();
@@ -253,8 +261,9 @@ void vtkProperty::SetTexture(const char* name, vtkTexture* tex)
     vtkErrorMacro("The " << name << " texture is not in sRGB color space.");
     return;
   }
-  if ((strcmp(name, "materialTex") == 0 || strcmp(name, "normalTex") == 0) &&
-    tex->GetUseSRGBColorSpace())
+  const bool texNeedLinear = strcmp(name, "materialTex") == 0 || strcmp(name, "normalTex") == 0 ||
+    strcmp(name, "anisotropyTex") == 0;
+  if (texNeedLinear && tex->GetUseSRGBColorSpace())
   {
     vtkErrorMacro("The " << name << " texture is not in linear color space.");
     return;

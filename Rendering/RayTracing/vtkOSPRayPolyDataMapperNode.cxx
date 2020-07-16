@@ -459,10 +459,10 @@ OSPGeometricModel RenderAsTriangles(OSPData vertices, std::vector<unsigned int>&
   std::vector<unsigned int>& rIndexArray, bool useCustomMaterial, OSPMaterial actorMaterial,
   int numNormals, const std::vector<osp::vec3f>& normals, int interpolationType,
   vtkImageData* vColorTextureMap, vtkImageData* vNormalTextureMap,
-  vtkImageData* vMaterialTextureMap, int numTextureCoordinates, float* textureCoordinates,
-  const osp::vec4f& textureTransform, int numCellMaterials, std::vector<OSPMaterial>& CellMaterials,
-  int numPointColors, osp::vec4f* PointColors, int numPointValueTextureCoords,
-  float* pointValueTextureCoords, RTW::Backend* backend)
+  vtkImageData* vMaterialTextureMap, vtkImageData* vAnisotropyTextureMap, int numTextureCoordinates,
+  float* textureCoordinates, const osp::vec4f& textureTransform, int numCellMaterials,
+  std::vector<OSPMaterial>& CellMaterials, int numPointColors, osp::vec4f* PointColors,
+  int numPointValueTextureCoords, float* pointValueTextureCoords, RTW::Backend* backend)
 {
   if (backend == nullptr)
     return OSPGeometry();
@@ -561,34 +561,70 @@ OSPGeometricModel RenderAsTriangles(OSPData vertices, std::vector<unsigned int>&
       ospCommit(actorMaterial);
     }
 
-    if (interpolationType == VTK_PBR && vMaterialTextureMap && _hastm)
+    if (interpolationType == VTK_PBR && _hastm)
     {
-      vtkNew<vtkImageExtractComponents> extractRoughness;
-      extractRoughness->SetInputData(vMaterialTextureMap);
-      extractRoughness->SetComponents(1);
-      extractRoughness->Update();
 
-      vtkNew<vtkImageExtractComponents> extractMetallic;
-      extractMetallic->SetInputData(vMaterialTextureMap);
-      extractMetallic->SetComponents(2);
-      extractMetallic->Update();
+      if (vMaterialTextureMap)
+      {
+        vtkNew<vtkImageExtractComponents> extractRoughness;
+        extractRoughness->SetInputData(vMaterialTextureMap);
+        extractRoughness->SetComponents(1);
+        extractRoughness->Update();
 
-      vtkImageData* vRoughnessTextureMap = extractRoughness->GetOutput();
-      vtkImageData* vMetallicTextureMap = extractMetallic->GetOutput();
+        vtkNew<vtkImageExtractComponents> extractMetallic;
+        extractMetallic->SetInputData(vMaterialTextureMap);
+        extractMetallic->SetComponents(2);
+        extractMetallic->Update();
 
-      OSPTexture t2dR = vtkOSPRayMaterialHelpers::VTKToOSPTexture(backend, vRoughnessTextureMap);
-      ospSetObject(actorMaterial, "roughnessMap", t2dR);
-      ospSetVec4f(actorMaterial, "roughnessMap.transform", textureTransform.x, textureTransform.y,
-        textureTransform.z, textureTransform.w);
-      ospRelease(t2dR);
+        vtkImageData* vRoughnessTextureMap = extractRoughness->GetOutput();
+        vtkImageData* vMetallicTextureMap = extractMetallic->GetOutput();
 
-      OSPTexture t2dM = vtkOSPRayMaterialHelpers::VTKToOSPTexture(backend, vMetallicTextureMap);
-      ospSetObject(actorMaterial, "metallicMap", t2dM);
-      ospSetVec4f(actorMaterial, "metallicMap.transform", textureTransform.x, textureTransform.y,
-        textureTransform.z, textureTransform.w);
-      ospRelease(t2dM);
+        OSPTexture t2dR = vtkOSPRayMaterialHelpers::VTKToOSPTexture(backend, vRoughnessTextureMap);
+        ospSetObject(actorMaterial, "roughnessMap", t2dR);
+        ospSetVec4f(actorMaterial, "roughnessMap.transform", textureTransform.x, textureTransform.y,
+          textureTransform.z, textureTransform.w);
+        ospRelease(t2dR);
 
-      ospCommit(actorMaterial);
+        OSPTexture t2dM = vtkOSPRayMaterialHelpers::VTKToOSPTexture(backend, vMetallicTextureMap);
+        ospSetObject(actorMaterial, "metallicMap", t2dM);
+        ospSetVec4f(actorMaterial, "metallicMap.transform", textureTransform.x, textureTransform.y,
+          textureTransform.z, textureTransform.w);
+        ospRelease(t2dM);
+
+        ospCommit(actorMaterial);
+      }
+
+      if (vAnisotropyTextureMap)
+      {
+        vtkNew<vtkImageExtractComponents> extractAnisotropyValue;
+        extractAnisotropyValue->SetInputData(vAnisotropyTextureMap);
+        extractAnisotropyValue->SetComponents(0);
+        extractAnisotropyValue->Update();
+
+        vtkNew<vtkImageExtractComponents> extractAnisotropyRotation;
+        extractAnisotropyRotation->SetInputData(vAnisotropyTextureMap);
+        extractAnisotropyRotation->SetComponents(1);
+        extractAnisotropyRotation->Update();
+
+        vtkImageData* vAnisotropyValueTextureMap = extractAnisotropyValue->GetOutput();
+        vtkImageData* vAnisotropyRotationTextureMap = extractAnisotropyRotation->GetOutput();
+
+        OSPTexture t2dA =
+          vtkOSPRayMaterialHelpers::VTKToOSPTexture(backend, vAnisotropyValueTextureMap);
+        ospSetObject(actorMaterial, "anisotropyMap", t2dA);
+        ospSetVec4f(actorMaterial, "anisotropyMap.transform", textureTransform.x,
+          textureTransform.y, textureTransform.z, textureTransform.w);
+        ospRelease(t2dA);
+
+        OSPTexture t2dR =
+          vtkOSPRayMaterialHelpers::VTKToOSPTexture(backend, vAnisotropyRotationTextureMap);
+        ospSetObject(actorMaterial, "rotationMap", t2dR);
+        ospSetVec4f(actorMaterial, "rotationMap.transform", textureTransform.x, textureTransform.y,
+          textureTransform.z, textureTransform.w);
+        ospRelease(t2dR);
+
+        ospCommit(actorMaterial);
+      }
     }
 
     if (vColorTextureMap && _hastm)
@@ -702,6 +738,8 @@ OSPMaterial MakeActorMaterial(vtkOSPRayRendererNode* orn, OSPRenderer oRenderer,
       static_cast<float>(property->GetEdgeTint()[1]),
       static_cast<float>(property->GetEdgeTint()[2]) };
     ospSetVec3f(oMaterial, "edgeColor", edgeColor[0], edgeColor[1], edgeColor[2]);
+    ospSetFloat(oMaterial, "anisotropy", static_cast<float>(property->GetAnisotropy()));
+    ospSetFloat(oMaterial, "rotation", static_cast<float>(property->GetAnisotropyRotation()));
   }
   else
   {
@@ -899,6 +937,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
   vtkImageData* vColorTextureMap = nullptr;
   vtkImageData* vNormalTextureMap = nullptr;
   vtkImageData* vMaterialTextureMap = nullptr;
+  vtkImageData* vAnisotropyTextureMap = nullptr;
 
   if (texture)
   {
@@ -1123,14 +1162,20 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
           {
             vMaterialTextureMap = texture->GetInput();
           }
+
+          texture = property->GetTexture("anisotropyTex");
+          if (texture)
+          {
+            vAnisotropyTextureMap = texture->GetInput();
+          }
         }
 
         this->GeometricModels.emplace_back(vtkosp::RenderAsTriangles(position, conn.triangle_index,
           conn.triangle_reverse, useCustomMaterial, oMaterial, numNormals, normals,
           property->GetInterpolation(), vColorTextureMap, vNormalTextureMap, vMaterialTextureMap,
-          numTextureCoordinates, (float*)textureCoordinates.data(), texTransform, numCellMaterials,
-          cellMaterials, numPointColors, pointColors.data(), numPointValueTextureCoords,
-          (float*)pointValueTextureCoords.data(), backend));
+          vAnisotropyTextureMap, numTextureCoordinates, (float*)textureCoordinates.data(),
+          texTransform, numCellMaterials, cellMaterials, numPointColors, pointColors.data(),
+          numPointValueTextureCoords, (float*)pointValueTextureCoords.data(), backend));
       }
     }
   }
@@ -1207,9 +1252,9 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
         this->GeometricModels.emplace_back(vtkosp::RenderAsTriangles(position, conn.strip_index,
           conn.strip_reverse, useCustomMaterial, oMaterial, numNormals, normals,
           property->GetInterpolation(), vColorTextureMap, vNormalTextureMap, vMaterialTextureMap,
-          numTextureCoordinates, (float*)textureCoordinates.data(), texTransform, numCellMaterials,
-          cellMaterials, numPointColors, pointColors.data(), numPointValueTextureCoords,
-          (float*)pointValueTextureCoords.data(), backend));
+          vAnisotropyTextureMap, numTextureCoordinates, (float*)textureCoordinates.data(),
+          texTransform, numCellMaterials, cellMaterials, numPointColors, pointColors.data(),
+          numPointValueTextureCoords, (float*)pointValueTextureCoords.data(), backend));
       }
     }
   }

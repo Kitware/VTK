@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestPBRMapping.cxx
+  Module:    TestPBRAnisotropy.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,13 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// This test covers the PBR Interpolation shading
-// It renders a cube with custom texture mapping
+// This test covers the PBR Anisotropy feature
+// It renders spheres with different anisotropy values
 
 #include "vtkActor.h"
 #include "vtkActorCollection.h"
 #include "vtkCamera.h"
-#include "vtkCubeSource.h"
 #include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkImageData.h"
 #include "vtkImageFlip.h"
@@ -31,7 +30,6 @@
 #include "vtkOpenGLSkybox.h"
 #include "vtkOpenGLTexture.h"
 #include "vtkPBRIrradianceTexture.h"
-#include "vtkPBRLUTTexture.h"
 #include "vtkPBRPrefilterTexture.h"
 #include "vtkPNGReader.h"
 #include "vtkPolyDataTangents.h"
@@ -40,21 +38,15 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRendererCollection.h"
+#include "vtkSphereSource.h"
 #include "vtkTestUtilities.h"
 #include "vtkTexture.h"
-#include "vtkTriangleFilter.h"
+#include "vtkTextureMapToSphere.h"
 
-//------------------------------------------------------------------------------
-int TestPBRMapping(int argc, char* argv[])
+//----------------------------------------------------------------------------
+int TestPBRAnisotropy(int argc, char* argv[])
 {
   vtkNew<vtkOpenGLRenderer> renderer;
-  renderer->AutomaticLightCreationOff();
-
-  vtkNew<vtkLight> light;
-  light->SetPosition(2.0, 0.0, 2.0);
-  light->SetFocalPoint(0.0, 0.0, 0.0);
-
-  renderer->AddLight(light);
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetSize(600, 600);
@@ -65,6 +57,7 @@ int TestPBRMapping(int argc, char* argv[])
 
   vtkSmartPointer<vtkPBRIrradianceTexture> irradiance = renderer->GetEnvMapIrradiance();
   irradiance->SetIrradianceStep(0.3);
+  renderer->UseSphericalHarmonicsOff();
 
   vtkNew<vtkOpenGLTexture> textureCubemap;
   textureCubemap->CubeMapOn();
@@ -89,77 +82,67 @@ int TestPBRMapping(int argc, char* argv[])
   renderer->SetEnvironmentTexture(textureCubemap);
   renderer->UseImageBasedLightingOn();
 
-  vtkNew<vtkCubeSource> cube;
+  vtkNew<vtkSphereSource> sphere;
+  sphere->SetThetaResolution(75);
+  sphere->SetPhiResolution(75);
 
-  vtkNew<vtkTriangleFilter> triangulation;
-  triangulation->SetInputConnection(cube->GetOutputPort());
+  vtkNew<vtkTextureMapToSphere> textureMap;
+  textureMap->SetInputConnection(sphere->GetOutputPort());
+  textureMap->PreventSeamOff();
 
   vtkNew<vtkPolyDataTangents> tangents;
-  tangents->SetInputConnection(triangulation->GetOutputPort());
+  tangents->SetInputConnection(textureMap->GetOutputPort());
 
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(tangents->GetOutputPort());
 
-  vtkNew<vtkPNGReader> materialReader;
-  char* matname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vtk_Material.png");
-  materialReader->SetFileName(matname);
-  delete[] matname;
-
-  vtkNew<vtkTexture> material;
-  material->InterpolateOn();
-  material->SetInputConnection(materialReader->GetOutputPort());
-
-  vtkNew<vtkPNGReader> albedoReader;
-  char* colname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vtk_Base_Color.png");
-  albedoReader->SetFileName(colname);
-  delete[] colname;
-
-  vtkNew<vtkTexture> albedo;
-  albedo->UseSRGBColorSpaceOn();
-  albedo->InterpolateOn();
-  albedo->SetInputConnection(albedoReader->GetOutputPort());
-
-  vtkNew<vtkPNGReader> normalReader;
-  char* normname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vtk_Normal.png");
-  normalReader->SetFileName(normname);
-  delete[] normname;
-
-  vtkNew<vtkTexture> normal;
-  normal->InterpolateOn();
-  normal->SetInputConnection(normalReader->GetOutputPort());
-
-  vtkNew<vtkPNGReader> anisotropyReader;
-  char* anisotropyname =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vtk_Anisotropy.png");
-  anisotropyReader->SetFileName(anisotropyname);
-  delete[] anisotropyname;
-
-  vtkNew<vtkTexture> anisotropy;
-  anisotropy->InterpolateOn();
-  anisotropy->SetInputConnection(anisotropyReader->GetOutputPort());
-
   vtkNew<vtkActor> actor;
-  actor->SetOrientation(0.0, 25.0, 0.0);
   actor->SetMapper(mapper);
   actor->GetProperty()->SetInterpolationToPBR();
 
-  // set metallic, roughness, anisotropy and anisotropyRotation
-  // to 1.0 as they act as multipliers with texture value
-  actor->GetProperty()->SetMetallic(1.0);
-  actor->GetProperty()->SetRoughness(1.0);
-  actor->GetProperty()->SetAnisotropy(1.0);
-  actor->GetProperty()->SetAnisotropyRotation(1.0);
+  for (int i = 0; i < 6; i++)
+  {
+    vtkNew<vtkActor> actorSphere;
+    actorSphere->SetPosition(i, 0.0, 0.0);
+    actorSphere->RotateX(20);
+    actorSphere->RotateY(20);
+    actorSphere->SetMapper(mapper);
+    actorSphere->GetProperty()->SetInterpolationToPBR();
+    actorSphere->GetProperty()->SetMetallic(1.0);
+    actorSphere->GetProperty()->SetAnisotropy(1.0);
+    actorSphere->GetProperty()->SetRoughness(i / 5.0);
+    renderer->AddActor(actorSphere);
+  }
 
-  actor->GetProperty()->SetBaseColorTexture(albedo);
-  actor->GetProperty()->SetORMTexture(material);
-  actor->GetProperty()->SetNormalTexture(normal);
-  actor->GetProperty()->SetAnisotropyTexture(anisotropy);
+  for (int i = 0; i < 6; i++)
+  {
+    vtkNew<vtkActor> actorSphere;
+    actorSphere->SetPosition(i, 1.0, 0.0);
+    actorSphere->RotateX(20);
+    actorSphere->RotateY(20);
+    actorSphere->SetMapper(mapper);
+    actorSphere->GetProperty()->SetInterpolationToPBR();
+    actorSphere->GetProperty()->SetMetallic(1.0);
+    actorSphere->GetProperty()->SetRoughness(0.1);
+    actorSphere->GetProperty()->SetAnisotropy(i / 5.0);
+    renderer->AddActor(actorSphere);
+  }
 
-  renderer->AddActor(actor);
+  for (int i = 0; i < 6; i++)
+  {
+    vtkNew<vtkActor> actorSphere;
+    actorSphere->SetPosition(i, 2.0, 0.0);
+    actorSphere->RotateX(20);
+    actorSphere->RotateY(20);
+    actorSphere->SetMapper(mapper);
+    actorSphere->GetProperty()->SetInterpolationToPBR();
+    actorSphere->GetProperty()->SetMetallic(1.0);
+    actorSphere->GetProperty()->SetRoughness(0.1);
+    actorSphere->GetProperty()->SetAnisotropy(1.0);
+    actorSphere->GetProperty()->SetAnisotropyRotation(i / 5.0);
+    renderer->AddActor(actorSphere);
+  }
 
-  renWin->Render();
-
-  renderer->GetActiveCamera()->Zoom(1.5);
   renWin->Render();
 
   int retVal = vtkRegressionTestImage(renWin);

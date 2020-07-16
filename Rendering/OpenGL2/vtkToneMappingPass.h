@@ -139,7 +139,7 @@ public:
   //@{
   /**
    * Maximum HDR input that is not clipped.
-   * Defalut is 11.0785
+   * Default is 11.0785
    */
   vtkSetClampMacro(HdrMax, float, 1.f, VTK_FLOAT_MAX);
   vtkGetMacro(HdrMax, float);
