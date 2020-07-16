@@ -22,7 +22,7 @@
 
 #include <vector> // For DataBlocks
 
-#include "vtkRenderingVolumeModule.h" // For export macro
+#include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 #include "vtkUnstructuredGridVolumeMapper.h"
 
 class vtkDataObjectTree;
@@ -32,7 +32,7 @@ class vtkUnstructuredGrid;
 class vtkRenderWindow;
 class vtkProjectedTetrahedraMapper;
 
-class VTKRENDERINGVOLUME_EXPORT vtkMultiBlockUnstructuredGridVolumeMapper
+class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkMultiBlockUnstructuredGridVolumeMapper
   : public vtkUnstructuredGridVolumeMapper
 {
 public:
