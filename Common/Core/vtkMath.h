@@ -775,7 +775,7 @@ public:
     class LayoutT1 = vtkMatrixUtilities::Layout::Identity,
     class LayoutT2 = vtkMatrixUtilities::Layout::Identity, class MatrixT1, class MatrixT2,
     class MatrixT3>
-  static void MultiplyMatrix(const MatrixT1& M1, const MatrixT2& M2, MatrixT3& M3)
+  static void MultiplyMatrix(const MatrixT1& M1, const MatrixT2& M2, MatrixT3&& M3)
   {
     vtkMathPrivate::MultiplyMatrix<RowsT, MidDimT, ColsT, LayoutT1, LayoutT2>::Compute(M1, M2, M3);
   }
@@ -802,7 +802,7 @@ public:
    */
   template <int RowsT, int ColsT, class LayoutT = vtkMatrixUtilities::Layout::Identity,
     class MatrixT, class VectorT1, class VectorT2>
-  static void MultiplyMatrixWithVector(const MatrixT& M, const VectorT1& X, VectorT2& Y)
+  static void MultiplyMatrixWithVector(const MatrixT& M, const VectorT1& X, VectorT2&& Y)
   {
     vtkMathPrivate::MultiplyMatrix<RowsT, ColsT, 1, LayoutT>::Compute(M, X, Y);
   }
@@ -859,7 +859,7 @@ public:
    */
   template <int SizeT, class LayoutT = vtkMatrixUtilities::Layout::Identity, class MatrixT1,
     class MatrixT2>
-  static void InvertMatrix(const MatrixT1& M1, MatrixT2& M2)
+  static void InvertMatrix(const MatrixT1& M1, MatrixT2&& M2)
   {
     vtkMathPrivate::InvertMatrix<SizeT, LayoutT>::Compute(M1, M2);
   }
