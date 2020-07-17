@@ -32,6 +32,7 @@
 #include <vtkPointData.h>
 #include <vtkPoints.h>
 #include <vtkPolyData.h>
+#include <vtkPolyLine.h>
 #include <vtkProbeFilter.h>
 #include <vtkQuad.h>
 #include <vtkRegularPolygonSource.h>
@@ -517,49 +518,6 @@ int vtkVectorFieldTopology::ComputeSeparatrices(vtkSmartPointer<vtkPolyData> cri
 
             if (streamTracer->GetOutput()->GetNumberOfPoints() > 0)
             {
-              // close gap to the critical point at the end
-              int closestCriticalPointToEnd = 0;
-              double closestDistance[3];
-              vtkMath::Subtract(streamTracer->GetOutput()->GetPoint(
-                                  streamTracer->GetOutput()->GetNumberOfPoints() - 1),
-                criticalPoints->GetPoint(closestCriticalPointToEnd), closestDistance);
-              double currentDistance[3];
-              for (int j = 0; j < criticalPoints->GetNumberOfPoints(); j++)
-              {
-                vtkMath::Subtract(streamTracer->GetOutput()->GetPoint(
-                                    streamTracer->GetOutput()->GetNumberOfPoints() - 1),
-                  criticalPoints->GetPoint(j), currentDistance);
-                if (vtkMath::Norm(currentDistance) < vtkMath::Norm(closestDistance))
-                {
-                  closestCriticalPointToEnd = j;
-                  vtkMath::Subtract(streamTracer->GetOutput()->GetPoint(
-                                      streamTracer->GetOutput()->GetNumberOfPoints() - 1),
-                    criticalPoints->GetPoint(closestCriticalPointToEnd), closestDistance);
-                }
-              }
-
-              if (vtkMath::Norm(closestDistance) < dist)
-              {
-                streamTracer->GetOutput()->GetPoints()->InsertNextPoint(
-                  criticalPoints->GetPoint(closestCriticalPointToEnd));
-                for (int j = 0; j < streamTracer->GetOutput()->GetPointData()->GetNumberOfArrays();
-                     j++)
-                {
-                  streamTracer->GetOutput()->GetPointData()->GetArray(j)->InsertNextTuple(
-                    streamTracer->GetOutput()->GetPointData()->GetArray(j)->GetTuple(0));
-                }
-                vtkNew<vtkLine> line;
-                line->GetPointIds()->SetId(0, streamTracer->GetOutput()->GetNumberOfPoints() - 1);
-                line->GetPointIds()->SetId(1, streamTracer->GetOutput()->GetNumberOfPoints() - 2);
-                streamTracer->GetOutput()->GetLines()->InsertNextCell(line);
-                for (int j = 0; j < streamTracer->GetOutput()->GetCellData()->GetNumberOfArrays();
-                     j++)
-                {
-                  streamTracer->GetOutput()->GetCellData()->GetArray(j)->InsertNextTuple(
-                    streamTracer->GetOutput()->GetCellData()->GetArray(j)->GetTuple(0));
-                }
-              }
-
               // close gap to the critical point at the beginning
               streamTracer->GetOutput()->GetPoints()->InsertNextPoint(
                 criticalPoints->GetPoint(pointId));
@@ -569,16 +527,79 @@ int vtkVectorFieldTopology::ComputeSeparatrices(vtkSmartPointer<vtkPolyData> cri
                 streamTracer->GetOutput()->GetPointData()->GetArray(j)->InsertNextTuple(
                   streamTracer->GetOutput()->GetPointData()->GetArray(j)->GetTuple(0));
               }
-              vtkNew<vtkLine> line;
-              line->GetPointIds()->SetId(0, streamTracer->GetOutput()->GetNumberOfPoints() - 1);
-              line->GetPointIds()->SetId(1, 0);
-              streamTracer->GetOutput()->GetLines()->InsertNextCell(line);
-              for (int j = 0; j < streamTracer->GetOutput()->GetCellData()->GetNumberOfArrays();
-                   j++)
+
+              // this polyline with the 2 new points will replace the old polyline
+              vtkSmartPointer<vtkPolyLine> polyLine = vtkSmartPointer<vtkPolyLine>::New();
+              polyLine->GetPointIds()->SetNumberOfIds(
+                streamTracer->GetOutput()->GetNumberOfPoints());
+              polyLine->GetPointIds()->SetId(0, streamTracer->GetOutput()->GetNumberOfPoints() - 1);
+              for (int k = 1; k < streamTracer->GetOutput()->GetNumberOfPoints(); k++)
               {
-                streamTracer->GetOutput()->GetCellData()->GetArray(j)->InsertNextTuple(
-                  streamTracer->GetOutput()->GetCellData()->GetArray(j)->GetTuple(0));
+                polyLine->GetPointIds()->SetId(k, k - 1);
               }
+
+              // close gap to the critical point at the end
+              int closestCriticalPointToEnd = 0;
+              double closestDistance[3];
+              vtkMath::Subtract(streamTracer->GetOutput()->GetPoint(
+                                  streamTracer->GetOutput()->GetNumberOfPoints() - 2),
+                criticalPoints->GetPoint(closestCriticalPointToEnd), closestDistance);
+              double currentDistance[3];
+
+              // find closest critical point to endpoint
+              for (int j = 0; j < criticalPoints->GetNumberOfPoints(); j++)
+              {
+                vtkMath::Subtract(streamTracer->GetOutput()->GetPoint(
+                                    streamTracer->GetOutput()->GetNumberOfPoints() - 2),
+                  criticalPoints->GetPoint(j), currentDistance);
+                if (vtkMath::Norm(currentDistance) < vtkMath::Norm(closestDistance))
+                {
+                  closestCriticalPointToEnd = j;
+                  for (int d = 0; d < 3; d++)
+                  {
+                    closestDistance[d] = currentDistance[d];
+                  }
+                }
+              }
+
+              if (vtkMath::Norm(closestDistance) < dist)
+              {
+                // find closest point on streamline to that critical point to avoid self
+                // intersection
+                int firstClosePointToCriticalPoint = 0;
+                for (int j = 0; j < streamTracer->GetOutput()->GetNumberOfPoints(); j++)
+                {
+                  vtkMath::Subtract(streamTracer->GetOutput()->GetPoint(j),
+                    criticalPoints->GetPoint(closestCriticalPointToEnd), currentDistance);
+                  if (vtkMath::Norm(currentDistance) < dist)
+                  {
+                    firstClosePointToCriticalPoint = j;
+                    for (int d = 0; d < 3; d++)
+                    {
+                      closestDistance[d] = currentDistance[d];
+                    }
+                    break;
+                  }
+                }
+
+                // insert new point
+                streamTracer->GetOutput()->GetPoints()->InsertNextPoint(
+                  criticalPoints->GetPoint(closestCriticalPointToEnd));
+                for (int j = 0; j < streamTracer->GetOutput()->GetPointData()->GetNumberOfArrays();
+                     j++)
+                {
+                  streamTracer->GetOutput()->GetPointData()->GetArray(j)->InsertNextTuple(
+                    streamTracer->GetOutput()->GetPointData()->GetArray(j)->GetTuple(0));
+                }
+
+                // remove superfluous lines in the tail and connect to critical point instead
+                polyLine->GetPointIds()->SetNumberOfIds(firstClosePointToCriticalPoint + 2);
+                polyLine->GetPointIds()->SetId(firstClosePointToCriticalPoint + 1,
+                  streamTracer->GetOutput()->GetNumberOfPoints() - 1);
+              }
+              vtkSmartPointer<vtkCellArray> cells = vtkSmartPointer<vtkCellArray>::New();
+              cells->InsertNextCell(polyLine);
+              streamTracer->GetOutput()->SetLines(cells);
 
               // fill arrays
               vtkNew<vtkDoubleArray> iterationArray;
@@ -596,7 +617,7 @@ int vtkVectorFieldTopology::ComputeSeparatrices(vtkSmartPointer<vtkPolyData> cri
               }
               iterationArray->SetTuple1(streamTracer->GetOutput()->GetNumberOfPoints() - 1, 0);
 
-              // combine lines
+              // combine lines of this separatrix with existing ones
               vtkNew<vtkAppendPolyData> appendFilter;
               appendFilter->AddInputData(separatrices);
               appendFilter->AddInputData(streamTracer->GetOutput());
@@ -639,14 +660,31 @@ int vtkVectorFieldTopology::ComputeSeparatrices(vtkSmartPointer<vtkPolyData> cri
 int vtkVectorFieldTopology::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
+
   // get the info objects
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation* outInfo0 = outputVector->GetInformationObject(0);
   vtkInformation* outInfo1 = outputVector->GetInformationObject(1);
   vtkInformation* outInfo2 = outputVector->GetInformationObject(2);
 
-  // get the input and output
+  // get the input and make sure it has vector data
   vtkImageData* dataset = vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  if (dataset->GetPointData()->GetVectors() == nullptr)
+  {
+    for (int i = 0; i < dataset->GetPointData()->GetNumberOfArrays(); i++)
+    {
+      if (dataset->GetPointData()->GetArray(i)->GetNumberOfComponents() == 3)
+      {
+        dataset->GetPointData()->SetVectors(dataset->GetPointData()->GetArray(i));
+        break;
+      }
+    }
+  }
+  if (dataset->GetPointData()->GetVectors() == nullptr)
+  {
+    vtkErrorMacro("The field does not contain any vectors as pointdata.");
+    return 0;
+  }
 
   // these things are necessary for probe and the integrator to work properly in the 2D setting
   if (dataset->GetDataDimension() == 2)
@@ -658,11 +696,6 @@ int vtkVectorFieldTopology::RequestData(vtkInformation* vtkNotUsed(request),
       auto vector = dataset->GetPointData()->GetVectors()->GetTuple(i);
       dataset->GetPointData()->GetVectors()->SetTuple3(i, vector[0], vector[1], 0);
     }
-  }
-  if (dataset->GetPointData()->GetVectors() == nullptr)
-  {
-    vtkErrorMacro("The field does not contain any vectors.");
-    return 0;
   }
 
   // make output
@@ -688,6 +721,7 @@ int vtkVectorFieldTopology::RequestData(vtkInformation* vtkNotUsed(request),
   criticalPoints->SetPoints(criticalPointsPoints);
   criticalPoints->SetVerts(criticalPointsCells);
   criticalPoints->GetPointData()->AddArray(criticalPointsGradients);
+
   if (dataset->GetDataDimension() == 2)
   {
     ComputeCriticalPoints2D(criticalPoints, tridataset);
