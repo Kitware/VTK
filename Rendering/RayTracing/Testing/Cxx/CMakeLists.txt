@@ -44,6 +44,7 @@ if (VTK_ENABLE_OSPRAY)
     TestCategoricalMaterials.cxx
     TestCategoricalMultiBlock.cxx
     TestPathTracerBackground.cxx
+    TestPathTracerGLTFImporter.cxx DATA{../Data/WaterBottle.glb}
     TestPathTracerLuminous.cxx
     TestPathTracerMaterialLibrary.cxx,NO_VALID
     TestPathTracerMaterials.cxx
@@ -78,6 +79,7 @@ if (enable_visrtx)
     TestCategoricalMaterials
     TestCategoricalMultiBlock
     TestPathTracerBackground
+    TestPathTracerGLTFImporter.cxx DATA{../Data/WaterBottle.glb}
     TestPathTracerLuminous
     TestPathTracerMaterials
     TestPathTracerShadows
