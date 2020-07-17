@@ -98,6 +98,9 @@ static int TestNan();
 static int TestMetaMultiplyMatrix();
 static int TestMetaMultiplyMatrixWithVector();
 static int TestMetaDot();
+static int TestMetaDeterminant();
+static int TestMetaInvertMatrix();
+static int TestMetaLinearSolve();
 
 int UnitTestMath(int, char*[])
 {
@@ -172,6 +175,9 @@ int UnitTestMath(int, char*[])
   status += TestMetaMultiplyMatrix();
   status += TestMetaMultiplyMatrixWithVector();
   status += TestMetaDot();
+  status += TestMetaDeterminant();
+  status += TestMetaInvertMatrix();
+  status += TestMetaLinearSolve();
   if (status != 0)
   {
     return EXIT_FAILURE;
@@ -3783,7 +3789,7 @@ int TestNan()
   return status;
 }
 
-// Validate with knwon solutions
+// Validate with known solutions
 int TestMetaMultiplyMatrix()
 {
   int status = 0;
@@ -3828,8 +3834,8 @@ int TestMetaMultiplyMatrix()
   //    5  6  7  8  9   x    2  7  12 17 22    =  70 195 320 445 570
   //                         3  8  13 18 23
   //                         4  9  14 19 24
-  vtkMath::MultiplyMatrix<2, 5, 5, vtkMath::MatrixLayout::Transpose,
-    vtkMath::MatrixLayout::Transpose>(M2, M1, M3);
+  vtkMath::MultiplyMatrix<2, 5, 5, vtkMatrixUtilities::Layout::Transpose,
+    vtkMatrixUtilities::Layout::Transpose>(M2, M1, M3);
 
   if (M3[0] != 60 || M3[5] != 70 || M3[1] != 160 || M3[6] != 195 || M3[2] != 260 || M3[7] != 320 ||
     M3[3] != 360 || M3[8] != 445 || M3[4] != 460 || M3[9] != 570)
@@ -3842,8 +3848,8 @@ int TestMetaMultiplyMatrix()
   // 2  6  10 14 18   x  4  5  =  280 330
   // 3  7  11 15 19      6  7     300 355
   //                     8  9
-  vtkMath::MultiplyMatrix<4, 5, 2, vtkMath::MatrixLayout::Transpose,
-    vtkMath::MatrixLayout::Identity>(M1, M2, M3);
+  vtkMath::MultiplyMatrix<4, 5, 2, vtkMatrixUtilities::Layout::Transpose,
+    vtkMatrixUtilities::Layout::Identity>(M1, M2, M3);
 
   if (M3[0] != 240 || M3[1] != 280 || M3[2] != 260 || M3[3] != 305 || M3[4] != 280 ||
     M3[5] != 330 || M3[6] != 300 || M3[7] != 355)
@@ -3867,8 +3873,8 @@ int TestMetaMultiplyMatrix()
   // 2  *  0 1 2 3 4  =  0  2  4  6  8
   // 3                   0  3  6  9  12
   // 4                   0  4  8  12 16
-  vtkMath::MultiplyMatrix<5, 1, 5, vtkMath::MatrixLayout::Transpose,
-    vtkMath::MatrixLayout::Transpose>(M1, M2, M3);
+  vtkMath::MultiplyMatrix<5, 1, 5, vtkMatrixUtilities::Layout::Transpose,
+    vtkMatrixUtilities::Layout::Transpose>(M1, M2, M3);
 
   if (M3[0] != 0 || M3[1] != 0 || M3[2] != 0 || M3[3] != 0 || M3[4] != 0 || M3[5] != 0 ||
     M3[6] != 1 || M3[7] != 2 || M3[8] != 3 || M3[9] != 4 || M3[10] != 0 || M3[11] != 2 ||
@@ -3884,8 +3890,8 @@ int TestMetaMultiplyMatrix()
   //  10 11 12 13 14  x      2      =  0  11 24 39 56
   //  15 16 17 18 19           3       0  16 34 54 76
   //  20 21 22 23 24             4     0  21 44 69 96
-  vtkMath::MultiplyMatrix<5, 5, 5, vtkMath::MatrixLayout::Identity, vtkMath::MatrixLayout::Diag>(
-    M1, M2, M3);
+  vtkMath::MultiplyMatrix<5, 5, 5, vtkMatrixUtilities::Layout::Identity,
+    vtkMatrixUtilities::Layout::Diag>(M1, M2, M3);
 
   if (M3[0] != 0 || M3[1] != 1 || M3[2] != 4 || M3[3] != 9 || M3[4] != 16 || M3[5] != 0 ||
     M3[6] != 6 || M3[7] != 14 || M3[8] != 24 || M3[9] != 36 || M3[10] != 0 || M3[11] != 11 ||
@@ -3901,8 +3907,8 @@ int TestMetaMultiplyMatrix()
   //      2     x  2  7  12 17 22  =  4  14 24 34 56
   //        3      3  8  13 18 23     9  24 39 54 76
   //          4    4  9  14 19 24     16 36 56 76 96
-  vtkMath::MultiplyMatrix<5, 5, 5, vtkMath::MatrixLayout::Diag, vtkMath::MatrixLayout::Transpose>(
-    M2, M1, M3);
+  vtkMath::MultiplyMatrix<5, 5, 5, vtkMatrixUtilities::Layout::Diag,
+    vtkMatrixUtilities::Layout::Transpose>(M2, M1, M3);
 
   if (M3[0] != 0 || M3[1] != 0 || M3[2] != 0 || M3[3] != 0 || M3[4] != 0 || M3[5] != 1 ||
     M3[6] != 6 || M3[7] != 11 || M3[8] != 16 || M3[9] != 21 || M3[10] != 4 || M3[11] != 14 ||
@@ -3918,8 +3924,8 @@ int TestMetaMultiplyMatrix()
   //      2     x      2      =      4
   //        3            3             9
   //          4            4             16
-  vtkMath::MultiplyMatrix<5, 5, 5, vtkMath::MatrixLayout::Diag, vtkMath::MatrixLayout::Diag>(
-    M1, M2, M3);
+  vtkMath::MultiplyMatrix<5, 5, 5, vtkMatrixUtilities::Layout::Diag,
+    vtkMatrixUtilities::Layout::Diag>(M1, M2, M3);
 
   if (M3[0] != 0 || M3[1] != 1 || M3[2] != 4 || M3[3] != 9 || M3[4] != 16)
   {
@@ -3928,7 +3934,7 @@ int TestMetaMultiplyMatrix()
 
   //  0 0   0 1 2   0 0 0
   //  0 1 x 3 4 5 = 3 4 5
-  vtkMath::MultiplyMatrix<2, 2, 3, vtkMath::MatrixLayout::Diag>(M1, M2, M3);
+  vtkMath::MultiplyMatrix<2, 2, 3, vtkMatrixUtilities::Layout::Diag>(M1, M2, M3);
 
   if (M3[0] != 0 || M3[1] != 0 || M3[2] != 0 || M3[3] != 3 || M3[4] != 4 || M3[5] != 5)
   {
@@ -3938,7 +3944,7 @@ int TestMetaMultiplyMatrix()
   //  0 0   0 1   0 0
   //  0 1 x 2 3 = 2 3
   //  0 0         0 0
-  vtkMath::MultiplyMatrix<3, 2, 2, vtkMath::MatrixLayout::Diag>(M1, M2, M3);
+  vtkMath::MultiplyMatrix<3, 2, 2, vtkMatrixUtilities::Layout::Diag>(M1, M2, M3);
 
   if (M3[0] != 0 || M3[1] != 0 || M3[2] != 2 || M3[3] != 3 || M3[4] != 0 || M3[5] != 0)
   {
@@ -3948,8 +3954,8 @@ int TestMetaMultiplyMatrix()
   // 0 1 2   0 0 0 0   0  1  4  0
   // 3 4 5 x 0 1 0 0 = 0  4  10 0
   // 6 7 8   0 0 2 0   0  7  16 0
-  vtkMath::MultiplyMatrix<3, 3, 4, vtkMath::MatrixLayout::Identity, vtkMath::MatrixLayout::Diag>(
-    M1, M2, M3);
+  vtkMath::MultiplyMatrix<3, 3, 4, vtkMatrixUtilities::Layout::Identity,
+    vtkMatrixUtilities::Layout::Diag>(M1, M2, M3);
 
   if (M3[0] != 0 || M3[1] != 1 || M3[2] != 4 || M3[3] != 0 || M3[4] != 0 || M3[5] != 4 ||
     M3[6] != 10 || M3[7] != 0 || M3[8] != 0 || M3[9] != 7 || M3[10] != 16 || M3[11] != 0)
@@ -3968,7 +3974,7 @@ int TestMetaMultiplyMatrix()
   return status;
 }
 
-// Validate with knwon solutions
+// Validate with known solutions
 int TestMetaMultiplyMatrixWithVector()
 {
   int status = 0;
@@ -3986,7 +3992,7 @@ int TestMetaMultiplyMatrixWithVector()
   }
 
   // Testing with the tranpose
-  vtkMath::MultiplyMatrixWithVector<3, 3, vtkMath::MatrixLayout::Transpose>(M, x, y);
+  vtkMath::MultiplyMatrixWithVector<3, 3, vtkMatrixUtilities::Layout::Transpose>(M, x, y);
 
   if (y[0] != 6300 || y[1] != 7410 || y[2] != 8520)
   {
@@ -4008,7 +4014,7 @@ int TestMetaMultiplyMatrixWithVector()
   return status;
 }
 
-// Validate with knwon solutions
+// Validate with known solutions
 int TestMetaDot()
 {
   int status = 0;
@@ -4023,7 +4029,228 @@ int TestMetaDot()
     status = 1;
   }
 
-  if (vtkMath::Dot<int, 5, vtkMath::MatrixLayout::Diag>(x, M, y) != 244)
+  if (vtkMath::Dot<int, 5, vtkMatrixUtilities::Layout::Diag>(x, M, y) != 244)
+  {
+    status = 1;
+  }
+
+  if (status)
+  {
+    std::cout << "..FAILED" << std::endl;
+  }
+  else
+  {
+    std::cout << ".PASSED" << std::endl;
+  }
+  return status;
+}
+
+// Validate with known solutions
+int TestMetaDeterminant()
+{
+  int status = 0;
+  std::cout << "MetaDeterminant..";
+
+  int M[9] = { 1, 2, 3, 3, 2, 1, 2, 3, 1 };
+
+  // | 1 2 3 |
+  // | 3 2 1 | = 12
+  // | 2 3 1 |
+  if (vtkMath::Determinant<3>(M) != 12)
+  {
+    status = 1;
+  }
+
+  // | 1 0 0 |
+  // | 0 2 0 | = 6
+  // | 0 0 3 |
+  if (vtkMath::Determinant<3, vtkMatrixUtilities::Layout::Diag>(M) != 6)
+  {
+    status = 1;
+  }
+
+  // | 1 2 |
+  // | 3 3 | = -3
+  if (vtkMath::Determinant<2>(M) != -3)
+  {
+    status = 1;
+  }
+
+  // | 1 0 |
+  // | 0 2 | = 2
+  if (vtkMath::Determinant<2, vtkMatrixUtilities::Layout::Diag>(M) != 2)
+  {
+    status = 1;
+  }
+
+  // | 1 | = 1
+  if (vtkMath::Determinant<1>(M) != 1)
+  {
+    status = 1;
+  }
+
+  if (status)
+  {
+    std::cout << "..FAILED" << std::endl;
+  }
+  else
+  {
+    std::cout << ".PASSED" << std::endl;
+  }
+  return status;
+}
+
+// Validate with known solutions
+int TestMetaInvertMatrix()
+{
+  int status = 0;
+  std::cout << "MetaInvertMatrix..";
+
+  int M[9] = { 1, 1, 0, 0, 0, 1, 1, 0, 1 };
+  int invM[9];
+  double diag[3] = { 1.0, 2.0, 3.0 };
+  double invDiag[3];
+  int N[4] = { 1, -1, 0, 1 };
+  int invN[4];
+
+  //     1 1 0     0 -1  1
+  // inv 0 0 1  =  1  1 -1
+  //     1 0 1     0  1  0
+  vtkMath::InvertMatrix<3>(M, invM);
+  if (invM[0] != 0 || invM[1] != -1 || invM[2] != 1 || invM[3] != 1 || invM[4] != 1 ||
+    invM[5] != -1 || invM[6] != 0 || invM[7] != 1 || invM[8] != 0)
+  {
+    std::cout << "a" << std::endl;
+    status = 1;
+  }
+
+  //     1 0 1     0  1  0
+  // inv 1 0 0  = -1  1  1
+  //     0 1 1     1 -1  0
+  vtkMath::InvertMatrix<3, vtkMatrixUtilities::Layout::Transpose>(M, invM);
+  if (invM[0] != 0 || invM[1] != 1 || invM[2] != 0 || invM[3] != -1 || invM[4] != 1 ||
+    invM[5] != 1 || invM[6] != 1 || invM[7] != -1 || invM[8] != 0)
+  {
+    std::cout << "b" << std::endl;
+    status = 1;
+  }
+
+  //     1         1
+  // inv   2    =    1/2
+  //         3           1/3
+  vtkMath::InvertMatrix<3, vtkMatrixUtilities::Layout::Diag>(diag, invDiag);
+  if (invDiag[0] != 1.0 || invDiag[1] != 1.0 / 2.0 || invDiag[2] != 1.0 / 3.0)
+  {
+    std::cout << "c" << std::endl;
+    status = 1;
+  }
+
+  //     1 -1     1 1
+  // inv 0  1  =  0 1
+  vtkMath::InvertMatrix<2>(N, invN);
+  if (invN[0] != 1 || invN[1] != 1 || invN[2] != 0 || invN[3] != 1)
+  {
+    std::cout << "d" << std::endl;
+    status = 1;
+  }
+
+  //      1 0     1 0
+  // inv -1 1  =  1 1
+  vtkMath::InvertMatrix<2, vtkMatrixUtilities::Layout::Transpose>(N, invN);
+  if (invN[0] != 1 || invN[1] != 0 || invN[2] != 1 || invN[3] != 1)
+  {
+    std::cout << "e" << std::endl;
+    status = 1;
+  }
+
+  //     1      1
+  // inv   -1 =   -1
+  vtkMath::InvertMatrix<2, vtkMatrixUtilities::Layout::Diag>(N, invN);
+  if (invN[0] != 1 || invN[1] != -1)
+  {
+    std::cout << "f" << std::endl;
+    status = 1;
+  }
+
+  // inv 1 = 1
+  vtkMath::InvertMatrix<1>(N, invN);
+  if (invN[0] != 1)
+  {
+    std::cout << "g" << std::endl;
+    status = 1;
+  }
+
+  if (status)
+  {
+    std::cout << "..FAILED" << std::endl;
+  }
+  else
+  {
+    std::cout << ".PASSED" << std::endl;
+  }
+  return status;
+}
+
+// Validate with known solutions
+int TestMetaLinearSolve()
+{
+  int status = 0;
+  std::cout << "MetaLinearSolve..";
+
+  int M[9] = { 1, 1, 0, 1, 0, 1, 0, 0, 1 };
+  int X[3] = { 1, 2, 3 };
+  int Y[3];
+
+  // 1 1 0   -1     1
+  // 0 1 0 x  2  =  2
+  // 0 0 1    3     3
+  vtkMath::LinearSolve<3, 3>(M, X, Y);
+  if (Y[0] != -1 || Y[1] != 2 || Y[2] != 3)
+  {
+    status = 1;
+  }
+
+  // 1 0 0    2     1
+  // 1 1 0 x -1  =  2
+  // 0 0 1    4     3
+  vtkMath::LinearSolve<3, 3, vtkMatrixUtilities::Layout::Transpose>(M, X, Y);
+  if (Y[0] != 2 || Y[1] != -1 || Y[2] != 4)
+  {
+    status = 1;
+  }
+
+  // 1        1     1
+  //   2   x  1  =  2
+  //     3    1     3
+  vtkMath::LinearSolve<3, 3, vtkMatrixUtilities::Layout::Diag>(X, X, Y);
+  if (Y[0] != 1 || Y[1] != 1 || Y[2] != 1)
+  {
+    status = 1;
+  }
+
+  int N[4] = { -1, 1, 0, 1 };
+
+  // -1  1   1   1
+  //  0  1 x 2 = 2
+  vtkMath::LinearSolve<2, 2>(N, X, Y);
+  if (Y[0] != 1 || Y[1] != 2)
+  {
+    status = 1;
+  }
+
+  // -1  0   -1   1
+  //  1  1 x  3 = 2
+  vtkMath::LinearSolve<2, 2, vtkMatrixUtilities::Layout::Transpose>(N, X, Y);
+  if (Y[0] != -1 || Y[1] != 3)
+  {
+    std::cout << Y[0] << ", " << Y[1] << std::endl;
+    status = 1;
+  }
+
+  // -1      -1   1
+  //     1 x  2 = 2
+  vtkMath::LinearSolve<2, 2, vtkMatrixUtilities::Layout::Diag>(N, X, Y);
+  if (Y[0] != -1 || Y[1] != 2)
   {
     status = 1;
   }

@@ -20,61 +20,20 @@
  * methods.
  * @sa
  * vtkMath
+ * vtkMatrixUtilities
  */
 
 #ifndef vtkMathPrivate_hxx
 #define vtkMathPrivate_hxx
 
 #include "vtkCommonCoreModule.h" //required for correct implementation
+#include "vtkMatrixUtilities.h"
 
 #include <type_traits>
 
 namespace vtkMathPrivate
 {
-//=============================================================================
-// Private class to extract the value type of both standard arrays
-// and containers having a value_type typedef.
-template <int ContainerTypeT, class ContainerT>
-struct ScalarTypeExtractorImpl
-{
-  typedef typename ContainerT::value_type value_type;
-};
-
-//=============================================================================
-template <class ContainerT>
-struct ScalarTypeExtractorImpl<1, ContainerT>
-{
-  typedef typename std::remove_all_extents<ContainerT>::type value_type;
-};
-
-//=============================================================================
-template <class ContainerT>
-struct ScalarTypeExtractorImpl<2, ContainerT>
-{
-  typedef typename std::remove_pointer<ContainerT>::type value_type;
-};
-
-//=============================================================================
-template <class ContainerT>
-struct ScalarTypeExtractor
-{
-  typedef typename ScalarTypeExtractorImpl<
-    std::is_array<ContainerT>::value ? 1 : (std::is_pointer<ContainerT>::value ? 2 : 0),
-    ContainerT>::value_type value_type;
-};
-
 static constexpr int VTK_MATH_PRIVATE_PACK_SIZE = 4;
-
-//=============================================================================
-// This struct determines a prior transform to input matrices, chaging the
-// way they are indexed
-struct MatrixLayout
-{
-  struct Identity;  // Input matrix is unchanged
-  struct Transpose; // Input matrix is transposed when calculating
-  struct Diag;      // Input matrix is considered diagonal, and value at index idx points
-                    // to component of coordinates (idx, idx) in the diagonal matrix.
-};
 
 //=============================================================================
 // This class computes the dot product between row RowT of matrix M1
@@ -82,11 +41,12 @@ struct MatrixLayout
 // The template parameter IdxT is on index ahead from computation.
 // Template parameters LayoutT1 and LayoutT2 respectively reindex
 // input matrices M1 and M2 according to MatrixLayout enumeration
-// M1 (or M1^T if LayoutT1 == MatrixLayout::Transpose) is a matrix of RowsT   x MidDimT
-// M2 (or M2^T if LayoutT2 == MatrixLayout::Transpose) is a matrix of MidDimT x ColsDimT
+// M1 (or M1^T if LayoutT1 == vtkMatrixUtilities::Layout::Transpose) is a matrix of RowsT   x
+// MidDimT M2 (or M2^T if LayoutT2 == vtkMatrixUtilities::Layout::Transpose) is a matrix of MidDimT
+// x ColsDimT
 template <class ScalarT, int RowsT, int MidDimT, int ColsT, int RowT, int ColT,
-  class LayoutT1 = MatrixLayout::Identity, class LayoutT2 = MatrixLayout::Identity, int IdxT = 0,
-  int PackSizeT = MidDimT>
+  class LayoutT1 = vtkMatrixUtilities::Layout::Identity,
+  class LayoutT2 = vtkMatrixUtilities::Layout::Identity, int IdxT = 0, int PackSizeT = MidDimT>
 class ContractRowWithCol
 {
 public:
@@ -119,8 +79,13 @@ public:
   template <class MatrixT1, class MatrixT2>
   static ScalarT Compute(const MatrixT1& M1, const MatrixT2& M2)
   {
-    return M1[IndicesM1_0] * M2[IndicesM2_0] + M1[IndicesM1_1] * M2[IndicesM2_1] +
-      M1[IndicesM1_2] * M2[IndicesM2_2] + M1[IndicesM1_3] * M2[IndicesM2_3];
+    using Wrap1 = vtkMatrixUtilities::Wrapper<RowsT, MidDimT, MatrixT1, LayoutT1>;
+    using Wrap2 = vtkMatrixUtilities::Wrapper<MidDimT, ColsT, MatrixT2, LayoutT2>;
+
+    return Wrap1::template Get<RowT, IdxT>(M1) * Wrap2::template Get<IdxT, ColT>(M2) +
+      Wrap1::template Get<RowT, IdxT + 1>(M1) * Wrap2::template Get<IdxT + 1, ColT>(M2) +
+      Wrap1::template Get<RowT, IdxT + 2>(M1) * Wrap2::template Get<IdxT + 2, ColT>(M2) +
+      Wrap1::template Get<RowT, IdxT + 3>(M1) * Wrap2::template Get<IdxT + 3, ColT>(M2);
   }
 
 private:
@@ -128,25 +93,6 @@ private:
   static_assert(ROW_OUT_OF_BOUNDS, "RowT is out of bounds");
   static constexpr bool COL_OUT_OF_BOUNDS = ColT >= 0 && ColT < ColsT;
   static_assert(COL_OUT_OF_BOUNDS, "ColT is out of bounds");
-
-  static constexpr bool Transpose1 = std::is_same<LayoutT1, MatrixLayout::Transpose>::value;
-  static constexpr bool Transpose2 = std::is_same<LayoutT2, MatrixLayout::Transpose>::value;
-
-  static constexpr int IndicesM1_0 = Transpose1 ? RowT + RowsT * IdxT : MidDimT * RowT + IdxT;
-  static constexpr int IndicesM1_1 =
-    Transpose1 ? RowT + RowsT * (IdxT + 1) : MidDimT * RowT + IdxT + 1;
-  static constexpr int IndicesM1_2 =
-    Transpose1 ? RowT + RowsT * (IdxT + 2) : MidDimT * RowT + IdxT + 2;
-  static constexpr int IndicesM1_3 =
-    Transpose1 ? RowT + RowsT * (IdxT + 3) : MidDimT * RowT + IdxT + 3;
-
-  static constexpr int IndicesM2_0 = Transpose2 ? MidDimT * ColT + IdxT : ColT + ColsT * IdxT;
-  static constexpr int IndicesM2_1 =
-    Transpose2 ? MidDimT * ColT + IdxT + 1 : ColT + ColsT * (IdxT + 1);
-  static constexpr int IndicesM2_2 =
-    Transpose2 ? MidDimT * ColT + IdxT + 2 : ColT + ColsT * (IdxT + 2);
-  static constexpr int IndicesM2_3 =
-    Transpose2 ? MidDimT * ColT + IdxT + 3 : ColT + ColsT * (IdxT + 3);
 };
 
 //=============================================================================
@@ -159,8 +105,12 @@ public:
   template <class MatrixT1, class MatrixT2>
   static ScalarT Compute(const MatrixT1& M1, const MatrixT2& M2)
   {
-    return M1[IndicesM1_0] * M2[IndicesM2_0] + M1[IndicesM1_1] * M2[IndicesM2_1] +
-      M1[IndicesM1_2] * M2[IndicesM2_2];
+    using Wrap1 = vtkMatrixUtilities::Wrapper<RowsT, MidDimT, MatrixT1, LayoutT1>;
+    using Wrap2 = vtkMatrixUtilities::Wrapper<MidDimT, ColsT, MatrixT2, LayoutT2>;
+
+    return Wrap1::template Get<RowT, IdxT>(M1) * Wrap2::template Get<IdxT, ColT>(M2) +
+      Wrap1::template Get<RowT, IdxT + 1>(M1) * Wrap2::template Get<IdxT + 1, ColT>(M2) +
+      Wrap1::template Get<RowT, IdxT + 2>(M1) * Wrap2::template Get<IdxT + 2, ColT>(M2);
   }
 
 private:
@@ -168,21 +118,6 @@ private:
   static_assert(ROW_OUT_OF_BOUNDS, "RowT is out of bounds");
   static constexpr bool COL_OUT_OF_BOUNDS = ColT >= 0 && ColT < ColsT;
   static_assert(COL_OUT_OF_BOUNDS, "ColT is out of bounds");
-
-  static constexpr bool Transpose1 = std::is_same<LayoutT1, MatrixLayout::Transpose>::value;
-  static constexpr bool Transpose2 = std::is_same<LayoutT2, MatrixLayout::Transpose>::value;
-
-  static constexpr int IndicesM1_0 = Transpose1 ? RowT + RowsT * IdxT : MidDimT * RowT + IdxT;
-  static constexpr int IndicesM1_1 =
-    Transpose1 ? RowT + RowsT * (IdxT + 1) : MidDimT * RowT + IdxT + 1;
-  static constexpr int IndicesM1_2 =
-    Transpose1 ? RowT + RowsT * (IdxT + 2) : MidDimT * RowT + IdxT + 2;
-
-  static constexpr int IndicesM2_0 = Transpose2 ? MidDimT * ColT + IdxT : ColT + ColsT * IdxT;
-  static constexpr int IndicesM2_1 =
-    Transpose2 ? MidDimT * ColT + IdxT + 1 : ColT + ColsT * (IdxT + 1);
-  static constexpr int IndicesM2_2 =
-    Transpose2 ? MidDimT * ColT + IdxT + 2 : ColT + ColsT * (IdxT + 2);
 };
 
 //=============================================================================
@@ -195,7 +130,11 @@ public:
   template <class MatrixT1, class MatrixT2>
   static ScalarT Compute(const MatrixT1& M1, const MatrixT2& M2)
   {
-    return M1[IndicesM1_0] * M2[IndicesM2_0] + M1[IndicesM1_1] * M2[IndicesM2_1];
+    using Wrap1 = vtkMatrixUtilities::Wrapper<RowsT, MidDimT, MatrixT1, LayoutT1>;
+    using Wrap2 = vtkMatrixUtilities::Wrapper<MidDimT, ColsT, MatrixT2, LayoutT2>;
+
+    return Wrap1::template Get<RowT, IdxT>(M1) * Wrap2::template Get<IdxT, ColT>(M2) +
+      Wrap1::template Get<RowT, IdxT + 1>(M1) * Wrap2::template Get<IdxT + 1, ColT>(M2);
   }
 
 private:
@@ -203,17 +142,6 @@ private:
   static_assert(ROW_OUT_OF_BOUNDS, "RowT is out of bounds");
   static constexpr bool COL_OUT_OF_BOUNDS = ColT >= 0 && ColT < ColsT;
   static_assert(COL_OUT_OF_BOUNDS, "ColT is out of bounds");
-
-  static constexpr bool Transpose1 = std::is_same<LayoutT1, MatrixLayout::Transpose>::value;
-  static constexpr bool Transpose2 = std::is_same<LayoutT2, MatrixLayout::Transpose>::value;
-
-  static constexpr int IndicesM1_0 = Transpose1 ? RowT + RowsT * IdxT : MidDimT * RowT + IdxT;
-  static constexpr int IndicesM1_1 =
-    Transpose1 ? RowT + RowsT * (IdxT + 1) : MidDimT * RowT + IdxT + 1;
-
-  static constexpr int IndicesM2_0 = Transpose2 ? MidDimT * ColT + IdxT : ColT + ColsT * IdxT;
-  static constexpr int IndicesM2_1 =
-    Transpose2 ? MidDimT * ColT + IdxT + 1 : ColT + ColsT * (IdxT + 1);
 };
 
 //=============================================================================
@@ -226,7 +154,10 @@ public:
   template <class MatrixT1, class MatrixT2>
   static ScalarT Compute(const MatrixT1& M1, const MatrixT2& M2)
   {
-    return M1[IdxM1] * M2[IdxM2];
+    using Wrap1 = vtkMatrixUtilities::Wrapper<RowsT, MidDimT, MatrixT1, LayoutT1>;
+    using Wrap2 = vtkMatrixUtilities::Wrapper<MidDimT, ColsT, MatrixT2, LayoutT2>;
+
+    return Wrap1::template Get<RowT, IdxT>(M1) * Wrap2::template Get<IdxT, ColT>(M2);
   }
 
 private:
@@ -234,12 +165,6 @@ private:
   static_assert(ROW_OUT_OF_BOUNDS, "RowT is out of bounds");
   static constexpr bool COL_OUT_OF_BOUNDS = ColT >= 0 && ColT < ColsT;
   static_assert(COL_OUT_OF_BOUNDS, "ColT is out of bounds");
-
-  static constexpr bool Transpose1 = std::is_same<LayoutT1, MatrixLayout::Transpose>::value;
-  static constexpr bool Transpose2 = std::is_same<LayoutT2, MatrixLayout::Transpose>::value;
-
-  static constexpr int IdxM1 = Transpose1 ? RowT + RowsT * IdxT : MidDimT * RowT + IdxT;
-  static constexpr int IdxM2 = Transpose2 ? MidDimT * ColT + IdxT : ColT + ColsT * IdxT;
 };
 
 //=============================================================================
@@ -252,14 +177,14 @@ class DiagContractRowWithCol;
 //=============================================================================
 // Specialization for when M1 is diagonal
 template <class ScalarT, int RowsT, int MidDimT, int ColsT, int RowT, int ColT, class LayoutT2>
-class DiagContractRowWithCol<ScalarT, RowsT, MidDimT, ColsT, RowT, ColT, MatrixLayout::Diag,
-  LayoutT2>
+class DiagContractRowWithCol<ScalarT, RowsT, MidDimT, ColsT, RowT, ColT,
+  vtkMatrixUtilities::Layout::Diag, LayoutT2>
 {
 public:
   template <class MatrixT1, class MatrixT2>
   static ScalarT Compute(const MatrixT1& M1, const MatrixT2& M2)
   {
-    return M1[RowT] * M2[IdxM2];
+    return M1[RowT] * M2[Mapper2::template GetIndex<RowT, ColT>()];
   }
 
 private:
@@ -268,21 +193,20 @@ private:
   static constexpr bool COL_OUT_OF_BOUNDS = ColT >= 0 && ColT < ColsT;
   static_assert(COL_OUT_OF_BOUNDS, "ColT is out of bounds");
 
-  static constexpr bool Transpose2 = std::is_same<LayoutT2, MatrixLayout::Transpose>::value;
-  static constexpr int IdxM2 = Transpose2 ? MidDimT * ColT + RowT : ColT + ColsT * RowT;
+  using Mapper2 = vtkMatrixUtilities::Mapper<MidDimT, ColsT, LayoutT2>;
 };
 
 //=============================================================================
 // Specialization for when M2 is diagonal
 template <class ScalarT, int RowsT, int MidDimT, int ColsT, int RowT, int ColT, class LayoutT1>
 class DiagContractRowWithCol<ScalarT, RowsT, MidDimT, ColsT, RowT, ColT, LayoutT1,
-  MatrixLayout::Diag>
+  vtkMatrixUtilities::Layout::Diag>
 {
 public:
   template <class MatrixT1, class MatrixT2>
   static ScalarT Compute(const MatrixT1& M1, const MatrixT2& M2)
   {
-    return M1[IdxM1] * M2[ColT];
+    return M1[Mapper1::template GetIndex<RowT, ColT>()] * M2[ColT];
   }
 
 private:
@@ -291,28 +215,7 @@ private:
   static constexpr bool COL_OUT_OF_BOUNDS = ColT >= 0 && ColT < ColsT;
   static_assert(COL_OUT_OF_BOUNDS, "ColT is out of bounds");
 
-  static constexpr bool Transpose1 = std::is_same<LayoutT1, MatrixLayout::Transpose>::value;
-  static constexpr int IdxM1 = Transpose1 ? RowT + RowsT * ColT : MidDimT * RowT + ColT;
-};
-
-//=============================================================================
-// Specialization for when both input matrices are diagonal
-template <class ScalarT, int RowsT, int MidDimT, int ColsT, int RowT>
-class DiagContractRowWithCol<ScalarT, RowsT, MidDimT, ColsT, RowT, RowT, MatrixLayout::Diag,
-  MatrixLayout::Diag>
-{
-public:
-  template <class MatrixT1, class MatrixT2>
-  static ScalarT Compute(const MatrixT1& M1, const MatrixT2& M2)
-  {
-    return M1[RowT] * M2[RowT];
-  }
-
-private:
-  static constexpr bool ROW_OUT_OF_BOUNDS = RowT >= 0 && RowT < RowsT;
-  static_assert(ROW_OUT_OF_BOUNDS, "RowT is out of bounds");
-  static constexpr bool COL_OUT_OF_BOUNDS = RowT >= 0 && RowT < ColsT;
-  static_assert(COL_OUT_OF_BOUNDS, "ColT is out of bounds");
+  using Mapper1 = vtkMatrixUtilities::Mapper<RowsT, MidDimT, LayoutT1>;
 };
 
 //=============================================================================
@@ -334,16 +237,16 @@ public:
 // handling contraction class.
 // By default, Type is an instance of ContractRowWithCol
 template <class ScalarT, int RowsT, int MidDimT, int ColsT, int RowT, int ColT, class LayoutT1,
-  class LayoutT2, bool HasAtLeatOneDiagonalMatrixT = false>
+  class LayoutT2, bool HasOneDiagonalMatrixT = false>
 struct ContractRowWithColSwitch
 {
   typedef ContractRowWithCol<ScalarT, RowsT, MidDimT, ColsT, RowT, ColT, LayoutT1, LayoutT2> Type;
 
   static constexpr bool NO_INPUT_MATRIX_CAN_BE_DIAGONAL =
-    !std::is_same<LayoutT1, MatrixLayout::Diag>::value &&
-    !std::is_same<LayoutT2, MatrixLayout::Diag>::value;
+    !std::is_same<LayoutT1, vtkMatrixUtilities::Layout::Diag>::value &&
+    !std::is_same<LayoutT2, vtkMatrixUtilities::Layout::Diag>::value;
   static_assert(NO_INPUT_MATRIX_CAN_BE_DIAGONAL,
-    "LayoutT1 and LayoutT2 cannot equal MatrixLayout::Diag in this setup");
+    "LayoutT1 and LayoutT2 cannot equal vtkMatrixUtilities::Layout::Diag in this setup");
 };
 
 //=============================================================================
@@ -354,8 +257,10 @@ template <class ScalarT, int RowsT, int MidDimT, int ColsT, int RowT, int ColT, 
 struct ContractRowWithColSwitch<ScalarT, RowsT, MidDimT, ColsT, RowT, ColT, LayoutT1, LayoutT2,
   true>
 {
-  static constexpr bool IsDiagonal1 = std::is_same<LayoutT1, MatrixLayout::Diag>::value;
-  static constexpr bool IsDiagonal2 = std::is_same<LayoutT2, MatrixLayout::Diag>::value;
+  static constexpr bool IsDiagonal1 =
+    std::is_same<LayoutT1, vtkMatrixUtilities::Layout::Diag>::value;
+  static constexpr bool IsDiagonal2 =
+    std::is_same<LayoutT2, vtkMatrixUtilities::Layout::Diag>::value;
 
   // If on of the diagonal matrix is rectangular and we are out of the diagonal
   // length, all remaning values are null.
@@ -368,9 +273,11 @@ struct ContractRowWithColSwitch<ScalarT, RowsT, MidDimT, ColsT, RowT, ColT, Layo
 
   static constexpr bool NEEDS_AT_LEAST_ONE_DIAGONAL_INPUT_MATRIX = IsDiagonal1 || IsDiagonal2;
   static_assert(NEEDS_AT_LEAST_ONE_DIAGONAL_INPUT_MATRIX,
-    "LayoutT1 or LayoutT2 must equal MatrixLayout::Diag in this setup");
+    "LayoutT1 or LayoutT2 must equal vtkMatrixUtilities::Layout::Diag in this setup");
 };
 
+namespace detail
+{
 //=============================================================================
 // Class in charge for actually multiplying 2 matrices.
 // This method is called by MultiplyMatrix::Compute for chunks of size
@@ -378,30 +285,28 @@ struct ContractRowWithColSwitch<ScalarT, RowsT, MidDimT, ColsT, RowT, ColT, Layo
 // This class mostly consists on explicitly onfold computation for those chunks.
 template <int RowsT, int MidDimT, int ColsT, class LayoutT1, class LayoutT2, int RowT, int ColT,
   int ColPackSizeT>
-class MultiplyMatrixImpl;
+class MultiplyMatrix;
 
 //=============================================================================
 // Specialization for a chunk of size 4
 template <int RowsT, int MidDimT, int ColsT, class LayoutT1, class LayoutT2, int RowT, int ColT>
-class MultiplyMatrixImpl<RowsT, MidDimT, ColsT, LayoutT1, LayoutT2, RowT, ColT, 4>
+class MultiplyMatrix<RowsT, MidDimT, ColsT, LayoutT1, LayoutT2, RowT, ColT, 4>
 {
 public:
   template <class MatrixT1, class MatrixT2, class MatrixT3>
   static void Compute(const MatrixT1& M1, const MatrixT2& M2, MatrixT3& M3)
   {
-    using Scalar = typename ScalarTypeExtractor<MatrixT3>::value_type;
+    using Scalar = typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT3>::value_type;
+    using Wrap3 = vtkMatrixUtilities::Wrapper<RowsT, ColsT, MatrixT3>;
 
-    M3[OutputIndices_0] = ContractRowWithColSwitch<Scalar, RowsT, MidDimT, ColsT, RowT, ColT,
-      LayoutT1, LayoutT2, AtLeastOneMatrixIsDiagonal>::Type::Compute(M1, M2);
-    M3[OutputIndices_1] = ContractRowWithColSwitch < Scalar, RowsT, MidDimT, ColsT,
-    BothMatricesAreDiagonal ? RowT + 1 : RowT, ColT + 1, LayoutT1, LayoutT2,
-    AtLeastOneMatrixIsDiagonal > ::Type::Compute(M1, M2);
-    M3[OutputIndices_2] = ContractRowWithColSwitch < Scalar, RowsT, MidDimT, ColsT,
-    BothMatricesAreDiagonal ? RowT + 2 : RowT, ColT + 2, LayoutT1, LayoutT2,
-    AtLeastOneMatrixIsDiagonal > ::Type::Compute(M1, M2);
-    M3[OutputIndices_3] = ContractRowWithColSwitch < Scalar, RowsT, MidDimT, ColsT,
-    BothMatricesAreDiagonal ? RowT + 3 : RowT, ColT + 3, LayoutT1, LayoutT2,
-    AtLeastOneMatrixIsDiagonal > ::Type::Compute(M1, M2);
+    Wrap3::template Get<RowT, ColT>(M3) = ContractRowWithColSwitch<Scalar, RowsT, MidDimT, ColsT,
+      RowT, ColT, LayoutT1, LayoutT2, OneMatrixIsDiagonal>::Type::Compute(M1, M2);
+    Wrap3::template Get<RowT, ColT + 1>(M3) = ContractRowWithColSwitch<Scalar, RowsT, MidDimT,
+      ColsT, RowT, ColT + 1, LayoutT1, LayoutT2, OneMatrixIsDiagonal>::Type::Compute(M1, M2);
+    Wrap3::template Get<RowT, ColT + 2>(M3) = ContractRowWithColSwitch<Scalar, RowsT, MidDimT,
+      ColsT, RowT, ColT + 2, LayoutT1, LayoutT2, OneMatrixIsDiagonal>::Type::Compute(M1, M2);
+    Wrap3::template Get<RowT, ColT + 3>(M3) = ContractRowWithColSwitch<Scalar, RowsT, MidDimT,
+      ColsT, RowT, ColT + 3, LayoutT1, LayoutT2, OneMatrixIsDiagonal>::Type::Compute(M1, M2);
   }
 
 private:
@@ -410,45 +315,29 @@ private:
   static constexpr bool COL_OUT_OF_BOUNDS = ColT + 3 < ColsT && ColT >= 0;
   static_assert(COL_OUT_OF_BOUNDS, "ColT is out of bounds");
 
-  static constexpr bool AtLeastOneMatrixIsDiagonal =
-    std::is_same<LayoutT1, MatrixLayout::Diag>::value ||
-    std::is_same<LayoutT2, MatrixLayout::Diag>::value;
-
-  static constexpr bool BothMatricesAreDiagonal =
-    std::is_same<LayoutT1, MatrixLayout::Diag>::value &&
-    std::is_same<LayoutT2, MatrixLayout::Diag>::value;
-  static constexpr bool ROWT_AND_COLT_MUST_MATCH_WHEN_BOTH_MATRICES_ARE_DIAGONAL =
-    !BothMatricesAreDiagonal || ColT == RowT;
-  static_assert(ROWT_AND_COLT_MUST_MATCH_WHEN_BOTH_MATRICES_ARE_DIAGONAL, "RowT must equal ColT");
-
-  static constexpr int OutputIndices_0 = BothMatricesAreDiagonal ? RowT : ColT + RowT * ColsT;
-  static constexpr int OutputIndices_1 =
-    BothMatricesAreDiagonal ? RowT + 1 : ColT + 1 + RowT * ColsT;
-  static constexpr int OutputIndices_2 =
-    BothMatricesAreDiagonal ? RowT + 2 : ColT + 2 + RowT * ColsT;
-  static constexpr int OutputIndices_3 =
-    BothMatricesAreDiagonal ? RowT + 3 : ColT + 3 + RowT * ColsT;
+  static constexpr bool OneMatrixIsDiagonal =
+    std::is_same<LayoutT1, vtkMatrixUtilities::Layout::Diag>::value ||
+    std::is_same<LayoutT2, vtkMatrixUtilities::Layout::Diag>::value;
 };
 
 //=============================================================================
 // Specialization for a chunk of size 3
 template <int RowsT, int MidDimT, int ColsT, class LayoutT1, class LayoutT2, int RowT, int ColT>
-class MultiplyMatrixImpl<RowsT, MidDimT, ColsT, LayoutT1, LayoutT2, RowT, ColT, 3>
+class MultiplyMatrix<RowsT, MidDimT, ColsT, LayoutT1, LayoutT2, RowT, ColT, 3>
 {
 public:
   template <class MatrixT1, class MatrixT2, class MatrixT3>
   static void Compute(const MatrixT1& M1, const MatrixT2& M2, MatrixT3& M3)
   {
-    using Scalar = typename ScalarTypeExtractor<MatrixT3>::value_type;
+    using Scalar = typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT3>::value_type;
+    using Wrap3 = vtkMatrixUtilities::Wrapper<RowsT, ColsT, MatrixT3>;
 
-    M3[OutputIndices_0] = ContractRowWithColSwitch<Scalar, RowsT, MidDimT, ColsT, RowT, ColT,
-      LayoutT1, LayoutT2, AtLeastOneMatrixIsDiagonal>::Type::Compute(M1, M2);
-    M3[OutputIndices_1] = ContractRowWithColSwitch < Scalar, RowsT, MidDimT, ColsT,
-    BothMatricesAreDiagonal ? RowT + 1 : RowT, ColT + 1, LayoutT1, LayoutT2,
-    AtLeastOneMatrixIsDiagonal > ::Type::Compute(M1, M2);
-    M3[OutputIndices_2] = ContractRowWithColSwitch < Scalar, RowsT, MidDimT, ColsT,
-    BothMatricesAreDiagonal ? RowT + 2 : RowT, ColT + 2, LayoutT1, LayoutT2,
-    AtLeastOneMatrixIsDiagonal > ::Type::Compute(M1, M2);
+    Wrap3::template Get<RowT, ColT>(M3) = ContractRowWithColSwitch<Scalar, RowsT, MidDimT, ColsT,
+      RowT, ColT, LayoutT1, LayoutT2, OneMatrixIsDiagonal>::Type::Compute(M1, M2);
+    Wrap3::template Get<RowT, ColT + 1>(M3) = ContractRowWithColSwitch<Scalar, RowsT, MidDimT,
+      ColsT, RowT, ColT + 1, LayoutT1, LayoutT2, OneMatrixIsDiagonal>::Type::Compute(M1, M2);
+    Wrap3::template Get<RowT, ColT + 2>(M3) = ContractRowWithColSwitch<Scalar, RowsT, MidDimT,
+      ColsT, RowT, ColT + 2, LayoutT1, LayoutT2, OneMatrixIsDiagonal>::Type::Compute(M1, M2);
   }
 
 private:
@@ -457,39 +346,27 @@ private:
   static constexpr bool COL_OUT_OF_BOUNDS = ColT + 2 < ColsT && ColT >= 0;
   static_assert(COL_OUT_OF_BOUNDS, "ColT is out of bounds");
 
-  static constexpr bool AtLeastOneMatrixIsDiagonal =
-    std::is_same<LayoutT1, MatrixLayout::Diag>::value ||
-    std::is_same<LayoutT2, MatrixLayout::Diag>::value;
-
-  static constexpr bool BothMatricesAreDiagonal =
-    std::is_same<LayoutT1, MatrixLayout::Diag>::value && std::is_same<LayoutT1, LayoutT2>::value;
-  static constexpr bool ROWT_AND_COLT_MUST_MATCH_WHEN_BOTH_MATRICES_ARE_DIAGONAL =
-    !BothMatricesAreDiagonal || ColT == RowT;
-  static_assert(ROWT_AND_COLT_MUST_MATCH_WHEN_BOTH_MATRICES_ARE_DIAGONAL, "RowT must equal ColT");
-
-  static constexpr int OutputIndices_0 = BothMatricesAreDiagonal ? RowT : ColT + RowT * ColsT;
-  static constexpr int OutputIndices_1 =
-    BothMatricesAreDiagonal ? RowT + 1 : ColT + 1 + RowT * ColsT;
-  static constexpr int OutputIndices_2 =
-    BothMatricesAreDiagonal ? RowT + 2 : ColT + 2 + RowT * ColsT;
+  static constexpr bool OneMatrixIsDiagonal =
+    std::is_same<LayoutT1, vtkMatrixUtilities::Layout::Diag>::value ||
+    std::is_same<LayoutT2, vtkMatrixUtilities::Layout::Diag>::value;
 };
 
 //=============================================================================
 // Specialization for a chunk of size 2
 template <int RowsT, int MidDimT, int ColsT, class LayoutT1, class LayoutT2, int RowT, int ColT>
-class MultiplyMatrixImpl<RowsT, MidDimT, ColsT, LayoutT1, LayoutT2, RowT, ColT, 2>
+class MultiplyMatrix<RowsT, MidDimT, ColsT, LayoutT1, LayoutT2, RowT, ColT, 2>
 {
 public:
   template <class MatrixT1, class MatrixT2, class MatrixT3>
   static void Compute(const MatrixT1& M1, const MatrixT2& M2, MatrixT3& M3)
   {
-    using Scalar = typename ScalarTypeExtractor<MatrixT3>::value_type;
+    using Scalar = typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT3>::value_type;
+    using Wrap3 = vtkMatrixUtilities::Wrapper<RowsT, ColsT, MatrixT3>;
 
-    M3[OutputIndices_0] = ContractRowWithColSwitch<Scalar, RowsT, MidDimT, ColsT, RowT, ColT,
-      LayoutT1, LayoutT2, AtLeastOneMatrixIsDiagonal>::Type::Compute(M1, M2);
-    M3[OutputIndices_1] = ContractRowWithColSwitch < Scalar, RowsT, MidDimT, ColsT,
-    BothMatricesAreDiagonal ? RowT + 1 : RowT, ColT + 1, LayoutT1, LayoutT2,
-    AtLeastOneMatrixIsDiagonal > ::Type::Compute(M1, M2);
+    Wrap3::template Get<RowT, ColT>(M3) = ContractRowWithColSwitch<Scalar, RowsT, MidDimT, ColsT,
+      RowT, ColT, LayoutT1, LayoutT2, OneMatrixIsDiagonal>::Type::Compute(M1, M2);
+    Wrap3::template Get<RowT, ColT + 1>(M3) = ContractRowWithColSwitch<Scalar, RowsT, MidDimT,
+      ColsT, RowT, ColT + 1, LayoutT1, LayoutT2, OneMatrixIsDiagonal>::Type::Compute(M1, M2);
   }
 
 private:
@@ -498,34 +375,25 @@ private:
   static constexpr bool COL_OUT_OF_BOUNDS = ColT + 1 < ColsT && ColT >= 0;
   static_assert(COL_OUT_OF_BOUNDS, "ColT is out of bounds");
 
-  static constexpr bool AtLeastOneMatrixIsDiagonal =
-    std::is_same<LayoutT1, MatrixLayout::Diag>::value ||
-    std::is_same<LayoutT2, MatrixLayout::Diag>::value;
-
-  static constexpr bool BothMatricesAreDiagonal =
-    std::is_same<LayoutT1, MatrixLayout::Diag>::value && std::is_same<LayoutT1, LayoutT2>::value;
-  static constexpr bool ROWT_AND_COLT_MUST_MATCH_WHEN_BOTH_MATRICES_ARE_DIAGONAL =
-    !BothMatricesAreDiagonal || ColT == RowT;
-  static_assert(ROWT_AND_COLT_MUST_MATCH_WHEN_BOTH_MATRICES_ARE_DIAGONAL, "RowT must equal ColT");
-
-  static constexpr int OutputIndices_0 = BothMatricesAreDiagonal ? RowT : ColT + RowT * ColsT;
-  static constexpr int OutputIndices_1 =
-    BothMatricesAreDiagonal ? RowT + 1 : ColT + 1 + RowT * ColsT;
+  static constexpr bool OneMatrixIsDiagonal =
+    std::is_same<LayoutT1, vtkMatrixUtilities::Layout::Diag>::value ||
+    std::is_same<LayoutT2, vtkMatrixUtilities::Layout::Diag>::value;
 };
 
 //=============================================================================
 // Specialization for a chunk of size 1
 template <int RowsT, int MidDimT, int ColsT, class LayoutT1, class LayoutT2, int RowT, int ColT>
-class MultiplyMatrixImpl<RowsT, MidDimT, ColsT, LayoutT1, LayoutT2, RowT, ColT, 1>
+class MultiplyMatrix<RowsT, MidDimT, ColsT, LayoutT1, LayoutT2, RowT, ColT, 1>
 {
 public:
   template <class MatrixT1, class MatrixT2, class MatrixT3>
   static void Compute(const MatrixT1& M1, const MatrixT2& M2, MatrixT3& M3)
   {
-    using Scalar = typename ScalarTypeExtractor<MatrixT3>::value_type;
+    using Scalar = typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT3>::value_type;
+    using Wrap3 = vtkMatrixUtilities::Wrapper<RowsT, ColsT, MatrixT3>;
 
-    M3[OutputIdx] = ContractRowWithColSwitch<Scalar, RowsT, MidDimT, ColsT, RowT, ColT, LayoutT1,
-      LayoutT2, AtLeastOneMatrixIsDiagonal>::Type::Compute(M1, M2);
+    Wrap3::template Get<RowT, ColT>(M3) = ContractRowWithColSwitch<Scalar, RowsT, MidDimT, ColsT,
+      RowT, ColT, LayoutT1, LayoutT2, OneMatrixIsDiagonal>::Type::Compute(M1, M2);
   }
 
 private:
@@ -534,27 +402,82 @@ private:
   static constexpr bool COL_OUT_OF_BOUNDS = ColT < ColsT && ColT >= 0;
   static_assert(COL_OUT_OF_BOUNDS, "ColT is out of bounds");
 
-  static constexpr bool AtLeastOneMatrixIsDiagonal =
-    std::is_same<LayoutT1, MatrixLayout::Diag>::value ||
-    std::is_same<LayoutT2, MatrixLayout::Diag>::value;
-
-  static constexpr bool BothMatricesAreDiagonal =
-    std::is_same<LayoutT1, MatrixLayout::Diag>::value &&
-    std::is_same<LayoutT2, MatrixLayout::Diag>::value;
-  static constexpr bool ROWT_AND_COLT_MUST_MATCH_WHEN_BOTH_MATRICES_ARE_DIAGONAL =
-    !BothMatricesAreDiagonal || ColT == RowT;
-  static_assert(ROWT_AND_COLT_MUST_MATCH_WHEN_BOTH_MATRICES_ARE_DIAGONAL, "RowT must equal ColT");
-
-  static constexpr int OutputIdx = BothMatricesAreDiagonal ? RowT : ColT + RowT * ColsT;
+  static constexpr bool OneMatrixIsDiagonal =
+    std::is_same<LayoutT1, vtkMatrixUtilities::Layout::Diag>::value ||
+    std::is_same<LayoutT2, vtkMatrixUtilities::Layout::Diag>::value;
 };
+
+//=============================================================================
+// Specialization when both input matrices are diagonal for a chunk of size 4
+template <int SizeT, int IdxT>
+class MultiplyMatrix<SizeT, SizeT, SizeT, vtkMatrixUtilities::Layout::Diag,
+  vtkMatrixUtilities::Layout::Diag, IdxT, IdxT, 4>
+{
+public:
+  template <class MatrixT1, class MatrixT2, class MatrixT3>
+  static void Compute(const MatrixT1& M1, const MatrixT2& M2, MatrixT3& M3)
+  {
+    M3[IdxT] = M1[IdxT] * M2[IdxT];
+    M3[IdxT + 1] = M1[IdxT + 1] * M2[IdxT + 1];
+    M3[IdxT + 2] = M1[IdxT + 2] * M2[IdxT + 2];
+    M3[IdxT + 3] = M1[IdxT + 3] * M2[IdxT + 3];
+  }
+};
+
+//=============================================================================
+// Specialization when both input matrices are diagonal for a chunk of size 3
+template <int SizeT, int IdxT>
+class MultiplyMatrix<SizeT, SizeT, SizeT, vtkMatrixUtilities::Layout::Diag,
+  vtkMatrixUtilities::Layout::Diag, IdxT, IdxT, 3>
+{
+public:
+  template <class MatrixT1, class MatrixT2, class MatrixT3>
+  static void Compute(const MatrixT1& M1, const MatrixT2& M2, MatrixT3& M3)
+  {
+    M3[IdxT] = M1[IdxT] * M2[IdxT];
+    M3[IdxT + 1] = M1[IdxT + 1] * M2[IdxT + 1];
+    M3[IdxT + 2] = M1[IdxT + 2] * M2[IdxT + 2];
+  }
+};
+
+//=============================================================================
+// Specialization when both input matrices are diagonal for a chunk of size 2
+template <int SizeT, int IdxT>
+class MultiplyMatrix<SizeT, SizeT, SizeT, vtkMatrixUtilities::Layout::Diag,
+  vtkMatrixUtilities::Layout::Diag, IdxT, IdxT, 2>
+{
+public:
+  template <class MatrixT1, class MatrixT2, class MatrixT3>
+  static void Compute(const MatrixT1& M1, const MatrixT2& M2, MatrixT3& M3)
+  {
+    M3[IdxT] = M1[IdxT] * M2[IdxT];
+    M3[IdxT + 1] = M1[IdxT + 1] * M2[IdxT + 1];
+  }
+};
+
+//=============================================================================
+// Specialization when both input matrices are diagonal for a chunk of size 1
+template <int SizeT, int IdxT>
+class MultiplyMatrix<SizeT, SizeT, SizeT, vtkMatrixUtilities::Layout::Diag,
+  vtkMatrixUtilities::Layout::Diag, IdxT, IdxT, 1>
+{
+public:
+  template <class MatrixT1, class MatrixT2, class MatrixT3>
+  static void Compute(const MatrixT1& M1, const MatrixT2& M2, MatrixT3& M3)
+  {
+    M3[IdxT] = M1[IdxT] * M2[IdxT];
+  }
+};
+} // namespace detail
 
 //=============================================================================
 // Multiply matrices such that M3 = M1 * M2.
 // Template parameters LayoutT1 and LayoutT2 respectively reindex
 // input matrices M1 and M2 following MatrixLayout options
-// Hence, if LayoutT1 == MatrixLayout::Transpose, then M3 = M1^T * M2, and so on.
-// M1 (or M1^T if LayoutT1 == MatrixLayout::Transpose) is a matrix of RowsT   x MidDimT
-// M2 (or M2^T if LayoutT2 == MatrixLayout::Transpose) is a matrix of MidDimT x ColsDimT
+// Hence, if LayoutT1 == vtkMatrixUtilities::Layout::Transpose, then M3 = M1^T * M2, and so on.
+// M1 (or M1^T if LayoutT1 == vtkMatrixUtilities::Layout::Transpose) is a matrix of RowsT   x
+// MidDimT M2 (or M2^T if LayoutT2 == vtkMatrixUtilities::Layout::Transpose) is a matrix of MidDimT
+// x ColsDimT
 //
 // RemainingRowSizeT should be disregarded when first instantiating this class. It is
 // the number of remaning elements in the current row to process.
@@ -562,8 +485,8 @@ private:
 // To compute the multiplication, each component of the output matrix
 // is computed chunk by chunk (of size VTK_MATH_PRIVATE_PACK_SIZE),
 // starting at the top left, sweeping the rows one by one.
-template <int RowsT, int MidDimT, int ColsT, class LayoutT1 = MatrixLayout::Identity,
-  class LayoutT2 = MatrixLayout::Identity, int NextRowT = 1, int NextColT = 1,
+template <int RowsT, int MidDimT, int ColsT, class LayoutT1 = vtkMatrixUtilities::Layout::Identity,
+  class LayoutT2 = vtkMatrixUtilities::Layout::Identity, int NextRowT = 1, int NextColT = 1,
   int RemainingRowSizeT = ColsT>
 class MultiplyMatrix
 {
@@ -571,7 +494,7 @@ public:
   template <class MatrixT1, class MatrixT2, class MatrixT3>
   static void Compute(const MatrixT1& M1, const MatrixT2& M2, MatrixT3& M3)
   {
-    MultiplyMatrixImpl<RowsT, MidDimT, ColsT, LayoutT1, LayoutT2, Row, Col, Shift>::Compute(
+    detail::MultiplyMatrix<RowsT, MidDimT, ColsT, LayoutT1, LayoutT2, Row, Col, Shift>::Compute(
       M1, M2, M3);
     MultiplyMatrix<RowsT, MidDimT, ColsT, LayoutT1, LayoutT2, ForwardRow, ForwardCol,
       ForwardRemainingRowSize>::Compute(M1, M2, M3);
@@ -605,17 +528,18 @@ private:
 // Specialization for when both input matrices are diagonal
 // Warning: RowsT, MidDimT and ColsT MUST match
 template <int RowsT, int MidDimT, int ColsT, int NextIdxT, int RemainingRowSizeT>
-class MultiplyMatrix<RowsT, MidDimT, ColsT, MatrixLayout::Diag, MatrixLayout::Diag, NextIdxT,
-  NextIdxT, RemainingRowSizeT>
+class MultiplyMatrix<RowsT, MidDimT, ColsT, vtkMatrixUtilities::Layout::Diag,
+  vtkMatrixUtilities::Layout::Diag, NextIdxT, NextIdxT, RemainingRowSizeT>
 {
 public:
   template <class MatrixT1, class MatrixT2, class MatrixT3>
   static void Compute(const MatrixT1& M1, const MatrixT2& M2, MatrixT3& M3)
   {
-    MultiplyMatrixImpl<RowsT, MidDimT, ColsT, MatrixLayout::Diag, MatrixLayout::Diag, NextIdxT - 1,
-      NextIdxT - 1, Shift>::Compute(M1, M2, M3);
-    MultiplyMatrix<RowsT, MidDimT, ColsT, MatrixLayout::Diag, MatrixLayout::Diag, NextIdxT + Shift,
-      NextIdxT + Shift, RemainingRowSizeT - Shift>::Compute(M1, M2, M3);
+    detail::MultiplyMatrix<RowsT, MidDimT, ColsT, vtkMatrixUtilities::Layout::Diag,
+      vtkMatrixUtilities::Layout::Diag, NextIdxT - 1, NextIdxT - 1, Shift>::Compute(M1, M2, M3);
+    MultiplyMatrix<RowsT, MidDimT, ColsT, vtkMatrixUtilities::Layout::Diag,
+      vtkMatrixUtilities::Layout::Diag, NextIdxT + Shift, NextIdxT + Shift,
+      RemainingRowSizeT - Shift>::Compute(M1, M2, M3);
   }
 
 private:
@@ -636,15 +560,16 @@ private:
 // for integers below VTK_MATH_PRIVATE_PACK_SIZE
 #define vtkEndForBothDiagonalMultiplyMatrixSpecializationMacro(RemainingRowSize)                   \
   template <int RowsT, int MidDimT, int ColsT, int NextIdxT>                                       \
-  class MultiplyMatrix<RowsT, MidDimT, ColsT, MatrixLayout::Diag, MatrixLayout::Diag, NextIdxT,    \
-    NextIdxT, RemainingRowSize>                                                                    \
+  class MultiplyMatrix<RowsT, MidDimT, ColsT, vtkMatrixUtilities::Layout::Diag,                    \
+    vtkMatrixUtilities::Layout::Diag, NextIdxT, NextIdxT, RemainingRowSize>                        \
   {                                                                                                \
   public:                                                                                          \
     template <class MatrixT1, class MatrixT2, class MatrixT3>                                      \
     static void Compute(const MatrixT1& M1, const MatrixT2& M2, MatrixT3& M3)                      \
     {                                                                                              \
-      MultiplyMatrixImpl<RowsT, MidDimT, ColsT, MatrixLayout::Diag, MatrixLayout::Diag,            \
-        NextIdxT - 1, NextIdxT - 1, RemainingRowSize>::Compute(M1, M2, M3);                        \
+      detail::MultiplyMatrix<RowsT, MidDimT, ColsT, vtkMatrixUtilities::Layout::Diag,              \
+        vtkMatrixUtilities::Layout::Diag, NextIdxT - 1, NextIdxT - 1,                              \
+        RemainingRowSize>::Compute(M1, M2, M3);                                                    \
     }                                                                                              \
                                                                                                    \
   private:                                                                                         \
@@ -678,7 +603,7 @@ vtkEndForBothDiagonalMultiplyMatrixSpecializationMacro(4);
     template <class MatrixT1, class MatrixT2, class MatrixT3>                                      \
     static void Compute(const MatrixT1& M1, const MatrixT2& M2, MatrixT3& M3)                      \
     {                                                                                              \
-      MultiplyMatrixImpl<RowsT, MidDimT, ColsT, LayoutT1, LayoutT2, RowsT - 1, NextColT - 1,       \
+      detail::MultiplyMatrix<RowsT, MidDimT, ColsT, LayoutT1, LayoutT2, RowsT - 1, NextColT - 1,   \
         RemainingRowSize>::Compute(M1, M2, M3);                                                    \
     }                                                                                              \
                                                                                                    \
@@ -694,5 +619,339 @@ vtkLastRowMultiplyMatrixSpecializationMacro(3);
 vtkLastRowMultiplyMatrixSpecializationMacro(4);
 
 #undef vtkLastRowMultiplyMatrixSpecializationMacro
+
+//=============================================================================
+// Class computing the determinant of square matrices SizeT x SizeT.
+// The template parameter LayoutT is a struct embedded in MatrixLayout
+template <int SizeT, class LayoutT = vtkMatrixUtilities::Layout::Identity>
+class Determinant;
+
+//=============================================================================
+// Specialization for diagonal 3x3 matrices of size
+template <>
+class Determinant<3, vtkMatrixUtilities::Layout::Diag>
+{
+public:
+  template <class MatrixT>
+  static typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT>::value_type Compute(
+    const MatrixT& M)
+  {
+    return M[0] * M[1] * M[3];
+  }
+};
+
+//=============================================================================
+// Specialization for diagonal 2x2 matrices
+template <>
+class Determinant<2, vtkMatrixUtilities::Layout::Diag>
+{
+public:
+  template <class MatrixT>
+  static typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT>::value_type Compute(
+    const MatrixT& M)
+  {
+    return M[0] * M[1];
+  }
+};
+
+//=============================================================================
+// Specialization for 1x1 matrices
+template <class LayoutT>
+class Determinant<1, LayoutT>
+{
+public:
+  template <class MatrixT>
+  static typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT>::value_type Compute(
+    const MatrixT& M)
+  {
+    return M[0];
+  }
+};
+
+//=============================================================================
+// Specialization for 2x2 non-diagonal matrices
+template <class LayoutT>
+class Determinant<2, LayoutT>
+{
+public:
+  template <class MatrixT>
+  static typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT>::value_type Compute(
+    const MatrixT& M)
+  {
+    using Wrap = vtkMatrixUtilities::Wrapper<2, 2, MatrixT, LayoutT>;
+
+    return Wrap::template Get<0, 0>(M) * Wrap::template Get<1, 1>(M) -
+      Wrap::template Get<1, 0>(M) * Wrap::template Get<0, 1>(M);
+  }
+
+private:
+};
+
+//=============================================================================
+// Specialization for 3x3 non-diagonal matrices
+template <class LayoutT>
+class Determinant<3, LayoutT>
+{
+public:
+  template <class MatrixT>
+  static typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT>::value_type Compute(
+    const MatrixT& M)
+  {
+    using Wrap = vtkMatrixUtilities::Wrapper<3, 3, MatrixT, LayoutT>;
+
+    return Wrap::template Get<0, 0>(M) * Wrap::template Get<1, 1>(M) * Wrap::template Get<2, 2>(M) +
+      Wrap::template Get<0, 1>(M) * Wrap::template Get<1, 2>(M) * Wrap::template Get<2, 0>(M) +
+      Wrap::template Get<0, 2>(M) * Wrap::template Get<1, 0>(M) * Wrap::template Get<2, 1>(M) -
+      Wrap::template Get<0, 0>(M) * Wrap::template Get<1, 2>(M) * Wrap::template Get<2, 1>(M) -
+      Wrap::template Get<0, 1>(M) * Wrap::template Get<1, 0>(M) * Wrap::template Get<2, 2>(M) -
+      Wrap::template Get<0, 2>(M) * Wrap::template Get<1, 1>(M) * Wrap::template Get<2, 0>(M);
+  }
+};
+
+//=============================================================================
+// Class inverting square matrices SizeT x SizeT.
+// The template parameter LayoutT is a struct embedded in MatrixLayout
+template <int SizeT, class LayoutT = vtkMatrixUtilities::Layout::Identity>
+class InvertMatrix;
+
+//=============================================================================
+// Specialization for 2x2 non-diagonal matrices
+template <class LayoutT>
+class InvertMatrix<2, LayoutT>
+{
+public:
+  template <class MatrixT1, class MatrixT2>
+  static void Compute(const MatrixT1& M1, MatrixT2& M2)
+  {
+    using Scalar = typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT2>::value_type;
+    using Wrap1 = vtkMatrixUtilities::Wrapper<2, 2, MatrixT1, LayoutT>;
+    using Wrap2 = vtkMatrixUtilities::Wrapper<2, 2, MatrixT2>;
+
+    Scalar detInv = 1.0 / Determinant<2, LayoutT>::Compute(M1);
+    Wrap2::template Get<0, 0>(M2) = detInv * Wrap1::template Get<1, 1>(M1);
+    Wrap2::template Get<1, 0>(M2) = -detInv * Wrap1::template Get<1, 0>(M1);
+    Wrap2::template Get<0, 1>(M2) = -detInv * Wrap1::template Get<0, 1>(M1);
+    Wrap2::template Get<1, 1>(M2) = detInv * Wrap1::template Get<0, 0>(M1);
+  }
+};
+
+//=============================================================================
+// Specialization for 3x3 non-diagonal matrices
+template <class LayoutT>
+class InvertMatrix<3, LayoutT>
+{
+public:
+  template <class MatrixT1, class MatrixT2>
+  static void Compute(const MatrixT1& M1, MatrixT2& M2)
+  {
+    using Scalar = typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT2>::value_type;
+    using Wrap1 = vtkMatrixUtilities::Wrapper<3, 3, MatrixT1, LayoutT>;
+    using Wrap2 = vtkMatrixUtilities::Wrapper<3, 3, MatrixT2>;
+
+    Scalar detInv = 1.0 /
+      (Wrap1::template Get<0, 0>(M1) *
+          (Wrap1::template Get<1, 1>(M1) * Wrap1::template Get<2, 2>(M1) -
+            Wrap1::template Get<2, 1>(M1) * Wrap1::template Get<1, 2>(M1)) -
+        Wrap1::template Get<0, 1>(M1) *
+          (Wrap1::template Get<1, 0>(M1) * Wrap1::template Get<2, 2>(M1) -
+            Wrap1::template Get<2, 0>(M1) * Wrap1::template Get<1, 2>(M1)) +
+        Wrap1::template Get<0, 2>(M1) *
+          (Wrap1::template Get<1, 0>(M1) * Wrap1::template Get<2, 1>(M1) -
+            Wrap1::template Get<2, 0>(M1) * Wrap1::template Get<1, 1>(M1)));
+
+    Wrap2::template Get<0, 0>(M2) = detInv *
+      (Wrap1::template Get<1, 1>(M1) * Wrap1::template Get<2, 2>(M1) -
+        Wrap1::template Get<2, 1>(M1) * Wrap1::template Get<1, 2>(M1));
+    Wrap2::template Get<1, 0>(M2) = -detInv *
+      (Wrap1::template Get<1, 0>(M1) * Wrap1::template Get<2, 2>(M1) -
+        Wrap1::template Get<2, 0>(M1) * Wrap1::template Get<1, 2>(M1));
+    Wrap2::template Get<2, 0>(M2) = detInv *
+      (Wrap1::template Get<1, 0>(M1) * Wrap1::template Get<2, 1>(M1) -
+        Wrap1::template Get<2, 0>(M1) * Wrap1::template Get<1, 1>(M1));
+    Wrap2::template Get<0, 1>(M2) = -detInv *
+      (Wrap1::template Get<0, 1>(M1) * Wrap1::template Get<2, 2>(M1) -
+        Wrap1::template Get<2, 1>(M1) * Wrap1::template Get<0, 2>(M1));
+    Wrap2::template Get<1, 1>(M2) = detInv *
+      (Wrap1::template Get<0, 0>(M1) * Wrap1::template Get<2, 2>(M1) -
+        Wrap1::template Get<2, 0>(M1) * Wrap1::template Get<0, 2>(M1));
+    Wrap2::template Get<2, 1>(M2) = -detInv *
+      (Wrap1::template Get<0, 0>(M1) * Wrap1::template Get<2, 1>(M1) -
+        Wrap1::template Get<2, 0>(M1) * Wrap1::template Get<0, 1>(M1));
+    Wrap2::template Get<0, 2>(M2) = detInv *
+      (Wrap1::template Get<0, 1>(M1) * Wrap1::template Get<1, 2>(M1) -
+        Wrap1::template Get<1, 1>(M1) * Wrap1::template Get<0, 2>(M1));
+    Wrap2::template Get<1, 2>(M2) = -detInv *
+      (Wrap1::template Get<0, 0>(M1) * Wrap1::template Get<1, 2>(M1) -
+        Wrap1::template Get<1, 0>(M1) * Wrap1::template Get<0, 2>(M1));
+    Wrap2::template Get<2, 2>(M2) = detInv *
+      (Wrap1::template Get<0, 0>(M1) * Wrap1::template Get<1, 1>(M1) -
+        Wrap1::template Get<1, 0>(M1) * Wrap1::template Get<0, 1>(M1));
+  }
+};
+
+//=============================================================================
+// Specialization for 1x1 matrices
+template <class LayoutT>
+class InvertMatrix<1, LayoutT>
+{
+public:
+  template <class MatrixT1, class MatrixT2>
+  static void Compute(const MatrixT1& M1, MatrixT2& M2)
+  {
+    M2[0] = 1.0 / M1[0];
+  }
+};
+
+//=============================================================================
+// Specialization for 2x2 diagonal matrices
+template <>
+class InvertMatrix<2, vtkMatrixUtilities::Layout::Diag>
+{
+public:
+  template <class MatrixT1, class MatrixT2>
+  static void Compute(const MatrixT1& M1, MatrixT2& M2)
+  {
+    M2[0] = 1.0 / M1[0];
+    M2[1] = 1.0 / M1[1];
+  }
+};
+
+//=============================================================================
+// Specialization for 3x3 diagonal matrices
+template <>
+class InvertMatrix<3, vtkMatrixUtilities::Layout::Diag>
+{
+public:
+  template <class MatrixT1, class MatrixT2>
+  static void Compute(const MatrixT1& M1, MatrixT2& M2)
+  {
+    M2[0] = 1.0 / M1[0];
+    M2[1] = 1.0 / M1[1];
+    M2[2] = 1.0 / M1[2];
+  }
+};
+
+//=============================================================================
+// Class solving systems M*y = x for square matrices RowsT x ColsT.
+// The template parameter LayoutT is a struct embedded in MatrixLayout
+// This class is currently specialized for 1x1, 2x2 and 3x3 matrices
+template <int RowsT, int ColsT, class LayoutT = vtkMatrixUtilities::Layout::Identity>
+class LinearSolve;
+
+//=============================================================================
+// Specialization for 1x1 matrices
+template <class LayoutT>
+class LinearSolve<1, 1, LayoutT>
+{
+public:
+  template <class MatrixT, class VectorT1, class VectorT2>
+  static void Compute(const MatrixT& M, const VectorT1& x, VectorT2& y)
+  {
+    y[0] = x[0] / M[0];
+  }
+};
+
+//=============================================================================
+// Specialization for 2x2 matrices
+template <class LayoutT>
+class LinearSolve<2, 2, LayoutT>
+{
+public:
+  template <class MatrixT, class VectorT1, class VectorT2>
+  static void Compute(const MatrixT& M, const VectorT1& x, VectorT2& y)
+  {
+    using Scalar = typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT>::value_type;
+    using Wrap = vtkMatrixUtilities::Wrapper<2, 2, MatrixT, LayoutT>;
+
+    Scalar detInv = 1.0 / Determinant<2, LayoutT>::Compute(M);
+    y[0] = (x[0] * Wrap::template Get<1, 1>(M) - x[1] * Wrap::template Get<0, 1>(M)) * detInv;
+    y[1] = (-x[0] * Wrap::template Get<1, 0>(M) + x[1] * Wrap::template Get<0, 0>(M)) * detInv;
+  }
+};
+
+//=============================================================================
+// Specialization for 3x3 matrices
+template <class LayoutT>
+class LinearSolve<3, 3, LayoutT>
+{
+public:
+  template <class MatrixT, class VectorT1, class VectorT2>
+  static void Compute(const MatrixT& M, const VectorT1& x, VectorT2& y)
+  {
+    using Scalar = typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT>::value_type;
+    using Wrap = vtkMatrixUtilities::Wrapper<3, 3, MatrixT, LayoutT>;
+
+    Scalar detInv = 1.0 /
+      (Wrap::template Get<0, 0>(M) *
+          (Wrap::template Get<1, 1>(M) * Wrap::template Get<2, 2>(M) -
+            Wrap::template Get<2, 1>(M) * Wrap::template Get<1, 2>(M)) -
+        Wrap::template Get<0, 1>(M) *
+          (Wrap::template Get<1, 0>(M) * Wrap::template Get<2, 2>(M) -
+            Wrap::template Get<2, 0>(M) * Wrap::template Get<1, 2>(M)) +
+        Wrap::template Get<0, 2>(M) *
+          (Wrap::template Get<1, 0>(M) * Wrap::template Get<2, 1>(M) -
+            Wrap::template Get<2, 0>(M) * Wrap::template Get<1, 1>(M)));
+
+    y[0] = detInv *
+      (x[0] *
+          (Wrap::template Get<1, 1>(M) * Wrap::template Get<2, 2>(M) -
+            Wrap::template Get<2, 1>(M) * Wrap::template Get<1, 2>(M)) -
+        x[1] *
+          (Wrap::template Get<0, 1>(M) * Wrap::template Get<2, 2>(M) -
+            Wrap::template Get<2, 1>(M) * Wrap::template Get<0, 2>(M)) +
+        x[2] *
+          (Wrap::template Get<0, 1>(M) * Wrap::template Get<1, 2>(M) -
+            Wrap::template Get<1, 1>(M) * Wrap::template Get<0, 2>(M)));
+    y[1] = detInv *
+      (-x[0] *
+          (Wrap::template Get<1, 0>(M) * Wrap::template Get<2, 2>(M) -
+            Wrap::template Get<2, 0>(M) * Wrap::template Get<1, 2>(M)) +
+        x[1] *
+          (Wrap::template Get<0, 0>(M) * Wrap::template Get<2, 2>(M) -
+            Wrap::template Get<2, 0>(M) * Wrap::template Get<0, 2>(M)) -
+        x[2] *
+          (Wrap::template Get<0, 0>(M) * Wrap::template Get<1, 2>(M) -
+            Wrap::template Get<1, 0>(M) * Wrap::template Get<0, 2>(M)));
+    y[2] = detInv *
+      (x[0] *
+          (Wrap::template Get<1, 0>(M) * Wrap::template Get<2, 1>(M) -
+            Wrap::template Get<2, 0>(M) * Wrap::template Get<1, 1>(M)) -
+        x[1] *
+          (Wrap::template Get<0, 0>(M) * Wrap::template Get<2, 1>(M) -
+            Wrap::template Get<2, 0>(M) * Wrap::template Get<0, 1>(M)) +
+        x[2] *
+          (Wrap::template Get<0, 0>(M) * Wrap::template Get<1, 1>(M) -
+            Wrap::template Get<1, 0>(M) * Wrap::template Get<0, 1>(M)));
+  }
+};
+
+//=============================================================================
+// Specialization for 2x2 diagonal matrices
+template <>
+class LinearSolve<2, 2, vtkMatrixUtilities::Layout::Diag>
+{
+public:
+  template <class MatrixT, class VectorT1, class VectorT2>
+  static void Compute(const MatrixT& M, const VectorT1& x, VectorT2& y)
+  {
+    y[0] = x[0] / M[0];
+    y[1] = x[1] / M[1];
+  }
+};
+
+//=============================================================================
+// Specialization for 3x3 diagonal matrices
+template <>
+class LinearSolve<3, 3, vtkMatrixUtilities::Layout::Diag>
+{
+public:
+  template <class MatrixT, class VectorT1, class VectorT2>
+  static void Compute(const MatrixT& M, const VectorT1& x, VectorT2& y)
+  {
+    y[0] = x[0] / M[0];
+    y[1] = x[1] / M[1];
+    y[2] = x[2] / M[2];
+  }
+};
 } // namespace vtkMathPrivate
 #endif

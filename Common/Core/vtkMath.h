@@ -41,6 +41,7 @@
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkMathPrivate.hxx"    // For Matrix meta-class helpers
+#include "vtkMatrixUtilities.h"  // For Matrix wrapping / mapping
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" // For vtkSmartPointer.
 #include "vtkTypeTraits.h"   // For type traits
@@ -709,24 +710,6 @@ public:
   //@}
 
   /**
-   * Matrix reindexing options for templated methods MultiplyMatrix and
-   * MultiplyMatrixWithVector
-   */
-  struct MatrixLayout
-  {
-    // Matrix is untouched.
-    using Identity = vtkMathPrivate::MatrixLayout::Identity;
-
-    // Matrix is transposed.
-    using Transpose = vtkMathPrivate::MatrixLayout::Transpose;
-
-    // Matrix is diagonal, i.e. value at index idx points to component of
-    // coordinates (idx, idx) in the diagonal matrix, and all other components
-    // are set to zero. The matrix does not need to be square.
-    using Diag = vtkMathPrivate::MatrixLayout::Diag;
-  };
-
-  /**
    * Multiply matrices such that M3 = M1 x M2.
    * M3 must already be allocated.
    *
@@ -736,9 +719,9 @@ public:
    * Matrices are assumed to be a 1D array implementing `operator[]`. The matrices
    * are indexed row by row. Let us develop the effect of LayoutT1 on M1 (the
    * same is true for LayoutT2 on M2).
-   * If LayoutT1 == MatrixLayout::Identity (default), then M1 indexing is untouched.
-   * If LayoutT1 == MatrixLayout::Transpose, then M1 is read column-wise.
-   * If LayoutT1 == MatrixLayout::Diag, then M1 is considered to be composed
+   * If LayoutT1 == vtkMatrixUtilities::Layout::Identity (default), then M1 indexing is untouched.
+   * If LayoutT1 == vtkMatrixUtilities::Layout::Transpose, then M1 is read column-wise.
+   * If LayoutT1 == vtkMatrixUtilities::Layout::Diag, then M1 is considered to be composed
    * of non zero elements of a diagonal matrix.
    *
    * @note M3 components indexing can be entirely controlled by swapping M1, M2,
@@ -749,8 +732,10 @@ public:
    * M3 will be diagonal as well (i.e. there won't be allocated memory for
    * elements outsize of the diagonal).
    */
-  template <int RowsT, int MidDimT, int ColsT, class LayoutT1 = MatrixLayout::Identity,
-    class LayoutT2 = MatrixLayout::Identity, class MatrixT1, class MatrixT2, class MatrixT3>
+  template <int RowsT, int MidDimT, int ColsT,
+    class LayoutT1 = vtkMatrixUtilities::Layout::Identity,
+    class LayoutT2 = vtkMatrixUtilities::Layout::Identity, class MatrixT1, class MatrixT2,
+    class MatrixT3>
   static void MultiplyMatrix(const MatrixT1& M1, const MatrixT2& M2, MatrixT3& M3)
   {
     vtkMathPrivate::MultiplyMatrix<RowsT, MidDimT, ColsT, LayoutT1, LayoutT2>::Compute(M1, M2, M3);
@@ -765,19 +750,19 @@ public:
    *
    * Matrix M is assumed to be a 1D array implementing `operator[]`. The matrix
    * is indexed row by row. If the input array is indexed columns by colums.
-   * If LayoutT == MatrixLayout::Identity (default), then M indexing is untouched.
-   * If LayoutT == MatrixLayout::Transpose, then M is read column-wise.
-   * If LayoutT == MatrixLayout::Diag, then M is considered to be composed
+   * If LayoutT == vtkMatrixUtilities::Layout::Identity (default), then M indexing is untouched.
+   * If LayoutT == vtkMatrixUtilities::Layout::Transpose, then M is read column-wise.
+   * If LayoutT == vtkMatrixUtilities::Layout::Diag, then M is considered to be composed
    * of non zero elements of a diagonal matrix.
    *
    * VectorT1 and VectorT2 are arrays of size RowsT, and must implement
    * `operator[]`.
    *
    * @warning In the particular case where M1 and M2 BOTH have layout
-   * MatrixLayout::Diag, RowsT, MidDimT and ColsT MUST match.
+   * vtkMatrixUtilities::Layout::Diag, RowsT, MidDimT and ColsT MUST match.
    */
-  template <int RowsT, int ColsT, class LayoutT = MatrixLayout::Identity, class MatrixT,
-    class VectorT1, class VectorT2>
+  template <int RowsT, int ColsT, class LayoutT = vtkMatrixUtilities::Layout::Identity,
+    class MatrixT, class VectorT1, class VectorT2>
   static void MultiplyMatrixWithVector(const MatrixT& M, const VectorT1& X, VectorT2& Y)
   {
     vtkMathPrivate::MultiplyMatrix<RowsT, ColsT, 1, LayoutT>::Compute(M, X, Y);
@@ -791,8 +776,73 @@ public:
   template <class ScalarT, int SizeT, class VectorT1, class VectorT2>
   static ScalarT Dot(const VectorT1& x, const VectorT2& y)
   {
-    return vtkMathPrivate::ContractRowWithCol<ScalarT, 1, SizeT, 1, 0, 0, MatrixLayout::Identity,
-      MatrixLayout::Transpose>::Compute(x, y);
+    return vtkMathPrivate::ContractRowWithCol<ScalarT, 1, SizeT, 1, 0, 0,
+      vtkMatrixUtilities::Layout::Identity, vtkMatrixUtilities::Layout::Transpose>::Compute(x, y);
+  }
+
+  /**
+   * Computes the determinant of input square SizeT x SizeT matrix M.
+   * The return type is the same as the underlying scalar type of MatrixT.
+   *
+   * LayoutT allow to perform basic matrix reindexing. It should be set to a component
+   * of MatrixLayout.
+   *
+   * Matrix M is assumed to be a 1D array implementing `operator[]`. The matrix
+   * is indexed row by row. If the input array is indexed columns by colums.
+   * If LayoutT == vtkMatrixUtilities::Layout::Identity (default), then M indexing is untouched.
+   * If LayoutT == vtkMatrixUtilities::Layout::Transpose, then M is read column-wise.
+   * If LayoutT == vtkMatrixUtilities::Layout::Diag, then M is considered to be composed
+   * of non zero elements of a diagonal matrix.
+   *
+   * This method is currently implemented for SizeT lower or equal to 3.
+   */
+  template <int SizeT, class LayoutT = vtkMatrixUtilities::Layout::Identity, class MatrixT>
+  static typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT>::value_type Determinant(
+    const MatrixT& M)
+  {
+    return vtkMathPrivate::Determinant<SizeT, LayoutT>::Compute(M);
+  }
+
+  /**
+   * Computes the inverse of input matrix M1 into M2.
+   *
+   * LayoutT allow to perform basic matrix reindexing of M1. It should be set to a component
+   * of MatrixLayout.
+   *
+   * Matrix M is assumed to be a 1D array implementing `operator[]`. The matrix
+   * is indexed row by row. If the input array is indexed columns by colums.
+   * If LayoutT == vtkMatrixUtilities::Layout::Identity (default), then M indexing is untouched.
+   * If LayoutT == vtkMatrixUtilities::Layout::Transpose, then M is read column-wise.
+   * If LayoutT == vtkMatrixUtilities::Layout::Diag, then M is considered to be composed
+   * of non zero elements of a diagonal matrix.
+   *
+   * This method is currently implemented for SizeT lower or equal to 3.
+   */
+  template <int SizeT, class LayoutT = vtkMatrixUtilities::Layout::Identity, class MatrixT1,
+    class MatrixT2>
+  static void InvertMatrix(const MatrixT1& M1, MatrixT2& M2)
+  {
+    vtkMathPrivate::InvertMatrix<SizeT, LayoutT>::Compute(M1, M2);
+  }
+
+  /**
+   * This method solves linear systems M * x = y.
+   *
+   * LayoutT allow to perform basic matrix reindexing of M1. It should be set to a component
+   * of MatrixLayout.
+   *
+   * Matrix M is assumed to be a 1D array implementing `operator[]`. The matrix
+   * is indexed row by row. If the input array is indexed columns by colums.
+   * If LayoutT == vtkMatrixUtilities::Layout::Identity (default), then M indexing is untouched.
+   * If LayoutT == vtkMatrixUtilities::Layout::Transpose, then M is read column-wise.
+   * If LayoutT == vtkMatrixUtilities::Layout::Diag, then M is considered to be composed
+   * of non zero elements of a diagonal matrix.
+   */
+  template <int RowsT, int ColsT, class LayoutT = vtkMatrixUtilities::Layout::Identity,
+    class MatrixT, class VectorT1, class VectorT2>
+  static void LinearSolve(const MatrixT& M, const VectorT1& x, VectorT2& y)
+  {
+    vtkMathPrivate::LinearSolve<RowsT, ColsT, LayoutT>::Compute(M, x, y);
   }
 
   /**
@@ -804,18 +854,19 @@ public:
    *
    * Matrix M is assumed to be a 1D array implementing `operator[]`. The matrix
    * is indexed row by row. If the input array is indexed columns by colums.
-   * If LayoutT == MatrixLayout::Identity (default), then M indexing is untouched.
-   * If LayoutT == MatrixLayout::Transpose, then M is read column-wise.
-   * If LayoutT == MatrixLayout::Diag, then M is considered to be composed
+   * If LayoutT == vtkMatrixUtilities::Layout::Identity (default), then M indexing is untouched.
+   * If LayoutT == vtkMatrixUtilities::Layout::Transpose, then M is read column-wise.
+   * If LayoutT == vtkMatrixUtilities::Layout::Diag, then M is considered to be composed
    * of non zero elements of a diagonal matrix.
    */
-  template <class ScalarT, int SizeT, class LayoutT, class VectorT1, class MatrixT, class VectorT2>
+  template <class ScalarT, int SizeT, class LayoutT = vtkMatrixUtilities::Layout::Identity,
+    class VectorT1, class MatrixT, class VectorT2>
   static ScalarT Dot(const VectorT1& x, const MatrixT& M, const VectorT2& y)
   {
     std::array<ScalarT, SizeT> tmp;
     vtkMathPrivate::MultiplyMatrix<SizeT, SizeT, 1, LayoutT>::Compute(M, y, tmp);
-    return vtkMathPrivate::ContractRowWithCol<ScalarT, 1, SizeT, 1, 0, 0, MatrixLayout::Identity,
-      MatrixLayout::Transpose>::Compute(x, tmp);
+    return vtkMathPrivate::ContractRowWithCol<ScalarT, 1, SizeT, 1, 0, 0,
+      vtkMatrixUtilities::Layout::Identity, vtkMatrixUtilities::Layout::Transpose>::Compute(x, tmp);
   }
 
   /**
