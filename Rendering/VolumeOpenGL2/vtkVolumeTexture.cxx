@@ -1189,9 +1189,9 @@ void vtkVolumeTexture::ComputeCellToPointMatrix(int extents[6])
     delta[2] = extents[5] - extents[4] + 1;
 
     float min[3];
-    min[0] = 0.5f / delta[0];
-    min[1] = 0.5f / delta[1];
-    min[2] = 0.5f / delta[2];
+    min[0] = delta[0] > 0.0 ? 0.5f / delta[0] : 0.5f;
+    min[1] = delta[1] > 0.0 ? 0.5f / delta[1] : 0.5f;
+    min[2] = delta[2] > 0.0 ? 0.5f / delta[2] : 0.5f;
 
     float range[3]; // max - min
     range[0] = (delta[0] - 0.5f) / delta[0] - min[0];
