@@ -666,8 +666,6 @@ void vtkEDLShading::Render(const vtkRenderState* s)
       this->ProjectionColorTexture, this->ProjectionDepthTexture);
     annotate("End vtkEDLShading::RenderDelegate");
 
-    this->ProjectionFBO->UnBind();
-
     // system("PAUSE");
 
     //////////////////////////////////////////////////////
