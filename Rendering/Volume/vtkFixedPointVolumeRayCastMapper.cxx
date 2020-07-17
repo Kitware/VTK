@@ -1614,15 +1614,15 @@ void vtkFixedPointVolumeRayCastMapper::ComputeRayInfo(
 {
   float viewRay[3];
   float rayDirection[3];
-  float rayStart[4], rayEnd[4];
+  double rayStart[4], rayEnd[4];
 
   int imageViewportSize[2];
   int imageOrigin[2];
   this->RayCastImage->GetImageViewportSize(imageViewportSize);
   this->RayCastImage->GetImageOrigin(imageOrigin);
 
-  float offsetX = 1.0 / static_cast<float>(imageViewportSize[0]);
-  float offsetY = 1.0 / static_cast<float>(imageViewportSize[1]);
+  double offsetX = 1.0 / static_cast<double>(imageViewportSize[0]);
+  double offsetY = 1.0 / static_cast<double>(imageViewportSize[1]);
 
   // compute the view point y value for this row. Do this by
   // taking our pixel position, adding the image origin then dividing
@@ -1899,7 +1899,7 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(
   vtkRenderer* ren, int imageFlag, int rowBoundsFlag, int inputExtent[6])
 {
   float voxelPoint[3];
-  float viewPoint[8][4];
+  double viewPoint[8][4];
   int i, j, k;
   unsigned short* ucptr;
   float minX, minY, maxX, maxY, minZ, maxZ;
@@ -2347,7 +2347,7 @@ void vtkFixedPointVolumeRayCastMapper::ComputeMatrices(double inputOrigin[3],
 }
 
 int vtkFixedPointVolumeRayCastMapper::ClipRayAgainstClippingPlanes(
-  float rayStart[3], float rayEnd[3], int numClippingPlanes, float* clippingPlanes)
+  double rayStart[3], double rayEnd[3], int numClippingPlanes, float* clippingPlanes)
 {
 
   float* planePtr;
@@ -2429,7 +2429,7 @@ int vtkFixedPointVolumeRayCastMapper::ClipRayAgainstClippingPlanes(
 }
 
 int vtkFixedPointVolumeRayCastMapper::ClipRayAgainstVolume(
-  float rayStart[3], float rayEnd[3], float rayDirection[3], double bounds[6])
+  double rayStart[3], double rayEnd[3], float rayDirection[3], double bounds[6])
 {
   int loop;
   float diff;
