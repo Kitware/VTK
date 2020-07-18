@@ -454,7 +454,7 @@ protected:
   vtkVolume* Volume;
 
   int ClipRayAgainstVolume(
-    float rayStart[3], float rayEnd[3], float rayDirection[3], double bounds[6]);
+    double rayStart[3], double rayEnd[3], float rayDirection[3], double bounds[6]);
 
   int UpdateColorTable(vtkVolume* vol);
   int UpdateGradients(vtkVolume* vol);
@@ -464,7 +464,7 @@ protected:
   void ComputeGradients(vtkVolume* vol);
 
   int ClipRayAgainstClippingPlanes(
-    float rayStart[3], float rayEnd[3], int numClippingPlanes, float* clippingPlanes);
+    double rayStart[3], double rayEnd[3], int numClippingPlanes, float* clippingPlanes);
 
   unsigned int FixedPointCroppingRegionPlanes[6];
   unsigned int CroppingRegionMask[27];
