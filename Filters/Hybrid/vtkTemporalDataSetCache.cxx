@@ -257,7 +257,6 @@ int vtkTemporalDataSetCache::RequestInformation(
     }
   }
 
-  info->Set(CAN_PRODUCE_SUB_EXTENT(), 0);
   return 1;
 }
 
