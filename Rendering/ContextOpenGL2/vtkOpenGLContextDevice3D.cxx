@@ -431,7 +431,7 @@ void vtkOpenGLContextDevice3D::DrawLines(
   this->BuildVBO(cbo, verts, n, colors, nc, nullptr);
   this->SetMatrices(cbo->Program);
 
-  glDrawArrays(GL_LINE, 0, n);
+  glDrawArrays(GL_LINES, 0, n);
 
   // free everything
   cbo->ReleaseGraphicsResources(this->RenderWindow);
